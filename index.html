@@ -1,0 +1,828 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>KOACH — Sistema</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;700;900&family=Share+Tech+Mono&display=swap');
+
+  :root {
+    --negro: #0A0A0A;
+    --offwhite: #F2F1EF;
+    --gris: #888;
+    --gris-claro: #C8C7C5;
+    --borde: rgba(10,10,10,0.1);
+    --purple: #9B5FF5;
+    --error: #C0392B;
+  }
+
+  * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+  html,body { height:100%; background:var(--negro); font-family:'Barlow Condensed',sans-serif; }
+
+  /* ── SCREENS ── */
+  .screen { display:none; width:100%; min-height:100vh; }
+  .screen.active { display:flex; flex-direction:column; }
+
+  /* ── LOGIN ── */
+  #loginScreen {
+    background:var(--negro);
+    align-items:center;
+    justify-content:center;
+    padding:0 24px;
+    position:relative;
+  }
+
+  #loginScreen::after {
+    content:'';position:absolute;inset:0;
+    background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.06'/%3E%3C/svg%3E");
+    pointer-events:none;z-index:0;
+  }
+
+  .login-inner { width:100%;max-width:360px;position:relative;z-index:1; }
+
+  .login-marca { margin-bottom:40px; }
+  .login-logo { font-weight:900;font-size:42px;letter-spacing:0.08em;color:var(--offwhite);line-height:1; }
+  .login-sub { font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:0.18em;color:var(--gris);margin-top:4px; }
+
+  .login-form { display:flex;flex-direction:column;gap:12px; }
+
+  .input-group { display:flex;flex-direction:column;gap:5px; }
+  .input-label { font-family:'Share Tech Mono',monospace;font-size:8px;letter-spacing:0.18em;color:var(--gris);text-transform:uppercase; }
+
+  .input-field {
+    background:rgba(242,241,239,0.06);border:1px solid rgba(242,241,239,0.12);
+    color:var(--offwhite);font-family:'Barlow Condensed',sans-serif;font-size:16px;
+    padding:14px 16px;width:100%;outline:none;transition:border-color 0.15s;
+    -webkit-appearance:none;border-radius:0;
+  }
+  .input-field::placeholder { color:rgba(242,241,239,0.2); }
+  .input-field:focus { border-color:rgba(242,241,239,0.4);background:rgba(242,241,239,0.08); }
+  .input-field.err { border-color:var(--error); }
+
+  .error-msg { font-family:'Share Tech Mono',monospace;font-size:9px;color:var(--error);display:none;margin-top:2px;letter-spacing:0.1em; }
+  .error-msg.vis { display:block; }
+
+  .btn-login {
+    width:100%;background:var(--offwhite);color:var(--negro);
+    font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:13px;
+    letter-spacing:0.22em;text-transform:uppercase;border:none;padding:16px;
+    cursor:pointer;margin-top:8px;-webkit-appearance:none;border-radius:0;
+    transition:opacity 0.15s;
+  }
+  .btn-login.loading { opacity:0.5;pointer-events:none; }
+  .btn-login:active { opacity:0.85; }
+
+  .login-footer { margin-top:32px;display:flex;justify-content:space-between; }
+  .login-footer span { font-family:'Share Tech Mono',monospace;font-size:8px;letter-spacing:0.1em;color:rgba(242,241,239,0.2); }
+
+  /* spinner */
+  .spinner { display:inline-block;width:12px;height:12px;border:2px solid rgba(10,10,10,0.2);border-top-color:var(--negro);border-radius:50%;animation:spin 0.7s linear infinite;vertical-align:middle;margin-right:6px; }
+  @keyframes spin { to{transform:rotate(360deg)} }
+
+  /* ── APP LAYOUT ── */
+  .app-wrap { background:var(--offwhite);max-width:420px;margin:0 auto;min-height:100vh;display:flex;flex-direction:column; }
+
+  .topbar { padding:18px 22px 14px;border-bottom:1px solid var(--borde);background:var(--offwhite);position:sticky;top:0;z-index:10;display:flex;justify-content:space-between;align-items:center; }
+  .topbar-marca { font-weight:900;font-size:16px;letter-spacing:0.1em;color:var(--negro); }
+  .topbar-right { display:flex;align-items:center;gap:10px; }
+  .rol-badge { font-family:'Share Tech Mono',monospace;font-size:8px;letter-spacing:0.14em;color:var(--offwhite);background:var(--negro);padding:4px 10px;text-transform:uppercase; }
+  .btn-out { font-family:'Share Tech Mono',monospace;font-size:8px;letter-spacing:0.12em;color:var(--gris);background:none;border:none;cursor:pointer;text-transform:uppercase; }
+
+  .welcome { padding:20px 22px 16px;border-bottom:2px solid var(--negro); }
+  .welcome-label { font-family:'Share Tech Mono',monospace;font-size:8px;letter-spacing:0.16em;color:var(--gris);margin-bottom:3px;text-transform:uppercase; }
+  .welcome-nombre { font-weight:900;font-size:30px;letter-spacing:0.02em;color:var(--negro);line-height:1;text-transform:uppercase; }
+  .welcome-meta { font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:0.1em;color:var(--gris);margin-top:5px; }
+
+  .nav-list { padding:18px 22px;display:flex;flex-direction:column;gap:10px;flex:1; }
+
+  .nav-card { border:1px solid var(--borde);padding:16px 18px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;background:white;transition:background 0.1s; }
+  .nav-card:active { background:var(--offwhite); }
+  .nav-card.hero { background:var(--negro);border-color:var(--negro); }
+  .nav-card.ia { background:rgba(155,95,245,0.06);border-color:rgba(155,95,245,0.25); }
+
+  .nc-left { display:flex;flex-direction:column;gap:3px; }
+  .nc-label { font-family:'Share Tech Mono',monospace;font-size:8px;letter-spacing:0.14em;color:var(--gris);text-transform:uppercase; }
+  .nc-titulo { font-weight:900;font-size:17px;letter-spacing:0.02em;color:var(--negro);line-height:1;text-transform:uppercase; }
+  .nc-desc { font-family:'Share Tech Mono',monospace;font-size:8px;letter-spacing:0.08em;color:var(--gris-claro);margin-top:2px; }
+  .nav-card.hero .nc-label { color:rgba(242,241,239,0.4); }
+  .nav-card.hero .nc-titulo { color:var(--offwhite); }
+  .nav-card.hero .nc-desc { color:rgba(242,241,239,0.3); }
+  .nav-card.ia .nc-label { color:var(--purple); }
+  .nc-arrow { font-size:16px;color:var(--gris-claro); }
+  .nav-card.hero .nc-arrow { color:rgba(242,241,239,0.3); }
+
+  /* socios list */
+  .section-label { font-family:'Share Tech Mono',monospace;font-size:8px;letter-spacing:0.16em;color:var(--gris);text-transform:uppercase;padding:14px 22px 8px;border-bottom:1px solid var(--borde); }
+
+  .socio-list { padding:12px 22px;display:flex;flex-direction:column;gap:8px; }
+  .socio-row { display:flex;justify-content:space-between;align-items:center;padding:13px 15px;border:1px solid var(--borde);background:white;cursor:pointer; }
+  .socio-info { display:flex;flex-direction:column;gap:2px; }
+  .socio-nombre { font-weight:700;font-size:15px;color:var(--negro);letter-spacing:0.02em; }
+  .socio-meta { font-family:'Share Tech Mono',monospace;font-size:8px;color:var(--gris);letter-spacing:0.08em; }
+  .estado { font-family:'Share Tech Mono',monospace;font-size:8px;letter-spacing:0.1em;padding:4px 10px;text-transform:uppercase; }
+  .estado.ok { background:var(--negro);color:var(--offwhite); }
+  .estado.go { background:rgba(155,95,245,0.12);color:var(--purple);border:1px solid rgba(155,95,245,0.3); }
+  .estado.wait { border:1px solid var(--borde);color:var(--gris); }
+
+  /* ── PIZARRA ── */
+  #pizarraScreen { background:var(--offwhite); }
+  .pizarra-wrap { max-width:420px;margin:0 auto;height:100vh;display:flex;flex-direction:column;background:var(--offwhite);position:relative; }
+
+  .piz-top { padding:22px 22px 14px;border-bottom:1px solid var(--borde);display:flex;justify-content:space-between;align-items:flex-start; }
+  .piz-marca-logo { font-weight:900;font-size:20px;letter-spacing:0.1em;color:var(--negro); }
+  .piz-marca-sub { font-family:'Share Tech Mono',monospace;font-size:8px;letter-spacing:0.14em;color:var(--gris);margin-top:3px; }
+  .piz-fecha { font-family:'Share Tech Mono',monospace;font-size:8px;letter-spacing:0.1em;color:var(--gris);text-align:right;line-height:1.7; }
+
+  .piz-usuario { padding:12px 22px;border-bottom:1px solid var(--borde); }
+  .piz-u-label { font-family:'Share Tech Mono',monospace;font-size:8px;letter-spacing:0.16em;color:var(--gris);text-transform:uppercase;margin-bottom:2px; }
+  .piz-u-nombre { font-weight:900;font-size:26px;letter-spacing:0.02em;color:var(--negro);line-height:1;text-transform:uppercase; }
+
+  .piz-sesion { padding:10px 22px;border-bottom:2px solid var(--negro);display:flex;justify-content:space-between;align-items:baseline; }
+  .piz-ses-id { font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:0.15em;color:var(--negro);text-transform:uppercase; }
+  .piz-ses-obj { font-family:'Share Tech Mono',monospace;font-size:8px;letter-spacing:0.1em;color:var(--gris);text-align:right;line-height:1.6; }
+
+  .piz-frase { padding:12px 22px 8px;border-bottom:1px solid var(--borde); }
+  .piz-frase-txt { font-weight:700;font-size:12px;letter-spacing:0.04em;color:var(--negro);line-height:1.25;text-transform:uppercase; }
+
+  .piz-lista { flex:1;padding:10px 22px 6px;overflow:hidden;display:flex;flex-direction:column; }
+  .piz-lista-label { font-family:'Share Tech Mono',monospace;font-size:8px;letter-spacing:0.16em;color:var(--gris);text-transform:uppercase;margin-bottom:6px; }
+
+  .piz-ej { display:flex;align-items:center;gap:10px;padding:5px 0;border-bottom:1px solid var(--borde); }
+  .piz-ej:last-child { border-bottom:none; }
+  .piz-ej-num { font-family:'Share Tech Mono',monospace;font-size:8px;color:var(--gris-claro);min-width:16px;flex-shrink:0; }
+  .piz-ej-nombre { font-weight:700;font-size:13px;letter-spacing:0.02em;color:var(--negro);flex:1;line-height:1; }
+  .piz-ej-bloque { font-family:'Share Tech Mono',monospace;font-size:8px;color:var(--gris-claro);flex-shrink:0; }
+
+  .piz-footer { padding:10px 22px 20px;border-top:1px solid var(--borde);display:flex;flex-direction:column;gap:8px; }
+  .piz-footer-meta { display:flex;justify-content:space-between; }
+  .piz-footer-meta span { font-family:'Share Tech Mono',monospace;font-size:8px;letter-spacing:0.1em;color:var(--gris-claro); }
+  .btn-activar { width:100%;background:var(--negro);color:var(--offwhite);font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:13px;letter-spacing:0.22em;text-transform:uppercase;border:none;padding:14px;cursor:pointer;border-radius:0; }
+
+  /* ── SESIÓN ACTIVA ── */
+  #sesionScreen { background:var(--offwhite); }
+  .ses-wrap { max-width:420px;margin:0 auto;min-height:100vh;display:flex;flex-direction:column;background:var(--offwhite); }
+
+  .ses-topbar { padding:16px 22px 12px;border-bottom:1px solid var(--borde);background:var(--offwhite);position:sticky;top:0;z-index:10; }
+  .ses-toprow { display:flex;justify-content:space-between;align-items:center;margin-bottom:5px; }
+  .btn-back { font-family:'Share Tech Mono',monospace;font-size:8px;letter-spacing:0.12em;color:var(--gris);background:none;border:none;cursor:pointer;text-transform:uppercase; }
+  .ses-marca { font-weight:900;font-size:13px;letter-spacing:0.1em;color:var(--negro); }
+  .ses-titulo { font-weight:900;font-size:19px;color:var(--negro);text-transform:uppercase;letter-spacing:0.02em;line-height:1;margin-bottom:8px; }
+  .prog-bar { height:2px;background:var(--gris-claro); }
+  .prog-fill { height:100%;background:var(--negro);transition:width 0.35s ease;width:0%; }
+
+  .bloque-sec { padding:16px 22px;border-bottom:1px solid var(--borde); }
+  .bloque-head { display:flex;justify-content:space-between;align-items:center;margin-bottom:3px; }
+  .bloque-badge { font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:0.18em;background:var(--negro);color:var(--offwhite);padding:3px 9px; }
+  .bloque-specs { font-family:'Share Tech Mono',monospace;font-size:8px;letter-spacing:0.1em;color:var(--gris); }
+  .bloque-rol { font-family:'Share Tech Mono',monospace;font-size:8px;letter-spacing:0.14em;color:var(--gris);text-transform:uppercase;margin-bottom:10px; }
+
+  .ej-card { margin-bottom:8px;border:1px solid var(--borde);background:white; }
+  .ej-card-top { padding:10px 13px 7px; }
+  .ej-card-num { font-family:'Share Tech Mono',monospace;font-size:8px;color:var(--gris-claro);margin-bottom:1px; }
+  .ej-card-nombre { font-weight:900;font-size:16px;color:var(--negro);letter-spacing:0.01em;line-height:1; }
+  .ej-card-reps { font-family:'Share Tech Mono',monospace;font-size:8px;color:var(--gris);margin-top:2px; }
+
+  .carga-row { display:grid;grid-template-columns:1fr 1fr;border-top:1px solid var(--borde); }
+  .carga-cell { padding:8px 13px;display:flex;flex-direction:column;gap:2px; }
+  .carga-cell:first-child { border-right:1px solid var(--borde); }
+  .carga-lbl { font-family:'Share Tech Mono',monospace;font-size:8px;letter-spacing:0.12em;color:var(--gris);text-transform:uppercase; }
+  .carga-inp-wrap { display:flex;align-items:baseline;gap:3px; }
+  .carga-inp { font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:22px;color:var(--negro);border:none;background:transparent;width:60px;outline:none; }
+  .carga-inp::placeholder { color:var(--gris-claro); }
+  .carga-kg { font-family:'Share Tech Mono',monospace;font-size:8px;color:var(--gris); }
+  .carga-sug { font-family:'Share Tech Mono',monospace;font-size:9px;color:var(--gris); }
+  .carga-sug-prev { font-family:'Share Tech Mono',monospace;font-size:8px;color:var(--gris-claro); }
+
+  .sin-carga-row { padding:8px 13px;border-top:1px solid var(--borde);display:flex;justify-content:space-between;align-items:center; }
+  .sin-carga-lbl { font-family:'Share Tech Mono',monospace;font-size:8px;color:var(--gris-claro);letter-spacing:0.1em;text-transform:uppercase; }
+  .btn-marcar { font-family:'Share Tech Mono',monospace;font-size:8px;letter-spacing:0.1em;text-transform:uppercase;background:none;border:1px solid var(--borde);color:var(--negro);padding:5px 11px;cursor:pointer;border-radius:0; }
+  .btn-marcar.ok { background:var(--negro);color:var(--offwhite);border-color:var(--negro); }
+
+  .btn-sets { width:100%;margin-top:10px;background:var(--negro);color:var(--offwhite);font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:12px;letter-spacing:0.2em;text-transform:uppercase;border:none;padding:12px;cursor:pointer;border-radius:0; }
+  .sets-sub { font-family:'Share Tech Mono',monospace;font-size:8px;letter-spacing:0.1em;color:var(--gris);text-align:center;margin-top:4px; }
+
+  .ses-nav { padding:12px 22px 24px;display:grid;grid-template-columns:1fr 1fr;gap:8px;position:sticky;bottom:0;background:var(--offwhite);border-top:1px solid var(--borde); }
+  .btn-nav { font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:11px;letter-spacing:0.14em;text-transform:uppercase;padding:12px;border:1px solid var(--borde);background:transparent;color:var(--negro);cursor:pointer;border-radius:0; }
+  .btn-nav.prim { background:var(--negro);color:var(--offwhite);border-color:var(--negro); }
+
+  /* loading state */
+  .loading-screen { display:flex;align-items:center;justify-content:center;height:100vh;background:var(--negro); }
+  .loading-txt { font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:0.2em;color:var(--gris);text-transform:uppercase; }
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div class="screen active" id="loginScreen">
+  <div class="login-inner">
+    <div class="login-marca">
+      <div class="login-logo">KOACH</div>
+      <div class="login-sub">Método KOACH · Sistema de entrenamiento</div>
+    </div>
+    <div class="login-form">
+      <div class="input-group">
+        <div class="input-label">Email</div>
+        <input class="input-field" type="email" id="emailInput" placeholder="tu@email.com" autocomplete="email" inputmode="email">
+      </div>
+      <div class="input-group">
+        <div class="input-label">Contraseña</div>
+        <input class="input-field" type="password" id="passInput" placeholder="••••••••" autocomplete="current-password">
+        <div class="error-msg" id="errorMsg">Email o contraseña incorrectos</div>
+      </div>
+      <button class="btn-login" id="btnLogin" onclick="handleLogin()">INGRESAR AL SISTEMA</button>
+    </div>
+    <div class="login-footer">
+      <span>KOACH Club · Concepción</span>
+      <span>koachclub.cl</span>
+    </div>
+  </div>
+</div>
+
+<!-- DASHBOARD SOCIO -->
+<div class="screen" id="dashSocioScreen">
+  <div class="app-wrap">
+    <div class="topbar">
+      <div class="topbar-marca">KOACH</div>
+      <div class="topbar-right">
+        <button class="btn-out" onclick="logout()">Salir</button>
+      </div>
+    </div>
+    <div class="welcome">
+      <div class="welcome-label">Bienvenido</div>
+      <div class="welcome-nombre" id="socioNombre">—</div>
+      <div class="welcome-meta" id="socioMeta">—</div>
+    </div>
+    <div class="nav-list">
+      <div class="nav-card hero" onclick="showScreen('pizarraScreen')">
+        <div class="nc-left">
+          <div class="nc-label">Sesión de hoy</div>
+          <div class="nc-titulo" id="sesionHoyTitulo">SESIÓN 02 · PUSH</div>
+          <div class="nc-desc" id="sesionHoyObj">Pectoral · Cuádriceps · Hombros</div>
+        </div>
+        <div class="nc-arrow">→</div>
+      </div>
+      <div class="nav-card">
+        <div class="nc-left">
+          <div class="nc-label">Evolución</div>
+          <div class="nc-titulo">PROGRESO</div>
+          <div class="nc-desc">Historial de cargas y progresión</div>
+        </div>
+        <div class="nc-arrow">→</div>
+      </div>
+      <div class="nav-card">
+        <div class="nc-left">
+          <div class="nc-label">Plan alimentario</div>
+          <div class="nc-titulo">NUTRICIÓN</div>
+          <div class="nc-desc">Evaluación y pauta nutricional</div>
+        </div>
+        <div class="nc-arrow">→</div>
+      </div>
+      <div class="nav-card">
+        <div class="nc-left">
+          <div class="nc-label">Tu protocolo</div>
+          <div class="nc-titulo">PERFIL</div>
+          <div class="nc-desc" id="perfilMeta">STRONG · Intermedio · Ciclo 1</div>
+        </div>
+        <div class="nc-arrow">→</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- DASHBOARD COACH -->
+<div class="screen" id="dashCoachScreen">
+  <div class="app-wrap">
+    <div class="topbar">
+      <div class="topbar-marca">KOACH</div>
+      <div class="topbar-right">
+        <div class="rol-badge">Coach</div>
+        <button class="btn-out" onclick="logout()">Salir</button>
+      </div>
+    </div>
+    <div class="welcome">
+      <div class="welcome-label">Panel</div>
+      <div class="welcome-nombre" id="coachNombre">—</div>
+      <div class="welcome-meta" id="coachMeta">—</div>
+    </div>
+    <div class="section-label" id="coachFechaLabel">Socios activos hoy</div>
+    <div class="socio-list" id="sociosList">
+      <div class="loading-txt" style="color:var(--gris);padding:20px 0;font-size:8px;letter-spacing:0.15em;">CARGANDO SOCIOS...</div>
+    </div>
+    <div class="nav-list" style="padding-top:0;">
+      <div class="nav-card ia">
+        <div class="nc-left">
+          <div class="nc-label" style="color:var(--purple);">Inteligencia artificial</div>
+          <div class="nc-titulo">CONSULTOR IA</div>
+          <div class="nc-desc">Modifica protocolos · Consulta técnica</div>
+        </div>
+        <div class="nc-arrow">→</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- DASHBOARD ADMIN -->
+<div class="screen" id="dashAdminScreen">
+  <div class="app-wrap">
+    <div class="topbar">
+      <div class="topbar-marca">KOACH</div>
+      <div class="topbar-right">
+        <div class="rol-badge">Admin</div>
+        <button class="btn-out" onclick="logout()">Salir</button>
+      </div>
+    </div>
+    <div class="welcome">
+      <div class="welcome-label">Panel administrador</div>
+      <div class="welcome-nombre" id="adminNombre">MATÍAS</div>
+      <div class="welcome-meta">KOACH Club · Vista completa</div>
+    </div>
+    <div class="nav-list">
+      <div class="nav-card hero">
+        <div class="nc-left">
+          <div class="nc-label">Operación del día</div>
+          <div class="nc-titulo">HOY</div>
+          <div class="nc-desc" id="adminResumen">Cargando...</div>
+        </div>
+        <div class="nc-arrow">→</div>
+      </div>
+      <div class="nav-card">
+        <div class="nc-left">
+          <div class="nc-label">Base de socios</div>
+          <div class="nc-titulo">SOCIOS</div>
+          <div class="nc-desc">Asignación de protocolos</div>
+        </div>
+        <div class="nc-arrow">→</div>
+      </div>
+      <div class="nav-card">
+        <div class="nc-left">
+          <div class="nc-label">Sistema de entrenamiento</div>
+          <div class="nc-titulo">PROTOCOLOS</div>
+          <div class="nc-desc">18 protocolos · 151 ejercicios</div>
+        </div>
+        <div class="nc-arrow">→</div>
+      </div>
+      <div class="nav-card ia">
+        <div class="nc-left">
+          <div class="nc-label" style="color:var(--purple);">Inteligencia artificial</div>
+          <div class="nc-titulo">CONSULTOR IA</div>
+          <div class="nc-desc">Log de consultas · Modificaciones aplicadas</div>
+        </div>
+        <div class="nc-arrow">→</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- PIZARRA -->
+<div class="screen" id="pizarraScreen">
+  <div class="pizarra-wrap">
+    <div class="piz-top">
+      <div>
+        <div class="piz-marca-logo">KOACH</div>
+        <div class="piz-marca-sub">MÉTODO KOACH · SISTEMA STRONG</div>
+      </div>
+      <div class="piz-fecha" id="pizFecha">—</div>
+    </div>
+    <div class="piz-usuario">
+      <div class="piz-u-label">Atleta</div>
+      <div class="piz-u-nombre" id="pizNombre">—</div>
+    </div>
+    <div class="piz-sesion">
+      <div class="piz-ses-id" id="pizSesId">SESIÓN 02 / 03 · PUSH</div>
+      <div class="piz-ses-obj" id="pizSesObj">Pectoral<br>Cuádriceps · Hombros</div>
+    </div>
+    <div class="piz-frase">
+      <div class="piz-frase-txt" id="pizFrase">—</div>
+    </div>
+    <div class="piz-lista">
+      <div class="piz-lista-label">Lo que se viene hoy</div>
+      <div id="pizEjercicios">
+        <!-- ejercicios cargados dinámicamente -->
+      </div>
+    </div>
+    <div class="piz-footer">
+      <div class="piz-footer-meta">
+        <span>KOACH Club · Concepción</span>
+        <span>koachclub.cl</span>
+      </div>
+      <button class="btn-activar" onclick="showScreen('sesionScreen')">ACTIVAR SISTEMA →</button>
+    </div>
+  </div>
+</div>
+
+<!-- SESIÓN ACTIVA -->
+<div class="screen" id="sesionScreen">
+  <div class="ses-wrap">
+    <div class="ses-topbar">
+      <div class="ses-toprow">
+        <button class="btn-back" onclick="showScreen('pizarraScreen')">← Pizarra</button>
+        <div class="ses-marca">KOACH · STRONG</div>
+      </div>
+      <div class="ses-titulo" id="sesTitulo">Pecho · Cuádriceps · Hombros</div>
+      <div class="prog-bar"><div class="prog-fill" id="progFill"></div></div>
+    </div>
+
+    <!-- B1 -->
+    <div class="bloque-sec">
+      <div class="bloque-head">
+        <div class="bloque-badge">BLOQUE 01</div>
+        <div class="bloque-specs">3 SETS · 60" DESC</div>
+      </div>
+      <div class="bloque-rol">Activación</div>
+      <div class="ej-card">
+        <div class="ej-card-top">
+          <div class="ej-card-num">01</div>
+          <div class="ej-card-nombre">DB Shoulder press seated</div>
+          <div class="ej-card-reps">12 REP</div>
+        </div>
+        <div class="carga-row">
+          <div class="carga-cell">
+            <div class="carga-lbl">Peso del día</div>
+            <div class="carga-inp-wrap">
+              <input class="carga-inp" type="number" placeholder="—" oninput="updateProg()">
+              <span class="carga-kg">KG</span>
+            </div>
+          </div>
+          <div class="carga-cell">
+            <div class="carga-lbl">Sugerido</div>
+            <div class="carga-sug">20 KG</div>
+            <div class="carga-sug-prev">Desde S2: 18 KG</div>
+          </div>
+        </div>
+      </div>
+      <div class="ej-card">
+        <div class="ej-card-top">
+          <div class="ej-card-num">02</div>
+          <div class="ej-card-nombre">T-bar row machine</div>
+          <div class="ej-card-reps">12 REP</div>
+        </div>
+        <div class="carga-row">
+          <div class="carga-cell">
+            <div class="carga-lbl">Peso del día</div>
+            <div class="carga-inp-wrap">
+              <input class="carga-inp" type="number" placeholder="—" oninput="updateProg()">
+              <span class="carga-kg">KG</span>
+            </div>
+          </div>
+          <div class="carga-cell">
+            <div class="carga-lbl">Sugerido</div>
+            <div class="carga-sug">50 KG</div>
+            <div class="carga-sug-prev">Desde S2: 48 KG</div>
+          </div>
+        </div>
+      </div>
+      <div class="ej-card">
+        <div class="ej-card-top"><div class="ej-card-num">03</div><div class="ej-card-nombre">V plank rotation</div><div class="ej-card-reps">30 SEG</div></div>
+        <div class="sin-carga-row"><span class="sin-carga-lbl">Sin carga</span><button class="btn-marcar" onclick="marcar(this)">Marcar</button></div>
+      </div>
+      <div class="ej-card">
+        <div class="ej-card-top"><div class="ej-card-num">04</div><div class="ej-card-nombre">Cat-cow</div><div class="ej-card-reps">10 REP</div></div>
+        <div class="sin-carga-row"><span class="sin-carga-lbl">Sin carga</span><button class="btn-marcar" onclick="marcar(this)">Marcar</button></div>
+      </div>
+      <button class="btn-sets" onclick="completarSets(this,1)">3 SETS COMPLETADOS</button>
+      <div class="sets-sub" id="sub1">SET 1 DE 3</div>
+    </div>
+
+    <!-- B2 -->
+    <div class="bloque-sec">
+      <div class="bloque-head">
+        <div class="bloque-badge">BLOQUE 02</div>
+        <div class="bloque-specs">4 SETS · 120" DESC</div>
+      </div>
+      <div class="bloque-rol">Fuerza principal</div>
+      <div class="ej-card">
+        <div class="ej-card-top"><div class="ej-card-num">01</div><div class="ej-card-nombre">Pendulum squat</div><div class="ej-card-reps">10 REP</div></div>
+        <div class="carga-row">
+          <div class="carga-cell"><div class="carga-lbl">Peso del día</div><div class="carga-inp-wrap"><input class="carga-inp" type="number" placeholder="—" oninput="updateProg()"><span class="carga-kg">KG</span></div></div>
+          <div class="carga-cell"><div class="carga-lbl">Sugerido ◆</div><div class="carga-sug">60 KG</div><div class="carga-sug-prev">Desde S2: 55 KG</div></div>
+        </div>
+      </div>
+      <div class="ej-card">
+        <div class="ej-card-top"><div class="ej-card-num">02</div><div class="ej-card-nombre">Chest press machine</div><div class="ej-card-reps">10 REP</div></div>
+        <div class="carga-row">
+          <div class="carga-cell"><div class="carga-lbl">Peso del día</div><div class="carga-inp-wrap"><input class="carga-inp" type="number" placeholder="—" oninput="updateProg()"><span class="carga-kg">KG</span></div></div>
+          <div class="carga-cell"><div class="carga-lbl">Sugerido</div><div class="carga-sug">42.5 KG</div><div class="carga-sug-prev">Desde S2: 40 KG</div></div>
+        </div>
+      </div>
+      <button class="btn-sets" onclick="completarSets(this,2)">4 SETS COMPLETADOS</button>
+      <div class="sets-sub" id="sub2">SET 1 DE 4</div>
+    </div>
+
+    <!-- B3 -->
+    <div class="bloque-sec">
+      <div class="bloque-head">
+        <div class="bloque-badge">BLOQUE 03</div>
+        <div class="bloque-specs">3 SETS · 75" DESC</div>
+      </div>
+      <div class="bloque-rol">Cierre accesorio</div>
+      <div class="ej-card">
+        <div class="ej-card-top"><div class="ej-card-num">01</div><div class="ej-card-nombre">Cable pushdown</div><div class="ej-card-reps">12 REP</div></div>
+        <div class="carga-row">
+          <div class="carga-cell"><div class="carga-lbl">Peso del día</div><div class="carga-inp-wrap"><input class="carga-inp" type="number" placeholder="—" oninput="updateProg()"><span class="carga-kg">KG</span></div></div>
+          <div class="carga-cell"><div class="carga-lbl">Sugerido</div><div class="carga-sug">15 KG</div></div>
+        </div>
+      </div>
+      <div class="ej-card">
+        <div class="ej-card-top"><div class="ej-card-num">02</div><div class="ej-card-nombre">Cable single-arm lat pulldown</div><div class="ej-card-reps">12 REP</div></div>
+        <div class="carga-row">
+          <div class="carga-cell"><div class="carga-lbl">Peso del día</div><div class="carga-inp-wrap"><input class="carga-inp" type="number" placeholder="—" oninput="updateProg()"><span class="carga-kg">KG</span></div></div>
+          <div class="carga-cell"><div class="carga-lbl">Sugerido</div><div class="carga-sug">20 KG</div></div>
+        </div>
+      </div>
+      <div class="ej-card">
+        <div class="ej-card-top"><div class="ej-card-num">03</div><div class="ej-card-nombre">Leg press 45</div><div class="ej-card-reps">12 REP</div></div>
+        <div class="carga-row">
+          <div class="carga-cell"><div class="carga-lbl">Peso del día</div><div class="carga-inp-wrap"><input class="carga-inp" type="number" placeholder="—" oninput="updateProg()"><span class="carga-kg">KG</span></div></div>
+          <div class="carga-cell"><div class="carga-lbl">Primera sesión</div><div class="carga-sug-prev">Define tu carga</div></div>
+        </div>
+      </div>
+      <button class="btn-sets" onclick="completarSets(this,3)">3 SETS COMPLETADOS</button>
+      <div class="sets-sub" id="sub3">SET 1 DE 3</div>
+    </div>
+
+    <div class="ses-nav">
+      <button class="btn-nav" onclick="showScreen('pizarraScreen')">← Pizarra</button>
+      <button class="btn-nav prim" onclick="cerrarSesion()">Cerrar sesión ✓</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── SUPABASE INIT ──────────────────────────────────────────
+const SUPABASE_URL = 'https://whdlvapxuzmmzxcmokma.supabase.co'
+const SUPABASE_KEY = 'sb_publishable_0YEA5B-k1QpViU70IBhgHA_pM0Vte6A'
+const { createClient } = supabase
+const sb = createClient(SUPABASE_URL, SUPABASE_KEY)
+
+let currentUser = null
+let currentProfile = null
+
+// ── FRASES ROTATIVAS ──────────────────────────────────────
+const frases = [
+  'Lo que se viene hoy. Diseñado para ti.',
+  'Prepárate para lo que se viene.',
+  'Este protocolo fue construido para esta sesión.',
+  'Cada ejercicio tiene un propósito. Confía en el sistema.',
+  'Ejecuta con precisión. El método hace el resto.',
+  'Todo lo que necesitas está aquí. Actívalo cuando estés listo.'
+]
+
+// ── FECHA ─────────────────────────────────────────────────
+function getFechaHoy() {
+  const dias = ['DOM','LUN','MAR','MIÉ','JUE','VIE','SÁB']
+  const meses = ['ENE','FEB','MAR','ABR','MAY','JUN','JUL','AGO','SEP','OCT','NOV','DIC']
+  const d = new Date()
+  return `${dias[d.getDay()]} ${d.getDate()} ${meses[d.getMonth()]} ${d.getFullYear()}`
+}
+
+// ── NAVEGACIÓN ────────────────────────────────────────────
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'))
+  document.getElementById(id).classList.add('active')
+  window.scrollTo(0,0)
+}
+
+// ── LOGIN ─────────────────────────────────────────────────
+async function handleLogin() {
+  const email = document.getElementById('emailInput').value.trim().toLowerCase()
+  const pass  = document.getElementById('passInput').value
+  const btn   = document.getElementById('btnLogin')
+  const err   = document.getElementById('errorMsg')
+
+  err.classList.remove('vis')
+  document.getElementById('emailInput').classList.remove('err')
+  document.getElementById('passInput').classList.remove('err')
+
+  if (!email || !pass) {
+    err.textContent = 'Completa todos los campos'
+    err.classList.add('vis')
+    return
+  }
+
+  btn.classList.add('loading')
+  btn.innerHTML = '<span class="spinner"></span>VERIFICANDO...'
+
+  try {
+    const { data, error } = await sb.auth.signInWithPassword({ email, password: pass })
+
+    if (error) {
+      btn.classList.remove('loading')
+      btn.textContent = 'INGRESAR AL SISTEMA'
+      err.textContent = 'Email o contraseña incorrectos'
+      err.classList.add('vis')
+      document.getElementById('emailInput').classList.add('err')
+      document.getElementById('passInput').classList.add('err')
+      return
+    }
+
+    currentUser = data.user
+    await loadProfile()
+
+  } catch(e) {
+    btn.classList.remove('loading')
+    btn.textContent = 'INGRESAR AL SISTEMA'
+    err.textContent = 'Error de conexión. Intenta de nuevo.'
+    err.classList.add('vis')
+  }
+}
+
+async function loadProfile() {
+  const { data: profile } = await sb
+    .from('profiles')
+    .select('*')
+    .eq('id', currentUser.id)
+    .single()
+
+  currentProfile = profile
+
+  if (profile) {
+    entrarConRol(profile)
+  } else {
+    // perfil no existe aún — mostrar dashboard básico
+    showScreen('dashSocioScreen')
+    document.getElementById('socioNombre').textContent = currentUser.email.split('@')[0].toUpperCase()
+    document.getElementById('socioMeta').textContent = 'Perfil pendiente de configuración'
+  }
+}
+
+function entrarConRol(profile) {
+  const nombre = `${profile.nombre} ${profile.apellido}`.toUpperCase()
+
+  if (profile.role === 'admin') {
+    document.getElementById('adminNombre').textContent = profile.nombre.toUpperCase()
+    loadAdminData()
+    showScreen('dashAdminScreen')
+
+  } else if (profile.role === 'coach') {
+    document.getElementById('coachNombre').textContent = profile.nombre.toUpperCase()
+    document.getElementById('coachMeta').textContent = 'Coach · KOACH Club'
+    loadCoachSocios(profile.id)
+    showScreen('dashCoachScreen')
+
+  } else {
+    // socio
+    document.getElementById('socioNombre').textContent = profile.nombre.toUpperCase()
+    document.getElementById('socioMeta').textContent = `STRONG · Semana 3 / Ciclo 1`
+    loadSocioPizarra(profile)
+    showScreen('dashSocioScreen')
+  }
+}
+
+// ── CARGAR SOCIOS PARA COACH ──────────────────────────────
+async function loadCoachSocios(coachId) {
+  const { data: socios } = await sb
+    .from('profiles')
+    .select('*, asignaciones(*, protocolos(nombre, programa, nivel))')
+    .eq('coach_id', coachId)
+    .eq('activo', true)
+    .eq('role', 'socio')
+
+  const lista = document.getElementById('sociosList')
+
+  if (!socios || socios.length === 0) {
+    lista.innerHTML = '<div style="font-family:Share Tech Mono,monospace;font-size:8px;color:var(--gris);letter-spacing:0.1em;padding:12px 0;">Sin socios asignados aún</div>'
+    return
+  }
+
+  const estados = ['ok','go','wait']
+  const estadoLabels = ['Completado','En curso','Pendiente']
+
+  lista.innerHTML = socios.map((s, i) => {
+    const asig = s.asignaciones?.[0]
+    const proto = asig?.protocolos?.nombre || '—'
+    const semana = asig ? `S0${asig.semana_actual || 1} · Sem ${asig.semana_actual || 1}/6` : '—'
+    const est = estados[i % 3]
+    const estLbl = estadoLabels[i % 3]
+    return `
+      <div class="socio-row">
+        <div class="socio-info">
+          <div class="socio-nombre">${s.nombre} ${s.apellido}</div>
+          <div class="socio-meta">${proto} · ${semana}</div>
+        </div>
+        <div class="estado ${est}">${estLbl}</div>
+      </div>`
+  }).join('')
+
+  const hoy = getFechaHoy()
+  document.getElementById('coachFechaLabel').textContent = `Socios activos hoy — ${hoy}`
+}
+
+// ── CARGAR DATA ADMIN ─────────────────────────────────────
+async function loadAdminData() {
+  const { count: totalSocios } = await sb
+    .from('profiles')
+    .select('*', { count: 'exact', head: true })
+    .eq('role', 'socio')
+    .eq('activo', true)
+
+  const { count: totalCoaches } = await sb
+    .from('profiles')
+    .select('*', { count: 'exact', head: true })
+    .eq('role', 'coach')
+    .eq('activo', true)
+
+  document.getElementById('adminResumen').textContent =
+    `${totalSocios || 0} socios · ${totalCoaches || 0} coaches activos`
+}
+
+// ── PIZARRA DATA ──────────────────────────────────────────
+function loadSocioPizarra(profile) {
+  document.getElementById('pizNombre').textContent = profile.nombre.toUpperCase()
+  document.getElementById('pizFecha').textContent = getFechaHoy() + '\nSEMANA 03 / 06'
+  document.getElementById('pizFrase').textContent = frases[Math.floor(Math.random() * frases.length)]
+  document.getElementById('sesTitulo').textContent = 'Pecho · Cuádriceps · Hombros'
+
+  // Ejercicios del protocolo (STRONG HOMBRE INTERMEDIO S02)
+  const ejercicios = [
+    { n:'DB Shoulder press seated', b:'B1' },
+    { n:'T-bar row machine', b:'B1' },
+    { n:'V plank rotation', b:'B1' },
+    { n:'Cat-cow', b:'B1' },
+    { n:'Pendulum squat', b:'B2' },
+    { n:'Chest press machine', b:'B2' },
+    { n:'Cable pushdown', b:'B3' },
+    { n:'Cable single-arm lat pulldown', b:'B3' },
+    { n:'Leg press 45', b:'B3' }
+  ]
+
+  document.getElementById('pizEjercicios').innerHTML = ejercicios.map((e, i) => `
+    <div class="piz-ej">
+      <span class="piz-ej-num">0${i+1}</span>
+      <span class="piz-ej-nombre">${e.n}</span>
+      <span class="piz-ej-bloque">${e.b}</span>
+    </div>`).join('')
+}
+
+// ── LOGOUT ────────────────────────────────────────────────
+async function logout() {
+  await sb.auth.signOut()
+  currentUser = null
+  currentProfile = null
+  document.getElementById('emailInput').value = ''
+  document.getElementById('passInput').value = ''
+  document.getElementById('btnLogin').textContent = 'INGRESAR AL SISTEMA'
+  document.getElementById('btnLogin').classList.remove('loading')
+  showScreen('loginScreen')
+}
+
+// ── SESIÓN — PROGRESO ─────────────────────────────────────
+const totalSets = {1:3, 2:4, 3:3}
+const conteo = {1:0, 2:0, 3:0}
+
+function updateProg() {
+  const inputs = document.querySelectorAll('.carga-inp')
+  const filled = [...inputs].filter(i => i.value).length
+  const done = conteo[1] + conteo[2] + conteo[3]
+  const total = totalSets[1] + totalSets[2] + totalSets[3]
+  document.getElementById('progFill').style.width = (done/total*100) + '%'
+}
+
+function marcar(btn) {
+  btn.classList.toggle('ok')
+  btn.textContent = btn.classList.contains('ok') ? 'Hecho ✓' : 'Marcar'
+  updateProg()
+}
+
+function completarSets(btn, b) {
+  conteo[b]++
+  const total = totalSets[b]
+  const sub = document.getElementById('sub'+b)
+  if (conteo[b] >= total) {
+    btn.textContent = '✓ BLOQUE COMPLETADO'
+    btn.style.opacity = '0.6'
+    sub.textContent = 'Todos los sets realizados'
+    conteo[b] = total
+  } else {
+    sub.textContent = `SET ${conteo[b]+1} DE ${total}`
+  }
+  updateProg()
+}
+
+async function cerrarSesion() {
+  if (confirm('¿Confirmar cierre de sesión?')) {
+    // aquí irá el registro en Supabase
+    alert('Sesión registrada.')
+    showScreen('dashSocioScreen')
+  }
+}
+
+// ── ENTER KEY ─────────────────────────────────────────────
+document.addEventListener('keydown', e => {
+  if (e.key === 'Enter' && document.getElementById('loginScreen').classList.contains('active')) {
+    handleLogin()
+  }
+})
+
+// ── CHECK SESSION ACTIVA ──────────────────────────────────
+;(async () => {
+  const { data: { session } } = await sb.auth.getSession()
+  if (session) {
+    currentUser = session.user
+    await loadProfile()
+  }
+})()
+</script>
+</body>
+</html>
