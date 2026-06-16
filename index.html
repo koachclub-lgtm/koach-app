@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
 <title>KOACH — Sistema</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;700;900&family=Share+Tech+Mono&display=swap');
 
@@ -15,221 +16,234 @@
     --gris-claro: #C8C7C5;
     --borde: rgba(10,10,10,0.1);
     --purple: #9B5FF5;
+    --purple-light: rgba(155,95,245,0.08);
+    --purple-border: rgba(155,95,245,0.25);
+    --ok: #27AE60;
+    --warn: #E67E22;
+    --danger: #C0392B;
     --error: #C0392B;
   }
 
   * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
-  html,body { height:100%; background:var(--negro); font-family:'Barlow Condensed',sans-serif; }
+  html,body { min-height:100%; background:var(--negro); font-family:'Barlow Condensed',sans-serif; }
 
-  /* ── SCREENS ── */
-  .screen { display:none; width:100%; min-height:100vh; }
-  .screen.active { display:flex; flex-direction:column; }
+  /* ── ROUTER ── */
+  .page { display:none; position:fixed; inset:0; overflow-y:auto; background:var(--offwhite); }
+  .page.active { display:flex; flex-direction:column; }
+  .page > * { max-width:480px; width:100%; margin-left:auto; margin-right:auto; }
+  .page > .topbar,
+  .page > .tabs,
+  .page > .welcome-block,
+  .page > .nav-list,
+  .page > .ses-topbar,
+  .page > .ses-nav,
+  .page > #sesionContent,
+  .page > .piz-wrap { max-width:480px; width:100%; margin-left:auto; margin-right:auto; }
 
-  /* ── LOGIN ── */
-  #loginScreen {
-    background:var(--negro);
-    align-items:center;
-    justify-content:center;
-    padding:0 24px;
-    position:relative;
-  }
+  /* ── SHARED COMPONENTS ── */
+  .topbar { padding:16px 22px 12px; border-bottom:1px solid var(--borde); display:flex; justify-content:space-between; align-items:center; position:sticky; top:0; background:var(--offwhite); z-index:20; flex-shrink:0; }
+  .tb-marca { font-weight:900; font-size:16px; letter-spacing:0.1em; color:var(--negro); }
+  .tb-sub { font-family:'Share Tech Mono',monospace; font-size:8px; letter-spacing:0.14em; color:var(--gris); margin-top:2px; text-transform:uppercase; }
+  .tb-right { display:flex; align-items:center; gap:10px; }
+  .rol-badge { font-family:'Share Tech Mono',monospace; font-size:8px; letter-spacing:0.14em; color:var(--offwhite); background:var(--negro); padding:4px 10px; text-transform:uppercase; }
+  .rol-badge.purple { background:var(--purple); }
+  .btn-sm { font-family:'Share Tech Mono',monospace; font-size:8px; letter-spacing:0.12em; color:var(--gris); background:none; border:none; cursor:pointer; text-transform:uppercase; padding:0; }
 
-  #loginScreen::after {
-    content:'';position:absolute;inset:0;
-    background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.06'/%3E%3C/svg%3E");
-    pointer-events:none;z-index:0;
-  }
+  .welcome-block { padding:18px 22px 14px; border-bottom:2px solid var(--negro); }
+  .wb-label { font-family:'Share Tech Mono',monospace; font-size:8px; letter-spacing:0.16em; color:var(--gris); text-transform:uppercase; margin-bottom:3px; }
+  .wb-nombre { font-weight:900; font-size:30px; letter-spacing:0.02em; color:var(--negro); line-height:1; text-transform:uppercase; }
+  .wb-meta { font-family:'Share Tech Mono',monospace; font-size:9px; letter-spacing:0.1em; color:var(--gris); margin-top:5px; }
 
-  .login-inner { width:100%;max-width:360px;position:relative;z-index:1; }
-
-  .login-marca { margin-bottom:40px; }
-  .login-logo { font-weight:900;font-size:42px;letter-spacing:0.08em;color:var(--offwhite);line-height:1; }
-  .login-sub { font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:0.18em;color:var(--gris);margin-top:4px; }
-
-  .login-form { display:flex;flex-direction:column;gap:12px; }
-
-  .input-group { display:flex;flex-direction:column;gap:5px; }
-  .input-label { font-family:'Share Tech Mono',monospace;font-size:8px;letter-spacing:0.18em;color:var(--gris);text-transform:uppercase; }
-
-  .input-field {
-    background:rgba(242,241,239,0.06);border:1px solid rgba(242,241,239,0.12);
-    color:var(--offwhite);font-family:'Barlow Condensed',sans-serif;font-size:16px;
-    padding:14px 16px;width:100%;outline:none;transition:border-color 0.15s;
-    -webkit-appearance:none;border-radius:0;
-  }
-  .input-field::placeholder { color:rgba(242,241,239,0.2); }
-  .input-field:focus { border-color:rgba(242,241,239,0.4);background:rgba(242,241,239,0.08); }
-  .input-field.err { border-color:var(--error); }
-
-  .error-msg { font-family:'Share Tech Mono',monospace;font-size:9px;color:var(--error);display:none;margin-top:2px;letter-spacing:0.1em; }
-  .error-msg.vis { display:block; }
-
-  .btn-login {
-    width:100%;background:var(--offwhite);color:var(--negro);
-    font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:13px;
-    letter-spacing:0.22em;text-transform:uppercase;border:none;padding:16px;
-    cursor:pointer;margin-top:8px;-webkit-appearance:none;border-radius:0;
-    transition:opacity 0.15s;
-  }
-  .btn-login.loading { opacity:0.5;pointer-events:none; }
-  .btn-login:active { opacity:0.85; }
-
-  .login-footer { margin-top:32px;display:flex;justify-content:space-between; }
-  .login-footer span { font-family:'Share Tech Mono',monospace;font-size:8px;letter-spacing:0.1em;color:rgba(242,241,239,0.2); }
-
-  /* spinner */
-  .spinner { display:inline-block;width:12px;height:12px;border:2px solid rgba(10,10,10,0.2);border-top-color:var(--negro);border-radius:50%;animation:spin 0.7s linear infinite;vertical-align:middle;margin-right:6px; }
-  @keyframes spin { to{transform:rotate(360deg)} }
-
-  /* ── APP LAYOUT ── */
-  .app-wrap { background:var(--offwhite);max-width:420px;margin:0 auto;min-height:100vh;display:flex;flex-direction:column; }
-
-  .topbar { padding:18px 22px 14px;border-bottom:1px solid var(--borde);background:var(--offwhite);position:sticky;top:0;z-index:10;display:flex;justify-content:space-between;align-items:center; }
-  .topbar-marca { font-weight:900;font-size:16px;letter-spacing:0.1em;color:var(--negro); }
-  .topbar-right { display:flex;align-items:center;gap:10px; }
-  .rol-badge { font-family:'Share Tech Mono',monospace;font-size:8px;letter-spacing:0.14em;color:var(--offwhite);background:var(--negro);padding:4px 10px;text-transform:uppercase; }
-  .btn-out { font-family:'Share Tech Mono',monospace;font-size:8px;letter-spacing:0.12em;color:var(--gris);background:none;border:none;cursor:pointer;text-transform:uppercase; }
-
-  .welcome { padding:20px 22px 16px;border-bottom:2px solid var(--negro); }
-  .welcome-label { font-family:'Share Tech Mono',monospace;font-size:8px;letter-spacing:0.16em;color:var(--gris);margin-bottom:3px;text-transform:uppercase; }
-  .welcome-nombre { font-weight:900;font-size:30px;letter-spacing:0.02em;color:var(--negro);line-height:1;text-transform:uppercase; }
-  .welcome-meta { font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:0.1em;color:var(--gris);margin-top:5px; }
-
-  .nav-list { padding:18px 22px;display:flex;flex-direction:column;gap:10px;flex:1; }
-
-  .nav-card { border:1px solid var(--borde);padding:16px 18px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;background:white;transition:background 0.1s; }
+  .nav-list { padding:16px 22px; display:flex; flex-direction:column; gap:10px; flex:1; }
+  .nav-card { border:1px solid var(--borde); padding:15px 17px; cursor:pointer; display:flex; justify-content:space-between; align-items:center; background:white; transition:background 0.1s; }
   .nav-card:active { background:var(--offwhite); }
-  .nav-card.hero { background:var(--negro);border-color:var(--negro); }
-  .nav-card.ia { background:rgba(155,95,245,0.06);border-color:rgba(155,95,245,0.25); }
-
-  .nc-left { display:flex;flex-direction:column;gap:3px; }
-  .nc-label { font-family:'Share Tech Mono',monospace;font-size:8px;letter-spacing:0.14em;color:var(--gris);text-transform:uppercase; }
-  .nc-titulo { font-weight:900;font-size:17px;letter-spacing:0.02em;color:var(--negro);line-height:1;text-transform:uppercase; }
-  .nc-desc { font-family:'Share Tech Mono',monospace;font-size:8px;letter-spacing:0.08em;color:var(--gris-claro);margin-top:2px; }
-  .nav-card.hero .nc-label { color:rgba(242,241,239,0.4); }
+  .nav-card.hero { background:var(--negro); border-color:var(--negro); }
+  .nav-card.ia { background:var(--purple-light); border-color:var(--purple-border); }
+  .nc-left { display:flex; flex-direction:column; gap:3px; }
+  .nc-label { font-family:'Share Tech Mono',monospace; font-size:8px; letter-spacing:0.14em; color:var(--gris); text-transform:uppercase; }
+  .nc-titulo { font-weight:900; font-size:17px; letter-spacing:0.02em; color:var(--negro); line-height:1; text-transform:uppercase; }
+  .nc-desc { font-family:'Share Tech Mono',monospace; font-size:8px; letter-spacing:0.08em; color:var(--gris-claro); margin-top:2px; }
+  .nav-card.hero .nc-label,.nav-card.hero .nc-desc { color:rgba(242,241,239,0.4); }
   .nav-card.hero .nc-titulo { color:var(--offwhite); }
-  .nav-card.hero .nc-desc { color:rgba(242,241,239,0.3); }
   .nav-card.ia .nc-label { color:var(--purple); }
-  .nc-arrow { font-size:16px;color:var(--gris-claro); }
+  .nc-arrow { font-size:16px; color:var(--gris-claro); }
   .nav-card.hero .nc-arrow { color:rgba(242,241,239,0.3); }
 
-  /* socios list */
-  .section-label { font-family:'Share Tech Mono',monospace;font-size:8px;letter-spacing:0.16em;color:var(--gris);text-transform:uppercase;padding:14px 22px 8px;border-bottom:1px solid var(--borde); }
+  .btn-prim { width:100%; background:var(--negro); color:var(--offwhite); font-family:'Barlow Condensed',sans-serif; font-weight:900; font-size:13px; letter-spacing:0.2em; text-transform:uppercase; border:none; padding:14px; cursor:pointer; border-radius:0; transition:opacity 0.15s; }
+  .btn-prim:active { opacity:0.8; }
+  .btn-prim.loading { opacity:0.5; pointer-events:none; }
+  .btn-sec { width:100%; background:transparent; color:var(--negro); font-family:'Barlow Condensed',sans-serif; font-weight:700; font-size:11px; letter-spacing:0.14em; text-transform:uppercase; border:1px solid var(--borde); padding:12px; cursor:pointer; border-radius:0; }
 
-  .socio-list { padding:12px 22px;display:flex;flex-direction:column;gap:8px; }
-  .socio-row { display:flex;justify-content:space-between;align-items:center;padding:13px 15px;border:1px solid var(--borde);background:white;cursor:pointer; }
-  .socio-info { display:flex;flex-direction:column;gap:2px; }
-  .socio-nombre { font-weight:700;font-size:15px;color:var(--negro);letter-spacing:0.02em; }
-  .socio-meta { font-family:'Share Tech Mono',monospace;font-size:8px;color:var(--gris);letter-spacing:0.08em; }
-  .estado { font-family:'Share Tech Mono',monospace;font-size:8px;letter-spacing:0.1em;padding:4px 10px;text-transform:uppercase; }
-  .estado.ok { background:var(--negro);color:var(--offwhite); }
-  .estado.go { background:rgba(155,95,245,0.12);color:var(--purple);border:1px solid rgba(155,95,245,0.3); }
-  .estado.wait { border:1px solid var(--borde);color:var(--gris); }
+  .spinner-inline { display:inline-block; width:11px; height:11px; border:1.5px solid rgba(242,241,239,0.3); border-top-color:var(--offwhite); border-radius:50%; animation:spin 0.7s linear infinite; vertical-align:middle; margin-right:5px; }
+  .spinner-dark { border-color:rgba(10,10,10,0.15); border-top-color:var(--negro); }
+  @keyframes spin { to{transform:rotate(360deg)} }
+
+  /* ── LOGIN ── */
+  #pgLogin { background:#FFFFFF; justify-content:center; align-items:center; align-items:center; justify-content:center; padding:0 24px; }
+  
+  .login-inner { width:100%; max-width:360px; position:relative; z-index:1; }
+  .login-logo { font-weight:900; font-size:42px; letter-spacing:0.08em; color:var(--offwhite); line-height:1; margin-bottom:4px; }
+  .login-sub { font-family:'Share Tech Mono',monospace; font-size:9px; letter-spacing:0.18em; color:var(--gris); margin-bottom:24px; }
+  .login-form { display:flex; flex-direction:column; gap:12px; }
+  .input-lbl { font-family:'Share Tech Mono',monospace; font-size:8px; letter-spacing:0.18em; color:var(--gris); text-transform:uppercase; margin-bottom:5px; }
+  .input-field { background:white; border:1px solid rgba(10,10,10,0.15); color:var(--negro); font-family:'Barlow Condensed',sans-serif; font-size:16px; padding:13px 15px; width:100%; outline:none; border-radius:0; -webkit-appearance:none; transition:border-color 0.15s; }
+  .input-field:focus { border-color:rgba(10,10,10,0.5); }
+  .input-field.err { border-color:var(--error); }
+  .input-field::placeholder { color:var(--gris-claro); }
+  .btn-login { width:100%; background:var(--negro); color:var(--offwhite); font-family:'Barlow Condensed',sans-serif; font-weight:900; font-size:13px; letter-spacing:0.22em; text-transform:uppercase; border:none; padding:15px; cursor:pointer; margin-top:8px; border-radius:0; transition:opacity 0.15s; }
+  .btn-login.loading { opacity:0.5; pointer-events:none; }
+  .err-msg { font-family:'Share Tech Mono',monospace; font-size:9px; color:var(--error); letter-spacing:0.1em; display:none; margin-top:2px; }
+  .err-msg.vis { display:block; }
+  .login-footer { margin-top:30px; display:flex; justify-content:space-between; }
+  .login-footer span { font-family:'Share Tech Mono',monospace; font-size:8px; letter-spacing:0.1em; color:var(--gris-claro); }
 
   /* ── PIZARRA ── */
-  #pizarraScreen { background:var(--offwhite); }
-  .pizarra-wrap { max-width:420px;margin:0 auto;height:100vh;display:flex;flex-direction:column;background:var(--offwhite);position:relative; }
-
-  .piz-top { padding:22px 22px 14px;border-bottom:1px solid var(--borde);display:flex;justify-content:space-between;align-items:flex-start; }
-  .piz-marca-logo { font-weight:900;font-size:20px;letter-spacing:0.1em;color:var(--negro); }
-  .piz-marca-sub { font-family:'Share Tech Mono',monospace;font-size:8px;letter-spacing:0.14em;color:var(--gris);margin-top:3px; }
-  .piz-fecha { font-family:'Share Tech Mono',monospace;font-size:8px;letter-spacing:0.1em;color:var(--gris);text-align:right;line-height:1.7; }
-
-  .piz-usuario { padding:12px 22px;border-bottom:1px solid var(--borde); }
-  .piz-u-label { font-family:'Share Tech Mono',monospace;font-size:8px;letter-spacing:0.16em;color:var(--gris);text-transform:uppercase;margin-bottom:2px; }
-  .piz-u-nombre { font-weight:900;font-size:26px;letter-spacing:0.02em;color:var(--negro);line-height:1;text-transform:uppercase; }
-
-  .piz-sesion { padding:10px 22px;border-bottom:2px solid var(--negro);display:flex;justify-content:space-between;align-items:baseline; }
-  .piz-ses-id { font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:0.15em;color:var(--negro);text-transform:uppercase; }
-  .piz-ses-obj { font-family:'Share Tech Mono',monospace;font-size:8px;letter-spacing:0.1em;color:var(--gris);text-align:right;line-height:1.6; }
-
-  .piz-frase { padding:12px 22px 8px;border-bottom:1px solid var(--borde); }
-  .piz-frase-txt { font-weight:700;font-size:12px;letter-spacing:0.04em;color:var(--negro);line-height:1.25;text-transform:uppercase; }
-
-  .piz-lista { flex:1;padding:10px 22px 6px;overflow:hidden;display:flex;flex-direction:column; }
-  .piz-lista-label { font-family:'Share Tech Mono',monospace;font-size:8px;letter-spacing:0.16em;color:var(--gris);text-transform:uppercase;margin-bottom:6px; }
-
-  .piz-ej { display:flex;align-items:center;gap:10px;padding:5px 0;border-bottom:1px solid var(--borde); }
+  .piz-wrap { max-width:420px; margin:0 auto; height:100vh; display:flex; flex-direction:column; background:var(--offwhite); overflow:hidden; }
+  .piz-top { padding:20px 22px 14px; border-bottom:1px solid var(--borde); display:flex; justify-content:space-between; align-items:flex-start; flex-shrink:0; }
+  .piz-marca { font-weight:900; font-size:20px; letter-spacing:0.1em; color:var(--negro); }
+  .piz-marca-sub { font-family:'Share Tech Mono',monospace; font-size:8px; letter-spacing:0.14em; color:var(--gris); margin-top:3px; }
+  .piz-fecha { font-family:'Share Tech Mono',monospace; font-size:8px; letter-spacing:0.1em; color:var(--gris); text-align:right; line-height:1.7; }
+  .piz-atleta { padding:12px 22px; border-bottom:1px solid var(--borde); flex-shrink:0; }
+  .piz-atleta-lbl { font-family:'Share Tech Mono',monospace; font-size:8px; letter-spacing:0.16em; color:var(--gris); text-transform:uppercase; margin-bottom:2px; }
+  .piz-atleta-nombre { font-weight:900; font-size:26px; letter-spacing:0.02em; color:var(--negro); line-height:1; text-transform:uppercase; }
+  .piz-sesion { padding:10px 22px; border-bottom:2px solid var(--negro); display:flex; justify-content:space-between; align-items:baseline; flex-shrink:0; }
+  .piz-ses-id { font-family:'Share Tech Mono',monospace; font-size:9px; letter-spacing:0.15em; color:var(--negro); text-transform:uppercase; }
+  .piz-ses-obj { font-family:'Share Tech Mono',monospace; font-size:8px; letter-spacing:0.1em; color:var(--gris); text-align:right; line-height:1.6; }
+  .piz-frase { padding:11px 22px 8px; border-bottom:1px solid var(--borde); flex-shrink:0; }
+  .piz-frase-txt { font-weight:700; font-size:12px; letter-spacing:0.04em; color:var(--negro); line-height:1.25; text-transform:uppercase; }
+  .piz-lista { flex:1; padding:10px 22px 6px; overflow:hidden; display:flex; flex-direction:column; }
+  .piz-lista-lbl { font-family:'Share Tech Mono',monospace; font-size:8px; letter-spacing:0.16em; color:var(--gris); text-transform:uppercase; margin-bottom:6px; flex-shrink:0; }
+  .piz-ejs { flex:1; overflow-y:auto; display:flex; flex-direction:column; }
+  .piz-ej { display:flex; align-items:center; gap:10px; padding:5px 0; border-bottom:1px solid var(--borde); }
   .piz-ej:last-child { border-bottom:none; }
-  .piz-ej-num { font-family:'Share Tech Mono',monospace;font-size:8px;color:var(--gris-claro);min-width:16px;flex-shrink:0; }
-  .piz-ej-nombre { font-weight:700;font-size:13px;letter-spacing:0.02em;color:var(--negro);flex:1;line-height:1; }
-  .piz-ej-bloque { font-family:'Share Tech Mono',monospace;font-size:8px;color:var(--gris-claro);flex-shrink:0; }
-
-  .piz-footer { padding:10px 22px 20px;border-top:1px solid var(--borde);display:flex;flex-direction:column;gap:8px; }
-  .piz-footer-meta { display:flex;justify-content:space-between; }
-  .piz-footer-meta span { font-family:'Share Tech Mono',monospace;font-size:8px;letter-spacing:0.1em;color:var(--gris-claro); }
-  .btn-activar { width:100%;background:var(--negro);color:var(--offwhite);font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:13px;letter-spacing:0.22em;text-transform:uppercase;border:none;padding:14px;cursor:pointer;border-radius:0; }
+  .piz-ej-num { font-family:'Share Tech Mono',monospace; font-size:8px; color:var(--gris-claro); min-width:16px; }
+  .piz-ej-nombre { font-weight:700; font-size:13px; letter-spacing:0.02em; color:var(--negro); flex:1; line-height:1; }
+  .piz-ej-bloque { font-family:'Share Tech Mono',monospace; font-size:8px; color:var(--gris-claro); }
+  .piz-footer { padding:10px 22px 20px; border-top:1px solid var(--borde); flex-shrink:0; display:flex; flex-direction:column; gap:8px; }
+  .piz-footer-meta { display:flex; justify-content:space-between; }
+  .piz-footer-meta span { font-family:'Share Tech Mono',monospace; font-size:8px; letter-spacing:0.1em; color:var(--gris-claro); }
 
   /* ── SESIÓN ACTIVA ── */
-  #sesionScreen { background:var(--offwhite); }
-  .ses-wrap { max-width:420px;margin:0 auto;min-height:100vh;display:flex;flex-direction:column;background:var(--offwhite); }
+  .ses-topbar { padding:15px 22px 11px; border-bottom:1px solid var(--borde); background:var(--offwhite); position:sticky; top:0; z-index:10; flex-shrink:0; }
+  .ses-toprow { display:flex; justify-content:space-between; align-items:center; margin-bottom:5px; }
+  .ses-marca { font-weight:900; font-size:13px; letter-spacing:0.1em; color:var(--negro); }
+  .ses-titulo { font-weight:900; font-size:19px; color:var(--negro); text-transform:uppercase; letter-spacing:0.02em; line-height:1; margin-bottom:8px; }
+  .prog-bar { height:2px; background:var(--gris-claro); }
+  .prog-fill { height:100%; background:var(--negro); transition:width 0.35s ease; width:0%; }
 
-  .ses-topbar { padding:16px 22px 12px;border-bottom:1px solid var(--borde);background:var(--offwhite);position:sticky;top:0;z-index:10; }
-  .ses-toprow { display:flex;justify-content:space-between;align-items:center;margin-bottom:5px; }
-  .btn-back { font-family:'Share Tech Mono',monospace;font-size:8px;letter-spacing:0.12em;color:var(--gris);background:none;border:none;cursor:pointer;text-transform:uppercase; }
-  .ses-marca { font-weight:900;font-size:13px;letter-spacing:0.1em;color:var(--negro); }
-  .ses-titulo { font-weight:900;font-size:19px;color:var(--negro);text-transform:uppercase;letter-spacing:0.02em;line-height:1;margin-bottom:8px; }
-  .prog-bar { height:2px;background:var(--gris-claro); }
-  .prog-fill { height:100%;background:var(--negro);transition:width 0.35s ease;width:0%; }
+  .bloque-sec { padding:15px 22px; border-bottom:1px solid var(--borde); }
+  .bloque-head { display:flex; justify-content:space-between; align-items:center; margin-bottom:3px; }
+  .bloque-badge { font-family:'Share Tech Mono',monospace; font-size:9px; letter-spacing:0.18em; background:var(--negro); color:var(--offwhite); padding:3px 9px; }
+  .bloque-specs { font-family:'Share Tech Mono',monospace; font-size:8px; letter-spacing:0.1em; color:var(--gris); }
+  .bloque-rol { font-family:'Share Tech Mono',monospace; font-size:8px; letter-spacing:0.14em; color:var(--gris); text-transform:uppercase; margin-bottom:10px; }
 
-  .bloque-sec { padding:16px 22px;border-bottom:1px solid var(--borde); }
-  .bloque-head { display:flex;justify-content:space-between;align-items:center;margin-bottom:3px; }
-  .bloque-badge { font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:0.18em;background:var(--negro);color:var(--offwhite);padding:3px 9px; }
-  .bloque-specs { font-family:'Share Tech Mono',monospace;font-size:8px;letter-spacing:0.1em;color:var(--gris); }
-  .bloque-rol { font-family:'Share Tech Mono',monospace;font-size:8px;letter-spacing:0.14em;color:var(--gris);text-transform:uppercase;margin-bottom:10px; }
-
-  .ej-card { margin-bottom:8px;border:1px solid var(--borde);background:white; }
+  .ej-card { margin-bottom:8px; border:1px solid var(--borde); background:white; }
   .ej-card-top { padding:10px 13px 7px; }
-  .ej-card-num { font-family:'Share Tech Mono',monospace;font-size:8px;color:var(--gris-claro);margin-bottom:1px; }
-  .ej-card-nombre { font-weight:900;font-size:16px;color:var(--negro);letter-spacing:0.01em;line-height:1; }
-  .ej-card-reps { font-family:'Share Tech Mono',monospace;font-size:8px;color:var(--gris);margin-top:2px; }
-
-  .carga-row { display:grid;grid-template-columns:1fr 1fr;border-top:1px solid var(--borde); }
-  .carga-cell { padding:8px 13px;display:flex;flex-direction:column;gap:2px; }
+  .ej-card-num { font-family:'Share Tech Mono',monospace; font-size:8px; color:var(--gris-claro); margin-bottom:1px; }
+  .ej-card-nombre { font-weight:900; font-size:16px; color:var(--negro); letter-spacing:0.01em; line-height:1; }
+  .ej-card-reps { font-family:'Share Tech Mono',monospace; font-size:8px; color:var(--gris); margin-top:2px; }
+  .carga-row { display:grid; grid-template-columns:1fr 1fr; border-top:1px solid var(--borde); }
+  .carga-cell { padding:8px 13px; display:flex; flex-direction:column; gap:2px; }
   .carga-cell:first-child { border-right:1px solid var(--borde); }
-  .carga-lbl { font-family:'Share Tech Mono',monospace;font-size:8px;letter-spacing:0.12em;color:var(--gris);text-transform:uppercase; }
-  .carga-inp-wrap { display:flex;align-items:baseline;gap:3px; }
-  .carga-inp { font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:22px;color:var(--negro);border:none;background:transparent;width:60px;outline:none; }
+  .carga-lbl { font-family:'Share Tech Mono',monospace; font-size:8px; letter-spacing:0.12em; color:var(--gris); text-transform:uppercase; }
+  .carga-inp-wrap { display:flex; align-items:baseline; gap:3px; }
+  .carga-inp { font-family:'Barlow Condensed',sans-serif; font-weight:900; font-size:22px; color:var(--negro); border:none; background:transparent; width:60px; outline:none; }
   .carga-inp::placeholder { color:var(--gris-claro); }
-  .carga-kg { font-family:'Share Tech Mono',monospace;font-size:8px;color:var(--gris); }
-  .carga-sug { font-family:'Share Tech Mono',monospace;font-size:9px;color:var(--gris); }
-  .carga-sug-prev { font-family:'Share Tech Mono',monospace;font-size:8px;color:var(--gris-claro); }
+  .carga-kg { font-family:'Share Tech Mono',monospace; font-size:8px; color:var(--gris); }
+  .carga-sug { font-family:'Share Tech Mono',monospace; font-size:9px; color:var(--gris); }
+  .carga-sug-prev { font-family:'Share Tech Mono',monospace; font-size:8px; color:var(--gris-claro); }
+  .sin-carga-row { padding:8px 13px; border-top:1px solid var(--borde); display:flex; justify-content:space-between; align-items:center; }
+  .sin-carga-lbl { font-family:'Share Tech Mono',monospace; font-size:8px; color:var(--gris-claro); letter-spacing:0.1em; text-transform:uppercase; }
+  .btn-marcar { font-family:'Share Tech Mono',monospace; font-size:8px; letter-spacing:0.1em; text-transform:uppercase; background:none; border:1px solid var(--borde); color:var(--negro); padding:5px 11px; cursor:pointer; border-radius:0; }
+  .btn-marcar.ok { background:var(--negro); color:var(--offwhite); border-color:var(--negro); }
+  .btn-sets { width:100%; margin-top:10px; background:var(--negro); color:var(--offwhite); font-family:'Barlow Condensed',sans-serif; font-weight:900; font-size:12px; letter-spacing:0.2em; text-transform:uppercase; border:none; padding:12px; cursor:pointer; border-radius:0; }
+  .sets-sub { font-family:'Share Tech Mono',monospace; font-size:8px; letter-spacing:0.1em; color:var(--gris); text-align:center; margin-top:4px; }
+  .ses-nav { padding:12px 22px 24px; display:grid; grid-template-columns:1fr 1fr; gap:8px; position:sticky; bottom:0; background:var(--offwhite); border-top:1px solid var(--borde); flex-shrink:0; }
+  .btn-nav { font-family:'Barlow Condensed',sans-serif; font-weight:700; font-size:11px; letter-spacing:0.14em; text-transform:uppercase; padding:12px; border:1px solid var(--borde); background:transparent; color:var(--negro); cursor:pointer; border-radius:0; }
+  .btn-nav.prim { background:var(--negro); color:var(--offwhite); border-color:var(--negro); }
 
-  .sin-carga-row { padding:8px 13px;border-top:1px solid var(--borde);display:flex;justify-content:space-between;align-items:center; }
-  .sin-carga-lbl { font-family:'Share Tech Mono',monospace;font-size:8px;color:var(--gris-claro);letter-spacing:0.1em;text-transform:uppercase; }
-  .btn-marcar { font-family:'Share Tech Mono',monospace;font-size:8px;letter-spacing:0.1em;text-transform:uppercase;background:none;border:1px solid var(--borde);color:var(--negro);padding:5px 11px;cursor:pointer;border-radius:0; }
-  .btn-marcar.ok { background:var(--negro);color:var(--offwhite);border-color:var(--negro); }
+  /* ── COACH ── */
+  .tabs { display:flex; border-bottom:2px solid var(--negro); position:sticky; top:57px; background:var(--offwhite); z-index:9; flex-shrink:0; }
+  .tab { flex:1; padding:10px 0; font-family:'Share Tech Mono',monospace; font-size:8px; letter-spacing:0.14em; text-transform:uppercase; text-align:center; color:var(--gris); cursor:pointer; border-bottom:2px solid transparent; margin-bottom:-2px; }
+  .tab.active { color:var(--negro); border-bottom-color:var(--negro); }
+  .tab-badge { display:inline-flex; align-items:center; justify-content:center; width:15px; height:15px; border-radius:50%; background:var(--danger); color:white; font-size:7px; margin-left:3px; }
 
-  .btn-sets { width:100%;margin-top:10px;background:var(--negro);color:var(--offwhite);font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:12px;letter-spacing:0.2em;text-transform:uppercase;border:none;padding:12px;cursor:pointer;border-radius:0; }
-  .sets-sub { font-family:'Share Tech Mono',monospace;font-size:8px;letter-spacing:0.1em;color:var(--gris);text-align:center;margin-top:4px; }
+  .view { display:none; flex-direction:column; flex:1; }
+  .view.active { display:flex; }
 
-  .ses-nav { padding:12px 22px 24px;display:grid;grid-template-columns:1fr 1fr;gap:8px;position:sticky;bottom:0;background:var(--offwhite);border-top:1px solid var(--borde); }
-  .btn-nav { font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:11px;letter-spacing:0.14em;text-transform:uppercase;padding:12px;border:1px solid var(--borde);background:transparent;color:var(--negro);cursor:pointer;border-radius:0; }
-  .btn-nav.prim { background:var(--negro);color:var(--offwhite);border-color:var(--negro); }
+  .sec-header { padding:12px 22px 10px; border-bottom:1px solid var(--borde); display:flex; justify-content:space-between; align-items:center; }
+  .sec-titulo { font-weight:900; font-size:20px; letter-spacing:0.02em; color:var(--negro); text-transform:uppercase; }
+  .sec-meta { font-family:'Share Tech Mono',monospace; font-size:8px; letter-spacing:0.1em; color:var(--gris); }
+  .btn-nuevo { font-family:'Share Tech Mono',monospace; font-size:8px; letter-spacing:0.12em; color:var(--offwhite); background:var(--negro); border:none; padding:7px 12px; cursor:pointer; text-transform:uppercase; }
 
-  /* loading state */
-  .loading-screen { display:flex;align-items:center;justify-content:center;height:100vh;background:var(--negro); }
-  .loading-txt { font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:0.2em;color:var(--gris);text-transform:uppercase; }
+  .alertas-strip { padding:10px 22px; display:flex; gap:8px; border-bottom:1px solid var(--borde); }
+  .alerta-pill { flex:1; padding:8px 10px; display:flex; flex-direction:column; gap:2px; border:1px solid; }
+  .alerta-pill.a7 { border-color:rgba(230,126,34,0.3); background:rgba(230,126,34,0.06); }
+  .alerta-pill.a15 { border-color:rgba(192,57,43,0.3); background:rgba(192,57,43,0.06); }
+  .alerta-pill.a30 { border-color:rgba(123,36,28,0.3); background:rgba(123,36,28,0.08); }
+  .ap-num { font-weight:900; font-size:20px; line-height:1; }
+  .a7 .ap-num { color:var(--warn); }
+  .a15 .ap-num { color:var(--danger); }
+  .a30 .ap-num { color:#7B241C; }
+  .ap-lbl { font-family:'Share Tech Mono',monospace; font-size:7px; letter-spacing:0.1em; color:var(--gris); text-transform:uppercase; line-height:1.3; }
+
+  .filter-bar { padding:8px 22px; display:flex; gap:6px; border-bottom:1px solid var(--borde); overflow-x:auto; flex-shrink:0; }
+  .filter-btn { font-family:'Share Tech Mono',monospace; font-size:8px; letter-spacing:0.1em; text-transform:uppercase; padding:6px 11px; border:1px solid var(--borde); background:white; color:var(--gris); cursor:pointer; white-space:nowrap; flex-shrink:0; }
+  .filter-btn.active { background:var(--negro); color:var(--offwhite); border-color:var(--negro); }
+
+  .socios-list { flex:1; padding:8px 22px 20px; display:flex; flex-direction:column; gap:6px; overflow-y:auto; }
+  .socio-card { border:1px solid var(--borde); background:white; cursor:pointer; }
+  .socio-card.a7 { border-left:3px solid var(--warn); }
+  .socio-card.a15 { border-left:3px solid var(--danger); }
+  .socio-card.a30 { border-left:3px solid #7B241C; }
+  .sc-inner { padding:11px 13px; display:flex; justify-content:space-between; align-items:flex-start; gap:8px; }
+  .sc-left { flex:1; display:flex; flex-direction:column; gap:2px; }
+  .sc-nombre { font-weight:900; font-size:15px; color:var(--negro); letter-spacing:0.02em; line-height:1; }
+  .sc-proto { font-family:'Share Tech Mono',monospace; font-size:8px; color:var(--gris); letter-spacing:0.08em; margin-top:1px; }
+  .sc-ultima { font-family:'Share Tech Mono',monospace; font-size:8px; letter-spacing:0.08em; margin-top:3px; }
+  .sc-ultima.ok { color:var(--ok); }
+  .sc-ultima.warn { color:var(--warn); }
+  .sc-ultima.danger { color:var(--danger); }
+  .sc-ultima.critical { color:#7B241C; }
+  .sc-badge { font-family:'Share Tech Mono',monospace; font-size:7px; letter-spacing:0.1em; padding:3px 8px; text-transform:uppercase; white-space:nowrap; }
+  .sc-badge.hoy { background:var(--negro); color:var(--offwhite); }
+  .sc-badge.activo { border:1px solid var(--ok); color:var(--ok); }
+  .sc-badge.warn { border:1px solid var(--warn); color:var(--warn); }
+  .sc-badge.danger { border:1px solid var(--danger); color:var(--danger); }
+  .sc-badge.critical { background:#7B241C; color:white; }
+  .sc-acciones { border-top:1px solid var(--borde); display:flex; }
+  .sc-accion { flex:1; padding:8px; font-family:'Share Tech Mono',monospace; font-size:7px; letter-spacing:0.1em; text-transform:uppercase; text-align:center; color:var(--gris); cursor:pointer; background:none; border:none; border-right:1px solid var(--borde); }
+  .sc-accion:last-child { border-right:none; }
+  .sc-accion.purple { color:var(--purple); }
+  .sc-accion.green { color:#25D366; }
+
+  /* LOADING STATE */
+  .loading-state { padding:20px 22px; font-family:'Share Tech Mono',monospace; font-size:8px; letter-spacing:0.15em; color:var(--gris); text-transform:uppercase; display:flex; align-items:center; gap:8px; }
+
+  .koach-logo { display:block; image-rendering:-webkit-optimize-contrast; image-rendering:crisp-edges; }
+  .koach-logo[data-size="lg"] { height:44px; width:auto; }
+  .koach-logo[data-size="sm"] { height:20px; width:auto; }
+  .koach-logo[data-size="piz"] { height:24px; width:auto; }
 </style>
 </head>
 <body>
 
-<!-- LOGIN -->
-<div class="screen active" id="loginScreen">
+<!-- ══════════════════════════════════════════════
+     PAGE: LOGIN
+══════════════════════════════════════════════ -->
+<div class="page active" id="pgLogin">
   <div class="login-inner">
-    <div class="login-marca">
-      <div class="login-logo">KOACH</div>
-      <div class="login-sub">Método KOACH · Sistema de entrenamiento</div>
-    </div>
+    <div style="margin-bottom:8px;"><img class="koach-logo" data-size="lg" alt="KOACH"></div>
+    <div class="login-sub">Método KOACH · Sistema de entrenamiento</div>
     <div class="login-form">
-      <div class="input-group">
-        <div class="input-label">Email</div>
-        <input class="input-field" type="email" id="emailInput" placeholder="tu@email.com" autocomplete="email" inputmode="email">
+      <div>
+        <div class="input-lbl">Email</div>
+        <input class="input-field" type="email" id="lEmail" placeholder="tu@email.com" autocomplete="email" inputmode="email">
       </div>
-      <div class="input-group">
-        <div class="input-label">Contraseña</div>
-        <input class="input-field" type="password" id="passInput" placeholder="••••••••" autocomplete="current-password">
-        <div class="error-msg" id="errorMsg">Email o contraseña incorrectos</div>
+      <div>
+        <div class="input-lbl">Contraseña</div>
+        <input class="input-field" type="password" id="lPass" placeholder="••••••••" autocomplete="current-password">
+        <div class="err-msg" id="lErr">Email o contraseña incorrectos</div>
       </div>
       <button class="btn-login" id="btnLogin" onclick="handleLogin()">INGRESAR AL SISTEMA</button>
     </div>
@@ -240,166 +254,74 @@
   </div>
 </div>
 
-<!-- DASHBOARD SOCIO -->
-<div class="screen" id="dashSocioScreen">
-  <div class="app-wrap">
-    <div class="topbar">
-      <div class="topbar-marca">KOACH</div>
-      <div class="topbar-right">
-        <button class="btn-out" onclick="logout()">Salir</button>
+<!-- ══════════════════════════════════════════════
+     PAGE: DASHBOARD SOCIO
+══════════════════════════════════════════════ -->
+<div class="page" id="pgSocio">
+  <div class="topbar">
+    <div><div><img class="koach-logo" data-size="sm" alt="KOACH"></div></div>
+    <div class="tb-right"><button class="btn-sm" onclick="logout()">Salir</button></div>
+  </div>
+  <div class="welcome-block">
+    <div class="wb-label">Bienvenido</div>
+    <div class="wb-nombre" id="socioNombre">—</div>
+    <div class="wb-meta" id="socioMeta">—</div>
+  </div>
+  <div class="nav-list">
+    <div class="nav-card hero" onclick="goTo('pgPizarra')">
+      <div class="nc-left">
+        <div class="nc-label">Sesión de hoy</div>
+        <div class="nc-titulo" id="sesHoyTitulo">CARGANDO...</div>
+        <div class="nc-desc" id="sesHoyObj">—</div>
       </div>
+      <div class="nc-arrow">→</div>
     </div>
-    <div class="welcome">
-      <div class="welcome-label">Bienvenido</div>
-      <div class="welcome-nombre" id="socioNombre">—</div>
-      <div class="welcome-meta" id="socioMeta">—</div>
+    <div class="nav-card" onclick="goTo('pgProgreso')">
+      <div class="nc-left">
+        <div class="nc-label">Evolución</div>
+        <div class="nc-titulo">PROGRESO</div>
+        <div class="nc-desc">Historial de cargas y progresión</div>
+      </div>
+      <div class="nc-arrow">→</div>
     </div>
-    <div class="nav-list">
-      <div class="nav-card hero" onclick="showScreen('pizarraScreen')">
-        <div class="nc-left">
-          <div class="nc-label">Sesión de hoy</div>
-          <div class="nc-titulo" id="sesionHoyTitulo">SESIÓN 02 · PUSH</div>
-          <div class="nc-desc" id="sesionHoyObj">Pectoral · Cuádriceps · Hombros</div>
-        </div>
-        <div class="nc-arrow">→</div>
+    <div class="nav-card" onclick="goTo('pgNutricion')">
+      <div class="nc-left">
+        <div class="nc-label">Plan alimentario</div>
+        <div class="nc-titulo">NUTRICIÓN</div>
+        <div class="nc-desc">Evaluación y pauta nutricional</div>
       </div>
-      <div class="nav-card">
-        <div class="nc-left">
-          <div class="nc-label">Evolución</div>
-          <div class="nc-titulo">PROGRESO</div>
-          <div class="nc-desc">Historial de cargas y progresión</div>
-        </div>
-        <div class="nc-arrow">→</div>
-      </div>
-      <div class="nav-card">
-        <div class="nc-left">
-          <div class="nc-label">Plan alimentario</div>
-          <div class="nc-titulo">NUTRICIÓN</div>
-          <div class="nc-desc">Evaluación y pauta nutricional</div>
-        </div>
-        <div class="nc-arrow">→</div>
-      </div>
-      <div class="nav-card">
-        <div class="nc-left">
-          <div class="nc-label">Tu protocolo</div>
-          <div class="nc-titulo">PERFIL</div>
-          <div class="nc-desc" id="perfilMeta">STRONG · Intermedio · Ciclo 1</div>
-        </div>
-        <div class="nc-arrow">→</div>
-      </div>
+      <div class="nc-arrow">→</div>
     </div>
   </div>
 </div>
 
-<!-- DASHBOARD COACH -->
-<div class="screen" id="dashCoachScreen">
-  <div class="app-wrap">
-    <div class="topbar">
-      <div class="topbar-marca">KOACH</div>
-      <div class="topbar-right">
-        <div class="rol-badge">Coach</div>
-        <button class="btn-out" onclick="logout()">Salir</button>
-      </div>
-    </div>
-    <div class="welcome">
-      <div class="welcome-label">Panel</div>
-      <div class="welcome-nombre" id="coachNombre">—</div>
-      <div class="welcome-meta" id="coachMeta">—</div>
-    </div>
-    <div class="section-label" id="coachFechaLabel">Socios activos hoy</div>
-    <div class="socio-list" id="sociosList">
-      <div class="loading-txt" style="color:var(--gris);padding:20px 0;font-size:8px;letter-spacing:0.15em;">CARGANDO SOCIOS...</div>
-    </div>
-    <div class="nav-list" style="padding-top:0;">
-      <div class="nav-card ia">
-        <div class="nc-left">
-          <div class="nc-label" style="color:var(--purple);">Inteligencia artificial</div>
-          <div class="nc-titulo">CONSULTOR IA</div>
-          <div class="nc-desc">Modifica protocolos · Consulta técnica</div>
-        </div>
-        <div class="nc-arrow">→</div>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- DASHBOARD ADMIN -->
-<div class="screen" id="dashAdminScreen">
-  <div class="app-wrap">
-    <div class="topbar">
-      <div class="topbar-marca">KOACH</div>
-      <div class="topbar-right">
-        <div class="rol-badge">Admin</div>
-        <button class="btn-out" onclick="logout()">Salir</button>
-      </div>
-    </div>
-    <div class="welcome">
-      <div class="welcome-label">Panel administrador</div>
-      <div class="welcome-nombre" id="adminNombre">MATÍAS</div>
-      <div class="welcome-meta">KOACH Club · Vista completa</div>
-    </div>
-    <div class="nav-list">
-      <div class="nav-card hero">
-        <div class="nc-left">
-          <div class="nc-label">Operación del día</div>
-          <div class="nc-titulo">HOY</div>
-          <div class="nc-desc" id="adminResumen">Cargando...</div>
-        </div>
-        <div class="nc-arrow">→</div>
-      </div>
-      <div class="nav-card">
-        <div class="nc-left">
-          <div class="nc-label">Base de socios</div>
-          <div class="nc-titulo">SOCIOS</div>
-          <div class="nc-desc">Asignación de protocolos</div>
-        </div>
-        <div class="nc-arrow">→</div>
-      </div>
-      <div class="nav-card">
-        <div class="nc-left">
-          <div class="nc-label">Sistema de entrenamiento</div>
-          <div class="nc-titulo">PROTOCOLOS</div>
-          <div class="nc-desc">18 protocolos · 151 ejercicios</div>
-        </div>
-        <div class="nc-arrow">→</div>
-      </div>
-      <div class="nav-card ia">
-        <div class="nc-left">
-          <div class="nc-label" style="color:var(--purple);">Inteligencia artificial</div>
-          <div class="nc-titulo">CONSULTOR IA</div>
-          <div class="nc-desc">Log de consultas · Modificaciones aplicadas</div>
-        </div>
-        <div class="nc-arrow">→</div>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- PIZARRA -->
-<div class="screen" id="pizarraScreen">
-  <div class="pizarra-wrap">
+<!-- ══════════════════════════════════════════════
+     PAGE: PIZARRA
+══════════════════════════════════════════════ -->
+<div class="page" id="pgPizarra">
+  <div class="piz-wrap">
     <div class="piz-top">
       <div>
-        <div class="piz-marca-logo">KOACH</div>
-        <div class="piz-marca-sub">MÉTODO KOACH · SISTEMA STRONG</div>
+        <div><img class="koach-logo" data-size="piz" alt="KOACH"></div>
+        <div class="piz-marca-sub" id="pizPrograma">MÉTODO KOACH</div>
       </div>
       <div class="piz-fecha" id="pizFecha">—</div>
     </div>
-    <div class="piz-usuario">
-      <div class="piz-u-label">Atleta</div>
-      <div class="piz-u-nombre" id="pizNombre">—</div>
+    <div class="piz-atleta">
+      <div class="piz-atleta-lbl">Atleta</div>
+      <div class="piz-atleta-nombre" id="pizNombre">—</div>
     </div>
     <div class="piz-sesion">
-      <div class="piz-ses-id" id="pizSesId">SESIÓN 02 / 03 · PUSH</div>
-      <div class="piz-ses-obj" id="pizSesObj">Pectoral<br>Cuádriceps · Hombros</div>
+      <div class="piz-ses-id" id="pizSesId">SESIÓN — / —</div>
+      <div class="piz-ses-obj" id="pizSesObj">—</div>
     </div>
     <div class="piz-frase">
       <div class="piz-frase-txt" id="pizFrase">—</div>
     </div>
     <div class="piz-lista">
-      <div class="piz-lista-label">Lo que se viene hoy</div>
-      <div id="pizEjercicios">
-        <!-- ejercicios cargados dinámicamente -->
+      <div class="piz-lista-lbl">Lo que se viene hoy</div>
+      <div class="piz-ejs" id="pizEjs">
+        <div class="loading-state"><span class="spinner-inline spinner-dark"></span>Cargando protocolo...</div>
       </div>
     </div>
     <div class="piz-footer">
@@ -407,169 +329,213 @@
         <span>KOACH Club · Concepción</span>
         <span>koachclub.cl</span>
       </div>
-      <button class="btn-activar" onclick="showScreen('sesionScreen')">ACTIVAR SISTEMA →</button>
+      <button class="btn-prim" onclick="goTo('pgSesion')">ACTIVAR SISTEMA →</button>
+      <button class="btn-sec" onclick="goTo('pgSocio')">← Inicio</button>
     </div>
   </div>
 </div>
 
-<!-- SESIÓN ACTIVA -->
-<div class="screen" id="sesionScreen">
-  <div class="ses-wrap">
-    <div class="ses-topbar">
-      <div class="ses-toprow">
-        <button class="btn-back" onclick="showScreen('pizarraScreen')">← Pizarra</button>
-        <div class="ses-marca">KOACH · STRONG</div>
-      </div>
-      <div class="ses-titulo" id="sesTitulo">Pecho · Cuádriceps · Hombros</div>
-      <div class="prog-bar"><div class="prog-fill" id="progFill"></div></div>
+<!-- ══════════════════════════════════════════════
+     PAGE: SESIÓN ACTIVA
+══════════════════════════════════════════════ -->
+<div class="page" id="pgSesion">
+  <div class="ses-topbar">
+    <div class="ses-toprow">
+      <button class="btn-sm" onclick="goTo('pgPizarra')">← Pizarra</button>
+      <div class="ses-marca" id="sesMarca">KOACH · STRONG</div>
     </div>
+    <div class="ses-titulo" id="sesTitulo">—</div>
+    <div class="prog-bar"><div class="prog-fill" id="progFill"></div></div>
+  </div>
+  <div id="sesionContent">
+    <div class="loading-state"><span class="spinner-inline spinner-dark"></span>Cargando sesión...</div>
+  </div>
+  <div class="ses-nav">
+    <button class="btn-nav" onclick="goTo('pgPizarra')">← Pizarra</button>
+    <button class="btn-nav prim" id="btnCerrarSes" onclick="cerrarSesion()">Cerrar sesión ✓</button>
+  </div>
+</div>
 
-    <!-- B1 -->
-    <div class="bloque-sec">
-      <div class="bloque-head">
-        <div class="bloque-badge">BLOQUE 01</div>
-        <div class="bloque-specs">3 SETS · 60" DESC</div>
-      </div>
-      <div class="bloque-rol">Activación</div>
-      <div class="ej-card">
-        <div class="ej-card-top">
-          <div class="ej-card-num">01</div>
-          <div class="ej-card-nombre">DB Shoulder press seated</div>
-          <div class="ej-card-reps">12 REP</div>
-        </div>
-        <div class="carga-row">
-          <div class="carga-cell">
-            <div class="carga-lbl">Peso del día</div>
-            <div class="carga-inp-wrap">
-              <input class="carga-inp" type="number" placeholder="—" oninput="updateProg()">
-              <span class="carga-kg">KG</span>
-            </div>
-          </div>
-          <div class="carga-cell">
-            <div class="carga-lbl">Sugerido</div>
-            <div class="carga-sug">20 KG</div>
-            <div class="carga-sug-prev">Desde S2: 18 KG</div>
-          </div>
-        </div>
-      </div>
-      <div class="ej-card">
-        <div class="ej-card-top">
-          <div class="ej-card-num">02</div>
-          <div class="ej-card-nombre">T-bar row machine</div>
-          <div class="ej-card-reps">12 REP</div>
-        </div>
-        <div class="carga-row">
-          <div class="carga-cell">
-            <div class="carga-lbl">Peso del día</div>
-            <div class="carga-inp-wrap">
-              <input class="carga-inp" type="number" placeholder="—" oninput="updateProg()">
-              <span class="carga-kg">KG</span>
-            </div>
-          </div>
-          <div class="carga-cell">
-            <div class="carga-lbl">Sugerido</div>
-            <div class="carga-sug">50 KG</div>
-            <div class="carga-sug-prev">Desde S2: 48 KG</div>
-          </div>
-        </div>
-      </div>
-      <div class="ej-card">
-        <div class="ej-card-top"><div class="ej-card-num">03</div><div class="ej-card-nombre">V plank rotation</div><div class="ej-card-reps">30 SEG</div></div>
-        <div class="sin-carga-row"><span class="sin-carga-lbl">Sin carga</span><button class="btn-marcar" onclick="marcar(this)">Marcar</button></div>
-      </div>
-      <div class="ej-card">
-        <div class="ej-card-top"><div class="ej-card-num">04</div><div class="ej-card-nombre">Cat-cow</div><div class="ej-card-reps">10 REP</div></div>
-        <div class="sin-carga-row"><span class="sin-carga-lbl">Sin carga</span><button class="btn-marcar" onclick="marcar(this)">Marcar</button></div>
-      </div>
-      <button class="btn-sets" onclick="completarSets(this,1)">3 SETS COMPLETADOS</button>
-      <div class="sets-sub" id="sub1">SET 1 DE 3</div>
+<!-- ══════════════════════════════════════════════
+     PAGE: PANEL COACH
+══════════════════════════════════════════════ -->
+<div class="page" id="pgCoach">
+  <div class="topbar">
+    <div><div><img class="koach-logo" data-size="sm" alt="KOACH"></div></div>
+    <div class="tb-right">
+      <div class="rol-badge" id="coachRolBadge">Coach</div>
+      <button class="btn-sm" onclick="logout()">Salir</button>
     </div>
+  </div>
+  <div class="tabs">
+    <div class="tab active" onclick="coachTab('socios')" id="ctab-socios">Socios</div>
+    <div class="tab" onclick="coachTab('alertas')" id="ctab-alertas">Alertas <span class="tab-badge" id="alertaBadge">0</span></div>
+    <div class="tab" onclick="coachTab('hoy')" id="ctab-hoy">Hoy</div>
+  </div>
+  <div class="view active" id="cview-socios">
+    <div class="sec-header">
+      <div><div class="sec-titulo" id="sociosTitulo">Socios</div><div class="sec-meta" id="sociosMeta">—</div></div>
+      <button class="btn-nuevo" onclick="goTo('pgOnboarding')">+ Nuevo</button>
+    </div>
+    <div class="filter-bar">
+      <div class="filter-btn active" onclick="filtrarSocios('todos',this)">Todos</div>
+      <div class="filter-btn" onclick="filtrarSocios('activos',this)">Activos</div>
+      <div class="filter-btn" onclick="filtrarSocios('7d',this)">+7 días</div>
+      <div class="filter-btn" onclick="filtrarSocios('15d',this)">+15 días</div>
+      <div class="filter-btn" onclick="filtrarSocios('30d',this)">+30 días</div>
+    </div>
+    <div class="socios-list" id="sociosList">
+      <div class="loading-state"><span class="spinner-inline spinner-dark"></span>Cargando socios...</div>
+    </div>
+  </div>
+  <div class="view" id="cview-alertas">
+    <div class="alertas-strip">
+      <div class="alerta-pill a7"><div class="ap-num" id="cnt7">—</div><div class="ap-lbl">Sin entrenar<br>7+ días</div></div>
+      <div class="alerta-pill a15"><div class="ap-num" id="cnt15">—</div><div class="ap-lbl">Sin entrenar<br>15+ días</div></div>
+      <div class="alerta-pill a30"><div class="ap-num" id="cnt30">—</div><div class="ap-lbl">Sin entrenar<br>30+ días</div></div>
+    </div>
+    <div class="socios-list" id="alertasList">
+      <div class="loading-state"><span class="spinner-inline spinner-dark"></span>Calculando alertas...</div>
+    </div>
+  </div>
+  <div class="view" id="cview-hoy">
+    <div class="sec-header"><div><div class="sec-titulo">Hoy</div><div class="sec-meta" id="hoyFecha">—</div></div></div>
+    <div class="socios-list" id="hoyList">
+      <div class="loading-state"><span class="spinner-inline spinner-dark"></span>Cargando...</div>
+    </div>
+  </div>
+</div>
 
-    <!-- B2 -->
-    <div class="bloque-sec">
-      <div class="bloque-head">
-        <div class="bloque-badge">BLOQUE 02</div>
-        <div class="bloque-specs">4 SETS · 120" DESC</div>
-      </div>
-      <div class="bloque-rol">Fuerza principal</div>
-      <div class="ej-card">
-        <div class="ej-card-top"><div class="ej-card-num">01</div><div class="ej-card-nombre">Pendulum squat</div><div class="ej-card-reps">10 REP</div></div>
-        <div class="carga-row">
-          <div class="carga-cell"><div class="carga-lbl">Peso del día</div><div class="carga-inp-wrap"><input class="carga-inp" type="number" placeholder="—" oninput="updateProg()"><span class="carga-kg">KG</span></div></div>
-          <div class="carga-cell"><div class="carga-lbl">Sugerido ◆</div><div class="carga-sug">60 KG</div><div class="carga-sug-prev">Desde S2: 55 KG</div></div>
-        </div>
-      </div>
-      <div class="ej-card">
-        <div class="ej-card-top"><div class="ej-card-num">02</div><div class="ej-card-nombre">Chest press machine</div><div class="ej-card-reps">10 REP</div></div>
-        <div class="carga-row">
-          <div class="carga-cell"><div class="carga-lbl">Peso del día</div><div class="carga-inp-wrap"><input class="carga-inp" type="number" placeholder="—" oninput="updateProg()"><span class="carga-kg">KG</span></div></div>
-          <div class="carga-cell"><div class="carga-lbl">Sugerido</div><div class="carga-sug">42.5 KG</div><div class="carga-sug-prev">Desde S2: 40 KG</div></div>
-        </div>
-      </div>
-      <button class="btn-sets" onclick="completarSets(this,2)">4 SETS COMPLETADOS</button>
-      <div class="sets-sub" id="sub2">SET 1 DE 4</div>
+<!-- ══════════════════════════════════════════════
+     PAGE: DASHBOARD ADMIN
+══════════════════════════════════════════════ -->
+<div class="page" id="pgAdmin">
+  <div class="topbar">
+    <div><div><img class="koach-logo" data-size="sm" alt="KOACH"></div></div>
+    <div class="tb-right">
+      <div class="rol-badge">Admin</div>
+      <button class="btn-sm" onclick="logout()">Salir</button>
     </div>
+  </div>
+  <div class="welcome-block">
+    <div class="wb-label">Panel administrador</div>
+    <div class="wb-nombre" id="adminNombre">—</div>
+    <div class="wb-meta">KOACH Club · Vista completa</div>
+  </div>
+  <div class="nav-list">
+    <div class="nav-card hero" onclick="goTo('pgCoach')">
+      <div class="nc-left">
+        <div class="nc-label">Operación</div>
+        <div class="nc-titulo">SOCIOS Y ALERTAS</div>
+        <div class="nc-desc" id="adminResumen">Cargando...</div>
+      </div>
+      <div class="nc-arrow">→</div>
+    </div>
+    <div class="nav-card" onclick="goTo('pgOnboarding')">
+      <div class="nc-left">
+        <div class="nc-label">Alta de socios</div>
+        <div class="nc-titulo">NUEVO SOCIO</div>
+        <div class="nc-desc">Onboarding y asignación de protocolo</div>
+      </div>
+      <div class="nc-arrow">→</div>
+    </div>
+    <div class="nav-card ia" onclick="goTo('pgIA')">
+      <div class="nc-left">
+        <div class="nc-label" style="color:var(--purple);">Inteligencia artificial</div>
+        <div class="nc-titulo">CONSULTOR IA</div>
+        <div class="nc-desc">Modificaciones · Consulta técnica</div>
+      </div>
+      <div class="nc-arrow">→</div>
+    </div>
+  </div>
+</div>
 
-    <!-- B3 -->
-    <div class="bloque-sec">
-      <div class="bloque-head">
-        <div class="bloque-badge">BLOQUE 03</div>
-        <div class="bloque-specs">3 SETS · 75" DESC</div>
-      </div>
-      <div class="bloque-rol">Cierre accesorio</div>
-      <div class="ej-card">
-        <div class="ej-card-top"><div class="ej-card-num">01</div><div class="ej-card-nombre">Cable pushdown</div><div class="ej-card-reps">12 REP</div></div>
-        <div class="carga-row">
-          <div class="carga-cell"><div class="carga-lbl">Peso del día</div><div class="carga-inp-wrap"><input class="carga-inp" type="number" placeholder="—" oninput="updateProg()"><span class="carga-kg">KG</span></div></div>
-          <div class="carga-cell"><div class="carga-lbl">Sugerido</div><div class="carga-sug">15 KG</div></div>
-        </div>
-      </div>
-      <div class="ej-card">
-        <div class="ej-card-top"><div class="ej-card-num">02</div><div class="ej-card-nombre">Cable single-arm lat pulldown</div><div class="ej-card-reps">12 REP</div></div>
-        <div class="carga-row">
-          <div class="carga-cell"><div class="carga-lbl">Peso del día</div><div class="carga-inp-wrap"><input class="carga-inp" type="number" placeholder="—" oninput="updateProg()"><span class="carga-kg">KG</span></div></div>
-          <div class="carga-cell"><div class="carga-lbl">Sugerido</div><div class="carga-sug">20 KG</div></div>
-        </div>
-      </div>
-      <div class="ej-card">
-        <div class="ej-card-top"><div class="ej-card-num">03</div><div class="ej-card-nombre">Leg press 45</div><div class="ej-card-reps">12 REP</div></div>
-        <div class="carga-row">
-          <div class="carga-cell"><div class="carga-lbl">Peso del día</div><div class="carga-inp-wrap"><input class="carga-inp" type="number" placeholder="—" oninput="updateProg()"><span class="carga-kg">KG</span></div></div>
-          <div class="carga-cell"><div class="carga-lbl">Primera sesión</div><div class="carga-sug-prev">Define tu carga</div></div>
-        </div>
-      </div>
-      <button class="btn-sets" onclick="completarSets(this,3)">3 SETS COMPLETADOS</button>
-      <div class="sets-sub" id="sub3">SET 1 DE 3</div>
-    </div>
+<!-- ══════════════════════════════════════════════
+     PAGE: PROGRESO (placeholder con link)
+══════════════════════════════════════════════ -->
+<div class="page" id="pgProgreso">
+  <div class="topbar">
+    <div><div><img class="koach-logo" data-size="sm" alt="KOACH"></div><div class="tb-sub">Progreso</div></div>
+    <button class="btn-sm" onclick="goTo('pgSocio')">← Inicio</button>
+  </div>
+  <div style="padding:22px;flex:1;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:12px;text-align:center;">
+    <div style="font-weight:900;font-size:22px;color:var(--negro);text-transform:uppercase;letter-spacing:0.02em;">Módulo Progreso</div>
+    <div style="font-family:'Share Tech Mono',monospace;font-size:8px;color:var(--gris);letter-spacing:0.1em;line-height:1.7;">Gráficos de evolución de cargas<br>por ejercicio ancla disponibles<br>en koach-progreso.html</div>
+    <button class="btn-prim" style="margin-top:8px;" onclick="goTo('pgSocio')">← Volver</button>
+  </div>
+</div>
 
-    <div class="ses-nav">
-      <button class="btn-nav" onclick="showScreen('pizarraScreen')">← Pizarra</button>
-      <button class="btn-nav prim" onclick="cerrarSesion()">Cerrar sesión ✓</button>
-    </div>
+<!-- PAGE: NUTRICIÓN / ONBOARDING / IA (placeholders) -->
+<div class="page" id="pgNutricion">
+  <div class="topbar"><div><div><img class="koach-logo" data-size="sm" alt="KOACH"></div><div class="tb-sub">Nutrición</div></div><button class="btn-sm" onclick="goTo('pgSocio')">← Inicio</button></div>
+  <div style="padding:22px;flex:1;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:12px;text-align:center;">
+    <div style="font-weight:900;font-size:22px;color:var(--negro);text-transform:uppercase;">Módulo Nutrición</div>
+    <div style="font-family:'Share Tech Mono',monospace;font-size:8px;color:var(--gris);letter-spacing:0.1em;line-height:1.7;">Evaluación ISAK · Composición corporal<br>Pauta nutricional · Historial<br>disponible en koach-nutricion.html</div>
+    <button class="btn-prim" style="margin-top:8px;" onclick="goTo('pgSocio')">← Volver</button>
+  </div>
+</div>
+
+<div class="page" id="pgOnboarding">
+  <div class="topbar"><div><div><img class="koach-logo" data-size="sm" alt="KOACH"></div><div class="tb-sub">Nuevo socio</div></div><button class="btn-sm" onclick="history.back()">← Cancelar</button></div>
+  <div style="padding:22px;flex:1;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:12px;text-align:center;">
+    <div style="font-weight:900;font-size:22px;color:var(--negro);text-transform:uppercase;">Onboarding</div>
+    <div style="font-family:'Share Tech Mono',monospace;font-size:8px;color:var(--gris);letter-spacing:0.1em;line-height:1.7;">Flujo de 4 pasos para creación<br>de nuevo socio disponible<br>en koach-onboarding.html</div>
+    <button class="btn-prim" style="margin-top:8px;" onclick="goTo('pgCoach')">← Volver</button>
+  </div>
+</div>
+
+<div class="page" id="pgIA">
+  <div class="topbar"><div><div><img class="koach-logo" data-size="sm" alt="KOACH"></div><div class="tb-sub">Consultor IA</div></div><button class="btn-sm" onclick="goTo('pgAdmin')">← Panel</button></div>
+  <div style="padding:22px;flex:1;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:12px;text-align:center;">
+    <div style="font-weight:900;font-size:22px;color:var(--negro);text-transform:uppercase;">Consultor IA</div>
+    <div style="font-family:'Share Tech Mono',monospace;font-size:8px;color:var(--gris);letter-spacing:0.1em;line-height:1.7;">Chat con contexto del socio<br>Modificaciones con aprobación<br>disponible en koach-ia-coach.html</div>
+    <button class="btn-prim" style="margin-top:8px;" onclick="goTo('pgAdmin')">← Volver</button>
   </div>
 </div>
 
 <script>
-// ── SUPABASE INIT ──────────────────────────────────────────
-const SUPABASE_URL = 'https://whdlvapxuzmmzxcmokma.supabase.co'
-const SUPABASE_KEY = 'sb_publishable_0YEA5B-k1QpViU70IBhgHA_pM0Vte6A'
+// ══════════════════════════════════════════════
+// SUPABASE
+// ══════════════════════════════════════════════
+const SB_URL = 'https://whdlvapxuzmmzxcmokma.supabase.co'
+const SB_KEY = 'sb_publishable_0YEA5B-k1QpViU70IBhgHA_pM0Vte6A'
 const { createClient } = supabase
-const sb = createClient(SUPABASE_URL, SUPABASE_KEY)
+const sb = createClient(SB_URL, SB_KEY)
 
-let currentUser = null
-let currentProfile = null
+let STATE = {
+  user: null,
+  profile: null,
+  asignacion: null,
+  protocolo: null,
+  sesionHoy: null,
+  ejerciciosHoy: [],
+  cargas: {},
+  setsConteo: {},
+  setsTotales: {},
+  sociosDemo: [] // para coach hasta tener socios reales
+}
 
-// ── FRASES ROTATIVAS ──────────────────────────────────────
-const frases = [
+// ══════════════════════════════════════════════
+// ROUTER
+// ══════════════════════════════════════════════
+function goTo(pageId) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'))
+  document.getElementById(pageId).classList.add('active')
+  window.scrollTo(0,0)
+}
+
+// ══════════════════════════════════════════════
+// UTILS
+// ══════════════════════════════════════════════
+const FRASES = [
   'Lo que se viene hoy. Diseñado para ti.',
   'Prepárate para lo que se viene.',
   'Este protocolo fue construido para esta sesión.',
   'Cada ejercicio tiene un propósito. Confía en el sistema.',
   'Ejecuta con precisión. El método hace el resto.',
-  'Todo lo que necesitas está aquí. Actívalo cuando estés listo.'
+  'Todo lo que necesitas está aquí.'
 ]
 
-// ── FECHA ─────────────────────────────────────────────────
 function getFechaHoy() {
   const dias = ['DOM','LUN','MAR','MIÉ','JUE','VIE','SÁB']
   const meses = ['ENE','FEB','MAR','ABR','MAY','JUN','JUL','AGO','SEP','OCT','NOV','DIC']
@@ -577,23 +543,65 @@ function getFechaHoy() {
   return `${dias[d.getDay()]} ${d.getDate()} ${meses[d.getMonth()]} ${d.getFullYear()}`
 }
 
-// ── NAVEGACIÓN ────────────────────────────────────────────
-function showScreen(id) {
-  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'))
-  document.getElementById(id).classList.add('active')
-  window.scrollTo(0,0)
+function getFechaLarga() {
+  const dias = ['Domingo','Lunes','Martes','Miércoles','Jueves','Viernes','Sábado']
+  const meses = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre']
+  const d = new Date()
+  return `${dias[d.getDay()]} ${d.getDate()} de ${meses[d.getMonth()]}`
 }
 
-// ── LOGIN ─────────────────────────────────────────────────
+function diasDesde(fecha) {
+  return Math.floor((new Date() - new Date(fecha)) / (1000*60*60*24))
+}
+
+function alertaClase(dias) {
+  if (dias >= 30) return 'critical'
+  if (dias >= 15) return 'danger'
+  if (dias >= 7) return 'warn'
+  return 'ok'
+}
+
+function alertaTexto(dias) {
+  if (dias === 0) return 'Entrenó hoy'
+  if (dias === 1) return 'Entrenó ayer'
+  if (dias < 7) return `Hace ${dias} días`
+  if (dias < 15) return `⚠ Sin entrenar ${dias} días`
+  if (dias < 30) return `🔴 Ausente ${dias} días`
+  return `🚨 Ausente ${dias} días — Riesgo de baja`
+}
+
+function badgeClase(dias) {
+  if (dias === 0) return 'hoy'
+  if (dias < 7) return 'activo'
+  if (dias < 15) return 'warn'
+  if (dias < 30) return 'danger'
+  return 'critical'
+}
+
+function badgeLabel(dias) {
+  if (dias === 0) return 'Hoy'
+  if (dias < 7) return `Hace ${dias}d`
+  if (dias < 15) return '+7 días'
+  if (dias < 30) return '+15 días'
+  return '+30 días'
+}
+
+function calcEpley(peso, reps) {
+  return Math.round((peso * (1 + reps / 30)) * 4) / 4
+}
+
+// ══════════════════════════════════════════════
+// AUTH
+// ══════════════════════════════════════════════
 async function handleLogin() {
-  const email = document.getElementById('emailInput').value.trim().toLowerCase()
-  const pass  = document.getElementById('passInput').value
-  const btn   = document.getElementById('btnLogin')
-  const err   = document.getElementById('errorMsg')
+  const email = document.getElementById('lEmail').value.trim().toLowerCase()
+  const pass = document.getElementById('lPass').value
+  const btn = document.getElementById('btnLogin')
+  const err = document.getElementById('lErr')
 
   err.classList.remove('vis')
-  document.getElementById('emailInput').classList.remove('err')
-  document.getElementById('passInput').classList.remove('err')
+  document.getElementById('lEmail').classList.remove('err')
+  document.getElementById('lPass').classList.remove('err')
 
   if (!email || !pass) {
     err.textContent = 'Completa todos los campos'
@@ -602,181 +610,281 @@ async function handleLogin() {
   }
 
   btn.classList.add('loading')
-  btn.innerHTML = '<span class="spinner"></span>VERIFICANDO...'
+  btn.innerHTML = '<span class="spinner-inline"></span>VERIFICANDO...'
 
   try {
     const { data, error } = await sb.auth.signInWithPassword({ email, password: pass })
-
-    if (error) {
-      btn.classList.remove('loading')
-      btn.textContent = 'INGRESAR AL SISTEMA'
-      err.textContent = 'Email o contraseña incorrectos'
-      err.classList.add('vis')
-      document.getElementById('emailInput').classList.add('err')
-      document.getElementById('passInput').classList.add('err')
-      return
-    }
-
-    currentUser = data.user
-    await loadProfile()
-
+    if (error) throw error
+    STATE.user = data.user
+    await loadProfileAndEnter()
   } catch(e) {
     btn.classList.remove('loading')
     btn.textContent = 'INGRESAR AL SISTEMA'
-    err.textContent = 'Error de conexión. Intenta de nuevo.'
+    err.textContent = 'Email o contraseña incorrectos'
     err.classList.add('vis')
+    document.getElementById('lEmail').classList.add('err')
+    document.getElementById('lPass').classList.add('err')
   }
 }
 
-async function loadProfile() {
-  const { data: profile } = await sb
-    .from('profiles')
-    .select('*')
-    .eq('id', currentUser.id)
+async function loadProfileAndEnter() {
+  try {
+    const { data: profile } = await sb
+      .from('profiles')
+      .select('*')
+      .eq('id', STATE.user.id)
+      .single()
+
+    STATE.profile = profile
+
+    if (!profile) {
+      // Sin perfil — mostrar socio básico
+      document.getElementById('socioNombre').textContent = STATE.user.email.split('@')[0].toUpperCase()
+      document.getElementById('socioMeta').textContent = 'Perfil en configuración'
+      goTo('pgSocio')
+      return
+    }
+
+    if (profile.role === 'admin') {
+      await loadAdminData()
+      goTo('pgAdmin')
+    } else if (profile.role === 'coach') {
+      await loadCoachData()
+      goTo('pgCoach')
+    } else {
+      await loadSocioData()
+      goTo('pgSocio')
+    }
+  } catch(e) {
+    console.error('Error loading profile:', e)
+    goTo('pgSocio')
+  }
+}
+
+async function logout() {
+  await sb.auth.signOut()
+  STATE = { user:null, profile:null, asignacion:null, protocolo:null, sesionHoy:null, ejerciciosHoy:[], cargas:{}, setsConteo:{}, setsTotales:{}, sociosDemo:[] }
+  document.getElementById('lEmail').value = ''
+  document.getElementById('lPass').value = ''
+  document.getElementById('btnLogin').textContent = 'INGRESAR AL SISTEMA'
+  document.getElementById('btnLogin').classList.remove('loading')
+  goTo('pgLogin')
+}
+
+// ══════════════════════════════════════════════
+// SOCIO DATA
+// ══════════════════════════════════════════════
+async function loadSocioData() {
+  const p = STATE.profile
+  document.getElementById('socioNombre').textContent = p.nombre.toUpperCase()
+
+  // Cargar asignación activa
+  const { data: asig } = await sb
+    .from('asignaciones')
+    .select('*, protocolos(*)')
+    .eq('socio_id', p.id)
+    .eq('activo', true)
     .single()
 
-  currentProfile = profile
+  STATE.asignacion = asig
 
-  if (profile) {
-    entrarConRol(profile)
+  if (asig) {
+    const proto = asig.protocolos
+    document.getElementById('socioMeta').textContent = `${proto.programa} · ${proto.nivel} · Semana ${asig.semana_actual}/6 · Ciclo ${asig.ciclo_actual}`
+
+    // Determinar sesión de hoy (rotación 1→2→3→1...)
+    const sesNum = ((asig.semana_actual - 1) % 3) + 1
+    document.getElementById('sesHoyTitulo').textContent = `SESIÓN 0${sesNum} / 03`
+
+    // Cargar sesión del protocolo
+    const { data: sesiones } = await sb
+      .from('sesiones_protocolo')
+      .select('*')
+      .eq('protocolo_id', proto.id)
+      .eq('numero', sesNum)
+      .single()
+
+    if (sesiones) {
+      STATE.sesionHoy = sesiones
+      document.getElementById('sesHoyObj').textContent = sesiones.objetivo || '—'
+      await loadPizarra(sesiones, asig, p)
+    }
   } else {
-    // perfil no existe aún — mostrar dashboard básico
-    showScreen('dashSocioScreen')
-    document.getElementById('socioNombre').textContent = currentUser.email.split('@')[0].toUpperCase()
-    document.getElementById('socioMeta').textContent = 'Perfil pendiente de configuración'
+    document.getElementById('socioMeta').textContent = 'Sin protocolo asignado'
+    document.getElementById('sesHoyTitulo').textContent = 'SIN PROTOCOLO'
+    document.getElementById('sesHoyObj').textContent = 'Contacta a tu coach'
   }
 }
 
-function entrarConRol(profile) {
-  const nombre = `${profile.nombre} ${profile.apellido}`.toUpperCase()
+async function loadPizarra(sesion, asig, profile) {
+  // Header pizarra
+  document.getElementById('pizNombre').textContent = profile.nombre.toUpperCase()
+  document.getElementById('pizFecha').textContent = getFechaHoy() + '\nSEMANA ' + String(asig.semana_actual).padStart(2,'0') + ' / 06'
+  document.getElementById('pizSesId').textContent = `SESIÓN 0${sesion.numero} / 03 · ${sesion.nombre.split('—')[0].trim()}`
+  document.getElementById('pizSesObj').textContent = (sesion.objetivo || '').replace('·','\n')
+  document.getElementById('pizFrase').textContent = FRASES[Math.floor(Math.random() * FRASES.length)]
+  document.getElementById('pizPrograma').textContent = `MÉTODO KOACH · SISTEMA ${asig.protocolos?.programa || ''}`
+  document.getElementById('sesMarca').textContent = `KOACH · ${asig.protocolos?.programa || ''}`
+  document.getElementById('sesTitulo').textContent = sesion.objetivo || '—'
 
-  if (profile.role === 'admin') {
-    document.getElementById('adminNombre').textContent = profile.nombre.toUpperCase()
-    loadAdminData()
-    showScreen('dashAdminScreen')
+  // Cargar ejercicios del bloque
+  const { data: bloques } = await sb
+    .from('bloques')
+    .select('*, bloque_ejercicios(*, ejercicios(*))')
+    .eq('sesion_id', sesion.id)
+    .order('bloque')
 
-  } else if (profile.role === 'coach') {
-    document.getElementById('coachNombre').textContent = profile.nombre.toUpperCase()
-    document.getElementById('coachMeta').textContent = 'Coach · KOACH Club'
-    loadCoachSocios(profile.id)
-    showScreen('dashCoachScreen')
-
-  } else {
-    // socio
-    document.getElementById('socioNombre').textContent = profile.nombre.toUpperCase()
-    document.getElementById('socioMeta').textContent = `STRONG · Semana 3 / Ciclo 1`
-    loadSocioPizarra(profile)
-    showScreen('dashSocioScreen')
-  }
-}
-
-// ── CARGAR SOCIOS PARA COACH ──────────────────────────────
-async function loadCoachSocios(coachId) {
-  const { data: socios } = await sb
-    .from('profiles')
-    .select('*, asignaciones(*, protocolos(nombre, programa, nivel))')
-    .eq('coach_id', coachId)
-    .eq('activo', true)
-    .eq('role', 'socio')
-
-  const lista = document.getElementById('sociosList')
-
-  if (!socios || socios.length === 0) {
-    lista.innerHTML = '<div style="font-family:Share Tech Mono,monospace;font-size:8px;color:var(--gris);letter-spacing:0.1em;padding:12px 0;">Sin socios asignados aún</div>'
+  if (!bloques || bloques.length === 0) {
+    document.getElementById('pizEjs').innerHTML = '<div class="loading-state">Sin ejercicios cargados</div>'
     return
   }
 
-  const estados = ['ok','go','wait']
-  const estadoLabels = ['Completado','En curso','Pendiente']
+  // Flatten para pizarra
+  let num = 1
+  let pizHTML = ''
+  let sesHTML = ''
+  STATE.ejerciciosHoy = []
+  STATE.setsConteo = {}
+  STATE.setsTotales = {}
 
-  lista.innerHTML = socios.map((s, i) => {
-    const asig = s.asignaciones?.[0]
-    const proto = asig?.protocolos?.nombre || '—'
-    const semana = asig ? `S0${asig.semana_actual || 1} · Sem ${asig.semana_actual || 1}/6` : '—'
-    const est = estados[i % 3]
-    const estLbl = estadoLabels[i % 3]
-    return `
-      <div class="socio-row">
-        <div class="socio-info">
-          <div class="socio-nombre">${s.nombre} ${s.apellido}</div>
-          <div class="socio-meta">${proto} · ${semana}</div>
+  bloques.forEach(bloque => {
+    const ejs = bloque.bloque_ejercicios?.sort((a,b) => a.orden - b.orden) || []
+    const descDescanso = bloque.descanso_segundos >= 60
+      ? `${bloque.descanso_segundos/60}'`
+      : `${bloque.descanso_segundos}"`
+    const roles = { activacion:'Activación', fuerza_principal:'Fuerza principal', cierre_accesorio:'Cierre accesorio' }
+
+    STATE.setsConteo[bloque.bloque] = 0
+    STATE.setsTotales[bloque.bloque] = bloque.sets
+
+    // HTML sesión - bloque
+    sesHTML += `
+      <div class="bloque-sec">
+        <div class="bloque-head">
+          <div class="bloque-badge">${bloque.bloque}</div>
+          <div class="bloque-specs">${bloque.sets} SETS · ${descDescanso} DESC</div>
         </div>
-        <div class="estado ${est}">${estLbl}</div>
+        <div class="bloque-rol">${roles[bloque.rol] || bloque.rol}</div>
+    `
+
+    ejs.forEach((be, i) => {
+      const ej = be.ejercicios
+      if (!ej) return
+
+      // Pizarra
+      pizHTML += `
+        <div class="piz-ej">
+          <span class="piz-ej-num">0${num}</span>
+          <span class="piz-ej-nombre">${ej.nombre}</span>
+          <span class="piz-ej-bloque">${bloque.bloque}</span>
+        </div>`
+      num++
+
+      STATE.ejerciciosHoy.push({ be, ej, bloque: bloque.bloque })
+
+      const repsLabel = be.reps ? `${be.reps} REP` : be.duracion_seg ? `${be.duracion_seg} SEG` : '—'
+      const anclaLabel = be.es_ancla ? ' ◆' : ''
+
+      if (ej.con_carga) {
+        sesHTML += `
+          <div class="ej-card">
+            <div class="ej-card-top">
+              <div class="ej-card-num">0${i+1}${anclaLabel}</div>
+              <div class="ej-card-nombre">${ej.nombre}</div>
+              <div class="ej-card-reps">${repsLabel}</div>
+            </div>
+            <div class="carga-row">
+              <div class="carga-cell">
+                <div class="carga-lbl">Peso del día</div>
+                <div class="carga-inp-wrap">
+                  <input class="carga-inp" type="number" inputmode="decimal" placeholder="—"
+                    data-ej-id="${be.id}"
+                    oninput="registrarCarga('${be.id}', this.value); updateProg()">
+                  <span class="carga-kg">KG</span>
+                </div>
+              </div>
+              <div class="carga-cell">
+                <div class="carga-lbl">${be.es_ancla ? 'Sugerido ◆' : 'Sugerido'}</div>
+                <div class="carga-sug" id="sug-${be.id}">—</div>
+                <div class="carga-sug-prev" id="sugprev-${be.id}"></div>
+              </div>
+            </div>
+          </div>`
+      } else {
+        sesHTML += `
+          <div class="ej-card">
+            <div class="ej-card-top">
+              <div class="ej-card-num">0${i+1}</div>
+              <div class="ej-card-nombre">${ej.nombre}</div>
+              <div class="ej-card-reps">${repsLabel}</div>
+            </div>
+            <div class="sin-carga-row">
+              <span class="sin-carga-lbl">Sin carga</span>
+              <button class="btn-marcar" onclick="marcar(this)">Marcar</button>
+            </div>
+          </div>`
+      }
+    })
+
+    sesHTML += `
+        <button class="btn-sets" onclick="completarSets(this,'${bloque.bloque}')">${bloque.sets} SETS COMPLETADOS</button>
+        <div class="sets-sub" id="sub-${bloque.bloque}">SET 1 DE ${bloque.sets}</div>
       </div>`
-  }).join('')
+  })
 
-  const hoy = getFechaHoy()
-  document.getElementById('coachFechaLabel').textContent = `Socios activos hoy — ${hoy}`
+  document.getElementById('pizEjs').innerHTML = pizHTML || '<div class="loading-state">Sin ejercicios</div>'
+  document.getElementById('sesionContent').innerHTML = sesHTML
+
+  // Cargar cargas históricas para sugeridos
+  await loadSugeridos()
 }
 
-// ── CARGAR DATA ADMIN ─────────────────────────────────────
-async function loadAdminData() {
-  const { count: totalSocios } = await sb
-    .from('profiles')
-    .select('*', { count: 'exact', head: true })
-    .eq('role', 'socio')
-    .eq('activo', true)
+async function loadSugeridos() {
+  if (!STATE.profile) return
 
-  const { count: totalCoaches } = await sb
-    .from('profiles')
-    .select('*', { count: 'exact', head: true })
-    .eq('role', 'coach')
-    .eq('activo', true)
+  for (const item of STATE.ejerciciosHoy) {
+    if (!item.ej.con_carga) continue
 
-  document.getElementById('adminResumen').textContent =
-    `${totalSocios || 0} socios · ${totalCoaches || 0} coaches activos`
+    // Buscar última carga para este ejercicio
+    const { data: cargas } = await sb
+      .from('cargas')
+      .select('peso_kg, sets_completados, sesiones_registro(fecha)')
+      .eq('socio_id', STATE.profile.id)
+      .eq('ejercicio_id', item.ej.id)
+      .order('created_at', { ascending: false })
+      .limit(2)
+
+    if (cargas && cargas.length > 0) {
+      const ultima = cargas[0]
+      const penultima = cargas[1]
+      const sugerida = ultima.peso_kg
+
+      const sugEl = document.getElementById(`sug-${item.be.id}`)
+      const prevEl = document.getElementById(`sugprev-${item.be.id}`)
+
+      if (sugEl) sugEl.textContent = `${sugerida} KG`
+      if (prevEl && penultima) {
+        const fecha = ultima.sesiones_registro?.fecha
+          ? new Date(ultima.sesiones_registro.fecha).toLocaleDateString('es',{day:'numeric',month:'short'})
+          : 'S ant.'
+        prevEl.textContent = `Desde ${fecha}: ${penultima.peso_kg} KG`
+      } else if (prevEl) {
+        prevEl.textContent = 'Primera sesión'
+      }
+    } else {
+      const sugEl = document.getElementById(`sug-${item.be.id}`)
+      const prevEl = document.getElementById(`sugprev-${item.be.id}`)
+      if (sugEl) sugEl.textContent = '—'
+      if (prevEl) prevEl.textContent = 'Define tu carga inicial'
+    }
+  }
 }
 
-// ── PIZARRA DATA ──────────────────────────────────────────
-function loadSocioPizarra(profile) {
-  document.getElementById('pizNombre').textContent = profile.nombre.toUpperCase()
-  document.getElementById('pizFecha').textContent = getFechaHoy() + '\nSEMANA 03 / 06'
-  document.getElementById('pizFrase').textContent = frases[Math.floor(Math.random() * frases.length)]
-  document.getElementById('sesTitulo').textContent = 'Pecho · Cuádriceps · Hombros'
-
-  // Ejercicios del protocolo (STRONG HOMBRE INTERMEDIO S02)
-  const ejercicios = [
-    { n:'DB Shoulder press seated', b:'B1' },
-    { n:'T-bar row machine', b:'B1' },
-    { n:'V plank rotation', b:'B1' },
-    { n:'Cat-cow', b:'B1' },
-    { n:'Pendulum squat', b:'B2' },
-    { n:'Chest press machine', b:'B2' },
-    { n:'Cable pushdown', b:'B3' },
-    { n:'Cable single-arm lat pulldown', b:'B3' },
-    { n:'Leg press 45', b:'B3' }
-  ]
-
-  document.getElementById('pizEjercicios').innerHTML = ejercicios.map((e, i) => `
-    <div class="piz-ej">
-      <span class="piz-ej-num">0${i+1}</span>
-      <span class="piz-ej-nombre">${e.n}</span>
-      <span class="piz-ej-bloque">${e.b}</span>
-    </div>`).join('')
-}
-
-// ── LOGOUT ────────────────────────────────────────────────
-async function logout() {
-  await sb.auth.signOut()
-  currentUser = null
-  currentProfile = null
-  document.getElementById('emailInput').value = ''
-  document.getElementById('passInput').value = ''
-  document.getElementById('btnLogin').textContent = 'INGRESAR AL SISTEMA'
-  document.getElementById('btnLogin').classList.remove('loading')
-  showScreen('loginScreen')
-}
-
-// ── SESIÓN — PROGRESO ─────────────────────────────────────
-const totalSets = {1:3, 2:4, 3:3}
-const conteo = {1:0, 2:0, 3:0}
-
-function updateProg() {
-  const inputs = document.querySelectorAll('.carga-inp')
-  const filled = [...inputs].filter(i => i.value).length
-  const done = conteo[1] + conteo[2] + conteo[3]
-  const total = totalSets[1] + totalSets[2] + totalSets[3]
-  document.getElementById('progFill').style.width = (done/total*100) + '%'
+// ══════════════════════════════════════════════
+// SESIÓN — INTERACCIÓN
+// ══════════════════════════════════════════════
+function registrarCarga(beId, valor) {
+  STATE.cargas[beId] = parseFloat(valor) || null
 }
 
 function marcar(btn) {
@@ -785,44 +893,279 @@ function marcar(btn) {
   updateProg()
 }
 
-function completarSets(btn, b) {
-  conteo[b]++
-  const total = totalSets[b]
-  const sub = document.getElementById('sub'+b)
-  if (conteo[b] >= total) {
-    btn.textContent = '✓ BLOQUE COMPLETADO'
+function completarSets(btn, bloqueId) {
+  STATE.setsConteo[bloqueId]++
+  const total = STATE.setsTotales[bloqueId]
+  const sub = document.getElementById('sub-' + bloqueId)
+  if (STATE.setsConteo[bloqueId] >= total) {
+    btn.textContent = `✓ ${bloqueId} COMPLETADO`
     btn.style.opacity = '0.6'
-    sub.textContent = 'Todos los sets realizados'
-    conteo[b] = total
+    if (sub) sub.textContent = 'Todos los sets realizados'
+    STATE.setsConteo[bloqueId] = total
   } else {
-    sub.textContent = `SET ${conteo[b]+1} DE ${total}`
+    if (sub) sub.textContent = `SET ${STATE.setsConteo[bloqueId]+1} DE ${total}`
   }
   updateProg()
 }
 
+function updateProg() {
+  const done = Object.values(STATE.setsConteo).reduce((a,b) => a+b, 0)
+  const total = Object.values(STATE.setsTotales).reduce((a,b) => a+b, 0)
+  const pct = total > 0 ? (done/total*100) : 0
+  document.getElementById('progFill').style.width = pct + '%'
+}
+
 async function cerrarSesion() {
-  if (confirm('¿Confirmar cierre de sesión?')) {
-    // aquí irá el registro en Supabase
-    alert('Sesión registrada.')
-    showScreen('dashSocioScreen')
+  if (!confirm('¿Confirmar cierre de sesión?')) return
+
+  const btn = document.getElementById('btnCerrarSes')
+  btn.classList.add('loading')
+  btn.textContent = 'GUARDANDO...'
+
+  try {
+    if (STATE.profile && STATE.asignacion && STATE.sesionHoy) {
+      // 1. Crear registro de sesión
+      const { data: sesReg } = await sb.from('sesiones_registro').insert({
+        socio_id: STATE.profile.id,
+        asignacion_id: STATE.asignacion.id,
+        sesion_protocolo_id: STATE.sesionHoy.id,
+        fecha: new Date().toISOString().split('T')[0],
+        estado: 'completada',
+        semana: STATE.asignacion.semana_actual,
+        ciclo: STATE.asignacion.ciclo_actual,
+        completada_at: new Date().toISOString()
+      }).select().single()
+
+      // 2. Guardar cargas
+      if (sesReg) {
+        const cargasInsert = []
+        for (const item of STATE.ejerciciosHoy) {
+          const peso = STATE.cargas[item.be.id]
+          if (peso) {
+            cargasInsert.push({
+              sesion_registro_id: sesReg.id,
+              socio_id: STATE.profile.id,
+              bloque_ejercicio_id: item.be.id,
+              ejercicio_id: item.ej.id,
+              peso_kg: peso,
+              sets_completados: STATE.setsConteo[item.bloque] || 0,
+              registrado_por: STATE.profile.id
+            })
+          }
+        }
+        if (cargasInsert.length > 0) {
+          await sb.from('cargas').insert(cargasInsert)
+        }
+      }
+    }
+
+    btn.classList.remove('loading')
+    alert('Sesión registrada. ¡Excelente trabajo!')
+    goTo('pgSocio')
+
+  } catch(e) {
+    btn.classList.remove('loading')
+    btn.textContent = 'Cerrar sesión ✓'
+    console.error(e)
+    alert('Error al guardar. Intenta de nuevo.')
   }
 }
 
-// ── ENTER KEY ─────────────────────────────────────────────
-document.addEventListener('keydown', e => {
-  if (e.key === 'Enter' && document.getElementById('loginScreen').classList.contains('active')) {
-    handleLogin()
-  }
-})
+// ══════════════════════════════════════════════
+// COACH DATA
+// ══════════════════════════════════════════════
+const SOCIOS_DEMO = [
+  { id:'d1', nombre:'Carlos', apellido:'Mendoza', email:'carlos@mail.com', telefono:'+56912345678', protocolo:'STRONG INT', semana:3, ciclo:1, ultima_sesion: new Date(Date.now() - 1*86400000) },
+  { id:'d2', nombre:'Valentina', apellido:'Cruz', email:'vale@mail.com', telefono:'+56987654321', protocolo:'BURN INT', semana:2, ciclo:1, ultima_sesion: new Date(Date.now() - 3*86400000) },
+  { id:'d3', nombre:'Rodrigo', apellido:'Fuentes', email:'rod@mail.com', telefono:'+56911112222', protocolo:'HEALTHY BAS', semana:1, ciclo:1, ultima_sesion: new Date(Date.now() - 8*86400000) },
+  { id:'d4', nombre:'Camila', apellido:'Pardo', email:'cami@mail.com', telefono:'+56933334444', protocolo:'STRONG AVZ', semana:5, ciclo:1, ultima_sesion: new Date(Date.now() - 16*86400000) },
+  { id:'d5', nombre:'Diego', apellido:'Araya', email:'diego@mail.com', telefono:'+56955556666', protocolo:'BURN BAS', semana:4, ciclo:1, ultima_sesion: new Date(Date.now() - 32*86400000) },
+  { id:'d6', nombre:'Sofía', apellido:'Herrera', email:'sofia@mail.com', telefono:'+56977778888', protocolo:'HEALTHY INT', semana:2, ciclo:2, ultima_sesion: new Date(Date.now() - 0*86400000) },
+]
 
-// ── CHECK SESSION ACTIVA ──────────────────────────────────
+async function loadCoachData() {
+  const p = STATE.profile
+  document.getElementById('coachRolBadge').textContent = p.role === 'admin' ? 'Admin' : 'Coach'
+
+  // Intentar cargar socios reales desde DB
+  const { data: sociosDB } = await sb
+    .from('profiles')
+    .select('*, asignaciones(*, protocolos(nombre, programa, nivel))')
+    .eq('role', 'socio')
+    .eq('activo', true)
+
+  // Usar DB si hay socios, sino demo
+  const socios = (sociosDB && sociosDB.length > 0) ? sociosDB : SOCIOS_DEMO
+  STATE.sociosDemo = socios
+
+  renderSocios(socios, 'todos')
+  renderAlertas(socios)
+  renderHoy(socios)
+
+  document.getElementById('hoyFecha').textContent = getFechaLarga()
+
+  // Alertas badge
+  const s7 = socios.filter(s => {
+    const d = s.ultima_sesion ? diasDesde(s.ultima_sesion) : 999
+    return d >= 7
+  })
+  document.getElementById('alertaBadge').textContent = s7.length
+}
+
+function coachTab(tab) {
+  document.querySelectorAll('.tab[id^="ctab"]').forEach(t => t.classList.remove('active'))
+  document.querySelectorAll('.view[id^="cview"]').forEach(v => v.classList.remove('active'))
+  document.getElementById('ctab-' + tab).classList.add('active')
+  document.getElementById('cview-' + tab).classList.add('active')
+}
+
+function filtrarSocios(tipo, btn) {
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'))
+  btn.classList.add('active')
+  let socios = STATE.sociosDemo
+  if (tipo === 'activos') socios = socios.filter(s => diasDesde(s.ultima_sesion||new Date()) < 7)
+  else if (tipo === '7d') socios = socios.filter(s => { const d = diasDesde(s.ultima_sesion||new Date()); return d>=7&&d<15 })
+  else if (tipo === '15d') socios = socios.filter(s => { const d = diasDesde(s.ultima_sesion||new Date()); return d>=15&&d<30 })
+  else if (tipo === '30d') socios = socios.filter(s => diasDesde(s.ultima_sesion||new Date()) >= 30)
+  renderSocios(socios, tipo)
+}
+
+function renderSocios(socios, filtro) {
+  const lista = document.getElementById('sociosList')
+  document.getElementById('sociosTitulo').textContent = `Socios (${socios.length})`
+  document.getElementById('sociosMeta').textContent = `${filtro === 'todos' ? STATE.sociosDemo.length + ' en total' : 'Filtro activo'}`
+
+  if (!socios.length) { lista.innerHTML = '<div class="loading-state">Sin socios en este filtro</div>'; return }
+
+  const sorted = [...socios].sort((a,b) => diasDesde(b.ultima_sesion||new Date()) - diasDesde(a.ultima_sesion||new Date()))
+
+  lista.innerHTML = sorted.map(s => {
+    const dias = s.ultima_sesion ? diasDesde(s.ultima_sesion) : 999
+    const aClass = dias>=30?'a30':dias>=15?'a15':dias>=7?'a7':''
+    const proto = s.protocolo || (s.asignaciones?.[0]?.protocolos?.nombre) || '—'
+    const semana = s.semana || s.asignaciones?.[0]?.semana_actual || '—'
+    const ciclo = s.ciclo || s.asignaciones?.[0]?.ciclo_actual || '—'
+    const tel = s.telefono || ''
+    return `
+      <div class="socio-card ${aClass}">
+        <div class="sc-inner">
+          <div class="sc-left">
+            <div class="sc-nombre">${s.nombre} ${s.apellido}</div>
+            <div class="sc-proto">${proto} · Sem ${semana}/6 · Ciclo ${ciclo}</div>
+            <div class="sc-ultima ${alertaClase(dias)}">${alertaTexto(dias)}</div>
+          </div>
+          <div class="sc-badge ${badgeClase(dias)}">${badgeLabel(dias)}</div>
+        </div>
+        <div class="sc-acciones">
+          <button class="sc-accion" onclick="">Ver perfil</button>
+          <button class="sc-accion purple" onclick="">IA Coach</button>
+          <button class="sc-accion green" onclick="wsMsg('${tel}','${s.nombre}',${dias})">WhatsApp</button>
+        </div>
+      </div>`
+  }).join('')
+}
+
+function renderAlertas(socios) {
+  const s7 = socios.filter(s => { const d=diasDesde(s.ultima_sesion||new Date()); return d>=7&&d<15 })
+  const s15 = socios.filter(s => { const d=diasDesde(s.ultima_sesion||new Date()); return d>=15&&d<30 })
+  const s30 = socios.filter(s => diasDesde(s.ultima_sesion||new Date()) >= 30)
+  document.getElementById('cnt7').textContent = s7.length
+  document.getElementById('cnt15').textContent = s15.length
+  document.getElementById('cnt30').textContent = s30.length
+
+  const todos = [
+    ...s30.map(s=>({...s,clase:'a30',dias:diasDesde(s.ultima_sesion||new Date())})),
+    ...s15.map(s=>({...s,clase:'a15',dias:diasDesde(s.ultima_sesion||new Date())})),
+    ...s7.map(s=>({...s,clase:'a7',dias:diasDesde(s.ultima_sesion||new Date())}))
+  ]
+
+  const lista = document.getElementById('alertasList')
+  if (!todos.length) { lista.innerHTML = '<div class="loading-state">✓ Sin alertas activas</div>'; return }
+
+  lista.innerHTML = todos.map(s => {
+    const proto = s.protocolo || s.asignaciones?.[0]?.protocolos?.nombre || '—'
+    const tel = s.telefono || ''
+    return `
+      <div class="socio-card ${s.clase}" style="border:1px solid;${s.clase==='a30'?'border-color:rgba(123,36,28,0.3);background:rgba(123,36,28,0.03)':s.clase==='a15'?'border-color:rgba(192,57,43,0.3);background:rgba(192,57,43,0.03)':'border-color:rgba(230,126,34,0.3);background:rgba(230,126,34,0.03)'}">
+        <div class="sc-inner">
+          <div class="sc-left">
+            <div class="sc-nombre">${s.nombre} ${s.apellido}</div>
+            <div class="sc-proto">${proto} · ${s.dias} días sin entrenar</div>
+          </div>
+          <div class="sc-badge ${s.clase==='a30'?'critical':s.clase==='a15'?'danger':'warn'}">${s.clase==='a30'?'Crítico':s.clase==='a15'?'Urgente':'Atención'}</div>
+        </div>
+        <div class="sc-acciones">
+          <button class="sc-accion green" onclick="wsMsg('${tel}','${s.nombre}',${s.dias})">WhatsApp</button>
+        </div>
+      </div>`
+  }).join('')
+}
+
+function renderHoy(socios) {
+  const hoy = socios.filter(s => diasDesde(s.ultima_sesion||new Date()) === 0)
+  const lista = document.getElementById('hoyList')
+  if (!hoy.length) { lista.innerHTML = '<div class="loading-state">Ningún socio ha entrenado hoy aún</div>'; return }
+  lista.innerHTML = hoy.map(s => `
+    <div class="socio-card">
+      <div class="sc-inner">
+        <div class="sc-left">
+          <div class="sc-nombre">${s.nombre} ${s.apellido}</div>
+          <div class="sc-proto">${s.protocolo||'—'}</div>
+        </div>
+        <div class="sc-badge hoy">✓ Completado</div>
+      </div>
+    </div>`).join('')
+}
+
+function wsMsg(tel, nombre, dias) {
+  if (!tel) return
+  let msg = dias >= 30
+    ? `Hola ${nombre}, soy del equipo KOACH. Notamos que llevas un tiempo sin entrenar. ¿Podemos ayudarte en algo? Tu protocolo te espera cuando estés listo.`
+    : dias >= 15
+    ? `Hola ${nombre}! Te escribimos desde KOACH. Han pasado ${dias} días desde tu última sesión. ¿Cómo has estado?`
+    : `Hola ${nombre}! Te recuerda el equipo KOACH. Esta semana es un buen momento para retomar tu protocolo. ¿Nos vemos?`
+  const num = tel.replace(/\s/g,'').replace('+','')
+  window.open(`https://wa.me/${num}?text=${encodeURIComponent(msg)}`, '_blank')
+}
+
+// ══════════════════════════════════════════════
+// ADMIN DATA
+// ══════════════════════════════════════════════
+async function loadAdminData() {
+  document.getElementById('adminNombre').textContent = (STATE.profile?.nombre || 'Admin').toUpperCase()
+
+  const { count: totalSocios } = await sb.from('profiles').select('*',{count:'exact',head:true}).eq('role','socio').eq('activo',true)
+  const { count: totalCoaches } = await sb.from('profiles').select('*',{count:'exact',head:true}).eq('role','coach').eq('activo',true)
+
+  document.getElementById('adminResumen').textContent = `${totalSocios||0} socios · ${totalCoaches||0} coaches activos`
+
+  // También cargar vista coach para admin
+  STATE.profile.role = 'coach'
+  await loadCoachData()
+  STATE.profile.role = 'admin'
+}
+
+// ══════════════════════════════════════════════
+// INIT — CHECK SESSION
+// ══════════════════════════════════════════════
 ;(async () => {
   const { data: { session } } = await sb.auth.getSession()
   if (session) {
-    currentUser = session.user
-    await loadProfile()
+    STATE.user = session.user
+    await loadProfileAndEnter()
   }
+
+  document.getElementById('lEmail').addEventListener('keydown', e => {
+    if (e.key === 'Enter') document.getElementById('lPass').focus()
+  })
+  document.getElementById('lPass').addEventListener('keydown', e => {
+    if (e.key === 'Enter') handleLogin()
+  })
 })()
+
+const LOGO_SRC = "data:image/jpeg;base64,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AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAP/2gAMAwEAAgADAAAAIQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADDDAAAAAAADDDBCAAACLJPDCAAAAAAAAAABAAAAAAAAAAACFPFCBAAAAADDDAAAAAAAAADDDAAAAAAAAAAAAAAAAAAAAAAAAAAAAKAAKAAAAABGAAFIBKIAAAAAEAAAAAAAAAAACAAAAAAAAAIAAAAAAMAAAAPAAAAAAAAAAFAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAKAAKAAAAAKAAHIBOAAAACAAAEKAAAAAAAHAFAAAAAAAAGAAADDCAAEMAAPAAAAAAAAAAFAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAKAAKAAABIAACAAMAACIIAEDAAECAAAAAAKAELAAAAAAGAAFAIAMECAEIAPAAAAAAAAAAFAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAKAAKAABMAAEIAEAAFIAAAAEPAABAAAAAOAAAAAAAAAAAADIAAAAANMMJAPAAAAAAAAAAFAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAKAAKAAEAABKAAAAAIAAAAAAECAAKAAAAAAAAAAAAAAAABKAAAAAAAAAAAPAAAAAAAAAAFAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAKAAKADIAAAAABCAEAAAAAAAADAAIAAAGAACAABAAAFCAFIAAAAAAAAAAAPAAMMMMMMMMMAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAKAAKAIAAOAAAAIAFAAAAAAAAPAAKAACAACILAABAAAIAFAAAAAAAAAAAAPAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAKAAKACAAMAAABKABKAAAAAAANAAIAACABCAEKAEKAEKAEAAAAAAAAAAAAPAABDDDDDDDCAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAKAAKAEDAAECAAKAEKAAAAAAAKAAIANAAEAAAMAAJCACAFAAAAAAAAAAAAPAAMMMMMMMMJAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAKAAKAABAAAMAABAABCAAAAABIABIFAAAAAAAEIAELACAALAAAAAAADDDAPAAAAAAAAAAFAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAKAAKAAAMAAAAAACAENCAAADAAADAIAANAAAAAACAFABAAALAAAABGAAKAPAAAAAAAAAAFAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAKAAKAAAANAAAGAECAAAEAMIAAHIFIAEAAAAAAEIAALAJCAEIPAOEAAHAAPAAAAAAAAAAFAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAKAAKAAAAANCAEDAFAAAAAAAABIAMAAAAAAAAAAAAABKABCAAAAAAAHAAAPAAAAAAAAAAFAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAKAAKAAAAAAAAAALAIKDDDADAAAFAAAAAAAAAAAAAAAIAAIIBDDCBIIAAAOAACAAAAAAAFAABAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAIMIAAAAAAAAAAAAAAAAAAAAAAAAAAEMIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAP/aAAwDAQACAAMAAAAQ88888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888884ww08888888ww4w880owoIw08888888888w88888888888woYII4088880ww888888884www8888888888888888888888888888888U888888E888c88c88888MY888888888EU8888888880888888MQ888U8888888888888o8888888888888888888888888888888U88888088o80E88880888sE8888888g8c8888888oE88840888so88U8888888888888o8888888888888888888888888888888U8884U88wc4E880cMM8088sQ88888808s0888884s88kcM8sI88sw8U8888888888888o8888888888888888888888888888888U884s88sU8o88os88888I88s88888E888s88888488k8888888AAE8U8888888888888o8888888888888888888888888888888U84M888888U88k888888s888U888w8888888888c84c88888888888U8888888888888o8888888888888888888888888888888U8kc84088o08oc8888888Q880884E88g884c888c88c88888888888U8888888888s88o8888888888888888888888888888888U0c88M8888c84c8888888c88w88w88g8888M884c88888888888888U8888888888888o8888888888888888888888888888888Usc884088sU8888888888Q88k84888U88U88c84c88888888888888U884wwwwwww088o8888888888888888888888888888888U88488M08808sU8888888c88884884888888808U84c88888888888U88sMMMMMMMc88o8888888888888888888888888888888U88s088Y88c88M888888s88888888U888sc8sw8Q88g8888884www8U8888888888888o8888888888888888888888888888888U888I888M8488sI08884888w8E88U88888808s0808sY08880888A8U8888888888888o8888888888888888888888888888888U88884088g8I0888cs8888k8gc8sc888888c88w8I08s80gkM88088U8888888888888o8888888888888888888888888888888U88888808s4sM888888884c8k8888888888888o08I088888880c88U8888888888888o8888888888888888888888888888wwwU888888swww088c04ww8M88swwwwwwwwwwwwwwwU88MU04w400c888cww888888884wwg8888888888888888888888888888888888888888888888scc88888888888888888888888888ssMs8888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888/8QAFBEBAAAAAAAAAAAAAAAAAAAAwP/aAAgBAgEBPwAJh//EABQRAQAAAAAAAAAAAAAAAAAAAMD/2gAIAQMBAT8ACYf/xABKEAAABAIDBxAJAwQCAwEBAAABAgMEAAUGESASEyExNVRyFBUWIiMwMkBBQlFSYXGRkhAzNFBTgoOh0SRigUOiscFE4WBzwGOy/9oACAEBAAE/Av8A5iFRVNIK1VCED9w1QpOJemO2dJ/xhg9IZcX+qY3cUY2Sy/pU8sEpDLjf1RL3lGEpuwU4LpP+RqhNQigVpnKYOwa/eiihEwrUOUodo1QrN2CfCdJ/wNcHpDLi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";
+document.querySelectorAll('.koach-logo').forEach(img => img.src = LOGO_SRC);
+
 </script>
 </body>
 </html>
