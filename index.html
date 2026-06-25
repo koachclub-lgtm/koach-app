@@ -341,427 +341,6 @@
   .ob-success-titulo { font-weight:900; font-size:30px; color:var(--negro); text-transform:uppercase; line-height:1; }
   .ob-success-sub { font-family:'Share Tech Mono',monospace; font-size:8px; color:var(--gris); line-height:1.8; letter-spacing:0.1em; }
   .ob-email-box { font-family:'Share Tech Mono',monospace; font-size:9px; color:var(--negro); background:white; border:1px solid var(--borde); padding:9px 14px; }
-
-
-/* ── PAGOS STATS STRIP ── */
-.pagos-strip {
-  display: grid;
-  grid-template-columns: 1fr 1fr 1fr;
-  border-bottom: 2px solid var(--negro);
-  flex-shrink: 0;
-}
-.pagos-stat {
-  padding: 14px 0 12px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 3px;
-  border-right: 1px solid var(--borde);
-}
-.pagos-stat:last-child { border-right: none; }
-.pagos-stat-num {
-  font-weight: 900;
-  font-size: 32px;
-  line-height: 1;
-  color: var(--negro);
-}
-.pagos-stat-num.ok    { color: var(--ok); }
-.pagos-stat-num.warn  { color: var(--warn); }
-.pagos-stat-num.danger{ color: var(--danger); }
-.pagos-stat-lbl {
-  font-family: 'Share Tech Mono', monospace;
-  font-size: 7px;
-  letter-spacing: 0.14em;
-  color: var(--gris);
-  text-transform: uppercase;
-  text-align: center;
-  line-height: 1.4;
-}
-
-/* ── PAGO CARD ── */
-.pago-card {
-  border-bottom: 1px solid var(--borde);
-  padding: 13px 22px;
-  background: white;
-}
-.pago-card-top {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  margin-bottom: 6px;
-}
-.pago-nombre {
-  font-weight: 900;
-  font-size: 15px;
-  color: var(--negro);
-  letter-spacing: 0.01em;
-  line-height: 1;
-}
-.pago-tipo {
-  font-family: 'Share Tech Mono', monospace;
-  font-size: 8px;
-  color: var(--gris);
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  margin-top: 3px;
-}
-.pago-estado-badge {
-  font-family: 'Share Tech Mono', monospace;
-  font-size: 8px;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  padding: 4px 9px;
-  flex-shrink: 0;
-}
-.pago-estado-badge.ok     { background: rgba(39,174,96,0.1);  color: var(--ok); }
-.pago-estado-badge.warn   { background: rgba(230,126,34,0.1); color: var(--warn); }
-.pago-estado-badge.danger { background: rgba(192,57,43,0.1);  color: var(--danger); }
-.pago-card-bottom {
-  display: flex;
-  justify-content: space-between;
-  align-items: baseline;
-}
-.pago-monto {
-  font-weight: 700;
-  font-size: 18px;
-  color: var(--negro);
-  letter-spacing: 0.01em;
-}
-.pago-monto-desc {
-  font-family: 'Share Tech Mono', monospace;
-  font-size: 8px;
-  color: var(--gris-claro);
-  margin-left: 4px;
-}
-.pago-fechas {
-  font-family: 'Share Tech Mono', monospace;
-  font-size: 8px;
-  color: var(--gris);
-  text-align: right;
-  line-height: 1.7;
-}
-.pago-acciones {
-  display: flex;
-  gap: 6px;
-  margin-top: 9px;
-}
-.pago-accion {
-  font-family: 'Share Tech Mono', monospace;
-  font-size: 8px;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  background: none;
-  border: 1px solid var(--borde);
-  color: var(--negro);
-  padding: 6px 12px;
-  cursor: pointer;
-}
-.pago-accion.green {
-  background: rgba(39,174,96,0.08);
-  border-color: rgba(39,174,96,0.3);
-  color: var(--ok);
-}
-
-/* ── MODAL PAGO ── */
-.modal-overlay {
-  position: fixed;
-  inset: 0;
-  background: rgba(10,10,10,0.7);
-  z-index: 100;
-  display: none;
-  align-items: flex-end;
-  justify-content: center;
-}
-.modal-overlay.vis { display: flex; }
-.modal-sheet {
-  width: 100%;
-  max-width: 480px;
-  background: var(--offwhite);
-  max-height: 92vh;
-  overflow-y: auto;
-  animation: slideUp 0.22s ease;
-}
-@keyframes slideUp {
-  from { transform: translateY(40px); opacity: 0; }
-  to   { transform: translateY(0);    opacity: 1; }
-}
-.modal-header {
-  padding: 16px 22px 12px;
-  border-bottom: 2px solid var(--negro);
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  position: sticky;
-  top: 0;
-  background: var(--offwhite);
-  z-index: 1;
-}
-.modal-titulo {
-  font-weight: 900;
-  font-size: 22px;
-  color: var(--negro);
-  text-transform: uppercase;
-  letter-spacing: 0.02em;
-  line-height: 1;
-}
-.modal-sub {
-  font-family: 'Share Tech Mono', monospace;
-  font-size: 8px;
-  color: var(--gris);
-  letter-spacing: 0.12em;
-  margin-top: 3px;
-}
-.modal-close {
-  font-family: 'Share Tech Mono', monospace;
-  font-size: 9px;
-  color: var(--gris);
-  background: none;
-  border: none;
-  cursor: pointer;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  padding: 0;
-  flex-shrink: 0;
-  margin-left: 12px;
-}
-.modal-body { padding: 16px 22px; display: flex; flex-direction: column; gap: 14px; }
-.modal-field { display: flex; flex-direction: column; gap: 5px; }
-.modal-lbl {
-  font-family: 'Share Tech Mono', monospace;
-  font-size: 8px;
-  letter-spacing: 0.16em;
-  color: var(--gris);
-  text-transform: uppercase;
-}
-.modal-input {
-  background: white;
-  border: 1px solid var(--borde);
-  color: var(--negro);
-  font-family: 'Barlow Condensed', sans-serif;
-  font-size: 16px;
-  padding: 11px 13px;
-  width: 100%;
-  outline: none;
-  border-radius: 0;
-  -webkit-appearance: none;
-}
-.modal-input:focus { border-color: rgba(10,10,10,0.45); }
-.modal-input::placeholder { color: var(--gris-claro); }
-.modal-select {
-  background: white;
-  border: 1px solid var(--borde);
-  color: var(--negro);
-  font-family: 'Barlow Condensed', sans-serif;
-  font-size: 15px;
-  padding: 11px 13px;
-  width: 100%;
-  outline: none;
-  border-radius: 0;
-  -webkit-appearance: none;
-  cursor: pointer;
-}
-.modal-tipo-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr 1fr;
-  gap: 6px;
-}
-.modal-tipo-btn {
-  font-family: 'Share Tech Mono', monospace;
-  font-size: 8px;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  padding: 10px 6px;
-  border: 1px solid var(--borde);
-  background: white;
-  color: var(--gris);
-  cursor: pointer;
-  text-align: center;
-  transition: all 0.12s;
-  display: flex;
-  flex-direction: column;
-  gap: 3px;
-  align-items: center;
-}
-.modal-tipo-btn .mtb-precio {
-  font-family: 'Barlow Condensed', sans-serif;
-  font-weight: 900;
-  font-size: 16px;
-  color: var(--negro);
-  line-height: 1;
-}
-.modal-tipo-btn.selected {
-  background: var(--negro);
-  border-color: var(--negro);
-  color: var(--offwhite);
-}
-.modal-tipo-btn.selected .mtb-precio { color: var(--offwhite); }
-.modal-resumen {
-  background: white;
-  border: 1px solid var(--borde);
-  padding: 12px 14px;
-  display: flex;
-  flex-direction: column;
-  gap: 7px;
-}
-.mr-row {
-  display: flex;
-  justify-content: space-between;
-  align-items: baseline;
-  padding-bottom: 6px;
-  border-bottom: 1px solid var(--borde);
-}
-.mr-row:last-child { border-bottom: none; padding-bottom: 0; }
-.mr-lbl {
-  font-family: 'Share Tech Mono', monospace;
-  font-size: 8px;
-  letter-spacing: 0.12em;
-  color: var(--gris);
-  text-transform: uppercase;
-}
-.mr-val {
-  font-weight: 700;
-  font-size: 14px;
-  color: var(--negro);
-  text-align: right;
-}
-.mr-val.total { font-size: 20px; }
-.mr-val.ok { color: var(--ok); }
-.modal-footer {
-  padding: 12px 22px 28px;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  position: sticky;
-  bottom: 0;
-  background: var(--offwhite);
-  border-top: 1px solid var(--borde);
-}
-.modal-err {
-  font-family: 'Share Tech Mono', monospace;
-  font-size: 9px;
-  color: var(--danger);
-  letter-spacing: 0.1em;
-  display: none;
-}
-.modal-err.vis { display: block; }
-
-/* ── PERFIL PAGOS HISTORIAL ── */
-.perfil-pago-row {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 9px 0;
-  border-bottom: 1px solid var(--borde);
-}
-.perfil-pago-row:last-child { border-bottom: none; }
-.ppr-left { display: flex; flex-direction: column; gap: 2px; }
-.ppr-tipo {
-  font-weight: 700;
-  font-size: 13px;
-  color: var(--negro);
-  text-transform: uppercase;
-  letter-spacing: 0.01em;
-}
-.ppr-fecha {
-  font-family: 'Share Tech Mono', monospace;
-  font-size: 8px;
-  color: var(--gris);
-  letter-spacing: 0.08em;
-}
-.ppr-right { text-align: right; }
-.ppr-monto {
-  font-weight: 700;
-  font-size: 15px;
-  color: var(--negro);
-}
-.ppr-vence {
-  font-family: 'Share Tech Mono', monospace;
-  font-size: 8px;
-  color: var(--gris);
-  letter-spacing: 0.08em;
-}
-
-/* ── EMPTY STATE ── */
-.empty-pagos {
-  padding: 32px 22px;
-  text-align: center;
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-.empty-pagos-titulo {
-  font-weight: 900;
-  font-size: 18px;
-  color: var(--negro);
-  text-transform: uppercase;
-  letter-spacing: 0.02em;
-}
-.empty-pagos-sub {
-  font-family: 'Share Tech Mono', monospace;
-  font-size: 8px;
-  color: var(--gris);
-  letter-spacing: 0.1em;
-}
-
-
-
-/* ── BUSCADOR COACH ── */
-.buscador-wrap { padding:10px 22px; border-bottom:1px solid var(--borde); position:sticky; top:57px; background:var(--offwhite); z-index:8; flex-shrink:0; }
-.buscador-input { width:100%; background:white; border:1px solid var(--borde); color:var(--negro); font-family:'Barlow Condensed',sans-serif; font-size:16px; padding:10px 13px; outline:none; border-radius:0; -webkit-appearance:none; }
-.buscador-input::placeholder { color:var(--gris-claro); }
-.buscador-input:focus { border-color:rgba(10,10,10,0.4); }
-
-/* ── PLANIFICACIÓN SOCIO (vista coach) ── */
-.plan-wrap { padding:0 22px 24px; display:flex; flex-direction:column; gap:10px; }
-.plan-header { padding:14px 0 10px; border-bottom:2px solid var(--negro); display:flex; justify-content:space-between; align-items:baseline; }
-.plan-titulo { font-weight:900; font-size:20px; color:var(--negro); text-transform:uppercase; letter-spacing:0.02em; }
-.plan-proto { font-family:'Share Tech Mono',monospace; font-size:8px; color:var(--gris); letter-spacing:0.1em; }
-.plan-ultima { padding:10px 0; border-bottom:1px solid var(--borde); display:flex; justify-content:space-between; align-items:center; }
-.plan-ultima-lbl { font-family:'Share Tech Mono',monospace; font-size:8px; color:var(--gris); letter-spacing:0.12em; text-transform:uppercase; }
-.plan-ultima-val { font-family:'Share Tech Mono',monospace; font-size:9px; color:var(--negro); letter-spacing:0.08em; }
-.ses-plan-card { border:1px solid var(--borde); background:white; }
-.ses-plan-card.activa { border-color:var(--negro); border-width:2px; }
-.ses-plan-card.activa .spc-header { background:var(--negro); }
-.ses-plan-card.activa .spc-num { color:var(--offwhite); }
-.ses-plan-card.activa .spc-nombre { color:var(--offwhite); }
-.ses-plan-card.activa .spc-badge { background:rgba(155,95,245,0.3); color:#D4AAFF; }
-.spc-header { padding:10px 13px 8px; display:flex; justify-content:space-between; align-items:center; }
-.spc-left { display:flex; flex-direction:column; gap:2px; }
-.spc-num { font-family:'Share Tech Mono',monospace; font-size:8px; color:var(--gris); letter-spacing:0.14em; text-transform:uppercase; }
-.spc-nombre { font-weight:900; font-size:16px; color:var(--negro); letter-spacing:0.01em; line-height:1; }
-.spc-obj { font-family:'Share Tech Mono',monospace; font-size:8px; color:var(--gris); margin-top:2px; }
-.spc-badge { font-family:'Share Tech Mono',monospace; font-size:8px; letter-spacing:0.12em; text-transform:uppercase; padding:4px 9px; background:var(--offwhite); color:var(--gris); flex-shrink:0; }
-.spc-body { border-top:1px solid var(--borde); }
-.spc-bloque { padding:8px 13px; border-bottom:1px solid var(--borde); }
-.spc-bloque:last-child { border-bottom:none; }
-.spc-bloque-head { display:flex; justify-content:space-between; margin-bottom:4px; }
-.spc-bloque-badge { font-family:'Share Tech Mono',monospace; font-size:7px; letter-spacing:0.14em; background:var(--negro); color:var(--offwhite); padding:2px 7px; }
-.spc-bloque-specs { font-family:'Share Tech Mono',monospace; font-size:7px; color:var(--gris); letter-spacing:0.08em; }
-.spc-ej { font-size:13px; font-weight:700; color:var(--negro); padding:2px 0; border-bottom:1px solid rgba(10,10,10,0.04); line-height:1.2; }
-.spc-ej:last-child { border-bottom:none; }
-.spc-ej-reps { font-family:'Share Tech Mono',monospace; font-size:7px; color:var(--gris); }
-.spc-acciones { padding:10px 13px; border-top:1px solid var(--borde); display:flex; gap:6px; }
-.spc-btn { font-family:'Share Tech Mono',monospace; font-size:8px; letter-spacing:0.1em; text-transform:uppercase; background:none; border:1px solid var(--borde); color:var(--negro); padding:6px 12px; cursor:pointer; flex:1; }
-.spc-btn.purple { background:var(--purple-light); border-color:var(--purple-border); color:var(--purple); }
-
-/* ── NOTIFICACIONES (admin) ── */
-.notif-strip { padding:10px 22px; border-bottom:2px solid var(--negro); display:flex; justify-content:space-between; align-items:center; flex-shrink:0; }
-.notif-titulo { font-weight:900; font-size:18px; color:var(--negro); text-transform:uppercase; letter-spacing:0.02em; }
-.notif-badge-cnt { font-family:'Share Tech Mono',monospace; font-size:8px; background:var(--purple); color:white; padding:3px 9px; letter-spacing:0.1em; }
-.notif-card { padding:12px 22px; border-bottom:1px solid var(--borde); background:white; }
-.notif-card.nueva { background:rgba(155,95,245,0.04); border-left:3px solid var(--purple); }
-.notif-card-top { display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:4px; }
-.notif-coach { font-weight:900; font-size:13px; color:var(--negro); letter-spacing:0.01em; }
-.notif-hora { font-family:'Share Tech Mono',monospace; font-size:8px; color:var(--gris); letter-spacing:0.08em; flex-shrink:0; }
-.notif-desc { font-family:'Share Tech Mono',monospace; font-size:8px; color:var(--gris); letter-spacing:0.08em; line-height:1.6; }
-.notif-motivo { font-size:12px; color:var(--negro); margin-top:4px; line-height:1.3; }
-
-/* ── MODAL MODIFICACIÓN ── */
-.mod-tipo-grid { display:flex; flex-direction:column; gap:6px; }
-.mod-tipo-btn { font-family:'Share Tech Mono',monospace; font-size:8px; letter-spacing:0.1em; text-transform:uppercase; padding:10px 13px; border:1px solid var(--borde); background:white; color:var(--gris); cursor:pointer; text-align:left; display:flex; justify-content:space-between; align-items:center; transition:all 0.12s; }
-.mod-tipo-btn.selected { background:var(--negro); border-color:var(--negro); color:var(--offwhite); }
-.mod-tipo-desc { font-size:10px; font-family:'Barlow Condensed',sans-serif; font-weight:400; opacity:0.6; }
-
 </style>
 </head>
 <body>
@@ -771,7 +350,7 @@
 ══════════════════════════════════════════════ -->
 <div class="page active" id="pgLogin">
   <div class="login-inner">
-    <div style="margin-bottom:8px;"><div class="tb-marca" style="font-size:38px;letter-spacing:0.08em;color:var(--negro);">KOACH</div></div>
+    <div style="margin-bottom:8px;"><img class="koach-logo" data-size="lg" alt="KOACH"></div>
     <div class="login-sub">Método KOACH · Sistema de entrenamiento</div>
     <div class="login-form">
       <div>
@@ -797,7 +376,7 @@
 ══════════════════════════════════════════════ -->
 <div class="page" id="pgSocio">
   <div class="topbar">
-    <div><div><div class="tb-marca">KOACH</div></div></div>
+    <div><div><img class="koach-logo" data-size="sm" alt="KOACH"></div></div>
     <div class="tb-right"><button class="btn-sm" onclick="logout()">Salir</button></div>
   </div>
   <div class="welcome-block">
@@ -840,7 +419,7 @@
   <div class="piz-wrap">
     <div class="piz-top">
       <div>
-        <div><div class="tb-marca">KOACH</div></div>
+        <div><img class="koach-logo" data-size="piz" alt="KOACH"></div>
         <div class="piz-marca-sub" id="pizPrograma">MÉTODO KOACH</div>
       </div>
       <div class="piz-fecha" id="pizFecha">—</div>
@@ -899,7 +478,7 @@
 ══════════════════════════════════════════════ -->
 <div class="page" id="pgCoach">
   <div class="topbar">
-    <div><div><div class="tb-marca">KOACH</div></div></div>
+    <div><div><img class="koach-logo" data-size="sm" alt="KOACH"></div></div>
     <div class="tb-right">
       <div class="rol-badge" id="coachRolBadge">Coach</div>
       <button class="btn-sm" onclick="logout()">Salir</button>
@@ -910,13 +489,10 @@
     <div class="tab" onclick="coachTab('alertas')" id="ctab-alertas">Alertas <span class="tab-badge" id="alertaBadge">0</span></div>
     <div class="tab" onclick="coachTab('hoy')" id="ctab-hoy">Hoy</div>
   </div>
-  <div class="buscador-wrap" id="coachBuscadorWrap" style="display:none;">
-    <input class="buscador-input" type="search" id="coachBuscador" placeholder="Buscar socio por nombre…" oninput="buscarSocio(this.value)" autocomplete="off">
-  </div>
   <div class="view active" id="cview-socios">
     <div class="sec-header">
       <div><div class="sec-titulo" id="sociosTitulo">Socios</div><div class="sec-meta" id="sociosMeta">—</div></div>
-      <button class="btn-nuevo" id="btnNuevoSocio" onclick="goTo('pgOnboarding')" style="display:none;">+ Nuevo</button>
+      <button class="btn-nuevo" onclick="goTo('pgOnboarding')">+ Nuevo</button>
     </div>
     <div class="filter-bar">
       <div class="filter-btn active" onclick="filtrarSocios('todos',this)">Todos</div>
@@ -952,7 +528,7 @@
 ══════════════════════════════════════════════ -->
 <div class="page" id="pgAdmin">
   <div class="topbar">
-    <div><div><div class="tb-marca">KOACH</div></div></div>
+    <div><div><img class="koach-logo" data-size="sm" alt="KOACH"></div></div>
     <div class="tb-right">
       <div class="rol-badge">Admin</div>
       <button class="btn-sm" onclick="logout()">Salir</button>
@@ -996,7 +572,7 @@
 ══════════════════════════════════════════════ -->
 <div class="page" id="pgProgreso">
   <div class="topbar">
-    <div><div><div class="tb-marca">KOACH</div></div><div class="tb-sub">Progreso</div></div>
+    <div><div><img class="koach-logo" data-size="sm" alt="KOACH"></div><div class="tb-sub">Progreso</div></div>
     <button class="btn-sm" onclick="goTo('pgSocio')">← Inicio</button>
   </div>
   <div style="padding:22px;flex:1;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:12px;text-align:center;">
@@ -1008,7 +584,7 @@
 
 <!-- PAGE: NUTRICIÓN / ONBOARDING / IA (placeholders) -->
 <div class="page" id="pgNutricion">
-  <div class="topbar"><div><div><div class="tb-marca">KOACH</div></div><div class="tb-sub">Nutrición</div></div><button class="btn-sm" onclick="goTo('pgSocio')">← Inicio</button></div>
+  <div class="topbar"><div><div><img class="koach-logo" data-size="sm" alt="KOACH"></div><div class="tb-sub">Nutrición</div></div><button class="btn-sm" onclick="goTo('pgSocio')">← Inicio</button></div>
   <div style="padding:22px;flex:1;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:12px;text-align:center;">
     <div style="font-weight:900;font-size:22px;color:var(--negro);text-transform:uppercase;">Módulo Nutrición</div>
     <div style="font-family:'Share Tech Mono',monospace;font-size:8px;color:var(--gris);letter-spacing:0.1em;line-height:1.7;">Evaluación ISAK · Composición corporal<br>Pauta nutricional · Historial<br>disponible en koach-nutricion.html</div>
@@ -1017,7 +593,7 @@
 </div>
 
 <div class="page" id="pgOnboarding">
-  <div class="topbar"><div><div><div class="tb-marca">KOACH</div></div><div class="tb-sub">Nuevo socio</div></div><button class="btn-sm" onclick="history.back()">← Cancelar</button></div>
+  <div class="topbar"><div><div><img class="koach-logo" data-size="sm" alt="KOACH"></div><div class="tb-sub">Nuevo socio</div></div><button class="btn-sm" onclick="history.back()">← Cancelar</button></div>
   <div style="padding:22px;flex:1;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:12px;text-align:center;">
     <div style="font-weight:900;font-size:22px;color:var(--negro);text-transform:uppercase;">Onboarding</div>
     <div style="font-family:'Share Tech Mono',monospace;font-size:8px;color:var(--gris);letter-spacing:0.1em;line-height:1.7;">Flujo de 4 pasos para creación<br>de nuevo socio disponible<br>en koach-onboarding.html</div>
@@ -1026,13 +602,77 @@
 </div>
 
 <div class="page" id="pgIA">
-  <div class="topbar"><div><div><div class="tb-marca">KOACH</div></div><div class="tb-sub">Consultor IA</div></div><button class="btn-sm" onclick="goTo('pgAdmin')">← Panel</button></div>
-  <div style="padding:22px;flex:1;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:12px;text-align:center;">
-    <div style="font-weight:900;font-size:22px;color:var(--negro);text-transform:uppercase;">Consultor IA</div>
-    <div style="font-family:'Share Tech Mono',monospace;font-size:8px;color:var(--gris);letter-spacing:0.1em;line-height:1.7;">Chat con contexto del socio<br>Modificaciones con aprobación<br>disponible en koach-ia-coach.html</div>
-    <button class="btn-prim" style="margin-top:8px;" onclick="goTo('pgAdmin')">← Volver</button>
+  <div class="topbar">
+    <div>
+      <div><img class="koach-logo" data-size="sm" alt="KOACH"></div>
+      <div class="tb-sub">Consultor IA · Método KOACH</div>
+    </div>
+    <button class="btn-sm" onclick="goTo('pgAdmin')">← Panel</button>
+  </div>
+
+  <!-- Contexto socio -->
+  <div style="padding:10px 22px;border-bottom:2px solid var(--negro);background:var(--negro);display:flex;justify-content:space-between;align-items:center;">
+    <div>
+      <div style="font-weight:900;font-size:16px;letter-spacing:0.02em;color:var(--offwhite);line-height:1;text-transform:uppercase;" id="iaCtxNombre">Selecciona un socio</div>
+      <div style="font-family:'Share Tech Mono',monospace;font-size:8px;letter-spacing:0.1em;color:rgba(242,241,239,0.4);" id="iaCtxProto">—</div>
+    </div>
+    <button style="font-family:'Share Tech Mono',monospace;font-size:7px;letter-spacing:0.1em;color:var(--purple);background:none;border:1px solid var(--purple-border);padding:5px 10px;cursor:pointer;text-transform:uppercase;" onclick="abrirSelectorIA()">Cambiar</button>
+  </div>
+
+  <!-- Chat -->
+  <div style="flex:1;overflow-y:auto;padding:14px 22px;display:flex;flex-direction:column;gap:12px;" id="iaChatArea">
+    <div style="align-self:center;"><div style="background:var(--purple-light);border:1px solid var(--purple-border);color:var(--purple);font-family:'Share Tech Mono',monospace;font-size:8px;letter-spacing:0.1em;text-transform:uppercase;text-align:center;padding:7px 14px;">Consultor IA activo · Motor v6</div></div>
+    <div style="display:flex;flex-direction:column;gap:4px;max-width:90%;align-self:flex-start;">
+      <div style="background:white;border:1px solid var(--borde);color:var(--negro);font-size:14px;padding:10px 13px;line-height:1.35;">Selecciona un socio arriba para cargar su contexto real (protocolo, volumen actual, restricciones). Luego puedes pedirme ajustes en lenguaje natural.</div>
+    </div>
+  </div>
+
+  <!-- Quick prompts -->
+  <div style="padding:8px 22px;border-top:1px solid var(--borde);display:flex;gap:6px;overflow-x:auto;flex-shrink:0;">
+    <div class="qp-ia" onclick="iaQuickPrompt('Reduce el volumen de glúteo y sube cuádriceps y espalda')">↓Glúteo ↑Quads/Espalda</div>
+    <div class="qp-ia" onclick="iaQuickPrompt('El socio tiene dolor de hombro derecho, quita empujes verticales 2 semanas')">Lesión hombro</div>
+    <div class="qp-ia" onclick="iaQuickPrompt('¿Cuál es el volumen semanal actual del socio por estímulo?')">Ver volumen actual</div>
+    <div class="qp-ia" onclick="iaQuickPrompt('El socio completó el ciclo, ¿subimos de nivel?')">Evaluar fin de ciclo</div>
+  </div>
+
+  <!-- Input -->
+  <div style="padding:10px 22px 24px;border-top:1px solid var(--borde);display:flex;gap:8px;align-items:flex-end;flex-shrink:0;">
+    <div style="flex:1;background:white;border:1px solid var(--borde);display:flex;">
+      <textarea id="iaInput" placeholder="Escribe tu instrucción..." rows="1" style="flex:1;background:transparent;border:none;outline:none;font-family:'Barlow Condensed',sans-serif;font-size:15px;color:var(--negro);padding:11px 12px;resize:none;height:44px;max-height:100px;"
+        oninput="this.style.height='auto';this.style.height=Math.min(this.scrollHeight,100)+'px'"
+        onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();iaEnviar()}"></textarea>
+    </div>
+    <button id="btnIaSend" onclick="iaEnviar()" style="background:var(--negro);color:var(--offwhite);border:none;padding:11px 16px;cursor:pointer;font-weight:900;font-size:12px;letter-spacing:0.14em;text-transform:uppercase;height:44px;">→</button>
   </div>
 </div>
+
+<!-- Selector de socio para IA -->
+<div id="iaSelectorModal" style="display:none;position:fixed;inset:0;background:rgba(10,10,10,0.5);z-index:200;align-items:flex-end;justify-content:center;">
+  <div style="background:var(--offwhite);width:100%;max-width:480px;max-height:70vh;overflow-y:auto;display:flex;flex-direction:column;">
+    <div style="padding:16px 22px 12px;border-bottom:1px solid var(--borde);display:flex;justify-content:space-between;align-items:center;">
+      <div style="font-weight:900;font-size:18px;text-transform:uppercase;">Seleccionar socio</div>
+      <button class="btn-sm" onclick="document.getElementById('iaSelectorModal').style.display='none'">✕</button>
+    </div>
+    <div id="iaSelectorList" style="padding:8px 22px 20px;display:flex;flex-direction:column;gap:6px;"></div>
+  </div>
+</div>
+
+<style>
+  .qp-ia { font-family:'Share Tech Mono',monospace; font-size:7px; letter-spacing:0.08em; text-transform:uppercase; padding:6px 11px; border:1px solid var(--borde); background:white; color:var(--gris); cursor:pointer; white-space:nowrap; flex-shrink:0; }
+  .qp-ia:active { background:var(--negro); color:var(--offwhite); }
+  .ia-propuesta { background:white; border:1px solid var(--purple-border); margin-top:4px; width:100%; max-width:300px; }
+  .ia-prop-header { padding:8px 12px; background:var(--purple-light); border-bottom:1px solid var(--purple-border); display:flex; justify-content:space-between; }
+  .ia-prop-label { font-family:'Share Tech Mono',monospace; font-size:8px; letter-spacing:0.1em; color:var(--purple); text-transform:uppercase; }
+  .ia-prop-body { padding:10px 12px; display:flex; flex-direction:column; gap:6px; }
+  .ia-cambio { display:flex; flex-direction:column; gap:2px; padding:6px 0; border-bottom:1px solid var(--borde); }
+  .ia-cambio:last-child { border-bottom:none; }
+  .ia-de { font-family:'Share Tech Mono',monospace; font-size:8px; color:var(--gris); text-decoration:line-through; }
+  .ia-a { font-weight:700; font-size:14px; color:var(--negro); }
+  .ia-razon { font-family:'Share Tech Mono',monospace; font-size:7px; color:var(--gris); }
+  .ia-prop-footer { padding:8px 12px; border-top:1px solid var(--borde); display:grid; grid-template-columns:1fr 1fr; gap:6px; }
+  .ia-btn-aprobar { background:var(--negro); color:var(--offwhite); font-weight:900; font-size:11px; letter-spacing:0.12em; text-transform:uppercase; border:none; padding:9px; cursor:pointer; }
+  .ia-btn-rechazar { background:transparent; color:var(--gris); border:1px solid var(--borde); font-size:10px; letter-spacing:0.1em; text-transform:uppercase; padding:9px; cursor:pointer; }
+</style>
 
 <script>
 // ══════════════════════════════════════════════
@@ -1187,7 +827,7 @@ async function loadProfileAndEnter() {
     }
 
     if (profile.role === 'admin') {
-      await loadAdminData(); setTimeout(() => { addPagosNavAdmin(); addNotificacionesNavAdmin(); }, 100)
+      await loadAdminData(); setTimeout(addPagosNavAdmin, 100)
       goTo('pgAdmin')
     } else if (profile.role === 'coach') {
       await loadCoachData()
@@ -1524,36 +1164,18 @@ const SOCIOS_DEMO = [
   { id:'d6', nombre:'Sofía', apellido:'Herrera', email:'sofia@mail.com', telefono:'+56977778888', protocolo:'HEALTHY INT', semana:2, ciclo:2, ultima_sesion: new Date(Date.now() - 0*86400000) },
 ]
 
-// ══════════════════════════════════════════════
-// COACH — DATA & PERMISOS
-// ══════════════════════════════════════════════
-
-// Estado planificación
-let PLAN_STATE = { socio: null, sesiones: [], asignacion: null, modTipo: null, modAlcance: null }
-// Número de tel de Matías para notificaciones — cambiar por el real
-const ADMIN_EMAIL = 'koachclub@gmail.com'
-const ADMIN_TEL   = '+56912345678'
-
 async function loadCoachData() {
   const p = STATE.profile
   document.getElementById('coachRolBadge').textContent = p.role === 'admin' ? 'Admin' : 'Coach'
 
-  // Solo admin ve botón + Nuevo y acceso a pagos
-  if (p.role === 'admin') {
-    const btnNuevo = document.getElementById('btnNuevoSocio')
-    if (btnNuevo) btnNuevo.style.display = ''
-  }
-
-  // Mostrar buscador en tab socios
-  showCoachBuscador(true)
-
-  // Cargar socios reales
+  // Intentar cargar socios reales desde DB
   const { data: sociosDB } = await sb
     .from('profiles')
     .select('*, asignaciones(*, protocolos(nombre, programa, nivel))')
     .eq('role', 'socio')
     .eq('activo', true)
 
+  // Usar DB si hay socios, sino demo
   const socios = (sociosDB && sociosDB.length > 0) ? sociosDB : SOCIOS_DEMO
   STATE.sociosDemo = socios
 
@@ -1563,402 +1185,12 @@ async function loadCoachData() {
 
   document.getElementById('hoyFecha').textContent = getFechaLarga()
 
+  // Alertas badge
   const s7 = socios.filter(s => {
     const d = s.ultima_sesion ? diasDesde(s.ultima_sesion) : 999
     return d >= 7
   })
   document.getElementById('alertaBadge').textContent = s7.length
-}
-
-function showCoachBuscador(show) {
-  const el = document.getElementById('coachBuscadorWrap')
-  if (el) el.style.display = show ? '' : 'none'
-}
-
-function coachTab(tab) {
-  document.querySelectorAll('.tab[id^="ctab"]').forEach(t => t.classList.remove('active'))
-  document.querySelectorAll('.view[id^="cview"]').forEach(v => v.classList.remove('active'))
-  document.getElementById('ctab-' + tab).classList.add('active')
-  document.getElementById('cview-' + tab).classList.add('active')
-  // Buscador solo visible en tab socios
-  showCoachBuscador(tab === 'socios')
-}
-
-// ── BUSCADOR ──
-function buscarSocio(query) {
-  const q = query.trim().toLowerCase()
-  if (!q) {
-    renderSocios(STATE.sociosDemo, 'todos')
-    return
-  }
-  const filtrados = STATE.sociosDemo.filter(s =>
-    `${s.nombre} ${s.apellido}`.toLowerCase().includes(q)
-  )
-  renderSocios(filtrados, 'busqueda')
-}
-
-// ── RENDER SOCIOS — actualizado con "Ver plan" ──
-function renderSocios(socios, filtro) {
-  const lista = document.getElementById('sociosList')
-  document.getElementById('sociosTitulo').textContent = `Socios (${socios.length})`
-  document.getElementById('sociosMeta').textContent = filtro === 'busqueda'
-    ? `${socios.length} resultado${socios.length !== 1 ? 's' : ''}`
-    : `${filtro === 'todos' ? STATE.sociosDemo.length + ' en total' : 'Filtro activo'}`
-
-  if (!socios.length) {
-    lista.innerHTML = '<div class="loading-state">Sin socios en este filtro</div>'
-    return
-  }
-
-  const sorted = [...socios].sort((a,b) => diasDesde(b.ultima_sesion||new Date()) - diasDesde(a.ultima_sesion||new Date()))
-
-  lista.innerHTML = sorted.map(s => {
-    const dias = s.ultima_sesion ? diasDesde(s.ultima_sesion) : 999
-    const aClass = dias>=30?'a30':dias>=15?'a15':dias>=7?'a7':''
-    const proto = s.protocolo || (s.asignaciones?.[0]?.protocolos?.nombre) || '—'
-    const semana = s.semana || s.asignaciones?.[0]?.semana_actual || '—'
-    const ciclo = s.ciclo || s.asignaciones?.[0]?.ciclo_actual || '—'
-    const tel = s.telefono || ''
-    const socioJSON = encodeURIComponent(JSON.stringify({ id: s.id, nombre: s.nombre, apellido: s.apellido, protocolo: proto, semana, ciclo }))
-    return `
-      <div class="socio-card ${aClass}">
-        <div class="sc-inner">
-          <div class="sc-left">
-            <div class="sc-nombre">${s.nombre} ${s.apellido}</div>
-            <div class="sc-proto">${proto} · Sem ${semana}/6 · Ciclo ${ciclo}</div>
-            <div class="sc-ultima ${alertaClase(dias)}">${alertaTexto(dias)}</div>
-          </div>
-          <div class="sc-badge ${badgeClase(dias)}">${badgeLabel(dias)}</div>
-        </div>
-        <div class="sc-acciones">
-          <button class="sc-accion" onclick="abrirPlanSocio(decodeURIComponent('${socioJSON}'))">Ver plan</button>
-          <button class="sc-accion purple" onclick="">IA Coach</button>
-          <button class="sc-accion green" onclick="wsMsg('${tel}','${s.nombre}',${dias})">WhatsApp</button>
-        </div>
-      </div>`
-  }).join('')
-}
-
-// ── PLANIFICACIÓN SOCIO ──
-async function abrirPlanSocio(socioStr) {
-  const socio = typeof socioStr === 'string' ? JSON.parse(socioStr) : socioStr
-  PLAN_STATE.socio = socio
-
-  document.getElementById('planNombre').textContent = `${socio.nombre} ${socio.apellido || ''}`.toUpperCase()
-  document.getElementById('planProto').textContent = socio.protocolo || '—'
-  document.getElementById('planSemana').textContent = socio.semana ? `SEM ${socio.semana}/6 · CICLO ${socio.ciclo}` : ''
-  document.getElementById('planSesiones').innerHTML = '<div class="loading-state"><span class="spinner-inline spinner-dark"></span>Cargando sesiones...</div>'
-  document.getElementById('planUltima').textContent = '—'
-
-  goTo('pgPlanSocio')
-
-  try {
-    // Cargar asignación activa
-    const { data: asig } = await sb
-      .from('asignaciones')
-      .select('*, protocolos(*)')
-      .eq('socio_id', socio.id)
-      .eq('activo', true)
-      .single()
-
-    PLAN_STATE.asignacion = asig
-
-    if (!asig) {
-      document.getElementById('planSesiones').innerHTML = '<div class="loading-state">Sin protocolo asignado</div>'
-      return
-    }
-
-    // Sesión activa actual
-    const sesActiva = ((asig.semana_actual - 1) % 3) + 1
-
-    // Cargar las 3 sesiones del protocolo con bloques y ejercicios
-    const { data: sesiones } = await sb
-      .from('sesiones_protocolo')
-      .select('*, bloques(*, bloque_ejercicios(*, ejercicios(*)))')
-      .eq('protocolo_id', asig.protocolo_id)
-      .order('numero')
-
-    PLAN_STATE.sesiones = sesiones || []
-
-    // Última sesión realizada
-    const { data: ultimaReg } = await sb
-      .from('sesiones_registro')
-      .select('fecha, sesion_protocolo_id')
-      .eq('socio_id', socio.id)
-      .eq('estado', 'completada')
-      .order('fecha', { ascending: false })
-      .limit(1)
-      .single()
-
-    if (ultimaReg) {
-      const d = new Date(ultimaReg.fecha + 'T12:00:00')
-      document.getElementById('planUltima').textContent =
-        d.toLocaleDateString('es', { day: 'numeric', month: 'short', year: '2-digit' }) +
-        ` · ${diasDesde(new Date(ultimaReg.fecha + 'T12:00:00'))}d atrás`
-    } else {
-      document.getElementById('planUltima').textContent = 'Sin sesiones registradas'
-    }
-
-    renderPlanSesiones(sesiones || [], sesActiva)
-
-  } catch(e) {
-    console.error('abrirPlanSocio:', e)
-    document.getElementById('planSesiones').innerHTML = '<div class="loading-state">Error al cargar</div>'
-  }
-}
-
-function renderPlanSesiones(sesiones, sesActiva) {
-  if (!sesiones.length) {
-    document.getElementById('planSesiones').innerHTML = '<div class="loading-state">Sin sesiones en el protocolo</div>'
-    return
-  }
-
-  const BADGES = { 1: 'ANTERIOR', 2: 'ACTIVA', 3: 'PRÓXIMA' }
-  // Calcular qué sesión es anterior/activa/próxima en rotación
-  const anterior = sesActiva === 1 ? 3 : sesActiva - 1
-  const proxima  = sesActiva === 3 ? 1 : sesActiva + 1
-
-  function getLabel(num) {
-    if (num === sesActiva) return 'SESIÓN ACTIVA'
-    if (num === anterior) return 'SESIÓN ANTERIOR'
-    if (num === proxima)  return 'SESIÓN PRÓXIMA'
-    return ''
-  }
-
-  // Ordenar: activa primero, luego próxima, luego anterior
-  const orden = [sesActiva, proxima, anterior]
-  const sesOrdenadas = orden.map(n => sesiones.find(s => s.numero === n)).filter(Boolean)
-
-  document.getElementById('planSesiones').innerHTML = sesOrdenadas.map(ses => {
-    const esActiva = ses.numero === sesActiva
-    const label = getLabel(ses.numero)
-    const bloques = (ses.bloques || []).sort((a,b) => a.bloque.localeCompare(b.bloque))
-
-    const bloquesHTML = bloques.map(b => {
-      const ejs = (b.bloque_ejercicios || []).sort((a,bl) => a.orden - bl.orden)
-      const desc = b.descanso_segundos >= 60 ? `${b.descanso_segundos/60}'` : `${b.descanso_segundos}"`
-      return `
-        <div class="spc-bloque">
-          <div class="spc-bloque-head">
-            <div class="spc-bloque-badge">${b.bloque}</div>
-            <div class="spc-bloque-specs">${b.sets} sets · ${desc} desc</div>
-          </div>
-          ${ejs.map(be => `
-            <div class="spc-ej">${be.ejercicios?.nombre || '—'}
-              <span class="spc-ej-reps">${be.reps ? ' · ' + be.reps + ' rep' : be.duracion_seg ? ' · ' + be.duracion_seg + 's' : ''}</span>
-            </div>`).join('')}
-        </div>`
-    }).join('')
-
-    return `
-      <div class="ses-plan-card ${esActiva ? 'activa' : ''}">
-        <div class="spc-header">
-          <div class="spc-left">
-            <div class="spc-num">SESIÓN 0${ses.numero}</div>
-            <div class="spc-nombre">${ses.nombre || ses.objetivo || '—'}</div>
-            ${ses.objetivo && ses.nombre ? `<div class="spc-obj">${ses.objetivo}</div>` : ''}
-          </div>
-          <div class="spc-badge">${label}</div>
-        </div>
-        ${bloques.length ? `<div class="spc-body">${bloquesHTML}</div>` : ''}
-        <div class="spc-acciones">
-          <button class="spc-btn purple" onclick="abrirModalModificacion(${ses.numero})">Modificar</button>
-        </div>
-      </div>`
-  }).join('')
-}
-
-// ── MODAL MODIFICACIÓN ──
-let MOD_SES_NUM = null
-
-function abrirModalModificacion(sesNum) {
-  MOD_SES_NUM = sesNum || null
-  PLAN_STATE.modTipo = null
-  PLAN_STATE.modAlcance = null
-
-  document.querySelectorAll('.mod-tipo-btn').forEach(b => b.classList.remove('selected'))
-  document.querySelectorAll('#modalModOverlay .ob-opt').forEach(b => b.classList.remove('selected'))
-  document.getElementById('modalModMotivo').value = ''
-  document.getElementById('modalModErr').classList.remove('vis')
-
-  const socio = PLAN_STATE.socio
-  document.getElementById('modalModSub').textContent =
-    socio ? `${socio.nombre} ${socio.apellido || ''}` + (sesNum ? ` · Sesión 0${sesNum}` : '') : '—'
-
-  if (sesNum) {
-    document.getElementById('modalModSesion').value = sesNum
-  }
-
-  document.getElementById('modalModOverlay').classList.add('vis')
-  document.body.style.overflow = 'hidden'
-}
-
-function cerrarModalMod(event) {
-  if (event && event.target !== document.getElementById('modalModOverlay')) return
-  document.getElementById('modalModOverlay').classList.remove('vis')
-  document.body.style.overflow = ''
-}
-
-function selectModTipo(tipo) {
-  PLAN_STATE.modTipo = tipo
-  document.querySelectorAll('.mod-tipo-btn').forEach(b => b.classList.remove('selected'))
-  document.getElementById('mmod-' + tipo)?.classList.add('selected')
-}
-
-function selectModAlcance(alcance) {
-  PLAN_STATE.modAlcance = alcance
-  document.querySelectorAll('#modalModOverlay .ob-opt').forEach(b => b.classList.remove('selected'))
-  document.getElementById('malc-' + alcance)?.classList.add('selected')
-}
-
-async function submitModificacion() {
-  const errEl = document.getElementById('modalModErr')
-  errEl.classList.remove('vis')
-
-  if (!PLAN_STATE.modTipo) { errEl.textContent = 'Selecciona tipo de modificación'; errEl.classList.add('vis'); return }
-  if (!PLAN_STATE.modAlcance) { errEl.textContent = 'Selecciona el alcance'; errEl.classList.add('vis'); return }
-  const motivo = document.getElementById('modalModMotivo').value.trim()
-  if (!motivo) { errEl.textContent = 'Describe el motivo de la modificación'; errEl.classList.add('vis'); return }
-
-  const btn = document.getElementById('btnSubmitMod')
-  btn.classList.add('loading')
-  btn.innerHTML = '<span class="spinner-inline"></span>GUARDANDO...'
-
-  try {
-    const socio = PLAN_STATE.socio
-    const asig  = PLAN_STATE.asignacion
-    const coach = STATE.profile
-
-    const sesNum = parseInt(document.getElementById('modalModSesion').value) || MOD_SES_NUM
-    const ahora  = new Date()
-    const horaStr = ahora.toLocaleTimeString('es', { hour: '2-digit', minute: '2-digit' })
-    const fechaStr = ahora.toLocaleDateString('es', { day: 'numeric', month: 'short', year: '2-digit' })
-
-    // 1. Guardar en tabla modificaciones
-    const { data: mod, error } = await sb.from('modificaciones').insert({
-      asignacion_id:      asig?.id || null,
-      coach_id:           coach.id,
-      tipo:               PLAN_STATE.modTipo,
-      alcance:            PLAN_STATE.modAlcance,
-      motivo:             motivo,
-      fecha_inicio:       new Date().toISOString().split('T')[0],
-      generado_por_ia:    false,
-      aprobado_por_coach: true,
-      activo:             true
-    }).select().single()
-
-    if (error) throw error
-
-    // 2. Notificación interna — tabla ia_log como registro de actividad
-    const descripcion = `${coach.nombre} ${coach.apellido || ''} registró una modificación (${PLAN_STATE.modTipo.replace('_',' ')}) en sesión ${sesNum ? '0'+sesNum : 'activa'} de ${socio?.nombre} ${socio?.apellido || ''}. Alcance: ${PLAN_STATE.modAlcance}. Motivo: ${motivo}`
-
-    await sb.from('ia_log').insert({
-      coach_id:     coach.id,
-      socio_id:     socio?.id || null,
-      asignacion_id: asig?.id || null,
-      prompt_coach: `MODIFICACIÓN · ${coach.nombre} · ${fechaStr} ${horaStr}`,
-      contexto_ia:  descripcion,
-      respuesta_ia: descripcion,
-      aprobado:     false
-    })
-
-    // 3. Email via Supabase Edge Function (si está configurada)
-    // Si no hay edge function, se omite silenciosamente
-    try {
-      await sb.functions.invoke('notificar-modificacion', {
-        body: {
-          coach:    `${coach.nombre} ${coach.apellido || ''}`,
-          socio:    `${socio?.nombre} ${socio?.apellido || ''}`,
-          tipo:     PLAN_STATE.modTipo,
-          alcance:  PLAN_STATE.modAlcance,
-          sesion:   sesNum ? `Sesión 0${sesNum}` : 'Sesión activa',
-          motivo:   motivo,
-          hora:     horaStr,
-          fecha:    fechaStr,
-          admin_email: ADMIN_EMAIL
-        }
-      })
-    } catch(emailErr) {
-      console.log('Email no enviado (función no configurada):', emailErr.message)
-    }
-
-    btn.classList.remove('loading')
-    btn.textContent = 'REGISTRAR MODIFICACIÓN'
-    document.getElementById('modalModOverlay').classList.remove('vis')
-    document.body.style.overflow = ''
-
-    alert(`Modificación registrada. Notificación enviada a admin.`)
-
-  } catch(e) {
-    btn.classList.remove('loading')
-    btn.textContent = 'REGISTRAR MODIFICACIÓN'
-    errEl.textContent = 'Error al guardar. Intenta de nuevo.'
-    errEl.classList.add('vis')
-    console.error('submitModificacion:', e)
-  }
-}
-
-// ── NOTIFICACIONES ADMIN ──
-async function loadNotificaciones() {
-  const lista = document.getElementById('notifLista')
-  if (!lista) return
-
-  try {
-    const { data: logs } = await sb
-      .from('ia_log')
-      .select('*, coach:coach_id(nombre, apellido), socio:socio_id(nombre, apellido)')
-      .ilike('prompt_coach', 'MODIFICACIÓN%')
-      .order('created_at', { ascending: false })
-      .limit(50)
-
-    const items = logs || []
-    document.getElementById('notifCnt').textContent = items.length
-
-    if (!items.length) {
-      lista.innerHTML = '<div class="loading-state">Sin modificaciones registradas</div>'
-      return
-    }
-
-    lista.innerHTML = items.map((log, i) => {
-      const coachNombre = log.coach ? `${log.coach.nombre} ${log.coach.apellido || ''}` : 'Coach'
-      const socioNombre = log.socio ? `${log.socio.nombre} ${log.socio.apellido || ''}` : '—'
-      const fecha = new Date(log.created_at)
-      const fechaStr = fecha.toLocaleDateString('es', { day:'numeric', month:'short' })
-      const horaStr  = fecha.toLocaleTimeString('es', { hour:'2-digit', minute:'2-digit' })
-
-      return `
-        <div class="notif-card ${i < 3 ? 'nueva' : ''}">
-          <div class="notif-card-top">
-            <div class="notif-coach">${coachNombre}</div>
-            <div class="notif-hora">${fechaStr} · ${horaStr}</div>
-          </div>
-          <div class="notif-desc">Modificación en sesión de ${socioNombre}</div>
-          <div class="notif-motivo">${log.contexto_ia || '—'}</div>
-        </div>`
-    }).join('')
-
-  } catch(e) {
-    console.error('loadNotificaciones:', e)
-    lista.innerHTML = '<div class="loading-state">Error al cargar</div>'
-  }
-}
-
-function addNotificacionesNavAdmin() {
-  const navList = document.querySelector('#pgAdmin .nav-list')
-  if (!navList || document.getElementById('adminNavNotif')) return
-  const card = document.createElement('div')
-  card.id = 'adminNavNotif'
-  card.className = 'nav-card'
-  card.onclick = () => { loadNotificaciones(); goTo('pgNotificaciones') }
-  card.innerHTML = `
-    <div class="nc-left">
-      <div class="nc-label">Actividad</div>
-      <div class="nc-titulo">MODIFICACIONES</div>
-      <div class="nc-desc">Ajustes realizados por coaches</div>
-    </div>
-    <div class="nc-arrow">→</div>
-  `
-  navList.appendChild(card)
 }
 
 function coachTab(tab) {
@@ -2080,7 +1312,19 @@ function wsMsg(tel, nombre, dias) {
 // ══════════════════════════════════════════════
 // ADMIN DATA
 // ══════════════════════════════════════════════
-// loadAdminData → replaced by pagos module below
+async function loadAdminData() {
+  document.getElementById('adminNombre').textContent = (STATE.profile?.nombre || 'Admin').toUpperCase()
+
+  const { count: totalSocios } = await sb.from('profiles').select('*',{count:'exact',head:true}).eq('role','socio').eq('activo',true)
+  const { count: totalCoaches } = await sb.from('profiles').select('*',{count:'exact',head:true}).eq('role','coach').eq('activo',true)
+
+  document.getElementById('adminResumen').textContent = `${totalSocios||0} socios · ${totalCoaches||0} coaches activos`
+
+  // También cargar vista coach para admin
+  STATE.profile.role = 'coach'
+  await loadCoachData()
+  STATE.profile.role = 'admin'
+}
 
 // ══════════════════════════════════════════════
 // INIT — CHECK SESSION
@@ -2100,44 +1344,412 @@ function wsMsg(tel, nombre, dias) {
   })
 })()
 
-const LOGO_SRC = "";
-// logo externo — reemplazar LOGO_SRC con URL real si se necesita
+const LOGO_SRC = "data:image/jpeg;base64,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AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAP/2gAMAwEAAgADAAAAIQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADDDAAAAAAADDDBCAAACLJPDCAAAAAAAAAABAAAAAAAAAAACFPFCBAAAAADDDAAAAAAAAADDDAAAAAAAAAAAAAAAAAAAAAAAAAAAAKAAKAAAAABGAAFIBKIAAAAAEAAAAAAAAAAACAAAAAAAAAIAAAAAAMAAAAPAAAAAAAAAAFAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAKAAKAAAAAKAAHIBOAAAACAAAEKAAAAAAAHAFAAAAAAAAGAAADDCAAEMAAPAAAAAAAAAAFAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAKAAKAAABIAACAAMAACIIAEDAAECAAAAAAKAELAAAAAAGAAFAIAMECAEIAPAAAAAAAAAAFAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAKAAKAABMAAEIAEAAFIAAAAEPAABAAAAAOAAAAAAAAAAAADIAAAAANMMJAPAAAAAAAAAAFAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAKAAKAAEAABKAAAAAIAAAAAAECAAKAAAAAAAAAAAAAAAABKAAAAAAAAAAAPAAAAAAAAAAFAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAKAAKADIAAAAABCAEAAAAAAAADAAIAAAGAACAABAAAFCAFIAAAAAAAAAAAPAAMMMMMMMMMAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAKAAKAIAAOAAAAIAFAAAAAAAAPAAKAACAACILAABAAAIAFAAAAAAAAAAAAPAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAKAAKACAAMAAABKABKAAAAAAANAAIAACABCAEKAEKAEKAEAAAAAAAAAAAAPAABDDDDDDDCAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAKAAKAEDAAECAAKAEKAAAAAAAKAAIANAAEAAAMAAJCACAFAAAAAAAAAAAAPAAMMMMMMMMJAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAKAAKAABAAAMAABAABCAAAAABIABIFAAAAAAAEIAELACAALAAAAAAADDDAPAAAAAAAAAAFAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAKAAKAAAMAAAAAACAENCAAADAAADAIAANAAAAAACAFABAAALAAAABGAAKAPAAAAAAAAAAFAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAKAAKAAAANAAAGAECAAAEAMIAAHIFIAEAAAAAAEIAALAJCAEIPAOEAAHAAPAAAAAAAAAAFAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAKAAKAAAAANCAEDAFAAAAAAAABIAMAAAAAAAAAAAAABKABCAAAAAAAHAAAPAAAAAAAAAAFAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAKAAKAAAAAAAAAALAIKDDDADAAAFAAAAAAAAAAAAAAAIAAIIBDDCBIIAAAOAACAAAAAAAFAABAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAIMIAAAAAAAAAAAAAAAAAAAAAAAAAAEMIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAP/aAAwDAQACAAMAAAAQ88888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888884ww08888888ww4w880owoIw08888888888w88888888888woYII4088880ww888888884www8888888888888888888888888888888U888888E888c88c88888MY888888888EU8888888880888888MQ888U8888888888888o8888888888888888888888888888888U88888088o80E88880888sE8888888g8c8888888oE88840888so88U8888888888888o8888888888888888888888888888888U8884U88wc4E880cMM8088sQ88888808s0888884s88kcM8sI88sw8U8888888888888o8888888888888888888888888888888U884s88sU8o88os88888I88s88888E888s88888488k8888888AAE8U8888888888888o8888888888888888888888888888888U84M888888U88k888888s888U888w8888888888c84c88888888888U8888888888888o8888888888888888888888888888888U8kc84088o08oc8888888Q880884E88g884c888c88c88888888888U8888888888s88o8888888888888888888888888888888U0c88M8888c84c8888888c88w88w88g8888M884c88888888888888U8888888888888o8888888888888888888888888888888Usc884088sU8888888888Q88k84888U88U88c84c88888888888888U884wwwwwww088o8888888888888888888888888888888U88488M08808sU8888888c88884884888888808U84c88888888888U88sMMMMMMMc88o8888888888888888888888888888888U88s088Y88c88M888888s88888888U888sc8sw8Q88g8888884www8U8888888888888o8888888888888888888888888888888U888I888M8488sI08884888w8E88U88888808s0808sY08880888A8U8888888888888o8888888888888888888888888888888U88884088g8I0888cs8888k8gc8sc888888c88w8I08s80gkM88088U8888888888888o8888888888888888888888888888888U88888808s4sM888888884c8k8888888888888o08I088888880c88U8888888888888o8888888888888888888888888888wwwU888888swww088c04ww8M88swwwwwwwwwwwwwwwU88MU04w400c888cww888888884wwg8888888888888888888888888888888888888888888888scc88888888888888888888888888ssMs8888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888/8QAFBEBAAAAAAAAAAAAAAAAAAAAwP/aAAgBAgEBPwAJh//EABQRAQAAAAAAAAAAAAAAAAAAAMD/2gAIAQMBAT8ACYf/xABKEAAABAIDBxAJAwQCAwEBAAABAgMEAAUGESASEyExNVRyFBUWIiMwMkBBQlFSYXGRkhAzNFBTgoOh0SRigUOiscFE4WBzwGOy/9oACAEBAAE/Av8A5iFRVNIK1VCED9w1QpOJemO2dJ/xhg9IZcX+qY3cUY2Sy/pU8sEpDLjf1RL3lGEpuwU4LpP+RqhNQigVpnKYOwa/eiihEwrUOUodo1QrN2CfCdJ/wNcHpDLi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";
+document.querySelectorAll('.koach-logo').forEach(img => img.src = LOGO_SRC);
 
+</script>
 
-// ─────────────────────────────────────────────
-// CONSTANTES MEMBRESÍA
-// ─────────────────────────────────────────────
-const MEMBRESIA_PRECIOS = { mensual: 80000, semestral: 420000, anual: 720000 }
-const MEMBRESIA_DIAS    = { mensual: 30,    semestral: 180,    anual: 365 }
-const MEMBRESIA_LABELS  = { mensual: 'Mensual', semestral: 'Semestral', anual: 'Anual' }
+<!-- ══════════════════════════════════════════════
+     PAGE: PAGOS (admin only)
+══════════════════════════════════════════════ -->
+<div class="page" id="pgPagos">
+  <div class="topbar">
+    <div><img class="koach-logo" data-size="sm" alt="KOACH"></div>
+    <div class="tb-right">
+      <div class="rol-badge">Admin</div>
+      <button class="btn-sm" onclick="goTo('pgAdmin')">← Panel</button>
+    </div>
+  </div>
 
-// State del módulo
-let PAGOS_STATE = {
-  todos: [],          // todos los pagos cargados
-  tipoActual: 'todos',
-  socioPresel: null,  // socio pre-seleccionado al abrir modal
-  tipoMembresia: null
-}
+  <div class="pagos-strip">
+    <div class="pagos-stat">
+      <div class="pagos-stat-num ok" id="pagCntOk">—</div>
+      <div class="pagos-stat-lbl">Al día</div>
+    </div>
+    <div class="pagos-stat">
+      <div class="pagos-stat-num warn" id="pagCntWarn">—</div>
+      <div class="pagos-stat-lbl">Vence<br>pronto</div>
+    </div>
+    <div class="pagos-stat">
+      <div class="pagos-stat-num danger" id="pagCntDanger">—</div>
+      <div class="pagos-stat-lbl">Vencido /<br>Pendiente</div>
+    </div>
+  </div>
 
-// ─────────────────────────────────────────────
-// HELPERS
-// ─────────────────────────────────────────────
-function fmtCLP(n) {
-  if (!n && n !== 0) return '—'
-  return '$' + Number(n).toLocaleString('es-CL')
-}
+  <div class="sec-header">
+    <div>
+      <div class="sec-titulo">Membresías</div>
+      <div class="sec-meta" id="pagMeta">Control de pagos</div>
+    </div>
+    <button class="btn-nuevo" onclick="abrirModalPago(null)">+ Registrar</button>
+  </div>
 
-function fmtFechaCorta(dateStr) {
-  if (!dateStr) return '—'
-  const d = new Date(dateStr + 'T12:00:00')
-  return d.toLocaleDateString('es', { day: 'numeric', month: 'short', year: '2-digit' })
-}
+  <div class="filter-bar">
+    <div class="filter-btn active" onclick="filtrarPagos('todos',this)">Todos</div>
+    <div class="filter-btn" onclick="filtrarPagos('aldia',this)">Al día</div>
+    <div class="filter-btn" onclick="filtrarPagos('pronto',this)">Por vencer</div>
+    <div class="filter-btn danger" onclick="filtrarPagos('vencido',this)">Vencidos</div>
+  </div>
 
-function calcEstadoPago(pago) {
-  // Recalcula estado real vs fecha de hoy (no confía en el campo estado de DB)
-  const hoy = new Date()
-  hoy.setHours(0,0,0,0)
-  const vence = new Date(pago.fecha_vencimiento + 'T12:00:00')
-  const diasRestantes = Math.ceil((vence - hoy) / 86400000)
+  <div class="socios-list" id="pagosLista"></div>
+</div>
 
-  if (diasRestantes < 0)  ret
+<!-- ══════════════════════════════════════════════
+     PAGE: PERFIL SOCIO (admin)
+══════════════════════════════════════════════ -->
+<div class="page" id="pgPerfilSocio">
+  <div class="topbar">
+    <div><img class="koach-logo" data-size="sm" alt="KOACH"></div>
+    <div class="tb-right">
+      <button class="btn-sm" id="btnVolverPerfil" onclick="goTo('pgCoach')">← Socios</button>
+    </div>
+  </div>
+
+  <div class="welcome-block">
+    <div class="wb-label">Perfil del socio</div>
+    <div class="wb-nombre" id="perfilNombre">—</div>
+    <div class="wb-meta" id="perfilMeta">—</div>
+  </div>
+
+  <!-- Info general -->
+  <div class="perfil-section">
+    <div class="perfil-sec-label">Datos personales</div>
+    <div id="perfilDatos"></div>
+  </div>
+
+  <!-- Protocolo -->
+  <div class="perfil-section">
+    <div class="perfil-sec-label">Protocolo activo</div>
+    <div id="perfilProtocolo"></div>
+  </div>
+
+  <!-- PAGOS — solo admin -->
+  <div class="perfil-section" id="perfilPagosSection" style="display:none;">
+    <div class="perfil-sec-label" style="display:flex;justify-content:space-between;align-items:center;">
+      <span>Membresía y pagos</span>
+      <button style="font-family:Share Tech Mono,monospace;font-size:7px;letter-spacing:0.1em;text-transform:uppercase;background:var(--negro);color:var(--offwhite);border:none;padding:5px 10px;cursor:pointer;" onclick="abrirModalPago(socioPerfilActual)">+ Registrar pago</button>
+    </div>
+    <div id="perfilPagosDatos"></div>
+  </div>
+
+  <!-- Restricciones -->
+  <div class="perfil-section">
+    <div class="perfil-sec-label">Restricciones activas</div>
+    <div id="perfilRestricciones"></div>
+  </div>
+
+  <div style="padding:14px 22px 28px;display:flex;flex-direction:column;gap:8px;">
+    <button class="btn-prim" onclick="abrirIAPerfil()">🧠 CONSULTOR IA</button>
+    <button class="btn-sec" id="btnWsPerfil" onclick="wsPerfil()">WhatsApp →</button>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════
+     PAGE: ONBOARDING
+══════════════════════════════════════════════ -->
+<div class="page" id="pgOnboarding">
+  <div class="topbar">
+    <div><img class="koach-logo" data-size="sm" alt="KOACH"></div>
+    <div class="tb-right">
+      <button class="btn-sm" onclick="goTo('pgAdmin')">← Cancelar</button>
+    </div>
+  </div>
+
+  <div class="ob-progress">
+    <div class="ob-dots">
+      <div class="ob-dot active" id="ob-dot1"></div>
+      <div class="ob-dot" id="ob-dot2"></div>
+      <div class="ob-dot" id="ob-dot3"></div>
+      <div class="ob-dot" id="ob-dot4"></div>
+      <div class="ob-dot" id="ob-dot5"></div>
+    </div>
+    <div class="ob-step-label" id="obStepLabel">Paso 1 de 5 · Datos personales</div>
+  </div>
+
+  <!-- STEP 1: Datos personales -->
+  <div class="ob-step active" id="ob-step1">
+    <div class="ob-header">
+      <div class="ob-num">Paso 01</div>
+      <div class="ob-titulo">Datos<br>personales</div>
+    </div>
+    <div class="ob-body">
+      <div class="ob-row2">
+        <div class="ob-field"><div class="ob-field-label">Nombre</div><input class="ob-input" type="text" id="obNombre" placeholder="Juan"></div>
+        <div class="ob-field"><div class="ob-field-label">Apellido</div><input class="ob-input" type="text" id="obApellido" placeholder="Pérez"></div>
+      </div>
+      <div class="ob-field"><div class="ob-field-label">Email</div><input class="ob-input" type="email" id="obEmail" placeholder="juan@email.com" inputmode="email"></div>
+      <div class="ob-field"><div class="ob-field-label">WhatsApp</div><input class="ob-input" type="tel" id="obTel" placeholder="+56 9 XXXX XXXX" inputmode="tel"></div>
+      <div class="ob-field"><div class="ob-field-label">Fecha de nacimiento</div><input class="ob-input" type="date" id="obFechaNac"></div>
+      <div class="ob-field">
+        <div class="ob-field-label">Sexo</div>
+        <div class="ob-select-group">
+          <div class="ob-opt" onclick="obSelect('sexo','hombre',this)" id="ob-hombre">Hombre</div>
+          <div class="ob-opt" onclick="obSelect('sexo','mujer',this)" id="ob-mujer">Mujer</div>
+        </div>
+      </div>
+    </div>
+    <div class="ob-err" id="ob-err1">Completa todos los campos requeridos</div>
+    <div class="ob-footer one">
+      <button class="btn-prim" onclick="obNext(2)">CONTINUAR →</button>
+    </div>
+  </div>
+
+  <!-- STEP 2: Membresía -->
+  <div class="ob-step" id="ob-step2">
+    <div class="ob-header">
+      <div class="ob-num">Paso 02</div>
+      <div class="ob-titulo">Membresía</div>
+    </div>
+    <div class="ob-body">
+      <div class="ob-field">
+        <div class="ob-field-label">Tipo de membresía</div>
+        <div class="ob-select-group" style="flex-direction:column;">
+          <div class="ob-opt" style="text-align:left;" onclick="obSelect('membresia','mensual',this)" id="ob-mensual">
+            Mensual — $80.000
+          </div>
+          <div class="ob-opt" style="text-align:left;" onclick="obSelect('membresia','semestral',this)" id="ob-semestral">
+            Semestral — $420.000
+          </div>
+          <div class="ob-opt" style="text-align:left;" onclick="obSelect('membresia','anual',this)" id="ob-anual">
+            Anual — $720.000
+          </div>
+          <div class="ob-opt" style="text-align:left;border-color:var(--purple-border);color:var(--purple);" onclick="obSelect('membresia','preferencial',this)" id="ob-preferencial">
+            Precio preferencial →
+          </div>
+        </div>
+      </div>
+
+      <!-- Descuento (aparece si elige preferencial) -->
+      <div id="obDescuentoWrap" style="display:none;flex-direction:column;gap:10px;">
+        <div class="ob-field">
+          <div class="ob-field-label">Tipo de descuento</div>
+          <div class="ob-select-group">
+            <div class="ob-opt desc" onclick="obSelectDesc('pct',this)" id="ob-desc-pct">% Porcentaje</div>
+            <div class="ob-opt desc" onclick="obSelectDesc('monto',this)" id="ob-desc-monto">$ Monto fijo</div>
+          </div>
+        </div>
+        <div class="ob-row2">
+          <div class="ob-field">
+            <div class="ob-field-label" id="obDescLabel">Descuento %</div>
+            <input class="ob-input" type="number" id="obDescValor" placeholder="0" oninput="calcDescuento()">
+          </div>
+          <div class="ob-field">
+            <div class="ob-field-label">Base de cálculo</div>
+            <select class="ob-input" id="obDescBase" onchange="calcDescuento()">
+              <option value="80000">Mensual $80.000</option>
+              <option value="420000">Semestral $420.000</option>
+              <option value="720000">Anual $720.000</option>
+            </select>
+          </div>
+        </div>
+        <div class="descuento-preview" id="obDescPreview">
+          <div class="desc-original" id="obDescOriginal">$80.000</div>
+          <div class="desc-final" id="obDescFinal">$80.000</div>
+          <div class="desc-ahorro" id="obDescAhorro">Sin descuento aplicado</div>
+          <div class="desc-recurrente" id="obDescRec">Este precio queda como recurrente para el socio</div>
+        </div>
+      </div>
+
+      <div class="ob-field">
+        <div class="ob-field-label">Fecha de inicio</div>
+        <input class="ob-input" type="date" id="obFechaInicio">
+      </div>
+    </div>
+    <div class="ob-err" id="ob-err2">Selecciona un tipo de membresía</div>
+    <div class="ob-footer two">
+      <button class="btn-sec" onclick="obNext(1)">← Atrás</button>
+      <button class="btn-prim" onclick="obNext(3)">CONTINUAR →</button>
+    </div>
+  </div>
+
+  <!-- STEP 3: Protocolo -->
+  <div class="ob-step" id="ob-step3">
+    <div class="ob-header">
+      <div class="ob-num">Paso 03</div>
+      <div class="ob-titulo">Protocolo<br>asignado</div>
+    </div>
+    <div class="ob-body">
+      <div class="ob-field">
+        <div class="ob-field-label">Programa</div>
+        <div class="ob-select-group">
+          <div class="ob-opt" onclick="obSelect('programa','STRONG',this)" id="ob-STRONG">STRONG</div>
+          <div class="ob-opt" onclick="obSelect('programa','BURN',this)" id="ob-BURN">BURN</div>
+          <div class="ob-opt" onclick="obSelect('programa','HEALTHY',this)" id="ob-HEALTHY">HEALTHY</div>
+        </div>
+        <div style="font-family:Share Tech Mono,monospace;font-size:8px;color:var(--gris);letter-spacing:0.1em;margin-top:4px;" id="obProgDesc">—</div>
+      </div>
+      <div class="ob-field">
+        <div class="ob-field-label">Nivel</div>
+        <div class="ob-select-group">
+          <div class="ob-opt" onclick="obSelect('nivel','BASICO',this)" id="ob-BASICO">Básico</div>
+          <div class="ob-opt" onclick="obSelect('nivel','INTERMEDIO',this)" id="ob-INTERMEDIO">Intermedio</div>
+          <div class="ob-opt" onclick="obSelect('nivel','AVANZADO',this)" id="ob-AVANZADO">Avanzado</div>
+        </div>
+      </div>
+      <div class="ob-field">
+        <div class="ob-field-label">Objetivo principal</div>
+        <div class="ob-select-group" style="flex-direction:column;">
+          <div class="ob-opt" style="text-align:left;" onclick="obSelect('objetivo','fuerza',this)" id="ob-fuerza">Fuerza e hipertrofia</div>
+          <div class="ob-opt" style="text-align:left;" onclick="obSelect('objetivo','recomposicion',this)" id="ob-recomposicion">Recomposición corporal</div>
+          <div class="ob-opt" style="text-align:left;" onclick="obSelect('objetivo','salud',this)" id="ob-salud">Salud y bienestar</div>
+          <div class="ob-opt" style="text-align:left;" onclick="obSelect('objetivo','rendimiento',this)" id="ob-rendimiento">Rendimiento deportivo</div>
+        </div>
+      </div>
+    </div>
+    <div class="ob-err" id="ob-err3">Selecciona programa, nivel y objetivo</div>
+    <div class="ob-footer two">
+      <button class="btn-sec" onclick="obNext(2)">← Atrás</button>
+      <button class="btn-prim" onclick="obNext(4)">CONTINUAR →</button>
+    </div>
+  </div>
+
+  <!-- STEP 4: Restricciones -->
+  <div class="ob-step" id="ob-step4">
+    <div class="ob-header">
+      <div class="ob-num">Paso 04</div>
+      <div class="ob-titulo">Restricciones<br>y lesiones</div>
+    </div>
+    <div class="ob-body">
+      <div class="ob-field">
+        <div class="ob-field-label">Zonas con limitación</div>
+        <div class="ob-chips">
+          <div class="ob-chip" onclick="obChip(this,'hombro_der')">Hombro derecho</div>
+          <div class="ob-chip" onclick="obChip(this,'hombro_izq')">Hombro izquierdo</div>
+          <div class="ob-chip" onclick="obChip(this,'rodilla_der')">Rodilla derecha</div>
+          <div class="ob-chip" onclick="obChip(this,'rodilla_izq')">Rodilla izquierda</div>
+          <div class="ob-chip" onclick="obChip(this,'lumbar')">Lumbar</div>
+          <div class="ob-chip" onclick="obChip(this,'cervical')">Cervical</div>
+          <div class="ob-chip" onclick="obChip(this,'muneca')">Muñeca</div>
+          <div class="ob-chip" onclick="obChip(this,'cadera')">Cadera</div>
+          <div class="ob-chip" onclick="obChip(this,'tobillo')">Tobillo</div>
+          <div class="ob-chip" onclick="obChip(this,'ninguna')">Sin restricciones</div>
+        </div>
+      </div>
+      <div class="ob-field">
+        <div class="ob-field-label">Notas adicionales</div>
+        <textarea class="ob-textarea" id="obNotas" placeholder="Ej: Operación de menisco hace 6 meses..."></textarea>
+      </div>
+    </div>
+    <div class="ob-footer two">
+      <button class="btn-sec" onclick="obNext(3)">← Atrás</button>
+      <button class="btn-prim" onclick="obNext(5)">CONTINUAR →</button>
+    </div>
+  </div>
+
+  <!-- STEP 5: Confirmar -->
+  <div class="ob-step" id="ob-step5">
+    <div class="ob-header">
+      <div class="ob-num">Paso 05</div>
+      <div class="ob-titulo">Confirmar<br>y crear</div>
+    </div>
+    <div class="ob-body">
+      <div class="ob-resumen-card" id="obResumen"></div>
+      <div style="font-family:Share Tech Mono,monospace;font-size:8px;letter-spacing:0.1em;color:var(--gris);line-height:1.7;padding:10px 13px;background:var(--purple-light);border:1px solid var(--purple-border);">
+        El socio recibirá acceso al sistema KOACH con su email y contraseña temporal.
+      </div>
+      <div class="ob-err vis" id="ob-err5" style="display:none;"></div>
+    </div>
+    <div class="ob-footer two">
+      <button class="btn-sec" onclick="obNext(4)">← Atrás</button>
+      <button class="btn-prim" id="btnObCrear" onclick="obCrear()">CREAR SOCIO →</button>
+    </div>
+  </div>
+
+  <!-- SUCCESS -->
+  <div class="ob-success" id="obSuccess">
+    <div class="ob-success-icon">✓</div>
+    <div class="ob-success-titulo">Socio<br>creado</div>
+    <div class="ob-success-sub">Acceso enviado a</div>
+    <div class="ob-email-box" id="obSuccessEmail">—</div>
+    <div class="ob-success-sub" style="margin-top:8px;">El socio puede ingresar a<br><strong>koach-app-three.vercel.app</strong></div>
+    <button class="btn-prim" style="margin-top:8px;" onclick="obReset()">CREAR OTRO SOCIO</button>
+    <button class="btn-sec" onclick="goTo('pgAdmin')">Volver al panel</button>
+  </div>
+</div>
+
+<!-- MODAL REGISTRAR PAGO -->
+<div class="mpago" id="modalPago" onclick="if(event.target===this)cerrarModalPago()">
+  <div class="mpago-sheet">
+    <div class="mpago-top">
+      <div class="mpago-titulo" id="mpNombre">Registrar pago</div>
+      <button class="btn-sm" onclick="cerrarModalPago()">✕</button>
+    </div>
+    <div class="mpago-body">
+
+      <div class="mpago-field">
+        <div class="mpago-label">Tipo de membresía</div>
+        <div class="mpago-select-group">
+          <div class="mpago-opt" onclick="mpSelect('tipo','mensual',this)" id="mp-mensual">Mensual</div>
+          <div class="mpago-opt" onclick="mpSelect('tipo','semestral',this)" id="mp-semestral">Semestral</div>
+          <div class="mpago-opt" onclick="mpSelect('tipo','anual',this)" id="mp-anual">Anual</div>
+        </div>
+      </div>
+
+      <div class="mpago-field">
+        <div class="mpago-label">Precio base</div>
+        <div style="font-family:Share Tech Mono,monospace;font-size:10px;color:var(--negro);background:white;border:1px solid var(--borde);padding:10px 13px;" id="mpPrecioBase">Selecciona membresía</div>
+      </div>
+
+      <div class="mpago-field">
+        <div class="mpago-label">¿Aplicar descuento?</div>
+        <div class="mpago-select-group">
+          <div class="mpago-opt" onclick="mpSelect('desc_tipo','ninguno',this)" id="mp-desc-no">Sin descuento</div>
+          <div class="mpago-opt desc" onclick="mpSelect('desc_tipo','pct',this)" id="mp-desc-pct">% Porcentaje</div>
+          <div class="mpago-opt desc" onclick="mpSelect('desc_tipo','monto',this)" id="mp-desc-monto">$ Monto fijo</div>
+        </div>
+      </div>
+
+      <div id="mpDescWrap" style="display:none;">
+        <div class="mpago-field">
+          <div class="mpago-label" id="mpDescLabel">Descuento %</div>
+          <input class="mpago-input" type="number" id="mpDescValor" placeholder="0" oninput="mpCalc()">
+        </div>
+      </div>
+
+      <!-- Preview precio final -->
+      <div class="descuento-preview vis" id="mpPreview" style="display:none;">
+        <div class="desc-original" id="mpOriginal">—</div>
+        <div class="desc-final" id="mpFinal">—</div>
+        <div class="desc-ahorro" id="mpAhorro">—</div>
+        <div class="desc-recurrente">Precio recurrente confirmado para este socio</div>
+      </div>
+
+      <div class="mpago-field">
+        <div class="mpago-label">Monto final cobrado</div>
+        <input class="mpago-input" type="number" id="mpMontoFinal" placeholder="80000">
+      </div>
+
+      <div class="mpago-field">
+        <div class="mpago-label">Fecha de pago</div>
+        <input class="mpago-input" type="date" id="mpFechaPago">
+      </div>
+
+      <div class="mpago-field">
+        <div class="mpago-label">Fecha de vencimiento</div>
+        <input class="mpago-input" type="date" id="mpFechaVence">
+      </div>
+
+      <div class="mpago-field">
+        <div class="mpago-label">Estado</div>
+        <div class="mpago-select-group">
+          <div class="mpago-opt selected" onclick="mpSelect('estado','pagado',this)" id="mp-pagado">Pagado</div>
+          <div class="mpago-opt" onclick="mpSelect('estado','pendiente',this)" id="mp-pendiente">Pendiente</div>
+        </div>
+      </div>
+
+      <div class="mpago-field">
+        <div class="mpago-label">Notas (opcional)</div>
+        <input class="mpago-input" type="text" id="mpNotas" placeholder="Ej: Descuento referido, precio congelado...">
+      </div>
+
+    </div>
+    <div class="mpago-footer">
+      <button class="btn-prim" id="btnMpGuardar" onclick="guardarPago()">CONFIRMAR PAGO →</button>
+      <button class="btn-sec" onclick="cerrarModalPago()">Cancelar</button>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>
+<!-- Este bloque se insertará via script -->
