@@ -2,6 +2,12 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
+<meta name="theme-color" content="#F2F1EF">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="KOACH">
+<meta name="format-detection" content="telephone=no">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
 <title>KOACH — Sistema</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -15,9 +21,9 @@
     --gris: #888;
     --gris-claro: #C8C7C5;
     --borde: rgba(10,10,10,0.1);
-    --purple: #9B5FF5;
-    --purple-light: rgba(155,95,245,0.08);
-    --purple-border: rgba(155,95,245,0.25);
+    --purple: #3D3D3D;
+    --purple-light: rgba(10,10,10,0.04);
+    --purple-border: rgba(10,10,10,0.22);
     --ok: #27AE60;
     --warn: #E67E22;
     --danger: #C0392B;
@@ -341,6 +347,83 @@
   .ob-success-titulo { font-weight:900; font-size:30px; color:var(--negro); text-transform:uppercase; line-height:1; }
   .ob-success-sub { font-family:'Share Tech Mono',monospace; font-size:8px; color:var(--gris); line-height:1.8; letter-spacing:0.1em; }
   .ob-email-box { font-family:'Share Tech Mono',monospace; font-size:9px; color:var(--negro); background:white; border:1px solid var(--borde); padding:9px 14px; }
+
+  /* OBJETIVO SEMANAL v2 */
+  .vol-card { background:linear-gradient(160deg, #141414 0%, #0A0A0A 55%); border-radius:22px; padding:22px 20px 18px; position:relative; overflow:hidden; }
+  .vol-card::before { content:''; position:absolute; top:-60px; right:-40px; width:220px; height:220px; background:radial-gradient(circle, rgba(255,255,255,0.09), transparent 65%); pointer-events:none; }
+  .vol-head { display:flex; justify-content:space-between; align-items:flex-end; position:relative; }
+  .vol-label { font-family:'Share Tech Mono',monospace; font-size:8px; letter-spacing:0.2em; text-transform:uppercase; color:rgba(242,241,239,0.45); }
+  .vol-titulo { font-family:'Barlow Condensed',sans-serif; font-weight:900; font-size:24px; text-transform:uppercase; line-height:1.05; color:var(--offwhite); }
+  .vol-global { font-family:'Barlow Condensed',sans-serif; font-weight:900; font-size:46px; line-height:0.9; background:linear-gradient(180deg, #FFFFFF 20%, #7A7A78 100%); -webkit-background-clip:text; background-clip:text; color:transparent; }
+  .vol-sub { font-family:'Share Tech Mono',monospace; font-size:8px; letter-spacing:0.12em; color:rgba(242,241,239,0.4); margin:6px 0 18px; position:relative; }
+  .vol-bars { display:flex; gap:12px; align-items:flex-end; overflow-x:auto; padding:26px 2px 2px; scrollbar-width:none; position:relative; }
+  .vol-bars::-webkit-scrollbar { display:none; }
+  .vol-col { display:flex; flex-direction:column; align-items:center; gap:9px; flex:0 0 auto; }
+  .vol-track { width:42px; height:158px; background:rgba(242,241,239,0.07); border-radius:21px; position:relative; }
+  .vol-fill { position:absolute; bottom:0; left:0; right:0; border-radius:21px; height:0%; background:linear-gradient(180deg, #FFFFFF 0%, #DEDDDB 45%, #989793 100%); transition:height 0.9s cubic-bezier(0.22,1,0.36,1); }
+  .vol-fill.low { background:linear-gradient(180deg, rgba(242,241,239,0.28), rgba(242,241,239,0.10)); }
+  .vol-mev { position:absolute; left:6px; right:6px; height:1px; background:rgba(242,241,239,0.28); }
+  .vol-mev::after { content:''; position:absolute; right:-4px; top:-1.5px; width:4px; height:4px; border-radius:50%; background:rgba(242,241,239,0.45); }
+  .vol-badge { position:absolute; left:50%; transform:translate(-50%, 50%); width:38px; height:38px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-family:'Share Tech Mono',monospace; font-size:9px; background:#1E1E1E; color:var(--offwhite); border:1.5px solid rgba(242,241,239,0.2); transition:bottom 0.9s cubic-bezier(0.22,1,0.36,1); z-index:2; }
+  .vol-badge.min { border-color:#F2F1EF; color:#F2F1EF; }
+  .vol-badge.full { background:#F2F1EF; border-color:#F2F1EF; color:#0A0A0A; }
+  .vol-badge.over { background:#F2F1EF; border-color:#F2F1EF; color:#0A0A0A; box-shadow:0 0 0 3px #0A0A0A, 0 0 0 4.5px #F2F1EF; }
+  .vol-grupo { font-family:'Share Tech Mono',monospace; font-size:7px; letter-spacing:0.14em; text-transform:uppercase; color:rgba(242,241,239,0.55); }
+  .vol-msg { font-family:'Share Tech Mono',monospace; font-size:9px; letter-spacing:0.06em; line-height:1.6; margin-top:16px; padding:10px 12px; background:rgba(242,241,239,0.05); border-radius:12px; color:rgba(242,241,239,0.75); position:relative; white-space:pre-line; }
+
+  /* TU SEMANA */
+  .sem-card { background:white; border:1px solid var(--borde); border-radius:22px; padding:20px 18px 8px; }
+  .sem-head { display:flex; justify-content:space-between; align-items:flex-end; }
+  .sem-label { font-family:'Share Tech Mono',monospace; font-size:8px; letter-spacing:0.2em; text-transform:uppercase; color:var(--gris); }
+  .sem-titulo { font-family:'Barlow Condensed',sans-serif; font-weight:900; font-size:24px; text-transform:uppercase; line-height:1.05; }
+  .sem-num { font-family:'Barlow Condensed',sans-serif; font-weight:900; font-size:24px; color:var(--gris-claro); }
+  .sem-days { display:flex; justify-content:space-between; margin:16px 0 4px; }
+  .sem-day { display:flex; flex-direction:column; align-items:center; gap:7px; }
+  .sem-day-l { font-family:'Share Tech Mono',monospace; font-size:7px; letter-spacing:0.1em; color:var(--gris); }
+  .sem-dot { width:36px; height:36px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-family:'Barlow Condensed',sans-serif; font-weight:900; font-size:15px; border:1px solid var(--borde); color:var(--gris-claro); }
+  .sem-dot.done { background:var(--negro); border-color:var(--negro); color:var(--offwhite); }
+  .sem-dot.today { border:2px solid var(--negro); color:var(--negro); }
+  .sem-dot.skip { border:1px dashed var(--gris); color:var(--gris); text-decoration:line-through; }
+  .sem-seq { margin-top:14px; }
+  .sem-row { display:flex; align-items:center; gap:14px; padding:11px 2px; border-top:1px solid var(--borde); }
+  .sem-letra { font-family:'Barlow Condensed',sans-serif; font-weight:900; font-size:24px; width:26px; line-height:1; }
+  .sem-row.next .sem-letra { color:var(--gris-claro); }
+  .sem-row.skip .sem-letra { color:var(--gris-claro); text-decoration:line-through; }
+  .sem-sub { flex:1; font-family:'Share Tech Mono',monospace; font-size:8px; letter-spacing:0.1em; text-transform:uppercase; color:var(--gris); }
+  .sem-status { font-family:'Share Tech Mono',monospace; font-size:8px; letter-spacing:0.1em; text-transform:uppercase; color:var(--gris); }
+  .sem-row.hoy .sem-status { color:var(--negro); font-weight:bold; }
+
+  /* ── CAPA EDITORIAL v2: radios y suavidad en todo el sistema ── */
+  .nav-card { border-radius:20px; }
+  .socio-card, .stat-card, .alerta-card { border-radius:16px; }
+  .btn-prim, .btn-sec, .btn-sets, .btn-nav { border-radius:14px; }
+  .btn-sm, .btn-marcar, .filter-btn, .bloque-badge, .tab-badge, .pago-badge { border-radius:999px; }
+  .bloque-badge { padding:4px 12px; }
+  .ej-card { border-radius:18px; overflow:hidden; border-color:rgba(10,10,10,0.08); box-shadow:0 1px 2px rgba(10,10,10,0.04); margin-bottom:10px; }
+  .ej-card-top { padding:12px 15px 8px; }
+  .carga-cell { padding:10px 15px; }
+  .carga-inp { font-size:26px; }
+  .ob-opt, .ob-input, .l-input, .mpago-input { border-radius:12px; }
+  .ia-propuesta { border-radius:14px; overflow:hidden; }
+  .ses-topbar { border-bottom:none; box-shadow:0 1px 0 var(--borde); }
+  .bloque-sec { border-bottom:none; padding:16px 22px 6px; }
+  .bloque-rol { margin-bottom:12px; }
+  .ses-nav { border-top:none; box-shadow:0 -1px 0 var(--borde); }
+  .piz-ej { padding:8px 0; }
+
+  /* ── UX MÓVIL FASE 1 ── */
+  * { -webkit-tap-highlight-color: transparent; }
+  html { -webkit-text-size-adjust:100%; }
+  body { overscroll-behavior-y:contain; }
+  .nav-card, .socio-card, .ej-card, .pago-card { transition:transform .12s ease; }
+  .nav-card:active, .socio-card:active { transform:scale(0.98); }
+  button { transition:transform .1s ease, opacity .1s ease; }
+  button:active { transform:scale(0.96); }
+  .ob-input, .l-input, .mpago-input, select.ob-input { font-size:16px; }
+  .ses-nav { padding-bottom:calc(24px + env(safe-area-inset-bottom)); }
+  .piz-footer { padding-bottom:calc(20px + env(safe-area-inset-bottom)); }
+  .nav-list { padding-bottom:calc(28px + env(safe-area-inset-bottom)); }
+  input, select { touch-action:manipulation; }
 </style>
 </head>
 <body>
@@ -392,6 +475,32 @@
         <div class="nc-desc" id="sesHoyObj">—</div>
       </div>
       <div class="nc-arrow">→</div>
+    </div>
+
+    <!-- TU SEMANA -->
+    <div id="semSection" class="sem-card" style="display:none;">
+      <div class="sem-head">
+        <div>
+          <div class="sem-label">Tu semana</div>
+          <div class="sem-titulo">ROTACI&Oacute;N A&middot;B&middot;C</div>
+        </div>
+        <div class="sem-num" id="semNum">&mdash;</div>
+      </div>
+      <div class="sem-days" id="semDays"></div>
+      <div class="sem-seq" id="semSeq"></div>
+    </div>
+    <!-- OBJETIVO SEMANAL · MEV/MAV/MRV -->
+    <div id="volSection" class="vol-card" style="display:none;">
+      <div class="vol-head">
+        <div>
+          <div class="vol-label">Objetivo semanal</div>
+          <div class="vol-titulo">VOLUMEN<br>POR GRUPO</div>
+        </div>
+        <div class="vol-global" id="volGlobal">&mdash;%</div>
+      </div>
+      <div class="vol-sub" id="volSub">&mdash;</div>
+      <div class="vol-bars" id="volBars"></div>
+      <div class="vol-msg" id="volMsg"></div>
     </div>
     <div class="nav-card" onclick="goTo('pgProgreso')">
       <div class="nc-left">
@@ -467,7 +576,8 @@
   <div id="sesionContent">
     <div class="loading-state"><span class="spinner-inline spinner-dark"></span>Cargando sesión...</div>
   </div>
-  <div class="ses-nav">
+  <div style="font-family:'Share Tech Mono',monospace;font-size:8px;letter-spacing:0.12em;text-transform:uppercase;color:var(--gris);text-align:center;padding:10px 22px 0;">Ajustes de rutina · solo con tu coach · nunca improvisas</div>
+<div class="ses-nav">
     <button class="btn-nav" onclick="goTo('pgPizarra')">← Pizarra</button>
     <button class="btn-nav prim" id="btnCerrarSes" onclick="cerrarSesion()">Cerrar sesión ✓</button>
   </div>
@@ -556,14 +666,7 @@
       </div>
       <div class="nc-arrow">→</div>
     </div>
-    <div class="nav-card ia" onclick="goTo('pgIA')">
-      <div class="nc-left">
-        <div class="nc-label" style="color:var(--purple);">Inteligencia artificial</div>
-        <div class="nc-titulo">CONSULTOR IA</div>
-        <div class="nc-desc">Modificaciones · Consulta técnica</div>
-      </div>
-      <div class="nc-arrow">→</div>
-    </div>
+    
   </div>
 </div>
 
@@ -589,15 +692,6 @@
     <div style="font-weight:900;font-size:22px;color:var(--negro);text-transform:uppercase;">Módulo Nutrición</div>
     <div style="font-family:'Share Tech Mono',monospace;font-size:8px;color:var(--gris);letter-spacing:0.1em;line-height:1.7;">Evaluación ISAK · Composición corporal<br>Pauta nutricional · Historial<br>disponible en koach-nutricion.html</div>
     <button class="btn-prim" style="margin-top:8px;" onclick="goTo('pgSocio')">← Volver</button>
-  </div>
-</div>
-
-<div class="page" id="pgOnboarding">
-  <div class="topbar"><div><div><img class="koach-logo" data-size="sm" alt="KOACH"></div><div class="tb-sub">Nuevo socio</div></div><button class="btn-sm" onclick="history.back()">← Cancelar</button></div>
-  <div style="padding:22px;flex:1;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:12px;text-align:center;">
-    <div style="font-weight:900;font-size:22px;color:var(--negro);text-transform:uppercase;">Onboarding</div>
-    <div style="font-family:'Share Tech Mono',monospace;font-size:8px;color:var(--gris);letter-spacing:0.1em;line-height:1.7;">Flujo de 4 pasos para creación<br>de nuevo socio disponible<br>en koach-onboarding.html</div>
-    <button class="btn-prim" style="margin-top:8px;" onclick="goTo('pgCoach')">← Volver</button>
   </div>
 </div>
 
@@ -672,6 +766,83 @@
   .ia-prop-footer { padding:8px 12px; border-top:1px solid var(--borde); display:grid; grid-template-columns:1fr 1fr; gap:6px; }
   .ia-btn-aprobar { background:var(--negro); color:var(--offwhite); font-weight:900; font-size:11px; letter-spacing:0.12em; text-transform:uppercase; border:none; padding:9px; cursor:pointer; }
   .ia-btn-rechazar { background:transparent; color:var(--gris); border:1px solid var(--borde); font-size:10px; letter-spacing:0.1em; text-transform:uppercase; padding:9px; cursor:pointer; }
+
+  /* OBJETIVO SEMANAL v2 */
+  .vol-card { background:linear-gradient(160deg, #141414 0%, #0A0A0A 55%); border-radius:22px; padding:22px 20px 18px; position:relative; overflow:hidden; }
+  .vol-card::before { content:''; position:absolute; top:-60px; right:-40px; width:220px; height:220px; background:radial-gradient(circle, rgba(255,255,255,0.09), transparent 65%); pointer-events:none; }
+  .vol-head { display:flex; justify-content:space-between; align-items:flex-end; position:relative; }
+  .vol-label { font-family:'Share Tech Mono',monospace; font-size:8px; letter-spacing:0.2em; text-transform:uppercase; color:rgba(242,241,239,0.45); }
+  .vol-titulo { font-family:'Barlow Condensed',sans-serif; font-weight:900; font-size:24px; text-transform:uppercase; line-height:1.05; color:var(--offwhite); }
+  .vol-global { font-family:'Barlow Condensed',sans-serif; font-weight:900; font-size:46px; line-height:0.9; background:linear-gradient(180deg, #FFFFFF 20%, #7A7A78 100%); -webkit-background-clip:text; background-clip:text; color:transparent; }
+  .vol-sub { font-family:'Share Tech Mono',monospace; font-size:8px; letter-spacing:0.12em; color:rgba(242,241,239,0.4); margin:6px 0 18px; position:relative; }
+  .vol-bars { display:flex; gap:12px; align-items:flex-end; overflow-x:auto; padding:26px 2px 2px; scrollbar-width:none; position:relative; }
+  .vol-bars::-webkit-scrollbar { display:none; }
+  .vol-col { display:flex; flex-direction:column; align-items:center; gap:9px; flex:0 0 auto; }
+  .vol-track { width:42px; height:158px; background:rgba(242,241,239,0.07); border-radius:21px; position:relative; }
+  .vol-fill { position:absolute; bottom:0; left:0; right:0; border-radius:21px; height:0%; background:linear-gradient(180deg, #FFFFFF 0%, #DEDDDB 45%, #989793 100%); transition:height 0.9s cubic-bezier(0.22,1,0.36,1); }
+  .vol-fill.low { background:linear-gradient(180deg, rgba(242,241,239,0.28), rgba(242,241,239,0.10)); }
+  .vol-mev { position:absolute; left:6px; right:6px; height:1px; background:rgba(242,241,239,0.28); }
+  .vol-mev::after { content:''; position:absolute; right:-4px; top:-1.5px; width:4px; height:4px; border-radius:50%; background:rgba(242,241,239,0.45); }
+  .vol-badge { position:absolute; left:50%; transform:translate(-50%, 50%); width:38px; height:38px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-family:'Share Tech Mono',monospace; font-size:9px; background:#1E1E1E; color:var(--offwhite); border:1.5px solid rgba(242,241,239,0.2); transition:bottom 0.9s cubic-bezier(0.22,1,0.36,1); z-index:2; }
+  .vol-badge.min { border-color:#F2F1EF; color:#F2F1EF; }
+  .vol-badge.full { background:#F2F1EF; border-color:#F2F1EF; color:#0A0A0A; }
+  .vol-badge.over { background:#F2F1EF; border-color:#F2F1EF; color:#0A0A0A; box-shadow:0 0 0 3px #0A0A0A, 0 0 0 4.5px #F2F1EF; }
+  .vol-grupo { font-family:'Share Tech Mono',monospace; font-size:7px; letter-spacing:0.14em; text-transform:uppercase; color:rgba(242,241,239,0.55); }
+  .vol-msg { font-family:'Share Tech Mono',monospace; font-size:9px; letter-spacing:0.06em; line-height:1.6; margin-top:16px; padding:10px 12px; background:rgba(242,241,239,0.05); border-radius:12px; color:rgba(242,241,239,0.75); position:relative; white-space:pre-line; }
+
+  /* TU SEMANA */
+  .sem-card { background:white; border:1px solid var(--borde); border-radius:22px; padding:20px 18px 8px; }
+  .sem-head { display:flex; justify-content:space-between; align-items:flex-end; }
+  .sem-label { font-family:'Share Tech Mono',monospace; font-size:8px; letter-spacing:0.2em; text-transform:uppercase; color:var(--gris); }
+  .sem-titulo { font-family:'Barlow Condensed',sans-serif; font-weight:900; font-size:24px; text-transform:uppercase; line-height:1.05; }
+  .sem-num { font-family:'Barlow Condensed',sans-serif; font-weight:900; font-size:24px; color:var(--gris-claro); }
+  .sem-days { display:flex; justify-content:space-between; margin:16px 0 4px; }
+  .sem-day { display:flex; flex-direction:column; align-items:center; gap:7px; }
+  .sem-day-l { font-family:'Share Tech Mono',monospace; font-size:7px; letter-spacing:0.1em; color:var(--gris); }
+  .sem-dot { width:36px; height:36px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-family:'Barlow Condensed',sans-serif; font-weight:900; font-size:15px; border:1px solid var(--borde); color:var(--gris-claro); }
+  .sem-dot.done { background:var(--negro); border-color:var(--negro); color:var(--offwhite); }
+  .sem-dot.today { border:2px solid var(--negro); color:var(--negro); }
+  .sem-dot.skip { border:1px dashed var(--gris); color:var(--gris); text-decoration:line-through; }
+  .sem-seq { margin-top:14px; }
+  .sem-row { display:flex; align-items:center; gap:14px; padding:11px 2px; border-top:1px solid var(--borde); }
+  .sem-letra { font-family:'Barlow Condensed',sans-serif; font-weight:900; font-size:24px; width:26px; line-height:1; }
+  .sem-row.next .sem-letra { color:var(--gris-claro); }
+  .sem-row.skip .sem-letra { color:var(--gris-claro); text-decoration:line-through; }
+  .sem-sub { flex:1; font-family:'Share Tech Mono',monospace; font-size:8px; letter-spacing:0.1em; text-transform:uppercase; color:var(--gris); }
+  .sem-status { font-family:'Share Tech Mono',monospace; font-size:8px; letter-spacing:0.1em; text-transform:uppercase; color:var(--gris); }
+  .sem-row.hoy .sem-status { color:var(--negro); font-weight:bold; }
+
+  /* ── CAPA EDITORIAL v2: radios y suavidad en todo el sistema ── */
+  .nav-card { border-radius:20px; }
+  .socio-card, .stat-card, .alerta-card { border-radius:16px; }
+  .btn-prim, .btn-sec, .btn-sets, .btn-nav { border-radius:14px; }
+  .btn-sm, .btn-marcar, .filter-btn, .bloque-badge, .tab-badge, .pago-badge { border-radius:999px; }
+  .bloque-badge { padding:4px 12px; }
+  .ej-card { border-radius:18px; overflow:hidden; border-color:rgba(10,10,10,0.08); box-shadow:0 1px 2px rgba(10,10,10,0.04); margin-bottom:10px; }
+  .ej-card-top { padding:12px 15px 8px; }
+  .carga-cell { padding:10px 15px; }
+  .carga-inp { font-size:26px; }
+  .ob-opt, .ob-input, .l-input, .mpago-input { border-radius:12px; }
+  .ia-propuesta { border-radius:14px; overflow:hidden; }
+  .ses-topbar { border-bottom:none; box-shadow:0 1px 0 var(--borde); }
+  .bloque-sec { border-bottom:none; padding:16px 22px 6px; }
+  .bloque-rol { margin-bottom:12px; }
+  .ses-nav { border-top:none; box-shadow:0 -1px 0 var(--borde); }
+  .piz-ej { padding:8px 0; }
+
+  /* ── UX MÓVIL FASE 1 ── */
+  * { -webkit-tap-highlight-color: transparent; }
+  html { -webkit-text-size-adjust:100%; }
+  body { overscroll-behavior-y:contain; }
+  .nav-card, .socio-card, .ej-card, .pago-card { transition:transform .12s ease; }
+  .nav-card:active, .socio-card:active { transform:scale(0.98); }
+  button { transition:transform .1s ease, opacity .1s ease; }
+  button:active { transform:scale(0.96); }
+  .ob-input, .l-input, .mpago-input, select.ob-input { font-size:16px; }
+  .ses-nav { padding-bottom:calc(24px + env(safe-area-inset-bottom)); }
+  .piz-footer { padding-bottom:calc(20px + env(safe-area-inset-bottom)); }
+  .nav-list { padding-bottom:calc(28px + env(safe-area-inset-bottom)); }
+  input, select { touch-action:manipulation; }
 </style>
 
 <script>
@@ -818,6 +989,20 @@ async function loadProfileAndEnter() {
 
     STATE.profile = profile
 
+    // Control de acceso: congelado / cancelado / inactivo
+    if (profile && (profile.estado === 'congelado' || profile.estado === 'cancelado' || profile.activo === false)) {
+      const msg = profile.estado === 'congelado'
+        ? 'Tu acceso está congelado. Escríbenos por WhatsApp para reactivarlo.'
+        : 'Tu suscripción no está activa. Contacta al equipo KOACH.'
+      await sb.auth.signOut()
+      STATE.user = null; STATE.profile = null
+      const err = document.getElementById('lErr')
+      err.textContent = msg
+      err.classList.add('vis')
+      goTo('pgLogin')
+      return
+    }
+
     if (!profile) {
       // Sin perfil — mostrar socio básico
       document.getElementById('socioNombre').textContent = STATE.user.email.split('@')[0].toUpperCase()
@@ -827,7 +1012,7 @@ async function loadProfileAndEnter() {
     }
 
     if (profile.role === 'admin') {
-      await loadAdminData(); setTimeout(addPagosNavAdmin, 100)
+      await loadAdminData()
       goTo('pgAdmin')
     } else if (profile.role === 'coach') {
       await loadCoachData()
@@ -858,8 +1043,8 @@ async function logout() {
 async function loadSocioData() {
   const p = STATE.profile
   document.getElementById('socioNombre').textContent = p.nombre.toUpperCase()
+  STATE.extraActiva = null
 
-  // Cargar asignación activa
   const { data: asig } = await sb
     .from('asignaciones')
     .select('*, protocolos(*)')
@@ -869,39 +1054,308 @@ async function loadSocioData() {
 
   STATE.asignacion = asig
 
-  if (asig) {
-    const proto = asig.protocolos
-    document.getElementById('socioMeta').textContent = `${proto.programa} · ${proto.nivel} · Semana ${asig.semana_actual}/6 · Ciclo ${asig.ciclo_actual}`
-
-    // Determinar sesión de hoy (rotación 1→2→3→1...)
-    const sesNum = ((asig.semana_actual - 1) % 3) + 1
-    document.getElementById('sesHoyTitulo').textContent = `SESIÓN 0${sesNum} / 03`
-
-    // Cargar sesión del protocolo
-    const { data: sesiones } = await sb
-      .from('sesiones_protocolo')
-      .select('*')
-      .eq('protocolo_id', proto.id)
-      .eq('numero', sesNum)
-      .single()
-
-    if (sesiones) {
-      STATE.sesionHoy = sesiones
-      document.getElementById('sesHoyObj').textContent = sesiones.objetivo || '—'
-      await loadPizarra(sesiones, asig, p)
-    }
-  } else {
+  if (!asig) {
     document.getElementById('socioMeta').textContent = 'Sin protocolo asignado'
     document.getElementById('sesHoyTitulo').textContent = 'SIN PROTOCOLO'
     document.getElementById('sesHoyObj').textContent = 'Contacta a tu coach'
+    return
   }
+
+  const proto = asig.protocolos
+
+  // Semana por calendario desde el inicio de la asignación (ciclos de 6)
+  const inicio = new Date(asig.fecha_inicio || asig.created_at || Date.now())
+  const semanasTrans = Math.max(0, Math.floor((Date.now() - inicio.getTime()) / (7 * 86400000)))
+  const semanaCalc = (semanasTrans % 6) + 1
+  const cicloCalc = Math.floor(semanasTrans / 6) + 1
+  if (semanaCalc !== asig.semana_actual || cicloCalc !== asig.ciclo_actual) {
+    asig.semana_actual = semanaCalc
+    asig.ciclo_actual = cicloCalc
+    sb.from('asignaciones').update({ semana_actual: semanaCalc, ciclo_actual: cicloCalc }).eq('id', asig.id).then(() => {})
+  }
+
+  document.getElementById('socioMeta').textContent = `${proto.programa} · ${proto.nivel} · Semana ${asig.semana_actual}/6 · Ciclo ${asig.ciclo_actual}`
+
+  // Sesiones del protocolo base (para rotación y filtro)
+  const { data: sesionesBase } = await sb
+    .from('sesiones_protocolo')
+    .select('*')
+    .eq('protocolo_id', proto.id)
+    .order('numero')
+  STATE.sesionesBase = sesionesBase || []
+  const baseIds = STATE.sesionesBase.map(s => s.id)
+
+  // Rotación continua A→B→C por historial completado del protocolo base
+  let hechas = 0
+  if (baseIds.length) {
+    const { count } = await sb
+      .from('sesiones_registro')
+      .select('*', { count: 'exact', head: true })
+      .eq('socio_id', p.id)
+      .eq('estado', 'completada')
+      .in('sesion_protocolo_id', baseIds)
+    hechas = count || 0
+  }
+  let saltos = 0
+  try {
+    const { count: sc } = await sb.from('saltos').select('*', { count: 'exact', head: true }).eq('socio_id', p.id)
+    saltos = sc || 0
+  } catch (_) {}
+  const sesNum = ((hechas + saltos) % 3) + 1
+  STATE.sesNumHoy = sesNum
+  const letra = 'ABC'[sesNum - 1]
+  document.getElementById('sesHoyTitulo').textContent = `RUTINA ${letra}`
+
+  // Modificaciones activas del socio (override de ejercicios)
+  window.MODS = {}
+  try {
+    const { data: mods } = await sb
+      .from('modificaciones')
+      .select('bloque_ejercicio_id, ejercicios(*)')
+      .eq('socio_id', p.id)
+      .eq('activa', true)
+    ;(mods || []).forEach(m => { if (m.ejercicios) window.MODS[m.bloque_ejercicio_id] = m.ejercicios })
+  } catch (_) {}
+
+  const sesion = STATE.sesionesBase.find(s => s.numero === sesNum)
+  if (sesion) {
+    STATE.sesionHoy = sesion
+    document.getElementById('sesHoyObj').textContent = sesion.objetivo || '—'
+    await loadPizarra(sesion, asig, p)
+  }
+
+  // Sesiones adicionales pendientes (integración BURN / extra)
+  await cargarExtrasSocio()
+
+  // Objetivo semanal de volumen + tu semana
+  calcVolumenSemanal(asig, inicio, semanasTrans)
+}
+
+// ── VOLUMEN SEMANAL · MEV / MAV / MRV ──
+async function volumenPorSesion(sesionIds) {
+  // series por grupo muscular por sesión: sets del bloque × ejercicio (circuito)
+  const { data: bloques } = await sb
+    .from('bloques')
+    .select('sesion_id, sets, bloque_ejercicios(ejercicios(grupo_muscular, nombre))')
+    .in('sesion_id', sesionIds)
+  const porSesion = {}
+  ;(bloques || []).forEach(b => {
+    if (!porSesion[b.sesion_id]) porSesion[b.sesion_id] = {}
+    ;(b.bloque_ejercicios || []).forEach(be => {
+      const ej = be.ejercicios
+      if (!ej) return
+      const grupo = (ej.grupo_muscular || 'GENERAL').toUpperCase()
+      if (grupo === 'CARDIO') return
+      porSesion[b.sesion_id][grupo] = (porSesion[b.sesion_id][grupo] || 0) + (b.sets || 0)
+    })
+  })
+  return porSesion
+}
+
+async function calcVolumenSemanal(asig, inicio, semanasTrans) {
+  const sec = document.getElementById('volSection')
+  try {
+    const baseIds = STATE.sesionesBase.map(s => s.id)
+    if (!baseIds.length) return
+
+    const weekStart = new Date(inicio.getTime() + semanasTrans * 7 * 86400000)
+    const weekStartISO = weekStart.toISOString().split('T')[0]
+    const prevStartISO = new Date(weekStart.getTime() - 7 * 86400000).toISOString().split('T')[0]
+
+    // Registros completados desde la semana anterior (para semana actual + resumen previo)
+    const { data: regs } = await sb
+      .from('sesiones_registro')
+      .select('sesion_protocolo_id, fecha')
+      .eq('socio_id', STATE.profile.id)
+      .eq('estado', 'completada')
+      .gte('fecha', prevStartISO)
+
+    const idsUsados = [...new Set([...baseIds, ...(regs || []).map(r => r.sesion_protocolo_id)])]
+    const porSesion = await volumenPorSesion(idsUsados)
+
+    // Plan semanal = las 3 rutinas base del protocolo (ahí vive la dosificación del Método)
+    const plan = {}
+    baseIds.forEach(id => Object.entries(porSesion[id] || {}).forEach(([g, v]) => plan[g] = (plan[g] || 0) + v))
+    const grupos = Object.keys(plan).sort((a, b) => plan[b] - plan[a])
+    if (!grupos.length) return
+
+    // Bandas: overrides de volumen_objetivos si existen; si no, MEV 70% · MAV plan · MRV 130%
+    let bandas = {}
+    try {
+      const { data: objs } = await sb.from('volumen_objetivos').select('*').eq('protocolo_id', asig.protocolo_id)
+      ;(objs || []).forEach(o => bandas[(o.grupo || '').toUpperCase()] = o)
+    } catch (_) {}
+    const banda = g => ({
+      mev: bandas[g]?.mev ?? Math.ceil(plan[g] * 0.7),
+      mav: bandas[g]?.mav ?? plan[g],
+      mrv: bandas[g]?.mrv ?? Math.ceil(plan[g] * 1.3)
+    })
+
+    // Ejecutado por semana
+    const ejec = {}, ejecPrev = {}
+    let sesActual = 0
+    ;(regs || []).forEach(r => {
+      const vol = porSesion[r.sesion_protocolo_id] || {}
+      const destino = r.fecha >= weekStartISO ? ejec : ejecPrev
+      if (r.fecha >= weekStartISO) sesActual++
+      Object.entries(vol).forEach(([g, v]) => destino[g] = (destino[g] || 0) + v)
+    })
+
+    // Render
+    let sumE = 0, sumM = 0
+    const items = grupos.map(g => {
+      const bd = banda(g)
+      const e = ejec[g] || 0
+      sumE += Math.min(e, bd.mav); sumM += bd.mav
+      return { g, e, mev: bd.mev, mav: bd.mav, mrv: bd.mrv }
+    })
+    const globalPct = sumM ? Math.round(sumE / sumM * 100) : 0
+
+    // Mensaje: estado actual + cierre de semana anterior
+    let msg = ''
+    if (globalPct >= 100) msg = 'Objetivo semanal cumplido. Las series sobre el objetivo cuentan hasta el límite MRV — pasado ese punto, prioriza recuperación.'
+    else if (sesActual === 0) msg = 'Semana en cero. Tu primera sesión activa el objetivo.'
+    else msg = `Vas al ${globalPct}%. Completa tu rotación A·B·C para cerrar el objetivo semanal.`
+    if (semanasTrans > 0) {
+      const prevE = Object.entries(ejecPrev).reduce((a, [g, v]) => a + Math.min(v, banda(g).mav), 0)
+      const prevPct = sumM ? Math.round(prevE / sumM * 100) : 0
+      const minOk = grupos.every(g => (ejecPrev[g] || 0) >= banda(g).mev)
+      msg += `\nSEMANA ANTERIOR: ${prevPct}%` + (minOk ? ' · Mínimo efectivo cumplido.' : ' · Bajo el mínimo efectivo. Esta semana se corrige.')
+    }
+    volRender(items, globalPct, `SEMANA ${asig.semana_actual}/6 · ${sesActual} SESIONES · SERIES EFECTIVAS`, msg)
+    sec.style.display = 'block'
+
+    // TU SEMANA: tira de 7 dias + secuencia de rotacion
+    const numPorSes = {}
+    STATE.sesionesBase.forEach(s => numPorSes[s.id] = s.numero)
+    const hoyISO = new Date().toISOString().split('T')[0]
+    const DIA_L = ['D','L','M','X','J','V','S']
+    const regsSem = (regs || []).filter(r => r.fecha >= weekStartISO)
+    let saltosSem = []
+    try {
+      const { data: sl } = await sb.from('saltos').select('fecha, rutina').eq('socio_id', STATE.profile.id).gte('fecha', weekStartISO)
+      saltosSem = sl || []
+    } catch (_) {}
+    const dias = []
+    for (let d = 0; d < 7; d++) {
+      const f = new Date(weekStart.getTime() + d * 86400000)
+      const fISO = f.toISOString().split('T')[0]
+      const rs = regsSem.filter(r => r.fecha === fISO)
+      const letra = rs.length ? rs.map(r => numPorSes[r.sesion_protocolo_id] ? 'ABC'[numPorSes[r.sesion_protocolo_id] - 1] : '+').join('') : ''
+      const sk = saltosSem.filter(x => x.fecha === fISO)
+      let state = '', letraDia = letra
+      if (rs.length) state = 'done'
+      else if (sk.length) { state = 'skip'; letraDia = sk.map(x => 'ABC'[(x.rutina || 1) - 1]).join('') }
+      else if (fISO === hoyISO) state = 'today'
+      dias.push({ l: DIA_L[f.getDay()], letra: letraDia.slice(0, 2), state })
+    }
+    const ABR = ['DOM','LUN','MAR','MIÉ','JUE','VIE','SÁB']
+    const filas = []
+    for (let n = 1; n <= 3; n++) {
+      const reg = regsSem.find(r => numPorSes[r.sesion_protocolo_id] === n)
+      const salto = !reg && saltosSem.find(x => x.rutina === n)
+      const esHoy = !reg && !salto && n === (STATE.sesNumHoy || 1)
+      filas.push({
+        letra: 'ABC'[n - 1],
+        sub: STATE.sesionesBase[n - 1]?.objetivo || STATE.sesionesBase[n - 1]?.nombre || 'Rutina del protocolo',
+        status: reg ? 'COMPLETADA · ' + ABR[new Date(reg.fecha + 'T12:00:00').getDay()] : (salto ? 'SALTADA · COACH' : (esHoy ? 'HOY →' : 'PRÓXIMA')),
+        cls: reg ? '' : (salto ? 'skip' : (esHoy ? 'hoy' : 'next'))
+      })
+    }
+    ;(STATE.extrasPend || []).forEach(ex => {
+      filas.push({ letra: '+', sub: `${ex.programa} · RUTINA ${'ABC'[(ex.rutina || 1) - 1]} · ADICIONAL`, status: 'PENDIENTE', cls: 'next' })
+    })
+    semanaRender(dias, filas, `${asig.semana_actual}/6`)
+  } catch (e) { console.error('Volumen semanal:', e) }
+}
+
+function semanaRender(dias, filas, semanaTxt) {
+  document.getElementById('semNum').textContent = semanaTxt
+  document.getElementById('semDays').innerHTML = dias.map(d => `
+    <div class="sem-day">
+      <div class="sem-day-l">${d.l}</div>
+      <div class="sem-dot ${d.state}">${d.letra || ''}</div>
+    </div>`).join('')
+  document.getElementById('semSeq').innerHTML = filas.map(f => `
+    <div class="sem-row ${f.cls || ''}">
+      <div class="sem-letra">${f.letra}</div>
+      <div class="sem-sub">${f.sub}</div>
+      <div class="sem-status">${f.status}</div>
+    </div>`).join('')
+  document.getElementById('semSection').style.display = 'block'
+}
+
+function volRender(items, globalPct, subTxt, msgTxt) {
+  document.getElementById('volGlobal').textContent = globalPct + '%'
+  document.getElementById('volSub').textContent = subTxt
+  document.getElementById('volMsg').textContent = msgTxt
+  const ABBR = { 'GLÚTEOS':'GLÚT','CUÁDRICEPS':'CUÁD','ISQUIOS':'ISQ','ESPALDA':'ESP','HOMBROS':'HOMB','PECHO':'PECHO','BRAZOS':'BRAZ','CORE':'CORE','GENERAL':'GRAL' }
+  document.getElementById('volBars').innerHTML = items.map(d => {
+    const pct = Math.round(d.e / d.mav * 100)
+    const fillPct = Math.min(100, pct)
+    let badge = '', fill = ''
+    if (d.e >= d.mrv) badge = 'over'
+    else if (d.e >= d.mav) badge = 'full'
+    else if (d.e >= d.mev) badge = 'min'
+    else fill = 'low'
+    const mevPct = Math.min(100, Math.round(d.mev / d.mav * 100))
+    return `<div class="vol-col">
+      <div class="vol-track">
+        <div class="vol-mev" style="bottom:${mevPct}%;"></div>
+        <div class="vol-fill ${fill}" data-h="${fillPct}"></div>
+        <div class="vol-badge ${badge}" style="bottom:0%;" data-b="${fillPct}">${pct}%</div>
+      </div>
+      <div class="vol-grupo">${ABBR[d.g] || d.g.slice(0,5)}</div>
+    </div>`
+  }).join('')
+  requestAnimationFrame(() => requestAnimationFrame(() => {
+    document.querySelectorAll('.vol-fill').forEach(f => f.style.height = f.dataset.h + '%')
+    document.querySelectorAll('.vol-badge').forEach(b => b.style.bottom = Math.max(10, Math.min(90, parseInt(b.dataset.b))) + '%')
+  }))
+}
+
+async function cargarExtrasSocio() {
+  STATE.extrasPend = []
+  document.querySelectorAll('.nav-card-extra').forEach(c => c.remove())
+  try {
+    const { data: extras } = await sb
+      .from('sesiones_extra')
+      .select('*, sesiones_protocolo(*)')
+      .eq('socio_id', STATE.profile.id)
+      .eq('estado', 'pendiente')
+      .order('created_at')
+    STATE.extrasPend = extras || []
+    if (!extras || !extras.length) return
+    const nav = document.querySelector('#pgSocio .nav-list')
+    extras.forEach(ex => {
+      const card = document.createElement('div')
+      card.className = 'nav-card ia nav-card-extra'
+      card.onclick = () => abrirExtra(ex)
+      card.innerHTML = `<div class="nc-left">
+        <div class="nc-label" style="color:var(--purple);">Sesión adicional</div>
+        <div class="nc-titulo">${ex.programa} · RUTINA ${'ABC'[(ex.rutina || 1) - 1]}</div>
+        <div class="nc-desc">Asignada por tu coach</div>
+      </div><div class="nc-arrow">→</div>`
+      nav.insertBefore(card, nav.children[1] || null)
+    })
+  } catch (_) { /* tabla aún no creada */ }
+}
+
+async function abrirExtra(ex) {
+  if (!ex.sesiones_protocolo) { alert('Esta sesión adicional no tiene rutina vinculada.'); return }
+  STATE.extraActiva = ex
+  STATE.sesionHoy = ex.sesiones_protocolo
+  await loadPizarra(ex.sesiones_protocolo, STATE.asignacion, STATE.profile)
+  document.getElementById('pizPrograma').textContent = `MÉTODO KOACH · SESIÓN ADICIONAL ${ex.programa}`
+  document.getElementById('sesMarca').textContent = `KOACH · ${ex.programa} EXTRA`
+  goTo('pgPizarra')
 }
 
 async function loadPizarra(sesion, asig, profile) {
   // Header pizarra
   document.getElementById('pizNombre').textContent = profile.nombre.toUpperCase()
   document.getElementById('pizFecha').textContent = getFechaHoy() + '\nSEMANA ' + String(asig.semana_actual).padStart(2,'0') + ' / 06'
-  document.getElementById('pizSesId').textContent = `SESIÓN 0${sesion.numero} / 03 · ${sesion.nombre.split('—')[0].trim()}`
+  document.getElementById('pizSesId').textContent = `RUTINA ${'ABC'[sesion.numero - 1]} · ${sesion.nombre.split('—')[0].trim()}`
   document.getElementById('pizSesObj').textContent = (sesion.objetivo || '').replace('·','\n')
   document.getElementById('pizFrase').textContent = FRASES[Math.floor(Math.random() * FRASES.length)]
   document.getElementById('pizPrograma').textContent = `MÉTODO KOACH · SISTEMA ${asig.protocolos?.programa || ''}`
@@ -949,14 +1403,15 @@ async function loadPizarra(sesion, asig, profile) {
     `
 
     ejs.forEach((be, i) => {
-      const ej = be.ejercicios
+      let ej = be.ejercicios
+      if (window.MODS && window.MODS[be.id]) ej = { ...window.MODS[be.id], _mod: true }
       if (!ej) return
 
       // Pizarra
       pizHTML += `
         <div class="piz-ej">
           <span class="piz-ej-num">0${num}</span>
-          <span class="piz-ej-nombre">${ej.nombre}</span>
+          <span class="piz-ej-nombre">${ej.nombre}${ej._mod ? ' · MOD' : ''}</span>
           <span class="piz-ej-bloque">${bloque.bloque}</span>
         </div>`
       num++
@@ -971,7 +1426,7 @@ async function loadPizarra(sesion, asig, profile) {
           <div class="ej-card">
             <div class="ej-card-top">
               <div class="ej-card-num">0${i+1}${anclaLabel}</div>
-              <div class="ej-card-nombre">${ej.nombre}</div>
+              <div class="ej-card-nombre">${ej.nombre}${ej._mod ? ' <span style=\'font-family:Share Tech Mono,monospace;font-size:8px;color:var(--purple);\'>MOD</span>' : ''}</div>
               <div class="ej-card-reps">${repsLabel}</div>
             </div>
             <div class="carga-row">
@@ -996,7 +1451,7 @@ async function loadPizarra(sesion, asig, profile) {
           <div class="ej-card">
             <div class="ej-card-top">
               <div class="ej-card-num">0${i+1}</div>
-              <div class="ej-card-nombre">${ej.nombre}</div>
+              <div class="ej-card-nombre">${ej.nombre}${ej._mod ? ' <span style=\'font-family:Share Tech Mono,monospace;font-size:8px;color:var(--purple);\'>MOD</span>' : ''}</div>
               <div class="ej-card-reps">${repsLabel}</div>
             </div>
             <div class="sin-carga-row">
@@ -1104,8 +1559,8 @@ async function cerrarSesion() {
   btn.textContent = 'GUARDANDO...'
 
   try {
+    let msgCierre = 'Sesión registrada. ¡Excelente trabajo!'
     if (STATE.profile && STATE.asignacion && STATE.sesionHoy) {
-      // 1. Crear registro de sesión
       const { data: sesReg } = await sb.from('sesiones_registro').insert({
         socio_id: STATE.profile.id,
         asignacion_id: STATE.asignacion.id,
@@ -1117,7 +1572,6 @@ async function cerrarSesion() {
         completada_at: new Date().toISOString()
       }).select().single()
 
-      // 2. Guardar cargas
       if (sesReg) {
         const cargasInsert = []
         for (const item of STATE.ejerciciosHoy) {
@@ -1134,14 +1588,27 @@ async function cerrarSesion() {
             })
           }
         }
-        if (cargasInsert.length > 0) {
-          await sb.from('cargas').insert(cargasInsert)
-        }
+        if (cargasInsert.length > 0) await sb.from('cargas').insert(cargasInsert)
+      }
+
+      if (STATE.extraActiva) {
+        // Sesión adicional: se marca completada y NO altera la rotación A/B/C
+        await sb.from('sesiones_extra')
+          .update({ estado: 'completada', completada_at: new Date().toISOString() })
+          .eq('id', STATE.extraActiva.id)
+        msgCierre = `Sesión adicional ${STATE.extraActiva.programa} completada.`
+        STATE.extraActiva = null
+      } else {
+        const letra = 'ABC'[STATE.sesionHoy.numero - 1]
+        const sig = 'ABC'[STATE.sesionHoy.numero % 3]
+        msgCierre = `Rutina ${letra} completada. La próxima es la Rutina ${sig}.`
       }
     }
 
     btn.classList.remove('loading')
-    alert('Sesión registrada. ¡Excelente trabajo!')
+    btn.textContent = 'Cerrar sesión ✓'
+    alert(msgCierre)
+    await loadSocioData()
     goTo('pgSocio')
 
   } catch(e) {
@@ -1219,8 +1686,9 @@ function renderSocios(socios, filtro) {
   if (!socios.length) { lista.innerHTML = '<div class="loading-state">Sin socios en este filtro</div>'; return }
 
   const sorted = [...socios].sort((a,b) => diasDesde(b.ultima_sesion||new Date()) - diasDesde(a.ultima_sesion||new Date()))
+  window._sociosRender = sorted
 
-  lista.innerHTML = sorted.map(s => {
+  lista.innerHTML = sorted.map((s, _i) => {
     const dias = s.ultima_sesion ? diasDesde(s.ultima_sesion) : 999
     const aClass = dias>=30?'a30':dias>=15?'a15':dias>=7?'a7':''
     const proto = s.protocolo || (s.asignaciones?.[0]?.protocolos?.nombre) || '—'
@@ -1238,8 +1706,8 @@ function renderSocios(socios, filtro) {
           <div class="sc-badge ${badgeClase(dias)}">${badgeLabel(dias)}</div>
         </div>
         <div class="sc-acciones">
-          <button class="sc-accion" onclick="">Ver perfil</button>
-          <button class="sc-accion purple" onclick="">IA Coach</button>
+          <button class="sc-accion" onclick="verPerfil(_sociosRender[${_i}])">Ver perfil</button>
+          <button class="sc-accion" onclick="modDesdeCard(_sociosRender[${_i}])">Modificar</button>
           <button class="sc-accion green" onclick="wsMsg('${tel}','${s.nombre}',${dias})">WhatsApp</button>
         </div>
       </div>`
@@ -1350,51 +1818,6 @@ document.querySelectorAll('.koach-logo').forEach(img => img.src = LOGO_SRC);
 </script>
 
 <!-- ══════════════════════════════════════════════
-     PAGE: PAGOS (admin only)
-══════════════════════════════════════════════ -->
-<div class="page" id="pgPagos">
-  <div class="topbar">
-    <div><img class="koach-logo" data-size="sm" alt="KOACH"></div>
-    <div class="tb-right">
-      <div class="rol-badge">Admin</div>
-      <button class="btn-sm" onclick="goTo('pgAdmin')">← Panel</button>
-    </div>
-  </div>
-
-  <div class="pagos-strip">
-    <div class="pagos-stat">
-      <div class="pagos-stat-num ok" id="pagCntOk">—</div>
-      <div class="pagos-stat-lbl">Al día</div>
-    </div>
-    <div class="pagos-stat">
-      <div class="pagos-stat-num warn" id="pagCntWarn">—</div>
-      <div class="pagos-stat-lbl">Vence<br>pronto</div>
-    </div>
-    <div class="pagos-stat">
-      <div class="pagos-stat-num danger" id="pagCntDanger">—</div>
-      <div class="pagos-stat-lbl">Vencido /<br>Pendiente</div>
-    </div>
-  </div>
-
-  <div class="sec-header">
-    <div>
-      <div class="sec-titulo">Membresías</div>
-      <div class="sec-meta" id="pagMeta">Control de pagos</div>
-    </div>
-    <button class="btn-nuevo" onclick="abrirModalPago(null)">+ Registrar</button>
-  </div>
-
-  <div class="filter-bar">
-    <div class="filter-btn active" onclick="filtrarPagos('todos',this)">Todos</div>
-    <div class="filter-btn" onclick="filtrarPagos('aldia',this)">Al día</div>
-    <div class="filter-btn" onclick="filtrarPagos('pronto',this)">Por vencer</div>
-    <div class="filter-btn danger" onclick="filtrarPagos('vencido',this)">Vencidos</div>
-  </div>
-
-  <div class="socios-list" id="pagosLista"></div>
-</div>
-
-<!-- ══════════════════════════════════════════════
      PAGE: PERFIL SOCIO (admin)
 ══════════════════════════════════════════════ -->
 <div class="page" id="pgPerfilSocio">
@@ -1423,13 +1846,31 @@ document.querySelectorAll('.koach-logo').forEach(img => img.src = LOGO_SRC);
     <div id="perfilProtocolo"></div>
   </div>
 
-  <!-- PAGOS — solo admin -->
-  <div class="perfil-section" id="perfilPagosSection" style="display:none;">
-    <div class="perfil-sec-label" style="display:flex;justify-content:space-between;align-items:center;">
-      <span>Membresía y pagos</span>
-      <button style="font-family:Share Tech Mono,monospace;font-size:7px;letter-spacing:0.1em;text-transform:uppercase;background:var(--negro);color:var(--offwhite);border:none;padding:5px 10px;cursor:pointer;" onclick="abrirModalPago(socioPerfilActual)">+ Registrar pago</button>
+  <!-- ACCESO (admin) -->
+  <div class="perfil-section" id="perfilAccesoSection" style="display:none;">
+    <div class="perfil-sec-label">Acceso al sistema</div>
+    <div class="perfil-row"><span class="perfil-key">Estado</span><span class="perfil-val" id="perfilEstadoVal">—</span></div>
+    <div style="display:flex;gap:6px;margin-top:10px;">
+      <button class="btn-sec" style="flex:1;" id="btnCongelar" onclick="cambiarEstado('congelado')">Congelar</button>
+      <button class="btn-sec" style="flex:1;" id="btnReactivar" onclick="cambiarEstado('activo')">Reactivar</button>
+      <button class="btn-sec" style="flex:1;color:var(--danger);border-color:rgba(192,57,43,0.3);" onclick="cambiarEstado('cancelado')">Cancelar</button>
     </div>
-    <div id="perfilPagosDatos"></div>
+  </div>
+
+  <!-- ROTACIÓN -->
+  <div class="perfil-section">
+    <div class="perfil-sec-label">Rotación</div>
+    <div class="perfil-row"><span class="perfil-key">Próxima</span><span class="perfil-val" id="rotInfo">—</span></div>
+    <button class="btn-sec" style="margin-top:8px;" id="btnSaltar" onclick="saltarRutina()">AUTORIZAR SALTO → SIGUIENTE RUTINA</button>
+  </div>
+
+  <!-- SESIONES ADICIONALES -->
+  <div class="perfil-section">
+    <div class="perfil-sec-label" style="display:flex;justify-content:space-between;align-items:center;">
+      <span>Sesiones adicionales</span>
+      <button style="font-family:'Share Tech Mono',monospace;font-size:7px;letter-spacing:0.1em;text-transform:uppercase;background:var(--negro);color:var(--offwhite);border:none;padding:5px 10px;cursor:pointer;" onclick="abrirModalExtra()">+ Asignar</button>
+    </div>
+    <div id="perfilExtras"></div>
   </div>
 
   <!-- Restricciones -->
@@ -1439,8 +1880,32 @@ document.querySelectorAll('.koach-logo').forEach(img => img.src = LOGO_SRC);
   </div>
 
   <div style="padding:14px 22px 28px;display:flex;flex-direction:column;gap:8px;">
-    <button class="btn-prim" onclick="abrirIAPerfil()">🧠 CONSULTOR IA</button>
+    <button class="btn-prim" onclick="abrirModRutina()">MODIFICAR RUTINA →</button>
     <button class="btn-sec" id="btnWsPerfil" onclick="wsPerfil()">WhatsApp →</button>
+  </div>
+</div>
+
+
+<!-- ══════════════════════════════════════════════
+     PAGE: MODIFICAR RUTINA (coach/admin)
+══════════════════════════════════════════════ -->
+<div class="page" id="pgModRutina">
+  <div class="topbar">
+    <div><img class="koach-logo" data-size="sm" alt="KOACH"></div>
+    <div class="tb-right"><button class="btn-sm" onclick="goTo('pgPerfilSocio')">← Perfil</button></div>
+  </div>
+  <div class="welcome-block">
+    <div class="wb-label">Modificar rutina</div>
+    <div class="wb-nombre" id="modNombre">—</div>
+    <div class="wb-meta" id="modMeta">Los cambios se guardan por socio y se aplican en cada sesión</div>
+  </div>
+  <div class="filter-bar">
+    <div class="filter-btn active" onclick="modCargarRutina(1,this)">Rutina A</div>
+    <div class="filter-btn" onclick="modCargarRutina(2,this)">Rutina B</div>
+    <div class="filter-btn" onclick="modCargarRutina(3,this)">Rutina C</div>
+  </div>
+  <div class="socios-list" id="modLista">
+    <div class="loading-state">Selecciona una rutina</div>
   </div>
 </div>
 
@@ -1461,8 +1926,7 @@ document.querySelectorAll('.koach-logo').forEach(img => img.src = LOGO_SRC);
       <div class="ob-dot" id="ob-dot2"></div>
       <div class="ob-dot" id="ob-dot3"></div>
       <div class="ob-dot" id="ob-dot4"></div>
-      <div class="ob-dot" id="ob-dot5"></div>
-    </div>
+          </div>
     <div class="ob-step-label" id="obStepLabel">Paso 1 de 5 · Datos personales</div>
   </div>
 
@@ -1490,74 +1954,6 @@ document.querySelectorAll('.koach-logo').forEach(img => img.src = LOGO_SRC);
     </div>
     <div class="ob-err" id="ob-err1">Completa todos los campos requeridos</div>
     <div class="ob-footer one">
-      <button class="btn-prim" onclick="obNext(2)">CONTINUAR →</button>
-    </div>
-  </div>
-
-  <!-- STEP 2: Membresía -->
-  <div class="ob-step" id="ob-step2">
-    <div class="ob-header">
-      <div class="ob-num">Paso 02</div>
-      <div class="ob-titulo">Membresía</div>
-    </div>
-    <div class="ob-body">
-      <div class="ob-field">
-        <div class="ob-field-label">Tipo de membresía</div>
-        <div class="ob-select-group" style="flex-direction:column;">
-          <div class="ob-opt" style="text-align:left;" onclick="obSelect('membresia','mensual',this)" id="ob-mensual">
-            Mensual — $80.000
-          </div>
-          <div class="ob-opt" style="text-align:left;" onclick="obSelect('membresia','semestral',this)" id="ob-semestral">
-            Semestral — $420.000
-          </div>
-          <div class="ob-opt" style="text-align:left;" onclick="obSelect('membresia','anual',this)" id="ob-anual">
-            Anual — $720.000
-          </div>
-          <div class="ob-opt" style="text-align:left;border-color:var(--purple-border);color:var(--purple);" onclick="obSelect('membresia','preferencial',this)" id="ob-preferencial">
-            Precio preferencial →
-          </div>
-        </div>
-      </div>
-
-      <!-- Descuento (aparece si elige preferencial) -->
-      <div id="obDescuentoWrap" style="display:none;flex-direction:column;gap:10px;">
-        <div class="ob-field">
-          <div class="ob-field-label">Tipo de descuento</div>
-          <div class="ob-select-group">
-            <div class="ob-opt desc" onclick="obSelectDesc('pct',this)" id="ob-desc-pct">% Porcentaje</div>
-            <div class="ob-opt desc" onclick="obSelectDesc('monto',this)" id="ob-desc-monto">$ Monto fijo</div>
-          </div>
-        </div>
-        <div class="ob-row2">
-          <div class="ob-field">
-            <div class="ob-field-label" id="obDescLabel">Descuento %</div>
-            <input class="ob-input" type="number" id="obDescValor" placeholder="0" oninput="calcDescuento()">
-          </div>
-          <div class="ob-field">
-            <div class="ob-field-label">Base de cálculo</div>
-            <select class="ob-input" id="obDescBase" onchange="calcDescuento()">
-              <option value="80000">Mensual $80.000</option>
-              <option value="420000">Semestral $420.000</option>
-              <option value="720000">Anual $720.000</option>
-            </select>
-          </div>
-        </div>
-        <div class="descuento-preview" id="obDescPreview">
-          <div class="desc-original" id="obDescOriginal">$80.000</div>
-          <div class="desc-final" id="obDescFinal">$80.000</div>
-          <div class="desc-ahorro" id="obDescAhorro">Sin descuento aplicado</div>
-          <div class="desc-recurrente" id="obDescRec">Este precio queda como recurrente para el socio</div>
-        </div>
-      </div>
-
-      <div class="ob-field">
-        <div class="ob-field-label">Fecha de inicio</div>
-        <input class="ob-input" type="date" id="obFechaInicio">
-      </div>
-    </div>
-    <div class="ob-err" id="ob-err2">Selecciona un tipo de membresía</div>
-    <div class="ob-footer two">
-      <button class="btn-sec" onclick="obNext(1)">← Atrás</button>
       <button class="btn-prim" onclick="obNext(3)">CONTINUAR →</button>
     </div>
   </div>
@@ -1598,7 +1994,7 @@ document.querySelectorAll('.koach-logo').forEach(img => img.src = LOGO_SRC);
     </div>
     <div class="ob-err" id="ob-err3">Selecciona programa, nivel y objetivo</div>
     <div class="ob-footer two">
-      <button class="btn-sec" onclick="obNext(2)">← Atrás</button>
+      <button class="btn-sec" onclick="obNext(1)">← Atrás</button>
       <button class="btn-prim" onclick="obNext(4)">CONTINUAR →</button>
     </div>
   </div>
@@ -1645,7 +2041,7 @@ document.querySelectorAll('.koach-logo').forEach(img => img.src = LOGO_SRC);
     <div class="ob-body">
       <div class="ob-resumen-card" id="obResumen"></div>
       <div style="font-family:Share Tech Mono,monospace;font-size:8px;letter-spacing:0.1em;color:var(--gris);line-height:1.7;padding:10px 13px;background:var(--purple-light);border:1px solid var(--purple-border);">
-        El socio recibirá acceso al sistema KOACH con su email y contraseña temporal.
+        El socio recibe acceso inmediato al sistema con su email y contraseña temporal. La rotación arranca en la Rutina A.
       </div>
       <div class="ob-err vis" id="ob-err5" style="display:none;"></div>
     </div>
@@ -1667,89 +2063,631 @@ document.querySelectorAll('.koach-logo').forEach(img => img.src = LOGO_SRC);
   </div>
 </div>
 
-<!-- MODAL REGISTRAR PAGO -->
-<div class="mpago" id="modalPago" onclick="if(event.target===this)cerrarModalPago()">
-  <div class="mpago-sheet">
-    <div class="mpago-top">
-      <div class="mpago-titulo" id="mpNombre">Registrar pago</div>
-      <button class="btn-sm" onclick="cerrarModalPago()">✕</button>
-    </div>
-    <div class="mpago-body">
+<script>
+// ══════════════════════════════════════════════
+// BLOQUE 2 — ONBOARDING · GESTIÓN · EXTRAS · MODS · IA
+// ══════════════════════════════════════════════
 
-      <div class="mpago-field">
-        <div class="mpago-label">Tipo de membresía</div>
-        <div class="mpago-select-group">
-          <div class="mpago-opt" onclick="mpSelect('tipo','mensual',this)" id="mp-mensual">Mensual</div>
-          <div class="mpago-opt" onclick="mpSelect('tipo','semestral',this)" id="mp-semestral">Semestral</div>
-          <div class="mpago-opt" onclick="mpSelect('tipo','anual',this)" id="mp-anual">Anual</div>
+const CLP = n => '$' + Math.round(n).toLocaleString('es-CL')
+const PROG_DESC = {
+  STRONG: 'Fuerza e hipertrofia · 3 sesiones/semana',
+  BURN: 'Recomposición corporal · fuerza + densidad',
+  HEALTHY: 'Salud y bienestar · base de fuerza'
+}
+
+// ── ONBOARDING (4 pasos: datos → protocolo → restricciones → confirmar) ──
+let OB = {}
+function obDefaults() { OB = { sexo: null, programa: null, nivel: null, objetivo: null, restricciones: [] } }
+obDefaults()
+
+const OB_STEPS = [1, 3, 4, 5]
+const OB_LABELS = { 1: 'Datos personales', 3: 'Protocolo', 4: 'Restricciones', 5: 'Confirmar' }
+
+function obSelect(campo, valor, el) {
+  OB[campo] = valor
+  el.parentElement.querySelectorAll('.ob-opt').forEach(o => o.classList.remove('selected'))
+  el.classList.add('selected')
+  if (campo === 'programa') document.getElementById('obProgDesc').textContent = PROG_DESC[valor] || '—'
+}
+
+function obChip(el, zona) {
+  const chips = document.querySelectorAll('#ob-step4 .ob-chip')
+  if (zona === 'ninguna') {
+    OB.restricciones = []
+    chips.forEach(c => c.classList.remove('selected'))
+    el.classList.add('selected')
+    return
+  }
+  chips.forEach(c => { if (c.textContent.trim() === 'Sin restricciones') c.classList.remove('selected') })
+  if (OB.restricciones.includes(zona)) {
+    OB.restricciones = OB.restricciones.filter(z => z !== zona)
+    el.classList.remove('selected')
+  } else {
+    OB.restricciones.push(zona)
+    el.classList.add('selected')
+  }
+}
+
+function obNext(step) {
+  const activo = document.querySelector('.ob-step.active')
+  const current = activo ? parseInt(activo.id.replace('ob-step', '')) : 1
+  if (OB_STEPS.indexOf(step) > OB_STEPS.indexOf(current) && !obValida(current)) return
+  document.querySelectorAll('.ob-step').forEach(s => s.classList.remove('active'))
+  document.getElementById('obSuccess').classList.remove('vis')
+  document.getElementById('ob-step' + step).classList.add('active')
+  const idx = OB_STEPS.indexOf(step)
+  document.querySelectorAll('#pgOnboarding .ob-dot').forEach((d, i) => {
+    d.classList.remove('active', 'done')
+    if (i < idx) d.classList.add('done')
+    if (i === idx) d.classList.add('active')
+  })
+  document.getElementById('obStepLabel').textContent = `Paso ${idx + 1} de 4 · ${OB_LABELS[step]}`
+  if (step === 5) obResumen()
+  window.scrollTo(0, 0)
+}
+
+function obValida(step) {
+  const err = document.getElementById('ob-err' + step)
+  if (err) err.classList.remove('vis')
+  if (step === 1) {
+    const ok = document.getElementById('obNombre').value.trim() &&
+      document.getElementById('obApellido').value.trim() &&
+      document.getElementById('obEmail').value.trim().includes('@') &&
+      document.getElementById('obTel').value.trim() && OB.sexo
+    if (!ok && err) { err.classList.add('vis'); return false }
+  }
+  if (step === 3) {
+    if (!OB.programa || !OB.nivel || !OB.objetivo) { if (err) err.classList.add('vis'); return false }
+  }
+  return true
+}
+
+function obResumen() {
+  const filas = [
+    ['Socio', `${document.getElementById('obNombre').value} ${document.getElementById('obApellido').value}`],
+    ['Email', document.getElementById('obEmail').value],
+    ['WhatsApp', document.getElementById('obTel').value],
+    ['Protocolo', `${OB.programa} · ${OB.nivel}`],
+    ['Objetivo', OB.objetivo],
+    ['Restricciones', OB.restricciones.length ? OB.restricciones.join(', ') : 'Sin restricciones']
+  ]
+  document.getElementById('obResumen').innerHTML = filas.map(([k, v]) =>
+    `<div class="ob-res-row"><span class="ob-res-label">${k}</span><span class="ob-res-val">${v}</span></div>`).join('')
+}
+
+async function obCrear() {
+  const btn = document.getElementById('btnObCrear')
+  const err = document.getElementById('ob-err5')
+  err.style.display = 'none'
+  btn.classList.add('loading')
+  btn.innerHTML = '<span class="spinner-inline"></span>CREANDO...'
+
+  const email = document.getElementById('obEmail').value.trim().toLowerCase()
+  const nombre = document.getElementById('obNombre').value.trim()
+  const apellido = document.getElementById('obApellido').value.trim()
+  const telefono = document.getElementById('obTel').value.trim()
+  const tempPass = 'KOACH-' + Math.random().toString(36).slice(2, 8).toUpperCase()
+
+  try {
+    // Cliente secundario: crear la cuenta sin cerrar la sesión del admin
+    const sb2 = supabase.createClient(SB_URL, SB_KEY, { auth: { persistSession: false, autoRefreshToken: false } })
+    const { data: su, error: eSign } = await sb2.auth.signUp({ email, password: tempPass, options: { data: { nombre, apellido } } })
+    if (eSign) throw new Error('Auth: ' + eSign.message)
+    const uid = su.user?.id
+    if (!uid) throw new Error('No se obtuvo ID de usuario. Revisa confirmación de email en Supabase.')
+
+    const { error: eProf } = await sb.from('profiles').insert({ id: uid, nombre, apellido, email, telefono, role: 'socio', activo: true })
+    if (eProf) throw new Error('Perfil: ' + eProf.message)
+    try {
+      await sb.from('profiles').update({
+        sexo: OB.sexo,
+        fecha_nacimiento: document.getElementById('obFechaNac').value || null,
+        objetivo: OB.objetivo,
+        notas: document.getElementById('obNotas').value || null,
+        estado: 'activo'
+      }).eq('id', uid)
+    } catch (_) {}
+
+    // Protocolo por programa + nivel (+ sexo si aplica)
+    let protoId = null
+    let { data: pr } = await sb.from('protocolos').select('id').eq('programa', OB.programa).eq('nivel', OB.nivel).eq('sexo', OB.sexo).limit(1)
+    if (!pr || !pr.length) {
+      const r2 = await sb.from('protocolos').select('id').eq('programa', OB.programa).eq('nivel', OB.nivel).limit(1)
+      pr = r2.data
+    }
+    if (pr && pr.length) protoId = pr[0].id
+
+    if (protoId) {
+      const { error: eAsig } = await sb.from('asignaciones').insert({
+        socio_id: uid, protocolo_id: protoId, semana_actual: 1, ciclo_actual: 1, activo: true
+      })
+      if (eAsig) console.error('Asignación:', eAsig.message)
+    }
+
+    if (OB.restricciones.length) {
+      try {
+        await sb.from('restricciones').insert(OB.restricciones.map(z => ({ socio_id: uid, zona: z, activa: true })))
+      } catch (_) {}
+    }
+
+    document.querySelectorAll('.ob-step').forEach(s => s.classList.remove('active'))
+    document.getElementById('obSuccessEmail').innerHTML = `${email}<br>Contraseña temporal: <strong>${tempPass}</strong>`
+    document.getElementById('obSuccess').classList.add('vis')
+  } catch (e) {
+    err.textContent = e.message
+    err.style.display = 'block'
+  }
+  btn.classList.remove('loading')
+  btn.textContent = 'CREAR SOCIO →'
+}
+
+function obReset() {
+  obDefaults();
+  ['obNombre', 'obApellido', 'obEmail', 'obTel', 'obFechaNac', 'obNotas'].forEach(id => {
+    const el = document.getElementById(id); if (el) el.value = ''
+  })
+  document.querySelectorAll('#pgOnboarding .ob-opt, #pgOnboarding .ob-chip').forEach(o => o.classList.remove('selected'))
+  document.getElementById('obSuccess').classList.remove('vis')
+  obNext(1)
+  goTo('pgOnboarding')
+}
+
+// ── PERFIL SOCIO ──
+let socioPerfilActual = null
+const esDemo = s => String(s?.id || '').startsWith('d')
+
+function verPerfil(s) {
+  socioPerfilActual = s
+  const proto = s.protocolo || s.asignaciones?.[0]?.protocolos?.nombre || '—'
+  const semana = s.semana || s.asignaciones?.[0]?.semana_actual || '—'
+  const ciclo = s.ciclo || s.asignaciones?.[0]?.ciclo_actual || '—'
+  const dias = s.ultima_sesion ? diasDesde(s.ultima_sesion) : null
+  document.getElementById('perfilNombre').textContent = `${s.nombre} ${s.apellido || ''}`.toUpperCase()
+  document.getElementById('perfilMeta').textContent = dias === null ? 'Sin sesiones registradas' : alertaTexto(dias)
+  document.getElementById('perfilDatos').innerHTML = [
+    ['Email', s.email || '—'], ['WhatsApp', s.telefono || '—']
+  ].map(([k, v]) => `<div class="perfil-row"><span class="perfil-key">${k}</span><span class="perfil-val">${v}</span></div>`).join('')
+  document.getElementById('perfilProtocolo').innerHTML = [
+    ['Protocolo', proto], ['Semana', `${semana} / 6`], ['Ciclo', ciclo]
+  ].map(([k, v]) => `<div class="perfil-row"><span class="perfil-key">${k}</span><span class="perfil-val">${v}</span></div>`).join('')
+
+  // Restricciones
+  document.getElementById('perfilRestricciones').innerHTML = '<div class="perfil-row"><span class="perfil-key">Registradas</span><span class="perfil-val" id="perfilRestVal">Cargando...</span></div>'
+  if (!esDemo(s)) {
+    sb.from('restricciones').select('zona').eq('socio_id', s.id).eq('activa', true).then(({ data, error }) => {
+      const el = document.getElementById('perfilRestVal')
+      if (el) el.textContent = error ? '—' : (data && data.length ? data.map(r => r.zona).join(', ') : 'Sin restricciones')
+    })
+  } else {
+    document.getElementById('perfilRestVal').textContent = 'Socio demo'
+  }
+
+  // Acceso: solo admin
+  const esAdmin = STATE.profile?.role === 'admin'
+  const acc = document.getElementById('perfilAccesoSection')
+  acc.style.display = esAdmin ? 'block' : 'none'
+  if (esAdmin) pintarEstado(s.estado || (s.activo === false ? 'cancelado' : 'activo'))
+
+  // Rotación y sesiones adicionales
+  cargarRotacionPerfil()
+  cargarExtrasPerfil()
+
+  goTo('pgPerfilSocio')
+}
+
+function pintarEstado(estado) {
+  const el = document.getElementById('perfilEstadoVal')
+  const mapa = { activo: ['ACTIVO', 'var(--ok)'], congelado: ['CONGELADO', 'var(--warn)'], cancelado: ['CANCELADO', 'var(--danger)'] }
+  const [txt, color] = mapa[estado] || mapa.activo
+  el.textContent = txt
+  el.style.color = color
+  document.getElementById('btnCongelar').style.display = estado === 'activo' ? 'block' : 'none'
+  document.getElementById('btnReactivar').style.display = estado === 'activo' ? 'none' : 'block'
+}
+
+async function cambiarEstado(nuevo) {
+  if (!['admin','coach'].includes(STATE.profile?.role)) { alert('Los ajustes de rutina son exclusivos del equipo coach.'); return }
+  const s = socioPerfilActual
+  if (esDemo(s)) { alert('Socio de demostración.'); return }
+  if (nuevo === 'cancelado' && !confirm(`¿Cancelar la suscripción de ${s.nombre}? Perderá acceso al sistema.`)) return
+  if (nuevo === 'congelado' && !confirm(`¿Congelar el acceso de ${s.nombre}?`)) return
+  const { error } = await sb.from('profiles').update({ estado: nuevo, activo: nuevo !== 'cancelado' }).eq('id', s.id)
+  if (error) { alert('Error: ' + error.message + '\nSi la columna estado no existe, ejecuta koach-sistema.sql.'); return }
+  s.estado = nuevo
+  pintarEstado(nuevo)
+}
+
+function wsPerfil() {
+  const s = socioPerfilActual
+  if (!s?.telefono) { alert('Este socio no tiene teléfono registrado.'); return }
+  const dias = s.ultima_sesion ? diasDesde(s.ultima_sesion) : 99
+  wsMsg(s.telefono, s.nombre, dias)
+}
+
+// ── ROTACIÓN: salto autorizado por coach ──
+async function rotacionDeSocio(s) {
+  const protoId = s.asignaciones?.[0]?.protocolo_id
+  if (!protoId) return null
+  const { data: ses } = await sb.from('sesiones_protocolo').select('id, numero, objetivo').eq('protocolo_id', protoId).order('numero')
+  const ids = (ses || []).map(x => x.id)
+  let comp = 0, sal = 0
+  if (ids.length) {
+    const { count } = await sb.from('sesiones_registro').select('*', { count: 'exact', head: true })
+      .eq('socio_id', s.id).eq('estado', 'completada').in('sesion_protocolo_id', ids)
+    comp = count || 0
+  }
+  try {
+    const { count } = await sb.from('saltos').select('*', { count: 'exact', head: true }).eq('socio_id', s.id)
+    sal = count || 0
+  } catch (_) {}
+  const n = ((comp + sal) % 3) + 1
+  return { n, ses: (ses || []).find(x => x.numero === n) }
+}
+
+async function cargarRotacionPerfil() {
+  const el = document.getElementById('rotInfo')
+  const s = socioPerfilActual
+  if (esDemo(s)) { el.textContent = 'Socio demo'; return }
+  el.textContent = 'Calculando...'
+  const rot = await rotacionDeSocio(s)
+  if (!rot) { el.textContent = 'Sin protocolo'; return }
+  window.ROT = rot
+  el.textContent = `RUTINA ${'ABC'[rot.n - 1]}${rot.ses?.objetivo ? ' · ' + rot.ses.objetivo : ''}`
+}
+
+async function saltarRutina() {
+  if (!['admin','coach'].includes(STATE.profile?.role)) { alert('Los ajustes de rutina son exclusivos del equipo coach.'); return }
+  const s = socioPerfilActual
+  if (esDemo(s)) { alert('Socio de demostración.'); return }
+  const rot = window.ROT || await rotacionDeSocio(s)
+  if (!rot) { alert('El socio no tiene protocolo asignado.'); return }
+  const letra = 'ABC'[rot.n - 1]
+  const sig = 'ABC'[rot.n % 3]
+  if (!confirm(`¿Autorizar el salto de la Rutina ${letra} de ${s.nombre}? Pasará directo a la Rutina ${sig} sin registrar entrenamiento.`)) return
+  const { error } = await sb.from('saltos').insert({
+    socio_id: s.id,
+    sesion_protocolo_id: rot.ses?.id || null,
+    rutina: rot.n,
+    fecha: new Date().toISOString().split('T')[0],
+    autorizado_por: STATE.profile?.id || null
+  })
+  if (error) { alert('Error: ' + error.message + '\nSi la tabla no existe, ejecuta koach-sistema.sql.'); return }
+  alert(`Salto autorizado. ${s.nombre} pasa a la Rutina ${sig}.`)
+  cargarRotacionPerfil()
+}
+
+// ── SESIONES ADICIONALES (integración BURN / STRONG / HEALTHY) ──
+async function cargarExtrasPerfil() {
+  const cont = document.getElementById('perfilExtras')
+  const s = socioPerfilActual
+  if (esDemo(s)) { cont.innerHTML = '<div class="perfil-row"><span class="perfil-key">—</span><span class="perfil-val">Socio demo</span></div>'; return }
+  cont.innerHTML = '<div class="perfil-row"><span class="perfil-key">—</span><span class="perfil-val">Cargando...</span></div>'
+  const { data, error } = await sb
+    .from('sesiones_extra')
+    .select('*')
+    .eq('socio_id', s.id)
+    .order('created_at', { ascending: false })
+    .limit(6)
+  if (error) { cont.innerHTML = '<div class="perfil-row"><span class="perfil-key">—</span><span class="perfil-val">Ejecuta koach-sistema.sql</span></div>'; return }
+  if (!data || !data.length) { cont.innerHTML = '<div class="perfil-row"><span class="perfil-key">—</span><span class="perfil-val">Sin sesiones adicionales</span></div>'; return }
+  cont.innerHTML = data.map(ex => `
+    <div class="perfil-row">
+      <span class="perfil-key">${ex.programa} · Rutina ${'ABC'[(ex.rutina || 1) - 1]}</span>
+      <span class="perfil-val" style="color:${ex.estado === 'completada' ? 'var(--ok)' : 'var(--warn)'};">${ex.estado === 'completada' ? '✓ Completada' : 'Pendiente'}</span>
+    </div>`).join('')
+}
+
+function abrirModalExtra() {
+  if (!['admin','coach'].includes(STATE.profile?.role)) { alert('Los ajustes de rutina son exclusivos del equipo coach.'); return }
+  const s = socioPerfilActual
+  if (esDemo(s)) { alert('Socio de demostración: crea el socio real primero.'); return }
+  let modal = document.getElementById('extraModal')
+  if (!modal) {
+    modal = document.createElement('div')
+    modal.id = 'extraModal'
+    modal.style.cssText = 'display:none;position:fixed;inset:0;background:rgba(10,10,10,0.5);z-index:200;align-items:flex-end;justify-content:center;'
+    modal.innerHTML = `
+      <div style="background:var(--offwhite);width:100%;max-width:480px;display:flex;flex-direction:column;">
+        <div style="padding:16px 22px 12px;border-bottom:1px solid var(--borde);display:flex;justify-content:space-between;align-items:center;">
+          <div style="font-weight:900;font-size:18px;text-transform:uppercase;">Asignar sesión adicional</div>
+          <button class="btn-sm" onclick="document.getElementById('extraModal').style.display='none'">✕</button>
         </div>
-      </div>
-
-      <div class="mpago-field">
-        <div class="mpago-label">Precio base</div>
-        <div style="font-family:Share Tech Mono,monospace;font-size:10px;color:var(--negro);background:white;border:1px solid var(--borde);padding:10px 13px;" id="mpPrecioBase">Selecciona membresía</div>
-      </div>
-
-      <div class="mpago-field">
-        <div class="mpago-label">¿Aplicar descuento?</div>
-        <div class="mpago-select-group">
-          <div class="mpago-opt" onclick="mpSelect('desc_tipo','ninguno',this)" id="mp-desc-no">Sin descuento</div>
-          <div class="mpago-opt desc" onclick="mpSelect('desc_tipo','pct',this)" id="mp-desc-pct">% Porcentaje</div>
-          <div class="mpago-opt desc" onclick="mpSelect('desc_tipo','monto',this)" id="mp-desc-monto">$ Monto fijo</div>
+        <div style="padding:18px 22px;display:flex;flex-direction:column;gap:14px;">
+          <div class="ob-field">
+            <div class="ob-field-label">Programa</div>
+            <div class="ob-select-group">
+              <div class="ob-opt" onclick="exSel('programa','STRONG',this)">STRONG</div>
+              <div class="ob-opt" onclick="exSel('programa','BURN',this)">BURN</div>
+              <div class="ob-opt" onclick="exSel('programa','HEALTHY',this)">HEALTHY</div>
+            </div>
+          </div>
+          <div class="ob-field">
+            <div class="ob-field-label">Rutina</div>
+            <div class="ob-select-group">
+              <div class="ob-opt" onclick="exSel('rutina',1,this)">A</div>
+              <div class="ob-opt" onclick="exSel('rutina',2,this)">B</div>
+              <div class="ob-opt" onclick="exSel('rutina',3,this)">C</div>
+            </div>
+          </div>
         </div>
-      </div>
-
-      <div id="mpDescWrap" style="display:none;">
-        <div class="mpago-field">
-          <div class="mpago-label" id="mpDescLabel">Descuento %</div>
-          <input class="mpago-input" type="number" id="mpDescValor" placeholder="0" oninput="mpCalc()">
+        <div style="padding:12px 22px 28px;border-top:1px solid var(--borde);display:flex;flex-direction:column;gap:12px;">
+          <label style="display:flex;gap:9px;align-items:center;font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:0.08em;color:var(--gris);cursor:pointer;">
+            <input type="checkbox" id="exReemplazo" style="width:16px;height:16px;accent-color:#0A0A0A;">
+            REEMPLAZA LA RUTINA BASE DE HOY (AUTORIZA SALTO)
+          </label>
+          <button class="btn-prim" id="btnExGuardar" onclick="guardarExtra()">ASIGNAR SESIÓN →</button>
         </div>
-      </div>
+      </div>`
+    document.body.appendChild(modal)
+    modal.onclick = e => { if (e.target === modal) modal.style.display = 'none' }
+  }
+  window.EX = { programa: null, rutina: null }
+  modal.querySelectorAll('.ob-opt').forEach(o => o.classList.remove('selected'))
+  const chk = document.getElementById('exReemplazo'); if (chk) chk.checked = false
+  modal.style.display = 'flex'
+}
 
-      <!-- Preview precio final -->
-      <div class="descuento-preview vis" id="mpPreview" style="display:none;">
-        <div class="desc-original" id="mpOriginal">—</div>
-        <div class="desc-final" id="mpFinal">—</div>
-        <div class="desc-ahorro" id="mpAhorro">—</div>
-        <div class="desc-recurrente">Precio recurrente confirmado para este socio</div>
-      </div>
+function exSel(campo, valor, el) {
+  window.EX[campo] = valor
+  el.parentElement.querySelectorAll('.ob-opt').forEach(o => o.classList.remove('selected'))
+  el.classList.add('selected')
+}
 
-      <div class="mpago-field">
-        <div class="mpago-label">Monto final cobrado</div>
-        <input class="mpago-input" type="number" id="mpMontoFinal" placeholder="80000">
-      </div>
+async function guardarExtra() {
+  const s = socioPerfilActual
+  if (!window.EX?.programa || !window.EX?.rutina) { alert('Selecciona programa y rutina.'); return }
+  const btn = document.getElementById('btnExGuardar')
+  btn.classList.add('loading')
+  btn.innerHTML = '<span class="spinner-inline"></span>ASIGNANDO...'
 
-      <div class="mpago-field">
-        <div class="mpago-label">Fecha de pago</div>
-        <input class="mpago-input" type="date" id="mpFechaPago">
-      </div>
+  try {
+    const nivel = s.asignaciones?.[0]?.protocolos?.nivel
+    if (!nivel) throw new Error('El socio no tiene protocolo base para determinar su nivel.')
+    let { data: pr } = await sb.from('protocolos').select('id').eq('programa', window.EX.programa).eq('nivel', nivel).eq('sexo', s.sexo || '').limit(1)
+    if (!pr || !pr.length) {
+      const r2 = await sb.from('protocolos').select('id').eq('programa', window.EX.programa).eq('nivel', nivel).limit(1)
+      pr = r2.data
+    }
+    if (!pr || !pr.length) throw new Error(`No hay protocolo ${window.EX.programa} · ${nivel} en la base.`)
 
-      <div class="mpago-field">
-        <div class="mpago-label">Fecha de vencimiento</div>
-        <input class="mpago-input" type="date" id="mpFechaVence">
-      </div>
+    const { data: ses } = await sb.from('sesiones_protocolo').select('id').eq('protocolo_id', pr[0].id).eq('numero', window.EX.rutina).single()
+    if (!ses) throw new Error('La rutina seleccionada no existe en ese protocolo.')
 
-      <div class="mpago-field">
-        <div class="mpago-label">Estado</div>
-        <div class="mpago-select-group">
-          <div class="mpago-opt selected" onclick="mpSelect('estado','pagado',this)" id="mp-pagado">Pagado</div>
-          <div class="mpago-opt" onclick="mpSelect('estado','pendiente',this)" id="mp-pendiente">Pendiente</div>
+    const { error } = await sb.from('sesiones_extra').insert({
+      socio_id: s.id,
+      programa: window.EX.programa,
+      rutina: window.EX.rutina,
+      protocolo_id: pr[0].id,
+      sesion_protocolo_id: ses.id,
+      estado: 'pendiente',
+      asignada_por: STATE.profile?.id || null
+    })
+    if (error) throw new Error(error.message + ' — si la tabla no existe, ejecuta koach-sistema.sql.')
+
+    let msgFin = `Sesión ${window.EX.programa} · Rutina ${'ABC'[window.EX.rutina - 1]} asignada. El socio la verá en su inicio.`
+    if (document.getElementById('exReemplazo')?.checked) {
+      const rot = await rotacionDeSocio(s)
+      if (rot) {
+        const { error: eSalto } = await sb.from('saltos').insert({
+          socio_id: s.id, sesion_protocolo_id: rot.ses?.id || null, rutina: rot.n,
+          fecha: new Date().toISOString().split('T')[0], autorizado_por: STATE.profile?.id || null
+        })
+        if (!eSalto) msgFin += ` Rutina ${'ABC'[rot.n - 1]} saltada: su rotación continúa en la ${'ABC'[rot.n % 3]}.`
+      }
+    }
+    document.getElementById('extraModal').style.display = 'none'
+    cargarExtrasPerfil()
+    cargarRotacionPerfil()
+    alert(msgFin)
+  } catch (e) {
+    alert('Error: ' + e.message)
+  }
+  btn.classList.remove('loading')
+  btn.textContent = 'ASIGNAR SESIÓN →'
+}
+
+// ── MODIFICAR RUTINA (coach/admin) ──
+let MOD_RUTINA_NUM = 1
+let EJERCICIOS_CACHE = null
+
+function abrirModRutina() {
+  if (!['admin','coach'].includes(STATE.profile?.role)) { alert('Los ajustes de rutina son exclusivos del equipo coach.'); return }
+  const s = socioPerfilActual
+  if (esDemo(s)) { alert('Socio de demostración: crea el socio real primero.'); return }
+  if (!s.asignaciones?.[0]?.protocolo_id) { alert('El socio no tiene protocolo asignado.'); return }
+  document.getElementById('modNombre').textContent = `${s.nombre} ${s.apellido || ''}`.toUpperCase()
+  document.querySelectorAll('#pgModRutina .filter-btn').forEach((b, i) => b.classList.toggle('active', i === 0))
+  goTo('pgModRutina')
+  modCargarRutina(1, null)
+}
+
+async function modCargarRutina(num, btn) {
+  MOD_RUTINA_NUM = num
+  if (btn) {
+    document.querySelectorAll('#pgModRutina .filter-btn').forEach(b => b.classList.remove('active'))
+    btn.classList.add('active')
+  }
+  const lista = document.getElementById('modLista')
+  lista.innerHTML = '<div class="loading-state"><span class="spinner-inline spinner-dark"></span>Cargando rutina...</div>'
+  const s = socioPerfilActual
+  const protoId = s.asignaciones[0].protocolo_id
+
+  const { data: sesion } = await sb.from('sesiones_protocolo').select('id, nombre, objetivo').eq('protocolo_id', protoId).eq('numero', num).single()
+  if (!sesion) { lista.innerHTML = '<div class="loading-state">Rutina no encontrada</div>'; return }
+
+  const [{ data: bloques }, modsRes, ejsRes] = await Promise.all([
+    sb.from('bloques').select('*, bloque_ejercicios(*, ejercicios(*))').eq('sesion_id', sesion.id).order('bloque'),
+    sb.from('modificaciones').select('id, bloque_ejercicio_id, ejercicios(id, nombre)').eq('socio_id', s.id).eq('activa', true),
+    EJERCICIOS_CACHE ? Promise.resolve({ data: EJERCICIOS_CACHE }) : sb.from('ejercicios').select('id, nombre').order('nombre')
+  ])
+  EJERCICIOS_CACHE = ejsRes.data || []
+  const mods = {}
+  ;(modsRes.data || []).forEach(m => { mods[m.bloque_ejercicio_id] = m })
+
+  const opciones = EJERCICIOS_CACHE.map(e => `<option value="${e.id}">${e.nombre}</option>`).join('')
+  document.getElementById('modMeta').textContent = sesion.objetivo || 'Los cambios se guardan por socio y se aplican en cada sesi\u00f3n'
+
+  let html = '', numEj = 0
+  ;(bloques || []).forEach(b => {
+    const ejs = (b.bloque_ejercicios || []).sort((a, x) => a.orden - x.orden)
+    html += `<div class="bloque-head" style="margin-top:10px;">
+      <div class="bloque-badge">BLOQUE ${b.bloque}</div>
+      <div class="bloque-specs">${b.sets ? b.sets + ' SETS' : ''}${b.rol ? ' \u00b7 ' + String(b.rol).toUpperCase() : ''}</div>
+    </div>`
+    ejs.forEach(be => {
+      if (!be.ejercicios) return
+      numEj++
+      const mod = mods[be.id]
+      const ejAct = mod?.ejercicios || be.ejercicios
+      html += `
+        <div class="ej-card">
+          <div class="ej-card-top">
+            <div class="ej-card-num">${String(numEj).padStart(2, '0')}${be.es_ancla ? ' \u00b7 \u25c6 ANCLA' : ''}${mod ? ' \u00b7 MOD' : ''}</div>
+            <div class="ej-card-nombre">${ejAct.nombre}</div>
+            ${mod ? `<div class="ej-card-reps" style="text-decoration:line-through;">${be.ejercicios.nombre}</div>` : ''}
+            <div class="ej-card-reps">${be.reps ? be.reps + ' REPS' : ''}${be.duracion_seg ? be.duracion_seg + "''" : ''}</div>
+          </div>
+          <div class="sin-carga-row">
+            <span class="sin-carga-lbl">${mod ? 'MODIFICADO' : 'PROTOCOLO ORIGINAL'}</span>
+            <div style="display:flex;gap:6px;">
+              ${mod ? `<button class="btn-marcar" onclick="modRestaurar('${mod.id}')">Restaurar</button>` : ''}
+              <button class="btn-marcar" onclick="modToggle('${be.id}')">Cambiar</button>
+            </div>
+          </div>
+          <div id="modRow-${be.id}" style="display:none;padding:11px 14px;border-top:1px solid var(--borde);">
+            <select class="ob-input" id="modSel-${be.id}" style="width:100%;padding:10px;font-size:14px;">
+              <option value="">Reemplazar por...</option>${opciones}
+            </select>
+            <button class="btn-sets" onclick="modGuardar('${be.id}')">GUARDAR CAMBIO \u2713</button>
+          </div>
+        </div>`
+    })
+  })
+  lista.innerHTML = html || '<div class="loading-state">Sin ejercicios en esta rutina</div>'
+}
+
+function modToggle(beId) {
+  const row = document.getElementById('modRow-' + beId)
+  row.style.display = row.style.display === 'none' ? 'block' : 'none'
+}
+
+async function modGuardar(beId) {
+  if (!['admin','coach'].includes(STATE.profile?.role)) { alert('Los ajustes de rutina son exclusivos del equipo coach.'); return }
+  const nuevoId = document.getElementById('modSel-' + beId).value
+  if (!nuevoId) { alert('Selecciona el ejercicio de reemplazo.'); return }
+  const s = socioPerfilActual
+  // Desactivar mod previa del mismo ejercicio y crear la nueva: la última manda
+  await sb.from('modificaciones').update({ activa: false }).eq('socio_id', s.id).eq('bloque_ejercicio_id', beId)
+  const { error } = await sb.from('modificaciones').insert({
+    socio_id: s.id,
+    bloque_ejercicio_id: beId,
+    ejercicio_id: nuevoId,
+    activa: true,
+    coach_id: STATE.profile?.id || null
+  })
+  if (error) { alert('Error: ' + error.message + '\nSi la tabla no existe, ejecuta koach-sistema.sql.'); return }
+  modCargarRutina(MOD_RUTINA_NUM, null)
+}
+
+async function modRestaurar(modId) {
+  await sb.from('modificaciones').update({ activa: false }).eq('id', modId)
+  modCargarRutina(MOD_RUTINA_NUM, null)
+}
+
+// ── CONSULTOR IA ──
+let IA_SOCIO = null
+
+function abrirSelectorIA() {
+  const lista = document.getElementById('iaSelectorList')
+  const socios = STATE.sociosDemo || []
+  lista.innerHTML = socios.length ? socios.map((s, i) => `
+    <div class="socio-card" onclick="iaSeleccionar(${i})">
+      <div class="sc-inner">
+        <div class="sc-left">
+          <div class="sc-nombre">${s.nombre} ${s.apellido || ''}</div>
+          <div class="sc-proto">${s.protocolo || s.asignaciones?.[0]?.protocolos?.nombre || '—'}</div>
         </div>
+        <div class="nc-arrow">→</div>
       </div>
+    </div>`).join('') : '<div class="loading-state">Sin socios cargados. Abre el panel Coach primero.</div>'
+  document.getElementById('iaSelectorModal').style.display = 'flex'
+}
 
-      <div class="mpago-field">
-        <div class="mpago-label">Notas (opcional)</div>
-        <input class="mpago-input" type="text" id="mpNotas" placeholder="Ej: Descuento referido, precio congelado...">
-      </div>
+function iaSeleccionar(i) {
+  iaSetSocio(STATE.sociosDemo[i])
+  document.getElementById('iaSelectorModal').style.display = 'none'
+}
 
-    </div>
-    <div class="mpago-footer">
-      <button class="btn-prim" id="btnMpGuardar" onclick="guardarPago()">CONFIRMAR PAGO →</button>
-      <button class="btn-sec" onclick="cerrarModalPago()">Cancelar</button>
-    </div>
-  </div>
-</div>
+function iaDesdeCard(s) {
+  iaSetSocio(s)
+  goTo('pgIA')
+}
+
+function abrirIAPerfil() { if (socioPerfilActual) iaDesdeCard(socioPerfilActual) }
+
+function modDesdeCard(s) { verPerfil(s); if (!esDemo(s) && s.asignaciones?.[0]?.protocolo_id) abrirModRutina() }
+
+function iaSetSocio(s) {
+  IA_SOCIO = s
+  const proto = s.protocolo || s.asignaciones?.[0]?.protocolos?.nombre || '—'
+  const semana = s.semana || s.asignaciones?.[0]?.semana_actual || '—'
+  document.getElementById('iaCtxNombre').textContent = `${s.nombre} ${s.apellido || ''}`.toUpperCase()
+  document.getElementById('iaCtxProto').textContent = `${proto} · Semana ${semana}/6`
+  iaBubble(`Contexto cargado: ${s.nombre} · ${proto} · Semana ${semana}/6. ¿Qué ajuste necesitas?`, 'ia')
+}
+
+function iaBubble(txt, quien) {
+  const area = document.getElementById('iaChatArea')
+  const wrap = document.createElement('div')
+  wrap.style.cssText = `display:flex;flex-direction:column;gap:4px;max-width:90%;align-self:${quien === 'yo' ? 'flex-end' : 'flex-start'};`
+  wrap.innerHTML = `<div style="background:${quien === 'yo' ? 'var(--negro)' : 'white'};border:1px solid var(--borde);color:${quien === 'yo' ? 'var(--offwhite)' : 'var(--negro)'};font-size:14px;padding:10px 13px;line-height:1.35;white-space:pre-line;">${txt}</div>`
+  area.appendChild(wrap)
+  area.scrollTop = area.scrollHeight
+}
+
+function iaQuickPrompt(txt) {
+  document.getElementById('iaInput').value = txt
+  iaEnviar()
+}
+
+function iaEnviar() {
+  const input = document.getElementById('iaInput')
+  const txt = input.value.trim()
+  if (!txt) return
+  input.value = ''
+  input.style.height = '44px'
+  iaBubble(txt, 'yo')
+  if (!IA_SOCIO) { iaBubble('Primero selecciona un socio con el botón "Cambiar" para cargar su contexto real.', 'ia'); return }
+  setTimeout(() => iaBubble(iaRespuestaLocal(txt), 'ia'), 400)
+}
+
+function iaRespuestaLocal(txt) {
+  const s = IA_SOCIO
+  const proto = s.protocolo || s.asignaciones?.[0]?.protocolos?.nombre || 'protocolo actual'
+  const semana = s.semana || s.asignaciones?.[0]?.semana_actual || '—'
+  const t = txt.toLowerCase()
+  let cuerpo = ''
+  if (t.includes('volumen')) {
+    cuerpo = `Con el contexto disponible: ${s.nombre} ejecuta ${proto}, semana ${semana} de 6. El desglose de series semanales por estímulo requiere leer los bloques del protocolo en la base — esa lectura la hace el motor IA conectado.`
+  } else if (t.includes('dolor') || t.includes('lesión') || t.includes('lesion') || t.includes('hombro') || t.includes('rodilla')) {
+    cuerpo = `Limitación reportada en ${s.nombre}. Protocolo KOACH: retirar los patrones que carguen la zona por 2 semanas y sustituir por variantes de menor estrés articular. Puedes ejecutar el cambio ahora mismo desde su perfil → Modificar rutina.`
+  } else if (t.includes('ciclo') || t.includes('nivel')) {
+    cuerpo = `${s.nombre} va en semana ${semana}/6 del ciclo. Criterio KOACH para subir de nivel: ciclo completo, cargas ancla con progresión sostenida y técnica validada por el coach.`
+  } else {
+    cuerpo = `Instrucción recibida sobre ${s.nombre} (${proto}, semana ${semana}/6).`
+  }
+  return cuerpo + `\n\n⚠ Motor IA no conectado aún: estas respuestas usan solo los datos base del socio. La conexión al motor (Claude vía función serverless) es el siguiente paso técnico.`
+}
+
+// Wire botón "+ Nuevo" del panel coach
+document.querySelectorAll('.btn-nuevo').forEach(b => {
+  if (b.textContent.includes('Nuevo')) b.onclick = obReset
+})
+
+// Logos en páginas declaradas después del primer script
+document.querySelectorAll('.koach-logo').forEach(img => { if (!img.src) img.src = LOGO_SRC })
+
+</script>
 
 </body>
 </html>
-<!-- Este bloque se insertará via script -->
