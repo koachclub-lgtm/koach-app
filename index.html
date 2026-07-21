@@ -11,6 +11,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
 <title>KOACH — Sistema</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;700;900&family=Share+Tech+Mono&display=swap');
@@ -454,6 +455,64 @@
   .k-confirm-s { font-family:'Share Tech Mono',monospace; font-size:9px; letter-spacing:0.1em; color:var(--gris); margin:8px 0 20px; line-height:1.6; }
   .k-confirm-card .btn-prim { min-height:50px; margin-bottom:8px; }
   .k-confirm-card .btn-sec { min-height:46px; }
+
+  /* ── CAPA TABLET (coach en sala) · el móvil no cambia ── */
+  @media (min-width: 768px) {
+    .page { max-width: 760px; }
+    #pgLogin { justify-content: center; }
+    .login-block, .login-card { max-width: 560px; margin-left:auto; margin-right:auto; }
+    .topbar, .ses-topbar { padding-left: 8px; padding-right: 8px; }
+    .wb-nombre { font-size: 54px; }
+    .wb-label, .wb-meta { font-size: 11px; }
+    .nav-card { padding: 26px 28px; border-radius: 24px; }
+    .nc-label { font-size: 10px; }
+    .nc-titulo { font-size: 30px; }
+    .nc-desc { font-size: 11px; }
+    .nc-arrow { font-size: 26px; }
+    .btn-prim, .btn-sec, .btn-nav { min-height: 56px; font-size: 13px; }
+    .btn-sm { min-height: 48px; font-size: 11px; padding: 0 22px; }
+    .socio-card { padding: 20px 22px; border-radius: 18px; }
+    .sc-nombre { font-size: 21px; }
+    .sc-proto, .sc-alerta { font-size: 11px; }
+    .sc-accion { min-height: 50px; font-size: 10px; }
+    .filter-btn { min-height: 44px; font-size: 10px; padding: 0 18px; }
+    .ej-card-nombre { font-size: 22px; }
+    .ej-card-reps, .ej-card-num { font-size: 10px; }
+    .carga-inp { font-size: 32px; }
+    .carga-lbl, .carga-sug-prev { font-size: 9px; }
+    .carga-sug { font-size: 16px; }
+    .bloque-badge { font-size: 11px; padding: 6px 16px; }
+    .bloque-rol, .bloque-specs { font-size: 10px; }
+    .btn-sets { min-height: 54px; font-size: 12px; }
+    .ses-titulo { font-size: 30px; }
+    .piz-ej-nombre { font-size: 16px; }
+    .vol-titulo { font-size: 28px; }
+    .vol-global { font-size: 56px; }
+    .vol-track { width: 52px; height: 180px; }
+    .vol-badge { width: 44px; height: 44px; font-size: 10px; }
+    .vol-grupo, .vol-sub, .vol-msg { font-size: 10px; }
+    .sem-titulo { font-size: 28px; }
+    .sem-dot { width: 44px; height: 44px; font-size: 17px; }
+    .sem-letra { font-size: 28px; }
+    .sem-sub, .sem-status { font-size: 10px; }
+    .ob-field-label, .ob-input, select.ob-input { font-size: 17px; }
+    .ob-opt { min-height: 52px; font-size: 12px; }
+    .perfil-row .perfil-key, .perfil-row .perfil-val { font-size: 13px; }
+  }
+  @media (min-width: 1100px) {
+    .page { max-width: 880px; }
+  }
+
+  /* Buscador de socios + QR */
+  .busca-wrap { padding: 10px 22px 4px; }
+  .busca-inp { width:100%; min-height:48px; border:1px solid var(--borde); border-radius:14px; background:white;
+               font-family:'Share Tech Mono',monospace; font-size:16px; letter-spacing:0.04em; padding:0 16px 0 42px;
+               background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='18' height='18' viewBox='0 0 24 24' fill='none' stroke='%237A7A78' stroke-width='2'%3E%3Ccircle cx='11' cy='11' r='7'/%3E%3Cpath d='M21 21l-4.3-4.3'/%3E%3C/svg%3E");
+               background-repeat:no-repeat; background-position:14px center; }
+  .busca-inp:focus { outline:none; border-color:var(--negro); }
+  .qr-box { display:flex; justify-content:center; padding:14px 0 6px; }
+  .qr-box img { width:220px; height:220px; image-rendering:pixelated; border-radius:12px; }
+  @media (min-width:768px){ .qr-box img { width:280px; height:280px; } }
 </style>
 </head>
 <body>
@@ -490,7 +549,7 @@
 <div class="page" id="pgSocio">
   <div class="topbar">
     <div><div><img class="koach-logo" data-size="sm" alt="KOACH"></div></div>
-    <div class="tb-right"><button class="btn-sm" onclick="logout()">Salir</button></div>
+    <div class="tb-right"><button class="btn-sm" onclick="mostrarQR()">MI QR</button><button class="btn-sm" onclick="logout()">Salir</button></div>
   </div>
   <div class="welcome-block">
     <div class="wb-label">Bienvenido</div>
@@ -626,6 +685,7 @@
       <div><div class="sec-titulo" id="sociosTitulo">Socios</div><div class="sec-meta" id="sociosMeta">—</div></div>
       <button class="btn-nuevo" onclick="goTo('pgOnboarding')">+ Nuevo</button>
     </div>
+    <div class="busca-wrap"><input class="busca-inp" id="buscaSocio" placeholder="Buscar socio..." oninput="buscarSocios(this.value)" autocomplete="off"></div>
     <div class="filter-bar">
       <div class="filter-btn active" onclick="filtrarSocios('todos',this)">Todos</div>
       <div class="filter-btn" onclick="filtrarSocios('activos',this)">Activos</div>
@@ -886,6 +946,64 @@
   .k-confirm-s { font-family:'Share Tech Mono',monospace; font-size:9px; letter-spacing:0.1em; color:var(--gris); margin:8px 0 20px; line-height:1.6; }
   .k-confirm-card .btn-prim { min-height:50px; margin-bottom:8px; }
   .k-confirm-card .btn-sec { min-height:46px; }
+
+  /* ── CAPA TABLET (coach en sala) · el móvil no cambia ── */
+  @media (min-width: 768px) {
+    .page { max-width: 760px; }
+    #pgLogin { justify-content: center; }
+    .login-block, .login-card { max-width: 560px; margin-left:auto; margin-right:auto; }
+    .topbar, .ses-topbar { padding-left: 8px; padding-right: 8px; }
+    .wb-nombre { font-size: 54px; }
+    .wb-label, .wb-meta { font-size: 11px; }
+    .nav-card { padding: 26px 28px; border-radius: 24px; }
+    .nc-label { font-size: 10px; }
+    .nc-titulo { font-size: 30px; }
+    .nc-desc { font-size: 11px; }
+    .nc-arrow { font-size: 26px; }
+    .btn-prim, .btn-sec, .btn-nav { min-height: 56px; font-size: 13px; }
+    .btn-sm { min-height: 48px; font-size: 11px; padding: 0 22px; }
+    .socio-card { padding: 20px 22px; border-radius: 18px; }
+    .sc-nombre { font-size: 21px; }
+    .sc-proto, .sc-alerta { font-size: 11px; }
+    .sc-accion { min-height: 50px; font-size: 10px; }
+    .filter-btn { min-height: 44px; font-size: 10px; padding: 0 18px; }
+    .ej-card-nombre { font-size: 22px; }
+    .ej-card-reps, .ej-card-num { font-size: 10px; }
+    .carga-inp { font-size: 32px; }
+    .carga-lbl, .carga-sug-prev { font-size: 9px; }
+    .carga-sug { font-size: 16px; }
+    .bloque-badge { font-size: 11px; padding: 6px 16px; }
+    .bloque-rol, .bloque-specs { font-size: 10px; }
+    .btn-sets { min-height: 54px; font-size: 12px; }
+    .ses-titulo { font-size: 30px; }
+    .piz-ej-nombre { font-size: 16px; }
+    .vol-titulo { font-size: 28px; }
+    .vol-global { font-size: 56px; }
+    .vol-track { width: 52px; height: 180px; }
+    .vol-badge { width: 44px; height: 44px; font-size: 10px; }
+    .vol-grupo, .vol-sub, .vol-msg { font-size: 10px; }
+    .sem-titulo { font-size: 28px; }
+    .sem-dot { width: 44px; height: 44px; font-size: 17px; }
+    .sem-letra { font-size: 28px; }
+    .sem-sub, .sem-status { font-size: 10px; }
+    .ob-field-label, .ob-input, select.ob-input { font-size: 17px; }
+    .ob-opt { min-height: 52px; font-size: 12px; }
+    .perfil-row .perfil-key, .perfil-row .perfil-val { font-size: 13px; }
+  }
+  @media (min-width: 1100px) {
+    .page { max-width: 880px; }
+  }
+
+  /* Buscador de socios + QR */
+  .busca-wrap { padding: 10px 22px 4px; }
+  .busca-inp { width:100%; min-height:48px; border:1px solid var(--borde); border-radius:14px; background:white;
+               font-family:'Share Tech Mono',monospace; font-size:16px; letter-spacing:0.04em; padding:0 16px 0 42px;
+               background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='18' height='18' viewBox='0 0 24 24' fill='none' stroke='%237A7A78' stroke-width='2'%3E%3Ccircle cx='11' cy='11' r='7'/%3E%3Cpath d='M21 21l-4.3-4.3'/%3E%3C/svg%3E");
+               background-repeat:no-repeat; background-position:14px center; }
+  .busca-inp:focus { outline:none; border-color:var(--negro); }
+  .qr-box { display:flex; justify-content:center; padding:14px 0 6px; }
+  .qr-box img { width:220px; height:220px; image-rendering:pixelated; border-radius:12px; }
+  @media (min-width:768px){ .qr-box img { width:280px; height:280px; } }
 </style>
 
 <script>
@@ -1057,9 +1175,11 @@ async function loadProfileAndEnter() {
     if (profile.role === 'admin') {
       await loadAdminData()
       goTo('pgAdmin')
+      manejarHashQR()
     } else if (profile.role === 'coach') {
       await loadCoachData()
       goTo('pgCoach')
+      manejarHashQR()
     } else {
       await loadSocioData()
       goTo('pgSocio')
@@ -2754,6 +2874,55 @@ function koachConfirm(titulo, sub, onOk) {
   document.getElementById('kConfS').textContent = sub || ''
   document.getElementById('kConfOk').onclick = () => { m.classList.remove('vis'); onOk() }
   m.classList.add('vis')
+}
+
+
+// ── QR DE SOCIO + BUSCADOR ──
+function mostrarQR() {
+  if (!STATE.profile) return
+  const url = location.origin + location.pathname + '#socio=' + STATE.profile.id
+  const qr = qrcode(0, 'M')
+  qr.addData(url)
+  qr.make()
+  let m = document.getElementById('kConfirm')
+  koachConfirm('TU CÓDIGO KOACH', 'Muéstraselo a tu coach para abrir tu rutina al instante.', () => {})
+  const card = document.querySelector('#kConfirm .k-confirm-card')
+  let box = document.getElementById('kQrBox')
+  if (!box) {
+    box = document.createElement('div'); box.id = 'kQrBox'; box.className = 'qr-box'
+    card.insertBefore(box, document.getElementById('kConfOk'))
+  }
+  box.innerHTML = qr.createImgTag(6, 8)
+  document.getElementById('kConfOk').style.display = 'none'
+  document.getElementById('kConfNo').textContent = 'Cerrar'
+  const cerrar = () => { box.remove(); document.getElementById('kConfOk').style.display = ''; document.getElementById('kConfNo').textContent = 'Cancelar' }
+  document.getElementById('kConfNo').onclick = () => { document.getElementById('kConfirm').classList.remove('vis'); cerrar() }
+}
+
+async function manejarHashQR() {
+  const m = (location.hash || '').match(/#socio=([0-9a-f-]{36})/i)
+  if (!m) return
+  history.replaceState(null, '', location.pathname)
+  const id = m[1]
+  const { data: s } = await sb.from('profiles')
+    .select('*, asignaciones(*, protocolos(nombre, programa, nivel))')
+    .eq('id', id).single()
+  if (!s) { koachToast('Socio no encontrado'); return }
+  const { data: ult } = await sb.from('sesiones_registro')
+    .select('fecha').eq('socio_id', id).eq('estado', 'completada')
+    .order('fecha', { ascending: false }).limit(1)
+  s.ultima_sesion = ult && ult[0] ? ult[0].fecha : null
+  verPerfil(s)
+  koachToast('Perfil abierto por QR: ' + s.nombre)
+}
+
+function buscarSocios(txt) {
+  const base = STATE.sociosDemo || []
+  const q = (txt || '').trim().toLowerCase()
+  const filtrados = q
+    ? base.filter(s => (`${s.nombre} ${s.apellido || ''} ${s.email || ''}`).toLowerCase().includes(q))
+    : base
+  renderSocios(filtrados)
 }
 
 // Wire botón "+ Nuevo" del panel coach
