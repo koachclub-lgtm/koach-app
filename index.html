@@ -513,6 +513,43 @@
   .qr-box { display:flex; justify-content:center; padding:14px 0 6px; }
   .qr-box img { width:220px; height:220px; image-rendering:pixelated; border-radius:12px; }
   @media (min-width:768px){ .qr-box img { width:280px; height:280px; } }
+
+  /* ── CAPA PANEL ANCHO (tablet horizontal / pantallas grandes) ── */
+  @media (min-width: 1000px) {
+    .page { max-width: 1120px; }
+    .nav-list { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; align-items: stretch; }
+    .nav-list > * { margin: 0; }
+    .nav-card.hero { grid-column: 1 / -1; }
+    .nav-list > :last-child { grid-column: 1 / -1; }
+    .nav-card { display: flex; align-items: center; }
+    .socios-list:not(#modLista):not(#iaSelectorList) {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 14px; align-items: start;
+    }
+    .socios-list:not(#modLista):not(#iaSelectorList) > * { margin: 0; }
+    .busca-wrap, .filter-bar { max-width: none; }
+    .welcome-block { padding-bottom: 18px; }
+  }
+
+  /* ── PROGRAMADOR VISUAL DE VOLUMEN ── */
+  .prog-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; padding:6px 22px 10px; }
+  @media (min-width:768px){ .prog-grid { grid-template-columns:repeat(3,1fr); gap:12px; } }
+  .prog-card { background:white; border:1px solid var(--borde); border-radius:18px; padding:12px 12px 10px;
+               display:flex; flex-direction:column; gap:6px; user-select:none; }
+  .prog-card.min { border-color:var(--ok); }
+  .prog-card.full { border-color:var(--negro); background:var(--negro); color:var(--offwhite); }
+  .prog-card.over { border-color:var(--danger); }
+  .prog-g { font-family:'Share Tech Mono',monospace; font-size:9px; letter-spacing:0.14em; text-transform:uppercase; }
+  .prog-n { font-family:'Barlow Condensed',sans-serif; font-weight:900; font-size:38px; line-height:0.9; text-align:center; }
+  .prog-band { font-family:'Share Tech Mono',monospace; font-size:7.5px; letter-spacing:0.06em; color:var(--gris); text-align:center; }
+  .prog-card.full .prog-band { color:rgba(242,241,239,0.6); }
+  .prog-btns { display:flex; gap:8px; }
+  .prog-btns button { flex:1; min-height:44px; border-radius:12px; border:1px solid var(--borde); background:var(--offwhite);
+                      font-family:'Barlow Condensed',sans-serif; font-weight:900; font-size:22px; }
+  .prog-card.full .prog-btns button { background:rgba(242,241,239,0.12); color:var(--offwhite); border-color:rgba(242,241,239,0.25); }
+  .prog-btns button:disabled { opacity:0.25; }
+  .prog-resumen { margin:6px 22px 0; background:var(--negro); color:var(--offwhite); border-radius:16px; padding:12px 16px;
+                  font-family:'Share Tech Mono',monospace; font-size:9px; letter-spacing:0.08em; line-height:1.7; }
+  .prog-preview { padding:4px 22px 20px; }
 </style>
 </head>
 <body>
@@ -1004,6 +1041,43 @@
   .qr-box { display:flex; justify-content:center; padding:14px 0 6px; }
   .qr-box img { width:220px; height:220px; image-rendering:pixelated; border-radius:12px; }
   @media (min-width:768px){ .qr-box img { width:280px; height:280px; } }
+
+  /* ── CAPA PANEL ANCHO (tablet horizontal / pantallas grandes) ── */
+  @media (min-width: 1000px) {
+    .page { max-width: 1120px; }
+    .nav-list { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; align-items: stretch; }
+    .nav-list > * { margin: 0; }
+    .nav-card.hero { grid-column: 1 / -1; }
+    .nav-list > :last-child { grid-column: 1 / -1; }
+    .nav-card { display: flex; align-items: center; }
+    .socios-list:not(#modLista):not(#iaSelectorList) {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 14px; align-items: start;
+    }
+    .socios-list:not(#modLista):not(#iaSelectorList) > * { margin: 0; }
+    .busca-wrap, .filter-bar { max-width: none; }
+    .welcome-block { padding-bottom: 18px; }
+  }
+
+  /* ── PROGRAMADOR VISUAL DE VOLUMEN ── */
+  .prog-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; padding:6px 22px 10px; }
+  @media (min-width:768px){ .prog-grid { grid-template-columns:repeat(3,1fr); gap:12px; } }
+  .prog-card { background:white; border:1px solid var(--borde); border-radius:18px; padding:12px 12px 10px;
+               display:flex; flex-direction:column; gap:6px; user-select:none; }
+  .prog-card.min { border-color:var(--ok); }
+  .prog-card.full { border-color:var(--negro); background:var(--negro); color:var(--offwhite); }
+  .prog-card.over { border-color:var(--danger); }
+  .prog-g { font-family:'Share Tech Mono',monospace; font-size:9px; letter-spacing:0.14em; text-transform:uppercase; }
+  .prog-n { font-family:'Barlow Condensed',sans-serif; font-weight:900; font-size:38px; line-height:0.9; text-align:center; }
+  .prog-band { font-family:'Share Tech Mono',monospace; font-size:7.5px; letter-spacing:0.06em; color:var(--gris); text-align:center; }
+  .prog-card.full .prog-band { color:rgba(242,241,239,0.6); }
+  .prog-btns { display:flex; gap:8px; }
+  .prog-btns button { flex:1; min-height:44px; border-radius:12px; border:1px solid var(--borde); background:var(--offwhite);
+                      font-family:'Barlow Condensed',sans-serif; font-weight:900; font-size:22px; }
+  .prog-card.full .prog-btns button { background:rgba(242,241,239,0.12); color:var(--offwhite); border-color:rgba(242,241,239,0.25); }
+  .prog-btns button:disabled { opacity:0.25; }
+  .prog-resumen { margin:6px 22px 0; background:var(--negro); color:var(--offwhite); border-radius:16px; padding:12px 16px;
+                  font-family:'Share Tech Mono',monospace; font-size:9px; letter-spacing:0.08em; line-height:1.7; }
+  .prog-preview { padding:4px 22px 20px; }
 </style>
 
 <script>
@@ -1244,6 +1318,7 @@ async function loadSocioData() {
     .from('sesiones_protocolo')
     .select('*')
     .eq('protocolo_id', proto.id)
+    .lte('numero', 3)
     .order('numero')
   STATE.sesionesBase = sesionesBase || []
   const baseIds = STATE.sesionesBase.map(s => s.id)
@@ -1496,7 +1571,7 @@ async function cargarExtrasSocio() {
       card.onclick = () => abrirExtra(ex)
       card.innerHTML = `<div class="nc-left">
         <div class="nc-label" style="color:var(--purple);">Sesión adicional</div>
-        <div class="nc-titulo">${ex.programa} · RUTINA ${'ABC'[(ex.rutina || 1) - 1]}</div>
+        <div class="nc-titulo">${ex.notas === 'PERSONALIZADA' ? 'SESIÓN PERSONALIZADA' : ex.programa + ' · RUTINA ' + 'ABC'[(ex.rutina || 1) - 1]}</div>
         <div class="nc-desc">Asignada por tu coach</div>
       </div><div class="nc-arrow">→</div>`
       nav.insertBefore(card, nav.children[1] || null)
@@ -1518,7 +1593,7 @@ async function loadPizarra(sesion, asig, profile) {
   // Header pizarra
   document.getElementById('pizNombre').textContent = profile.nombre.toUpperCase()
   document.getElementById('pizFecha').textContent = getFechaHoy() + '\nSEMANA ' + String(asig.semana_actual).padStart(2,'0') + ' / 06'
-  document.getElementById('pizSesId').textContent = `RUTINA ${'ABC'[sesion.numero - 1]} · ${sesion.nombre.split('—')[0].trim()}`
+  document.getElementById('pizSesId').textContent = `${sesion.numero <= 3 ? 'RUTINA ' + 'ABC'[sesion.numero - 1] : 'PERSONALIZADA'} · ${sesion.nombre.split('—')[0].trim()}`
   document.getElementById('pizSesObj').textContent = (sesion.objetivo || '').replace('·','\n')
   document.getElementById('pizFrase').textContent = FRASES[Math.floor(Math.random() * FRASES.length)]
   document.getElementById('pizPrograma').textContent = `MÉTODO KOACH · SISTEMA ${asig.protocolos?.programa || ''}`
@@ -1803,7 +1878,7 @@ async function loadCoachData() {
   // Intentar cargar socios reales desde DB
   const { data: sociosDB } = await sb
     .from('profiles')
-    .select('*, asignaciones(*, protocolos(nombre, programa, nivel))')
+    .select('*, asignaciones!socio_id(*, protocolos(nombre, programa, nivel))')
     .eq('role', 'socio')
     .eq('activo', true)
 
@@ -2045,11 +2120,33 @@ document.querySelectorAll('.koach-logo').forEach(img => img.src = LOGO_SRC);
   </div>
 
   <div style="padding:14px 22px 28px;display:flex;flex-direction:column;gap:8px;">
-    <button class="btn-prim" onclick="abrirModRutina()">MODIFICAR RUTINA →</button>
+    <button class="btn-prim" onclick="abrirProgramador()">PROGRAMAR SESIÓN →</button>
+    <button class="btn-sec" onclick="abrirModRutina()">Modificar rutina base</button>
     <button class="btn-sec" id="btnWsPerfil" onclick="wsPerfil()">WhatsApp →</button>
   </div>
 </div>
 
+
+
+<!-- PAGE: PROGRAMADOR VISUAL (coach/admin) -->
+<div class="page" id="pgProgramador">
+  <div class="topbar">
+    <div><img class="koach-logo" data-size="sm" alt="KOACH"></div>
+    <div class="tb-right"><button class="btn-sm" onclick="goTo('pgPerfilSocio')">← Perfil</button></div>
+  </div>
+  <div class="welcome-block">
+    <div class="wb-label">Pizarra de volumen</div>
+    <div class="wb-nombre" id="progNombre">—</div>
+    <div class="wb-meta">Toca + para sumar series · el límite MRV manda</div>
+  </div>
+  <div class="prog-grid" id="progGrid"></div>
+  <div class="prog-resumen" id="progResumen">Selecciona volumen por grupo</div>
+  <div class="prog-preview" id="progPreview"></div>
+  <div class="piz-footer" style="padding:10px 22px calc(24px + env(safe-area-inset-bottom));display:flex;flex-direction:column;gap:8px;">
+    <button class="btn-prim" id="btnProgGenerar" onclick="progGenerar()">GENERAR SESIÓN →</button>
+    <button class="btn-sec" onclick="progReset()">Limpiar pizarra</button>
+  </div>
+</div>
 
 <!-- ══════════════════════════════════════════════
      PAGE: MODIFICAR RUTINA (coach/admin)
@@ -2905,7 +3002,7 @@ async function manejarHashQR() {
   history.replaceState(null, '', location.pathname)
   const id = m[1]
   const { data: s } = await sb.from('profiles')
-    .select('*, asignaciones(*, protocolos(nombre, programa, nivel))')
+    .select('*, asignaciones!socio_id(*, protocolos(nombre, programa, nivel))')
     .eq('id', id).single()
   if (!s) { koachToast('Socio no encontrado'); return }
   const { data: ult } = await sb.from('sesiones_registro')
@@ -2923,6 +3020,159 @@ function buscarSocios(txt) {
     ? base.filter(s => (`${s.nombre} ${s.apellido || ''} ${s.email || ''}`).toLowerCase().includes(q))
     : base
   renderSocios(filtrados)
+}
+
+// ── PROGRAMADOR VISUAL DE VOLUMEN ──
+const PROG_GRUPOS = ['GLÚTEOS','CUÁDRICEPS','ISQUIOS','ESPALDA','PECHO','HOMBROS','BRAZOS','CORE','CARDIO']
+let PROG = { sel: {}, bandas: {}, socio: null, ejercicios: [], preview: null }
+
+async function abrirProgramador() {
+  if (!['admin','coach'].includes(STATE.profile?.role)) { koachToast('Solo equipo coach.'); return }
+  const s = socioPerfilActual
+  if (esDemo(s)) { koachToast('Socio de demostración.'); return }
+  const protoId = s.asignaciones?.[0]?.protocolo_id
+  if (!protoId) { koachToast('El socio no tiene protocolo asignado.'); return }
+  PROG = { sel: {}, bandas: {}, socio: s, ejercicios: [], preview: null, protoId }
+  document.getElementById('progNombre').textContent = `${s.nombre} ${s.apellido || ''}`.toUpperCase()
+  document.getElementById('progPreview').innerHTML = ''
+  goTo('pgProgramador')
+
+  const { data: ses } = await sb.from('sesiones_protocolo').select('id').eq('protocolo_id', protoId).lte('numero', 3)
+  const ids = (ses || []).map(x => x.id)
+  const porSesion = await volumenPorSesion(ids)
+  const plan = {}
+  ids.forEach(id => Object.entries(porSesion[id] || {}).forEach(([g, v]) => plan[g] = (plan[g] || 0) + v))
+  PROG_GRUPOS.forEach(g => {
+    if (g === 'CARDIO') { PROG.bandas[g] = { mev: 0, mav: 4, mrv: 8 }; return }
+    const p = plan[g] || 6
+    PROG.bandas[g] = { mev: Math.ceil(p * 0.7), mav: p, mrv: Math.ceil(p * 1.3) }
+  })
+  const { data: ejs } = await sb.from('ejercicios').select('id, nombre, grupo_muscular, con_carga')
+  PROG.ejercicios = ejs || []
+  progRender()
+}
+
+function progRender() {
+  const grid = document.getElementById('progGrid')
+  grid.innerHTML = PROG_GRUPOS.map(g => {
+    const n = PROG.sel[g] || 0
+    const b = PROG.bandas[g]
+    let cls = ''
+    if (n > 0 && n >= b.mrv) cls = 'over'
+    else if (n >= b.mav && n > 0) cls = 'full'
+    else if (n >= b.mev && n > 0) cls = 'min'
+    return `<div class="prog-card ${cls}">
+      <div class="prog-g">${g}</div>
+      <div class="prog-n">${n}</div>
+      <div class="prog-band">MEV ${b.mev} · OBJ ${b.mav} · MAX ${b.mrv}</div>
+      <div class="prog-btns">
+        <button onclick="progMod('${g}',-1)" ${n <= 0 ? 'disabled' : ''}>−</button>
+        <button onclick="progMod('${g}',1)" ${n >= b.mrv ? 'disabled' : ''}>+</button>
+      </div>
+    </div>`
+  }).join('')
+  const tot = Object.values(PROG.sel).reduce((a, b) => a + b, 0)
+  const bajo = PROG_GRUPOS.filter(g => (PROG.sel[g] || 0) > 0 && (PROG.sel[g] || 0) < PROG.bandas[g].mev && g !== 'CARDIO')
+  document.getElementById('progResumen').textContent =
+    tot === 0 ? 'Selecciona volumen por grupo' :
+    `${tot} SERIES TOTALES` + (bajo.length ? ` · BAJO MÍNIMO: ${bajo.join(', ')}` : ' · BALANCE OK')
+}
+
+function progMod(g, d) {
+  const b = PROG.bandas[g]
+  PROG.sel[g] = Math.max(0, Math.min(b.mrv, (PROG.sel[g] || 0) + d))
+  if (PROG.sel[g] === 0) delete PROG.sel[g]
+  PROG.preview = null
+  document.getElementById('progPreview').innerHTML = ''
+  document.getElementById('btnProgGenerar').textContent = 'GENERAR SESIÓN →'
+  progRender()
+}
+
+function progReset() {
+  PROG.sel = {}; PROG.preview = null
+  document.getElementById('progPreview').innerHTML = ''
+  document.getElementById('btnProgGenerar').textContent = 'GENERAR SESIÓN →'
+  progRender()
+}
+
+function progPick(g, n) {
+  const pool = PROG.ejercicios.filter(e => e.grupo_muscular === g)
+  const out = []
+  const usados = new Set()
+  for (let i = 0; i < n && pool.length; i++) {
+    let e, tries = 0
+    do { e = pool[Math.floor(Math.random() * pool.length)]; tries++ } while (usados.has(e.id) && tries < 20)
+    usados.add(e.id); out.push(e)
+  }
+  return out
+}
+
+function progGenerar() {
+  const grupos = Object.keys(PROG.sel)
+  if (!grupos.length) { koachToast('La pizarra está vacía.'); return }
+  if (!PROG.preview) {
+    const fuerza = grupos.filter(g => g !== 'CORE' && g !== 'CARDIO').sort((a, b) => (PROG.sel[b] || 0) - (PROG.sel[a] || 0))
+    const b1g = grupos.filter(g => g === 'CORE' || g === 'CARDIO')
+    const b2g = fuerza.slice(0, 2)
+    const b3g = fuerza.slice(2)
+    const mk = (gs, sets) => gs.flatMap(g => progPick(g, Math.max(1, Math.round((PROG.sel[g] || 0) / sets))))
+    const p = {
+      B1: { sets: 2, desc: 45, rol: 'activacion', ejs: b1g.length ? mk(b1g, 2) : progPick('CORE', 1) },
+      B2: { sets: 4, desc: 90, rol: 'fuerza_principal', ejs: mk(b2g, 4) },
+      B3: { sets: 3, desc: 60, rol: 'cierre_accesorio', ejs: b3g.length ? mk(b3g, 3) : [] }
+    }
+    if (!p.B2.ejs.length && p.B3.ejs.length) { p.B2.ejs = p.B3.ejs; p.B3.ejs = [] }
+    if (!p.B2.ejs.length) { koachToast('Agrega al menos un grupo de fuerza.'); return }
+    PROG.preview = p
+    document.getElementById('progPreview').innerHTML = ['B1','B2','B3'].filter(k => p[k].ejs.length).map(k => `
+      <div class="bloque-head" style="margin-top:10px;"><div class="bloque-badge">${k}</div>
+      <div class="bloque-specs">${p[k].sets} SETS · ${p[k].desc}'' DESC</div></div>` +
+      p[k].ejs.map((e, i) => `<div class="piz-ej"><span class="piz-ej-num">${String(i + 1).padStart(2, '0')}</span>
+        <span class="piz-ej-nombre">${e.nombre}${k === 'B2' && i === 0 ? ' ◆' : ''}</span></div>`).join('')
+    ).join('')
+    document.getElementById('btnProgGenerar').textContent = 'ASIGNAR AL SOCIO ✓'
+    koachToast('Revisa la propuesta. Vuelve a tocar para asignar.')
+    return
+  }
+  koachConfirm('¿Asignar esta sesión?', `Se crea como sesión personalizada y aparece en el inicio de ${PROG.socio.nombre}.`, progAsignar)
+}
+
+async function progAsignar() {
+  const p = PROG.preview
+  const btn = document.getElementById('btnProgGenerar')
+  btn.classList.add('loading'); btn.textContent = 'ASIGNANDO...'
+  try {
+    const { data: maxN } = await sb.from('sesiones_protocolo').select('numero').eq('protocolo_id', PROG.protoId).order('numero', { ascending: false }).limit(1)
+    const numero = Math.max(4, ((maxN && maxN[0]?.numero) || 3) + 1)
+    const hoy = new Date().toISOString().split('T')[0]
+    const { data: ses, error: e1 } = await sb.from('sesiones_protocolo')
+      .insert({ protocolo_id: PROG.protoId, numero, nombre: `PERSONALIZADA — ${hoy}`, objetivo: 'Sesión programada por tu coach' })
+      .select().single()
+    if (e1) throw new Error(e1.message)
+    for (const k of ['B1','B2','B3']) {
+      if (!p[k].ejs.length) continue
+      const { data: blo, error: e2 } = await sb.from('bloques')
+        .insert({ sesion_id: ses.id, bloque: k, rol: p[k].rol, sets: p[k].sets, descanso_segundos: p[k].desc })
+        .select().single()
+      if (e2) throw new Error(e2.message)
+      const filas = p[k].ejs.map((e, i) => ({ bloque_id: blo.id, ejercicio_id: e.id, orden: i + 1, es_ancla: k === 'B2' && i === 0 }))
+      const { error: e3 } = await sb.from('bloque_ejercicios').insert(filas)
+      if (e3) throw new Error(e3.message)
+    }
+    const { error: e4 } = await sb.from('sesiones_extra').insert({
+      socio_id: PROG.socio.id, programa: PROG.socio.asignaciones[0].protocolos?.programa || 'STRONG',
+      rutina: 1, protocolo_id: PROG.protoId, sesion_protocolo_id: ses.id,
+      estado: 'pendiente', asignada_por: STATE.profile?.id || null, notas: 'PERSONALIZADA'
+    })
+    if (e4) throw new Error(e4.message)
+    koachToast(`Sesión personalizada asignada a ${PROG.socio.nombre}.`)
+    progReset()
+    goTo('pgPerfilSocio')
+    cargarExtrasPerfil()
+  } catch (e) {
+    koachToast('Error: ' + e.message + ' — si es de permisos, ejecuta koach-programador.sql')
+  }
+  btn.classList.remove('loading'); btn.textContent = 'GENERAR SESIÓN →'
 }
 
 // Wire botón "+ Nuevo" del panel coach
