@@ -424,6 +424,36 @@
   .piz-footer { padding-bottom:calc(20px + env(safe-area-inset-bottom)); }
   .nav-list { padding-bottom:calc(28px + env(safe-area-inset-bottom)); }
   input, select { touch-action:manipulation; }
+
+  /* ── UX TACTIL v2: navegación con dedos, no con cursor ── */
+  .btn-sm { min-height:44px; padding:0 18px; font-size:10px; letter-spacing:0.14em;
+            display:inline-flex; align-items:center; justify-content:center; border-radius:999px; }
+  .topbar { position:sticky; top:0; z-index:60; background:var(--offwhite);
+            padding-top:calc(10px + env(safe-area-inset-top)); box-shadow:0 1px 0 var(--borde); }
+  .ses-topbar { position:sticky; top:0; z-index:60; background:var(--offwhite);
+                padding-top:calc(10px + env(safe-area-inset-top)); }
+  .ses-toprow .btn-sm, .topbar .btn-sm { background:var(--negro); color:var(--offwhite); border:none; }
+  .btn-nav { min-height:52px; font-size:12px; }
+  .btn-marcar { min-height:40px; padding:0 16px; display:inline-flex; align-items:center; }
+  .sc-accion { min-height:44px; }
+  .filter-btn { min-height:38px; display:inline-flex; align-items:center; }
+  .piz-footer .btn-prim, .piz-footer .btn-sec { min-height:52px; }
+  .ob-footer .btn-prim, .ob-footer .btn-sec { min-height:50px; }
+
+  /* ── DIALOGOS KOACH: nada de popups del navegador ── */
+  .k-toast { position:fixed; left:50%; bottom:calc(28px + env(safe-area-inset-bottom)); transform:translateX(-50%) translateY(20px);
+             background:var(--negro); color:var(--offwhite); font-family:'Share Tech Mono',monospace; font-size:10px;
+             letter-spacing:0.08em; padding:14px 20px; border-radius:999px; max-width:88vw; text-align:center;
+             opacity:0; transition:all .25s ease; z-index:300; pointer-events:none; }
+  .k-toast.vis { opacity:1; transform:translateX(-50%) translateY(0); }
+  .k-confirm { position:fixed; inset:0; background:rgba(10,10,10,0.55); z-index:290; display:none;
+               align-items:center; justify-content:center; padding:22px; }
+  .k-confirm.vis { display:flex; }
+  .k-confirm-card { background:var(--offwhite); border-radius:22px; padding:26px 22px 18px; width:100%; max-width:380px; }
+  .k-confirm-t { font-family:'Barlow Condensed',sans-serif; font-weight:900; font-size:24px; text-transform:uppercase; line-height:1.05; }
+  .k-confirm-s { font-family:'Share Tech Mono',monospace; font-size:9px; letter-spacing:0.1em; color:var(--gris); margin:8px 0 20px; line-height:1.6; }
+  .k-confirm-card .btn-prim { min-height:50px; margin-bottom:8px; }
+  .k-confirm-card .btn-sec { min-height:46px; }
 </style>
 </head>
 <body>
@@ -826,6 +856,36 @@
   .piz-footer { padding-bottom:calc(20px + env(safe-area-inset-bottom)); }
   .nav-list { padding-bottom:calc(28px + env(safe-area-inset-bottom)); }
   input, select { touch-action:manipulation; }
+
+  /* ── UX TACTIL v2: navegación con dedos, no con cursor ── */
+  .btn-sm { min-height:44px; padding:0 18px; font-size:10px; letter-spacing:0.14em;
+            display:inline-flex; align-items:center; justify-content:center; border-radius:999px; }
+  .topbar { position:sticky; top:0; z-index:60; background:var(--offwhite);
+            padding-top:calc(10px + env(safe-area-inset-top)); box-shadow:0 1px 0 var(--borde); }
+  .ses-topbar { position:sticky; top:0; z-index:60; background:var(--offwhite);
+                padding-top:calc(10px + env(safe-area-inset-top)); }
+  .ses-toprow .btn-sm, .topbar .btn-sm { background:var(--negro); color:var(--offwhite); border:none; }
+  .btn-nav { min-height:52px; font-size:12px; }
+  .btn-marcar { min-height:40px; padding:0 16px; display:inline-flex; align-items:center; }
+  .sc-accion { min-height:44px; }
+  .filter-btn { min-height:38px; display:inline-flex; align-items:center; }
+  .piz-footer .btn-prim, .piz-footer .btn-sec { min-height:52px; }
+  .ob-footer .btn-prim, .ob-footer .btn-sec { min-height:50px; }
+
+  /* ── DIALOGOS KOACH: nada de popups del navegador ── */
+  .k-toast { position:fixed; left:50%; bottom:calc(28px + env(safe-area-inset-bottom)); transform:translateX(-50%) translateY(20px);
+             background:var(--negro); color:var(--offwhite); font-family:'Share Tech Mono',monospace; font-size:10px;
+             letter-spacing:0.08em; padding:14px 20px; border-radius:999px; max-width:88vw; text-align:center;
+             opacity:0; transition:all .25s ease; z-index:300; pointer-events:none; }
+  .k-toast.vis { opacity:1; transform:translateX(-50%) translateY(0); }
+  .k-confirm { position:fixed; inset:0; background:rgba(10,10,10,0.55); z-index:290; display:none;
+               align-items:center; justify-content:center; padding:22px; }
+  .k-confirm.vis { display:flex; }
+  .k-confirm-card { background:var(--offwhite); border-radius:22px; padding:26px 22px 18px; width:100%; max-width:380px; }
+  .k-confirm-t { font-family:'Barlow Condensed',sans-serif; font-weight:900; font-size:24px; text-transform:uppercase; line-height:1.05; }
+  .k-confirm-s { font-family:'Share Tech Mono',monospace; font-size:9px; letter-spacing:0.1em; color:var(--gris); margin:8px 0 20px; line-height:1.6; }
+  .k-confirm-card .btn-prim { min-height:50px; margin-bottom:8px; }
+  .k-confirm-card .btn-sec { min-height:46px; }
 </style>
 
 <script>
@@ -1534,9 +1594,11 @@ function updateProg() {
   document.getElementById('progFill').style.width = pct + '%'
 }
 
-async function cerrarSesion() {
-  if (!confirm('¿Confirmar cierre de sesión?')) return
+function cerrarSesion() {
+  koachConfirm('¿Guardar la sesión de hoy?', 'Se registran tus cargas y tu rotación avanza a la siguiente rutina.', _cerrarSesionExec)
+}
 
+async function _cerrarSesionExec() {
   const btn = document.getElementById('btnCerrarSes')
   btn.classList.add('loading')
   btn.textContent = 'GUARDANDO...'
@@ -2660,6 +2722,38 @@ function iaRespuestaLocal(txt) {
     cuerpo = `Instrucción recibida sobre ${s.nombre} (${proto}, semana ${semana}/6).`
   }
   return cuerpo + `\n\n⚠ Motor IA no conectado aún: estas respuestas usan solo los datos base del socio. La conexión al motor (Claude vía función serverless) es el siguiente paso técnico.`
+}
+
+
+// ── DIALOGOS KOACH ──
+function koachToast(msg) {
+  let t = document.getElementById('kToast')
+  if (!t) { t = document.createElement('div'); t.id = 'kToast'; t.className = 'k-toast'; document.body.appendChild(t) }
+  t.textContent = String(msg)
+  t.classList.add('vis')
+  clearTimeout(window._kToastT)
+  window._kToastT = setTimeout(() => t.classList.remove('vis'), 3200)
+}
+window.alert = koachToast
+
+function koachConfirm(titulo, sub, onOk) {
+  let m = document.getElementById('kConfirm')
+  if (!m) {
+    m = document.createElement('div'); m.id = 'kConfirm'; m.className = 'k-confirm'
+    m.innerHTML = `<div class="k-confirm-card">
+      <div class="k-confirm-t" id="kConfT"></div>
+      <div class="k-confirm-s" id="kConfS"></div>
+      <button class="btn-prim" id="kConfOk">CONFIRMAR ✓</button>
+      <button class="btn-sec" id="kConfNo">Cancelar</button>
+    </div>`
+    document.body.appendChild(m)
+    m.onclick = e => { if (e.target === m) m.classList.remove('vis') }
+    document.getElementById('kConfNo').onclick = () => m.classList.remove('vis')
+  }
+  document.getElementById('kConfT').textContent = titulo
+  document.getElementById('kConfS').textContent = sub || ''
+  document.getElementById('kConfOk').onclick = () => { m.classList.remove('vis'); onOk() }
+  m.classList.add('vis')
 }
 
 // Wire botón "+ Nuevo" del panel coach
