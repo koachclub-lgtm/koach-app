@@ -2780,7 +2780,7 @@ async function modCargarRutina(num, btn) {
   const [{ data: bloques }, modsRes, ejsRes] = await Promise.all([
     sb.from('bloques').select('*, bloque_ejercicios(*, ejercicios(*))').eq('sesion_id', sesion.id).order('bloque'),
     sb.from('modificaciones').select('id, bloque_ejercicio_id, ejercicios(id, nombre)').eq('socio_id', s.id).eq('activa', true),
-    EJERCICIOS_CACHE ? Promise.resolve({ data: EJERCICIOS_CACHE }) : sb.from('ejercicios').select('id, nombre').order('nombre')
+    EJERCICIOS_CACHE ? Promise.resolve({ data: EJERCICIOS_CACHE }) : sb.from('ejercicios').select('id, nombre').eq('activo', true).order('nombre')
   ])
   EJERCICIOS_CACHE = ejsRes.data || []
   const mods = {}
@@ -3047,7 +3047,7 @@ async function abrirProgramador() {
     const p = plan[g] || 6
     PROG.bandas[g] = { mev: Math.ceil(p * 0.7), mav: p, mrv: Math.ceil(p * 1.3) }
   })
-  const { data: ejs } = await sb.from('ejercicios').select('id, nombre, grupo_muscular, con_carga')
+  const { data: ejs } = await sb.from('ejercicios').select('id, nombre, grupo_muscular, con_carga').eq('activo', true)
   PROG.ejercicios = ejs || []
   progRender()
 }
