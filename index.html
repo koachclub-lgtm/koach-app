@@ -550,6 +550,47 @@
   .prog-resumen { margin:6px 22px 0; background:var(--negro); color:var(--offwhite); border-radius:16px; padding:12px 16px;
                   font-family:'Share Tech Mono',monospace; font-size:9px; letter-spacing:0.08em; line-height:1.7; }
   .prog-preview { padding:4px 22px 20px; }
+
+  /* ── ECUALIZADOR SEMANAL ── */
+  #pgEcualizador { background:#0A0A0A; }
+  #pgEcualizador .topbar { background:#0A0A0A; box-shadow:0 1px 0 rgba(242,241,239,0.12); }
+  .eqz-head { padding:18px 22px 4px; }
+  .eqz-label { font-family:'Share Tech Mono',monospace; font-size:9px; letter-spacing:0.2em; text-transform:uppercase; color:rgba(242,241,239,0.45); }
+  .eqz-nombre { font-family:'Barlow Condensed',sans-serif; font-weight:900; font-size:clamp(30px,7vw,44px); text-transform:uppercase; line-height:0.95; color:var(--offwhite); }
+  .eqz-meta { font-family:'Share Tech Mono',monospace; font-size:8.5px; letter-spacing:0.1em; color:rgba(242,241,239,0.5); margin-top:4px; }
+  .eqz-bud { padding:16px 22px 0; }
+  .eqz-bud-row { display:flex; justify-content:space-between; align-items:baseline; color:var(--offwhite); margin-bottom:8px; }
+  .eqz-bud-n { font-family:'Barlow Condensed',sans-serif; font-weight:900; font-size:30px; }
+  .eqz-bud-bar { height:8px; border-radius:999px; background:rgba(242,241,239,0.08); overflow:hidden; }
+  .eqz-bud-fill { height:100%; border-radius:999px; transition:width .3s; background:linear-gradient(90deg,#FFFFFF,#8A8A88); }
+  .eqz-reglas { display:flex; flex-wrap:wrap; gap:8px; padding:12px 22px 4px; min-height:40px; }
+  .eqz-chip { font-family:'Share Tech Mono',monospace; font-size:8px; letter-spacing:0.1em; text-transform:uppercase;
+              padding:8px 13px; border-radius:999px; border:1px solid rgba(242,241,239,0.14); color:var(--offwhite); }
+  .eqz-chip.warn { border-color:var(--danger); color:#FF9A8C; }
+  .eqz-chip.good { border-color:rgba(39,174,96,0.5); color:#7FD8A4; }
+  .eqz-pilares { display:flex; gap:12px; align-items:flex-end; overflow-x:auto; padding:26px 22px 8px; scrollbar-width:none; }
+  .eqz-pilares::-webkit-scrollbar { display:none; }
+  .eqz-ch { display:flex; flex-direction:column; align-items:center; gap:8px; flex:0 0 auto; }
+  .eqz-track { width:50px; height:190px; border-radius:25px; background:rgba(242,241,239,0.07); position:relative; }
+  .eqz-marca { position:absolute; left:8px; right:8px; height:1px; background:rgba(242,241,239,0.3); }
+  .eqz-marca.mav { background:rgba(242,241,239,0.55); height:2px; }
+  .eqz-fill { position:absolute; bottom:0; left:0; right:0; border-radius:25px; transition:height .25s cubic-bezier(.22,1,.36,1);
+              background:linear-gradient(180deg,#FFFFFF 0%,#DEDDDB 50%,#98978F 100%); }
+  .eqz-fill.bajo { background:linear-gradient(180deg,rgba(242,241,239,0.35),rgba(242,241,239,0.12)); }
+  .eqz-fill.tope { background:linear-gradient(180deg,#FF8A7A,#C0392B); }
+  .eqz-val { position:absolute; left:50%; transform:translate(-50%,50%); width:38px; height:38px; border-radius:50%;
+             background:#1B1B1B; border:1.5px solid rgba(242,241,239,0.25); display:flex; align-items:center; justify-content:center;
+             font-family:'Share Tech Mono',monospace; font-size:11px; color:var(--offwhite); transition:bottom .25s cubic-bezier(.22,1,.36,1); z-index:2; }
+  .eqz-g { font-family:'Share Tech Mono',monospace; font-size:7.5px; letter-spacing:0.12em; color:rgba(242,241,239,0.6); text-transform:uppercase; }
+  .eqz-knobs { display:flex; gap:6px; }
+  .eqz-knobs button { width:44px; height:40px; border-radius:12px; border:1px solid rgba(242,241,239,0.14);
+                      background:rgba(242,241,239,0.06); color:var(--offwhite);
+                      font-family:'Barlow Condensed',sans-serif; font-weight:900; font-size:20px; }
+  .eqz-knobs button:disabled { opacity:0.2; }
+  .eqz-ch.des .eqz-track { box-shadow:0 0 0 1.5px var(--danger); }
+  .eqz-foot { padding:14px 22px calc(26px + env(safe-area-inset-bottom)); display:flex; flex-direction:column; gap:8px; }
+  .eqz-foot .btn-prim { background:var(--offwhite); color:var(--negro); }
+  .eqz-foot .btn-sec { border-color:rgba(242,241,239,0.2); color:var(--offwhite); }
 </style>
 </head>
 <body>
@@ -1298,11 +1339,21 @@ async function calcVolumenSemanal(asig, inicio, semanasTrans) {
       const { data: objs } = await sb.from('volumen_objetivos').select('*').eq('protocolo_id', asig.protocolo_id)
       ;(objs || []).forEach(o => bandas[(o.grupo || '').toUpperCase()] = o)
     } catch (_) {}
-    const banda = g => ({
-      mev: bandas[g]?.mev ?? Math.ceil(plan[g] * 0.7),
-      mav: bandas[g]?.mav ?? plan[g],
-      mrv: bandas[g]?.mrv ?? Math.ceil(plan[g] * 1.3)
-    })
+    // Plan del Ecualizador (coach) tiene prioridad sobre el plan del protocolo
+    let ecu = {}
+    try {
+      const { data: pw } = await sb.from('planes_semanales').select('grupo, series')
+        .eq('socio_id', STATE.profile.id).eq('semana', asig.semana_actual).eq('ciclo', asig.ciclo_actual)
+      ;(pw || []).forEach(r => ecu[r.grupo] = r.series)
+    } catch (_) {}
+    const banda = g => {
+      const base = ecu[g] ?? plan[g]
+      return {
+        mev: bandas[g]?.mev ?? Math.ceil(base * 0.7),
+        mav: bandas[g]?.mav ?? base,
+        mrv: bandas[g]?.mrv ?? Math.ceil(base * 1.3)
+      }
+    }
 
     // Ejecutado por semana
     const ejec = {}, ejecPrev = {}
@@ -1996,12 +2047,40 @@ document.querySelectorAll('.koach-logo').forEach(img => img.src = LOGO_SRC);
 
   <div style="padding:14px 22px 28px;display:flex;flex-direction:column;gap:8px;">
     <button class="btn-prim" onclick="abrirProgramador()">PROGRAMAR SESIÓN →</button>
+    <button class="btn-sec" onclick="abrirEcualizador()" style="background:var(--negro);color:var(--offwhite);border:none;">ECUALIZADOR SEMANAL ⇄</button>
     <button class="btn-sec" onclick="abrirModRutina()">Modificar rutina base</button>
     <button class="btn-sec" id="btnWsPerfil" onclick="wsPerfil()">WhatsApp →</button>
   </div>
 </div>
 
 
+
+
+<!-- PAGE: ECUALIZADOR SEMANAL (coach/admin) -->
+<div class="page" id="pgEcualizador">
+  <div class="topbar">
+    <div><img class="koach-logo" data-size="sm" alt="KOACH" style="filter:invert(1);"></div>
+    <div class="tb-right"><button class="btn-sm" onclick="goTo('pgPerfilSocio')">← Perfil</button></div>
+  </div>
+  <div class="eqz-head">
+    <span class="eqz-label">Ecualizador semanal</span>
+    <div class="eqz-nombre" id="eqNombre">—</div>
+    <div class="eqz-meta" id="eqMeta">—</div>
+  </div>
+  <div class="eqz-bud">
+    <div class="eqz-bud-row">
+      <span class="eqz-label">Presupuesto semanal</span>
+      <span class="eqz-bud-n"><span id="eqBudN">0</span><span style="font-size:16px;color:rgba(242,241,239,0.4);"> / <span id="eqBudT">0</span></span></span>
+    </div>
+    <div class="eqz-bud-bar"><div class="eqz-bud-fill" id="eqBudFill"></div></div>
+  </div>
+  <div class="eqz-reglas" id="eqReglas"></div>
+  <div class="eqz-pilares" id="eqPilares"></div>
+  <div class="eqz-foot">
+    <button class="btn-prim" onclick="eqAplicar()">APLICAR SEMANA →</button>
+    <button class="btn-sec" onclick="eqReset()">Volver al plan base</button>
+  </div>
+</div>
 
 <!-- PAGE: PROGRAMADOR VISUAL (coach/admin) -->
 <div class="page" id="pgProgramador">
@@ -2910,6 +2989,118 @@ function buscarSocios(txt) {
     ? base.filter(s => (`${s.nombre} ${s.apellido || ''} ${s.email || ''}`).toLowerCase().includes(q))
     : base
   renderSocios(filtrados)
+}
+
+// ── ECUALIZADOR SEMANAL (coach/admin) ──
+const EQ_GRUPOS = ['GLÚTEOS','CUÁDRICEPS','ISQUIOS','ESPALDA','PECHO','HOMBROS','BRAZOS','CORE']
+const EQ_PARES = [['PECHO','ESPALDA'],['CUÁDRICEPS','ISQUIOS']]
+const EQ_TOL = 4
+let EQ = { sel:{}, bandas:{}, socio:null, presupuesto:0, semana:1, ciclo:1 }
+
+async function abrirEcualizador() {
+  if (!['admin','coach'].includes(STATE.profile?.role)) { koachToast('Solo equipo coach.'); return }
+  const s = socioPerfilActual
+  if (esDemo(s)) { koachToast('Socio de demostración.'); return }
+  const asig = s.asignaciones?.[0]
+  if (!asig?.protocolo_id) { koachToast('El socio no tiene protocolo asignado.'); return }
+  EQ = { sel:{}, bandas:{}, socio:s, presupuesto:0, semana: asig.semana_actual || 1, ciclo: asig.ciclo_actual || 1, protoId: asig.protocolo_id }
+  document.getElementById('eqNombre').textContent = `${s.nombre} ${s.apellido || ''}`.toUpperCase()
+  document.getElementById('eqMeta').textContent = `SEMANA ${EQ.semana}/6 · CICLO ${EQ.ciclo} · Las perillas nacen en el plan del protocolo`
+  goTo('pgEcualizador')
+  document.getElementById('eqPilares').innerHTML = '<div class="loading-state" style="color:rgba(242,241,239,0.5);">Cargando bandas del protocolo...</div>'
+
+  const { data: ses } = await sb.from('sesiones_protocolo').select('id').eq('protocolo_id', EQ.protoId).lte('numero', 3)
+  const ids = (ses || []).map(x => x.id)
+  const porSesion = await volumenPorSesion(ids)
+  const plan = {}
+  ids.forEach(id => Object.entries(porSesion[id] || {}).forEach(([g, v]) => plan[g] = (plan[g] || 0) + v))
+  let planTotal = 0
+  EQ_GRUPOS.forEach(g => {
+    const p = plan[g] || 4
+    EQ.bandas[g] = { plan: p, mev: Math.max(1, Math.ceil(p * 0.7)), mrv: Math.ceil(p * 1.3) }
+    planTotal += p
+  })
+  EQ.presupuesto = Math.ceil(planTotal * 1.10)
+
+  // Plan semanal ya guardado (si existe) o el plan base
+  let guardado = {}
+  try {
+    const { data: pw } = await sb.from('planes_semanales').select('grupo, series')
+      .eq('socio_id', s.id).eq('semana', EQ.semana).eq('ciclo', EQ.ciclo)
+    ;(pw || []).forEach(r => guardado[r.grupo] = r.series)
+  } catch (_) {}
+  EQ_GRUPOS.forEach(g => EQ.sel[g] = guardado[g] ?? EQ.bandas[g].plan)
+  eqRender()
+}
+
+function eqMod(g, d) {
+  const b = EQ.bandas[g], v = EQ.sel[g] + d
+  if (v < b.mev || v > b.mrv) return
+  const tot = Object.values(EQ.sel).reduce((a, x) => a + x, 0) + d
+  if (d > 0 && tot > EQ.presupuesto) { koachToast('Presupuesto semanal lleno · libera series de otro grupo'); return }
+  EQ.sel[g] = v
+  eqRender()
+}
+
+function eqReset() { EQ_GRUPOS.forEach(g => EQ.sel[g] = EQ.bandas[g].plan); eqRender() }
+
+function eqRender() {
+  const tot = Object.values(EQ.sel).reduce((a, b) => a + b, 0)
+  document.getElementById('eqBudN').textContent = tot
+  document.getElementById('eqBudT').textContent = EQ.presupuesto
+  const fill = document.getElementById('eqBudFill')
+  fill.style.width = Math.min(100, tot / EQ.presupuesto * 100) + '%'
+  fill.style.background = tot >= EQ.presupuesto ? 'var(--danger)' : 'linear-gradient(90deg,#FFFFFF,#8A8A88)'
+
+  const des = {}, chips = []
+  EQ_PARES.forEach(([a, b]) => {
+    const gap = Math.abs(EQ.sel[a] - EQ.sel[b])
+    if (gap > EQ_TOL) { des[a] = des[b] = true; chips.push(`<span class="eqz-chip warn">DESBALANCE ${a} ↔ ${b} · BRECHA ${gap}</span>`) }
+  })
+  if (tot >= EQ.presupuesto) chips.push('<span class="eqz-chip warn">PRESUPUESTO LLENO</span>')
+  if (!chips.length) chips.push('<span class="eqz-chip good">MÉTODO EN EQUILIBRIO ✓</span>')
+  document.getElementById('eqReglas').innerHTML = chips.join('')
+
+  document.getElementById('eqPilares').innerHTML = EQ_GRUPOS.map(g => {
+    const b = EQ.bandas[g], v = EQ.sel[g]
+    const H = 190
+    const px = x => Math.round(x / b.mrv * H)
+    const cls = v >= b.mrv ? 'tope' : (v < b.mev + 0.001 && v <= b.mev ? '' : '')
+    const fillCls = v >= b.mrv ? 'tope' : (v < b.plan ? 'bajo' : '')
+    return `<div class="eqz-ch ${des[g] ? 'des' : ''}">
+      <div class="eqz-track">
+        <div class="eqz-marca" style="bottom:${px(b.mev)}px;"></div>
+        <div class="eqz-marca mav" style="bottom:${px(b.plan)}px;"></div>
+        <div class="eqz-fill ${fillCls}" style="height:${px(v)}px;"></div>
+        <div class="eqz-val" style="bottom:${Math.max(10, Math.min(H - 30, px(v) - 20))}px;">${v}</div>
+      </div>
+      <div class="eqz-g">${g}</div>
+      <div class="eqz-knobs">
+        <button onclick="eqMod('${g}',-1)" ${v <= b.mev ? 'disabled' : ''}>−</button>
+        <button onclick="eqMod('${g}',1)" ${v >= b.mrv ? 'disabled' : ''}>+</button>
+      </div>
+    </div>`
+  }).join('')
+}
+
+function eqAplicar() {
+  koachConfirm('¿Aplicar plan semanal?', `Define el objetivo de la semana ${EQ.semana} de ${EQ.socio.nombre}. Su tarjeta de volumen lo reflejará.`, _eqAplicarExec)
+}
+
+async function _eqAplicarExec() {
+  try {
+    const filas = EQ_GRUPOS.map(g => ({
+      socio_id: EQ.socio.id, semana: EQ.semana, ciclo: EQ.ciclo,
+      grupo: g, series: EQ.sel[g], creado_por: STATE.profile?.id || null
+    }))
+    const { error } = await sb.from('planes_semanales')
+      .upsert(filas, { onConflict: 'socio_id,semana,ciclo,grupo' })
+    if (error) throw new Error(error.message)
+    koachToast(`Plan semanal aplicado a ${EQ.socio.nombre} · semana ${EQ.semana}/6`)
+    goTo('pgPerfilSocio')
+  } catch (e) {
+    koachToast('Error: ' + e.message + ' — ¿corriste koach-ecualizador.sql?')
+  }
 }
 
 // ── PROGRAMADOR VISUAL DE VOLUMEN ──
