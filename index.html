@@ -1503,7 +1503,7 @@ async function loadProfileAndEnter() {
 
     if (profile.role === 'admin') {
       await loadAdminData()
-      goTo('pgAdmin')
+      goTo('pgCoach')
       manejarHashQR()
     } else if (profile.role === 'coach') {
       await loadCoachData()
@@ -2147,7 +2147,9 @@ const SOCIOS_DEMO = [
 
 async function loadCoachData() {
   const p = STATE.profile
-  document.getElementById('coachRolBadge').textContent = p.role === 'admin' ? 'Admin' : 'Coach'
+  const rb = document.getElementById('coachRolBadge')
+  rb.textContent = p.role === 'admin' ? 'Admin ⚙' : 'Coach'
+  if (p.role === 'admin') { rb.style.cursor = 'pointer'; rb.onclick = () => goTo('pgAdmin') }
 
   // Intentar cargar socios reales desde DB
   const { data: sociosDB } = await sb
