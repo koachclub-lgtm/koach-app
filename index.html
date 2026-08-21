@@ -4204,11 +4204,6 @@ async function loadSocioV2() {
   }, 350);
 }
 
-function k2IrSesion() {
-  // Tramo 1: puente a la ejecución existente (pgSocio) — Tramo 2 la reemplaza
-  loadSocioData().then(() => goTo('pgSocio'));
-}
-
 
 // ══ V2 · CAPA DE SESIÓN (Tramo 2) ══
 let K2S = { activada:false, bloquesListos:0, ordenBloques:[], frases:null };
@@ -4256,7 +4251,7 @@ function k2AbrirSesion(){
 }
 
 function k2IrSesion() {
-  loadSocioData().then(() => { goTo('pgSocio'); k2AbrirSesion(); });
+  loadSocioData().then(() => { goTo('pgSesion'); k2AbrirSesion(); });
 }
 
 // Flash por bloque completado (gancho desde completarSets)
