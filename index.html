@@ -690,6 +690,46 @@
 .k2-ovl .k2-titulo{font-size:17px;font-weight:900;margin-bottom:6px;color:#F3F2EF}
 .k2-ovl .k2-bajo{font-size:10px;color:#9A9994;font-weight:700;margin-bottom:22px;letter-spacing:.06em}
 
+
+/* ══ AUTH · registro / recuperar / ojito ══ */
+.pw-wrap{position:relative}
+.pw-wrap .input-field{padding-right:52px}
+.pw-ojo{position:absolute;right:14px;top:50%;transform:translateY(-50%);background:none;border:none;
+  cursor:pointer;font-size:17px;opacity:.55;padding:6px}
+.pw-ojo:active{opacity:1}
+.auth-links{display:flex;justify-content:space-between;margin-top:14px;font-size:10px;letter-spacing:.08em}
+.auth-links a{color:inherit;opacity:.6;text-decoration:underline;cursor:pointer;font-weight:700}
+.auth-ok{display:none;font-size:11px;line-height:1.7;margin-top:10px;padding:12px 14px;border:1px solid currentColor;
+  border-radius:4px;font-weight:700}
+.auth-ok.vis{display:block}
+.auth-vista{display:none}
+.auth-vista.activa{display:block}
+
+
+/* ══ COACH · SALA (dashboard v2) ══ */
+.k2c-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:4px 0 14px}
+.k2c-st{background:rgba(255,255,255,.7);border:1px solid rgba(255,255,255,.85);border-radius:18px;
+  padding:13px 6px;text-align:center;box-shadow:0 6px 18px rgba(30,30,28,.07)}
+.k2c-st b{font-size:22px;font-weight:900;display:block;color:#121210}
+.k2c-st span{font-size:6.5px;letter-spacing:.14em;color:#7C7B76;font-weight:900}
+.k2c-card{background:rgba(255,255,255,.7);border:1px solid rgba(255,255,255,.85);border-radius:20px;
+  padding:14px 16px;margin-bottom:10px;cursor:pointer;box-shadow:0 6px 18px rgba(30,30,28,.07)}
+.k2c-top{display:flex;align-items:center;gap:12px}
+.k2c-av{width:40px;height:40px;border-radius:50%;background:#121210;color:#F3F2EF;display:flex;
+  align-items:center;justify-content:center;font-weight:900;font-size:14px;flex-shrink:0}
+.k2c-n{font-size:13px;font-weight:900;color:#121210}
+.k2c-s{font-size:7.5px;color:#7C7B76;font-weight:800;letter-spacing:.08em;margin-top:2px}
+.k2c-badge{margin-left:auto;font-size:7.5px;font-weight:900;letter-spacing:.08em;padding:6px 10px;border-radius:10px;flex-shrink:0}
+.k2c-badge.hoy{color:#1F9D55;background:rgba(31,157,85,.1)}
+.k2c-badge.off{color:#BEBDB8;background:rgba(18,18,16,.05)}
+.k2c-badge.alerta{color:#C58A3C;background:rgba(197,138,60,.12)}
+.k2c-sem{display:flex;align-items:center;gap:10px;margin-top:11px}
+.k2c-bar{flex:1;position:relative;height:7px;background:rgba(18,18,16,.08);border-radius:5px;overflow:hidden}
+.k2c-fill{position:absolute;top:0;left:0;height:100%;background:#121210;border-radius:5px}
+.k2c-x{font-size:10px;font-weight:900;color:#121210;white-space:nowrap}
+.k2c-x small{color:#BEBDB8;font-weight:900}
+.k2c-void{font-size:10px;color:#7C7B76;font-weight:700;text-align:center;padding:20px}
+
 </style>
 </head>
 <body>
@@ -701,17 +741,77 @@
   <div class="login-inner">
     <div style="margin-bottom:8px;"><img class="koach-logo" data-size="lg" alt="KOACH"></div>
     <div class="login-sub">Método KOACH · Sistema de entrenamiento</div>
-    <div class="login-form">
+    <!-- VISTA · INGRESO -->
+    <div class="login-form auth-vista activa" id="vLogin">
       <div>
         <div class="input-lbl">Email</div>
         <input class="input-field" type="email" id="lEmail" placeholder="tu@email.com" autocomplete="email" inputmode="email">
       </div>
       <div>
         <div class="input-lbl">Contraseña</div>
-        <input class="input-field" type="password" id="lPass" placeholder="••••••••" autocomplete="current-password">
+        <div class="pw-wrap">
+          <input class="input-field" type="password" id="lPass" placeholder="••••••••" autocomplete="current-password">
+          <button class="pw-ojo" type="button" onclick="k2Ojo('lPass', this)">👁</button>
+        </div>
         <div class="err-msg" id="lErr">Email o contraseña incorrectos</div>
       </div>
       <button class="btn-login" id="btnLogin" onclick="handleLogin()">INGRESAR AL SISTEMA</button>
+      <div class="auth-links">
+        <a onclick="k2AuthVista('vRecu')">¿Olvidaste tu contraseña?</a>
+        <a onclick="k2AuthVista('vRegistro')">Crear mi cuenta</a>
+      </div>
+    </div>
+
+    <!-- VISTA · CREAR CUENTA -->
+    <div class="login-form auth-vista" id="vRegistro">
+      <div>
+        <div class="input-lbl">Nombre</div>
+        <input class="input-field" type="text" id="rNombre" placeholder="Tu nombre" autocomplete="given-name">
+      </div>
+      <div>
+        <div class="input-lbl">Apellido</div>
+        <input class="input-field" type="text" id="rApellido" placeholder="Tu apellido" autocomplete="family-name">
+      </div>
+      <div>
+        <div class="input-lbl">Email</div>
+        <input class="input-field" type="email" id="rEmail" placeholder="tu@email.com" autocomplete="email" inputmode="email">
+      </div>
+      <div>
+        <div class="input-lbl">Contraseña</div>
+        <div class="pw-wrap">
+          <input class="input-field" type="password" id="rPass" placeholder="Mínimo 4 caracteres" autocomplete="new-password">
+          <button class="pw-ojo" type="button" onclick="k2Ojo('rPass', this)">👁</button>
+        </div>
+        <div class="err-msg" id="rErr">—</div>
+      </div>
+      <button class="btn-login" id="btnRegistro" onclick="k2Registro()">CREAR MI CUENTA</button>
+      <div class="auth-ok" id="rOk">Cuenta creada. Te enviamos un correo — confírmalo y vuelve a ingresar acá. Tu coach te asignará tu programa.</div>
+      <div class="auth-links"><a onclick="k2AuthVista('vLogin')">← Volver al ingreso</a><span></span></div>
+    </div>
+
+    <!-- VISTA · RECUPERAR -->
+    <div class="login-form auth-vista" id="vRecu">
+      <div>
+        <div class="input-lbl">Email de tu cuenta</div>
+        <input class="input-field" type="email" id="cEmail" placeholder="tu@email.com" autocomplete="email" inputmode="email">
+        <div class="err-msg" id="cErr">—</div>
+      </div>
+      <button class="btn-login" id="btnRecu" onclick="k2Recuperar()">ENVIAR ENLACE DE RECUPERACIÓN</button>
+      <div class="auth-ok" id="cOk">Listo. Revisa tu correo (también spam) y abre el enlace desde este mismo teléfono para definir tu nueva contraseña.</div>
+      <div class="auth-links"><a onclick="k2AuthVista('vLogin')">← Volver al ingreso</a><span></span></div>
+    </div>
+
+    <!-- VISTA · NUEVA CONTRASEÑA (llega desde el enlace del correo) -->
+    <div class="login-form auth-vista" id="vNueva">
+      <div>
+        <div class="input-lbl">Tu nueva contraseña</div>
+        <div class="pw-wrap">
+          <input class="input-field" type="password" id="nPass" placeholder="Mínimo 4 caracteres" autocomplete="new-password">
+          <button class="pw-ojo" type="button" onclick="k2Ojo('nPass', this)">👁</button>
+        </div>
+        <div class="err-msg" id="nErr">—</div>
+      </div>
+      <button class="btn-login" id="btnNueva" onclick="k2NuevaClave()">GUARDAR Y ENTRAR</button>
     </div>
     <div class="login-footer">
       <span>KOACH Club · Concepción</span>
@@ -913,7 +1013,7 @@
   <div class="tabs">
     <div class="tab active" onclick="coachTab('socios')" id="ctab-socios">Socios</div>
     <div class="tab" onclick="coachTab('alertas')" id="ctab-alertas">Alertas <span class="tab-badge" id="alertaBadge">0</span></div>
-    <div class="tab" onclick="coachTab('hoy')" id="ctab-hoy">Hoy</div>
+    <div class="tab" onclick="coachTab('hoy')" id="ctab-hoy">Sala</div>
     <div class="tab" onclick="coachTab('planilla'); planillaInit()" id="ctab-planilla">Planilla</div>
   </div>
   <div class="view active" id="cview-socios">
@@ -2062,7 +2162,8 @@ async function loadCoachData() {
 
   renderSocios(socios, 'todos')
   renderAlertas(socios)
-  renderHoy(socios)
+  renderSalaV2(socios)
+  coachTab('hoy')
 
   document.getElementById('hoyFecha').textContent = getFechaLarga()
 
@@ -4275,6 +4376,187 @@ document.addEventListener('DOMContentLoaded', ()=>{
   });
   if (f) k2InitSlide(f, k2FinalizarExec);
 });
+
+
+// ══ AUTH V2 · registro / recuperar / ojito ══
+function k2Ojo(id, btn){
+  const inp = document.getElementById(id);
+  const ver = inp.type === 'password';
+  inp.type = ver ? 'text' : 'password';
+  btn.style.opacity = ver ? '1' : '.55';
+}
+function k2AuthVista(id){
+  document.querySelectorAll('.auth-vista').forEach(v => v.classList.toggle('activa', v.id === id));
+  document.querySelectorAll('.err-msg').forEach(e => e.style.display = 'none');
+}
+async function k2Registro(){
+  const nombre = document.getElementById('rNombre').value.trim();
+  const apellido = document.getElementById('rApellido').value.trim();
+  const email = document.getElementById('rEmail').value.trim();
+  const pass = document.getElementById('rPass').value;
+  const err = document.getElementById('rErr');
+  err.style.display = 'none';
+  if (!nombre || !email || pass.length < 4){
+    err.textContent = pass.length < 4 ? 'La contraseña necesita mínimo 4 caracteres' : 'Completa nombre y email';
+    err.style.display = 'block'; return;
+  }
+  const btn = document.getElementById('btnRegistro');
+  btn.classList.add('loading'); btn.textContent = 'CREANDO...';
+  try {
+    const { data, error } = await sb.auth.signUp({
+      email, password: pass,
+      options: { emailRedirectTo: window.location.origin, data: { nombre, apellido } }
+    });
+    if (error) throw error;
+    if (data?.user?.id){
+      try { await sb.from('profiles').insert({ id: data.user.id, nombre, apellido, email, role: 'socio', activo: true }); } catch(_){}
+    }
+    document.getElementById('rOk').classList.add('vis');
+    btn.textContent = 'CORREO ENVIADO ✓';
+  } catch(e){
+    err.textContent = /already|registered/i.test(e.message||'') ? 'Ese email ya tiene cuenta — recupera tu contraseña' : ('No se pudo crear: ' + (e.message || 'intenta de nuevo'));
+    err.style.display = 'block';
+    btn.classList.remove('loading'); btn.textContent = 'CREAR MI CUENTA';
+  }
+}
+async function k2Recuperar(){
+  const email = document.getElementById('cEmail').value.trim();
+  const err = document.getElementById('cErr');
+  err.style.display = 'none';
+  if (!email){ err.textContent = 'Escribe tu email'; err.style.display = 'block'; return; }
+  const btn = document.getElementById('btnRecu');
+  btn.classList.add('loading'); btn.textContent = 'ENVIANDO...';
+  try {
+    const { error } = await sb.auth.resetPasswordForEmail(email, { redirectTo: window.location.origin });
+    if (error) throw error;
+    document.getElementById('cOk').classList.add('vis');
+    btn.textContent = 'ENLACE ENVIADO ✓';
+  } catch(e){
+    err.textContent = 'No se pudo enviar: ' + (e.message || 'intenta de nuevo');
+    err.style.display = 'block';
+    btn.classList.remove('loading'); btn.textContent = 'ENVIAR ENLACE DE RECUPERACIÓN';
+  }
+}
+async function k2NuevaClave(){
+  const pass = document.getElementById('nPass').value;
+  const err = document.getElementById('nErr');
+  err.style.display = 'none';
+  if (pass.length < 4){ err.textContent = 'Mínimo 4 caracteres'; err.style.display = 'block'; return; }
+  const btn = document.getElementById('btnNueva');
+  btn.classList.add('loading'); btn.textContent = 'GUARDANDO...';
+  try {
+    const { error } = await sb.auth.updateUser({ password: pass });
+    if (error) throw error;
+    window.location.hash = '';
+    window.location.reload();
+  } catch(e){
+    err.textContent = 'No se pudo guardar: ' + (e.message || 'intenta de nuevo');
+    err.style.display = 'block';
+    btn.classList.remove('loading'); btn.textContent = 'GUARDAR Y ENTRAR';
+  }
+}
+// El enlace del correo de recuperación llega con type=recovery en el hash
+sb.auth.onAuthStateChange((event) => {
+  if (event === 'PASSWORD_RECOVERY'){ goTo('pgLogin'); k2AuthVista('vNueva'); }
+});
+
+
+// ══ COACH · SALA V2 (dashboard con el motor) ══
+async function renderSalaV2(socios) {
+  const cont = document.getElementById('cview-hoy');
+  if (!cont) return;
+  cont.innerHTML = '<div class="k2c-void">Cargando la sala…</div>';
+  try {
+    const activos = (socios || []).filter(s => s.asignaciones?.some(a => a.activo));
+    const hoyISO = new Date().toISOString().split('T')[0];
+    const lunesISO = k2Lunes().toISOString().split('T')[0];
+    const socioIds = activos.map(s => s.id);
+    const asigDe = s => s.asignaciones.find(a => a.activo);
+    const protoIds = [...new Set(activos.map(s => asigDe(s)?.protocolo_id).filter(Boolean))];
+
+    // Estructuras de los protocolos en uso (sesiones ≤3 + bloques + sinergistas)
+    const { data: sesiones } = await sb.from('sesiones_protocolo')
+      .select('id, numero, objetivo, protocolo_id').in('protocolo_id', protoIds).lte('numero', 3);
+    const sesIds = (sesiones || []).map(s => s.id);
+    const { data: bloques } = await sb.from('bloques')
+      .select('sesion_id, sets, bloque_ejercicios(ejercicios(grupo_muscular, sinergistas))')
+      .in('sesion_id', sesIds);
+    const programaDe = {};
+    protoIds.forEach(pid => {
+      programaDe[pid] = { sesiones: (sesiones || []).filter(s => s.protocolo_id === pid)
+        .sort((a,b)=>a.numero-b.numero)
+        .map(s => ({ numero: s.numero, id: s.id, nombre: (s.objetivo||'').toUpperCase() || null,
+          bloques: (bloques || []).filter(b => b.sesion_id === s.id).map(b => ({
+            sets: b.sets,
+            ejercicios: (b.bloque_ejercicios || []).map(be => ({
+              grupo: be.ejercicios?.grupo_muscular, sinergistas: be.ejercicios?.sinergistas || {}
+            })).filter(e => e.grupo)
+          }))
+        })) };
+    });
+
+    // Objetivos por protocolo
+    const { data: objs } = await sb.from('volumen_objetivos').select('*').in('protocolo_id', protoIds);
+    const objetivosDe = {};
+    (objs || []).forEach(o => {
+      const pid = o.protocolo_id, g = (o.grupo||'').toUpperCase();
+      if (!g || !(o.mev > 0)) return;
+      (objetivosDe[pid] = objetivosDe[pid] || {})[g] = { mev: o.mev, mav: o.mav,
+        exigible: (o.dominante === undefined || o.dominante === null) ? true : !!o.dominante };
+    });
+
+    // Registros de la semana de todos
+    const { data: regs } = await sb.from('sesiones_registro')
+      .select('socio_id, sesion_protocolo_id, estado, fecha, bloques_completados')
+      .in('socio_id', socioIds).gte('fecha', lunesISO);
+
+    let entrenaronHoy = 0, completas = 0;
+    const cards = activos.map((s, i) => {
+      const asig = asigDe(s);
+      const pid = asig?.protocolo_id;
+      const prog = programaDe[pid], objv = objetivosDe[pid];
+      const nombre = `${s.nombre || ''} ${s.apellido || ''}`.trim() || s.email;
+      const ini = (s.nombre || 'K')[0].toUpperCase();
+      const meta = `${asig?.protocolos?.programa || ''} · ${asig?.protocolos?.nivel || ''} · SEM ${asig?.semana_actual || 1}/6`.toUpperCase();
+      const regsS = (regs || []).filter(r => r.socio_id === s.id);
+      const hoyTr = regsS.some(r => r.fecha === hoyISO);
+      if (hoyTr) entrenaronHoy++;
+
+      let semHTML = '<div class="k2c-sem"><span class="k2c-x" style="color:#BEBDB8">SIN OBJETIVOS — corre la siembra</span></div>';
+      let badge = hoyTr ? '<span class="k2c-badge hoy">HOY ✓</span>' : '';
+      if (prog && objv && Object.keys(objv).length) {
+        const numPorId = {}; prog.sesiones.forEach(x => numPorId[x.id] = x.numero);
+        const registros = regsS.map(r => ({ sesion_numero: numPorId[r.sesion_protocolo_id],
+          estado: r.estado, bloques_completados: r.bloques_completados ?? null })).filter(r => r.sesion_numero);
+        const sem = k2CalcularSemana(prog, registros, objv);
+        if (sem.semana_completa) completas++;
+        const pct = sem.exigibles_total ? Math.round(sem.fortalecidos_total / sem.exigibles_total * 100) : 0;
+        semHTML = `<div class="k2c-sem">
+          <div class="k2c-bar"><div class="k2c-fill" style="width:${pct}%"></div></div>
+          <span class="k2c-x">${sem.fortalecidos_total}<small>/${sem.exigibles_total}</small> MÚSCULOS</span></div>`;
+        if (!badge) badge = sem.semana_completa
+          ? '<span class="k2c-badge hoy">SEMANA ✓</span>'
+          : (sem.proxima_sesion ? `<span class="k2c-badge off">PRÓX · ${sem.proxima_sesion.nombre}</span>` : '');
+      }
+      return `<div class="k2c-card" onclick="verPerfil(_sociosRender[${i}])">
+        <div class="k2c-top"><div class="k2c-av">${ini}</div>
+          <div><div class="k2c-n">${nombre}</div><div class="k2c-s">${meta}</div></div>${badge}</div>
+        ${semHTML}</div>`;
+    });
+
+    window._sociosRender = activos;
+    cont.innerHTML = `
+      <div class="k2c-stats">
+        <div class="k2c-st"><b>${activos.length}</b><span>SOCIOS ACTIVOS</span></div>
+        <div class="k2c-st"><b>${entrenaronHoy}</b><span>ENTRENARON HOY</span></div>
+        <div class="k2c-st"><b>${completas}</b><span>SEMANAS COMPLETAS</span></div>
+      </div>
+      ${cards.join('') || '<div class="k2c-void">Sin socios activos aún</div>'}`;
+  } catch(e) {
+    console.error('SalaV2:', e);
+    cont.innerHTML = '<div class="k2c-void">No se pudo cargar la sala — revisa consola</div>';
+  }
+}
 
 </script>
 
