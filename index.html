@@ -1,7 +1,8 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="es" translate="no" class="notranslate">
 <head>
 <meta charset="UTF-8">
+<meta name="google" content="notranslate">
 <meta name="theme-color" content="#F2F1EF">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
@@ -154,7 +155,9 @@
   .carga-cell:first-child { border-right:1px solid var(--borde); }
   .carga-lbl { font-family:'Share Tech Mono',monospace; font-size:8px; letter-spacing:0.12em; color:var(--gris); text-transform:uppercase; }
   .carga-inp-wrap { display:flex; align-items:baseline; gap:3px; }
-  .carga-inp { font-family:'Barlow Condensed',sans-serif; font-weight:900; font-size:22px; color:var(--negro); border:none; background:transparent; width:60px; outline:none; }
+  .carga-inp { font-family:'Barlow Condensed',sans-serif; font-weight:900; font-size:22px; color:var(--negro); border:none; border-bottom:2px solid var(--gris-claro); background:transparent; width:72px; min-height:34px; outline:none; }
+  .carga-inp:focus { border-bottom-color:var(--negro); }
+  .carga-cell-tap { cursor:text; }
   .carga-inp::placeholder { color:var(--gris-claro); }
   .carga-kg { font-family:'Share Tech Mono',monospace; font-size:8px; color:var(--gris); }
   .carga-sug { font-family:'Share Tech Mono',monospace; font-size:9px; color:var(--gris); }
@@ -591,6 +594,72 @@
   .eqz-foot { padding:14px 22px calc(26px + env(safe-area-inset-bottom)); display:flex; flex-direction:column; gap:8px; }
   .eqz-foot .btn-prim { background:var(--offwhite); color:var(--negro); }
   .eqz-foot .btn-sec { border-color:rgba(242,241,239,0.2); color:var(--offwhite); }
+
+  /* ── CREADOR MANUAL (planilla del coach) ── */
+  .man-titulo-inp { width:100%; min-height:52px; border:1px solid var(--borde); border-radius:14px; background:white;
+                    font-family:'Barlow Condensed',sans-serif; font-weight:900; font-size:20px; text-transform:uppercase;
+                    padding:0 16px; letter-spacing:0.02em; }
+  .man-titulo-inp:focus { outline:none; border-color:var(--negro); }
+  .man-bloque { background:white; border:1px solid var(--borde); border-radius:18px; padding:14px; margin:0 22px 12px; }
+  .man-bhead { display:flex; align-items:center; gap:10px; flex-wrap:wrap; margin-bottom:10px; }
+  .man-brol { font-family:'Share Tech Mono',monospace; font-size:8px; letter-spacing:0.12em; text-transform:uppercase; color:var(--gris); flex:1; }
+  .man-mini { font-family:'Share Tech Mono',monospace; font-size:7.5px; letter-spacing:0.1em; color:var(--gris); display:flex; align-items:center; gap:5px; }
+  .man-num { width:58px; min-height:40px; border:1px solid var(--borde); border-radius:10px; text-align:center;
+             font-family:'Share Tech Mono',monospace; font-size:15px; background:var(--offwhite); }
+  .man-row { display:flex; gap:8px; margin-bottom:8px; align-items:center; }
+  .man-ej { flex:1; min-height:48px; border:1px solid var(--borde); border-radius:12px; padding:0 14px;
+            font-size:16px; font-weight:700; background:var(--offwhite); }
+  .man-ej:focus { outline:none; border-color:var(--negro); background:white; }
+  .man-ej.bad { border-color:var(--danger); background:rgba(192,57,43,0.05); }
+  .man-reps { width:64px; }
+  .man-anc { width:44px; min-height:48px; border:1px solid var(--borde); border-radius:12px; background:var(--offwhite);
+             font-size:16px; color:var(--gris); }
+  .man-anc.on { background:var(--negro); color:var(--offwhite); border-color:var(--negro); }
+  .man-x { width:40px; min-height:48px; border:none; background:none; color:var(--gris-claro); font-size:15px; }
+  .man-add { width:100%; min-height:44px; border:1px dashed var(--borde); border-radius:12px; background:none;
+             font-family:'Share Tech Mono',monospace; font-size:9px; letter-spacing:0.12em; color:var(--gris); }
+
+/* ══ SOCIO V2 · HOME (Tu Semana) ══ */
+#pgSocioV2{background:linear-gradient(170deg,#F3F2EF 0%,#E7E6E2 55%,#DAD9D4 100%);color:#121210;min-height:100vh}
+.k2-wrap{max-width:520px;margin:0 auto;padding:16px 14px 40px;font-family:-apple-system,'Helvetica Neue',Arial,sans-serif}
+.k2-glass{background:rgba(255,255,255,.55);border:1px solid rgba(255,255,255,.75);border-radius:22px;box-shadow:0 8px 24px rgba(30,30,28,.08)}
+.k2-hbar{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
+.k2-k{font-size:12px;font-weight:900;letter-spacing:.38em;color:#121210}
+.k2-av{width:34px;height:34px;border-radius:50%;background:#121210;color:#F3F2EF;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:900;cursor:pointer}
+.k2-anillo{position:relative;width:180px;height:180px;margin:4px auto 0}
+.k2-anillo svg{transform:rotate(-90deg)}
+.k2-anillo .c{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.k2-anillo .c b{font-size:36px;font-weight:900;color:#121210;font-variant-numeric:tabular-nums}
+.k2-anillo .c b small{font-size:16px;color:#BEBDB8;font-weight:900}
+.k2-anillo .c span{font-size:6.5px;letter-spacing:.26em;color:#7C7B76;font-weight:900;margin-top:2px}
+.k2-voz{text-align:center;margin:10px 6px 14px}
+.k2-voz .v1{font-size:16px;font-weight:800;color:#121210}
+.k2-voz .v2{font-size:11px;color:#7C7B76;line-height:1.6;margin-top:6px;max-width:330px;margin-left:auto;margin-right:auto}
+.k2-voz .v2 b{color:#121210}
+.k2-dias{display:grid;grid-template-columns:repeat(6,1fr);gap:6px;margin-bottom:10px}
+.k2-dia{border-radius:14px;padding:8px 0 6px;text-align:center}
+.k2-dia .dl{font-size:8px;letter-spacing:.14em;color:#7C7B76;font-weight:900}
+.k2-dia .dm{font-size:9px;margin-top:3px;color:#BEBDB8;font-weight:900;min-height:11px}
+.k2-dia.hecho .dm{color:#1F9D55}
+.k2-dia.hoy{background:#121210}
+.k2-dia.hoy .dl{color:#8B8A85}.k2-dia.hoy .dm{color:#F3F2EF}
+.k2-cta{display:flex;justify-content:space-between;align-items:center;width:100%;padding:15px 20px;margin-bottom:10px;
+  background:#121210;border:none;border-radius:22px;cursor:pointer;color:#F3F2EF;box-shadow:0 12px 28px rgba(18,18,16,.26)}
+.k2-cta .mt{font-size:12px;font-weight:900;letter-spacing:.12em;text-align:left;display:block}
+.k2-cta .ms{display:block;font-size:8.5px;letter-spacing:.14em;color:#8B8A85;font-weight:800;margin-top:3px;text-align:left}
+.k2-panel{padding:14px 14px 8px}
+.k2-panel h3{display:flex;justify-content:space-between;font-size:7.5px;letter-spacing:.2em;color:#7C7B76;font-weight:900;margin-bottom:10px}
+.k2-rows{display:grid;grid-template-columns:1fr 1fr;column-gap:14px}
+.k2-row{display:grid;grid-template-columns:52px 1fr 30px;gap:6px;align-items:center;margin-bottom:9px;font-size:10px}
+.k2-row .g{font-weight:900;font-size:7.5px;letter-spacing:.02em;color:#121210}
+.k2-bar{position:relative;height:7px;background:rgba(18,18,16,.08);border-radius:5px}
+.k2-fill{position:absolute;top:0;left:0;height:100%;border-radius:5px;background:#121210;transition:width .6s}
+.k2-row .v{font-size:8px;font-weight:900;text-align:right;color:#BEBDB8}
+.k2-row .v.si{color:#1F9D55}
+.k2-row.libre .g{color:#BEBDB8}
+.k2-row.libre .k2-fill{background:#BEBDB8}
+.k2-nota{font-size:7.5px;letter-spacing:.16em;color:#BEBDB8;font-weight:800;text-align:center;margin-top:10px}
+
 </style>
 </head>
 <body>
@@ -745,6 +814,40 @@
 <!-- ══════════════════════════════════════════════
      PAGE: PANEL COACH
 ══════════════════════════════════════════════ -->
+
+<!-- ══ SOCIO V2 · TU SEMANA ══ -->
+<div class="page" id="pgSocioV2">
+  <div class="k2-wrap">
+    <div class="k2-hbar">
+      <span class="k2-k">KOACH</span>
+      <div class="k2-av" id="k2Av" onclick="logout()" title="Cerrar sesión">S</div>
+    </div>
+    <div class="k2-anillo">
+      <svg width="180" height="180" viewBox="0 0 180 180">
+        <circle cx="90" cy="90" r="78" fill="none" stroke="rgba(18,18,16,.09)" stroke-width="11"/>
+        <circle id="k2Arc" cx="90" cy="90" r="78" fill="none" stroke="#121210" stroke-width="11"
+          stroke-linecap="round" stroke-dasharray="490.1" stroke-dashoffset="490.1" style="transition:stroke-dashoffset 1s cubic-bezier(.3,.8,.3,1)"/>
+        <g id="k2Flecha" opacity="0"><polygon points="0,-11 12,0 0,11" fill="#121210"/></g>
+      </svg>
+      <div class="c"><b><span id="k2N">0</span><small>/<span id="k2D">10</span></small></b><span>MÚSCULOS FORTALECIDOS</span></div>
+    </div>
+    <div class="k2-voz">
+      <div class="v1" id="k2Saludo">—</div>
+      <div class="v2" id="k2Voz">—</div>
+    </div>
+    <div class="k2-dias" id="k2Dias"></div>
+    <button class="k2-cta" id="k2Cta" onclick="k2IrSesion()">
+      <span><span class="mt" id="k2CtaT">COMENZAR SESIÓN</span><span class="ms" id="k2CtaS">—</span></span>
+      <span style="font-size:17px">→</span>
+    </button>
+    <div class="k2-glass k2-panel">
+      <h3><span>TUS MÚSCULOS</span><span id="k2Count">—</span></h3>
+      <div class="k2-rows" id="k2Rows"></div>
+    </div>
+    <div class="k2-nota" id="k2Nota"></div>
+  </div>
+</div>
+
 <div class="page" id="pgCoach">
   <div class="topbar">
     <div><div><img class="koach-logo" data-size="sm" alt="KOACH"></div></div>
@@ -757,6 +860,7 @@
     <div class="tab active" onclick="coachTab('socios')" id="ctab-socios">Socios</div>
     <div class="tab" onclick="coachTab('alertas')" id="ctab-alertas">Alertas <span class="tab-badge" id="alertaBadge">0</span></div>
     <div class="tab" onclick="coachTab('hoy')" id="ctab-hoy">Hoy</div>
+    <div class="tab" onclick="coachTab('planilla'); planillaInit()" id="ctab-planilla">Planilla</div>
   </div>
   <div class="view active" id="cview-socios">
     <div class="sec-header">
@@ -789,6 +893,87 @@
     <div class="sec-header"><div><div class="sec-titulo">Hoy</div><div class="sec-meta" id="hoyFecha">—</div></div></div>
     <div class="socios-list" id="hoyList">
       <div class="loading-state"><span class="spinner-inline spinner-dark"></span>Cargando...</div>
+    </div>
+  </div>
+  <!-- ══════════ VISTA PLANILLA — EDITOR DE PROGRAMACIÓN ══════════ -->
+  <style>
+  .pl-top{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:12px}
+  .pl-top select{background:#fff;border:1px solid var(--purple-border);color:var(--negro);padding:8px 10px;font-size:13px;border-radius:6px}
+  .pl-ses{display:flex;gap:6px;margin-left:auto}
+  .pl-ses button{background:#fff;border:1px solid var(--purple-border);color:var(--gris);padding:7px 14px;font-size:12px;font-weight:800;cursor:pointer;border-radius:6px}
+  .pl-ses button.on{background:var(--negro);border-color:var(--negro);color:var(--offwhite)}
+  .pl-obj{font-size:12px;color:var(--gris);margin-bottom:10px;display:flex;gap:8px;align-items:center}
+  .pl-obj select{background:#fff;border:1px solid var(--purple-border);padding:6px 8px;font-size:12px;border-radius:6px}
+  .pl-bloque{background:#fff;border:1px solid var(--borde);border-radius:10px;margin-bottom:10px;overflow:visible}
+  .pl-bhead{display:flex;gap:10px;align-items:center;padding:8px 10px;border-bottom:1px solid var(--borde);font-size:11px;color:var(--gris);flex-wrap:wrap}
+  .pl-bhead b{color:var(--negro);font-size:12px;letter-spacing:.06em}
+  .pl-bhead label{display:flex;gap:5px;align-items:center}
+  .pl-bhead input{width:52px;background:var(--offwhite);border:1px solid var(--purple-border);padding:5px 6px;font-size:12px;border-radius:5px;text-align:center}
+  .pl-bx{margin-left:auto;background:none;border:none;color:var(--gris);cursor:pointer;font-size:15px}
+  .pl-tabla{width:100%;border-collapse:collapse}
+  .pl-tabla th{font-size:9px;letter-spacing:.12em;text-transform:uppercase;color:var(--gris);text-align:left;padding:6px 8px;border-bottom:1px solid var(--borde);font-weight:700}
+  .pl-tabla td{padding:5px 6px;border-bottom:1px solid var(--borde);vertical-align:middle}
+  .pl-tabla tr:last-child td{border-bottom:none}
+  .pl-tabla select,.pl-tabla input{width:100%;background:var(--offwhite);border:1px solid transparent;color:var(--negro);padding:6px;font-size:12px;border-radius:5px}
+  .pl-tabla select:focus,.pl-tabla input:focus{outline:none;border-color:var(--negro);background:#fff}
+  .pl-c-est{width:118px}.pl-c-reps{width:64px}.pl-c-x{width:26px}
+  .pl-wrap{position:relative}
+  .pl-sug{position:absolute;top:100%;left:0;right:0;background:#fff;border:1px solid var(--negro);z-index:40;max-height:240px;overflow-y:auto;border-radius:0 0 6px 6px;box-shadow:0 6px 16px rgba(10,10,10,.12)}
+  .pl-sug div{padding:7px 9px;font-size:12px;cursor:pointer;border-bottom:1px solid var(--borde)}
+  .pl-sug div:active,.pl-sug div:hover{background:var(--offwhite)}
+  .pl-addrow{background:none;border:none;color:var(--gris);font-size:11px;cursor:pointer;padding:7px 10px;font-weight:700;letter-spacing:.05em}
+  .pl-addrow:hover{color:var(--negro)}
+  .pl-addbloque{width:100%;background:none;border:1px dashed var(--purple-border);color:var(--gris);padding:10px;font-size:12px;font-weight:700;cursor:pointer;border-radius:10px;margin-bottom:16px}
+  .pl-addbloque:hover{border-color:var(--negro);color:var(--negro)}
+  .pl-guardar{background:var(--negro);border:none;color:var(--offwhite);font-weight:800;padding:12px 26px;font-size:13px;letter-spacing:.08em;cursor:pointer;border-radius:8px}
+  .pl-guardar:disabled{opacity:.4;cursor:default}
+  .pl-bal{margin-top:18px;background:#fff;border:1px solid var(--borde);border-radius:10px;padding:14px}
+  .pl-bal h3{font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:var(--gris);margin:0 0 3px;font-weight:800}
+  .pl-bal .pl-sub{font-size:11px;color:var(--gris);margin-bottom:12px}
+  .pl-brow{display:grid;grid-template-columns:86px 1fr 92px;gap:8px;align-items:center;margin-bottom:8px;font-size:10px}
+  .pl-brow .pl-g{font-weight:800;letter-spacing:.04em;color:var(--negro)}
+  .pl-barbg{position:relative;height:14px;background:var(--offwhite);border-radius:3px}
+  .pl-bar{position:absolute;top:0;left:0;height:100%;border-radius:3px;background:var(--negro);transition:width .25s}
+  .pl-mk{position:absolute;top:-3px;bottom:-3px;width:2px;background:var(--gris-claro)}
+  .pl-mk.mrv{background:var(--danger)}
+  .pl-st{text-align:right;font-weight:800}
+  .pl-st.bajo{color:var(--gris)}.pl-st.ok{color:var(--ok)}.pl-st.alto{color:var(--danger)}
+  .pl-leg{display:flex;gap:14px;margin-top:10px;font-size:9px;color:var(--gris);letter-spacing:.08em}
+  .pl-leg i{display:inline-block;width:2px;height:9px;margin-right:4px;vertical-align:-1px;background:var(--gris-claro);font-style:normal}
+  .pl-leg .mrv i{background:var(--danger)}
+  .pl-reps-cell{display:flex;gap:3px;align-items:center}
+  .pl-chev{background:none;border:none;color:var(--gris);cursor:pointer;font-size:10px;padding:2px}
+  .pl-chev.abierto{color:var(--negro)}
+  .pl-serie-row td{background:#FAFAF8;padding:7px 8px 9px}
+  .pl-serie-inner{display:flex;gap:8px;align-items:center;flex-wrap:wrap;font-size:10px;color:var(--gris)}
+  .pl-serie-inner b{font-size:9px;letter-spacing:.1em;color:var(--gris)}
+  .pl-sbox{display:flex;flex-direction:column;align-items:center;gap:2px}
+  .pl-sbox span{font-size:8px;letter-spacing:.08em;color:var(--gris-claro);font-weight:700}
+  .pl-sbox input{width:42px;background:#fff;border:1px solid var(--purple-border);padding:5px;font-size:12px;border-radius:5px;text-align:center}
+  .pl-sbox input.difiere{border-color:var(--negro);font-weight:700}
+  .pl-slink{background:none;border:none;color:var(--gris);font-size:9px;cursor:pointer;text-decoration:underline}
+  </style>
+  <div class="view" id="cview-planilla">
+    <div class="sec-header"><div><div class="sec-titulo">Planilla</div><div class="sec-meta">Programación por protocolo · A/B/C</div></div></div>
+    <div class="pl-top">
+      <select id="plProto" onchange="plCargarProtocolo()"><option value="">Cargando protocolos…</option></select>
+      <div class="pl-ses" id="plSesTabs"></div>
+    </div>
+    <div class="pl-obj" id="plObjWrap" style="display:none">
+      Objetivo:
+      <select id="plObjetivo" onchange="plSetObjetivo(this.value)">
+        <option>UPPER BODY</option><option>LOWER BODY</option><option>TOTAL BODY</option>
+      </select>
+      <span id="plDirty" style="color:var(--warn);font-weight:700;display:none">· sin guardar</span>
+    </div>
+    <div id="plBloques"><div class="loading-state">Elige un protocolo para comenzar</div></div>
+    <button class="pl-addbloque" id="plAddBloque" style="display:none" onclick="plAddBloque()">+ Agregar bloque</button>
+    <div style="text-align:right"><button class="pl-guardar" id="plBtnGuardar" style="display:none" onclick="plGuardar()">GUARDAR SESIÓN</button></div>
+    <div class="pl-bal" id="plBalWrap" style="display:none">
+      <h3>Balance semanal · series por estímulo</h3>
+      <div class="pl-sub">Suma sesiones A + B + C del protocolo (sets × ejercicios)</div>
+      <div id="plBalance"></div>
+      <div class="pl-leg"><span><i></i>MEV</span><span><i></i>MAV</span><span class="mrv"><i></i>MRV</span></div>
     </div>
   </div>
 </div>
@@ -1171,8 +1356,8 @@ async function loadProfileAndEnter() {
       goTo('pgCoach')
       manejarHashQR()
     } else {
-      await loadSocioData()
-      goTo('pgSocio')
+      try { await loadSocioV2(); goTo('pgSocioV2') }
+      catch(e) { console.error('SocioV2 fallback:', e); await loadSocioData(); goTo('pgSocio') }
     }
   } catch(e) {
     console.error('Error loading profile:', e)
@@ -1582,7 +1767,14 @@ async function loadPizarra(sesion, asig, profile) {
 
       STATE.ejerciciosHoy.push({ be, ej, bloque: bloque.bloque })
 
-      const repsLabel = be.reps ? `${be.reps} REP` : be.duracion_seg ? `${be.duracion_seg} SEG` : '—'
+      let repsLabel = '—'
+      if (be.duracion_seg) repsLabel = `${be.duracion_seg} SEG`
+      else if (be.reps) {
+        const r = String(be.reps).trim()
+        if (/^\d+\s*s(eg)?$/i.test(r)) repsLabel = r.replace(/\s*s(eg)?$/i, '') + ' SEG'
+        else if (r.includes('/')) repsLabel = r.split('/').join('·') + ' REP'
+        else repsLabel = `${r} REP`
+      }
       const anclaLabel = be.es_ancla ? ' ◆' : ''
 
       if (ej.con_carga) {
@@ -1594,10 +1786,10 @@ async function loadPizarra(sesion, asig, profile) {
               <div class="ej-card-reps">${repsLabel}</div>
             </div>
             <div class="carga-row">
-              <div class="carga-cell">
+              <div class="carga-cell carga-cell-tap" onclick="this.querySelector('input').focus()">
                 <div class="carga-lbl">Peso del día</div>
                 <div class="carga-inp-wrap">
-                  <input class="carga-inp" type="number" inputmode="decimal" placeholder="—"
+                  <input class="carga-inp" type="number" inputmode="decimal" placeholder="0"
                     data-ej-id="${be.id}"
                     oninput="registrarCarga('${be.id}', this.value); updateProg()">
                   <span class="carga-kg">KG</span>
@@ -2046,7 +2238,8 @@ document.querySelectorAll('.koach-logo').forEach(img => img.src = LOGO_SRC);
   </div>
 
   <div style="padding:14px 22px 28px;display:flex;flex-direction:column;gap:8px;">
-    <button class="btn-prim" onclick="abrirProgramador()">PROGRAMAR SESIÓN →</button>
+    <button class="btn-prim" onclick="abrirManual()">CREAR RUTINA A MANO ✎</button>
+    <button class="btn-sec" onclick="abrirProgramador()">Programar por volumen →</button>
     <button class="btn-sec" onclick="abrirEcualizador()" style="background:var(--negro);color:var(--offwhite);border:none;">ECUALIZADOR SEMANAL ⇄</button>
     <button class="btn-sec" onclick="abrirModRutina()">Modificar rutina base</button>
     <button class="btn-sec" id="btnWsPerfil" onclick="wsPerfil()">WhatsApp →</button>
@@ -2055,6 +2248,28 @@ document.querySelectorAll('.koach-logo').forEach(img => img.src = LOGO_SRC);
 
 
 
+
+
+<!-- PAGE: CREADOR MANUAL (coach/admin) -->
+<div class="page" id="pgManual">
+  <div class="topbar">
+    <div><img class="koach-logo" data-size="sm" alt="KOACH"></div>
+    <div class="tb-right"><button class="btn-sm" onclick="goTo('pgPerfilSocio')">← Perfil</button></div>
+  </div>
+  <div class="welcome-block">
+    <div class="wb-label">Crear rutina a mano</div>
+    <div class="wb-nombre" id="manNombre">—</div>
+    <div class="wb-meta">Escribe cada ejercicio · el autocompletado usa tu batería · el socio la ve en formato KOACH</div>
+  </div>
+  <div style="padding:4px 22px 14px;">
+    <input class="man-titulo-inp" id="manTitulo" placeholder="NOMBRE DE LA RUTINA (EJ: PIERNA FUERTE)" autocomplete="off">
+  </div>
+  <datalist id="dlEjercicios"></datalist>
+  <div id="manBloques"></div>
+  <div class="piz-footer" style="padding:6px 22px calc(26px + env(safe-area-inset-bottom));display:flex;flex-direction:column;gap:8px;">
+    <button class="btn-prim" onclick="manGuardar()">ASIGNAR AL SOCIO ✓</button>
+  </div>
+</div>
 
 <!-- PAGE: ECUALIZADOR SEMANAL (coach/admin) -->
 <div class="page" id="pgEcualizador">
@@ -2745,7 +2960,7 @@ async function modCargarRutina(num, btn) {
   // Diagnóstico visible
   const _tot = (bloques || []).reduce((a, b) => a + (b.bloque_ejercicios || []).length, 0)
   const _con = (bloques || []).reduce((a, b) => a + (b.bloque_ejercicios || []).filter(x => x.ejercicios && x.ejercicios.nombre).length, 0)
-  koachToast(`DIAG · bloques ${(bloques||[]).length} · filas ${_tot} · con nombre ${_con} · batería ${EJERCICIOS_CACHE.length}`)
+  var _diag = `DIAG · BLOQUES ${(bloques||[]).length} · FILAS ${_tot} · CON NOMBRE ${_con} · BATERÍA ${EJERCICIOS_CACHE.length}`
   const mods = {}
   ;(modsRes.data || []).forEach(m => { mods[m.bloque_ejercicio_id] = m })
 
@@ -2773,8 +2988,8 @@ async function modCargarRutina(num, btn) {
       html += `
         <div class="ej-card">
           <div class="ej-card-top">
-            <div class="ej-card-num">${String(numEj).padStart(2, '0')}${be.es_ancla ? ' \u00b7 \u25c6 ANCLA' : ''}${mod ? ' \u00b7 MOD' : ''}</div>
-            <div class="ej-card-nombre">${ejAct.nombre}</div>
+            <div class="ej-card-num" style="color:#7A7A78;">${String(numEj).padStart(2, '0')}${be.es_ancla ? ' \u00b7 \u25c6 ANCLA' : ''}${mod ? ' \u00b7 MOD' : ''}</div>
+            <div class="ej-card-nombre" style="color:#0A0A0A !important; font-size:16px; display:block; opacity:1; visibility:visible;">${ejAct.nombre}</div>
             ${mod ? `<div class="ej-card-reps" style="text-decoration:line-through;">${be.ejercicios.nombre}</div>` : ''}
             <div class="ej-card-reps">${be.reps ? be.reps + ' REPS' : ''}${be.duracion_seg ? be.duracion_seg + "''" : ''}</div>
           </div>
@@ -2794,7 +3009,9 @@ async function modCargarRutina(num, btn) {
         </div>`
     })
   })
-  lista.innerHTML = html || '<div class="loading-state">Sin ejercicios en esta rutina</div>'
+  lista.innerHTML =
+    `<div style="font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:0.08em;background:#0A0A0A;color:#F2F1EF;padding:10px 14px;border-radius:12px;margin-bottom:10px;">${_diag}</div>` +
+    (html || '<div class="loading-state">Sin ejercicios en esta rutina</div>')
 }
 
 function modToggle(beId) {
@@ -2989,6 +3206,122 @@ function buscarSocios(txt) {
     ? base.filter(s => (`${s.nombre} ${s.apellido || ''} ${s.email || ''}`).toLowerCase().includes(q))
     : base
   renderSocios(filtrados)
+}
+
+// ── CREADOR MANUAL DE RUTINA (coach/admin) ──
+function abrirManual() {
+  if (!['admin','coach'].includes(STATE.profile?.role)) { koachToast('Solo equipo coach.'); return }
+  const s = socioPerfilActual
+  if (esDemo(s)) { koachToast('Socio de demostración.'); return }
+  if (!s.asignaciones?.[0]?.protocolo_id) { koachToast('El socio no tiene protocolo asignado.'); return }
+  document.getElementById('manNombre').textContent = `${s.nombre} ${s.apellido || ''}`.toUpperCase()
+  document.getElementById('manTitulo').value = ''
+  goTo('pgManual')
+  // Batería para el autocompletado
+  if (!window.MAN_BATERIA) {
+    sb.from('ejercicios').select('id, nombre').eq('activo', true).order('nombre').then(async r => {
+      let data = r.data
+      if (r.error) { const r2 = await sb.from('ejercicios').select('id, nombre').order('nombre'); data = r2.data }
+      window.MAN_BATERIA = data || []
+      document.getElementById('dlEjercicios').innerHTML =
+        window.MAN_BATERIA.map(e => `<option value="${e.nombre.replace(/"/g,'&quot;')}">`).join('')
+    })
+  }
+  // Estructura inicial: 3 bloques con 2 filas cada uno
+  const defs = [['B1','Activación',2,45],['B2','Fuerza principal',3,90],['B3','Cierre',3,60]]
+  document.getElementById('manBloques').innerHTML = defs.map(([b, rol, sets, desc]) => `
+    <div class="man-bloque" data-b="${b}">
+      <div class="man-bhead">
+        <span class="bloque-badge">${b}</span>
+        <span class="man-brol">${rol}</span>
+        <label class="man-mini">SETS <input type="number" class="man-num man-sets" value="${sets}" min="1" max="6" inputmode="numeric"></label>
+        <label class="man-mini">DESC'' <input type="number" class="man-num man-desc" value="${desc}" min="15" max="300" step="15" inputmode="numeric"></label>
+      </div>
+      <div class="man-rows"></div>
+      <button class="man-add" onclick="manAddRow(this)">+ AGREGAR EJERCICIO</button>
+    </div>`).join('')
+  document.querySelectorAll('.man-bloque').forEach(bl => { manAddRow(bl.querySelector('.man-add')); manAddRow(bl.querySelector('.man-add')) })
+}
+
+function manAddRow(btn) {
+  const rows = btn.closest('.man-bloque').querySelector('.man-rows')
+  const esB2 = btn.closest('.man-bloque').dataset.b === 'B2'
+  const row = document.createElement('div')
+  row.className = 'man-row'
+  row.innerHTML = `
+    <input class="man-ej" list="dlEjercicios" placeholder="Escribe el ejercicio..." autocomplete="off">
+    <input class="man-num man-reps" type="number" placeholder="reps" min="1" max="30" inputmode="numeric">
+    ${esB2 ? '<button class="man-anc" onclick="this.classList.toggle(\'on\');this.textContent=this.classList.contains(\'on\')?\'◆\':\'◇\'" title="Ancla">◇</button>' : ''}
+    <button class="man-x" onclick="this.parentElement.remove()">✕</button>`
+  rows.appendChild(row)
+}
+
+function manGuardar() {
+  const titulo = document.getElementById('manTitulo').value.trim() || 'Rutina personalizada'
+  // Recolectar y validar
+  const bloques = []
+  let errores = 0, totalEj = 0
+  const mapa = {}
+  ;(window.MAN_BATERIA || []).forEach(e => mapa[e.nombre.trim().toLowerCase()] = e.id)
+  document.querySelectorAll('.man-bloque').forEach(bl => {
+    const b = bl.dataset.b
+    const sets = parseInt(bl.querySelector('.man-sets').value) || 3
+    const desc = parseInt(bl.querySelector('.man-desc').value) || 60
+    const ejs = []
+    bl.querySelectorAll('.man-row').forEach(row => {
+      const inp = row.querySelector('.man-ej')
+      const nombre = inp.value.trim()
+      if (!nombre) { return }
+      const id = mapa[nombre.toLowerCase()]
+      if (!id) { inp.classList.add('bad'); errores++; return }
+      inp.classList.remove('bad')
+      totalEj++
+      ejs.push({
+        ejercicio_id: id,
+        reps: parseInt(row.querySelector('.man-reps').value) || null,
+        es_ancla: !!row.querySelector('.man-anc.on')
+      })
+    })
+    if (ejs.length) bloques.push({ b, sets, desc, ejs })
+  })
+  if (errores) { koachToast(`${errores} ejercicio(s) no calzan con la batería — corrígelos en rojo (usa el autocompletado).`); return }
+  if (!totalEj) { koachToast('La rutina está vacía.'); return }
+  koachConfirm('¿Asignar esta rutina?', `"${titulo}" · ${totalEj} ejercicios. Aparece en el inicio de ${socioPerfilActual.nombre} con el formato KOACH.`, () => _manGuardarExec(titulo, bloques))
+}
+
+async function _manGuardarExec(titulo, bloques) {
+  const s = socioPerfilActual
+  try {
+    const protoId = s.asignaciones[0].protocolo_id
+    const { data: maxN } = await sb.from('sesiones_protocolo').select('numero')
+      .eq('protocolo_id', protoId).order('numero', { ascending: false }).limit(1)
+    const numero = Math.max(4, ((maxN && maxN[0]?.numero) || 3) + 1)
+    const { data: ses, error: e1 } = await sb.from('sesiones_protocolo')
+      .insert({ protocolo_id: protoId, numero, nombre: `MANUAL — ${titulo}`, objetivo: titulo })
+      .select().single()
+    if (e1) throw new Error(e1.message)
+    const ROL = { B1: 'activacion', B2: 'fuerza_principal', B3: 'cierre_accesorio' }
+    for (const bl of bloques) {
+      const { data: blo, error: e2 } = await sb.from('bloques')
+        .insert({ sesion_id: ses.id, bloque: bl.b, rol: ROL[bl.b], sets: bl.sets, descanso_segundos: bl.desc })
+        .select().single()
+      if (e2) throw new Error(e2.message)
+      const filas = bl.ejs.map((e, i) => ({ bloque_id: blo.id, ejercicio_id: e.ejercicio_id, orden: i + 1, reps: e.reps, es_ancla: e.es_ancla }))
+      const { error: e3 } = await sb.from('bloque_ejercicios').insert(filas)
+      if (e3) throw new Error(e3.message)
+    }
+    const { error: e4 } = await sb.from('sesiones_extra').insert({
+      socio_id: s.id, programa: s.asignaciones[0].protocolos?.programa || 'STRONG',
+      rutina: 1, protocolo_id: protoId, sesion_protocolo_id: ses.id,
+      estado: 'pendiente', asignada_por: STATE.profile?.id || null, notas: 'PERSONALIZADA'
+    })
+    if (e4) throw new Error(e4.message)
+    koachToast(`"${titulo}" asignada a ${s.nombre} ✓`)
+    goTo('pgPerfilSocio')
+    cargarExtrasPerfil()
+  } catch (e) {
+    koachToast('Error: ' + e.message)
+  }
 }
 
 // ── ECUALIZADOR SEMANAL (coach/admin) ──
@@ -3236,7 +3569,7 @@ async function progAsignar() {
         .insert({ sesion_id: ses.id, bloque: k, rol: p[k].rol, sets: p[k].sets, descanso_segundos: p[k].desc })
         .select().single()
       if (e2) throw new Error(e2.message)
-      const filas = p[k].ejs.map((e, i) => ({ bloque_id: blo.id, ejercicio_id: e.id, orden: i + 1, es_ancla: k === 'B2' && i === 0 }))
+      const filas = p[k].ejs.map((e, i) => ({ bloque_id: blo.id, ejercicio_id: e.id, orden: i + 1, reps: e.con_carga ? '10' : '30s', es_ancla: k === 'B2' && i === 0 }))
       const { error: e3 } = await sb.from('bloque_ejercicios').insert(filas)
       if (e3) throw new Error(e3.message)
     }
@@ -3263,6 +3596,458 @@ document.querySelectorAll('.btn-nuevo').forEach(b => {
 
 // Logos en páginas declaradas después del primer script
 document.querySelectorAll('.koach-logo').forEach(img => { if (!img.src) img.src = LOGO_SRC })
+
+</script>
+
+<script>
+/* ══════════ PLANILLA — EDITOR DE PROGRAMACIÓN (coach) ══════════
+   Modelo: protocolos → sesiones_protocolo (1–3) → bloques (sets, descanso) → bloque_ejercicios (reps)
+   Volumen semanal = sets × ejercicios por grupo, sumado A+B+C. Bandas: volumen_objetivos o 70/100/130 del plan cargado. */
+const TECH = {'CUÁDRICEPS':'QUADS','ISQUIOS':'HAMS','GLÚTEOS':'GLUTES','PECHO':'PECS','ESPALDA':'LATS','HOMBROS':'DELTS','BÍCEPS':'BIS','TRÍCEPS':'TRIS','CORE':'CORE','CARDIO':'CARDIO','MOVILIDAD':'MOB','GENERAL':'GLOBAL'}
+const techLbl = g => TECH[g] || g
+let PL = { protos: [], protoId: null, sesiones: [], sesIdx: 0, data: {}, ejercicios: [], grupos: [], bandas: {}, dirty: {}, cargado: false }
+
+async function planillaInit() {
+  if (PL.cargado) return
+  PL.cargado = true
+  const sel = document.getElementById('plProto')
+  const [pRes, eRes] = await Promise.all([
+    sb.from('protocolos').select('id, programa, nivel, sexo').order('programa'),
+    sb.from('ejercicios').select('id, nombre, grupo_muscular, con_carga').eq('activo', true).order('nombre')
+  ])
+  if (pRes.error) { sel.innerHTML = '<option>Error cargando protocolos</option>'; koachToast('Planilla: ' + pRes.error.message); return }
+  PL.protos = pRes.data || []
+  PL.ejercicios = eRes.data || []
+  PL.grupos = [...new Set(PL.ejercicios.map(e => (e.grupo_muscular || 'GENERAL').toUpperCase()))].sort()
+  sel.innerHTML = '<option value="">— Elegir protocolo —</option>' +
+    PL.protos.map(p => `<option value="${p.id}">${p.programa} · ${p.nivel}${p.sexo ? ' · ' + p.sexo : ''}</option>`).join('')
+}
+
+async function plCargarProtocolo() {
+  const id = document.getElementById('plProto').value
+  if (!id) return
+  if (Object.values(PL.dirty).some(Boolean) && !confirm('Hay cambios sin guardar. ¿Cambiar de protocolo igual?')) {
+    document.getElementById('plProto').value = PL.protoId; return
+  }
+  PL.protoId = id; PL.data = {}; PL.dirty = {}
+  document.getElementById('plBloques').innerHTML = '<div class="loading-state"><span class="spinner-inline spinner-dark"></span>Cargando sesiones…</div>'
+  const { data: ses, error } = await sb.from('sesiones_protocolo').select('id, numero, nombre, objetivo')
+    .eq('protocolo_id', id).lte('numero', 3).order('numero')
+  if (error || !ses || !ses.length) { document.getElementById('plBloques').innerHTML = '<div class="loading-state">Este protocolo no tiene sesiones 1–3.</div>'; return }
+  PL.sesiones = ses
+  const { data: bloques } = await sb.from('bloques')
+    .select('id, sesion_id, bloque, rol, sets, descanso_segundos, bloque_ejercicios(id, ejercicio_id, orden, reps, es_ancla, ejercicios(id, nombre, grupo_muscular))')
+    .in('sesion_id', ses.map(s => s.id)).order('bloque')
+  ses.forEach(s => {
+    PL.data[s.id] = (bloques || []).filter(b => b.sesion_id === s.id).map(b => ({
+      id: b.id, bloque: b.bloque, rol: b.rol || '', sets: b.sets || 3, desc: b.descanso_segundos || 60,
+      ejs: (b.bloque_ejercicios || []).sort((a, z) => (a.orden || 0) - (z.orden || 0)).map(be => ({
+        ejercicio_id: be.ejercicio_id,
+        nombre: be.ejercicios?.nombre || '',
+        grupo: (be.ejercicios?.grupo_muscular || '').toUpperCase(),
+        reps: (be.reps || '10').includes('/') ? (be.reps.split('/')[0] || '10') : (be.reps || '10'),
+        repsSerie: (be.reps || '').includes('/') ? be.reps.split('/') : null,
+        abierto: false, es_ancla: !!be.es_ancla
+      }))
+    }))
+  })
+  // Bandas: overrides o 70/100/130 del plan cargado (snapshot — referencia fija durante la edición)
+  PL.bandas = {}
+  try {
+    const { data: objs } = await sb.from('volumen_objetivos').select('*').eq('protocolo_id', id)
+    ;(objs || []).forEach(o => { const g = (o.grupo || '').toUpperCase(); PL.bandas[g] = { mev: o.mev, mav: o.mav, mrv: o.mrv } })
+  } catch (_) {}
+  const plan = plVolumenSemanal()
+  PL.grupos.forEach(g => {
+    if (PL.bandas[g] && PL.bandas[g].mrv) return
+    if (g === 'CARDIO') { PL.bandas[g] = { mev: 0, mav: 4, mrv: 8 }; return }
+    const p = plan[g] || 6
+    PL.bandas[g] = { mev: Math.ceil(p * 0.7), mav: p, mrv: Math.ceil(p * 1.3) }
+  })
+  PL.sesIdx = 0
+  plRenderTabs(); plRenderSesion(); plRenderBalance()
+  ;['plObjWrap','plAddBloque','plBtnGuardar','plBalWrap'].forEach(x => document.getElementById(x).style.display = x==='plObjWrap' ? 'flex' : (x==='plBtnGuardar' ? 'inline-block' : 'block'))
+}
+
+function plSes() { return PL.sesiones[PL.sesIdx] }
+function plBloquesAct() { return PL.data[plSes().id] || [] }
+function plMarkDirty() { PL.dirty[plSes().id] = true; document.getElementById('plDirty').style.display = 'inline'; plRenderBalance() }
+
+function plRenderTabs() {
+  document.getElementById('plSesTabs').innerHTML = PL.sesiones.map((s, i) =>
+    `<button class="${i === PL.sesIdx ? 'on' : ''}" onclick="plCambiarSes(${i})">${['A','B','C'][s.numero - 1] || s.numero}${PL.dirty[s.id] ? ' •' : ''}</button>`).join('')
+}
+function plCambiarSes(i) { PL.sesIdx = i; plRenderTabs(); plRenderSesion() }
+function plSetObjetivo(v) { plSes().objetivo = v; plMarkDirty(); plRenderTabs() }
+
+function plRenderSesion() {
+  const s = plSes()
+  const obj = (s.objetivo || '').toUpperCase()
+  const selObj = document.getElementById('plObjetivo')
+  if (['UPPER BODY','LOWER BODY','TOTAL BODY'].includes(obj)) selObj.value = obj
+  else { if (obj && ![...selObj.options].some(o => o.value === obj)) selObj.add(new Option(obj, obj)); selObj.value = obj || 'TOTAL BODY' }
+  document.getElementById('plDirty').style.display = PL.dirty[s.id] ? 'inline' : 'none'
+  const cont = document.getElementById('plBloques')
+  const bls = plBloquesAct()
+  if (!bls.length) { cont.innerHTML = '<div class="loading-state">Sesión sin bloques — agrega el primero.</div>'; return }
+  cont.innerHTML = bls.map((b, bi) => `
+    <div class="pl-bloque">
+      <div class="pl-bhead">
+        <b>B${b.bloque}</b><span>${b.rol || ''}</span>
+        <label>Sets <input type="number" min="1" value="${b.sets}" onchange="plSetSets(${bi},+this.value)"></label>
+        <label>Desc. <input type="number" min="0" step="15" value="${b.desc}" onchange="plBloquesAct()[${bi}].desc=+this.value||0;plMarkDirty()"> seg</label>
+        <button class="pl-bx" onclick="plDelBloque(${bi})" title="Eliminar bloque">×</button>
+      </div>
+      <table class="pl-tabla">
+        <thead><tr><th class="pl-c-est">Estímulo</th><th>Ejercicio</th><th class="pl-c-reps">Reps</th><th class="pl-c-x"></th></tr></thead>
+        <tbody>
+        ${b.ejs.map((e, ei) => `
+          <tr>
+            <td><select onchange="plSetGrupo(${bi},${ei},this.value)">
+              <option value=""></option>
+              ${PL.grupos.map(g => `<option value="${g}" ${e.grupo === g ? 'selected' : ''}>${techLbl(g)}</option>`).join('')}
+            </select></td>
+            <td><select ${e.grupo ? '' : 'disabled'} onchange="plPickEj(${bi},${ei},this.value)">
+              <option value="">${e.grupo ? '— Elegir ejercicio —' : 'Elige estímulo primero'}</option>
+              ${PL.ejercicios.filter(x => (x.grupo_muscular || '').toUpperCase() === e.grupo)
+                .map(x => `<option value="${x.id}" ${String(e.ejercicio_id) === String(x.id) ? 'selected' : ''}>${x.nombre}</option>`).join('')}
+            </select></td>
+            <td><div class="pl-reps-cell">
+              <input value="${e.repsSerie ? e.repsSerie.join('·') : e.reps}" ${e.repsSerie ? 'readonly' : ''} onchange="plBloquesAct()[${bi}].ejs[${ei}].reps=this.value;plMarkDirty()">
+              <button class="pl-chev ${e.abierto ? 'abierto' : ''}" onclick="plToggleSeries(${bi},${ei})" title="Series individuales">${e.abierto ? '▲' : '▼'}</button>
+            </div></td>
+            <td><button class="pl-bx" onclick="plDelEj(${bi},${ei})">×</button></td>
+          </tr>
+          ${e.abierto ? `<tr class="pl-serie-row"><td colspan="4"><div class="pl-serie-inner"><b>SERIES</b>
+            ${Array.from({length: b.sets}, (_, si) => {
+              const v = e.repsSerie ? (e.repsSerie[si] || e.reps) : e.reps
+              const dif = e.repsSerie && e.repsSerie[si] && e.repsSerie[si] !== e.reps
+              return `<div class="pl-sbox"><span>S${si + 1}</span><input class="${dif ? 'difiere' : ''}" value="${v}" onchange="plSetSerie(${bi},${ei},${si},this.value)"></div>`
+            }).join('')}
+            ${e.repsSerie ? `<button class="pl-slink" onclick="plResetSeries(${bi},${ei})">usar reps ideal</button>` : ''}
+          </div></td></tr>` : ''}`).join('')}
+        </tbody>
+      </table>
+      <button class="pl-addrow" onclick="plAddEj(${bi})">+ Ejercicio</button>
+    </div>`).join('')
+}
+
+function plSetGrupo(bi, ei, g) { const e = plBloquesAct()[bi].ejs[ei]; e.grupo = g; e.nombre = ''; e.ejercicio_id = null; plMarkDirty(); plRenderSesion() }
+function plPickEj(bi, ei, id) {
+  const e = plBloquesAct()[bi].ejs[ei]
+  if (!id) { e.ejercicio_id = null; e.nombre = ''; plMarkDirty(); return }
+  const x = PL.ejercicios.find(z => String(z.id) === String(id)); if (!x) return
+  e.ejercicio_id = x.id; e.nombre = x.nombre
+  plMarkDirty()
+}
+function plSetSets(bi, v) {
+  const b = plBloquesAct()[bi]
+  b.sets = Math.max(1, v || 1)
+  b.ejs.forEach(e => { if (e.repsSerie) { while (e.repsSerie.length < b.sets) e.repsSerie.push(e.reps); e.repsSerie.length = b.sets } })
+  plMarkDirty(); plRenderSesion()
+}
+function plToggleSeries(bi, ei) { const e = plBloquesAct()[bi].ejs[ei]; e.abierto = !e.abierto; plRenderSesion() }
+function plSetSerie(bi, ei, si, v) {
+  const b = plBloquesAct()[bi], e = b.ejs[ei]
+  if (!e.repsSerie) e.repsSerie = Array.from({length: b.sets}, () => e.reps)
+  e.repsSerie[si] = v
+  plMarkDirty(); plRenderSesion()
+}
+function plResetSeries(bi, ei) { const e = plBloquesAct()[bi].ejs[ei]; e.repsSerie = null; plMarkDirty(); plRenderSesion() }
+function plAddEj(bi) { plBloquesAct()[bi].ejs.push({ ejercicio_id: null, nombre: '', grupo: '', reps: '10', es_ancla: false }); plMarkDirty(); plRenderSesion() }
+function plDelEj(bi, ei) { plBloquesAct()[bi].ejs.splice(ei, 1); plMarkDirty(); plRenderSesion() }
+function plAddBloque() {
+  const bls = plBloquesAct()
+  bls.push({ id: null, bloque: (bls.length ? Math.max(...bls.map(b => b.bloque)) : 0) + 1, rol: '', sets: 3, desc: 60, ejs: [] })
+  plMarkDirty(); plRenderSesion()
+}
+function plDelBloque(bi) { if (!confirm('¿Eliminar este bloque completo?')) return; plBloquesAct().splice(bi, 1); plMarkDirty(); plRenderSesion() }
+
+function plVolumenSemanal() {
+  const tot = {}
+  PL.sesiones.forEach(s => (PL.data[s.id] || []).forEach(b =>
+    b.ejs.forEach(e => { if (!e.grupo) return; tot[e.grupo] = (tot[e.grupo] || 0) + (b.sets || 0) })))
+  return tot
+}
+function plRenderBalance() {
+  const tot = plVolumenSemanal()
+  const activos = PL.grupos.filter(g => g !== 'MOVILIDAD' && ((tot[g] || 0) > 0 || (PL.bandas[g] && g !== 'GENERAL')))
+  document.getElementById('plBalance').innerHTML = activos.map(g => {
+    const b = PL.bandas[g] || { mev: 4, mav: 8, mrv: 12 }
+    const v = tot[g] || 0
+    const max = Math.max(b.mrv * 1.15, v * 1.05, 1)
+    let st, cls
+    if (v < b.mev) { st = 'BAJO MEV'; cls = 'bajo' } else if (v <= b.mav) { st = 'ÓPTIMO'; cls = 'ok' }
+    else if (v <= b.mrv) { st = 'ALTO'; cls = 'ok' } else { st = 'SOBRE MRV'; cls = 'alto' }
+    return `<div class="pl-brow"><div class="pl-g">${techLbl(g)}</div>
+      <div class="pl-barbg"><div class="pl-bar" style="width:${Math.min(v / max * 100, 100)}%"></div>
+        <div class="pl-mk" style="left:${b.mev / max * 100}%"></div>
+        <div class="pl-mk" style="left:${b.mav / max * 100}%"></div>
+        <div class="pl-mk mrv" style="left:${b.mrv / max * 100}%"></div></div>
+      <div class="pl-st ${cls}">${v} · ${st}</div></div>`
+  }).join('')
+}
+
+async function plGuardar() {
+  const s = plSes()
+  const bls = plBloquesAct()
+  const vacios = bls.reduce((a, b) => a + b.ejs.filter(e => !e.ejercicio_id).length, 0)
+  if (vacios && !confirm(`Hay ${vacios} fila(s) sin ejercicio seleccionado — se omitirán al guardar. ¿Continuar?`)) return
+  const btn = document.getElementById('plBtnGuardar')
+  btn.disabled = true; btn.textContent = 'GUARDANDO…'
+  try {
+    // 1. Objetivo de la sesión
+    const { error: e0 } = await sb.from('sesiones_protocolo').update({ objetivo: s.objetivo || document.getElementById('plObjetivo').value }).eq('id', s.id)
+    if (e0) throw new Error(e0.message)
+    // 2. Bloques eliminados en la edición
+    const { data: actuales } = await sb.from('bloques').select('id').eq('sesion_id', s.id)
+    const vivos = bls.filter(b => b.id).map(b => b.id)
+    const muertos = (actuales || []).map(x => x.id).filter(id => !vivos.includes(id))
+    for (const id of muertos) {
+      await sb.from('bloque_ejercicios').delete().eq('bloque_id', id)
+      const { error } = await sb.from('bloques').delete().eq('id', id)
+      if (error) throw new Error(error.message)
+    }
+    // 3. Upsert de cada bloque + reemplazo de sus ejercicios
+    for (const b of bls) {
+      let bloqueId = b.id
+      if (bloqueId) {
+        const { error } = await sb.from('bloques').update({ bloque: b.bloque, sets: b.sets, descanso_segundos: b.desc }).eq('id', bloqueId)
+        if (error) throw new Error(error.message)
+      } else {
+        const { data: nuevo, error } = await sb.from('bloques')
+          .insert({ sesion_id: s.id, bloque: b.bloque, rol: b.rol || 'PRINCIPAL', sets: b.sets, descanso_segundos: b.desc }).select().single()
+        if (error) throw new Error(error.message)
+        bloqueId = nuevo.id; b.id = nuevo.id
+      }
+      await sb.from('bloque_ejercicios').delete().eq('bloque_id', bloqueId)
+      const filas = b.ejs.filter(e => e.ejercicio_id).map((e, i) => ({ bloque_id: bloqueId, ejercicio_id: e.ejercicio_id, orden: i + 1, reps: e.repsSerie ? e.repsSerie.join('/') : e.reps, es_ancla: !!e.es_ancla }))
+      if (filas.length) {
+        const { error } = await sb.from('bloque_ejercicios').insert(filas)
+        if (error) throw new Error(error.message)
+      }
+    }
+    PL.dirty[s.id] = false
+    document.getElementById('plDirty').style.display = 'none'
+    plRenderTabs()
+    koachToast(`Sesión ${['A','B','C'][s.numero - 1] || s.numero} guardada.`)
+  } catch (err) {
+    koachToast('Error al guardar: ' + err.message)
+  } finally {
+    btn.disabled = false; btn.textContent = 'GUARDAR SESIÓN'
+  }
+}
+
+// ══════════════════════════════════════════════
+// SOCIO V2 · MOTOR ÚNICO + HOME (Tramo 1)
+// ══════════════════════════════════════════════
+const K2_ESTADOS_OK = ['completada','finalizada','incompleta'];
+
+function k2AporteSesion(sesion, bloquesCompletados = null) {
+  const aporte = {};
+  const suma = (g, v) => { aporte[g] = (aporte[g] || 0) + v; };
+  (sesion.bloques || []).forEach((bloque, idx) => {
+    if (bloquesCompletados !== null && !bloquesCompletados.includes(idx)) return;
+    const sets = bloque.sets || 0;
+    (bloque.ejercicios || []).forEach(ej => {
+      const g = (ej.grupo || '').toUpperCase();
+      if (!g || g === 'MOVILIDAD') return;
+      suma(g, sets * 1.0);
+      Object.entries(ej.sinergistas || {}).forEach(([sg, peso]) => {
+        const s2 = sg.toUpperCase();
+        if (s2 !== 'MOVILIDAD') suma(s2, sets * (parseFloat(peso) || 0));
+      });
+    });
+  });
+  return aporte;
+}
+
+function k2CalcularSemana(programa, registros, objetivos) {
+  const acum = {};
+  Object.keys(objetivos).forEach(g => acum[g] = 0);
+  const validos = registros.filter(r => K2_ESTADOS_OK.includes(r.estado));
+  validos.forEach(r => {
+    const ses = programa.sesiones.find(s => s.numero === r.sesion_numero);
+    if (!ses) return;
+    const a = k2AporteSesion(ses, r.bloques_completados ?? null);
+    Object.entries(a).forEach(([g, v]) => { if (g in acum) acum[g] += v; });
+  });
+  const musculos = Object.entries(objetivos).map(([grupo, o]) => ({
+    grupo, series_efectivas: +acum[grupo].toFixed(2),
+    objetivo: o.mev, limite: o.mav ?? o.mrv ?? null,
+    exigible: o.exigible !== false,
+    fortalecido: o.exigible !== false && acum[grupo] >= o.mev,
+    pct: o.mev > 0 ? Math.round(acum[grupo] / o.mev * 100) : 0
+  }));
+  const exigibles = musculos.filter(m => m.exigible);
+  const fortalecidos_total = exigibles.filter(m => m.fortalecido).length;
+  const hechasNums = new Set(validos.filter(r => r.estado !== 'incompleta').map(r => r.sesion_numero));
+  const prox = programa.sesiones.find(s => !hechasNums.has(s.numero)) || programa.sesiones[0] || null;
+  let proxima_sesion = null;
+  if (prox) {
+    const ap = k2AporteSesion(prox);
+    const cumpliria = exigibles.filter(m => !m.fortalecido && (ap[m.grupo] || 0) > 0 && acum[m.grupo] + ap[m.grupo] >= m.objetivo);
+    proxima_sesion = { numero: prox.numero, id: prox.id, nombre: prox.nombre || ('SESIÓN ' + prox.numero), fortaleceria: cumpliria.length };
+  }
+  return { musculos, exigibles_total: exigibles.length, fortalecidos_total, proxima_sesion,
+           semana_completa: exigibles.length > 0 && fortalecidos_total === exigibles.length };
+}
+
+function k2Saludo(frases, ctx, nombre) {
+  const fam = (frases && frases.saludos && frases.saludos[ctx]) || ['De vuelta a la sala, {n}.'];
+  const s = fam[Math.floor(Math.random() * fam.length)];
+  return s.replace('{n}', nombre);
+}
+
+function k2Lunes() {
+  const hoy = new Date(); const d = (hoy.getDay() + 6) % 7; // L=0
+  const lunes = new Date(hoy); lunes.setDate(hoy.getDate() - d); lunes.setHours(0,0,0,0);
+  return lunes;
+}
+
+async function loadSocioV2() {
+  const p = STATE.profile;
+  document.getElementById('k2Av').textContent = (p.nombre || 'K')[0].toUpperCase();
+
+  // 1 · Asignación + protocolo
+  const { data: asig } = await sb.from('asignaciones').select('*, protocolos(*)')
+    .eq('socio_id', p.id).eq('activo', true).single();
+  if (!asig) throw new Error('sin asignación');
+  STATE.asignacion = asig;
+  const proto = asig.protocolos;
+
+  // 2 · Sesiones base + estructura con sinergistas
+  const { data: sesionesBase } = await sb.from('sesiones_protocolo').select('*')
+    .eq('protocolo_id', proto.id).lte('numero', 3).order('numero');
+  STATE.sesionesBase = sesionesBase || [];
+  const sesIds = STATE.sesionesBase.map(s => s.id);
+  const { data: bloques } = await sb.from('bloques')
+    .select('sesion_id, sets, bloque_ejercicios(ejercicios(grupo_muscular, sinergistas))')
+    .in('sesion_id', sesIds);
+  const programa = { sesiones: STATE.sesionesBase.map(s => ({
+    numero: s.numero, id: s.id, nombre: (s.objetivo || '').toUpperCase() || null,
+    bloques: (bloques || []).filter(b => b.sesion_id === s.id).map(b => ({
+      sets: b.sets,
+      ejercicios: (b.bloque_ejercicios || []).map(be => ({
+        grupo: be.ejercicios?.grupo_muscular, sinergistas: be.ejercicios?.sinergistas || {}
+      })).filter(e => e.grupo)
+    }))
+  })) };
+
+  // 3 · Registros de la semana calendario (L–S)
+  const lunes = k2Lunes();
+  const lunesISO = lunes.toISOString().split('T')[0];
+  const { data: regs } = await sb.from('sesiones_registro')
+    .select('sesion_protocolo_id, estado, fecha, bloques_completados')
+    .eq('socio_id', p.id).gte('fecha', lunesISO);
+  const numPorId = {}; STATE.sesionesBase.forEach(s => numPorId[s.id] = s.numero);
+  const registros = (regs || []).map(r => ({
+    sesion_numero: numPorId[r.sesion_protocolo_id], estado: r.estado,
+    fecha: r.fecha, bloques_completados: r.bloques_completados ?? null
+  })).filter(r => r.sesion_numero);
+
+  // 4 · Objetivos por protocolo (denominador dinámico R71/R72)
+  const { data: objs } = await sb.from('volumen_objetivos').select('*').eq('protocolo_id', proto.id);
+  const objetivos = {};
+  (objs || []).forEach(o => {
+    const g = (o.grupo || '').toUpperCase();
+    if (!g || !(o.mev > 0)) return;
+    objetivos[g] = { mev: o.mev, mav: o.mav ?? o.mrv ?? null,
+      exigible: (o.dominante === undefined || o.dominante === null) ? true : !!o.dominante };
+  });
+  if (!Object.keys(objetivos).length) throw new Error('sin volumen_objetivos');
+
+  // 5 · Frases del Coach Digital (coach_config)
+  let frases = null;
+  try {
+    const { data: cfg } = await sb.from('coach_config').select('frases').eq('activo', true).limit(1).single();
+    frases = cfg?.frases || null;
+  } catch (_) {}
+
+  // 6 · Motor
+  const sem = k2CalcularSemana(programa, registros, objetivos);
+  STATE.k2 = { programa, sem };
+
+  // ── RENDER ──
+  const den = sem.exigibles_total, num = sem.fortalecidos_total;
+  document.getElementById('k2D').textContent = den;
+  const C = 490.1;
+  const hoy = new Date(); const dowL = (hoy.getDay() + 6) % 7;
+  const DIA_NOM = ['lunes','martes','miércoles','jueves','viernes','sábado','domingo'];
+
+  // Saludo + voz contextual
+  const nombre = p.nombre || 'socio';
+  let ctx = 'sesion';
+  if (sem.semana_completa) ctx = 'completa';
+  else if (dowL === 0 && registros.length === 0) ctx = 'lunes';
+  document.getElementById('k2Saludo').textContent = k2Saludo(frases, ctx, nombre);
+  let voz;
+  if (sem.semana_completa) {
+    voz = `Alcanzaste el estímulo planificado — <b>${num}/${den}</b>. <b>Ahora también toca recuperar.</b>`;
+  } else if (sem.proxima_sesion) {
+    const f = sem.proxima_sesion.fortaleceria;
+    voz = `Es <b>${DIA_NOM[dowL]}</b> y ya fortaleciste <b>${num} de ${den}</b>. Tu próxima sesión fortalece <b>${f} más</b>` +
+      (num + f >= den ? ` — <b>completas tu semana</b>.` : `.`) + ` <b>A levantar.</b>`;
+  } else {
+    voz = `Llevas <b>${num} de ${den}</b> músculos esta semana.`;
+  }
+  document.getElementById('k2Voz').innerHTML = voz;
+
+  // Días L–S
+  const porDia = {};
+  registros.forEach(r => { const d = new Date(r.fecha + 'T12:00:00'); porDia[(d.getDay()+6)%7] = true; });
+  document.getElementById('k2Dias').innerHTML = ['L','M','X','J','V','S'].map((l, i) => `
+    <div class="k2-dia ${i === dowL ? 'hoy' : 'k2-glass'} ${porDia[i] ? 'hecho' : ''}">
+      <div class="dl">${l}</div><div class="dm">${i === dowL ? 'HOY' : (porDia[i] ? '✓' : '·')}</div>
+    </div>`).join('');
+
+  // CTA
+  if (sem.semana_completa) {
+    document.getElementById('k2CtaT').textContent = 'SEMANA COMPLETA';
+    document.getElementById('k2CtaS').textContent = 'NOS VEMOS EL LUNES';
+  } else if (sem.proxima_sesion) {
+    document.getElementById('k2CtaT').textContent = 'COMENZAR SESIÓN';
+    document.getElementById('k2CtaS').textContent =
+      `${sem.proxima_sesion.nombre} · FORTALECE ${sem.proxima_sesion.fortaleceria} MÚSCULOS`;
+  }
+
+  // Barras (todas: exigibles con meta · resto "libre")
+  const ordend = [...sem.musculos].sort((a,b) => (b.exigible - a.exigible) || (b.pct - a.pct));
+  document.getElementById('k2Rows').innerHTML = ordend.map(m => {
+    const pct = Math.min(m.pct, 100);
+    const est = !m.exigible ? 'LIBRE' : (m.fortalecido ? '✓' : pct + '%');
+    return `<div class="k2-row ${m.exigible ? '' : 'libre'}">
+      <div class="g">${m.grupo}</div>
+      <div class="k2-bar"><div class="k2-fill" data-w="${m.exigible ? pct : Math.min(pct,100)}"></div></div>
+      <div class="v ${m.fortalecido ? 'si' : ''}">${est}</div></div>`;
+  }).join('');
+  document.getElementById('k2Count').textContent = `${num} DE ${den} FORTALECIDOS`;
+  document.getElementById('k2Nota').textContent =
+    `${(proto.programa||'').toUpperCase()} · ${(proto.nivel||'').toUpperCase()} · SEMANA ${asig.semana_actual || 1} DE 6`;
+
+  // Secuencia de apertura
+  setTimeout(() => {
+    const obj = den > 0 ? num / den : 0;
+    document.getElementById('k2Arc').style.strokeDashoffset = C * (1 - obj);
+    const fl = document.getElementById('k2Flecha');
+    if (obj > 0.01) {
+      fl.setAttribute('opacity', '1');
+      const ang = obj * 360, rad = ang * Math.PI / 180;
+      fl.setAttribute('transform', `translate(${90 + 78 * Math.cos(rad)},${90 + 78 * Math.sin(rad)}) rotate(${ang + 90})`);
+    }
+    let c = 0;
+    const it = setInterval(() => { c++; document.getElementById('k2N').textContent = Math.min(c, num);
+      if (c >= num) clearInterval(it); }, 220);
+    if (num === 0) document.getElementById('k2N').textContent = '0';
+    document.querySelectorAll('#k2Rows .k2-fill').forEach((f, i) =>
+      setTimeout(() => { f.style.width = f.dataset.w + '%'; }, 150 + i * 70));
+  }, 350);
+}
+
+function k2IrSesion() {
+  // Tramo 1: puente a la ejecución existente (pgSocio) — Tramo 2 la reemplaza
+  loadSocioData().then(() => goTo('pgSocio'));
+}
 
 </script>
 
