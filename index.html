@@ -660,6 +660,36 @@
 .k2-row.libre .k2-fill{background:#BEBDB8}
 .k2-nota{font-size:7.5px;letter-spacing:.16em;color:#BEBDB8;font-weight:800;text-align:center;margin-top:10px}
 
+
+/* ══ SOCIO V2 · CAPA DE SESIÓN ══ */
+.k2-locked{filter:blur(3px) grayscale(1);opacity:.45;pointer-events:none;transition:all .5s}
+.k2-ovl{position:fixed;inset:0;z-index:900;display:none;flex-direction:column;align-items:center;justify-content:center;
+  padding:30px;text-align:center;font-family:-apple-system,'Helvetica Neue',Arial,sans-serif}
+.k2-ovl.vis{display:flex;animation:k2fin .25s ease}
+@keyframes k2fin{from{opacity:0;transform:scale(1.03)}to{opacity:1;transform:none}}
+.k2-ovl.oscuro{background:#0C0C0B;color:#F3F2EF}
+.k2-ovl.velo{background:rgba(12,12,11,.55);backdrop-filter:blur(4px)}
+.k2-fk{font-size:9px;font-weight:900;letter-spacing:.4em;color:#77766F;margin-bottom:22px}
+.k2-ftxt{font-size:24px;font-weight:900;line-height:1.25;max-width:330px}
+.k2-fsub{font-size:11px;color:#9A9994;margin-top:13px;font-weight:700}
+.k2-slide{position:relative;width:min(86vw,340px);height:60px;background:#121210;border-radius:34px;
+  display:flex;align-items:center;justify-content:center;overflow:hidden;user-select:none;touch-action:none;
+  box-shadow:0 12px 28px rgba(0,0,0,.4)}
+.k2-slide.claro{background:#F3F2EF}
+.k2-slide .stx{color:#8B8A85;font-size:10px;font-weight:900;letter-spacing:.22em;pointer-events:none}
+.k2-slide .th{position:absolute;left:5px;top:5px;width:78px;height:50px;background:#F3F2EF;border-radius:28px;
+  display:flex;align-items:center;justify-content:center;font-size:17px;font-weight:900;color:#121210;cursor:grab;transition:left .18s}
+.k2-slide.claro .th{background:#121210;color:#F3F2EF}
+.k2-slide.ok{background:#1F9D55}
+.k2-rw-tit{font-size:11px;font-weight:800;letter-spacing:.22em;color:#C9C8C2}
+.k2-rw-big{font-size:78px;font-weight:900;letter-spacing:-.03em}
+.k2-rw-lbl{font-size:10px;letter-spacing:.28em;color:#77766F;font-weight:800}
+.k2-rw-msg{font-size:14px;margin-top:22px;line-height:1.6;color:#C9C8C2}
+.k2-rw-msg b{color:#fff}
+.k2-rw-fin{font-size:14px;margin-top:26px;font-weight:800;color:#F3F2EF}
+.k2-ovl .k2-titulo{font-size:17px;font-weight:900;margin-bottom:6px;color:#F3F2EF}
+.k2-ovl .k2-bajo{font-size:10px;color:#9A9994;font-weight:700;margin-bottom:22px;letter-spacing:.06em}
+
 </style>
 </head>
 <body>
@@ -814,6 +844,30 @@
 <!-- ══════════════════════════════════════════════
      PAGE: PANEL COACH
 ══════════════════════════════════════════════ -->
+
+
+<!-- ══ V2 · OVERLAYS DE SESIÓN ══ -->
+<div class="k2-ovl velo" id="k2OvlActivar">
+  <div class="k2-titulo" id="k2ActT">SESIÓN</div>
+  <div class="k2-bajo" id="k2ActS">DESLIZA PARA COMPROMETERTE</div>
+  <div class="k2-slide" id="k2SlideAct"><span class="stx">DESLIZA PARA ACTIVAR</span><div class="th">→</div></div>
+</div>
+<div class="k2-ovl oscuro" id="k2OvlFlash">
+  <div class="k2-fk">KOACH</div>
+  <div class="k2-ftxt" id="k2FlashT"></div>
+  <div class="k2-fsub" id="k2FlashS"></div>
+</div>
+<div class="k2-ovl velo" id="k2OvlCerrar">
+  <div class="k2-slide" id="k2SlideFin"><span class="stx">DESLIZA PARA FINALIZAR</span><div class="th">✓</div></div>
+</div>
+<div class="k2-ovl oscuro" id="k2OvlReward">
+  <div class="k2-fk">KOACH</div>
+  <div class="k2-rw-tit" id="k2RwSes">SESIÓN · COMPLETADA</div>
+  <div class="k2-rw-big" id="k2RwN">+0</div>
+  <div class="k2-rw-lbl">MÚSCULOS FORTALECIDOS</div>
+  <div class="k2-rw-msg" id="k2RwMsg"></div>
+  <div class="k2-rw-fin" id="k2RwFin">Más fuerte que el lunes.</div>
+</div>
 
 <!-- ══ SOCIO V2 · TU SEMANA ══ -->
 <div class="page" id="pgSocioV2">
@@ -1893,6 +1947,7 @@ function completarSets(btn, bloqueId) {
     btn.textContent = `✓ ${bloqueId} COMPLETADO`
     btn.style.opacity = '0.6'
     if (sub) sub.textContent = 'Todos los sets realizados'
+    if (typeof k2OnBloqueCompleto === 'function') k2OnBloqueCompleto()
     STATE.setsConteo[bloqueId] = total
   } else {
     if (sub) sub.textContent = `SET ${STATE.setsConteo[bloqueId]+1} DE ${total}`
@@ -1908,6 +1963,7 @@ function updateProg() {
 }
 
 function cerrarSesion() {
+  if (typeof k2CerrarSesion === 'function') { k2CerrarSesion(); return }
   koachConfirm('¿Guardar la sesión de hoy?', 'Se registran tus cargas y tu rotación avanza a la siguiente rutina.', _cerrarSesionExec)
 }
 
@@ -3966,7 +4022,8 @@ async function loadSocioV2() {
 
   // 6 · Motor
   const sem = k2CalcularSemana(programa, registros, objetivos);
-  STATE.k2 = { programa, sem };
+  STATE.k2 = { programa, sem, registrosSemana: registros, objetivos };
+  STATE.k2frases = frases;
 
   // ── RENDER ──
   const den = sem.exigibles_total, num = sem.fortalecidos_total;
@@ -4048,6 +4105,176 @@ function k2IrSesion() {
   // Tramo 1: puente a la ejecución existente (pgSocio) — Tramo 2 la reemplaza
   loadSocioData().then(() => goTo('pgSocio'));
 }
+
+
+// ══ V2 · CAPA DE SESIÓN (Tramo 2) ══
+let K2S = { activada:false, bloquesListos:0, ordenBloques:[], frases:null };
+
+function k2InitSlide(el, onOk){
+  const th = el.querySelector('.th');
+  let sx=null, done=false;
+  const maxX=()=>el.clientWidth-th.clientWidth-10;
+  th.addEventListener('pointerdown',e=>{ if(done)return; sx=e.clientX-th.offsetLeft; try{th.setPointerCapture(e.pointerId)}catch(_){}});
+  th.addEventListener('pointermove',e=>{ if(sx===null||done)return; th.style.transition='none';
+    th.style.left=Math.max(5,Math.min(e.clientX-sx,maxX()+5))+'px'; });
+  th.addEventListener('pointerup',()=>{ if(sx===null)return; th.style.transition='left .18s';
+    if(th.offsetLeft>=maxX()*.82){ done=true; th.style.left=(maxX()+5)+'px'; el.classList.add('ok'); th.textContent='✓';
+      setTimeout(()=>{ onOk(); done=false; el.classList.remove('ok'); th.textContent=el.id==='k2SlideFin'?'✓':'→'; th.style.left='5px'; },220); }
+    else th.style.left='5px'; sx=null; });
+}
+
+function k2Flash(t, s, cb, ms){
+  document.getElementById('k2FlashT').textContent = t;
+  document.getElementById('k2FlashS').textContent = s || '';
+  const f = document.getElementById('k2OvlFlash');
+  f.classList.add('vis');
+  setTimeout(()=>{ f.classList.remove('vis'); if(cb)cb(); }, ms || 1500);
+}
+
+function k2FrasesBloque(i){
+  const fb = K2S.frases?.flashes_bloque;
+  if (fb && fb[Math.min(i, fb.length-1)]) { const x = fb[Math.min(i, fb.length-1)]; return [x.titulo, x.sub]; }
+  return [['ACTIVACIÓN LISTA.','El cuerpo ya está despierto. Ahora el trabajo real.'],
+          ['BLOQUE PRINCIPAL COMPLETO.','Lo más pesado ya quedó atrás. Sigue sumando.'],
+          ['ÚLTIMO BLOQUE ABAJO.','Desliza para cerrar tu sesión.']][Math.min(i,2)];
+}
+
+function k2AbrirSesion(){
+  // Estado limpio + bloqueo hasta deslizar
+  K2S.activada=false; K2S.bloquesListos=0;
+  K2S.ordenBloques = Object.keys(STATE.setsTotales || {}).sort();
+  K2S.frases = STATE.k2frases || null;
+  const nom = (STATE.sesionHoy?.objetivo || 'SESIÓN').toUpperCase();
+  const f = STATE.k2?.sem?.proxima_sesion?.fortaleceria;
+  document.getElementById('k2ActT').textContent = nom;
+  document.getElementById('k2ActS').textContent = f ? `FORTALECE ${f} MÚSCULOS · DESLIZA PARA COMPROMETERTE` : 'DESLIZA PARA COMPROMETERTE';
+  document.getElementById('sesionContent')?.classList.add('k2-locked');
+  document.getElementById('k2OvlActivar').classList.add('vis');
+}
+
+function k2IrSesion() {
+  loadSocioData().then(() => { goTo('pgSocio'); k2AbrirSesion(); });
+}
+
+// Flash por bloque completado (gancho desde completarSets)
+function k2OnBloqueCompleto(){
+  const [t,s] = k2FrasesBloque(K2S.bloquesListos);
+  K2S.bloquesListos++;
+  k2Flash(t, s);
+}
+
+function k2CerrarSesion(){ document.getElementById('k2OvlCerrar').classList.add('vis'); }
+
+async function k2FinalizarExec(){
+  document.getElementById('k2OvlCerrar').classList.remove('vis');
+  const btn = document.getElementById('btnCerrarSes');
+  if (btn){ btn.classList.add('loading'); btn.textContent='GUARDANDO...'; }
+  try {
+    // Bloques completados (índices por orden B1,B2,B3)
+    const bloquesComp = K2S.ordenBloques
+      .map((bid,i)=> (STATE.setsConteo[bid]||0) >= (STATE.setsTotales[bid]||1) ? i : -1)
+      .filter(i=>i>=0);
+
+    // Motor: antes / después (si el home v2 cargó)
+    let ganados = null, despues = null, den = null;
+    if (STATE.k2 && STATE.sesionHoy && !STATE.extraActiva){
+      const antes = STATE.k2.sem;
+      const regsN = [...(STATE.k2.registrosSemana||[]),
+        { sesion_numero: STATE.sesionHoy.numero, estado:'completada', bloques_completados: bloquesComp }];
+      despues = k2CalcularSemana(STATE.k2.programa, regsN, STATE.k2.objetivos);
+      ganados = despues.fortalecidos_total - antes.fortalecidos_total;
+      den = despues.exigibles_total;
+    }
+
+    let sesRegId = null;
+    if (STATE.profile && STATE.asignacion && STATE.sesionHoy){
+      const { data: sesReg } = await sb.from('sesiones_registro').insert({
+        socio_id: STATE.profile.id,
+        asignacion_id: STATE.asignacion.id,
+        sesion_protocolo_id: STATE.sesionHoy.id,
+        fecha: new Date().toISOString().split('T')[0],
+        estado: 'completada',
+        semana: STATE.asignacion.semana_actual,
+        ciclo: STATE.asignacion.ciclo_actual,
+        completada_at: new Date().toISOString(),
+        bloques_completados: bloquesComp,
+        musculos_sumados: ganados !== null ? { ganados, total: despues.fortalecidos_total, exigibles: den } : null
+      }).select().single();
+      sesRegId = sesReg?.id;
+      if (sesRegId){
+        const cargasInsert = [];
+        for (const item of STATE.ejerciciosHoy){
+          const peso = STATE.cargas[item.be.id];
+          if (peso) cargasInsert.push({
+            sesion_registro_id: sesRegId, socio_id: STATE.profile.id,
+            bloque_ejercicio_id: item.be.id, ejercicio_id: item.ej.id,
+            peso_kg: peso, sets_completados: STATE.setsConteo[item.bloque] || 0,
+            registrado_por: STATE.profile.id
+          });
+        }
+        if (cargasInsert.length) await sb.from('cargas').insert(cargasInsert);
+      }
+      if (STATE.extraActiva){
+        await sb.from('sesiones_extra').update({ estado:'completada', completada_at:new Date().toISOString() })
+          .eq('id', STATE.extraActiva.id);
+        STATE.extraActiva = null;
+      }
+    }
+
+    if (btn){ btn.classList.remove('loading'); btn.textContent='Cerrar sesión ✓'; }
+
+    // Recompensa
+    const nom = (STATE.sesionHoy?.objetivo || 'SESIÓN').toUpperCase();
+    document.getElementById('k2RwSes').textContent = nom + ' · COMPLETADA';
+    const rw = K2S.frases?.recompensa;
+    if (ganados !== null){
+      document.getElementById('k2RwN').textContent = '+' + ganados;
+      const faltan = den - despues.fortalecidos_total;
+      const completa = despues.semana_completa;
+      document.getElementById('k2RwMsg').innerHTML =
+        `<b>${despues.fortalecidos_total}/${den}</b><br>` +
+        (completa ? ((rw?.completa?.titulo)||'Semana completa. Trabajo hecho.')
+                  : ((rw?.normal?.casi)||'Casi completas tu semana.') + '<br>' +
+                    ((rw?.normal?.resto)||'Queda {n} músculo por fortalecer.').replace('{n}', faltan));
+      document.getElementById('k2RwFin').textContent = completa
+        ? ((rw?.completa?.estado)||'Más fuerte que la anterior.')
+        : ((rw?.normal?.estado)||'Más fuerte que el lunes.');
+    } else {
+      document.getElementById('k2RwN').textContent = '✓';
+      document.getElementById('k2RwMsg').innerHTML = 'El trabajo de hoy ya está sumado a tu semana.';
+      document.getElementById('k2RwFin').textContent = (rw?.normal?.estado)||'Más fuerte que el lunes.';
+    }
+    document.getElementById('k2OvlReward').classList.add('vis');
+    setTimeout(async ()=>{
+      document.getElementById('k2OvlReward').classList.remove('vis');
+      try { await loadSocioV2(); goTo('pgSocioV2'); }
+      catch(e){ await loadSocioData(); goTo('pgSocio'); }
+    }, 4200);
+
+  } catch(e){
+    console.error('k2Finalizar:', e);
+    if (btn){ btn.classList.remove('loading'); btn.textContent='Cerrar sesión ✓'; }
+    alert('No se pudo guardar. Intenta de nuevo o avisa a tu coach.');
+  }
+}
+
+// Sliders de la capa
+document.addEventListener('DOMContentLoaded', ()=>{
+  const a = document.getElementById('k2SlideAct');
+  const f = document.getElementById('k2SlideFin');
+  if (a) k2InitSlide(a, ()=>{
+    document.getElementById('k2OvlActivar').classList.remove('vis');
+    const nom = (STATE.sesionHoy?.objetivo || 'SESIÓN').toUpperCase();
+    const k = STATE.k2?.sem?.proxima_sesion?.fortaleceria;
+    const act = K2S.frases?.activacion;
+    k2Flash(
+      (act?.titulo||'{sesion} ACTIVADA.').replace('{sesion}', nom),
+      (act?.sub||'A levantar. Hoy fortaleces {k} músculos.').replace('{k}', k ?? '—'),
+      ()=>{ K2S.activada=true; document.getElementById('sesionContent')?.classList.remove('k2-locked'); }
+    );
+  });
+  if (f) k2InitSlide(f, k2FinalizarExec);
+});
 
 </script>
 
