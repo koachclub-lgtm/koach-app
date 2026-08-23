@@ -130,6 +130,67 @@ html,body{background:linear-gradient(170deg,#F3F2EF 0%,#E7E6E2 55%,#DAD9D4 100%)
   font-weight:700;z-index:999;opacity:0;pointer-events:none;transition:all .25s;text-align:center}
 .toast.vis{opacity:1;transform:translateX(-50%) translateY(0)}
 .cargando{text-align:center;padding:60px 20px;font-size:10px;letter-spacing:.2em;color:var(--gris);font-weight:800}
+
+/* ── TAB BAR ── */
+.tabbar{position:fixed;bottom:14px;left:50%;transform:translateX(-50%);width:min(92%,480px);z-index:80;
+  display:none;grid-template-columns:repeat(4,1fr);background:rgba(255,255,255,.72);backdrop-filter:blur(24px);
+  -webkit-backdrop-filter:blur(24px);border:1px solid rgba(255,255,255,.85);border-radius:24px;
+  padding:9px 8px;box-shadow:0 14px 34px rgba(30,30,28,.16)}
+.tabbar.vis{display:grid}
+.tb{border:none;background:none;text-align:center;cursor:pointer;padding:7px 0;border-radius:16px;color:var(--gris)}
+.tb .ti{font-size:15px;display:block}
+.tb .tl{font-size:6.5px;letter-spacing:.16em;font-weight:900;margin-top:3px;display:block}
+.tb.on{background:var(--tinta);color:var(--hueso)}
+.conTab{padding-bottom:96px}
+/* ── PLAN ── */
+.ph{font-size:19px;font-weight:900;margin:4px 2px 2px}
+.ps{font-size:8.5px;letter-spacing:.16em;color:var(--gris);font-weight:800;margin:0 2px 14px}
+.pcard{display:flex;align-items:center;gap:13px;padding:15px 16px;margin-bottom:10px}
+.pnum{width:42px;height:42px;border-radius:50%;display:flex;align-items:center;justify-content:center;
+  font-weight:900;font-size:14px;flex-shrink:0;background:rgba(18,18,16,.07);color:var(--tinta)}
+.pcard.hecha .pnum{background:rgba(31,157,85,.12);color:var(--ok)}
+.pcard.prox .pnum{background:var(--tinta);color:var(--hueso)}
+.pcard.lock{opacity:.55}
+.pn2{font-size:13px;font-weight:900}
+.pm2{font-size:7.5px;color:var(--gris);font-weight:800;letter-spacing:.08em;margin-top:3px}
+.pest{margin-left:auto;font-size:7.5px;font-weight:900;letter-spacing:.08em;padding:6px 10px;border-radius:10px;flex-shrink:0}
+.pest.ok{color:var(--ok);background:rgba(31,157,85,.1)}
+.pest.prox{color:var(--tinta);background:rgba(18,18,16,.07)}
+.pest.lock{color:var(--suave)}
+/* ── AVANCES ── */
+.astats{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-bottom:12px}
+.ast{border-radius:20px;padding:16px 12px;text-align:center}
+.ast.ink{background:var(--tinta);color:var(--hueso)}
+.ast b{font-size:26px;font-weight:900;display:block}
+.ast span{font-size:6.5px;letter-spacing:.16em;font-weight:900;opacity:.6}
+.pr{display:flex;align-items:center;gap:11px;padding:12px 4px;border-top:1px solid rgba(18,18,16,.06)}
+.pr:first-of-type{border-top:none}
+.pr .prn{font-size:12px;font-weight:800}
+.pr .prm{font-size:7.5px;color:var(--gris);font-weight:900;letter-spacing:.1em;margin-top:2px}
+.pr .prk{margin-left:auto;font-size:15px;font-weight:900;white-space:nowrap}
+.pr .prk small{font-size:8px;color:var(--suave)}
+.vacio{font-size:10px;color:var(--gris);font-weight:700;text-align:center;padding:24px 14px;line-height:1.7}
+/* ── PERFIL ── */
+.idcard{display:flex;align-items:center;gap:14px;padding:18px 16px;margin-bottom:10px}
+.idav{width:52px;height:52px;border-radius:50%;background:var(--tinta);color:var(--hueso);display:flex;
+  align-items:center;justify-content:center;font-size:19px;font-weight:900}
+.idn{font-size:16px;font-weight:900}
+.idm{font-size:8px;color:var(--gris);font-weight:900;letter-spacing:.12em;margin-top:3px}
+.memb{background:var(--tinta);color:var(--hueso);border-radius:22px;padding:17px 18px;margin-bottom:10px;
+  display:flex;justify-content:space-between;align-items:center;cursor:pointer;box-shadow:0 12px 28px rgba(18,18,16,.24)}
+.memb .mt2{font-size:8px;letter-spacing:.2em;color:#8B8A85;font-weight:900}
+.memb .mv{font-size:13px;font-weight:900;margin-top:4px}
+.memb .me{font-size:9px;font-weight:900;color:var(--ok)}
+.fila2{display:flex;align-items:center;justify-content:space-between;padding:15px 16px;border-top:1px solid rgba(18,18,16,.06);cursor:pointer}
+.fila2:first-of-type{border-top:none}
+.fila2 .fn2{font-size:12.5px;font-weight:800}
+.fila2 .fs2{font-size:9px;color:var(--suave);font-weight:900}
+.det{display:none;padding:0 16px 14px;font-size:11px;color:var(--gris);line-height:1.8}
+.det.vis{display:block}
+.det b{color:var(--tinta)}
+.cerrar2{width:100%;background:none;border:1px solid rgba(180,68,44,.35);color:#B4442C;border-radius:18px;
+  padding:15px;font-size:10px;font-weight:900;letter-spacing:.14em;cursor:pointer;margin-top:14px}
+
 </style>
 </head>
 <body>
@@ -182,7 +243,7 @@ html,body{background:linear-gradient(170deg,#F3F2EF 0%,#E7E6E2 55%,#DAD9D4 100%)
   </div>
 
   <!-- ══ HOME ══ -->
-  <div class="vista" id="vHome">
+  <div class="vista conTab" id="vHome">
     <div class="hbar"><span class="hk">KOACH</span><div class="hav" id="hAv" onclick="salir()">K</div></div>
     <div class="anillo">
       <svg width="180" height="180" viewBox="0 0 180 180">
@@ -207,6 +268,53 @@ html,body{background:linear-gradient(170deg,#F3F2EF 0%,#E7E6E2 55%,#DAD9D4 100%)
     <div class="nota" id="hNota"></div>
   </div>
 
+  <!-- ══ PLAN ══ -->
+  <div class="vista conTab" id="vPlan">
+    <div class="ph">Tu plan</div>
+    <div class="ps" id="pSub">—</div>
+    <div id="pLista"></div>
+    <div class="nota">LAS SESIONES SE DESBLOQUEAN EN ORDEN · TU COACH AJUSTA EL PROGRAMA</div>
+  </div>
+
+  <!-- ══ AVANCES ══ -->
+  <div class="vista conTab" id="vAvances">
+    <div class="ph">Tus avances</div>
+    <div class="ps" id="aSub">LO QUE LOS NÚMEROS DEMUESTRAN</div>
+    <div class="astats">
+      <div class="ast ink"><b id="aSes">—</b><span>SESIONES COMPLETADAS</span></div>
+      <div class="glass ast"><b id="aSem">—</b><span>ESTA SEMANA</span></div>
+    </div>
+    <div class="glass panel">
+      <h3><span>TUS MARCAS · PESO MÁXIMO</span><span>TU FUERZA</span></h3>
+      <div id="aPRs" class="vacio">Cargando…</div>
+    </div>
+  </div>
+
+  <!-- ══ PERFIL ══ -->
+  <div class="vista conTab" id="vPerfil">
+    <div class="ph">Perfil</div>
+    <div class="ps">TU CUENTA KOACH</div>
+    <div class="glass idcard">
+      <div class="idav" id="pfAv">K</div>
+      <div><div class="idn" id="pfNom">—</div><div class="idm" id="pfProg">—</div></div>
+    </div>
+    <div class="memb" onclick="window.open('https://wa.me/56999999999?text=Hola%20KOACH%2C%20quiero%20gestionar%20mi%20membres%C3%ADa','_blank')">
+      <div><div class="mt2">MEMBRESÍA</div><div class="mv">KOACH CLUB</div></div>
+      <div class="me">ACTIVA · GESTIONAR →</div>
+    </div>
+    <div class="glass" style="padding:4px 0;margin-bottom:10px">
+      <div class="fila2" onclick="det('dDatos')"><span class="fn2">Mis datos</span><span class="fs2">›</span></div>
+      <div class="det" id="dDatos"></div>
+      <div class="fila2" onclick="toast('Las notificaciones llegan pronto — tu coach te avisa por WhatsApp')"><span class="fn2">Notificaciones</span><span class="fs2">›</span></div>
+      <div class="fila2" onclick="det('dMetodo')"><span class="fn2">¿Cómo funciona el método?</span><span class="fs2">›</span></div>
+      <div class="det" id="dMetodo"><b>3 sesiones por semana · 60 minutos.</b> Cada sesión suma trabajo a tus músculos.
+        Cuando un músculo alcanza el estímulo que tu programa le puso, se marca <b>fortalecido</b>.
+        Completa tus objetivos de lunes a sábado y la semana se cierra. El domingo todo parte de nuevo — <b>más fuerte que la anterior</b>.</div>
+      <div class="fila2" onclick="window.open('https://wa.me/56999999999?text=Hola%20KOACH%2C%20necesito%20ayuda%20con%20la%20app','_blank')"><span class="fn2">Ayuda</span><span class="fs2">›</span></div>
+    </div>
+    <button class="cerrar2" onclick="salir()">CERRAR SESIÓN</button>
+  </div>
+
   <!-- ══ SESIÓN ══ -->
   <div class="vista" id="vSesion">
     <div class="stop">
@@ -217,6 +325,13 @@ html,body{background:linear-gradient(170deg,#F3F2EF 0%,#E7E6E2 55%,#DAD9D4 100%)
     <div id="sBloques" class="cargando">CARGANDO TU SESIÓN…</div>
     <button class="btn fin" id="sFin" onclick="pedirFinal()" style="display:none">FINALIZAR SESIÓN</button>
   </div>
+</div>
+
+<div class="tabbar" id="tabbar">
+  <button class="tb on" id="tb-vHome" onclick="tab('vHome')"><span class="ti">●</span><span class="tl">HOY</span></button>
+  <button class="tb" id="tb-vPlan" onclick="tab('vPlan')"><span class="ti">◎</span><span class="tl">PLAN</span></button>
+  <button class="tb" id="tb-vAvances" onclick="tab('vAvances')"><span class="ti">▲</span><span class="tl">AVANCES</span></button>
+  <button class="tb" id="tb-vPerfil" onclick="tab('vPerfil')"><span class="ti">■</span><span class="tl">PERFIL</span></button>
 </div>
 
 <!-- ══ OVERLAYS ══ -->
@@ -630,6 +745,84 @@ async function finalizar(){
   document.getElementById('oRw').classList.add('vis')
   setTimeout(()=>{ document.getElementById('oRw').classList.remove('vis'); entrar() }, 4200)
 }
+
+/* ══ NAVEGACIÓN POR TABS ══ */
+function tab(id){
+  vista(id)
+  document.querySelectorAll('.tb').forEach(b=>b.classList.toggle('on', b.id==='tb-'+id))
+  if (id==='vPlan') pintarPlan()
+  if (id==='vAvances') loadAvances()
+  if (id==='vPerfil') pintarPerfil()
+}
+const _vista = vista
+vista = function(id){
+  _vista(id)
+  const tb = document.getElementById('tabbar')
+  tb.classList.toggle('vis', ['vHome','vPlan','vAvances','vPerfil'].includes(id) && !!S.asig)
+  if (id==='vHome') document.querySelectorAll('.tb').forEach(b=>b.classList.toggle('on', b.id==='tb-vHome'))
+}
+
+function pintarPlan(){
+  if (!S.programa){ document.getElementById('pLista').innerHTML='<div class="vacio">Tu coach te asignará tu programa.</div>'; return }
+  document.getElementById('pSub').textContent =
+    `${S.proto.programa} · ${S.proto.nivel} · SEMANA ${S.asig.semana_actual||1} DE 6 · CICLO ${S.asig.ciclo_actual||1}`.toUpperCase()
+  const hechas = new Set(S.registros.filter(r=>r.estado!=='incompleta').map(r=>r.sesion_numero))
+  const proxNum = S.sem?.proxima?.numero
+  const porNum = {}; S.registros.forEach(r=>porNum[r.sesion_numero]=r)
+  document.getElementById('pLista').innerHTML = S.programa.sesiones.map(s=>{
+    const hecha = hechas.has(s.numero)
+    const prox = s.numero===proxNum && !S.sem.completa
+    const lock = !hecha && !prox
+    const ap = aporteSesion(s)
+    const grupos = Object.entries(ap).filter(([g,v])=>v>=1).sort((a,b)=>b[1]-a[1]).slice(0,3).map(([g])=>g).join(' · ')
+    const reg = porNum[s.numero]
+    const sumo = reg?.bloques_completados===null ? '' : ''
+    let est, cls, icon
+    if (hecha){ est='✓ SUMADA'; cls='ok'; icon='✓' }
+    else if (prox){ est='PRÓXIMA →'; cls='prox'; icon=s.numero }
+    else { est='SE DESBLOQUEA'; cls='lock'; icon='🔒' }
+    return `<div class="glass pcard ${hecha?'hecha':prox?'prox':'lock'}" ${prox?'onclick="tab(\'vHome\');abrirSesion()"':''} style="${prox?'cursor:pointer':''}">
+      <div class="pnum">${icon}</div>
+      <div><div class="pn2">${s.nombre}</div><div class="pm2">${grupos}</div></div>
+      <span class="pest ${cls}">${est}</span></div>`
+  }).join('')
+}
+
+async function loadAvances(){
+  document.getElementById('aSem').textContent = S.sem ? `${S.sem.fortalecidos}/${S.sem.exigibles}` : '—'
+  try{
+    const { count } = await sb.from('sesiones_registro').select('id',{count:'exact',head:true})
+      .eq('socio_id', S.perfil.id).in('estado', ['completada','finalizada'])
+    document.getElementById('aSes').textContent = count ?? 0
+  }catch(_){ document.getElementById('aSes').textContent='—' }
+  try{
+    const { data: cs } = await sb.from('cargas').select('ejercicio_id, peso_kg')
+      .eq('socio_id', S.perfil.id).order('peso_kg',{ascending:false}).limit(400)
+    const nombres = {}
+    ;(S.programa?.sesiones||[]).forEach(s=>s.bloquesFull.forEach(b=>(b.bloque_ejercicios||[]).forEach(be=>{
+      const ej=be.ejercicios; if (ej?.id) nombres[ej.id]={ n:ej.nombre, g:ej.grupo_muscular }
+    })))
+    const prs = {}
+    ;(cs||[]).forEach(c=>{ if(!(c.ejercicio_id in prs)) prs[c.ejercicio_id]=c.peso_kg })
+    const top = Object.entries(prs).filter(([id])=>nombres[id]).slice(0,6)
+    document.getElementById('aPRs').className=''
+    document.getElementById('aPRs').innerHTML = top.length ? top.map(([id,kg])=>`
+      <div class="pr"><div><div class="prn">${nombres[id].n}</div><div class="prm">${nombres[id].g||''} · TU MARCA</div></div>
+      <div class="prk">${kg}<small> KG</small></div></div>`).join('')
+      : '<div class="vacio">Tus marcas aparecen aquí cuando registres tus primeras cargas.<br><b>A levantar.</b></div>'
+  }catch(_){ document.getElementById('aPRs').innerHTML='<div class="vacio">Sin datos aún.</div>' }
+}
+
+function pintarPerfil(){
+  const p=S.perfil||{}
+  document.getElementById('pfAv').textContent=(p.nombre||'K')[0].toUpperCase()
+  document.getElementById('pfNom').textContent=`${p.nombre||''} ${p.apellido||''}`.trim()||p.email
+  document.getElementById('pfProg').textContent = S.proto
+    ? `${S.proto.programa} · ${S.proto.nivel} · SOCIO KOACH`.toUpperCase() : 'SOCIO KOACH'
+  document.getElementById('dDatos').innerHTML =
+    `<b>Email:</b> ${p.email||'—'}<br><b>WhatsApp:</b> ${p.telefono||'—'}<br>Para actualizar tus datos, habla con recepción.`
+}
+function det(id){ document.getElementById(id).classList.toggle('vis') }
 
 /* ══ ARRANQUE ══ */
 document.addEventListener('DOMContentLoaded', async ()=>{
