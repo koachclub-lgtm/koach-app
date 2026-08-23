@@ -1,0 +1,652 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#F3F2EF">
+<title>KOACH · Tu Semana</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+:root{--tinta:#121210;--gris:#7C7B76;--suave:#BEBDB8;--ok:#1F9D55;--hueso:#F3F2EF}
+*{margin:0;padding:0;box-sizing:border-box;font-family:-apple-system,'Helvetica Neue','Segoe UI',Arial,sans-serif;-webkit-tap-highlight-color:transparent}
+html,body{background:linear-gradient(170deg,#F3F2EF 0%,#E7E6E2 55%,#DAD9D4 100%);min-height:100dvh;color:var(--tinta)}
+.wrap{max-width:520px;margin:0 auto;padding:16px 14px 46px;min-height:100dvh}
+.glass{background:rgba(255,255,255,.55);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);
+  border:1px solid rgba(255,255,255,.75);border-radius:22px;box-shadow:0 8px 24px rgba(30,30,28,.08)}
+.vista{display:none}.vista.on{display:block;animation:vin .3s ease}
+@keyframes vin{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+/* ── LOGIN ── */
+.lg{min-height:92dvh;display:flex;flex-direction:column;justify-content:center}
+.lg .k{font-size:26px;font-weight:900;letter-spacing:.42em;margin-bottom:6px}
+.lg .sub{font-size:8.5px;letter-spacing:.3em;color:var(--gris);font-weight:800;margin-bottom:38px}
+.lbl{font-size:8px;letter-spacing:.2em;color:var(--gris);font-weight:900;margin:0 4px 7px}
+.inp{width:100%;background:rgba(255,255,255,.6);border:1px solid rgba(255,255,255,.85);border-radius:16px;
+  padding:15px 16px;font-size:15px;font-weight:600;color:var(--tinta);outline:none;margin-bottom:14px}
+.inp::placeholder{color:var(--suave)}
+.pw{position:relative}.pw .inp{padding-right:52px}
+.ojo{position:absolute;right:12px;top:13px;background:none;border:none;font-size:17px;opacity:.5;cursor:pointer;padding:4px}
+.btn{width:100%;background:var(--tinta);color:var(--hueso);border:none;border-radius:18px;padding:17px;
+  font-size:12px;font-weight:900;letter-spacing:.14em;cursor:pointer;margin-top:6px}
+.btn:disabled{opacity:.5}
+.err{display:none;font-size:10px;color:#B4442C;font-weight:700;margin:-6px 4px 10px}
+.okmsg{display:none;font-size:11px;line-height:1.7;font-weight:700;margin-top:14px;padding:13px 15px;
+  border:1px solid var(--tinta);border-radius:14px}
+.links{display:flex;justify-content:space-between;margin-top:16px;font-size:10px}
+.links a{color:var(--gris);font-weight:800;text-decoration:underline;cursor:pointer}
+.foot{font-size:7.5px;letter-spacing:.2em;color:var(--suave);font-weight:800;text-align:center;margin-top:40px}
+/* ── HOME ── */
+.hbar{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
+.hk{font-size:12px;font-weight:900;letter-spacing:.38em}
+.hav{width:34px;height:34px;border-radius:50%;background:var(--tinta);color:var(--hueso);display:flex;
+  align-items:center;justify-content:center;font-size:13px;font-weight:900;cursor:pointer}
+.anillo{position:relative;width:180px;height:180px;margin:6px auto 0}
+.anillo svg{transform:rotate(-90deg)}
+.anillo .c{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.anillo .c b{font-size:36px;font-weight:900;font-variant-numeric:tabular-nums}
+.anillo .c b small{font-size:16px;color:var(--suave);font-weight:900}
+.anillo .c span{font-size:6.5px;letter-spacing:.26em;color:var(--gris);font-weight:900;margin-top:2px}
+.voz{text-align:center;margin:10px 6px 15px}
+.voz .v1{font-size:16px;font-weight:800}
+.voz .v2{font-size:11px;color:var(--gris);line-height:1.65;margin-top:6px;max-width:330px;margin-left:auto;margin-right:auto}
+.voz .v2 b{color:var(--tinta)}
+.dias{display:grid;grid-template-columns:repeat(6,1fr);gap:6px;margin-bottom:10px}
+.dia{border-radius:14px;padding:8px 0 6px;text-align:center}
+.dia .dl{font-size:8px;letter-spacing:.14em;color:var(--gris);font-weight:900}
+.dia .dm{font-size:9px;margin-top:3px;color:var(--suave);font-weight:900;min-height:11px}
+.dia.hecho .dm{color:var(--ok)}
+.dia.hoy{background:var(--tinta)}.dia.hoy .dl{color:#8B8A85}.dia.hoy .dm{color:var(--hueso)}
+.cta{display:flex;justify-content:space-between;align-items:center;width:100%;padding:16px 20px;margin-bottom:10px;
+  background:var(--tinta);border:none;border-radius:22px;cursor:pointer;color:var(--hueso);box-shadow:0 12px 28px rgba(18,18,16,.26)}
+.cta .t{font-size:12px;font-weight:900;letter-spacing:.12em;display:block;text-align:left}
+.cta .s{display:block;font-size:8.5px;letter-spacing:.12em;color:#8B8A85;font-weight:800;margin-top:3px;text-align:left}
+.cta:disabled{background:rgba(18,18,16,.25);box-shadow:none}
+.panel{padding:14px 14px 8px;margin-bottom:10px}
+.panel h3{display:flex;justify-content:space-between;font-size:7.5px;letter-spacing:.2em;color:var(--gris);font-weight:900;margin-bottom:10px}
+.rows{display:grid;grid-template-columns:1fr 1fr;column-gap:14px}
+.row{display:grid;grid-template-columns:52px 1fr 30px;gap:6px;align-items:center;margin-bottom:9px}
+.row .g{font-weight:900;font-size:7.5px}
+.bar{position:relative;height:7px;background:rgba(18,18,16,.08);border-radius:5px}
+.fill{position:absolute;top:0;left:0;height:100%;border-radius:5px;background:var(--tinta);transition:width .6s;width:0}
+.row .v{font-size:8px;font-weight:900;text-align:right;color:var(--suave)}
+.row .v.si{color:var(--ok)}
+.row.libre .g{color:var(--suave)}.row.libre .fill{background:var(--suave)}
+.nota{font-size:7.5px;letter-spacing:.16em;color:var(--suave);font-weight:800;text-align:center;margin-top:8px}
+/* ── SESIÓN ── */
+.stop{display:flex;align-items:center;gap:12px;margin-bottom:4px}
+.sback{width:36px;height:36px;border-radius:50%;background:rgba(255,255,255,.6);border:1px solid rgba(255,255,255,.85);
+  font-size:15px;cursor:pointer;color:var(--tinta)}
+.stit{font-size:17px;font-weight:900}
+.ssub{font-size:8px;letter-spacing:.16em;color:var(--gris);font-weight:800;margin:2px 0 14px 48px}
+.bloq{padding:15px 15px 12px;margin-bottom:12px}
+.bh{display:flex;align-items:center;gap:9px;margin-bottom:12px}
+.bh .bt{background:var(--tinta);color:var(--hueso);font-size:8.5px;font-weight:900;letter-spacing:.1em;
+  padding:6px 11px;border-radius:11px}
+.bh .bn{font-size:8px;letter-spacing:.16em;color:var(--gris);font-weight:900}
+.bh .bs{margin-left:auto;font-size:8px;color:var(--gris);font-weight:900;letter-spacing:.1em}
+.ej{display:flex;align-items:center;gap:10px;padding:11px 4px;border-top:1px solid rgba(18,18,16,.06)}
+.ej:first-of-type{border-top:none}
+.ej .en{font-size:12.5px;font-weight:800;line-height:1.3}
+.ej .em{font-size:7.5px;color:var(--gris);font-weight:900;letter-spacing:.1em;margin-top:3px}
+.peso{margin-left:auto;display:flex;align-items:center;gap:7px;flex-shrink:0}
+.peso button{width:30px;height:30px;border-radius:50%;border:1px solid rgba(18,18,16,.15);background:rgba(255,255,255,.6);
+  font-size:14px;font-weight:900;cursor:pointer;color:var(--tinta)}
+.peso .kg{font-size:13px;font-weight:900;min-width:52px;text-align:center;font-variant-numeric:tabular-nums}
+.peso .kg small{font-size:8px;color:var(--suave)}
+.mrk{margin-left:auto;flex-shrink:0;background:rgba(18,18,16,.06);border:none;border-radius:12px;padding:9px 13px;
+  font-size:8px;font-weight:900;letter-spacing:.08em;cursor:pointer;color:var(--tinta)}
+.mrk.on{background:rgba(31,157,85,.12);color:var(--ok)}
+.bsets{width:100%;margin-top:11px;background:var(--tinta);color:var(--hueso);border:none;border-radius:15px;
+  padding:13px;font-size:10px;font-weight:900;letter-spacing:.12em;cursor:pointer}
+.bsets.done{background:rgba(31,157,85,.12);color:var(--ok)}
+.fin{width:100%;margin:6px 0 30px}
+/* ── OVERLAYS ── */
+.locked{filter:blur(3px) grayscale(1);opacity:.45;pointer-events:none;transition:all .5s}
+.ovl{position:fixed;inset:0;z-index:900;display:none;flex-direction:column;align-items:center;justify-content:center;
+  padding:30px;text-align:center}
+.ovl.vis{display:flex;animation:oin .25s ease}
+@keyframes oin{from{opacity:0;transform:scale(1.03)}to{opacity:1;transform:none}}
+.ovl.oscuro{background:#0C0C0B;color:var(--hueso)}
+.ovl.velo{background:rgba(12,12,11,.55);backdrop-filter:blur(4px)}
+.fk{font-size:9px;font-weight:900;letter-spacing:.4em;color:#77766F;margin-bottom:22px}
+.ftx{font-size:23px;font-weight:900;line-height:1.25;max-width:330px}
+.fsb{font-size:11px;color:#9A9994;margin-top:13px;font-weight:700;max-width:300px;line-height:1.6}
+.slide{position:relative;width:min(86vw,340px);height:60px;background:var(--tinta);border-radius:34px;
+  display:flex;align-items:center;justify-content:center;overflow:hidden;user-select:none;touch-action:none;
+  box-shadow:0 12px 28px rgba(0,0,0,.4);margin-top:24px}
+.slide .stx{color:#8B8A85;font-size:10px;font-weight:900;letter-spacing:.2em;pointer-events:none}
+.slide .th{position:absolute;left:5px;top:5px;width:78px;height:50px;background:var(--hueso);border-radius:28px;
+  display:flex;align-items:center;justify-content:center;font-size:17px;font-weight:900;color:var(--tinta);cursor:grab;transition:left .18s}
+.slide.ok{background:var(--ok)}
+.ovl .otit{font-size:17px;font-weight:900;color:var(--hueso)}
+.ovl .osub{font-size:10px;color:#9A9994;font-weight:700;margin-top:8px;letter-spacing:.06em;max-width:300px;line-height:1.6}
+.rwt{font-size:11px;font-weight:800;letter-spacing:.22em;color:#C9C8C2}
+.rwn{font-size:78px;font-weight:900;letter-spacing:-.03em;margin:4px 0}
+.rwl{font-size:10px;letter-spacing:.28em;color:#77766F;font-weight:800}
+.rwm{font-size:14px;margin-top:22px;line-height:1.6;color:#C9C8C2}
+.rwm b{color:#fff}
+.rwf{font-size:14px;margin-top:26px;font-weight:800;color:var(--hueso)}
+.toast{position:fixed;bottom:26px;left:50%;transform:translateX(-50%) translateY(20px);max-width:86%;
+  background:rgba(18,18,16,.94);color:var(--hueso);padding:12px 18px;border-radius:16px;font-size:10.5px;
+  font-weight:700;z-index:999;opacity:0;pointer-events:none;transition:all .25s;text-align:center}
+.toast.vis{opacity:1;transform:translateX(-50%) translateY(0)}
+.cargando{text-align:center;padding:60px 20px;font-size:10px;letter-spacing:.2em;color:var(--gris);font-weight:800}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <!-- ══ LOGIN ══ -->
+  <div class="vista on" id="vLogin">
+    <div class="lg">
+      <div class="k">KOACH</div>
+      <div class="sub">TU VERSIÓN MÁS FUERTE</div>
+      <div id="fLogin">
+        <div class="lbl">EMAIL</div>
+        <input class="inp" type="email" id="lEmail" placeholder="tu@email.com" autocomplete="email" inputmode="email">
+        <div class="lbl">CONTRASEÑA</div>
+        <div class="pw"><input class="inp" type="password" id="lPass" placeholder="••••••••" autocomplete="current-password">
+          <button class="ojo" onclick="ojo('lPass',this)">👁</button></div>
+        <div class="err" id="lErr">Email o contraseña incorrectos</div>
+        <button class="btn" id="bLogin" onclick="login()">ENTRAR A MI SEMANA</button>
+        <div class="links"><a onclick="authVista('fRecu')">¿Olvidaste tu contraseña?</a><a onclick="authVista('fReg')">Crear mi cuenta</a></div>
+      </div>
+      <div id="fReg" style="display:none">
+        <div class="lbl">NOMBRE</div><input class="inp" id="rNombre" placeholder="Tu nombre">
+        <div class="lbl">APELLIDO</div><input class="inp" id="rApellido" placeholder="Tu apellido">
+        <div class="lbl">EMAIL</div><input class="inp" type="email" id="rEmail" placeholder="tu@email.com">
+        <div class="lbl">CONTRASEÑA</div>
+        <div class="pw"><input class="inp" type="password" id="rPass" placeholder="Mínimo 4 caracteres">
+          <button class="ojo" onclick="ojo('rPass',this)">👁</button></div>
+        <div class="err" id="rErr">—</div>
+        <button class="btn" id="bReg" onclick="registro()">CREAR MI CUENTA</button>
+        <div class="okmsg" id="rOk">Cuenta creada. Revisa tu correo, confírmalo y vuelve a entrar. Tu coach te asignará tu programa.</div>
+        <div class="links"><a onclick="authVista('fLogin')">← Volver</a><span></span></div>
+      </div>
+      <div id="fRecu" style="display:none">
+        <div class="lbl">EMAIL DE TU CUENTA</div>
+        <input class="inp" type="email" id="cEmail" placeholder="tu@email.com">
+        <div class="err" id="cErr">—</div>
+        <button class="btn" id="bRecu" onclick="recuperar()">ENVIAR ENLACE</button>
+        <div class="okmsg" id="cOk">Enviado. Abre el enlace del correo desde este teléfono para definir tu nueva contraseña.</div>
+        <div class="links"><a onclick="authVista('fLogin')">← Volver</a><span></span></div>
+      </div>
+      <div id="fNueva" style="display:none">
+        <div class="lbl">TU NUEVA CONTRASEÑA</div>
+        <div class="pw"><input class="inp" type="password" id="nPass" placeholder="Mínimo 4 caracteres">
+          <button class="ojo" onclick="ojo('nPass',this)">👁</button></div>
+        <div class="err" id="nErr">—</div>
+        <button class="btn" id="bNueva" onclick="nuevaClave()">GUARDAR Y ENTRAR</button>
+      </div>
+      <div class="foot">KOACH CLUB · CONCEPCIÓN · EL CLUB DEL 1%</div>
+    </div>
+  </div>
+
+  <!-- ══ HOME ══ -->
+  <div class="vista" id="vHome">
+    <div class="hbar"><span class="hk">KOACH</span><div class="hav" id="hAv" onclick="salir()">K</div></div>
+    <div class="anillo">
+      <svg width="180" height="180" viewBox="0 0 180 180">
+        <circle cx="90" cy="90" r="78" fill="none" stroke="rgba(18,18,16,.09)" stroke-width="11"/>
+        <circle id="hArc" cx="90" cy="90" r="78" fill="none" stroke="#121210" stroke-width="11"
+          stroke-linecap="round" stroke-dasharray="490.1" stroke-dashoffset="490.1"
+          style="transition:stroke-dashoffset 1s cubic-bezier(.3,.8,.3,1)"/>
+        <g id="hFle" opacity="0"><polygon points="0,-11 12,0 0,11" fill="#121210"/></g>
+      </svg>
+      <div class="c"><b><span id="hN">0</span><small>/<span id="hD">—</span></small></b><span>MÚSCULOS FORTALECIDOS</span></div>
+    </div>
+    <div class="voz"><div class="v1" id="hSaludo">—</div><div class="v2" id="hVoz">—</div></div>
+    <div class="dias" id="hDias"></div>
+    <button class="cta" id="hCta" onclick="abrirSesion()">
+      <span><span class="t" id="hCtaT">COMENZAR SESIÓN</span><span class="s" id="hCtaS">—</span></span>
+      <span style="font-size:17px">→</span>
+    </button>
+    <div class="glass panel">
+      <h3><span>TUS MÚSCULOS</span><span id="hCount">—</span></h3>
+      <div class="rows" id="hRows"></div>
+    </div>
+    <div class="nota" id="hNota"></div>
+  </div>
+
+  <!-- ══ SESIÓN ══ -->
+  <div class="vista" id="vSesion">
+    <div class="stop">
+      <button class="sback" onclick="volverHome()">←</button>
+      <div class="stit" id="sTit">SESIÓN</div>
+    </div>
+    <div class="ssub" id="sSub">—</div>
+    <div id="sBloques" class="cargando">CARGANDO TU SESIÓN…</div>
+    <button class="btn fin" id="sFin" onclick="pedirFinal()" style="display:none">FINALIZAR SESIÓN</button>
+  </div>
+</div>
+
+<!-- ══ OVERLAYS ══ -->
+<div class="ovl velo" id="oAct">
+  <div class="otit" id="oActT">SESIÓN</div>
+  <div class="osub" id="oActS">DESLIZA PARA COMPROMETERTE</div>
+  <div class="slide" id="slAct"><span class="stx">DESLIZA PARA ACTIVAR</span><div class="th">→</div></div>
+</div>
+<div class="ovl oscuro" id="oFlash"><div class="fk">KOACH</div><div class="ftx" id="oFT"></div><div class="fsb" id="oFS"></div></div>
+<div class="ovl velo" id="oFin">
+  <div class="slide" id="slFin"><span class="stx">DESLIZA PARA FINALIZAR</span><div class="th">✓</div></div>
+</div>
+<div class="ovl oscuro" id="oRw">
+  <div class="fk">KOACH</div>
+  <div class="rwt" id="rwSes">SESIÓN · COMPLETADA</div>
+  <div class="rwn" id="rwN">+0</div>
+  <div class="rwl">MÚSCULOS FORTALECIDOS</div>
+  <div class="rwm" id="rwM"></div>
+  <div class="rwf" id="rwF">Más fuerte que el lunes.</div>
+</div>
+
+<script>
+const SB_URL = 'https://bbracfjvrnfnhhwhrpyq.supabase.co'
+const SB_KEY = 'sb_publishable_6IiV6uIViFgUa9d1ghjNZw_bd-t17fl'
+const sb = supabase.createClient(SB_URL, SB_KEY)
+const S = { perfil:null, asig:null, proto:null, programa:null, objetivos:null, registros:null,
+            sem:null, frases:null, sesionAbierta:null, pesos:{}, marcas:{}, setsHechos:{}, sugeridos:{},
+            bloquesListos:0, cargasPrevias:{} }
+
+/* ══ MOTOR (probado 8/8) ══ */
+const ESTADOS_OK = ['completada','finalizada','incompleta']
+function aporteSesion(sesion, bloquesCompletados = null){
+  const a = {}
+  const suma = (g,v)=>{ a[g]=(a[g]||0)+v }
+  ;(sesion.bloques||[]).forEach((b,idx)=>{
+    if (bloquesCompletados!==null && !bloquesCompletados.includes(idx)) return
+    const sets = b.sets||0
+    ;(b.ejercicios||[]).forEach(ej=>{
+      const g = (ej.grupo||'').toUpperCase()
+      if (!g || g==='MOVILIDAD') return
+      suma(g, sets*1.0)
+      Object.entries(ej.sinergistas||{}).forEach(([sg,p])=>{
+        const s2 = sg.toUpperCase()
+        if (s2!=='MOVILIDAD') suma(s2, sets*(parseFloat(p)||0))
+      })
+    })
+  })
+  return a
+}
+function calcularSemana(programa, registros, objetivos){
+  const acum = {}
+  Object.keys(objetivos).forEach(g=>acum[g]=0)
+  const validos = registros.filter(r=>ESTADOS_OK.includes(r.estado))
+  validos.forEach(r=>{
+    const ses = programa.sesiones.find(s=>s.numero===r.sesion_numero)
+    if (!ses) return
+    const a = aporteSesion(ses, r.bloques_completados ?? null)
+    Object.entries(a).forEach(([g,v])=>{ if (g in acum) acum[g]+=v })
+  })
+  const musculos = Object.entries(objetivos).map(([grupo,o])=>({
+    grupo, series:+acum[grupo].toFixed(2), objetivo:o.mev, exigible:o.exigible!==false,
+    fortalecido:o.exigible!==false && acum[grupo]>=o.mev,
+    pct:o.mev>0?Math.round(acum[grupo]/o.mev*100):0
+  }))
+  const ex = musculos.filter(m=>m.exigible)
+  const tot = ex.filter(m=>m.fortalecido).length
+  const hechas = new Set(validos.filter(r=>r.estado!=='incompleta').map(r=>r.sesion_numero))
+  const prox = programa.sesiones.find(s=>!hechas.has(s.numero)) || null
+  let proxima = null
+  if (prox){
+    const ap = aporteSesion(prox)
+    const c = ex.filter(m=>!m.fortalecido && (ap[m.grupo]||0)>0 && acum[m.grupo]+ap[m.grupo]>=m.objetivo)
+    proxima = { numero:prox.numero, id:prox.id, nombre:prox.nombre||('SESIÓN '+prox.numero), fortaleceria:c.length }
+  }
+  return { musculos, exigibles:ex.length, fortalecidos:tot, proxima,
+           completa: ex.length>0 && tot===ex.length }
+}
+function lunes(){ const h=new Date(),d=(h.getDay()+6)%7,l=new Date(h); l.setDate(h.getDate()-d); l.setHours(0,0,0,0); return l }
+
+/* ══ UTILIDADES ══ */
+function vista(id){ document.querySelectorAll('.vista').forEach(v=>v.classList.toggle('on',v.id===id)); window.scrollTo(0,0) }
+function toast(m){ let t=document.querySelector('.toast'); if(!t){t=document.createElement('div');t.className='toast';document.body.appendChild(t)}
+  t.textContent=m; t.classList.add('vis'); clearTimeout(t._x); t._x=setTimeout(()=>t.classList.remove('vis'),2400) }
+function ojo(id,b){ const i=document.getElementById(id); const v=i.type==='password'; i.type=v?'text':'password'; b.style.opacity=v?'1':'.5' }
+function authVista(id){ ['fLogin','fReg','fRecu','fNueva'].forEach(f=>document.getElementById(f).style.display=f===id?'block':'none') }
+function flash(t,s,cb,ms){ document.getElementById('oFT').textContent=t; document.getElementById('oFS').textContent=s||''
+  const f=document.getElementById('oFlash'); f.classList.add('vis')
+  setTimeout(()=>{ f.classList.remove('vis'); if(cb)cb() }, ms||1500) }
+function initSlide(el,onOk){
+  const th=el.querySelector('.th'); let sx=null,done=false
+  const maxX=()=>el.clientWidth-th.clientWidth-10
+  th.addEventListener('pointerdown',e=>{ if(done)return; sx=e.clientX-th.offsetLeft; try{th.setPointerCapture(e.pointerId)}catch(_){} })
+  th.addEventListener('pointermove',e=>{ if(sx===null||done)return; th.style.transition='none'
+    th.style.left=Math.max(5,Math.min(e.clientX-sx,maxX()+5))+'px' })
+  th.addEventListener('pointerup',()=>{ if(sx===null)return; th.style.transition='left .18s'
+    if(th.offsetLeft>=maxX()*.82){ done=true; th.style.left=(maxX()+5)+'px'; el.classList.add('ok')
+      setTimeout(()=>{ onOk(); done=false; el.classList.remove('ok'); th.style.left='5px' },220) }
+    else th.style.left='5px'
+    sx=null })
+}
+
+/* ══ AUTH ══ */
+async function login(){
+  const email=document.getElementById('lEmail').value.trim(), pass=document.getElementById('lPass').value
+  const err=document.getElementById('lErr'); err.style.display='none'
+  const b=document.getElementById('bLogin'); b.disabled=true; b.textContent='ENTRANDO…'
+  const { error } = await sb.auth.signInWithPassword({ email, password:pass })
+  if (error){ err.style.display='block'; b.disabled=false; b.textContent='ENTRAR A MI SEMANA'; return }
+  b.disabled=false; b.textContent='ENTRAR A MI SEMANA'
+  entrar()
+}
+async function registro(){
+  const nombre=document.getElementById('rNombre').value.trim(), apellido=document.getElementById('rApellido').value.trim()
+  const email=document.getElementById('rEmail').value.trim(), pass=document.getElementById('rPass').value
+  const err=document.getElementById('rErr'); err.style.display='none'
+  if(!nombre||!email||pass.length<4){ err.textContent=pass.length<4?'Mínimo 4 caracteres':'Completa nombre y email'; err.style.display='block'; return }
+  const b=document.getElementById('bReg'); b.disabled=true; b.textContent='CREANDO…'
+  try{
+    const { data, error } = await sb.auth.signUp({ email, password:pass,
+      options:{ emailRedirectTo: window.location.href.split('#')[0], data:{ nombre, apellido } } })
+    if (error) throw error
+    if (data?.user?.id){ try{ await sb.from('profiles').insert({ id:data.user.id, nombre, apellido, email, role:'socio', activo:true }) }catch(_){} }
+    document.getElementById('rOk').style.display='block'; b.textContent='CORREO ENVIADO ✓'
+  }catch(e){
+    err.textContent=/already|registered/i.test(e.message||'')?'Ese email ya tiene cuenta — recupera tu contraseña':('No se pudo: '+(e.message||'intenta de nuevo'))
+    err.style.display='block'; b.disabled=false; b.textContent='CREAR MI CUENTA'
+  }
+}
+async function recuperar(){
+  const email=document.getElementById('cEmail').value.trim()
+  const err=document.getElementById('cErr'); err.style.display='none'
+  if(!email){ err.textContent='Escribe tu email'; err.style.display='block'; return }
+  const b=document.getElementById('bRecu'); b.disabled=true; b.textContent='ENVIANDO…'
+  const { error } = await sb.auth.resetPasswordForEmail(email, { redirectTo: window.location.href.split('#')[0] })
+  if (error){ err.textContent='No se pudo: '+error.message; err.style.display='block'; b.disabled=false; b.textContent='ENVIAR ENLACE'; return }
+  document.getElementById('cOk').style.display='block'; b.textContent='ENLACE ENVIADO ✓'
+}
+async function nuevaClave(){
+  const pass=document.getElementById('nPass').value
+  const err=document.getElementById('nErr'); err.style.display='none'
+  if(pass.length<4){ err.textContent='Mínimo 4 caracteres'; err.style.display='block'; return }
+  const b=document.getElementById('bNueva'); b.disabled=true; b.textContent='GUARDANDO…'
+  const { error } = await sb.auth.updateUser({ password:pass })
+  if (error){ err.textContent='No se pudo: '+error.message; err.style.display='block'; b.disabled=false; b.textContent='GUARDAR Y ENTRAR'; return }
+  history.replaceState(null,'',window.location.pathname); entrar()
+}
+async function salir(){ await sb.auth.signOut(); location.reload() }
+sb.auth.onAuthStateChange(ev=>{ if(ev==='PASSWORD_RECOVERY'){ vista('vLogin'); authVista('fNueva') } })
+
+/* ══ CARGA DEL HOME ══ */
+async function entrar(){
+  vista('vHome')
+  document.getElementById('hSaludo').textContent='Cargando tu semana…'
+  try{
+    const { data:{ user } } = await sb.auth.getUser()
+    const { data: perfil } = await sb.from('profiles').select('*').eq('id', user.id).single()
+    S.perfil = perfil
+    document.getElementById('hAv').textContent = (perfil.nombre||'K')[0].toUpperCase()
+
+    const { data: asig } = await sb.from('asignaciones').select('*, protocolos(*)')
+      .eq('socio_id', perfil.id).eq('activo', true).limit(1).maybeSingle()
+    if (!asig){ sinPrograma(); return }
+    S.asig = asig; S.proto = asig.protocolos
+
+    const { data: sesiones } = await sb.from('sesiones_protocolo').select('*')
+      .eq('protocolo_id', S.proto.id).lte('numero',3).order('numero')
+    const sesIds = (sesiones||[]).map(s=>s.id)
+    const { data: bloques } = await sb.from('bloques')
+      .select('*, bloque_ejercicios(*, ejercicios(*))').in('sesion_id', sesIds).order('bloque')
+    S.programa = { sesiones:(sesiones||[]).map(s=>({
+      numero:s.numero, id:s.id, nombre:(s.objetivo||'').toUpperCase()||('SESIÓN '+s.numero),
+      bloquesFull:(bloques||[]).filter(b=>b.sesion_id===s.id),
+      bloques:(bloques||[]).filter(b=>b.sesion_id===s.id).map(b=>({
+        sets:b.sets,
+        ejercicios:(b.bloque_ejercicios||[]).map(be=>({
+          grupo:be.ejercicios?.grupo_muscular, sinergistas:be.ejercicios?.sinergistas||{}
+        })).filter(e=>e.grupo)
+      }))
+    })) }
+
+    const lunesISO = lunes().toISOString().split('T')[0]
+    const { data: regs } = await sb.from('sesiones_registro')
+      .select('sesion_protocolo_id, estado, fecha, bloques_completados')
+      .eq('socio_id', perfil.id).gte('fecha', lunesISO)
+    const numPorId = {}; S.programa.sesiones.forEach(s=>numPorId[s.id]=s.numero)
+    S.registros = (regs||[]).map(r=>({ sesion_numero:numPorId[r.sesion_protocolo_id], estado:r.estado,
+      fecha:r.fecha, bloques_completados:r.bloques_completados??null })).filter(r=>r.sesion_numero)
+
+    const { data: objs } = await sb.from('volumen_objetivos').select('*').eq('protocolo_id', S.proto.id)
+    S.objetivos = {}
+    ;(objs||[]).forEach(o=>{
+      const g=(o.grupo||'').toUpperCase()
+      if(!g || !(o.mev>0)) return
+      S.objetivos[g] = { mev:o.mev, exigible:(o.dominante===undefined||o.dominante===null)?true:!!o.dominante }
+    })
+    if (!Object.keys(S.objetivos).length){ sinPrograma('Tu programa aún no tiene objetivos — avisa a tu coach.'); return }
+
+    try{ const { data: cfg } = await sb.from('coach_config').select('frases').eq('activo',true).limit(1).maybeSingle()
+      S.frases = cfg?.frases||null }catch(_){}
+
+    S.sem = calcularSemana(S.programa, S.registros, S.objetivos)
+    pintarHome()
+  }catch(e){ console.error(e); sinPrograma('No pudimos cargar tu semana. Revisa tu conexión e intenta de nuevo.') }
+}
+function sinPrograma(msg){
+  document.getElementById('hSaludo').textContent = 'Hola, '+((S.perfil?.nombre)||'socio')+'.'
+  document.getElementById('hVoz').innerHTML = msg || 'Tu cuenta está lista. <b>Tu coach te asignará tu programa</b> — nos vemos en la sala.'
+  document.getElementById('hD').textContent='—'
+  document.getElementById('hCta').disabled = true
+  document.getElementById('hCtaT').textContent='PROGRAMA EN CAMINO'
+  document.getElementById('hCtaS').textContent='TU COACH LO ACTIVA'
+  document.getElementById('hDias').innerHTML=''
+  document.getElementById('hRows').innerHTML=''
+  document.getElementById('hCount').textContent=''
+  document.getElementById('hNota').textContent=''
+}
+function saludoDe(ctx){
+  const fam = S.frases?.saludos?.[ctx] || ['De vuelta a la sala, {n}.']
+  return fam[Math.floor(Math.random()*fam.length)].replace('{n}', S.perfil.nombre||'')
+}
+function pintarHome(){
+  const sem=S.sem, num=sem.fortalecidos, den=sem.exigibles
+  const dowL=(new Date().getDay()+6)%7
+  const DIA=['lunes','martes','miércoles','jueves','viernes','sábado','domingo']
+  document.getElementById('hD').textContent=den
+  let ctx='sesion'
+  if (sem.completa) ctx='completa'
+  else if (dowL===0 && S.registros.length===0) ctx='lunes'
+  document.getElementById('hSaludo').textContent = saludoDe(ctx)
+  let voz
+  if (sem.completa) voz = `Alcanzaste el estímulo planificado — <b>${num}/${den}</b>. <b>Ahora también toca recuperar.</b>`
+  else if (sem.proxima){
+    const f=sem.proxima.fortaleceria
+    voz = `Es <b>${DIA[dowL]}</b> y ya fortaleciste <b>${num} de ${den}</b>. Tu próxima sesión fortalece <b>${f} más</b>`+
+      (num+f>=den?` — <b>completas tu semana</b>.`:`.`)+` <b>A levantar.</b>`
+  } else voz = `Llevas <b>${num} de ${den}</b> esta semana.`
+  document.getElementById('hVoz').innerHTML = voz
+  const porDia={}
+  S.registros.forEach(r=>{ const d=new Date(r.fecha+'T12:00:00'); porDia[(d.getDay()+6)%7]=true })
+  document.getElementById('hDias').innerHTML = ['L','M','X','J','V','S'].map((l,i)=>`
+    <div class="dia ${i===dowL?'hoy':'glass'} ${porDia[i]?'hecho':''}">
+      <div class="dl">${l}</div><div class="dm">${i===dowL?'HOY':(porDia[i]?'✓':'·')}</div></div>`).join('')
+  const cta=document.getElementById('hCta')
+  if (sem.completa){ cta.disabled=true
+    document.getElementById('hCtaT').textContent='SEMANA COMPLETA'
+    document.getElementById('hCtaS').textContent='NOS VEMOS EL LUNES'
+  } else if (sem.proxima){ cta.disabled=false
+    document.getElementById('hCtaT').textContent='COMENZAR SESIÓN'
+    document.getElementById('hCtaS').textContent=`${sem.proxima.nombre} · FORTALECE ${sem.proxima.fortaleceria} MÚSCULOS`
+  }
+  const orden=[...sem.musculos].sort((a,b)=>(b.exigible-a.exigible)||(b.pct-a.pct))
+  document.getElementById('hRows').innerHTML = orden.map(m=>{
+    const pct=Math.min(m.pct,100)
+    const est=!m.exigible?'LIBRE':(m.fortalecido?'✓':pct+'%')
+    return `<div class="row ${m.exigible?'':'libre'}">
+      <div class="g">${m.grupo}</div>
+      <div class="bar"><div class="fill" data-w="${pct}"></div></div>
+      <div class="v ${m.fortalecido?'si':''}">${est}</div></div>`
+  }).join('')
+  document.getElementById('hCount').textContent = `${num} DE ${den} FORTALECIDOS`
+  document.getElementById('hNota').textContent =
+    `${(S.proto.programa||'')} · ${(S.proto.nivel||'')} · SEMANA ${S.asig.semana_actual||1} DE 6`.toUpperCase()
+  setTimeout(()=>{
+    const C=490.1, obj=den>0?num/den:0
+    document.getElementById('hArc').style.strokeDashoffset = C*(1-obj)
+    const fl=document.getElementById('hFle')
+    if (obj>0.01){ fl.setAttribute('opacity','1')
+      const ang=obj*360, rad=ang*Math.PI/180
+      fl.setAttribute('transform',`translate(${90+78*Math.cos(rad)},${90+78*Math.sin(rad)}) rotate(${ang+90})`)
+    } else fl.setAttribute('opacity','0')
+    let c=0
+    document.getElementById('hN').textContent='0'
+    if (num>0){ const it=setInterval(()=>{ c++; document.getElementById('hN').textContent=Math.min(c,num)
+      if(c>=num) clearInterval(it) },220) }
+    document.querySelectorAll('#hRows .fill').forEach((f,i)=>setTimeout(()=>{ f.style.width=f.dataset.w+'%' },150+i*70))
+  },350)
+}
+function volverHome(){ entrar() }
+
+/* ══ SESIÓN ══ */
+async function abrirSesion(){
+  if (!S.sem?.proxima) return
+  const ses = S.programa.sesiones.find(x=>x.numero===S.sem.proxima.numero)
+  S.sesionAbierta = ses
+  S.pesos={}; S.marcas={}; S.setsHechos={}; S.bloquesListos=0
+  vista('vSesion')
+  document.getElementById('sTit').textContent = ses.nombre
+  document.getElementById('sSub').textContent =
+    `SESIÓN ${ses.numero} · FORTALECE ${S.sem.proxima.fortaleceria} MÚSCULOS · ${(S.proto.programa||'').toUpperCase()}`
+  document.getElementById('sFin').style.display='none'
+  // Sugeridos: última carga por ejercicio
+  try{
+    const { data: cs } = await sb.from('cargas').select('bloque_ejercicio_id, peso_kg, id')
+      .eq('socio_id', S.perfil.id).order('id',{ascending:false}).limit(300)
+    S.sugeridos={}
+    ;(cs||[]).forEach(c=>{ if(!(c.bloque_ejercicio_id in S.sugeridos)) S.sugeridos[c.bloque_ejercicio_id]=c.peso_kg })
+  }catch(_){ S.sugeridos={} }
+  pintarSesion()
+  // Overlay de activación
+  document.getElementById('oActT').textContent = ses.nombre
+  document.getElementById('oActS').textContent = `FORTALECE ${S.sem.proxima.fortaleceria} MÚSCULOS · DESLIZA PARA COMPROMETERTE`
+  document.getElementById('sBloques').classList.add('locked')
+  document.getElementById('oAct').classList.add('vis')
+}
+function pintarSesion(){
+  const ses=S.sesionAbierta
+  const orden={B1:0,B2:1,B3:2}
+  const bfs=[...ses.bloquesFull].sort((a,b)=>(orden[a.bloque]??9)-(orden[b.bloque]??9))
+  const NOM={B1:'ACTIVACIÓN',B2:'FUERZA PRINCIPAL',B3:'CIERRE ACCESORIO'}
+  document.getElementById('sBloques').classList.remove('cargando')
+  document.getElementById('sBloques').innerHTML = bfs.map((b,bi)=>{
+    const bes=[...(b.bloque_ejercicios||[])].sort((a,x)=>(a.orden||0)-(x.orden||0))
+    const ejs = bes.map(be=>{
+      const ej=be.ejercicios||{}
+      const ancla=be.es_ancla?' ◆':''
+      const meta=[ (ej.grupo_muscular||''), (be.reps?String(be.reps).replace(/\//g,'·')+' REPS':''), (be.duracion_seg?be.duracion_seg+' SEG':'') ]
+        .filter(Boolean).join(' · ')
+      let derecha
+      if (ej.con_carga){
+        const sug = S.sugeridos[be.id]
+        if (!(be.id in S.pesos)) S.pesos[be.id] = sug || 0
+        derecha = `<div class="peso">
+          <button onclick="peso('${be.id}',-2.5)">−</button>
+          <div class="kg" id="kg-${be.id}">${S.pesos[be.id]||'—'}<small> KG</small></div>
+          <button onclick="peso('${be.id}',2.5)">+</button></div>`
+      } else {
+        derecha = `<button class="mrk" id="mk-${be.id}" onclick="marcar('${be.id}')">MARCAR</button>`
+      }
+      return `<div class="ej"><div><div class="en">${ej.nombre||'—'}${ancla}</div><div class="em">${meta}</div></div>${derecha}</div>`
+    }).join('')
+    return `<div class="glass bloq" id="blq-${bi}">
+      <div class="bh"><span class="bt">${b.bloque||('B'+(bi+1))}</span><span class="bn">${NOM[b.bloque]||''}</span>
+        <span class="bs">${b.sets} SETS · ${b.descanso_segundos||60}'' DESC</span></div>
+      ${ejs}
+      <button class="bsets" id="bs-${bi}" onclick="setBloque(${bi},${b.sets})">MARCAR SET · 0/${b.sets}</button>
+    </div>`
+  }).join('')
+  document.getElementById('sFin').style.display='block'
+}
+function peso(id,delta){
+  S.pesos[id]=Math.max(0,(parseFloat(S.pesos[id])||0)+delta)
+  document.getElementById('kg-'+id).innerHTML=(S.pesos[id]||'—')+'<small> KG</small>'
+}
+function marcar(id){
+  S.marcas[id]=!S.marcas[id]
+  const b=document.getElementById('mk-'+id)
+  b.classList.toggle('on',S.marcas[id])
+  b.textContent=S.marcas[id]?'✓ HECHO':'MARCAR'
+}
+function frasesBloque(i){
+  const fb=S.frases?.flashes_bloque
+  if (fb && fb[Math.min(i,fb.length-1)]){ const x=fb[Math.min(i,fb.length-1)]; return [x.titulo,x.sub] }
+  return [['ACTIVACIÓN LISTA.','El cuerpo ya está despierto. Ahora el trabajo real.'],
+          ['BLOQUE PRINCIPAL COMPLETO.','Lo más pesado ya quedó atrás. Sigue sumando.'],
+          ['ÚLTIMO BLOQUE ABAJO.','Desliza para cerrar tu sesión.']][Math.min(i,2)]
+}
+function setBloque(bi,total){
+  S.setsHechos[bi]=(S.setsHechos[bi]||0)+1
+  const b=document.getElementById('bs-'+bi)
+  if (S.setsHechos[bi]>=total){
+    S.setsHechos[bi]=total
+    b.textContent='✓ BLOQUE COMPLETADO'; b.classList.add('done'); b.onclick=null
+    const [t,s]=frasesBloque(S.bloquesListos); S.bloquesListos++
+    flash(t,s)
+  } else b.textContent=`MARCAR SET · ${S.setsHechos[bi]}/${total}`
+}
+function pedirFinal(){ document.getElementById('oFin').classList.add('vis') }
+async function finalizar(){
+  document.getElementById('oFin').classList.remove('vis')
+  const ses=S.sesionAbierta
+  const orden={B1:0,B2:1,B3:2}
+  const bfs=[...ses.bloquesFull].sort((a,b)=>(orden[a.bloque]??9)-(orden[b.bloque]??9))
+  const bloquesComp = bfs.map((b,i)=>(S.setsHechos[i]||0)>=b.sets?i:-1).filter(i=>i>=0)
+  // Motor antes/después
+  const antes=S.sem
+  const regsN=[...S.registros,{ sesion_numero:ses.numero, estado:'completada', bloques_completados:bloquesComp }]
+  const despues=calcularSemana(S.programa, regsN, S.objetivos)
+  const ganados=despues.fortalecidos-antes.fortalecidos
+  try{
+    const { data: reg, error } = await sb.from('sesiones_registro').insert({
+      socio_id:S.perfil.id, asignacion_id:S.asig.id, sesion_protocolo_id:ses.id,
+      fecha:new Date().toISOString().split('T')[0], estado:'completada',
+      semana:S.asig.semana_actual, ciclo:S.asig.ciclo_actual,
+      completada_at:new Date().toISOString(),
+      bloques_completados:bloquesComp,
+      musculos_sumados:{ ganados, total:despues.fortalecidos, exigibles:despues.exigibles }
+    }).select().single()
+    if (error) throw error
+    // Cargas
+    const inserts=[]
+    bfs.forEach(b=>(b.bloque_ejercicios||[]).forEach(be=>{
+      const p=S.pesos[be.id]
+      if (p) inserts.push({ sesion_registro_id:reg.id, socio_id:S.perfil.id,
+        bloque_ejercicio_id:be.id, ejercicio_id:be.ejercicio_id||be.ejercicios?.id,
+        peso_kg:p, sets_completados:(S.setsHechos[orden[b.bloque]??0]||0), registrado_por:S.perfil.id })
+    }))
+    if (inserts.length) await sb.from('cargas').insert(inserts)
+  }catch(e){ console.error(e); toast('No se pudo guardar — intenta de nuevo o avisa a tu coach'); return }
+  // Recompensa
+  const rw=S.frases?.recompensa
+  document.getElementById('rwSes').textContent = ses.nombre+' · COMPLETADA'
+  document.getElementById('rwN').textContent = '+'+ganados
+  const faltan=despues.exigibles-despues.fortalecidos
+  document.getElementById('rwM').innerHTML = `<b>${despues.fortalecidos}/${despues.exigibles}</b><br>`+
+    (despues.completa ? ((rw?.completa?.titulo)||'Semana completa. Trabajo hecho.')
+      : ((rw?.normal?.casi)||'Casi completas tu semana.')+'<br>'+
+        ((rw?.normal?.resto)||'Queda {n} músculo por fortalecer.').replace('{n}',faltan))
+  document.getElementById('rwF').textContent = despues.completa
+    ? ((rw?.completa?.estado)||'Más fuerte que la anterior.')
+    : ((rw?.normal?.estado)||'Más fuerte que el lunes.')
+  document.getElementById('oRw').classList.add('vis')
+  setTimeout(()=>{ document.getElementById('oRw').classList.remove('vis'); entrar() }, 4200)
+}
+
+/* ══ ARRANQUE ══ */
+document.addEventListener('DOMContentLoaded', async ()=>{
+  initSlide(document.getElementById('slAct'), ()=>{
+    document.getElementById('oAct').classList.remove('vis')
+    const act=S.frases?.activacion
+    const nom=S.sesionAbierta?.nombre||'SESIÓN'
+    const k=S.sem?.proxima?.fortaleceria ?? '—'
+    flash((act?.titulo||'{sesion} ACTIVADA.').replace('{sesion}',nom),
+          (act?.sub||'A levantar. Hoy fortaleces {k} músculos.').replace('{k}',k),
+          ()=>document.getElementById('sBloques').classList.remove('locked'))
+  })
+  initSlide(document.getElementById('slFin'), finalizar)
+  document.getElementById('oFin').addEventListener('click', e=>{ if(e.target.id==='oFin') e.target.classList.remove('vis') })
+  const { data:{ session } } = await sb.auth.getSession()
+  if (session) entrar()
+})
+</script>
+</body>
+</html>
