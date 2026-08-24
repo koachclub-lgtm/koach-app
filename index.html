@@ -925,7 +925,7 @@
 <div class="page" id="pgSesion">
   <div class="ses-topbar">
     <div class="ses-toprow">
-      <button class="btn-sm" onclick="goTo('pgPizarra')">← Pizarra</button>
+      <button class="btn-sm" onclick="k2Volver()">← Volver</button>
       <div class="ses-marca" id="sesMarca">KOACH · STRONG</div>
     </div>
     <div class="ses-titulo" id="sesTitulo">—</div>
@@ -936,7 +936,7 @@
   </div>
   <div style="font-family:'Share Tech Mono',monospace;font-size:8px;letter-spacing:0.12em;text-transform:uppercase;color:var(--gris);text-align:center;padding:10px 22px 0;">Ajustes de rutina · solo con tu coach · nunca improvisas</div>
 <div class="ses-nav">
-    <button class="btn-nav" onclick="goTo('pgPizarra')">← Pizarra</button>
+    <button class="btn-nav" onclick="k2Volver()">← Volver</button>
     <button class="btn-nav prim" id="btnCerrarSes" onclick="cerrarSesion()">Cerrar sesión ✓</button>
   </div>
 </div>
@@ -1510,8 +1510,9 @@ async function loadProfileAndEnter() {
       goTo('pgCoach')
       manejarHashQR()
     } else {
-      try { await loadSocioV2(); goTo('pgSocioV2') }
-      catch(e) { console.error('SocioV2 fallback:', e); await loadSocioData(); goTo('pgSocio') }
+      // Los socios viven en la app nueva — un solo mundo
+      window.location.href = '/app.html'
+      return
     }
   } catch(e) {
     console.error('Error loading profile:', e)
@@ -4250,6 +4251,10 @@ function k2AbrirSesion(){
   document.getElementById('k2OvlActivar').classList.add('vis');
 }
 
+function k2Volver() {
+  if (STATE.k2) { loadSocioV2().then(() => goTo('pgSocioV2')).catch(() => goTo('pgPizarra')); }
+  else goTo('pgPizarra');
+}
 function k2IrSesion() {
   loadSocioData().then(() => { goTo('pgSesion'); k2AbrirSesion(); });
 }
