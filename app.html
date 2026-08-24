@@ -70,6 +70,21 @@ html,body{background:linear-gradient(170deg,#F3F2EF 0%,#E7E6E2 55%,#DAD9D4 100%)
 .row .v{font-size:8px;font-weight:900;text-align:right;color:var(--suave)}
 .row .v.si{color:var(--ok)}
 .row.libre .g{color:var(--suave)}.row.libre .fill{background:var(--suave)}
+.fill.z0{background:#D8D7D2}.fill.z1{background:var(--ok)}.fill.z2{background:#C5A13C}.fill.z3{background:#B4442C}
+.row .v.z1{color:var(--ok)}.row .v.z2{color:#C5A13C}.row .v.z3{color:#B4442C}
+.sobj{font-size:11px;color:var(--gris);line-height:1.7;margin:0 2px 14px 48px;max-width:340px}
+.sobj b{color:var(--tinta)}
+.patron{display:flex;align-items:center;gap:11px;padding:12px 4px;border-top:1px solid rgba(18,18,16,.06)}
+.patron:first-of-type{border-top:none}
+.patron .pnm{font-size:8px;letter-spacing:.14em;color:var(--gris);font-weight:900}
+.patron .pej{font-size:12px;font-weight:800;margin-top:3px}
+.patron .pkg{margin-left:auto;text-align:right}
+.patron .pk1{font-size:15px;font-weight:900}
+.patron .pk1 small{font-size:8px;color:var(--suave)}
+.patron .pk2{font-size:8px;font-weight:900;margin-top:2px}
+.pk2.up{color:var(--ok)}.pk2.flat{color:var(--suave)}
+.hst .prm{letter-spacing:.06em}
+.star{color:#C5A13C}
 .nota{font-size:7.5px;letter-spacing:.16em;color:var(--suave);font-weight:800;text-align:center;margin-top:8px}
 /* ── SESIÓN ── */
 .stop{display:flex;align-items:center;gap:12px;margin-bottom:4px}
@@ -245,7 +260,7 @@ html,body{background:linear-gradient(170deg,#F3F2EF 0%,#E7E6E2 55%,#DAD9D4 100%)
 
   <!-- ══ HOME ══ -->
   <div class="vista conTab" id="vHome">
-    <div class="hbar"><span class="hk" title="v1.3">KOACH</span><div class="hav" id="hAv" onclick="salir()">K</div></div>
+    <div class="hbar"><span class="hk" title="v1.4.1">KOACH</span><div class="hav" id="hAv" onclick="salir()">K</div></div>
     <div class="anillo">
       <svg width="180" height="180" viewBox="0 0 180 180">
         <circle cx="90" cy="90" r="78" fill="none" stroke="rgba(18,18,16,.09)" stroke-width="11"/>
@@ -263,7 +278,7 @@ html,body{background:linear-gradient(170deg,#F3F2EF 0%,#E7E6E2 55%,#DAD9D4 100%)
       <span style="font-size:17px">→</span>
     </button>
     <div class="glass panel">
-      <h3><span>TUS MÚSCULOS</span><span id="hCount">—</span></h3>
+      <h3><span>TRABAJO SEMANAL · SERIES POR MÚSCULO</span><span id="hCount">—</span></h3>
       <div class="rows" id="hRows"></div>
     </div>
     <div class="nota" id="hNota"></div>
@@ -286,8 +301,16 @@ html,body{background:linear-gradient(170deg,#F3F2EF 0%,#E7E6E2 55%,#DAD9D4 100%)
       <div class="glass ast"><b id="aSem">—</b><span>ESTA SEMANA</span></div>
     </div>
     <div class="glass panel">
-      <h3><span>TUS MARCAS · PESO MÁXIMO</span><span>TU FUERZA</span></h3>
+      <h3><span>PR POR PATRÓN DE MOVIMIENTO</span><span>★ PILARES</span></h3>
+      <div id="aPatrones" class="vacio">Cargando…</div>
+    </div>
+    <div class="glass panel hst">
+      <h3><span>HISTORIAL · INICIO → MEJOR MARCA</span><span>RANKING DE MEJORA</span></h3>
       <div id="aPRs" class="vacio">Cargando…</div>
+    </div>
+    <div class="glass panel">
+      <h3><span>MÁS TRABAJO ACUMULADO</span><span>TONELAJE</span></h3>
+      <div id="aTon" class="vacio">Cargando…</div>
     </div>
   </div>
 
@@ -323,6 +346,7 @@ html,body{background:linear-gradient(170deg,#F3F2EF 0%,#E7E6E2 55%,#DAD9D4 100%)
       <div class="stit" id="sTit">SESIÓN</div>
     </div>
     <div class="ssub" id="sSub">—</div>
+    <div class="sobj" id="sObj"></div>
     <div id="sBloques" class="cargando">CARGANDO TU SESIÓN…</div>
     <button class="btn fin" id="sFin" onclick="pedirFinal()" style="display:none">FINALIZAR SESIÓN</button>
   </div>
@@ -393,7 +417,7 @@ function calcularSemana(programa, registros, objetivos){
     Object.entries(a).forEach(([g,v])=>{ if (g in acum) acum[g]+=v })
   })
   const musculos = Object.entries(objetivos).map(([grupo,o])=>({
-    grupo, series:+acum[grupo].toFixed(2), objetivo:o.mev, exigible:o.exigible!==false,
+    grupo, series:+acum[grupo].toFixed(2), objetivo:o.mev, mav:o.mav??null, exigible:o.exigible!==false,
     fortalecido:o.exigible!==false && acum[grupo]>=o.mev,
     pct:o.mev>0?Math.round(acum[grupo]/o.mev*100):0
   }))
@@ -526,7 +550,7 @@ async function entrar(){
     ;(objs||[]).forEach(o=>{
       const g=(o.grupo||'').toUpperCase()
       if(!g || !(o.mev>0)) return
-      S.objetivos[g] = { mev:o.mev, exigible:(o.dominante===undefined||o.dominante===null)?true:!!o.dominante }
+      S.objetivos[g] = { mev:o.mev, mav:o.mav??null, exigible:(o.dominante===undefined||o.dominante===null)?true:!!o.dominante }
     })
     if (!Object.keys(S.objetivos).length){ sinPrograma('Tu programa aún no tiene objetivos — avisa a tu coach.'); return }
 
@@ -588,11 +612,20 @@ function pintarHome(){
   const orden=[...sem.musculos].sort((a,b)=>(b.exigible-a.exigible)||(b.pct-a.pct))
   document.getElementById('hRows').innerHTML = orden.map(m=>{
     const pct=Math.min(m.pct,100)
-    const est=!m.exigible?'LIBRE':(m.fortalecido?'✓':pct+'%')
+    // Semáforo de dosis: blanco→verde(MEV)→amarillo(cerca MAV)→rojo(sobre MAV)
+    let z='z0'
+    if (m.series>0){
+      if (m.mav && m.series>m.mav) z='z3'
+      else if (m.mav && m.series>=m.mav*0.85) z='z2'
+      else if (m.series>=m.objetivo) z='z1'
+      else z='z0'
+    }
+    const sTxt = m.series>0 ? (m.series%1===0?m.series:m.series.toFixed(1)) : (m.exigible?'·':'')
+    const est=!m.exigible?(m.series>0?sTxt:'LIBRE'):(m.fortalecido?sTxt+' ✓':sTxt||'·')
     return `<div class="row ${m.exigible?'':'libre'}">
       <div class="g">${m.grupo}</div>
-      <div class="bar"><div class="fill" data-w="${pct}"></div></div>
-      <div class="v ${m.fortalecido?'si':''}">${est}</div></div>`
+      <div class="bar"><div class="fill ${m.exigible?z:''}" data-w="${pct}"></div></div>
+      <div class="v ${m.exigible?z:''} ${m.fortalecido?'si':''}">${est}</div></div>`
   }).join('')
   document.getElementById('hCount').textContent = `${num} DE ${den} FORTALECIDOS`
   document.getElementById('hNota').textContent =
@@ -622,8 +655,12 @@ async function abrirSesion(){
   S.pesos={}; S.marcas={}; S.setsHechos={}; S.bloquesListos=0
   vista('vSesion')
   document.getElementById('sTit').textContent = ses.nombre
+  const ap0 = aporteSesion(ses)
+  const principales = Object.entries(ap0).sort((a,b)=>b[1]-a[1]).slice(0,3).map(([g])=>g).join(' · ')
   document.getElementById('sSub').textContent =
-    `SESIÓN ${ses.numero} · FORTALECE ${S.sem.proxima.fortaleceria} MÚSCULOS · ${(S.proto.programa||'').toUpperCase()}`
+    `DESIGNADA POR TU COACH · ${(S.proto.programa||'').toUpperCase()}`
+  document.getElementById('sObj').innerHTML =
+    `Principales músculos a estimular: <b>${principales}</b>. Complétala y tu semana avanza — fortalece <b>${S.sem.proxima.fortaleceria} músculos</b>.`
   document.getElementById('sFin').style.display='none'
   // Sugeridos: última carga por ejercicio
   try{
@@ -800,21 +837,63 @@ async function loadAvances(){
     document.getElementById('aSes').textContent = count ?? 0
   }catch(_){ document.getElementById('aSes').textContent='—' }
   try{
-    const { data: cs } = await sb.from('cargas').select('ejercicio_id, peso_kg')
-      .eq('socio_id', S.perfil.id).order('peso_kg',{ascending:false}).limit(400)
-    const nombres = {}
-    ;(S.programa?.sesiones||[]).forEach(s=>s.bloquesFull.forEach(b=>(b.bloque_ejercicios||[]).forEach(be=>{
-      const ej=be.ejercicios; if (ej?.id) nombres[ej.id]={ n:ej.nombre, g:ej.grupo_muscular }
-    })))
-    const prs = {}
-    ;(cs||[]).forEach(c=>{ if(!(c.ejercicio_id in prs)) prs[c.ejercicio_id]=c.peso_kg })
-    const top = Object.entries(prs).filter(([id])=>nombres[id]).slice(0,6)
+    // Cargas históricas en orden temporal (id asc): primera = inicio, máx = mejor
+    const { data: cs } = await sb.from('cargas')
+      .select('ejercicio_id, bloque_ejercicio_id, peso_kg, sets_completados, id')
+      .eq('socio_id', S.perfil.id).order('id',{ascending:true}).limit(600)
+    const ejIds = [...new Set((cs||[]).map(c=>c.ejercicio_id).filter(Boolean))]
+    const { data: ejs } = await sb.from('ejercicios')
+      .select('id, nombre, grupo_muscular, patron_mov, pilar').in('id', ejIds)
+    const info = {}; (ejs||[]).forEach(e=>info[e.id]=e)
+    // Reps promedio por bloque_ejercicio (para tonelaje)
+    const beIds = [...new Set((cs||[]).map(c=>c.bloque_ejercicio_id).filter(Boolean))]
+    const { data: bes } = await sb.from('bloque_ejercicios').select('id, reps').in('id', beIds)
+    const repsDe = {}; (bes||[]).forEach(b=>{
+      const nums = String(b.reps||'').match(/\d+/g)
+      repsDe[b.id] = nums?.length ? nums.reduce((a,x)=>a+ +x,0)/nums.length : 10
+    })
+    // Agregar por ejercicio
+    const agg = {}
+    ;(cs||[]).forEach(c=>{
+      const a = agg[c.ejercicio_id] = agg[c.ejercicio_id] || { inicio:null, mejor:0, ton:0 }
+      if (a.inicio===null) a.inicio = c.peso_kg
+      if (c.peso_kg > a.mejor) a.mejor = c.peso_kg
+      a.ton += (c.peso_kg||0) * (c.sets_completados||0) * (repsDe[c.bloque_ejercicio_id]||10)
+    })
+    const lista = Object.entries(agg).filter(([id])=>info[id]).map(([id,a])=>({
+      id, ...a, ...info[id],
+      mejora: a.inicio>0 ? Math.round((a.mejor-a.inicio)/a.inicio*100) : 0
+    }))
+    // PR por patrón (mejor kg del patrón; ★ pilares primero)
+    const porPatron = {}
+    lista.filter(x=>x.patron_mov).forEach(x=>{
+      const p = porPatron[x.patron_mov]
+      if (!p || (x.pilar&&!p.pilar) || (x.pilar===p.pilar && x.mejor>p.mejor)) porPatron[x.patron_mov]=x
+    })
+    const pat = Object.entries(porPatron)
+    document.getElementById('aPatrones').className=''
+    document.getElementById('aPatrones').innerHTML = pat.length ? pat.map(([patron,x])=>`
+      <div class="patron"><div><div class="pnm">${patron}</div>
+        <div class="pej">${x.pilar?'<span class="star">★</span> ':''}${x.nombre}</div></div>
+        <div class="pkg"><div class="pk1">${x.mejor}<small> KG</small></div>
+        <div class="pk2 ${x.mejora>0?'up':'flat'}">${x.mejora>0?'+'+x.mejora+'% EN EL CICLO':'PUNTO DE PARTIDA'}</div></div></div>`).join('')
+      : '<div class="vacio">Tus patrones aparecen al registrar cargas en ejercicios pilares.</div>'
+    // Historial ranking de mejora
+    const hist = [...lista].sort((a,b)=>(b.mejora-a.mejora)||(b.mejor-a.mejor)).slice(0,10)
     document.getElementById('aPRs').className=''
-    document.getElementById('aPRs').innerHTML = top.length ? top.map(([id,kg])=>`
-      <div class="pr"><div><div class="prn">${nombres[id].n}</div><div class="prm">${nombres[id].g||''} · TU MARCA</div></div>
-      <div class="prk">${kg}<small> KG</small></div></div>`).join('')
-      : '<div class="vacio">Tus marcas aparecen aquí cuando registres tus primeras cargas.<br><b>A levantar.</b></div>'
-  }catch(_){ document.getElementById('aPRs').innerHTML='<div class="vacio">Sin datos aún.</div>' }
+    document.getElementById('aPRs').innerHTML = hist.length ? hist.map(x=>`
+      <div class="pr"><div><div class="prn">${x.pilar?'<span class="star">★</span> ':''}${x.nombre}</div>
+        <div class="prm">${x.inicio} → ${x.mejor} KG</div></div>
+      <div class="prk ${x.mejora>0?'':''}">${x.mejora>0?'+'+x.mejora:'0'}<small> %</small></div></div>`).join('')
+      : '<div class="vacio">Tus marcas aparecen al registrar tus primeras cargas.<br><b>A levantar.</b></div>'
+    // Tonelaje top 3
+    const ton = [...lista].sort((a,b)=>b.ton-a.ton).slice(0,3)
+    document.getElementById('aTon').className=''
+    document.getElementById('aTon').innerHTML = ton.length ? ton.map((x,i)=>`
+      <div class="pr"><div><div class="prn">${i+1}. ${x.nombre}</div><div class="prm">CARGA TOTAL MOVIDA</div></div>
+      <div class="prk">${(x.ton/1000).toFixed(1)}<small> TON</small></div></div>`).join('')
+      : '<div class="vacio">El tonelaje se acumula sesión a sesión.</div>'
+  }catch(e){ console.error(e); document.getElementById('aPRs').innerHTML='<div class="vacio">Sin datos aún.</div>' }
 }
 
 function pintarPerfil(){
