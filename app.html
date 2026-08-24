@@ -87,6 +87,7 @@ html,body{background:linear-gradient(170deg,#F3F2EF 0%,#E7E6E2 55%,#DAD9D4 100%)
 .ej:first-of-type{border-top:none}
 .ej .en{font-size:12.5px;font-weight:800;line-height:1.3}
 .ej .em{font-size:7.5px;color:var(--gris);font-weight:900;letter-spacing:.1em;margin-top:3px}
+.ej .ecue{font-size:9.5px;color:var(--gris);font-weight:600;line-height:1.5;margin-top:5px;max-width:250px;font-style:italic}
 .peso{margin-left:auto;display:flex;align-items:center;gap:7px;flex-shrink:0}
 .peso button{width:30px;height:30px;border-radius:50%;border:1px solid rgba(18,18,16,.15);background:rgba(255,255,255,.6);
   font-size:14px;font-weight:900;cursor:pointer;color:var(--tinta)}
@@ -244,7 +245,7 @@ html,body{background:linear-gradient(170deg,#F3F2EF 0%,#E7E6E2 55%,#DAD9D4 100%)
 
   <!-- ══ HOME ══ -->
   <div class="vista conTab" id="vHome">
-    <div class="hbar"><span class="hk" title="v1.2">KOACH</span><div class="hav" id="hAv" onclick="salir()">K</div></div>
+    <div class="hbar"><span class="hk" title="v1.3">KOACH</span><div class="hav" id="hAv" onclick="salir()">K</div></div>
     <div class="anillo">
       <svg width="180" height="180" viewBox="0 0 180 180">
         <circle cx="90" cy="90" r="78" fill="none" stroke="rgba(18,18,16,.09)" stroke-width="11"/>
@@ -662,7 +663,8 @@ function pintarSesion(){
       } else {
         derecha = `<button class="mrk" id="mk-${be.id}" onclick="marcar('${be.id}')">MARCAR</button>`
       }
-      return `<div class="ej"><div><div class="en">${ej.nombre||'—'}${ancla}</div><div class="em">${meta}</div></div>${derecha}</div>`
+      const cue = ej.cue ? `<div class="ecue">${ej.cue}</div>` : ''
+      return `<div class="ej"><div><div class="en">${ej.nombre||'—'}${ancla}</div><div class="em">${meta}</div>${cue}</div>${derecha}</div>`
     }).join('')
     return `<div class="glass bloq" id="blq-${bi}">
       <div class="bh"><span class="bt">${b.bloque||('B'+(bi+1))}</span><span class="bn">${NOM[b.bloque]||''}</span>
