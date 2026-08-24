@@ -244,7 +244,7 @@ html,body{background:linear-gradient(170deg,#F3F2EF 0%,#E7E6E2 55%,#DAD9D4 100%)
 
   <!-- ══ HOME ══ -->
   <div class="vista conTab" id="vHome">
-    <div class="hbar"><span class="hk">KOACH</span><div class="hav" id="hAv" onclick="salir()">K</div></div>
+    <div class="hbar"><span class="hk" title="v1.2">KOACH</span><div class="hav" id="hAv" onclick="salir()">K</div></div>
     <div class="anillo">
       <svg width="180" height="180" viewBox="0 0 180 180">
         <circle cx="90" cy="90" r="78" fill="none" stroke="rgba(18,18,16,.09)" stroke-width="11"/>
@@ -534,6 +534,7 @@ async function entrar(){
 
     S.sem = calcularSemana(S.programa, S.registros, S.objetivos)
     pintarHome()
+    vista('vHome')   // re-evalúa la tab bar ahora que S.asig existe
   }catch(e){ console.error(e); sinPrograma('No pudimos cargar tu semana. Revisa tu conexión e intenta de nuevo.') }
 }
 function sinPrograma(msg){
@@ -553,6 +554,7 @@ function saludoDe(ctx){
   return fam[Math.floor(Math.random()*fam.length)].replace('{n}', S.perfil.nombre||'')
 }
 function pintarHome(){
+  document.getElementById('tabbar').classList.add('vis')
   const sem=S.sem, num=sem.fortalecidos, den=sem.exigibles
   const dowL=(new Date().getDay()+6)%7
   const DIA=['lunes','martes','miércoles','jueves','viernes','sábado','domingo']
