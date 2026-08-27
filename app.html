@@ -288,7 +288,7 @@ html,body{background:linear-gradient(170deg,#F3F2EF 0%,#E7E6E2 55%,#DAD9D4 100%)
 
   <!-- ══ HOME ══ -->
   <div class="vista conTab" id="vHome">
-    <div class="hbar"><span class="hk" title="v2.0">KOACH</span><div class="hav" id="hAv" onclick="salir()">K</div></div>
+    <div class="hbar"><span class="hk" title="v2.1">KOACH</span><div class="hav" id="hAv" onclick="salir()">K</div></div>
     <div class="ctx"><div class="fecha" id="hFecha">—</div><div class="prog" id="hProg">—</div></div>
     <div class="anillo">
       <svg width="180" height="180" viewBox="0 0 180 180">
@@ -657,8 +657,9 @@ function pintarHome(){
   if (sem.completa) ctx='completa'
   else if (dowL===0 && S.registros.length===0) ctx='lunes'
   document.getElementById('hSaludo').textContent = saludoDe(ctx)
+  const hechasSes = S.registros.filter(r=>r.estado!=='incompleta').length
   let voz
-  if (sem.completa) voz = `Alcanzaste tu dosis completa — <b>100%</b>, con los <b>${den}</b> músculos fortalecidos. <b>Ahora también toca recuperar.</b>`
+  if (sem.completa) voz = `Completaste tu <b>volumen efectivo</b> de la semana — <b>100%</b>, ${den} metas cumplidas en <b>${hechasSes} sesiones</b>. ¿Quieres más? <b>Coordina con tu coach tus sesiones extra.</b>`
   else if (sem.proxima){
     const sp=sem.proxima.suma_pct
     voz = `Es <b>${DIA[dowL]}</b> y llevas el <b>${dosis}%</b> de tu dosis semanal. Tu próxima sesión suma <b>+${sp}%</b>`+
@@ -671,7 +672,6 @@ function pintarHome(){
     <div class="dia ${i===dowL?'hoy':'glass'} ${porDia[i]?'hecho':''}">
       <div class="dl">${l}</div><div class="dm">${i===dowL?'HOY':(porDia[i]?'✓':'·')}</div></div>`).join('')
   // Doble objetivo: sesiones designadas de la semana
-  const hechasSes = S.registros.filter(r=>r.estado!=='incompleta').length
   const regsOrd = [...S.registros].filter(r=>r.estado!=='incompleta').sort((a,b)=>a.fecha<b.fecha?1:-1)
   const ultima = regsOrd[0] ? S.programa.sesiones.find(s=>s.numero===regsOrd[0].sesion_numero) : null
   const ultTxt = ultima ? ` · ÚLTIMA: <b>${ultima.nombre}</b>` : ''
@@ -679,10 +679,13 @@ function pintarHome(){
     ? `SESIONES COMPLETADAS ESTA SEMANA: <b>${hechasSes}</b>${ultTxt} · SEMANA SUMADA`
     : `SESIONES COMPLETADAS ESTA SEMANA: <b>${hechasSes}</b>${ultTxt}` + (sem.proxima ? ` · SIGUE: <b>${sem.proxima.nombre}</b>` : '')
   const cta=document.getElementById('hCta')
-  if (sem.completa){ cta.disabled=true
-    document.getElementById('hCtaT').textContent='SEMANA COMPLETA'
-    document.getElementById('hCtaS').textContent='NOS VEMOS EL LUNES'
+  if (sem.completa){ cta.disabled=false
+    document.getElementById('hCtaT').textContent='COORDINAR SESIONES EXTRA'
+    document.getElementById('hCtaS').textContent='TU COACH DESIGNA LOS NUEVOS OBJETIVOS →'
+    cta.onclick = () => window.open('https://wa.me/56971333042?text='+encodeURIComponent(
+      `Hola KOACH! Completé mi semana (100% · ${hechasSes} sesiones). Quiero sesiones extra — ¿me designas los nuevos objetivos?`),'_blank')
   } else if (sem.proxima){ cta.disabled=false
+    cta.onclick = abrirSesion
     document.getElementById('hCtaT').textContent='COMENZAR SESIÓN'
     document.getElementById('hCtaS').textContent=`${sem.proxima.nombre} · 60 MIN · SUMA +${sem.proxima.suma_pct}% DE TU DOSIS`
   }
