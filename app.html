@@ -35,6 +35,30 @@ html,body{background:linear-gradient(170deg,#F3F2EF 0%,#E7E6E2 55%,#DAD9D4 100%)
 .links a{color:var(--gris);font-weight:800;text-decoration:underline;cursor:pointer}
 .foot{font-size:7.5px;letter-spacing:.2em;color:var(--suave);font-weight:800;text-align:center;margin-top:40px}
 /* ── HOME ── */
+.ctx{text-align:center;margin:10px 0 0}
+.ctx .fecha{font-size:9px;letter-spacing:.24em;color:var(--gris);font-weight:900}
+.ctx .prog{font-size:7.5px;letter-spacing:.18em;color:var(--suave);font-weight:900;margin-top:3px}
+.proj{background:rgba(18,18,16,.95);color:var(--hueso);border-radius:20px;padding:13px 15px 14px;margin-bottom:14px;box-shadow:0 10px 26px rgba(18,18,16,.24)}
+.proj .pt{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:9px}
+.proj .pt1{font-size:7.5px;letter-spacing:.18em;color:#8B8A85;font-weight:900}
+.proj .pt2{font-size:8.5px;font-weight:900;color:var(--ok)}
+.mini{display:grid;grid-template-columns:repeat(9,1fr);gap:5px}
+.mini .mb{text-align:center}
+.mini .mbar{height:30px;background:rgba(255,255,255,.1);border-radius:5px;position:relative;overflow:hidden}
+.mini .mfill{position:absolute;bottom:0;left:0;right:0;border-radius:5px;background:var(--ok)}
+.mini .mb.z2 .mfill{background:#C5A13C}
+.mini .mb.z3 .mfill{background:#B4442C}
+.mini .mb span{font-size:5px;letter-spacing:.04em;color:#8B8A85;font-weight:900;display:block;margin-top:4px}
+.proj .pnota{font-size:7.5px;color:#8B8A85;font-weight:700;margin-top:9px;letter-spacing:.06em;text-align:center}
+.contacto{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-bottom:10px}
+.cbtn{border:none;border-radius:18px;padding:15px 10px;font-size:9px;font-weight:900;letter-spacing:.1em;cursor:pointer;text-align:center;display:block;text-decoration:none}
+.cbtn.wsp{background:rgba(31,157,85,.12);color:var(--ok)}
+.cbtn.mail{background:rgba(18,18,16,.07);color:var(--tinta)}
+.gl{padding:9px 0;border-top:1px solid rgba(18,18,16,.05)}
+.gl:first-child{border-top:none;padding-top:2px}
+.gl b{display:block;font-size:9px;letter-spacing:.14em;color:var(--tinta);font-weight:900;margin-bottom:3px}
+.gl span{font-size:10.5px;color:var(--gris);line-height:1.6}
+.gl span em{color:var(--tinta);font-style:normal;font-weight:700}
 .hbar{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
 .hk{font-size:12px;font-weight:900;letter-spacing:.38em}
 .hav{width:34px;height:34px;border-radius:50%;background:var(--tinta);color:var(--hueso);display:flex;
@@ -63,7 +87,7 @@ html,body{background:linear-gradient(170deg,#F3F2EF 0%,#E7E6E2 55%,#DAD9D4 100%)
 .panel{padding:14px 14px 8px;margin-bottom:10px}
 .panel h3{display:flex;justify-content:space-between;font-size:7.5px;letter-spacing:.2em;color:var(--gris);font-weight:900;margin-bottom:10px}
 .rows{display:grid;grid-template-columns:1fr 1fr;column-gap:14px}
-.row{display:grid;grid-template-columns:52px 1fr 30px;gap:6px;align-items:center;margin-bottom:9px}
+.row{display:grid;grid-template-columns:52px 1fr 46px;gap:6px;align-items:center;margin-bottom:9px}
 .row .g{font-weight:900;font-size:7.5px}
 .bar{position:relative;height:7px;background:rgba(18,18,16,.08);border-radius:5px}
 .fill{position:absolute;top:0;left:0;height:100%;border-radius:5px;background:var(--tinta);transition:width .6s;width:0}
@@ -86,6 +110,10 @@ html,body{background:linear-gradient(170deg,#F3F2EF 0%,#E7E6E2 55%,#DAD9D4 100%)
 .hst .prm{letter-spacing:.06em}
 .star{color:#C5A13C}
 .nota{font-size:7.5px;letter-spacing:.16em;color:var(--suave);font-weight:800;text-align:center;margin-top:8px}
+.sesline{font-size:8px;letter-spacing:.12em;color:var(--gris);font-weight:900;margin:-2px 8px 10px;text-align:center;line-height:1.9}
+.sesline b{color:var(--tinta)}
+.cadena{font-size:10px;color:var(--gris);line-height:1.7;margin:-6px 2px 14px;max-width:340px}
+.cadena b{color:var(--tinta)}
 /* ── SESIÓN ── */
 .stop{display:flex;align-items:center;gap:12px;margin-bottom:4px}
 .sback{width:36px;height:36px;border-radius:50%;background:rgba(255,255,255,.6);border:1px solid rgba(255,255,255,.85);
@@ -260,7 +288,8 @@ html,body{background:linear-gradient(170deg,#F3F2EF 0%,#E7E6E2 55%,#DAD9D4 100%)
 
   <!-- ══ HOME ══ -->
   <div class="vista conTab" id="vHome">
-    <div class="hbar"><span class="hk" title="v1.4.1">KOACH</span><div class="hav" id="hAv" onclick="salir()">K</div></div>
+    <div class="hbar"><span class="hk" title="v2.0">KOACH</span><div class="hav" id="hAv" onclick="salir()">K</div></div>
+    <div class="ctx"><div class="fecha" id="hFecha">—</div><div class="prog" id="hProg">—</div></div>
     <div class="anillo">
       <svg width="180" height="180" viewBox="0 0 180 180">
         <circle cx="90" cy="90" r="78" fill="none" stroke="rgba(18,18,16,.09)" stroke-width="11"/>
@@ -269,25 +298,32 @@ html,body{background:linear-gradient(170deg,#F3F2EF 0%,#E7E6E2 55%,#DAD9D4 100%)
           style="transition:stroke-dashoffset 1s cubic-bezier(.3,.8,.3,1)"/>
         <g id="hFle" opacity="0"><polygon points="0,-11 12,0 0,11" fill="#121210"/></g>
       </svg>
-      <div class="c"><b><span id="hN">0</span><small>/<span id="hD">—</span></small></b><span>MÚSCULOS FORTALECIDOS</span></div>
+      <div class="c"><b><span id="hN">0</span><small>%</small></b><span>DE TU DOSIS SEMANAL</span></div>
     </div>
     <div class="voz"><div class="v1" id="hSaludo">—</div><div class="v2" id="hVoz">—</div></div>
-    <div class="dias" id="hDias"></div>
     <button class="cta" id="hCta" onclick="abrirSesion()">
       <span><span class="t" id="hCtaT">COMENZAR SESIÓN</span><span class="s" id="hCtaS">—</span></span>
       <span style="font-size:17px">→</span>
     </button>
+    <div class="dias" id="hDias"></div>
+    <div class="sesline" id="hSes"></div>
     <div class="glass panel">
       <h3><span>TRABAJO SEMANAL · SERIES POR MÚSCULO</span><span id="hCount">—</span></h3>
       <div class="rows" id="hRows"></div>
+      <div class="nota" style="margin-top:4px;text-align:left">⚪ SIN DOSIS · 🟢 ÓPTIMO · 🟡 CERCA DEL TECHO · 🔴 EXCESO</div>
     </div>
-    <div class="nota" id="hNota"></div>
   </div>
 
   <!-- ══ PLAN ══ -->
   <div class="vista conTab" id="vPlan">
     <div class="ph">Tu plan</div>
     <div class="ps" id="pSub">—</div>
+    <div class="cadena">Tus sesiones designadas <b>suman</b> → tus músculos se <b>fortalecen</b> → tu semana se <b>completa</b>. <span id="pProg"></span></div>
+    <div class="proj" id="pProy" style="display:none">
+      <div class="pt"><span class="pt1">LO QUE TU SEMANA PRODUCE</span><span class="pt2" id="pProyPct">—</span></div>
+      <div class="mini" id="pProyBars"></div>
+      <div class="pnota" id="pProyNota">—</div>
+    </div>
     <div id="pLista"></div>
     <div class="nota">LAS SESIONES SE DESBLOQUEAN EN ORDEN · TU COACH AJUSTA EL PROGRAMA</div>
   </div>
@@ -300,8 +336,12 @@ html,body{background:linear-gradient(170deg,#F3F2EF 0%,#E7E6E2 55%,#DAD9D4 100%)
       <div class="ast ink"><b id="aSes">—</b><span>SESIONES COMPLETADAS</span></div>
       <div class="glass ast"><b id="aSem">—</b><span>ESTA SEMANA</span></div>
     </div>
+    <div class="glass panel hst">
+      <h3><span>HISTORIAL DE SESIONES</span><span>LO REALIZADO</span></h3>
+      <div id="aHist" class="vacio">Cargando…</div>
+    </div>
     <div class="glass panel">
-      <h3><span>PR POR PATRÓN DE MOVIMIENTO</span><span>★ PILARES</span></h3>
+      <h3><span>PR POR PATRÓN · MARCAS A RIR 0</span><span>★ PILARES</span></h3>
       <div id="aPatrones" class="vacio">Cargando…</div>
     </div>
     <div class="glass panel hst">
@@ -322,19 +362,30 @@ html,body{background:linear-gradient(170deg,#F3F2EF 0%,#E7E6E2 55%,#DAD9D4 100%)
       <div class="idav" id="pfAv">K</div>
       <div><div class="idn" id="pfNom">—</div><div class="idm" id="pfProg">—</div></div>
     </div>
-    <div class="memb" onclick="window.open('https://wa.me/56999999999?text=Hola%20KOACH%2C%20quiero%20gestionar%20mi%20membres%C3%ADa','_blank')">
+    <div class="memb" onclick="window.open('https://wa.me/56971333042?text=Hola%20KOACH%2C%20quiero%20gestionar%20mi%20membres%C3%ADa','_blank')">
       <div><div class="mt2">MEMBRESÍA</div><div class="mv">KOACH CLUB</div></div>
       <div class="me">ACTIVA · GESTIONAR →</div>
+    </div>
+    <div class="contacto">
+      <a class="cbtn wsp" href="https://wa.me/56971333042" target="_blank">WHATSAPP KOACH →</a>
+      <a class="cbtn mail" href="mailto:koachclub@gmail.com">CORREO →</a>
     </div>
     <div class="glass" style="padding:4px 0;margin-bottom:10px">
       <div class="fila2" onclick="det('dDatos')"><span class="fn2">Mis datos</span><span class="fs2">›</span></div>
       <div class="det" id="dDatos"></div>
-      <div class="fila2" onclick="toast('Las notificaciones llegan pronto — tu coach te avisa por WhatsApp')"><span class="fn2">Notificaciones</span><span class="fs2">›</span></div>
-      <div class="fila2" onclick="det('dMetodo')"><span class="fn2">¿Cómo funciona el método?</span><span class="fs2">›</span></div>
-      <div class="det" id="dMetodo"><b>3 sesiones por semana · 60 minutos.</b> Cada sesión suma trabajo a tus músculos.
-        Cuando un músculo alcanza el estímulo que tu programa le puso, se marca <b>fortalecido</b>.
-        Completa tus objetivos de lunes a sábado y la semana se cierra. El domingo todo parte de nuevo — <b>más fuerte que la anterior</b>.</div>
-      <div class="fila2" onclick="window.open('https://wa.me/56999999999?text=Hola%20KOACH%2C%20necesito%20ayuda%20con%20la%20app','_blank')"><span class="fn2">Ayuda</span><span class="fs2">›</span></div>
+      <div class="fila2" onclick="det('dMetodo')"><span class="fn2">Vocabulario del método</span><span class="fs2">›</span></div>
+      <div class="det" id="dMetodo">
+        <div class="gl"><b>SERIE EFECTIVA</b><span>La unidad de trabajo que cuenta. La suma de series es lo que <em>dosificamos</em> para estimular tus músculos. Los compuestos suman fracción a los músculos que asisten — por eso hay decimales.</span></div>
+        <div class="gl"><b>DOSIS</b><span>Tu cantidad ideal de trabajo semanal por músculo — la que promueve adaptaciones y el <em>equilibrio de todo tu cuerpo</em>.</span></div>
+        <div class="gl"><b>MÍNIMO Y TECHO</b><span>Los rangos que validan el trabajo suficiente: bajo el mínimo no hay estímulo; sobre el techo solo hay fatiga. Tu barra: <em>8/12</em> = llevas 8 de 12.</span></div>
+        <div class="gl"><b>EL % (ANILLO)</b><span>Promedio de avance de <em>todos</em> tus músculos hacia su dosis. Solo el equilibrio llena el círculo. ⚪ sin dosis · 🟢 óptimo · 🟡 cerca del techo · 🔴 exceso.</span></div>
+        <div class="gl"><b>SESIÓN DESIGNADA</b><span>Diseñada por tu coach para tu semana. Se desbloquean en orden — la secuencia también es dosificación.</span></div>
+        <div class="gl"><b>B1 · B2 · B3</b><span>Activación → Fuerza principal → Cierre. La arquitectura de tus 60 minutos.</span></div>
+        <div class="gl"><b>ANCLA ◆</b><span>El ejercicio que no cambia en las 6 semanas: ahí se mide tu progresión — mismo movimiento, más carga.</span></div>
+        <div class="gl"><b>PR · RIR 0</b><span>Tu carga máxima por patrón (Upper Push · Pull · Squat · Hinge), al máximo real y con reps declaradas: <em>110 KG × 8</em>.</span></div>
+        <div class="gl"><b>CICLO</b><span>6 semanas de progresión. Cada lunes la semana parte limpia — <em>más fuerte que la anterior</em>.</span></div>
+      </div>
+      <div class="fila2" onclick="window.open('https://wa.me/56971333042?text=Hola%20KOACH%2C%20necesito%20ayuda%20con%20la%20app','_blank')"><span class="fn2">Ayuda</span><span class="fs2">›</span></div>
     </div>
     <button class="cerrar2" onclick="salir()">CERRAR SESIÓN</button>
   </div>
@@ -423,16 +474,29 @@ function calcularSemana(programa, registros, objetivos){
   }))
   const ex = musculos.filter(m=>m.exigible)
   const tot = ex.filter(m=>m.fortalecido).length
+  const pct_dosis = ex.length ? Math.round(ex.reduce((a,m)=>a+Math.min(m.series/m.objetivo,1),0)/ex.length*100) : 0
   const hechas = new Set(validos.filter(r=>r.estado!=='incompleta').map(r=>r.sesion_numero))
   const prox = programa.sesiones.find(s=>!hechas.has(s.numero)) || null
   let proxima = null
   if (prox){
     const ap = aporteSesion(prox)
     const c = ex.filter(m=>!m.fortalecido && (ap[m.grupo]||0)>0 && acum[m.grupo]+ap[m.grupo]>=m.objetivo)
-    proxima = { numero:prox.numero, id:prox.id, nombre:prox.nombre||('SESIÓN '+prox.numero), fortaleceria:c.length }
+    // % que sumaría la próxima sesión a la dosis (mismo promedio topado)
+    const acum2 = {...acum}
+    Object.entries(ap).forEach(([g,v])=>{ if (g in acum2) acum2[g]+=v })
+    const pct2 = ex.length ? Math.round(ex.reduce((a,m)=>a+Math.min(acum2[m.grupo]/m.objetivo,1),0)/ex.length*100) : 0
+    proxima = { numero:prox.numero, id:prox.id, nombre:prox.nombre||('SESIÓN '+prox.numero),
+                fortaleceria:c.length, suma_pct: Math.max(0, pct2 - pct_dosis) }
   }
-  return { musculos, exigibles:ex.length, fortalecidos:tot, proxima,
+  return { musculos, exigibles:ex.length, fortalecidos:tot, pct_dosis, proxima,
            completa: ex.length>0 && tot===ex.length }
+}
+function nombreEN(s){
+  const x = (s||'').toUpperCase()
+  if (/SUPERIOR/.test(x)) return 'UPPER BODY'
+  if (/INFERIOR/.test(x)) return 'LOWER BODY'
+  if (/COMPLETO|FULL/.test(x)) return 'TOTAL BODY'
+  return x
 }
 function lunes(){ const h=new Date(),d=(h.getDay()+6)%7,l=new Date(h); l.setDate(h.getDate()-d); l.setHours(0,0,0,0); return l }
 
@@ -527,7 +591,7 @@ async function entrar(){
     const { data: bloques } = await sb.from('bloques')
       .select('*, bloque_ejercicios(*, ejercicios(*))').in('sesion_id', sesIds).order('bloque')
     S.programa = { sesiones:(sesiones||[]).map(s=>({
-      numero:s.numero, id:s.id, nombre:(s.objetivo||'').toUpperCase()||('SESIÓN '+s.numero),
+      numero:s.numero, id:s.id, nombre:nombreEN(s.objetivo)||('SESIÓN '+s.numero),
       bloquesFull:(bloques||[]).filter(b=>b.sesion_id===s.id),
       bloques:(bloques||[]).filter(b=>b.sesion_id===s.id).map(b=>({
         sets:b.sets,
@@ -580,34 +644,47 @@ function saludoDe(ctx){
 }
 function pintarHome(){
   document.getElementById('tabbar').classList.add('vis')
-  const sem=S.sem, num=sem.fortalecidos, den=sem.exigibles
+  const hoyF = new Date()
+  const DIAF = ['DOMINGO','LUNES','MARTES','MIÉRCOLES','JUEVES','VIERNES','SÁBADO']
+  const MESF = ['ENERO','FEBRERO','MARZO','ABRIL','MAYO','JUNIO','JULIO','AGOSTO','SEPTIEMBRE','OCTUBRE','NOVIEMBRE','DICIEMBRE']
+  document.getElementById('hFecha').textContent = `${DIAF[hoyF.getDay()]} ${hoyF.getDate()} DE ${MESF[hoyF.getMonth()]}`
+  document.getElementById('hProg').textContent =
+    `${S.perfil.nombre||''} · PROGRAMA ${S.proto.programa||''} · SEMANA ${S.asig.semana_actual||1} DE 6 · CICLO ${S.asig.ciclo_actual||1}`.toUpperCase()
+  const sem=S.sem, num=sem.fortalecidos, den=sem.exigibles, dosis=sem.pct_dosis
   const dowL=(new Date().getDay()+6)%7
   const DIA=['lunes','martes','miércoles','jueves','viernes','sábado','domingo']
-  document.getElementById('hD').textContent=den
   let ctx='sesion'
   if (sem.completa) ctx='completa'
   else if (dowL===0 && S.registros.length===0) ctx='lunes'
   document.getElementById('hSaludo').textContent = saludoDe(ctx)
   let voz
-  if (sem.completa) voz = `Alcanzaste el estímulo planificado — <b>${num}/${den}</b>. <b>Ahora también toca recuperar.</b>`
+  if (sem.completa) voz = `Alcanzaste tu dosis completa — <b>100%</b>, con los <b>${den}</b> músculos fortalecidos. <b>Ahora también toca recuperar.</b>`
   else if (sem.proxima){
-    const f=sem.proxima.fortaleceria
-    voz = `Es <b>${DIA[dowL]}</b> y ya fortaleciste <b>${num} de ${den}</b>. Tu próxima sesión fortalece <b>${f} más</b>`+
-      (num+f>=den?` — <b>completas tu semana</b>.`:`.`)+` <b>A levantar.</b>`
-  } else voz = `Llevas <b>${num} de ${den}</b> esta semana.`
+    const sp=sem.proxima.suma_pct
+    voz = `Es <b>${DIA[dowL]}</b> y llevas el <b>${dosis}%</b> de tu dosis semanal. Tu próxima sesión suma <b>+${sp}%</b>`+
+      (dosis+sp>=100?` — <b>completas tu semana</b>.`:`.`)+` <b>A levantar.</b>`
+  } else voz = `Llevas el <b>${dosis}%</b> de tu dosis semanal.`
   document.getElementById('hVoz').innerHTML = voz
   const porDia={}
   S.registros.forEach(r=>{ const d=new Date(r.fecha+'T12:00:00'); porDia[(d.getDay()+6)%7]=true })
   document.getElementById('hDias').innerHTML = ['L','M','X','J','V','S'].map((l,i)=>`
     <div class="dia ${i===dowL?'hoy':'glass'} ${porDia[i]?'hecho':''}">
       <div class="dl">${l}</div><div class="dm">${i===dowL?'HOY':(porDia[i]?'✓':'·')}</div></div>`).join('')
+  // Doble objetivo: sesiones designadas de la semana
+  const hechasSes = S.registros.filter(r=>r.estado!=='incompleta').length
+  const regsOrd = [...S.registros].filter(r=>r.estado!=='incompleta').sort((a,b)=>a.fecha<b.fecha?1:-1)
+  const ultima = regsOrd[0] ? S.programa.sesiones.find(s=>s.numero===regsOrd[0].sesion_numero) : null
+  const ultTxt = ultima ? ` · ÚLTIMA: <b>${ultima.nombre}</b>` : ''
+  document.getElementById('hSes').innerHTML = sem.completa
+    ? `SESIONES COMPLETADAS ESTA SEMANA: <b>${hechasSes}</b>${ultTxt} · SEMANA SUMADA`
+    : `SESIONES COMPLETADAS ESTA SEMANA: <b>${hechasSes}</b>${ultTxt}` + (sem.proxima ? ` · SIGUE: <b>${sem.proxima.nombre}</b>` : '')
   const cta=document.getElementById('hCta')
   if (sem.completa){ cta.disabled=true
     document.getElementById('hCtaT').textContent='SEMANA COMPLETA'
     document.getElementById('hCtaS').textContent='NOS VEMOS EL LUNES'
   } else if (sem.proxima){ cta.disabled=false
     document.getElementById('hCtaT').textContent='COMENZAR SESIÓN'
-    document.getElementById('hCtaS').textContent=`${sem.proxima.nombre} · FORTALECE ${sem.proxima.fortaleceria} MÚSCULOS`
+    document.getElementById('hCtaS').textContent=`${sem.proxima.nombre} · 60 MIN · SUMA +${sem.proxima.suma_pct}% DE TU DOSIS`
   }
   const orden=[...sem.musculos].sort((a,b)=>(b.exigible-a.exigible)||(b.pct-a.pct))
   document.getElementById('hRows').innerHTML = orden.map(m=>{
@@ -620,18 +697,18 @@ function pintarHome(){
       else if (m.series>=m.objetivo) z='z1'
       else z='z0'
     }
-    const sTxt = m.series>0 ? (m.series%1===0?m.series:m.series.toFixed(1)) : (m.exigible?'·':'')
-    const est=!m.exigible?(m.series>0?sTxt:'LIBRE'):(m.fortalecido?sTxt+' ✓':sTxt||'·')
+    const sN = m.series%1===0 ? m.series : m.series.toFixed(1)
+    const est = !m.exigible
+      ? (m.series>0 ? String(sN) : 'LIBRE')
+      : (m.fortalecido ? '✓ '+sN+'/'+m.objetivo : sN+'/'+m.objetivo)
     return `<div class="row ${m.exigible?'':'libre'}">
       <div class="g">${m.grupo}</div>
       <div class="bar"><div class="fill ${m.exigible?z:''}" data-w="${pct}"></div></div>
       <div class="v ${m.exigible?z:''} ${m.fortalecido?'si':''}">${est}</div></div>`
   }).join('')
-  document.getElementById('hCount').textContent = `${num} DE ${den} FORTALECIDOS`
-  document.getElementById('hNota').textContent =
-    `${(S.proto.programa||'')} · ${(S.proto.nivel||'')} · SEMANA ${S.asig.semana_actual||1} DE 6`.toUpperCase()
+  document.getElementById('hCount').textContent = `${num} DE ${den} METAS CUMPLIDAS`
   setTimeout(()=>{
-    const C=490.1, obj=den>0?num/den:0
+    const C=490.1, obj=dosis/100
     document.getElementById('hArc').style.strokeDashoffset = C*(1-obj)
     const fl=document.getElementById('hFle')
     if (obj>0.01){ fl.setAttribute('opacity','1')
@@ -640,12 +717,16 @@ function pintarHome(){
     } else fl.setAttribute('opacity','0')
     let c=0
     document.getElementById('hN').textContent='0'
-    if (num>0){ const it=setInterval(()=>{ c++; document.getElementById('hN').textContent=Math.min(c,num)
-      if(c>=num) clearInterval(it) },220) }
+    if (dosis>0){ const paso=Math.max(1,Math.round(dosis/14)); const it=setInterval(()=>{ c+=paso
+      document.getElementById('hN').textContent=Math.min(c,dosis)
+      if(c>=dosis) clearInterval(it) },70) }
     document.querySelectorAll('#hRows .fill').forEach((f,i)=>setTimeout(()=>{ f.style.width=f.dataset.w+'%' },150+i*70))
   },350)
 }
-function volverHome(){ entrar() }
+function volverHome(){
+  if (S._dirty){ S._dirty=false; S._avOk=false; entrar() }
+  else vista('vHome')
+}
 
 /* ══ SESIÓN ══ */
 async function abrirSesion(){
@@ -660,7 +741,7 @@ async function abrirSesion(){
   document.getElementById('sSub').textContent =
     `DESIGNADA POR TU COACH · ${(S.proto.programa||'').toUpperCase()}`
   document.getElementById('sObj').innerHTML =
-    `Principales músculos a estimular: <b>${principales}</b>. Complétala y tu semana avanza — fortalece <b>${S.sem.proxima.fortaleceria} músculos</b>.`
+    `Principales músculos a estimular: <b>${principales}</b>. Complétala y tu semana avanza — suma <b>+${S.sem.proxima.suma_pct}%</b> de tu dosis.`
   document.getElementById('sFin').style.display='none'
   // Sugeridos: última carga por ejercicio
   try{
@@ -771,6 +852,7 @@ async function finalizar(){
     }))
     if (inserts.length) await sb.from('cargas').insert(inserts)
   }catch(e){ console.error(e); toast('No se pudo guardar — intenta de nuevo o avisa a tu coach'); return }
+  S._dirty = true; S._avOk = false
   // Recompensa
   const rw=S.frases?.recompensa
   document.getElementById('rwSes').textContent = ses.nombre+' · COMPLETADA'
@@ -792,7 +874,7 @@ function tab(id){
   vista(id)
   document.querySelectorAll('.tb').forEach(b=>b.classList.toggle('on', b.id==='tb-'+id))
   if (id==='vPlan') pintarPlan()
-  if (id==='vAvances') loadAvances()
+  if (id==='vAvances' && !S._avOk){ S._avOk=true; loadAvances() }
   if (id==='vPerfil') pintarPerfil()
 }
 const _vista = vista
@@ -805,9 +887,29 @@ vista = function(id){
 
 function pintarPlan(){
   if (!S.programa){ document.getElementById('pLista').innerHTML='<div class="vacio">Tu coach te asignará tu programa.</div>'; return }
+  // Proyección: lo que la semana designada completa produce
+  try {
+    const acumT = {}
+    Object.keys(S.objetivos).forEach(g=>acumT[g]=0)
+    S.programa.sesiones.forEach(s=>{ const a=aporteSesion(s)
+      Object.entries(a).forEach(([g,v])=>{ if (g in acumT) acumT[g]+=v }) })
+    const ex = Object.entries(S.objetivos).filter(([g,o])=>o.exigible!==false)
+    const pctT = ex.length ? Math.round(ex.reduce((a,[g,o])=>a+Math.min(acumT[g]/o.mev,1),0)/ex.length*100) : 0
+    document.getElementById('pProyBars').innerHTML = ex.map(([g,o])=>{
+      const p = Math.min(Math.round(acumT[g]/o.mev*100),100)
+      let z=''; if (o.mav && acumT[g]>o.mav) z='z3'; else if (o.mav && acumT[g]>=o.mav*0.85) z='z2'
+      return `<div class="mb ${z}"><div class="mbar"><div class="mfill" style="height:${p}%"></div></div><span>${g.slice(0,4)}</span></div>`
+    }).join('')
+    document.getElementById('pProyPct').textContent = (pctT>=100?'✓ EQUILIBRIO · ':'')+pctT+'% DE TU DOSIS'
+    document.getElementById('pProyNota').textContent =
+      `TU COACH DISEÑÓ ESTAS ${S.programa.sesiones.length} SESIONES PARA CUBRIR TUS ${ex.length} MÚSCULOS — COMPLÉTALAS Y EL EQUILIBRIO ES TUYO`
+    document.getElementById('pProy').style.display='block'
+  } catch(_){}
   document.getElementById('pSub').textContent =
     `${S.proto.programa} · ${S.proto.nivel} · SEMANA ${S.asig.semana_actual||1} DE 6 · CICLO ${S.asig.ciclo_actual||1}`.toUpperCase()
   const hechas = new Set(S.registros.filter(r=>r.estado!=='incompleta').map(r=>r.sesion_numero))
+  document.getElementById('pProg').innerHTML =
+    `Esta semana llevas el <b>${S.sem.pct_dosis}%</b> de tu dosis · <b>${S.sem.fortalecidos} de ${S.sem.exigibles} músculos</b> fortalecidos.`
   const proxNum = S.sem?.proxima?.numero
   const porNum = {}; S.registros.forEach(r=>porNum[r.sesion_numero]=r)
   document.getElementById('pLista').innerHTML = S.programa.sesiones.map(s=>{
@@ -818,13 +920,16 @@ function pintarPlan(){
     const grupos = Object.entries(ap).filter(([g,v])=>v>=1).sort((a,b)=>b[1]-a[1]).slice(0,3).map(([g])=>g).join(' · ')
     const reg = porNum[s.numero]
     const sumo = reg?.bloques_completados===null ? '' : ''
-    let est, cls, icon
-    if (hecha){ est='✓ SUMADA'; cls='ok'; icon='✓' }
-    else if (prox){ est='PRÓXIMA →'; cls='prox'; icon=s.numero }
+    let est, cls, icon, extra=''
+    const DIAS3=['LUN','MAR','MIÉ','JUE','VIE','SÁB','DOM']
+    if (hecha){ est='✓ SUMADA'; cls='ok'; icon='✓'
+      if (reg?.fecha){ const d=new Date(reg.fecha+'T12:00:00'); extra=' · '+DIAS3[(d.getDay()+6)%7] } }
+    else if (prox){ est='PRÓXIMA →'; cls='prox'; icon=s.numero
+      if (S.sem?.proxima?.suma_pct!=null) extra=' · SUMA +'+S.sem.proxima.suma_pct+'%' }
     else { est='SE DESBLOQUEA'; cls='lock'; icon='🔒' }
     return `<div class="glass pcard ${hecha?'hecha':prox?'prox':'lock'}" ${prox?'onclick="tab(\'vHome\');abrirSesion()"':''} style="${prox?'cursor:pointer':''}">
       <div class="pnum">${icon}</div>
-      <div><div class="pn2">${s.nombre}</div><div class="pm2">${grupos}</div></div>
+      <div><div class="pn2">${s.nombre}</div><div class="pm2">${grupos}${extra}</div></div>
       <span class="pest ${cls}">${est}</span></div>`
   }).join('')
 }
@@ -836,6 +941,27 @@ async function loadAvances(){
       .eq('socio_id', S.perfil.id).in('estado', ['completada','finalizada'])
     document.getElementById('aSes').textContent = count ?? 0
   }catch(_){ document.getElementById('aSes').textContent='—' }
+  // Historial de sesiones realizadas
+  try{
+    const { data: hs } = await sb.from('sesiones_registro')
+      .select('fecha, estado, sesion_protocolo_id, musculos_sumados')
+      .eq('socio_id', S.perfil.id).in('estado',['completada','finalizada','incompleta'])
+      .order('fecha',{ascending:false}).limit(8)
+    const spIds = [...new Set((hs||[]).map(x=>x.sesion_protocolo_id).filter(Boolean))]
+    const { data: sps } = await sb.from('sesiones_protocolo').select('id, objetivo').in('id', spIds)
+    const nomSes = {}; (sps||[]).forEach(x=>nomSes[x.id]=nombreEN(x.objetivo)||'SESIÓN')
+    const DIAS3 = ['LUN','MAR','MIÉ','JUE','VIE','SÁB','DOM']
+    document.getElementById('aHist').className=''
+    document.getElementById('aHist').innerHTML = (hs&&hs.length) ? hs.map(x=>{
+      const d = new Date(x.fecha+'T12:00:00')
+      const fecha = `${DIAS3[(d.getDay()+6)%7]} ${d.getDate()}`
+      const gan = x.musculos_sumados?.ganados
+      const der = x.estado==='incompleta' ? 'PARCIAL' : (gan!=null?('+'+gan):'✓')
+      return `<div class="pr"><div><div class="prn">${nomSes[x.sesion_protocolo_id]||'SESIÓN'}</div>
+        <div class="prm">${fecha} · SUMADA</div></div>
+        <div class="prk">${der}</div></div>`
+    }).join('') : '<div class="vacio">Tus sesiones realizadas aparecen aquí.<br><b>A levantar.</b></div>'
+  }catch(_){ document.getElementById('aHist').innerHTML='<div class="vacio">Sin sesiones aún.</div>' }
   try{
     // Cargas históricas en orden temporal (id asc): primera = inicio, máx = mejor
     const { data: cs } = await sb.from('cargas')
@@ -855,9 +981,9 @@ async function loadAvances(){
     // Agregar por ejercicio
     const agg = {}
     ;(cs||[]).forEach(c=>{
-      const a = agg[c.ejercicio_id] = agg[c.ejercicio_id] || { inicio:null, mejor:0, ton:0 }
+      const a = agg[c.ejercicio_id] = agg[c.ejercicio_id] || { inicio:null, mejor:0, ton:0, mejorBe:null }
       if (a.inicio===null) a.inicio = c.peso_kg
-      if (c.peso_kg > a.mejor) a.mejor = c.peso_kg
+      if (c.peso_kg > a.mejor){ a.mejor = c.peso_kg; a.mejorBe = c.bloque_ejercicio_id }
       a.ton += (c.peso_kg||0) * (c.sets_completados||0) * (repsDe[c.bloque_ejercicio_id]||10)
     })
     const lista = Object.entries(agg).filter(([id])=>info[id]).map(([id,a])=>({
@@ -875,9 +1001,11 @@ async function loadAvances(){
     document.getElementById('aPatrones').innerHTML = pat.length ? pat.map(([patron,x])=>`
       <div class="patron"><div><div class="pnm">${patron}</div>
         <div class="pej">${x.pilar?'<span class="star">★</span> ':''}${x.nombre}</div></div>
-        <div class="pkg"><div class="pk1">${x.mejor}<small> KG</small></div>
+        <div class="pkg"><div class="pk1">${x.mejor}<small> KG${repsDe[x.mejorBe]?' × '+Math.round(repsDe[x.mejorBe]):''}</small></div>
         <div class="pk2 ${x.mejora>0?'up':'flat'}">${x.mejora>0?'+'+x.mejora+'% EN EL CICLO':'PUNTO DE PARTIDA'}</div></div></div>`).join('')
       : '<div class="vacio">Tus patrones aparecen al registrar cargas en ejercicios pilares.</div>'
+    if (pat.length) document.getElementById('aPatrones').innerHTML +=
+      '<div style="font-size:7px;letter-spacing:.1em;color:var(--suave);font-weight:800;text-align:center;margin-top:8px">LA MARCA = TU PESO MÁS ALTO EN EL PATRÓN · SIEMPRE A RIR 0 — MÁXIMO REAL, SIN RESERVAS</div>'
     // Historial ranking de mejora
     const hist = [...lista].sort((a,b)=>(b.mejora-a.mejora)||(b.mejor-a.mejor)).slice(0,10)
     document.getElementById('aPRs').className=''
@@ -900,8 +1028,11 @@ function pintarPerfil(){
   const p=S.perfil||{}
   document.getElementById('pfAv').textContent=(p.nombre||'K')[0].toUpperCase()
   document.getElementById('pfNom').textContent=`${p.nombre||''} ${p.apellido||''}`.trim()||p.email
-  document.getElementById('pfProg').textContent = S.proto
-    ? `${S.proto.programa} · ${S.proto.nivel} · SOCIO KOACH`.toUpperCase() : 'SOCIO KOACH'
+  const desde = p.created_at ? new Date(p.created_at) : null
+  const MES3 = ['ENE','FEB','MAR','ABR','MAY','JUN','JUL','AGO','SEP','OCT','NOV','DIC']
+  const desdeTxt = desde ? ` · SOCIO DESDE ${MES3[desde.getMonth()]} ${desde.getFullYear()}` : ''
+  document.getElementById('pfProg').textContent = (S.proto
+    ? `${S.proto.programa} · ${S.proto.nivel}` : 'SOCIO KOACH').toUpperCase() + desdeTxt
   document.getElementById('dDatos').innerHTML =
     `<b>Email:</b> ${p.email||'—'}<br><b>WhatsApp:</b> ${p.telefono||'—'}<br>Para actualizar tus datos, habla con recepción.`
 }
