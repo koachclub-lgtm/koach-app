@@ -729,6 +729,21 @@
 .k2c-x{font-size:10px;font-weight:900;color:#121210;white-space:nowrap}
 .k2c-x small{color:#BEBDB8;font-weight:900}
 .k2c-void{font-size:10px;color:#7C7B76;font-weight:700;text-align:center;padding:20px}
+.k2c-tabs{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:10px}
+.k2c-tab{display:flex;align-items:center;gap:7px;background:rgba(255,255,255,.7);border:1px solid rgba(255,255,255,.85);
+  border-radius:14px;padding:8px 12px;font-size:10px;font-weight:900;color:#121210;cursor:pointer}
+.k2c-tab.on{background:#121210;color:#F3F2EF}
+.k2c-tab .x{opacity:.5;font-weight:900;padding:0 2px}
+.k2c-work{background:rgba(255,255,255,.75);border:1.5px solid #121210;border-radius:20px;padding:15px 16px;margin-bottom:12px}
+.k2c-work .wn{font-size:15px;font-weight:900;color:#121210}
+.k2c-work .wm{font-size:8px;color:#7C7B76;font-weight:900;letter-spacing:.1em;margin:3px 0 12px}
+.k2c-acciones{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.k2c-acc{border:none;border-radius:14px;padding:13px 8px;font-size:8.5px;font-weight:900;letter-spacing:.08em;cursor:pointer;text-align:center}
+.k2c-acc.ink{background:#121210;color:#F3F2EF}
+.k2c-acc.soft{background:rgba(18,18,16,.07);color:#121210}
+.k2c-acc.ok{background:rgba(31,157,85,.12);color:#1F9D55}
+.k2c-abrir{flex-shrink:0;background:rgba(18,18,16,.06);border:none;border-radius:10px;padding:7px 10px;
+  font-size:8px;font-weight:900;letter-spacing:.06em;color:#121210;cursor:pointer;margin-left:8px}
 
 </style>
 </head>
@@ -4464,6 +4479,56 @@ sb.auth.onAuthStateChange((event) => {
 
 
 // ══ COACH · SALA V2 (dashboard con el motor) ══
+window._k2cAbiertos = window._k2cAbiertos || {}   // id → socio
+window._k2cActivo = window._k2cActivo || null
+window._k2cInfo = window._k2cInfo || {}           // id → {sem, badge}
+function k2AbrirTab(i){
+  const s = window._sociosRender[i]
+  if (!s) return
+  window._k2cAbiertos[s.id] = s
+  window._k2cActivo = s.id
+  k2PintarTabs()
+}
+function k2CerrarTab(id){
+  delete window._k2cAbiertos[id]
+  if (window._k2cActivo === id) window._k2cActivo = Object.keys(window._k2cAbiertos)[0] || null
+  k2PintarTabs()
+}
+function k2VerTab(id){ window._k2cActivo = id; k2PintarTabs() }
+function k2PintarTabs(){
+  const cont = document.getElementById('k2cMesa')
+  if (!cont) return
+  const ids = Object.keys(window._k2cAbiertos)
+  if (!ids.length){ cont.innerHTML=''; return }
+  const chips = ids.map(id=>{
+    const s = window._k2cAbiertos[id]
+    const on = id === window._k2cActivo
+    return `<div class="k2c-tab ${on?'on':''}" onclick="k2VerTab('${id}')">${(s.nombre||'?')}
+      <span class="x" onclick="event.stopPropagation();k2CerrarTab('${id}')">✕</span></div>`
+  }).join('')
+  let work = ''
+  const a = window._k2cAbiertos[window._k2cActivo]
+  if (a){
+    const info = window._k2cInfo[a.id] || {}
+    const tel = (a.telefono||'').replace(/\D/g,'')
+    work = `<div class="k2c-work">
+      <div class="wn">${a.nombre||''} ${a.apellido||''}</div>
+      <div class="wm">${info.meta||''} ${info.semTxt?(' · '+info.semTxt):''}</div>
+      <div class="k2c-acciones">
+        <button class="k2c-acc ink" onclick="verPerfil(window._k2cAbiertos['${a.id}'])">FICHA · EDITAR Y DESIGNAR →</button>
+        <button class="k2c-acc soft" onclick="verPerfil(window._k2cAbiertos['${a.id}'])">CREAR RUTINA / ADICIONAL</button>
+        ${tel?`<button class="k2c-acc ok" onclick="window.open('https://wa.me/${tel}','_blank')">WHATSAPP</button>`:''}
+        <button class="k2c-acc soft" onclick="k2CerrarTab('${a.id}')">CERRAR PESTAÑA</button>
+      </div></div>`
+  }
+  cont.innerHTML = `<div class="k2c-tabs">${chips}</div>${work}`
+}
+async function k2Validar(id) {
+  try {
+    await sb.from('sesiones_registro').update({ validada_at: new Date().toISOString() }).eq('id', id)
+    await loadCoachData()
+  } catch(e) { console.error(e); alert('No se pudo validar — revisa que exista la columna validada_at') }
+}
 async function k2Atender(id) {
   try {
     await sb.from('solicitudes').update({ estado:'atendida', atendida_at:new Date().toISOString() }).eq('id', id)
@@ -4546,11 +4611,40 @@ async function renderSalaV2(socios) {
           ? '<span class="k2c-badge hoy">SEMANA ✓</span>'
           : (sem.proxima_sesion ? `<span class="k2c-badge off">PRÓX · ${sem.proxima_sesion.nombre}</span>` : '');
       }
+      window._k2cInfo[s.id] = { meta, semTxt: (typeof sem!=='undefined'&&sem)?'' : '' }
       return `<div class="k2c-card" onclick="verPerfil(_sociosRender[${i}])">
         <div class="k2c-top"><div class="k2c-av">${ini}</div>
-          <div><div class="k2c-n">${nombre}</div><div class="k2c-s">${meta}</div></div>${badge}</div>
+          <div><div class="k2c-n">${nombre}</div><div class="k2c-s">${meta}</div></div>${badge}
+          <button class="k2c-abrir" onclick="event.stopPropagation();k2AbrirTab(${i})">⧉ ABRIR</button></div>
         ${semHTML}</div>`;
     });
+
+    // Sesiones de HOY: para validar de un toque
+    let hoyHTML = ''
+    try {
+      const { data: regsHoy } = await sb.from('sesiones_registro')
+        .select('id, socio_id, sesion_protocolo_id, validada_at, musculos_sumados')
+        .eq('fecha', hoyISO).in('socio_id', socioIds)
+      if (regsHoy && regsHoy.length) {
+        const spIds2 = [...new Set(regsHoy.map(r=>r.sesion_protocolo_id).filter(Boolean))]
+        const { data: sps2 } = await sb.from('sesiones_protocolo').select('id, objetivo').in('id', spIds2)
+        const nomSes2 = {}; (sps2||[]).forEach(x=>nomSes2[x.id]=(x.objetivo||'SESIÓN').toUpperCase())
+        const nomDe2 = {}; (socios||[]).forEach(s=>nomDe2[s.id]=`${s.nombre||''} ${s.apellido||''}`.trim()||s.email)
+        hoyHTML = `<div class="k2c-card" style="cursor:default">
+          <div style="font-size:7.5px;letter-spacing:.18em;color:#1F9D55;font-weight:900;margin-bottom:10px">
+            ✓ SESIONES DE HOY · ${regsHoy.length}</div>` +
+          regsHoy.map(r=>{
+            const gan = r.musculos_sumados?.ganados
+            const val = !!r.validada_at
+            return `<div style="display:flex;align-items:center;gap:10px;padding:9px 0;border-top:1px solid rgba(18,18,16,.06)">
+              <div style="flex:1;font-size:11px;color:#121210"><b>${nomDe2[r.socio_id]||'Socio'}</b>
+                · ${nomSes2[r.sesion_protocolo_id]||'SESIÓN'}${gan!=null?` <span style="color:#1F9D55;font-weight:900">+${gan}</span>`:''}</div>
+              ${val ? '<span style="font-size:8px;font-weight:900;color:#1F9D55">VALIDADA ✓</span>'
+                    : `<button onclick="k2Validar('${r.id}')" style="flex-shrink:0;background:rgba(31,157,85,.12);color:#1F9D55;border:none;border-radius:10px;padding:8px 12px;font-size:8px;font-weight:900;letter-spacing:.08em;cursor:pointer">VALIDAR ✓</button>`}
+            </div>`
+          }).join('') + '</div>'
+      }
+    } catch(e) { console.error('sesiones hoy:', e) }
 
     // Solicitudes pendientes de los socios
     let solHTML = ''
@@ -4578,13 +4672,14 @@ async function renderSalaV2(socios) {
     } catch(e) { console.error('solicitudes:', e) }
 
     window._sociosRender = activos;
-    cont.innerHTML = solHTML + `
+    cont.innerHTML = `<div id="k2cMesa"></div>` + solHTML + hoyHTML + `
       <div class="k2c-stats">
         <div class="k2c-st"><b>${activos.length}</b><span>SOCIOS ACTIVOS</span></div>
         <div class="k2c-st"><b>${entrenaronHoy}</b><span>ENTRENARON HOY</span></div>
         <div class="k2c-st"><b>${completas}</b><span>SEMANAS COMPLETAS</span></div>
       </div>
       ${cards.join('') || '<div class="k2c-void">Sin socios activos aún</div>'}`;
+    k2PintarTabs();
   } catch(e) {
     console.error('SalaV2:', e);
     cont.innerHTML = '<div class="k2c-void">No se pudo cargar la sala — revisa consola</div>';
