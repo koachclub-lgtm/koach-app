@@ -288,7 +288,7 @@ html,body{background:linear-gradient(170deg,#F3F2EF 0%,#E7E6E2 55%,#DAD9D4 100%)
 
   <!-- ══ HOME ══ -->
   <div class="vista conTab" id="vHome">
-    <div class="hbar"><span class="hk" title="v2.1">KOACH</span><div class="hav" id="hAv" onclick="salir()">K</div></div>
+    <div class="hbar"><span class="hk" title="v2.2">KOACH</span><div class="hav" id="hAv" onclick="salir()">K</div></div>
     <div class="ctx"><div class="fecha" id="hFecha">—</div><div class="prog" id="hProg">—</div></div>
     <div class="anillo">
       <svg width="180" height="180" viewBox="0 0 180 180">
@@ -622,6 +622,12 @@ async function entrar(){
       S.frases = cfg?.frases||null }catch(_){}
 
     S.sem = calcularSemana(S.programa, S.registros, S.objetivos)
+    try{
+      const { data: sol } = await sb.from('solicitudes').select('id, tipo')
+        .eq('socio_id', perfil.id).eq('estado','pendiente')
+      S._solExtra = (sol||[]).some(x=>x.tipo==='extra')
+      S._solPost = (sol||[]).filter(x=>x.tipo==='postergar').map(x=>x.detalle)
+    }catch(_){ S._solExtra=false; S._solPost=[] }
     pintarHome()
     vista('vHome')   // re-evalúa la tab bar ahora que S.asig existe
   }catch(e){ console.error(e); sinPrograma('No pudimos cargar tu semana. Revisa tu conexión e intenta de nuevo.') }
@@ -680,10 +686,19 @@ function pintarHome(){
     : `SESIONES COMPLETADAS ESTA SEMANA: <b>${hechasSes}</b>${ultTxt}` + (sem.proxima ? ` · SIGUE: <b>${sem.proxima.nombre}</b>` : '')
   const cta=document.getElementById('hCta')
   if (sem.completa){ cta.disabled=false
-    document.getElementById('hCtaT').textContent='COORDINAR SESIONES EXTRA'
-    document.getElementById('hCtaS').textContent='TU COACH DESIGNA LOS NUEVOS OBJETIVOS →'
-    cta.onclick = () => window.open('https://wa.me/56971333042?text='+encodeURIComponent(
-      `Hola KOACH! Completé mi semana (100% · ${hechasSes} sesiones). Quiero sesiones extra — ¿me designas los nuevos objetivos?`),'_blank')
+    if (S._solExtra){
+      document.getElementById('hCtaT').textContent='SOLICITUD ENVIADA ✓'
+      document.getElementById('hCtaS').textContent='TU COACH ORGANIZA TU SESIÓN EXTRA'
+      cta.onclick = null
+    } else {
+      document.getElementById('hCtaT').textContent='SOLICITAR SESIÓN EXTRA'
+      document.getElementById('hCtaS').textContent='TU COACH DESIGNA LOS NUEVOS OBJETIVOS →'
+      cta.onclick = async () => {
+        const ok = await k2Solicitar('extra', `Semana 100% · ${hechasSes} sesiones`, cta,
+          'Solicitud enviada — tu coach organiza tu sesión extra')
+        if (ok){ S._solExtra=true; cta.disabled=false; pintarHome() }
+      }
+    }
   } else if (sem.proxima){ cta.disabled=false
     cta.onclick = abrirSesion
     document.getElementById('hCtaT').textContent='COMENZAR SESIÓN'
@@ -725,6 +740,19 @@ function pintarHome(){
       if(c>=dosis) clearInterval(it) },70) }
     document.querySelectorAll('#hRows .fill').forEach((f,i)=>setTimeout(()=>{ f.style.width=f.dataset.w+'%' },150+i*70))
   },350)
+}
+async function k2Postergar(nombre){
+  const ok = await k2Solicitar('postergar', nombre, null,
+    'Avisado — tu coach reorganiza tu semana')
+  if (ok){ (S._solPost = S._solPost||[]).push(nombre); pintarPlan() }
+}
+async function k2Solicitar(tipo, detalle, btn, okTxt){
+  if (btn){ btn.disabled=true }
+  try{
+    await sb.from('solicitudes').insert({ socio_id:S.perfil.id, tipo, detalle:detalle||null })
+    toast(okTxt||'Solicitud enviada — tu coach la verá en su panel')
+    return true
+  }catch(e){ console.error(e); toast('No se pudo enviar — intenta de nuevo'); if(btn) btn.disabled=false; return false }
 }
 function volverHome(){
   if (S._dirty){ S._dirty=false; S._avOk=false; entrar() }
@@ -927,13 +955,19 @@ function pintarPlan(){
     const DIAS3=['LUN','MAR','MIÉ','JUE','VIE','SÁB','DOM']
     if (hecha){ est='✓ SUMADA'; cls='ok'; icon='✓'
       if (reg?.fecha){ const d=new Date(reg.fecha+'T12:00:00'); extra=' · '+DIAS3[(d.getDay()+6)%7] } }
-    else if (prox){ est='PRÓXIMA →'; cls='prox'; icon=s.numero
-      if (S.sem?.proxima?.suma_pct!=null) extra=' · SUMA +'+S.sem.proxima.suma_pct+'%' }
+    else if (prox){ 
+      const post = (S._solPost||[]).includes(s.nombre)
+      est = post ? 'COORDINANDO' : 'PRÓXIMA →'; cls='prox'; icon=s.numero
+      if (!post && S.sem?.proxima?.suma_pct!=null) extra=' · SUMA +'+S.sem.proxima.suma_pct+'%'
+      if (post) extra=' · TU COACH REORGANIZA TU SEMANA' }
     else { est='SE DESBLOQUEA'; cls='lock'; icon='🔒' }
     return `<div class="glass pcard ${hecha?'hecha':prox?'prox':'lock'}" ${prox?'onclick="tab(\'vHome\');abrirSesion()"':''} style="${prox?'cursor:pointer':''}">
       <div class="pnum">${icon}</div>
       <div><div class="pn2">${s.nombre}</div><div class="pm2">${grupos}${extra}</div></div>
-      <span class="pest ${cls}">${est}</span></div>`
+      <span class="pest ${cls}">${est}</span></div>` + (prox && !(S._solPost||[]).includes(s.nombre) ?
+      `<div style="text-align:right;margin:-4px 4px 10px"><button onclick="event.stopPropagation();k2Postergar('${s.nombre}')"
+        style="background:none;border:none;font-size:8px;letter-spacing:.1em;color:var(--suave);font-weight:900;
+        text-decoration:underline;cursor:pointer">NO PUEDO ESTA SESIÓN — AVISAR A MI COACH</button></div>` : '')
   }).join('')
 }
 
