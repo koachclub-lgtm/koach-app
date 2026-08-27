@@ -288,7 +288,7 @@ html,body{background:linear-gradient(170deg,#F3F2EF 0%,#E7E6E2 55%,#DAD9D4 100%)
 
   <!-- ══ HOME ══ -->
   <div class="vista conTab" id="vHome">
-    <div class="hbar"><span class="hk" title="v2.2">KOACH</span><div class="hav" id="hAv" onclick="salir()">K</div></div>
+    <div class="hbar"><span class="hk" title="v2.4">KOACH</span><div class="hav" id="hAv" onclick="salir()">K</div></div>
     <div class="ctx"><div class="fecha" id="hFecha">—</div><div class="prog" id="hProg">—</div></div>
     <div class="anillo">
       <svg width="180" height="180" viewBox="0 0 180 180">
@@ -665,7 +665,7 @@ function pintarHome(){
   document.getElementById('hSaludo').textContent = saludoDe(ctx)
   const hechasSes = S.registros.filter(r=>r.estado!=='incompleta').length
   let voz
-  if (sem.completa) voz = `Completaste tu <b>volumen efectivo</b> de la semana — <b>100%</b>, ${den} metas cumplidas en <b>${hechasSes} sesiones</b>. ¿Quieres más? <b>Coordina con tu coach tus sesiones extra.</b>`
+  if (sem.completa) voz = `<b>Base completa</b> — 100%, tus <b>${den}/${den} estímulos</b> cumplidos. Las extras suman <b>volumen específico sobre tu base</b>. Solicítala y tu coach la designa.`
   else if (sem.proxima){
     const sp=sem.proxima.suma_pct
     voz = `Es <b>${DIA[dowL]}</b> y llevas el <b>${dosis}%</b> de tu dosis semanal. Tu próxima sesión suma <b>+${sp}%</b>`+
@@ -685,14 +685,20 @@ function pintarHome(){
     ? `SESIONES COMPLETADAS ESTA SEMANA: <b>${hechasSes}</b>${ultTxt} · SEMANA SUMADA`
     : `SESIONES COMPLETADAS ESTA SEMANA: <b>${hechasSes}</b>${ultTxt}` + (sem.proxima ? ` · SIGUE: <b>${sem.proxima.nombre}</b>` : '')
   const cta=document.getElementById('hCta')
-  if (sem.completa){ cta.disabled=false
+  const hoyISO2 = new Date().toISOString().split('T')[0]
+  const entrenoHoy = S.registros.some(r=>r.fecha===hoyISO2 && r.estado!=='incompleta')
+  if (entrenoHoy && !sem.completa){
+    cta.disabled=true; cta.onclick=null
+    document.getElementById('hCtaT').textContent='HOY YA SUMASTE ✓'
+    document.getElementById('hCtaS').textContent='LA RECUPERACIÓN TAMBIÉN ENTRENA — NOS VEMOS MAÑANA'
+  } else if (sem.completa){ cta.disabled=false
     if (S._solExtra){
       document.getElementById('hCtaT').textContent='SOLICITUD ENVIADA ✓'
       document.getElementById('hCtaS').textContent='TU COACH ORGANIZA TU SESIÓN EXTRA'
       cta.onclick = null
     } else {
-      document.getElementById('hCtaT').textContent='SOLICITAR SESIÓN EXTRA'
-      document.getElementById('hCtaS').textContent='TU COACH DESIGNA LOS NUEVOS OBJETIVOS →'
+      document.getElementById('hCtaT').textContent='SOLICITAR SESIÓN EXTRA ★'
+      document.getElementById('hCtaS').textContent='VOLUMEN ESPECÍFICO SOBRE TU BASE →'
       cta.onclick = async () => {
         const ok = await k2Solicitar('extra', `Semana 100% · ${hechasSes} sesiones`, cta,
           'Solicitud enviada — tu coach organiza tu sesión extra')
@@ -762,6 +768,9 @@ function volverHome(){
 /* ══ SESIÓN ══ */
 async function abrirSesion(){
   if (!S.sem?.proxima) return
+  const hoyC = new Date().toISOString().split('T')[0]
+  if (S.registros.some(r=>r.fecha===hoyC && r.estado!=='incompleta')){
+    toast('Hoy ya sumaste tu sesión — la recuperación también entrena. Nos vemos mañana.'); return }
   const ses = S.programa.sesiones.find(x=>x.numero===S.sem.proxima.numero)
   S.sesionAbierta = ses
   S.pesos={}; S.marcas={}; S.setsHechos={}; S.bloquesListos=0
@@ -933,7 +942,7 @@ function pintarPlan(){
     }).join('')
     document.getElementById('pProyPct').textContent = (pctT>=100?'✓ EQUILIBRIO · ':'')+pctT+'% DE TU DOSIS'
     document.getElementById('pProyNota').textContent =
-      `TU COACH DISEÑÓ ESTAS ${S.programa.sesiones.length} SESIONES PARA CUBRIR TUS ${ex.length} MÚSCULOS — COMPLÉTALAS Y EL EQUILIBRIO ES TUYO`
+      `TU BASE: ${S.programa.sesiones.length} SESIONES DISEÑADAS PARA COMPLETAR TUS ${ex.length}/${ex.length} ESTÍMULOS — LAS EXTRAS ★ SUMAN VOLUMEN ESPECÍFICO ENCIMA`
     document.getElementById('pProy').style.display='block'
   } catch(_){}
   document.getElementById('pSub').textContent =
