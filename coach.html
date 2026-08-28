@@ -132,7 +132,7 @@ input{width:100%;background:rgba(255,255,255,.7);border:1px solid rgba(255,255,2
 </div></div>
 
 <div class="vista" id="vSala">
-  <div class="hbar"><span class="hk" title="c1.1">KOACH</span><span class="rol" id="rolBadge" onclick="salir()">COACH</span></div>
+  <div class="hbar"><span class="hk" title="c1.2">KOACH</span><span class="rol" id="rolBadge" onclick="salir()">COACH</span></div>
   <button class="nuevo" onclick="toggleAlta()">+ NUEVO USUARIO · SOCIO O COACH</button>
   <div class="glass aform" id="fAlta" style="display:none">
     <h4>CREAR USUARIO — ENTRA AL INSTANTE CON SU CORREO Y CLAVE</h4>
@@ -299,14 +299,16 @@ async function entrar(){
 
 async function loadSala(){
   const lunesISO = lunes().toISOString().split('T')[0]
-  const rs = await sb.from('profiles').select('id,nombre,apellido,email,telefono,estado,activo,created_at')
+  const rs = await sb.from('profiles').select('*')
     .eq('role','socio').eq('activo',true).order('nombre')
+  if(rs.error) toast('Perfiles: '+rs.error.message)
   C.socios = rs.data||[]
   const ids = C.socios.map(function(s){return s.id})
   C.asig={}; C.prog={}; C.obj={}; C.regs={}; C.sems={}; C.sols=[]; C.hoy=[]; C.extras={}
   if(ids.length){
-    const ra = await sb.from('asignaciones').select('socio_id,protocolo_id,semana_actual,ciclo_actual,protocolos(*)')
+    const ra = await sb.from('asignaciones').select('*, protocolos(*)')
       .in('socio_id',ids).eq('activo',true)
+    if(ra.error) toast('Asignaciones: '+ra.error.message)
     ;(ra.data||[]).forEach(function(a){ C.asig[a.socio_id]=a; if(a.protocolos) C.protos[a.protocolo_id]=a.protocolos })
     const pids=[...new Set((ra.data||[]).map(function(a){return a.protocolo_id}))]
     if(pids.length){
@@ -330,9 +332,9 @@ async function loadSala(){
           C.obj[pid][g]={mev:o.mev,mav:o.mav==null?null:o.mav,
             exigible:(o.dominante===undefined||o.dominante===null)?true:!!o.dominante} }) })
     }
-    const rreg = await sb.from('sesiones_registro')
-      .select('id,socio_id,sesion_protocolo_id,estado,fecha,bloques_completados')
+    const rreg = await sb.from('sesiones_registro').select('*')
       .in('socio_id',ids).gte('fecha',lunesISO)
+    if(rreg.error) toast('Registros: '+rreg.error.message)
     ids.forEach(function(id){C.regs[id]=[]})
     ;(rreg.data||[]).forEach(function(r){ (C.regs[r.socio_id]=C.regs[r.socio_id]||[]).push(r) })
     C.socios.forEach(function(s){
