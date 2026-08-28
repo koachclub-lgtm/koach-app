@@ -160,8 +160,9 @@ input{width:100%;background:rgba(255,255,255,.7);border:1px solid rgba(255,255,2
 </div></div>
 
 <div class="vista" id="vSala">
-  <div class="hbar"><span class="hk" title="c2.1">KOACH</span><span class="rol" id="rolBadge" onclick="salir()">COACH</span></div>
+  <div class="hbar"><span class="hk" title="c3.0">KOACH</span><span class="rol" id="rolBadge" onclick="salir()">COACH</span></div>
   <button class="nuevo" onclick="toggleAlta()">+ NUEVO USUARIO · SOCIO O COACH</button>
+  <button class="nuevo" style="background:rgba(255,255,255,.65);color:#121210;border:1.5px solid rgba(18,18,16,.15)" onclick="verBib()">📚 RUTINAS ESTÁNDAR · BIBLIOTECA</button>
   <div class="glass aform" id="fAlta" style="display:none">
     <h4>CREAR USUARIO — ENTRA AL INSTANTE CON SU CORREO Y CLAVE</h4>
     <input id="nuNombre" placeholder="Nombre">
@@ -220,6 +221,8 @@ input{width:100%;background:rgba(255,255,255,.7);border:1px solid rgba(255,255,2
   <div class="guardia" id="xGuardia">
     <div class="gt1">LA GUARDIA · VEREDICTO</div>
     <div class="gmsg" id="xVer">Toca una sesión para evaluar su impacto.</div>
+    <label style="display:flex;align-items:center;gap:8px;margin-bottom:10px;font-size:8px;font-weight:900;letter-spacing:.1em;color:#C9C8C2;cursor:pointer">
+      <input type="checkbox" id="xRec" style="width:auto;margin:0"> RECURRENTE · SE REPITE CADA SEMANA HASTA QUE LA RETIRES</label>
     <button class="gb" id="xBtn" disabled onclick="designar()">DESIGNAR COMO EXTRA ★ →</button>
   </div>
 </div>
@@ -248,12 +251,22 @@ input{width:100%;background:rgba(255,255,255,.7);border:1px solid rgba(255,255,2
   <div id="pkLista"><div class="vacio">Cargando plantillas…</div></div>
 </div>
 
+<!-- BIBLIOTECA DE RUTINAS ESTÁNDAR -->
+<div class="vista" id="vBib">
+  <div class="stop"><button class="sback" onclick="verSala()">←</button>
+    <div class="stit">Rutinas estándar</div></div>
+  <div class="ssub">LA BIBLIOTECA · SE DESIGNAN COMO EXTRAS ★ A CUALQUIER SOCIO</div>
+  <button class="nuevo" onclick="crearRutinaStd()">+ CREAR RUTINA ESTÁNDAR</button>
+  <div id="bibLista"><div class="vacio">Cargando biblioteca…</div></div>
+</div>
+
 <!-- SELECTOR DE EJERCICIOS -->
 <div id="selEj" style="display:none;position:fixed;inset:0;z-index:60;background:rgba(18,18,16,.4);backdrop-filter:blur(6px)">
   <div style="position:absolute;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:560px;max-height:78vh;background:#F3F2EF;border-radius:24px 24px 0 0;padding:16px 14px;overflow-y:auto">
     <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
       <div style="font-size:8px;letter-spacing:.18em;font-weight:900;color:#7C7B76" id="selTit">ELEGIR EJERCICIO</div>
       <button onclick="cerrarSelector()" style="margin-left:auto;border:none;background:rgba(18,18,16,.07);border-radius:10px;padding:8px 12px;font-weight:900;cursor:pointer">✕</button></div>
+    <div id="selChips" style="display:flex;gap:6px;overflow-x:auto;padding-bottom:8px;margin-bottom:6px"></div>
     <input id="selBusca" placeholder="Buscar ejercicio…" oninput="pintarSelector()" style="margin-bottom:10px">
     <div id="selLista"></div>
   </div>
@@ -573,13 +586,20 @@ async function verExtra(){
   const sexo=a&&a.protocolos?a.protocolos.sexo:null
   try{ const rp = await sb.from('protocolos').select('*').eq('sexo',sexo)
     ;(rp.data||[]).forEach(function(p){ if(!C.protos[p.id]) C.protos[p.id]=p }) }catch(_e){}
-  const protos=Object.values(C.protos).filter(function(p){return (!sexo||p.sexo===sexo) && !p.socio_id})
+  const protos=Object.values(C.protos).filter(function(p){return ((!sexo||p.sexo===sexo) && !p.socio_id && p.estado!=='biblioteca')})
+  try{ const bp = await bibProto(); if(bp && !protos.some(function(p){return p.id===bp.id})) protos.unshift(bp) }catch(_e){}
   const pids=protos.map(function(p){return p.id})
-  const rs = await sb.from('sesiones_protocolo').select('*').in('protocolo_id',pids).lte('numero',3).order('numero')
-  X.sesiones=(rs.data||[]).map(function(s){
+  const rs = await sb.from('sesiones_protocolo').select('*').in('protocolo_id',pids).order('numero')
+  X.sesiones=(rs.data||[]).filter(function(s){
     const pr=C.protos[s.protocolo_id]||{}
-    return Object.assign({}, s, { nombreEN:nombreEN(s.objetivo)||('SESION '+s.numero),
-      protoTag:((pr.programa||'')+' · '+(pr.nivel||'')).toUpperCase() }) })
+    return pr.estado==='biblioteca' || s.numero<=3
+  }).map(function(s){
+    const pr=C.protos[s.protocolo_id]||{}
+    const esBib = pr.estado==='biblioteca'
+    return Object.assign({}, s, { nombreEN:(esBib?'\u2605 ':'')+(nombreEN(s.objetivo)||('SESION '+s.numero)),
+      protoTag:esBib?'RUTINA ESTÁNDAR · BIBLIOTECA':((pr.programa||'')+' · '+(pr.nivel||'')).toUpperCase(),
+      _bib:esBib }) })
+  X.sesiones.sort(function(a,b){ return (b._bib?1:0)-(a._bib?1:0) })
   document.getElementById('xLista').innerHTML = X.sesiones.length ? X.sesiones.map(function(s,i){
     return '<div class="glass pl" id="xp'+i+'" onclick="evaluar('+i+')"><div class="pn">'+s.nombreEN+'</div>'+
     '<div class="pm">'+s.protoTag+'</div><div class="impacto" id="xi'+i+'">Toca para evaluar el impacto en su semana.</div></div>'
@@ -626,8 +646,9 @@ async function designar(){
   if(!X.cand||!F) return
   const b=document.getElementById('xBtn'); b.disabled=true
   try{
+    const rec = !!(document.getElementById('xRec')&&document.getElementById('xRec').checked)
     const r = await sb.from('designaciones_extra').insert({ socio_id:F.id, sesion_protocolo_id:X.cand.id,
-      motivo:(X.sol?'Solicitud del socio':'Criterio del coach') })
+      motivo:(X.sol?'Solicitud del socio':'Criterio del coach')+(rec?' · recurrente':''), recurrente:rec })
     if(r.error) throw r.error
     if(X.sol){ try{ await sb.from('solicitudes').update({estado:'atendida',atendida_at:new Date().toISOString()}).eq('id',X.sol) }catch(_e){} }
     window._solPend=null
@@ -668,8 +689,67 @@ async function crearUsuario(){
     btn.disabled=false; btn.textContent='CREAR USUARIO →' }
 }
 
-/* ══ PLANIFICADOR (Capa 3) ══ */
-let P = null, EJCAT = null, SEL = { modo:null, bi:null, beId:null }
+/* ══ PLANIFICADOR (Capa 3 · Ronda 1) ══ */
+let P = null, EJCAT = null, SEL = { modo:null, bi:null, beId:null, grupo:null }
+let BIB = null, ULT = {}
+
+async function bibProto(){
+  if (BIB) return BIB
+  const r = await sb.from('protocolos').select('*').eq('estado','biblioteca').limit(1).maybeSingle()
+  if (r.data){ BIB = r.data; return BIB }
+  const cab = { nombre:'BIBLIOTECA KOACH', programa:'BIBLIOTECA', nivel:'STD', sexo:'MIXTO', estado:'biblioteca' }
+  const ri = await sb.from('protocolos').insert(cab).select().maybeSingle()
+  if (ri.error){ toast('Biblioteca: '+ri.error.message); return null }
+  BIB = ri.data; return BIB
+}
+async function verBib(){
+  vista('vBib')
+  const bp = await bibProto(); if(!bp) return
+  const rs = await sb.from('sesiones_protocolo').select('*').eq('protocolo_id',bp.id).order('numero')
+  const ses = rs.data||[]
+  const sids = ses.map(function(s){return s.id})
+  let uso = {}
+  try{ const ru = await sb.from('designaciones_extra').select('sesion_protocolo_id').in('sesion_protocolo_id', sids.length?sids:['00000000-0000-0000-0000-000000000000'])
+    ;(ru.data||[]).forEach(function(d){ uso[d.sesion_protocolo_id]=(uso[d.sesion_protocolo_id]||0)+1 }) }catch(_e){}
+  document.getElementById('bibLista').innerHTML = ses.length ? ses.map(function(s){
+    return '<div class="glass pkCard"><div class="pkN">\u2605 '+(s.objetivo||('RUTINA '+s.numero)).toUpperCase()+'</div>'+
+    '<div class="pkM">'+(uso[s.id]?('DESIGNADA '+uso[s.id]+' VEC'+(uso[s.id]===1?'':'ES')):'AÚN SIN DESIGNAR')+'</div>'+
+    '<div style="display:flex;gap:6px;margin-top:10px">'+
+    '<button class="bbtn ink" onclick="editarRutinaStd(\''+s.id+'\')">EDITAR \u2192</button>'+
+    '<button class="bbtn" style="background:rgba(18,18,16,.06)" onclick="borrarRutinaStd(\''+s.id+'\')">ARCHIVAR</button></div></div>'
+  }).join('') : '<div class="vacio">Aún sin rutinas estándar — crea la primera (CORE, BRAZOS, GLUTE FOCUS…)</div>'
+}
+async function crearRutinaStd(){
+  const nombre = prompt('Nombre de la rutina estándar (ej: CORE 30, GLUTE FOCUS, BRAZOS):')
+  if(!nombre) return
+  const bp = await bibProto(); if(!bp) return
+  const rn = await sb.from('sesiones_protocolo').select('numero').eq('protocolo_id',bp.id).order('numero',{ascending:false}).limit(1)
+  const num = ((rn.data&&rn.data[0]&&rn.data[0].numero)||0)+1
+  const rs = await sb.from('sesiones_protocolo').insert({protocolo_id:bp.id, numero:num, objetivo:nombre}).select().single()
+  if(rs.error){ toast('Crear: '+rs.error.message); return }
+  const tags=['B1','B2','B3']
+  for (let i=0;i<3;i++){
+    const rb = await sb.from('bloques').insert({sesion_id:rs.data.id, bloque:tags[i], sets:3, descanso_seg:60})
+    if(rb.error){ const rb2 = await sb.from('bloques').insert({sesion_id:rs.data.id, bloque:i+1, sets:3, descanso_seg:60})
+      if(rb2.error){ toast('Bloques: '+rb2.error.message); break } }
+  }
+  toast('\u2713 Rutina creada — ábrela y arma sus ejercicios')
+  editarRutinaStd(rs.data.id)
+}
+async function editarRutinaStd(sesId){
+  const bp = await bibProto(); if(!bp) return
+  abrirPlan(bp.id, bp, { modo:'bib', soloSesion:sesId })
+}
+async function borrarRutinaStd(sesId){
+  if(!confirm('¿Archivar esta rutina estándar? (las ya designadas a socios no se tocan)')) return
+  const rb = await sb.from('bloques').select('id').eq('sesion_id',sesId)
+  const bids=(rb.data||[]).map(function(b){return b.id})
+  if(bids.length) await sb.from('bloque_ejercicios').delete().in('bloque_id',bids)
+  await sb.from('bloques').delete().eq('sesion_id',sesId)
+  const r = await sb.from('sesiones_protocolo').delete().eq('id',sesId)
+  if(r.error){ toast('No se pudo archivar: '+r.error.message); return }
+  toast('Rutina archivada'); verBib()
+}
 
 async function cargarCatalogo(){
   if (EJCAT) return
@@ -784,16 +864,32 @@ async function deshacerClon(pid){
     await sb.from('protocolos').delete().eq('id',pid)
   }catch(_e){}
 }
-async function abrirPlan(pid, proto){
+async function abrirPlan(pid, proto, opts){
+  opts = opts || {}
+  P = null
   await cargarCatalogo()
-  document.getElementById('pMeta').textContent = (nomDe(F.id)+' · '+((proto&&proto.programa)||'')+' '+((proto&&proto.nivel)||'')+' · SU COPIA INDIVIDUAL').toUpperCase()
-  document.getElementById('pEstado').textContent = ((proto&&proto.estado)||'borrador').toUpperCase()
+  const esBib = opts.modo==='bib'
+  document.getElementById('pMeta').textContent = esBib
+    ? 'BIBLIOTECA · RUTINA ESTÁNDAR · SE GUARDA AL INSTANTE'
+    : (nomDe(F.id)+' · '+((proto&&proto.programa)||'')+' '+((proto&&proto.nivel)||'')+' · SU COPIA INDIVIDUAL').toUpperCase()
+  document.getElementById('pEstado').textContent = esBib ? 'ESTÁNDAR \u2605' : ((proto&&proto.estado)||'borrador').toUpperCase()
   vista('vPlan')
-  document.getElementById('pBloques').innerHTML = '<div class="vacio">Cargando su programación…</div>'
-  const rses = await sb.from('sesiones_protocolo').select('*').eq('protocolo_id',pid).lte('numero',3).order('numero')
+  document.getElementById('pBloques').innerHTML = '<div class="vacio">Cargando…</div>'
+  ULT = {}
+  if (!esBib && F){
+    try{
+      const rc = await sb.from('cargas').select('ejercicio_id, peso_kg, sets_completados, id')
+        .eq('socio_id', F.id).order('id',{ascending:false}).limit(400)
+      ;(rc.data||[]).forEach(function(c){ if(c.ejercicio_id && !(c.ejercicio_id in ULT)) ULT[c.ejercicio_id]=c })
+    }catch(_e){}
+  }
+  let qq = sb.from('sesiones_protocolo').select('*').eq('protocolo_id',pid).order('numero')
+  if (!esBib) qq = qq.lte('numero',3)
+  if (opts.soloSesion) qq = qq.eq('id', opts.soloSesion)
+  const rses = await qq
   const sids = (rses.data||[]).map(function(s){return s.id})
   const rblo = sids.length ? await sb.from('bloques').select('*, bloque_ejercicios(*, ejercicios(*))').in('sesion_id',sids).order('bloque') : {data:[]}
-  P = { pid:pid, proto:proto, tab:0, sesiones:(rses.data||[]).map(function(s){
+  P = { pid:pid, proto:proto, tab:0, bib:esBib, sesiones:(rses.data||[]).map(function(s){
     return { id:s.id, numero:s.numero, nombre:nombreEN(s.objetivo)||('SESION '+s.numero),
       bloques:(rblo.data||[]).filter(function(b){return b.sesion_id===s.id}).map(function(b){
         return { id:b.id, tag:b.bloque, sets:b.sets||3, desc:b.descanso_seg||60,
@@ -805,8 +901,9 @@ async function abrirPlan(pid, proto){
               kg:(be.kg_objetivo!=null?be.kg_objetivo:20),
               reps:(be.reps_txt!=null&&be.reps_txt!==''?be.reps_txt:(be.reps!=null?String(be.reps):'10')) }
           }) } }) } }) }
-  const obj = C.obj[C.asig[F.id] ? C.asig[F.id].protocolo_id : null]
+  const obj = (!esBib && F && C.asig[F.id]) ? C.obj[C.asig[F.id].protocolo_id] : null
   P.objetivos = obj || null
+  if (esBib){ P.objetivos = {}; pintarPlan(); return }
   if(!P.objetivos){
     const ro = await sb.from('volumen_objetivos').select('*').eq('protocolo_id',pid)
     P.objetivos = {}
@@ -824,8 +921,13 @@ function bloqueTag(t, idx){
   return 'B'+(idx+1)
 }
 function pintarPlan(){
+  const pg=document.getElementById('pGuardia')
+  if(pg) pg.style.display = P.bib ? 'none' : 'block'
   document.getElementById('pTabs').innerHTML = P.sesiones.map(function(s,i){
-    return '<div class="mtab '+(i===P.tab?'on':'')+'" onclick="P.tab='+i+';pintarPlan()">'+s.nombre+'</div>'
+    const nom = P.bib ? ((P.sesiones[i]&&P.sesiones[i].nombre)||'') : s.nombre
+    const flechas = (!P.bib && P.sesiones.length>1)
+      ? ' <span class="x" onclick="event.stopPropagation();moverSesion('+i+',-1)">\u25c2</span><span class="x" onclick="event.stopPropagation();moverSesion('+i+',1)">\u25b8</span>' : ''
+    return '<div class="mtab '+(i===P.tab?'on':'')+'" onclick="P.tab='+i+';pintarPlan()">'+(P.bib?'':((i+1)+'\u00b7 '))+nom+flechas+'</div>'
   }).join('')
   const ses = P.sesiones[P.tab]
   if(!ses){ document.getElementById('pBloques').innerHTML='<div class="vacio">Sin sesiones</div>'; calcDose(); return }
@@ -836,7 +938,7 @@ function pintarPlan(){
     b.items.map(function(it){
       return '<div class="lin">'+
         '<div class="chipG">'+(it.grupo||'—')+'</div>'+
-        '<button class="ejN" onclick="abrirSelector(\'cambiar\','+bi+',\''+it.beId+'\')">'+it.nombre+'<small>CAMBIAR ⇄</small></button>'+
+        '<button class="ejN" onclick="abrirSelector(\'cambiar\','+bi+',\''+it.beId+'\')">'+it.nombre+'<small>'+(ULT[it.ejId]?('ÚLT: '+ULT[it.ejId].peso_kg+' KG · CAMBIAR ⇄'):'CAMBIAR ⇄')+'</small></button>'+
         '<input class="linI" value="'+it.kg+'" inputmode="decimal" onchange="editKg(\''+it.beId+'\',this.value)" title="kg">'+
         '<input class="linI" value="'+String(it.reps).replace(/"/g,'')+'" onchange="editReps(\''+it.beId+'\',this.value)" title="reps">'+
         '<button class="linX" onclick="quitarEj(\''+it.beId+'\')">✕</button>'+
@@ -845,6 +947,21 @@ function pintarPlan(){
     '<button class="addEj" onclick="abrirSelector(\'agregar\','+bi+',null)">+ EJERCICIO</button></div>'
   }).join('')
   calcDose()
+}
+async function moverSesion(i, d){
+  const j = i + d
+  if (j < 0 || j >= P.sesiones.length) return
+  const a = P.sesiones[i], b = P.sesiones[j]
+  const na = a.numero, nb = b.numero
+  const r1 = await sb.from('sesiones_protocolo').update({numero:99}).eq('id',a.id)
+  const r2 = await sb.from('sesiones_protocolo').update({numero:na}).eq('id',b.id)
+  const r3 = await sb.from('sesiones_protocolo').update({numero:nb}).eq('id',a.id)
+  if(r1.error||r2.error||r3.error){ toast('Orden: no se pudo mover'); return }
+  a.numero = nb; b.numero = na
+  P.sesiones.sort(function(x,y){return x.numero-y.numero})
+  P.tab = P.sesiones.indexOf(a)
+  toast('Orden semanal actualizado — el socio la verá en la nueva posición')
+  pintarPlan()
 }
 function planItem(beId){
   let r=null
@@ -877,16 +994,34 @@ async function quitarEj(beId){
   const r=await sb.from('bloque_ejercicios').delete().eq('id',beId); if(r.error)toast('No se pudo quitar: '+r.error.message)
 }
 function abrirSelector(modo,bi,beId){
-  SEL={modo:modo,bi:bi,beId:beId}
+  let grupo = null
+  if (modo==='cambiar' && beId){ const x=planItem(beId); if(x) grupo = x.it.grupo || null }
+  SEL={modo:modo,bi:bi,beId:beId,grupo:grupo}
   document.getElementById('selTit').textContent = modo==='agregar'?'AGREGAR EJERCICIO AL BLOQUE':'CAMBIAR EJERCICIO'
   document.getElementById('selBusca').value=''
   document.getElementById('selEj').style.display='block'
+  pintarChipsSel()
   pintarSelector()
 }
+function pintarChipsSel(){
+  const grupos = []
+  ;(EJCAT||[]).forEach(function(e){ const g=e.grupo_muscular||''; if(g && grupos.indexOf(g)===-1) grupos.push(g) })
+  grupos.sort()
+  const chip = function(txt, val){
+    const on = SEL.grupo===val
+    const arg = (val===null) ? 'null' : ('\''+val+'\'')
+    return '<button onclick="setGrupoSel('+arg+')" style="flex-shrink:0;border:none;border-radius:11px;padding:8px 12px;font-size:7.5px;font-weight:900;letter-spacing:.06em;cursor:pointer;'+
+      (on?'background:#121210;color:#F3F2EF':'background:rgba(18,18,16,.07);color:#7C7B76')+'">'+txt+'</button>'
+  }
+  document.getElementById('selChips').innerHTML = chip('VER TODOS', null) + grupos.map(function(g){ return chip(g, g) }).join('')
+}
+function setGrupoSel(g){ SEL.grupo=g; pintarChipsSel(); pintarSelector() }
 function cerrarSelector(){ document.getElementById('selEj').style.display='none' }
 function pintarSelector(){
   const q=(document.getElementById('selBusca').value||'').toLowerCase()
-  const lista=(EJCAT||[]).filter(function(e){ return !q || (e.nombre||'').toLowerCase().indexOf(q)>-1 || (e.grupo_muscular||'').toLowerCase().indexOf(q)>-1 })
+  const lista=(EJCAT||[]).filter(function(e){
+    if (SEL.grupo && (e.grupo_muscular||'')!==SEL.grupo) return false
+    return !q || (e.nombre||'').toLowerCase().indexOf(q)>-1 || (e.grupo_muscular||'').toLowerCase().indexOf(q)>-1 })
   document.getElementById('selLista').innerHTML = lista.slice(0,80).map(function(e){
     return '<div class="selRow" onclick="elegirEj(\''+e.id+'\')"><span class="selG">'+(e.grupo_muscular||'')+'</span><span class="selN">'+e.nombre+'</span></div>'
   }).join('') || '<div class="vacio">Sin resultados</div>'
