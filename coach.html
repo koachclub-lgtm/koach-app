@@ -160,7 +160,7 @@ input{width:100%;background:rgba(255,255,255,.7);border:1px solid rgba(255,255,2
 </div></div>
 
 <div class="vista" id="vSala">
-  <div class="hbar"><span class="hk" title="c2.0">KOACH</span><span class="rol" id="rolBadge" onclick="salir()">COACH</span></div>
+  <div class="hbar"><span class="hk" title="c2.1">KOACH</span><span class="rol" id="rolBadge" onclick="salir()">COACH</span></div>
   <button class="nuevo" onclick="toggleAlta()">+ NUEVO USUARIO · SOCIO O COACH</button>
   <div class="glass aform" id="fAlta" style="display:none">
     <h4>CREAR USUARIO — ENTRA AL INSTANTE CON SU CORREO Y CLAVE</h4>
@@ -722,6 +722,12 @@ function limpia(row, quitar){
   return o
 }
 async function clonarPrograma(basePid, socioId){
+  // Idempotencia: ¿ya existe su copia? → se reutiliza, jamás se duplica
+  try{
+    const rex = await sb.from('protocolos').select('*').eq('socio_id',socioId).limit(1).maybeSingle()
+    if(rex.data){ toast('Ya tenía su copia individual — abriéndola'); return rex.data }
+  }catch(_e){}
+  let nuevoPid = null
   try{
     const rb = await sb.from('protocolos').select('*').eq('id',basePid).single()
     if(rb.error) throw rb.error
@@ -731,7 +737,7 @@ async function clonarPrograma(basePid, socioId){
     cab.nombre = ((base.programa||base.nombre||'PROGRAMA')+' · '+nomDe(socioId).split(' ')[0]).toUpperCase()
     const rc = await sb.from('protocolos').insert(cab).select().single()
     if(rc.error) throw rc.error
-    const nuevoPid = rc.data.id
+    nuevoPid = rc.data.id
     const rses = await sb.from('sesiones_protocolo').select('*').eq('protocolo_id',basePid).order('numero')
     if(rses.error) throw rses.error
     const sesBase = rses.data||[]
@@ -759,7 +765,24 @@ async function clonarPrograma(basePid, socioId){
     if(objNuevos.length){ const rz2 = await sb.from('volumen_objetivos').insert(objNuevos); if(rz2.error) throw rz2.error }
     toast('Programa clonado ✓ — editas SU copia')
     return rc.data
-  }catch(e){ console.error(e); toast('Clonación falló: '+(e.message||'')); return null }
+  }catch(e){ console.error(e)
+    if(nuevoPid){ await deshacerClon(nuevoPid) }
+    toast('Clonación falló: '+(e.message||'')); return null }
+}
+async function deshacerClon(pid){
+  try{
+    const rs = await sb.from('sesiones_protocolo').select('id').eq('protocolo_id',pid)
+    const sids = (rs.data||[]).map(function(s){return s.id})
+    if(sids.length){
+      const rb = await sb.from('bloques').select('id').in('sesion_id',sids)
+      const bids = (rb.data||[]).map(function(b){return b.id})
+      if(bids.length) await sb.from('bloque_ejercicios').delete().in('bloque_id',bids)
+      await sb.from('bloques').delete().in('sesion_id',sids)
+      await sb.from('sesiones_protocolo').delete().eq('protocolo_id',pid)
+    }
+    await sb.from('volumen_objetivos').delete().eq('protocolo_id',pid)
+    await sb.from('protocolos').delete().eq('id',pid)
+  }catch(_e){}
 }
 async function abrirPlan(pid, proto){
   await cargarCatalogo()
