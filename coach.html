@@ -167,7 +167,7 @@ input{width:100%;background:rgba(255,255,255,.7);border:1px solid rgba(255,255,2
 </div></div>
 
 <div class="vista" id="vSala">
-  <div class="hbar"><span class="hk" title="c3.1">KOACH</span><span class="rol" id="rolBadge" onclick="salir()">COACH</span></div>
+  <div class="hbar"><span class="hk" title="c3.2">KOACH</span><span class="rol" id="rolBadge" onclick="salir()">COACH</span></div>
   <button class="nuevo" onclick="toggleAlta()">+ NUEVO USUARIO · SOCIO O COACH</button>
   <button class="nuevo" style="background:rgba(255,255,255,.65);color:#121210;border:1.5px solid rgba(18,18,16,.15)" onclick="verBib()">📚 RUTINAS ESTÁNDAR · BIBLIOTECA</button>
   <div class="glass aform" id="fAlta" style="display:none">
@@ -268,6 +268,23 @@ input{width:100%;background:rgba(255,255,255,.7);border:1px solid rgba(255,255,2
   <div class="ssub">LA BIBLIOTECA · SE DESIGNAN COMO EXTRAS ★ A CUALQUIER SOCIO</div>
   <button class="nuevo" onclick="crearRutinaStd()">+ CREAR RUTINA ESTÁNDAR</button>
   <div id="bibLista"><div class="vacio">Cargando biblioteca…</div></div>
+</div>
+
+<!-- MODAL NUEVA RUTINA ESTÁNDAR -->
+<div id="mRut" style="display:none;position:fixed;inset:0;z-index:70;background:rgba(18,18,16,.45);backdrop-filter:blur(6px)">
+  <div style="position:absolute;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:560px;background:#F3F2EF;border-radius:24px 24px 0 0;padding:18px 16px 22px">
+    <div style="font-size:8px;letter-spacing:.18em;font-weight:900;color:#7C7B76;margin-bottom:12px">NUEVA RUTINA ESTÁNDAR</div>
+    <label>NOMBRE</label>
+    <input id="mrNombre" placeholder="CORE 30, GLUTE FOCUS, BRAZOS…">
+    <label>TIPO</label>
+    <div id="mrTipos" style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:13px"></div>
+    <label>DURACIÓN (MIN, OPCIONAL)</label>
+    <input id="mrDur" inputmode="numeric" placeholder="30">
+    <div style="display:flex;gap:8px">
+      <button class="btn" style="background:rgba(18,18,16,.08);color:#121210" onclick="document.getElementById('mRut').style.display='none'">CANCELAR</button>
+      <button class="btn" onclick="confirmarRutinaStd()">CREAR RUTINA →</button>
+    </div>
+  </div>
 </div>
 
 <!-- SELECTOR DE EJERCICIOS -->
@@ -706,16 +723,30 @@ let BIB = null, ULT = {}
 async function bibProto(){
   if (BIB) return BIB
   const r = await sb.from('protocolos').select('*').eq('estado','biblioteca').limit(1).maybeSingle()
+  if (r.error){ BIB_ERR = 'Lectura: '+r.error.message; return null }
   if (r.data){ BIB = r.data; return BIB }
   const cab = { nombre:'BIBLIOTECA KOACH', programa:'BIBLIOTECA', nivel:'STD', sexo:'MIXTO', estado:'biblioteca' }
   const ri = await sb.from('protocolos').insert(cab).select().maybeSingle()
-  if (ri.error){ toast('Biblioteca: '+ri.error.message); return null }
+  if (ri.error){ BIB_ERR = 'Creación: '+ri.error.message; return null }
   BIB = ri.data; return BIB
 }
+let BIB_ERR = null
 async function verBib(){
   vista('vBib')
-  const bp = await bibProto(); if(!bp) return
+  document.getElementById('bibLista').innerHTML='<div class="vacio">Cargando biblioteca…</div>'
+  BIB_ERR = null
+  const bp = await bibProto()
+  if(!bp){
+    document.getElementById('bibLista').innerHTML='<div class="vacio">No pudimos cargar la biblioteca.<br><b>'+(BIB_ERR||'Error desconocido')+'</b><br><br>'+
+      '<button class="bbtn ink" onclick="verBib()">REINTENTAR</button></div>'
+    return
+  }
   const rs = await sb.from('sesiones_protocolo').select('*').eq('protocolo_id',bp.id).order('numero')
+  if(rs.error){
+    document.getElementById('bibLista').innerHTML='<div class="vacio">No pudimos cargar las rutinas.<br><b>'+rs.error.message+'</b><br><br>'+
+      '<button class="bbtn ink" onclick="verBib()">REINTENTAR</button></div>'
+    return
+  }
   const ses = rs.data||[]
   const sids = ses.map(function(s){return s.id})
   let uso = {}
@@ -729,10 +760,33 @@ async function verBib(){
     '<button class="bbtn" style="background:rgba(18,18,16,.06)" onclick="borrarRutinaStd(\''+s.id+'\')">ARCHIVAR</button></div></div>'
   }).join('') : '<div class="vacio">Aún sin rutinas estándar — crea la primera (CORE, BRAZOS, GLUTE FOCUS…)</div>'
 }
-async function crearRutinaStd(){
-  const nombre = prompt('Nombre de la rutina estándar (ej: CORE 30, GLUTE FOCUS, BRAZOS):')
-  if(!nombre) return
-  const bp = await bibProto(); if(!bp) return
+const TIPOS_RUT = ['CORE','GLÚTEOS','BRAZOS','UPPER','LOWER','TOTAL BODY','HÍBRIDO','CARDIO','MOVILIDAD','RECOVERY']
+let mrTipo = null
+function crearRutinaStd(){
+  mrTipo = null
+  document.getElementById('mrNombre').value=''
+  document.getElementById('mrDur').value=''
+  document.getElementById('mrTipos').innerHTML = TIPOS_RUT.map(function(tp,i){
+    return '<button onclick="mrSetTipo('+i+')" id="mrT'+i+'" style="border:1.5px solid rgba(18,18,16,.15);background:none;border-radius:11px;padding:8px 11px;font-size:7.5px;font-weight:900;letter-spacing:.06em;color:#7C7B76;cursor:pointer">'+tp+'</button>'
+  }).join('')
+  document.getElementById('mRut').style.display='block'
+}
+function mrSetTipo(i){
+  mrTipo = TIPOS_RUT[i]
+  TIPOS_RUT.forEach(function(_,j){
+    const b=document.getElementById('mrT'+j)
+    if(b){ b.style.background = (j===i)?'#121210':'none'; b.style.color=(j===i)?'#F3F2EF':'#7C7B76'; b.style.borderColor=(j===i)?'#121210':'rgba(18,18,16,.15)' }
+  })
+  const n=document.getElementById('mrNombre')
+  if(!n.value.trim()) n.value = TIPOS_RUT[i]
+}
+async function confirmarRutinaStd(){
+  let nombre = (document.getElementById('mrNombre').value||'').trim()
+  const dur = (document.getElementById('mrDur').value||'').trim()
+  if(!nombre){ toast('Ponle nombre a la rutina'); return }
+  if(dur) nombre = nombre+' · '+dur+' MIN'
+  document.getElementById('mRut').style.display='none'
+  const bp = await bibProto(); if(!bp){ toast('Biblioteca: '+(BIB_ERR||'error')); return }
   const rn = await sb.from('sesiones_protocolo').select('numero').eq('protocolo_id',bp.id).order('numero',{ascending:false}).limit(1)
   const num = ((rn.data&&rn.data[0]&&rn.data[0].numero)||0)+1
   const rs = await sb.from('sesiones_protocolo').insert({protocolo_id:bp.id, numero:num, objetivo:nombre}).select().single()
