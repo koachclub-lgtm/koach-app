@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>KOACH · Coach — Editor de Sesión (Mockup)</title>
+<style>
+:root{--tinta:#121210;--gris:#7C7B76;--suave:#BEBDB8;--ok:#1F9D55;--ama:#C5A13C;--rojo:#B4442C;--hueso:#F3F2EF}
+*{margin:0;padding:0;box-sizing:border-box;font-family:-apple-system,'Helvetica Neue',Arial,sans-serif;-webkit-tap-highlight-color:transparent}
+body{min-height:100dvh;background:linear-gradient(170deg,#F3F2EF 0%,#E7E6E2 55%,#DAD9D4 100%);
+  color:var(--tinta);max-width:520px;margin:0 auto;padding:16px 14px 130px}
+.glass{background:rgba(255,255,255,.6);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);
+  border:1px solid rgba(255,255,255,.8);border-radius:20px;box-shadow:0 8px 24px rgba(30,30,28,.08)}
+.stop{display:flex;align-items:center;gap:12px;margin-bottom:2px}
+.sback{width:38px;height:38px;border-radius:50%;background:rgba(255,255,255,.6);border:1px solid rgba(255,255,255,.85);font-size:16px}
+.stit{font-size:17px;font-weight:900}
+.ssub{font-size:8px;color:var(--gris);font-weight:900;letter-spacing:.12em;margin:2px 0 4px 50px}
+.origen{font-size:8px;font-weight:900;letter-spacing:.08em;color:var(--ama);margin:0 0 12px 50px}
+/* Bloques */
+.bloq{padding:14px 15px;margin-bottom:12px}
+.bh{display:flex;align-items:center;gap:9px;margin-bottom:4px}
+.bt{background:var(--tinta);color:var(--hueso);font-size:9px;font-weight:900;letter-spacing:.1em;padding:6px 11px;border-radius:11px}
+.bn{font-size:8px;letter-spacing:.14em;color:var(--gris);font-weight:900}
+.bcfg{margin-left:auto;display:flex;gap:6px}
+.stp{display:flex;align-items:center;gap:5px;background:rgba(18,18,16,.05);border-radius:10px;padding:5px 8px}
+.stp span{font-size:6px;letter-spacing:.08em;color:var(--gris);font-weight:900}
+.stp b{font-size:11px;font-weight:900;min-width:16px;text-align:center}
+.stp button{width:20px;height:20px;border-radius:50%;border:none;background:rgba(18,18,16,.08);font-size:11px;font-weight:900;color:var(--tinta)}
+.ej{display:flex;align-items:center;gap:9px;padding:11px 2px;border-top:1px solid rgba(18,18,16,.06)}
+.ej:first-of-type{border-top:none}
+.drag{color:var(--suave);font-size:13px;cursor:grab;flex-shrink:0}
+.en{font-size:12.5px;font-weight:800}
+.en .anc{color:var(--ama)}
+.em{font-size:7.5px;color:var(--gris);font-weight:900;letter-spacing:.08em;margin-top:2px}
+.reps{margin-left:auto;flex-shrink:0;background:rgba(18,18,16,.05);border-radius:10px;padding:8px 11px;
+  font-size:10px;font-weight:900;min-width:56px;text-align:center}
+.qx{flex-shrink:0;border:none;background:none;color:var(--suave);font-size:13px;padding:4px}
+.add{width:100%;margin-top:10px;background:none;border:1.5px dashed rgba(18,18,16,.18);border-radius:14px;
+  padding:12px;font-size:8.5px;font-weight:900;letter-spacing:.1em;color:var(--gris);cursor:pointer}
+/* Buscador de ejercicios (sheet) */
+.sheet{padding:14px 15px;margin-bottom:12px;border:1.5px solid var(--tinta)}
+.sheet h3{font-size:7.5px;letter-spacing:.18em;color:var(--gris);font-weight:900;margin-bottom:9px}
+.busca{width:100%;background:rgba(255,255,255,.7);border:1px solid rgba(255,255,255,.9);border-radius:13px;
+  padding:12px 14px;font-size:13px;font-weight:600;outline:none;margin-bottom:9px}
+.res{display:flex;align-items:center;gap:9px;padding:10px 2px;border-top:1px solid rgba(18,18,16,.06)}
+.res .rn{font-size:12px;font-weight:800}
+.res .rm{font-size:7px;color:var(--gris);font-weight:900;letter-spacing:.08em;margin-top:2px}
+.res .radd{margin-left:auto;background:var(--tinta);color:var(--hueso);border:none;border-radius:10px;
+  padding:8px 12px;font-size:8px;font-weight:900;letter-spacing:.06em}
+/* Selector de músculo por espacio */
+.mchip{flex-shrink:0;border:none;border-radius:9px;padding:6px 9px;font-size:7px;font-weight:900;
+  letter-spacing:.06em;background:rgba(18,18,16,.06);color:var(--gris);cursor:pointer}
+.mchip.on{background:var(--tinta);color:var(--hueso)}
+.selector{background:rgba(255,255,255,.75);border:1.5px dashed rgba(18,18,16,.2);border-radius:14px;
+  padding:11px 12px;margin:4px 0 8px}
+.selector h5{font-size:7px;letter-spacing:.16em;color:var(--gris);font-weight:900;margin-bottom:8px}
+.mgrid{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px}
+.sug{display:flex;align-items:center;gap:9px;padding:9px 2px;border-top:1px solid rgba(18,18,16,.06)}
+.sug:first-of-type{border-top:none}
+.sug .sn{font-size:11.5px;font-weight:800}
+.sug .sm{font-size:6.5px;color:var(--gris);font-weight:900;letter-spacing:.06em;margin-top:2px}
+.sug .sadd{margin-left:auto;background:var(--tinta);color:var(--hueso);border:none;border-radius:9px;
+  padding:7px 11px;font-size:7.5px;font-weight:900}
+/* Editor de reps */
+.reps.edit{cursor:pointer;border:1.5px dashed rgba(18,18,16,.25)}
+.repsel{background:rgba(255,255,255,.75);border:1.5px dashed rgba(18,18,16,.2);border-radius:14px;
+  padding:11px 12px;margin:4px 0 8px}
+.repsel h5{font-size:7px;letter-spacing:.16em;color:var(--gris);font-weight:900;margin-bottom:8px}
+.repstep{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.repstep button{width:34px;height:34px;border-radius:50%;border:1px solid rgba(18,18,16,.15);
+  background:rgba(255,255,255,.7);font-size:16px;font-weight:900;color:var(--tinta)}
+.repstep b{font-size:18px;font-weight:900;min-width:44px;text-align:center}
+.repstep .unidad{margin-left:auto;display:flex;gap:5px}
+.uni{border:none;border-radius:9px;padding:8px 11px;font-size:8px;font-weight:900;background:rgba(18,18,16,.06);color:var(--gris);cursor:pointer}
+.uni.on{background:var(--tinta);color:var(--hueso)}
+.esquemas{display:flex;gap:6px;flex-wrap:wrap}
+.esq{border:none;border-radius:10px;padding:9px 12px;font-size:8.5px;font-weight:900;
+  background:rgba(18,18,16,.06);color:var(--tinta);cursor:pointer}
+.esq.on{background:var(--tinta);color:var(--hueso)}
+/* Botonera del planificador */
+.postergar{width:100%;border:1.5px solid rgba(197,161,60,.5);background:rgba(197,161,60,.08);color:#8a6d25;
+  border-radius:14px;padding:13px;font-size:9px;font-weight:900;letter-spacing:.08em;cursor:pointer;margin-bottom:8px}
+.motivos{display:none;gap:6px;flex-wrap:wrap;margin-bottom:8px}
+.motivos.vis{display:flex}
+.mot{border:none;border-radius:10px;padding:9px 12px;font-size:8px;font-weight:900;letter-spacing:.06em;
+  background:rgba(255,255,255,.14);color:var(--hueso);cursor:pointer}
+.mot.on{background:var(--hueso);color:var(--tinta)}
+/* Guardia + guardar */
+.guardia{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:520px;
+  background:rgba(18,18,16,.95);backdrop-filter:blur(20px);color:var(--hueso);border-radius:24px 24px 0 0;
+  padding:13px 16px 15px;box-shadow:0 -12px 34px rgba(0,0,0,.3)}
+.guardia .gt{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:8px}
+.gt1{font-size:7.5px;letter-spacing:.18em;color:#8B8A85;font-weight:900}
+.gt2{font-size:8.5px;font-weight:900;color:var(--ama)}
+.gmsg{font-size:9.5px;color:#C9C8C2;line-height:1.6;margin-bottom:10px}
+.gmsg b{color:#fff}
+.gbtns{display:grid;grid-template-columns:1fr 2fr;gap:8px}
+.gb{border:none;border-radius:14px;padding:13px;font-size:9.5px;font-weight:900;letter-spacing:.1em;cursor:pointer}
+.gb.desc{background:rgba(255,255,255,.12);color:var(--hueso)}
+.gb.save{background:var(--hueso);color:var(--tinta)}
+</style>
+</head>
+<body>
+
+<div class="stop"><button class="sback">←</button><div class="stit">AJUSTAR · LOWER BODY</div></div>
+<div class="ssub">IGNACIA SANHUEZA · SESIÓN 2 DE SU SEMANA</div>
+<div class="origen">✎ COPIA INDIVIDUAL — LA SESIÓN BASE NO SE TOCA</div>
+
+<!-- B1 -->
+<div class="glass bloq">
+  <div class="bh"><span class="bt">B1</span><span class="bn">ACTIVACIÓN</span>
+    <div class="bcfg">
+      <div class="stp"><span>SETS</span><button>−</button><b>3</b><button>+</button></div>
+      <div class="stp"><span>DESC</span><button>−</button><b>60''</b><button>+</button></div>
+    </div></div>
+  <div class="ej"><span class="drag">⠿</span>
+    <div style="cursor:pointer" onclick="abrirLinea()"><div class="en"><span id="l1ej">Goblet squat</span> <span style="color:var(--suave);font-size:11px">⇄</span></div>
+    <div class="em" id="l1meta">CUÁDRICEPS · BILATERAL</div></div>
+    <button class="mchip on" id="l1chip" onclick="abrirLinea()">CUÁD ▾</button>
+    <div class="reps edit" id="l1reps" onclick="abrirReps()">10 REP ▾</div><button class="qx">✕</button></div>
+  <div class="repsel" id="l1repsel" style="display:none">
+    <h5>DOSIFICACIÓN DE ESTA LÍNEA</h5>
+    <div class="repstep">
+      <button onclick="repMas(-1)">−</button><b id="repVal">10</b><button onclick="repMas(1)">+</button>
+      <div class="unidad">
+        <button class="uni on" id="uniRep" onclick="unidad('REP')">REP</button>
+        <button class="uni" id="uniSeg" onclick="unidad('SEG')">SEG</button>
+      </div>
+    </div>
+    <div class="esquemas">
+      <button class="esq" onclick="esquema(this,'8')">8</button>
+      <button class="esq on" onclick="esquema(this,'10')">10</button>
+      <button class="esq" onclick="esquema(this,'12')">12</button>
+      <button class="esq" onclick="esquema(this,'8·10·12')">PIRÁMIDE 8·10·12</button>
+      <button class="esq" onclick="esquema(this,'AMRAP')">AMRAP</button>
+    </div>
+  </div>
+  <div class="selector" id="l1sel" style="display:none">
+    <h5>CAPA 1 · MÚSCULO OBJETIVO DE ESTA LÍNEA</h5>
+    <div class="mgrid" id="l1musc"></div>
+    <h5 id="l1tit">CAPA 2 · EJERCICIOS DE CUÁDRICEPS</h5>
+    <div id="l1sugs"></div>
+  </div>
+  <div class="ej"><span class="drag">⠿</span><div><div class="en">Glute bridge</div><div class="em">GLÚTEOS · BILATERAL</div></div>
+    <div class="reps">12 REP</div><button class="qx">✕</button></div>
+  <div class="ej"><span class="drag">⠿</span><div><div class="en">Plank</div><div class="em">CORE · ISOMETRÍA</div></div>
+    <div class="reps">30 SEG</div><button class="qx">✕</button></div>
+  <button class="add">+ AGREGAR EJERCICIO</button>
+</div>
+
+<!-- B2 con buscador abierto -->
+<div class="glass bloq">
+  <div class="bh"><span class="bt">B2</span><span class="bn">FUERZA PRINCIPAL</span>
+    <div class="bcfg">
+      <div class="stp"><span>SETS</span><button>−</button><b>3</b><button>+</button></div>
+      <div class="stp"><span>DESC</span><button>−</button><b>2.5'</b><button>+</button></div>
+    </div></div>
+  <div class="ej"><span class="drag">⠿</span><div><div class="en">BB Hip thrust <span class="anc">◆ ANCLA</span></div><div class="em">GLÚTEOS · LOWER HINGE · ★ PILAR</div></div>
+    <div class="reps">8·10·12</div><button class="qx">✕</button></div>
+  <div class="ej"><span class="drag">⠿</span><div><div class="en">Leg press 45</div><div class="em">CUÁDRICEPS · LOWER SQUAT · ★</div></div>
+    <button class="mchip on" onclick="alert('Selector de músculo del espacio')">CUÁD ▾</button>
+    <div class="reps">10 REP</div><button class="qx">✕</button></div>
+
+</div>
+
+<!-- LA GUARDIA: dosis de la sesión en vivo -->
+<div class="guardia">
+  <div class="gt"><span class="gt1">DOSIS DE ESTA SESIÓN · EN VIVO</span><span class="gt2">⚠ GLÚTEOS ROZA EL TECHO</span></div>
+  <div class="gmsg">Con este ajuste, la sesión suma <b>GLÚTEOS 7.5</b> · CUÁD 6 · ISQ 4.5 · CORE 3.
+    La semana de Ignacia quedaría con <b>GLÚTEOS 19.5/12 🟡</b> — considera quitar volumen de glúteo o mover el RDL a otra sesión.</div>
+  <button class="postergar" onclick="document.getElementById('mot').classList.toggle('vis')">
+    POSTERGAR ESTA SESIÓN → ASIGNAR EXTRA EN SU LUGAR</button>
+  <div class="motivos" id="mot">
+    <button class="mot" onclick="motivo(this)">FATIGA</button>
+    <button class="mot" onclick="motivo(this)">MOLESTIA</button>
+    <button class="mot" onclick="motivo(this)">TIEMPO</button>
+    <button class="mot" onclick="motivo(this)">SOLICITUD DEL SOCIO</button>
+    <button class="mot" onclick="motivo(this)">OTRO</button>
+  </div>
+  <div class="gbtns">
+    <button class="gb desc">DESCARTAR</button>
+    <button class="gb save">GUARDAR AJUSTE ✎ →</button>
+  </div>
+<script>
+// ══ EDITOR DE REPS · LÍNEA 1 ══
+let repV = 10, repU = 'REP', repEsq = null
+function abrirReps(){
+  const p = document.getElementById('l1repsel')
+  p.style.display = p.style.display==='none' ? 'block' : 'none'
+}
+function pintarReps(){
+  const txt = repEsq ? (repEsq==='AMRAP' ? 'AMRAP' : repEsq+' REP') : (repV+' '+repU)
+  document.getElementById('l1reps').textContent = txt+' ▾'
+  document.getElementById('repVal').textContent = repEsq ? '—' : repV
+}
+function repMas(d){ repEsq=null; repV=Math.max(1, repV+d)
+  document.querySelectorAll('.esq').forEach(c=>c.classList.remove('on')); pintarReps() }
+function unidad(u){ repU=u; repEsq=null
+  document.getElementById('uniRep').classList.toggle('on', u==='REP')
+  document.getElementById('uniSeg').classList.toggle('on', u==='SEG')
+  if (u==='SEG' && repV<15) repV=30
+  pintarReps() }
+function esquema(el, e){ repEsq = (e==='8'||e==='10'||e==='12') ? null : e
+  if (!repEsq) repV = +e
+  document.querySelectorAll('.esq').forEach(c=>c.classList.remove('on')); el.classList.add('on')
+  pintarReps() }
+// ══ LAS DOS CAPAS DE LA LÍNEA 1 ══
+const BATERIA = {
+  'CUÁDRICEPS':[['Goblet squat','CUÁDRICEPS · BILATERAL'],['Leg extension','CUÁDRICEPS · AISLAMIENTO'],['Hack squat','CUÁDRICEPS · LOWER SQUAT'],['Bulgarian split squat','CUÁDRICEPS · UNILATERAL']],
+  'ISQUIOS':[['DB RDL','ISQUIOS · LOWER HINGE · SUMA GLÚTEOS 0.5'],['Seated leg curl','ISQUIOS · AISLAMIENTO'],['Nordic curl','ISQUIOS · AVANZADO'],['Glute ham raise','ISQUIOS · LOWER HINGE']],
+  'GLÚTEOS':[['Glute bridge','GLÚTEOS · BILATERAL'],['Cable kickback','GLÚTEOS · AISLAMIENTO'],['DB Sumo squat','GLÚTEOS · LOWER SQUAT']],
+  'CORE':[['Plank','CORE · ISOMETRÍA'],['Pallof press','CORE · ANTI-ROTACIÓN'],['Dead bug','CORE · ESTABILIDAD']],
+  'ESPALDA':[['Cable seated row ★','ESPALDA · UPPER PULL'],['Lat pulldown','ESPALDA · UPPER PULL']],
+}
+const ABREV = {'CUÁDRICEPS':'CUÁD','ISQUIOS':'ISQ','GLÚTEOS':'GLÚT','CORE':'CORE','ESPALDA':'ESP'}
+let l1m = 'CUÁDRICEPS'
+function abrirLinea(){
+  const s = document.getElementById('l1sel')
+  s.style.display = s.style.display==='none' ? 'block' : 'none'
+  pintarLinea()
+}
+function pintarLinea(){
+  document.getElementById('l1musc').innerHTML = Object.keys(BATERIA).map(m=>
+    `<button class="mchip ${m===l1m?'on':''}" onclick="cambiarMusculo('${m}')">${m}</button>`).join('')
+  document.getElementById('l1tit').textContent = 'CAPA 2 · EJERCICIOS DE '+l1m
+  document.getElementById('l1sugs').innerHTML = BATERIA[l1m].map(([n2,d])=>
+    `<div class="sug"><div><div class="sn">${n2}</div><div class="sm">${d}</div></div>
+     <button class="sadd" onclick="usar('${n2.replace(/'/g,"\\'")}', '${d}')">USAR</button></div>`).join('')
+}
+function cambiarMusculo(m){
+  l1m = m
+  document.getElementById('l1chip').textContent = (ABREV[m]||m)+' ▾'
+  pintarLinea()
+}
+function usar(nom, meta){
+  document.getElementById('l1ej').textContent = nom
+  document.getElementById('l1meta').textContent = meta
+  document.getElementById('l1sel').style.display = 'none'
+  const g = document.querySelector('.gmsg')
+  if (g && l1m==='ISQUIOS') g.innerHTML = 'Línea 1 ahora trabaja <b>ISQUIOS</b> (' + nom + '). La sesión suma GLÚT 7.5 · <b>ISQ 6</b> · CUÁD 4.5 · CORE 3 — la semana de Ignacia gana equilibrio en el tren posterior. <b>✓ Ajuste sano.</b>'
+}
+function musc(el, m){
+  document.querySelectorAll('.mgrid .mchip').forEach(c=>c.classList.remove('on'))
+  el.classList.add('on')
+  const S = {
+    'GLÚTEOS':[['BB Hip thrust ◆','GLÚTEOS · LOWER HINGE · ★ PILAR'],['Cable kickback','GLÚTEOS · AISLAMIENTO'],['DB Sumo squat','GLÚTEOS · LOWER SQUAT']],
+    'ISQUIOS':[['DB RDL','ISQUIOS · LOWER HINGE · SUMA GLÚTEOS 0.5'],['Seated leg curl','ISQUIOS · AISLAMIENTO'],['Nordic curl','ISQUIOS · AVANZADO']],
+    'CUÁDRICEPS':[['Leg extension','CUÁDRICEPS · AISLAMIENTO'],['Hack squat','CUÁDRICEPS · LOWER SQUAT'],['Bulgarian split squat','CUÁDRICEPS · UNILATERAL']],
+    'CORE':[['Plank','CORE · ISOMETRÍA'],['Pallof press','CORE · ANTI-ROTACIÓN'],['Dead bug','CORE · ESTABILIDAD']],
+    'ESPALDA':[['Cable seated row ★','ESPALDA · UPPER PULL'],['Lat pulldown','ESPALDA · UPPER PULL'],['Chest supported row','ESPALDA · UPPER PULL']],
+  }
+  document.getElementById('sugs').innerHTML = (S[m]||[]).map(([n2,d])=>
+    `<div class="sug"><div><div class="sn">${n2}</div><div class="sm">${d}</div></div><button class="sadd">USAR</button></div>`).join('')
+}
+function motivo(el){
+  document.querySelectorAll('.mot').forEach(c=>c.classList.remove('on'))
+  el.classList.add('on')
+  const g = document.querySelector('.gmsg')
+  g.innerHTML = 'Sesión <b>postergada · '+el.textContent+'</b>. Al guardar, queda PENDIENTE en su plan y pasas a elegir la <b>extra de la biblioteca</b> que va en su lugar.'
+  document.querySelector('.gb.save').textContent = 'POSTERGAR Y ELEGIR EXTRA ★ →'
+}
+</script>
+</div>
+
+</body>
+</html>
