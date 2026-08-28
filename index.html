@@ -1502,11 +1502,29 @@ async function handleLogin() {
 
 async function loadProfileAndEnter() {
   try {
-    const { data: profile } = await sb
+    let { data: profile } = await sb
       .from('profiles')
       .select('*')
       .eq('id', STATE.user.id)
-      .single()
+      .maybeSingle()
+
+    // AUTO-REPARACIÓN: cuenta sin perfil → PIN de administrador la completa aquí mismo
+    if (!profile) {
+      const pin = prompt('Esta cuenta no tiene perfil KOACH.\n\nIngresa el PIN de administrador para crearlo como ADMIN\n(o Cancelar si no corresponde):')
+      if (pin === '2026') {
+        const { data: nuevo, error: eIns } = await sb.from('profiles').insert({
+          id: STATE.user.id,
+          nombre: 'Editor', apellido: 'KOACH',
+          email: STATE.user.email, role: 'admin', activo: true
+        }).select().single()
+        if (eIns) { alert('No se pudo crear el perfil: ' + eIns.message); await sb.auth.signOut(); goTo('pgLogin'); return }
+        profile = nuevo
+        alert('✓ Perfil ADMIN creado. Bienvenido, Editor.')
+      } else {
+        alert('Sin perfil no hay acceso. Pídele al admin que complete tu cuenta.')
+        await sb.auth.signOut(); goTo('pgLogin'); return
+      }
+    }
 
     STATE.profile = profile
 
