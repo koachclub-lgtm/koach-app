@@ -288,7 +288,7 @@ html,body{background:linear-gradient(170deg,#F3F2EF 0%,#E7E6E2 55%,#DAD9D4 100%)
 
   <!-- ══ HOME ══ -->
   <div class="vista conTab" id="vHome">
-    <div class="hbar"><span class="hk" title="v3.0">KOACH</span><div class="hav" id="hAv" onclick="salir()">K</div></div>
+    <div class="hbar"><span class="hk" title="v3.1">KOACH</span><div class="hav" id="hAv" onclick="salir()">K</div></div>
     <div class="ctx"><div class="fecha" id="hFecha">—</div><div class="prog" id="hProg">—</div></div>
     <div class="anillo">
       <svg width="180" height="180" viewBox="0 0 180 180">
@@ -487,7 +487,7 @@ function calcularSemana(programa, registros, objetivos){
     const pct2 = ex.length ? Math.round(ex.reduce((a,m)=>a+Math.min(acum2[m.grupo]/m.objetivo,1),0)/ex.length*100) : 0
     proxima = { numero:prox.numero, id:prox.id, nombre:prox.nombre||('SESIÓN '+prox.numero),
                 fortaleceria:c.length, suma_pct: Math.max(0, pct2 - pct_dosis),
-                _extra: !!prox._extra, _desigId: prox._desigId||null }
+                _extra: !!prox._extra, _desigId: prox._desigId||null, _rec: !!prox._rec }
   }
   return { musculos, exigibles:ex.length, fortalecidos:tot, pct_dosis, proxima,
            completa: ex.length>0 && tot===ex.length }
@@ -609,7 +609,7 @@ async function entrar(){
     // Extras designadas por el coach (★): se suman al programa del socio
     try{
       const { data: dx } = await sb.from('designaciones_extra')
-        .select('id, sesion_protocolo_id, estado')
+        .select('id, sesion_protocolo_id, estado, recurrente')
         .eq('socio_id', perfil.id).neq('estado','retirada')
       const dxOk = (dx||[])
       if (dxOk.length){
@@ -621,7 +621,7 @@ async function entrar(){
           const s = (exSes||[]).find(x=>x.id===d.sesion_protocolo_id)
           if (!s) return
           S.programa.sesiones.push({
-            numero: 100+i, id: s.id, _extra: true, _desigId: d.id, _estado: d.estado,
+            numero: 100+i, id: s.id, _extra: true, _desigId: d.id, _estado: d.estado, _rec: !!d.recurrente,
             nombre: '★ '+(nombreEN(s.objetivo)||('SESIÓN '+s.numero)),
             bloquesFull:(exBlo||[]).filter(b=>b.sesion_id===s.id),
             bloques:(exBlo||[]).filter(b=>b.sesion_id===s.id).map(b=>({
@@ -811,6 +811,7 @@ async function abrirSesion(){
   if (S.registros.some(r=>r.fecha===hoyC && r.estado!=='incompleta')){
     toast('Hoy ya sumaste tu sesión — la recuperación también entrena. Nos vemos mañana.'); return }
   S._desigActual = S.sem.proxima._desigId || null
+  S._desigRec = !!S.sem.proxima._rec
   const ses = S.programa.sesiones.find(x=>x.numero===S.sem.proxima.numero)
   S.sesionAbierta = ses
   S.pesos={}; S.marcas={}; S.setsHechos={}; S.bloquesListos=0
@@ -934,9 +935,15 @@ async function finalizar(){
   }catch(e){ console.error(e); toast('No se pudo guardar — intenta de nuevo o avisa a tu coach'); return }
   S._dirty = true; S._avOk = false
   if (S._desigActual){
-    try{ await sb.from('designaciones_extra').update({ estado:'usada', usada_at:new Date().toISOString() })
-      .eq('id', S._desigActual) }catch(_){}
-    S._desigActual = null
+    try{
+      if (S._desigRec){
+        // Recurrente: registra el uso pero queda disponible — vuelve cada semana
+        await sb.from('designaciones_extra').update({ usada_at:new Date().toISOString() }).eq('id', S._desigActual)
+      } else {
+        await sb.from('designaciones_extra').update({ estado:'usada', usada_at:new Date().toISOString() }).eq('id', S._desigActual)
+      }
+    }catch(_){}
+    S._desigActual = null; S._desigRec = false
   }
   // Recompensa
   const rw=S.frases?.recompensa
