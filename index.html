@@ -1562,9 +1562,8 @@ async function loadProfileAndEnter() {
       goTo('pgCoach')
       manejarHashQR()
     } else if (profile.role === 'coach') {
-      await loadCoachData()
-      goTo('pgCoach')
-      manejarHashQR()
+      window.location.href = '/coach.html'   // el coach vive en su mundo nuevo
+      return
     } else {
       // Los socios viven en la app nueva — un solo mundo
       window.location.href = '/app.html'
@@ -4764,6 +4763,7 @@ async function renderSalaV2(socios) {
 
     window._sociosRender = activos;
     cont.innerHTML = `
+      <a href="/coach.html" style="display:block;text-align:center;background:#121210;color:#F3F2EF;border-radius:16px;padding:13px;font-size:9px;font-weight:900;letter-spacing:.12em;text-decoration:none;margin-bottom:10px">★ ABRIR LA SALA NUEVA (COACH) →</a>
       <button class="k2c-nuevo" onclick="k2ToggleAlta()">+ NUEVO USUARIO · SOCIO O COACH</button>
       <div class="k2c-form" id="k2cAlta" style="display:none">
         <h4>CREAR USUARIO — ENTRA AL INSTANTE CON SU CORREO Y CLAVE</h4>
