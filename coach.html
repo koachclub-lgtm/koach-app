@@ -1,0 +1,611 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>KOACH · Sala</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+:root{--tinta:#121210;--gris:#7C7B76;--suave:#BEBDB8;--ok:#1F9D55;--ama:#C5A13C;--rojo:#B4442C;--hueso:#F3F2EF}
+*{margin:0;padding:0;box-sizing:border-box;font-family:-apple-system,'Helvetica Neue',Arial,sans-serif;-webkit-tap-highlight-color:transparent}
+body{min-height:100dvh;background:linear-gradient(170deg,#F3F2EF 0%,#E7E6E2 55%,#DAD9D4 100%);color:var(--tinta);max-width:560px;margin:0 auto;padding:16px 14px 40px}
+.glass{background:rgba(255,255,255,.6);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);border:1px solid rgba(255,255,255,.8);border-radius:20px;box-shadow:0 8px 24px rgba(30,30,28,.08)}
+.vista{display:none}.vista.on{display:block}
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);max-width:88%;background:rgba(18,18,16,.94);color:var(--hueso);padding:12px 17px;border-radius:14px;font-size:11px;font-weight:700;z-index:999;opacity:0;pointer-events:none;transition:opacity .25s;text-align:center}
+.toast.vis{opacity:1}
+.lwrap{max-width:400px;margin:8vh auto 0}
+.lk{font-size:13px;font-weight:900;letter-spacing:.4em;margin-bottom:4px}
+.ls{font-size:8px;letter-spacing:.16em;color:var(--gris);font-weight:800;margin-bottom:26px}
+label{display:block;font-size:7.5px;letter-spacing:.18em;color:var(--gris);font-weight:900;margin:0 0 6px 3px}
+input{width:100%;background:rgba(255,255,255,.7);border:1px solid rgba(255,255,255,.9);border-radius:13px;padding:13px 14px;font-size:14px;font-weight:600;color:var(--tinta);outline:none;margin-bottom:13px}
+.btn{width:100%;background:var(--tinta);color:var(--hueso);border:none;border-radius:15px;padding:15px;font-size:10px;font-weight:900;letter-spacing:.14em;cursor:pointer}
+.btn:disabled{opacity:.5}
+.lerr{font-size:10px;color:var(--rojo);font-weight:700;margin-top:10px;text-align:center;min-height:14px}
+.hbar{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
+.hk{font-size:11px;font-weight:900;letter-spacing:.38em}
+.rol{font-size:8px;font-weight:900;letter-spacing:.12em;background:var(--tinta);color:var(--hueso);padding:7px 12px;border-radius:11px;cursor:pointer}
+.h3{font-size:7.5px;letter-spacing:.2em;color:var(--gris);font-weight:900;margin:14px 4px 8px;display:flex;justify-content:space-between}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:12px}
+.st3{padding:14px 6px;text-align:center}
+.st3 b{font-size:23px;font-weight:900;display:block}
+.st3 span{font-size:6.5px;letter-spacing:.12em;color:var(--gris);font-weight:900}
+.band{padding:13px 15px;margin-bottom:12px}
+.band .bt1{font-size:7.5px;letter-spacing:.18em;font-weight:900;margin-bottom:4px}
+.brow{display:flex;align-items:center;gap:10px;padding:9px 0;border-top:1px solid rgba(18,18,16,.06)}
+.brow:first-of-type{border-top:none}
+.brow .btx{flex:1;font-size:11px;line-height:1.55}
+.brow .btx small{color:var(--gris);font-size:9px}
+.bbtn{flex-shrink:0;border:none;border-radius:10px;padding:9px 12px;font-size:8px;font-weight:900;letter-spacing:.06em;cursor:pointer}
+.bbtn.ink{background:var(--tinta);color:var(--hueso)}
+.bbtn.ok{background:rgba(31,157,85,.12);color:var(--ok)}
+.mtabs{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:10px}
+.mtab{display:flex;align-items:center;gap:7px;background:rgba(255,255,255,.7);border:1px solid rgba(255,255,255,.85);border-radius:14px;padding:9px 13px;font-size:10px;font-weight:900;cursor:pointer}
+.mtab.on{background:var(--tinta);color:var(--hueso)}
+.mtab .x{opacity:.5;padding:0 2px}
+.card{padding:14px 16px;margin-bottom:10px;cursor:pointer}
+.ctop{display:flex;align-items:center;gap:12px}
+.av{width:40px;height:40px;border-radius:50%;background:var(--tinta);color:var(--hueso);display:flex;align-items:center;justify-content:center;font-weight:900;font-size:14px;flex-shrink:0}
+.cn2{font-size:13px;font-weight:900}
+.cm2{font-size:7.5px;color:var(--gris);font-weight:800;letter-spacing:.08em;margin-top:2px}
+.badge{margin-left:auto;font-size:7.5px;font-weight:900;letter-spacing:.06em;padding:6px 10px;border-radius:10px;flex-shrink:0;white-space:nowrap}
+.badge.hoy{color:var(--ok);background:rgba(31,157,85,.1)}
+.badge.done{color:var(--ok);background:rgba(31,157,85,.14)}
+.badge.off{color:var(--suave);background:rgba(18,18,16,.05)}
+.sem{display:flex;align-items:center;gap:10px;margin-top:11px}
+.bar{flex:1;height:7px;background:rgba(18,18,16,.08);border-radius:5px;position:relative}
+.fill{position:absolute;top:0;left:0;height:100%;background:var(--tinta);border-radius:5px}
+.x2{font-size:10px;font-weight:900;white-space:nowrap}
+.x2 small{color:var(--suave)}
+.vacio{font-size:10px;color:var(--gris);font-weight:700;text-align:center;padding:20px}
+.nuevo{width:100%;background:var(--tinta);color:var(--hueso);border:none;border-radius:16px;padding:13px;font-size:9px;font-weight:900;letter-spacing:.12em;cursor:pointer;margin-bottom:10px}
+.aform{padding:14px 15px;margin-bottom:12px;border:1.5px solid var(--tinta)}
+.aform h4{font-size:7.5px;letter-spacing:.18em;color:var(--gris);font-weight:900;margin-bottom:10px}
+.roles{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-bottom:10px}
+.rolb{border:1.5px solid rgba(18,18,16,.15);background:none;border-radius:12px;padding:11px;font-size:8.5px;font-weight:900;letter-spacing:.1em;color:var(--gris);cursor:pointer}
+.rolb.on{background:var(--tinta);color:var(--hueso);border-color:var(--tinta)}
+.amsg{font-size:9.5px;line-height:1.6;margin-top:9px;font-weight:700}
+.amsg.ok{color:var(--ok)}.amsg.err{color:var(--rojo)}
+.stop{display:flex;align-items:center;gap:12px;margin-bottom:2px}
+.sback{width:38px;height:38px;border-radius:50%;background:rgba(255,255,255,.6);border:1px solid rgba(255,255,255,.85);font-size:16px;cursor:pointer}
+.stit{font-size:17px;font-weight:900}
+.ssub{font-size:8px;color:var(--gris);font-weight:900;letter-spacing:.1em;margin:2px 0 12px 50px}
+.viva{padding:14px 15px;margin-bottom:11px}
+.viva h3{display:flex;justify-content:space-between;font-size:7.5px;letter-spacing:.18em;color:var(--gris);font-weight:900;margin-bottom:10px}
+.viva h3 b{color:var(--ok)}
+.rows2{display:grid;grid-template-columns:1fr 1fr;column-gap:13px}
+.row2{display:grid;grid-template-columns:52px 1fr 46px;gap:5px;align-items:center;margin-bottom:7px}
+.row2 .g{font-weight:900;font-size:7px}
+.bar2{height:6px;background:rgba(18,18,16,.08);border-radius:5px;position:relative}
+.fill2{position:absolute;top:0;left:0;height:100%;border-radius:5px}
+.z0{background:#D8D7D2}.z1{background:var(--ok)}.z2{background:var(--ama)}.z3{background:var(--rojo)}
+.row2 .v{font-size:7.5px;font-weight:900;text-align:right;color:var(--suave)}
+.row2 .v.c1{color:var(--ok)}.row2 .v.c2{color:var(--ama)}.row2 .v.c3{color:var(--rojo)}
+.acc2{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:11px}
+.a2{border:none;border-radius:16px;padding:15px 8px;font-size:8.5px;font-weight:900;letter-spacing:.08em;cursor:pointer;text-align:center}
+.a2.ink{background:var(--tinta);color:var(--hueso);box-shadow:0 8px 20px rgba(18,18,16,.22)}
+.sec{padding:13px 15px;margin-bottom:11px}
+.sec h3{display:flex;justify-content:space-between;font-size:7.5px;letter-spacing:.18em;color:var(--gris);font-weight:900;margin-bottom:6px}
+.fila{display:flex;align-items:center;gap:10px;padding:10px 2px;border-top:1px solid rgba(18,18,16,.06)}
+.fila:first-of-type{border-top:none}
+.fn{font-size:12px;font-weight:800}
+.fm{font-size:7.5px;color:var(--gris);font-weight:900;letter-spacing:.08em;margin-top:2px}
+.fd{margin-left:auto;text-align:right;font-size:11px;font-weight:900;flex-shrink:0}
+.peligro{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:4px}
+.pel{border-radius:14px;padding:12px 8px;font-size:8px;font-weight:900;letter-spacing:.08em;cursor:pointer;text-align:center;background:none}
+.pel.frio{border:1px solid rgba(18,18,16,.2);color:var(--tinta)}
+.pel.rojo{border:1px solid rgba(180,68,44,.35);color:var(--rojo)}
+.solctx{padding:13px 15px;margin-bottom:12px;border-left:3px solid var(--ama)}
+.solctx .sc1{font-size:7.5px;letter-spacing:.16em;color:var(--ama);font-weight:900;margin-bottom:5px}
+.solctx .sc2{font-size:11.5px;line-height:1.6}
+.pl{padding:14px 16px;margin-bottom:10px;cursor:pointer;border:1.5px solid transparent}
+.pl.on{border-color:var(--tinta);background:rgba(255,255,255,.8)}
+.pl .pn{font-size:13px;font-weight:900}
+.pl .pm{font-size:7.5px;color:var(--gris);font-weight:800;letter-spacing:.08em;margin-top:3px;line-height:1.6}
+.impacto{margin-top:9px;padding-top:9px;border-top:1px solid rgba(18,18,16,.06);font-size:9px;color:var(--gris);line-height:1.6}
+.impacto b{color:var(--tinta)}
+.guardia{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:560px;background:rgba(18,18,16,.95);backdrop-filter:blur(20px);color:var(--hueso);border-radius:24px 24px 0 0;padding:13px 16px 15px;box-shadow:0 -12px 34px rgba(0,0,0,.3);display:none}
+.guardia.vis{display:block}
+.gt1{font-size:7.5px;letter-spacing:.18em;color:#8B8A85;font-weight:900;margin-bottom:7px}
+.gmsg{font-size:10px;color:#C9C8C2;line-height:1.65;margin-bottom:10px}
+.gmsg b{color:#fff}
+.gb{width:100%;border:none;border-radius:14px;padding:14px;font-size:10px;font-weight:900;letter-spacing:.12em;cursor:pointer;background:var(--hueso);color:var(--tinta)}
+.gb:disabled{opacity:.4}
+</style>
+</head>
+<body>
+
+<div class="vista on" id="vLogin"><div class="lwrap">
+  <div class="lk">KOACH</div>
+  <div class="ls">SALA · PANEL DEL COACH</div>
+  <label>EMAIL</label><input id="lEmail" type="email" autocomplete="email">
+  <label>CONTRASEÑA</label><input id="lPass" type="password" autocomplete="current-password">
+  <button class="btn" id="lBtn" onclick="login()">ENTRAR A LA SALA →</button>
+  <div class="lerr" id="lErr"></div>
+  <div style="display:flex;align-items:center;gap:10px;margin:20px 0 14px">
+    <div style="flex:1;height:1px;background:rgba(18,18,16,.12)"></div>
+    <span style="font-size:7px;letter-spacing:.2em;color:#BEBDB8;font-weight:900">ACCESO RÁPIDO</span>
+    <div style="flex:1;height:1px;background:rgba(18,18,16,.12)"></div>
+  </div>
+  <label>PIN DE LA SALA</label>
+  <input id="lPin" type="password" inputmode="numeric" placeholder="····" style="text-align:center;letter-spacing:.5em;font-size:18px" onkeydown="if(event.key==='Enter')pinEntrar()">
+  <button class="btn" onclick="pinEntrar()">ENTRAR CON PIN →</button>
+</div></div>
+
+<div class="vista" id="vSala">
+  <div class="hbar"><span class="hk" title="c1.1">KOACH</span><span class="rol" id="rolBadge" onclick="salir()">COACH</span></div>
+  <button class="nuevo" onclick="toggleAlta()">+ NUEVO USUARIO · SOCIO O COACH</button>
+  <div class="glass aform" id="fAlta" style="display:none">
+    <h4>CREAR USUARIO — ENTRA AL INSTANTE CON SU CORREO Y CLAVE</h4>
+    <input id="nuNombre" placeholder="Nombre">
+    <input id="nuApellido" placeholder="Apellido">
+    <input id="nuEmail" type="email" placeholder="correo@ejemplo.cl" autocomplete="off">
+    <input id="nuPass" placeholder="Clave (mín. 4)" autocomplete="off">
+    <div class="roles">
+      <button class="rolb on" id="rSocio" onclick="setRol('socio')">SOCIO</button>
+      <button class="rolb" id="rCoach" onclick="setRol('coach')">COACH</button>
+    </div>
+    <button class="btn" id="nuBtn" onclick="crearUsuario()">CREAR USUARIO →</button>
+    <div class="amsg" id="nuMsg"></div>
+  </div>
+  <div class="mtabs" id="mesa"></div>
+  <div id="bandejas"></div>
+  <div class="stats" id="pulso"></div>
+  <div class="h3"><span>SOCIOS ACTIVOS · SU SEMANA EN VIVO</span><span id="nSoc">—</span></div>
+  <div id="lista"></div>
+</div>
+
+<div class="vista" id="vFicha">
+  <div class="stop"><button class="sback" onclick="verSala()">←</button>
+    <div class="stit" id="fNombre">—</div>
+    <span class="rol" id="fEstado" style="margin-left:auto">ACTIVA</span></div>
+  <div class="ssub" id="fMeta">—</div>
+  <div class="glass viva">
+    <h3><span>SU SEMANA · EN VIVO</span><span id="fSemTit">—</span></h3>
+    <div class="rows2" id="fRows"></div>
+  </div>
+  <div class="acc2">
+    <button class="a2 ink" onclick="verExtra()">DESIGNAR EXTRA ★</button>
+    <button class="a2 ink" onclick="wsp()">WHATSAPP</button>
+  </div>
+  <div class="glass sec"><h3><span>SUS SOLICITUDES</span><span id="fSolN">—</span></h3><div id="fSols"></div></div>
+  <div class="glass sec"><h3><span>SESIONES DE LA SEMANA</span><span>REGISTRO</span></h3><div id="fRegs"></div></div>
+  <div class="glass sec"><h3><span>EXTRAS DESIGNADAS ★</span><span id="fExN">0</span></h3><div id="fExtras"></div></div>
+  <div class="peligro">
+    <button class="pel frio" id="btnFrio" onclick="congelar()">CONGELAR</button>
+    <button class="pel rojo" onclick="cancelar()">CANCELAR</button>
+  </div>
+</div>
+
+<div class="vista" id="vExtra">
+  <div class="stop"><button class="sback" onclick="verFicha(F.id)">←</button>
+    <div class="stit">Designar extra ★</div></div>
+  <div class="ssub" id="xMeta">—</div>
+  <div class="glass solctx" id="xCtx" style="display:none">
+    <div class="sc1">🔔 ATENDIENDO SU SOLICITUD</div><div class="sc2" id="xCtxT"></div></div>
+  <div class="glass viva">
+    <h3><span>SU SEMANA HOY — LO QUE EL MOTOR VE</span><span id="xSemTit"></span></h3>
+    <div class="rows2" id="xRows"></div>
+  </div>
+  <div class="h3"><span>BIBLIOTECA · SESIONES DE LOS PROTOCOLOS</span><span>TOCA PARA EVALUAR</span></div>
+  <div id="xLista" style="padding-bottom:150px"><div class="vacio">Cargando biblioteca…</div></div>
+  <div class="guardia" id="xGuardia">
+    <div class="gt1">LA GUARDIA · VEREDICTO</div>
+    <div class="gmsg" id="xVer">Toca una sesión para evaluar su impacto.</div>
+    <button class="gb" id="xBtn" disabled onclick="designar()">DESIGNAR COMO EXTRA ★ →</button>
+  </div>
+</div>
+
+<script>
+const SB_URL='https://bbracfjvrnfnhhwhrpyq.supabase.co'
+const SB_KEY='sb_publishable_6IiV6uIViFgUa9d1ghjNZw_bd-t17fl'
+const sb = supabase.createClient(SB_URL, SB_KEY)
+const ESTADOS_OK = ['completada','parcial','incompleta']
+const C = { yo:null, socios:[], asig:{}, prog:{}, obj:{}, regs:{}, sems:{}, sols:[], hoy:[], extras:{}, protos:{} }
+let F = null, X = { cand:null }
+
+function aporteSesion(sesion, bc){
+  if (bc === undefined) bc = null
+  const a={}; const suma=function(g,v){a[g]=(a[g]||0)+v}
+  ;(sesion.bloques||[]).forEach(function(b,idx){
+    if (bc!==null && bc.indexOf(idx)===-1) return
+    const sets=b.sets||0
+    ;(b.ejercicios||[]).forEach(function(ej){
+      const g=(ej.grupo||'').toUpperCase()
+      if(!g||g==='MOVILIDAD')return
+      suma(g,sets*1.0)
+      Object.entries(ej.sinergistas||{}).forEach(function(pair){
+        const s2=pair[0].toUpperCase()
+        if(s2!=='MOVILIDAD')suma(s2,sets*(parseFloat(pair[1])||0))
+      })
+    })
+  }); return a
+}
+function calcularSemana(programa, registros, objetivos){
+  const acum={}; Object.keys(objetivos).forEach(function(g){acum[g]=0})
+  const validos=registros.filter(function(r){return ESTADOS_OK.indexOf(r.estado)>-1})
+  validos.forEach(function(r){
+    const s=programa.sesiones.find(function(x){return x.numero===r.sesion_numero}); if(!s)return
+    const a=aporteSesion(s,r.bloques_completados==null?null:r.bloques_completados)
+    Object.entries(a).forEach(function(pair){ if(pair[0] in acum)acum[pair[0]]+=pair[1] })})
+  const musculos=Object.entries(objetivos).map(function(pair){
+    const grupo=pair[0], o=pair[1]
+    return {grupo:grupo,series:+acum[grupo].toFixed(2),objetivo:o.mev,mav:o.mav==null?null:o.mav,
+      exigible:o.exigible!==false,fortalecido:o.exigible!==false&&acum[grupo]>=o.mev,
+      pct:o.mev>0?Math.round(acum[grupo]/o.mev*100):0} })
+  const ex=musculos.filter(function(m){return m.exigible})
+  const tot=ex.filter(function(m){return m.fortalecido}).length
+  const pct=ex.length?Math.round(ex.reduce(function(a,m){return a+Math.min(m.series/m.objetivo,1)},0)/ex.length*100):0
+  return { musculos:musculos, exigibles:ex.length, fortalecidos:tot, pct_dosis:pct,
+           completa:ex.length>0&&tot===ex.length, acum:acum }
+}
+function nombreEN(s){const x=(s||'').toUpperCase()
+  if(/SUPERIOR/.test(x))return 'UPPER BODY'; if(/INFERIOR/.test(x))return 'LOWER BODY'
+  if(/COMPLETO|FULL/.test(x))return 'TOTAL BODY'; return x}
+function lunes(){const h=new Date(),d=(h.getDay()+6)%7,l=new Date(h);l.setDate(h.getDate()-d);l.setHours(0,0,0,0);return l}
+function hoyISO(){return new Date().toISOString().split('T')[0]}
+function vista(id){document.querySelectorAll('.vista').forEach(function(v){v.classList.toggle('on',v.id===id)});window.scrollTo(0,0)
+  document.getElementById('xGuardia').classList.toggle('vis', id==='vExtra')}
+function toast(m){let t=document.querySelector('.toast');if(!t){t=document.createElement('div');t.className='toast';document.body.appendChild(t)}
+  t.textContent=m;t.classList.add('vis');clearTimeout(t._x);t._x=setTimeout(function(){t.classList.remove('vis')},3000)}
+async function salir(){ try{localStorage.removeItem('koach_pin')}catch(_e){}
+  await sb.auth.signOut(); location.reload() }
+const PIN_SALA='2026'
+function pinEntrar(){
+  const v=(document.getElementById('lPin').value||'').trim()
+  if(v!==PIN_SALA){ document.getElementById('lErr').textContent='PIN incorrecto'; return }
+  try{ localStorage.setItem('koach_pin', v) }catch(_e){}
+  entrarPin()
+}
+async function entrarPin(){
+  C.yo = { role:'admin', nombre:'Sala', _pin:true }
+  document.getElementById('rolBadge').textContent='SALA · PIN · SALIR'
+  vista('vSala')
+  document.getElementById('lista').innerHTML='<div class="vacio">Cargando la sala…</div>'
+  await loadSala()
+}
+
+async function login(){
+  const b=document.getElementById('lBtn'), e=document.getElementById('lErr')
+  e.textContent=''; b.disabled=true; b.textContent='VERIFICANDO…'
+  try{
+    const r = await sb.auth.signInWithPassword({
+      email:document.getElementById('lEmail').value.trim(), password:document.getElementById('lPass').value })
+    if(r.error) throw r.error
+    await entrar()
+  }catch(err){ e.textContent = /credential/i.test(err.message||'') ? 'Email o contraseña incorrectos' : ('Error: '+(err.message||'intenta de nuevo')) }
+  b.disabled=false; b.textContent='ENTRAR A LA SALA →'
+}
+async function entrar(){
+  const u = await sb.auth.getUser()
+  const user = u.data ? u.data.user : null
+  if(!user){ vista('vLogin'); return }
+  let q = await sb.from('profiles').select('*').eq('id',user.id).maybeSingle()
+  let perfil = q.data
+  if(!perfil){
+    const pin = prompt('Esta cuenta no tiene perfil KOACH.\nIngresa el PIN de administrador para crearlo como ADMIN:')
+    if(pin==='2026'){
+      const ins = await sb.from('profiles').insert({
+        id:user.id, nombre:'Editor', apellido:'KOACH', email:user.email, role:'admin', activo:true }).select().maybeSingle()
+      if(ins.error){ alert('No se pudo crear el perfil:\n'+ins.error.message+'\n\n(fotografia este mensaje)'); await sb.auth.signOut(); vista('vLogin'); return }
+      perfil = ins.data
+    } else { await sb.auth.signOut(); vista('vLogin'); return }
+  }
+  if(perfil.role==='socio'){ window.location.href='/app.html'; return }
+  C.yo = perfil
+  document.getElementById('rolBadge').textContent = (perfil.role==='admin'?'ADMIN ⚙ · ':'COACH · ')+(perfil.nombre||'').toUpperCase()+' · SALIR'
+  await loadSala()
+  vista('vSala')
+}
+
+async function loadSala(){
+  const lunesISO = lunes().toISOString().split('T')[0]
+  const rs = await sb.from('profiles').select('id,nombre,apellido,email,telefono,estado,activo,created_at')
+    .eq('role','socio').eq('activo',true).order('nombre')
+  C.socios = rs.data||[]
+  const ids = C.socios.map(function(s){return s.id})
+  C.asig={}; C.prog={}; C.obj={}; C.regs={}; C.sems={}; C.sols=[]; C.hoy=[]; C.extras={}
+  if(ids.length){
+    const ra = await sb.from('asignaciones').select('socio_id,protocolo_id,semana_actual,ciclo_actual,protocolos(*)')
+      .in('socio_id',ids).eq('activo',true)
+    ;(ra.data||[]).forEach(function(a){ C.asig[a.socio_id]=a; if(a.protocolos) C.protos[a.protocolo_id]=a.protocolos })
+    const pids=[...new Set((ra.data||[]).map(function(a){return a.protocolo_id}))]
+    if(pids.length){
+      const rses = await sb.from('sesiones_protocolo').select('*').in('protocolo_id',pids).lte('numero',3).order('numero')
+      const sids=(rses.data||[]).map(function(s){return s.id})
+      let rblo = {data:[]}
+      if(sids.length) rblo = await sb.from('bloques').select('*, bloque_ejercicios(*, ejercicios(*))').in('sesion_id',sids).order('bloque')
+      pids.forEach(function(pid){
+        C.prog[pid]={ sesiones:(rses.data||[]).filter(function(s){return s.protocolo_id===pid}).map(function(s){
+          return { numero:s.numero, id:s.id, nombre:nombreEN(s.objetivo)||('SESION '+s.numero),
+            bloques:(rblo.data||[]).filter(function(b){return b.sesion_id===s.id}).map(function(b){
+              return {sets:b.sets, ejercicios:(b.bloque_ejercicios||[]).map(function(be){
+                return {grupo:be.ejercicios?be.ejercicios.grupo_muscular:null,
+                        sinergistas:(be.ejercicios&&be.ejercicios.sinergistas)||{}}
+              }).filter(function(e){return e.grupo})} }) } }) } })
+      const robj = await sb.from('volumen_objetivos').select('*').in('protocolo_id',pids)
+      pids.forEach(function(pid){ C.obj[pid]={}
+        ;(robj.data||[]).filter(function(o){return o.protocolo_id===pid}).forEach(function(o){
+          const g=(o.grupo||'').toUpperCase()
+          if(!g||!(o.mev>0))return
+          C.obj[pid][g]={mev:o.mev,mav:o.mav==null?null:o.mav,
+            exigible:(o.dominante===undefined||o.dominante===null)?true:!!o.dominante} }) })
+    }
+    const rreg = await sb.from('sesiones_registro')
+      .select('id,socio_id,sesion_protocolo_id,estado,fecha,bloques_completados')
+      .in('socio_id',ids).gte('fecha',lunesISO)
+    ids.forEach(function(id){C.regs[id]=[]})
+    ;(rreg.data||[]).forEach(function(r){ (C.regs[r.socio_id]=C.regs[r.socio_id]||[]).push(r) })
+    C.socios.forEach(function(s){
+      const a=C.asig[s.id]
+      if(!a||!C.prog[a.protocolo_id]||!Object.keys(C.obj[a.protocolo_id]||{}).length){ C.sems[s.id]=null; return }
+      const prog=C.prog[a.protocolo_id]
+      const numPorId={}; prog.sesiones.forEach(function(x){numPorId[x.id]=x.numero})
+      const rs2=(C.regs[s.id]||[]).map(function(r){
+        return {sesion_numero:numPorId[r.sesion_protocolo_id],estado:r.estado,fecha:r.fecha,
+          bloques_completados:r.bloques_completados==null?null:r.bloques_completados}
+      }).filter(function(r){return r.sesion_numero})
+      C.sems[s.id]=calcularSemana(prog, rs2, C.obj[a.protocolo_id])
+    })
+    try{ const rsol = await sb.from('solicitudes').select('id,socio_id,tipo,detalle,created_at')
+      .eq('estado','pendiente').order('created_at',{ascending:false}).limit(20)
+      C.sols=rsol.data||[] }catch(_e){}
+    try{ const rhoy = await sb.from('sesiones_registro').select('id,socio_id,sesion_protocolo_id,validada_at')
+      .eq('fecha',hoyISO()).in('socio_id',ids)
+      C.hoy=rhoy.data||[] }catch(_e){ C.hoy=[] }
+    try{ const rdx = await sb.from('designaciones_extra').select('id,socio_id,sesion_protocolo_id,estado,motivo,created_at')
+      .in('socio_id',ids).neq('estado','retirada')
+      ids.forEach(function(id){C.extras[id]=[]})
+      ;(rdx.data||[]).forEach(function(d){(C.extras[d.socio_id]=C.extras[d.socio_id]||[]).push(d)}) }catch(_e){}
+  }
+  pintarSala()
+}
+function nomDe(id){ const s=C.socios.find(function(x){return x.id===id})
+  return s?(((s.nombre||'')+' '+(s.apellido||'')).trim()||s.email):'Socio' }
+function spNombre(spId){
+  let n=null
+  Object.values(C.prog).forEach(function(p){p.sesiones.forEach(function(s){if(s.id===spId)n=s.nombre})})
+  if(!n && X.sesiones){ const s=X.sesiones.find(function(x){return x.id===spId}); if(s)n=s.nombreEN }
+  return n||'SESION'
+}
+function pintarSala(){
+  window._tabs=window._tabs||[]; window._tabAct=window._tabAct||null
+  document.getElementById('mesa').innerHTML = window._tabs.map(function(id){
+    const on=id===window._tabAct
+    return '<div class="mtab '+(on?'on':'')+'" onclick="verFicha(\''+id+'\')">'+nomDe(id).split(' ')[0]+
+      ' <span class="x" onclick="event.stopPropagation();cerrarTab(\''+id+'\')">✕</span></div>'
+  }).join('')
+  let b=''
+  if(C.sols.length){
+    b+='<div class="glass band"><div class="bt1" style="color:var(--ama)">🔔 SOLICITUDES · '+C.sols.length+' PENDIENTE'+(C.sols.length>1?'S':'')+'</div>'+
+    C.sols.map(function(x){
+      const que = x.tipo==='extra' ? 'solicitó una <b>sesión extra</b>' : 'pidió <b>postergar '+(x.detalle||'una sesión')+'</b>'
+      return '<div class="brow"><div class="btx"><b>'+nomDe(x.socio_id)+'</b> '+que+
+        (x.tipo==='extra'&&x.detalle?' <small>· '+x.detalle+'</small>':'')+'</div>'+
+        (x.tipo==='extra'
+          ? '<button class="bbtn ink" onclick="atenderExtra(\''+x.id+'\',\''+x.socio_id+'\')">DESIGNAR ★</button>'
+          : '<button class="bbtn ink" onclick="atender(\''+x.id+'\')">ATENDER ✓</button>')+'</div>'
+    }).join('')+'</div>'
+  }
+  if(C.hoy.length){
+    b+='<div class="glass band"><div class="bt1" style="color:var(--ok)">✓ SESIONES DE HOY · '+C.hoy.length+'</div>'+
+    C.hoy.map(function(r){
+      return '<div class="brow"><div class="btx"><b>'+nomDe(r.socio_id)+'</b> · '+spNombre(r.sesion_protocolo_id)+'</div>'+
+      (r.validada_at?'<span style="font-size:8px;font-weight:900;color:var(--ok)">VALIDADA ✓</span>'
+        :'<button class="bbtn ok" onclick="validar(\''+r.id+'\')">VALIDAR ✓</button>')+'</div>'
+    }).join('')+'</div>'
+  }
+  document.getElementById('bandejas').innerHTML=b
+  const hoySet=new Set(C.hoy.map(function(r){return r.socio_id}))
+  const completas=Object.values(C.sems).filter(function(s){return s&&s.completa}).length
+  document.getElementById('pulso').innerHTML=
+    '<div class="glass st3"><b>'+C.socios.length+'</b><span>SOCIOS ACTIVOS</span></div>'+
+    '<div class="glass st3"><b>'+hoySet.size+'</b><span>ENTRENARON HOY</span></div>'+
+    '<div class="glass st3"><b>'+completas+'</b><span>SEMANAS COMPLETAS</span></div>'
+  document.getElementById('nSoc').textContent=C.socios.length+' EN EL CLUB'
+  document.getElementById('lista').innerHTML = C.socios.length ? C.socios.map(function(s){
+    const a=C.asig[s.id], sem=C.sems[s.id]
+    const meta=a?(((a.protocolos&&a.protocolos.programa)||'')+' · '+((a.protocolos&&a.protocolos.nivel)||'')+' · SEM '+(a.semana_actual||1)+'/6').toUpperCase():'SIN PROGRAMA'
+    let badge='<span class="badge off">SIN SEMANA</span>'
+    if(sem){ badge = sem.completa?'<span class="badge done">SEMANA ✓ · 100%</span>'
+      : hoySet.has(s.id)?'<span class="badge hoy">HOY ✓ · '+sem.pct_dosis+'%</span>'
+      : '<span class="badge off">'+sem.pct_dosis+'% DOSIS</span>' }
+    const barra = sem?'<div class="sem"><div class="bar"><div class="fill" style="width:'+Math.round(sem.fortalecidos/Math.max(sem.exigibles,1)*100)+'%"></div></div>'+
+      '<span class="x2">'+sem.fortalecidos+'<small>/'+sem.exigibles+'</small> METAS</span></div>':''
+    const ex=(C.extras[s.id]||[]).filter(function(e){return e.estado==='disponible'}).length
+    return '<div class="glass card" onclick="verFicha(\''+s.id+'\')"><div class="ctop">'+
+      '<div class="av">'+(((s.nombre||'?')[0])||'?').toUpperCase()+'</div>'+
+      '<div><div class="cn2">'+nomDe(s.id)+(ex?' <span style="color:var(--ama)">★'+ex+'</span>':'')+'</div><div class="cm2">'+meta+'</div></div>'+badge+'</div>'+barra+'</div>'
+  }).join('') : '<div class="vacio">Sin socios activos aún</div>'
+}
+
+async function atender(id){ try{ await sb.from('solicitudes').update({estado:'atendida',atendida_at:new Date().toISOString()}).eq('id',id)
+  toast('Solicitud atendida ✓'); await loadSala() }catch(e){ toast('No se pudo atender') } }
+async function atenderExtra(solId, socioId){ window._solPend=solId; verFicha(socioId); verExtra() }
+async function validar(id){ try{ await sb.from('sesiones_registro').update({validada_at:new Date().toISOString()}).eq('id',id)
+  toast('Sesión validada ✓'); await loadSala() }catch(e){ toast('No se pudo validar — ¿existe la columna validada_at?') } }
+function cerrarTab(id){ window._tabs=window._tabs.filter(function(x){return x!==id})
+  if(window._tabAct===id)window._tabAct=window._tabs[0]||null; pintarSala() }
+function verSala(){ vista('vSala'); pintarSala() }
+
+function verFicha(id){
+  F = C.socios.find(function(s){return s.id===id}); if(!F) return
+  window._tabs=window._tabs||[]; if(window._tabs.indexOf(id)===-1) window._tabs.push(id); window._tabAct=id
+  const a=C.asig[id], sem=C.sems[id]
+  const MES3=['ENE','FEB','MAR','ABR','MAY','JUN','JUL','AGO','SEP','OCT','NOV','DIC']
+  const d=F.created_at?new Date(F.created_at):null
+  document.getElementById('fNombre').textContent=nomDe(id)
+  document.getElementById('fEstado').textContent=(F.estado==='congelado')?'CONGELADA':'ACTIVA'
+  document.getElementById('btnFrio').textContent=(F.estado==='congelado')?'REACTIVAR':'CONGELAR'
+  document.getElementById('fMeta').textContent=((a?(((a.protocolos&&a.protocolos.programa)||'')+' · '+((a.protocolos&&a.protocolos.nivel)||'')+' · SEMANA '+(a.semana_actual||1)+'/6 · CICLO '+(a.ciclo_actual||1)):'SIN PROGRAMA')+
+    (d?(' · DESDE '+MES3[d.getMonth()]+' '+d.getFullYear()):'')).toUpperCase()
+  document.getElementById('fSemTit').innerHTML = sem?('<b>'+sem.pct_dosis+'%'+(sem.completa?' · SEMANA ✓':'')+'</b> · '+sem.fortalecidos+'/'+sem.exigibles+' METAS'):'SIN PROGRAMA'
+  document.getElementById('fRows').innerHTML = sem?sem.musculos.filter(function(m){return m.exigible}).map(function(m){
+    let z='z0',c=''
+    if(m.mav&&m.series>m.mav){z='z3';c='c3'} else if(m.mav&&m.series>=m.mav*0.85){z='z2';c='c2'}
+    else if(m.fortalecido){z='z1';c='c1'} else if(m.series>0){z='z1'}
+    return '<div class="row2"><div class="g">'+m.grupo+'</div><div class="bar2"><div class="fill2 '+z+'" style="width:'+Math.min(m.pct,100)+'%"></div></div>'+
+      '<div class="v '+c+'">'+(m.fortalecido?'✓ ':'')+m.series+'/'+m.objetivo+'</div></div>'
+  }).join(''):'<div class="vacio">Asigna un programa desde el panel admin</div>'
+  const sols=C.sols.filter(function(x){return x.socio_id===id})
+  document.getElementById('fSolN').textContent=sols.length+' PENDIENTE'+(sols.length===1?'':'S')
+  document.getElementById('fSols').innerHTML = sols.length?sols.map(function(x){
+    return '<div class="fila"><div><div class="fn">'+(x.tipo==='extra'?'Sesión extra':'Postergar '+(x.detalle||''))+'</div>'+
+    '<div class="fm">PENDIENTE</div></div>'+
+    '<button class="bbtn ink" style="margin-left:auto" onclick="'+(x.tipo==='extra'?('atenderExtra(\''+x.id+'\',\''+id+'\')'):('atender(\''+x.id+'\')'))+'">'+
+    (x.tipo==='extra'?'DESIGNAR ★':'ATENDER ✓')+'</button></div>'
+  }).join('') : '<div class="vacio">Sin solicitudes pendientes</div>'
+  const DIAS3=['LUN','MAR','MIE','JUE','VIE','SAB','DOM']
+  const regs=(C.regs[id]||[]).slice().sort(function(a2,b2){return a2.fecha<b2.fecha?1:-1})
+  document.getElementById('fRegs').innerHTML = regs.length?regs.map(function(r){
+    const dd=new Date(r.fecha+'T12:00:00')
+    return '<div class="fila"><div><div class="fn">'+spNombre(r.sesion_protocolo_id)+'</div>'+
+    '<div class="fm">'+DIAS3[(dd.getDay()+6)%7]+' '+dd.getDate()+' · '+(r.estado||'').toUpperCase()+'</div></div></div>'
+  }).join('') : '<div class="vacio">Aún sin sesiones esta semana</div>'
+  const exs=(C.extras[id]||[])
+  const disp=exs.filter(function(e){return e.estado==='disponible'}).length
+  document.getElementById('fExN').textContent=disp+' DISPONIBLE'+(disp===1?'':'S')
+  document.getElementById('fExtras').innerHTML = exs.length?exs.map(function(e){
+    return '<div class="fila"><div><div class="fn">★ '+spNombre(e.sesion_protocolo_id)+'</div>'+
+    '<div class="fm">'+(e.motivo?e.motivo+' · ':'')+e.estado.toUpperCase()+'</div></div>'+
+    (e.estado==='disponible'?'<button class="bbtn" style="background:rgba(180,68,44,.08);color:var(--rojo);margin-left:auto" onclick="retirarExtra(\''+e.id+'\')">RETIRAR</button>':'')+
+    '</div>'
+  }).join('') : '<div class="vacio">Sin extras designadas</div>'
+  vista('vFicha')
+}
+function wsp(){ const t=((F&&F.telefono)||'').replace(/\D/g,'')
+  if(!t){toast('Este socio no tiene teléfono registrado');return}
+  window.open('https://wa.me/'+t,'_blank') }
+async function congelar(){
+  const nuevo=F.estado==='congelado'?null:'congelado'
+  if(!confirm(nuevo?('¿Congelar el acceso de '+nomDe(F.id)+'?'):('¿Reactivar a '+nomDe(F.id)+'?')))return
+  try{ await sb.from('profiles').update({estado:nuevo}).eq('id',F.id); F.estado=nuevo
+    toast(nuevo?'Acceso congelado':'Acceso reactivado ✓'); verFicha(F.id) }catch(e){ toast('No se pudo actualizar') }
+}
+async function cancelar(){
+  if(!confirm('¿CANCELAR la membresía de '+nomDe(F.id)+'? El socio no podrá entrar.'))return
+  try{ await sb.from('profiles').update({activo:false,estado:'cancelado'}).eq('id',F.id)
+    toast('Membresía cancelada'); await loadSala(); verSala() }catch(e){ toast('No se pudo cancelar') }
+}
+async function retirarExtra(id){ try{ await sb.from('designaciones_extra').update({estado:'retirada'}).eq('id',id)
+  toast('Extra retirada'); await loadSala(); verFicha(F.id) }catch(e){ toast('No se pudo retirar') } }
+
+async function verExtra(){
+  if(!F) return
+  const a=C.asig[F.id]
+  document.getElementById('xMeta').textContent=(nomDe(F.id)+' · '+(a?(((a.protocolos&&a.protocolos.programa)||'')+' '+((a.protocolos&&a.protocolos.nivel)||'')):'')).toUpperCase()
+  const sol=C.sols.find(function(s){return s.socio_id===F.id&&s.tipo==='extra'})
+  document.getElementById('xCtx').style.display=sol?'block':'none'
+  if(sol) document.getElementById('xCtxT').innerHTML='<b>'+nomDe(F.id).split(' ')[0]+'</b> solicitó una sesión extra'+(sol.detalle?' · '+sol.detalle:'')
+  const sem=C.sems[F.id]
+  document.getElementById('xSemTit').textContent=sem?(sem.pct_dosis+'% · '+sem.fortalecidos+'/'+sem.exigibles):''
+  document.getElementById('xRows').innerHTML=document.getElementById('fRows').innerHTML
+  X={cand:null, sol:(sol&&sol.id)||window._solPend||null, sesiones:[]}
+  document.getElementById('xVer').textContent='Toca una sesión para evaluar su impacto.'
+  document.getElementById('xBtn').disabled=true
+  vista('vExtra')
+  const sexo=a&&a.protocolos?a.protocolos.sexo:null
+  try{ const rp = await sb.from('protocolos').select('*').eq('sexo',sexo)
+    ;(rp.data||[]).forEach(function(p){ if(!C.protos[p.id]) C.protos[p.id]=p }) }catch(_e){}
+  const protos=Object.values(C.protos).filter(function(p){return !sexo||p.sexo===sexo})
+  const pids=protos.map(function(p){return p.id})
+  const rs = await sb.from('sesiones_protocolo').select('*').in('protocolo_id',pids).lte('numero',3).order('numero')
+  X.sesiones=(rs.data||[]).map(function(s){
+    const pr=C.protos[s.protocolo_id]||{}
+    return Object.assign({}, s, { nombreEN:nombreEN(s.objetivo)||('SESION '+s.numero),
+      protoTag:((pr.programa||'')+' · '+(pr.nivel||'')).toUpperCase() }) })
+  document.getElementById('xLista').innerHTML = X.sesiones.length ? X.sesiones.map(function(s,i){
+    return '<div class="glass pl" id="xp'+i+'" onclick="evaluar('+i+')"><div class="pn">'+s.nombreEN+'</div>'+
+    '<div class="pm">'+s.protoTag+'</div><div class="impacto" id="xi'+i+'">Toca para evaluar el impacto en su semana.</div></div>'
+  }).join('') : '<div class="vacio">Sin sesiones en la biblioteca</div>'
+}
+async function evaluar(i){
+  const s=X.sesiones[i]; if(!s) return
+  document.querySelectorAll('.pl').forEach(function(p){p.classList.toggle('on', p.id==='xp'+i)})
+  if(!s.bloques){
+    const rb = await sb.from('bloques').select('*, bloque_ejercicios(*, ejercicios(*))').eq('sesion_id',s.id).order('bloque')
+    s.bloques=(rb.data||[]).map(function(b){
+      return {sets:b.sets, ejercicios:(b.bloque_ejercicios||[]).map(function(be){
+        return {grupo:be.ejercicios?be.ejercicios.grupo_muscular:null,
+                sinergistas:(be.ejercicios&&be.ejercicios.sinergistas)||{}}
+      }).filter(function(e){return e.grupo})} })
+  }
+  const ap=aporteSesion(s)
+  const a=C.asig[F.id], obj=(a&&C.obj[a.protocolo_id])||{}, sem=C.sems[F.id]
+  const acum=sem?sem.acum:{}
+  let llena=[], excede=[]
+  Object.entries(ap).forEach(function(pair){
+    const g=pair[0], v=pair[1], o=obj[g]; if(!o) return
+    const nuevo=(acum[g]||0)+v
+    if(o.mav&&nuevo>o.mav) excede.push(g+' '+nuevo.toFixed(1)+'/'+o.mav)
+    else if((acum[g]||0)<o.mev&&v>0) llena.push(g+' +'+v.toFixed(1))
+  })
+  const resumen=Object.entries(ap).sort(function(a2,b2){return b2[1]-a2[1]}).slice(0,4)
+    .map(function(pair){return pair[0]+' +'+pair[1].toFixed(1)}).join(' · ')
+  document.getElementById('xi'+i).innerHTML='Impacto: <b>'+(resumen||'sin carga de volumen')+'</b>'
+  X.cand=s
+  const b=document.getElementById('xBtn'); b.disabled=false
+  if(excede.length){
+    document.getElementById('xVer').innerHTML='<b>'+s.nombreEN+'</b> — llevaría <b>'+excede.join(' · ')+' 🔴 sobre el techo</b>. El motor no la recomienda esta semana.'
+    b.textContent='DESIGNAR IGUAL (BAJO TU CRITERIO) →'
+  } else if(llena.length){
+    document.getElementById('xVer').innerHTML='<b>'+s.nombreEN+'</b> — suma donde hay espacio: <b>'+llena.join(' · ')+' 🟢</b>. ✓ Designable.'
+    b.textContent='DESIGNAR COMO EXTRA ★ →'
+  } else {
+    document.getElementById('xVer').innerHTML='<b>'+s.nombreEN+'</b> — volumen específico dentro de la ventana. ✓ Designable.'
+    b.textContent='DESIGNAR COMO EXTRA ★ →'
+  }
+}
+async function designar(){
+  if(!X.cand||!F) return
+  const b=document.getElementById('xBtn'); b.disabled=true
+  try{
+    const r = await sb.from('designaciones_extra').insert({ socio_id:F.id, sesion_protocolo_id:X.cand.id,
+      motivo:(X.sol?'Solicitud del socio':'Criterio del coach') })
+    if(r.error) throw r.error
+    if(X.sol){ try{ await sb.from('solicitudes').update({estado:'atendida',atendida_at:new Date().toISOString()}).eq('id',X.sol) }catch(_e){} }
+    window._solPend=null
+    toast('★ Designada — '+nomDe(F.id).split(' ')[0]+' ya la ve en su Plan')
+    await loadSala(); verFicha(F.id)
+  }catch(e){ console.error(e); toast('No se pudo designar — ¿corriste capa2-extras.sql?'); b.disabled=false }
+}
+
+window._nuRol='socio'
+function toggleAlta(){ const f=document.getElementById('fAlta'); f.style.display=f.style.display==='none'?'block':'none' }
+function setRol(r){ window._nuRol=r
+  document.getElementById('rSocio').classList.toggle('on',r==='socio')
+  document.getElementById('rCoach').classList.toggle('on',r==='coach') }
+async function crearUsuario(){
+  const nombre=document.getElementById('nuNombre').value.trim(), apellido=document.getElementById('nuApellido').value.trim()
+  const email=document.getElementById('nuEmail').value.trim(), pass=document.getElementById('nuPass').value
+  const msg=document.getElementById('nuMsg'), btn=document.getElementById('nuBtn')
+  msg.className='amsg'; msg.textContent=''
+  if(!nombre||!email||pass.length<4){ msg.className='amsg err'
+    msg.textContent=pass.length<4?'La clave necesita mínimo 4 caracteres':'Completa nombre y correo'; return }
+  btn.disabled=true; btn.textContent='CREANDO…'
+  try{
+    const sbAlta=supabase.createClient(SB_URL,SB_KEY,{auth:{persistSession:false,autoRefreshToken:false}})
+    const r = await sbAlta.auth.signUp({email:email,password:pass,options:{data:{nombre:nombre,apellido:apellido}}})
+    if(r.error) throw r.error
+    if(!r.data||!r.data.user||!r.data.user.id) throw new Error('No se obtuvo el usuario')
+    const r2 = await sb.from('profiles').insert({id:r.data.user.id,nombre:nombre,apellido:apellido,email:email,role:window._nuRol,activo:true})
+    if(r2.error && !/duplicate/i.test(r2.error.message||'')) throw r2.error
+    msg.className='amsg ok'
+    msg.innerHTML='✓ <b>'+nombre+'</b> creado como <b>'+window._nuRol.toUpperCase()+'</b>. '+
+      (window._nuRol==='coach'?'Entra aquí mismo con su correo y clave.':'Entra en /app.html — asígnale su programa.')
+    btn.textContent='CREAR OTRO →'; btn.disabled=false
+    ;['nuNombre','nuApellido','nuEmail','nuPass'].forEach(function(x){document.getElementById(x).value=''})
+    await loadSala()
+  }catch(e){ msg.className='amsg err'
+    msg.textContent=/already|registered/i.test(e.message||'')?'Ese correo ya tiene cuenta'
+      :/rate/i.test(e.message||'')?'Límite de Supabase — espera unos minutos':'No se pudo crear: '+(e.message||'')
+    btn.disabled=false; btn.textContent='CREAR USUARIO →' }
+}
+
+;(async function(){ const s = await sb.auth.getSession()
+  if(s.data && s.data.session){ await entrar(); return }
+  let pin=null; try{ pin=localStorage.getItem('koach_pin') }catch(_e){}
+  if(pin===PIN_SALA){ await entrarPin(); return }
+  vista('vLogin') })()
+</script>
+</body>
+</html>
