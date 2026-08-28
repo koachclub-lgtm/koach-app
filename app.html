@@ -288,7 +288,7 @@ html,body{background:linear-gradient(170deg,#F3F2EF 0%,#E7E6E2 55%,#DAD9D4 100%)
 
   <!-- ══ HOME ══ -->
   <div class="vista conTab" id="vHome">
-    <div class="hbar"><span class="hk" title="v2.4">KOACH</span><div class="hav" id="hAv" onclick="salir()">K</div></div>
+    <div class="hbar"><span class="hk" title="v2.5">KOACH</span><div class="hav" id="hAv" onclick="salir()">K</div></div>
     <div class="ctx"><div class="fecha" id="hFecha">—</div><div class="prog" id="hProg">—</div></div>
     <div class="anillo">
       <svg width="180" height="180" viewBox="0 0 180 180">
@@ -577,6 +577,10 @@ async function entrar(){
   try{
     const { data:{ user } } = await sb.auth.getUser()
     const { data: perfil } = await sb.from('profiles').select('*').eq('id', user.id).single()
+    if (perfil && (perfil.role === 'coach' || perfil.role === 'admin')){
+      window.location.href = '/'   // los coaches viven en la Sala — puerta correcta
+      return
+    }
     S.perfil = perfil
     document.getElementById('hAv').textContent = (perfil.nombre||'K')[0].toUpperCase()
 
