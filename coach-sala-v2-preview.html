@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>KOACH · Coach — Sala v2 (Mockup)</title>
+<style>
+:root{--tinta:#121210;--gris:#7C7B76;--suave:#BEBDB8;--ok:#1F9D55;--ama:#C5A13C;--hueso:#F3F2EF}
+*{margin:0;padding:0;box-sizing:border-box;font-family:-apple-system,'Helvetica Neue',Arial,sans-serif;-webkit-tap-highlight-color:transparent}
+body{min-height:100dvh;background:linear-gradient(170deg,#F3F2EF 0%,#E7E6E2 55%,#DAD9D4 100%);
+  color:var(--tinta);max-width:520px;margin:0 auto;padding:16px 14px 40px}
+.glass{background:rgba(255,255,255,.6);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);
+  border:1px solid rgba(255,255,255,.8);border-radius:20px;box-shadow:0 8px 24px rgba(30,30,28,.08)}
+.hbar{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
+.hk{font-size:11px;font-weight:900;letter-spacing:.38em}
+.rol{font-size:8px;font-weight:900;letter-spacing:.14em;background:var(--tinta);color:var(--hueso);padding:7px 12px;border-radius:11px}
+.tabs{display:flex;gap:16px;margin-bottom:14px;border-bottom:1px solid rgba(18,18,16,.08);padding-bottom:10px}
+.tabx{font-size:9px;letter-spacing:.16em;font-weight:900;color:var(--suave);padding-bottom:2px}
+.tabx.on{color:var(--tinta);border-bottom:2px solid var(--tinta)}
+/* Mesa de trabajo */
+.mtabs{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:10px}
+.mtab{display:flex;align-items:center;gap:7px;background:rgba(255,255,255,.7);border:1px solid rgba(255,255,255,.85);
+  border-radius:14px;padding:9px 13px;font-size:10px;font-weight:900;cursor:pointer}
+.mtab.on{background:var(--tinta);color:var(--hueso)}
+.mtab .x{opacity:.5;padding:0 2px}
+.work{background:rgba(255,255,255,.8);border:1.5px solid var(--tinta);border-radius:20px;padding:15px 16px;margin-bottom:14px}
+.work .wn{font-size:15px;font-weight:900}
+.work .wm{font-size:8px;color:var(--gris);font-weight:900;letter-spacing:.1em;margin:3px 0 12px}
+.acciones{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.acc{border:none;border-radius:14px;padding:13px 8px;font-size:8.5px;font-weight:900;letter-spacing:.08em;cursor:pointer;text-align:center}
+.acc.ink{background:var(--tinta);color:var(--hueso)}
+.acc.soft{background:rgba(18,18,16,.07);color:var(--tinta)}
+.acc.ok{background:rgba(31,157,85,.12);color:var(--ok)}
+/* Solicitudes */
+.sol{padding:13px 15px;margin-bottom:12px}
+.sol .st{font-size:7.5px;letter-spacing:.18em;color:var(--ama);font-weight:900;margin-bottom:4px}
+.srow{display:flex;align-items:center;gap:10px;padding:10px 0;border-top:1px solid rgba(18,18,16,.06)}
+.srow:first-of-type{border-top:none}
+.srow .stx2{flex:1;font-size:11px;line-height:1.55;color:var(--tinta)}
+.srow .stx2 small{color:var(--gris);font-size:9px}
+.aten{flex-shrink:0;background:var(--tinta);color:var(--hueso);border:none;border-radius:10px;padding:9px 12px;
+  font-size:8px;font-weight:900;letter-spacing:.08em;cursor:pointer}
+/* Stats + tarjetas */
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:12px}
+.st3{padding:14px 6px;text-align:center}
+.st3 b{font-size:23px;font-weight:900;display:block}
+.st3 span{font-size:6.5px;letter-spacing:.14em;color:var(--gris);font-weight:900}
+.card{padding:14px 16px;margin-bottom:10px;cursor:pointer}
+.ctop{display:flex;align-items:center;gap:12px}
+.av{width:40px;height:40px;border-radius:50%;background:var(--tinta);color:var(--hueso);display:flex;
+  align-items:center;justify-content:center;font-weight:900;font-size:14px;flex-shrink:0}
+.cn2{font-size:13px;font-weight:900}
+.cm2{font-size:7.5px;color:var(--gris);font-weight:800;letter-spacing:.08em;margin-top:2px}
+.badge{margin-left:auto;font-size:7.5px;font-weight:900;letter-spacing:.08em;padding:6px 10px;border-radius:10px;flex-shrink:0}
+.badge.hoy{color:var(--ok);background:rgba(31,157,85,.1)}
+.badge.off{color:var(--suave);background:rgba(18,18,16,.05)}
+.abrir{flex-shrink:0;background:rgba(18,18,16,.06);border:none;border-radius:10px;padding:8px 10px;
+  font-size:8px;font-weight:900;color:var(--tinta);cursor:pointer;margin-left:8px}
+.sem{display:flex;align-items:center;gap:10px;margin-top:11px}
+.bar{flex:1;height:7px;background:rgba(18,18,16,.08);border-radius:5px;position:relative}
+.fill{position:absolute;top:0;left:0;height:100%;background:var(--tinta);border-radius:5px}
+.x2{font-size:10px;font-weight:900;white-space:nowrap}
+.x2 small{color:var(--suave)}
+</style>
+</head>
+<body>
+
+<div class="hbar"><span class="hk">KOACH</span><span class="rol">COACH · JONATHAN</span></div>
+<div class="tabs"><span class="tabx on">SALA</span><span class="tabx">SOCIOS</span><span class="tabx">ALERTAS</span><span class="tabx">PLANILLA</span></div>
+
+<!-- MESA DE TRABAJO: pestañas de socios abiertos -->
+<div class="mtabs" id="mtabs"></div>
+<div id="work"></div>
+
+<!-- SOLICITUDES -->
+<div class="glass sol" id="solBox">
+  <div class="st">🔔 SOLICITUDES · <span id="solN">2</span> PENDIENTES</div>
+  <div class="srow" id="s1"><div class="stx2"><b>Ignacia</b> solicitó una <b>sesión extra</b> — organiza su objetivo <small>· Semana 100% · hace 20 min</small></div>
+    <button class="aten" onclick="atender('s1')">ATENDER ✓</button></div>
+  <div class="srow" id="s2"><div class="stx2"><b>Matías</b> pidió <b>postergar LOWER BODY</b> — reorganiza su semana <small>· hace 1 h</small></div>
+    <button class="aten" onclick="atender('s2')">ATENDER ✓</button></div>
+</div>
+
+<!-- PULSO -->
+<div class="stats">
+  <div class="glass st3"><b>8</b><span>SOCIOS ACTIVOS</span></div>
+  <div class="glass st3"><b>3</b><span>ENTRENARON HOY</span></div>
+  <div class="glass st3"><b>2</b><span>SEMANAS COMPLETAS</span></div>
+</div>
+
+<!-- SOCIOS -->
+<div id="lista"></div>
+
+<script>
+const SOCIOS = [
+ {id:'a', n:'Ignacia', ap:'Sanhueza', meta:'STRONG · BÁSICO · SEM 5/6', x:2, den:2, badge:['hoy','SEMANA ✓'], tel:true},
+ {id:'b', n:'Matías', ap:'Jason', meta:'STRONG · AVANZADO · SEM 1/6', x:5, den:9, badge:['hoy','HOY ✓'], tel:true},
+ {id:'c', n:'Sebastián', ap:'Martínez', meta:'STRONG · INTERMEDIO · SEM 4/6', x:3, den:9, badge:['off','PRÓX · UPPER PUSH'], tel:true},
+ {id:'d', n:'Carolina', ap:'Reyes', meta:'BURN · BÁSICO · SEM 2/6', x:1, den:3, badge:['off','PRÓX · TOTAL BODY'], tel:false},
+]
+let abiertos = ['a','b'], activo = 'a'
+function pintar(){
+  document.getElementById('mtabs').innerHTML = abiertos.map(id=>{
+    const s = SOCIOS.find(x=>x.id===id)
+    return `<div class="mtab ${id===activo?'on':''}" onclick="activo='${id}';pintar()">${s.n}
+      <span class="x" onclick="event.stopPropagation();cerrar('${id}')">✕</span></div>`
+  }).join('')
+  const a = SOCIOS.find(x=>x.id===activo && abiertos.includes(activo))
+  document.getElementById('work').innerHTML = !a ? '' : `<div class="work">
+    <div class="wn">${a.n} ${a.ap}</div><div class="wm">${a.meta} · ${a.x}/${a.den} MÚSCULOS ESTA SEMANA</div>
+    <div class="acciones">
+      <button class="acc ink">FICHA · EDITAR Y DESIGNAR →</button>
+      <button class="acc soft">ARMAR SEMANA (CAPA 2)</button>
+      ${a.tel?'<button class="acc ok">WHATSAPP</button>':''}
+      <button class="acc soft" onclick="cerrar('${a.id}')">CERRAR PESTAÑA</button>
+    </div></div>`
+  document.getElementById('lista').innerHTML = SOCIOS.map((s,i)=>`
+    <div class="glass card">
+      <div class="ctop"><div class="av">${s.n[0]}</div>
+        <div><div class="cn2">${s.n} ${s.ap}</div><div class="cm2">${s.meta}</div></div>
+        <span class="badge ${s.badge[0]}">${s.badge[1]}</span>
+        <button class="abrir" onclick="abrir('${s.id}')">⧉ ABRIR</button></div>
+      <div class="sem"><div class="bar"><div class="fill" style="width:${Math.round(s.x/s.den*100)}%"></div></div>
+        <span class="x2">${s.x}<small>/${s.den}</small> MÚSCULOS</span></div>
+    </div>`).join('')
+}
+function abrir(id){ if(!abiertos.includes(id)) abiertos.push(id); activo=id; pintar() }
+function cerrar(id){ abiertos=abiertos.filter(x=>x!==id); if(activo===id) activo=abiertos[0]||null; pintar() }
+function atender(id){ document.getElementById(id).remove()
+  const n=document.getElementById('solN'); n.textContent=+n.textContent-1
+  if (+n.textContent<1) document.getElementById('solBox').remove() }
+pintar()
+</script>
+</body>
+</html>
