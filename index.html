@@ -744,6 +744,22 @@
 .k2c-acc.ok{background:rgba(31,157,85,.12);color:#1F9D55}
 .k2c-abrir{flex-shrink:0;background:rgba(18,18,16,.06);border:none;border-radius:10px;padding:7px 10px;
   font-size:8px;font-weight:900;letter-spacing:.06em;color:#121210;cursor:pointer;margin-left:8px}
+.k2c-nuevo{width:100%;background:#121210;color:#F3F2EF;border:none;border-radius:16px;padding:13px;
+  font-size:9px;font-weight:900;letter-spacing:.12em;cursor:pointer;margin-bottom:10px}
+.k2c-form{background:rgba(255,255,255,.8);border:1.5px solid #121210;border-radius:18px;padding:14px 15px;margin-bottom:12px}
+.k2c-form h4{font-size:7.5px;letter-spacing:.18em;color:#7C7B76;font-weight:900;margin-bottom:10px}
+.k2c-form input{width:100%;background:rgba(255,255,255,.9);border:1px solid rgba(18,18,16,.12);border-radius:12px;
+  padding:12px 13px;font-size:13px;font-weight:600;color:#121210;outline:none;margin-bottom:9px}
+.k2c-roles{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-bottom:10px}
+.k2c-rol{border:1.5px solid rgba(18,18,16,.15);background:none;border-radius:12px;padding:11px;
+  font-size:8.5px;font-weight:900;letter-spacing:.1em;color:#7C7B76;cursor:pointer}
+.k2c-rol.on{background:#121210;color:#F3F2EF;border-color:#121210}
+.k2c-crear{width:100%;background:#121210;color:#F3F2EF;border:none;border-radius:13px;padding:13px;
+  font-size:9px;font-weight:900;letter-spacing:.12em;cursor:pointer}
+.k2c-crear:disabled{opacity:.5}
+.k2c-msg{font-size:9.5px;line-height:1.6;margin-top:9px;font-weight:700}
+.k2c-msg.ok{color:#1F9D55}.k2c-msg.err{color:#B4442C}
+.k2c-nota{font-size:7px;letter-spacing:.06em;color:#BEBDB8;font-weight:800;margin-top:8px;line-height:1.6}
 
 </style>
 </head>
@@ -1516,6 +1532,13 @@ async function loadProfileAndEnter() {
       return
     }
 
+    if (!profile) {
+      // Cuenta sin perfil: nada de limbos — aviso claro y de vuelta al login
+      alert('Tu cuenta existe pero no tiene perfil KOACH todavía. Pídele al admin que la complete (rol socio o coach).')
+      await sb.auth.signOut()
+      goTo('pgLogin')
+      return
+    }
     if (profile.role === 'admin') {
       await loadAdminData()
       goTo('pgCoach')
@@ -1531,7 +1554,9 @@ async function loadProfileAndEnter() {
     }
   } catch(e) {
     console.error('Error loading profile:', e)
-    goTo('pgSocio')
+    alert('No pudimos cargar tu perfil. Revisa tu conexión e intenta de nuevo.')
+    await sb.auth.signOut().catch(()=>{})
+    goTo('pgLogin')
   }
 }
 
@@ -4523,6 +4548,54 @@ function k2PintarTabs(){
   }
   cont.innerHTML = `<div class="k2c-tabs">${chips}</div>${work}`
 }
+window._nuRol = 'socio'
+function k2ToggleAlta(){
+  const f = document.getElementById('k2cAlta')
+  f.style.display = f.style.display==='none' ? 'block' : 'none'
+}
+function k2Rol(r){
+  window._nuRol = r
+  document.getElementById('rolSocio').classList.toggle('on', r==='socio')
+  document.getElementById('rolCoach').classList.toggle('on', r==='coach')
+}
+async function k2CrearUsuario(){
+  const nombre = document.getElementById('nuNombre').value.trim()
+  const apellido = document.getElementById('nuApellido').value.trim()
+  const email = document.getElementById('nuEmail').value.trim()
+  const pass = document.getElementById('nuPass').value
+  const msg = document.getElementById('nuMsg')
+  const btn = document.getElementById('nuBtn')
+  msg.className = 'k2c-msg'; msg.textContent = ''
+  if (!nombre || !email || pass.length < 4){
+    msg.className='k2c-msg err'; msg.textContent = pass.length<4 ? 'La clave necesita mínimo 4 caracteres' : 'Completa nombre y correo'
+    return
+  }
+  btn.disabled = true; btn.textContent = 'CREANDO…'
+  try {
+    // Cliente secundario: crea la cuenta SIN tocar tu sesión de coach/admin
+    const sbAlta = supabase.createClient(SB_URL, SB_KEY, { auth: { persistSession:false, autoRefreshToken:false } })
+    const { data, error } = await sbAlta.auth.signUp({ email, password: pass,
+      options: { data: { nombre, apellido } } })
+    if (error) throw error
+    if (!data?.user?.id) throw new Error('No se obtuvo el usuario')
+    const { error: e2 } = await sb.from('profiles').insert({
+      id: data.user.id, nombre, apellido, email, role: window._nuRol, activo: true })
+    if (e2 && !/duplicate/i.test(e2.message||'')) throw e2
+    msg.className = 'k2c-msg ok'
+    msg.innerHTML = `✓ <b>${nombre}</b> creado como <b>${window._nuRol.toUpperCase()}</b>.
+      ${window._nuRol==='coach' ? 'Ya puede entrar por la URL raíz desde su teléfono — aterriza en la Sala.'
+        : 'Ya puede entrar en /app.html — asígnale su programa desde su ficha.'}`
+    btn.textContent = 'CREAR OTRO →'; btn.disabled = false
+    ;['nuNombre','nuApellido','nuEmail','nuPass'].forEach(i=>document.getElementById(i).value='')
+  } catch(e) {
+    console.error(e)
+    msg.className = 'k2c-msg err'
+    msg.textContent = /already|registered/i.test(e.message||'') ? 'Ese correo ya tiene cuenta'
+      : /rate/i.test(e.message||'') ? 'Límite de Supabase alcanzado — espera unos minutos'
+      : 'No se pudo crear: ' + (e.message || 'intenta de nuevo')
+    btn.disabled = false; btn.textContent = 'CREAR USUARIO →'
+  }
+}
 async function k2Validar(id) {
   try {
     await sb.from('sesiones_registro').update({ validada_at: new Date().toISOString() }).eq('id', id)
@@ -4672,7 +4745,24 @@ async function renderSalaV2(socios) {
     } catch(e) { console.error('solicitudes:', e) }
 
     window._sociosRender = activos;
-    cont.innerHTML = `<div id="k2cMesa"></div>` + solHTML + hoyHTML + `
+    cont.innerHTML = `
+      <button class="k2c-nuevo" onclick="k2ToggleAlta()">+ NUEVO USUARIO · SOCIO O COACH</button>
+      <div class="k2c-form" id="k2cAlta" style="display:none">
+        <h4>CREAR USUARIO — ENTRA AL INSTANTE CON SU CORREO Y CLAVE</h4>
+        <input id="nuNombre" placeholder="Nombre">
+        <input id="nuApellido" placeholder="Apellido">
+        <input id="nuEmail" type="email" placeholder="correo@ejemplo.cl" autocomplete="off">
+        <input id="nuPass" placeholder="Clave (mín. 4 — ej: 4 últimos del RUT)" autocomplete="off">
+        <div class="k2c-roles">
+          <button class="k2c-rol on" id="rolSocio" onclick="k2Rol('socio')">SOCIO</button>
+          <button class="k2c-rol" id="rolCoach" onclick="k2Rol('coach')">COACH</button>
+        </div>
+        <button class="k2c-crear" id="nuBtn" onclick="k2CrearUsuario()">CREAR USUARIO →</button>
+        <div class="k2c-msg" id="nuMsg"></div>
+        <div class="k2c-nota">⚠ Requiere "Confirm email" DESACTIVADO en Supabase (Authentication → Providers → Email)
+        para que el usuario entre sin confirmar correo. Si está activado, le llegará un correo primero.</div>
+      </div>
+      <div id="k2cMesa"></div>` + solHTML + hoyHTML + `
       <div class="k2c-stats">
         <div class="k2c-st"><b>${activos.length}</b><span>SOCIOS ACTIVOS</span></div>
         <div class="k2c-st"><b>${entrenaronHoy}</b><span>ENTRENARON HOY</span></div>
