@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>KOACH · Perfil — Mockup v2</title>
+<style>
+:root{--tinta:#121210;--gris:#7C7B76;--suave:#BEBDB8;--ok:#1F9D55;--hueso:#F3F2EF}
+*{margin:0;padding:0;box-sizing:border-box;font-family:-apple-system,'Helvetica Neue',Arial,sans-serif;-webkit-tap-highlight-color:transparent}
+body{min-height:100dvh;background:linear-gradient(170deg,#F3F2EF 0%,#E7E6E2 55%,#DAD9D4 100%);
+  color:var(--tinta);display:flex;flex-direction:column;max-width:520px;margin:0 auto;padding:16px 14px 0}
+.glass{background:rgba(255,255,255,.55);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);
+  border:1px solid rgba(255,255,255,.75);border-radius:22px;box-shadow:0 8px 24px rgba(30,30,28,.08)}
+.hbar{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+.hk{font-size:11px;font-weight:900;letter-spacing:.38em}
+.ph{font-size:21px;font-weight:900;margin:2px 2px 3px}
+.ps{font-size:8.5px;letter-spacing:.16em;color:var(--gris);font-weight:800;margin:0 2px 14px}
+/* Identidad */
+.idcard{display:flex;align-items:center;gap:15px;padding:18px 17px;margin-bottom:11px}
+.idav{width:54px;height:54px;border-radius:50%;background:var(--tinta);color:var(--hueso);display:flex;
+  align-items:center;justify-content:center;font-size:20px;font-weight:900}
+.idn{font-size:17px;font-weight:900}
+.idm{font-size:8px;color:var(--gris);font-weight:900;letter-spacing:.12em;margin-top:4px}
+/* Membresía */
+.memb{background:var(--tinta);color:var(--hueso);border-radius:22px;padding:18px;margin-bottom:11px;
+  display:flex;justify-content:space-between;align-items:center;cursor:pointer;box-shadow:0 12px 28px rgba(18,18,16,.26)}
+.memb .mt{font-size:8px;letter-spacing:.22em;color:#8B8A85;font-weight:900}
+.memb .mv{font-size:14px;font-weight:900;margin-top:5px}
+.memb .me{font-size:9px;font-weight:900;color:var(--ok);text-align:right;line-height:1.6}
+/* Coach */
+.coach{display:flex;align-items:center;gap:13px;padding:15px 16px;margin-bottom:11px;cursor:pointer}
+.cav{width:42px;height:42px;border-radius:50%;background:rgba(18,18,16,.08);display:flex;align-items:center;
+  justify-content:center;font-size:15px;font-weight:900}
+.cn{font-size:13px;font-weight:900}
+.cm{font-size:7.5px;color:var(--gris);font-weight:900;letter-spacing:.1em;margin-top:3px}
+.cwsp{margin-left:auto;font-size:8px;font-weight:900;letter-spacing:.08em;color:var(--ok);
+  background:rgba(31,157,85,.1);padding:8px 12px;border-radius:11px}
+/* Filas */
+.filas{padding:4px 0;margin-bottom:11px}
+.contacto{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-bottom:11px}
+.cbtn{border:none;border-radius:18px;padding:15px 10px;font-size:9px;font-weight:900;letter-spacing:.1em;cursor:pointer;text-align:center}
+.cbtn.wsp{background:rgba(31,157,85,.12);color:var(--ok)}
+.cbtn.mail{background:rgba(18,18,16,.07);color:var(--tinta)}
+.gl{padding:9px 0;border-top:1px solid rgba(18,18,16,.05)}
+.gl:first-child{border-top:none;padding-top:2px}
+.gl b{display:block;font-size:9px;letter-spacing:.14em;color:var(--tinta);font-weight:900;margin-bottom:3px}
+.gl span{font-size:10.5px;color:var(--gris);line-height:1.6}
+.gl span em{color:var(--tinta);font-style:normal;font-weight:700}
+.fila{display:flex;align-items:center;justify-content:space-between;padding:14px 17px;cursor:pointer}
+.fila + .fila{border-top:1px solid rgba(18,18,16,.06)}
+.fn{font-size:13px;font-weight:800}
+.fs{font-size:10px;color:var(--suave);font-weight:900}
+.det{display:none;padding:0 17px 13px;font-size:11px;color:var(--gris);line-height:1.75}
+.det.vis{display:block}
+.det b{color:var(--tinta)}
+.cerrar{width:100%;background:none;border:1px solid rgba(180,68,44,.35);color:#B4442C;border-radius:18px;
+  padding:14px;font-size:10px;font-weight:900;letter-spacing:.14em;cursor:pointer;margin-bottom:10px}
+.tabbar{position:sticky;bottom:14px;margin:18px auto 14px;width:min(96%,470px);display:grid;grid-template-columns:repeat(4,1fr);
+  background:rgba(255,255,255,.72);backdrop-filter:blur(24px);border:1px solid rgba(255,255,255,.85);
+  border-radius:22px;padding:8px 7px;box-shadow:0 14px 34px rgba(30,30,28,.16)}
+.tb{border:none;background:none;text-align:center;padding:6px 0;border-radius:14px;color:var(--gris)}
+.tb .ti{font-size:13px;display:block}
+.tb .tl{font-size:6px;letter-spacing:.16em;font-weight:900;margin-top:2px;display:block}
+.tb.on{background:var(--tinta);color:var(--hueso)}
+</style>
+</head>
+<body>
+
+<div class="hbar"><span class="hk">KOACH</span><span></span></div>
+<div class="ph">Perfil</div>
+<div class="ps">TU CUENTA · KOACH CLUB</div>
+
+<div class="glass idcard">
+  <div class="idav">S</div>
+  <div><div class="idn">Sebastián Martínez</div><div class="idm">PROGRAMA STRONG · INTERMEDIO · SOCIO DESDE MAR 2026</div></div>
+</div>
+
+<div class="memb" onclick="alertaW('membresía')">
+  <div><div class="mt">MEMBRESÍA</div><div class="mv">KOACH CLUB</div></div>
+  <div class="me">ACTIVA<br>GESTIONAR →</div>
+</div>
+
+<div class="contacto">
+  <button class="cbtn wsp" onclick="alertaW('coach')">WHATSAPP KOACH →</button>
+  <button class="cbtn mail" onclick="alertaW('mail')">CORREO →</button>
+</div>
+
+<div class="glass filas">
+  <div>
+    <div class="fila" onclick="det('dDatos')"><span class="fn">Mis datos</span><span class="fs">›</span></div>
+    <div class="det" id="dDatos"><b>Email:</b> sebastian@correo.cl<br><b>WhatsApp:</b> +56 9 8765 4321<br>Para actualizar tus datos, habla con recepción.</div>
+  </div>
+  <div>
+    <div class="fila" onclick="det('dMetodo')"><span class="fn">Vocabulario del método</span><span class="fs">›</span></div>
+    <div class="det" id="dMetodo">
+      <div class="gl"><b>SERIE EFECTIVA</b><span>La unidad de trabajo que cuenta. La suma de series es lo que <em>dosificamos</em> para estimular tus músculos. Los compuestos suman fracción a los músculos que asisten — por eso hay decimales.</span></div>
+      <div class="gl"><b>DOSIS</b><span>Tu cantidad ideal de trabajo semanal por músculo — la que promueve adaptaciones y el <em>equilibrio de todo tu cuerpo</em>.</span></div>
+      <div class="gl"><b>MÍNIMO Y TECHO</b><span>Los rangos que validan el trabajo suficiente: bajo el mínimo no hay estímulo; sobre el techo solo hay fatiga. Tu barra: <em>8/12</em> = llevas 8 de 12.</span></div>
+      <div class="gl"><b>EL % (ANILLO)</b><span>Promedio de avance de <em>todos</em> tus músculos hacia su dosis. Solo el equilibrio llena el círculo. ⚪ sin dosis · 🟢 óptimo · 🟡 cerca del techo · 🔴 exceso.</span></div>
+      <div class="gl"><b>SESIÓN DESIGNADA</b><span>Diseñada por tu coach para tu semana. Se desbloquean en orden — la secuencia también es dosificación.</span></div>
+      <div class="gl"><b>B1 · B2 · B3</b><span>Activación → Fuerza principal → Cierre. La arquitectura de tus 60 minutos.</span></div>
+      <div class="gl"><b>ANCLA ◆</b><span>El ejercicio que no cambia en las 6 semanas: ahí se mide tu progresión — mismo movimiento, más carga.</span></div>
+      <div class="gl"><b>PR · RIR 0</b><span>Tu carga máxima por patrón (Upper Push · Pull · Squat · Hinge), al máximo real y con reps declaradas: <em>110 KG × 8</em>.</span></div>
+      <div class="gl"><b>CICLO</b><span>6 semanas de progresión. Cada lunes la semana parte limpia — <em>más fuerte que la anterior</em>.</span></div></div>
+  </div>
+  <div class="fila" onclick="alertaW('ayuda')"><span class="fn">Ayuda</span><span class="fs">›</span></div>
+</div>
+
+<button class="cerrar">CERRAR SESIÓN</button>
+
+<div class="tabbar">
+  <button class="tb"><span class="ti">●</span><span class="tl">HOY</span></button>
+  <button class="tb"><span class="ti">◎</span><span class="tl">PLAN</span></button>
+  <button class="tb"><span class="ti">▲</span><span class="tl">AVANCES</span></button>
+  <button class="tb on"><span class="ti">■</span><span class="tl">PERFIL</span></button>
+</div>
+
+<script>
+function det(id){ document.getElementById(id).classList.toggle('vis') }
+function alertaW(x){ 
+  let t=document.querySelector('.toast')
+  if(!t){t=document.createElement('div');t.className='toast';t.style.cssText='position:fixed;bottom:90px;left:50%;transform:translateX(-50%);background:rgba(18,18,16,.94);color:#F3F2EF;padding:11px 16px;border-radius:14px;font-size:10px;font-weight:700;z-index:999;text-align:center;transition:opacity .25s'
+    document.body.appendChild(t)}
+  t.textContent = x==='coach' ? '→ WhatsApp KOACH · +56 9 7133 3042' : x==='mail' ? '→ koachclub@gmail.com' : x==='membresía' ? '→ WhatsApp KOACH: gestionar membresía' : '→ WhatsApp KOACH: ayuda'
+  t.style.opacity='1'; clearTimeout(t._x); t._x=setTimeout(()=>t.style.opacity='0',2200)
+}
+</script>
+</body>
+</html>
