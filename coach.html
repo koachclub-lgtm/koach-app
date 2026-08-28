@@ -138,6 +138,13 @@ input{width:100%;background:rgba(255,255,255,.7);border:1px solid rgba(255,255,2
 .selRow{display:flex;align-items:center;gap:10px;padding:11px 6px;border-top:1px solid rgba(18,18,16,.06);cursor:pointer}
 .selG{font-size:6.5px;font-weight:900;background:rgba(18,18,16,.07);border-radius:8px;padding:5px 8px}
 .selN{font-size:12px;font-weight:800}
+.lbl{display:block;font-size:5.5px;letter-spacing:.12em;font-weight:900;color:#BEBDB8;text-align:center;margin-bottom:2px}
+.vd{display:grid;grid-template-columns:56px 1fr 84px;gap:8px;align-items:center;margin-bottom:7px}
+.vd .g3{font-size:7px;font-weight:900;color:#7C7B76}
+.vbar{height:7px;background:rgba(18,18,16,.08);border-radius:5px;position:relative;overflow:hidden}
+.vreal{position:absolute;top:0;left:0;height:100%;border-radius:5px;z-index:2}
+.vproy{position:absolute;top:0;left:0;height:100%;border-radius:5px;opacity:.32}
+.vv{font-size:6.5px;font-weight:900;text-align:right;color:#7C7B76;line-height:1.5}
 </style>
 </head>
 <body>
@@ -160,7 +167,7 @@ input{width:100%;background:rgba(255,255,255,.7);border:1px solid rgba(255,255,2
 </div></div>
 
 <div class="vista" id="vSala">
-  <div class="hbar"><span class="hk" title="c3.0">KOACH</span><span class="rol" id="rolBadge" onclick="salir()">COACH</span></div>
+  <div class="hbar"><span class="hk" title="c3.1">KOACH</span><span class="rol" id="rolBadge" onclick="salir()">COACH</span></div>
   <button class="nuevo" onclick="toggleAlta()">+ NUEVO USUARIO · SOCIO O COACH</button>
   <button class="nuevo" style="background:rgba(255,255,255,.65);color:#121210;border:1.5px solid rgba(18,18,16,.15)" onclick="verBib()">📚 RUTINAS ESTÁNDAR · BIBLIOTECA</button>
   <div class="glass aform" id="fAlta" style="display:none">
@@ -233,11 +240,14 @@ input{width:100%;background:rgba(255,255,255,.7);border:1px solid rgba(255,255,2
     <div class="stit">Planificador</div>
     <span class="rol" id="pEstado" style="margin-left:auto">BORRADOR</span></div>
   <div class="ssub" id="pMeta">—</div>
+  <div class="glass viva" id="pVivo" style="display:none">
+    <h3><span>SEMANA EN VIVO</span><span id="pVivoTit">—</span></h3>
+    <div id="pVivoDose"></div>
+  </div>
   <div class="mtabs" id="pTabs"></div>
-  <div id="pBloques" style="padding-bottom:230px"></div>
-  <div class="guardia vis2" id="pGuardia">
-    <div class="gt1">DOSIFICACIÓN SEMANAL POR ESTÍMULO · EN TIEMPO REAL</div>
-    <div id="pDose" style="max-height:130px;overflow-y:auto;margin-bottom:10px"></div>
+  <div id="pBloques" style="padding-bottom:120px"></div>
+  <div class="guardia vis2" id="pGuardia" style="padding-top:11px">
+    <div class="gt1" id="pFootMsg">SE GUARDA AL INSTANTE · LA APP ORIENTA, EL COACH PROGRAMA</div>
     <button class="gb" onclick="aplicarPrograma()">APLICAR PROGRAMA →</button>
   </div>
 </div>
@@ -898,7 +908,7 @@ async function abrirPlan(pid, proto, opts){
               nombre:(be.ejercicios&&be.ejercicios.nombre)||'—',
               grupo:(be.ejercicios&&be.ejercicios.grupo_muscular)||'',
               sinergistas:(be.ejercicios&&be.ejercicios.sinergistas)||{},
-              kg:(be.kg_objetivo!=null?be.kg_objetivo:20),
+              kg:(be.kg_objetivo!=null?be.kg_objetivo:null), orden:(be.orden!=null?be.orden:null),
               reps:(be.reps_txt!=null&&be.reps_txt!==''?be.reps_txt:(be.reps!=null?String(be.reps):'10')) }
           }) } }) } }) }
   const obj = (!esBib && F && C.asig[F.id]) ? C.obj[C.asig[F.id].protocolo_id] : null
@@ -912,6 +922,11 @@ async function abrirPlan(pid, proto, opts){
       P.objetivos[g]={mev:o.mev,mav:o.mav==null?null:o.mav,exigible:(o.dominante===undefined||o.dominante===null)?true:!!o.dominante} })
   }
   pintarPlan()
+}
+function esTiempo(it){
+  const g = (it.grupo||'').toUpperCase()
+  if (g==='CARDIO' || g==='MOVILIDAD' || g==='MOB') return true
+  return /SEG|MIN\b/i.test(String(it.reps||''))
 }
 function bloqueTag(t, idx){
   const x = String(t||'').toUpperCase()
@@ -936,11 +951,14 @@ function pintarPlan(){
       '<div class="stp"><span>SETS</span><button onclick="stepSets('+bi+',-1)">−</button><b>'+b.sets+'</b><button onclick="stepSets('+bi+',1)">+</button></div>'+
       '<div class="stp"><span>DESC</span><button onclick="stepDesc('+bi+',-15)">−</button><b>'+b.desc+'s</b><button onclick="stepDesc('+bi+',15)">+</button></div></div>'+
     b.items.map(function(it){
+      const tiempo = esTiempo(it)
+      const ult = ULT[it.ejId]
+      const ultTxt = ult ? ('ÚLTIMA · '+(ult.peso_kg!=null?ult.peso_kg+' KG':'—')) : 'SIN REGISTRO ANTERIOR'
       return '<div class="lin">'+
         '<div class="chipG">'+(it.grupo||'—')+'</div>'+
-        '<button class="ejN" onclick="abrirSelector(\'cambiar\','+bi+',\''+it.beId+'\')">'+it.nombre+'<small>'+(ULT[it.ejId]?('ÚLT: '+ULT[it.ejId].peso_kg+' KG · CAMBIAR ⇄'):'CAMBIAR ⇄')+'</small></button>'+
-        '<input class="linI" value="'+it.kg+'" inputmode="decimal" onchange="editKg(\''+it.beId+'\',this.value)" title="kg">'+
-        '<input class="linI" value="'+String(it.reps).replace(/"/g,'')+'" onchange="editReps(\''+it.beId+'\',this.value)" title="reps">'+
+        '<button class="ejN" onclick="abrirSelector(\'cambiar\','+bi+',\''+it.beId+'\')">'+it.nombre+'<small>'+ultTxt+' · CAMBIAR ⇄</small></button>'+
+        '<div><span class="lbl">PESO · KG</span><input class="linI" value="'+(it.kg==null?'':it.kg)+'" placeholder="—" inputmode="decimal" onchange="editKg(\''+it.beId+'\',this.value)"></div>'+
+        '<div><span class="lbl">'+(tiempo?'TIEMPO':'REPS')+'</span><input class="linI" value="'+String(it.reps).replace(/"/g,'')+'" placeholder="'+(tiempo?'30 SEG':'10')+'" onchange="editReps(\''+it.beId+'\',this.value)"></div>'+
         '<button class="linX" onclick="quitarEj(\''+it.beId+'\')">✕</button>'+
       '</div>'
     }).join('')+
@@ -1037,14 +1055,19 @@ async function elegirEj(ejId){
     if(r.error)toast('Cambio: '+r.error.message)
   } else {
     const b=P.sesiones[P.tab].bloques[SEL.bi]
-    const r=await sb.from('bloque_ejercicios').insert({bloque_id:b.id,ejercicio_id:e.id,kg_objetivo:20,reps_txt:'10'}).select().single()
+    let maxOrd = 0
+    b.items.forEach(function(i2){ const o=parseInt(i2.orden); if(!isNaN(o)&&o>maxOrd) maxOrd=o })
+    const nuevoOrd = maxOrd + 1
+    const r=await sb.from('bloque_ejercicios').insert({bloque_id:b.id,ejercicio_id:e.id,orden:nuevoOrd,reps_txt:'10'}).select().single()
     if(r.error){ toast('Agregar: '+r.error.message); return }
-    b.items.push({beId:r.data.id,ejId:e.id,nombre:e.nombre,grupo:e.grupo_muscular,sinergistas:e.sinergistas||{},kg:20,reps:'10'})
+    b.items.push({beId:r.data.id,ejId:e.id,nombre:e.nombre,grupo:e.grupo_muscular,sinergistas:e.sinergistas||{},kg:null,reps:'10',orden:nuevoOrd})
     pintarPlan()
   }
 }
 function calcDose(){
-  if(!P||!P.objetivos){ document.getElementById('pDose').innerHTML=''; return }
+  const vivo=document.getElementById('pVivo')
+  if(!P||P.bib||!P.objetivos||!Object.keys(P.objetivos).length){ if(vivo)vivo.style.display='none'; return }
+  vivo.style.display='block'
   const prog={sesiones:P.sesiones.map(function(s){
     return {bloques:s.bloques.map(function(b){
       return {sets:b.sets,ejercicios:b.items.map(function(it){return {grupo:it.grupo,sinergistas:it.sinergistas}})} }) } })}
@@ -1052,18 +1075,34 @@ function calcDose(){
   Object.keys(P.objetivos).forEach(function(g){acum[g]=0})
   prog.sesiones.forEach(function(s){ const a=aporteSesion(s)
     Object.entries(a).forEach(function(p2){ if(p2[0] in acum) acum[p2[0]]+=p2[1] }) })
-  document.getElementById('pDose').innerHTML = Object.entries(P.objetivos)
+  const sem = (F && C.sems[F.id]) ? C.sems[F.id] : null
+  const real = sem ? sem.acum : {}
+  const hechas = {}
+  ;((F && C.regs[F.id])||[]).forEach(function(r){ if(ESTADOS_OK.indexOf(r.estado)>-1 && r.estado!=='incompleta') hechas[r.sesion_protocolo_id]=1 })
+  let nH = 0
+  P.sesiones.forEach(function(s){ if(hechas[s.id]) nH++ })
+  const pct = sem ? sem.pct_dosis : 0
+  document.getElementById('pVivoTit').innerHTML = '<b>'+nH+'/'+P.sesiones.length+' SESIONES · '+pct+'%</b>'
+  let alerta = ''
+  document.getElementById('pVivoDose').innerHTML = Object.entries(P.objetivos)
     .filter(function(p2){return p2[1].exigible!==false})
     .map(function(p2){
-      const g=p2[0], o=p2[1], v=acum[g]||0
+      const g=p2[0], o=p2[1], v=acum[g]||0, rv=(real[g]||0)
       let cls='d-bajo', tag='BAJO'
-      if(o.mav&&v>o.mav){cls='d-tope';tag='EXCESO'}
+      if(o.mav&&v>o.mav){cls='d-tope';tag='EXCESO'; if(!alerta) alerta='⚠ '+g+' '+(+v.toFixed(1))+'/'+o.mav+' TECHO'}
       else if(o.mav&&v>=o.mav*0.85){cls='d-alto';tag='ALTO'}
       else if(v>=o.mev){cls='d-opt';tag='ÓPTIMO'}
-      const w=Math.min(Math.round(v/((o.mav||o.mev*1.6))*100),100)
-      return '<div class="dr"><span class="g2">'+g+'</span><div class="dbar"><div class="dfill '+cls+'" style="width:'+w+'%"></div></div>'+
-        '<span class="dv">'+(+v.toFixed(1))+' · '+tag+'</span></div>'
+      const base=(o.mav||o.mev*1.6)
+      const wR=Math.min(Math.round(rv/base*100),100)
+      const wP=Math.min(Math.round(v/base*100),100)
+      const col=(cls==='d-tope'?'#B4442C':cls==='d-alto'?'#C5A13C':'#1F9D55')
+      return '<div class="vd"><span class="g3">'+g+'</span>'+
+        '<div class="vbar"><div class="vproy" style="width:'+wP+'%;background:#121210"></div>'+
+        '<div class="vreal" style="width:'+wR+'%;background:'+col+'"></div></div>'+
+        '<span class="vv">REAL '+(+rv.toFixed(1))+' / '+o.mev+'<br>PROY '+(+v.toFixed(1))+' · '+tag+'</span></div>'
     }).join('')
+  const fm=document.getElementById('pFootMsg')
+  if(fm) fm.textContent = alerta ? (alerta+' — LA APP ORIENTA, EL COACH PROGRAMA') : 'SE GUARDA AL INSTANTE · LA APP ORIENTA, EL COACH PROGRAMA'
 }
 async function aplicarPrograma(){
   const r=await sb.from('protocolos').update({estado:'activo'}).eq('id',P.pid)
