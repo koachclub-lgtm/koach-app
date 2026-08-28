@@ -288,7 +288,7 @@ html,body{background:linear-gradient(170deg,#F3F2EF 0%,#E7E6E2 55%,#DAD9D4 100%)
 
   <!-- ══ HOME ══ -->
   <div class="vista conTab" id="vHome">
-    <div class="hbar"><span class="hk" title="v2.5">KOACH</span><div class="hav" id="hAv" onclick="salir()">K</div></div>
+    <div class="hbar"><span class="hk" title="v3.0">KOACH</span><div class="hav" id="hAv" onclick="salir()">K</div></div>
     <div class="ctx"><div class="fecha" id="hFecha">—</div><div class="prog" id="hProg">—</div></div>
     <div class="anillo">
       <svg width="180" height="180" viewBox="0 0 180 180">
@@ -486,7 +486,8 @@ function calcularSemana(programa, registros, objetivos){
     Object.entries(ap).forEach(([g,v])=>{ if (g in acum2) acum2[g]+=v })
     const pct2 = ex.length ? Math.round(ex.reduce((a,m)=>a+Math.min(acum2[m.grupo]/m.objetivo,1),0)/ex.length*100) : 0
     proxima = { numero:prox.numero, id:prox.id, nombre:prox.nombre||('SESIÓN '+prox.numero),
-                fortaleceria:c.length, suma_pct: Math.max(0, pct2 - pct_dosis) }
+                fortaleceria:c.length, suma_pct: Math.max(0, pct2 - pct_dosis),
+                _extra: !!prox._extra, _desigId: prox._desigId||null }
   }
   return { musculos, exigibles:ex.length, fortalecidos:tot, pct_dosis, proxima,
            completa: ex.length>0 && tot===ex.length }
@@ -605,6 +606,35 @@ async function entrar(){
       }))
     })) }
 
+    // Extras designadas por el coach (★): se suman al programa del socio
+    try{
+      const { data: dx } = await sb.from('designaciones_extra')
+        .select('id, sesion_protocolo_id, estado')
+        .eq('socio_id', perfil.id).neq('estado','retirada')
+      const dxOk = (dx||[])
+      if (dxOk.length){
+        const exIds = [...new Set(dxOk.map(d=>d.sesion_protocolo_id))]
+        const { data: exSes } = await sb.from('sesiones_protocolo').select('*').in('id', exIds)
+        const { data: exBlo } = await sb.from('bloques')
+          .select('*, bloque_ejercicios(*, ejercicios(*))').in('sesion_id', exIds).order('bloque')
+        dxOk.forEach((d,i)=>{
+          const s = (exSes||[]).find(x=>x.id===d.sesion_protocolo_id)
+          if (!s) return
+          S.programa.sesiones.push({
+            numero: 100+i, id: s.id, _extra: true, _desigId: d.id, _estado: d.estado,
+            nombre: '★ '+(nombreEN(s.objetivo)||('SESIÓN '+s.numero)),
+            bloquesFull:(exBlo||[]).filter(b=>b.sesion_id===s.id),
+            bloques:(exBlo||[]).filter(b=>b.sesion_id===s.id).map(b=>({
+              sets:b.sets,
+              ejercicios:(b.bloque_ejercicios||[]).map(be=>({
+                grupo:be.ejercicios?.grupo_muscular, sinergistas:be.ejercicios?.sinergistas||{}
+              })).filter(e=>e.grupo)
+            }))
+          })
+        })
+      }
+    }catch(_){}
+
     const lunesISO = lunes().toISOString().split('T')[0]
     const { data: regs } = await sb.from('sesiones_registro')
       .select('sesion_protocolo_id, estado, fecha, bloques_completados')
@@ -669,7 +699,8 @@ function pintarHome(){
   document.getElementById('hSaludo').textContent = saludoDe(ctx)
   const hechasSes = S.registros.filter(r=>r.estado!=='incompleta').length
   let voz
-  if (sem.completa) voz = `<b>Base completa</b> — 100%, tus <b>${den}/${den} estímulos</b> cumplidos. Las extras suman <b>volumen específico sobre tu base</b>. Solicítala y tu coach la designa.`
+  if (sem.completa && sem.proxima && sem.proxima._extra) voz = `<b>Base completa</b> — 100%. Tu coach te designó <b>${sem.proxima.nombre}</b>: volumen específico sobre tu base. <b>Está lista cuando tú lo estés.</b>`
+  else if (sem.completa) voz = `<b>Base completa</b> — 100%, tus <b>${den}/${den} estímulos</b> cumplidos. Las extras suman <b>volumen específico sobre tu base</b>. Solicítala y tu coach la designa.`
   else if (sem.proxima){
     const sp=sem.proxima.suma_pct
     voz = `Es <b>${DIA[dowL]}</b> y llevas el <b>${dosis}%</b> de tu dosis semanal. Tu próxima sesión suma <b>+${sp}%</b>`+
@@ -691,10 +722,14 @@ function pintarHome(){
   const cta=document.getElementById('hCta')
   const hoyISO2 = new Date().toISOString().split('T')[0]
   const entrenoHoy = S.registros.some(r=>r.fecha===hoyISO2 && r.estado!=='incompleta')
-  if (entrenoHoy && !sem.completa){
+  if (entrenoHoy){
     cta.disabled=true; cta.onclick=null
     document.getElementById('hCtaT').textContent='HOY YA SUMASTE ✓'
     document.getElementById('hCtaS').textContent='LA RECUPERACIÓN TAMBIÉN ENTRENA — NOS VEMOS MAÑANA'
+  } else if (sem.completa && sem.proxima && sem.proxima._extra){
+    cta.disabled=false; cta.onclick=abrirSesion
+    document.getElementById('hCtaT').textContent='COMENZAR EXTRA ★'
+    document.getElementById('hCtaS').textContent=sem.proxima.nombre.replace('★ ','')+' · DESIGNADA POR TU COACH · SUMA VOLUMEN ESPECÍFICO'
   } else if (sem.completa){ cta.disabled=false
     if (S._solExtra){
       document.getElementById('hCtaT').textContent='SOLICITUD ENVIADA ✓'
@@ -775,6 +810,7 @@ async function abrirSesion(){
   const hoyC = new Date().toISOString().split('T')[0]
   if (S.registros.some(r=>r.fecha===hoyC && r.estado!=='incompleta')){
     toast('Hoy ya sumaste tu sesión — la recuperación también entrena. Nos vemos mañana.'); return }
+  S._desigActual = S.sem.proxima._desigId || null
   const ses = S.programa.sesiones.find(x=>x.numero===S.sem.proxima.numero)
   S.sesionAbierta = ses
   S.pesos={}; S.marcas={}; S.setsHechos={}; S.bloquesListos=0
@@ -897,6 +933,11 @@ async function finalizar(){
     if (inserts.length) await sb.from('cargas').insert(inserts)
   }catch(e){ console.error(e); toast('No se pudo guardar — intenta de nuevo o avisa a tu coach'); return }
   S._dirty = true; S._avOk = false
+  if (S._desigActual){
+    try{ await sb.from('designaciones_extra').update({ estado:'usada', usada_at:new Date().toISOString() })
+      .eq('id', S._desigActual) }catch(_){}
+    S._desigActual = null
+  }
   // Recompensa
   const rw=S.frases?.recompensa
   document.getElementById('rwSes').textContent = ses.nombre+' · COMPLETADA'
@@ -935,7 +976,7 @@ function pintarPlan(){
   try {
     const acumT = {}
     Object.keys(S.objetivos).forEach(g=>acumT[g]=0)
-    S.programa.sesiones.forEach(s=>{ const a=aporteSesion(s)
+    S.programa.sesiones.filter(s=>!s._extra).forEach(s=>{ const a=aporteSesion(s)
       Object.entries(a).forEach(([g,v])=>{ if (g in acumT) acumT[g]+=v }) })
     const ex = Object.entries(S.objetivos).filter(([g,o])=>o.exigible!==false)
     const pctT = ex.length ? Math.round(ex.reduce((a,[g,o])=>a+Math.min(acumT[g]/o.mev,1),0)/ex.length*100) : 0
@@ -946,7 +987,7 @@ function pintarPlan(){
     }).join('')
     document.getElementById('pProyPct').textContent = (pctT>=100?'✓ EQUILIBRIO · ':'')+pctT+'% DE TU DOSIS'
     document.getElementById('pProyNota').textContent =
-      `TU BASE: ${S.programa.sesiones.length} SESIONES DISEÑADAS PARA COMPLETAR TUS ${ex.length}/${ex.length} ESTÍMULOS — LAS EXTRAS ★ SUMAN VOLUMEN ESPECÍFICO ENCIMA`
+      `TU BASE: ${S.programa.sesiones.filter(s=>!s._extra).length} SESIONES DISEÑADAS PARA COMPLETAR TUS ${ex.length}/${ex.length} ESTÍMULOS — LAS EXTRAS ★ SUMAN VOLUMEN ESPECÍFICO ENCIMA`
     document.getElementById('pProy').style.display='block'
   } catch(_){}
   document.getElementById('pSub').textContent =
