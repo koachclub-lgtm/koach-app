@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>KOACH · Coach — Biblioteca de Plantillas (Mockup)</title>
+<style>
+:root{--tinta:#121210;--gris:#7C7B76;--suave:#BEBDB8;--ok:#1F9D55;--ama:#C5A13C;--hueso:#F3F2EF}
+*{margin:0;padding:0;box-sizing:border-box;font-family:-apple-system,'Helvetica Neue',Arial,sans-serif;-webkit-tap-highlight-color:transparent}
+body{min-height:100dvh;background:linear-gradient(170deg,#F3F2EF 0%,#E7E6E2 55%,#DAD9D4 100%);
+  color:var(--tinta);max-width:520px;margin:0 auto;padding:16px 14px 40px}
+.glass{background:rgba(255,255,255,.6);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);
+  border:1px solid rgba(255,255,255,.8);border-radius:20px;box-shadow:0 8px 24px rgba(30,30,28,.08)}
+.stop{display:flex;align-items:center;gap:12px;margin-bottom:2px}
+.sback{width:38px;height:38px;border-radius:50%;background:rgba(255,255,255,.6);border:1px solid rgba(255,255,255,.85);font-size:16px}
+.stit{font-size:17px;font-weight:900}
+.ssub{font-size:8px;color:var(--gris);font-weight:900;letter-spacing:.12em;margin:2px 0 12px 50px}
+.crear{width:100%;background:var(--tinta);color:var(--hueso);border:none;border-radius:16px;padding:14px;
+  font-size:9.5px;font-weight:900;letter-spacing:.12em;cursor:pointer;margin-bottom:12px;box-shadow:0 10px 24px rgba(18,18,16,.22)}
+.filtros{display:flex;gap:7px;margin-bottom:12px}
+.fch{border:none;border-radius:12px;padding:9px 14px;font-size:8.5px;font-weight:900;letter-spacing:.08em;
+  background:rgba(255,255,255,.55);color:var(--gris);cursor:pointer;border:1px solid rgba(255,255,255,.8)}
+.fch.on{background:var(--tinta);color:var(--hueso);border-color:var(--tinta)}
+.pl{padding:14px 16px;margin-bottom:10px}
+.ph2{display:flex;align-items:baseline;gap:8px}
+.pn{font-size:13.5px;font-weight:900}
+.tag{font-size:6.5px;font-weight:900;letter-spacing:.1em;padding:4px 8px;border-radius:8px}
+.tag.base{background:rgba(18,18,16,.07);color:var(--gris)}
+.tag.extra{background:rgba(197,161,60,.14);color:var(--ama)}
+.pm{font-size:7.5px;color:var(--gris);font-weight:800;letter-spacing:.08em;margin-top:4px;line-height:1.7}
+.uso{font-size:7px;color:var(--suave);font-weight:900;letter-spacing:.08em;margin-top:6px}
+.accs{display:flex;gap:6px;margin-top:11px}
+.acc{border:none;border-radius:10px;padding:9px 12px;font-size:8px;font-weight:900;letter-spacing:.06em;cursor:pointer}
+.acc.ed{background:var(--tinta);color:var(--hueso)}
+.acc.gr{background:rgba(18,18,16,.06);color:var(--tinta)}
+</style>
+</head>
+<body>
+
+<div class="stop"><button class="sback">←</button><div class="stit">Biblioteca</div></div>
+<div class="ssub">PLANTILLAS DE SESIÓN · LA FÁBRICA DEL MÉTODO</div>
+
+<button class="crear">+ CREAR PLANTILLA NUEVA → EDITOR</button>
+
+<div class="filtros">
+  <button class="fch on" onclick="filtro(this,'todas')">TODAS · 7</button>
+  <button class="fch" onclick="filtro(this,'base')">BASE · 4</button>
+  <button class="fch" onclick="filtro(this,'extra')">EXTRAS ★ · 3</button>
+</div>
+
+<div id="lista"></div>
+
+<script>
+const PLANTILLAS = [
+ {n:'LOWER BODY', t:'base', m:'GLÚTEOS · CUÁDRICEPS · ISQUIOS · 60 MIN · 9 LÍNEAS', u:'DESIGNADA EN 6 SOCIOS ESTA SEMANA'},
+ {n:'UPPER BODY PUSH', t:'base', m:'PECHO · HOMBROS · TRÍCEPS · 60 MIN · 8 LÍNEAS', u:'DESIGNADA EN 6 SOCIOS'},
+ {n:'UPPER BODY PULL', t:'base', m:'ESPALDA · BÍCEPS · CORE · 60 MIN · 8 LÍNEAS', u:'DESIGNADA EN 5 SOCIOS'},
+ {n:'TOTAL BODY', t:'base', m:'CUERPO COMPLETO · CIERRE · 60 MIN · 10 LÍNEAS', u:'DESIGNADA EN 4 SOCIOS'},
+ {n:'GLUTE FOCUS', t:'extra', m:'GLÚTEOS · ISQUIOS · 45 MIN · 6 LÍNEAS', u:'EXTRA MÁS DESIGNADA DEL MES'},
+ {n:'CORE & CARDIO', t:'extra', m:'CORE · CARDIO · 35 MIN · 5 LÍNEAS', u:'2 DESIGNACIONES ACTIVAS'},
+ {n:'UPPER BODY ARMS', t:'extra', m:'BÍCEPS · TRÍCEPS · 40 MIN · 6 LÍNEAS', u:'NUEVA · SIN DESIGNAR AÚN'},
+]
+function pintar(f){
+  document.getElementById('lista').innerHTML = PLANTILLAS
+    .filter(p => f==='todas' || p.t===f)
+    .map(p => `<div class="glass pl">
+      <div class="ph2"><span class="pn">${p.n}</span>
+        <span class="tag ${p.t}">${p.t==='base'?'BASE':'EXTRA ★'}</span></div>
+      <div class="pm">${p.m}</div>
+      <div class="uso">${p.u}</div>
+      <div class="accs">
+        <button class="acc ed">EDITAR →</button>
+        <button class="acc gr">DUPLICAR</button>
+        <button class="acc gr">ARCHIVAR</button>
+      </div></div>`).join('')
+}
+function filtro(el, f){
+  document.querySelectorAll('.fch').forEach(c=>c.classList.remove('on'))
+  el.classList.add('on'); pintar(f)
+}
+pintar('todas')
+</script>
+</body>
+</html>
