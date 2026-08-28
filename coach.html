@@ -110,6 +110,34 @@ input{width:100%;background:rgba(255,255,255,.7);border:1px solid rgba(255,255,2
 .gmsg b{color:#fff}
 .gb{width:100%;border:none;border-radius:14px;padding:14px;font-size:10px;font-weight:900;letter-spacing:.12em;cursor:pointer;background:var(--hueso);color:var(--tinta)}
 .gb:disabled{opacity:.4}
+.vis2{display:block}
+.bq{padding:13px 14px;margin-bottom:11px}
+.bqh{display:flex;align-items:center;gap:8px;margin-bottom:9px}
+.bqt{font-size:8px;letter-spacing:.16em;font-weight:900;color:#7C7B76}
+.stp{display:flex;align-items:center;gap:4px;margin-left:auto}
+.stp button{width:26px;height:26px;border:none;border-radius:9px;background:rgba(18,18,16,.07);font-weight:900;font-size:13px;cursor:pointer}
+.stp b{font-size:11px;min-width:30px;text-align:center}
+.stp span{font-size:6.5px;color:#BEBDB8;font-weight:900;letter-spacing:.08em}
+.lin{display:grid;grid-template-columns:54px 1fr 62px 66px 22px;gap:6px;align-items:center;padding:8px 0;border-top:1px solid rgba(18,18,16,.06)}
+.lin:first-of-type{border-top:none}
+.chipG{font-size:6.5px;font-weight:900;letter-spacing:.04em;background:rgba(18,18,16,.07);border-radius:8px;padding:6px 4px;text-align:center;overflow:hidden;white-space:nowrap}
+.ejN{font-size:11px;font-weight:800;background:none;border:none;text-align:left;padding:0;cursor:pointer;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;color:#121210}
+.ejN small{display:block;font-size:6.5px;color:#BEBDB8;font-weight:900;letter-spacing:.06em}
+.linI{width:100%;margin:0;padding:8px 4px;font-size:11px;font-weight:800;text-align:center;border-radius:10px}
+.linX{border:none;background:none;color:#BEBDB8;font-weight:900;cursor:pointer;font-size:13px;padding:0}
+.addEj{width:100%;border:1.5px dashed rgba(18,18,16,.2);background:none;border-radius:12px;padding:10px;font-size:8px;font-weight:900;letter-spacing:.1em;color:#7C7B76;cursor:pointer;margin-top:9px}
+.dr{display:grid;grid-template-columns:54px 1fr 64px;gap:8px;align-items:center;margin-bottom:6px}
+.dr .g2{font-size:7px;font-weight:900;color:#C9C8C2}
+.dbar{height:6px;background:rgba(255,255,255,.14);border-radius:5px;position:relative}
+.dfill{position:absolute;top:0;left:0;height:100%;border-radius:5px}
+.d-bajo{background:#6B6A65}.d-opt{background:#1F9D55}.d-alto{background:#C5A13C}.d-tope{background:#B4442C}
+.dv{font-size:7px;font-weight:900;text-align:right;color:#C9C8C2}
+.pkCard{padding:14px 16px;margin-bottom:10px;cursor:pointer}
+.pkN{font-size:13px;font-weight:900}
+.pkM{font-size:7.5px;color:#7C7B76;font-weight:800;letter-spacing:.08em;margin-top:3px}
+.selRow{display:flex;align-items:center;gap:10px;padding:11px 6px;border-top:1px solid rgba(18,18,16,.06);cursor:pointer}
+.selG{font-size:6.5px;font-weight:900;background:rgba(18,18,16,.07);border-radius:8px;padding:5px 8px}
+.selN{font-size:12px;font-weight:800}
 </style>
 </head>
 <body>
@@ -132,7 +160,7 @@ input{width:100%;background:rgba(255,255,255,.7);border:1px solid rgba(255,255,2
 </div></div>
 
 <div class="vista" id="vSala">
-  <div class="hbar"><span class="hk" title="c1.2">KOACH</span><span class="rol" id="rolBadge" onclick="salir()">COACH</span></div>
+  <div class="hbar"><span class="hk" title="c2.0">KOACH</span><span class="rol" id="rolBadge" onclick="salir()">COACH</span></div>
   <button class="nuevo" onclick="toggleAlta()">+ NUEVO USUARIO · SOCIO O COACH</button>
   <div class="glass aform" id="fAlta" style="display:none">
     <h4>CREAR USUARIO — ENTRA AL INSTANTE CON SU CORREO Y CLAVE</h4>
@@ -163,6 +191,7 @@ input{width:100%;background:rgba(255,255,255,.7);border:1px solid rgba(255,255,2
     <h3><span>SU SEMANA · EN VIVO</span><span id="fSemTit">—</span></h3>
     <div class="rows2" id="fRows"></div>
   </div>
+  <button class="a2 ink" style="width:100%;margin-bottom:8px" onclick="verPlan()">PROGRAMACIÓN → SU PLANIFICADOR</button>
   <div class="acc2">
     <button class="a2 ink" onclick="verExtra()">DESIGNAR EXTRA ★</button>
     <button class="a2 ink" onclick="wsp()">WHATSAPP</button>
@@ -192,6 +221,41 @@ input{width:100%;background:rgba(255,255,255,.7);border:1px solid rgba(255,255,2
     <div class="gt1">LA GUARDIA · VEREDICTO</div>
     <div class="gmsg" id="xVer">Toca una sesión para evaluar su impacto.</div>
     <button class="gb" id="xBtn" disabled onclick="designar()">DESIGNAR COMO EXTRA ★ →</button>
+  </div>
+</div>
+
+<!-- PLANIFICADOR -->
+<div class="vista" id="vPlan">
+  <div class="stop"><button class="sback" onclick="verFicha(F.id)">←</button>
+    <div class="stit">Planificador</div>
+    <span class="rol" id="pEstado" style="margin-left:auto">BORRADOR</span></div>
+  <div class="ssub" id="pMeta">—</div>
+  <div class="mtabs" id="pTabs"></div>
+  <div id="pBloques" style="padding-bottom:230px"></div>
+  <div class="guardia vis2" id="pGuardia">
+    <div class="gt1">DOSIFICACIÓN SEMANAL POR ESTÍMULO · EN TIEMPO REAL</div>
+    <div id="pDose" style="max-height:130px;overflow-y:auto;margin-bottom:10px"></div>
+    <button class="gb" onclick="aplicarPrograma()">APLICAR PROGRAMA →</button>
+  </div>
+</div>
+
+<!-- PICKER DE PROGRAMA BASE -->
+<div class="vista" id="vPicker">
+  <div class="stop"><button class="sback" onclick="verFicha(F.id)">←</button>
+    <div class="stit">Asignar programa</div></div>
+  <div class="ssub" id="pkMeta">—</div>
+  <div class="h3"><span>PLANTILLAS BASE · EL CEREBRO TÉCNICO</span><span>SE CLONA AL SOCIO</span></div>
+  <div id="pkLista"><div class="vacio">Cargando plantillas…</div></div>
+</div>
+
+<!-- SELECTOR DE EJERCICIOS -->
+<div id="selEj" style="display:none;position:fixed;inset:0;z-index:60;background:rgba(18,18,16,.4);backdrop-filter:blur(6px)">
+  <div style="position:absolute;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:560px;max-height:78vh;background:#F3F2EF;border-radius:24px 24px 0 0;padding:16px 14px;overflow-y:auto">
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
+      <div style="font-size:8px;letter-spacing:.18em;font-weight:900;color:#7C7B76" id="selTit">ELEGIR EJERCICIO</div>
+      <button onclick="cerrarSelector()" style="margin-left:auto;border:none;background:rgba(18,18,16,.07);border-radius:10px;padding:8px 12px;font-weight:900;cursor:pointer">✕</button></div>
+    <input id="selBusca" placeholder="Buscar ejercicio…" oninput="pintarSelector()" style="margin-bottom:10px">
+    <div id="selLista"></div>
   </div>
 </div>
 
@@ -244,7 +308,8 @@ function nombreEN(s){const x=(s||'').toUpperCase()
 function lunes(){const h=new Date(),d=(h.getDay()+6)%7,l=new Date(h);l.setDate(h.getDate()-d);l.setHours(0,0,0,0);return l}
 function hoyISO(){return new Date().toISOString().split('T')[0]}
 function vista(id){document.querySelectorAll('.vista').forEach(function(v){v.classList.toggle('on',v.id===id)});window.scrollTo(0,0)
-  document.getElementById('xGuardia').classList.toggle('vis', id==='vExtra')}
+  document.getElementById('xGuardia').classList.toggle('vis', id==='vExtra')
+  var pg=document.getElementById('pGuardia'); if(pg) pg.style.display = (id==='vPlan')?'block':'none'}
 function toast(m){let t=document.querySelector('.toast');if(!t){t=document.createElement('div');t.className='toast';document.body.appendChild(t)}
   t.textContent=m;t.classList.add('vis');clearTimeout(t._x);t._x=setTimeout(function(){t.classList.remove('vis')},3000)}
 async function salir(){ try{localStorage.removeItem('koach_pin')}catch(_e){}
@@ -508,7 +573,7 @@ async function verExtra(){
   const sexo=a&&a.protocolos?a.protocolos.sexo:null
   try{ const rp = await sb.from('protocolos').select('*').eq('sexo',sexo)
     ;(rp.data||[]).forEach(function(p){ if(!C.protos[p.id]) C.protos[p.id]=p }) }catch(_e){}
-  const protos=Object.values(C.protos).filter(function(p){return !sexo||p.sexo===sexo})
+  const protos=Object.values(C.protos).filter(function(p){return (!sexo||p.sexo===sexo) && !p.socio_id})
   const pids=protos.map(function(p){return p.id})
   const rs = await sb.from('sesiones_protocolo').select('*').in('protocolo_id',pids).lte('numero',3).order('numero')
   X.sesiones=(rs.data||[]).map(function(s){
@@ -601,6 +666,253 @@ async function crearUsuario(){
     msg.textContent=/already|registered/i.test(e.message||'')?'Ese correo ya tiene cuenta'
       :/rate/i.test(e.message||'')?'Límite de Supabase — espera unos minutos':'No se pudo crear: '+(e.message||'')
     btn.disabled=false; btn.textContent='CREAR USUARIO →' }
+}
+
+/* ══ PLANIFICADOR (Capa 3) ══ */
+let P = null, EJCAT = null, SEL = { modo:null, bi:null, beId:null }
+
+async function cargarCatalogo(){
+  if (EJCAT) return
+  const r = await sb.from('ejercicios').select('id,nombre,grupo_muscular,sinergistas').order('grupo_muscular').order('nombre')
+  EJCAT = r.data||[]
+}
+async function verPlan(){
+  if(!F) return
+  const a = C.asig[F.id]
+  if(!a){ return verPicker() }
+  const pr = a.protocolos || {}
+  if (pr.socio_id === undefined){
+    toast('Falta correr capa3-planificador.sql en Supabase'); return }
+  if (pr.socio_id === F.id){ return abrirPlan(a.protocolo_id, pr) }
+  if(!confirm('Este socio entrena la plantilla BASE "'+(pr.programa||'')+' '+(pr.nivel||'')+'".\n\nCrear SU COPIA editable ahora?\n(La base queda intacta — editas solo su programa.)')) return
+  toast('Clonando su programa…')
+  const nuevo = await clonarPrograma(a.protocolo_id, F.id)
+  if(!nuevo){ return }
+  const ru = await sb.from('asignaciones').update({ protocolo_id: nuevo.id }).eq('socio_id',F.id).eq('activo',true)
+  if(ru.error){ toast('No se pudo re-apuntar la asignación: '+ru.error.message); return }
+  await loadSala()
+  abrirPlan(nuevo.id, nuevo)
+}
+async function verPicker(){
+  document.getElementById('pkMeta').textContent = (nomDe(F.id)+' · SIN PROGRAMA — ELIGE SU BASE').toUpperCase()
+  vista('vPicker')
+  const rp = await sb.from('protocolos').select('*').is('socio_id', null)
+  if(rp.error){ document.getElementById('pkLista').innerHTML='<div class="vacio">'+ (/socio_id/.test(rp.error.message)?'Falta correr capa3-planificador.sql':rp.error.message) +'</div>'; return }
+  const bases = (rp.data||[]).sort(function(a,b){ return ((a.programa||'')+(a.nivel||'')).localeCompare((b.programa||'')+(b.nivel||'')) })
+  document.getElementById('pkLista').innerHTML = bases.map(function(p){
+    return '<div class="glass pkCard" onclick="asignarBase(\''+p.id+'\')"><div class="pkN">'+(p.programa||p.nombre||'PROTOCOLO')+' · '+(p.nivel||'')+'</div>'+
+    '<div class="pkM">'+(p.sexo||'')+' · SE CLONA COMO SU PROGRAMA INDIVIDUAL</div></div>'
+  }).join('') || '<div class="vacio">Sin plantillas base</div>'
+}
+async function asignarBase(basePid){
+  toast('Clonando el programa al socio…')
+  const nuevo = await clonarPrograma(basePid, F.id)
+  if(!nuevo) return
+  const ri = await sb.from('asignaciones').insert({ socio_id:F.id, protocolo_id:nuevo.id, activo:true, semana_actual:1, ciclo_actual:1 })
+  if(ri.error){
+    const ri2 = await sb.from('asignaciones').insert({ socio_id:F.id, protocolo_id:nuevo.id, activo:true })
+    if(ri2.error){ toast('Clonado, pero no se pudo asignar: '+ri2.error.message); return }
+  }
+  await loadSala()
+  abrirPlan(nuevo.id, nuevo)
+}
+function limpia(row, quitar){
+  const o = {}
+  Object.keys(row).forEach(function(k){ if (quitar.indexOf(k)===-1 && row[k]!==undefined) o[k]=row[k] })
+  return o
+}
+async function clonarPrograma(basePid, socioId){
+  try{
+    const rb = await sb.from('protocolos').select('*').eq('id',basePid).single()
+    if(rb.error) throw rb.error
+    const base = rb.data
+    const cab = limpia(base, ['id','created_at'])
+    cab.socio_id = socioId; cab.estado = 'borrador'
+    cab.nombre = ((base.programa||base.nombre||'PROGRAMA')+' · '+nomDe(socioId).split(' ')[0]).toUpperCase()
+    const rc = await sb.from('protocolos').insert(cab).select().single()
+    if(rc.error) throw rc.error
+    const nuevoPid = rc.data.id
+    const rses = await sb.from('sesiones_protocolo').select('*').eq('protocolo_id',basePid).order('numero')
+    if(rses.error) throw rses.error
+    const sesBase = rses.data||[]
+    const sesNuevas = sesBase.map(function(s){ const x=limpia(s,['id','created_at']); x.protocolo_id=nuevoPid; return x })
+    const rsi = sesNuevas.length ? await sb.from('sesiones_protocolo').insert(sesNuevas).select() : {data:[]}
+    if(rsi.error) throw rsi.error
+    const mapSes = {}
+    sesBase.forEach(function(s,i){ mapSes[s.id] = rsi.data[i].id })
+    const oldSesIds = sesBase.map(function(s){return s.id})
+    const rblo = oldSesIds.length ? await sb.from('bloques').select('*').in('sesion_id',oldSesIds).order('bloque') : {data:[]}
+    if(rblo.error) throw rblo.error
+    const bloBase = rblo.data||[]
+    const bloNuevos = bloBase.map(function(b){ const x=limpia(b,['id','created_at']); x.sesion_id=mapSes[b.sesion_id]; return x })
+    const rbi = bloNuevos.length ? await sb.from('bloques').insert(bloNuevos).select() : {data:[]}
+    if(rbi.error) throw rbi.error
+    const mapBlo = {}
+    bloBase.forEach(function(b,i){ mapBlo[b.id] = rbi.data[i].id })
+    const oldBloIds = bloBase.map(function(b){return b.id})
+    const rbe = oldBloIds.length ? await sb.from('bloque_ejercicios').select('*').in('bloque_id',oldBloIds) : {data:[]}
+    if(rbe.error) throw rbe.error
+    const beNuevos = (rbe.data||[]).map(function(be){ const x=limpia(be,['id','created_at']); x.bloque_id=mapBlo[be.bloque_id]; return x })
+    if(beNuevos.length){ const rz = await sb.from('bloque_ejercicios').insert(beNuevos); if(rz.error) throw rz.error }
+    const ro = await sb.from('volumen_objetivos').select('*').eq('protocolo_id',basePid)
+    const objNuevos = (ro.data||[]).map(function(o){ const x=limpia(o,['id','created_at']); x.protocolo_id=nuevoPid; return x })
+    if(objNuevos.length){ const rz2 = await sb.from('volumen_objetivos').insert(objNuevos); if(rz2.error) throw rz2.error }
+    toast('Programa clonado ✓ — editas SU copia')
+    return rc.data
+  }catch(e){ console.error(e); toast('Clonación falló: '+(e.message||'')); return null }
+}
+async function abrirPlan(pid, proto){
+  await cargarCatalogo()
+  document.getElementById('pMeta').textContent = (nomDe(F.id)+' · '+((proto&&proto.programa)||'')+' '+((proto&&proto.nivel)||'')+' · SU COPIA INDIVIDUAL').toUpperCase()
+  document.getElementById('pEstado').textContent = ((proto&&proto.estado)||'borrador').toUpperCase()
+  vista('vPlan')
+  document.getElementById('pBloques').innerHTML = '<div class="vacio">Cargando su programación…</div>'
+  const rses = await sb.from('sesiones_protocolo').select('*').eq('protocolo_id',pid).lte('numero',3).order('numero')
+  const sids = (rses.data||[]).map(function(s){return s.id})
+  const rblo = sids.length ? await sb.from('bloques').select('*, bloque_ejercicios(*, ejercicios(*))').in('sesion_id',sids).order('bloque') : {data:[]}
+  P = { pid:pid, proto:proto, tab:0, sesiones:(rses.data||[]).map(function(s){
+    return { id:s.id, numero:s.numero, nombre:nombreEN(s.objetivo)||('SESION '+s.numero),
+      bloques:(rblo.data||[]).filter(function(b){return b.sesion_id===s.id}).map(function(b){
+        return { id:b.id, tag:b.bloque, sets:b.sets||3, desc:b.descanso_seg||60,
+          items:(b.bloque_ejercicios||[]).map(function(be){
+            return { beId:be.id, ejId:be.ejercicio_id,
+              nombre:(be.ejercicios&&be.ejercicios.nombre)||'—',
+              grupo:(be.ejercicios&&be.ejercicios.grupo_muscular)||'',
+              sinergistas:(be.ejercicios&&be.ejercicios.sinergistas)||{},
+              kg:(be.kg_objetivo!=null?be.kg_objetivo:20),
+              reps:(be.reps_txt!=null&&be.reps_txt!==''?be.reps_txt:(be.reps!=null?String(be.reps):'10')) }
+          }) } }) } }) }
+  const obj = C.obj[C.asig[F.id] ? C.asig[F.id].protocolo_id : null]
+  P.objetivos = obj || null
+  if(!P.objetivos){
+    const ro = await sb.from('volumen_objetivos').select('*').eq('protocolo_id',pid)
+    P.objetivos = {}
+    ;(ro.data||[]).forEach(function(o){ const g=(o.grupo||'').toUpperCase()
+      if(!g||!(o.mev>0))return
+      P.objetivos[g]={mev:o.mev,mav:o.mav==null?null:o.mav,exigible:(o.dominante===undefined||o.dominante===null)?true:!!o.dominante} })
+  }
+  pintarPlan()
+}
+function bloqueTag(t, idx){
+  const x = String(t||'').toUpperCase()
+  if (/1|ACTIV/.test(x)) return 'B1 · ACTIVACIÓN'
+  if (/2|PRINC/.test(x)) return 'B2 · PRINCIPAL'
+  if (/3|ACCES|CIERRE/.test(x)) return 'B3 · ACCESORIO'
+  return 'B'+(idx+1)
+}
+function pintarPlan(){
+  document.getElementById('pTabs').innerHTML = P.sesiones.map(function(s,i){
+    return '<div class="mtab '+(i===P.tab?'on':'')+'" onclick="P.tab='+i+';pintarPlan()">'+s.nombre+'</div>'
+  }).join('')
+  const ses = P.sesiones[P.tab]
+  if(!ses){ document.getElementById('pBloques').innerHTML='<div class="vacio">Sin sesiones</div>'; calcDose(); return }
+  document.getElementById('pBloques').innerHTML = ses.bloques.map(function(b,bi){
+    return '<div class="glass bq"><div class="bqh"><span class="bqt">'+bloqueTag(b.tag,bi)+'</span>'+
+      '<div class="stp"><span>SETS</span><button onclick="stepSets('+bi+',-1)">−</button><b>'+b.sets+'</b><button onclick="stepSets('+bi+',1)">+</button></div>'+
+      '<div class="stp"><span>DESC</span><button onclick="stepDesc('+bi+',-15)">−</button><b>'+b.desc+'s</b><button onclick="stepDesc('+bi+',15)">+</button></div></div>'+
+    b.items.map(function(it){
+      return '<div class="lin">'+
+        '<div class="chipG">'+(it.grupo||'—')+'</div>'+
+        '<button class="ejN" onclick="abrirSelector(\'cambiar\','+bi+',\''+it.beId+'\')">'+it.nombre+'<small>CAMBIAR ⇄</small></button>'+
+        '<input class="linI" value="'+it.kg+'" inputmode="decimal" onchange="editKg(\''+it.beId+'\',this.value)" title="kg">'+
+        '<input class="linI" value="'+String(it.reps).replace(/"/g,'')+'" onchange="editReps(\''+it.beId+'\',this.value)" title="reps">'+
+        '<button class="linX" onclick="quitarEj(\''+it.beId+'\')">✕</button>'+
+      '</div>'
+    }).join('')+
+    '<button class="addEj" onclick="abrirSelector(\'agregar\','+bi+',null)">+ EJERCICIO</button></div>'
+  }).join('')
+  calcDose()
+}
+function planItem(beId){
+  let r=null
+  P.sesiones.forEach(function(s){ s.bloques.forEach(function(b){ b.items.forEach(function(it){ if(String(it.beId)===String(beId)) r={b:b,it:it} }) }) })
+  return r
+}
+async function stepSets(bi,d){
+  const b=P.sesiones[P.tab].bloques[bi]; b.sets=Math.max(1,Math.min(8,(b.sets||3)+d)); pintarPlan()
+  const r=await sb.from('bloques').update({sets:b.sets}).eq('id',b.id); if(r.error)toast('Sets: '+r.error.message)
+}
+async function stepDesc(bi,d){
+  const b=P.sesiones[P.tab].bloques[bi]; b.desc=Math.max(15,Math.min(240,(b.desc||60)+d)); pintarPlan()
+  const r=await sb.from('bloques').update({descanso_seg:b.desc}).eq('id',b.id); if(r.error)toast('Descanso: '+r.error.message)
+}
+async function editKg(beId,v){
+  const x=planItem(beId); if(!x)return
+  const n=parseFloat(String(v).replace(',','.')); if(isNaN(n)){pintarPlan();return}
+  x.it.kg=n
+  const r=await sb.from('bloque_ejercicios').update({kg_objetivo:n}).eq('id',beId); if(r.error)toast('Kg: '+r.error.message)
+}
+async function editReps(beId,v){
+  const x=planItem(beId); if(!x)return
+  x.it.reps=String(v).trim()||'10'; calcDose()
+  const r=await sb.from('bloque_ejercicios').update({reps_txt:x.it.reps}).eq('id',beId); if(r.error)toast('Reps: '+r.error.message)
+}
+async function quitarEj(beId){
+  const x=planItem(beId); if(!x)return
+  if(!confirm('¿Quitar '+x.it.nombre+' de este bloque?'))return
+  x.b.items=x.b.items.filter(function(i){return String(i.beId)!==String(beId)}); pintarPlan()
+  const r=await sb.from('bloque_ejercicios').delete().eq('id',beId); if(r.error)toast('No se pudo quitar: '+r.error.message)
+}
+function abrirSelector(modo,bi,beId){
+  SEL={modo:modo,bi:bi,beId:beId}
+  document.getElementById('selTit').textContent = modo==='agregar'?'AGREGAR EJERCICIO AL BLOQUE':'CAMBIAR EJERCICIO'
+  document.getElementById('selBusca').value=''
+  document.getElementById('selEj').style.display='block'
+  pintarSelector()
+}
+function cerrarSelector(){ document.getElementById('selEj').style.display='none' }
+function pintarSelector(){
+  const q=(document.getElementById('selBusca').value||'').toLowerCase()
+  const lista=(EJCAT||[]).filter(function(e){ return !q || (e.nombre||'').toLowerCase().indexOf(q)>-1 || (e.grupo_muscular||'').toLowerCase().indexOf(q)>-1 })
+  document.getElementById('selLista').innerHTML = lista.slice(0,80).map(function(e){
+    return '<div class="selRow" onclick="elegirEj(\''+e.id+'\')"><span class="selG">'+(e.grupo_muscular||'')+'</span><span class="selN">'+e.nombre+'</span></div>'
+  }).join('') || '<div class="vacio">Sin resultados</div>'
+}
+async function elegirEj(ejId){
+  const e=(EJCAT||[]).find(function(x){return String(x.id)===String(ejId)}); if(!e)return
+  cerrarSelector()
+  if(SEL.modo==='cambiar'){
+    const x=planItem(SEL.beId); if(!x)return
+    x.it.ejId=e.id; x.it.nombre=e.nombre; x.it.grupo=e.grupo_muscular; x.it.sinergistas=e.sinergistas||{}
+    pintarPlan()
+    const r=await sb.from('bloque_ejercicios').update({ejercicio_id:e.id}).eq('id',SEL.beId)
+    if(r.error)toast('Cambio: '+r.error.message)
+  } else {
+    const b=P.sesiones[P.tab].bloques[SEL.bi]
+    const r=await sb.from('bloque_ejercicios').insert({bloque_id:b.id,ejercicio_id:e.id,kg_objetivo:20,reps_txt:'10'}).select().single()
+    if(r.error){ toast('Agregar: '+r.error.message); return }
+    b.items.push({beId:r.data.id,ejId:e.id,nombre:e.nombre,grupo:e.grupo_muscular,sinergistas:e.sinergistas||{},kg:20,reps:'10'})
+    pintarPlan()
+  }
+}
+function calcDose(){
+  if(!P||!P.objetivos){ document.getElementById('pDose').innerHTML=''; return }
+  const prog={sesiones:P.sesiones.map(function(s){
+    return {bloques:s.bloques.map(function(b){
+      return {sets:b.sets,ejercicios:b.items.map(function(it){return {grupo:it.grupo,sinergistas:it.sinergistas}})} }) } })}
+  const acum={}
+  Object.keys(P.objetivos).forEach(function(g){acum[g]=0})
+  prog.sesiones.forEach(function(s){ const a=aporteSesion(s)
+    Object.entries(a).forEach(function(p2){ if(p2[0] in acum) acum[p2[0]]+=p2[1] }) })
+  document.getElementById('pDose').innerHTML = Object.entries(P.objetivos)
+    .filter(function(p2){return p2[1].exigible!==false})
+    .map(function(p2){
+      const g=p2[0], o=p2[1], v=acum[g]||0
+      let cls='d-bajo', tag='BAJO'
+      if(o.mav&&v>o.mav){cls='d-tope';tag='EXCESO'}
+      else if(o.mav&&v>=o.mav*0.85){cls='d-alto';tag='ALTO'}
+      else if(v>=o.mev){cls='d-opt';tag='ÓPTIMO'}
+      const w=Math.min(Math.round(v/((o.mav||o.mev*1.6))*100),100)
+      return '<div class="dr"><span class="g2">'+g+'</span><div class="dbar"><div class="dfill '+cls+'" style="width:'+w+'%"></div></div>'+
+        '<span class="dv">'+(+v.toFixed(1))+' · '+tag+'</span></div>'
+    }).join('')
+}
+async function aplicarPrograma(){
+  const r=await sb.from('protocolos').update({estado:'activo'}).eq('id',P.pid)
+  if(r.error){ toast('Aplicar: '+r.error.message); return }
+  document.getElementById('pEstado').textContent='ACTIVO'
+  toast('✓ Programa aplicado — '+nomDe(F.id).split(' ')[0]+' ya entrena esta versión')
+  await loadSala()
 }
 
 ;(async function(){ const s = await sb.auth.getSession()
