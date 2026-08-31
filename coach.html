@@ -149,6 +149,7 @@ input{width:100%;background:rgba(255,255,255,.7);border:1px solid rgba(255,255,2
 #pTabs .mtab{flex-shrink:0;white-space:nowrap}
 .selRow2{display:flex;align-items:center;gap:10px;padding:11px 6px;border-top:1px solid rgba(18,18,16,.06);cursor:pointer}
 .delSes{border:none;background:none;color:#B4442C;font-size:7.5px;font-weight:900;letter-spacing:.08em;cursor:pointer;margin:2px 4px 10px;padding:0}
+.mtab.drag{transform:scale(1.07);box-shadow:0 10px 24px rgba(18,18,16,.35);opacity:.92;z-index:5;position:relative}
 </style>
 </head>
 <body>
@@ -171,7 +172,7 @@ input{width:100%;background:rgba(255,255,255,.7);border:1px solid rgba(255,255,2
 </div></div>
 
 <div class="vista" id="vSala">
-  <div class="hbar"><span class="hk" title="c4.0">KOACH</span><span class="rol" id="rolBadge" onclick="salir()">COACH</span></div>
+  <div class="hbar"><span class="hk" title="c4.1">KOACH</span><span class="rol" id="rolBadge" onclick="salir()">COACH</span></div>
   <button class="nuevo" onclick="toggleAlta()">+ NUEVO USUARIO · SOCIO O COACH</button>
   <button class="nuevo" style="background:rgba(255,255,255,.65);color:#121210;border:1.5px solid rgba(18,18,16,.15)" onclick="verBib()">📚 RUTINAS ESTÁNDAR · BIBLIOTECA</button>
   <div class="glass aform" id="fAlta" style="display:none">
@@ -877,7 +878,7 @@ async function confirmarRutinaStd(){
   const bp = await bibProto(); if(!bp){ toast('Biblioteca: '+(BIB_ERR||'error')); return }
   const rn = await sb.from('sesiones_protocolo').select('numero').eq('protocolo_id',bp.id).order('numero',{ascending:false}).limit(1)
   const num = ((rn.data&&rn.data[0]&&rn.data[0].numero)||0)+1
-  const rs = await sb.from('sesiones_protocolo').insert({protocolo_id:bp.id, numero:num, objetivo:nombre}).select().single()
+  const rs = await sb.from('sesiones_protocolo').insert({protocolo_id:bp.id, numero:num, nombre:nombre, objetivo:nombre}).select().single()
   if(rs.error){ toast('Crear: '+rs.error.message); return }
   const tags=['B1','B2','B3']
   for (let i=0;i<3;i++){
@@ -1091,7 +1092,7 @@ function pintarPlan(){
     const nom = P.bib ? ((P.sesiones[i]&&P.sesiones[i].nombre)||'') : s.nombre
     const flechas = (!P.bib && P.sesiones.length>1)
       ? ' <span class="x" onclick="event.stopPropagation();moverSesion('+i+',-1)">\u25c2</span><span class="x" onclick="event.stopPropagation();moverSesion('+i+',1)">\u25b8</span>' : ''
-    return '<div class="mtab '+(i===P.tab?'on':'')+'" onclick="P.tab='+i+';pintarPlan()">'+(P.bib?'':((i+1)+' \u00b7 '))+nom+flechas+'</div>'
+    return '<div class="mtab '+(i===P.tab?'on':'')+'" data-sid="'+s.id+'" data-i="'+i+'" onclick="P.tab='+i+';pintarPlan()">'+(P.bib?'':((i+1)+' \u00b7 '))+nom+flechas+'</div>'
   }).join('') + ((!P.bib && !P.base) ? (P.sesiones.length<6
       ? '<div class="mtab" style="border-style:dashed" onclick="abrirAddSes()">+</div>'
       : '<div class="mtab" style="opacity:.4" onclick="toast(\'Esta semana ya tiene 6 sesiones programadas.\')">MAX</div>') : '')
@@ -1155,7 +1156,8 @@ async function copiarSesionEn(srcId, destPid, numero, nombre){
   if(rs.error) throw rs.error
   const cab = limpia(rs.data,['id','created_at'])
   cab.protocolo_id = destPid; cab.numero = numero
-  if(nombre) cab.objetivo = nombre
+  if(nombre){ cab.objetivo = nombre; cab.nombre = nombre }
+  if(!cab.nombre) cab.nombre = cab.objetivo || ('SESIÓN '+numero)
   const ri = await sb.from('sesiones_protocolo').insert(cab).select().single()
   if(ri.error) throw ri.error
   const rb = await sb.from('bloques').select('*').eq('sesion_id',srcId).order('bloque')
@@ -1178,14 +1180,15 @@ async function agregarSesion(modo, bibSesId){
   document.getElementById('mAddSes').style.display='none'
   try{
     if(modo==='vacia'){
-      const rs = await sb.from('sesiones_protocolo').insert({protocolo_id:P.pid, numero:num, objetivo:(nombre||'SESIÓN '+num)}).select().single()
+      if(!nombre){ toast('Escribe un nombre para la sesión.'); document.getElementById('mAddSes').style.display='block'; return }
+      const rs = await sb.from('sesiones_protocolo').insert({protocolo_id:P.pid, numero:num, nombre:nombre, objetivo:nombre}).select().single()
       if(rs.error) throw rs.error
       const tags=['B1','B2','B3']
       for(let i=0;i<3;i++){ const rb=await sb.from('bloques').insert({sesion_id:rs.data.id, bloque:tags[i], sets:3, descanso_seg:60})
         if(rb.error){ await sb.from('bloques').insert({sesion_id:rs.data.id, bloque:i+1, sets:3, descanso_seg:60}) } }
     } else if(modo==='duplicar'){
       const src=P.sesiones[P.tab]; if(!src){ toast('No hay sesión activa'); return }
-      await copiarSesionEn(src.id, P.pid, num, (nombre||((src.nombre||'SESIÓN')+' B')))
+      await copiarSesionEn(src.id, P.pid, num, (nombre||((src.nombre||'SESIÓN')+' 2')))
     } else if(modo==='bib'){
       await copiarSesionEn(bibSesId, P.pid, num, nombre||null)
     }
@@ -1193,7 +1196,7 @@ async function agregarSesion(modo, bibSesId){
     const proto=P.proto
     await loadSala()
     abrirPlan(P.pid, proto)
-  }catch(e){ toast('Agregar sesión: '+(e.message||'')) }
+  }catch(e){ console.error('agregarSesion', e); toast('No pudimos crear la sesión. Revisa el nombre e inténtalo de nuevo.') }
 }
 async function eliminarSesion(){
   const s=P.sesiones[P.tab]; if(!s) return
@@ -1207,12 +1210,68 @@ async function eliminarSesion(){
     await sb.from('bloques').delete().eq('sesion_id',s.id)
     const rd = await sb.from('sesiones_protocolo').delete().eq('id',s.id)
     if(rd.error) throw rd.error
+    const resto=P.sesiones.filter(function(x){return x.id!==s.id}).sort(function(a,b){return a.numero-b.numero})
+    for(let i=0;i<resto.length;i++){ if(resto[i].numero!==i+1) await sb.from('sesiones_protocolo').update({numero:i+1}).eq('id',resto[i].id) }
     toast('Sesión eliminada')
     const proto=P.proto
     await loadSala()
     abrirPlan(P.pid, proto)
   }catch(e){ toast('Eliminar: '+(e.message||'')) }
 }
+/* ── Drag & drop de sesiones (pointer events, long-press) ── */
+const DG = { el:null, timer:null, activo:false, x0:0, y0:0, pid:null }
+function dgReset(){ if(DG.timer)clearTimeout(DG.timer)
+  if(DG.el){ DG.el.classList.remove('drag'); try{DG.el.releasePointerCapture(DG.pid)}catch(_e){} }
+  DG.el=null; DG.timer=null; DG.activo=false }
+document.addEventListener('pointerdown', function(e){
+  if(!P || P.bib) return
+  const pill = e.target.closest('#pTabs .mtab[data-sid]')
+  if(!pill) return
+  DG.el=pill; DG.x0=e.clientX; DG.y0=e.clientY; DG.pid=e.pointerId; DG.activo=false
+  DG.timer=setTimeout(function(){
+    DG.activo=true
+    pill.classList.add('drag')
+    try{ pill.setPointerCapture(DG.pid) }catch(_e){}
+    if(navigator.vibrate) navigator.vibrate(10)
+  }, 300)
+})
+document.addEventListener('pointermove', function(e){
+  if(!DG.el) return
+  if(!DG.activo){
+    if(Math.abs(e.clientX-DG.x0)>10 || Math.abs(e.clientY-DG.y0)>10) dgReset()
+    return
+  }
+  e.preventDefault()
+  const cont=document.getElementById('pTabs')
+  const pills=[].slice.call(cont.querySelectorAll('.mtab[data-sid]'))
+  const yo=DG.el
+  const prev=pills[pills.indexOf(yo)-1], next=pills[pills.indexOf(yo)+1]
+  if(next){ const r=next.getBoundingClientRect(); if(e.clientX > r.left + r.width/2){ cont.insertBefore(next, yo); return } }
+  if(prev){ const r=prev.getBoundingClientRect(); if(e.clientX < r.left + r.width/2){ cont.insertBefore(yo, prev) } }
+}, { passive:false })
+document.addEventListener('pointerup', async function(){
+  if(!DG.el) return
+  const fueDrag = DG.activo
+  const yo = DG.el
+  dgReset()
+  if(!fueDrag) return
+  const cont=document.getElementById('pTabs')
+  const orden=[].slice.call(cont.querySelectorAll('.mtab[data-sid]')).map(function(el){return el.dataset.sid})
+  const mapa={}; P.sesiones.forEach(function(s){ mapa[s.id]=s })
+  for(let i=0;i<orden.length;i++){
+    const s=mapa[orden[i]]
+    if(s && s.numero!==i+1){
+      const r=await sb.from('sesiones_protocolo').update({numero:i+1}).eq('id',s.id)
+      if(r.error){ toast('Orden: '+r.error.message); break }
+      s.numero=i+1
+    }
+  }
+  P.sesiones.sort(function(a,b){return a.numero-b.numero})
+  P.tab = P.sesiones.indexOf(mapa[yo.dataset.sid])
+  if(P.tab<0) P.tab=0
+  toast('Orden semanal actualizado')
+  pintarPlan()
+})
 function planItem(beId){
   let r=null
   P.sesiones.forEach(function(s){ s.bloques.forEach(function(b){ b.items.forEach(function(it){ if(String(it.beId)===String(beId)) r={b:b,it:it} }) }) })
