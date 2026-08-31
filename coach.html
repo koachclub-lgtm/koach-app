@@ -167,7 +167,7 @@ input{width:100%;background:rgba(255,255,255,.7);border:1px solid rgba(255,255,2
 </div></div>
 
 <div class="vista" id="vSala">
-  <div class="hbar"><span class="hk" title="c3.2">KOACH</span><span class="rol" id="rolBadge" onclick="salir()">COACH</span></div>
+  <div class="hbar"><span class="hk" title="c3.3">KOACH</span><span class="rol" id="rolBadge" onclick="salir()">COACH</span></div>
   <button class="nuevo" onclick="toggleAlta()">+ NUEVO USUARIO · SOCIO O COACH</button>
   <button class="nuevo" style="background:rgba(255,255,255,.65);color:#121210;border:1.5px solid rgba(18,18,16,.15)" onclick="verBib()">📚 RUTINAS ESTÁNDAR · BIBLIOTECA</button>
   <div class="glass aform" id="fAlta" style="display:none">
@@ -268,6 +268,9 @@ input{width:100%;background:rgba(255,255,255,.7);border:1px solid rgba(255,255,2
   <div class="ssub">LA BIBLIOTECA · SE DESIGNAN COMO EXTRAS ★ A CUALQUIER SOCIO</div>
   <button class="nuevo" onclick="crearRutinaStd()">+ CREAR RUTINA ESTÁNDAR</button>
   <div id="bibLista"><div class="vacio">Cargando biblioteca…</div></div>
+  <div class="h3" style="margin-top:18px"><span>EL CEREBRO TÉCNICO</span><span>MANTENIMIENTO</span></div>
+  <button class="nuevo" style="background:rgba(255,255,255,.65);color:#121210;border:1.5px solid rgba(180,68,44,.3)" onclick="verBases()">⚙ EDITAR PROTOCOLOS BASE (18)</button>
+  <div id="basesLista"></div>
 </div>
 
 <!-- MODAL NUEVA RUTINA ESTÁNDAR -->
@@ -731,6 +734,21 @@ async function bibProto(){
   BIB = ri.data; return BIB
 }
 let BIB_ERR = null
+async function verBases(){
+  document.getElementById('basesLista').innerHTML='<div class="vacio">Cargando protocolos base…</div>'
+  const rp = await sb.from('protocolos').select('*').is('socio_id',null).neq('estado','biblioteca')
+  if(rp.error){ document.getElementById('basesLista').innerHTML='<div class="vacio">'+rp.error.message+'</div>'; return }
+  const bases=(rp.data||[]).sort(function(a,b){return ((a.programa||'')+(a.nivel||'')+(a.sexo||'')).localeCompare((b.programa||'')+(b.nivel||'')+(b.sexo||''))})
+  document.getElementById('basesLista').innerHTML = bases.map(function(p){
+    return '<div class="glass pkCard" onclick="editarBase(\''+p.id+'\')"><div class="pkN">'+(p.programa||p.nombre||'')+' · '+(p.nivel||'')+' · '+(p.sexo||'')+'</div>'+
+    '<div class="pkM" style="color:#B4442C">⚠ BASE MAESTRA — EDITARLA AFECTA A TODO CLON FUTURO · TOCA PARA ABRIR</div></div>'
+  }).join('') || '<div class="vacio">Sin bases</div>'
+}
+async function editarBase(pid){
+  const rp = await sb.from('protocolos').select('*').eq('id',pid).single()
+  if(rp.error){ toast(rp.error.message); return }
+  abrirPlan(pid, rp.data, { modo:'base' })
+}
 async function verBib(){
   vista('vBib')
   document.getElementById('bibLista').innerHTML='<div class="vacio">Cargando biblioteca…</div>'
@@ -933,10 +951,13 @@ async function abrirPlan(pid, proto, opts){
   P = null
   await cargarCatalogo()
   const esBib = opts.modo==='bib'
+  const esBase = opts.modo==='base'
   document.getElementById('pMeta').textContent = esBib
     ? 'BIBLIOTECA · RUTINA ESTÁNDAR · SE GUARDA AL INSTANTE'
+    : esBase
+    ? ('⚠ BASE MAESTRA · '+((proto&&proto.programa)||'')+' '+((proto&&proto.nivel)||'')+' '+((proto&&proto.sexo)||'')+' · AFECTA CLONES FUTUROS').toUpperCase()
     : (nomDe(F.id)+' · '+((proto&&proto.programa)||'')+' '+((proto&&proto.nivel)||'')+' · SU COPIA INDIVIDUAL').toUpperCase()
-  document.getElementById('pEstado').textContent = esBib ? 'ESTÁNDAR \u2605' : ((proto&&proto.estado)||'borrador').toUpperCase()
+  document.getElementById('pEstado').textContent = esBib ? 'ESTÁNDAR \u2605' : esBase ? 'BASE ⚙' : ((proto&&proto.estado)||'borrador').toUpperCase()
   vista('vPlan')
   document.getElementById('pBloques').innerHTML = '<div class="vacio">Cargando…</div>'
   ULT = {}
@@ -953,7 +974,7 @@ async function abrirPlan(pid, proto, opts){
   const rses = await qq
   const sids = (rses.data||[]).map(function(s){return s.id})
   const rblo = sids.length ? await sb.from('bloques').select('*, bloque_ejercicios(*, ejercicios(*))').in('sesion_id',sids).order('bloque') : {data:[]}
-  P = { pid:pid, proto:proto, tab:0, bib:esBib, sesiones:(rses.data||[]).map(function(s){
+  P = { pid:pid, proto:proto, tab:0, bib:esBib, base:esBase, sesiones:(rses.data||[]).map(function(s){
     return { id:s.id, numero:s.numero, nombre:nombreEN(s.objetivo)||('SESION '+s.numero),
       bloques:(rblo.data||[]).filter(function(b){return b.sesion_id===s.id}).map(function(b){
         return { id:b.id, tag:b.bloque, sets:b.sets||3, desc:b.descanso_seg||60,
@@ -965,7 +986,7 @@ async function abrirPlan(pid, proto, opts){
               kg:(be.kg_objetivo!=null?be.kg_objetivo:null), orden:(be.orden!=null?be.orden:null),
               reps:(be.reps_txt!=null&&be.reps_txt!==''?be.reps_txt:(be.reps!=null?String(be.reps):'10')) }
           }) } }) } }) }
-  const obj = (!esBib && F && C.asig[F.id]) ? C.obj[C.asig[F.id].protocolo_id] : null
+  const obj = (!esBib && !esBase && F && C.asig[F.id]) ? C.obj[C.asig[F.id].protocolo_id] : null
   P.objetivos = obj || null
   if (esBib){ P.objetivos = {}; pintarPlan(); return }
   if(!P.objetivos){
@@ -992,6 +1013,9 @@ function bloqueTag(t, idx){
 function pintarPlan(){
   const pg=document.getElementById('pGuardia')
   if(pg) pg.style.display = P.bib ? 'none' : 'block'
+  const gbBtn = pg ? pg.querySelector('.gb') : null
+  if(gbBtn) gbBtn.style.display = P.base ? 'none' : 'block'
+  if(P.base){ const fm=document.getElementById('pFootMsg'); if(fm) fm.textContent='⚙ EDITAS LA BASE MAESTRA — SE GUARDA AL INSTANTE · CLONES EXISTENTES NO CAMBIAN' }
   document.getElementById('pTabs').innerHTML = P.sesiones.map(function(s,i){
     const nom = P.bib ? ((P.sesiones[i]&&P.sesiones[i].nombre)||'') : s.nombre
     const flechas = (!P.bib && P.sesiones.length>1)
@@ -1129,14 +1153,16 @@ function calcDose(){
   Object.keys(P.objetivos).forEach(function(g){acum[g]=0})
   prog.sesiones.forEach(function(s){ const a=aporteSesion(s)
     Object.entries(a).forEach(function(p2){ if(p2[0] in acum) acum[p2[0]]+=p2[1] }) })
-  const sem = (F && C.sems[F.id]) ? C.sems[F.id] : null
+  const sem = (!P.base && F && C.sems[F.id]) ? C.sems[F.id] : null
   const real = sem ? sem.acum : {}
   const hechas = {}
-  ;((F && C.regs[F.id])||[]).forEach(function(r){ if(ESTADOS_OK.indexOf(r.estado)>-1 && r.estado!=='incompleta') hechas[r.sesion_protocolo_id]=1 })
+  ;((!P.base && F && C.regs[F.id])||[]).forEach(function(r){ if(ESTADOS_OK.indexOf(r.estado)>-1 && r.estado!=='incompleta') hechas[r.sesion_protocolo_id]=1 })
   let nH = 0
   P.sesiones.forEach(function(s){ if(hechas[s.id]) nH++ })
   const pct = sem ? sem.pct_dosis : 0
-  document.getElementById('pVivoTit').innerHTML = '<b>'+nH+'/'+P.sesiones.length+' SESIONES · '+pct+'%</b>'
+  document.getElementById('pVivoTit').innerHTML = P.base
+    ? '<b>PROYECCIÓN DE LA BASE · '+P.sesiones.length+' SESIONES</b>'
+    : '<b>'+nH+'/'+P.sesiones.length+' SESIONES · '+pct+'%</b>'
   let alerta = ''
   document.getElementById('pVivoDose').innerHTML = Object.entries(P.objetivos)
     .filter(function(p2){return p2[1].exigible!==false})
