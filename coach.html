@@ -167,7 +167,7 @@ input{width:100%;background:rgba(255,255,255,.7);border:1px solid rgba(255,255,2
 </div></div>
 
 <div class="vista" id="vSala">
-  <div class="hbar"><span class="hk" title="c3.3">KOACH</span><span class="rol" id="rolBadge" onclick="salir()">COACH</span></div>
+  <div class="hbar"><span class="hk" title="c3.5">KOACH</span><span class="rol" id="rolBadge" onclick="salir()">COACH</span></div>
   <button class="nuevo" onclick="toggleAlta()">+ NUEVO USUARIO · SOCIO O COACH</button>
   <button class="nuevo" style="background:rgba(255,255,255,.65);color:#121210;border:1.5px solid rgba(18,18,16,.15)" onclick="verBib()">📚 RUTINAS ESTÁNDAR · BIBLIOTECA</button>
   <div class="glass aform" id="fAlta" style="display:none">
@@ -175,7 +175,14 @@ input{width:100%;background:rgba(255,255,255,.7);border:1px solid rgba(255,255,2
     <input id="nuNombre" placeholder="Nombre">
     <input id="nuApellido" placeholder="Apellido">
     <input id="nuEmail" type="email" placeholder="correo@ejemplo.cl" autocomplete="off">
+    <input id="nuTel" inputmode="tel" placeholder="Teléfono (+569…)" autocomplete="off">
     <input id="nuPass" placeholder="Clave (mín. 4)" autocomplete="off">
+    <div id="nuPlanes" style="display:none">
+      <label style="margin-top:2px">MEMBRESÍA</label>
+      <div id="nuPlanChips" style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px"></div>
+      <label>INICIO DE MEMBRESÍA</label>
+      <input id="nuInicio" type="date">
+    </div>
     <div class="roles">
       <button class="rolb on" id="rSocio" onclick="setRol('socio')">SOCIO</button>
       <button class="rolb" id="rCoach" onclick="setRol('coach')">COACH</button>
@@ -688,10 +695,31 @@ async function designar(){
 }
 
 window._nuRol='socio'
-function toggleAlta(){ const f=document.getElementById('fAlta'); f.style.display=f.style.display==='none'?'block':'none' }
+let PLANES = null, nuPlanSel = null
+async function cargarPlanes(){
+  if (PLANES) return
+  try{ const r = await sb.from('planes').select('*').eq('activo',true).order('duracion_meses')
+    if(!r.error) PLANES = r.data||[] }catch(_e){}
+  const box = document.getElementById('nuPlanes')
+  if(!PLANES || !PLANES.length){ if(box) box.style.display='none'; return }
+  box.style.display = (window._nuRol==='socio') ? 'block' : 'none'
+  document.getElementById('nuInicio').value = hoyISO()
+  document.getElementById('nuPlanChips').innerHTML = PLANES.map(function(p,i){
+    return '<button onclick="nuSetPlan('+i+')" id="nuP'+i+'" style="border:1.5px solid rgba(18,18,16,.15);background:none;border-radius:11px;padding:9px 12px;font-size:7.5px;font-weight:900;letter-spacing:.06em;color:#7C7B76;cursor:pointer">'+p.nombre+'<br>$'+(p.precio||0).toLocaleString('es-CL')+'</button>'
+  }).join('')
+}
+function nuSetPlan(i){
+  nuPlanSel = PLANES[i]
+  PLANES.forEach(function(_,j){ const b=document.getElementById('nuP'+j)
+    if(b){ b.style.background=(j===i)?'#121210':'none'; b.style.color=(j===i)?'#F3F2EF':'#7C7B76'; b.style.borderColor=(j===i)?'#121210':'rgba(18,18,16,.15)' } })
+}
+function toggleAlta(){ const f=document.getElementById('fAlta'); f.style.display=f.style.display==='none'?'block':'none'
+  if(f.style.display==='block') cargarPlanes() }
 function setRol(r){ window._nuRol=r
   document.getElementById('rSocio').classList.toggle('on',r==='socio')
-  document.getElementById('rCoach').classList.toggle('on',r==='coach') }
+  document.getElementById('rCoach').classList.toggle('on',r==='coach')
+  const box=document.getElementById('nuPlanes')
+  if(box) box.style.display = (r==='socio' && PLANES && PLANES.length) ? 'block' : 'none' }
 async function crearUsuario(){
   const nombre=document.getElementById('nuNombre').value.trim(), apellido=document.getElementById('nuApellido').value.trim()
   const email=document.getElementById('nuEmail').value.trim(), pass=document.getElementById('nuPass').value
@@ -705,8 +733,24 @@ async function crearUsuario(){
     const r = await sbAlta.auth.signUp({email:email,password:pass,options:{data:{nombre:nombre,apellido:apellido}}})
     if(r.error) throw r.error
     if(!r.data||!r.data.user||!r.data.user.id) throw new Error('No se obtuvo el usuario')
-    const r2 = await sb.from('profiles').insert({id:r.data.user.id,nombre:nombre,apellido:apellido,email:email,role:window._nuRol,activo:true})
+    const tel=(document.getElementById('nuTel').value||'').trim()
+    const ini=document.getElementById('nuInicio').value || hoyISO()
+    const perfilBase={id:r.data.user.id,nombre:nombre,apellido:apellido,email:email,role:window._nuRol,activo:true}
+    if(tel) perfilBase.telefono=tel
+    if(window._nuRol==='socio') perfilBase.fecha_inicio=ini
+    let r2 = await sb.from('profiles').insert(perfilBase)
     if(r2.error && !/duplicate/i.test(r2.error.message||'')) throw r2.error
+    // Registro comercial: la tabla pagos es la fuente de verdad de la membresía
+    if(window._nuRol==='socio' && nuPlanSel){
+      try{
+        const d=new Date(ini+'T12:00:00'); d.setMonth(d.getMonth()+(nuPlanSel.duracion_meses||1))
+        const rp = await sb.from('pagos').insert({ socio_id:r.data.user.id,
+          tipo_membresia:(nuPlanSel.nombre||'MENSUAL').toLowerCase(),
+          monto_base:nuPlanSel.precio, monto_final:nuPlanSel.precio,
+          fecha_pago:ini, fecha_vencimiento:d.toISOString().split('T')[0], estado:'pagado' })
+        if(rp.error) toast('Perfil creado; pago no registrado: '+rp.error.message)
+      }catch(_e){}
+    }
     msg.className='amsg ok'
     msg.innerHTML='✓ <b>'+nombre+'</b> creado como <b>'+window._nuRol.toUpperCase()+'</b>. '+
       (window._nuRol==='coach'?'Entra aquí mismo con su correo y clave.':'Entra en /app.html — asígnale su programa.')
@@ -728,7 +772,7 @@ async function bibProto(){
   const r = await sb.from('protocolos').select('*').eq('estado','biblioteca').limit(1).maybeSingle()
   if (r.error){ BIB_ERR = 'Lectura: '+r.error.message; return null }
   if (r.data){ BIB = r.data; return BIB }
-  const cab = { nombre:'BIBLIOTECA KOACH', programa:'BIBLIOTECA', nivel:'STD', sexo:'MIXTO', estado:'biblioteca' }
+  const cab = { nombre:'BIBLIOTECA KOACH', programa:'BIBLIOTECA', nivel:'STD', sexo:'mixto', estado:'biblioteca', ciclo_semanas:6 }
   const ri = await sb.from('protocolos').insert(cab).select().maybeSingle()
   if (ri.error){ BIB_ERR = 'Creación: '+ri.error.message; return null }
   BIB = ri.data; return BIB
@@ -859,8 +903,9 @@ async function verPicker(){
   document.getElementById('pkMeta').textContent = (nomDe(F.id)+' · SIN PROGRAMA — ELIGE SU BASE').toUpperCase()
   vista('vPicker')
   const rp = await sb.from('protocolos').select('*').is('socio_id', null)
-  if(rp.error){ document.getElementById('pkLista').innerHTML='<div class="vacio">'+ (/socio_id/.test(rp.error.message)?'Falta correr capa3-planificador.sql':rp.error.message) +'</div>'; return }
-  const bases = (rp.data||[]).sort(function(a,b){ return ((a.programa||'')+(a.nivel||'')).localeCompare((b.programa||'')+(b.nivel||'')) })
+  if(rp.error){ document.getElementById('pkLista').innerHTML='<div class="vacio">'+rp.error.message+'</div>'; return }
+  const bases = (rp.data||[]).filter(function(p){return p.estado!=='biblioteca'})
+    .sort(function(a,b){ return ((a.programa||'')+(a.nivel||'')).localeCompare((b.programa||'')+(b.nivel||'')) })
   document.getElementById('pkLista').innerHTML = bases.map(function(p){
     return '<div class="glass pkCard" onclick="asignarBase(\''+p.id+'\')"><div class="pkN">'+(p.programa||p.nombre||'PROTOCOLO')+' · '+(p.nivel||'')+'</div>'+
     '<div class="pkM">'+(p.sexo||'')+' · SE CLONA COMO SU PROGRAMA INDIVIDUAL</div></div>'
