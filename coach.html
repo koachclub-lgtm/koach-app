@@ -167,7 +167,7 @@ input{width:100%;background:rgba(255,255,255,.7);border:1px solid rgba(255,255,2
 </div></div>
 
 <div class="vista" id="vSala">
-  <div class="hbar"><span class="hk" title="c3.5">KOACH</span><span class="rol" id="rolBadge" onclick="salir()">COACH</span></div>
+  <div class="hbar"><span class="hk" title="c3.6">KOACH</span><span class="rol" id="rolBadge" onclick="salir()">COACH</span></div>
   <button class="nuevo" onclick="toggleAlta()">+ NUEVO USUARIO · SOCIO O COACH</button>
   <button class="nuevo" style="background:rgba(255,255,255,.65);color:#121210;border:1.5px solid rgba(18,18,16,.15)" onclick="verBib()">📚 RUTINAS ESTÁNDAR · BIBLIOTECA</button>
   <div class="glass aform" id="fAlta" style="display:none">
@@ -429,8 +429,14 @@ async function loadSala(){
     if(pids.length){
       const rses = await sb.from('sesiones_protocolo').select('*').in('protocolo_id',pids).lte('numero',3).order('numero')
       const sids=(rses.data||[]).map(function(s){return s.id})
-      let rblo = {data:[]}
-      if(sids.length) rblo = await sb.from('bloques').select('*, bloque_ejercicios(*, ejercicios(*))').in('sesion_id',sids).order('bloque')
+      let rblo = {data:[]}, robjP = null
+      if(sids.length){
+        const par = await Promise.all([
+          sb.from('bloques').select('id,sesion_id,bloque,sets, bloque_ejercicios(id, ejercicios(grupo_muscular,sinergistas))').in('sesion_id',sids).order('bloque'),
+          sb.from('volumen_objetivos').select('*').in('protocolo_id',pids)
+        ])
+        rblo = par[0]; robjP = par[1]
+      }
       pids.forEach(function(pid){
         C.prog[pid]={ sesiones:(rses.data||[]).filter(function(s){return s.protocolo_id===pid}).map(function(s){
           return { numero:s.numero, id:s.id, nombre:nombreEN(s.objetivo)||('SESION '+s.numero),
@@ -439,7 +445,7 @@ async function loadSala(){
                 return {grupo:be.ejercicios?be.ejercicios.grupo_muscular:null,
                         sinergistas:(be.ejercicios&&be.ejercicios.sinergistas)||{}}
               }).filter(function(e){return e.grupo})} }) } }) } })
-      const robj = await sb.from('volumen_objetivos').select('*').in('protocolo_id',pids)
+      const robj = robjP || {data:[]}
       pids.forEach(function(pid){ C.obj[pid]={}
         ;(robj.data||[]).filter(function(o){return o.protocolo_id===pid}).forEach(function(o){
           const g=(o.grupo||'').toUpperCase()
@@ -447,8 +453,13 @@ async function loadSala(){
           C.obj[pid][g]={mev:o.mev,mav:o.mav==null?null:o.mav,
             exigible:(o.dominante===undefined||o.dominante===null)?true:!!o.dominante} }) })
     }
-    const rreg = await sb.from('sesiones_registro').select('*')
-      .in('socio_id',ids).gte('fecha',lunesISO)
+    // Lanzadas en paralelo desde el inicio (no dependen de protocolos)
+    const [rreg, rsolP, rhoyP, rdxP] = await Promise.all([
+      sb.from('sesiones_registro').select('*').in('socio_id',ids).gte('fecha',lunesISO),
+      sb.from('solicitudes').select('id,socio_id,tipo,detalle,created_at').eq('estado','pendiente').order('created_at',{ascending:false}).limit(20).then(function(r){return r}, function(){return {data:[]}}),
+      sb.from('sesiones_registro').select('id,socio_id,sesion_protocolo_id,validada_at').eq('fecha',hoyISO()).in('socio_id',ids).then(function(r){return r}, function(){return {data:[]}}),
+      sb.from('designaciones_extra').select('id,socio_id,sesion_protocolo_id,estado,motivo,created_at').in('socio_id',ids).neq('estado','retirada').then(function(r){return r}, function(){return {data:[]}})
+    ])
     if(rreg.error) toast('Registros: '+rreg.error.message)
     ids.forEach(function(id){C.regs[id]=[]})
     ;(rreg.data||[]).forEach(function(r){ (C.regs[r.socio_id]=C.regs[r.socio_id]||[]).push(r) })
@@ -463,16 +474,10 @@ async function loadSala(){
       }).filter(function(r){return r.sesion_numero})
       C.sems[s.id]=calcularSemana(prog, rs2, C.obj[a.protocolo_id])
     })
-    try{ const rsol = await sb.from('solicitudes').select('id,socio_id,tipo,detalle,created_at')
-      .eq('estado','pendiente').order('created_at',{ascending:false}).limit(20)
-      C.sols=rsol.data||[] }catch(_e){}
-    try{ const rhoy = await sb.from('sesiones_registro').select('id,socio_id,sesion_protocolo_id,validada_at')
-      .eq('fecha',hoyISO()).in('socio_id',ids)
-      C.hoy=rhoy.data||[] }catch(_e){ C.hoy=[] }
-    try{ const rdx = await sb.from('designaciones_extra').select('id,socio_id,sesion_protocolo_id,estado,motivo,created_at')
-      .in('socio_id',ids).neq('estado','retirada')
-      ids.forEach(function(id){C.extras[id]=[]})
-      ;(rdx.data||[]).forEach(function(d){(C.extras[d.socio_id]=C.extras[d.socio_id]||[]).push(d)}) }catch(_e){}
+    C.sols = (rsolP && rsolP.data) || []
+    C.hoy = (rhoyP && rhoyP.data) || []
+    ids.forEach(function(id){C.extras[id]=[]})
+    ;((rdxP && rdxP.data)||[]).forEach(function(d){(C.extras[d.socio_id]=C.extras[d.socio_id]||[]).push(d)})
   }
   pintarSala()
 }
