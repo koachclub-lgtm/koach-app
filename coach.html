@@ -186,7 +186,7 @@ input{width:100%;background:rgba(255,255,255,.7);border:1px solid rgba(255,255,2
 </div></div>
 
 <div class="vista" id="vSala">
-  <div class="hbar"><span class="hk" title="c4.2">KOACH</span><span class="rol" id="rolBadge" onclick="salir()">COACH</span></div>
+  <div class="hbar"><span class="hk" title="c4.3">KOACH</span><span class="rol" id="rolBadge" onclick="salir()">COACH</span></div>
   <button class="nuevo" onclick="toggleAlta()">+ NUEVO USUARIO · SOCIO O COACH</button>
   <button class="nuevo" style="background:rgba(255,255,255,.65);color:#121210;border:1.5px solid rgba(18,18,16,.15)" onclick="verBib()">📚 RUTINAS ESTÁNDAR · BIBLIOTECA</button>
   <div class="glass aform" id="fAlta" style="display:none">
@@ -1105,6 +1105,8 @@ async function abrirPlan(pid, proto, opts){
               grupo:(be.ejercicios&&be.ejercicios.grupo_muscular)||'',
               sinergistas:(be.ejercicios&&be.ejercicios.sinergistas)||{},
               kg:(be.kg_objetivo!=null?be.kg_objetivo:null), orden:(be.orden!=null?be.orden:null),
+              tipoReg:(be.ejercicios&&be.ejercicios.tipo_registro)||null,
+              conCarga:(be.ejercicios?be.ejercicios.con_carga:null),
               reps:(be.reps_txt!=null&&be.reps_txt!==''?be.reps_txt:(be.reps!=null?String(be.reps):'10')) }
           }) } }) } }) }
   const obj = (!esBib && !esBase && F && C.asig[F.id]) ? C.obj[C.asig[F.id].protocolo_id] : null
@@ -1561,6 +1563,13 @@ function calcDose(){
   if(fm) fm.textContent = alerta ? (alerta+' — LA APP ORIENTA, EL COACH PROGRAMA') : 'SE GUARDA AL INSTANTE · LA APP ORIENTA, EL COACH PROGRAMA'
 }
 async function aplicarPrograma(){
+  // Guardia de prescripción (advertencia, jamás bloqueo)
+  let sinCarga=0
+  P.sesiones.forEach(function(s){ s.bloques.forEach(function(b){ b.items.forEach(function(it){
+    const esPeso = it.tipoReg==='WEIGHT_REPS' || (it.tipoReg==null && it.conCarga!==false)
+    if (esPeso && it.kg==null) sinCarga++
+  }) }) })
+  if (sinCarga>0 && !confirm('Hay '+sinCarga+' ejercicio'+(sinCarga===1?'':'s')+' sin prescripción de carga.\nEl socio deberá definirla al entrenar.\n\n¿Aplicar igual?')) return
   const r=await sb.from('protocolos').update({estado:'activo'}).eq('id',P.pid)
   if(r.error){ toast('Aplicar: '+r.error.message); return }
   document.getElementById('pEstado').textContent='ACTIVO'
