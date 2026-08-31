@@ -288,7 +288,7 @@ html,body{background:linear-gradient(170deg,#F3F2EF 0%,#E7E6E2 55%,#DAD9D4 100%)
 
   <!-- ══ HOME ══ -->
   <div class="vista conTab" id="vHome">
-    <div class="hbar"><span class="hk" title="v3.1">KOACH</span><div class="hav" id="hAv" onclick="salir()">K</div></div>
+    <div class="hbar"><span class="hk" title="v3.2">KOACH</span><div class="hav" id="hAv" onclick="salir()">K</div></div>
     <div class="ctx"><div class="fecha" id="hFecha">—</div><div class="prog" id="hProg">—</div></div>
     <div class="anillo">
       <svg width="180" height="180" viewBox="0 0 180 180">
@@ -591,7 +591,7 @@ async function entrar(){
     S.asig = asig; S.proto = asig.protocolos
 
     const { data: sesiones } = await sb.from('sesiones_protocolo').select('*')
-      .eq('protocolo_id', S.proto.id).lte('numero',3).order('numero')
+      .eq('protocolo_id', S.proto.id).lte('numero',6).order('numero')
     const sesIds = (sesiones||[]).map(s=>s.id)
     const { data: bloques } = await sb.from('bloques')
       .select('*, bloque_ejercicios(*, ejercicios(*))').in('sesion_id', sesIds).order('bloque')
@@ -730,6 +730,10 @@ function pintarHome(){
     cta.disabled=false; cta.onclick=abrirSesion
     document.getElementById('hCtaT').textContent='COMENZAR EXTRA ★'
     document.getElementById('hCtaS').textContent=sem.proxima.nombre.replace('★ ','')+' · DESIGNADA POR TU COACH · SUMA VOLUMEN ESPECÍFICO'
+  } else if (sem.completa && sem.proxima){
+    cta.disabled=false; cta.onclick=abrirSesion
+    document.getElementById('hCtaT').textContent='COMENZAR '+sem.proxima.nombre
+    document.getElementById('hCtaS').textContent='SESIÓN DE TU SEMANA · PROGRAMADA POR TU COACH'
   } else if (sem.completa){ cta.disabled=false
     if (S._solExtra){
       document.getElementById('hCtaT').textContent='SOLICITUD ENVIADA ✓'
