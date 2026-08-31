@@ -136,7 +136,44 @@ html,body{background:linear-gradient(170deg,#F3F2EF 0%,#E7E6E2 55%,#DAD9D4 100%)
   font-size:14px;font-weight:900;cursor:pointer;color:var(--tinta)}
 .peso .kg{font-size:13px;font-weight:900;min-width:52px;text-align:center;font-variant-numeric:tabular-nums}
 .peso .kg small{font-size:8px;color:var(--suave)}
-.mrk{margin-left:auto;flex-shrink:0;background:rgba(18,18,16,.06);border:none;border-radius:12px;padding:9px 13px;
+
+/* ── Registro en vivo v4 ── */
+#syncTag{position:fixed;top:10px;right:12px;z-index:40;font-size:7px;font-weight:900;letter-spacing:.12em;padding:6px 10px;border-radius:9px;background:rgba(31,157,85,.12);color:#1F9D55;transition:opacity .3s}
+#syncTag.envio{background:rgba(18,18,16,.1);color:#7C7B76}
+#syncTag.err{background:rgba(180,68,44,.12);color:#B4442C}
+.exCard{padding:13px 14px 11px;border-top:1px solid rgba(18,18,16,.06)}
+.exCard:first-of-type{border-top:none}
+.exTop{display:flex;align-items:baseline;gap:8px}
+.exN{font-size:12.5px;font-weight:900}
+.exG{font-size:6.5px;font-weight:900;letter-spacing:.06em;background:rgba(18,18,16,.07);border-radius:8px;padding:4px 7px}
+.exUlt{font-size:7px;color:#BEBDB8;font-weight:900;letter-spacing:.06em;margin-top:3px}
+.exCtrl{display:flex;gap:16px;margin:9px 0 7px}
+.exCol{flex:1}
+.exLbl{font-size:6px;letter-spacing:.14em;font-weight:900;color:#BEBDB8;margin-bottom:3px}
+.exVal{display:flex;align-items:center;gap:6px}
+.exVal button{width:30px;height:30px;border:none;border-radius:10px;background:rgba(18,18,16,.07);font-weight:900;font-size:14px;cursor:pointer;flex-shrink:0}
+.exVal input{width:100%;max-width:74px;margin:0;padding:7px 4px;text-align:center;font-size:16px;font-weight:900;border-radius:10px;background:rgba(255,255,255,.75)}
+.exVal small{font-size:7px;font-weight:900;color:#BEBDB8}
+.exVal input.falta{border:1.5px solid #C5A13C;background:rgba(197,161,60,.08)}
+.pcChip{font-size:7px;font-weight:900;letter-spacing:.08em;background:rgba(18,18,16,.07);border-radius:10px;padding:9px 10px;color:#7C7B76}
+.setsRow{display:flex;align-items:center;gap:7px;flex-wrap:wrap}
+.setsRow .sl{font-size:6px;letter-spacing:.14em;font-weight:900;color:#BEBDB8;margin-right:2px}
+.setChip{min-width:40px;height:36px;border:1.5px solid rgba(18,18,16,.14);background:rgba(255,255,255,.6);border-radius:12px;font-size:11px;font-weight:900;cursor:pointer;color:#121210}
+.setChip.done{background:#1F9D55;border-color:#1F9D55;color:#fff}
+.setChip.ahora{border-color:#121210;box-shadow:0 0 0 1.5px #121210 inset}
+.setChip.ahora::after{content:' ←'}
+.circu{display:flex;justify-content:space-between;align-items:center;padding:8px 2px;border-top:1px solid rgba(18,18,16,.05)}
+.circu:first-of-type{border-top:none}
+.circu .cn{font-size:11.5px;font-weight:800}
+.circu .cg{font-size:6.5px;color:#BEBDB8;font-weight:900;letter-spacing:.06em;margin-top:2px}
+.circu .cv{font-size:11px;font-weight:900;white-space:nowrap}
+.rondaBox{margin-top:11px;padding-top:10px;border-top:1px solid rgba(18,18,16,.08)}
+.bannerCurso{background:#121210;color:#F3F2EF;border-radius:18px;padding:15px 16px;margin-bottom:12px;cursor:pointer;box-shadow:0 10px 26px rgba(18,18,16,.28)}
+.bannerCurso .bc1{font-size:7px;letter-spacing:.16em;font-weight:900;color:#8B8A85;margin-bottom:4px}
+.bannerCurso .bc2{font-size:13px;font-weight:900}
+#setEdit{display:none;position:fixed;inset:0;z-index:80;background:rgba(18,18,16,.45);backdrop-filter:blur(6px)}
+#setEdit .caja{position:absolute;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:520px;background:#F3F2EF;border-radius:24px 24px 0 0;padding:18px 16px 22px}
+.mrk{.mrk{margin-left:auto;flex-shrink:0;background:rgba(18,18,16,.06);border:none;border-radius:12px;padding:9px 13px;
   font-size:8px;font-weight:900;letter-spacing:.08em;cursor:pointer;color:var(--tinta)}
 .mrk.on{background:rgba(31,157,85,.12);color:var(--ok)}
 .bsets{width:100%;margin-top:11px;background:var(--tinta);color:var(--hueso);border:none;border-radius:15px;
@@ -288,7 +325,7 @@ html,body{background:linear-gradient(170deg,#F3F2EF 0%,#E7E6E2 55%,#DAD9D4 100%)
 
   <!-- ══ HOME ══ -->
   <div class="vista conTab" id="vHome">
-    <div class="hbar"><span class="hk" title="v3.2">KOACH</span><div class="hav" id="hAv" onclick="salir()">K</div></div>
+    <div class="hbar"><span class="hk" title="v4.0">KOACH</span><div class="hav" id="hAv" onclick="salir()">K</div></div>
     <div class="ctx"><div class="fecha" id="hFecha">—</div><div class="prog" id="hProg">—</div></div>
     <div class="anillo">
       <svg width="180" height="180" viewBox="0 0 180 180">
@@ -391,7 +428,16 @@ html,body{background:linear-gradient(170deg,#F3F2EF 0%,#E7E6E2 55%,#DAD9D4 100%)
   </div>
 
   <!-- ══ SESIÓN ══ -->
-  <div class="vista" id="vSesion">
+  <div id="syncTag" style="display:none">✓ GUARDADO</div>
+<div id="setEdit"><div class="caja">
+  <div style="font-size:8px;letter-spacing:.18em;font-weight:900;color:#7C7B76;margin-bottom:12px" id="seTit">SET</div>
+  <div class="exCtrl" id="seCtrls"></div>
+  <div style="display:flex;gap:8px;margin-top:6px">
+    <button class="btn" style="background:rgba(180,68,44,.1);color:#B4442C" onclick="desmarcarSet()">DESMARCAR</button>
+    <button class="btn" onclick="guardarSetEdit()">GUARDAR →</button>
+  </div>
+</div></div>
+<div class="vista" id="vSesion">
     <div class="stop">
       <button class="sback" onclick="volverHome()">←</button>
       <div class="stit" id="sTit">SESIÓN</div>
@@ -635,6 +681,17 @@ async function entrar(){
       }
     }catch(_){}
 
+    // Entrenamiento en curso: recuperar el de hoy, cerrar los abandonados
+    S.enCurso = null
+    try{
+      const hoyD = new Date().toISOString().split('T')[0]
+      const { data: ec } = await sb.from('sesiones_registro')
+        .select('id, sesion_protocolo_id, fecha').eq('socio_id',perfil.id).eq('estado','en_curso')
+      ;(ec||[]).forEach(r=>{
+        if (r.fecha===hoyD && !S.enCurso) S.enCurso = r
+        else if (r.fecha<hoyD) sb.from('sesiones_registro').update({estado:'omitida'}).eq('id',r.id).then(()=>{})
+      })
+    }catch(_){}
     const lunesISO = lunes().toISOString().split('T')[0]
     const { data: regs } = await sb.from('sesiones_registro')
       .select('sesion_protocolo_id, estado, fecha, bloques_completados')
@@ -722,7 +779,13 @@ function pintarHome(){
   const cta=document.getElementById('hCta')
   const hoyISO2 = new Date().toISOString().split('T')[0]
   const entrenoHoy = S.registros.some(r=>r.fecha===hoyISO2 && r.estado!=='incompleta')
-  if (entrenoHoy){
+  if (S.enCurso){
+    const sesEC = S.programa.sesiones.find(x=>x.id===S.enCurso.sesion_protocolo_id)
+    cta.disabled=false
+    cta.onclick=()=>reanudar()
+    document.getElementById('hCtaT').textContent='TIENES UN ENTRENAMIENTO EN CURSO'
+    document.getElementById('hCtaS').textContent=((sesEC?sesEC.nombre:'TU SESIÓN')+' · CONTINUAR DONDE QUEDASTE →')
+  } else if (entrenoHoy){
     cta.disabled=true; cta.onclick=null
     document.getElementById('hCtaT').textContent='HOY YA SUMASTE ✓'
     document.getElementById('hCtaS').textContent='LA RECUPERACIÓN TAMBIÉN ENTRENA — NOS VEMOS MAÑANA'
@@ -809,6 +872,41 @@ function volverHome(){
 }
 
 /* ══ SESIÓN ══ */
+async function reanudar(){
+  const reg = S.enCurso; if(!reg) return
+  const ses = S.programa.sesiones.find(x=>x.id===reg.sesion_protocolo_id)
+  if(!ses){ toast('No encontramos esa sesión en tu programa actual'); return }
+  S.sesionAbierta = ses
+  S.pesos={}; S.marcas={}; S.setsHechos={}; S.bloquesListos=0
+  S.wk={}; S.setLog={}; S.regId=reg.id
+  S._desigActual = ses._desigId||null; S._desigRec = !!ses._rec
+  vista('vSesion')
+  document.getElementById('sTit').textContent = ses.nombre
+  document.getElementById('sSub').textContent = 'EN CURSO · RETOMANDO DONDE QUEDASTE'
+  document.getElementById('sObj').innerHTML = 'Tus sets marcados <b>ya están guardados</b>. Continúa desde el siguiente.'
+  try{
+    const { data: sl } = await sb.from('set_registros').select('*').eq('registro_id',reg.id)
+    ;(sl||[]).forEach(r=>{
+      const k = r.bloque_ejercicio_id ? ('be:'+r.bloque_ejercicio_id+'#'+r.set_numero) : ('blk:'+r.bloque_id+'#'+r.set_numero)
+      S.setLog[k]=r
+    })
+  }catch(_){}
+  try{
+    const { data: us } = await sb.from('set_registros').select('ejercicio_id, peso, reps, seg, id')
+      .eq('socio_id', S.perfil.id).order('id',{ascending:false}).limit(400)
+    S.ultimos={}
+    ;(us||[]).forEach(u=>{ if(u.ejercicio_id && !(u.ejercicio_id in S.ultimos)) S.ultimos[u.ejercicio_id]=u })
+  }catch(_){ S.ultimos={} }
+  try{
+    const { data: cs } = await sb.from('cargas').select('bloque_ejercicio_id, peso_kg, id')
+      .eq('socio_id', S.perfil.id).order('id',{ascending:false}).limit(300)
+    S.sugeridos={}
+    ;(cs||[]).forEach(c=>{ if(!(c.bloque_ejercicio_id in S.sugeridos)) S.sugeridos[c.bloque_ejercicio_id]=c.peso_kg })
+  }catch(_){ S.sugeridos={} }
+  document.getElementById('sBloques').classList.remove('locked')
+  document.getElementById('oAct').classList.remove('vis')
+  pintarSesion()
+}
 async function abrirSesion(){
   if (!S.sem?.proxima) return
   const hoyC = new Date().toISOString().split('T')[0]
@@ -819,6 +917,28 @@ async function abrirSesion(){
   const ses = S.programa.sesiones.find(x=>x.numero===S.sem.proxima.numero)
   S.sesionAbierta = ses
   S.pesos={}; S.marcas={}; S.setsHechos={}; S.bloquesListos=0
+  S.wk={}; S.setLog={}; S.regId=null
+  // INSTANCIA: crear o recuperar el registro en curso de hoy (persistencia server-side)
+  try{
+    const hoyD = new Date().toISOString().split('T')[0]
+    const { data: exi } = await sb.from('sesiones_registro').select('id')
+      .eq('socio_id',S.perfil.id).eq('sesion_protocolo_id',ses.id).eq('fecha',hoyD).eq('estado','en_curso')
+      .limit(1).maybeSingle()
+    if (exi){ S.regId = exi.id }
+    else {
+      const { data: nr, error: er } = await sb.from('sesiones_registro').insert({
+        socio_id:S.perfil.id, asignacion_id:S.asig.id, sesion_protocolo_id:ses.id,
+        fecha:hoyD, estado:'en_curso',
+        semana:S.asig.semana_actual, ciclo:S.asig.ciclo_actual }).select('id').single()
+      if (er) throw er
+      S.regId = nr.id
+    }
+    const { data: sl } = await sb.from('set_registros').select('*').eq('registro_id',S.regId)
+    ;(sl||[]).forEach(r=>{
+      const k = r.bloque_ejercicio_id ? ('be:'+r.bloque_ejercicio_id+'#'+r.set_numero) : ('blk:'+r.bloque_id+'#'+r.set_numero)
+      S.setLog[k]=r
+    })
+  }catch(e){ console.error('instancia', e) }
   vista('vSesion')
   document.getElementById('sTit').textContent = ses.nombre
   const ap0 = aporteSesion(ses)
@@ -835,6 +955,12 @@ async function abrirSesion(){
     S.sugeridos={}
     ;(cs||[]).forEach(c=>{ if(!(c.bloque_ejercicio_id in S.sugeridos)) S.sugeridos[c.bloque_ejercicio_id]=c.peso_kg })
   }catch(_){ S.sugeridos={} }
+  try{
+    const { data: us } = await sb.from('set_registros').select('ejercicio_id, peso, reps, seg, id')
+      .eq('socio_id', S.perfil.id).order('id',{ascending:false}).limit(400)
+    S.ultimos={}
+    ;(us||[]).forEach(u=>{ if(u.ejercicio_id && !(u.ejercicio_id in S.ultimos)) S.ultimos[u.ejercicio_id]=u })
+  }catch(_){ S.ultimos={} }
   pintarSesion()
   // Overlay de activación
   document.getElementById('oActT').textContent = ses.nombre
@@ -842,51 +968,231 @@ async function abrirSesion(){
   document.getElementById('sBloques').classList.add('locked')
   document.getElementById('oAct').classList.add('vis')
 }
+function tipoDe(ej, be){
+  const t=(ej&&ej.tipo_registro)||null
+  if(t) return t
+  if(be && be.duracion_seg) return 'TIME'
+  if(ej && ej.con_carga===false) return 'BODYWEIGHT_REPS'
+  return 'WEIGHT_REPS'
+}
+function esCircuito(b){
+  const rol=(b.rol||'').toLowerCase()
+  const et=(b.etiqueta||'').toUpperCase()
+  return rol==='activacion' || /ACTIV|MOVIL|CARDIO/.test(et) || b.bloque==='B1'
+}
+function seedWk(be, ej){
+  if (S.wk[be.id]) return S.wk[be.id]
+  const tipo=tipoDe(ej,be)
+  const ult=S.ultimos[ej.id]||null
+  const w={ tipo }
+  if (tipo==='WEIGHT_REPS'){
+    // Jerarquía: coach explícito → último real → sugerido cargas → falta definir
+    w.kg = (be.kg_objetivo!=null) ? be.kg_objetivo
+         : (ult && ult.peso!=null) ? ult.peso
+         : (S.sugeridos[be.id]!=null) ? S.sugeridos[be.id] : null
+    w.reps = (be.reps_txt||String(be.reps||'')||'10').replace(/\//g,'·') || '10'
+  } else if (tipo==='TIME'){
+    w.seg = be.duracion_seg || parseInt(be.reps_txt) || 30
+  } else {
+    w.reps = (be.reps_txt||String(be.reps||'')||'10').replace(/\//g,'·') || '10'
+  }
+  S.wk[be.id]=w
+  return w
+}
+function setKey(beId,n){ return 'be:'+beId+'#'+n }
+function rondaKey(bId,n){ return 'blk:'+bId+'#'+n }
+function setsHechosDe(beId, tot){ let c=0; for(let n=1;n<=tot;n++) if(S.setLog[setKey(beId,n)]) c++; return c }
+function rondasHechas(bId, tot){ let c=0; for(let n=1;n<=tot;n++) if(S.setLog[rondaKey(bId,n)]) c++; return c }
+function chipsSets(idPrefijo, hechoFn, tot, onTap){
+  let html='<span class="sl">SETS</span>'
+  let ahoraPuesto=false
+  for(let n=1;n<=tot;n++){
+    const done=hechoFn(n)
+    const ahora = !done && !ahoraPuesto
+    if (ahora) ahoraPuesto=true
+    html += '<button class="setChip '+(done?'done':'')+(ahora?' ahora':'')+'" onclick="'+onTap.replace('__N__',n)+'">'+(done?'✓ ':'')+n+'</button>'
+  }
+  return '<div class="setsRow">'+html+'</div>'
+}
+function ultTxt(ej){
+  const u=S.ultimos[ej.id]
+  if (u){
+    if (u.seg!=null) return 'ÚLTIMO · '+u.seg+' SEG'
+    return 'ÚLTIMO · '+(u.peso!=null?u.peso+' KG':'')+(u.reps?(' × '+u.reps):'')
+  }
+  const c=null
+  return 'SIN REGISTRO ANTERIOR'
+}
 function pintarSesion(){
   const ses=S.sesionAbierta
-  const orden={B1:0,B2:1,B3:2}
+  const orden={B1:0,B2:1,B3:2,B4:3,B5:4,B6:5}
   const bfs=[...ses.bloquesFull].sort((a,b)=>(orden[a.bloque]??9)-(orden[b.bloque]??9))
+  S._bfs=bfs
   const NOM={B1:'ACTIVACIÓN',B2:'FUERZA PRINCIPAL',B3:'CIERRE ACCESORIO'}
   document.getElementById('sBloques').classList.remove('cargando')
   document.getElementById('sBloques').innerHTML = bfs.map((b,bi)=>{
     const bes=[...(b.bloque_ejercicios||[])].sort((a,x)=>(a.orden||0)-(x.orden||0))
-    const ejs = bes.map(be=>{
+    const titulo = (b.etiqueta? b.etiqueta.toUpperCase() : (NOM[b.bloque]||''))
+    if (esCircuito(b)){
+      const filas = bes.map(be=>{
+        const ej=be.ejercicios||{}
+        const w=seedWk(be,ej)
+        const val = w.tipo==='TIME' ? (w.seg+' SEG') : (w.reps+' REPS')
+        return '<div class="circu"><div><div class="cn">'+(ej.nombre||'—')+'</div><div class="cg">'+(ej.grupo_muscular||'')+'</div></div><div class="cv">'+val+'</div></div>'
+      }).join('')
+      const rondas = chipsSets('r'+bi, n=>!!S.setLog[rondaKey(b.id,n)], b.sets, "tapRonda('"+b.id+"',__N__,"+bi+")")
+      return '<div class="glass bloq" id="blq-'+bi+'"><div class="bh"><span class="bt">'+(b.bloque||('B'+(bi+1)))+'</span><span class="bn">'+titulo+'</span>'+
+        '<span class="bs">'+b.sets+' RONDAS · '+(b.descanso_seg||b.descanso_segundos||60)+"'' DESC</span></div>"+
+        filas+'<div class="rondaBox">'+rondas.replace('>SETS<','>RONDA / SET<')+'</div></div>'
+    }
+    const cards = bes.map(be=>{
       const ej=be.ejercicios||{}
+      const w=seedWk(be,ej)
       const ancla=be.es_ancla?' ◆':''
-      const meta=[ (ej.grupo_muscular||''), (be.reps?String(be.reps).replace(/\//g,'·')+' REPS':''), (be.duracion_seg?be.duracion_seg+' SEG':'') ]
-        .filter(Boolean).join(' · ')
-      let derecha
-      if (ej.con_carga){
-        const sug = S.sugeridos[be.id]
-        if (!(be.id in S.pesos)) S.pesos[be.id] = sug || 0
-        derecha = `<div class="peso">
-          <button onclick="peso('${be.id}',-2.5)">−</button>
-          <div class="kg" id="kg-${be.id}">${S.pesos[be.id]||'—'}<small> KG</small></div>
-          <button onclick="peso('${be.id}',2.5)">+</button></div>`
+      let ctrl=''
+      if (w.tipo==='WEIGHT_REPS'){
+        const faltaKg = (w.kg==null)
+        ctrl = '<div class="exCtrl">'+
+          '<div class="exCol"><div class="exLbl">PESO · KG</div><div class="exVal">'+
+            '<button onclick="wkStep(\''+be.id+'\',\'kg\',-2.5)">−</button>'+
+            '<input id="wkKg-'+be.id+'" class="'+(faltaKg?'falta':'')+'" value="'+(w.kg==null?'':w.kg)+'" placeholder="define" inputmode="decimal" onchange="wkSet(\''+be.id+'\',\'kg\',this.value)">'+
+            '<button onclick="wkStep(\''+be.id+'\',\'kg\',2.5)">+</button></div></div>'+
+          '<div class="exCol"><div class="exLbl">REPS</div><div class="exVal">'+
+            '<button onclick="wkStep(\''+be.id+'\',\'reps\',-1)">−</button>'+
+            '<input id="wkRp-'+be.id+'" value="'+w.reps+'" onchange="wkSet(\''+be.id+'\',\'reps\',this.value)">'+
+            '<button onclick="wkStep(\''+be.id+'\',\'reps\',1)">+</button></div></div></div>'
+      } else if (w.tipo==='TIME'){
+        ctrl = '<div class="exCtrl"><div class="exCol"><div class="exLbl">TIEMPO · SEG</div><div class="exVal">'+
+          '<button onclick="wkStep(\''+be.id+'\',\'seg\',-5)">−</button>'+
+          '<input id="wkSg-'+be.id+'" value="'+w.seg+'" inputmode="numeric" onchange="wkSet(\''+be.id+'\',\'seg\',this.value)">'+
+          '<button onclick="wkStep(\''+be.id+'\',\'seg\',5)">+</button></div></div></div>'
       } else {
-        derecha = `<button class="mrk" id="mk-${be.id}" onclick="marcar('${be.id}')">MARCAR</button>`
+        ctrl = '<div class="exCtrl"><div class="exCol"><div class="exLbl">CARGA</div><div class="pcChip">PESO CORPORAL</div></div>'+
+          '<div class="exCol"><div class="exLbl">REPS</div><div class="exVal">'+
+            '<button onclick="wkStep(\''+be.id+'\',\'reps\',-1)">−</button>'+
+            '<input id="wkRp-'+be.id+'" value="'+w.reps+'" onchange="wkSet(\''+be.id+'\',\'reps\',this.value)">'+
+            '<button onclick="wkStep(\''+be.id+'\',\'reps\',1)">+</button></div></div></div>'
       }
-      const cue = ej.cue ? `<div class="ecue">${ej.cue}</div>` : ''
-      return `<div class="ej"><div><div class="en">${ej.nombre||'—'}${ancla}</div><div class="em">${meta}</div>${cue}</div>${derecha}</div>`
+      const cue = ej.cue ? '<div class="ecue">'+ej.cue+'</div>' : ''
+      const chips = chipsSets('s'+be.id, n=>!!S.setLog[setKey(be.id,n)], b.sets, "tapSet('"+be.id+"',__N__,'"+b.id+"','"+(ej.id||'')+"')")
+      return '<div class="exCard"><div class="exTop"><span class="exN">'+(ej.nombre||'—')+ancla+'</span><span class="exG">'+(ej.grupo_muscular||'')+'</span></div>'+
+        '<div class="exUlt">'+ultTxt(ej)+'</div>'+cue+ctrl+chips+'</div>'
     }).join('')
-    return `<div class="glass bloq" id="blq-${bi}">
-      <div class="bh"><span class="bt">${b.bloque||('B'+(bi+1))}</span><span class="bn">${NOM[b.bloque]||''}</span>
-        <span class="bs">${b.sets} SETS · ${b.descanso_segundos||60}'' DESC</span></div>
-      ${ejs}
-      <button class="bsets" id="bs-${bi}" onclick="setBloque(${bi},${b.sets})">MARCAR SET · 0/${b.sets}</button>
-    </div>`
+    return '<div class="glass bloq" id="blq-'+bi+'"><div class="bh"><span class="bt">'+(b.bloque||('B'+(bi+1)))+'</span><span class="bn">'+titulo+'</span>'+
+      '<span class="bs">'+b.sets+' SETS · '+(b.descanso_seg||b.descanso_segundos||60)+"'' DESC</span></div>"+cards+'</div>'
   }).join('')
   document.getElementById('sFin').style.display='block'
+  document.getElementById('syncTag').style.display='block'
+  syncOk()
 }
-function peso(id,delta){
-  S.pesos[id]=Math.max(0,(parseFloat(S.pesos[id])||0)+delta)
-  document.getElementById('kg-'+id).innerHTML=(S.pesos[id]||'—')+'<small> KG</small>'
+let _pend=0
+function syncEnvio(){ _pend++; const t=document.getElementById('syncTag'); t.className='envio'; t.textContent='GUARDANDO…' }
+function syncOk(){ if(_pend>0)_pend--; if(_pend>0)return; const t=document.getElementById('syncTag'); t.className=''; t.textContent='✓ GUARDADO' }
+function syncErr(){ _pend=0; const t=document.getElementById('syncTag'); t.className='err'; t.textContent='ERROR AL GUARDAR — REINTENTA' }
+function wkSet(beId,k,v){
+  const w=S.wk[beId]; if(!w)return
+  if(k==='kg'){ const n=parseFloat(String(v).replace(',','.')); w.kg=isNaN(n)?null:n
+    const inp=document.getElementById('wkKg-'+beId); if(inp){ inp.value=w.kg==null?'':w.kg; inp.classList.toggle('falta',w.kg==null) } }
+  else if(k==='seg'){ const n=parseInt(v); w.seg=isNaN(n)?30:Math.max(5,n)
+    const inp=document.getElementById('wkSg-'+beId); if(inp)inp.value=w.seg }
+  else { w.reps=String(v).trim()||'10'
+    const inp=document.getElementById('wkRp-'+beId); if(inp)inp.value=w.reps }
 }
-function marcar(id){
-  S.marcas[id]=!S.marcas[id]
-  const b=document.getElementById('mk-'+id)
-  b.classList.toggle('on',S.marcas[id])
-  b.textContent=S.marcas[id]?'✓ HECHO':'MARCAR'
+function wkStep(beId,k,d){
+  const w=S.wk[beId]; if(!w)return
+  if(k==='kg') wkSet(beId,'kg', Math.max(0,(parseFloat(w.kg)||0)+d))
+  else if(k==='seg') wkSet(beId,'seg', (parseInt(w.seg)||30)+d)
+  else {
+    const n=parseInt(w.reps); wkSet(beId,'reps', isNaN(n)? w.reps : Math.max(1,n+d))
+  }
+}
+async function tapSet(beId,n,bId,ejId){
+  const k=setKey(beId,n)
+  if (S.setLog[k]){ abrirSetEdit(k); return }
+  const w=S.wk[beId]||{}
+  if (w.tipo==='WEIGHT_REPS' && w.kg==null){ toast('Define el peso antes de marcar el set.'); return }
+  const fila={ registro_id:S.regId, socio_id:S.perfil.id, bloque_id:bId, bloque_ejercicio_id:beId,
+    ejercicio_id:ejId||null, set_numero:n,
+    target_peso:w.kg!=null?w.kg:null, target_reps:w.reps||null, target_seg:w.seg||null,
+    peso:w.kg!=null?w.kg:null, reps:w.reps||null, seg:w.seg||null, completado:true }
+  S.setLog[k]={...fila}
+  pintarSesion()
+  if(navigator.vibrate)navigator.vibrate(8)
+  syncEnvio()
+  sb.from('set_registros').insert(fila).select('id').single().then(r=>{
+    if(r.error){ delete S.setLog[k]; pintarSesion(); syncErr(); toast('No se guardó el set — toca de nuevo') }
+    else { S.setLog[k].id=r.data.id; syncOk(); chequearBloque(bId) }
+  })
+}
+async function tapRonda(bId,n,bi){
+  const k=rondaKey(bId,n)
+  if (S.setLog[k]){ 
+    if(!confirm('¿Desmarcar la ronda '+n+'?'))return
+    const fila=S.setLog[k]; delete S.setLog[k]; pintarSesion(); syncEnvio()
+    if(fila.id) sb.from('set_registros').delete().eq('id',fila.id).then(()=>syncOk())
+    else syncOk()
+    return
+  }
+  const b=S._bfs[bi]
+  const fila={ registro_id:S.regId, socio_id:S.perfil.id, bloque_id:bId, bloque_ejercicio_id:null,
+    ejercicio_id:null, set_numero:n, completado:true }
+  S.setLog[k]={...fila}
+  pintarSesion()
+  if(navigator.vibrate)navigator.vibrate(8)
+  syncEnvio()
+  sb.from('set_registros').insert(fila).select('id').single().then(r=>{
+    if(r.error){ delete S.setLog[k]; pintarSesion(); syncErr() }
+    else { S.setLog[k].id=r.data.id; syncOk(); chequearBloque(bId) }
+  })
+}
+function chequearBloque(bId){
+  const bi=S._bfs.findIndex(b=>b.id===bId); if(bi<0)return
+  const b=S._bfs[bi]
+  let completo=false
+  if (esCircuito(b)) completo = rondasHechas(b.id,b.sets)>=b.sets
+  else {
+    const bes=b.bloque_ejercicios||[]
+    completo = bes.length>0 && bes.every(be=>setsHechosDe(be.id,b.sets)>=b.sets)
+  }
+  if (completo && !S['_fl'+bi]){ S['_fl'+bi]=true
+    const [t,s]=frasesBloque(S.bloquesListos); S.bloquesListos++
+    flash(t,s)
+  }
+}
+let SE={k:null}
+function abrirSetEdit(k){
+  const fila=S.setLog[k]; if(!fila)return
+  SE.k=k
+  document.getElementById('seTit').textContent='SET '+fila.set_numero+' · EDITAR RESULTADO'
+  let html=''
+  if (fila.peso!=null || (S.wk[fila.bloque_ejercicio_id]&&S.wk[fila.bloque_ejercicio_id].tipo==='WEIGHT_REPS'))
+    html+='<div class="exCol"><div class="exLbl">PESO · KG</div><div class="exVal"><input id="sePeso" value="'+(fila.peso!=null?fila.peso:'')+'" inputmode="decimal"></div></div>'
+  if (fila.seg!=null)
+    html+='<div class="exCol"><div class="exLbl">SEG</div><div class="exVal"><input id="seSeg" value="'+fila.seg+'" inputmode="numeric"></div></div>'
+  else
+    html+='<div class="exCol"><div class="exLbl">REPS</div><div class="exVal"><input id="seReps" value="'+(fila.reps||'')+'"></div></div>'
+  document.getElementById('seCtrls').innerHTML=html
+  document.getElementById('setEdit').style.display='block'
+}
+async function guardarSetEdit(){
+  const fila=S.setLog[SE.k]; if(!fila)return
+  const p=document.getElementById('sePeso'), r=document.getElementById('seReps'), g=document.getElementById('seSeg')
+  const upd={ updated_at:new Date().toISOString() }
+  if(p){ const n=parseFloat(String(p.value).replace(',','.')); upd.peso=isNaN(n)?null:n; fila.peso=upd.peso }
+  if(r){ upd.reps=String(r.value).trim()||null; fila.reps=upd.reps }
+  if(g){ const n=parseInt(g.value); upd.seg=isNaN(n)?fila.seg:n; fila.seg=upd.seg }
+  document.getElementById('setEdit').style.display='none'
+  pintarSesion(); syncEnvio()
+  if(fila.id) sb.from('set_registros').update(upd).eq('id',fila.id).then(x=>{ x.error?syncErr():syncOk() })
+  else syncOk()
+}
+async function desmarcarSet(){
+  const fila=S.setLog[SE.k]; if(!fila)return
+  document.getElementById('setEdit').style.display='none'
+  delete S.setLog[SE.k]
+  pintarSesion(); syncEnvio()
+  if(fila.id) sb.from('set_registros').delete().eq('id',fila.id).then(()=>syncOk())
+  else syncOk()
 }
 function frasesBloque(i){
   const fb=S.frases?.flashes_bloque
@@ -911,33 +1217,39 @@ async function finalizar(){
   const ses=S.sesionAbierta
   const orden={B1:0,B2:1,B3:2}
   const bfs=[...ses.bloquesFull].sort((a,b)=>(orden[a.bloque]??9)-(orden[b.bloque]??9))
-  const bloquesComp = bfs.map((b,i)=>(S.setsHechos[i]||0)>=b.sets?i:-1).filter(i=>i>=0)
+  const bloquesComp = bfs.map((b,i)=>{
+    if (esCircuito(b)) return rondasHechas(b.id,b.sets)>=b.sets ? i : -1
+    const bes=b.bloque_ejercicios||[]
+    return (bes.length>0 && bes.every(be=>setsHechosDe(be.id,b.sets)>=1)) ? i : -1
+  }).filter(i=>i>=0)
   // Motor antes/después
   const antes=S.sem
   const regsN=[...S.registros,{ sesion_numero:ses.numero, estado:'completada', bloques_completados:bloquesComp }]
   const despues=calcularSemana(S.programa, regsN, S.objetivos)
   const ganados=despues.fortalecidos-antes.fortalecidos
   try{
-    const { data: reg, error } = await sb.from('sesiones_registro').insert({
-      socio_id:S.perfil.id, asignacion_id:S.asig.id, sesion_protocolo_id:ses.id,
-      fecha:new Date().toISOString().split('T')[0], estado:'completada',
-      semana:S.asig.semana_actual, ciclo:S.asig.ciclo_actual,
-      completada_at:new Date().toISOString(),
+    const { error } = await sb.from('sesiones_registro').update({
+      estado:'completada', completada_at:new Date().toISOString(),
       bloques_completados:bloquesComp,
       musculos_sumados:{ ganados, total:despues.fortalecidos, exigibles:despues.exigibles }
-    }).select().single()
+    }).eq('id', S.regId)
     if (error) throw error
-    // Cargas
+    // Cargas: derivadas del registro real por set (máximo peso + sets hechos)
     const inserts=[]
     bfs.forEach(b=>(b.bloque_ejercicios||[]).forEach(be=>{
-      const p=S.pesos[be.id]
-      if (p) inserts.push({ sesion_registro_id:reg.id, socio_id:S.perfil.id,
+      let maxP=null, hechos=0
+      for(let n2=1;n2<=b.sets;n2++){
+        const f=S.setLog[setKey(be.id,n2)]
+        if(f){ hechos++; if(f.peso!=null && (maxP==null||f.peso>maxP)) maxP=f.peso }
+      }
+      if (maxP!=null && hechos>0) inserts.push({ sesion_registro_id:S.regId, socio_id:S.perfil.id,
         bloque_ejercicio_id:be.id, ejercicio_id:be.ejercicio_id||be.ejercicios?.id,
-        peso_kg:p, sets_completados:(S.setsHechos[orden[b.bloque]??0]||0), registrado_por:S.perfil.id })
+        peso_kg:maxP, sets_completados:hechos, registrado_por:S.perfil.id })
     }))
     if (inserts.length) await sb.from('cargas').insert(inserts)
-  }catch(e){ console.error(e); toast('No se pudo guardar — intenta de nuevo o avisa a tu coach'); return }
+  }catch(e){ console.error(e); toast('No se pudo cerrar la sesión — tus sets YA están guardados. Reintenta.'); return }
   S._dirty = true; S._avOk = false
+  S.enCurso = null
   if (S._desigActual){
     try{
       if (S._desigRec){
