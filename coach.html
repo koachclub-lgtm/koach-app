@@ -145,6 +145,10 @@ input{width:100%;background:rgba(255,255,255,.7);border:1px solid rgba(255,255,2
 .vreal{position:absolute;top:0;left:0;height:100%;border-radius:5px;z-index:2}
 .vproy{position:absolute;top:0;left:0;height:100%;border-radius:5px;opacity:.32}
 .vv{font-size:6.5px;font-weight:900;text-align:right;color:#7C7B76;line-height:1.5}
+#pTabs{flex-wrap:nowrap;overflow-x:auto;-webkit-overflow-scrolling:touch;padding-bottom:6px}
+#pTabs .mtab{flex-shrink:0;white-space:nowrap}
+.selRow2{display:flex;align-items:center;gap:10px;padding:11px 6px;border-top:1px solid rgba(18,18,16,.06);cursor:pointer}
+.delSes{border:none;background:none;color:#B4442C;font-size:7.5px;font-weight:900;letter-spacing:.08em;cursor:pointer;margin:2px 4px 10px;padding:0}
 </style>
 </head>
 <body>
@@ -167,7 +171,7 @@ input{width:100%;background:rgba(255,255,255,.7);border:1px solid rgba(255,255,2
 </div></div>
 
 <div class="vista" id="vSala">
-  <div class="hbar"><span class="hk" title="c3.6">KOACH</span><span class="rol" id="rolBadge" onclick="salir()">COACH</span></div>
+  <div class="hbar"><span class="hk" title="c4.0">KOACH</span><span class="rol" id="rolBadge" onclick="salir()">COACH</span></div>
   <button class="nuevo" onclick="toggleAlta()">+ NUEVO USUARIO · SOCIO O COACH</button>
   <button class="nuevo" style="background:rgba(255,255,255,.65);color:#121210;border:1.5px solid rgba(18,18,16,.15)" onclick="verBib()">📚 RUTINAS ESTÁNDAR · BIBLIOTECA</button>
   <div class="glass aform" id="fAlta" style="display:none">
@@ -278,6 +282,23 @@ input{width:100%;background:rgba(255,255,255,.7);border:1px solid rgba(255,255,2
   <div class="h3" style="margin-top:18px"><span>EL CEREBRO TÉCNICO</span><span>MANTENIMIENTO</span></div>
   <button class="nuevo" style="background:rgba(255,255,255,.65);color:#121210;border:1.5px solid rgba(180,68,44,.3)" onclick="verBases()">⚙ EDITAR PROTOCOLOS BASE (18)</button>
   <div id="basesLista"></div>
+</div>
+
+<!-- HOJA AGREGAR SESIÓN A LA SEMANA -->
+<div id="mAddSes" style="display:none;position:fixed;inset:0;z-index:70;background:rgba(18,18,16,.45);backdrop-filter:blur(6px)">
+  <div style="position:absolute;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:560px;max-height:80vh;overflow-y:auto;background:#F3F2EF;border-radius:24px 24px 0 0;padding:18px 16px 22px">
+    <div style="display:flex;align-items:center;margin-bottom:12px">
+      <div style="font-size:8px;letter-spacing:.18em;font-weight:900;color:#7C7B76">AGREGAR SESIÓN A LA SEMANA</div>
+      <button onclick="document.getElementById('mAddSes').style.display='none'" style="margin-left:auto;border:none;background:rgba(18,18,16,.07);border-radius:10px;padding:8px 12px;font-weight:900;cursor:pointer">✕</button></div>
+    <label>NOMBRE (PARA CREAR VACÍA O DUPLICAR)</label>
+    <input id="asNombre" placeholder="CORE, UPPER B, HÍBRIDO…">
+    <div style="display:flex;gap:8px;margin-bottom:14px">
+      <button class="btn" style="background:rgba(18,18,16,.08);color:#121210" onclick="agregarSesion('vacia')">CREAR VACÍA →</button>
+      <button class="btn" onclick="agregarSesion('duplicar')">DUPLICAR ACTUAL →</button>
+    </div>
+    <div class="h3"><span>O DESDE RUTINAS ESTÁNDAR ★</span><span>TOCA PARA AGREGAR</span></div>
+    <div id="asBib"><div class="vacio">Cargando…</div></div>
+  </div>
 </div>
 
 <!-- MODAL NUEVA RUTINA ESTÁNDAR -->
@@ -427,7 +448,7 @@ async function loadSala(){
     ;(ra.data||[]).forEach(function(a){ C.asig[a.socio_id]=a; if(a.protocolos) C.protos[a.protocolo_id]=a.protocolos })
     const pids=[...new Set((ra.data||[]).map(function(a){return a.protocolo_id}))]
     if(pids.length){
-      const rses = await sb.from('sesiones_protocolo').select('*').in('protocolo_id',pids).lte('numero',3).order('numero')
+      const rses = await sb.from('sesiones_protocolo').select('*').in('protocolo_id',pids).lte('numero',6).order('numero')
       const sids=(rses.data||[]).map(function(s){return s.id})
       let rblo = {data:[]}, robjP = null
       if(sids.length){
@@ -1019,7 +1040,7 @@ async function abrirPlan(pid, proto, opts){
     }catch(_e){}
   }
   let qq = sb.from('sesiones_protocolo').select('*').eq('protocolo_id',pid).order('numero')
-  if (!esBib) qq = qq.lte('numero',3)
+  if (!esBib) qq = qq.lte('numero',6)
   if (opts.soloSesion) qq = qq.eq('id', opts.soloSesion)
   const rses = await qq
   const sids = (rses.data||[]).map(function(s){return s.id})
@@ -1070,8 +1091,18 @@ function pintarPlan(){
     const nom = P.bib ? ((P.sesiones[i]&&P.sesiones[i].nombre)||'') : s.nombre
     const flechas = (!P.bib && P.sesiones.length>1)
       ? ' <span class="x" onclick="event.stopPropagation();moverSesion('+i+',-1)">\u25c2</span><span class="x" onclick="event.stopPropagation();moverSesion('+i+',1)">\u25b8</span>' : ''
-    return '<div class="mtab '+(i===P.tab?'on':'')+'" onclick="P.tab='+i+';pintarPlan()">'+(P.bib?'':((i+1)+'\u00b7 '))+nom+flechas+'</div>'
-  }).join('')
+    return '<div class="mtab '+(i===P.tab?'on':'')+'" onclick="P.tab='+i+';pintarPlan()">'+(P.bib?'':((i+1)+' \u00b7 '))+nom+flechas+'</div>'
+  }).join('') + ((!P.bib && !P.base) ? (P.sesiones.length<6
+      ? '<div class="mtab" style="border-style:dashed" onclick="abrirAddSes()">+</div>'
+      : '<div class="mtab" style="opacity:.4" onclick="toast(\'Esta semana ya tiene 6 sesiones programadas.\')">MAX</div>') : '')
+  const zdel=document.getElementById('pDelSes')
+  if(zdel) zdel.remove()
+  if(!P.bib && !P.base && P.sesiones.length>1){
+    const d=document.createElement('button'); d.id='pDelSes'; d.className='delSes'
+    d.textContent='✕ ELIMINAR ESTA SESIÓN DE LA SEMANA'
+    d.onclick=eliminarSesion
+    document.getElementById('pTabs').insertAdjacentElement('afterend', d)
+  }
   const ses = P.sesiones[P.tab]
   if(!ses){ document.getElementById('pBloques').innerHTML='<div class="vacio">Sin sesiones</div>'; calcDose(); return }
   document.getElementById('pBloques').innerHTML = ses.bloques.map(function(b,bi){
@@ -1108,6 +1139,79 @@ async function moverSesion(i, d){
   P.tab = P.sesiones.indexOf(a)
   toast('Orden semanal actualizado — el socio la verá en la nueva posición')
   pintarPlan()
+}
+async function abrirAddSes(){
+  document.getElementById('asNombre').value=''
+  document.getElementById('mAddSes').style.display='block'
+  const bp = await bibProto()
+  if(!bp){ document.getElementById('asBib').innerHTML='<div class="vacio">Biblioteca no disponible</div>'; return }
+  const rs = await sb.from('sesiones_protocolo').select('id,objetivo').eq('protocolo_id',bp.id).order('numero')
+  document.getElementById('asBib').innerHTML = (rs.data||[]).length ? (rs.data||[]).map(function(s){
+    return '<div class="selRow2" onclick="agregarSesion(\'bib\',\''+s.id+'\')"><span class="selG">★</span><span class="selN">'+(s.objetivo||'RUTINA').toUpperCase()+'</span></div>'
+  }).join('') : '<div class="vacio">Sin rutinas estándar aún</div>'
+}
+async function copiarSesionEn(srcId, destPid, numero, nombre){
+  const rs = await sb.from('sesiones_protocolo').select('*').eq('id',srcId).single()
+  if(rs.error) throw rs.error
+  const cab = limpia(rs.data,['id','created_at'])
+  cab.protocolo_id = destPid; cab.numero = numero
+  if(nombre) cab.objetivo = nombre
+  const ri = await sb.from('sesiones_protocolo').insert(cab).select().single()
+  if(ri.error) throw ri.error
+  const rb = await sb.from('bloques').select('*').eq('sesion_id',srcId).order('bloque')
+  const blo = rb.data||[]
+  if(blo.length){
+    const nb = blo.map(function(b){ const x=limpia(b,['id','created_at']); x.sesion_id=ri.data.id; return x })
+    const rbi = await sb.from('bloques').insert(nb).select()
+    if(rbi.error) throw rbi.error
+    const mapa={}; blo.forEach(function(b,i){ mapa[b.id]=rbi.data[i].id })
+    const rbe = await sb.from('bloque_ejercicios').select('*').in('bloque_id', blo.map(function(b){return b.id}))
+    const nbe = (rbe.data||[]).map(function(be){ const x=limpia(be,['id','created_at']); x.bloque_id=mapa[be.bloque_id]; return x })
+    if(nbe.length){ const rz=await sb.from('bloque_ejercicios').insert(nbe); if(rz.error) throw rz.error }
+  }
+  return ri.data
+}
+async function agregarSesion(modo, bibSesId){
+  if(P.sesiones.length>=6){ toast('Esta semana ya tiene 6 sesiones programadas.'); return }
+  const nombre=(document.getElementById('asNombre').value||'').trim()
+  const num = Math.max.apply(null, P.sesiones.map(function(s){return s.numero}).concat([0])) + 1
+  document.getElementById('mAddSes').style.display='none'
+  try{
+    if(modo==='vacia'){
+      const rs = await sb.from('sesiones_protocolo').insert({protocolo_id:P.pid, numero:num, objetivo:(nombre||'SESIÓN '+num)}).select().single()
+      if(rs.error) throw rs.error
+      const tags=['B1','B2','B3']
+      for(let i=0;i<3;i++){ const rb=await sb.from('bloques').insert({sesion_id:rs.data.id, bloque:tags[i], sets:3, descanso_seg:60})
+        if(rb.error){ await sb.from('bloques').insert({sesion_id:rs.data.id, bloque:i+1, sets:3, descanso_seg:60}) } }
+    } else if(modo==='duplicar'){
+      const src=P.sesiones[P.tab]; if(!src){ toast('No hay sesión activa'); return }
+      await copiarSesionEn(src.id, P.pid, num, (nombre||((src.nombre||'SESIÓN')+' B')))
+    } else if(modo==='bib'){
+      await copiarSesionEn(bibSesId, P.pid, num, nombre||null)
+    }
+    toast('✓ Sesión agregada — la semana ahora tiene '+num)
+    const proto=P.proto
+    await loadSala()
+    abrirPlan(P.pid, proto)
+  }catch(e){ toast('Agregar sesión: '+(e.message||'')) }
+}
+async function eliminarSesion(){
+  const s=P.sesiones[P.tab]; if(!s) return
+  const rr = await sb.from('sesiones_registro').select('id').eq('sesion_protocolo_id',s.id).limit(1)
+  if((rr.data||[]).length){ toast('Esta sesión ya tiene registros — el histórico se protege, no se elimina.'); return }
+  if(!confirm('¿Eliminar "'+s.nombre+'" de la semana? Sus bloques y líneas se pierden.')) return
+  try{
+    const rb = await sb.from('bloques').select('id').eq('sesion_id',s.id)
+    const bids=(rb.data||[]).map(function(b){return b.id})
+    if(bids.length) await sb.from('bloque_ejercicios').delete().in('bloque_id',bids)
+    await sb.from('bloques').delete().eq('sesion_id',s.id)
+    const rd = await sb.from('sesiones_protocolo').delete().eq('id',s.id)
+    if(rd.error) throw rd.error
+    toast('Sesión eliminada')
+    const proto=P.proto
+    await loadSala()
+    abrirPlan(P.pid, proto)
+  }catch(e){ toast('Eliminar: '+(e.message||'')) }
 }
 function planItem(beId){
   let r=null
