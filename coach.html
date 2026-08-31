@@ -150,6 +150,20 @@ input{width:100%;background:rgba(255,255,255,.7);border:1px solid rgba(255,255,2
 .selRow2{display:flex;align-items:center;gap:10px;padding:11px 6px;border-top:1px solid rgba(18,18,16,.06);cursor:pointer}
 .delSes{border:none;background:none;color:#B4442C;font-size:7.5px;font-weight:900;letter-spacing:.08em;cursor:pointer;margin:2px 4px 10px;padding:0}
 .mtab.drag{transform:scale(1.07);box-shadow:0 10px 24px rgba(18,18,16,.35);opacity:.92;z-index:5;position:relative}
+#pTabs .mtab{flex-direction:column;align-items:flex-start;gap:2px;padding:9px 13px;min-width:86px}
+#pTabs .sN{font-size:6.5px;letter-spacing:.14em;opacity:.55;font-weight:900}
+#pTabs .sT{font-size:10px;font-weight:900;line-height:1.2;white-space:nowrap}
+.hintStrip{font-size:6.5px;letter-spacing:.14em;color:#BEBDB8;font-weight:900;margin:2px 4px 10px}
+.sesRow{display:flex;align-items:center;gap:8px;margin:0 2px 10px}
+.sesRow b{font-size:12px;font-weight:900}
+.sesOpc{margin-left:auto;border:none;background:rgba(255,255,255,.6);border:1px solid rgba(255,255,255,.85);border-radius:10px;padding:7px 12px;font-weight:900;cursor:pointer;font-size:12px}
+.opRow{display:flex;align-items:center;width:100%;border:none;background:none;padding:14px 6px;font-size:11px;font-weight:900;letter-spacing:.06em;cursor:pointer;border-top:1px solid rgba(18,18,16,.06);color:#121210}
+.opRow.rojo{color:#B4442C}
+.bqx{margin-left:8px;border:none;background:none;color:#BEBDB8;font-weight:900;cursor:pointer;font-size:12px}
+.emptySes{padding:26px 16px;text-align:center;margin-bottom:11px}
+.emptySes h4{font-size:13px;font-weight:900;margin-bottom:6px}
+.emptySes p{font-size:10px;color:#7C7B76;line-height:1.6;margin-bottom:14px}
+.addBloque{width:100%;border:1.5px dashed rgba(18,18,16,.22);background:none;border-radius:14px;padding:13px;font-size:8.5px;font-weight:900;letter-spacing:.1em;color:#7C7B76;cursor:pointer;margin-bottom:12px}
 </style>
 </head>
 <body>
@@ -172,7 +186,7 @@ input{width:100%;background:rgba(255,255,255,.7);border:1px solid rgba(255,255,2
 </div></div>
 
 <div class="vista" id="vSala">
-  <div class="hbar"><span class="hk" title="c4.1">KOACH</span><span class="rol" id="rolBadge" onclick="salir()">COACH</span></div>
+  <div class="hbar"><span class="hk" title="c4.2">KOACH</span><span class="rol" id="rolBadge" onclick="salir()">COACH</span></div>
   <button class="nuevo" onclick="toggleAlta()">+ NUEVO USUARIO · SOCIO O COACH</button>
   <button class="nuevo" style="background:rgba(255,255,255,.65);color:#121210;border:1.5px solid rgba(18,18,16,.15)" onclick="verBib()">📚 RUTINAS ESTÁNDAR · BIBLIOTECA</button>
   <div class="glass aform" id="fAlta" style="display:none">
@@ -291,14 +305,49 @@ input{width:100%;background:rgba(255,255,255,.7);border:1px solid rgba(255,255,2
     <div style="display:flex;align-items:center;margin-bottom:12px">
       <div style="font-size:8px;letter-spacing:.18em;font-weight:900;color:#7C7B76">AGREGAR SESIÓN A LA SEMANA</div>
       <button onclick="document.getElementById('mAddSes').style.display='none'" style="margin-left:auto;border:none;background:rgba(18,18,16,.07);border-radius:10px;padding:8px 12px;font-weight:900;cursor:pointer">✕</button></div>
-    <label>NOMBRE (PARA CREAR VACÍA O DUPLICAR)</label>
+    <div class="h3" style="margin-top:0"><span>RUTINAS ESTÁNDAR ★ · LA VÍA RÁPIDA</span></div>
+    <input id="asBusca" placeholder="Buscar rutina…" oninput="pintarAsBib()">
+    <div id="asBib"><div class="vacio">Cargando rutinas…</div></div>
+    <div class="h3"><span>O CREAR</span></div>
+    <label>NOMBRE</label>
     <input id="asNombre" placeholder="CORE, UPPER B, HÍBRIDO…">
-    <div style="display:flex;gap:8px;margin-bottom:14px">
+    <div style="display:flex;gap:8px">
       <button class="btn" style="background:rgba(18,18,16,.08);color:#121210" onclick="agregarSesion('vacia')">CREAR VACÍA →</button>
       <button class="btn" onclick="agregarSesion('duplicar')">DUPLICAR ACTUAL →</button>
     </div>
-    <div class="h3"><span>O DESDE RUTINAS ESTÁNDAR ★</span><span>TOCA PARA AGREGAR</span></div>
-    <div id="asBib"><div class="vacio">Cargando…</div></div>
+  </div>
+</div>
+
+<!-- HOJA NUEVO BLOQUE -->
+<div id="mBloq" style="display:none;position:fixed;inset:0;z-index:72;background:rgba(18,18,16,.45);backdrop-filter:blur(6px)">
+  <div style="position:absolute;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:560px;background:#F3F2EF;border-radius:24px 24px 0 0;padding:18px 16px 22px">
+    <div style="display:flex;align-items:center;margin-bottom:12px">
+      <div style="font-size:8px;letter-spacing:.18em;font-weight:900;color:#7C7B76">NUEVO BLOQUE</div>
+      <button onclick="document.getElementById('mBloq').style.display='none'" style="margin-left:auto;border:none;background:rgba(18,18,16,.07);border-radius:10px;padding:8px 12px;font-weight:900;cursor:pointer">✕</button></div>
+    <label>TIPO</label>
+    <div id="mbTipos" style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:13px"></div>
+    <div style="display:flex;gap:14px;margin-bottom:14px">
+      <div style="flex:1"><label>SETS</label>
+        <div class="stp" style="margin:0;justify-content:flex-start"><button onclick="mbStep('sets',-1)">−</button><b id="mbSets">3</b><button onclick="mbStep('sets',1)">+</button></div></div>
+      <div style="flex:1"><label>DESCANSO (SEG)</label>
+        <div class="stp" style="margin:0;justify-content:flex-start"><button onclick="mbStep('desc',-15)">−</button><b id="mbDesc">60</b><button onclick="mbStep('desc',15)">+</button></div></div>
+    </div>
+    <button class="btn" onclick="crearBloque()">CREAR BLOQUE →</button>
+  </div>
+</div>
+
+<!-- HOJA OPCIONES DE SESIÓN -->
+<div id="mSes" style="display:none;position:fixed;inset:0;z-index:72;background:rgba(18,18,16,.45);backdrop-filter:blur(6px)">
+  <div style="position:absolute;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:560px;background:#F3F2EF;border-radius:24px 24px 0 0;padding:18px 16px 22px">
+    <div style="display:flex;align-items:center;margin-bottom:6px">
+      <div style="font-size:8px;letter-spacing:.18em;font-weight:900;color:#7C7B76" id="msTit">OPCIONES DE SESIÓN</div>
+      <button onclick="document.getElementById('mSes').style.display='none'" style="margin-left:auto;border:none;background:rgba(18,18,16,.07);border-radius:10px;padding:8px 12px;font-weight:900;cursor:pointer">✕</button></div>
+    <div style="display:flex;gap:8px;margin:10px 0 4px">
+      <input id="msNombre" placeholder="Nuevo nombre…" style="margin:0">
+      <button class="btn" style="width:auto;padding:13px 16px" onclick="renombrarSesion()">RENOMBRAR</button></div>
+    <button class="opRow" onclick="document.getElementById('mSes').style.display='none';document.getElementById('mAddSes').style.display='block';setTimeout(function(){agregarSesion('duplicar')},50)">DUPLICAR SESIÓN</button>
+    <button class="opRow" onclick="guardarComoEstandar()">★ GUARDAR COMO RUTINA ESTÁNDAR</button>
+    <button class="opRow rojo" onclick="document.getElementById('mSes').style.display='none';eliminarSesion()">✕ ELIMINAR SESIÓN DE LA SEMANA</button>
   </div>
 </div>
 
@@ -880,11 +929,10 @@ async function confirmarRutinaStd(){
   const num = ((rn.data&&rn.data[0]&&rn.data[0].numero)||0)+1
   const rs = await sb.from('sesiones_protocolo').insert({protocolo_id:bp.id, numero:num, nombre:nombre, objetivo:nombre}).select().single()
   if(rs.error){ toast('Crear: '+rs.error.message); return }
-  const tags=['B1','B2','B3']
+  const defs=[['B1','ACTIVACIÓN','activacion'],['B2','PRINCIPAL','fuerza_principal'],['B3','ACCESORIO','cierre_accesorio']]
   for (let i=0;i<3;i++){
-    const rb = await sb.from('bloques').insert({sesion_id:rs.data.id, bloque:tags[i], sets:3, descanso_seg:60})
-    if(rb.error){ const rb2 = await sb.from('bloques').insert({sesion_id:rs.data.id, bloque:i+1, sets:3, descanso_seg:60})
-      if(rb2.error){ toast('Bloques: '+rb2.error.message); break } }
+    const rb = await insertarBloque(rs.data.id, defs[i][0], defs[i][1], defs[i][2], 3, 60)
+    if(rb.error){ toast('Bloques: '+rb.error.message); break }
   }
   toast('\u2713 Rutina creada — ábrela y arma sus ejercicios')
   editarRutinaStd(rs.data.id)
@@ -1049,7 +1097,8 @@ async function abrirPlan(pid, proto, opts){
   P = { pid:pid, proto:proto, tab:0, bib:esBib, base:esBase, sesiones:(rses.data||[]).map(function(s){
     return { id:s.id, numero:s.numero, nombre:nombreEN(s.objetivo)||('SESION '+s.numero),
       bloques:(rblo.data||[]).filter(function(b){return b.sesion_id===s.id}).map(function(b){
-        return { id:b.id, tag:b.bloque, sets:b.sets||3, desc:b.descanso_seg||60,
+        return { id:b.id, tag:b.bloque, etiqueta:b.etiqueta||null, sets:b.sets||3,
+          desc:(b.descanso_seg!=null?b.descanso_seg:(b.descanso_segundos!=null?b.descanso_segundos:60)),
           items:(b.bloque_ejercicios||[]).map(function(be){
             return { beId:be.id, ejId:be.ejercicio_id,
               nombre:(be.ejercicios&&be.ejercicios.nombre)||'—',
@@ -1075,8 +1124,9 @@ function esTiempo(it){
   if (g==='CARDIO' || g==='MOVILIDAD' || g==='MOB') return true
   return /SEG|MIN\b/i.test(String(it.reps||''))
 }
-function bloqueTag(t, idx){
-  const x = String(t||'').toUpperCase()
+function bloqueTag(b, idx){
+  if (b && b.etiqueta) return 'B'+(idx+1)+' · '+String(b.etiqueta).toUpperCase()
+  const x = String((b&&b.tag)||'').toUpperCase()
   if (/1|ACTIV/.test(x)) return 'B1 · ACTIVACIÓN'
   if (/2|PRINC/.test(x)) return 'B2 · PRINCIPAL'
   if (/3|ACCES|CIERRE/.test(x)) return 'B3 · ACCESORIO'
@@ -1089,25 +1139,35 @@ function pintarPlan(){
   if(gbBtn) gbBtn.style.display = P.base ? 'none' : 'block'
   if(P.base){ const fm=document.getElementById('pFootMsg'); if(fm) fm.textContent='⚙ EDITAS LA BASE MAESTRA — SE GUARDA AL INSTANTE · CLONES EXISTENTES NO CAMBIAN' }
   document.getElementById('pTabs').innerHTML = P.sesiones.map(function(s,i){
-    const nom = P.bib ? ((P.sesiones[i]&&P.sesiones[i].nombre)||'') : s.nombre
-    const flechas = (!P.bib && P.sesiones.length>1)
-      ? ' <span class="x" onclick="event.stopPropagation();moverSesion('+i+',-1)">\u25c2</span><span class="x" onclick="event.stopPropagation();moverSesion('+i+',1)">\u25b8</span>' : ''
-    return '<div class="mtab '+(i===P.tab?'on':'')+'" data-sid="'+s.id+'" data-i="'+i+'" onclick="P.tab='+i+';pintarPlan()">'+(P.bib?'':((i+1)+' \u00b7 '))+nom+flechas+'</div>'
+    const nom = ((P.bib ? (s.nombre||'') : s.nombre)||'').replace(/ Y /g,' + ')
+    return '<div class="mtab '+(i===P.tab?'on':'')+'" data-sid="'+s.id+'" data-i="'+i+'" onclick="P.tab='+i+';pintarPlan()">'+
+      '<span class="sN">'+(P.bib?'★':'⠿ '+(i+1))+'</span><span class="sT">'+nom+'</span></div>'
   }).join('') + ((!P.bib && !P.base) ? (P.sesiones.length<6
-      ? '<div class="mtab" style="border-style:dashed" onclick="abrirAddSes()">+</div>'
-      : '<div class="mtab" style="opacity:.4" onclick="toast(\'Esta semana ya tiene 6 sesiones programadas.\')">MAX</div>') : '')
-  const zdel=document.getElementById('pDelSes')
-  if(zdel) zdel.remove()
-  if(!P.bib && !P.base && P.sesiones.length>1){
-    const d=document.createElement('button'); d.id='pDelSes'; d.className='delSes'
-    d.textContent='✕ ELIMINAR ESTA SESIÓN DE LA SEMANA'
-    d.onclick=eliminarSesion
-    document.getElementById('pTabs').insertAdjacentElement('afterend', d)
+      ? '<div class="mtab" style="border-style:dashed;justify-content:center" onclick="abrirAddSes()"><span class="sT" style="font-size:15px">+</span></div>'
+      : '<div class="mtab" style="opacity:.4" onclick="toast(\'Esta semana ya tiene 6 sesiones programadas.\')"><span class="sT">MAX</span></div>') : '')
+  const viejo=document.getElementById('pDelSes'); if(viejo) viejo.remove()
+  const vHint=document.getElementById('pHint'); if(vHint) vHint.remove()
+  const vRow=document.getElementById('pSesRow'); if(vRow) vRow.remove()
+  const tabsEl=document.getElementById('pTabs')
+  if(!P.bib && P.sesiones.length>1){
+    const hnt=document.createElement('div'); hnt.id='pHint'; hnt.className='hintStrip'
+    hnt.textContent='MANTÉN PRESIONADA UNA SESIÓN PARA REORGANIZAR LA SEMANA'
+    tabsEl.insertAdjacentElement('afterend', hnt)
   }
+  const act=P.sesiones[P.tab]
+  if(act && !P.bib && !P.base){
+    const row=document.createElement('div'); row.id='pSesRow'; row.className='sesRow'
+    row.innerHTML='<b>'+(P.tab+1)+' · '+(act.nombre||'')+'</b><button class="sesOpc" onclick="abrirSesOpc()">•••</button>'
+    const anchor=document.getElementById('pHint')||tabsEl
+    anchor.insertAdjacentElement('afterend', row)
+  }
+  setTimeout(function(){ const on=document.querySelector('#pTabs .mtab.on')
+    if(on && on.scrollIntoView) on.scrollIntoView({behavior:'smooth', inline:'center', block:'nearest'}) }, 60)
   const ses = P.sesiones[P.tab]
   if(!ses){ document.getElementById('pBloques').innerHTML='<div class="vacio">Sin sesiones</div>'; calcDose(); return }
-  document.getElementById('pBloques').innerHTML = ses.bloques.map(function(b,bi){
-    return '<div class="glass bq"><div class="bqh"><span class="bqt">'+bloqueTag(b.tag,bi)+'</span>'+
+  const htmlBloques = ses.bloques.map(function(b,bi){
+    return '<div class="glass bq"><div class="bqh"><span class="bqt">'+bloqueTag(b,bi)+'</span>'+
+      '<button class="bqx" onclick="elimBloque('+bi+')" title="Eliminar bloque">✕</button>'+
       '<div class="stp"><span>SETS</span><button onclick="stepSets('+bi+',-1)">−</button><b>'+b.sets+'</b><button onclick="stepSets('+bi+',1)">+</button></div>'+
       '<div class="stp"><span>DESC</span><button onclick="stepDesc('+bi+',-15)">−</button><b>'+b.desc+'s</b><button onclick="stepDesc('+bi+',15)">+</button></div></div>'+
     b.items.map(function(it){
@@ -1124,7 +1184,57 @@ function pintarPlan(){
     }).join('')+
     '<button class="addEj" onclick="abrirSelector(\'agregar\','+bi+',null)">+ EJERCICIO</button></div>'
   }).join('')
+  document.getElementById('pBloques').innerHTML =
+    (ses.bloques.length ? htmlBloques
+      : '<div class="glass emptySes"><h4>'+(ses.nombre||'SESIÓN')+' · SESIÓN VACÍA</h4>'+
+        '<p>Aún no hay bloques en esta sesión.<br>Constrúyela agregando su primer bloque.</p></div>')+
+    (ses.bloques.length<6 ? '<button class="addBloque" onclick="abrirBloque()">+ AGREGAR BLOQUE</button>' : '')
   calcDose()
+}
+const TIPOS_BLOQUE=[['ACTIVACIÓN','activacion'],['PRINCIPAL','fuerza_principal'],['ACCESORIO','cierre_accesorio'],['CORE','cierre_accesorio'],['FINISHER','cierre_accesorio'],['CARDIO','cierre_accesorio'],['MOVILIDAD','activacion'],['METABÓLICO','fuerza_principal']]
+let MB={tipo:0,sets:3,desc:60}
+function abrirBloque(){
+  MB={tipo:1,sets:3,desc:60}
+  document.getElementById('mbSets').textContent='3'
+  document.getElementById('mbDesc').textContent='60'
+  document.getElementById('mbTipos').innerHTML=TIPOS_BLOQUE.map(function(tp,i){
+    return '<button onclick="mbTipo('+i+')" id="mbT'+i+'" style="border:1.5px solid rgba(18,18,16,.15);background:'+(i===1?'#121210':'none')+';color:'+(i===1?'#F3F2EF':'#7C7B76')+';border-radius:11px;padding:8px 11px;font-size:7.5px;font-weight:900;letter-spacing:.06em;cursor:pointer">'+tp[0]+'</button>'
+  }).join('')
+  document.getElementById('mBloq').style.display='block'
+}
+function mbTipo(i){ MB.tipo=i
+  TIPOS_BLOQUE.forEach(function(_,j){ const b=document.getElementById('mbT'+j)
+    if(b){ b.style.background=(j===i)?'#121210':'none'; b.style.color=(j===i)?'#F3F2EF':'#7C7B76' } }) }
+function mbStep(k,d){ if(k==='sets'){ MB.sets=Math.max(1,Math.min(8,MB.sets+d)); document.getElementById('mbSets').textContent=MB.sets }
+  else { MB.desc=Math.max(15,Math.min(240,MB.desc+d)); document.getElementById('mbDesc').textContent=MB.desc } }
+async function insertarBloque(sesId, codigo, etiqueta, rol, sets, desc){
+  return await sb.from('bloques').insert({ sesion_id:sesId, bloque:codigo, etiqueta:etiqueta, rol:rol,
+    sets:sets, descanso_segundos:desc, descanso_seg:desc })
+}
+async function crearBloque(){
+  const ses=P.sesiones[P.tab]; if(!ses) return
+  const n=ses.bloques.length+1
+  if(n>6){ toast('Máximo 6 bloques por sesión.'); return }
+  const tp=TIPOS_BLOQUE[MB.tipo]
+  document.getElementById('mBloq').style.display='none'
+  const r=await insertarBloque(ses.id, 'B'+n, tp[0], tp[1], MB.sets, MB.desc)
+  if(r.error){ console.error(r.error); toast('No pudimos crear el bloque: '+r.error.message); return }
+  toast('✓ Bloque '+tp[0]+' creado')
+  const proto=P.proto, tab=P.tab
+  await abrirPlan(P.pid, proto, P.bib?{modo:'bib',soloSesion:ses.id}:(P.base?{modo:'base'}:undefined))
+  P.tab=tab; pintarPlan()
+}
+async function elimBloque(bi){
+  const ses=P.sesiones[P.tab], b=ses.bloques[bi]; if(!b) return
+  if(b.items.length && !confirm('Este bloque tiene '+b.items.length+' ejercicio(s). ¿Eliminarlo igual?')) return
+  if(!b.items.length && !confirm('¿Eliminar este bloque?')) return
+  await sb.from('bloque_ejercicios').delete().eq('bloque_id',b.id)
+  const r=await sb.from('bloques').delete().eq('id',b.id)
+  if(r.error){ toast('Eliminar bloque: '+r.error.message); return }
+  toast('Bloque eliminado')
+  const proto=P.proto, tab=P.tab
+  await abrirPlan(P.pid, proto, P.bib?{modo:'bib',soloSesion:ses.id}:(P.base?{modo:'base'}:undefined))
+  P.tab=Math.min(tab, P.sesiones.length-1); pintarPlan()
 }
 async function moverSesion(i, d){
   const j = i + d
@@ -1141,15 +1251,41 @@ async function moverSesion(i, d){
   toast('Orden semanal actualizado — el socio la verá en la nueva posición')
   pintarPlan()
 }
+let ASB = null
 async function abrirAddSes(){
   document.getElementById('asNombre').value=''
+  document.getElementById('asBusca').value=''
   document.getElementById('mAddSes').style.display='block'
+  document.getElementById('asBib').innerHTML='<div class="vacio">Cargando rutinas…</div>'
+  BIB = null; BIB_ERR = null
   const bp = await bibProto()
-  if(!bp){ document.getElementById('asBib').innerHTML='<div class="vacio">Biblioteca no disponible</div>'; return }
-  const rs = await sb.from('sesiones_protocolo').select('id,objetivo').eq('protocolo_id',bp.id).order('numero')
-  document.getElementById('asBib').innerHTML = (rs.data||[]).length ? (rs.data||[]).map(function(s){
-    return '<div class="selRow2" onclick="agregarSesion(\'bib\',\''+s.id+'\')"><span class="selG">★</span><span class="selN">'+(s.objetivo||'RUTINA').toUpperCase()+'</span></div>'
-  }).join('') : '<div class="vacio">Sin rutinas estándar aún</div>'
+  if(!bp){
+    document.getElementById('asBib').innerHTML='<div class="vacio">No pudimos cargar las rutinas.<br><b>'+(BIB_ERR||'')+'</b><br><br><button class="bbtn ink" onclick="abrirAddSes()">REINTENTAR</button></div>'
+    return }
+  const rs = await sb.from('sesiones_protocolo').select('id,nombre,objetivo').eq('protocolo_id',bp.id).order('numero')
+  if(rs.error){
+    document.getElementById('asBib').innerHTML='<div class="vacio">No pudimos cargar las rutinas.<br><b>'+rs.error.message+'</b><br><br><button class="bbtn ink" onclick="abrirAddSes()">REINTENTAR</button></div>'
+    return }
+  ASB = rs.data||[]
+  pintarAsBib()
+}
+function pintarAsBib(){
+  if(!ASB){ return }
+  const q=(document.getElementById('asBusca').value||'').toLowerCase()
+  const lista=ASB.filter(function(s){ return !q || ((s.objetivo||s.nombre||'').toLowerCase().indexOf(q)>-1) })
+  document.getElementById('asBib').innerHTML = ASB.length ? (lista.length ? lista.map(function(s){
+    return '<div class="selRow2" onclick="previewBib(\''+s.id+'\')"><span class="selG">★</span><span class="selN">'+((s.objetivo||s.nombre||'RUTINA')).toUpperCase()+'</span></div>'
+  }).join('') : '<div class="vacio">Sin resultados para esa búsqueda</div>')
+  : '<div class="vacio">No hay rutinas estándar.<br><br><button class="bbtn ink" onclick="document.getElementById(\'mAddSes\').style.display=\'none\';verBib()">+ CREAR RUTINA</button></div>'
+}
+async function previewBib(sesId){
+  const s=(ASB||[]).find(function(x){return x.id===sesId}); if(!s) return
+  const rb = await sb.from('bloques').select('id').eq('sesion_id',sesId)
+  const bids=(rb.data||[]).map(function(b){return b.id})
+  let nEj=0
+  if(bids.length){ const rbe=await sb.from('bloque_ejercicios').select('id').in('bloque_id',bids); nEj=(rbe.data||[]).length }
+  if(!confirm((s.objetivo||s.nombre||'RUTINA').toUpperCase()+'\n'+(rb.data||[]).length+' bloques · '+nEj+' ejercicios\n\n¿Agregar como copia a esta semana?')) return
+  agregarSesion('bib', sesId)
 }
 async function copiarSesionEn(srcId, destPid, numero, nombre){
   const rs = await sb.from('sesiones_protocolo').select('*').eq('id',srcId).single()
@@ -1183,9 +1319,9 @@ async function agregarSesion(modo, bibSesId){
       if(!nombre){ toast('Escribe un nombre para la sesión.'); document.getElementById('mAddSes').style.display='block'; return }
       const rs = await sb.from('sesiones_protocolo').insert({protocolo_id:P.pid, numero:num, nombre:nombre, objetivo:nombre}).select().single()
       if(rs.error) throw rs.error
-      const tags=['B1','B2','B3']
-      for(let i=0;i<3;i++){ const rb=await sb.from('bloques').insert({sesion_id:rs.data.id, bloque:tags[i], sets:3, descanso_seg:60})
-        if(rb.error){ await sb.from('bloques').insert({sesion_id:rs.data.id, bloque:i+1, sets:3, descanso_seg:60}) } }
+      const defs=[['B1','ACTIVACIÓN','activacion'],['B2','PRINCIPAL','fuerza_principal'],['B3','ACCESORIO','cierre_accesorio']]
+      for(let i=0;i<3;i++){ const rb=await insertarBloque(rs.data.id, defs[i][0], defs[i][1], defs[i][2], 3, 60)
+        if(rb.error) console.error('bloque def', rb.error) }
     } else if(modo==='duplicar'){
       const src=P.sesiones[P.tab]; if(!src){ toast('No hay sesión activa'); return }
       await copiarSesionEn(src.id, P.pid, num, (nombre||((src.nombre||'SESIÓN')+' 2')))
@@ -1217,6 +1353,33 @@ async function eliminarSesion(){
     await loadSala()
     abrirPlan(P.pid, proto)
   }catch(e){ toast('Eliminar: '+(e.message||'')) }
+}
+function abrirSesOpc(){
+  const s=P.sesiones[P.tab]; if(!s) return
+  document.getElementById('msTit').textContent=((P.tab+1)+' · '+(s.nombre||'SESIÓN')).toUpperCase()
+  document.getElementById('msNombre').value=s.nombre||''
+  document.getElementById('mSes').style.display='block'
+}
+async function renombrarSesion(){
+  const s=P.sesiones[P.tab]; if(!s) return
+  const nombre=(document.getElementById('msNombre').value||'').trim()
+  if(!nombre){ toast('Escribe el nuevo nombre'); return }
+  const r=await sb.from('sesiones_protocolo').update({nombre:nombre, objetivo:nombre}).eq('id',s.id)
+  if(r.error){ toast('Renombrar: '+r.error.message); return }
+  s.nombre=nombre.toUpperCase()
+  document.getElementById('mSes').style.display='none'
+  toast('✓ Renombrada'); pintarPlan()
+}
+async function guardarComoEstandar(){
+  const s=P.sesiones[P.tab]; if(!s) return
+  document.getElementById('mSes').style.display='none'
+  const bp=await bibProto(); if(!bp){ toast('Biblioteca no disponible'); return }
+  const rn=await sb.from('sesiones_protocolo').select('numero').eq('protocolo_id',bp.id).order('numero',{ascending:false}).limit(1)
+  const num=((rn.data&&rn.data[0]&&rn.data[0].numero)||0)+1
+  try{
+    await copiarSesionEn(s.id, bp.id, num, null)
+    toast('★ Guardada en la biblioteca — reutilizable con cualquier socio')
+  }catch(e){ toast('Guardar: '+(e.message||'')) }
 }
 /* ── Drag & drop de sesiones (pointer events, long-press) ── */
 const DG = { el:null, timer:null, activo:false, x0:0, y0:0, pid:null }
@@ -1283,7 +1446,7 @@ async function stepSets(bi,d){
 }
 async function stepDesc(bi,d){
   const b=P.sesiones[P.tab].bloques[bi]; b.desc=Math.max(15,Math.min(240,(b.desc||60)+d)); pintarPlan()
-  const r=await sb.from('bloques').update({descanso_seg:b.desc}).eq('id',b.id); if(r.error)toast('Descanso: '+r.error.message)
+  const r=await sb.from('bloques').update({descanso_seg:b.desc, descanso_segundos:b.desc}).eq('id',b.id); if(r.error)toast('Descanso: '+r.error.message)
 }
 async function editKg(beId,v){
   const x=planItem(beId); if(!x)return
