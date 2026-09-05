@@ -206,6 +206,13 @@ html,body{background:linear-gradient(170deg,#F3F2EF 0%,#E7E6E2 55%,#DAD9D4 100%)
 .rwm{font-size:14px;margin-top:22px;line-height:1.6;color:#C9C8C2}
 .rwm b{color:#fff}
 .rwf{font-size:14px;margin-top:26px;font-weight:800;color:var(--hueso)}
+#oLoad{position:fixed;inset:0;z-index:900;background:#121210;display:none;flex-direction:column;align-items:center;justify-content:center;gap:22px}
+#oLoad.vis{display:flex}
+#oLoad .lk{font-size:26px;font-weight:900;letter-spacing:.34em;color:#F3F2EF}
+#oLoad .lm{font-size:9px;font-weight:900;letter-spacing:.22em;color:#77766F}
+#oLoad .lb{width:min(60vw,240px);height:2px;background:rgba(243,242,239,.12);border-radius:2px;overflow:hidden}
+#oLoad .lb i{display:block;height:100%;width:38%;background:#F3F2EF;border-radius:2px;animation:ldr 1.1s ease-in-out infinite}
+@keyframes ldr{0%{transform:translateX(-110%)}100%{transform:translateX(290%)}}
 .toast{position:fixed;bottom:26px;left:50%;transform:translateX(-50%) translateY(20px);max-width:86%;
   background:rgba(18,18,16,.94);color:var(--hueso);padding:12px 18px;border-radius:16px;font-size:10.5px;
   font-weight:700;z-index:999;opacity:0;pointer-events:none;transition:all .25s;text-align:center}
@@ -325,7 +332,7 @@ html,body{background:linear-gradient(170deg,#F3F2EF 0%,#E7E6E2 55%,#DAD9D4 100%)
 
   <!-- ══ HOME ══ -->
   <div class="vista conTab" id="vHome">
-    <div class="hbar"><span class="hk" title="v4.2">KOACH</span><div class="hav" id="hAv" onclick="salir()">K</div></div>
+    <div class="hbar"><span class="hk" title="v4.3">KOACH</span><div class="hav" id="hAv" onclick="salir()">K</div></div>
     <div class="ctx"><div class="fecha" id="hFecha">—</div><div class="prog" id="hProg">—</div></div>
     <div class="anillo">
       <svg width="180" height="180" viewBox="0 0 180 180">
@@ -463,6 +470,7 @@ html,body{background:linear-gradient(170deg,#F3F2EF 0%,#E7E6E2 55%,#DAD9D4 100%)
   <div class="slide" id="slAct"><span class="stx">DESLIZA PARA ACTIVAR</span><div class="th">→</div></div>
 </div>
 <div class="ovl oscuro" id="oFlash"><div class="fk">KOACH</div><div class="ftx" id="oFT"></div><div class="fsb" id="oFS"></div></div>
+<div id="oLoad"><div class="lk">KOACH</div><div class="lb"><i></i></div><div class="lm" id="oLoadM">CARGANDO…</div></div>
 <div class="ovl velo" id="oFin">
   <div class="slide" id="slFin"><span class="stx">DESLIZA PARA FINALIZAR</span><div class="th">✓</div></div>
   <button onclick="finalizar()" style="margin-top:16px;width:min(86vw,340px);border:none;border-radius:18px;padding:16px;background:rgba(243,242,239,.14);color:#F3F2EF;font-family:inherit;font-size:10px;font-weight:900;letter-spacing:.14em;cursor:pointer">O TOCA AQUÍ PARA FINALIZAR →</button>
@@ -620,6 +628,7 @@ sb.auth.onAuthStateChange(ev=>{ if(ev==='PASSWORD_RECOVERY'){ vista('vLogin'); a
 
 /* ══ CARGA DEL HOME ══ */
 async function entrar(){
+  cargando(S.perfil ? 'ACTUALIZANDO TU SEMANA…' : 'PREPARANDO TU CLUB…')
   vista('vHome')
   document.getElementById('hSaludo').textContent='Cargando tu semana…'
   try{
@@ -741,6 +750,7 @@ function saludoDe(ctx){
   return fam[Math.floor(Math.random()*fam.length)].replace('{n}', S.perfil.nombre||'')
 }
 function pintarHome(){
+  cargandoOff()
   document.getElementById('tabbar').classList.add('vis')
   const hoyF = new Date()
   const DIAF = ['DOMINGO','LUNES','MARTES','MIÉRCOLES','JUEVES','VIERNES','SÁBADO']
@@ -874,8 +884,12 @@ function volverHome(){
 }
 
 /* ══ SESIÓN ══ */
+function cargando(m){ const o=document.getElementById('oLoad'); if(!o)return
+  document.getElementById('oLoadM').textContent=m||'CARGANDO…'; o.classList.add('vis') }
+function cargandoOff(){ const o=document.getElementById('oLoad'); if(o)o.classList.remove('vis') }
 async function reanudar(){
   const reg = S.enCurso; if(!reg) return
+  cargando('RECUPERANDO TU ENTRENAMIENTO…')
   const ses = S.programa.sesiones.find(x=>x.id===reg.sesion_protocolo_id)
   if(!ses){ toast('No encontramos esa sesión en tu programa actual'); return }
   S.sesionAbierta = ses
@@ -911,9 +925,10 @@ async function reanudar(){
 }
 async function abrirSesion(){
   if (!S.sem?.proxima) return
+  cargando('PREPARANDO TU SESIÓN…')
   const hoyC = new Date().toISOString().split('T')[0]
   if (S.registros.some(r=>r.fecha===hoyC && r.estado!=='incompleta')){
-    toast('Hoy ya sumaste tu sesión — la recuperación también entrena. Nos vemos mañana.'); return }
+    cargandoOff(); toast('Hoy ya sumaste tu sesión — la recuperación también entrena. Nos vemos mañana.'); return }
   S._desigActual = S.sem.proxima._desigId || null
   S._desigRec = !!S.sem.proxima._rec
   const ses = S.programa.sesiones.find(x=>x.numero===S.sem.proxima.numero)
@@ -1027,6 +1042,7 @@ function ultTxt(ej){
   return 'SIN REGISTRO ANTERIOR'
 }
 function pintarSesion(){
+  cargandoOff()
   const ses=S.sesionAbierta
   const orden={B1:0,B2:1,B3:2,B4:3,B5:4,B6:5}
   const bfs=[...ses.bloquesFull].sort((a,b)=>(orden[a.bloque]??9)-(orden[b.bloque]??9))
