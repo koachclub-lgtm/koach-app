@@ -325,7 +325,7 @@ html,body{background:linear-gradient(170deg,#F3F2EF 0%,#E7E6E2 55%,#DAD9D4 100%)
 
   <!-- ══ HOME ══ -->
   <div class="vista conTab" id="vHome">
-    <div class="hbar"><span class="hk" title="v4.0">KOACH</span><div class="hav" id="hAv" onclick="salir()">K</div></div>
+    <div class="hbar"><span class="hk" title="v4.1">KOACH</span><div class="hav" id="hAv" onclick="salir()">K</div></div>
     <div class="ctx"><div class="fecha" id="hFecha">—</div><div class="prog" id="hProg">—</div></div>
     <div class="anillo">
       <svg width="180" height="180" viewBox="0 0 180 180">
@@ -788,7 +788,8 @@ function pintarHome(){
   } else if (entrenoHoy){
     cta.disabled=true; cta.onclick=null
     document.getElementById('hCtaT').textContent='HOY YA SUMASTE ✓'
-    document.getElementById('hCtaS').textContent='LA RECUPERACIÓN TAMBIÉN ENTRENA — NOS VEMOS MAÑANA'
+    const sigT = (sem.proxima && !sem.proxima._extra) ? ('MAÑANA → '+sem.proxima.nombre+' · ') : ''
+    document.getElementById('hCtaS').textContent=sigT+'LA RECUPERACIÓN TAMBIÉN ENTRENA'
   } else if (sem.completa && sem.proxima && sem.proxima._extra){
     cta.disabled=false; cta.onclick=abrirSesion
     document.getElementById('hCtaT').textContent='COMENZAR EXTRA ★'
@@ -882,7 +883,7 @@ async function reanudar(){
   S._desigActual = ses._desigId||null; S._desigRec = !!ses._rec
   vista('vSesion')
   document.getElementById('sTit').textContent = ses.nombre
-  document.getElementById('sSub').textContent = 'EN CURSO · RETOMANDO DONDE QUEDASTE'
+  document.getElementById('sSub').textContent = ((ses.numero<=6)?('SESIÓN '+ses.numero+' DE '+S.programa.sesiones.length+' · '):'')+'EN CURSO · RETOMANDO DONDE QUEDASTE'
   document.getElementById('sObj').innerHTML = 'Tus sets marcados <b>ya están guardados</b>. Continúa desde el siguiente.'
   try{
     const { data: sl } = await sb.from('set_registros').select('*').eq('registro_id',reg.id)
@@ -943,8 +944,9 @@ async function abrirSesion(){
   document.getElementById('sTit').textContent = ses.nombre
   const ap0 = aporteSesion(ses)
   const principales = Object.entries(ap0).sort((a,b)=>b[1]-a[1]).slice(0,3).map(([g])=>g).join(' · ')
+  const _tot=S.programa.sesiones.length
   document.getElementById('sSub').textContent =
-    `DESIGNADA POR TU COACH · ${(S.proto.programa||'').toUpperCase()}`
+    ((ses.numero<=6)?('SESIÓN '+ses.numero+' DE '+_tot+' · '):'')+`PROGRAMADA POR TU COACH · ${(S.proto.programa||'').toUpperCase()}`
   document.getElementById('sObj').innerHTML =
     `Principales músculos a estimular: <b>${principales}</b>. Complétala y tu semana avanza — suma <b>+${S.sem.proxima.suma_pct}%</b> de tu dosis.`
   document.getElementById('sFin').style.display='none'
@@ -1270,11 +1272,19 @@ async function finalizar(){
     (despues.completa ? ((rw?.completa?.titulo)||'Semana completa. Trabajo hecho.')
       : ((rw?.normal?.casi)||'Casi completas tu semana.')+'<br>'+
         ((rw?.normal?.resto)||'Queda {n} músculo por fortalecer.').replace('{n}',faltan))
-  document.getElementById('rwF').textContent = despues.completa
+  const fraseEstado = despues.completa
     ? ((rw?.completa?.estado)||'Más fuerte que la anterior.')
     : ((rw?.normal?.estado)||'Más fuerte que el lunes.')
+  // Siguiente sesión pendiente: por numero y estado real, nunca por nombre
+  const numsOk = new Set(regsN.filter(r=>r.estado!=='omitida').map(r=>r.sesion_numero))
+  const baseSes = S.programa.sesiones.filter(s=>s.numero<=6)
+  const hechasN = baseSes.filter(s=>numsOk.has(s.numero)).length
+  const sig = baseSes.filter(s=>!numsOk.has(s.numero)).sort((x,y)=>x.numero-y.numero)[0]
+  document.getElementById('rwF').innerHTML = fraseEstado + '<br><br>' + (sig
+    ? ('SESIONES · '+hechasN+' / '+baseSes.length+'<br>SIGUIENTE → '+(sig.nombre||'')+'<br>DISPONIBLE MAÑANA · LA RECUPERACIÓN TAMBIÉN ENTRENA')
+    : ('SEMANA COMPLETADA ✓ · '+hechasN+' / '+baseSes.length+' SESIONES'))
   document.getElementById('oRw').classList.add('vis')
-  setTimeout(()=>{ document.getElementById('oRw').classList.remove('vis'); entrar() }, 4200)
+  setTimeout(()=>{ document.getElementById('oRw').classList.remove('vis'); entrar() }, 5600)
 }
 
 /* ══ NAVEGACIÓN POR TABS ══ */
