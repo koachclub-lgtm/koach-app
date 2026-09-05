@@ -325,7 +325,7 @@ html,body{background:linear-gradient(170deg,#F3F2EF 0%,#E7E6E2 55%,#DAD9D4 100%)
 
   <!-- ══ HOME ══ -->
   <div class="vista conTab" id="vHome">
-    <div class="hbar"><span class="hk" title="v4.1">KOACH</span><div class="hav" id="hAv" onclick="salir()">K</div></div>
+    <div class="hbar"><span class="hk" title="v4.2">KOACH</span><div class="hav" id="hAv" onclick="salir()">K</div></div>
     <div class="ctx"><div class="fecha" id="hFecha">—</div><div class="prog" id="hProg">—</div></div>
     <div class="anillo">
       <svg width="180" height="180" viewBox="0 0 180 180">
@@ -465,6 +465,7 @@ html,body{background:linear-gradient(170deg,#F3F2EF 0%,#E7E6E2 55%,#DAD9D4 100%)
 <div class="ovl oscuro" id="oFlash"><div class="fk">KOACH</div><div class="ftx" id="oFT"></div><div class="fsb" id="oFS"></div></div>
 <div class="ovl velo" id="oFin">
   <div class="slide" id="slFin"><span class="stx">DESLIZA PARA FINALIZAR</span><div class="th">✓</div></div>
+  <button onclick="finalizar()" style="margin-top:16px;width:min(86vw,340px);border:none;border-radius:18px;padding:16px;background:rgba(243,242,239,.14);color:#F3F2EF;font-family:inherit;font-size:10px;font-weight:900;letter-spacing:.14em;cursor:pointer">O TOCA AQUÍ PARA FINALIZAR →</button>
 </div>
 <div class="ovl oscuro" id="oRw">
   <div class="fk">KOACH</div>
@@ -1215,6 +1216,7 @@ function setBloque(bi,total){
 }
 function pedirFinal(){ document.getElementById('oFin').classList.add('vis') }
 async function finalizar(){
+  try{
   document.getElementById('oFin').classList.remove('vis')
   const ses=S.sesionAbierta
   const orden={B1:0,B2:1,B3:2}
@@ -1230,12 +1232,22 @@ async function finalizar(){
   const despues=calcularSemana(S.programa, regsN, S.objetivos)
   const ganados=despues.fortalecidos-antes.fortalecidos
   try{
-    const { error } = await sb.from('sesiones_registro').update({
+    // Recuperar la instancia si el estado local la perdió (refresh, memoria liberada)
+    let rid = S.regId
+    if (!rid){
+      const { data: rec } = await sb.from('sesiones_registro').select('id')
+        .eq('socio_id',S.perfil.id).eq('fecha',new Date().toISOString().split('T')[0])
+        .eq('estado','en_curso').limit(1).maybeSingle()
+      rid = rec && rec.id; S.regId = rid
+    }
+    if (!rid) throw new Error('No encontramos tu entrenamiento en curso')
+    const { data: updOk, error } = await sb.from('sesiones_registro').update({
       estado:'completada', completada_at:new Date().toISOString(),
       bloques_completados:bloquesComp,
       musculos_sumados:{ ganados, total:despues.fortalecidos, exigibles:despues.exigibles }
-    }).eq('id', S.regId)
+    }).eq('id', rid).select('id')
     if (error) throw error
+    if (!updOk || !updOk.length) throw new Error('El cierre no se aplicó — reintenta')
     // Cargas: derivadas del registro real por set (máximo peso + sets hechos)
     const inserts=[]
     bfs.forEach(b=>(b.bloque_ejercicios||[]).forEach(be=>{
@@ -1244,7 +1256,7 @@ async function finalizar(){
         const f=S.setLog[setKey(be.id,n2)]
         if(f){ hechos++; if(f.peso!=null && (maxP==null||f.peso>maxP)) maxP=f.peso }
       }
-      if (maxP!=null && hechos>0) inserts.push({ sesion_registro_id:S.regId, socio_id:S.perfil.id,
+      if (maxP!=null && hechos>0) inserts.push({ sesion_registro_id:rid, socio_id:S.perfil.id,
         bloque_ejercicio_id:be.id, ejercicio_id:be.ejercicio_id||be.ejercicios?.id,
         peso_kg:maxP, sets_completados:hechos, registrado_por:S.perfil.id })
     }))
@@ -1285,6 +1297,8 @@ async function finalizar(){
     : ('SEMANA COMPLETADA ✓ · '+hechasN+' / '+baseSes.length+' SESIONES'))
   document.getElementById('oRw').classList.add('vis')
   setTimeout(()=>{ document.getElementById('oRw').classList.remove('vis'); entrar() }, 5600)
+  }catch(eF){ console.error('finalizar', eF)
+    toast('No se pudo cerrar la sesión: '+((eF&&eF.message)||eF)+' · Tus sets están a salvo.') }
 }
 
 /* ══ NAVEGACIÓN POR TABS ══ */
