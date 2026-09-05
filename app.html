@@ -162,6 +162,18 @@ html,body{background:linear-gradient(170deg,#F3F2EF 0%,#E7E6E2 55%,#DAD9D4 100%)
 .setChip.done{background:#1F9D55;border-color:#1F9D55;color:#fff}
 .setChip.ahora{border-color:#121210;box-shadow:0 0 0 1.5px #121210 inset}
 .setChip.ahora::after{content:' ←'}
+.presL{font-size:7px;font-weight:900;letter-spacing:.1em;color:#7C7B76;margin-top:5px}
+.indK{font-size:9px;line-height:1.5;background:rgba(18,18,16,.05);border-radius:10px;padding:8px 10px;margin-top:7px;color:#3a3936}
+.indK b{font-size:6px;letter-spacing:.14em;color:#BEBDB8;display:block;margin-bottom:2px}
+.setRow{display:grid;grid-template-columns:36px 1fr 1fr 46px;gap:7px;align-items:center;padding:7px 0;border-top:1px dashed rgba(18,18,16,.07)}
+.setRow .sn{font-size:6.5px;font-weight:900;color:#BEBDB8;letter-spacing:.1em}
+.pvS{display:flex;align-items:center;gap:4px}
+.pvS button{width:31px;height:34px;border:none;border-radius:10px;background:rgba(18,18,16,.06);font-weight:900;font-size:13px;cursor:pointer;flex-shrink:0}
+.pvS input{width:100%;max-width:62px;margin:0;padding:7px 2px;text-align:center;font-size:15px;font-weight:900;border-radius:10px;background:rgba(255,255,255,.75)}
+.pvS input.falta{border:1.5px solid #C5A13C;background:rgba(197,161,60,.08)}
+.pvS small{font-size:6px;font-weight:900;color:#BEBDB8}
+.chk{width:46px;height:38px;border-radius:12px;border:1.5px solid rgba(18,18,16,.16);background:rgba(255,255,255,.6);font-weight:900;font-size:13px;cursor:pointer;color:#BEBDB8}
+.chk.done{background:#1F9D55;border-color:#1F9D55;color:#fff}
 .circu{display:flex;justify-content:space-between;align-items:center;padding:8px 2px;border-top:1px solid rgba(18,18,16,.05)}
 .circu:first-of-type{border-top:none}
 .circu .cn{font-size:11.5px;font-weight:800}
@@ -332,7 +344,7 @@ html,body{background:linear-gradient(170deg,#F3F2EF 0%,#E7E6E2 55%,#DAD9D4 100%)
 
   <!-- ══ HOME ══ -->
   <div class="vista conTab" id="vHome">
-    <div class="hbar"><span class="hk" title="v4.3">KOACH</span><div class="hav" id="hAv" onclick="salir()">K</div></div>
+    <div class="hbar"><span class="hk" title="v5.0">KOACH</span><div class="hav" id="hAv" onclick="salir()">K</div></div>
     <div class="ctx"><div class="fecha" id="hFecha">—</div><div class="prog" id="hProg">—</div></div>
     <div class="anillo">
       <svg width="180" height="180" viewBox="0 0 180 180">
@@ -894,7 +906,7 @@ async function reanudar(){
   if(!ses){ toast('No encontramos esa sesión en tu programa actual'); return }
   S.sesionAbierta = ses
   S.pesos={}; S.marcas={}; S.setsHechos={}; S.bloquesListos=0
-  S.wk={}; S.setLog={}; S.regId=reg.id
+  S.wk={}; S.setLog={}; S.rw={}; S.regId=reg.id
   S._desigActual = ses._desigId||null; S._desigRec = !!ses._rec
   vista('vSesion')
   document.getElementById('sTit').textContent = ses.nombre
@@ -934,7 +946,7 @@ async function abrirSesion(){
   const ses = S.programa.sesiones.find(x=>x.numero===S.sem.proxima.numero)
   S.sesionAbierta = ses
   S.pesos={}; S.marcas={}; S.setsHechos={}; S.bloquesListos=0
-  S.wk={}; S.setLog={}; S.regId=null
+  S.wk={}; S.setLog={}; S.rw={}; S.regId=null
   // INSTANCIA: crear o recuperar el registro en curso de hoy (persistencia server-side)
   try{
     const hoyD = new Date().toISOString().split('T')[0]
@@ -1068,34 +1080,41 @@ function pintarSesion(){
       const ej=be.ejercicios||{}
       const w=seedWk(be,ej)
       const ancla=be.es_ancla?' ◆':''
-      let ctrl=''
-      if (w.tipo==='WEIGHT_REPS'){
-        const faltaKg = (w.kg==null)
-        ctrl = '<div class="exCtrl">'+
-          '<div class="exCol"><div class="exLbl">PESO · KG</div><div class="exVal">'+
-            '<button onclick="wkStep(\''+be.id+'\',\'kg\',-2.5)">−</button>'+
-            '<input id="wkKg-'+be.id+'" class="'+(faltaKg?'falta':'')+'" value="'+(w.kg==null?'':w.kg)+'" placeholder="define" inputmode="decimal" onchange="wkSet(\''+be.id+'\',\'kg\',this.value)">'+
-            '<button onclick="wkStep(\''+be.id+'\',\'kg\',2.5)">+</button></div></div>'+
-          '<div class="exCol"><div class="exLbl">REPS</div><div class="exVal">'+
-            '<button onclick="wkStep(\''+be.id+'\',\'reps\',-1)">−</button>'+
-            '<input id="wkRp-'+be.id+'" value="'+w.reps+'" onchange="wkSet(\''+be.id+'\',\'reps\',this.value)">'+
-            '<button onclick="wkStep(\''+be.id+'\',\'reps\',1)">+</button></div></div></div>'
-      } else if (w.tipo==='TIME'){
-        ctrl = '<div class="exCtrl"><div class="exCol"><div class="exLbl">TIEMPO · SEG</div><div class="exVal">'+
-          '<button onclick="wkStep(\''+be.id+'\',\'seg\',-5)">−</button>'+
-          '<input id="wkSg-'+be.id+'" value="'+w.seg+'" inputmode="numeric" onchange="wkSet(\''+be.id+'\',\'seg\',this.value)">'+
-          '<button onclick="wkStep(\''+be.id+'\',\'seg\',5)">+</button></div></div></div>'
-      } else {
-        ctrl = '<div class="exCtrl"><div class="exCol"><div class="exLbl">CARGA</div><div class="pcChip">PESO CORPORAL</div></div>'+
-          '<div class="exCol"><div class="exLbl">REPS</div><div class="exVal">'+
-            '<button onclick="wkStep(\''+be.id+'\',\'reps\',-1)">−</button>'+
-            '<input id="wkRp-'+be.id+'" value="'+w.reps+'" onchange="wkSet(\''+be.id+'\',\'reps\',this.value)">'+
-            '<button onclick="wkStep(\''+be.id+'\',\'reps\',1)">+</button></div></div></div>'
+      const cue = ej.cue ? '<div class="indK"><b>INDICACIÓN DEL KOACH</b>'+ej.cue+'</div>' : ''
+      let presL=''
+      if (w.tipo==='WEIGHT_REPS') presL='PRESCRITO · '+(w.kg!=null?(w.kg+' KG × '):'CARGA A DEFINIR × ')+w.reps+' · '+b.sets+' SETS'
+      else if (w.tipo==='TIME') presL='PRESCRITO · '+w.seg+' SEG · '+b.sets+' SETS'
+      else presL='PESO CORPORAL · '+w.reps+' REPS · '+b.sets+' SETS'
+      let filas=''
+      for (let n2=1; n2<=b.sets; n2++){
+        const fila = S.setLog[setKey(be.id,n2)]
+        const rv = rwGet(be.id, n2, w, fila)
+        const done = !!fila
+        let celdas=''
+        if (w.tipo==='WEIGHT_REPS'){
+          celdas = '<div class="pvS"><button onclick="rwStep(\''+be.id+'\','+n2+',\'kg\',-2.5)">−</button>'+
+            '<input id="rwK-'+be.id+'-'+n2+'" class="'+(rv.kg==null?'falta':'')+'" value="'+(rv.kg==null?'':rv.kg)+'" placeholder="kg" inputmode="decimal" onfocus="this.select()" onchange="rwSet(\''+be.id+'\','+n2+',\'kg\',this.value)">'+
+            '<button onclick="rwStep(\''+be.id+'\','+n2+',\'kg\',2.5)">+</button><small>KG</small></div>'+
+            '<div class="pvS"><button onclick="rwStep(\''+be.id+'\','+n2+',\'reps\',-1)">−</button>'+
+            '<input id="rwR-'+be.id+'-'+n2+'" value="'+(rv.reps||'')+'" inputmode="numeric" onfocus="this.select()" onchange="rwSet(\''+be.id+'\','+n2+',\'reps\',this.value)">'+
+            '<button onclick="rwStep(\''+be.id+'\','+n2+',\'reps\',1)">+</button></div>'
+        } else if (w.tipo==='TIME'){
+          celdas = '<div class="pvS" style="grid-column:span 2"><button onclick="rwStep(\''+be.id+'\','+n2+',\'seg\',-5)">−</button>'+
+            '<input id="rwS-'+be.id+'-'+n2+'" value="'+(rv.seg||30)+'" inputmode="numeric" onfocus="this.select()" onchange="rwSet(\''+be.id+'\','+n2+',\'seg\',this.value)">'+
+            '<button onclick="rwStep(\''+be.id+'\','+n2+',\'seg\',5)">+</button><small>SEG</small></div>'
+        } else {
+          celdas = '<div class="pvS"><span class="pcChip" style="padding:8px 9px">CORPORAL</span></div>'+
+            '<div class="pvS"><button onclick="rwStep(\''+be.id+'\','+n2+',\'reps\',-1)">−</button>'+
+            '<input id="rwR-'+be.id+'-'+n2+'" value="'+(rv.reps||'')+'" inputmode="numeric" onfocus="this.select()" onchange="rwSet(\''+be.id+'\','+n2+',\'reps\',this.value)">'+
+            '<button onclick="rwStep(\''+be.id+'\','+n2+',\'reps\',1)">+</button></div>'
+        }
+        filas += '<div class="setRow"><span class="sn">SET '+n2+'</span>'+celdas+
+          '<button class="chk '+(done?'done':'')+'" onclick="tapSetRow(\''+be.id+'\','+n2+',\''+b.id+'\',\''+(ej.id||'')+'\')">'+(done?'✓':'○')+'</button></div>'
       }
-      const cue = ej.cue ? '<div class="ecue">'+ej.cue+'</div>' : ''
-      const chips = chipsSets('s'+be.id, n=>!!S.setLog[setKey(be.id,n)], b.sets, "tapSet('"+be.id+"',__N__,'"+b.id+"','"+(ej.id||'')+"')")
       return '<div class="exCard"><div class="exTop"><span class="exN">'+(ej.nombre||'—')+ancla+'</span><span class="exG">'+(ej.grupo_muscular||'')+'</span></div>'+
-        '<div class="exUlt">'+ultTxt(ej)+'</div>'+cue+ctrl+chips+'</div>'
+        '<div class="exUlt">'+ultTxt(ej)+'</div>'+
+        '<div class="presL">'+presL+'</div>'+cue+
+        '<div style="margin-top:6px">'+filas+'</div></div>'
     }).join('')
     return '<div class="glass bloq" id="blq-'+bi+'"><div class="bh"><span class="bt">'+(b.bloque||('B'+(bi+1)))+'</span><span class="bn">'+titulo+'</span>'+
       '<span class="bs">'+b.sets+' SETS · '+(b.descanso_seg||b.descanso_segundos||60)+"'' DESC</span></div>"+cards+'</div>'
@@ -1124,6 +1143,63 @@ function wkStep(beId,k,d){
   else {
     const n=parseInt(w.reps); wkSet(beId,'reps', isNaN(n)? w.reps : Math.max(1,n+d))
   }
+}
+function rwGet(beId,n,w,fila){
+  const k=beId+'#'+n
+  if(!S.rw[k]){
+    S.rw[k] = fila ? {kg:(fila.peso!=null?fila.peso:null), reps:(fila.reps||w.reps), seg:(fila.seg!=null?fila.seg:w.seg)}
+                   : {kg:(w.kg!=null?w.kg:null), reps:w.reps, seg:w.seg}
+  }
+  return S.rw[k]
+}
+function rwSet(beId,n,k,v){
+  const key=beId+'#'+n, rv=S.rw[key]; if(!rv)return
+  if(k==='kg'){ if(String(v).trim()===''){return} const x=parseFloat(String(v).replace(',','.')); if(isNaN(x))return
+    rv.kg=x; const i=document.getElementById('rwK-'+beId+'-'+n); if(i){i.value=x;i.classList.remove('falta')} }
+  else if(k==='seg'){ const x=parseInt(v); if(isNaN(x))return; rv.seg=Math.max(5,x)
+    const i=document.getElementById('rwS-'+beId+'-'+n); if(i)i.value=rv.seg }
+  else { const s=String(v).trim(); if(!s)return; rv.reps=s
+    const i=document.getElementById('rwR-'+beId+'-'+n); if(i)i.value=s }
+  // Si la serie ya está registrada, la corrección viaja al registro real
+  const fila=S.setLog[setKey(beId,n)]
+  if(fila && fila.id){
+    fila.peso=rv.kg!=null?rv.kg:null; fila.reps=rv.reps||null; fila.seg=rv.seg||null
+    syncEnvio()
+    sb.from('set_registros').update({peso:fila.peso, reps:fila.reps, seg:fila.seg, updated_at:new Date().toISOString()})
+      .eq('id',fila.id).then(r=>{ r.error?syncErr():syncOk() })
+  }
+}
+function rwStep(beId,n,k,d){
+  const rv=S.rw[beId+'#'+n]; if(!rv)return
+  if(k==='kg') rwSet(beId,n,'kg', Math.max(0,(parseFloat(rv.kg)||0)+d))
+  else if(k==='seg') rwSet(beId,n,'seg', (parseInt(rv.seg)||30)+d)
+  else { const c=parseInt(rv.reps); rwSet(beId,n,'reps', String(isNaN(c)?rv.reps:Math.max(1,c+d))) }
+}
+async function tapSetRow(beId,n,bId,ejId){
+  const k=setKey(beId,n)
+  const w=S.wk[beId]||{}
+  if (S.setLog[k]){
+    const fila=S.setLog[k]
+    delete S.setLog[k]; pintarSesion()
+    syncEnvio()
+    if(fila.id) sb.from('set_registros').delete().eq('id',fila.id).then(()=>syncOk())
+    else syncOk()
+    return
+  }
+  const rv=S.rw[beId+'#'+n]||{}
+  if (w.tipo==='WEIGHT_REPS' && rv.kg==null){ toast('Define el peso del set antes de marcarlo.'); return }
+  const fila={ registro_id:S.regId, socio_id:S.perfil.id, bloque_id:bId, bloque_ejercicio_id:beId,
+    ejercicio_id:ejId||null, set_numero:n,
+    target_peso:(w.kg!=null?w.kg:null), target_reps:w.reps||null, target_seg:w.seg||null,
+    peso:(rv.kg!=null?rv.kg:null), reps:rv.reps||null, seg:(w.tipo==='TIME'?(rv.seg||null):null), completado:true }
+  S.setLog[k]={...fila}
+  pintarSesion()
+  if(navigator.vibrate)navigator.vibrate(8)
+  syncEnvio()
+  sb.from('set_registros').insert(fila).select('id').single().then(r=>{
+    if(r.error){ delete S.setLog[k]; pintarSesion(); syncErr(); toast('No se guardó el set — toca de nuevo') }
+    else { S.setLog[k].id=r.data.id; syncOk(); chequearBloque(bId) }
+  })
 }
 async function tapSet(beId,n,bId,ejId){
   const k=setKey(beId,n)
