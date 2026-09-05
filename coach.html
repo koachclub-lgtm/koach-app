@@ -149,6 +149,13 @@ input{width:100%;background:rgba(255,255,255,.7);border:1px solid rgba(255,255,2
 #pTabs .mtab{flex-shrink:0;white-space:nowrap}
 .selRow2{display:flex;align-items:center;gap:10px;padding:11px 6px;border-top:1px solid rgba(18,18,16,.06);cursor:pointer}
 .delSes{border:none;background:none;color:#B4442C;font-size:7.5px;font-weight:900;letter-spacing:.08em;cursor:pointer;margin:2px 4px 10px;padding:0}
+#oLoad{position:fixed;inset:0;z-index:900;background:#121210;display:none;flex-direction:column;align-items:center;justify-content:center;gap:22px}
+#oLoad.vis{display:flex}
+#oLoad .lk{font-size:26px;font-weight:900;letter-spacing:.34em;color:#F3F2EF}
+#oLoad .lm{font-size:9px;font-weight:900;letter-spacing:.22em;color:#77766F}
+#oLoad .lb{width:min(60vw,240px);height:2px;background:rgba(243,242,239,.12);border-radius:2px;overflow:hidden}
+#oLoad .lb i{display:block;height:100%;width:38%;background:#F3F2EF;border-radius:2px;animation:ldr 1.1s ease-in-out infinite}
+@keyframes ldr{0%{transform:translateX(-110%)}100%{transform:translateX(290%)}}
 .mtab.drag{transform:scale(1.07);box-shadow:0 10px 24px rgba(18,18,16,.35);opacity:.92;z-index:5;position:relative}
 #pTabs .mtab{flex-direction:column;align-items:flex-start;gap:2px;padding:9px 13px;min-width:86px}
 #pTabs .sN{font-size:6.5px;letter-spacing:.14em;opacity:.55;font-weight:900}
@@ -186,7 +193,7 @@ input{width:100%;background:rgba(255,255,255,.7);border:1px solid rgba(255,255,2
 </div></div>
 
 <div class="vista" id="vSala">
-  <div class="hbar"><span class="hk" title="c4.3">KOACH</span><span class="rol" id="rolBadge" onclick="salir()">COACH</span></div>
+  <div class="hbar"><span class="hk" title="c4.4">KOACH</span><span class="rol" id="rolBadge" onclick="salir()">COACH</span></div>
   <button class="nuevo" onclick="toggleAlta()">+ NUEVO USUARIO · SOCIO O COACH</button>
   <button class="nuevo" style="background:rgba(255,255,255,.65);color:#121210;border:1.5px solid rgba(18,18,16,.15)" onclick="verBib()">📚 RUTINAS ESTÁNDAR · BIBLIOTECA</button>
   <div class="glass aform" id="fAlta" style="display:none">
@@ -300,6 +307,7 @@ input{width:100%;background:rgba(255,255,255,.7);border:1px solid rgba(255,255,2
 </div>
 
 <!-- HOJA AGREGAR SESIÓN A LA SEMANA -->
+<div id="oLoad"><div class="lk">KOACH</div><div class="lb"><i></i></div><div class="lm" id="oLoadM">CARGANDO…</div></div>
 <div id="mAddSes" style="display:none;position:fixed;inset:0;z-index:70;background:rgba(18,18,16,.45);backdrop-filter:blur(6px)">
   <div style="position:absolute;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:560px;max-height:80vh;overflow-y:auto;background:#F3F2EF;border-radius:24px 24px 0 0;padding:18px 16px 22px">
     <div style="display:flex;align-items:center;margin-bottom:12px">
@@ -483,7 +491,11 @@ async function entrar(){
   vista('vSala')
 }
 
+function cargando(m){ const o=document.getElementById('oLoad'); if(!o)return
+  document.getElementById('oLoadM').textContent=m||'CARGANDO…'; o.classList.add('vis') }
+function cargandoOff(){ const o=document.getElementById('oLoad'); if(o)o.classList.remove('vis') }
 async function loadSala(){
+  cargando('LEVANTANDO LA SALA…')
   const lunesISO = lunes().toISOString().split('T')[0]
   const rs = await sb.from('profiles').select('*')
     .eq('role','socio').eq('activo',true).order('nombre')
@@ -561,6 +573,7 @@ function spNombre(spId){
   return n||'SESION'
 }
 function pintarSala(){
+  cargandoOff()
   window._tabs=window._tabs||[]; window._tabAct=window._tabAct||null
   document.getElementById('mesa').innerHTML = window._tabs.map(function(id){
     const on=id===window._tabAct
@@ -1067,6 +1080,7 @@ async function deshacerClon(pid){
   }catch(_e){}
 }
 async function abrirPlan(pid, proto, opts){
+  cargando('ABRIENDO EL PLANIFICADOR…')
   opts = opts || {}
   P = null
   await cargarCatalogo()
@@ -1135,6 +1149,7 @@ function bloqueTag(b, idx){
   return 'B'+(idx+1)
 }
 function pintarPlan(){
+  cargandoOff()
   const pg=document.getElementById('pGuardia')
   if(pg) pg.style.display = P.bib ? 'none' : 'block'
   const gbBtn = pg ? pg.querySelector('.gb') : null
