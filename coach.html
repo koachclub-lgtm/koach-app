@@ -149,6 +149,15 @@ input{width:100%;background:rgba(255,255,255,.7);border:1px solid rgba(255,255,2
 #pTabs .mtab{flex-shrink:0;white-space:nowrap}
 .selRow2{display:flex;align-items:center;gap:10px;padding:11px 6px;border-top:1px solid rgba(18,18,16,.06);cursor:pointer}
 .delSes{border:none;background:none;color:#B4442C;font-size:7.5px;font-weight:900;letter-spacing:.08em;cursor:pointer;margin:2px 4px 10px;padding:0}
+#syncTag{position:fixed;top:10px;right:12px;z-index:60;font-size:7px;font-weight:900;letter-spacing:.12em;padding:6px 10px;border-radius:9px;background:rgba(31,157,85,.12);color:#1F9D55;transition:opacity .3s;display:none}
+#syncTag.envio{background:rgba(18,18,16,.1);color:#7C7B76}
+#syncTag.err{background:rgba(180,68,44,.12);color:#B4442C}
+.pv{display:flex;align-items:center;gap:5px}
+.pv button{width:40px;height:40px;border:none;border-radius:12px;background:rgba(18,18,16,.07);font-weight:900;font-size:16px;cursor:pointer;flex-shrink:0}
+.pv input{width:64px;margin:0;padding:10px 4px;text-align:center;font-size:14px;font-weight:900;border-radius:12px;background:rgba(255,255,255,.75)}
+.pv input.falta{border:1.5px solid #C5A13C;background:rgba(197,161,60,.08)}
+.pv .pcx{font-size:7px;font-weight:900;letter-spacing:.06em;background:rgba(18,18,16,.07);border-radius:10px;padding:12px 10px;color:#7C7B76;white-space:nowrap}
+.lin.foco{outline:2px solid #C5A13C;outline-offset:3px;border-radius:14px}
 #oLoad{position:fixed;inset:0;z-index:900;background:#121210;display:none;flex-direction:column;align-items:center;justify-content:center;gap:22px}
 #oLoad.vis{display:flex}
 #oLoad .lk{font-size:26px;font-weight:900;letter-spacing:.34em;color:#F3F2EF}
@@ -193,7 +202,7 @@ input{width:100%;background:rgba(255,255,255,.7);border:1px solid rgba(255,255,2
 </div></div>
 
 <div class="vista" id="vSala">
-  <div class="hbar"><span class="hk" title="c4.4">KOACH</span><span class="rol" id="rolBadge" onclick="salir()">COACH</span></div>
+  <div class="hbar"><span class="hk" title="c4.5">KOACH</span><span class="rol" id="rolBadge" onclick="salir()">COACH</span></div>
   <button class="nuevo" onclick="toggleAlta()">+ NUEVO USUARIO · SOCIO O COACH</button>
   <button class="nuevo" style="background:rgba(255,255,255,.65);color:#121210;border:1.5px solid rgba(18,18,16,.15)" onclick="verBib()">📚 RUTINAS ESTÁNDAR · BIBLIOTECA</button>
   <div class="glass aform" id="fAlta" style="display:none">
@@ -308,6 +317,18 @@ input{width:100%;background:rgba(255,255,255,.7);border:1px solid rgba(255,255,2
 
 <!-- HOJA AGREGAR SESIÓN A LA SEMANA -->
 <div id="oLoad"><div class="lk">KOACH</div><div class="lb"><i></i></div><div class="lm" id="oLoadM">CARGANDO…</div></div>
+<div id="syncTag">✓ GUARDADO</div>
+<div id="mGuard" style="display:none;position:fixed;inset:0;z-index:80;background:rgba(18,18,16,.45);backdrop-filter:blur(6px)">
+  <div style="position:absolute;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:520px;background:#F3F2EF;border-radius:24px 24px 0 0;padding:20px 16px 24px">
+    <div style="font-size:8px;letter-spacing:.18em;font-weight:900;color:#7C7B76;margin-bottom:10px">REVISAR PRESCRIPCIÓN</div>
+    <div id="mgMsg" style="font-size:13px;font-weight:800;line-height:1.55;margin-bottom:6px"></div>
+    <div style="font-size:10px;color:#7C7B76;line-height:1.6;margin-bottom:16px">Puedes completarlas ahora o aplicar la programación igualmente — la app orienta, el KOACH decide.</div>
+    <div style="display:flex;gap:8px">
+      <button class="btn" style="background:rgba(18,18,16,.08);color:#121210" onclick="mgRevisar()">REVISAR CARGAS →</button>
+      <button class="btn" onclick="mgAplicar()">APLICAR IGUAL</button>
+    </div>
+  </div>
+</div>
 <div id="mAddSes" style="display:none;position:fixed;inset:0;z-index:70;background:rgba(18,18,16,.45);backdrop-filter:blur(6px)">
   <div style="position:absolute;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:560px;max-height:80vh;overflow-y:auto;background:#F3F2EF;border-radius:24px 24px 0 0;padding:18px 16px 22px">
     <div style="display:flex;align-items:center;margin-bottom:12px">
@@ -1191,11 +1212,35 @@ function pintarPlan(){
       const tiempo = esTiempo(it)
       const ult = ULT[it.ejId]
       const ultTxt = ult ? ('ÚLTIMA · '+(ult.peso_kg!=null?ult.peso_kg+' KG':'—')) : 'SIN REGISTRO ANTERIOR'
-      return '<div class="lin">'+
+      const esBW = (it.tipoReg==='BODYWEIGHT_REPS') || (it.tipoReg==null && it.conCarga===false && !tiempo)
+      const esT = (it.tipoReg==='TIME') || (it.tipoReg==null && tiempo)
+      let controles = ''
+      if (esT){
+        const segV = String(it.reps).replace(/[^0-9]/g,'')||'30'
+        controles = '<div><span class="lbl">TIEMPO · SEG</span><div class="pv">'+
+          '<button onclick="stepItem(\''+it.beId+'\',\'seg\',-5)">−</button>'+
+          '<input id="pi-s-'+it.beId+'" value="'+segV+'" inputmode="numeric" onfocus="this.select()" onchange="editReps(\''+it.beId+'\',this.value)">'+
+          '<button onclick="stepItem(\''+it.beId+'\',\'seg\',5)">+</button></div></div>'
+      } else if (esBW){
+        controles = '<div><span class="lbl">CARGA</span><div class="pv"><span class="pcx">CORPORAL</span></div></div>'+
+          '<div><span class="lbl">REPS</span><div class="pv">'+
+          '<button onclick="stepItem(\''+it.beId+'\',\'reps\',-1)">−</button>'+
+          '<input id="pi-r-'+it.beId+'" value="'+String(it.reps).replace(/"/g,'')+'" inputmode="numeric" onfocus="this.select()" onchange="editReps(\''+it.beId+'\',this.value)">'+
+          '<button onclick="stepItem(\''+it.beId+'\',\'reps\',1)">+</button></div></div>'
+      } else {
+        controles = '<div><span class="lbl">PESO · KG</span><div class="pv">'+
+          '<button onclick="stepItem(\''+it.beId+'\',\'kg\',-2.5)">−</button>'+
+          '<input id="pi-k-'+it.beId+'" class="'+(it.kg==null?'falta':'')+'" value="'+(it.kg==null?'':it.kg)+'" placeholder="define" inputmode="decimal" onfocus="this.select()" onchange="editKg(\''+it.beId+'\',this.value)">'+
+          '<button onclick="stepItem(\''+it.beId+'\',\'kg\',2.5)">+</button></div></div>'+
+          '<div><span class="lbl">REPS</span><div class="pv">'+
+          '<button onclick="stepItem(\''+it.beId+'\',\'reps\',-1)">−</button>'+
+          '<input id="pi-r-'+it.beId+'" value="'+String(it.reps).replace(/"/g,'')+'" inputmode="numeric" onfocus="this.select()" onchange="editReps(\''+it.beId+'\',this.value)">'+
+          '<button onclick="stepItem(\''+it.beId+'\',\'reps\',1)">+</button></div></div>'
+      }
+      return '<div class="lin" id="pl-'+it.beId+'">'+
         '<div class="chipG">'+(it.grupo||'—')+'</div>'+
         '<button class="ejN" onclick="abrirSelector(\'cambiar\','+bi+',\''+it.beId+'\')">'+it.nombre+'<small>'+ultTxt+' · CAMBIAR ⇄</small></button>'+
-        '<div><span class="lbl">PESO · KG</span><input class="linI" value="'+(it.kg==null?'':it.kg)+'" placeholder="—" inputmode="decimal" onchange="editKg(\''+it.beId+'\',this.value)"></div>'+
-        '<div><span class="lbl">'+(tiempo?'TIEMPO':'REPS')+'</span><input class="linI" value="'+String(it.reps).replace(/"/g,'')+'" placeholder="'+(tiempo?'30 SEG':'10')+'" onchange="editReps(\''+it.beId+'\',this.value)"></div>'+
+        controles+
         '<button class="linX" onclick="quitarEj(\''+it.beId+'\')">✕</button>'+
       '</div>'
     }).join('')+
@@ -1459,22 +1504,51 @@ function planItem(beId){
 }
 async function stepSets(bi,d){
   const b=P.sesiones[P.tab].bloques[bi]; b.sets=Math.max(1,Math.min(8,(b.sets||3)+d)); pintarPlan()
-  const r=await sb.from('bloques').update({sets:b.sets}).eq('id',b.id); if(r.error)toast('Sets: '+r.error.message)
+  syncEnvio(); const r=await sb.from('bloques').update({sets:b.sets}).eq('id',b.id); if(r.error)syncErr(r.error.message); else syncOk()
 }
 async function stepDesc(bi,d){
   const b=P.sesiones[P.tab].bloques[bi]; b.desc=Math.max(15,Math.min(240,(b.desc||60)+d)); pintarPlan()
-  const r=await sb.from('bloques').update({descanso_seg:b.desc, descanso_segundos:b.desc}).eq('id',b.id); if(r.error)toast('Descanso: '+r.error.message)
+  syncEnvio(); const r=await sb.from('bloques').update({descanso_seg:b.desc, descanso_segundos:b.desc}).eq('id',b.id); if(r.error)syncErr(r.error.message); else syncOk()
 }
+let _pendC=0
+function syncEnvio(){ _pendC++; const t=document.getElementById('syncTag'); t.style.display='block'; t.className='envio'; t.textContent='GUARDANDO…' }
+function syncOk(){ if(_pendC>0)_pendC--; if(_pendC>0)return; const t=document.getElementById('syncTag'); t.className=''; t.textContent='✓ GUARDADO'
+  clearTimeout(window._syncH); window._syncH=setTimeout(function(){ t.style.display='none' }, 2600) }
+function syncErr(m){ _pendC=0; const t=document.getElementById('syncTag'); t.style.display='block'; t.className='err'; t.textContent='ERROR: '+(m||'') }
 async function editKg(beId,v){
   const x=planItem(beId); if(!x)return
+  if(String(v).trim()===''){ return } // vacío temporal: jamás null a la base
   const n=parseFloat(String(v).replace(',','.')); if(isNaN(n)){pintarPlan();return}
   x.it.kg=n
-  const r=await sb.from('bloque_ejercicios').update({kg_objetivo:n}).eq('id',beId); if(r.error)toast('Kg: '+r.error.message)
+  const inp=document.getElementById('pi-k-'+beId); if(inp){ inp.value=n; inp.classList.remove('falta') }
+  syncEnvio()
+  const r=await sb.from('bloque_ejercicios').update({kg_objetivo:n}).eq('id',beId)
+  if(r.error){ syncErr(r.error.message) } else syncOk()
 }
 async function editReps(beId,v){
   const x=planItem(beId); if(!x)return
-  x.it.reps=String(v).trim()||'10'; calcDose()
-  const r=await sb.from('bloque_ejercicios').update({reps_txt:x.it.reps}).eq('id',beId); if(r.error)toast('Reps: '+r.error.message)
+  if(String(v).trim()===''){ return }
+  x.it.reps=String(v).trim(); calcDose()
+  syncEnvio()
+  const r=await sb.from('bloque_ejercicios').update({reps_txt:x.it.reps}).eq('id',beId)
+  if(r.error){ syncErr(r.error.message) } else syncOk()
+}
+function stepItem(beId,k,d){
+  const x=planItem(beId); if(!x)return
+  if(k==='kg'){
+    const nv=Math.max(0, (parseFloat(x.it.kg)||0)+d)
+    editKg(beId, nv)
+  } else if(k==='seg'){
+    const cur=parseInt(String(x.it.reps).replace(/[^0-9]/g,''))||30
+    const nv=Math.max(5, cur+d)
+    const inp=document.getElementById('pi-s-'+beId); if(inp)inp.value=nv
+    editReps(beId, String(nv))
+  } else {
+    const cur=parseInt(x.it.reps); const nv=isNaN(cur)? x.it.reps : Math.max(1, cur+d)
+    if(nv===x.it.reps) return
+    const inp=document.getElementById('pi-r-'+beId); if(inp)inp.value=nv
+    editReps(beId, String(nv))
+  }
 }
 async function quitarEj(beId){
   const x=planItem(beId); if(!x)return
@@ -1577,14 +1651,36 @@ function calcDose(){
   const fm=document.getElementById('pFootMsg')
   if(fm) fm.textContent = alerta ? (alerta+' — LA APP ORIENTA, EL COACH PROGRAMA') : 'SE GUARDA AL INSTANTE · LA APP ORIENTA, EL COACH PROGRAMA'
 }
+let MG={primero:null}
 async function aplicarPrograma(){
-  // Guardia de prescripción (advertencia, jamás bloqueo)
-  let sinCarga=0
-  P.sesiones.forEach(function(s){ s.bloques.forEach(function(b){ b.items.forEach(function(it){
-    const esPeso = it.tipoReg==='WEIGHT_REPS' || (it.tipoReg==null && it.conCarga!==false)
-    if (esPeso && it.kg==null) sinCarga++
+  // Guardia de prescripción (advertencia, jamás bloqueo) — modal KOACH, no confirm nativo
+  let sinCarga=0; MG.primero=null
+  P.sesiones.forEach(function(s,si){ s.bloques.forEach(function(b){ b.items.forEach(function(it){
+    const esPeso = it.tipoReg==='WEIGHT_REPS' || (it.tipoReg==null && it.conCarga!==false && !esTiempo(it))
+    if (esPeso && it.kg==null){ sinCarga++; if(!MG.primero) MG.primero={tab:si, beId:it.beId} }
   }) }) })
-  if (sinCarga>0 && !confirm('Hay '+sinCarga+' ejercicio'+(sinCarga===1?'':'s')+' sin prescripción de carga.\nEl socio deberá definirla al entrenar.\n\n¿Aplicar igual?')) return
+  if (sinCarga>0){
+    document.getElementById('mgMsg').textContent =
+      sinCarga+' ejercicio'+(sinCarga===1?' aún no tiene':'s aún no tienen')+' carga inicial definida.'
+    document.getElementById('mGuard').style.display='block'
+    return
+  }
+  aplicarProgramaGo()
+}
+function mgAplicar(){ document.getElementById('mGuard').style.display='none'; aplicarProgramaGo() }
+function mgRevisar(){
+  document.getElementById('mGuard').style.display='none'
+  if(!MG.primero) return
+  P.tab = MG.primero.tab
+  pintarPlan()
+  setTimeout(function(){
+    const el=document.getElementById('pl-'+MG.primero.beId)
+    if(el){ el.scrollIntoView({behavior:'smooth', block:'center'}); el.classList.add('foco')
+      setTimeout(function(){ el.classList.remove('foco') }, 2600)
+      const inp=document.getElementById('pi-k-'+MG.primero.beId); if(inp) setTimeout(function(){ inp.focus() }, 500) }
+  }, 120)
+}
+async function aplicarProgramaGo(){
   const r=await sb.from('protocolos').update({estado:'activo'}).eq('id',P.pid)
   if(r.error){ toast('Aplicar: '+r.error.message); return }
   document.getElementById('pEstado').textContent='ACTIVO'
