@@ -157,6 +157,7 @@ input{width:100%;background:rgba(255,255,255,.7);border:1px solid rgba(255,255,2
 #syncTag.err{background:rgba(180,68,44,.12);color:#B4442C}
 .pv{display:flex;align-items:center;gap:5px}
 .pv button{width:40px;height:40px;border:none;border-radius:12px;background:rgba(18,18,16,.07);font-weight:900;font-size:16px;cursor:pointer;flex-shrink:0}
+html,button,input,.pv,.mtab,.setChip{touch-action:manipulation}
 .pv{min-width:0}
 .pv input{width:100%;max-width:96px;min-width:52px;margin:0;padding:10px 2px;text-align:center;font-size:16px;font-weight:900;border-radius:12px;background:rgba(255,255,255,.75)}
 .pv button{width:38px;height:38px}
@@ -207,7 +208,7 @@ input{width:100%;background:rgba(255,255,255,.7);border:1px solid rgba(255,255,2
 </div></div>
 
 <div class="vista" id="vSala">
-  <div class="hbar"><span class="hk" title="c5.0">KOACH</span><span class="rol" id="rolBadge" onclick="salir()">COACH</span></div>
+  <div class="hbar"><span class="hk" title="c5.1">KOACH</span><span class="rol" id="rolBadge" onclick="salir()">COACH</span></div>
   <button class="nuevo" onclick="toggleAlta()">+ NUEVO USUARIO · SOCIO O COACH</button>
   <button class="nuevo" style="background:rgba(255,255,255,.65);color:#121210;border:1.5px solid rgba(18,18,16,.15)" onclick="verBib()">📚 RUTINAS ESTÁNDAR · BIBLIOTECA</button>
   <div class="glass aform" id="fAlta" style="display:none">
@@ -1633,6 +1634,9 @@ function calcDose(){
   const objetivos = P.objetivos||{}
   // UNIVERSO: todo estímulo presente en la programación, en lo realizado o con meta
   const universo={}
+  // GLOBAL dosifica como CARDIO (estímulo unificado)
+  if (acum['GLOBAL']!=null){ acum['CARDIO']=(acum['CARDIO']||0)+acum['GLOBAL']; delete acum['GLOBAL'] }
+  if (real['GLOBAL']!=null){ real['CARDIO']=(real['CARDIO']||0)+real['GLOBAL']; delete real['GLOBAL'] }
   Object.keys(acum).forEach(function(g){universo[g]=1})
   Object.keys(real).forEach(function(g){universo[g]=1})
   Object.keys(objetivos).forEach(function(g){ if(objetivos[g].exigible!==false) universo[g]=1 })
@@ -1663,7 +1667,11 @@ function calcDose(){
       '<div class="vbar"><div class="vproy" style="width:'+wP+'%;background:#121210"></div>'+
       '<div class="vreal" style="width:'+wR+'%;background:'+col+'"></div></div>'+
       '<span class="vv">'+meta+'<br>PROY '+(+v.toFixed(1))+' · '+tag+'</span></div>' }
-  }).sort(function(a,b){ return (a.prio-b.prio) || (b.v-a.v) })
+  })
+  const ORD=['PECHO','ESPALDA','HOMBROS','TRÍCEPS','BÍCEPS','CORE','GLÚTEOS','CUÁDRICEPS','ISQUIOS','PANTORRILLAS','CARDIO','MOVILIDAD']
+  filas.sort(function(a,b){
+    const ia=ORD.indexOf(a.g), ib=ORD.indexOf(b.g)
+    return (ia<0?99:ia)-(ib<0?99:ib) })
   const LIM=6
   const lista = P.vivoAll ? filas : filas.slice(0,LIM)
   const btn = filas.length>LIM
