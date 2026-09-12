@@ -1638,7 +1638,7 @@ async function elegirEj(ejId){
     const nuevoOrd = maxOrd + 1
     const r=await sb.from('bloque_ejercicios').insert({bloque_id:b.id,ejercicio_id:e.id,orden:nuevoOrd,reps_txt:'10'}).select().single()
     if(r.error){ toast('Agregar: '+r.error.message); return }
-    b.items.push({beId:r.data.id,ejId:e.id,nombre:e.nombre,grupo:e.grupo_muscular,sinergistas:e.sinergistas||{},kg:null,reps:'10',orden:nuevoOrd})
+    b.items.push({beId:r.data.id,ejId:e.id,nombre:e.nombre,grupo:e.grupo_muscular,sinergistas:e.sinergistas||{},kg:null,reps:'10',orden:nuevoOrd,tipoReg:e.tipo_registro||null,conCarga:(e.con_carga===true)})
     repintarConservando()
   }
 }
