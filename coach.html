@@ -156,6 +156,7 @@ input{width:100%;background:rgba(255,255,255,.7);border:1px solid rgba(255,255,2
 .tabOpc{position:absolute;top:6px;right:6px;border:none;background:rgba(243,242,239,.14);color:#F3F2EF;border-radius:8px;padding:3px 7px;font-size:10px;font-weight:900;cursor:pointer}
 #pBloques{background:rgba(18,18,16,.04);border:1px solid rgba(18,18,16,.06);border-radius:0 16px 16px 16px;padding:10px 10px 4px;position:relative;z-index:1}
 .hintStrip{margin-top:9px}
+@media (max-width:820px){ input, select, textarea { font-size:16px !important } }
 .selRow2{display:flex;align-items:center;gap:10px;padding:11px 6px;border-top:1px solid rgba(18,18,16,.06);cursor:pointer}
 .delSes{border:none;background:none;color:#B4442C;font-size:7.5px;font-weight:900;letter-spacing:.08em;cursor:pointer;margin:2px 4px 10px;padding:0}
 #syncTag{position:fixed;top:10px;right:12px;z-index:60;font-size:7px;font-weight:900;letter-spacing:.12em;padding:6px 10px;border-radius:9px;background:rgba(31,157,85,.12);color:#1F9D55;transition:opacity .3s;display:none}
@@ -214,7 +215,7 @@ html,button,input,.pv,.mtab,.setChip{touch-action:manipulation}
 </div></div>
 
 <div class="vista" id="vSala">
-  <div class="hbar"><span class="hk" title="c5.3">KOACH</span><span class="rol" id="rolBadge" onclick="salir()">COACH</span></div>
+  <div class="hbar"><span class="hk" title="c5.4">KOACH</span><span class="rol" id="rolBadge" onclick="salir()">COACH</span></div>
   <button class="nuevo" onclick="toggleAlta()">+ NUEVO USUARIO · SOCIO O COACH</button>
   <button class="nuevo" style="background:rgba(255,255,255,.65);color:#121210;border:1.5px solid rgba(18,18,16,.15)" onclick="verBib()">📚 RUTINAS ESTÁNDAR · BIBLIOTECA</button>
   <div class="glass aform" id="fAlta" style="display:none">
@@ -1195,7 +1196,7 @@ function pintarPlan(){
   if(P.base){ const fm=document.getElementById('pFootMsg'); if(fm) fm.textContent='⚙ EDITAS LA BASE MAESTRA — SE GUARDA AL INSTANTE · CLONES EXISTENTES NO CAMBIAN' }
   document.getElementById('pTabs').innerHTML = P.sesiones.map(function(s,i){
     const nom = ((P.bib ? (s.nombre||'') : s.nombre)||'').replace(/ Y /g,' + ')
-    const hdl = (!P.bib && P.sesiones.length>1) ? '<span class="hdl" data-hdl>⋮⋮</span>' : ''
+    const hdl = ''  // header = solo navegación; reorganizar vive en ORGANIZAR SEMANA (próxima vista)
     const opc = (i===P.tab && !P.bib && !P.base) ? '<button class="tabOpc" onclick="event.stopPropagation();abrirSesOpc()">•••</button>' : ''
     return '<div class="mtab '+(i===P.tab?'on':'')+'" data-sid="'+s.id+'" data-i="'+i+'" onclick="tabTap('+i+')">'+
       '<span class="sN">'+hdl+(P.bib?'★':(i+1))+'</span><span class="sT">'+nom+'</span>'+opc+'</div>'
@@ -1208,7 +1209,7 @@ function pintarPlan(){
   const tabsEl=document.getElementById('pTabs')
   if(!P.bib && P.sesiones.length>1){
     const hnt=document.createElement('div'); hnt.id='pHint'; hnt.className='hintStrip'
-    hnt.textContent='ARRASTRA ⋮⋮ PARA REORGANIZAR LA SEMANA'
+    hnt.textContent='REORGANIZAR LA SEMANA · PRÓXIMAMENTE DESDE ••• (por ahora, ••• → duplicar/eliminar)'
     document.getElementById('pBloques').insertAdjacentElement('afterend', hnt)
   }
   setTimeout(function(){ const on=document.querySelector('#pTabs .mtab.on'), st=document.getElementById('pTabs')
