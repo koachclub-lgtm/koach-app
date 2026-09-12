@@ -149,7 +149,13 @@ input{width:100%;background:rgba(255,255,255,.7);border:1px solid rgba(255,255,2
 .vproy{position:absolute;top:0;left:0;height:100%;border-radius:5px;opacity:.32}
 .vv{font-size:6.5px;font-weight:900;text-align:right;color:#7C7B76;line-height:1.5}
 #pTabs{flex-wrap:nowrap;overflow-x:auto;-webkit-overflow-scrolling:touch;padding-bottom:6px}
-#pTabs .mtab{flex-shrink:0;white-space:nowrap;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
+#pTabs .mtab{flex-shrink:0;white-space:nowrap;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;position:relative}
+#pTabs .hdl{touch-action:none;-webkit-user-select:none;user-select:none;cursor:grab;font-size:11px;line-height:1;padding:6px 7px 6px 2px;margin:-6px 0 -6px -4px;color:inherit;opacity:.5}
+#pTabs .mtab.on{border-bottom-left-radius:0;border-bottom-right-radius:0;padding-bottom:14px;margin-bottom:-5px;z-index:2}
+#pTabs{padding-bottom:0;margin-bottom:0}
+.tabOpc{position:absolute;top:6px;right:6px;border:none;background:rgba(243,242,239,.14);color:#F3F2EF;border-radius:8px;padding:3px 7px;font-size:10px;font-weight:900;cursor:pointer}
+#pBloques{background:rgba(18,18,16,.04);border:1px solid rgba(18,18,16,.06);border-radius:0 16px 16px 16px;padding:10px 10px 4px;position:relative;z-index:1}
+.hintStrip{margin-top:9px}
 .selRow2{display:flex;align-items:center;gap:10px;padding:11px 6px;border-top:1px solid rgba(18,18,16,.06);cursor:pointer}
 .delSes{border:none;background:none;color:#B4442C;font-size:7.5px;font-weight:900;letter-spacing:.08em;cursor:pointer;margin:2px 4px 10px;padding:0}
 #syncTag{position:fixed;top:10px;right:12px;z-index:60;font-size:7px;font-weight:900;letter-spacing:.12em;padding:6px 10px;border-radius:9px;background:rgba(31,157,85,.12);color:#1F9D55;transition:opacity .3s;display:none}
@@ -208,7 +214,7 @@ html,button,input,.pv,.mtab,.setChip{touch-action:manipulation}
 </div></div>
 
 <div class="vista" id="vSala">
-  <div class="hbar"><span class="hk" title="c5.2">KOACH</span><span class="rol" id="rolBadge" onclick="salir()">COACH</span></div>
+  <div class="hbar"><span class="hk" title="c5.3">KOACH</span><span class="rol" id="rolBadge" onclick="salir()">COACH</span></div>
   <button class="nuevo" onclick="toggleAlta()">+ NUEVO USUARIO · SOCIO O COACH</button>
   <button class="nuevo" style="background:rgba(255,255,255,.65);color:#121210;border:1.5px solid rgba(18,18,16,.15)" onclick="verBib()">📚 RUTINAS ESTÁNDAR · BIBLIOTECA</button>
   <div class="glass aform" id="fAlta" style="display:none">
@@ -1189,8 +1195,10 @@ function pintarPlan(){
   if(P.base){ const fm=document.getElementById('pFootMsg'); if(fm) fm.textContent='⚙ EDITAS LA BASE MAESTRA — SE GUARDA AL INSTANTE · CLONES EXISTENTES NO CAMBIAN' }
   document.getElementById('pTabs').innerHTML = P.sesiones.map(function(s,i){
     const nom = ((P.bib ? (s.nombre||'') : s.nombre)||'').replace(/ Y /g,' + ')
-    return '<div class="mtab '+(i===P.tab?'on':'')+'" data-sid="'+s.id+'" data-i="'+i+'" onclick="P.tab='+i+';pintarPlan()">'+
-      '<span class="sN">'+(P.bib?'★':'⠿ '+(i+1))+'</span><span class="sT">'+nom+'</span></div>'
+    const hdl = (!P.bib && P.sesiones.length>1) ? '<span class="hdl" data-hdl>⋮⋮</span>' : ''
+    const opc = (i===P.tab && !P.bib && !P.base) ? '<button class="tabOpc" onclick="event.stopPropagation();abrirSesOpc()">•••</button>' : ''
+    return '<div class="mtab '+(i===P.tab?'on':'')+'" data-sid="'+s.id+'" data-i="'+i+'" onclick="tabTap('+i+')">'+
+      '<span class="sN">'+hdl+(P.bib?'★':(i+1))+'</span><span class="sT">'+nom+'</span>'+opc+'</div>'
   }).join('') + ((!P.bib && !P.base) ? (P.sesiones.length<6
       ? '<div class="mtab" style="border-style:dashed;justify-content:center" onclick="abrirAddSes()"><span class="sT" style="font-size:15px">+</span></div>'
       : '<div class="mtab" style="opacity:.4" onclick="toast(\'Esta semana ya tiene 6 sesiones programadas.\')"><span class="sT">MAX</span></div>') : '')
@@ -1200,15 +1208,8 @@ function pintarPlan(){
   const tabsEl=document.getElementById('pTabs')
   if(!P.bib && P.sesiones.length>1){
     const hnt=document.createElement('div'); hnt.id='pHint'; hnt.className='hintStrip'
-    hnt.textContent='MANTÉN PRESIONADA UNA SESIÓN PARA REORGANIZAR LA SEMANA'
-    tabsEl.insertAdjacentElement('afterend', hnt)
-  }
-  const act=P.sesiones[P.tab]
-  if(act && !P.bib && !P.base){
-    const row=document.createElement('div'); row.id='pSesRow'; row.className='sesRow'
-    row.innerHTML='<b>'+(P.tab+1)+' · '+(act.nombre||'')+'</b><button class="sesOpc" onclick="abrirSesOpc()">•••</button>'
-    const anchor=document.getElementById('pHint')||tabsEl
-    anchor.insertAdjacentElement('afterend', row)
+    hnt.textContent='ARRASTRA ⋮⋮ PARA REORGANIZAR LA SEMANA'
+    document.getElementById('pBloques').insertAdjacentElement('afterend', hnt)
   }
   setTimeout(function(){ const on=document.querySelector('#pTabs .mtab.on'), st=document.getElementById('pTabs')
     if(on && st){ const dest = on.offsetLeft - (st.clientWidth - on.offsetWidth)/2
@@ -1462,23 +1463,25 @@ const DG = { el:null, timer:null, activo:false, x0:0, y0:0, pid:null }
 function dgReset(){ if(DG.timer)clearTimeout(DG.timer)
   if(DG.el){ DG.el.classList.remove('drag'); try{DG.el.releasePointerCapture(DG.pid)}catch(_e){} }
   DG.el=null; DG.timer=null; DG.activo=false }
+function tabTap(i){ if(window._dgMoved) return; P.tab=i; pintarPlan() }
 document.addEventListener('pointerdown', function(e){
   if(!P || P.bib) return
-  const pill = e.target.closest('#pTabs .mtab[data-sid]')
+  const hdl = e.target.closest('#pTabs [data-hdl]')
+  if(!hdl) return
+  const pill = hdl.closest('.mtab[data-sid]')
   if(!pill) return
+  e.preventDefault()
   DG.el=pill; DG.x0=e.clientX; DG.y0=e.clientY; DG.pid=e.pointerId; DG.activo=false
-  DG.timer=setTimeout(function(){
-    DG.activo=true
-    pill.classList.add('drag')
-    try{ pill.setPointerCapture(DG.pid) }catch(_e){}
-    if(navigator.vibrate) navigator.vibrate(10)
-  }, 300)
+  try{ pill.setPointerCapture(DG.pid) }catch(_e){}
 })
 document.addEventListener('pointermove', function(e){
   if(!DG.el) return
   if(!DG.activo){
-    if(Math.abs(e.clientX-DG.x0)>10 || Math.abs(e.clientY-DG.y0)>10) dgReset()
-    return
+    if(Math.abs(e.clientX-DG.x0)>4 || Math.abs(e.clientY-DG.y0)>4){
+      DG.activo=true
+      DG.el.classList.add('drag')
+      if(navigator.vibrate) navigator.vibrate(10)
+    } else return
   }
   e.preventDefault()
   const cont=document.getElementById('pTabs')
@@ -1500,6 +1503,7 @@ document.addEventListener('pointerup', async function(){
   const yo = DG.el
   dgReset()
   if(!fueDrag) return
+  window._dgMoved=true; setTimeout(function(){ window._dgMoved=false }, 300)
   const cont=document.getElementById('pTabs')
   const orden=[].slice.call(cont.querySelectorAll('.mtab[data-sid]')).map(function(el){return el.dataset.sid})
   const mapa={}; P.sesiones.forEach(function(s){ mapa[s.id]=s })
