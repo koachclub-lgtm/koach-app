@@ -149,7 +149,7 @@ input{width:100%;background:rgba(255,255,255,.7);border:1px solid rgba(255,255,2
 .vproy{position:absolute;top:0;left:0;height:100%;border-radius:5px;opacity:.32}
 .vv{font-size:6.5px;font-weight:900;text-align:right;color:#7C7B76;line-height:1.5}
 #pTabs{flex-wrap:nowrap;overflow-x:auto;-webkit-overflow-scrolling:touch;padding-bottom:6px}
-#pTabs .mtab{flex-shrink:0;white-space:nowrap}
+#pTabs .mtab{flex-shrink:0;white-space:nowrap;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
 .selRow2{display:flex;align-items:center;gap:10px;padding:11px 6px;border-top:1px solid rgba(18,18,16,.06);cursor:pointer}
 .delSes{border:none;background:none;color:#B4442C;font-size:7.5px;font-weight:900;letter-spacing:.08em;cursor:pointer;margin:2px 4px 10px;padding:0}
 #syncTag{position:fixed;top:10px;right:12px;z-index:60;font-size:7px;font-weight:900;letter-spacing:.12em;padding:6px 10px;border-radius:9px;background:rgba(31,157,85,.12);color:#1F9D55;transition:opacity .3s;display:none}
@@ -208,7 +208,7 @@ html,button,input,.pv,.mtab,.setChip{touch-action:manipulation}
 </div></div>
 
 <div class="vista" id="vSala">
-  <div class="hbar"><span class="hk" title="c5.1">KOACH</span><span class="rol" id="rolBadge" onclick="salir()">COACH</span></div>
+  <div class="hbar"><span class="hk" title="c5.2">KOACH</span><span class="rol" id="rolBadge" onclick="salir()">COACH</span></div>
   <button class="nuevo" onclick="toggleAlta()">+ NUEVO USUARIO · SOCIO O COACH</button>
   <button class="nuevo" style="background:rgba(255,255,255,.65);color:#121210;border:1.5px solid rgba(18,18,16,.15)" onclick="verBib()">📚 RUTINAS ESTÁNDAR · BIBLIOTECA</button>
   <div class="glass aform" id="fAlta" style="display:none">
@@ -1175,6 +1175,11 @@ function bloqueTag(b, idx){
   if (/3|ACCES|CIERRE/.test(x)) return 'B3 · ACCESORIO'
   return 'B'+(idx+1)
 }
+function repintarConservando(){
+  const y = window.scrollY
+  pintarPlan()
+  requestAnimationFrame(function(){ window.scrollTo(0, y) })
+}
 function pintarPlan(){
   cargandoOff()
   const pg=document.getElementById('pGuardia')
@@ -1205,8 +1210,9 @@ function pintarPlan(){
     const anchor=document.getElementById('pHint')||tabsEl
     anchor.insertAdjacentElement('afterend', row)
   }
-  setTimeout(function(){ const on=document.querySelector('#pTabs .mtab.on')
-    if(on && on.scrollIntoView) on.scrollIntoView({behavior:'smooth', inline:'center', block:'nearest'}) }, 60)
+  setTimeout(function(){ const on=document.querySelector('#pTabs .mtab.on'), st=document.getElementById('pTabs')
+    if(on && st){ const dest = on.offsetLeft - (st.clientWidth - on.offsetWidth)/2
+      st.scrollTo({ left: Math.max(0,dest), behavior:'smooth' }) } }, 60)
   const ses = P.sesiones[P.tab]
   if(!ses){ document.getElementById('pBloques').innerHTML='<div class="vacio">Sin sesiones</div>'; calcDose(); return }
   const htmlBloques = ses.bloques.map(function(b,bi){
@@ -1482,6 +1488,12 @@ document.addEventListener('pointermove', function(e){
   if(next){ const r=next.getBoundingClientRect(); if(e.clientX > r.left + r.width/2){ cont.insertBefore(next, yo); return } }
   if(prev){ const r=prev.getBoundingClientRect(); if(e.clientX < r.left + r.width/2){ cont.insertBefore(yo, prev) } }
 }, { passive:false })
+document.addEventListener('contextmenu', function(e){
+  if (DG.el && e.target.closest && e.target.closest('#pTabs .mtab')) e.preventDefault()
+})
+document.addEventListener('selectstart', function(e){
+  if (DG.el && e.target.closest && e.target.closest('#pTabs')) e.preventDefault()
+})
 document.addEventListener('pointerup', async function(){
   if(!DG.el) return
   const fueDrag = DG.activo
@@ -1603,7 +1615,7 @@ async function elegirEj(ejId){
   if(SEL.modo==='cambiar'){
     const x=planItem(SEL.beId); if(!x)return
     x.it.ejId=e.id; x.it.nombre=e.nombre; x.it.grupo=e.grupo_muscular; x.it.sinergistas=e.sinergistas||{}
-    pintarPlan()
+    repintarConservando()
     const r=await sb.from('bloque_ejercicios').update({ejercicio_id:e.id}).eq('id',SEL.beId)
     if(r.error)toast('Cambio: '+r.error.message)
   } else {
@@ -1614,7 +1626,7 @@ async function elegirEj(ejId){
     const r=await sb.from('bloque_ejercicios').insert({bloque_id:b.id,ejercicio_id:e.id,orden:nuevoOrd,reps_txt:'10'}).select().single()
     if(r.error){ toast('Agregar: '+r.error.message); return }
     b.items.push({beId:r.data.id,ejId:e.id,nombre:e.nombre,grupo:e.grupo_muscular,sinergistas:e.sinergistas||{},kg:null,reps:'10',orden:nuevoOrd})
-    pintarPlan()
+    repintarConservando()
   }
 }
 const SIGLA={'CUÁDRICEPS':'QUADS','GLÚTEOS':'GLUTS','ISQUIOS':'HAMS','ESPALDA':'LATS','PECHO':'PECS','HOMBROS':'DELTS','TRÍCEPS':'TRIS','BÍCEPS':'BIS','CORE':'CORE','CARDIO':'CARDIO','MOVILIDAD':'MOB','PANTORRILLAS':'CALFS','GLOBAL':'GLOBAL'}
