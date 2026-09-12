@@ -361,7 +361,7 @@ html,button,input,.pvS,.chk,.setChip{touch-action:manipulation}
 
   <!-- ══ HOME ══ -->
   <div class="vista conTab" id="vHome">
-    <div class="hbar"><span class="hk" title="v6.2">KOACH</span><div class="hav" id="hAv" onclick="salir()">K</div></div>
+    <div class="hbar"><span class="hk" title="v6.3">KOACH</span><div class="hav" id="hAv" onclick="salir()">K</div></div>
     <div class="ctx"><div class="fecha" id="hFecha">—</div><div class="prog" id="hProg">—</div></div>
     <div class="anillo">
       <svg width="180" height="180" viewBox="0 0 180 180">
@@ -1035,7 +1035,6 @@ async function abrirSesion(){
 function tipoDe(ej, be){
   const t=(ej&&ej.tipo_registro)||null
   if(t) return t
-  if(be && be.duracion_seg) return 'TIME'
   if(ej && ej.con_carga===false) return 'BODYWEIGHT_REPS'
   return 'WEIGHT_REPS'
 }
@@ -1057,6 +1056,11 @@ function seedWk(be, ej){
     w.reps = (be.reps_txt||String(be.reps||'')||'10').replace(/\//g,'·') || '10'
   } else if (tipo==='TIME'){
     w.seg = be.duracion_seg || parseInt(be.reps_txt) || 30
+    if (ej && ej.con_carga===true){
+      w.kg = (be.kg_objetivo!=null) ? be.kg_objetivo
+           : (ult && ult.peso!=null) ? ult.peso
+           : (S.sugeridos[be.id]!=null) ? S.sugeridos[be.id] : null
+    }
   } else {
     w.reps = (be.reps_txt||String(be.reps||'')||'10').replace(/\//g,'·') || '10'
   }
@@ -1145,6 +1149,13 @@ function pintarSesion(){
             '<div class="pvS"><button onclick="rwStep(\''+be.id+'\','+n2+',\'reps\',-1)">−</button>'+
             '<input id="rwR-'+be.id+'-'+n2+'" value="'+(rv.reps||'')+'" inputmode="numeric" onfocus="this.select()" onchange="rwSet(\''+be.id+'\','+n2+',\'reps\',this.value)">'+
             '<button onclick="rwStep(\''+be.id+'\','+n2+',\'reps\',1)">+</button></div>'
+        } else if (w.tipo==='TIME' && (ej.con_carga===true)){
+          celdas = '<div class="pvS"><button onclick="rwStep(\''+be.id+'\','+n2+',\'kg\',-2.5)">−</button>'+
+            '<input id="rwK-'+be.id+'-'+n2+'" class="'+(rv.kg==null?'falta':'')+'" value="'+(rv.kg==null?'':rv.kg)+'" placeholder="kg" inputmode="decimal" onfocus="this.select()" onchange="rwSet(\''+be.id+'\','+n2+',\'kg\',this.value)">'+
+            '<button onclick="rwStep(\''+be.id+'\','+n2+',\'kg\',2.5)">+</button><small>KG</small></div>'+
+            '<div class="pvS"><button onclick="rwStep(\''+be.id+'\','+n2+',\'seg\',-5)">−</button>'+
+            '<input id="rwS-'+be.id+'-'+n2+'" value="'+(rv.seg||30)+'" inputmode="numeric" onfocus="this.select()" onchange="rwSet(\''+be.id+'\','+n2+',\'seg\',this.value)">'+
+            '<button onclick="rwStep(\''+be.id+'\','+n2+',\'seg\',5)">+</button><small>SEG</small></div>'
         } else if (w.tipo==='TIME'){
           celdas = '<div class="pvS" style="grid-column:span 2"><button onclick="rwStep(\''+be.id+'\','+n2+',\'seg\',-5)">−</button>'+
             '<input id="rwS-'+be.id+'-'+n2+'" value="'+(rv.seg||30)+'" inputmode="numeric" onfocus="this.select()" onchange="rwSet(\''+be.id+'\','+n2+',\'seg\',this.value)">'+
