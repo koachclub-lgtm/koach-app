@@ -162,6 +162,15 @@ html,body{background:linear-gradient(170deg,#F3F2EF 0%,#E7E6E2 55%,#DAD9D4 100%)
 .setChip.done{background:#1F9D55;border-color:#1F9D55;color:#fff}
 .setChip.ahora{border-color:#121210;box-shadow:0 0 0 1.5px #121210 inset}
 .setChip.ahora::after{content:' ←'}
+.exCard .exBody{display:block}
+.exCard.cerrado .exBody{display:none}
+.exHead{display:flex;align-items:center;gap:8px;cursor:pointer;-webkit-user-select:none;user-select:none}
+.exHead .exN{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.chev{font-size:11px;color:#BEBDB8;font-weight:900;padding:4px 2px}
+.estT{font-size:6.5px;font-weight:900;letter-spacing:.08em;white-space:nowrap}
+.estT.ok{color:#1F9D55}
+.estT.par{color:#C5A13C}
+.resL{font-size:8px;font-weight:900;letter-spacing:.06em;color:#7C7B76;margin-top:4px}
 .presL{font-size:7px;font-weight:900;letter-spacing:.1em;color:#7C7B76;margin-top:5px}
 .indK{font-size:9px;line-height:1.5;background:rgba(18,18,16,.05);border-radius:10px;padding:8px 10px;margin-top:7px;color:#3a3936}
 .indK b{font-size:6px;letter-spacing:.14em;color:#BEBDB8;display:block;margin-bottom:2px}
@@ -345,7 +354,7 @@ html,button,input,.pvS,.chk,.setChip{touch-action:manipulation}
 
   <!-- ══ HOME ══ -->
   <div class="vista conTab" id="vHome">
-    <div class="hbar"><span class="hk" title="v5.1">KOACH</span><div class="hav" id="hAv" onclick="salir()">K</div></div>
+    <div class="hbar"><span class="hk" title="v6.0">KOACH</span><div class="hav" id="hAv" onclick="salir()">K</div></div>
     <div class="ctx"><div class="fecha" id="hFecha">—</div><div class="prog" id="hProg">—</div></div>
     <div class="anillo">
       <svg width="180" height="180" viewBox="0 0 180 180">
@@ -484,6 +493,23 @@ html,button,input,.pvS,.chk,.setChip{touch-action:manipulation}
 </div>
 <div class="ovl oscuro" id="oFlash"><div class="fk">KOACH</div><div class="ftx" id="oFT"></div><div class="fsb" id="oFS"></div></div>
 <div id="oLoad"><div class="lk">KOACH</div><div class="lb"><i></i></div><div class="lm" id="oLoadM">CARGANDO…</div></div>
+<div id="mFinQ" style="display:none;position:fixed;inset:0;z-index:82;background:rgba(18,18,16,.5);backdrop-filter:blur(6px)">
+  <div style="position:absolute;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:520px;background:#F3F2EF;border-radius:24px 24px 0 0;padding:22px 16px 26px">
+    <div style="font-size:15px;font-weight:900;letter-spacing:.02em;margin-bottom:6px">¿COMPLETASTE TODAS TUS SERIES?</div>
+    <div id="fqSub" style="font-size:10px;color:#7C7B76;line-height:1.6;margin-bottom:18px">Confirma tu sesión para registrar correctamente tu progreso.</div>
+    <button class="btn" onclick="completarTodo()" style="margin-bottom:9px">✓ SÍ, COMPLETÉ TODO</button>
+    <button class="btn" style="background:rgba(18,18,16,.08);color:#121210" onclick="abrirFinB()">NO, HICE ALGUNOS CAMBIOS</button>
+    <button onclick="document.getElementById('mFinQ').style.display='none'" style="width:100%;border:none;background:none;padding:14px 0 0;font-size:8px;font-weight:900;letter-spacing:.14em;color:#BEBDB8;cursor:pointer">SEGUIR ENTRENANDO</button>
+  </div>
+</div>
+<div id="mFinB" style="display:none;position:fixed;inset:0;z-index:82;background:rgba(18,18,16,.5);backdrop-filter:blur(6px)">
+  <div style="position:absolute;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:520px;max-height:82vh;overflow-y:auto;background:#F3F2EF;border-radius:24px 24px 0 0;padding:20px 16px 24px">
+    <div style="font-size:13px;font-weight:900;margin-bottom:4px">AJUSTA TU REGISTRO</div>
+    <div style="font-size:9.5px;color:#7C7B76;line-height:1.55;margin-bottom:14px">Selecciona solo las series que completaste. Si cambiaste peso o repeticiones, edita el detalle.</div>
+    <div id="fbLista"></div>
+    <button class="btn" style="margin-top:14px" onclick="document.getElementById('mFinB').style.display='none';finalizar()">CONFIRMAR SESIÓN →</button>
+  </div>
+</div>
 <div class="ovl velo" id="oFin">
   <div class="slide" id="slFin"><span class="stx">DESLIZA PARA FINALIZAR</span><div class="th">✓</div></div>
   <button onclick="finalizar()" style="margin-top:16px;width:min(86vw,340px);border:none;border-radius:18px;padding:16px;background:rgba(243,242,239,.14);color:#F3F2EF;font-family:inherit;font-size:10px;font-weight:900;letter-spacing:.14em;cursor:pointer">O TOCA AQUÍ PARA FINALIZAR →</button>
@@ -907,7 +933,7 @@ async function reanudar(){
   if(!ses){ toast('No encontramos esa sesión en tu programa actual'); return }
   S.sesionAbierta = ses
   S.pesos={}; S.marcas={}; S.setsHechos={}; S.bloquesListos=0
-  S.wk={}; S.setLog={}; S.rw={}; S.regId=reg.id
+  S.wk={}; S.setLog={}; S.rw={}; S.abierto=null; S.regId=reg.id
   S._desigActual = ses._desigId||null; S._desigRec = !!ses._rec
   vista('vSesion')
   document.getElementById('sTit').textContent = ses.nombre
@@ -947,7 +973,7 @@ async function abrirSesion(){
   const ses = S.programa.sesiones.find(x=>x.numero===S.sem.proxima.numero)
   S.sesionAbierta = ses
   S.pesos={}; S.marcas={}; S.setsHechos={}; S.bloquesListos=0
-  S.wk={}; S.setLog={}; S.rw={}; S.regId=null
+  S.wk={}; S.setLog={}; S.rw={}; S.abierto=null; S.regId=null
   // INSTANCIA: crear o recuperar el registro en curso de hoy (persistencia server-side)
   try{
     const hoyD = new Date().toISOString().split('T')[0]
@@ -1112,10 +1138,24 @@ function pintarSesion(){
         filas += '<div class="setRow"><span class="sn">SET '+n2+'</span>'+celdas+
           '<button class="chk '+(done?'done':'')+'" onclick="tapSetRow(\''+be.id+'\','+n2+',\''+b.id+'\',\''+(ej.id||'')+'\')">'+(done?'✓':'○')+'</button></div>'
       }
-      return '<div class="exCard"><div class="exTop"><span class="exN">'+(ej.nombre||'—')+ancla+'</span><span class="exG">'+(ej.grupo_muscular||'')+'</span></div>'+
+      const hechos = setsHechosDe(be.id, b.sets)
+      const abierto = (S.abierto===be.id)
+      const est = hechos>=b.sets ? '<span class="estT ok">✓ '+hechos+'/'+b.sets+'</span>'
+        : hechos>0 ? '<span class="estT par">◐ '+hechos+'/'+b.sets+'</span>'
+        : '<span class="estT">○</span>'
+      let resumen=''
+      if (w.tipo==='WEIGHT_REPS') resumen=(w.kg!=null?(w.kg+' KG · '):'CARGA A DEFINIR · ')+w.reps+' REPS · '+b.sets+' SERIES'
+      else if (w.tipo==='TIME') resumen=w.seg+' SEG · '+b.sets+' SERIES'
+      else resumen='PESO CORPORAL · '+w.reps+' REPS · '+b.sets+' SERIES'
+      return '<div class="exCard '+(abierto?'':'cerrado')+'" id="ex-'+be.id+'">'+
+        '<div class="exHead" onclick="toggleEx(\''+be.id+'\')">'+
+        '<span class="exN">'+(ej.nombre||'—')+ancla+'</span><span class="exG">'+(ej.grupo_muscular||'')+'</span>'+est+
+        '<span class="chev">'+(abierto?'▴':'▾')+'</span></div>'+
+        '<div class="resL">'+resumen+'</div>'+
+        '<div class="exBody">'+
         '<div class="exUlt">'+ultTxt(ej)+'</div>'+
         '<div class="presL">'+presL+'</div>'+cue+
-        '<div style="margin-top:6px">'+filas+'</div></div>'
+        '<div style="margin-top:6px">'+filas+'</div></div></div>'
     }).join('')
     return '<div class="glass bloq" id="blq-'+bi+'"><div class="bh"><span class="bt">'+(b.bloque||('B'+(bi+1)))+'</span><span class="bn">'+titulo+'</span>'+
       '<span class="bs">'+b.sets+' SETS · '+(b.descanso_seg||b.descanso_segundos||60)+"'' DESC</span></div>"+cards+'</div>'
@@ -1199,7 +1239,9 @@ async function tapSetRow(beId,n,bId,ejId){
   syncEnvio()
   sb.from('set_registros').insert(fila).select('id').single().then(r=>{
     if(r.error){ delete S.setLog[k]; pintarSesion(); syncErr(); toast('No se guardó el set — toca de nuevo') }
-    else { S.setLog[k].id=r.data.id; syncOk(); chequearBloque(bId) }
+    else { S.setLog[k].id=r.data.id; syncOk(); chequearBloque(bId)
+      const blk=S._bfs.find(function(x){return x.id===bId})
+      if(blk && S.abierto===beId && setsHechosDe(beId,blk.sets)>=blk.sets){ S.abierto=null; pintarSesion() } }
   })
 }
 async function tapSet(beId,n,bId,ejId){
@@ -1307,9 +1349,78 @@ function setBloque(bi,total){
     flash(t,s)
   } else b.textContent=`MARCAR SET · ${S.setsHechos[bi]}/${total}`
 }
-function pedirFinal(){ document.getElementById('oFin').classList.add('vis') }
+function toggleEx(beId){ S.abierto = (S.abierto===beId) ? null : beId; pintarSesion()
+  if(S.abierto){ setTimeout(function(){ const el=document.getElementById('ex-'+beId)
+    if(el&&el.scrollIntoView) el.scrollIntoView({behavior:'smooth', block:'nearest'}) }, 80) } }
+function contarSets(){
+  let tot=0, hec=0
+  S._bfs.forEach(function(b){
+    if (esCircuito(b)){ tot+=b.sets; hec+=rondasHechas(b.id,b.sets) }
+    else (b.bloque_ejercicios||[]).forEach(function(be){ tot+=b.sets; hec+=setsHechosDe(be.id,b.sets) })
+  })
+  return {tot:tot, hec:hec}
+}
+function pedirFinal(){
+  const c=contarSets()
+  document.getElementById('fqSub').textContent = (c.hec>0
+    ? 'Llevas '+c.hec+' de '+c.tot+' series registradas. Lo ya registrado se conserva tal cual.'
+    : 'Confirma tu sesión para registrar correctamente tu progreso.')
+  document.getElementById('mFinQ').style.display='block'
+}
+async function completarTodo(){
+  document.getElementById('mFinQ').style.display='none'
+  cargando('REGISTRANDO TU SESIÓN…')
+  const rows=[], claves=[]
+  S._bfs.forEach(function(b){
+    if (esCircuito(b)){
+      for(let n2=1;n2<=b.sets;n2++){ const k=rondaKey(b.id,n2)
+        if(!S.setLog[k]){ rows.push({registro_id:S.regId, socio_id:S.perfil.id, bloque_id:b.id,
+          bloque_ejercicio_id:null, ejercicio_id:null, set_numero:n2, completado:true}); claves.push(k) } }
+    } else (b.bloque_ejercicios||[]).forEach(function(be){
+      const ej=be.ejercicios||{}
+      const w=S.wk[be.id]||seedWk(be,ej)
+      for(let n2=1;n2<=b.sets;n2++){ const k=setKey(be.id,n2)
+        if(!S.setLog[k]){ const rv=rwGet(be.id,n2,w,null)
+          rows.push({registro_id:S.regId, socio_id:S.perfil.id, bloque_id:b.id,
+            bloque_ejercicio_id:be.id, ejercicio_id:ej.id||null, set_numero:n2,
+            target_peso:(w.kg!=null?w.kg:null), target_reps:w.reps||null, target_seg:w.seg||null,
+            peso:(rv.kg!=null?rv.kg:null), reps:rv.reps||null, seg:(w.tipo==='TIME'?(rv.seg||null):null),
+            completado:true}); claves.push(k) } }
+    })
+  })
+  if (rows.length){
+    const r = await sb.from('set_registros').insert(rows).select('id')
+    if (r.error){ cargandoOff(); toast('No pudimos registrar: '+r.error.message); return }
+    rows.forEach(function(f,i){ f.id=(r.data[i]||{}).id; S.setLog[claves[i]]=f })
+  }
+  finalizar()
+}
+function abrirFinB(){
+  document.getElementById('mFinQ').style.display='none'
+  const html = S._bfs.map(function(b,bi){
+    if (esCircuito(b)){
+      let chips=''
+      for(let n2=1;n2<=b.sets;n2++){ const done=!!S.setLog[rondaKey(b.id,n2)]
+        chips+='<button class="setChip '+(done?'done':'')+'" style="min-width:52px" onclick="tapRonda(\''+b.id+'\','+n2+','+bi+');setTimeout(abrirFinB,150)">'+(done?'✓ ':'')+n2+'</button>' }
+      return '<div style="padding:10px 0;border-top:1px solid rgba(18,18,16,.07)"><div style="font-size:10px;font-weight:900;margin-bottom:7px">'+(b.etiqueta||b.bloque||'BLOQUE')+' · RONDAS</div><div class="setsRow">'+chips+'</div></div>'
+    }
+    return (b.bloque_ejercicios||[]).map(function(be){
+      const ej=be.ejercicios||{}
+      let chips=''
+      for(let n2=1;n2<=b.sets;n2++){ const done=!!S.setLog[setKey(be.id,n2)]
+        chips+='<button class="setChip '+(done?'done':'')+'" style="min-width:52px" onclick="tapSetRow(\''+be.id+'\','+n2+',\''+b.id+'\',\''+(ej.id||'')+'\');setTimeout(abrirFinB,200)">'+(done?'✓ ':'')+n2+'</button>' }
+      return '<div style="padding:10px 0;border-top:1px solid rgba(18,18,16,.07)">'+
+        '<div style="display:flex;align-items:center;gap:8px;margin-bottom:7px"><span style="font-size:10.5px;font-weight:900;flex:1">'+(ej.nombre||'—')+'</span>'+
+        '<button onclick="document.getElementById(\'mFinB\').style.display=\'none\';S.abierto=\''+be.id+'\';pintarSesion();setTimeout(function(){var el=document.getElementById(\'ex-'+be.id+'\');if(el)el.scrollIntoView({behavior:\'smooth\',block:\'center\'})},120)" style="border:none;background:rgba(18,18,16,.07);border-radius:8px;padding:5px 9px;font-size:6.5px;font-weight:900;letter-spacing:.08em;cursor:pointer">✎ DETALLE</button></div>'+
+        '<div class="setsRow">'+chips+'</div></div>'
+    }).join('')
+  }).join('')
+  document.getElementById('fbLista').innerHTML = html
+  document.getElementById('mFinB').style.display='block'
+}
 async function finalizar(){
   try{
+  cargandoOff()
   document.getElementById('oFin').classList.remove('vis')
   const ses=S.sesionAbierta
   const orden={B1:0,B2:1,B3:2}
