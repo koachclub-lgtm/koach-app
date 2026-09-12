@@ -118,7 +118,10 @@ input{width:100%;background:rgba(255,255,255,.7);border:1px solid rgba(255,255,2
 .stp button{width:26px;height:26px;border:none;border-radius:9px;background:rgba(18,18,16,.07);font-weight:900;font-size:13px;cursor:pointer}
 .stp b{font-size:11px;min-width:30px;text-align:center}
 .stp span{font-size:6.5px;color:#BEBDB8;font-weight:900;letter-spacing:.08em}
-.lin{display:grid;grid-template-columns:54px 1fr 62px 66px 22px;gap:6px;align-items:center;padding:8px 0;border-top:1px solid rgba(18,18,16,.06)}
+.lin{display:block;padding:10px 0;border-top:1px solid rgba(18,18,16,.06)}
+.linTop{display:flex;align-items:center;gap:8px;min-width:0}
+.linTop .ejN{flex:1;min-width:0}
+.linRx{display:grid;grid-template-columns:repeat(auto-fit,minmax(155px,1fr));gap:8px;margin-top:8px}
 .lin:first-of-type{border-top:none}
 .chipG{font-size:6.5px;font-weight:900;letter-spacing:.04em;background:rgba(18,18,16,.07);border-radius:8px;padding:6px 4px;text-align:center;overflow:hidden;white-space:nowrap}
 .ejN{font-size:11px;font-weight:800;background:none;border:none;text-align:left;padding:0;cursor:pointer;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;color:#121210}
@@ -154,7 +157,9 @@ input{width:100%;background:rgba(255,255,255,.7);border:1px solid rgba(255,255,2
 #syncTag.err{background:rgba(180,68,44,.12);color:#B4442C}
 .pv{display:flex;align-items:center;gap:5px}
 .pv button{width:40px;height:40px;border:none;border-radius:12px;background:rgba(18,18,16,.07);font-weight:900;font-size:16px;cursor:pointer;flex-shrink:0}
-.pv input{width:64px;margin:0;padding:10px 4px;text-align:center;font-size:14px;font-weight:900;border-radius:12px;background:rgba(255,255,255,.75)}
+.pv{min-width:0}
+.pv input{width:100%;max-width:96px;min-width:52px;margin:0;padding:10px 2px;text-align:center;font-size:16px;font-weight:900;border-radius:12px;background:rgba(255,255,255,.75)}
+.pv button{width:38px;height:38px}
 .pv input.falta{border:1.5px solid #C5A13C;background:rgba(197,161,60,.08)}
 .pv .pcx{font-size:7px;font-weight:900;letter-spacing:.06em;background:rgba(18,18,16,.07);border-radius:10px;padding:12px 10px;color:#7C7B76;white-space:nowrap}
 .lin.foco{outline:2px solid #C5A13C;outline-offset:3px;border-radius:14px}
@@ -202,7 +207,7 @@ input{width:100%;background:rgba(255,255,255,.7);border:1px solid rgba(255,255,2
 </div></div>
 
 <div class="vista" id="vSala">
-  <div class="hbar"><span class="hk" title="c4.5">KOACH</span><span class="rol" id="rolBadge" onclick="salir()">COACH</span></div>
+  <div class="hbar"><span class="hk" title="c5.0">KOACH</span><span class="rol" id="rolBadge" onclick="salir()">COACH</span></div>
   <button class="nuevo" onclick="toggleAlta()">+ NUEVO USUARIO · SOCIO O COACH</button>
   <button class="nuevo" style="background:rgba(255,255,255,.65);color:#121210;border:1.5px solid rgba(18,18,16,.15)" onclick="verBib()">📚 RUTINAS ESTÁNDAR · BIBLIOTECA</button>
   <div class="glass aform" id="fAlta" style="display:none">
@@ -316,7 +321,7 @@ input{width:100%;background:rgba(255,255,255,.7);border:1px solid rgba(255,255,2
 </div>
 
 <!-- HOJA AGREGAR SESIÓN A LA SEMANA -->
-<div id="oLoad"><div class="lk">KOACH</div><div class="lb"><i></i></div><div class="lm" id="oLoadM">CARGANDO…</div></div>
+<div id="oLoad"><div class="lk">KOACH</div><div class="lb"><i></i></div><div class="lm" id="oLoadM">CARGANDO…</div><div class="lm" style="opacity:.45;font-size:7px">EL COACH DECIDE · LA DATA LO RESPALDA</div></div>
 <div id="syncTag">✓ GUARDADO</div>
 <div id="mGuard" style="display:none;position:fixed;inset:0;z-index:80;background:rgba(18,18,16,.45);backdrop-filter:blur(6px)">
   <div style="position:absolute;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:520px;background:#F3F2EF;border-radius:24px 24px 0 0;padding:20px 16px 24px">
@@ -1101,7 +1106,7 @@ async function deshacerClon(pid){
   }catch(_e){}
 }
 async function abrirPlan(pid, proto, opts){
-  cargando('ABRIENDO EL PLANIFICADOR…')
+  cargando('LEYENDO HISTORIAL Y DOSIFICACIÓN…')
   opts = opts || {}
   P = null
   await cargarCatalogo()
@@ -1238,10 +1243,12 @@ function pintarPlan(){
           '<button onclick="stepItem(\''+it.beId+'\',\'reps\',1)">+</button></div></div>'
       }
       return '<div class="lin" id="pl-'+it.beId+'">'+
-        '<div class="chipG">'+(it.grupo||'—')+'</div>'+
-        '<button class="ejN" onclick="abrirSelector(\'cambiar\','+bi+',\''+it.beId+'\')">'+it.nombre+'<small>'+ultTxt+' · CAMBIAR ⇄</small></button>'+
-        controles+
-        '<button class="linX" onclick="quitarEj(\''+it.beId+'\')">✕</button>'+
+        '<div class="linTop">'+
+          '<div class="chipG">'+(it.grupo||'—')+'</div>'+
+          '<button class="ejN" onclick="abrirSelector(\'cambiar\','+bi+',\''+it.beId+'\')">'+it.nombre+'<small>'+ultTxt+' · CAMBIAR ⇄</small></button>'+
+          '<button class="linX" onclick="quitarEj(\''+it.beId+'\')">✕</button>'+
+        '</div>'+
+        '<div class="linRx">'+controles+'</div>'+
       '</div>'
     }).join('')+
     '<button class="addEj" onclick="abrirSelector(\'agregar\','+bi+',null)">+ EJERCICIO</button></div>'
@@ -1609,19 +1616,26 @@ async function elegirEj(ejId){
     pintarPlan()
   }
 }
+const SIGLA={'CUÁDRICEPS':'QUADS','GLÚTEOS':'GLUTS','ISQUIOS':'HAMS','ESPALDA':'LATS','PECHO':'PECS','HOMBROS':'DELTS','TRÍCEPS':'TRIS','BÍCEPS':'BIS','CORE':'CORE','CARDIO':'CARDIO','MOVILIDAD':'MOB','PANTORRILLAS':'CALFS','GLOBAL':'GLOBAL'}
 function calcDose(){
   const vivo=document.getElementById('pVivo')
-  if(!P||P.bib||!P.objetivos||!Object.keys(P.objetivos).length){ if(vivo)vivo.style.display='none'; return }
+  if(!P||P.bib){ if(vivo)vivo.style.display='none'; return }
   vivo.style.display='block'
-  const prog={sesiones:P.sesiones.map(function(s){
-    return {bloques:s.bloques.map(function(b){
-      return {sets:b.sets,ejercicios:b.items.map(function(it){return {grupo:it.grupo,sinergistas:it.sinergistas}})} }) } })}
+  // PROYECCIÓN: recorre TODA la programación real (todas las sesiones, todos los estímulos)
   const acum={}
-  Object.keys(P.objetivos).forEach(function(g){acum[g]=0})
-  prog.sesiones.forEach(function(s){ const a=aporteSesion(s)
-    Object.entries(a).forEach(function(p2){ if(p2[0] in acum) acum[p2[0]]+=p2[1] }) })
+  P.sesiones.forEach(function(s){
+    const a=aporteSesion({bloques:s.bloques.map(function(b){
+      return {sets:b.sets,ejercicios:b.items.map(function(it){return {grupo:it.grupo,sinergistas:it.sinergistas}})} })})
+    Object.entries(a).forEach(function(p2){ acum[p2[0]]=(acum[p2[0]]||0)+p2[1] })
+  })
   const sem = (!P.base && F && C.sems[F.id]) ? C.sems[F.id] : null
   const real = sem ? sem.acum : {}
+  const objetivos = P.objetivos||{}
+  // UNIVERSO: todo estímulo presente en la programación, en lo realizado o con meta
+  const universo={}
+  Object.keys(acum).forEach(function(g){universo[g]=1})
+  Object.keys(real).forEach(function(g){universo[g]=1})
+  Object.keys(objetivos).forEach(function(g){ if(objetivos[g].exigible!==false) universo[g]=1 })
   const hechas = {}
   ;((!P.base && F && C.regs[F.id])||[]).forEach(function(r){ if(ESTADOS_OK.indexOf(r.estado)>-1 && r.estado!=='incompleta') hechas[r.sesion_protocolo_id]=1 })
   let nH = 0
@@ -1631,23 +1645,31 @@ function calcDose(){
     ? '<b>PROYECCIÓN DE LA BASE · '+P.sesiones.length+' SESIONES</b>'
     : '<b>'+nH+'/'+P.sesiones.length+' SESIONES · '+pct+'%</b>'
   let alerta = ''
-  document.getElementById('pVivoDose').innerHTML = Object.entries(P.objetivos)
-    .filter(function(p2){return p2[1].exigible!==false})
-    .map(function(p2){
-      const g=p2[0], o=p2[1], v=acum[g]||0, rv=(real[g]||0)
-      let cls='d-bajo', tag='BAJO'
-      if(o.mav&&v>o.mav){cls='d-tope';tag='EXCESO'; if(!alerta) alerta='⚠ '+g+' '+(+v.toFixed(1))+'/'+o.mav+' TECHO'}
-      else if(o.mav&&v>=o.mav*0.85){cls='d-alto';tag='ALTO'}
-      else if(v>=o.mev){cls='d-opt';tag='ÓPTIMO'}
-      const base=(o.mav||o.mev*1.6)
-      const wR=Math.min(Math.round(rv/base*100),100)
-      const wP=Math.min(Math.round(v/base*100),100)
-      const col=(cls==='d-tope'?'#B4442C':cls==='d-alto'?'#C5A13C':'#1F9D55')
-      return '<div class="vd"><span class="g3">'+g+'</span>'+
-        '<div class="vbar"><div class="vproy" style="width:'+wP+'%;background:#121210"></div>'+
-        '<div class="vreal" style="width:'+wR+'%;background:'+col+'"></div></div>'+
-        '<span class="vv">REAL '+(+rv.toFixed(1))+' / '+o.mev+'<br>PROY '+(+v.toFixed(1))+' · '+tag+'</span></div>'
-    }).join('')
+  const filas = Object.keys(universo).map(function(g){
+    const o=objetivos[g]||null, v=acum[g]||0, rv=(real[g]||0)
+    let cls='d-meta0', tag='—', prio=4
+    if (o && o.mev!=null){
+      if(o.mav&&v>o.mav){cls='d-tope';tag='EXCESO';prio=0; if(!alerta) alerta='⚠ '+(SIGLA[g]||g)+' '+(+v.toFixed(1))+'/'+o.mav+' TECHO'}
+      else if(o.mav&&v>=o.mav*0.85){cls='d-alto';tag='ALTO';prio=1}
+      else if(v>=o.mev){cls='d-opt';tag='ÓPTIMO';prio=3}
+      else {cls='d-bajo';tag='BAJO';prio=2}
+    }
+    const base = o ? (o.mav||o.mev*1.6) : Math.max(v, rv, 10)
+    const wR=Math.min(Math.round(rv/base*100),100)
+    const wP=Math.min(Math.round(v/base*100),100)
+    const col=(cls==='d-tope'?'#B4442C':cls==='d-alto'?'#C5A13C':cls==='d-meta0'?'#8B8A85':'#1F9D55')
+    const meta = o ? ('REAL '+(+rv.toFixed(1))+' / '+o.mev) : ('REAL '+(+rv.toFixed(1)))
+    return { g:g, prio:prio, v:v, html:'<div class="vd"><span class="g3">'+(SIGLA[g]||g)+'</span>'+
+      '<div class="vbar"><div class="vproy" style="width:'+wP+'%;background:#121210"></div>'+
+      '<div class="vreal" style="width:'+wR+'%;background:'+col+'"></div></div>'+
+      '<span class="vv">'+meta+'<br>PROY '+(+v.toFixed(1))+' · '+tag+'</span></div>' }
+  }).sort(function(a,b){ return (a.prio-b.prio) || (b.v-a.v) })
+  const LIM=6
+  const lista = P.vivoAll ? filas : filas.slice(0,LIM)
+  const btn = filas.length>LIM
+    ? '<button onclick="P.vivoAll=!P.vivoAll;calcDose()" style="width:100%;border:none;background:none;padding:9px 0 2px;font-size:7px;font-weight:900;letter-spacing:.12em;color:#7C7B76;cursor:pointer">'+
+      (P.vivoAll?'▲ VER MENOS':'▼ VER TODOS LOS ESTÍMULOS ('+filas.length+')')+'</button>' : ''
+  document.getElementById('pVivoDose').innerHTML = lista.map(function(f){return f.html}).join('') + btn
   const fm=document.getElementById('pFootMsg')
   if(fm) fm.textContent = alerta ? (alerta+' — LA APP ORIENTA, EL COACH PROGRAMA') : 'SE GUARDA AL INSTANTE · LA APP ORIENTA, EL COACH PROGRAMA'
 }
