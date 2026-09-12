@@ -195,7 +195,7 @@ html,button,input,.pvS,.chk,.setChip{touch-action:manipulation}
 .bannerCurso .bc2{font-size:13px;font-weight:900}
 #setEdit{display:none;position:fixed;inset:0;z-index:80;background:rgba(18,18,16,.45);backdrop-filter:blur(6px)}
 #setEdit .caja{position:absolute;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:520px;background:#F3F2EF;border-radius:24px 24px 0 0;padding:18px 16px 22px}
-.mrk{.mrk{margin-left:auto;flex-shrink:0;background:rgba(18,18,16,.06);border:none;border-radius:12px;padding:9px 13px;
+.mrk{margin-left:auto;flex-shrink:0;background:rgba(18,18,16,.06);border:none;border-radius:12px;padding:9px 13px;
   font-size:8px;font-weight:900;letter-spacing:.08em;cursor:pointer;color:var(--tinta)}
 .mrk.on{background:rgba(31,157,85,.12);color:var(--ok)}
 .bsets{width:100%;margin-top:11px;background:var(--tinta);color:var(--hueso);border:none;border-radius:15px;
@@ -354,7 +354,7 @@ html,button,input,.pvS,.chk,.setChip{touch-action:manipulation}
 
   <!-- ══ HOME ══ -->
   <div class="vista conTab" id="vHome">
-    <div class="hbar"><span class="hk" title="v6.0">KOACH</span><div class="hav" id="hAv" onclick="salir()">K</div></div>
+    <div class="hbar"><span class="hk" title="v6.1">KOACH</span><div class="hav" id="hAv" onclick="salir()">K</div></div>
     <div class="ctx"><div class="fecha" id="hFecha">—</div><div class="prog" id="hProg">—</div></div>
     <div class="anillo">
       <svg width="180" height="180" viewBox="0 0 180 180">
@@ -1095,13 +1095,26 @@ function pintarSesion(){
       const filas = bes.map(be=>{
         const ej=be.ejercicios||{}
         const w=seedWk(be,ej)
-        const val = w.tipo==='TIME' ? (w.seg+' SEG') : (w.reps+' REPS')
-        return '<div class="circu"><div><div class="cn">'+(ej.nombre||'—')+'</div><div class="cg">'+(ej.grupo_muscular||'')+'</div></div><div class="cv">'+val+'</div></div>'
+        let ed=''
+        if (w.tipo==='TIME'){
+          ed='<div class="pvS"><button onclick="wkStep(\''+be.id+'\',\'seg\',-5)">−</button>'+
+             '<input id="wkSg-'+be.id+'" value="'+(w.seg||30)+'" inputmode="numeric" onfocus="this.select()" onchange="wkSet(\''+be.id+'\',\'seg\',this.value)">'+
+             '<button onclick="wkStep(\''+be.id+'\',\'seg\',5)">+</button><small>SEG</small></div>'
+        } else if (w.tipo==='WEIGHT_REPS'){
+          ed='<div class="pvS"><button onclick="wkStep(\''+be.id+'\',\'kg\',-2.5)">−</button>'+
+             '<input id="wkKg-'+be.id+'" class="'+(w.kg==null?'falta':'')+'" value="'+(w.kg==null?'':w.kg)+'" placeholder="kg" inputmode="decimal" onfocus="this.select()" onchange="wkSet(\''+be.id+'\',\'kg\',this.value)">'+
+             '<button onclick="wkStep(\''+be.id+'\',\'kg\',2.5)">+</button><small>KG · '+(w.reps||'')+'R</small></div>'
+        } else {
+          ed='<div class="pvS"><button onclick="wkStep(\''+be.id+'\',\'reps\',-1)">−</button>'+
+             '<input id="wkRp-'+be.id+'" value="'+(w.reps||'')+'" inputmode="numeric" onfocus="this.select()" onchange="wkSet(\''+be.id+'\',\'reps\',this.value)">'+
+             '<button onclick="wkStep(\''+be.id+'\',\'reps\',1)">+</button><small>REPS</small></div>'
+        }
+        return '<div class="circu"><div><div class="cn">'+(ej.nombre||'—')+'</div><div class="cg">'+(ej.grupo_muscular||'')+'</div></div>'+ed+'</div>'
       }).join('')
       const rondas = chipsSets('r'+bi, n=>!!S.setLog[rondaKey(b.id,n)], b.sets, "tapRonda('"+b.id+"',__N__,"+bi+")")
       return '<div class="glass bloq" id="blq-'+bi+'"><div class="bh"><span class="bt">'+(b.bloque||('B'+(bi+1)))+'</span><span class="bn">'+titulo+'</span>'+
         '<span class="bs">'+b.sets+' RONDAS · '+(b.descanso_seg||b.descanso_segundos||60)+"'' DESC</span></div>"+
-        filas+'<div class="rondaBox">'+rondas.replace('>SETS<','>RONDA / SET<')+'</div></div>'
+        filas+'<div class="rondaBox">'+rondas.replace('>SETS<','>RONDA / SET<')+'</div>'+btnTodas(bi)+'</div>'
     }
     const cards = bes.map(be=>{
       const ej=be.ejercicios||{}
@@ -1109,9 +1122,9 @@ function pintarSesion(){
       const ancla=be.es_ancla?' ◆':''
       const cue = ej.cue ? '<div class="indK"><b>INDICACIÓN DEL KOACH</b>'+ej.cue+'</div>' : ''
       let presL=''
-      if (w.tipo==='WEIGHT_REPS') presL='PRESCRITO · '+(w.kg!=null?(w.kg+' KG × '):'CARGA A DEFINIR × ')+w.reps+' · '+b.sets+' SETS'
-      else if (w.tipo==='TIME') presL='PRESCRITO · '+w.seg+' SEG · '+b.sets+' SETS'
-      else presL='PESO CORPORAL · '+w.reps+' REPS · '+b.sets+' SETS'
+      if (w.tipo==='WEIGHT_REPS') presL='PRESCRITO · '+(w.kg!=null?(w.kg+' KG × '):'CARGA A DEFINIR × ')+w.reps
+      else if (w.tipo==='TIME') presL='PRESCRITO · '+w.seg+' SEG'
+      else presL='PESO CORPORAL · '+w.reps+' REPS'
       let filas=''
       for (let n2=1; n2<=b.sets; n2++){
         const fila = S.setLog[setKey(be.id,n2)]
@@ -1144,9 +1157,9 @@ function pintarSesion(){
         : hechos>0 ? '<span class="estT par">◐ '+hechos+'/'+b.sets+'</span>'
         : '<span class="estT">○</span>'
       let resumen=''
-      if (w.tipo==='WEIGHT_REPS') resumen=(w.kg!=null?(w.kg+' KG · '):'CARGA A DEFINIR · ')+w.reps+' REPS · '+b.sets+' SERIES'
-      else if (w.tipo==='TIME') resumen=w.seg+' SEG · '+b.sets+' SERIES'
-      else resumen='PESO CORPORAL · '+w.reps+' REPS · '+b.sets+' SERIES'
+      if (w.tipo==='WEIGHT_REPS') resumen=(w.kg!=null?(w.kg+' KG · '):'CARGA A DEFINIR · ')+w.reps+' REPS'
+      else if (w.tipo==='TIME') resumen=w.seg+' SEG'
+      else resumen='PESO CORPORAL · '+w.reps+' REPS'
       return '<div class="exCard '+(abierto?'':'cerrado')+'" id="ex-'+be.id+'">'+
         '<div class="exHead" onclick="toggleEx(\''+be.id+'\')">'+
         '<span class="exN">'+(ej.nombre||'—')+ancla+'</span><span class="exG">'+(ej.grupo_muscular||'')+'</span>'+est+
@@ -1158,7 +1171,7 @@ function pintarSesion(){
         '<div style="margin-top:6px">'+filas+'</div></div></div>'
     }).join('')
     return '<div class="glass bloq" id="blq-'+bi+'"><div class="bh"><span class="bt">'+(b.bloque||('B'+(bi+1)))+'</span><span class="bn">'+titulo+'</span>'+
-      '<span class="bs">'+b.sets+' SETS · '+(b.descanso_seg||b.descanso_segundos||60)+"'' DESC</span></div>"+cards+'</div>'
+      '<span class="bs">'+b.sets+' SETS · '+(b.descanso_seg||b.descanso_segundos||60)+"'' DESC</span></div>"+cards+btnTodas(bi)+'</div>'
   }).join('')
   document.getElementById('sFin').style.display='block'
   document.getElementById('syncTag').style.display='block'
@@ -1352,6 +1365,59 @@ function setBloque(bi,total){
 function toggleEx(beId){ S.abierto = (S.abierto===beId) ? null : beId; pintarSesion()
   if(S.abierto){ setTimeout(function(){ const el=document.getElementById('ex-'+beId)
     if(el&&el.scrollIntoView) el.scrollIntoView({behavior:'smooth', block:'nearest'}) }, 80) } }
+function bloqueCompleto(b){
+  if (esCircuito(b)) return rondasHechas(b.id,b.sets)>=b.sets
+  const bes=b.bloque_ejercicios||[]
+  return bes.length>0 && bes.every(be=>setsHechosDe(be.id,b.sets)>=b.sets)
+}
+function btnTodas(bi){
+  const b=S._bfs[bi]
+  const done=bloqueCompleto(b)
+  return '<button class="bsets '+(done?'done':'')+'" onclick="completarBloque('+bi+')">'+
+    (done?'✓ TODAS COMPLETADAS · TOCA PARA CORREGIR':'✓ COMPLETAR TODAS')+'</button>'
+}
+async function completarBloque(bi){
+  const b=S._bfs[bi]
+  if (bloqueCompleto(b)){
+    // corregir: desmarcar todo el bloque
+    const ids=[]
+    const claves=Object.keys(S.setLog).filter(k=>S.setLog[k].bloque_id===b.id)
+    claves.forEach(k=>{ if(S.setLog[k].id) ids.push(S.setLog[k].id); delete S.setLog[k] })
+    pintarSesion(); syncEnvio()
+    if(ids.length) sb.from('set_registros').delete().in('id',ids).then(()=>syncOk())
+    else syncOk()
+    return
+  }
+  const rows=[], claves=[]
+  if (esCircuito(b)){
+    for(let n2=1;n2<=b.sets;n2++){ const k=rondaKey(b.id,n2)
+      if(!S.setLog[k]){ rows.push({registro_id:S.regId, socio_id:S.perfil.id, bloque_id:b.id,
+        bloque_ejercicio_id:null, ejercicio_id:null, set_numero:n2, completado:true}); claves.push(k) } }
+  } else {
+    let sinCarga=false
+    ;(b.bloque_ejercicios||[]).forEach(be=>{
+      const ej=be.ejercicios||{}
+      const w=S.wk[be.id]||seedWk(be,ej)
+      if (w.tipo==='WEIGHT_REPS' && w.kg==null){ sinCarga=true; return }
+      for(let n2=1;n2<=b.sets;n2++){ const k=setKey(be.id,n2)
+        if(!S.setLog[k]){ const rv=rwGet(be.id,n2,w,null)
+          rows.push({registro_id:S.regId, socio_id:S.perfil.id, bloque_id:b.id,
+            bloque_ejercicio_id:be.id, ejercicio_id:ej.id||null, set_numero:n2,
+            target_peso:(w.kg!=null?w.kg:null), target_reps:w.reps||null, target_seg:w.seg||null,
+            peso:(rv.kg!=null?rv.kg:null), reps:rv.reps||null, seg:(w.tipo==='TIME'?(rv.seg||null):null),
+            completado:true}); claves.push(k) } }
+    })
+    if (sinCarga) toast('Ojo: hay ejercicios con carga sin definir — quedaron fuera.')
+  }
+  if(!rows.length){ pintarSesion(); return }
+  rows.forEach((f,i)=>{ S.setLog[claves[i]]={...f} })
+  pintarSesion()
+  if(navigator.vibrate)navigator.vibrate(10)
+  syncEnvio()
+  const r = await sb.from('set_registros').insert(rows).select('id')
+  if (r.error){ claves.forEach(k=>delete S.setLog[k]); pintarSesion(); syncErr(); toast('No se guardó — reintenta') }
+  else { rows.forEach((f,i)=>{ S.setLog[claves[i]].id=(r.data[i]||{}).id }); syncOk(); chequearBloque(b.id) }
+}
 function contarSets(){
   let tot=0, hec=0
   S._bfs.forEach(function(b){
