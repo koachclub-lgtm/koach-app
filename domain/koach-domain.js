@@ -7,7 +7,7 @@
 (function(root){
 'use strict'
 const KD = {
-  DOMAIN_VERSION: 'koach-domain@1.0.0-F1',
+  DOMAIN_VERSION: 'koach-domain@1.0.1-F2',
   VOLUME_ALGORITHM_VERSION: 'vol-doc3-v1',
   COMPLETION_ALGORITHM_VERSION: 'compl-doc3-v1',
   // Músculos evaluables por el motor muscular (DOC3 §4.5: CARDIO/MOB fuera; GLOBAL no es músculo; CORE modelable)
@@ -151,6 +151,7 @@ KD.aporteSesionDOC3 = function(sesion, bloquesCompletados){
     if (bloquesCompletados!=null && bloquesCompletados.indexOf(idx)===-1) return
     const sets=b.sets||0
     ;(b.ejercicios||[]).forEach(ej=>{
+      if (ej.cuenta_dosis===false) return   // oficial v1.1: excluido de dosis semanal (CARDIO/MOB)
       const prof = ej.sinergistas
       if (!prof || Object.keys(prof).length===0){ noEval.push(ej.nombre||ej.id||'?'); return }
       Object.entries(prof).forEach(([k,c])=>{
