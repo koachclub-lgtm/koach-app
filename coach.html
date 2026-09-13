@@ -12,6 +12,7 @@
 <meta name="theme-color" content="#0A0A0A">
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="/domain/koach-domain.js"></script>
 <style>
 :root{--tinta:#121210;--gris:#7C7B76;--suave:#BEBDB8;--ok:#1F9D55;--ama:#C5A13C;--rojo:#B4442C;--hueso:#F3F2EF}
 *{margin:0;padding:0;box-sizing:border-box;font-family:-apple-system,'Helvetica Neue',Arial,sans-serif;-webkit-tap-highlight-color:transparent}
@@ -224,7 +225,7 @@ html,button,input,.pv,.mtab,.setChip{touch-action:manipulation}
 </div></div>
 
 <div class="vista" id="vSala">
-  <div class="hbar"><span class="hk" title="c5.7">KOACH</span><span class="rol" id="rolBadge" onclick="salir()">COACH</span></div>
+  <div class="hbar"><span class="hk" title="c5.8">KOACH</span><span class="rol" id="rolBadge" onclick="salir()">COACH</span></div>
   <button class="nuevo" onclick="toggleAlta()">+ NUEVO USUARIO · SOCIO O COACH</button>
   <button class="nuevo" style="background:rgba(255,255,255,.65);color:#121210;border:1.5px solid rgba(18,18,16,.15)" onclick="verBib()">📚 RUTINAS ESTÁNDAR · BIBLIOTECA</button>
   <div class="glass aform" id="fAlta" style="display:none">
@@ -439,22 +440,19 @@ const ESTADOS_OK = ['completada','parcial','incompleta']
 const C = { yo:null, socios:[], asig:{}, prog:{}, obj:{}, regs:{}, sems:{}, sols:[], hoy:[], extras:{}, protos:{} }
 let F = null, X = { cand:null }
 
+// F2 · UNA VERDAD → UNA IMPLEMENTACIÓN: el cálculo vive en KD (domain/koach-domain.js)
+// Adaptador NORM aprobado: perfil efectivo = {primario:1.0} + secundarios curados (stimulus_profile v1 interino)
+function kdNormSesion(sesion){
+  return { bloques:(sesion.bloques||[]).map(function(b){ return { sets:b.sets,
+    ejercicios:(b.ejercicios||[]).map(function(ej){
+      const g=(ej.grupo||'').toUpperCase()
+      const prof = Object.assign(g?{[g]:1.0}:{}, ej.sinergistas||{})
+      return { grupo:g, sinergistas:prof }
+    }) } }) }
+}
 function aporteSesion(sesion, bc){
   if (bc === undefined) bc = null
-  const a={}; const suma=function(g,v){a[g]=(a[g]||0)+v}
-  ;(sesion.bloques||[]).forEach(function(b,idx){
-    if (bc!==null && bc.indexOf(idx)===-1) return
-    const sets=b.sets||0
-    ;(b.ejercicios||[]).forEach(function(ej){
-      const g=(ej.grupo||'').toUpperCase()
-      if(!g||g==='MOVILIDAD')return
-      suma(g,sets*1.0)
-      Object.entries(ej.sinergistas||{}).forEach(function(pair){
-        const s2=pair[0].toUpperCase()
-        if(s2!=='MOVILIDAD')suma(s2,sets*(parseFloat(pair[1])||0))
-      })
-    })
-  }); return a
+  return KD.aporteSesionDOC3(kdNormSesion(sesion), bc).aporte
 }
 function calcularSemana(programa, registros, objetivos){
   const acum={}; Object.keys(objetivos).forEach(function(g){acum[g]=0})
@@ -1720,9 +1718,6 @@ function calcDose(){
   const objetivos = P.objetivos||{}
   // UNIVERSO: todo estímulo presente en la programación, en lo realizado o con meta
   const universo={}
-  // GLOBAL dosifica como CARDIO (estímulo unificado)
-  if (acum['GLOBAL']!=null){ acum['CARDIO']=(acum['CARDIO']||0)+acum['GLOBAL']; delete acum['GLOBAL'] }
-  if (real['GLOBAL']!=null){ real['CARDIO']=(real['CARDIO']||0)+real['GLOBAL']; delete real['GLOBAL'] }
   Object.keys(acum).forEach(function(g){universo[g]=1})
   Object.keys(real).forEach(function(g){universo[g]=1})
   Object.keys(objetivos).forEach(function(g){ if(objetivos[g].exigible!==false) universo[g]=1 })
