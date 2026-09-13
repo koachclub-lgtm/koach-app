@@ -99,6 +99,10 @@ html,body{background:linear-gradient(170deg,#F3F2EF 0%,#E7E6E2 55%,#DAD9D4 100%)
 .row .g{font-weight:900;font-size:7.5px}
 .bar{position:relative;height:7px;background:rgba(18,18,16,.08);border-radius:5px}
 .fill{position:absolute;top:0;left:0;height:100%;border-radius:5px;background:var(--tinta);transition:width .6s;width:0}
+.fill{background:rgba(242,241,239,.55)}
+.fill.fol{background:#F2F1EF}
+.v small{display:block;font-size:6px;font-weight:900;letter-spacing:.08em;color:#8B8A85}
+.row .v.si{color:#F2F1EF}
 .row .v{font-size:8px;font-weight:900;text-align:right;color:var(--suave)}
 .row .v.si{color:var(--ok)}
 .row.libre .g{color:var(--suave)}.row.libre .fill{background:var(--suave)}
@@ -362,7 +366,7 @@ html,button,input,.pvS,.chk,.setChip{touch-action:manipulation}
 
   <!-- ══ HOME ══ -->
   <div class="vista conTab" id="vHome">
-    <div class="hbar"><span class="hk" title="v6.5">KOACH</span><div class="hav" id="hAv" onclick="salir()">K</div></div>
+    <div class="hbar"><span class="hk" title="v6.6">KOACH</span><div class="hav" id="hAv" onclick="salir()">K</div></div>
     <div class="ctx"><div class="fecha" id="hFecha">—</div><div class="prog" id="hProg">—</div></div>
     <div class="anillo">
       <svg width="180" height="180" viewBox="0 0 180 180">
@@ -871,25 +875,29 @@ function pintarHome(){
     document.getElementById('hCtaS').textContent=`${sem.proxima.nombre} · 60 MIN · SUMA +${sem.proxima.suma_pct}% DE TU DOSIS`
   }
   const orden=[...sem.musculos].sort((a,b)=>(b.exigible-a.exigible)||(b.pct-a.pct))
-  document.getElementById('hRows').innerHTML = orden.map(m=>{
-    const pct=Math.min(m.pct,100)
-    // Semáforo de dosis: blanco→verde(MEV)→amarillo(cerca MAV)→rojo(sobre MAV)
-    let z='z0'
-    if (m.series>0){
-      if (m.mav && m.series>m.mav) z='z3'
-      else if (m.mav && m.series>=m.mav*0.85) z='z2'
-      else if (m.series>=m.objetivo) z='z1'
-      else z='z0'
+  // Anatomía SOCIO: meta ↔ completado. Barra = 100% del target. Sin semáforo, sin techo, sin proyección.
+  const rowsHTML = orden.map(m=>{
+    const fmt = x => x%1===0 ? x : (+x).toFixed(1)
+    if (!m.exigible){
+      const sN = m.series>0 ? fmt(m.series) : ''
+      return `<div class="row libre">
+        <div class="g">${m.grupo}</div>
+        <div class="bar"><div class="fill" data-w="0"></div></div>
+        <div class="v">${sN||'LIBRE'}</div></div>`
     }
-    const sN = m.series%1===0 ? m.series : m.series.toFixed(1)
-    const est = !m.exigible
-      ? (m.series>0 ? String(sN) : 'LIBRE')
-      : (m.fortalecido ? '✓ '+sN+'/'+m.objetivo : sN+'/'+m.objetivo)
-    return `<div class="row ${m.exigible?'':'libre'}">
+    const cov = Math.min(m.series, m.objetivo)
+    const pct = m.objetivo>0 ? Math.min(Math.round(cov/m.objetivo*100),100) : 0
+    const exceso = m.series>m.objetivo ? '+'+fmt(m.series-m.objetivo) : ''
+    const pend = Math.max(m.objetivo-m.series,0)
+    const sub = m.fortalecido
+      ? ('META CUMPLIDA'+(exceso?' · '+exceso:''))
+      : (fmt(pend)+' PENDIENTES')
+    return `<div class="row">
       <div class="g">${m.grupo}</div>
-      <div class="bar"><div class="fill ${m.exigible?z:''}" data-w="${pct}"></div></div>
-      <div class="v ${m.exigible?z:''} ${m.fortalecido?'si':''}">${est}</div></div>`
+      <div class="bar"><div class="fill ${m.fortalecido?'fol':''}" data-w="${pct}"></div></div>
+      <div class="v ${m.fortalecido?'si':''}">${m.fortalecido?'✓ ':''}${fmt(cov)}/${m.objetivo}<small>${sub}</small></div></div>`
   }).join('')
+  document.getElementById('hRows').innerHTML = rowsHTML
   document.getElementById('hCount').textContent = `${num} DE ${den} METAS CUMPLIDAS`
   setTimeout(()=>{
     const C=490.1, obj=dosis/100
