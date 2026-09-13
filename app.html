@@ -102,6 +102,9 @@ html,body{background:linear-gradient(170deg,#F3F2EF 0%,#E7E6E2 55%,#DAD9D4 100%)
 .fill{background:rgba(242,241,239,.55)}
 .fill.fol{background:#F2F1EF}
 .v small{display:block;font-size:6px;font-weight:900;letter-spacing:.08em;color:#8B8A85}
+.pActRow{display:flex;gap:8px;justify-content:flex-end;margin:-4px 4px 12px;flex-wrap:wrap}
+.pAct{background:rgba(242,241,239,.1);border:1px solid rgba(242,241,239,.18);color:#F2F1EF;border-radius:11px;padding:7px 11px;font-size:8px;font-weight:900;letter-spacing:.1em;cursor:pointer}
+.pAct.sec{background:none;border-color:rgba(242,241,239,.12);color:#BEBDB8}
 .row .v.si{color:#F2F1EF}
 .row .v{font-size:8px;font-weight:900;text-align:right;color:var(--suave)}
 .row .v.si{color:var(--ok)}
@@ -366,7 +369,7 @@ html,button,input,.pvS,.chk,.setChip{touch-action:manipulation}
 
   <!-- ══ HOME ══ -->
   <div class="vista conTab" id="vHome">
-    <div class="hbar"><span class="hk" title="v6.6">KOACH</span><div class="hav" id="hAv" onclick="salir()">K</div></div>
+    <div class="hbar"><span class="hk" title="v7.0">KOACH</span><div class="hav" id="hAv" onclick="salir()">K</div></div>
     <div class="ctx"><div class="fecha" id="hFecha">—</div><div class="prog" id="hProg">—</div></div>
     <div class="anillo">
       <svg width="180" height="180" viewBox="0 0 180 180">
@@ -525,6 +528,25 @@ html,button,input,.pvS,.chk,.setChip{touch-action:manipulation}
 <div class="ovl velo" id="oFin">
   <div class="slide" id="slFin"><span class="stx">DESLIZA PARA FINALIZAR</span><div class="th">✓</div></div>
   <button onclick="finalizar()" style="margin-top:16px;width:min(86vw,340px);border:none;border-radius:18px;padding:16px;background:rgba(243,242,239,.14);color:#F3F2EF;font-family:inherit;font-size:10px;font-weight:900;letter-spacing:.14em;cursor:pointer">O TOCA AQUÍ PARA FINALIZAR →</button>
+</div>
+<div class="ovl oscuro" id="oHist" style="z-index:920">
+  <div class="ovlIn" style="max-width:420px;width:92%;max-height:82vh;overflow:auto;background:#171715;border-radius:22px;padding:20px 18px">
+    <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:4px">
+      <div style="font-size:8px;letter-spacing:.2em;font-weight:900;color:#8B8A85">HISTORIAL · SOLO LECTURA</div>
+      <button onclick="document.getElementById('oHist').style.display='none'" style="background:none;border:none;color:#F2F1EF;font-size:14px;cursor:pointer">✕</button></div>
+    <div id="hsTit" style="font-size:14px;font-weight:900;letter-spacing:.1em;color:#F2F1EF;margin-bottom:2px">—</div>
+    <div id="hsFecha" style="font-size:8px;font-weight:900;letter-spacing:.14em;color:#8B8A85;margin-bottom:14px">—</div>
+    <div id="hsBody"></div>
+  </div>
+</div>
+<div class="ovl oscuro" id="oPrev" style="z-index:920">
+  <div class="ovlIn" style="max-width:420px;width:92%;max-height:82vh;overflow:auto;background:#171715;border-radius:22px;padding:20px 18px">
+    <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:4px">
+      <div style="font-size:8px;letter-spacing:.2em;font-weight:900;color:#C5A13C">VISTA PREVIA · SOLO LECTURA</div>
+      <button onclick="document.getElementById('oPrev').style.display='none'" style="background:none;border:none;color:#F2F1EF;font-size:14px;cursor:pointer">✕</button></div>
+    <div id="pvTit" style="font-size:14px;font-weight:900;letter-spacing:.1em;color:#F2F1EF;margin-bottom:14px">—</div>
+    <div id="pvBody"></div>
+  </div>
 </div>
 <div class="ovl oscuro" id="oRw">
   <div class="fk">KOACH</div>
@@ -770,10 +792,14 @@ async function entrar(){
 
     S.sem = calcularSemana(S.programa, S.registros, S.objetivos)
     try{
-      const { data: sol } = await sb.from('solicitudes').select('id, tipo')
-        .eq('socio_id', perfil.id).eq('estado','pendiente')
-      S._solExtra = (sol||[]).some(x=>x.tipo==='extra')
-      S._solPost = (sol||[]).filter(x=>x.tipo==='postergar').map(x=>x.detalle)
+      const { data: sol } = await sb.from('solicitudes').select('id, tipo, detalle, estado, sesion_protocolo_id')
+        .eq('socio_id', perfil.id).in('estado',['PENDIENTE','APROBADA'])
+      const pend = (sol||[]).filter(x=>x.estado==='PENDIENTE')
+      S._solExtra = pend.some(x=>x.tipo==='extra')
+      S._solPost = pend.filter(x=>x.tipo==='postergar').map(x=>x.detalle)
+      S._reqs = {}
+      ;(sol||[]).forEach(x=>{ if(x.sesion_protocolo_id && (x.tipo==='ADELANTAR'||x.tipo==='PREVIEW')){
+        S._reqs[x.sesion_protocolo_id]=Object.assign({},S._reqs[x.sesion_protocolo_id],{[x.tipo]:x.estado}) }})
     }catch(_){ S._solExtra=false; S._solPost=[] }
     pintarHome()
     vista('vHome')   // re-evalúa la tab bar ahora que S.asig existe
@@ -973,15 +999,73 @@ async function reanudar(){
   document.getElementById('oAct').classList.remove('vis')
   pintarSesion()
 }
-async function abrirSesion(){
-  if (!S.sem?.proxima) return
+// ═══ RESOLVER AUTORITATIVO DE CAPACIDADES (arquitectura PLAN) ═══
+// Única fuente de decisión. La UI renderiza; JAMÁS decide elegibilidad por su cuenta.
+const REASON_TXT = {
+  PREVIOUS_SESSION_REQUIRED: p => 'DISPONIBLE DESPUÉS DE COMPLETAR '+(p||'TU SESIÓN ANTERIOR'),
+  ADVANCE_APPROVAL_REQUIRED: () => 'SOLICITUD ENVIADA — TU COACH LA REVISA',
+  ADVANCE_APPROVED: () => 'ADELANTO APROBADO POR TU COACH',
+  SESSION_COMPLETED: () => 'SESIÓN SUMADA',
+  SESSION_IN_PROGRESS: () => 'SESIÓN EN CURSO',
+  WEEK_COMPLETE: () => 'TU SEMANA BASE ESTÁ COMPLETA'
+}
+function resolverCap(s, ctx){
+  ctx = ctx||{}
+  const req = (S._reqs && S._reqs[s.id]) || {}
+  const cap = { can_start:false, can_continue:false, can_open_history:false,
+    can_request_advance:false, can_open_preview:false, can_request_preview:false,
+    request_pending:null, reason_code:null, primary_action:null }
+  if (ctx.hecha){
+    cap.can_open_history = !!ctx.regId
+    cap.reason_code='SESSION_COMPLETED'; cap.primary_action='VER_SESION'; return cap }
+  if (ctx.enCurso){
+    cap.can_continue=true; cap.reason_code='SESSION_IN_PROGRESS'; cap.primary_action='CONTINUAR'; return cap }
+  if (ctx.prox){
+    cap.can_start=true; cap.primary_action='EMPEZAR'; return cap }
+  // BLOQUEADA: la elegibilidad puede cambiar SOLO por aprobación del coach
+  if (req.ADELANTAR==='APROBADA'){
+    cap.can_start=true; cap.reason_code='ADVANCE_APPROVED'; cap.primary_action='EMPEZAR'; return cap }
+  if (req.ADELANTAR==='PENDIENTE'){
+    cap.request_pending='ADELANTAR'; cap.reason_code='ADVANCE_APPROVAL_REQUIRED' }
+  else { cap.can_request_advance=true; cap.reason_code='PREVIOUS_SESSION_REQUIRED' }
+  if (req.PREVIEW==='APROBADA') cap.can_open_preview=true
+  else if (req.PREVIEW==='PENDIENTE') cap.request_pending=cap.request_pending||'PREVIEW'
+  else cap.can_request_preview=true
+  cap.primary_action = cap.can_request_advance ? 'SOLICITAR_ADELANTAR' : 'BLOQUEADA'
+  return cap
+}
+function ctxDe(s){
+  const hoyC = new Date().toISOString().split('T')[0]
+  const reg = S.registros.find(r=>r.sesion_numero===s.numero && r.estado!=='incompleta')
+  const enC = S.registros.find(r=>r.sesion_numero===s.numero && r.estado==='en_curso' && r.fecha===hoyC)
+  return { hecha:!!reg, regId:reg&&reg.id, enCurso:!!enC,
+    prox: s.numero===(S.sem&&S.sem.proxima&&S.sem.proxima.numero) && !(S.sem&&S.sem.completa) }
+}
+async function solicitar(tipo, sesId, nombre){
+  try{
+    const { error } = await sb.from('solicitudes').insert({
+      socio_id:S.perfil.id, tipo:tipo, sesion_protocolo_id:sesId, detalle:nombre||null })
+    if (error){ if(String(error.code)==='23505'||/duplicate/i.test(error.message)){ toast('Ya tienes una solicitud enviada para esta sesión.') } else throw error }
+    else toast(tipo==='ADELANTAR' ? 'Solicitud enviada — tu coach la revisará.' : 'Solicitud de vista previa enviada.')
+    S._reqs = S._reqs||{}; S._reqs[sesId]=Object.assign({},S._reqs[sesId],{[tipo]:'PENDIENTE'})
+    pintarPlan()
+  }catch(e){ toast('No se pudo enviar — intenta de nuevo.') }
+}
+async function abrirSesion(num){
+  let sesG = null
+  if (num!=null){ sesG = S.programa.sesiones.find(x=>x.numero===num) }
+  else { if (!S.sem?.proxima) return; sesG = S.programa.sesiones.find(x=>x.numero===S.sem.proxima.numero) }
+  if (!sesG) return
+  const capG = resolverCap(sesG, ctxDe(sesG))
+  if (!capG.can_start && !capG.can_continue){
+    toast((REASON_TXT[capG.reason_code]||(()=>'Esta sesión aún no está habilitada.'))(null)); return }
   cargando('PREPARANDO TU SESIÓN…')
   const hoyC = new Date().toISOString().split('T')[0]
   if (S.registros.some(r=>r.fecha===hoyC && r.estado!=='incompleta')){
     cargandoOff(); toast('Hoy ya sumaste tu sesión — la recuperación también entrena. Nos vemos mañana.'); return }
-  S._desigActual = S.sem.proxima._desigId || null
-  S._desigRec = !!S.sem.proxima._rec
-  const ses = S.programa.sesiones.find(x=>x.numero===S.sem.proxima.numero)
+  S._desigActual = (num==null && S.sem&&S.sem.proxima&&S.sem.proxima._desigId) || null
+  S._desigRec = !!(num==null && S.sem&&S.sem.proxima&&S.sem.proxima._rec)
+  const ses = sesG
   S.sesionAbierta = ses
   S.pesos={}; S.marcas={}; S.setsHechos={}; S.bloquesListos=0
   S.wk={}; S.setLog={}; S.rw={}; S.abierto=null; S.regId=null
@@ -1644,26 +1728,96 @@ function pintarPlan(){
     const grupos = Object.entries(ap).filter(([g,v])=>v>=1).sort((a,b)=>b[1]-a[1]).slice(0,3).map(([g])=>g).join(' · ')
     const reg = porNum[s.numero]
     const sumo = reg?.bloques_completados===null ? '' : ''
-    let est, cls, icon, extra=''
+    const ctx = ctxDe(s); const cap = resolverCap(s, ctx)
+    let est, cls, icon, extra='', acciones=''
     const DIAS3=['LUN','MAR','MIÉ','JUE','VIE','SÁB','DOM']
-    if (hecha){ est='✓ SUMADA'; cls='ok'; icon='✓'
-      if (reg?.fecha){ const d=new Date(reg.fecha+'T12:00:00'); extra=' · '+DIAS3[(d.getDay()+6)%7] } }
-    else if (prox){ 
+    if (ctx.hecha){ est='✓ SUMADA'; cls='ok'; icon='✓'
+      if (reg?.fecha){ const d=new Date(reg.fecha+'T12:00:00'); extra=' · '+DIAS3[(d.getDay()+6)%7] }
+      if (cap.can_open_history) acciones=`<button class="pAct" onclick="event.stopPropagation();verHist('${ctx.regId}')">VER SESIÓN →</button>` }
+    else if (ctx.enCurso){ est='EN CURSO'; cls='prox'; icon='▶'
+      acciones=`<button class="pAct" onclick="event.stopPropagation();abrirSesion(${s.numero})">CONTINUAR →</button>` }
+    else if (prox){
       const post = (S._solPost||[]).includes(s.nombre)
       est = post ? 'COORDINANDO' : 'PRÓXIMA →'; cls='prox'; icon=s.numero
       if (!post && S.sem?.proxima?.suma_pct!=null) extra=' · SUMA +'+S.sem.proxima.suma_pct+'%'
       if (post) extra=' · TU COACH REORGANIZA TU SEMANA' }
-    else { est='SE DESBLOQUEA'; cls='lock'; icon='🔒' }
-    return `<div class="glass pcard ${hecha?'hecha':prox?'prox':'lock'}" ${prox?'onclick="tab(\'vHome\');abrirSesion()"':''} style="${prox?'cursor:pointer':''}">
+    else if (cap.can_start){ est='ADELANTO APROBADO'; cls='prox'; icon='★'
+      acciones=`<button class="pAct" onclick="event.stopPropagation();abrirSesion(${s.numero})">EMPEZAR →</button>` }
+    else {
+      cls='lock'; icon='🔒'
+      const prev = S.programa.sesiones.find(x=>x.numero===s.numero-1)
+      est = cap.request_pending ? 'SOLICITADA' : 'PRÓXIMA'
+      extra = ' · '+(cap.request_pending
+        ? (REASON_TXT.ADVANCE_APPROVAL_REQUIRED())
+        : REASON_TXT.PREVIOUS_SESSION_REQUIRED(prev&&prev.nombre))
+      const btns=[]
+      if (cap.can_open_preview) btns.push(`<button class="pAct" onclick="event.stopPropagation();verPreview(${s.numero})">VER VISTA PREVIA</button>`)
+      if (cap.can_request_advance) btns.push(`<button class="pAct sec" onclick="event.stopPropagation();solicitar('ADELANTAR','${s.id}','${(s.nombre||'').replace(/'/g,'')}')">SOLICITAR ADELANTAR</button>`)
+      if (cap.can_request_preview && !cap.can_open_preview) btns.push(`<button class="pAct sec" onclick="event.stopPropagation();solicitar('PREVIEW','${s.id}','${(s.nombre||'').replace(/'/g,'')}')">SOLICITAR VISTA PREVIA</button>`)
+      if (cap.request_pending) btns.push(`<span class="pAct sec" style="opacity:.6">✓ SOLICITUD ENVIADA</span>`)
+      acciones = btns.join(' ')
+    }
+    const abrible = prox
+    return `<div class="glass pcard ${ctx.hecha?'hecha':(cls==='prox'?'prox':'lock')}" ${abrible?'onclick="tab(\'vHome\');abrirSesion()"':''} style="${abrible?'cursor:pointer':''}">
       <div class="pnum">${icon}</div>
       <div><div class="pn2">${s.nombre}</div><div class="pm2">${grupos}${extra}</div></div>
-      <span class="pest ${cls}">${est}</span></div>` + (prox && !(S._solPost||[]).includes(s.nombre) ?
+      <span class="pest ${cls}">${est}</span></div>` +
+      (acciones?`<div class="pActRow">${acciones}</div>`:'') +
+      (prox && !(S._solPost||[]).includes(s.nombre) ?
       `<div style="text-align:right;margin:-4px 4px 10px"><button onclick="event.stopPropagation();k2Postergar('${s.nombre}')"
         style="background:none;border:none;font-size:8px;letter-spacing:.1em;color:var(--suave);font-weight:900;
         text-decoration:underline;cursor:pointer">NO PUEDO ESTA SESIÓN — AVISAR A MI COACH</button></div>` : '')
   }).join('')
 }
 
+async function verHist(regId){
+  const o=document.getElementById('oHist'); o.style.display='flex'
+  document.getElementById('hsBody').innerHTML='<div class="vacio">Cargando…</div>'
+  try{
+    const { data: reg } = await sb.from('sesiones_registro')
+      .select('fecha, estado, sesion_protocolo_id').eq('id',regId).single()
+    const { data: sp } = await sb.from('sesiones_protocolo').select('objetivo').eq('id',reg.sesion_protocolo_id).maybeSingle()
+    document.getElementById('hsTit').textContent = (sp&&nombreEN(sp.objetivo))||'SESIÓN'
+    const d=new Date(reg.fecha+'T12:00:00')
+    document.getElementById('hsFecha').textContent = reg.fecha+(reg.estado==='incompleta'?' · PARCIAL':' · COMPLETADA')
+    const { data: sets } = await sb.from('set_registros')
+      .select('bloque_id, bloque_ejercicio_id, ejercicio_id, set_numero, peso, reps, seg, completado, ejercicios(nombre)')
+      .eq('registro_id',regId).order('set_numero')
+    const porEj={}, rondas={}
+    ;(sets||[]).forEach(r=>{
+      if(!r.completado) return
+      if(!r.bloque_ejercicio_id){ rondas[r.bloque_id]=(rondas[r.bloque_id]||0)+1; return }
+      const k=r.bloque_ejercicio_id
+      porEj[k]=porEj[k]||{nombre:(r.ejercicios&&r.ejercicios.nombre)||'EJERCICIO', sets:[]}
+      porEj[k].sets.push(r)
+    })
+    let html=''
+    Object.values(porEj).forEach(e=>{
+      const filas=e.sets.map(x=>{
+        const val = x.seg!=null ? (x.seg+' SEG') : ((x.peso!=null?x.peso+' KG × ':'')+(x.reps!=null?x.reps:'—'))
+        return `<div style="display:flex;justify-content:space-between;font-size:9px;font-weight:800;color:#BEBDB8;padding:2px 0"><span>SET ${x.set_numero}</span><span>${val}</span></div>`
+      }).join('')
+      html+=`<div style="margin-bottom:12px"><div style="font-size:10px;font-weight:900;letter-spacing:.08em;color:#F2F1EF">${e.nombre}</div>${filas}</div>`
+    })
+    const rk=Object.entries(rondas)
+    if (rk.length) html+=rk.map(([b,n2])=>`<div style="font-size:9px;font-weight:900;color:#BEBDB8;margin-bottom:6px">CIRCUITO · ${n2} RONDAS COMPLETADAS ✓</div>`).join('')
+    document.getElementById('hsBody').innerHTML = html || '<div class="vacio">Sin sets registrados en esta sesión.</div>'
+  }catch(e){ document.getElementById('hsBody').innerHTML='<div class="vacio">No pudimos cargar el historial.</div>' }
+}
+function verPreview(num){
+  const s=S.programa.sesiones.find(x=>x.numero===num); if(!s) return
+  const cap=resolverCap(s, ctxDe(s))
+  if(!cap.can_open_preview){ toast('La vista previa requiere aprobación de tu coach.'); return }
+  document.getElementById('pvTit').textContent = s.nombre
+  document.getElementById('pvBody').innerHTML = (s.bloques||[]).map((b,i)=>{
+    const ejs=(b.ejercicios||[]).map(e=>{
+      const w = e.duracion_seg!=null ? (e.duracion_seg+' SEG') : ((e.kg!=null?e.kg+' KG · ':'')+(e.reps||'—')+' REPS')
+      return `<div style="display:flex;justify-content:space-between;font-size:9px;font-weight:800;color:#BEBDB8;padding:2px 0"><span>${e.nombre||'—'}</span><span>${w}</span></div>`
+    }).join('')
+    return `<div style="margin-bottom:12px"><div style="font-size:9px;font-weight:900;letter-spacing:.14em;color:#8B8A85">B${i+1} · ${b.sets} SETS</div>${ejs}</div>`
+  }).join('')
+  document.getElementById('oPrev').style.display='flex'
+}
 async function loadAvances(){
   document.getElementById('aSem').textContent = S.sem ? `${S.sem.fortalecidos}/${S.sem.exigibles}` : '—'
   try{
@@ -1674,7 +1828,7 @@ async function loadAvances(){
   // Historial de sesiones realizadas
   try{
     const { data: hs } = await sb.from('sesiones_registro')
-      .select('fecha, estado, sesion_protocolo_id, musculos_sumados')
+      .select('id, fecha, estado, sesion_protocolo_id, musculos_sumados')
       .eq('socio_id', S.perfil.id).in('estado',['completada','finalizada','incompleta'])
       .order('fecha',{ascending:false}).limit(8)
     const spIds = [...new Set((hs||[]).map(x=>x.sesion_protocolo_id).filter(Boolean))]
@@ -1687,7 +1841,7 @@ async function loadAvances(){
       const fecha = `${DIAS3[(d.getDay()+6)%7]} ${d.getDate()}`
       const gan = x.musculos_sumados?.ganados
       const der = x.estado==='incompleta' ? 'PARCIAL' : (gan!=null?('+'+gan):'✓')
-      return `<div class="pr"><div><div class="prn">${nomSes[x.sesion_protocolo_id]||'SESIÓN'}</div>
+      return `<div class="pr" onclick="verHist(\'${x.id}\')" style="cursor:pointer"><div><div class="prn">${nomSes[x.sesion_protocolo_id]||'SESIÓN'}</div>
         <div class="prm">${fecha} · SUMADA</div></div>
         <div class="prk">${der}</div></div>`
     }).join('') : '<div class="vacio">Tus sesiones realizadas aparecen aquí.<br><b>A levantar.</b></div>'
