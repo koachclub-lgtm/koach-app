@@ -238,7 +238,7 @@ html,button,input,.pv,.mtab,.setChip{touch-action:manipulation}
 </div></div>
 
 <div class="vista" id="vSala">
-  <div class="hbar"><span class="hk" title="c5.9">KOACH</span><span class="rol" id="rolBadge" onclick="salir()">COACH</span></div>
+  <div class="hbar"><span class="hk" title="c6.0">KOACH</span><span class="rol" id="rolBadge" onclick="salir()">COACH</span></div>
   <button class="nuevo" onclick="toggleAlta()">+ NUEVO USUARIO · SOCIO O COACH</button>
   <button class="nuevo" style="background:rgba(255,255,255,.65);color:#121210;border:1.5px solid rgba(18,18,16,.15)" onclick="verBib()">📚 RUTINAS ESTÁNDAR · BIBLIOTECA</button>
   <div class="glass aform" id="fAlta" style="display:none">
@@ -1785,15 +1785,32 @@ let MG={primero:null}
 async function aplicarPrograma(){
   // Guardia de prescripción (advertencia, jamás bloqueo) — modal KOACH, no confirm nativo
   let sinCarga=0, fueraBib=0; MG.primero=null
+  // Guardia de coherencia (DOC2 III.6): la prescripción debe proyectar a completa y bajo techo
+  const acumP={}
+  P.sesiones.forEach(function(s){
+    const a=aporteSesion({bloques:s.bloques.map(function(b){return {sets:b.sets,
+      ejercicios:b.items.map(function(it){return {grupo:it.grupo, sinergistas:it.sinergistas, cuenta_dosis:it.cuentaDosis}})}})})
+    Object.entries(a).forEach(function(p){ acumP[p[0]]=(acumP[p[0]]||0)+p[1] })
+  })
+  const sobre=[], corto=[]
+  Object.entries(P.objetivos||{}).forEach(function(p){
+    const g=p[0], o=p[1]||{}
+    if(o.mev==null) return
+    const v=acumP[g]||0
+    if(o.mav!=null && v>o.mav) sobre.push((SIGLA[g]||g)+' '+(+v.toFixed(1))+'/'+o.mav)
+    else if(v<o.mev) corto.push((SIGLA[g]||g)+' '+(+v.toFixed(1))+'/'+o.mev)
+  })
   P.sesiones.forEach(function(s,si){ s.bloques.forEach(function(b){ b.items.forEach(function(it){
     const esPeso = it.tipoReg==='WEIGHT_REPS' || (it.tipoReg==null && it.conCarga!==false && !esTiempo(it))
     if (esPeso && it.kg==null){ sinCarga++; if(!MG.primero) MG.primero={tab:si, beId:it.beId} }
     if (it.activo===false){ fueraBib++; if(!MG.primero) MG.primero={tab:si, beId:it.beId} }
   }) }) })
-  if (sinCarga>0 || fueraBib>0){
+  if (sinCarga>0 || fueraBib>0 || sobre.length || corto.length){
     const partes=[]
     if (sinCarga>0) partes.push(sinCarga+' ejercicio'+(sinCarga===1?' sin':'s sin')+' carga inicial')
     if (fueraBib>0) partes.push(fueraBib+' fuera de la biblioteca vigente')
+    if (sobre.length) partes.push('proyecta SOBRE TECHO: '+sobre.join(', '))
+    if (corto.length) partes.push('no proyecta a completar: '+corto.join(', '))
     document.getElementById('mgMsg').textContent = 'Esta programación contiene: '+partes.join(' · ')+'.'
     document.getElementById('mGuard').style.display='block'
     return
