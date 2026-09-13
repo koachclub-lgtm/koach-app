@@ -179,6 +179,16 @@ input{width:100%;background:rgba(255,255,255,.7);border:1px solid rgba(255,255,2
 .dzE{position:absolute;left:0;top:0;height:100%;border-radius:3px;background:#121210;transition:width .35s}
 .pAct2{border:1.5px solid rgba(18,18,16,.18);background:none;border-radius:10px;padding:7px 10px;font-size:7.5px;font-weight:900;letter-spacing:.1em;cursor:pointer;color:#121210}
 .pAct2.ok{background:#121210;color:#F2F1EF;border-color:#121210}
+.ocard{display:grid;grid-template-columns:38px 1fr auto;gap:12px;align-items:center;background:#F3F2EF;border:1.5px solid rgba(18,18,16,.08);border-radius:16px;padding:14px 14px;margin-bottom:10px;transition:box-shadow .2s, transform .2s}
+.ocard.fija{opacity:.55;background:rgba(18,18,16,.04)}
+.ocard.odrag{box-shadow:0 14px 30px rgba(18,18,16,.28);transform:scale(1.015);position:relative;z-index:6;background:#F6F5F2}
+.oNum{font-size:20px;font-weight:900;letter-spacing:.02em;color:#121210}
+.oNom{font-size:11px;font-weight:900;letter-spacing:.1em}
+.oFoco{font-size:8px;font-weight:800;letter-spacing:.06em;color:#7C7B76;margin-top:3px}
+.oEst{font-size:7px;font-weight:900;letter-spacing:.12em;color:#B4442C;margin-top:4px}
+.oCtl{display:flex;align-items:center;gap:4px}
+.oHdl{touch-action:none;-webkit-user-select:none;user-select:none;cursor:grab;font-size:16px;color:#B0AFAA;padding:10px 8px}
+.oUD{border:none;background:rgba(18,18,16,.06);border-radius:9px;width:30px;height:30px;font-size:11px;font-weight:900;cursor:pointer;color:#121210}
 .vv{font-size:6.5px;font-weight:900;text-align:right;color:#7C7B76;line-height:1.5}
 #pTabs{flex-wrap:nowrap;overflow-x:auto;-webkit-overflow-scrolling:touch;padding-bottom:6px}
 #pTabs .mtab{flex-shrink:0;white-space:nowrap;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;position:relative}
@@ -249,7 +259,7 @@ html,button,input,.pv,.mtab,.setChip{touch-action:manipulation}
 </div></div>
 
 <div class="vista" id="vSala">
-  <div class="hbar"><span class="hk" title="c6.2">KOACH</span><span class="rol" id="rolBadge" onclick="salir()">COACH</span></div>
+  <div class="hbar"><span class="hk" title="c6.3">KOACH</span><span class="rol" id="rolBadge" onclick="salir()">COACH</span></div>
   <button class="nuevo" onclick="toggleAlta()">+ NUEVO USUARIO · SOCIO O COACH</button>
   <button class="nuevo" style="background:rgba(255,255,255,.65);color:#121210;border:1.5px solid rgba(18,18,16,.15)" onclick="verBib()">📚 RUTINAS ESTÁNDAR · BIBLIOTECA</button>
   <div class="glass aform" id="fAlta" style="display:none">
@@ -336,6 +346,9 @@ html,button,input,.pv,.mtab,.setChip{touch-action:manipulation}
   <div class="glass viva" id="pVivo" style="display:none">
     <h3><span>DOSIFICADOR POR GRUPO MUSCULAR</span><span id="pVivoTit">—</span></h3>
     <div id="pVivoDose"></div>
+  </div>
+  <div style="display:flex;justify-content:flex-end;margin-bottom:7px">
+    <button onclick="abrirOrganizador()" style="border:1.5px solid rgba(18,18,16,.16);background:none;border-radius:12px;padding:8px 12px;font-size:8px;font-weight:900;letter-spacing:.12em;cursor:pointer;color:#121210">⇅ REORGANIZAR SESIONES</button>
   </div>
   <div class="mtabs" id="pTabs"></div>
   <div id="pBloques" style="padding-bottom:120px"></div>
@@ -431,6 +444,23 @@ html,button,input,.pv,.mtab,.setChip{touch-action:manipulation}
   </div>
 </div>
 
+<!-- ORGANIZADOR SEMANAL -->
+<div class="modal" id="mOrg"><div class="mcard" style="max-width:440px;max-height:86vh;overflow:auto">
+  <div style="font-size:8px;letter-spacing:.18em;font-weight:900;color:#7C7B76">ORGANIZADOR SEMANAL</div>
+  <div id="orgCtx" style="font-size:12px;font-weight:900;letter-spacing:.1em;margin:4px 0 14px">—</div>
+  <div id="orgLista"></div>
+  <button class="opRow" onclick="abrirBibOrg()" style="margin-top:6px">+ AÑADIR NUEVA SESIÓN</button>
+  <div style="display:flex;gap:10px;margin-top:16px">
+    <button class="bbtn" onclick="cerrarOrg()" style="flex:1">CANCELAR</button>
+    <button class="bbtn ink" onclick="guardarOrden()" style="flex:1.4">GUARDAR ORDEN</button>
+  </div>
+</div></div>
+<!-- BIBLIOTECA DE SESIONES (picker del organizador) -->
+<div class="modal" id="mBibOrg"><div class="mcard" style="max-width:420px;max-height:80vh;overflow:auto">
+  <div style="font-size:8px;letter-spacing:.18em;font-weight:900;color:#7C7B76;margin-bottom:12px">BIBLIOTECA DE SESIONES</div>
+  <div id="bibOrgLista"><div class="vacio">Cargando…</div></div>
+  <button class="bbtn" onclick="document.getElementById('mBibOrg').style.display='none'" style="width:100%;margin-top:12px">CERRAR</button>
+</div></div>
 <!-- MODAL NUEVA RUTINA ESTÁNDAR -->
 <div id="mRut" style="display:none;position:fixed;inset:0;z-index:70;background:rgba(18,18,16,.45);backdrop-filter:blur(6px)">
   <div style="position:absolute;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:560px;background:#F3F2EF;border-radius:24px 24px 0 0;padding:18px 16px 22px">
@@ -1803,6 +1833,173 @@ function calcDose(){
   try{ if (!P.base && typeof F!=='undefined' && F && F.id && _reqFor!==F.id){ _reqFor=F.id; cargarSolicitudes(F.id) } }catch(_e){}
   const fm=document.getElementById('pFootMsg')
   if(fm) fm.textContent = alerta ? (alerta+' — LA APP ORIENTA, EL COACH PROGRAMA') : 'SE GUARDA AL INSTANTE · LA APP ORIENTA, EL COACH PROGRAMA'
+}
+// ═══ ORGANIZADOR SEMANAL (playlist) ═══
+const ORG={orden:[], fijas:{}, dirty:false}
+function esFijaIdx(i){ return !!ORG.fijas[ORG.orden[i]] }
+function lunesISO(){ const d=new Date(); const dw=(d.getDay()+6)%7; d.setDate(d.getDate()-dw); return d.toISOString().split('T')[0] }
+async function abrirOrganizador(){
+  if (!P || !P.sesiones || !P.sesiones.length){ toast('Abre primero una ficha con programa.'); return }
+  ORG.orden = P.sesiones.map(function(s){return s.id})
+  ORG.fijas = {}; ORG.dirty=false
+  if (!P.base && typeof F!=='undefined' && F && F.id){
+    try{
+      const r = await sb.from('sesiones_registro').select('sesion_protocolo_id, estado')
+        .eq('socio_id', F.id).gte('fecha', lunesISO())
+      ;(r.data||[]).forEach(function(x){
+        if (x.estado==='en_curso') ORG.fijas[x.sesion_protocolo_id]='EN CURSO'
+        else if (ESTADOS_OK.indexOf(x.estado)>-1 && x.estado!=='incompleta') ORG.fijas[x.sesion_protocolo_id]='REALIZADA'
+      })
+    }catch(_e){}
+  }
+  document.getElementById('orgCtx').textContent =
+    ((typeof F!=='undefined' && F && F.nombre) ? F.nombre : 'BIBLIOTECA').toUpperCase()+
+    (P.base?' · RUTINA ESTÁNDAR':'')
+  pintarOrg()
+  document.getElementById('mOrg').style.display='block'
+}
+function focoDe(s){
+  try{ const a=aporteSesion(s)
+    return Object.entries(a).filter(function(p){return p[1]>=1}).sort(function(x,y){return y[1]-x[1]})
+      .slice(0,3).map(function(p){return p[0]}).join(' · ') }catch(_e){ return '' }
+}
+function pintarOrg(){
+  const por={}; P.sesiones.forEach(function(s){por[s.id]=s})
+  document.getElementById('orgLista').innerHTML = ORG.orden.map(function(id,i){
+    const s=por[id]; if(!s) return ''
+    const fija=ORG.fijas[id]
+    const ctl = fija ? '<span class="oEst">'+fija+'</span>'
+      : '<div class="oCtl"><button class="oUD" onclick="orgMove(\''+id+'\',-1)">▲</button>'+
+        '<button class="oUD" onclick="orgMove(\''+id+'\',1)">▼</button>'+
+        '<span class="oHdl" data-ohdl>⠿</span></div>'
+    return '<div class="ocard '+(fija?'fija':'')+'" data-oid="'+id+'">'+
+      '<span class="oNum">'+String(i+1).padStart(2,'0')+'</span>'+
+      '<div><div class="oNom">'+(s.nombre||'SESIÓN')+'</div><div class="oFoco">'+focoDe(s)+'</div>'+(fija?'<div class="oEst">'+fija+' · NO REORGANIZABLE</div>':'')+'</div>'+ctl+'</div>'
+  }).join('')
+}
+function orgMove(id, dir){
+  const i=ORG.orden.indexOf(id); const j=i+dir
+  if (i<0 || j<0 || j>=ORG.orden.length) return
+  if (ORG.fijas[id] || esFijaIdx(j)) return
+  ORG.orden[i]=ORG.orden[j]; ORG.orden[j]=id; ORG.dirty=true
+  if(navigator.vibrate)navigator.vibrate(8)
+  pintarOrg()
+}
+// motor drag vertical de la playlist
+const DO={el:null,activo:false,pid:null,y0:0}
+document.addEventListener('pointerdown',function(e){
+  const hd=e.target.closest('[data-ohdl]'); if(!hd)return
+  const card=hd.closest('.ocard'); if(!card||card.classList.contains('fija'))return
+  e.preventDefault()
+  DO.el=card; DO.pid=e.pointerId; DO.activo=false; DO.y0=e.clientY
+  try{card.setPointerCapture(DO.pid)}catch(_){ }
+})
+document.addEventListener('pointermove',function(e){
+  if(!DO.el)return
+  if(!DO.activo){ if(Math.abs(e.clientY-DO.y0)>5){DO.activo=true;DO.el.classList.add('odrag');if(navigator.vibrate)navigator.vibrate(8)} else return }
+  e.preventDefault()
+  const cont=DO.el.parentElement
+  const cards=[].slice.call(cont.querySelectorAll('.ocard'))
+  const i=cards.indexOf(DO.el)
+  const prev=cards[i-1], next=cards[i+1]
+  if(next && !next.classList.contains('fija')){
+    const r=next.getBoundingClientRect()
+    if(e.clientY>r.top+r.height/2){ cont.insertBefore(next,DO.el); actualizarNums(cont); return } }
+  if(prev && !prev.classList.contains('fija')){
+    const r=prev.getBoundingClientRect()
+    if(e.clientY<r.top+r.height/2){ cont.insertBefore(DO.el,prev); actualizarNums(cont) } }
+},{passive:false})
+document.addEventListener('pointerup',function(){
+  if(!DO.el)return
+  const fue=DO.activo; const el=DO.el
+  el.classList.remove('odrag'); try{el.releasePointerCapture(DO.pid)}catch(_){ }
+  DO.el=null; DO.activo=false
+  if(!fue)return
+  const cont=document.getElementById('orgLista')
+  ORG.orden=[].slice.call(cont.querySelectorAll('.ocard')).map(function(x){return x.dataset.oid})
+  ORG.dirty=true
+  pintarOrg()
+})
+function actualizarNums(cont){
+  ;[].slice.call(cont.querySelectorAll('.ocard')).forEach(function(c,i){
+    const n=c.querySelector('.oNum'); if(n) n.textContent=String(i+1).padStart(2,'0') })
+}
+// Operación autoritativa: la UI NO es autoridad de integridad
+function validarReorden(ids, sesiones, fijas, ordenInicial){
+  const set={}, base={}
+  sesiones.forEach(function(s){base[s.id]=1})
+  if (ids.length!==sesiones.length) return {ok:false, err:'FALTAN O SOBRAN SESIONES'}
+  for (var i=0;i<ids.length;i++){
+    if (set[ids[i]]) return {ok:false, err:'ID DUPLICADO'}
+    set[ids[i]]=1
+    if (!base[ids[i]]) return {ok:false, err:'SESIÓN DE OTRO PROGRAMA'}
+  }
+  for (var k in fijas){ if (ids.indexOf(k)!==ordenInicial.indexOf(k)) return {ok:false, err:'UNA SESIÓN NO REORGANIZABLE CAMBIÓ DE POSICIÓN'} }
+  return {ok:true}
+}
+async function guardarOrden(){
+  const ini = P.sesiones.map(function(s){return s.id})
+  const v = validarReorden(ORG.orden, P.sesiones, ORG.fijas, ini)
+  if (!v.ok){ toast('No se guardó: '+v.err); return }
+  const actualId = P.sesiones[P.tab] && P.sesiones[P.tab].id
+  syncEnvio()
+  for (var i=0;i<ORG.orden.length;i++){
+    const s = P.sesiones.find(function(x){return x.id===ORG.orden[i]})
+    if (s && s.numero!==i+1){
+      const r = await sb.from('sesiones_protocolo').update({numero:i+1}).eq('id',s.id)
+      if (r.error){ syncErr(r.error.message); toast('Error al guardar — recarga la ficha.'); return }
+      s.numero=i+1
+    }
+  }
+  P.sesiones.sort(function(a,b){return a.numero-b.numero})
+  P.tab = Math.max(0, P.sesiones.findIndex(function(s){return s.id===actualId}))
+  syncOk(); cerrarOrg()
+  repintarConservando(); calcDose()
+  toast('Orden guardado — el socio ya lo ve.')
+}
+function cerrarOrg(){ document.getElementById('mOrg').style.display='none' }
+async function abrirBibOrg(){
+  document.getElementById('mBibOrg').style.display='block'
+  const el=document.getElementById('bibOrgLista'); el.innerHTML='<div class="vacio">Cargando…</div>'
+  try{
+    const bp = await bibProto()
+    const rs = await sb.from('sesiones_protocolo').select('id, nombre, objetivo').eq('protocolo_id',bp.id).order('numero')
+    const ses = rs.data||[]
+    el.innerHTML = ses.length ? ses.map(function(s){
+      return '<div style="display:flex;align-items:center;gap:10px;padding:11px 0;border-bottom:1px solid rgba(18,18,16,.06)">'+
+        '<div style="flex:1"><div style="font-size:10px;font-weight:900;letter-spacing:.08em">'+(s.nombre||s.objetivo||'SESIÓN')+'</div></div>'+
+        '<button class="bbtn ink" style="padding:8px 12px" onclick="orgAgregar(\''+s.id+'\',\''+((s.nombre||'SESIÓN').replace(/'/g,''))+'\')">USAR →</button></div>'
+    }).join('') : '<div class="vacio">No hay sesiones estándar aún.</div>'
+  }catch(e){ el.innerHTML='<div class="vacio">No pudimos cargar la biblioteca.</div>' }
+}
+async function orgAgregar(srcId, nombre){
+  syncEnvio()
+  try{
+    const num = P.sesiones.length + 1
+    const nueva = await copiarSesionEn(srcId, P.pid, num, nombre)
+    // cargar la sesión creada con la forma que el planificador espera
+    const r = await sb.from('bloques').select('*, bloque_ejercicios(*, ejercicios(*))').eq('sesion_id', nueva.id).order('bloque')
+    const bloques = (r.data||[]).map(function(b){ return {
+      bId:b.id, tipo:b.bloque, sets:b.sets,
+      desc:(b.descanso_seg!=null?b.descanso_seg:(b.descanso_segundos!=null?b.descanso_segundos:60)),
+      items:(b.bloque_ejercicios||[]).map(function(be){
+        return { beId:be.id, ejId:be.ejercicio_id,
+          nombre:(be.ejercicios&&be.ejercicios.nombre)||'—',
+          grupo:(be.ejercicios&&be.ejercicios.grupo_muscular)||'',
+          sinergistas:(be.ejercicios&&be.ejercicios.sinergistas)||{},
+          kg:(be.kg_objetivo!=null?be.kg_objetivo:null), orden:(be.orden!=null?be.orden:null),
+          tipoReg:(be.ejercicios&&be.ejercicios.tipo_registro)||null,
+          conCarga:(be.ejercicios?be.ejercicios.con_carga:null),
+          cuentaDosis:(be.ejercicios?be.ejercicios.cuenta_dosis:null), activo:(be.ejercicios?be.ejercicios.activo:null),
+          reps:(be.reps_txt!=null&&be.reps_txt!==''?be.reps_txt:(be.reps!=null?String(be.reps):'10')) }
+      }) } })
+    P.sesiones.push({ id:nueva.id, numero:num, nombre:nombre, bloques:bloques })
+    ORG.orden.push(nueva.id); ORG.dirty=true
+    syncOk()
+    document.getElementById('mBibOrg').style.display='none'
+    pintarOrg(); repintarConservando(); calcDose()   // ADD recalcula proyección (≠ reorder)
+    toast('Sesión añadida — muévela donde quieras y guarda el orden.')
+  }catch(e){ syncErr(String(e&&e.message||e)); toast('No se pudo añadir la sesión.') }
 }
 let _reqFor=null
 async function cargarSolicitudes(socioId){
