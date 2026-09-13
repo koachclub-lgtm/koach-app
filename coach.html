@@ -155,7 +155,7 @@ input{width:100%;background:rgba(255,255,255,.7);border:1px solid rgba(255,255,2
 .vbar{height:7px;background:rgba(18,18,16,.08);border-radius:5px;position:relative;overflow:hidden}
 .vreal{position:absolute;top:0;left:0;height:100%;border-radius:5px;z-index:2}
 .vproy{position:absolute;top:0;left:0;height:100%;border-radius:5px;opacity:.32}
-.dzRule{display:grid;grid-template-columns:56px 1fr 92px;gap:8px;margin:2px 0 2px}
+.dzRule{display:grid;grid-template-columns:14px 1fr;gap:0;margin:2px 0 2px}
 .dzScale{position:relative;height:11px;font-size:6.5px;font-weight:900;letter-spacing:.06em;color:#B0AFAA}
 .dzScale s{position:absolute;top:0;text-decoration:none;transform:translateX(-50%)}
 .dzLeg{font-size:6.5px;font-weight:900;letter-spacing:.08em;color:#8B8A85;margin:0 0 9px;text-align:right}
@@ -168,6 +168,15 @@ input{width:100%;background:rgba(255,255,255,.7);border:1px solid rgba(255,255,2
 .dzM{position:absolute;top:-3px;bottom:-3px;width:2px;background:#B4442C;opacity:.5;border-radius:1px}
 .dzN{font-size:9px;font-weight:900;text-align:right;line-height:1.45}
 .dzN small{display:block;font-size:6.3px;color:#7C7B76;font-weight:900;letter-spacing:.05em}
+.dz2{margin-bottom:11px}
+.dzHead{display:flex;align-items:baseline;gap:8px;margin-bottom:3px}
+.dzHead .g3{width:auto;min-width:42px}
+.dzChip{font-size:6.5px;font-weight:900;letter-spacing:.1em}
+.dzNums{margin-left:auto;font-size:8px;font-weight:900;letter-spacing:.03em;color:#121210}
+.dzRowB{display:grid;grid-template-columns:14px 1fr;gap:0;align-items:center;margin-bottom:3px}
+.dzL{font-style:normal;font-size:6px;font-weight:900;color:#B0AFAA;letter-spacing:.05em}
+.dzRule{grid-template-columns:14px 1fr}
+.dzE{position:absolute;left:0;top:0;height:100%;border-radius:3px;background:#121210;transition:width .35s}
 .vv{font-size:6.5px;font-weight:900;text-align:right;color:#7C7B76;line-height:1.5}
 #pTabs{flex-wrap:nowrap;overflow-x:auto;-webkit-overflow-scrolling:touch;padding-bottom:6px}
 #pTabs .mtab{flex-shrink:0;white-space:nowrap;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;position:relative}
@@ -238,7 +247,7 @@ html,button,input,.pv,.mtab,.setChip{touch-action:manipulation}
 </div></div>
 
 <div class="vista" id="vSala">
-  <div class="hbar"><span class="hk" title="c6.0">KOACH</span><span class="rol" id="rolBadge" onclick="salir()">COACH</span></div>
+  <div class="hbar"><span class="hk" title="c6.1">KOACH</span><span class="rol" id="rolBadge" onclick="salir()">COACH</span></div>
   <button class="nuevo" onclick="toggleAlta()">+ NUEVO USUARIO · SOCIO O COACH</button>
   <button class="nuevo" style="background:rgba(255,255,255,.65);color:#121210;border:1.5px solid rgba(18,18,16,.15)" onclick="verBib()">📚 RUTINAS ESTÁNDAR · BIBLIOTECA</button>
   <div class="glass aform" id="fAlta" style="display:none">
@@ -1759,11 +1768,17 @@ function calcDose(){
     const guias='<em style="left:42.5%"></em><em style="left:85%"></em>'
     const mObj=(o&&o.mev!=null)?'<span class="dzO" style="left:'+dzPos(o.mev)+'%"></span>':''
     const mMax=(o&&o.mav!=null)?'<span class="dzM" style="left:'+dzPos(o.mav)+'%"></span>':''
-    return { g:g, prio:prio, v:v, html:'<div class="dz"><span class="g3">'+(SIGLA[g]||g)+'</span>'+
-      '<div class="dzT">'+guias+
-        '<div class="dzP" style="width:'+dzPos(v)+'%"></div>'+
-        '<div class="dzR" style="width:'+dzPos(rv)+'%;background:'+col+'"></div>'+mObj+mMax+'</div>'+
-      '<span class="dzN">'+f1(rv)+' · '+f1(v)+'<small style="color:'+col+'">'+tag+(o&&o.mev!=null?' · META '+o.mev:'')+'</small></span></div>' }
+    const nums=(o&&o.mev!=null)
+      ? 'META '+o.mev+' · PROG '+f1(v)+' · EJEC '+f1(rv)
+      : 'PROG '+f1(v)+' · EJEC '+f1(rv)
+    return { g:g, prio:prio, v:v, html:'<div class="dz2">'+
+      '<div class="dzHead"><span class="g3">'+(SIGLA[g]||g)+'</span>'+
+        '<span class="dzChip" style="color:'+col+'">'+tag+'</span>'+
+        '<span class="dzNums">'+nums+'</span></div>'+
+      '<div class="dzRowB"><i class="dzL">P</i><div class="dzT">'+guias+mObj+mMax+
+        '<div class="dzP" style="width:'+dzPos(v)+'%"></div></div></div>'+
+      '<div class="dzRowB"><i class="dzL">E</i><div class="dzT">'+guias+mObj+mMax+
+        '<div class="dzE" style="width:'+dzPos(rv)+'%"></div></div></div></div>' }
   })
   const ORD=['PECHO','ESPALDA','HOMBROS','TRÍCEPS','BÍCEPS','CORE','GLÚTEOS','CUÁDRICEPS','ISQUIOS','PANTORRILLAS','CARDIO','MOVILIDAD']
   filas.sort(function(a,b){
@@ -1774,10 +1789,11 @@ function calcDose(){
   const btn = filas.length>LIM
     ? '<button onclick="P.vivoAll=!P.vivoAll;calcDose()" style="width:100%;border:none;background:none;padding:9px 0 2px;font-size:7px;font-weight:900;letter-spacing:.12em;color:#7C7B76;cursor:pointer">'+
       (P.vivoAll?'▲ VER MENOS':'▼ VER TODOS LOS ESTÍMULOS ('+filas.length+')')+'</button>' : ''
-  const regla='<div class="dzRule"><span></span><div class="dzScale">'+
+  const regla='<div class="dzRule"><span style="width:14px"></span><div class="dzScale">'+
     '<s style="left:0%">0</s><s style="left:42.5%">10</s><s style="left:85%">20</s><s style="left:100%">20+</s></div><span></span></div>'+
-    '<div class="dzLeg">EJECUTADAS (color) SOBRE PROGRAMADAS (base) · SERIES EFECTIVAS</div>'
-  document.getElementById('pVivoDose').innerHTML = regla + lista.map(function(f){return f.html}).join('') + btn
+    '<div class="dzLeg">P = PROGRAMADO · E = EJECUTADO · | META · ¦ TECHO · SERIES EFECTIVAS</div>'
+  const dzHTML = regla + lista.map(function(f){return f.html}).join('') + btn
+  document.getElementById('pVivoDose').innerHTML = dzHTML
   const fm=document.getElementById('pFootMsg')
   if(fm) fm.textContent = alerta ? (alerta+' — LA APP ORIENTA, EL COACH PROGRAMA') : 'SE GUARDA AL INSTANTE · LA APP ORIENTA, EL COACH PROGRAMA'
 }
