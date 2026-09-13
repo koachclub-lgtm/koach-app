@@ -13,6 +13,7 @@
 <meta name="theme-color" content="#0A0A0A">
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="/domain/koach-domain.js"></script>
 <style>
 :root{--tinta:#121210;--gris:#7C7B76;--suave:#BEBDB8;--ok:#1F9D55;--hueso:#F3F2EF}
 *{margin:0;padding:0;box-sizing:border-box;font-family:-apple-system,'Helvetica Neue','Segoe UI',Arial,sans-serif;-webkit-tap-highlight-color:transparent}
@@ -361,7 +362,7 @@ html,button,input,.pvS,.chk,.setChip{touch-action:manipulation}
 
   <!-- ══ HOME ══ -->
   <div class="vista conTab" id="vHome">
-    <div class="hbar"><span class="hk" title="v6.3">KOACH</span><div class="hav" id="hAv" onclick="salir()">K</div></div>
+    <div class="hbar"><span class="hk" title="v6.4">KOACH</span><div class="hav" id="hAv" onclick="salir()">K</div></div>
     <div class="ctx"><div class="fecha" id="hFecha">—</div><div class="prog" id="hProg">—</div></div>
     <div class="anillo">
       <svg width="180" height="180" viewBox="0 0 180 180">
@@ -540,23 +541,16 @@ const S = { perfil:null, asig:null, proto:null, programa:null, objetivos:null, r
 
 /* ══ MOTOR (probado 8/8) ══ */
 const ESTADOS_OK = ['completada','finalizada','incompleta']
+// F2 · el cálculo vive en KD (domain/koach-domain.js) · adaptador NORM aprobado
+function kdNormSesion(sesion){
+  return { bloques:(sesion.bloques||[]).map(b=>({ sets:b.sets,
+    ejercicios:(b.ejercicios||[]).map(ej=>{
+      const g=(ej.grupo||'').toUpperCase()
+      return { grupo:g, sinergistas:Object.assign(g?{[g]:1.0}:{}, ej.sinergistas||{}) }
+    }) })) }
+}
 function aporteSesion(sesion, bloquesCompletados = null){
-  const a = {}
-  const suma = (g,v)=>{ a[g]=(a[g]||0)+v }
-  ;(sesion.bloques||[]).forEach((b,idx)=>{
-    if (bloquesCompletados!==null && !bloquesCompletados.includes(idx)) return
-    const sets = b.sets||0
-    ;(b.ejercicios||[]).forEach(ej=>{
-      const g = (ej.grupo||'').toUpperCase()
-      if (!g || g==='MOVILIDAD') return
-      suma(g, sets*1.0)
-      Object.entries(ej.sinergistas||{}).forEach(([sg,p])=>{
-        const s2 = sg.toUpperCase()
-        if (s2!=='MOVILIDAD') suma(s2, sets*(parseFloat(p)||0))
-      })
-    })
-  })
-  return a
+  return KD.aporteSesionDOC3(kdNormSesion(sesion), bloquesCompletados).aporte
 }
 function calcularSemana(programa, registros, objetivos){
   const acum = {}
@@ -575,7 +569,8 @@ function calcularSemana(programa, registros, objetivos){
   }))
   const ex = musculos.filter(m=>m.exigible)
   const tot = ex.filter(m=>m.fortalecido).length
-  const pct_dosis = ex.length ? Math.round(ex.reduce((a,m)=>a+Math.min(m.series/m.objetivo,1),0)/ex.length*100) : 0
+  const _svc = KD.strengthVolumeCompletion(ex.map(m=>({muscle:m.grupo, aligned:m.series, target:m.objetivo})))
+  const pct_dosis = (_svc.value===KD.NA) ? 0 : Math.floor(_svc.value*100)
   const hechas = new Set(validos.filter(r=>r.estado!=='incompleta').map(r=>r.sesion_numero))
   const prox = programa.sesiones.find(s=>!hechas.has(s.numero)) || null
   let proxima = null
@@ -585,7 +580,8 @@ function calcularSemana(programa, registros, objetivos){
     // % que sumaría la próxima sesión a la dosis (mismo promedio topado)
     const acum2 = {...acum}
     Object.entries(ap).forEach(([g,v])=>{ if (g in acum2) acum2[g]+=v })
-    const pct2 = ex.length ? Math.round(ex.reduce((a,m)=>a+Math.min(acum2[m.grupo]/m.objetivo,1),0)/ex.length*100) : 0
+    const _svc2 = KD.strengthVolumeCompletion(ex.map(m=>({muscle:m.grupo, aligned:acum2[m.grupo]||0, target:m.objetivo})))
+    const pct2 = (_svc2.value===KD.NA) ? 0 : Math.floor(_svc2.value*100)
     proxima = { numero:prox.numero, id:prox.id, nombre:prox.nombre||('SESIÓN '+prox.numero),
                 fortaleceria:c.length, suma_pct: Math.max(0, pct2 - pct_dosis),
                 _extra: !!prox._extra, _desigId: prox._desigId||null, _rec: !!prox._rec }
