@@ -177,6 +177,8 @@ input{width:100%;background:rgba(255,255,255,.7);border:1px solid rgba(255,255,2
 .dzL{font-style:normal;font-size:6px;font-weight:900;color:#B0AFAA;letter-spacing:.05em}
 .dzRule{grid-template-columns:14px 1fr}
 .dzE{position:absolute;left:0;top:0;height:100%;border-radius:3px;background:#121210;transition:width .35s}
+.pAct2{border:1.5px solid rgba(18,18,16,.18);background:none;border-radius:10px;padding:7px 10px;font-size:7.5px;font-weight:900;letter-spacing:.1em;cursor:pointer;color:#121210}
+.pAct2.ok{background:#121210;color:#F2F1EF;border-color:#121210}
 .vv{font-size:6.5px;font-weight:900;text-align:right;color:#7C7B76;line-height:1.5}
 #pTabs{flex-wrap:nowrap;overflow-x:auto;-webkit-overflow-scrolling:touch;padding-bottom:6px}
 #pTabs .mtab{flex-shrink:0;white-space:nowrap;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;position:relative}
@@ -247,7 +249,7 @@ html,button,input,.pv,.mtab,.setChip{touch-action:manipulation}
 </div></div>
 
 <div class="vista" id="vSala">
-  <div class="hbar"><span class="hk" title="c6.1">KOACH</span><span class="rol" id="rolBadge" onclick="salir()">COACH</span></div>
+  <div class="hbar"><span class="hk" title="c6.2">KOACH</span><span class="rol" id="rolBadge" onclick="salir()">COACH</span></div>
   <button class="nuevo" onclick="toggleAlta()">+ NUEVO USUARIO · SOCIO O COACH</button>
   <button class="nuevo" style="background:rgba(255,255,255,.65);color:#121210;border:1.5px solid rgba(18,18,16,.15)" onclick="verBib()">📚 RUTINAS ESTÁNDAR · BIBLIOTECA</button>
   <div class="glass aform" id="fAlta" style="display:none">
@@ -327,6 +329,10 @@ html,button,input,.pv,.mtab,.setChip{touch-action:manipulation}
     <div class="stit">Planificador</div>
     <span class="rol" id="pEstado" style="margin-left:auto">BORRADOR</span></div>
   <div class="ssub" id="pMeta">—</div>
+  <div class="card" id="cReqs" style="display:none">
+    <h3><span>SOLICITUDES DEL SOCIO</span><span id="pReqN">—</span></h3>
+    <div id="pReqs"></div>
+  </div>
   <div class="glass viva" id="pVivo" style="display:none">
     <h3><span>DOSIFICADOR POR GRUPO MUSCULAR</span><span id="pVivoTit">—</span></h3>
     <div id="pVivoDose"></div>
@@ -1794,8 +1800,37 @@ function calcDose(){
     '<div class="dzLeg">P = PROGRAMADO · E = EJECUTADO · | META · ¦ TECHO · SERIES EFECTIVAS</div>'
   const dzHTML = regla + lista.map(function(f){return f.html}).join('') + btn
   document.getElementById('pVivoDose').innerHTML = dzHTML
+  try{ if (!P.base && typeof F!=='undefined' && F && F.id && _reqFor!==F.id){ _reqFor=F.id; cargarSolicitudes(F.id) } }catch(_e){}
   const fm=document.getElementById('pFootMsg')
   if(fm) fm.textContent = alerta ? (alerta+' — LA APP ORIENTA, EL COACH PROGRAMA') : 'SE GUARDA AL INSTANTE · LA APP ORIENTA, EL COACH PROGRAMA'
+}
+let _reqFor=null
+async function cargarSolicitudes(socioId){
+  try{
+    const { data } = await sb.from('solicitudes')
+      .select('id, tipo, detalle, estado, created_at, sesion_protocolo_id')
+      .eq('socio_id', socioId).eq('estado','PENDIENTE').order('created_at')
+    const card=document.getElementById('cReqs')
+    if (!card) return
+    if (!data || !data.length){ card.style.display='none'; return }
+    card.style.display='block'
+    document.getElementById('pReqN').textContent = data.length+' PENDIENTE'+(data.length>1?'S':'')
+    const LBL={ADELANTAR:'SOLICITA ADELANTAR',PREVIEW:'SOLICITA VISTA PREVIA',extra:'PIDE SESIÓN EXTRA',postergar:'NO PUEDE UNA SESIÓN'}
+    document.getElementById('pReqs').innerHTML = data.map(function(q){
+      return '<div style="display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid rgba(18,18,16,.06)">'+
+        '<div style="flex:1"><div style="font-size:9px;font-weight:900;letter-spacing:.08em">'+(LBL[q.tipo]||q.tipo.toUpperCase())+'</div>'+
+        '<div style="font-size:8px;font-weight:800;color:#7C7B76">'+(q.detalle||'')+'</div></div>'+
+        '<button class="pAct2 ok" onclick="resolverSolicitud(\''+q.id+'\',\'APROBADA\')">APROBAR</button>'+
+        '<button class="pAct2" onclick="resolverSolicitud(\''+q.id+'\',\'RECHAZADA\')">RECHAZAR</button></div>'
+    }).join('')
+  }catch(_e){}
+}
+async function resolverSolicitud(id, estado){
+  syncEnvio()
+  const r = await sb.from('solicitudes').update({estado:estado, revisado_at:new Date().toISOString()}).eq('id',id)
+  if (r.error){ syncErr(r.error.message); return }
+  syncOk(); toast(estado==='APROBADA'?'Solicitud aprobada — el socio ya lo ve.':'Solicitud rechazada.')
+  if (typeof F!=='undefined' && F && F.id) cargarSolicitudes(F.id)
 }
 let MG={primero:null}
 async function aplicarPrograma(){
