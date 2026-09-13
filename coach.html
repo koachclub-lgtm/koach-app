@@ -155,6 +155,19 @@ input{width:100%;background:rgba(255,255,255,.7);border:1px solid rgba(255,255,2
 .vbar{height:7px;background:rgba(18,18,16,.08);border-radius:5px;position:relative;overflow:hidden}
 .vreal{position:absolute;top:0;left:0;height:100%;border-radius:5px;z-index:2}
 .vproy{position:absolute;top:0;left:0;height:100%;border-radius:5px;opacity:.32}
+.dzRule{display:grid;grid-template-columns:56px 1fr 92px;gap:8px;margin:2px 0 2px}
+.dzScale{position:relative;height:11px;font-size:6.5px;font-weight:900;letter-spacing:.06em;color:#B0AFAA}
+.dzScale s{position:absolute;top:0;text-decoration:none;transform:translateX(-50%)}
+.dzLeg{font-size:6.5px;font-weight:900;letter-spacing:.08em;color:#8B8A85;margin:0 0 9px;text-align:right}
+.dz{display:grid;grid-template-columns:56px 1fr 92px;gap:8px;align-items:center;margin-bottom:9px}
+.dzT{position:relative;height:11px;border-radius:3px;background:rgba(18,18,16,.045)}
+.dzT em{position:absolute;top:-2px;bottom:-2px;width:1px;background:rgba(18,18,16,.13)}
+.dzP{position:absolute;left:0;top:0;height:100%;background:rgba(18,18,16,.16);border-radius:3px}
+.dzR{position:absolute;left:0;top:0;height:100%;border-radius:3px;transition:width .35s}
+.dzO{position:absolute;top:-3px;bottom:-3px;width:2px;background:#121210;border-radius:1px}
+.dzM{position:absolute;top:-3px;bottom:-3px;width:2px;background:#B4442C;opacity:.5;border-radius:1px}
+.dzN{font-size:9px;font-weight:900;text-align:right;line-height:1.45}
+.dzN small{display:block;font-size:6.3px;color:#7C7B76;font-weight:900;letter-spacing:.05em}
 .vv{font-size:6.5px;font-weight:900;text-align:right;color:#7C7B76;line-height:1.5}
 #pTabs{flex-wrap:nowrap;overflow-x:auto;-webkit-overflow-scrolling:touch;padding-bottom:6px}
 #pTabs .mtab{flex-shrink:0;white-space:nowrap;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;position:relative}
@@ -225,7 +238,7 @@ html,button,input,.pv,.mtab,.setChip{touch-action:manipulation}
 </div></div>
 
 <div class="vista" id="vSala">
-  <div class="hbar"><span class="hk" title="c5.8">KOACH</span><span class="rol" id="rolBadge" onclick="salir()">COACH</span></div>
+  <div class="hbar"><span class="hk" title="c5.9">KOACH</span><span class="rol" id="rolBadge" onclick="salir()">COACH</span></div>
   <button class="nuevo" onclick="toggleAlta()">+ NUEVO USUARIO · SOCIO O COACH</button>
   <button class="nuevo" style="background:rgba(255,255,255,.65);color:#121210;border:1.5px solid rgba(18,18,16,.15)" onclick="verBib()">📚 RUTINAS ESTÁNDAR · BIBLIOTECA</button>
   <div class="glass aform" id="fAlta" style="display:none">
@@ -306,7 +319,7 @@ html,button,input,.pv,.mtab,.setChip{touch-action:manipulation}
     <span class="rol" id="pEstado" style="margin-left:auto">BORRADOR</span></div>
   <div class="ssub" id="pMeta">—</div>
   <div class="glass viva" id="pVivo" style="display:none">
-    <h3><span>SEMANA EN VIVO</span><span id="pVivoTit">—</span></h3>
+    <h3><span>DOSIFICADOR POR GRUPO MUSCULAR</span><span id="pVivoTit">—</span></h3>
     <div id="pVivoDose"></div>
   </div>
   <div class="mtabs" id="pTabs"></div>
@@ -447,7 +460,7 @@ function kdNormSesion(sesion){
     ejercicios:(b.ejercicios||[]).map(function(ej){
       const g=(ej.grupo||'').toUpperCase()
       const prof = Object.assign(g?{[g]:1.0}:{}, ej.sinergistas||{})
-      return { grupo:g, sinergistas:prof }
+      return { grupo:g, sinergistas:prof, cuenta_dosis:(ej.cuenta_dosis!==undefined?ej.cuenta_dosis:ej.cuentaDosis) }
     }) } }) }
 }
 function aporteSesion(sesion, bc){
@@ -556,7 +569,7 @@ async function loadSala(){
       let rblo = {data:[]}, robjP = null
       if(sids.length){
         const par = await Promise.all([
-          sb.from('bloques').select('id,sesion_id,bloque,sets, bloque_ejercicios(id, ejercicios(grupo_muscular,sinergistas))').in('sesion_id',sids).order('bloque'),
+          sb.from('bloques').select('id,sesion_id,bloque,sets, bloque_ejercicios(id, ejercicios(grupo_muscular,sinergistas,cuenta_dosis))').in('sesion_id',sids).order('bloque'),
           sb.from('volumen_objetivos').select('*').in('protocolo_id',pids)
         ])
         rblo = par[0]; robjP = par[1]
@@ -567,7 +580,7 @@ async function loadSala(){
             bloques:(rblo.data||[]).filter(function(b){return b.sesion_id===s.id}).map(function(b){
               return {sets:b.sets, ejercicios:(b.bloque_ejercicios||[]).map(function(be){
                 return {grupo:be.ejercicios?be.ejercicios.grupo_muscular:null,
-                        sinergistas:(be.ejercicios&&be.ejercicios.sinergistas)||{}}
+                        sinergistas:(be.ejercicios&&be.ejercicios.sinergistas)||{}, cuenta_dosis:(be.ejercicios?be.ejercicios.cuenta_dosis:null)}
               }).filter(function(e){return e.grupo})} }) } }) } })
       const robj = robjP || {data:[]}
       pids.forEach(function(pid){ C.obj[pid]={}
@@ -780,7 +793,7 @@ async function evaluar(i){
     s.bloques=(rb.data||[]).map(function(b){
       return {sets:b.sets, ejercicios:(b.bloque_ejercicios||[]).map(function(be){
         return {grupo:be.ejercicios?be.ejercicios.grupo_muscular:null,
-                sinergistas:(be.ejercicios&&be.ejercicios.sinergistas)||{}}
+                sinergistas:(be.ejercicios&&be.ejercicios.sinergistas)||{}, cuenta_dosis:(be.ejercicios?be.ejercicios.cuenta_dosis:null)}
       }).filter(function(e){return e.grupo})} })
   }
   const ap=aporteSesion(s)
@@ -1009,7 +1022,7 @@ async function borrarRutinaStd(sesId){
 async function cargarCatalogo(){
   if (EJCAT) return
   const r = await sb.from('ejercicios')
-    .select('id,nombre,grupo_muscular,estimulo,sinergistas,tipo_registro,con_carga,implemento')
+    .select('id,nombre,grupo_muscular,estimulo,sinergistas,tipo_registro,con_carga,implemento,cuenta_dosis')
     .eq('activo', true)
   EJCAT = r.data||[]
   const EQO=['BODYWEIGHT','DUMBBELL','BARBELL','HEX_BAR','KETTLEBELL','MINIBAND','PLATE','BOX','BANCO','CORE_ROLLER','BANDA','CABLE','MACHINE']
@@ -1174,6 +1187,7 @@ async function abrirPlan(pid, proto, opts){
               kg:(be.kg_objetivo!=null?be.kg_objetivo:null), orden:(be.orden!=null?be.orden:null),
               tipoReg:(be.ejercicios&&be.ejercicios.tipo_registro)||null,
               conCarga:(be.ejercicios?be.ejercicios.con_carga:null),
+              cuentaDosis:(be.ejercicios?be.ejercicios.cuenta_dosis:null), activo:(be.ejercicios?be.ejercicios.activo:null),
               reps:(be.reps_txt!=null&&be.reps_txt!==''?be.reps_txt:(be.reps!=null?String(be.reps):'10')) }
           }) } }) } }) }
   const obj = (!esBib && !esBase && F && C.asig[F.id]) ? C.obj[C.asig[F.id].protocolo_id] : null
@@ -1277,7 +1291,7 @@ function pintarPlan(){
       return '<div class="lin" id="pl-'+it.beId+'">'+
         '<div class="linTop">'+
           '<div class="chipG">'+(it.grupo||'—')+'</div>'+
-          '<button class="ejN" onclick="abrirSelector(\'cambiar\','+bi+',\''+it.beId+'\')">'+it.nombre+'<small>'+ultTxt+' · CAMBIAR ⇄</small></button>'+
+          '<button class="ejN" onclick="abrirSelector(\'cambiar\','+bi+',\''+it.beId+'\')">'+it.nombre+'<small>'+ultTxt+(it.activo===false?' · <b style="color:#B4442C">FUERA DE BIBLIOTECA</b>':'')+' · CAMBIAR ⇄</small></button>'+
           '<span class="ehdl" data-ehdl data-bi="'+bi+'">⋮⋮</span>'+
           '<button class="linX" onclick="quitarEj(\''+it.beId+'\')">✕</button>'+
         '</div>'+
@@ -1686,7 +1700,7 @@ async function elegirEj(ejId){
   if(SEL.modo==='cambiar'){
     const x=planItem(SEL.beId); if(!x)return
     x.it.ejId=e.id; x.it.nombre=e.nombre; x.it.grupo=e.grupo_muscular; x.it.sinergistas=e.sinergistas||{}
-    x.it.tipoReg=e.tipo_registro||null; x.it.conCarga=(e.con_carga===true)
+    x.it.tipoReg=e.tipo_registro||null; x.it.conCarga=(e.con_carga===true); x.it.cuentaDosis=(e.cuenta_dosis!==false); x.it.activo=true
     repintarConservando()
     const r=await sb.from('bloque_ejercicios').update({ejercicio_id:e.id}).eq('id',SEL.beId)
     if(r.error)toast('Cambio: '+r.error.message)
@@ -1697,7 +1711,7 @@ async function elegirEj(ejId){
     const nuevoOrd = maxOrd + 1
     const r=await sb.from('bloque_ejercicios').insert({bloque_id:b.id,ejercicio_id:e.id,orden:nuevoOrd,reps_txt:'10'}).select().single()
     if(r.error){ toast('Agregar: '+r.error.message); return }
-    b.items.push({beId:r.data.id,ejId:e.id,nombre:e.nombre,grupo:e.grupo_muscular,sinergistas:e.sinergistas||{},kg:null,reps:'10',orden:nuevoOrd,tipoReg:e.tipo_registro||null,conCarga:(e.con_carga===true)})
+    b.items.push({beId:r.data.id,ejId:e.id,nombre:e.nombre,grupo:e.grupo_muscular,sinergistas:e.sinergistas||{},kg:null,reps:'10',orden:nuevoOrd,tipoReg:e.tipo_registro||null,conCarga:(e.con_carga===true),cuentaDosis:(e.cuenta_dosis!==false),activo:true})
     repintarConservando()
   }
 }
@@ -1710,7 +1724,7 @@ function calcDose(){
   const acum={}
   P.sesiones.forEach(function(s){
     const a=aporteSesion({bloques:s.bloques.map(function(b){
-      return {sets:b.sets,ejercicios:b.items.map(function(it){return {grupo:it.grupo,sinergistas:it.sinergistas}})} })})
+      return {sets:b.sets,ejercicios:b.items.map(function(it){return {grupo:it.grupo, sinergistas:it.sinergistas, cuenta_dosis:it.cuentaDosis}})} })})
     Object.entries(a).forEach(function(p2){ acum[p2[0]]=(acum[p2[0]]||0)+p2[1] })
   })
   const sem = (!P.base && F && C.sems[F.id]) ? C.sems[F.id] : null
@@ -1730,24 +1744,26 @@ function calcDose(){
     ? '<b>PROYECCIÓN DE LA BASE · '+P.sesiones.length+' SESIONES</b>'
     : '<b>'+nH+'/'+P.sesiones.length+' SESIONES · '+pct+'%</b>'
   let alerta = ''
+  // DOSIFICADOR POR GRUPO MUSCULAR · escala única 0|10|20|20+ · programada=base · ejecutada=color
+  const dzPos=function(v){ return v<=20 ? v/20*85 : 85+Math.min((v-20)/6*15,15) }
+  const f1=function(x){ return +(+x).toFixed(1) }
   const filas = Object.keys(universo).map(function(g){
     const o=objetivos[g]||null, v=acum[g]||0, rv=(real[g]||0)
-    let cls='d-meta0', tag='—', prio=4
+    let tag='LIBRE', col='#8B8A85', prio=3
     if (o && o.mev!=null){
-      if(o.mav&&v>o.mav){cls='d-tope';tag='EXCESO';prio=0; if(!alerta) alerta='⚠ '+(SIGLA[g]||g)+' '+(+v.toFixed(1))+'/'+o.mav+' TECHO'}
-      else if(o.mav&&v>=o.mav*0.85){cls='d-alto';tag='ALTO';prio=1}
-      else if(v>=o.mev){cls='d-opt';tag='ÓPTIMO';prio=3}
-      else {cls='d-bajo';tag='BAJO';prio=2}
+      if ((o.mav && rv>o.mav) || (o.mav && v>o.mav)){ tag='SOBRE TECHO'; col='#B4442C'; prio=0
+        if(!alerta) alerta='⚠ '+(SIGLA[g]||g)+' '+f1(Math.max(rv,v))+'/'+o.mav+' TECHO' }
+      else if (rv>=o.mev){ tag='EN DOSIS'; col='#1F9D55'; prio=2 }
+      else { tag='BAJO'; col='#121210'; prio=1 }
     }
-    const base = o ? (o.mav||o.mev*1.6) : Math.max(v, rv, 10)
-    const wR=Math.min(Math.round(rv/base*100),100)
-    const wP=Math.min(Math.round(v/base*100),100)
-    const col=(cls==='d-tope'?'#B4442C':cls==='d-alto'?'#C5A13C':cls==='d-meta0'?'#8B8A85':'#1F9D55')
-    const meta = o ? ('REAL '+(+rv.toFixed(1))+' / '+o.mev) : ('REAL '+(+rv.toFixed(1)))
-    return { g:g, prio:prio, v:v, html:'<div class="vd"><span class="g3">'+(SIGLA[g]||g)+'</span>'+
-      '<div class="vbar"><div class="vproy" style="width:'+wP+'%;background:#121210"></div>'+
-      '<div class="vreal" style="width:'+wR+'%;background:'+col+'"></div></div>'+
-      '<span class="vv">'+meta+'<br>PROY '+(+v.toFixed(1))+' · '+tag+'</span></div>' }
+    const guias='<em style="left:42.5%"></em><em style="left:85%"></em>'
+    const mObj=(o&&o.mev!=null)?'<span class="dzO" style="left:'+dzPos(o.mev)+'%"></span>':''
+    const mMax=(o&&o.mav!=null)?'<span class="dzM" style="left:'+dzPos(o.mav)+'%"></span>':''
+    return { g:g, prio:prio, v:v, html:'<div class="dz"><span class="g3">'+(SIGLA[g]||g)+'</span>'+
+      '<div class="dzT">'+guias+
+        '<div class="dzP" style="width:'+dzPos(v)+'%"></div>'+
+        '<div class="dzR" style="width:'+dzPos(rv)+'%;background:'+col+'"></div>'+mObj+mMax+'</div>'+
+      '<span class="dzN">'+f1(rv)+' · '+f1(v)+'<small style="color:'+col+'">'+tag+(o&&o.mev!=null?' · META '+o.mev:'')+'</small></span></div>' }
   })
   const ORD=['PECHO','ESPALDA','HOMBROS','TRÍCEPS','BÍCEPS','CORE','GLÚTEOS','CUÁDRICEPS','ISQUIOS','PANTORRILLAS','CARDIO','MOVILIDAD']
   filas.sort(function(a,b){
@@ -1758,21 +1774,27 @@ function calcDose(){
   const btn = filas.length>LIM
     ? '<button onclick="P.vivoAll=!P.vivoAll;calcDose()" style="width:100%;border:none;background:none;padding:9px 0 2px;font-size:7px;font-weight:900;letter-spacing:.12em;color:#7C7B76;cursor:pointer">'+
       (P.vivoAll?'▲ VER MENOS':'▼ VER TODOS LOS ESTÍMULOS ('+filas.length+')')+'</button>' : ''
-  document.getElementById('pVivoDose').innerHTML = lista.map(function(f){return f.html}).join('') + btn
+  const regla='<div class="dzRule"><span></span><div class="dzScale">'+
+    '<s style="left:0%">0</s><s style="left:42.5%">10</s><s style="left:85%">20</s><s style="left:100%">20+</s></div><span></span></div>'+
+    '<div class="dzLeg">EJECUTADAS (color) SOBRE PROGRAMADAS (base) · SERIES EFECTIVAS</div>'
+  document.getElementById('pVivoDose').innerHTML = regla + lista.map(function(f){return f.html}).join('') + btn
   const fm=document.getElementById('pFootMsg')
   if(fm) fm.textContent = alerta ? (alerta+' — LA APP ORIENTA, EL COACH PROGRAMA') : 'SE GUARDA AL INSTANTE · LA APP ORIENTA, EL COACH PROGRAMA'
 }
 let MG={primero:null}
 async function aplicarPrograma(){
   // Guardia de prescripción (advertencia, jamás bloqueo) — modal KOACH, no confirm nativo
-  let sinCarga=0; MG.primero=null
+  let sinCarga=0, fueraBib=0; MG.primero=null
   P.sesiones.forEach(function(s,si){ s.bloques.forEach(function(b){ b.items.forEach(function(it){
     const esPeso = it.tipoReg==='WEIGHT_REPS' || (it.tipoReg==null && it.conCarga!==false && !esTiempo(it))
     if (esPeso && it.kg==null){ sinCarga++; if(!MG.primero) MG.primero={tab:si, beId:it.beId} }
+    if (it.activo===false){ fueraBib++; if(!MG.primero) MG.primero={tab:si, beId:it.beId} }
   }) }) })
-  if (sinCarga>0){
-    document.getElementById('mgMsg').textContent =
-      sinCarga+' ejercicio'+(sinCarga===1?' aún no tiene':'s aún no tienen')+' carga inicial definida.'
+  if (sinCarga>0 || fueraBib>0){
+    const partes=[]
+    if (sinCarga>0) partes.push(sinCarga+' ejercicio'+(sinCarga===1?' sin':'s sin')+' carga inicial')
+    if (fueraBib>0) partes.push(fueraBib+' fuera de la biblioteca vigente')
+    document.getElementById('mgMsg').textContent = 'Esta programación contiene: '+partes.join(' · ')+'.'
     document.getElementById('mGuard').style.display='block'
     return
   }
