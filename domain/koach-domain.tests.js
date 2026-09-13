@@ -71,6 +71,11 @@ ok('W=N/A ⇒ N/A', KD.displayPercent(KD.NA,false)===KD.NA)
 ok('projected cap', KD.projectedMuscleCompletion(8,10,12)===1)
 ok('projected T=0 ⇒ N/A', KD.projectedMuscleCompletion(8,10,0)===KD.NA)
 
+/* 22 · cuenta_dosis=false excluye el ejercicio completo de la dosis */
+{ const r=KD.aporteSesionDOC3({bloques:[{sets:4, ejercicios:[{grupo:'CARDIO', cuenta_dosis:false, sinergistas:{'CARDIO':1.0,'HOMBROS':0.25}}]}]})
+  ok('cuenta_dosis=false ⇒ 0 total', Object.keys(r.aporte).length===0) }
+{ const r=KD.aporteSesionDOC3({bloques:[{sets:4, ejercicios:[{grupo:'GLÚTEOS', cuenta_dosis:true, sinergistas:{'GLÚTEOS':1.0}}]}]})
+  ok('cuenta_dosis=true ⇒ cuenta', r.aporte['GLÚTEOS']===4) }
 console.log('════════════════════════════')
 console.log(fail===0 ? 'VERDE · '+n+'/'+n+' tests' : 'ROJO · '+fail+' fallos de '+n)
 process.exit(fail?1:0)
