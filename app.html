@@ -362,7 +362,7 @@ html,button,input,.pvS,.chk,.setChip{touch-action:manipulation}
 
   <!-- ══ HOME ══ -->
   <div class="vista conTab" id="vHome">
-    <div class="hbar"><span class="hk" title="v6.4">KOACH</span><div class="hav" id="hAv" onclick="salir()">K</div></div>
+    <div class="hbar"><span class="hk" title="v6.5">KOACH</span><div class="hav" id="hAv" onclick="salir()">K</div></div>
     <div class="ctx"><div class="fecha" id="hFecha">—</div><div class="prog" id="hProg">—</div></div>
     <div class="anillo">
       <svg width="180" height="180" viewBox="0 0 180 180">
@@ -546,7 +546,7 @@ function kdNormSesion(sesion){
   return { bloques:(sesion.bloques||[]).map(b=>({ sets:b.sets,
     ejercicios:(b.ejercicios||[]).map(ej=>{
       const g=(ej.grupo||'').toUpperCase()
-      return { grupo:g, sinergistas:Object.assign(g?{[g]:1.0}:{}, ej.sinergistas||{}) }
+      return { grupo:g, sinergistas:Object.assign(g?{[g]:1.0}:{}, ej.sinergistas||{}), cuenta_dosis:(ej.cuenta_dosis!==undefined?ej.cuenta_dosis:ej.cuentaDosis) }
     }) })) }
 }
 function aporteSesion(sesion, bloquesCompletados = null){
