@@ -259,7 +259,7 @@ html,button,input,.pv,.mtab,.setChip{touch-action:manipulation}
 </div></div>
 
 <div class="vista" id="vSala">
-  <div class="hbar"><span class="hk" title="c6.3">KOACH</span><span class="rol" id="rolBadge" onclick="salir()">COACH</span></div>
+  <div class="hbar"><span class="hk" title="c6.4">KOACH</span><span class="rol" id="rolBadge" onclick="salir()">COACH</span></div>
   <button class="nuevo" onclick="toggleAlta()">+ NUEVO USUARIO · SOCIO O COACH</button>
   <button class="nuevo" style="background:rgba(255,255,255,.65);color:#121210;border:1.5px solid rgba(18,18,16,.15)" onclick="verBib()">📚 RUTINAS ESTÁNDAR · BIBLIOTECA</button>
   <div class="glass aform" id="fAlta" style="display:none">
@@ -445,7 +445,7 @@ html,button,input,.pv,.mtab,.setChip{touch-action:manipulation}
 </div>
 
 <!-- ORGANIZADOR SEMANAL -->
-<div class="modal" id="mOrg"><div class="mcard" style="max-width:440px;max-height:86vh;overflow:auto">
+<div id="mOrg" style="display:none;position:fixed;inset:0;z-index:72;background:rgba(18,18,16,.45);backdrop-filter:blur(6px)"><div style="position:absolute;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:560px;background:#F3F2EF;border-radius:24px 24px 0 0;padding:18px 16px 22px;max-height:86vh;overflow:auto">
   <div style="font-size:8px;letter-spacing:.18em;font-weight:900;color:#7C7B76">ORGANIZADOR SEMANAL</div>
   <div id="orgCtx" style="font-size:12px;font-weight:900;letter-spacing:.1em;margin:4px 0 14px">—</div>
   <div id="orgLista"></div>
@@ -456,10 +456,43 @@ html,button,input,.pv,.mtab,.setChip{touch-action:manipulation}
   </div>
 </div></div>
 <!-- BIBLIOTECA DE SESIONES (picker del organizador) -->
-<div class="modal" id="mBibOrg"><div class="mcard" style="max-width:420px;max-height:80vh;overflow:auto">
+<div id="mBibOrg" style="display:none;position:fixed;inset:0;z-index:74;background:rgba(18,18,16,.45);backdrop-filter:blur(6px)"><div style="position:absolute;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:560px;background:#F3F2EF;border-radius:24px 24px 0 0;padding:18px 16px 22px;max-height:86vh;overflow:auto">
   <div style="font-size:8px;letter-spacing:.18em;font-weight:900;color:#7C7B76;margin-bottom:12px">BIBLIOTECA DE SESIONES</div>
   <div id="bibOrgLista"><div class="vacio">Cargando…</div></div>
   <button class="bbtn" onclick="document.getElementById('mBibOrg').style.display='none'" style="width:100%;margin-top:12px">CERRAR</button>
+</div></div>
+<!-- CHOOSER AGREGAR BLOQUE -->
+<div id="mAddBloque" style="display:none;position:fixed;inset:0;z-index:73;background:rgba(18,18,16,.45);backdrop-filter:blur(6px)"><div style="position:absolute;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:560px;background:#F3F2EF;border-radius:24px 24px 0 0;padding:18px 16px 22px;max-height:86vh;overflow:auto">
+  <div style="font-size:8px;letter-spacing:.18em;font-weight:900;color:#7C7B76;margin-bottom:14px">AGREGAR BLOQUE</div>
+  <button class="opRow" onclick="document.getElementById('mAddBloque').style.display='none';abrirBloqueCero()">✏️ DISEÑAR DESDE CERO</button>
+  <button class="opRow" onclick="document.getElementById('mAddBloque').style.display='none';abrirBibBloq()">📦 USAR BLOQUE PREDISEÑADO</button>
+  <button class="bbtn" onclick="document.getElementById('mAddBloque').style.display='none'" style="width:100%;margin-top:14px">CANCELAR</button>
+</div></div>
+<!-- BIBLIOTECA DE BLOQUES -->
+<div id="mBibBloq" style="display:none;position:fixed;inset:0;z-index:74;background:rgba(18,18,16,.45);backdrop-filter:blur(6px)"><div style="position:absolute;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:560px;background:#F3F2EF;border-radius:24px 24px 0 0;padding:18px 16px 22px;max-height:86vh;overflow:auto">
+  <div style="font-size:8px;letter-spacing:.18em;font-weight:900;color:#7C7B76;margin-bottom:12px">BIBLIOTECA DE BLOQUES</div>
+  <div id="bibBloqLista"><div class="vacio">Cargando…</div></div>
+  <div id="bibBloqPrev" style="display:none"></div>
+  <button class="bbtn" onclick="document.getElementById('mBibBloq').style.display='none'" style="width:100%;margin-top:12px">CERRAR</button>
+</div></div>
+<!-- ORGANIZADOR DE BLOQUES -->
+<div id="mOrgB" style="display:none;position:fixed;inset:0;z-index:73;background:rgba(18,18,16,.45);backdrop-filter:blur(6px)"><div style="position:absolute;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:560px;background:#F3F2EF;border-radius:24px 24px 0 0;padding:18px 16px 22px;max-height:86vh;overflow:auto">
+  <div style="font-size:8px;letter-spacing:.18em;font-weight:900;color:#7C7B76">ORGANIZAR BLOQUES</div>
+  <div id="orgBCtx" style="font-size:12px;font-weight:900;letter-spacing:.1em;margin:4px 0 14px">—</div>
+  <div id="orgBLista"></div>
+  <div style="display:flex;gap:10px;margin-top:16px">
+    <button class="bbtn" onclick="document.getElementById('mOrgB').style.display='none'" style="flex:1">CANCELAR</button>
+    <button class="bbtn ink" onclick="guardarOrdenBloques()" style="flex:1.4">GUARDAR ORDEN</button>
+  </div>
+</div></div>
+<!-- MODAL GUARDAR COMO PREDISEÑADO -->
+<div id="mTplSave" style="display:none;position:fixed;inset:0;z-index:75;background:rgba(18,18,16,.45);backdrop-filter:blur(6px)"><div style="position:absolute;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:560px;background:#F3F2EF;border-radius:24px 24px 0 0;padding:18px 16px 22px;max-height:86vh;overflow:auto">
+  <div style="font-size:8px;letter-spacing:.18em;font-weight:900;color:#7C7B76;margin-bottom:12px">GUARDAR COMO BLOQUE PREDISEÑADO</div>
+  <input id="tplNom" placeholder="Nombre (ej: GLUTES HIP THRUST 01)" style="width:100%;border:1.5px solid rgba(18,18,16,.14);border-radius:12px;padding:13px;font-size:12px;font-weight:800;background:none;margin-bottom:14px">
+  <div style="display:flex;gap:10px">
+    <button class="bbtn" onclick="document.getElementById('mTplSave').style.display='none'" style="flex:1">CANCELAR</button>
+    <button class="bbtn ink" onclick="confirmarTpl()" style="flex:1.4">GUARDAR</button>
+  </div>
 </div></div>
 <!-- MODAL NUEVA RUTINA ESTÁNDAR -->
 <div id="mRut" style="display:none;position:fixed;inset:0;z-index:70;background:rgba(18,18,16,.45);backdrop-filter:blur(6px)">
@@ -1343,18 +1376,19 @@ function pintarPlan(){
         '<div class="linRx">'+controles+'</div>'+
       '</div>'
     }).join('')+
-    '<button class="addEj" onclick="abrirSelector(\'agregar\','+bi+',null)">+ EJERCICIO</button></div>'
+    '<button class="addEj" onclick="abrirSelector(\'agregar\','+bi+',null)">+ EJERCICIO</button>'+'<button class="addEj" style="opacity:.7" onclick="abrirTplSave('+bi+')">★ GUARDAR COMO PREDISEÑADO</button></div>'
   }).join('')
   document.getElementById('pBloques').innerHTML =
     (ses.bloques.length ? htmlBloques
       : '<div class="glass emptySes"><h4>'+(ses.nombre||'SESIÓN')+' · SESIÓN VACÍA</h4>'+
         '<p>Aún no hay bloques en esta sesión.<br>Constrúyela agregando su primer bloque.</p></div>')+
-    (ses.bloques.length<6 ? '<button class="addBloque" onclick="abrirBloque()">+ AGREGAR BLOQUE</button>' : '')
+    (ses.bloques.length<6 ? '<button class="addBloque" onclick="abrirBloque()">+ AGREGAR BLOQUE</button>' : '') +
+    (ses.bloques.length>1 ? '<button class="addBloque" style="margin-top:8px;opacity:.85" onclick="abrirOrgBloques()">⇅ REORGANIZAR BLOQUES</button>' : '')
   calcDose()
 }
 const TIPOS_BLOQUE=[['ACTIVACIÓN','activacion'],['PRINCIPAL','fuerza_principal'],['ACCESORIO','cierre_accesorio'],['CORE','cierre_accesorio'],['FINISHER','cierre_accesorio'],['CARDIO','cierre_accesorio'],['MOVILIDAD','activacion'],['METABÓLICO','fuerza_principal']]
 let MB={tipo:0,sets:3,desc:60}
-function abrirBloque(){
+function abrirBloqueCero(){
   MB={tipo:1,sets:3,desc:60}
   document.getElementById('mbSets').textContent='3'
   document.getElementById('mbDesc').textContent='60'
@@ -1835,6 +1869,174 @@ function calcDose(){
   if(fm) fm.textContent = alerta ? (alerta+' — LA APP ORIENTA, EL COACH PROGRAMA') : 'SE GUARDA AL INSTANTE · LA APP ORIENTA, EL COACH PROGRAMA'
 }
 // ═══ ORGANIZADOR SEMANAL (playlist) ═══
+const CONT_BLOQUES='7184a0bc-a107-42dc-89b7-951f7cfd2909'
+function abrirBloque(){ document.getElementById('mAddBloque').style.display='block' }
+async function abrirBibBloq(){
+  document.getElementById('mBibBloq').style.display='block'
+  document.getElementById('bibBloqPrev').style.display='none'
+  const el=document.getElementById('bibBloqLista'); el.style.display='block'; el.innerHTML='<div class="vacio">Cargando…</div>'
+  try{
+    const r=await sb.from('bloques').select('id, bloque, etiqueta, sets, bloque_ejercicios(id)')
+      .eq('sesion_id', CONT_BLOQUES).order('bloque')
+    const ts=(r.data||[])
+    el.innerHTML = ts.length ? ts.map(function(t){
+      const n=(t.bloque_ejercicios||[]).length
+      return '<div style="display:flex;align-items:center;gap:10px;padding:12px 0;border-bottom:1px solid rgba(18,18,16,.06)">'+
+        '<div style="flex:1"><div style="font-size:11px;font-weight:900;letter-spacing:.1em">'+(t.etiqueta||t.bloque)+'</div>'+
+        '<div style="font-size:8px;font-weight:800;color:#7C7B76">'+(n? n+' EJERCICIOS · '+t.sets+' SETS' : 'POR DEFINIR — sin ejercicios aún')+'</div></div>'+
+        '<button class="bbtn ink" style="padding:8px 12px" onclick="verTpl(\''+t.id+'\')">VER →</button></div>'
+    }).join('') : '<div class="vacio">Sin bloques prediseñados aún.</div>'
+  }catch(e){ el.innerHTML='<div class="vacio">No pudimos cargar la biblioteca.</div>' }
+}
+async function verTpl(tplId){
+  const prev=document.getElementById('bibBloqPrev')
+  document.getElementById('bibBloqLista').style.display='none'
+  prev.style.display='block'; prev.innerHTML='<div class="vacio">Cargando…</div>'
+  try{
+    const rt=await sb.from('bloques').select('id, etiqueta, rol, sets, descanso_seg, descanso_segundos').eq('id',tplId).single()
+    const rb=await sb.from('bloque_ejercicios').select('ejercicio_id, orden, reps_txt, duracion_seg, kg_objetivo, ejercicios(nombre, activo)').eq('bloque_id',tplId).order('orden')
+    const bes=rb.data||[]
+    const revisar=bes.some(function(x){return x.ejercicios && x.ejercicios.activo===false})
+    prev.innerHTML='<div style="font-size:12px;font-weight:900;letter-spacing:.1em;margin-bottom:8px">'+(rt.data.etiqueta||'BLOQUE')+'</div>'+
+      (revisar?'<div style="font-size:8px;font-weight:900;color:#B4442C;margin-bottom:8px">⚠ CONTIENE EJERCICIOS FUERA DE BIBLIOTECA — REQUIERE REVISIÓN</div>':'')+
+      (bes.length? bes.map(function(x){
+        return '<div style="display:flex;justify-content:space-between;font-size:9px;font-weight:800;color:#5A5954;padding:3px 0"><span>'+((x.ejercicios&&x.ejercicios.nombre)||'—')+(x.ejercicios&&x.ejercicios.activo===false?' <b style="color:#B4442C">✕</b>':'')+'</span><span>'+(x.duracion_seg?x.duracion_seg+'"':(x.reps_txt||''))+'</span></div>'
+      }).join('') : '<div class="vacio">Plantilla vacía — pendiente de contenido.</div>')+
+      '<div style="display:flex;gap:10px;margin-top:14px">'+
+      '<button class="bbtn" onclick="abrirBibBloq()" style="flex:1">← VOLVER</button>'+
+      (bes.length? '<button class="bbtn ink" style="flex:1.4" onclick="clonarTpl(\''+tplId+'\')">AGREGAR A SESIÓN</button>' : '')+'</div>'
+  }catch(e){ prev.innerHTML='<div class="vacio">Error al cargar la plantilla.</div>' }
+}
+async function clonarTpl(tplId){
+  const ses=P.sesiones[P.tab]
+  if (!ses){ toast('Abre una sesión primero.'); return }
+  if (ses.bloques.length>=6){ toast('Máximo 6 bloques por sesión.'); return }
+  syncEnvio()
+  try{
+    const rt=await sb.from('bloques').select('etiqueta, rol, sets, descanso_seg, descanso_segundos').eq('id',tplId).single()
+    const t=rt.data
+    const n=ses.bloques.length+1
+    const rNew=await insertarBloque(ses.id, 'B'+n, t.etiqueta, t.rol, t.sets, (t.descanso_seg!=null?t.descanso_seg:t.descanso_segundos)||60)
+    if (rNew.error) throw rNew.error
+    const nb=rNew.data
+    const rb=await sb.from('bloque_ejercicios').select('ejercicio_id, orden, reps_txt, duracion_seg, kg_objetivo').eq('bloque_id',tplId).order('orden')
+    const filas=(rb.data||[]).map(function(x){ return { bloque_id:nb.id, ejercicio_id:x.ejercicio_id,
+      orden:x.orden, reps_txt:x.reps_txt, duracion_seg:x.duracion_seg, kg_objetivo:x.kg_objetivo } })
+    let besIns=[]
+    if (filas.length){
+      const ri=await sb.from('bloque_ejercicios').insert(filas).select('*, ejercicios(*)')
+      if (ri.error) throw ri.error
+      besIns=ri.data||[]
+    }
+    ses.bloques.push({ bId:nb.id, tipo:'B'+n, etiqueta:t.etiqueta, sets:t.sets,
+      desc:(t.descanso_seg!=null?t.descanso_seg:t.descanso_segundos)||60,
+      items:besIns.map(function(be){ return { beId:be.id, ejId:be.ejercicio_id,
+        nombre:(be.ejercicios&&be.ejercicios.nombre)||'—', grupo:(be.ejercicios&&be.ejercicios.grupo_muscular)||'',
+        sinergistas:(be.ejercicios&&be.ejercicios.sinergistas)||{}, kg:(be.kg_objetivo!=null?be.kg_objetivo:null),
+        orden:(be.orden!=null?be.orden:null), tipoReg:(be.ejercicios&&be.ejercicios.tipo_registro)||null,
+        conCarga:(be.ejercicios?be.ejercicios.con_carga:null), cuentaDosis:(be.ejercicios?be.ejercicios.cuenta_dosis:null),
+        activo:(be.ejercicios?be.ejercicios.activo:null),
+        reps:(be.reps_txt!=null&&be.reps_txt!==''?be.reps_txt:'10') } }) })
+    syncOk()
+    document.getElementById('mBibBloq').style.display='none'
+    repintarConservando(); calcDose()
+    toast('Bloque agregado desde plantilla — ajústalo a tu socio.')
+  }catch(e){ syncErr(String(e&&e.message||e)); toast('No se pudo clonar el bloque.') }
+}
+let TPL={bi:null}
+function abrirTplSave(bi){ TPL.bi=bi; document.getElementById('tplNom').value=''; document.getElementById('mTplSave').style.display='block' }
+async function confirmarTpl(){
+  const nom=(document.getElementById('tplNom').value||'').trim().toUpperCase()
+  if (!nom){ toast('Ponle un nombre al bloque.'); return }
+  const b=P.sesiones[P.tab] && P.sesiones[P.tab].bloques[TPL.bi]
+  if (!b){ return }
+  syncEnvio()
+  try{
+    const rc=await sb.from('bloques').select('bloque').eq('sesion_id',CONT_BLOQUES)
+    const usados=(rc.data||[]).map(function(x){return x.bloque})
+    let code=null
+    for (var i=1;i<=6;i++){ if (usados.indexOf('B'+i)===-1){ code='B'+i; break } }
+    if (!code){ toast('La biblioteca de bloques está llena (máx 6 por ahora).'); syncOk(); return }
+    const rNew=await insertarBloque(CONT_BLOQUES, code, nom, 'fuerza_principal', b.sets, b.desc||60)
+    if (rNew.error) throw rNew.error
+    const filas=b.items.map(function(it,ix){ return { bloque_id:rNew.data.id, ejercicio_id:it.ejId,
+      orden:(it.orden!=null?it.orden:ix+1), reps_txt:it.reps, kg_objetivo:(it.kg!=null?it.kg:null) } })
+    if (filas.length){ const ri=await sb.from('bloque_ejercicios').insert(filas); if (ri.error) throw ri.error }
+    syncOk(); document.getElementById('mTplSave').style.display='none'
+    toast('★ Guardado como bloque prediseñado.')
+  }catch(e){ syncErr(String(e&&e.message||e)); toast('No se pudo guardar la plantilla.') }
+}
+// ═══ ORGANIZADOR DE BLOQUES (nivel 2 de la playlist) ═══
+const OB={orden:[], bloqueado:false}
+async function abrirOrgBloques(){
+  const ses=P.sesiones[P.tab]; if(!ses) return
+  if (!P.base){
+    try{
+      const r=await sb.from('sesiones_registro').select('id').eq('sesion_protocolo_id',ses.id).limit(1)
+      if (r.data && r.data.length){ toast('Esta sesión ya tiene historia — su orden de bloques no se reescribe.'); return }
+    }catch(_e){}
+  }
+  OB.orden = ses.bloques.map(function(b){return b.bId})
+  document.getElementById('orgBCtx').textContent = (ses.nombre||'SESIÓN').toUpperCase()
+  pintarOrgB()
+  document.getElementById('mOrgB').style.display='block'
+}
+function pintarOrgB(){
+  const ses=P.sesiones[P.tab]
+  const por={}; ses.bloques.forEach(function(b){por[b.bId]=b})
+  document.getElementById('orgBLista').innerHTML = OB.orden.map(function(id,i){
+    const b=por[id]; if(!b) return ''
+    return '<div class="ocard" data-obid="'+id+'">'+
+      '<span class="oNum">'+String(i+1).padStart(2,'0')+'</span>'+
+      '<div><div class="oNom">'+(b.etiqueta?String(b.etiqueta).toUpperCase():('BLOQUE '+(i+1)))+'</div>'+
+      '<div class="oFoco">'+b.items.length+' EJERCICIOS · '+b.sets+' SETS</div></div>'+
+      '<div class="oCtl"><button class="oUD" onclick="obMove(\''+id+'\',-1)">▲</button>'+
+      '<button class="oUD" onclick="obMove(\''+id+'\',1)">▼</button>'+
+      '<span class="oHdl" data-obhdl>⠿</span></div></div>'
+  }).join('')
+}
+function obMove(id,dir){
+  const i=OB.orden.indexOf(id); const j=i+dir
+  if (i<0||j<0||j>=OB.orden.length) return
+  OB.orden[i]=OB.orden[j]; OB.orden[j]=id
+  if(navigator.vibrate)navigator.vibrate(8)
+  pintarOrgB()
+}
+function validarReordenBloques(ids, bloques){
+  if (ids.length!==bloques.length) return {ok:false, err:'FALTAN O SOBRAN BLOQUES'}
+  const set={}, base={}; bloques.forEach(function(b){base[b.bId]=1})
+  for (var i=0;i<ids.length;i++){
+    if (set[ids[i]]) return {ok:false, err:'ID DUPLICADO'}
+    set[ids[i]]=1
+    if (!base[ids[i]]) return {ok:false, err:'BLOQUE DE OTRA SESIÓN'}
+  }
+  return {ok:true}
+}
+async function guardarOrdenBloques(){
+  const ses=P.sesiones[P.tab]
+  const v=validarReordenBloques(OB.orden, ses.bloques)
+  if (!v.ok){ toast('No se guardó: '+v.err); return }
+  syncEnvio()
+  for (var i=0;i<OB.orden.length;i++){
+    const b=ses.bloques.find(function(x){return x.bId===OB.orden[i]})
+    if (b && b.tipo!=='B'+(i+1)){
+      const r=await sb.from('bloques').update({bloque:'B'+(i+1)}).eq('id',b.bId)
+      if (r.error){ syncErr(r.error.message); toast('Error al guardar el orden.'); return }
+      b.tipo='B'+(i+1)
+    }
+  }
+  ses.bloques.sort(function(a,b2){ return OB.orden.indexOf(a.bId)-OB.orden.indexOf(b2.bId) })
+  syncOk(); document.getElementById('mOrgB').style.display='none'
+  repintarConservando(); calcDose()
+  toast('Orden de bloques guardado.')
+}
+document.addEventListener('pointerdown',function(e){
+  const hd=e.target.closest('[data-obhdl]'); if(!hd)return
+  const card=hd.closest('.ocard'); if(!card)return
+  e.preventDefault()
+  DO.el=card; DO.pid=e.pointerId; DO.activo=false; DO.y0=e.clientY; DO.modo='B'
+  try{card.setPointerCapture(DO.pid)}catch(_){ }
+})
 const ORG={orden:[], fijas:{}, dirty:false}
 function esFijaIdx(i){ return !!ORG.fijas[ORG.orden[i]] }
 function lunesISO(){ const d=new Date(); const dw=(d.getDay()+6)%7; d.setDate(d.getDate()-dw); return d.toISOString().split('T')[0] }
@@ -1916,6 +2118,11 @@ document.addEventListener('pointerup',function(){
   DO.el=null; DO.activo=false
   if(!fue)return
   const cont=document.getElementById('orgLista')
+  if (DO.modo==='B'){
+    const contB=document.getElementById('orgBLista')
+    OB.orden=[].slice.call(contB.querySelectorAll('.ocard')).map(function(x){return x.dataset.obid})
+    DO.modo=null; pintarOrgB(); return
+  }
   ORG.orden=[].slice.call(cont.querySelectorAll('.ocard')).map(function(x){return x.dataset.oid})
   ORG.dirty=true
   pintarOrg()
@@ -1964,7 +2171,7 @@ async function abrirBibOrg(){
   try{
     const bp = await bibProto()
     const rs = await sb.from('sesiones_protocolo').select('id, nombre, objetivo').eq('protocolo_id',bp.id).order('numero')
-    const ses = rs.data||[]
+    const ses = (rs.data||[]).filter(function(s){return s.nombre!=='CONTENEDOR DE BLOQUES'})
     el.innerHTML = ses.length ? ses.map(function(s){
       return '<div style="display:flex;align-items:center;gap:10px;padding:11px 0;border-bottom:1px solid rgba(18,18,16,.06)">'+
         '<div style="flex:1"><div style="font-size:10px;font-weight:900;letter-spacing:.08em">'+(s.nombre||s.objetivo||'SESIÓN')+'</div></div>'+
