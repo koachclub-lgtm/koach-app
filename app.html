@@ -105,6 +105,12 @@ html,body{background:linear-gradient(170deg,#F3F2EF 0%,#E7E6E2 55%,#DAD9D4 100%)
 .pActRow{display:flex;gap:8px;justify-content:flex-end;margin:-4px 4px 12px;flex-wrap:wrap}
 .pAct{background:rgba(242,241,239,.1);border:1px solid rgba(242,241,239,.18);color:#F2F1EF;border-radius:11px;padding:7px 11px;font-size:8px;font-weight:900;letter-spacing:.1em;cursor:pointer}
 .pAct.sec{background:none;border-color:rgba(242,241,239,.12);color:#BEBDB8}
+.calG{display:grid;grid-template-columns:repeat(7,1fr);gap:4px}
+.calH{font-size:6px;font-weight:900;letter-spacing:.08em;color:#8B8A85;text-align:center;padding:2px 0}
+.calD{aspect-ratio:1;border-radius:8px;background:rgba(242,241,239,.04);display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:7px;font-weight:800;color:#8B8A85}
+.calD.on{background:rgba(242,241,239,.12);color:#F2F1EF;cursor:pointer}
+.calD.on small{font-size:5px;font-weight:900;letter-spacing:.03em;color:#BEBDB8;margin-top:1px;overflow:hidden;max-width:100%}
+.calD.parc{outline:1px dashed rgba(242,241,239,.3)}
 .row .v.si{color:#F2F1EF}
 .row .v{font-size:8px;font-weight:900;text-align:right;color:var(--suave)}
 .row .v.si{color:var(--ok)}
@@ -369,7 +375,7 @@ html,button,input,.pvS,.chk,.setChip{touch-action:manipulation}
 
   <!-- ══ HOME ══ -->
   <div class="vista conTab" id="vHome">
-    <div class="hbar"><span class="hk" title="v7.2">KOACH</span><div class="hav" id="hAv" onclick="salir()">K</div></div>
+    <div class="hbar"><span class="hk" title="v7.3">KOACH</span><div class="hav" id="hAv" onclick="salir()">K</div></div>
     <div class="ctx"><div class="fecha" id="hFecha">—</div><div class="prog" id="hProg">—</div></div>
     <div class="anillo">
       <svg width="180" height="180" viewBox="0 0 180 180">
@@ -405,6 +411,7 @@ html,button,input,.pvS,.chk,.setChip{touch-action:manipulation}
     <div id="pDet" style="display:none;margin-bottom:16px"><div class="rows" id="pDetRows"></div></div>
     <div style="font-size:8px;font-weight:900;letter-spacing:.18em;color:#8B8A85;margin:4px 0 10px">ESTA SEMANA</div>
     <div id="pLista"></div>
+    <div id="pNextSem"></div>
     <div id="pPrev"></div>
     <button id="pPrevBtn" onclick="verSemanaAnterior()" style="width:100%;background:none;border:1px solid rgba(242,241,239,.14);border-radius:12px;padding:11px;font-size:8px;font-weight:900;letter-spacing:.12em;color:#BEBDB8;cursor:pointer;margin:4px 0 10px">VER SEMANA ANTERIOR →</button>
     <div class="nota">LAS SESIONES SE DESBLOQUEAN EN ORDEN · TU COACH AJUSTA EL PROGRAMA</div>
@@ -420,6 +427,14 @@ html,button,input,.pvS,.chk,.setChip{touch-action:manipulation}
     </div>
     <div class="glass panel hst">
       <h3><span>HISTORIAL DE SESIONES</span><span>LO REALIZADO</span></h3>
+      <div class="glass" style="padding:14px;margin-bottom:14px">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+          <button onclick="pintarCalendario((S._calOff||0)+1)" style="background:none;border:none;color:#BEBDB8;font-size:13px;cursor:pointer">‹</button>
+          <div id="calTit" style="font-size:9px;font-weight:900;letter-spacing:.18em">—</div>
+          <button onclick="pintarCalendario(Math.max((S._calOff||0)-1,0))" style="background:none;border:none;color:#BEBDB8;font-size:13px;cursor:pointer">›</button>
+        </div>
+        <div class="calG" id="calGrid"></div>
+      </div>
       <div id="aHist" class="vacio">Cargando…</div>
     </div>
     <div class="glass panel">
@@ -580,6 +595,7 @@ function aporteSesion(sesion, bloquesCompletados = null){
   return KD.aporteSesionDOC3(kdNormSesion(sesion), bloquesCompletados).aporte
 }
 function calcularSemana(programa, registros, objetivos){
+  const sesSem = programa.sesiones.filter(s=>((s.semana||1)===(S.semanaActual||1)))
   const acum = {}
   Object.keys(objetivos).forEach(g=>acum[g]=0)
   const validos = registros.filter(r=>ESTADOS_OK.includes(r.estado))
@@ -599,7 +615,7 @@ function calcularSemana(programa, registros, objetivos){
   const _svc = KD.strengthVolumeCompletion(ex.map(m=>({muscle:m.grupo, aligned:m.series, target:m.objetivo})))
   const pct_dosis = (_svc.value===KD.NA) ? 0 : Math.floor(_svc.value*100)
   const hechas = new Set(validos.filter(r=>r.estado!=='incompleta').map(r=>r.sesion_numero))
-  const prox = programa.sesiones.find(s=>!hechas.has(s.numero)) || null
+  const prox = sesSem.find(s=>!hechas.has(s.numero)) || null
   let proxima = null
   if (prox){
     const ap = aporteSesion(prox)
@@ -726,6 +742,7 @@ async function entrar(){
       .eq('socio_id', perfil.id).eq('activo', true).limit(1).maybeSingle()
     if (!asig){ sinPrograma(); return }
     S.asig = asig; S.proto = asig.protocolos
+    S.semanaActual = (asig && asig.semana_actual) || 1
 
     const { data: sesiones } = await sb.from('sesiones_protocolo').select('*')
       .eq('protocolo_id', S.proto.id).lte('numero',6).order('numero')
@@ -1745,7 +1762,7 @@ function pintarPlan(){
     `Esta semana llevas el <b>${S.sem.pct_dosis}%</b> de tu dosis · <b>${S.sem.fortalecidos} de ${S.sem.exigibles} músculos</b> fortalecidos.`
   const proxNum = S.sem?.proxima?.numero
   const porNum = {}; S.registros.forEach(r=>porNum[r.sesion_numero]=r)
-  document.getElementById('pLista').innerHTML = S.programa.sesiones.map(s=>{
+  document.getElementById('pLista').innerHTML = S.programa.sesiones.filter(s=>((s.semana||1)===(S.semanaActual||1))).map(s=>{
     const hecha = hechas.has(s.numero)
     const prox = s.numero===proxNum && !S.sem.completa
     const lock = !hecha && !prox
@@ -1793,6 +1810,14 @@ function pintarPlan(){
         style="background:none;border:none;font-size:8px;letter-spacing:.1em;color:var(--suave);font-weight:900;
         text-decoration:underline;cursor:pointer">NO PUEDO ESTA SESIÓN — AVISAR A MI COACH</button></div>` : '')
   }).join('')
+  const wAct=(S.semanaActual||1)
+  const nextSes=S.programa.sesiones.filter(s=>((s.semana||1)===wAct+1))
+  document.getElementById('pNextSem').innerHTML = nextSes.length
+    ? '<div style="font-size:8px;font-weight:900;letter-spacing:.18em;color:#8B8A85;margin:16px 0 10px">PRÓXIMA SEMANA</div>'+
+      nextSes.map(s=>'<div class="glass pcard lock" style="opacity:.75"><div class="pnum">'+(s.numero)+'</div>'+
+        '<div><div class="pn2">'+s.nombre+'</div><div class="pm2">SE ACTIVA AL CERRAR TU SEMANA ACTUAL</div></div>'+
+        '<span class="pest lock">PRÓXIMAMENTE</span></div>').join('')
+    : ''
 }
 
 function togglePDet(){
@@ -1801,6 +1826,45 @@ function togglePDet(){
   d.style.display=abre?'block':'none'
   b.textContent=abre?'OCULTAR DETALLE SEMANAL ▴':'VER DETALLE SEMANAL ▾'
   if (abre) pintarFilasMusc('pDetRows')
+}
+async function pintarCalendario(off){
+  S._calOff = off||0
+  const hoy=new Date(); const ref=new Date(hoy.getFullYear(), hoy.getMonth()-S._calOff, 1)
+  const y=ref.getFullYear(), m=ref.getMonth()
+  const MESES=['ENERO','FEBRERO','MARZO','ABRIL','MAYO','JUNIO','JULIO','AGOSTO','SEPTIEMBRE','OCTUBRE','NOVIEMBRE','DICIEMBRE']
+  document.getElementById('calTit').textContent = MESES[m]+' '+y
+  const d1=new Date(y,m,1).toISOString().split('T')[0]
+  const d2=new Date(y,m+1,1).toISOString().split('T')[0]
+  let regs=[]
+  try{
+    const { data } = await sb.from('sesiones_registro')
+      .select('id, fecha, estado, sesion_protocolo_id').eq('socio_id', S.perfil.id)
+      .gte('fecha', d1).lt('fecha', d2)
+    regs=data||[]
+  }catch(_e){}
+  const spIds=[...new Set(regs.map(r=>r.sesion_protocolo_id))]
+  const nom={}
+  ;(S.programa&&S.programa.sesiones||[]).forEach(s=>nom[s.id]=s.nombre)
+  const faltan=spIds.filter(x=>!nom[x])
+  if (faltan.length){
+    try{ const { data: sps } = await sb.from('sesiones_protocolo').select('id, objetivo').in('id', faltan)
+      ;(sps||[]).forEach(x=>nom[x.id]=nombreEN(x.objetivo)||'SESIÓN') }catch(_e){}
+  }
+  const porDia={}
+  regs.forEach(r=>{ const d=parseInt(r.fecha.split('-')[2],10); porDia[d]=r })
+  const primerDow=(new Date(y,m,1).getDay()+6)%7
+  const dias=new Date(y,m+1,0).getDate()
+  let html=['LU','MA','MI','JU','VI','SÁ','DO'].map(d=>'<div class="calH">'+d+'</div>').join('')
+  for (let i=0;i<primerDow;i++) html+='<div></div>'
+  for (let d=1;d<=dias;d++){
+    const r=porDia[d]
+    if (r){
+      const parc=r.estado==='incompleta'
+      const corto=(nom[r.sesion_protocolo_id]||'SES').split(' ')[0].slice(0,5).toUpperCase()
+      html+='<div class="calD on '+(parc?'parc':'')+'" onclick="verHist(\''+r.id+'\')">'+d+'<small>'+corto+'</small></div>'
+    } else html+='<div class="calD">'+d+'</div>'
+  }
+  document.getElementById('calGrid').innerHTML=html
 }
 async function verSemanaAnterior(){
   S._semOff=(S._semOff||0)+1
@@ -1874,6 +1938,7 @@ function verPreview(num){
   document.getElementById('oPrev').style.display='flex'
 }
 async function loadAvances(){
+  pintarCalendario(S._calOff||0)
   document.getElementById('aSem').textContent = S.sem ? `${S.sem.fortalecidos}/${S.sem.exigibles}` : '—'
   try{
     const { count } = await sb.from('sesiones_registro').select('id',{count:'exact',head:true})
