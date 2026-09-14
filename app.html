@@ -375,7 +375,7 @@ html,button,input,.pvS,.chk,.setChip{touch-action:manipulation}
 
   <!-- ══ HOME ══ -->
   <div class="vista conTab" id="vHome">
-    <div class="hbar"><span class="hk" title="v7.3">KOACH</span><div class="hav" id="hAv" onclick="salir()">K</div></div>
+    <div class="hbar"><span class="hk" title="v7.3.1">KOACH</span><div class="hav" id="hAv" onclick="salir()">K</div></div>
     <div class="ctx"><div class="fecha" id="hFecha">—</div><div class="prog" id="hProg">—</div></div>
     <div class="anillo">
       <svg width="180" height="180" viewBox="0 0 180 180">
@@ -750,12 +750,12 @@ async function entrar(){
     const { data: bloques } = await sb.from('bloques')
       .select('*, bloque_ejercicios(*, ejercicios(id,nombre,grupo_muscular,estimulo,sinergistas,tipo_registro,con_carga,cuenta_dosis,implemento,activo))').in('sesion_id', sesIds).order('bloque')
     S.programa = { sesiones:(sesiones||[]).map(s=>({
-      numero:s.numero, id:s.id, nombre:nombreEN(s.objetivo)||('SESIÓN '+s.numero),
+      numero:s.numero, id:s.id, semana:(s.semana||1), nombre:nombreEN(s.objetivo)||('SESIÓN '+s.numero),
       bloquesFull:(bloques||[]).filter(b=>b.sesion_id===s.id),
       bloques:(bloques||[]).filter(b=>b.sesion_id===s.id).map(b=>({
         sets:b.sets,
         ejercicios:(b.bloque_ejercicios||[]).map(be=>({
-          grupo:be.ejercicios?.grupo_muscular, sinergistas:be.ejercicios?.sinergistas||{}
+          grupo:be.ejercicios?.grupo_muscular, sinergistas:be.ejercicios?.sinergistas||{}, cuenta_dosis:be.ejercicios?.cuenta_dosis
         })).filter(e=>e.grupo)
       }))
     })) }
