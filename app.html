@@ -369,7 +369,7 @@ html,button,input,.pvS,.chk,.setChip{touch-action:manipulation}
 
   <!-- ══ HOME ══ -->
   <div class="vista conTab" id="vHome">
-    <div class="hbar"><span class="hk" title="v7.1">KOACH</span><div class="hav" id="hAv" onclick="salir()">K</div></div>
+    <div class="hbar"><span class="hk" title="v7.2">KOACH</span><div class="hav" id="hAv" onclick="salir()">K</div></div>
     <div class="ctx"><div class="fecha" id="hFecha">—</div><div class="prog" id="hProg">—</div></div>
     <div class="anillo">
       <svg width="180" height="180" viewBox="0 0 180 180">
@@ -399,13 +399,14 @@ html,button,input,.pvS,.chk,.setChip{touch-action:manipulation}
   <div class="vista conTab" id="vPlan">
     <div class="ph">Tu plan</div>
     <div class="ps" id="pSub">—</div>
-    <div class="cadena">Tus sesiones designadas <b>suman</b> → tus músculos se <b>fortalecen</b> → tu semana se <b>completa</b>. <span id="pProg"></span></div>
-    <div class="proj" id="pProy" style="display:none">
-      <div class="pt"><span class="pt1">LO QUE TU SEMANA PRODUCE</span><span class="pt2" id="pProyPct">—</span></div>
-      <div class="mini" id="pProyBars"></div>
-      <div class="pnota" id="pProyNota">—</div>
-    </div>
+    <div class="glass" id="pResumen" style="padding:16px;margin-bottom:14px"></div>
+    <div id="pUltimo"></div>
+    <button id="pDetBtn" onclick="togglePDet()" style="width:100%;background:none;border:1px solid rgba(242,241,239,.14);border-radius:12px;padding:11px;font-size:8px;font-weight:900;letter-spacing:.12em;color:#BEBDB8;cursor:pointer;margin-bottom:16px">VER DETALLE SEMANAL ▾</button>
+    <div id="pDet" style="display:none;margin-bottom:16px"><div class="rows" id="pDetRows"></div></div>
+    <div style="font-size:8px;font-weight:900;letter-spacing:.18em;color:#8B8A85;margin:4px 0 10px">ESTA SEMANA</div>
     <div id="pLista"></div>
+    <div id="pPrev"></div>
+    <button id="pPrevBtn" onclick="verSemanaAnterior()" style="width:100%;background:none;border:1px solid rgba(242,241,239,.14);border-radius:12px;padding:11px;font-size:8px;font-weight:900;letter-spacing:.12em;color:#BEBDB8;cursor:pointer;margin:4px 0 10px">VER SEMANA ANTERIOR →</button>
     <div class="nota">LAS SESIONES SE DESBLOQUEAN EN ORDEN · TU COACH AJUSTA EL PROGRAMA</div>
   </div>
 
@@ -552,7 +553,7 @@ html,button,input,.pvS,.chk,.setChip{touch-action:manipulation}
   <div class="fk">KOACH</div>
   <div class="rwt" id="rwSes">SESIÓN · COMPLETADA</div>
   <div class="rwn" id="rwN">+0</div>
-  <div class="rwl">MÚSCULOS FORTALECIDOS</div>
+  <div class="rwl">METAS DE VOLUMEN COMPLETADAS</div>
   <div class="rwm" id="rwM"></div>
   <div class="rwf" id="rwF">Más fuerte que el lunes.</div>
 </div>
@@ -871,7 +872,7 @@ function pintarHome(){
   const ultima = regsOrd[0] ? S.programa.sesiones.find(s=>s.numero===regsOrd[0].sesion_numero) : null
   const ultTxt = ultima ? ` · ÚLTIMA: <b>${ultima.nombre}</b>` : ''
   document.getElementById('hSes').innerHTML = sem.completa
-    ? `SESIONES COMPLETADAS ESTA SEMANA: <b>${hechasSes}</b>${ultTxt} · SEMANA SUMADA`
+    ? `SESIONES COMPLETADAS ESTA SEMANA: <b>${hechasSes}</b>${ultTxt} · SEMANA COMPLETA`
     : `SESIONES COMPLETADAS ESTA SEMANA: <b>${hechasSes}</b>${ultTxt}` + (sem.proxima ? ` · SIGUE: <b>${sem.proxima.nombre}</b>` : '')
   const cta=document.getElementById('hCta')
   const hoyISO2 = new Date().toISOString().split('T')[0]
@@ -916,6 +917,10 @@ function pintarHome(){
   }
   const orden=[...sem.musculos].sort((a,b)=>(b.exigible-a.exigible)||(b.pct-a.pct))
   // Anatomía SOCIO: meta ↔ completado. Barra = 100% del target. Sin semáforo, sin techo, sin proyección.
+  pintarFilasMusc('hRows')
+}
+function pintarFilasMusc(elId){
+  const sem=S.sem||{}; const orden=sem.musculos||[]
   const rowsHTML = orden.map(m=>{
     const fmt = x => x%1===0 ? x : (+x).toFixed(1)
     if (!m.exigible){
@@ -937,7 +942,8 @@ function pintarHome(){
       <div class="bar"><div class="fill ${m.fortalecido?'fol':''}" data-w="${pct}"></div></div>
       <div class="v ${m.fortalecido?'si':''}">${m.fortalecido?'✓ ':''}${fmt(cov)}/${m.objetivo}<small>${sub}</small></div></div>`
   }).join('')
-  document.getElementById('hRows').innerHTML = rowsHTML
+  document.getElementById(elId).innerHTML = rowsHTML
+  setTimeout(()=>{ document.querySelectorAll('#'+elId+' .fill').forEach((f,i)=>setTimeout(()=>{ f.style.width=f.dataset.w+'%' },80+i*50)) }, 30)
   document.getElementById('hCount').textContent = `${num} DE ${den} METAS CUMPLIDAS`
   setTimeout(()=>{
     const C=490.1, obj=dosis/100
@@ -1019,7 +1025,7 @@ const REASON_TXT = {
   PREVIOUS_SESSION_REQUIRED: p => 'DISPONIBLE DESPUÉS DE COMPLETAR '+(p||'TU SESIÓN ANTERIOR'),
   ADVANCE_APPROVAL_REQUIRED: () => 'SOLICITUD ENVIADA — TU COACH LA REVISA',
   ADVANCE_APPROVED: () => 'ADELANTO APROBADO POR TU COACH',
-  SESSION_COMPLETED: () => 'SESIÓN SUMADA',
+  SESSION_COMPLETED: () => 'SESIÓN COMPLETADA',
   SESSION_IN_PROGRESS: () => 'SESIÓN EN CURSO',
   WEEK_COMPLETE: () => 'TU SEMANA BASE ESTÁ COMPLETA'
 }
@@ -1709,24 +1715,29 @@ vista = function(id){
 
 function pintarPlan(){
   if (!S.programa){ document.getElementById('pLista').innerHTML='<div class="vacio">Tu coach te asignará tu programa.</div>'; return }
-  // Proyección: lo que la semana designada completa produce
-  try {
-    const acumT = {}
-    Object.keys(S.objetivos).forEach(g=>acumT[g]=0)
-    S.programa.sesiones.filter(s=>!s._extra).forEach(s=>{ const a=aporteSesion(s)
-      Object.entries(a).forEach(([g,v])=>{ if (g in acumT) acumT[g]+=v }) })
-    const ex = Object.entries(S.objetivos).filter(([g,o])=>o.exigible!==false)
-    const pctT = ex.length ? Math.round(ex.reduce((a,[g,o])=>a+Math.min(acumT[g]/o.mev,1),0)/ex.length*100) : 0
-    document.getElementById('pProyBars').innerHTML = ex.map(([g,o])=>{
-      const p = Math.min(Math.round(acumT[g]/o.mev*100),100)
-      let z=''; if (o.mav && acumT[g]>o.mav) z='z3'; else if (o.mav && acumT[g]>=o.mav*0.85) z='z2'
-      return `<div class="mb ${z}"><div class="mbar"><div class="mfill" style="height:${p}%"></div></div><span>${g.slice(0,4)}</span></div>`
-    }).join('')
-    document.getElementById('pProyPct').textContent = (pctT>=100?'✓ EQUILIBRIO · ':'')+pctT+'% DE TU DOSIS'
-    document.getElementById('pProyNota').textContent =
-      `TU BASE: ${S.programa.sesiones.filter(s=>!s._extra).length} SESIONES DISEÑADAS PARA COMPLETAR TUS ${ex.length}/${ex.length} ESTÍMULOS — LAS EXTRAS ★ SUMAN VOLUMEN ESPECÍFICO ENCIMA`
-    document.getElementById('pProy').style.display='block'
-  } catch(_){}
+  // §2/§5/§33 · RESUMEN simple — PLAN consume el motor, jamás calcula (§3)
+  const sem=S.sem||{}
+  const hechasN=(S.registros||[]).filter(r=>r.estado && r.estado!=='en_curso' && r.estado!=='incompleta'
+    && r.fecha>= (function(){const d=new Date();const w=(d.getDay()+6)%7;d.setDate(d.getDate()-w);return d.toISOString().split('T')[0]})()).length
+  document.getElementById('pResumen').innerHTML =
+    '<div style="font-size:8px;font-weight:900;letter-spacing:.18em;color:#8B8A85;margin-bottom:6px">TU SEMANA</div>'+
+    '<div style="font-size:22px;font-weight:900;letter-spacing:.02em">'+(sem.pct_dosis!=null?sem.pct_dosis+'%':'—')+'<small style="font-size:9px;font-weight:900;color:#8B8A85"> COMPLETADO</small></div>'+
+    '<div style="font-size:9px;font-weight:800;color:#BEBDB8;margin-top:4px">'+hechasN+' sesión'+(hechasN===1?'':'es')+' realizada'+(hechasN===1?'':'s')+
+    ' · '+(sem.fortalecidos!=null?sem.fortalecidos+' de '+sem.exigibles+' metas completadas':'')+'</div>'+
+    (sem.proxima?'<div style="font-size:9px;font-weight:900;letter-spacing:.1em;margin-top:8px">PRÓXIMA · '+sem.proxima.nombre+'</div>':'')
+  // §6 · LO ÚLTIMO
+  const ult=(S.registros||[]).filter(r=>r.estado && r.estado!=='en_curso' && r.estado!=='incompleta')
+    .sort((x,y)=>String(y.fecha).localeCompare(String(x.fecha)))[0]
+  if (ult){
+    const nomU=(S.programa.sesiones.find(x=>x.numero===ult.sesion_numero)||{}).nombre||'SESIÓN'
+    document.getElementById('pUltimo').innerHTML =
+      '<div style="font-size:8px;font-weight:900;letter-spacing:.18em;color:#8B8A85;margin:2px 0 8px">LO ÚLTIMO</div>'+
+      '<div class="glass pcard hecha"><div class="pnum">✓</div>'+
+      '<div><div class="pn2">'+nomU+'</div><div class="pm2">'+ult.fecha+' · COMPLETADA</div></div>'+
+      '<button class="pAct" onclick="verHist(\''+ult.id+'\')">VER SESIÓN →</button></div>'
+  } else document.getElementById('pUltimo').innerHTML=''
+  // detalle muscular bajo demanda (misma anatomía member)
+  if (document.getElementById('pDet').style.display!=='none') pintarFilasMusc('pDetRows')
   document.getElementById('pSub').textContent =
     `${S.proto.programa} · ${S.proto.nivel} · SEMANA ${S.asig.semana_actual||1} DE 6 · CICLO ${S.asig.ciclo_actual||1}`.toUpperCase()
   const hechas = new Set(S.registros.filter(r=>r.estado!=='incompleta').map(r=>r.sesion_numero))
@@ -1745,7 +1756,7 @@ function pintarPlan(){
     const ctx = ctxDe(s); const cap = resolverCap(s, ctx)
     let est, cls, icon, extra='', acciones=''
     const DIAS3=['LUN','MAR','MIÉ','JUE','VIE','SÁB','DOM']
-    if (ctx.hecha){ est='✓ SUMADA'; cls='ok'; icon='✓'
+    if (ctx.hecha){ est='✓ COMPLETADA'; cls='ok'; icon='✓'
       if (reg?.fecha){ const d=new Date(reg.fecha+'T12:00:00'); extra=' · '+DIAS3[(d.getDay()+6)%7] }
       if (cap.can_open_history) acciones=`<button class="pAct" onclick="event.stopPropagation();verHist('${ctx.regId}')">VER SESIÓN →</button>` }
     else if (ctx.enCurso){ est='EN CURSO'; cls='prox'; icon='▶'
@@ -1784,6 +1795,36 @@ function pintarPlan(){
   }).join('')
 }
 
+function togglePDet(){
+  const d=document.getElementById('pDet'), b=document.getElementById('pDetBtn')
+  const abre=d.style.display==='none'
+  d.style.display=abre?'block':'none'
+  b.textContent=abre?'OCULTAR DETALLE SEMANAL ▴':'VER DETALLE SEMANAL ▾'
+  if (abre) pintarFilasMusc('pDetRows')
+}
+async function verSemanaAnterior(){
+  S._semOff=(S._semOff||0)+1
+  const off=S._semOff
+  const lun=new Date(); const w=(lun.getDay()+6)%7; lun.setDate(lun.getDate()-w-off*7)
+  const dom=new Date(lun); dom.setDate(dom.getDate()+7)
+  const d1=lun.toISOString().split('T')[0], d2=dom.toISOString().split('T')[0]
+  try{
+    const { data } = await sb.from('sesiones_registro')
+      .select('id, fecha, estado, sesion_protocolo_id')
+      .eq('socio_id', S.perfil.id).gte('fecha', d1).lt('fecha', d2).order('fecha')
+    const nomDe = spid => { const s=(S.programa.sesiones||[]).find(x=>x.id===spid); return s?s.nombre:'SESIÓN' }
+    const filas=(data||[]).map(r=>{
+      const parcial=r.estado==='incompleta'
+      return '<div class="glass pcard '+(parcial?'':'hecha')+'"><div class="pnum">'+(parcial?'◐':'✓')+'</div>'+
+        '<div><div class="pn2">'+nomDe(r.sesion_protocolo_id)+'</div><div class="pm2">'+r.fecha+' · '+(parcial?'PARCIAL':'COMPLETADA')+'</div></div>'+
+        '<button class="pAct" onclick="verHist(\''+r.id+'\')">VER →</button></div>'
+    }).join('')
+    document.getElementById('pPrev').innerHTML +=
+      '<div style="font-size:8px;font-weight:900;letter-spacing:.18em;color:#8B8A85;margin:14px 0 10px">SEMANA ANTERIOR '+(off>1?'('+off+')':'')+'</div>'+
+      (filas||'<div class="vacio" style="margin-bottom:10px">Sin sesiones registradas esa semana.</div>')
+    document.getElementById('pPrevBtn').textContent='VER OTRA SEMANA MÁS →'
+  }catch(e){ toast('No pudimos cargar esa semana.') }
+}
 async function verHist(regId){
   const o=document.getElementById('oHist'); o.style.display='flex'
   document.getElementById('hsBody').innerHTML='<div class="vacio">Cargando…</div>'
