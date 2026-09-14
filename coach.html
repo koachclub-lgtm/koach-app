@@ -259,7 +259,7 @@ html,button,input,.pv,.mtab,.setChip{touch-action:manipulation}
 </div></div>
 
 <div class="vista" id="vSala">
-  <div class="hbar"><span class="hk" title="c6.4">KOACH</span><span class="rol" id="rolBadge" onclick="salir()">COACH</span></div>
+  <div class="hbar"><span class="hk" title="c6.5">KOACH</span><span class="rol" id="rolBadge" onclick="salir()">COACH</span></div>
   <button class="nuevo" onclick="toggleAlta()">+ NUEVO USUARIO · SOCIO O COACH</button>
   <button class="nuevo" style="background:rgba(255,255,255,.65);color:#121210;border:1.5px solid rgba(18,18,16,.15)" onclick="verBib()">📚 RUTINAS ESTÁNDAR · BIBLIOTECA</button>
   <div class="glass aform" id="fAlta" style="display:none">
@@ -867,7 +867,7 @@ async function evaluar(i){
   const s=X.sesiones[i]; if(!s) return
   document.querySelectorAll('.pl').forEach(function(p){p.classList.toggle('on', p.id==='xp'+i)})
   if(!s.bloques){
-    const rb = await sb.from('bloques').select('*, bloque_ejercicios(*, ejercicios(*))').eq('sesion_id',s.id).order('bloque')
+    const rb = await sb.from('bloques').select('*, bloque_ejercicios(*, ejercicios(id,nombre,grupo_muscular,estimulo,sinergistas,tipo_registro,con_carga,cuenta_dosis,implemento,activo))').eq('sesion_id',s.id).order('bloque')
     s.bloques=(rb.data||[]).map(function(b){
       return {sets:b.sets, ejercicios:(b.bloque_ejercicios||[]).map(function(be){
         return {grupo:be.ejercicios?be.ejercicios.grupo_muscular:null,
@@ -1099,20 +1099,31 @@ async function borrarRutinaStd(sesId){
 
 async function cargarCatalogo(){
   if (EJCAT) return
+  function aplicar(data){
+    EJCAT = data||[]
+    const EQO=['BODYWEIGHT','DUMBBELL','BARBELL','HEX_BAR','KETTLEBELL','MINIBAND','PLATE','BOX','BANCO','CORE_ROLLER','BANDA','CABLE','MACHINE']
+    const MORD=['PECHO','ESPALDA','HOMBROS','TRÍCEPS','BÍCEPS','CORE','GLÚTEOS','CUÁDRICEPS','ISQUIOS','PANTORRILLAS','CARDIO','GLOBAL','MOVILIDAD']
+    EJCAT.sort(function(a,b){
+      const ga=MORD.indexOf(a.grupo_muscular), gb=MORD.indexOf(b.grupo_muscular)
+      if(ga!==gb) return (ga<0?99:ga)-(gb<0?99:gb)
+      const ia=EQO.indexOf(a.implemento), ib=EQO.indexOf(b.implemento)
+      if(ia!==ib) return (ia<0?99:ia)-(ib<0?99:ib)
+      return (a.nombre||'').localeCompare(b.nombre||'')
+    })
+    EJCAT._mord = MORD
+  }
+  // caché-primero: catálogo casi estático → instantáneo, revalida en silencio
+  try{ const c=JSON.parse(localStorage.getItem('kc_ejcat_v3')||'null'); if(c&&c.length) aplicar(c) }catch(_e){}
   const r = await sb.from('ejercicios')
     .select('id,nombre,grupo_muscular,estimulo,sinergistas,tipo_registro,con_carga,implemento,cuenta_dosis')
     .eq('activo', true)
-  EJCAT = r.data||[]
-  const EQO=['BODYWEIGHT','DUMBBELL','BARBELL','HEX_BAR','KETTLEBELL','MINIBAND','PLATE','BOX','BANCO','CORE_ROLLER','BANDA','CABLE','MACHINE']
-  const MORD=['PECHO','ESPALDA','HOMBROS','TRÍCEPS','BÍCEPS','CORE','GLÚTEOS','CUÁDRICEPS','ISQUIOS','PANTORRILLAS','CARDIO','GLOBAL','MOVILIDAD']
-  EJCAT.sort(function(a,b){
-    const ga=MORD.indexOf(a.grupo_muscular), gb=MORD.indexOf(b.grupo_muscular)
-    if(ga!==gb) return (ga<0?99:ga)-(gb<0?99:gb)
-    const ia=EQO.indexOf(a.implemento), ib=EQO.indexOf(b.implemento)
-    if(ia!==ib) return (ia<0?99:ia)-(ib<0?99:ib)
-    return (a.nombre||'').localeCompare(b.nombre||'')
-  })
-  EJCAT._mord = MORD
+  if (r.data && r.data.length){
+    const fresh=JSON.stringify(r.data)
+    let mismo=false
+    try{ mismo = fresh===JSON.stringify(JSON.parse(localStorage.getItem('kc_ejcat_v3')||'null')) }catch(_e){}
+    if (!mismo){ aplicar(JSON.parse(fresh)); try{ localStorage.setItem('kc_ejcat_v3', fresh) }catch(_e){} }
+    else if (!EJCAT) aplicar(r.data)
+  }
 }
 async function verPlan(){
   if(!F) return
@@ -1251,7 +1262,7 @@ async function abrirPlan(pid, proto, opts){
   if (opts.soloSesion) qq = qq.eq('id', opts.soloSesion)
   const rses = await qq
   const sids = (rses.data||[]).map(function(s){return s.id})
-  const rblo = sids.length ? await sb.from('bloques').select('*, bloque_ejercicios(*, ejercicios(*))').in('sesion_id',sids).order('bloque') : {data:[]}
+  const rblo = sids.length ? await sb.from('bloques').select('*, bloque_ejercicios(*, ejercicios(id,nombre,grupo_muscular,estimulo,sinergistas,tipo_registro,con_carga,cuenta_dosis,implemento,activo))').in('sesion_id',sids).order('bloque') : {data:[]}
   P = { pid:pid, proto:proto, tab:0, bib:esBib, base:esBase, sesiones:(rses.data||[]).map(function(s){
     return { id:s.id, numero:s.numero, nombre:nombreEN(s.objetivo)||('SESION '+s.numero),
       bloques:(rblo.data||[]).filter(function(b){return b.sesion_id===s.id}).map(function(b){
@@ -1924,7 +1935,7 @@ async function clonarTpl(tplId){
       orden:x.orden, reps_txt:x.reps_txt, duracion_seg:x.duracion_seg, kg_objetivo:x.kg_objetivo } })
     let besIns=[]
     if (filas.length){
-      const ri=await sb.from('bloque_ejercicios').insert(filas).select('*, ejercicios(*)')
+      const ri=await sb.from('bloque_ejercicios').insert(filas).select('*, ejercicios(id,nombre,grupo_muscular,estimulo,sinergistas,tipo_registro,con_carga,cuenta_dosis,implemento,activo)')
       if (ri.error) throw ri.error
       besIns=ri.data||[]
     }
@@ -2185,7 +2196,7 @@ async function orgAgregar(srcId, nombre){
     const num = P.sesiones.length + 1
     const nueva = await copiarSesionEn(srcId, P.pid, num, nombre)
     // cargar la sesión creada con la forma que el planificador espera
-    const r = await sb.from('bloques').select('*, bloque_ejercicios(*, ejercicios(*))').eq('sesion_id', nueva.id).order('bloque')
+    const r = await sb.from('bloques').select('*, bloque_ejercicios(*, ejercicios(id,nombre,grupo_muscular,estimulo,sinergistas,tipo_registro,con_carga,cuenta_dosis,implemento,activo))').eq('sesion_id', nueva.id).order('bloque')
     const bloques = (r.data||[]).map(function(b){ return {
       bId:b.id, tipo:b.bloque, sets:b.sets,
       desc:(b.descanso_seg!=null?b.descanso_seg:(b.descanso_segundos!=null?b.descanso_segundos:60)),
