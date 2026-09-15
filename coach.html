@@ -374,7 +374,7 @@ h3 span:last-child{color:var(--koach-ink) !important}
 </div></div>
 
 <div class="vista" id="vSala">
-  <div class="hbar"><span class="hk" title="c7.1">KOACH</span><span class="rol" id="rolBadge" onclick="salir()">COACH</span></div>
+  <div class="hbar"><span class="hk" title="c7.2">KOACH</span><span class="rol" id="rolBadge" onclick="salir()">COACH</span></div>
   <button class="nuevo" onclick="toggleAlta()">+ NUEVO USUARIO · SOCIO O COACH</button>
   <button class="nuevo" style="background:rgba(255,255,255,.65);color:#121210;border:1.5px solid rgba(18,18,16,.15)" onclick="verBib()">📚 RUTINAS ESTÁNDAR · BIBLIOTECA</button>
   <div class="glass aform" id="fAlta" style="display:none">
@@ -450,8 +450,8 @@ h3 span:last-child{color:var(--koach-ink) !important}
 
 <!-- PLANIFICADOR -->
 <div class="vista" id="vPlan">
-  <div class="stop"><button class="sback" onclick="verFicha(F.id)">←</button>
-    <div class="stit">Planificador</div>
+  <div class="stop"><button class="sback" onclick="volverPlanner()">←</button>
+    <div class="stit">Planificador</div><button onclick="menuRutina()" style="margin-left:8px;background:none;border:1px solid var(--koach-border-strong);border-radius:8px;padding:6px 10px;font-size:12px;cursor:pointer;color:var(--koach-ink)">•••</button><div style="display:none"></div>
     <span class="rol" id="pEstado" style="margin-left:auto">BORRADOR</span></div>
   <div class="ssub" id="pMeta">—</div>
   <div class="card" id="cReqs" style="display:none">
@@ -2407,6 +2407,50 @@ async function orgAgregar(srcId, nombre){
     pintarOrg(); repintarConservando(); calcDose()   // ADD recalcula proyección (≠ reorder)
     toast('Sesión añadida — muévela donde quieras y guarda el orden.')
   }catch(e){ syncErr(String(e&&e.message||e)); toast('No se pudo añadir la sesión.') }
+}
+let _salirIgual=false
+function volverPlanner(){
+  if (typeof _pendC!=='undefined' && _pendC>0){ toast('Guardando tus últimos cambios…'); setTimeout(volverPlanner, 700); return }
+  const t=document.getElementById('syncTag')
+  if (t && t.className==='err' && !_salirIgual){
+    _salirIgual=true; setTimeout(function(){_salirIgual=false}, 4000)
+    toast('No pudimos guardar lo último. Toca ← de nuevo para salir de todos modos.'); return }
+  _salirIgual=false
+  if (P && P.base){ verBib() } else if (typeof F!=='undefined' && F && F.id){ verFicha(F.id) } else { verSala() }
+}
+async function menuRutina(){
+  const ses=P && P.sesiones && P.sesiones[P.tab]; if(!ses) return
+  if (P.base){
+    const acc=prompt('RUTINA ESTÁNDAR · '+(ses.nombre||'')+'\n\n1 = RENOMBRAR\n2 = GUARDAR COMO NUEVA RUTINA\n3 = VOLVER A BIBLIOTECA\n\nEscribe 1, 2 o 3:')
+    if (acc==='1'){
+      const n=prompt('Nuevo nombre:', ses.nombre||''); if(!n||!n.trim())return
+      syncEnvio(); const r=await sb.from('sesiones_protocolo').update({nombre:n.trim().toUpperCase()}).eq('id',ses.id)
+      if(r.error){syncErr(r.error.message);return}
+      ses.nombre=n.trim().toUpperCase(); syncOk(); repintarConservando(); toast('Rutina renombrada.')
+    } else if (acc==='2'){
+      const n=prompt('Nombre de la nueva rutina:', (ses.nombre||'RUTINA')+' 2'); if(!n||!n.trim())return
+      syncEnvio()
+      try{
+        const rmax=await sb.from('sesiones_protocolo').select('numero').eq('protocolo_id',P.pid).order('numero',{ascending:false}).limit(1)
+        const num=((rmax.data&&rmax.data[0]&&rmax.data[0].numero)||0)+1
+        await copiarSesionEn(ses.id, P.pid, num, n.trim().toUpperCase())
+        syncOk(); toast('★ Nueva rutina creada en tu biblioteca.'); verBib()
+      }catch(e){ syncErr(String(e&&e.message||e)) }
+    } else if (acc==='3'){ verBib() }
+  } else {
+    const acc=prompt('SESIÓN DE '+((F&&F.nombre)||'SOCIO')+'\n\n1 = GUARDAR COMO RUTINA ESTÁNDAR (crea plantilla nueva)\n\nEscribe 1:')
+    if (acc==='1'){
+      const n=prompt('Nombre de la rutina estándar:', ses.nombre||'RUTINA'); if(!n||!n.trim())return
+      syncEnvio()
+      try{
+        const bp=await bibProto()
+        const rmax=await sb.from('sesiones_protocolo').select('numero').eq('protocolo_id',bp.id).neq('nombre','CONTENEDOR DE BLOQUES').order('numero',{ascending:false}).limit(1)
+        const num=((rmax.data&&rmax.data[0]&&rmax.data[0].numero)||0)+1
+        await copiarSesionEn(ses.id, bp.id, num, n.trim().toUpperCase())
+        syncOk(); toast('★ Guardada como rutina estándar — la sesión del socio queda independiente.')
+      }catch(e){ syncErr(String(e&&e.message||e)) }
+    }
+  }
 }
 let _reqFor=null
 async function cargarSolicitudes(socioId){
