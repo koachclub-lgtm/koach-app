@@ -374,7 +374,7 @@ h3 span:last-child{color:var(--koach-ink) !important}
 </div></div>
 
 <div class="vista" id="vSala">
-  <div class="hbar"><span class="hk" title="c7.2">KOACH</span><span class="rol" id="rolBadge" onclick="salir()">COACH</span></div>
+  <div class="hbar"><span class="hk" title="c7.3">KOACH</span><span class="rol" id="rolBadge" onclick="salir()">COACH</span></div>
   <button class="nuevo" onclick="toggleAlta()">+ NUEVO USUARIO · SOCIO O COACH</button>
   <button class="nuevo" style="background:rgba(255,255,255,.65);color:#121210;border:1.5px solid rgba(18,18,16,.15)" onclick="verBib()">📚 RUTINAS ESTÁNDAR · BIBLIOTECA</button>
   <div class="glass aform" id="fAlta" style="display:none">
@@ -2166,9 +2166,10 @@ document.addEventListener('pointerdown',function(e){
   try{card.setPointerCapture(DO.pid)}catch(_){ }
 })
 const ORG={orden:[], fijas:{}, dirty:false, sem:1, porSem:{}}
+function orgSesiones(){ return P.sesiones.filter(function(s){return s.nombre!=='CONTENEDOR DE BLOQUES'}) }
 function orgRebuildSem(){
   ORG.porSem={}
-  P.sesiones.slice().sort(function(a,b){return a.numero-b.numero}).forEach(function(s){
+  orgSesiones().slice().sort(function(a,b){return a.numero-b.numero}).forEach(function(s){
     const w=s.semana||1; (ORG.porSem[w]=ORG.porSem[w]||[]).push(s.id)
   })
   if (!ORG.porSem[ORG.sem]) ORG.sem = Math.min.apply(null, Object.keys(ORG.porSem).map(Number))
@@ -2237,7 +2238,7 @@ async function cargarSesionAP(id, numero, nombre, semana){
 function esFijaIdx(i){ return !!ORG.fijas[ORG.orden[i]] }
 function lunesISO(){ const d=new Date(); const dw=(d.getDay()+6)%7; d.setDate(d.getDate()-dw); return d.toISOString().split('T')[0] }
 async function abrirOrganizador(){
-  if (!P || !P.sesiones || !P.sesiones.length){ toast('Abre primero una ficha con programa.'); return }
+  if (!P || !P.sesiones || !orgSesiones().length){ toast('Abre primero una ficha con programa.'); return }
   ORG.fijas = {}; ORG.dirty=false
   orgRebuildSem()
   if (!P.base && typeof F!=='undefined' && F && F.id){
@@ -2344,19 +2345,20 @@ async function guardarOrden(){
   ORG.porSem[ORG.sem] = ORG.orden.slice()
   const sems=Object.keys(ORG.porSem).map(Number).sort(function(a,b){return a-b})
   const globalIds=[]; sems.forEach(function(w){ (ORG.porSem[w]||[]).forEach(function(id){globalIds.push(id)}) })
-  const ini = P.sesiones.slice().sort(function(a,b){return a.numero-b.numero}).map(function(s){return s.id})
-  const v = validarReorden(globalIds, P.sesiones, ORG.fijas, ini)
+  const base = orgSesiones()
+  const ini = base.slice().sort(function(a,b){return a.numero-b.numero}).map(function(s){return s.id})
+  const v = validarReorden(globalIds, base, ORG.fijas, ini)
   if (!v.ok){ toast('No se guardó: '+v.err); return }
   const actualId = P.sesiones[P.tab] && P.sesiones[P.tab].id
   syncEnvio()
-  for (var i=0;i<globalIds.length;i++){
-    const s = P.sesiones.find(function(x){return x.id===globalIds[i]})
-    if (s && s.numero!==i+1){
-      const r = await sb.from('sesiones_protocolo').update({numero:i+1}).eq('id',s.id)
-      if (r.error){ syncErr(r.error.message); toast('Error al guardar — recarga la ficha.'); return }
-      s.numero=i+1
-    }
-  }
+  // ATÓMICO: una transacción, todo-o-nada (RPC reordenar_sesiones; UNIQUE protocolo+numero era la causa)
+  const r = await sb.rpc('reordenar_sesiones', { p_ids: globalIds })
+  if (r.error){
+    console.error('REORDER FAIL', {code:r.error.code, message:r.error.message, details:r.error.details, hint:r.error.hint})
+    syncErr((r.error.code?r.error.code+' · ':'')+r.error.message)
+    toast('No se guardó el orden ('+(r.error.code||'error')+'). Nada cambió en la base.'); return }
+  globalIds.forEach(function(id,ix){
+    const s=P.sesiones.find(function(x){return x.id===id}); if(s) s.numero=ix+1 })
   P.sesiones.sort(function(a,b){return a.numero-b.numero})
   P.tab = Math.max(0, P.sesiones.findIndex(function(s){return s.id===actualId}))
   syncOk(); cerrarOrg()
