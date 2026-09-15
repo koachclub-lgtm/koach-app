@@ -374,7 +374,7 @@ h3 span:last-child{color:var(--koach-ink) !important}
 </div></div>
 
 <div class="vista" id="vSala">
-  <div class="hbar"><span class="hk" title="c7.3">KOACH</span><span class="rol" id="rolBadge" onclick="salir()">COACH</span></div>
+  <div class="hbar"><span class="hk" title="c7.4">KOACH</span><span class="rol" id="rolBadge" onclick="salir()">COACH</span></div>
   <button class="nuevo" onclick="toggleAlta()">+ NUEVO USUARIO · SOCIO O COACH</button>
   <button class="nuevo" style="background:rgba(255,255,255,.65);color:#121210;border:1.5px solid rgba(18,18,16,.15)" onclick="verBib()">📚 RUTINAS ESTÁNDAR · BIBLIOTECA</button>
   <div class="glass aform" id="fAlta" style="display:none">
@@ -609,6 +609,30 @@ h3 span:last-child{color:var(--koach-ink) !important}
   <div style="display:flex;gap:10px">
     <button class="bbtn" onclick="document.getElementById('mTplSave').style.display='none'" style="flex:1">CANCELAR</button>
     <button class="bbtn ink" onclick="confirmarTpl()" style="flex:1.4">GUARDAR</button>
+  </div>
+</div></div>
+<!-- ACTION MENU RUTINA -->
+<div id="mMenuRut" style="display:none;position:fixed;inset:0;z-index:90;background:rgba(28,28,28,.45)" onclick="if(event.target===this)this.style.display='none'"><div style="position:absolute;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:520px;background:var(--koach-surface);border:1px solid var(--koach-border);border-radius:10px 10px 0 0;padding:20px 16px 24px">
+  <div class="kData" style="color:var(--koach-chip);margin-bottom:14px">ACCIONES DE RUTINA</div>
+  <div id="mMenuRutBody"></div>
+</div></div>
+<!-- TEXT INPUT DIALOG -->
+<div id="mInputDlg" style="display:none;position:fixed;inset:0;z-index:92;background:rgba(28,28,28,.45)" onclick="if(event.target===this)this.style.display='none'"><div style="position:absolute;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:520px;background:var(--koach-surface);border:1px solid var(--koach-border);border-radius:10px 10px 0 0;padding:20px 16px 24px">
+  <div class="kData" id="idlgTit" style="color:var(--koach-chip);margin-bottom:4px">—</div>
+  <div id="idlgSub" style="font-family:var(--font-display);font-size:13px;color:var(--koach-chip);margin-bottom:12px"></div>
+  <input id="idlgVal" style="width:100%;padding:13px;font-size:14px;margin-bottom:14px" onkeydown="if(event.key==='Enter')idlgOk()">
+  <div style="display:flex;gap:10px">
+    <button class="bbtn" style="flex:1" onclick="document.getElementById('mInputDlg').style.display='none'">CANCELAR</button>
+    <button class="bbtn ink" style="flex:1.4" id="idlgBtn" onclick="idlgOk()">GUARDAR</button>
+  </div>
+</div></div>
+<!-- SAVE ERROR / EXIT DIALOG -->
+<div id="mErrSalir" style="display:none;position:fixed;inset:0;z-index:93;background:rgba(28,28,28,.45)" onclick="if(event.target===this)this.style.display='none'"><div style="position:absolute;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:520px;background:var(--koach-surface);border:1px solid var(--koach-border);border-radius:10px 10px 0 0;padding:20px 16px 24px">
+  <div class="kData" style="margin-bottom:6px">NO PUDIMOS GUARDAR LOS ÚLTIMOS CAMBIOS</div>
+  <div style="font-family:var(--font-display);font-size:13px;color:var(--koach-chip);margin-bottom:14px">Revisa tu conexión. Tus cambios previos confirmados están a salvo.</div>
+  <div style="display:flex;gap:10px">
+    <button class="bbtn ink" style="flex:1.4" onclick="document.getElementById('mErrSalir').style.display='none'">SEGUIR EDITANDO</button>
+    <button class="bbtn" style="flex:1" onclick="document.getElementById('mErrSalir').style.display='none';_exitForzado=true;volverPlanner()">SALIR SIN GUARDAR</button>
   </div>
 </div></div>
 <!-- MODAL NUEVA RUTINA ESTÁNDAR -->
@@ -2410,49 +2434,78 @@ async function orgAgregar(srcId, nombre){
     toast('Sesión añadida — muévela donde quieras y guarda el orden.')
   }catch(e){ syncErr(String(e&&e.message||e)); toast('No se pudo añadir la sesión.') }
 }
-let _salirIgual=false
+let _exitForzado=false, _busyCmd=false, _idlgCb=null
+document.addEventListener('keydown',function(e){ if(e.key==='Escape'){
+  ['mMenuRut','mInputDlg','mErrSalir'].forEach(function(id){const x=document.getElementById(id); if(x)x.style.display='none'}) }})
 function volverPlanner(){
-  if (typeof _pendC!=='undefined' && _pendC>0){ toast('Guardando tus últimos cambios…'); setTimeout(volverPlanner, 700); return }
+  if (typeof _pendC!=='undefined' && _pendC>0){ toast('Guardando…'); setTimeout(volverPlanner, 600); return }
   const t=document.getElementById('syncTag')
-  if (t && t.className==='err' && !_salirIgual){
-    _salirIgual=true; setTimeout(function(){_salirIgual=false}, 4000)
-    toast('No pudimos guardar lo último. Toca ← de nuevo para salir de todos modos.'); return }
-  _salirIgual=false
+  if (t && t.className==='err' && !_exitForzado){ document.getElementById('mErrSalir').style.display='block'; return }
+  _exitForzado=false
   if (P && P.base){ verBib() } else if (typeof F!=='undefined' && F && F.id){ verFicha(F.id) } else { verSala() }
 }
-async function menuRutina(){
-  const ses=P && P.sesiones && P.sesiones[P.tab]; if(!ses) return
+function idlgAbrir(tit, sub, valor, btn, cb){
+  document.getElementById('idlgTit').textContent=tit
+  document.getElementById('idlgSub').textContent=sub||''
+  document.getElementById('idlgVal').value=valor||''
+  document.getElementById('idlgBtn').textContent=btn||'GUARDAR'
+  _idlgCb=cb
+  document.getElementById('mInputDlg').style.display='block'
+  setTimeout(function(){document.getElementById('idlgVal').focus()},80)
+}
+function idlgOk(){
+  const v=(document.getElementById('idlgVal').value||'').trim()
+  if (!v){ toast('El nombre no puede quedar vacío.'); return }
+  if (v.length>60){ toast('Nombre demasiado largo.'); return }
+  document.getElementById('mInputDlg').style.display='none'
+  if (_idlgCb) _idlgCb(v.toUpperCase())
+}
+async function renameRoutine(nombre){
+  const ses=P.sesiones[P.tab]; if(!ses)return
+  syncEnvio()
+  const r=await sb.from('sesiones_protocolo').update({nombre:nombre}).eq('id',ses.id)
+  if(r.error){syncErr(r.error.message);return}
+  ses.nombre=nombre; syncOk(); repintarConservando(); toast('Rutina renombrada.')
+}
+async function cloneRoutine(nombre){
+  if (_busyCmd) return; _busyCmd=true
+  const ses=P.sesiones[P.tab]
+  syncEnvio()
+  try{
+    const rmax=await sb.from('sesiones_protocolo').select('numero').eq('protocolo_id',P.pid).order('numero',{ascending:false}).limit(1)
+    const num=((rmax.data&&rmax.data[0]&&rmax.data[0].numero)||0)+1
+    await copiarSesionEn(ses.id, P.pid, num, nombre)
+    syncOk(); toast('★ Copia independiente creada.'); verBib()
+  }catch(e){ syncErr(String(e&&e.message||e)) }
+  finally{ _busyCmd=false }
+}
+async function saveAsStandard(nombre){
+  if (_busyCmd) return; _busyCmd=true
+  const ses=P.sesiones[P.tab]
+  syncEnvio()
+  try{
+    const bp=await bibProto()
+    const rmax=await sb.from('sesiones_protocolo').select('numero').eq('protocolo_id',bp.id).order('numero',{ascending:false}).limit(1)
+    const num=((rmax.data&&rmax.data[0]&&rmax.data[0].numero)||0)+1
+    await copiarSesionEn(ses.id, bp.id, num, nombre)
+    syncOk(); toast('★ Guardada como rutina estándar — la sesión del socio queda independiente.')
+  }catch(e){ syncErr(String(e&&e.message||e)) }
+  finally{ _busyCmd=false }
+}
+function menuRutina(){
+  const ses=P && P.sesiones && P.sesiones[P.tab]; if(!ses)return
+  const fila=function(txt, fn){ return '<button class="bbtn" style="width:100%;justify-content:flex-start;margin-bottom:8px;padding-left:16px" onclick="document.getElementById(\'mMenuRut\').style.display=\'none\';'+fn+'">'+txt+'</button>' }
+  let html=''
   if (P.base){
-    const acc=prompt('RUTINA ESTÁNDAR · '+(ses.nombre||'')+'\n\n1 = RENOMBRAR\n2 = GUARDAR COMO NUEVA RUTINA\n3 = VOLVER A BIBLIOTECA\n\nEscribe 1, 2 o 3:')
-    if (acc==='1'){
-      const n=prompt('Nuevo nombre:', ses.nombre||''); if(!n||!n.trim())return
-      syncEnvio(); const r=await sb.from('sesiones_protocolo').update({nombre:n.trim().toUpperCase()}).eq('id',ses.id)
-      if(r.error){syncErr(r.error.message);return}
-      ses.nombre=n.trim().toUpperCase(); syncOk(); repintarConservando(); toast('Rutina renombrada.')
-    } else if (acc==='2'){
-      const n=prompt('Nombre de la nueva rutina:', (ses.nombre||'RUTINA')+' 2'); if(!n||!n.trim())return
-      syncEnvio()
-      try{
-        const rmax=await sb.from('sesiones_protocolo').select('numero').eq('protocolo_id',P.pid).order('numero',{ascending:false}).limit(1)
-        const num=((rmax.data&&rmax.data[0]&&rmax.data[0].numero)||0)+1
-        await copiarSesionEn(ses.id, P.pid, num, n.trim().toUpperCase())
-        syncOk(); toast('★ Nueva rutina creada en tu biblioteca.'); verBib()
-      }catch(e){ syncErr(String(e&&e.message||e)) }
-    } else if (acc==='3'){ verBib() }
+    html+= fila('✎ &nbsp;RENOMBRAR', "idlgAbrir('RENOMBRAR RUTINA','','"+(ses.nombre||'').replace(/'/g,'')+"','GUARDAR',renameRoutine)")
+    html+= fila('⧉ &nbsp;GUARDAR COMO NUEVA RUTINA', "idlgAbrir('GUARDAR COMO NUEVA','Origen: "+(ses.nombre||'').replace(/'/g,'')+" — copia independiente','"+(ses.nombre||'RUTINA').replace(/'/g,'')+" 2','CREAR RUTINA',cloneRoutine)")
+    html+= fila('↩ &nbsp;VOLVER A BIBLIOTECA', 'volverPlanner()')
   } else {
-    const acc=prompt('SESIÓN DE '+((F&&F.nombre)||'SOCIO')+'\n\n1 = GUARDAR COMO RUTINA ESTÁNDAR (crea plantilla nueva)\n\nEscribe 1:')
-    if (acc==='1'){
-      const n=prompt('Nombre de la rutina estándar:', ses.nombre||'RUTINA'); if(!n||!n.trim())return
-      syncEnvio()
-      try{
-        const bp=await bibProto()
-        const rmax=await sb.from('sesiones_protocolo').select('numero').eq('protocolo_id',bp.id).neq('nombre','CONTENEDOR DE BLOQUES').order('numero',{ascending:false}).limit(1)
-        const num=((rmax.data&&rmax.data[0]&&rmax.data[0].numero)||0)+1
-        await copiarSesionEn(ses.id, bp.id, num, n.trim().toUpperCase())
-        syncOk(); toast('★ Guardada como rutina estándar — la sesión del socio queda independiente.')
-      }catch(e){ syncErr(String(e&&e.message||e)) }
-    }
+    html+= fila('★ &nbsp;GUARDAR COMO RUTINA ESTÁNDAR', "idlgAbrir('GUARDAR COMO RUTINA ESTÁNDAR','Crea una plantilla nueva en tu biblioteca','"+(ses.nombre||'RUTINA').replace(/'/g,'')+"','CREAR',saveAsStandard)")
+    html+= fila('↩ &nbsp;VOLVER A LA FICHA', 'volverPlanner()')
   }
+  document.getElementById('mMenuRutBody').innerHTML=html
+  document.getElementById('mMenuRut').style.display='block'
 }
 let _reqFor=null
 async function cargarSolicitudes(socioId){
