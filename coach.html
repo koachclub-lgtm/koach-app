@@ -765,25 +765,32 @@ async function login(){
   b.disabled=false; b.textContent='ENTRAR A LA SALA →'
 }
 async function entrar(){
-  const u = await sb.auth.getUser()
-  const user = u.data ? u.data.user : null
-  if(!user){ vista('vLogin'); return }
-  let q = await sb.from('profiles').select('*').eq('id',user.id).maybeSingle()
-  let perfil = q.data
-  if(!perfil){
-    const pin = prompt('Esta cuenta no tiene perfil KOACH.\nIngresa el PIN de administrador para crearlo como ADMIN:')
-    if(pin==='2026'){
-      const ins = await sb.from('profiles').insert({
-        id:user.id, nombre:'Editor', apellido:'KOACH', email:user.email, role:'admin', activo:true }).select().maybeSingle()
-      if(ins.error){ alert('No se pudo crear el perfil:\n'+ins.error.message+'\n\n(fotografia este mensaje)'); await sb.auth.signOut(); vista('vLogin'); return }
-      perfil = ins.data
-    } else { await sb.auth.signOut(); vista('vLogin'); return }
+  try{
+    const u = await sb.auth.getUser()
+    const user = u.data ? u.data.user : null
+    if(!user){ vista('vLogin'); return }
+    let q = await sb.from('profiles').select('*').eq('id',user.id).maybeSingle()
+    if(q.error){ alert('Error al cargar perfil:\n'+q.error.message); vista('vLogin'); return }
+    let perfil = q.data
+    if(!perfil){
+      const pin = prompt('Esta cuenta no tiene perfil KOACH.\nIngresa el PIN de administrador para crearlo como ADMIN:')
+      if(pin==='2026'){
+        const ins = await sb.from('profiles').insert({
+          id:user.id, nombre:'Editor', apellido:'KOACH', email:user.email, role:'admin', activo:true }).select().maybeSingle()
+        if(ins.error){ alert('No se pudo crear el perfil:\n'+ins.error.message+'\n\n(fotografia este mensaje)'); await sb.auth.signOut(); vista('vLogin'); return }
+        perfil = ins.data
+      } else { await sb.auth.signOut(); vista('vLogin'); return }
+    }
+    if(perfil.role==='socio'){ window.location.href='/app.html'; return }
+    C.yo = perfil
+    document.getElementById('rolBadge').textContent = (perfil.role==='admin'?'ADMIN ⚙ · ':'COACH · ')+(perfil.nombre||'').toUpperCase()+' · SALIR'
+    await loadSala()
+    vista('vSala')
+  }catch(e){
+    console.error(e)
+    alert('No se pudo entrar a la sala:\n'+(e.message||'intenta de nuevo'))
+    vista('vLogin')
   }
-  if(perfil.role==='socio'){ window.location.href='/app.html'; return }
-  C.yo = perfil
-  document.getElementById('rolBadge').textContent = (perfil.role==='admin'?'ADMIN ⚙ · ':'COACH · ')+(perfil.nombre||'').toUpperCase()+' · SALIR'
-  await loadSala()
-  vista('vSala')
 }
 
 function cargando(m){ const o=document.getElementById('oLoad'); if(!o)return
