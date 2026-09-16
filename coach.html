@@ -20,9 +20,12 @@
 @font-face{font-family:'Inter Display';src:url('/fonts/InterDisplay-Bold.woff2') format('woff2');font-weight:700;font-display:swap}
 @font-face{font-family:'IBM Plex Mono';src:url('/fonts/IBMPlexMono-Medium.woff2') format('woff2');font-weight:500;font-display:swap}
 :root{
-  --koach-bg:#B3B3B3; --koach-surface:#A3A3A3; --koach-ink:#1C1C1C;
-  --koach-border-strong:#3A3A3A; --koach-border:#888888; --koach-divider:#787878;
-  --koach-chip:#5F5F5F; --koach-muted:#969696; --koach-accent:#515449; --koach-white:#FFFFFF;
+  /* v1.1 · GRIS=arquitectura · BLANCO=interacción · NEGRO=información */
+  --koach-bg:#D0D0CE; --koach-surface:#BEBEBC; --koach-surface-raised:#C8C8C6;
+  --koach-control:#F4F4F2; --koach-control-active:#FFFFFF;
+  --koach-ink:#111111; --koach-text-primary:#111111; --koach-text-secondary:#555553; --koach-text-muted:#777774;
+  --koach-border-strong:rgba(17,17,17,.30); --koach-border:rgba(17,17,17,.20); --koach-divider:rgba(17,17,17,.16);
+  --koach-chip:#555553; --koach-muted:#9A9A98; --koach-accent:#515449; --koach-white:#FFFFFF;
   --font-display:'Inter Display','Inter',Arial,sans-serif;
   --font-mono:'IBM Plex Mono','Roboto Mono',monospace;
   --radius-xs:4px; --radius-sm:8px; --radius-md:10px; --radius-pill:999px;
@@ -66,7 +69,7 @@
 .kCheck::after{content:'✓';font-family:var(--font-display)}
 /* ═══════════ FIN KOACH DS P0 ═══════════ */
 
-:root{--tinta:#121210;--gris:#7C7B76;--suave:#BEBDB8;--ok:#515449;--ama:#5F5F5F;--rojo:#1C1C1C;--hueso:#F3F2EF}
+:root{--tinta:#121210;--gris:var(--koach-text-secondary);--suave:#BEBDB8;--ok:#515449;--ama:#5F5F5F;--rojo:#1C1C1C;--hueso:#F3F2EF}
 *{margin:0;padding:0;box-sizing:border-box;font-family:-apple-system,'Helvetica Neue',Arial,sans-serif;-webkit-tap-highlight-color:transparent}
 body{min-height:100dvh;background:linear-gradient(170deg,#F3F2EF 0%,#E7E6E2 55%,#DAD9D4 100%);color:var(--tinta);max-width:560px;margin:0 auto;padding:16px 14px 40px}
 .glass{background:rgba(255,255,255,.6);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);border:1px solid rgba(255,255,255,.8);border-radius:20px;box-shadow:0 8px 24px rgba(30,30,28,.08)}
@@ -165,7 +168,7 @@ input{width:100%;background:rgba(255,255,255,.7);border:1px solid rgba(255,255,2
 .impacto b{color:var(--tinta)}
 .guardia{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:560px;background:rgba(18,18,16,.95);backdrop-filter:blur(20px);color:var(--hueso);border-radius:10px 10px 0 0;padding:13px 16px 15px;box-shadow:0 -12px 34px rgba(0,0,0,.3);display:none}
 .guardia.vis{display:block}
-.gt1{font-size:7.5px;letter-spacing:.18em;color:#8B8A85;font-weight:900;margin-bottom:7px}
+.gt1{font-size:7.5px;letter-spacing:.18em;color:var(--koach-text-secondary);font-weight:900;margin-bottom:7px}
 .gmsg{font-size:10px;color:#C9C8C2;line-height:1.65;margin-bottom:10px}
 .gmsg b{color:#fff}
 .gb{width:100%;border:none;border-radius:10px;padding:14px;font-size:10px;font-weight:900;letter-spacing:.12em;cursor:pointer;background:var(--hueso);color:var(--tinta)}
@@ -173,7 +176,7 @@ input{width:100%;background:rgba(255,255,255,.7);border:1px solid rgba(255,255,2
 .vis2{display:block}
 .bq{padding:13px 14px;margin-bottom:11px}
 .bqh{display:flex;align-items:center;gap:8px;margin-bottom:9px}
-.bqt{font-size:8px;letter-spacing:.16em;font-weight:900;color:#7C7B76}
+.bqt{font-size:8px;letter-spacing:.16em;font-weight:900;color:var(--koach-text-secondary)}
 .stp{display:flex;align-items:center;gap:4px;margin-left:auto}
 .stp button{width:26px;height:26px;border:none;border-radius:9px;background:rgba(18,18,16,.07);font-weight:900;font-size:13px;cursor:pointer}
 .stp b{font-size:11px;min-width:30px;text-align:center}
@@ -188,7 +191,7 @@ input{width:100%;background:rgba(255,255,255,.7);border:1px solid rgba(255,255,2
 .ejN small{display:block;font-size:6.5px;color:#BEBDB8;font-weight:900;letter-spacing:.06em}
 .linI{width:100%;margin:0;padding:8px 4px;font-size:11px;font-weight:800;text-align:center;border-radius:10px}
 .linX{border:none;background:none;color:#BEBDB8;font-weight:900;cursor:pointer;font-size:13px;padding:0}
-.addEj{width:100%;border:1.5px dashed rgba(18,18,16,.2);background:none;border-radius:10px;padding:10px;font-size:8px;font-weight:900;letter-spacing:.1em;color:#7C7B76;cursor:pointer;margin-top:9px}
+.addEj{width:100%;border:1.5px dashed rgba(18,18,16,.2);background:none;border-radius:10px;padding:10px;font-size:8px;font-weight:900;letter-spacing:.1em;color:var(--koach-text-secondary);cursor:pointer;margin-top:9px}
 .dr{display:grid;grid-template-columns:54px 1fr 64px;gap:8px;align-items:center;margin-bottom:6px}
 .dr .g2{font-size:7px;font-weight:900;color:#C9C8C2}
 .dbar{height:6px;background:rgba(255,255,255,.14);border-radius:5px;position:relative}
@@ -197,20 +200,20 @@ input{width:100%;background:rgba(255,255,255,.7);border:1px solid rgba(255,255,2
 .dv{font-size:7px;font-weight:900;text-align:right;color:#C9C8C2}
 .pkCard{padding:14px 16px;margin-bottom:10px;cursor:pointer}
 .pkN{font-size:13px;font-weight:900}
-.pkM{font-size:7.5px;color:#7C7B76;font-weight:800;letter-spacing:.08em;margin-top:3px}
+.pkM{font-size:7.5px;color:var(--koach-text-secondary);font-weight:800;letter-spacing:.08em;margin-top:3px}
 .selRow{display:flex;align-items:center;gap:10px;padding:11px 6px;border-top:1px solid rgba(18,18,16,.06);cursor:pointer}
 .selG{font-size:6.5px;font-weight:900;background:rgba(18,18,16,.07);border-radius:8px;padding:5px 8px}
 .selN{font-size:12px;font-weight:800}
 .lbl{display:block;font-size:5.5px;letter-spacing:.12em;font-weight:900;color:#BEBDB8;text-align:center;margin-bottom:2px}
 .vd{display:grid;grid-template-columns:56px 1fr 84px;gap:8px;align-items:center;margin-bottom:7px}
-.vd .g3{font-size:7px;font-weight:900;color:#7C7B76}
+.vd .g3{font-size:7px;font-weight:900;color:var(--koach-text-secondary)}
 .vbar{height:7px;background:rgba(18,18,16,.08);border-radius:5px;position:relative;overflow:hidden}
 .vreal{position:absolute;top:0;left:0;height:100%;border-radius:5px;z-index:2}
 .vproy{position:absolute;top:0;left:0;height:100%;border-radius:5px;opacity:.32}
 .dzRule{display:grid;grid-template-columns:14px 1fr;gap:0;margin:2px 0 2px}
-.dzScale{position:relative;height:11px;font-size:6.5px;font-weight:900;letter-spacing:.06em;color:#B0AFAA}
+.dzScale{position:relative;height:11px;font-size:6.5px;font-weight:900;letter-spacing:.06em;color:var(--koach-text-muted)}
 .dzScale s{position:absolute;top:0;text-decoration:none;transform:translateX(-50%)}
-.dzLeg{font-size:6.5px;font-weight:900;letter-spacing:.08em;color:#8B8A85;margin:0 0 9px;text-align:right}
+.dzLeg{font-size:6.5px;font-weight:900;letter-spacing:.08em;color:var(--koach-text-secondary);margin:0 0 9px;text-align:right}
 .dz{display:grid;grid-template-columns:56px 1fr 92px;gap:8px;align-items:center;margin-bottom:9px}
 .dzT{position:relative;height:11px;border-radius:3px;background:rgba(18,18,16,.045)}
 .dzT em{position:absolute;top:-2px;bottom:-2px;width:1px;background:rgba(18,18,16,.13)}
@@ -219,14 +222,14 @@ input{width:100%;background:rgba(255,255,255,.7);border:1px solid rgba(255,255,2
 .dzO{position:absolute;top:-3px;bottom:-3px;width:2px;background:#121210;border-radius:1px}
 .dzM{position:absolute;top:-3px;bottom:-3px;width:2px;background:#1C1C1C;opacity:.5;border-radius:1px}
 .dzN{font-size:9px;font-weight:900;text-align:right;line-height:1.45}
-.dzN small{display:block;font-size:6.3px;color:#7C7B76;font-weight:900;letter-spacing:.05em}
+.dzN small{display:block;font-size:6.3px;color:var(--koach-text-secondary);font-weight:900;letter-spacing:.05em}
 .dz2{margin-bottom:11px}
 .dzHead{display:flex;align-items:baseline;gap:8px;margin-bottom:3px}
 .dzHead .g3{width:auto;min-width:42px}
 .dzChip{font-size:6.5px;font-weight:900;letter-spacing:.1em}
 .dzNums{margin-left:auto;font-size:8px;font-weight:900;letter-spacing:.03em;color:#121210}
 .dzRowB{display:grid;grid-template-columns:14px 1fr;gap:0;align-items:center;margin-bottom:3px}
-.dzL{font-style:normal;font-size:6px;font-weight:900;color:#B0AFAA;letter-spacing:.05em}
+.dzL{font-style:normal;font-size:6px;font-weight:900;color:var(--koach-text-muted);letter-spacing:.05em}
 .dzRule{grid-template-columns:14px 1fr}
 .dzE{position:absolute;left:0;top:0;height:100%;border-radius:3px;background:#121210;transition:width .35s}
 .pAct2{border:1.5px solid rgba(18,18,16,.18);background:none;border-radius:10px;padding:7px 10px;font-size:7.5px;font-weight:900;letter-spacing:.1em;cursor:pointer;color:#121210}
@@ -236,12 +239,12 @@ input{width:100%;background:rgba(255,255,255,.7);border:1px solid rgba(255,255,2
 .ocard.odrag{box-shadow:0 14px 30px rgba(18,18,16,.28);transform:scale(1.015);position:relative;z-index:6;background:var(--koach-bg)}
 .oNum{font-size:20px;font-weight:900;letter-spacing:.02em;color:#121210}
 .oNom{font-size:11px;font-weight:900;letter-spacing:.1em}
-.oFoco{font-size:8px;font-weight:800;letter-spacing:.06em;color:#7C7B76;margin-top:3px}
+.oFoco{font-size:8px;font-weight:800;letter-spacing:.06em;color:var(--koach-text-secondary);margin-top:3px}
 .oEst{font-size:7px;font-weight:900;letter-spacing:.12em;color:#1C1C1C;margin-top:4px}
 .oCtl{display:flex;align-items:center;gap:4px}
-.oHdl{touch-action:none;-webkit-user-select:none;user-select:none;cursor:grab;font-size:16px;color:#B0AFAA;padding:10px 8px}
+.oHdl{touch-action:none;-webkit-user-select:none;user-select:none;cursor:grab;font-size:16px;color:var(--koach-text-muted);padding:10px 8px}
 .oUD{border:none;background:rgba(18,18,16,.06);border-radius:9px;width:30px;height:30px;font-size:11px;font-weight:900;cursor:pointer;color:#121210}
-.vv{font-size:6.5px;font-weight:900;text-align:right;color:#7C7B76;line-height:1.5}
+.vv{font-size:6.5px;font-weight:900;text-align:right;color:var(--koach-text-secondary);line-height:1.5}
 #pTabs{flex-wrap:nowrap;overflow-x:auto;-webkit-overflow-scrolling:touch;padding-bottom:6px}
 #pTabs .mtab{flex-shrink:0;white-space:nowrap;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;position:relative}
 #pTabs .hdl{touch-action:none;-webkit-user-select:none;user-select:none;cursor:grab;font-size:11px;line-height:1;padding:6px 7px 6px 2px;margin:-6px 0 -6px -4px;color:inherit;opacity:.5}
@@ -256,7 +259,7 @@ input{width:100%;background:rgba(255,255,255,.7);border:1px solid rgba(255,255,2
 .selRow2{display:flex;align-items:center;gap:10px;padding:11px 6px;border-top:1px solid rgba(18,18,16,.06);cursor:pointer}
 .delSes{border:none;background:none;color:#1C1C1C;font-size:7.5px;font-weight:900;letter-spacing:.08em;cursor:pointer;margin:2px 4px 10px;padding:0}
 #syncTag{position:fixed;top:10px;right:12px;z-index:60;font-size:7px;font-weight:900;letter-spacing:.12em;padding:6px 10px;border-radius:9px;background:rgba(31,157,85,.12);color:#515449;transition:opacity .3s;display:none}
-#syncTag.envio{background:rgba(18,18,16,.1);color:#7C7B76}
+#syncTag.envio{background:rgba(18,18,16,.1);color:var(--koach-text-secondary)}
 #syncTag.err{background:rgba(180,68,44,.12);color:#1C1C1C}
 .pv{display:flex;align-items:center;gap:5px}
 .pv button{width:40px;height:40px;border:none;border-radius:10px;background:rgba(18,18,16,.07);font-weight:900;font-size:16px;cursor:pointer;flex-shrink:0}
@@ -265,7 +268,7 @@ html,button,input,.pv,.mtab,.setChip{touch-action:manipulation}
 .pv input{width:100%;max-width:96px;min-width:52px;margin:0;padding:10px 2px;text-align:center;font-size:16px;font-weight:900;border-radius:10px;background:rgba(255,255,255,.75)}
 .pv button{width:38px;height:38px}
 .pv input.falta{border:1.5px solid #5F5F5F;background:rgba(197,161,60,.08)}
-.pv .pcx{font-size:7px;font-weight:900;letter-spacing:.06em;background:rgba(18,18,16,.07);border-radius:10px;padding:12px 10px;color:#7C7B76;white-space:nowrap}
+.pv .pcx{font-size:7px;font-weight:900;letter-spacing:.06em;background:rgba(18,18,16,.07);border-radius:10px;padding:12px 10px;color:var(--koach-text-secondary);white-space:nowrap}
 .lin.foco{outline:2px solid #5F5F5F;outline-offset:3px;border-radius:10px}
 #oLoad{position:fixed;inset:0;z-index:900;background:#121210;display:none;flex-direction:column;align-items:center;justify-content:center;gap:22px}
 #oLoad.vis{display:flex}
@@ -287,8 +290,8 @@ html,button,input,.pv,.mtab,.setChip{touch-action:manipulation}
 .bqx{margin-left:8px;border:none;background:none;color:#BEBDB8;font-weight:900;cursor:pointer;font-size:12px}
 .emptySes{padding:26px 16px;text-align:center;margin-bottom:11px}
 .emptySes h4{font-size:13px;font-weight:900;margin-bottom:6px}
-.emptySes p{font-size:10px;color:#7C7B76;line-height:1.6;margin-bottom:14px}
-.addBloque{width:100%;border:1.5px dashed rgba(18,18,16,.22);background:none;border-radius:10px;padding:13px;font-size:8.5px;font-weight:900;letter-spacing:.1em;color:#7C7B76;cursor:pointer;margin-bottom:12px}
+.emptySes p{font-size:10px;color:var(--koach-text-secondary);line-height:1.6;margin-bottom:14px}
+.addBloque{width:100%;border:1.5px dashed rgba(18,18,16,.22);background:none;border-radius:10px;padding:13px;font-size:8.5px;font-weight:900;letter-spacing:.1em;color:var(--koach-text-secondary);cursor:pointer;margin-bottom:12px}
 
 /* ═══════════ KOACH DS · SKIN CAPA 1 — COACH (override, reversible) ═══════════ */
 *{box-shadow:none !important; text-shadow:none !important}
@@ -352,6 +355,25 @@ a{color:inherit}
 .mtab{min-height:44px}
 h3 span:last-child{color:var(--koach-ink) !important}
 /* ═══ FIN CAPA 2 ═══ */
+/* ═══ SKIN CAPA 3 — GRIS estructura · BLANCO interacción · NEGRO información ═══ */
+input,select,textarea{background:var(--koach-control) !important; color:var(--koach-text-primary) !important}
+input:focus,select:focus,textarea:focus{outline:none; border-color:var(--koach-ink) !important}
+.stp button{background:var(--koach-surface-raised); color:var(--koach-ink) !important}
+.stp input, .stp .num, .stpV{background:var(--koach-control) !important; font-weight:700; color:var(--koach-text-primary) !important}
+.selRow,.selRow2{border-top:1px solid var(--koach-divider)}
+.selRow:active,.selRow2:active{background:var(--koach-control)}
+.opRow{color:var(--koach-text-primary)}
+.mtab{background:var(--koach-control) !important}
+.mtab.on{background:var(--koach-ink) !important; color:var(--koach-control) !important}
+.bbtn{background:var(--koach-control) !important}
+.bbtn.ink{background:var(--koach-ink) !important; color:var(--koach-control) !important}
+.kPill{background:var(--koach-control)}
+.kPill.on{background:var(--koach-ink); color:var(--koach-control)}
+[disabled],.disabled{color:var(--koach-text-muted) !important; opacity:.55}
+small{color:var(--koach-text-secondary)}
+.dzT{background:rgba(17,17,17,.10) !important}
+.ocard{background:var(--koach-surface-raised) !important}
+/* ═══ FIN CAPA 3 ═══ */
 </style>
 </head>
 <body>
@@ -374,7 +396,7 @@ h3 span:last-child{color:var(--koach-ink) !important}
 </div></div>
 
 <div class="vista" id="vSala">
-  <div class="hbar"><span class="hk" title="c7.4">KOACH</span><span class="rol" id="rolBadge" onclick="salir()">COACH</span></div>
+  <div class="hbar"><span class="hk" title="c7.5">KOACH</span><span class="rol" id="rolBadge" onclick="salir()">COACH</span></div>
   <button class="nuevo" onclick="toggleAlta()">+ NUEVO USUARIO · SOCIO O COACH</button>
   <button class="nuevo" style="background:rgba(255,255,255,.65);color:#121210;border:1.5px solid rgba(18,18,16,.15)" onclick="verBib()">📚 RUTINAS ESTÁNDAR · BIBLIOTECA</button>
   <div class="glass aform" id="fAlta" style="display:none">
@@ -499,9 +521,9 @@ h3 span:last-child{color:var(--koach-ink) !important}
 <div id="syncTag">✓ GUARDADO</div>
 <div id="mGuard" style="display:none;position:fixed;inset:0;z-index:80;background:rgba(18,18,16,.45);backdrop-filter:blur(6px)">
   <div style="position:absolute;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:520px;background:var(--koach-surface);border-radius:10px 10px 0 0;padding:20px 16px 24px">
-    <div style="font-size:8px;letter-spacing:.18em;font-weight:900;color:#7C7B76;margin-bottom:10px">REVISAR PRESCRIPCIÓN</div>
+    <div style="font-size:8px;letter-spacing:.18em;font-weight:900;color:var(--koach-text-secondary);margin-bottom:10px">REVISAR PRESCRIPCIÓN</div>
     <div id="mgMsg" style="font-size:13px;font-weight:800;line-height:1.55;margin-bottom:6px"></div>
-    <div style="font-size:10px;color:#7C7B76;line-height:1.6;margin-bottom:16px">Puedes completarlas ahora o aplicar la programación igualmente — la app orienta, el KOACH decide.</div>
+    <div style="font-size:10px;color:var(--koach-text-secondary);line-height:1.6;margin-bottom:16px">Puedes completarlas ahora o aplicar la programación igualmente — la app orienta, el KOACH decide.</div>
     <div style="display:flex;gap:8px">
       <button class="btn" style="background:rgba(18,18,16,.08);color:#121210" onclick="mgRevisar()">REVISAR CARGAS →</button>
       <button class="btn" onclick="mgAplicar()">APLICAR IGUAL</button>
@@ -511,7 +533,7 @@ h3 span:last-child{color:var(--koach-ink) !important}
 <div id="mAddSes" style="display:none;position:fixed;inset:0;z-index:70;background:rgba(18,18,16,.45);backdrop-filter:blur(6px)">
   <div style="position:absolute;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:560px;max-height:80vh;overflow-y:auto;background:var(--koach-surface);border-radius:10px 10px 0 0;padding:18px 16px 22px">
     <div style="display:flex;align-items:center;margin-bottom:12px">
-      <div style="font-size:8px;letter-spacing:.18em;font-weight:900;color:#7C7B76">AGREGAR SESIÓN A LA SEMANA</div>
+      <div style="font-size:8px;letter-spacing:.18em;font-weight:900;color:var(--koach-text-secondary)">AGREGAR SESIÓN A LA SEMANA</div>
       <button onclick="document.getElementById('mAddSes').style.display='none'" style="margin-left:auto;border:none;background:rgba(18,18,16,.07);border-radius:10px;padding:8px 12px;font-weight:900;cursor:pointer">✕</button></div>
     <div class="h3" style="margin-top:0"><span>RUTINAS ESTÁNDAR ★ · LA VÍA RÁPIDA</span></div>
     <input id="asBusca" placeholder="Buscar rutina…" oninput="pintarAsBib()">
@@ -530,7 +552,7 @@ h3 span:last-child{color:var(--koach-ink) !important}
 <div id="mBloq" style="display:none;position:fixed;inset:0;z-index:72;background:rgba(18,18,16,.45);backdrop-filter:blur(6px)">
   <div style="position:absolute;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:560px;background:var(--koach-surface);border-radius:10px 10px 0 0;padding:18px 16px 22px">
     <div style="display:flex;align-items:center;margin-bottom:12px">
-      <div style="font-size:8px;letter-spacing:.18em;font-weight:900;color:#7C7B76">NUEVO BLOQUE</div>
+      <div style="font-size:8px;letter-spacing:.18em;font-weight:900;color:var(--koach-text-secondary)">NUEVO BLOQUE</div>
       <button onclick="document.getElementById('mBloq').style.display='none'" style="margin-left:auto;border:none;background:rgba(18,18,16,.07);border-radius:10px;padding:8px 12px;font-weight:900;cursor:pointer">✕</button></div>
     <label>TIPO</label>
     <div id="mbTipos" style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:13px"></div>
@@ -548,7 +570,7 @@ h3 span:last-child{color:var(--koach-ink) !important}
 <div id="mSes" style="display:none;position:fixed;inset:0;z-index:72;background:rgba(18,18,16,.45);backdrop-filter:blur(6px)">
   <div style="position:absolute;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:560px;background:var(--koach-surface);border-radius:10px 10px 0 0;padding:18px 16px 22px">
     <div style="display:flex;align-items:center;margin-bottom:6px">
-      <div style="font-size:8px;letter-spacing:.18em;font-weight:900;color:#7C7B76" id="msTit">OPCIONES DE SESIÓN</div>
+      <div style="font-size:8px;letter-spacing:.18em;font-weight:900;color:var(--koach-text-secondary)" id="msTit">OPCIONES DE SESIÓN</div>
       <button onclick="document.getElementById('mSes').style.display='none'" style="margin-left:auto;border:none;background:rgba(18,18,16,.07);border-radius:10px;padding:8px 12px;font-weight:900;cursor:pointer">✕</button></div>
     <div style="display:flex;gap:8px;margin:10px 0 4px">
       <input id="msNombre" placeholder="Nuevo nombre…" style="margin:0">
@@ -561,7 +583,7 @@ h3 span:last-child{color:var(--koach-ink) !important}
 
 <!-- ORGANIZADOR SEMANAL -->
 <div id="mOrg" style="display:none;position:fixed;inset:0;z-index:72;background:rgba(18,18,16,.45);backdrop-filter:blur(6px)"><div style="position:absolute;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:560px;background:var(--koach-surface);border-radius:10px 10px 0 0;padding:18px 16px 22px;max-height:86vh;overflow:auto">
-  <div style="font-size:8px;letter-spacing:.18em;font-weight:900;color:#7C7B76">ORGANIZADOR SEMANAL</div>
+  <div style="font-size:8px;letter-spacing:.18em;font-weight:900;color:var(--koach-text-secondary)">ORGANIZADOR SEMANAL</div>
   <div id="orgCtx" style="font-size:12px;font-weight:900;letter-spacing:.1em;margin:4px 0 10px">—</div>
   <div id="orgSem" style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px"></div>
   <div id="orgMacro" style="margin-bottom:12px"></div>
@@ -574,27 +596,27 @@ h3 span:last-child{color:var(--koach-ink) !important}
 </div></div>
 <!-- BIBLIOTECA DE SESIONES (picker del organizador) -->
 <div id="mBibOrg" style="display:none;position:fixed;inset:0;z-index:74;background:rgba(18,18,16,.45);backdrop-filter:blur(6px)"><div style="position:absolute;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:560px;background:var(--koach-surface);border-radius:10px 10px 0 0;padding:18px 16px 22px;max-height:86vh;overflow:auto">
-  <div style="font-size:8px;letter-spacing:.18em;font-weight:900;color:#7C7B76;margin-bottom:12px">BIBLIOTECA DE SESIONES</div>
+  <div style="font-size:8px;letter-spacing:.18em;font-weight:900;color:var(--koach-text-secondary);margin-bottom:12px">BIBLIOTECA DE SESIONES</div>
   <div id="bibOrgLista"><div class="vacio">Cargando…</div></div>
   <button class="bbtn" onclick="document.getElementById('mBibOrg').style.display='none'" style="width:100%;margin-top:12px">CERRAR</button>
 </div></div>
 <!-- CHOOSER AGREGAR BLOQUE -->
 <div id="mAddBloque" style="display:none;position:fixed;inset:0;z-index:73;background:rgba(18,18,16,.45);backdrop-filter:blur(6px)"><div style="position:absolute;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:560px;background:var(--koach-surface);border-radius:10px 10px 0 0;padding:18px 16px 22px;max-height:86vh;overflow:auto">
-  <div style="font-size:8px;letter-spacing:.18em;font-weight:900;color:#7C7B76;margin-bottom:14px">AGREGAR BLOQUE</div>
+  <div style="font-size:8px;letter-spacing:.18em;font-weight:900;color:var(--koach-text-secondary);margin-bottom:14px">AGREGAR BLOQUE</div>
   <button class="opRow" onclick="document.getElementById('mAddBloque').style.display='none';abrirBloqueCero()">✏️ DISEÑAR DESDE CERO</button>
   <button class="opRow" onclick="document.getElementById('mAddBloque').style.display='none';abrirBibBloq()">📦 USAR BLOQUE PREDISEÑADO</button>
   <button class="bbtn" onclick="document.getElementById('mAddBloque').style.display='none'" style="width:100%;margin-top:14px">CANCELAR</button>
 </div></div>
 <!-- BIBLIOTECA DE BLOQUES -->
 <div id="mBibBloq" style="display:none;position:fixed;inset:0;z-index:74;background:rgba(18,18,16,.45);backdrop-filter:blur(6px)"><div style="position:absolute;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:560px;background:var(--koach-surface);border-radius:10px 10px 0 0;padding:18px 16px 22px;max-height:86vh;overflow:auto">
-  <div style="font-size:8px;letter-spacing:.18em;font-weight:900;color:#7C7B76;margin-bottom:12px">BIBLIOTECA DE BLOQUES</div>
+  <div style="font-size:8px;letter-spacing:.18em;font-weight:900;color:var(--koach-text-secondary);margin-bottom:12px">BIBLIOTECA DE BLOQUES</div>
   <div id="bibBloqLista"><div class="vacio">Cargando…</div></div>
   <div id="bibBloqPrev" style="display:none"></div>
   <button class="bbtn" onclick="document.getElementById('mBibBloq').style.display='none'" style="width:100%;margin-top:12px">CERRAR</button>
 </div></div>
 <!-- ORGANIZADOR DE BLOQUES -->
 <div id="mOrgB" style="display:none;position:fixed;inset:0;z-index:73;background:rgba(18,18,16,.45);backdrop-filter:blur(6px)"><div style="position:absolute;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:560px;background:var(--koach-surface);border-radius:10px 10px 0 0;padding:18px 16px 22px;max-height:86vh;overflow:auto">
-  <div style="font-size:8px;letter-spacing:.18em;font-weight:900;color:#7C7B76">ORGANIZAR BLOQUES</div>
+  <div style="font-size:8px;letter-spacing:.18em;font-weight:900;color:var(--koach-text-secondary)">ORGANIZAR BLOQUES</div>
   <div id="orgBCtx" style="font-size:12px;font-weight:900;letter-spacing:.1em;margin:4px 0 14px">—</div>
   <div id="orgBLista"></div>
   <div style="display:flex;gap:10px;margin-top:16px">
@@ -604,7 +626,7 @@ h3 span:last-child{color:var(--koach-ink) !important}
 </div></div>
 <!-- MODAL GUARDAR COMO PREDISEÑADO -->
 <div id="mTplSave" style="display:none;position:fixed;inset:0;z-index:75;background:rgba(18,18,16,.45);backdrop-filter:blur(6px)"><div style="position:absolute;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:560px;background:var(--koach-surface);border-radius:10px 10px 0 0;padding:18px 16px 22px;max-height:86vh;overflow:auto">
-  <div style="font-size:8px;letter-spacing:.18em;font-weight:900;color:#7C7B76;margin-bottom:12px">GUARDAR COMO BLOQUE PREDISEÑADO</div>
+  <div style="font-size:8px;letter-spacing:.18em;font-weight:900;color:var(--koach-text-secondary);margin-bottom:12px">GUARDAR COMO BLOQUE PREDISEÑADO</div>
   <input id="tplNom" placeholder="Nombre (ej: GLUTES HIP THRUST 01)" style="width:100%;border:1.5px solid rgba(18,18,16,.14);border-radius:10px;padding:13px;font-size:12px;font-weight:800;background:none;margin-bottom:14px">
   <div style="display:flex;gap:10px">
     <button class="bbtn" onclick="document.getElementById('mTplSave').style.display='none'" style="flex:1">CANCELAR</button>
@@ -638,7 +660,7 @@ h3 span:last-child{color:var(--koach-ink) !important}
 <!-- MODAL NUEVA RUTINA ESTÁNDAR -->
 <div id="mRut" style="display:none;position:fixed;inset:0;z-index:70;background:rgba(18,18,16,.45);backdrop-filter:blur(6px)">
   <div style="position:absolute;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:560px;background:var(--koach-surface);border-radius:10px 10px 0 0;padding:18px 16px 22px">
-    <div style="font-size:8px;letter-spacing:.18em;font-weight:900;color:#7C7B76;margin-bottom:12px">NUEVA RUTINA ESTÁNDAR</div>
+    <div style="font-size:8px;letter-spacing:.18em;font-weight:900;color:var(--koach-text-secondary);margin-bottom:12px">NUEVA RUTINA ESTÁNDAR</div>
     <label>NOMBRE</label>
     <input id="mrNombre" placeholder="CORE 30, GLUTE FOCUS, BRAZOS…">
     <label>TIPO</label>
@@ -656,7 +678,7 @@ h3 span:last-child{color:var(--koach-ink) !important}
 <div id="selEj" style="display:none;position:fixed;inset:0;z-index:60;background:rgba(18,18,16,.4);backdrop-filter:blur(6px)">
   <div style="position:absolute;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:560px;max-height:78vh;background:var(--koach-surface);border-radius:10px 10px 0 0;padding:16px 14px;overflow-y:auto">
     <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
-      <div style="font-size:8px;letter-spacing:.18em;font-weight:900;color:#7C7B76" id="selTit">ELEGIR EJERCICIO</div>
+      <div style="font-size:8px;letter-spacing:.18em;font-weight:900;color:var(--koach-text-secondary)" id="selTit">ELEGIR EJERCICIO</div>
       <button onclick="cerrarSelector()" style="margin-left:auto;border:none;background:rgba(18,18,16,.07);border-radius:10px;padding:8px 12px;font-weight:900;cursor:pointer">✕</button></div>
     <div id="selChips" style="display:flex;gap:6px;overflow-x:auto;padding-bottom:8px;margin-bottom:6px"></div>
     <input id="selBusca" placeholder="Buscar ejercicio…" oninput="pintarSelector()" style="margin-bottom:10px">
@@ -1067,13 +1089,13 @@ async function cargarPlanes(){
   box.style.display = (window._nuRol==='socio') ? 'block' : 'none'
   document.getElementById('nuInicio').value = hoyISO()
   document.getElementById('nuPlanChips').innerHTML = PLANES.map(function(p,i){
-    return '<button onclick="nuSetPlan('+i+')" id="nuP'+i+'" style="border:1.5px solid rgba(18,18,16,.15);background:none;border-radius:8px;padding:9px 12px;font-size:7.5px;font-weight:900;letter-spacing:.06em;color:#7C7B76;cursor:pointer">'+p.nombre+'<br>$'+(p.precio||0).toLocaleString('es-CL')+'</button>'
+    return '<button onclick="nuSetPlan('+i+')" id="nuP'+i+'" style="border:1.5px solid rgba(18,18,16,.15);background:none;border-radius:8px;padding:9px 12px;font-size:7.5px;font-weight:900;letter-spacing:.06em;color:var(--koach-text-secondary);cursor:pointer">'+p.nombre+'<br>$'+(p.precio||0).toLocaleString('es-CL')+'</button>'
   }).join('')
 }
 function nuSetPlan(i){
   nuPlanSel = PLANES[i]
   PLANES.forEach(function(_,j){ const b=document.getElementById('nuP'+j)
-    if(b){ b.style.background=(j===i)?'#121210':'none'; b.style.color=(j===i)?'#F3F2EF':'#7C7B76'; b.style.borderColor=(j===i)?'#121210':'rgba(18,18,16,.15)' } })
+    if(b){ b.style.background=(j===i)?'#121210':'none'; b.style.color=(j===i)?'#F3F2EF':'var(--koach-text-secondary)'; b.style.borderColor=(j===i)?'#121210':'rgba(18,18,16,.15)' } })
 }
 function toggleAlta(){ const f=document.getElementById('fAlta'); f.style.display=f.style.display==='none'?'block':'none'
   if(f.style.display==='block') cargarPlanes() }
@@ -1191,7 +1213,7 @@ function crearRutinaStd(){
   document.getElementById('mrNombre').value=''
   document.getElementById('mrDur').value=''
   document.getElementById('mrTipos').innerHTML = TIPOS_RUT.map(function(tp,i){
-    return '<button onclick="mrSetTipo('+i+')" id="mrT'+i+'" style="border:1.5px solid rgba(18,18,16,.15);background:none;border-radius:8px;padding:8px 11px;font-size:7.5px;font-weight:900;letter-spacing:.06em;color:#7C7B76;cursor:pointer">'+tp+'</button>'
+    return '<button onclick="mrSetTipo('+i+')" id="mrT'+i+'" style="border:1.5px solid rgba(18,18,16,.15);background:none;border-radius:8px;padding:8px 11px;font-size:7.5px;font-weight:900;letter-spacing:.06em;color:var(--koach-text-secondary);cursor:pointer">'+tp+'</button>'
   }).join('')
   document.getElementById('mRut').style.display='block'
 }
@@ -1199,7 +1221,7 @@ function mrSetTipo(i){
   mrTipo = TIPOS_RUT[i]
   TIPOS_RUT.forEach(function(_,j){
     const b=document.getElementById('mrT'+j)
-    if(b){ b.style.background = (j===i)?'#121210':'none'; b.style.color=(j===i)?'#F3F2EF':'#7C7B76'; b.style.borderColor=(j===i)?'#121210':'rgba(18,18,16,.15)' }
+    if(b){ b.style.background = (j===i)?'#121210':'none'; b.style.color=(j===i)?'#F3F2EF':'var(--koach-text-secondary)'; b.style.borderColor=(j===i)?'#121210':'rgba(18,18,16,.15)' }
   })
   const n=document.getElementById('mrNombre')
   if(!n.value.trim()) n.value = TIPOS_RUT[i]
@@ -1545,13 +1567,13 @@ function abrirBloqueCero(){
   document.getElementById('mbSets').textContent='3'
   document.getElementById('mbDesc').textContent='60'
   document.getElementById('mbTipos').innerHTML=TIPOS_BLOQUE.map(function(tp,i){
-    return '<button onclick="mbTipo('+i+')" id="mbT'+i+'" style="border:1.5px solid rgba(18,18,16,.15);background:'+(i===1?'#121210':'none')+';color:'+(i===1?'#F3F2EF':'#7C7B76')+';border-radius:8px;padding:8px 11px;font-size:7.5px;font-weight:900;letter-spacing:.06em;cursor:pointer">'+tp[0]+'</button>'
+    return '<button onclick="mbTipo('+i+')" id="mbT'+i+'" style="border:1.5px solid rgba(18,18,16,.15);background:'+(i===1?'#121210':'none')+';color:'+(i===1?'#F3F2EF':'var(--koach-text-secondary)')+';border-radius:8px;padding:8px 11px;font-size:7.5px;font-weight:900;letter-spacing:.06em;cursor:pointer">'+tp[0]+'</button>'
   }).join('')
   document.getElementById('mBloq').style.display='block'
 }
 function mbTipo(i){ MB.tipo=i
   TIPOS_BLOQUE.forEach(function(_,j){ const b=document.getElementById('mbT'+j)
-    if(b){ b.style.background=(j===i)?'#121210':'none'; b.style.color=(j===i)?'#F3F2EF':'#7C7B76' } }) }
+    if(b){ b.style.background=(j===i)?'#121210':'none'; b.style.color=(j===i)?'#F3F2EF':'var(--koach-text-secondary)' } }) }
 function mbStep(k,d){ if(k==='sets'){ MB.sets=Math.max(1,Math.min(8,MB.sets+d)); document.getElementById('mbSets').textContent=MB.sets }
   else { MB.desc=Math.max(15,Math.min(240,MB.desc+d)); document.getElementById('mbDesc').textContent=MB.desc } }
 async function insertarBloque(sesId, codigo, etiqueta, rol, sets, desc){
@@ -1910,7 +1932,7 @@ function pintarChipsSel(){
     const on = SEL.grupo===val
     const arg = (val===null) ? 'null' : ('\''+val+'\'')
     return '<button onclick="setGrupoSel('+arg+')" style="flex-shrink:0;border:none;border-radius:8px;padding:8px 12px;font-size:7.5px;font-weight:900;letter-spacing:.06em;cursor:pointer;'+
-      (on?'background:#121210;color:#F3F2EF':'background:rgba(18,18,16,.07);color:#7C7B76')+'">'+txt+'</button>'
+      (on?'background:#121210;color:#F3F2EF':'background:rgba(18,18,16,.07);color:var(--koach-text-secondary)')+'">'+txt+'</button>'
   }
   document.getElementById('selChips').innerHTML = chip('VER TODOS', null) + grupos.map(function(g){ return chip(g, g) }).join('')
 }
@@ -1980,7 +2002,7 @@ function calcDose(){
   const f1=function(x){ return +(+x).toFixed(1) }
   const filas = Object.keys(universo).map(function(g){
     const o=objetivos[g]||null, v=acum[g]||0, rv=(real[g]||0)
-    let tag='LIBRE', col='#8B8A85', prio=3
+    let tag='LIBRE', col='var(--koach-text-secondary)', prio=3
     if (o && o.mev!=null){
       if ((o.mav && rv>o.mav) || (o.mav && v>o.mav)){ tag='SOBRE TECHO'; col='#1C1C1C'; prio=0
         if(!alerta) alerta='⚠ '+(SIGLA[g]||g)+' '+f1(Math.max(rv,v))+'/'+o.mav+' TECHO' }
@@ -2009,7 +2031,7 @@ function calcDose(){
   const LIM=6
   const lista = P.vivoAll ? filas : filas.slice(0,LIM)
   const btn = filas.length>LIM
-    ? '<button onclick="P.vivoAll=!P.vivoAll;calcDose()" style="width:100%;border:none;background:none;padding:9px 0 2px;font-size:7px;font-weight:900;letter-spacing:.12em;color:#7C7B76;cursor:pointer">'+
+    ? '<button onclick="P.vivoAll=!P.vivoAll;calcDose()" style="width:100%;border:none;background:none;padding:9px 0 2px;font-size:7px;font-weight:900;letter-spacing:.12em;color:var(--koach-text-secondary);cursor:pointer">'+
       (P.vivoAll?'▲ VER MENOS':'▼ VER TODOS LOS ESTÍMULOS ('+filas.length+')')+'</button>' : ''
   const regla='<div class="dzRule"><span style="width:14px"></span><div class="dzScale">'+
     '<s style="left:0%">0</s><s style="left:42.5%">10</s><s style="left:85%">20</s><s style="left:100%">20+</s></div><span></span></div>'+
@@ -2035,7 +2057,7 @@ async function abrirBibBloq(){
       const n=(t.bloque_ejercicios||[]).length
       return '<div style="display:flex;align-items:center;gap:10px;padding:12px 0;border-bottom:1px solid rgba(18,18,16,.06)">'+
         '<div style="flex:1"><div style="font-size:11px;font-weight:900;letter-spacing:.1em">'+(t.etiqueta||t.bloque)+'</div>'+
-        '<div style="font-size:8px;font-weight:800;color:#7C7B76">'+(n? n+' EJERCICIOS · '+t.sets+' SETS' : 'POR DEFINIR — sin ejercicios aún')+'</div></div>'+
+        '<div style="font-size:8px;font-weight:800;color:var(--koach-text-secondary)">'+(n? n+' EJERCICIOS · '+t.sets+' SETS' : 'POR DEFINIR — sin ejercicios aún')+'</div></div>'+
         '<button class="bbtn ink" style="padding:8px 12px" onclick="verTpl(\''+t.id+'\')">VER →</button></div>'
     }).join('') : '<div class="vacio">Sin bloques prediseñados aún.</div>'
   }catch(e){ el.innerHTML='<div class="vacio">No pudimos cargar la biblioteca.</div>' }
@@ -2052,7 +2074,7 @@ async function verTpl(tplId){
     prev.innerHTML='<div style="font-size:12px;font-weight:900;letter-spacing:.1em;margin-bottom:8px">'+(rt.data.etiqueta||'BLOQUE')+'</div>'+
       (revisar?'<div style="font-size:8px;font-weight:900;color:#1C1C1C;margin-bottom:8px">⚠ CONTIENE EJERCICIOS FUERA DE BIBLIOTECA — REQUIERE REVISIÓN</div>':'')+
       (bes.length? bes.map(function(x){
-        return '<div style="display:flex;justify-content:space-between;font-size:9px;font-weight:800;color:#5A5954;padding:3px 0"><span>'+((x.ejercicios&&x.ejercicios.nombre)||'—')+(x.ejercicios&&x.ejercicios.activo===false?' <b style="color:#1C1C1C">✕</b>':'')+'</span><span>'+(x.duracion_seg?x.duracion_seg+'"':(x.reps_txt||''))+'</span></div>'
+        return '<div style="display:flex;justify-content:space-between;font-size:9px;font-weight:800;color:var(--koach-text-secondary);padding:3px 0"><span>'+((x.ejercicios&&x.ejercicios.nombre)||'—')+(x.ejercicios&&x.ejercicios.activo===false?' <b style="color:#1C1C1C">✕</b>':'')+'</span><span>'+(x.duracion_seg?x.duracion_seg+'"':(x.reps_txt||''))+'</span></div>'
       }).join('') : '<div class="vacio">Plantilla vacía — pendiente de contenido.</div>')+
       '<div style="display:flex;gap:10px;margin-top:14px">'+
       '<button class="bbtn" onclick="abrirBibBloq()" style="flex:1">← VOLVER</button>'+
@@ -2216,13 +2238,13 @@ function pintarOrgSem(){
   const sems=Object.keys(ORG.porSem).map(Number).sort(function(a,b){return a-b})
   document.getElementById('orgSem').innerHTML = sems.map(function(w){
     return '<button onclick="cambiarSemOrg('+w+')" style="border:1.5px solid '+(w===ORG.sem?'#121210':'rgba(18,18,16,.16)')+';background:'+(w===ORG.sem?'#121210':'none')+';color:'+(w===ORG.sem?'#F2F1EF':'#121210')+';border-radius:8px;padding:8px 12px;font-size:8px;font-weight:900;letter-spacing:.1em;cursor:pointer">SEM '+w+'</button>'
-  }).join('')+'<button onclick="duplicarSemana()" style="border:1.5px dashed rgba(18,18,16,.25);background:none;border-radius:8px;padding:8px 12px;font-size:8px;font-weight:900;letter-spacing:.1em;cursor:pointer;color:#7C7B76">+ DUPLICAR → SEM '+(Math.max.apply(null,sems)+1)+'</button>'
+  }).join('')+'<button onclick="duplicarSemana()" style="border:1.5px dashed rgba(18,18,16,.25);background:none;border-radius:8px;padding:8px 12px;font-size:8px;font-weight:900;letter-spacing:.1em;cursor:pointer;color:var(--koach-text-secondary)">+ DUPLICAR → SEM '+(Math.max.apply(null,sems)+1)+'</button>'
   document.getElementById('orgMacro').innerHTML = sems.map(function(w){
     const e=macroEval(w)
     return '<div style="display:flex;gap:10px;align-items:baseline;font-size:8px;font-weight:900;letter-spacing:.06em;padding:4px 0;border-bottom:1px solid rgba(18,18,16,.05)">'+
-      '<span style="width:44px">SEM '+w+'</span><span>SVC '+e.svc+'</span><span style="color:#5A5954">'+e.metas+' METAS</span>'+
+      '<span style="width:44px">SEM '+w+'</span><span>SVC '+e.svc+'</span><span style="color:var(--koach-text-secondary)">'+e.metas+' METAS</span>'+
       (e.sobre?'<span style="color:#1C1C1C">⚠ '+e.sobre+' TECHO</span>':'')+
-      (e.corto?'<span style="color:#7C7B76">✕ '+e.corto+' INCOMPLETO'+(e.corto>1?'S':'')+'</span>':'<span style="color:#515449">✓</span>')+'</div>'
+      (e.corto?'<span style="color:var(--koach-text-secondary)">✕ '+e.corto+' INCOMPLETO'+(e.corto>1?'S':'')+'</span>':'<span style="color:#515449">✓</span>')+'</div>'
   }).join('')
 }
 function cambiarSemOrg(w){ ORG.sem=w; ORG.orden=ORG.porSem[w]||[]; pintarOrgSem(); pintarOrg() }
@@ -2522,7 +2544,7 @@ async function cargarSolicitudes(socioId){
     document.getElementById('pReqs').innerHTML = data.map(function(q){
       return '<div style="display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid rgba(18,18,16,.06)">'+
         '<div style="flex:1"><div style="font-size:9px;font-weight:900;letter-spacing:.08em">'+(LBL[q.tipo]||q.tipo.toUpperCase())+'</div>'+
-        '<div style="font-size:8px;font-weight:800;color:#7C7B76">'+(q.detalle||'')+'</div></div>'+
+        '<div style="font-size:8px;font-weight:800;color:var(--koach-text-secondary)">'+(q.detalle||'')+'</div></div>'+
         '<button class="pAct2 ok" onclick="resolverSolicitud(\''+q.id+'\',\'APROBADA\')">APROBAR</button>'+
         '<button class="pAct2" onclick="resolverSolicitud(\''+q.id+'\',\'RECHAZADA\')">RECHAZAR</button></div>'
     }).join('')
