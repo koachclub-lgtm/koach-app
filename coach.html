@@ -396,7 +396,7 @@ small{color:var(--koach-text-secondary)}
 </div></div>
 
 <div class="vista" id="vSala">
-  <div class="hbar"><span class="hk" title="c7.5">KOACH</span><span class="rol" id="rolBadge" onclick="salir()">COACH</span></div>
+  <div class="hbar"><span class="hk" title="c7.6">KOACH</span><span class="rol" id="rolBadge" onclick="salir()">COACH</span></div>
   <button class="nuevo" onclick="toggleAlta()">+ NUEVO USUARIO · SOCIO O COACH</button>
   <button class="nuevo" style="background:rgba(255,255,255,.65);color:#121210;border:1.5px solid rgba(18,18,16,.15)" onclick="verBib()">📚 RUTINAS ESTÁNDAR · BIBLIOTECA</button>
   <div class="glass aform" id="fAlta" style="display:none">
@@ -2032,15 +2032,21 @@ function calcDose(){
         '<div class="dzE" style="width:'+dzPos(rv)+'%"></div></div></div></div>' }
   })
   const ORD=['PECHO','ESPALDA','HOMBROS','TRÍCEPS','BÍCEPS','CORE','GLÚTEOS','CUÁDRICEPS','ISQUIOS','PANTORRILLAS','CARDIO','MOVILIDAD']
+  const esMeta=function(fi){ const o=objetivos[fi.g]; return !!(o && o.mev!=null && o.exigible!==false) }
   filas.sort(function(a,b){
+    const ma=esMeta(a)?0:1, mb=esMeta(b)?0:1
+    if (ma!==mb) return ma-mb
     const ia=ORD.indexOf(a.g), ib=ORD.indexOf(b.g)
     return (ia<0?99:ia)-(ib<0?99:ib) })
-  const LIM=6
+  const nMetas = Object.keys(objetivos).filter(function(g){return objetivos[g].mev!=null && objetivos[g].exigible!==false}).length
+  const nMetasVisibles = filas.filter(esMeta).length
+  const LIM=Math.max(6,nMetasVisibles)
   const lista = P.vivoAll ? filas : filas.slice(0,LIM)
   const btn = filas.length>LIM
     ? '<button onclick="P.vivoAll=!P.vivoAll;calcDose()" style="width:100%;border:none;background:none;padding:9px 0 2px;font-size:7px;font-weight:900;letter-spacing:.12em;color:var(--koach-text-secondary);cursor:pointer">'+
-      (P.vivoAll?'▲ VER MENOS':'▼ VER TODOS LOS ESTÍMULOS ('+filas.length+')')+'</button>' : ''
-  const regla='<div class="dzRule"><span style="width:14px"></span><div class="dzScale">'+
+      (P.vivoAll?'▲ VER MENOS':'▼ VER TAMBIÉN LOS ESTÍMULOS LIBRES ('+(filas.length-nMetasVisibles)+')')+'</button>' : ''
+  const cabecera='<div style="font-family:var(--font-mono);font-weight:500;font-size:11px;letter-spacing:.04em;color:var(--koach-text-primary);margin:0 0 8px">'+nMetas+' META'+(nMetas===1?'':'S')+'<span style="color:var(--koach-text-secondary);font-weight:400"> · mismo número en Su Semana</span></div>'
+  const regla=cabecera+'<div class="dzRule"><span style="width:14px"></span><div class="dzScale">'+
     '<s style="left:0%">0</s><s style="left:42.5%">10</s><s style="left:85%">20</s><s style="left:100%">20+</s></div><span></span></div>'+
     '<div class="dzLeg">P = PROGRAMADO · E = EJECUTADO · | META · ¦ TECHO · SERIES EFECTIVAS</div>'
   const dzHTML = regla + lista.map(function(f){return f.html}).join('') + btn
