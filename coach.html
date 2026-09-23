@@ -396,7 +396,7 @@ small{color:var(--koach-text-secondary)}
 </div></div>
 
 <div class="vista" id="vSala">
-  <div class="hbar"><span class="hk" title="c7.7">KOACH</span><span class="rol" id="rolBadge" onclick="salir()">COACH</span></div>
+  <div class="hbar"><span class="hk" title="c7.8">KOACH</span><span class="rol" id="rolBadge" onclick="salir()">COACH</span></div>
   <button class="nuevo" onclick="toggleAlta()">+ NUEVO USUARIO · SOCIO O COACH</button>
   <button class="nuevo" style="background:rgba(255,255,255,.65);color:#121210;border:1.5px solid rgba(18,18,16,.15)" onclick="verBib()">📚 RUTINAS ESTÁNDAR · BIBLIOTECA</button>
   <div class="glass aform" id="fAlta" style="display:none">
@@ -441,7 +441,7 @@ small{color:var(--koach-text-secondary)}
     <button class="a2 ink" onclick="wsp()">WHATSAPP</button>
   </div>
   <div class="glass sec"><h3><span>SUS SOLICITUDES</span><span id="fSolN">—</span></h3><div id="fSols"></div></div>
-  <div class="glass sec"><h3><span>SESIONES DE LA SEMANA</span><span>REGISTRO</span></h3><div id="fRegs"></div></div>
+  <div class="glass sec"><h3><span>SESIONES REALIZADAS ESTA SEMANA</span><span id="fRegsN">—</span></h3><div id="fRegs"></div></div>
   <div class="glass sec"><h3><span>EXTRAS DESIGNADAS ★</span><span id="fExN">0</span></h3><div id="fExtras"></div></div>
   <div class="peligro">
     <button class="pel frio" id="btnFrio" onclick="congelar()">CONGELAR</button>
@@ -964,11 +964,16 @@ function verFicha(id){
   }).join('') : '<div class="vacio">Sin solicitudes pendientes</div>'
   const DIAS3=['LUN','MAR','MIE','JUE','VIE','SAB','DOM']
   const regs=(C.regs[id]||[]).slice().sort(function(a2,b2){return a2.fecha<b2.fecha?1:-1})
+  // Ajuste 03: distinguir PROGRAMADAS (del protocolo) de REALIZADAS (con registro real) — nunca la misma etiqueta.
+  const progTotal = (a && C.prog[a.protocolo_id]) ? C.prog[a.protocolo_id].sesiones.length : 0
+  document.getElementById('fRegsN').textContent = progTotal ? (regs.length+'/'+progTotal) : (regs.length+' REGISTRO'+(regs.length===1?'':'S'))
   document.getElementById('fRegs').innerHTML = regs.length?regs.map(function(r){
     const dd=new Date(r.fecha+'T12:00:00')
     return '<div class="fila"><div><div class="fn">'+spNombre(r.sesion_protocolo_id)+'</div>'+
     '<div class="fm">'+DIAS3[(dd.getDay()+6)%7]+' '+dd.getDate()+' · '+(r.estado||'').toUpperCase()+'</div></div></div>'
-  }).join('') : '<div class="vacio">Aún sin sesiones esta semana</div>'
+  }).join('') : (progTotal
+    ? '<div class="vacio">'+progTotal+' sesión'+(progTotal===1?'':'es')+' programada'+(progTotal===1?'':'s')+' · aún sin ejecutar esta semana</div>'
+    : '<div class="vacio">Sin programa asignado</div>')
   const exs=(C.extras[id]||[])
   const disp=exs.filter(function(e){return e.estado==='disponible'}).length
   document.getElementById('fExN').textContent=disp+' DISPONIBLE'+(disp===1?'':'S')
