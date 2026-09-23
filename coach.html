@@ -396,7 +396,7 @@ small{color:var(--koach-text-secondary)}
 </div></div>
 
 <div class="vista" id="vSala">
-  <div class="hbar"><span class="hk" title="c7.6">KOACH</span><span class="rol" id="rolBadge" onclick="salir()">COACH</span></div>
+  <div class="hbar"><span class="hk" title="c7.7">KOACH</span><span class="rol" id="rolBadge" onclick="salir()">COACH</span></div>
   <button class="nuevo" onclick="toggleAlta()">+ NUEVO USUARIO · SOCIO O COACH</button>
   <button class="nuevo" style="background:rgba(255,255,255,.65);color:#121210;border:1.5px solid rgba(18,18,16,.15)" onclick="verBib()">📚 RUTINAS ESTÁNDAR · BIBLIOTECA</button>
   <div class="glass aform" id="fAlta" style="display:none">
@@ -2010,10 +2010,12 @@ function calcDose(){
   const filas = Object.keys(universo).map(function(g){
     const o=objetivos[g]||null, v=acum[g]||0, rv=(real[g]||0)
     let tag='LIBRE', col='var(--koach-text-secondary)', prio=3
+    // Ajuste 04/05/61: el estado en el PLANIFICADOR describe la PRESCRIPCIÓN (PROG), no la ejecución.
+    // EJEC sigue mostrándose como dato separado (nums, barra E) pero nunca determina el color/tag.
     if (o && o.mev!=null){
-      if ((o.mav && rv>o.mav) || (o.mav && v>o.mav)){ tag='SOBRE TECHO'; col='#1C1C1C'; prio=0
-        if(!alerta) alerta='⚠ '+(SIGLA[g]||g)+' '+f1(Math.max(rv,v))+'/'+o.mav+' TECHO' }
-      else if (rv>=o.mev){ tag='EN DOSIS'; col='#515449'; prio=2 }
+      if (o.mav!=null && v>o.mav){ tag='SOBRE TECHO'; col='#1C1C1C'; prio=0
+        if(!alerta) alerta='⚠ '+(SIGLA[g]||g)+' '+f1(v)+'/'+o.mav+' TECHO' }
+      else if (v>=o.mev){ tag='EN RANGO'; col='#515449'; prio=2 }
       else { tag='BAJO'; col='#121210'; prio=1 }
     }
     const guias='<em style="left:42.5%"></em><em style="left:85%"></em>'
