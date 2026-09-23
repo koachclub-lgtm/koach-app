@@ -396,7 +396,7 @@ small{color:var(--koach-text-secondary)}
 </div></div>
 
 <div class="vista" id="vSala">
-  <div class="hbar"><span class="hk" title="c7.8">KOACH</span><span class="rol" id="rolBadge" onclick="salir()">COACH</span></div>
+  <div class="hbar"><span class="hk" title="c7.9">KOACH</span><span class="rol" id="rolBadge" onclick="salir()">COACH</span></div>
   <button class="nuevo" onclick="toggleAlta()">+ NUEVO USUARIO · SOCIO O COACH</button>
   <button class="nuevo" style="background:rgba(255,255,255,.65);color:#121210;border:1.5px solid rgba(18,18,16,.15)" onclick="verBib()">📚 RUTINAS ESTÁNDAR · BIBLIOTECA</button>
   <div class="glass aform" id="fAlta" style="display:none">
@@ -431,6 +431,7 @@ small{color:var(--koach-text-secondary)}
     <div class="stit" id="fNombre">—</div>
     <span class="rol" id="fEstado" style="margin-left:auto">ACTIVA</span></div>
   <div class="ssub" id="fMeta">—</div>
+  <button onclick="abrirCiclo()" style="margin-top:6px;border:1px solid var(--koach-border-strong);background:none;border-radius:10px;padding:7px 12px;font-family:var(--font-mono);font-size:9px;font-weight:500;letter-spacing:.06em;cursor:pointer;color:var(--koach-text-primary)">⟳ VER CICLO</button>
   <div class="glass viva">
     <h3><span>SU SEMANA · EN VIVO</span><span id="fSemTit">—</span></h3>
     <div class="rows2" id="fRows"></div>
@@ -615,6 +616,14 @@ small{color:var(--koach-text-secondary)}
   <button class="bbtn" onclick="document.getElementById('mBibBloq').style.display='none'" style="width:100%;margin-top:12px">CERRAR</button>
 </div></div>
 <!-- ORGANIZADOR DE BLOQUES -->
+<div id="mCiclo" style="display:none;position:fixed;inset:0;z-index:76;background:rgba(18,18,16,.45);backdrop-filter:blur(6px)"><div style="position:absolute;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:560px;background:var(--koach-surface);border-radius:10px 10px 0 0;padding:18px 16px 22px;max-height:86vh;overflow:auto">
+  <div class="kData" style="color:var(--koach-text-secondary);margin-bottom:2px">CICLO</div>
+  <div id="cicloTit" style="font-family:var(--font-display);font-weight:700;font-size:16px;margin-bottom:2px">—</div>
+  <div id="cicloFechas" style="font-family:var(--font-mono);font-size:10px;color:var(--koach-text-secondary);margin-bottom:14px">—</div>
+  <div id="cicloSemanas" style="display:flex;gap:6px;overflow-x:auto;padding-bottom:6px;margin-bottom:16px"></div>
+  <div id="cicloDetalle"></div>
+  <button onclick="document.getElementById(\'mCiclo\').style.display=\'none\'" style="width:100%;margin-top:14px;border:1px solid var(--koach-border-strong);background:none;border-radius:10px;padding:11px;font-family:var(--font-mono);font-size:10px;font-weight:500;letter-spacing:.08em;cursor:pointer;color:var(--koach-text-primary)">CERRAR</button>
+</div></div>
 <div id="mOrgB" style="display:none;position:fixed;inset:0;z-index:73;background:rgba(18,18,16,.45);backdrop-filter:blur(6px)"><div style="position:absolute;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:560px;background:var(--koach-surface);border-radius:10px 10px 0 0;padding:18px 16px 22px;max-height:86vh;overflow:auto">
   <div style="font-size:8px;letter-spacing:.18em;font-weight:900;color:var(--koach-text-secondary)">ORGANIZAR BLOQUES</div>
   <div id="orgBCtx" style="font-size:12px;font-weight:900;letter-spacing:.1em;margin:4px 0 14px">—</div>
@@ -725,6 +734,93 @@ function calcularSemana(programa, registros, objetivos){
   const pct=ex.length?Math.round(ex.reduce(function(a,m){return a+Math.min(m.series/m.objetivo,1)},0)/ex.length*100):0
   return { musculos:musculos, exigibles:ex.length, fortalecidos:tot, pct_dosis:pct,
            completa:ex.length>0&&tot===ex.length, acum:acum }
+}
+// ═══ CICLO TEMPORAL (Ajuste 32-43) ═══ resolver puro, probado con datos reales antes de integrar
+function resolveCiclo(fechaInicio, ciclosemanas, semanaActual, sesionesPorSemana, registrosPorSemana){
+  const ini = new Date(fechaInicio+"T12:00:00")
+  const semanas = []
+  for (let w=1; w<=ciclosemanas; w++){
+    const ds = new Date(ini); ds.setDate(ini.getDate()+(w-1)*7)
+    const de = new Date(ds); de.setDate(ds.getDate()+6)
+    const fmt = function(d){ return d.toISOString().split("T")[0] }
+    const estado_temporal = w<semanaActual?"PASADA": w===semanaActual?"ACTUAL":"FUTURA"
+    const prog = sesionesPorSemana[w]||0, ejec = registrosPorSemana[w]||0
+    let estado_semana
+    if (estado_temporal==="FUTURA") estado_semana = prog>0 ? "PROGRAMADA":"SIN PROGRAMAR"
+    else if (prog===0) estado_semana = "SIN PROGRAMAR"
+    else if (ejec>=prog) estado_semana = "COMPLETADA"
+    else if (ejec>0) estado_semana = "PARCIAL"
+    else estado_semana = estado_temporal==="ACTUAL" ? "EN CURSO" : "SIN EJECUTAR"
+    semanas.push({numero:w, desde:fmt(ds), hasta:fmt(de), estado_temporal, sesiones_programadas:prog, sesiones_ejecutadas:ejec, estado_semana})
+  }
+  return semanas
+}
+let CICLO={socioId:null, semanas:[], wSel:null}
+async function abrirCiclo(){
+  if (!F) return
+  const a=C.asig[F.id]
+  if (!a || !a.protocolos){ toast('Este socio no tiene programa asignado.'); return }
+  document.getElementById('cicloTit').textContent = ((a.protocolos.programa||'')+' · '+(a.protocolos.nivel||'')).toUpperCase()
+  document.getElementById('mCiclo').style.display='block'
+  document.getElementById('cicloSemanas').innerHTML='<div class="vacio">Cargando…</div>'
+  document.getElementById('cicloDetalle').innerHTML=''
+  try{
+    const ciclosemanas = (a.protocolos.ciclo_semanas)||6
+    const prog=C.prog[a.protocolo_id]
+    const sesionesPorSemana={}
+    ;(prog?prog.sesiones:[]).forEach(function(s){ const w=s.semana||1; sesionesPorSemana[w]=(sesionesPorSemana[w]||0)+1 })
+    const rr = await sb.from('sesiones_registro').select('id,fecha,estado,semana,ciclo,sesion_protocolo_id')
+      .eq('socio_id',F.id).eq('ciclo',a.ciclo_actual||1)
+    const registrosPorSemana={}, registrosDetalle={}
+    ;(rr.data||[]).forEach(function(r){
+      if (ESTADOS_OK.indexOf(r.estado)===-1) return
+      const w=r.semana||1
+      registrosPorSemana[w]=(registrosPorSemana[w]||0)+1
+      ;(registrosDetalle[w]=registrosDetalle[w]||[]).push(r)
+    })
+    CICLO.socioId=F.id; CICLO._detalle=registrosDetalle
+    CICLO.semanas = resolveCiclo(a.fecha_inicio, ciclosemanas, a.semana_actual||1, sesionesPorSemana, registrosPorSemana)
+    const d0=CICLO.semanas[0], dN=CICLO.semanas[CICLO.semanas.length-1]
+    const MES3=['ENE','FEB','MAR','ABR','MAY','JUN','JUL','AGO','SEP','OCT','NOV','DIC']
+    const fmtCorto=function(iso){ const d=new Date(iso+'T12:00:00'); return d.getDate()+' '+MES3[d.getMonth()] }
+    document.getElementById('cicloFechas').textContent = 'CICLO '+(a.ciclo_actual||1)+' · '+ciclosemanas+' SEMANAS · '+fmtCorto(d0.desde)+' — '+fmtCorto(dN.hasta)
+    pintarCicloSemanas()
+    verSemanaCiclo(a.semana_actual||1)
+  }catch(e){ document.getElementById('cicloSemanas').innerHTML='<div class="vacio">No pudimos cargar el ciclo.</div>' }
+}
+function pintarCicloSemanas(){
+  const COL={'PASADA':'var(--koach-text-secondary)','ACTUAL':'#515449','FUTURA':'var(--koach-text-muted)'}
+  document.getElementById('cicloSemanas').innerHTML = CICLO.semanas.map(function(s){
+    const on = s.numero===CICLO.wSel
+    const check = s.estado_semana==='COMPLETADA' ? '✓ ' : ''
+    return '<button onclick="verSemanaCiclo('+s.numero+')" style="flex:0 0 auto;min-width:52px;border:1.5px solid '+(on?'var(--koach-ink)':'var(--koach-border)')+';background:'+(on?'var(--koach-ink)':'var(--koach-control)')+';color:'+(on?'var(--koach-control)':COL[s.estado_temporal])+';border-radius:10px;padding:9px 6px;font-family:var(--font-mono);font-weight:500;font-size:10px;cursor:pointer;text-align:center">'+
+      check+'S'+s.numero+'<div style="font-size:7px;opacity:.75;margin-top:2px">'+(s.estado_temporal==='ACTUAL'?'ACTUAL':s.sesiones_ejecutadas+'/'+s.sesiones_programadas)+'</div></button>'
+  }).join('')
+}
+function verSemanaCiclo(w){
+  CICLO.wSel=w
+  pintarCicloSemanas()
+  const s = CICLO.semanas.find(function(x){return x.numero===w}); if(!s) return
+  const MES3=['ENE','FEB','MAR','ABR','MAY','JUN','JUL','AGO','SEP','OCT','NOV','DIC']
+  const fmtCorto=function(iso){ const d=new Date(iso+'T12:00:00'); return d.getDate()+' '+MES3[d.getMonth()] }
+  const a=C.asig[F.id]
+  const prog=C.prog[a.protocolo_id]
+  const sesionesSemana=(prog?prog.sesiones:[]).filter(function(x){return (x.semana||1)===w})
+  const regsSemana=(CICLO._detalle&&CICLO._detalle[w])||[]
+  const nomPorSpId={}; regsSemana.forEach(function(r){})
+  const etiqueta = s.estado_temporal==='FUTURA' ? (s.estado_semana==='SIN PROGRAMAR'?'SIN PROGRAMAR':'PROGRAMADA — planificación futura, editable')
+    : s.estado_temporal==='ACTUAL' ? 'SEMANA ACTUAL — progreso en vivo' : 'HISTORIAL — no se reescribe'
+  let html = '<div style="font-family:var(--font-mono);font-size:9px;font-weight:500;letter-spacing:.06em;color:var(--koach-text-secondary);margin-bottom:2px">SEM '+w+' · '+fmtCorto(s.desde)+'–'+fmtCorto(s.hasta)+'</div>'+
+    '<div style="font-family:var(--font-display);font-weight:700;font-size:13px;margin-bottom:10px">'+etiqueta+'</div>'
+  html += sesionesSemana.map(function(ses){
+    const reg = regsSemana.find(function(r){return r.sesion_protocolo_id===ses.id})
+    const est = reg ? '✓ '+(reg.estado||'').toUpperCase() : (s.estado_temporal==='FUTURA'?'PROGRAMADA':'SIN EJECUTAR')
+    const accion = reg ? '<button class="pAct2 ok" onclick="verHist(\''+reg.id+'\')">VER →</button>' : ''
+    return '<div style="display:flex;align-items:center;gap:10px;padding:9px 0;border-top:1px solid var(--koach-divider)">'+
+      '<div style="flex:1"><div style="font-family:var(--font-display);font-weight:700;font-size:12px">'+(ses.nombre||'SESIÓN')+'</div>'+
+      '<div style="font-family:var(--font-mono);font-size:8px;color:var(--koach-text-secondary)">'+est+'</div></div>'+accion+'</div>'
+  }).join('') || '<div class="vacio">Sin sesiones programadas esta semana.</div>'
+  document.getElementById('cicloDetalle').innerHTML = html
 }
 function nombreEN(s){const x=(s||'').toUpperCase()
   if(/SUPERIOR/.test(x))return 'UPPER BODY'; if(/INFERIOR/.test(x))return 'LOWER BODY'
