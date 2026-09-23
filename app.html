@@ -444,7 +444,7 @@ html,button,input,.pvS,.chk,.setChip{touch-action:manipulation}
 
   <!-- ══ HOME ══ -->
   <div class="vista conTab" id="vHome">
-    <div class="hbar"><span class="hk" title="v7.5">KOACH</span><div class="hav" id="hAv" onclick="salir()">K</div></div>
+    <div class="hbar"><span class="hk" title="v7.6">KOACH</span><div class="hav" id="hAv" onclick="salir()">K</div></div>
     <div class="ctx"><div class="fecha" id="hFecha">—</div><div class="prog" id="hProg">—</div></div>
     <div class="anillo">
       <svg width="180" height="180" viewBox="0 0 180 180">
@@ -493,7 +493,7 @@ html,button,input,.pvS,.chk,.setChip{touch-action:manipulation}
     <div class="ps" id="aSub">LO QUE LOS NÚMEROS DEMUESTRAN</div>
     <div class="astats">
       <div class="ast ink"><b id="aSes">—</b><span>SESIONES COMPLETADAS</span></div>
-      <div class="glass ast"><b id="aSem">—</b><span>ESTA SEMANA</span></div>
+      <div class="glass ast"><b id="aSem">—</b><span>METAS ESTA SEMANA</span></div>
     </div>
     <div class="glass panel hst">
       <h3><span>HISTORIAL DE SESIONES</span><span>LO REALIZADO</span></h3>
@@ -665,10 +665,12 @@ function aporteSesion(sesion, bloquesCompletados = null){
   return KD.aporteSesionDOC3(kdNormSesion(sesion), bloquesCompletados).aporte
 }
 // c8.0: la base de la semana = sesiones del protocolo de la semana vigente (sin extras ★)
-function baseSem(){ return (S.programa&&S.programa.sesiones||[]).filter(s=>!s._extra && (s.semana||1)===(S.semanaActual||1)).sort((a,b)=>a.numero-b.numero) }
+function semEfectiva(semanas, vig){ const u=[...new Set(semanas)].sort((a,b)=>a-b); if(!u.length) return vig||1
+  const le=u.filter(w=>w<=(vig||1)); return le.length ? le[le.length-1] : u[0] }
+function baseSem(){ return (S.programa&&S.programa.sesiones||[]).filter(s=>!s._extra && (s.semana||1)===(S.semanaProg||S.semanaActual||1)).sort((a,b)=>a.numero-b.numero) }
 function posSem(ses){ const i=baseSem().findIndex(s=>s.id===ses.id); return i>-1?i+1:ses.numero }
 function calcularSemana(programa, registros, objetivos){
-  const sesSem = programa.sesiones.filter(s=>((s.semana||1)===(S.semanaActual||1)))
+  const sesSem = programa.sesiones.filter(s=>((s.semana||1)===(S.semanaProg||S.semanaActual||1)))
   const acum = {}
   Object.keys(objetivos).forEach(g=>acum[g]=0)
   const validos = registros.filter(r=>ESTADOS_OK.includes(r.estado))
@@ -824,6 +826,8 @@ async function entrar(){
     const { data: sesiones } = await sb.from('sesiones_protocolo').select('*')
       .eq('protocolo_id', S.proto.id).order('numero')
     const sesIds = (sesiones||[]).map(s=>s.id)
+    // Semana EFECTIVA: si la vigente no tiene programación, se repite la última programada ≤ vigente (snapshot)
+    S.semanaProg = semEfectiva((sesiones||[]).map(x=>x.semana||1), S.semanaActual)
     const { data: bloques } = await sb.from('bloques')
       .select('*, bloque_ejercicios(*, ejercicios(id,nombre,grupo_muscular,estimulo,sinergistas,tipo_registro,con_carga,cuenta_dosis,implemento,activo))').in('sesion_id', sesIds).order('bloque')
     S.programa = { sesiones:(sesiones||[]).map(s=>({
@@ -852,7 +856,7 @@ async function entrar(){
           const s = (exSes||[]).find(x=>x.id===d.sesion_protocolo_id)
           if (!s) return
           S.programa.sesiones.push({
-            numero: 1000+i, semana: S.semanaActual, id: s.id, _extra: true, _desigId: d.id, _estado: d.estado, _rec: !!d.recurrente,
+            numero: 1000+i, semana: (S.semanaProg||S.semanaActual), id: s.id, _extra: true, _desigId: d.id, _estado: d.estado, _rec: !!d.recurrente,
             nombre: '★ '+(nombreEN(s.objetivo)||('SESIÓN '+s.numero)),
             bloquesFull:(exBlo||[]).filter(b=>b.sesion_id===s.id),
             bloques:(exBlo||[]).filter(b=>b.sesion_id===s.id).map(b=>({
@@ -1107,14 +1111,19 @@ async function reanudar(){
     })
   }catch(_){}
   try{
-    const { data: us } = await sb.from('set_registros').select('ejercicio_id, peso, reps, seg, id')
-      .eq('socio_id', S.perfil.id).order('id',{ascending:false}).limit(400)
+    // c8.1: orden por created_at (el id es UUID aleatorio → "último" salía al azar). Respaldo: cargas por ejercicio,
+    // así la semana copiada (bloque_ejercicio nuevo) igual lee lo ejecutado la semana anterior.
+    const { data: us } = await sb.from('set_registros').select('ejercicio_id, peso, reps, seg, id, created_at')
+      .eq('socio_id', S.perfil.id).order('created_at',{ascending:false}).limit(400)
     S.ultimos={}
-    ;(us||[]).forEach(u=>{ if(u.ejercicio_id && !(u.ejercicio_id in S.ultimos)) S.ultimos[u.ejercicio_id]=u })
+    ;(us||[]).forEach(u=>{ if(u.ejercicio_id && (u.peso!=null||u.seg!=null||u.reps!=null) && !(u.ejercicio_id in S.ultimos)) S.ultimos[u.ejercicio_id]=u })
+    const { data: uc } = await sb.from('cargas').select('ejercicio_id, peso_kg, reps_realizadas, created_at')
+      .eq('socio_id', S.perfil.id).order('created_at',{ascending:false}).limit(300)
+    ;(uc||[]).forEach(c=>{ if(c.ejercicio_id && c.peso_kg!=null && !(c.ejercicio_id in S.ultimos)) S.ultimos[c.ejercicio_id]={peso:c.peso_kg, reps:c.reps_realizadas} })
   }catch(_){ S.ultimos={} }
   try{
-    const { data: cs } = await sb.from('cargas').select('bloque_ejercicio_id, peso_kg, id')
-      .eq('socio_id', S.perfil.id).order('id',{ascending:false}).limit(300)
+    const { data: cs } = await sb.from('cargas').select('bloque_ejercicio_id, peso_kg, id, created_at')
+      .eq('socio_id', S.perfil.id).order('created_at',{ascending:false}).limit(300)
     S.sugeridos={}
     ;(cs||[]).forEach(c=>{ if(!(c.bloque_ejercicio_id in S.sugeridos)) S.sugeridos[c.bloque_ejercicio_id]=c.peso_kg })
   }catch(_){ S.sugeridos={} }
@@ -1225,16 +1234,21 @@ async function abrirSesion(num){
   document.getElementById('sFin').style.display='none'
   // Sugeridos: última carga por ejercicio
   try{
-    const { data: cs } = await sb.from('cargas').select('bloque_ejercicio_id, peso_kg, id')
-      .eq('socio_id', S.perfil.id).order('id',{ascending:false}).limit(300)
+    const { data: cs } = await sb.from('cargas').select('bloque_ejercicio_id, peso_kg, id, created_at')
+      .eq('socio_id', S.perfil.id).order('created_at',{ascending:false}).limit(300)
     S.sugeridos={}
     ;(cs||[]).forEach(c=>{ if(!(c.bloque_ejercicio_id in S.sugeridos)) S.sugeridos[c.bloque_ejercicio_id]=c.peso_kg })
   }catch(_){ S.sugeridos={} }
   try{
-    const { data: us } = await sb.from('set_registros').select('ejercicio_id, peso, reps, seg, id')
-      .eq('socio_id', S.perfil.id).order('id',{ascending:false}).limit(400)
+    // c8.1: orden por created_at (el id es UUID aleatorio → "último" salía al azar). Respaldo: cargas por ejercicio,
+    // así la semana copiada (bloque_ejercicio nuevo) igual lee lo ejecutado la semana anterior.
+    const { data: us } = await sb.from('set_registros').select('ejercicio_id, peso, reps, seg, id, created_at')
+      .eq('socio_id', S.perfil.id).order('created_at',{ascending:false}).limit(400)
     S.ultimos={}
-    ;(us||[]).forEach(u=>{ if(u.ejercicio_id && !(u.ejercicio_id in S.ultimos)) S.ultimos[u.ejercicio_id]=u })
+    ;(us||[]).forEach(u=>{ if(u.ejercicio_id && (u.peso!=null||u.seg!=null||u.reps!=null) && !(u.ejercicio_id in S.ultimos)) S.ultimos[u.ejercicio_id]=u })
+    const { data: uc } = await sb.from('cargas').select('ejercicio_id, peso_kg, reps_realizadas, created_at')
+      .eq('socio_id', S.perfil.id).order('created_at',{ascending:false}).limit(300)
+    ;(uc||[]).forEach(c=>{ if(c.ejercicio_id && c.peso_kg!=null && !(c.ejercicio_id in S.ultimos)) S.ultimos[c.ejercicio_id]={peso:c.peso_kg, reps:c.reps_realizadas} })
   }catch(_){ S.ultimos={} }
   pintarSesion()
   // Overlay de activación
@@ -1835,7 +1849,7 @@ function pintarCicloSocio(){
   for (let w=1; w<=N; w++){
     const ses=base.filter(s=>(s.semana||1)===w), h=ses.filter(s=>S.hechasCiclo&&S.hechasCiclo[s.id]).length
     const st = w<vig ? 'pas' : (w===vig ? 'vig' : 'fut')
-    const sub = w===vig ? 'AHORA' : (ses.length ? h+'/'+ses.length : '—')
+    const sub = w===vig ? ((S.semanaProg&&S.semanaProg!==vig)?'= S'+S.semanaProg:'AHORA') : (ses.length ? h+'/'+ses.length : '—')
     tiles.push('<div class="uW '+st+'"><b>S'+w+'</b><span>'+sub+'</span>'+
       (ses.length?'<i>'+ses.map(s=>'<u class="'+(S.hechasCiclo&&S.hechasCiclo[s.id]?'on':'')+'"></u>').join('')+'</i>':'')+'</div>')
   }
@@ -1845,7 +1859,8 @@ function pintarCicloSocio(){
     '<div class="uS">CICLO '+(S.asig.ciclo_actual||1)+(c0&&cN?' · '+_fmtC(c0.desde)+' — '+_fmtC(cN.hasta):'')+'</div>'+
     '<div class="uStrip">'+tiles.join('')+'</div></div>'
   const est=document.getElementById('pEstaSem'), cs=cicloSem(vig)
-  if (est) est.textContent='SEM '+vig+(cs?' · '+cs.rango:'')+' · ESTA SEMANA'
+  const wp=S.semanaProg||vig
+  if (est) est.textContent='SEM '+vig+(cs?' · '+cs.rango:'')+' · ESTA SEMANA'+(wp!==vig?' · REPITE SEM '+wp:'')
 }
 function pintarPlan(){
   if (!S.programa){ document.getElementById('pLista').innerHTML='<div class="vacio">Tu coach te asignará tu programa.</div>'; return }
@@ -1880,7 +1895,7 @@ function pintarPlan(){
     `Esta semana llevas el <b>${S.sem.pct_dosis}%</b> de tu dosis · <b>${S.sem.fortalecidos} de ${S.sem.exigibles} músculos</b> fortalecidos.`
   const proxNum = S.sem?.proxima?.numero
   const porNum = {}; S.registros.forEach(r=>porNum[r.sesion_numero]=r)
-  document.getElementById('pLista').innerHTML = S.programa.sesiones.filter(s=>((s.semana||1)===(S.semanaActual||1))).map(s=>{
+  document.getElementById('pLista').innerHTML = S.programa.sesiones.filter(s=>((s.semana||1)===(S.semanaProg||S.semanaActual||1))).map(s=>{
     const hecha = hechas.has(s.numero)
     const prox = s.numero===proxNum && !S.sem.completa
     const lock = !hecha && !prox
@@ -2085,10 +2100,10 @@ async function loadAvances(){
     }).join('') : '<div class="vacio">Tus sesiones realizadas aparecen aquí.<br><b>A levantar.</b></div>'
   }catch(_){ document.getElementById('aHist').innerHTML='<div class="vacio">Sin sesiones aún.</div>' }
   try{
-    // Cargas históricas en orden temporal (id asc): primera = inicio, máx = mejor
+    // Cargas históricas en orden temporal (created_at asc — c8.1: antes id UUID = orden aleatorio): primera = inicio, máx = mejor
     const { data: cs } = await sb.from('cargas')
-      .select('ejercicio_id, bloque_ejercicio_id, peso_kg, sets_completados, id')
-      .eq('socio_id', S.perfil.id).order('id',{ascending:true}).limit(600)
+      .select('ejercicio_id, bloque_ejercicio_id, peso_kg, sets_completados, id, created_at')
+      .eq('socio_id', S.perfil.id).order('created_at',{ascending:true}).limit(600)
     const ejIds = [...new Set((cs||[]).map(c=>c.ejercicio_id).filter(Boolean))]
     const { data: ejs } = await sb.from('ejercicios')
       .select('id, nombre, grupo_muscular, patron_mov, pilar').in('id', ejIds)
