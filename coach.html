@@ -396,7 +396,7 @@ small{color:var(--koach-text-secondary)}
 </div></div>
 
 <div class="vista" id="vSala">
-  <div class="hbar"><span class="hk" title="c7.9">KOACH</span><span class="rol" id="rolBadge" onclick="salir()">COACH</span></div>
+  <div class="hbar"><span class="hk" title="c7.10">KOACH</span><span class="rol" id="rolBadge" onclick="salir()">COACH</span></div>
   <button class="nuevo" onclick="toggleAlta()">+ NUEVO USUARIO · SOCIO O COACH</button>
   <button class="nuevo" style="background:rgba(255,255,255,.65);color:#121210;border:1.5px solid rgba(18,18,16,.15)" onclick="verBib()">📚 RUTINAS ESTÁNDAR · BIBLIOTECA</button>
   <div class="glass aform" id="fAlta" style="display:none">
@@ -908,7 +908,7 @@ async function loadSala(){
     ;(ra.data||[]).forEach(function(a){ C.asig[a.socio_id]=a; if(a.protocolos) C.protos[a.protocolo_id]=a.protocolos })
     const pids=[...new Set((ra.data||[]).map(function(a){return a.protocolo_id}))]
     if(pids.length){
-      const rses = await sb.from('sesiones_protocolo').select('*').in('protocolo_id',pids).lte('numero',6).order('numero')
+      const rses = await sb.from('sesiones_protocolo').select('*').in('protocolo_id',pids).order('numero') // Ajuste F-MULTI: cap de 6 era residuo pre-multi-semana, rompía protocolos con >1 semana
       const sids=(rses.data||[]).map(function(s){return s.id})
       let rblo = {data:[]}, robjP = null
       if(sids.length){
@@ -1528,8 +1528,7 @@ async function abrirPlan(pid, proto, opts){
       ;(rc.data||[]).forEach(function(c){ if(c.ejercicio_id && !(c.ejercicio_id in ULT)) ULT[c.ejercicio_id]=c })
     }catch(_e){}
   }
-  let qq = sb.from('sesiones_protocolo').select('*').eq('protocolo_id',pid).order('numero')
-  if (!esBib) qq = qq.lte('numero',6)
+  let qq = sb.from('sesiones_protocolo').select('*').eq('protocolo_id',pid).order('numero') // Ajuste F-MULTI: cap de 6 eliminado, numeración es global entre semanas
   if (opts.soloSesion) qq = qq.eq('id', opts.soloSesion)
   const rses = await qq
   const sids = (rses.data||[]).map(function(s){return s.id})
