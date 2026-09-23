@@ -374,6 +374,23 @@ html,button,input,.pvS,.chk,.setChip{touch-action:manipulation}
 .cerrar2{width:100%;background:none;border:1px solid rgba(180,68,44,.35);color:#B4442C;border-radius:18px;
   padding:15px;font-size:10px;font-weight:900;letter-spacing:.14em;cursor:pointer;margin-top:14px}
 
+
+/* ── c8.0 · alineación con el motor del coach: etiquetas mono + tira del ciclo ── */
+.uK{font-family:var(--font-mono);font-weight:500;font-size:10px;letter-spacing:.06em;color:var(--koach-text-secondary,#5E5E5E);text-transform:uppercase}
+.uCard{background:rgba(255,255,255,.55);border:1px solid rgba(17,17,17,.10);border-radius:14px;padding:16px;margin-bottom:14px}
+.uH{font-family:var(--font-display);font-weight:700;font-size:24px;letter-spacing:-0.02em;line-height:1.05;color:var(--koach-ink);margin-top:6px}
+.uS{font-family:var(--font-mono);font-weight:500;font-size:10px;letter-spacing:.04em;color:var(--koach-text-secondary,#5E5E5E);margin-top:4px}
+.uStrip{display:flex;gap:6px;margin-top:14px;overflow-x:auto;padding-bottom:2px}
+.uW{flex:1 0 48px;min-width:48px;border:1px solid rgba(17,17,17,.18);border-radius:10px;padding:9px 6px 8px;text-align:center;background:transparent}
+.uW b{display:block;font-family:var(--font-mono);font-weight:500;font-size:13px;color:var(--koach-ink)}
+.uW span{display:block;font-family:var(--font-mono);font-weight:500;font-size:8.5px;letter-spacing:.04em;color:var(--koach-text-secondary,#5E5E5E);margin-top:2px}
+.uW i{display:flex;gap:2px;margin-top:7px}
+.uW u{flex:1;height:3px;border-radius:2px;background:rgba(17,17,17,.14);text-decoration:none}
+.uW u.on{background:var(--koach-ink)}
+.uW.vig{background:var(--koach-ink);border-color:var(--koach-ink)}
+.uW.vig b,.uW.vig span{color:var(--koach-control,#F5F5F5)}
+.uW.vig u{background:rgba(245,245,245,.25)} .uW.vig u.on{background:var(--koach-control,#F5F5F5)}
+.uW.fut{opacity:.6;border-style:dashed}
 </style>
 </head>
 <body>
@@ -427,7 +444,7 @@ html,button,input,.pvS,.chk,.setChip{touch-action:manipulation}
 
   <!-- ══ HOME ══ -->
   <div class="vista conTab" id="vHome">
-    <div class="hbar"><span class="hk" title="v7.4">KOACH</span><div class="hav" id="hAv" onclick="salir()">K</div></div>
+    <div class="hbar"><span class="hk" title="v7.5">KOACH</span><div class="hav" id="hAv" onclick="salir()">K</div></div>
     <div class="ctx"><div class="fecha" id="hFecha">—</div><div class="prog" id="hProg">—</div></div>
     <div class="anillo">
       <svg width="180" height="180" viewBox="0 0 180 180">
@@ -457,11 +474,12 @@ html,button,input,.pvS,.chk,.setChip{touch-action:manipulation}
   <div class="vista conTab" id="vPlan">
     <div class="ph">Tu plan</div>
     <div class="ps" id="pSub">—</div>
+    <div id="pCiclo"></div>
     <div class="glass" id="pResumen" style="padding:16px;margin-bottom:14px"></div>
     <div id="pUltimo"></div>
     <button id="pDetBtn" onclick="togglePDet()" style="width:100%;background:none;border:1px solid rgba(242,241,239,.14);border-radius:12px;padding:11px;font-size:8px;font-weight:900;letter-spacing:.12em;color:#BEBDB8;cursor:pointer;margin-bottom:16px">VER DETALLE SEMANAL ▾</button>
     <div id="pDet" style="display:none;margin-bottom:16px"><div class="rows" id="pDetRows"></div></div>
-    <div style="font-size:8px;font-weight:900;letter-spacing:.18em;color:#8B8A85;margin:4px 0 10px">ESTA SEMANA</div>
+    <div class="uK" id="pEstaSem" style="margin:4px 2px 10px">ESTA SEMANA</div>
     <div id="pLista"></div>
     <div id="pNextSem"></div>
     <div id="pPrev"></div>
@@ -680,8 +698,9 @@ function calcularSemana(programa, registros, objetivos){
     Object.entries(ap).forEach(([g,v])=>{ if (g in acum2) acum2[g]+=v })
     const _svc2 = KD.strengthVolumeCompletion(ex.map(m=>({muscle:m.grupo, aligned:acum2[m.grupo]||0, target:m.objetivo})))
     const pct2 = (_svc2.value===KD.NA) ? 0 : Math.floor(_svc2.value*100)
+    const trab = ex.filter(m=>(ap[m.grupo]||0)>0).length
     proxima = { numero:prox.numero, id:prox.id, nombre:prox.nombre||('SESIÓN '+prox.numero),
-                fortaleceria:c.length, suma_pct: Math.max(0, pct2 - pct_dosis),
+                fortaleceria:c.length, trabaja:trab, suma_pct: Math.max(0, pct2 - pct_dosis),
                 _extra: !!prox._extra, _desigId: prox._desigId||null, _rec: !!prox._rec }
   }
   return { musculos, exigibles:ex.length, fortalecidos:tot, pct_dosis, proxima,
@@ -862,6 +881,14 @@ async function entrar(){
     const { data: regs } = await sb.from('sesiones_registro')
       .select('sesion_protocolo_id, estado, fecha, bloques_completados')
       .eq('socio_id', perfil.id).gte('fecha', lunesISO)
+    S.hechasCiclo = {}
+    try{
+      const _ids=S.programa.sesiones.map(s=>s.id)
+      if (_ids.length){
+        const { data: rc } = await sb.from('sesiones_registro').select('sesion_protocolo_id, estado').eq('socio_id', perfil.id).in('sesion_protocolo_id', _ids)
+        ;(rc||[]).forEach(r=>{ if (['completada','parcial','manual'].includes(r.estado)) S.hechasCiclo[r.sesion_protocolo_id]=1 })
+      }
+    }catch(_){}
     const numPorId = {}; S.programa.sesiones.forEach(s=>numPorId[s.id]=s.numero)
     S.registros = (regs||[]).map(r=>({ sesion_numero:numPorId[r.sesion_protocolo_id], estado:r.estado,
       fecha:r.fecha, bloques_completados:r.bloques_completados??null })).filter(r=>r.sesion_numero)
@@ -1212,7 +1239,7 @@ async function abrirSesion(num){
   pintarSesion()
   // Overlay de activación
   document.getElementById('oActT').textContent = ses.nombre
-  document.getElementById('oActS').textContent = `FORTALECE ${S.sem.proxima.fortaleceria} MÚSCULOS · DESLIZA PARA COMPROMETERTE`
+  document.getElementById('oActS').textContent = `TRABAJA ${S.sem.proxima.trabaja} MÚSCULOS · SUMA +${S.sem.proxima.suma_pct}% · DESLIZA PARA COMPROMETERTE`
   document.getElementById('sBloques').classList.add('locked')
   document.getElementById('oAct').classList.add('vis')
 }
@@ -1789,8 +1816,40 @@ vista = function(id){
   if (id==='vHome') document.querySelectorAll('.tb').forEach(b=>b.classList.toggle('on', b.id==='tb-vHome'))
 }
 
+// ── c8.0 · TU CICLO: mismo esqueleto que el MACRO del coach (S1…SN), lectura para el socio
+const _MES=['ENE','FEB','MAR','ABR','MAY','JUN','JUL','AGO','SEP','OCT','NOV','DIC']
+function _fmtC(d){ return d.getDate()+' '+_MES[d.getMonth()] }
+function cicloSem(w){
+  const f=S.asig&&S.asig.fecha_inicio; if(!f) return null
+  const d0=new Date(f+'T12:00:00'); d0.setDate(d0.getDate()+(w-1)*7)
+  const d1=new Date(d0); d1.setDate(d1.getDate()+6)
+  return { desde:d0, hasta:d1, rango:_fmtC(d0)+' – '+_fmtC(d1) }
+}
+function pintarCicloSocio(){
+  const el=document.getElementById('pCiclo'); if(!el) return
+  if (!S.programa || !S.asig){ el.innerHTML=''; return }
+  const N=(S.proto&&S.proto.ciclo_semanas)||6, vig=S.semanaActual||1
+  const base=(S.programa.sesiones||[]).filter(s=>!s._extra)
+  const c0=cicloSem(1), cN=cicloSem(N)
+  const tiles=[]
+  for (let w=1; w<=N; w++){
+    const ses=base.filter(s=>(s.semana||1)===w), h=ses.filter(s=>S.hechasCiclo&&S.hechasCiclo[s.id]).length
+    const st = w<vig ? 'pas' : (w===vig ? 'vig' : 'fut')
+    const sub = w===vig ? 'AHORA' : (ses.length ? h+'/'+ses.length : '—')
+    tiles.push('<div class="uW '+st+'"><b>S'+w+'</b><span>'+sub+'</span>'+
+      (ses.length?'<i>'+ses.map(s=>'<u class="'+(S.hechasCiclo&&S.hechasCiclo[s.id]?'on':'')+'"></u>').join('')+'</i>':'')+'</div>')
+  }
+  el.innerHTML='<div class="uCard">'+
+    '<div class="uK">TU CICLO · '+((S.proto.programa||'')+' '+(S.proto.nivel||'')).toUpperCase()+'</div>'+
+    '<div class="uH">Semana '+vig+' de '+N+'</div>'+
+    '<div class="uS">CICLO '+(S.asig.ciclo_actual||1)+(c0&&cN?' · '+_fmtC(c0.desde)+' — '+_fmtC(cN.hasta):'')+'</div>'+
+    '<div class="uStrip">'+tiles.join('')+'</div></div>'
+  const est=document.getElementById('pEstaSem'), cs=cicloSem(vig)
+  if (est) est.textContent='SEM '+vig+(cs?' · '+cs.rango:'')+' · ESTA SEMANA'
+}
 function pintarPlan(){
   if (!S.programa){ document.getElementById('pLista').innerHTML='<div class="vacio">Tu coach te asignará tu programa.</div>'; return }
+  pintarCicloSocio()
   // §2/§5/§33 · RESUMEN simple — PLAN consume el motor, jamás calcula (§3)
   const sem=S.sem||{}
   const hechasN=(S.registros||[]).filter(r=>r.estado && r.estado!=='en_curso' && r.estado!=='incompleta'
@@ -1872,9 +1931,9 @@ function pintarPlan(){
   const wAct=(S.semanaActual||1)
   const nextSes=S.programa.sesiones.filter(s=>((s.semana||1)===wAct+1))
   document.getElementById('pNextSem').innerHTML = nextSes.length
-    ? '<div style="font-size:8px;font-weight:900;letter-spacing:.18em;color:#8B8A85;margin:16px 0 10px">PRÓXIMA SEMANA</div>'+
+    ? '<div class="uK" style="margin:18px 2px 10px">SEM '+(wAct+1)+(cicloSem(wAct+1)?' · '+cicloSem(wAct+1).rango:'')+' · PRÓXIMA</div>'+
       nextSes.map((s,ix)=>'<div class="glass pcard lock" style="opacity:.75"><div class="pnum">'+(ix+1)+'</div>'+
-        '<div><div class="pn2">'+s.nombre+'</div><div class="pm2">SE ACTIVA AL CERRAR TU SEMANA ACTUAL</div></div>'+
+        '<div><div class="pn2">'+s.nombre+'</div><div class="pm2">TU COACH LA ACTIVA AL CERRAR ESTA SEMANA</div></div>'+
         '<span class="pest lock">PRÓXIMAMENTE</span></div>').join('')
     : ''
 }
@@ -2107,7 +2166,7 @@ document.addEventListener('DOMContentLoaded', async ()=>{
     document.getElementById('oAct').classList.remove('vis')
     const act=S.frases?.activacion
     const nom=S.sesionAbierta?.nombre||'SESIÓN'
-    const k=S.sem?.proxima?.fortaleceria ?? '—'
+    const k=S.sem?.proxima?.trabaja ?? '—'
     flash((act?.titulo||'{sesion} ACTIVADA.').replace('{sesion}',nom),
           (act?.sub||'A levantar. Hoy fortaleces {k} músculos.').replace('{k}',k),
           ()=>document.getElementById('sBloques').classList.remove('locked'))
