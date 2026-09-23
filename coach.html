@@ -270,8 +270,20 @@ html,button,input,.pv,.mtab,.setChip{touch-action:manipulation}
 .pv input.falta{border:1.5px solid #5F5F5F;background:rgba(197,161,60,.08)}
 .pv .pcx{font-size:7px;font-weight:900;letter-spacing:.06em;background:rgba(18,18,16,.07);border-radius:10px;padding:12px 10px;color:var(--koach-text-secondary);white-space:nowrap}
 .lin.foco{outline:2px solid #5F5F5F;outline-offset:3px;border-radius:10px}
-#oLoad{position:fixed;inset:0;z-index:900;background:#121210;display:none;flex-direction:column;align-items:center;justify-content:center;gap:22px}
+#oLoad{position:fixed;inset:0;z-index:900;background:#121210;display:none;flex-direction:column;justify-content:center;padding:0 max(28px,7vw) env(safe-area-inset-bottom,0px)}
 #oLoad.vis{display:flex}
+/* c8.2 · pantalla de carga editorial: tipografía y jerarquía, sin logo */
+#oLoad .ldBox{width:100%;max-width:560px;margin:0 auto}
+#oLoad .ldK{font-family:var(--font-mono);font-weight:500;font-size:10px;letter-spacing:.32em;color:#8E8D87;margin-bottom:22px}
+#oLoad .ldT{font-family:var(--font-display);font-weight:700;font-size:clamp(34px,9.5vw,52px);letter-spacing:-0.03em;line-height:.98;color:#F3F2EF;text-transform:uppercase;min-height:2em;transition:opacity .22s ease,transform .22s ease}
+#oLoad .ldS{font-family:var(--font-display);font-weight:400;font-size:clamp(16px,4.3vw,19px);line-height:1.4;color:#C9C8C2;margin-top:16px;min-height:2.8em;transition:opacity .22s ease}
+#oLoad .ldT.out{opacity:0;transform:translateY(6px)} #oLoad .ldS.out{opacity:0}
+#oLoad .ldBar{height:2px;background:rgba(243,242,239,.14);border-radius:2px;overflow:hidden;margin-top:30px}
+#oLoad .ldBar i{display:block;height:100%;width:8%;background:#F3F2EF;border-radius:2px;transition:width .6s ease}
+#oLoad .ldBar i.ind{width:38%;animation:ldr 1.1s ease-in-out infinite;transition:none}
+#oLoad .ldPasos{display:flex;gap:6px;margin-top:12px;font-family:var(--font-mono);font-weight:500;font-size:9px;letter-spacing:.08em;color:#5E5D58}
+#oLoad .ldPasos b{font-weight:500;color:#F3F2EF}
+#oLoad .ldF{position:absolute;left:0;right:0;bottom:calc(28px + env(safe-area-inset-bottom,0px));text-align:center;font-family:var(--font-mono);font-weight:500;font-size:9px;letter-spacing:.2em;color:#6E6D68}
 #oLoad .lk{font-size:26px;font-weight:900;letter-spacing:.34em;color:#F3F2EF}
 #oLoad .lm{font-size:9px;font-weight:900;letter-spacing:.22em;color:#77766F}
 #oLoad .lb{width:min(60vw,240px);height:2px;background:rgba(243,242,239,.12);border-radius:2px;overflow:hidden}
@@ -451,7 +463,7 @@ small{color:var(--koach-text-secondary)}
 </div></div>
 
 <div class="vista" id="vSala">
-  <div class="hbar"><span class="hk" title="c8.1">KOACH</span><span class="rol" id="rolBadge" onclick="salir()">COACH</span></div>
+  <div class="hbar"><span class="hk" title="c8.2">KOACH</span><span class="rol" id="rolBadge" onclick="salir()">COACH</span></div>
   <button class="nuevo" onclick="toggleAlta()">+ NUEVO USUARIO · SOCIO O COACH</button>
   <button class="nuevo" style="background:rgba(255,255,255,.65);color:#121210;border:1.5px solid rgba(18,18,16,.15)" onclick="verBib()">📚 RUTINAS ESTÁNDAR · BIBLIOTECA</button>
   <div class="glass aform" id="fAlta" style="display:none">
@@ -575,7 +587,16 @@ small{color:var(--koach-text-secondary)}
 </div>
 
 <!-- HOJA AGREGAR SESIÓN A LA SEMANA -->
-<div id="oLoad"><img src="/isotipo-256.png" alt="" style="width:64px;height:64px;object-fit:contain"><div class="lk" style="font-size:15px">KOACH</div><div class="lb"><i></i></div><div class="lm" id="oLoadM">CARGANDO…</div><div class="lm" style="opacity:.45;font-size:7px">EL COACH DECIDE · LA DATA LO RESPALDA</div></div>
+<div id="oLoad" role="status" aria-live="polite">
+  <div class="ldBox">
+    <div class="ldK">KOACH FITNESS CLUB</div>
+    <div class="ldT" id="oLoadM">PREPARANDO EL CICLO</div>
+    <div class="ldS" id="oLoadS">Cargando la estructura general del proceso de entrenamiento.</div>
+    <div class="ldBar"><i id="oLoadB"></i></div>
+    <div class="ldPasos" id="oLoadP"></div>
+  </div>
+  <div class="ldF">EL KOACH DECIDE · LOS DATOS RESPALDAN</div>
+</div>
 <div id="syncTag">✓ GUARDADO</div>
 <div id="mGuard" style="display:none;position:fixed;inset:0;z-index:80;background:rgba(18,18,16,.45);backdrop-filter:blur(6px)">
   <div style="position:absolute;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:520px;background:var(--koach-surface);border-radius:10px 10px 0 0;padding:20px 16px 24px">
@@ -879,11 +900,63 @@ async function entrar(){
   }
 }
 
-function cargando(m){ const o=document.getElementById('oLoad'); if(!o)return
-  document.getElementById('oLoadM').textContent=m||'CARGANDO…'; o.classList.add('vis') }
-function cargandoOff(){ const o=document.getElementById('oLoad'); if(o)o.classList.remove('vis') }
+// c8.2 · Pantalla de carga por ETAPAS: explica qué prepara el sistema (ciclo → semana → dosis → proyección).
+// cargando('plan', nombre) | cargando('sala') | cargando('proyectar') | cargando('base') | cargando('texto libre', 'subtítulo')
+const LD_ETAPAS = {
+  plan: [
+    ['PREPARANDO EL CICLO{DE}','Cargando la estructura general del proceso de entrenamiento.'],
+    ['LEYENDO EL CONTEXTO DEL SOCIO','Recuperando historial, estado actual y punto de partida del ciclo.'],
+    ['ORGANIZANDO LA SEMANA ACTUAL','Identificando sesiones activas, progreso en vivo y tareas pendientes.'],
+    ['ANALIZANDO LA DOSIFICACIÓN','Contrastando objetivos semanales, volumen programado y ejecución acumulada.'],
+    ['PROYECTANDO EL CICLO','Preparando semanas futuras, continuidad del plan y visión global del proceso.'],
+    ['DEJANDO TODO LISTO','Sincronizando la planificación para que puedas intervenir con criterio.']],
+  base: [
+    ['PREPARANDO LA PLANIFICACIÓN','Estructura base del protocolo: sesiones, bloques y ejercicios.'],
+    ['ANALIZANDO LA DOSIS','Objetivos por grupo muscular y volumen programado.'],
+    ['DEJANDO TODO LISTO','Sincronizando la planificación para que puedas intervenir con criterio.']],
+  sala: [
+    ['PREPARANDO LA SALA','Socios activos, semanas en curso y solicitudes pendientes.'],
+    ['LEYENDO LA SEMANA DE CADA SOCIO','Sesiones ejecutadas, dosis acumulada y lo que falta por hacer.'],
+    ['DEJANDO TODO LISTO','Ordenando la sala para que decidas dónde intervenir.']],
+  proyectar: [
+    ['PROYECTANDO EL CICLO','Copiando sesiones, bloques y cargas a las semanas futuras.'],
+    ['VERIFICANDO LA CONTINUIDAD','Cada semana nace de la anterior programada; nada queda a medias.']]
+}
+let LD={t:null, i:0, etapas:null}
+function _ldPintar(){
+  const e=LD.etapas[LD.i], T=document.getElementById('oLoadM'), Sb=document.getElementById('oLoadS')
+  T.classList.add('out'); Sb.classList.add('out')
+  setTimeout(function(){
+    T.textContent=e[0]; Sb.textContent=e[1]; T.classList.remove('out'); Sb.classList.remove('out')
+  }, LD.i===0?0:200)
+  const b=document.getElementById('oLoadB'); b.classList.remove('ind')
+  b.style.width=Math.round(((LD.i+1)/(LD.etapas.length+1))*100)+'%'
+  document.getElementById('oLoadP').innerHTML=LD.etapas.map(function(_,k){ return k===LD.i?'<b>'+String(k+1).padStart(2,'0')+'</b>':String(k+1).padStart(2,'0') }).join('<span>·</span>')
+}
+function cargando(m, extra){ const o=document.getElementById('oLoad'); if(!o)return
+  clearInterval(LD.t); LD.i=0
+  if (LD_ETAPAS[m]){
+    LD.etapas=LD_ETAPAS[m].map(function(e){ return e.slice() })
+    if (m==='plan'){
+      const nom=(extra||'').trim().split(' ')[0]
+      LD.etapas[0][0]=LD.etapas[0][0].replace('{DE}', nom?' DE '+nom.toUpperCase():'')
+      if (nom) LD.etapas[0][1]='Recuperando su historial, semana actual y proyección del proceso.'
+    }
+  } else {
+    LD.etapas=[[String(m||'PREPARANDO').replace(/…$/,''), extra||'Sincronizando la planificación para que puedas intervenir con criterio.']]
+  }
+  _ldPintar(); o.classList.add('vis')
+  if (LD.etapas.length>1) LD.t=setInterval(function(){
+    if (LD.i>=LD.etapas.length-1){ clearInterval(LD.t); return }   // se queda en la última etapa, no vuelve a empezar
+    LD.i++; _ldPintar()
+  }, 650)
+  else { const b=document.getElementById('oLoadB'); b.style.width=''; b.classList.add('ind') }
+}
+function cargandoOff(){ clearInterval(LD.t); const o=document.getElementById('oLoad'); if(!o)return
+  const b=document.getElementById('oLoadB'); if(b && !b.classList.contains('ind')) b.style.width='100%'
+  o.classList.remove('vis') }
 async function loadSala(){
-  cargando('LEVANTANDO LA SALA…')
+  cargando('sala')
   const lunesISO = lunes().toISOString().split('T')[0]
   const rs = await sb.from('profiles').select('*')
     .eq('role','socio').eq('activo',true).order('nombre')
@@ -1501,8 +1574,9 @@ async function deshacerClon(pid){
   }catch(_e){}
 }
 async function abrirPlan(pid, proto, opts){
-  cargando('LEYENDO HISTORIAL Y DOSIFICACIÓN…')
   opts = opts || {}
+  if (opts.modo==='base' || opts.modo==='bib') cargando('base')
+  else cargando('plan', (typeof F!=='undefined' && F) ? nomDe(F.id) : '')
   P = null
   await cargarCatalogo()
   const esBib = opts.modo==='bib'
@@ -2905,7 +2979,7 @@ async function plCopiar(pares){
   const creadas=[]
   let num=Math.max.apply(null,[0].concat(P.sesiones.map(function(s){return s.numero})))
   const mapaSem={}  // semana destino → ids nuevos (para encadenar)
-  cargando('PROYECTANDO EL CICLO…'); syncEnvio()
+  cargando('proyectar'); syncEnvio()
   try{
     for (const par of pares){
       const src = mapaSem[par.desde] ? mapaSem[par.desde] : plSesSem(par.desde).map(function(s){return {id:s.id,nombre:s.nombre}})
