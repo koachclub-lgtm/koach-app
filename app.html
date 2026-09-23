@@ -427,7 +427,7 @@ html,button,input,.pvS,.chk,.setChip{touch-action:manipulation}
 
   <!-- ══ HOME ══ -->
   <div class="vista conTab" id="vHome">
-    <div class="hbar"><span class="hk" title="v7.3.1">KOACH</span><div class="hav" id="hAv" onclick="salir()">K</div></div>
+    <div class="hbar"><span class="hk" title="v7.4">KOACH</span><div class="hav" id="hAv" onclick="salir()">K</div></div>
     <div class="ctx"><div class="fecha" id="hFecha">—</div><div class="prog" id="hProg">—</div></div>
     <div class="anillo">
       <svg width="180" height="180" viewBox="0 0 180 180">
@@ -646,6 +646,9 @@ function kdNormSesion(sesion){
 function aporteSesion(sesion, bloquesCompletados = null){
   return KD.aporteSesionDOC3(kdNormSesion(sesion), bloquesCompletados).aporte
 }
+// c8.0: la base de la semana = sesiones del protocolo de la semana vigente (sin extras ★)
+function baseSem(){ return (S.programa&&S.programa.sesiones||[]).filter(s=>!s._extra && (s.semana||1)===(S.semanaActual||1)).sort((a,b)=>a.numero-b.numero) }
+function posSem(ses){ const i=baseSem().findIndex(s=>s.id===ses.id); return i>-1?i+1:ses.numero }
 function calcularSemana(programa, registros, objetivos){
   const sesSem = programa.sesiones.filter(s=>((s.semana||1)===(S.semanaActual||1)))
   const acum = {}
@@ -800,7 +803,7 @@ async function entrar(){
     S.semanaActual = (asig && asig.semana_actual) || 1
 
     const { data: sesiones } = await sb.from('sesiones_protocolo').select('*')
-      .eq('protocolo_id', S.proto.id).lte('numero',6).order('numero')
+      .eq('protocolo_id', S.proto.id).order('numero')
     const sesIds = (sesiones||[]).map(s=>s.id)
     const { data: bloques } = await sb.from('bloques')
       .select('*, bloque_ejercicios(*, ejercicios(id,nombre,grupo_muscular,estimulo,sinergistas,tipo_registro,con_carga,cuenta_dosis,implemento,activo))').in('sesion_id', sesIds).order('bloque')
@@ -830,7 +833,7 @@ async function entrar(){
           const s = (exSes||[]).find(x=>x.id===d.sesion_protocolo_id)
           if (!s) return
           S.programa.sesiones.push({
-            numero: 100+i, id: s.id, _extra: true, _desigId: d.id, _estado: d.estado, _rec: !!d.recurrente,
+            numero: 1000+i, semana: S.semanaActual, id: s.id, _extra: true, _desigId: d.id, _estado: d.estado, _rec: !!d.recurrente,
             nombre: '★ '+(nombreEN(s.objetivo)||('SESIÓN '+s.numero)),
             bloquesFull:(exBlo||[]).filter(b=>b.sesion_id===s.id),
             bloques:(exBlo||[]).filter(b=>b.sesion_id===s.id).map(b=>({
@@ -895,14 +898,14 @@ async function entrar(){
 function sinPrograma(msg){
   document.getElementById('hSaludo').textContent = 'Hola, '+((S.perfil?.nombre)||'socio')+'.'
   document.getElementById('hVoz').innerHTML = msg || 'Tu cuenta está lista. <b>Tu coach te asignará tu programa</b> — nos vemos en la sala.'
-  document.getElementById('hD').textContent='—'
+  const _hD=document.getElementById('hD'); if(_hD) _hD.textContent='—'
   document.getElementById('hCta').disabled = true
   document.getElementById('hCtaT').textContent='PROGRAMA EN CAMINO'
   document.getElementById('hCtaS').textContent='TU COACH LO ACTIVA'
   document.getElementById('hDias').innerHTML=''
   document.getElementById('hRows').innerHTML=''
   document.getElementById('hCount').textContent=''
-  document.getElementById('hNota').textContent=''
+  (document.getElementById('hNota')||{}).textContent=''
 }
 function saludoDe(ctx){
   const fam = S.frases?.saludos?.[ctx] || ['De vuelta a la sala, {n}.']
@@ -916,7 +919,7 @@ function pintarHome(){
   const MESF = ['ENERO','FEBRERO','MARZO','ABRIL','MAYO','JUNIO','JULIO','AGOSTO','SEPTIEMBRE','OCTUBRE','NOVIEMBRE','DICIEMBRE']
   document.getElementById('hFecha').textContent = `${DIAF[hoyF.getDay()]} ${hoyF.getDate()} DE ${MESF[hoyF.getMonth()]}`
   document.getElementById('hProg').textContent =
-    `${S.perfil.nombre||''} · PROGRAMA ${S.proto.programa||''} · SEMANA ${S.asig.semana_actual||1} DE 6 · CICLO ${S.asig.ciclo_actual||1}`.toUpperCase()
+    `${S.perfil.nombre||''} · PROGRAMA ${S.proto.programa||''} · SEMANA ${S.asig.semana_actual||1} DE ${S.proto.ciclo_semanas||6} · CICLO ${S.asig.ciclo_actual||1}`.toUpperCase()
   const sem=S.sem, num=sem.fortalecidos, den=sem.exigibles, dosis=sem.pct_dosis
   const dowL=(new Date().getDay()+6)%7
   const DIA=['lunes','martes','miércoles','jueves','viernes','sábado','domingo']
@@ -993,6 +996,7 @@ function pintarHome(){
 }
 function pintarFilasMusc(elId){
   const sem=S.sem||{}; const orden=sem.musculos||[]
+  const num=sem.fortalecidos||0, den=sem.exigibles||0, dosis=sem.pct_dosis||0
   const rowsHTML = orden.map(m=>{
     const fmt = x => x%1===0 ? x : (+x).toFixed(1)
     if (!m.exigible){
@@ -1066,7 +1070,7 @@ async function reanudar(){
   S._desigActual = ses._desigId||null; S._desigRec = !!ses._rec
   vista('vSesion')
   document.getElementById('sTit').textContent = ses.nombre
-  document.getElementById('sSub').textContent = ((ses.numero<=6)?('SESIÓN '+ses.numero+' DE '+S.programa.sesiones.length+' · '):'')+'EN CURSO · RETOMANDO DONDE QUEDASTE'
+  document.getElementById('sSub').textContent = (!ses._extra?('SESIÓN '+posSem(ses)+' DE '+baseSem().length+' · '):'')+'EN CURSO · RETOMANDO DONDE QUEDASTE'
   document.getElementById('sObj').innerHTML = 'Tus sets marcados <b>ya están guardados</b>. Continúa desde el siguiente.'
   try{
     const { data: sl } = await sb.from('set_registros').select('*').eq('registro_id',reg.id)
@@ -1186,9 +1190,9 @@ async function abrirSesion(num){
   document.getElementById('sTit').textContent = ses.nombre
   const ap0 = aporteSesion(ses)
   const principales = Object.entries(ap0).sort((a,b)=>b[1]-a[1]).slice(0,3).map(([g])=>g).join(' · ')
-  const _tot=S.programa.sesiones.length
+  const _tot=baseSem().length
   document.getElementById('sSub').textContent =
-    ((ses.numero<=6)?('SESIÓN '+ses.numero+' DE '+_tot+' · '):'')+`PROGRAMADA POR TU COACH · ${(S.proto.programa||'').toUpperCase()}`
+    (!ses._extra?('SESIÓN '+posSem(ses)+' DE '+_tot+' · '):'')+`PROGRAMADA POR TU COACH · ${(S.proto.programa||'').toUpperCase()}`
   document.getElementById('sObj').innerHTML =
     `Principales músculos a estimular: <b>${principales}</b>. Complétala y tu semana avanza — suma <b>+${S.sem.proxima.suma_pct}%</b> de tu dosis.`
   document.getElementById('sFin').style.display='none'
@@ -1757,7 +1761,7 @@ async function finalizar(){
     : ((rw?.normal?.estado)||'Más fuerte que el lunes.')
   // Siguiente sesión pendiente: por numero y estado real, nunca por nombre
   const numsOk = new Set(regsN.filter(r=>r.estado!=='omitida').map(r=>r.sesion_numero))
-  const baseSes = S.programa.sesiones.filter(s=>s.numero<=6)
+  const baseSes = baseSem()
   const hechasN = baseSes.filter(s=>numsOk.has(s.numero)).length
   const sig = baseSes.filter(s=>!numsOk.has(s.numero)).sort((x,y)=>x.numero-y.numero)[0]
   document.getElementById('rwF').innerHTML = fraseEstado + '<br><br>' + (sig
@@ -1811,9 +1815,9 @@ function pintarPlan(){
   // detalle muscular bajo demanda (misma anatomía member)
   if (document.getElementById('pDet').style.display!=='none') pintarFilasMusc('pDetRows')
   document.getElementById('pSub').textContent =
-    `${S.proto.programa} · ${S.proto.nivel} · SEMANA ${S.asig.semana_actual||1} DE 6 · CICLO ${S.asig.ciclo_actual||1}`.toUpperCase()
+    `${S.proto.programa} · ${S.proto.nivel} · SEMANA ${S.asig.semana_actual||1} DE ${S.proto.ciclo_semanas||6} · CICLO ${S.asig.ciclo_actual||1}`.toUpperCase()
   const hechas = new Set(S.registros.filter(r=>r.estado!=='incompleta').map(r=>r.sesion_numero))
-  document.getElementById('pProg').innerHTML =
+  if (document.getElementById('pProg')) document.getElementById('pProg').innerHTML =
     `Esta semana llevas el <b>${S.sem.pct_dosis}%</b> de tu dosis · <b>${S.sem.fortalecidos} de ${S.sem.exigibles} músculos</b> fortalecidos.`
   const proxNum = S.sem?.proxima?.numero
   const porNum = {}; S.registros.forEach(r=>porNum[r.sesion_numero]=r)
@@ -1835,14 +1839,14 @@ function pintarPlan(){
       acciones=`<button class="pAct" onclick="event.stopPropagation();abrirSesion(${s.numero})">CONTINUAR →</button>` }
     else if (prox){
       const post = (S._solPost||[]).includes(s.nombre)
-      est = post ? 'COORDINANDO' : 'PRÓXIMA →'; cls='prox'; icon=s.numero
+      est = post ? 'COORDINANDO' : 'PRÓXIMA →'; cls='prox'; icon=posSem(s)
       if (!post && S.sem?.proxima?.suma_pct!=null) extra=' · SUMA +'+S.sem.proxima.suma_pct+'%'
       if (post) extra=' · TU COACH REORGANIZA TU SEMANA' }
     else if (cap.can_start){ est='ADELANTO APROBADO'; cls='prox'; icon='★'
       acciones=`<button class="pAct" onclick="event.stopPropagation();abrirSesion(${s.numero})">EMPEZAR →</button>` }
     else {
       cls='lock'; icon='🔒'
-      const prev = S.programa.sesiones.find(x=>x.numero===s.numero-1)
+      const _bs = baseSem(), prev = _bs[_bs.indexOf(s)-1]
       est = cap.request_pending ? 'SOLICITADA' : 'PRÓXIMA'
       extra = ' · '+(cap.request_pending
         ? (REASON_TXT.ADVANCE_APPROVAL_REQUIRED())
@@ -1869,7 +1873,7 @@ function pintarPlan(){
   const nextSes=S.programa.sesiones.filter(s=>((s.semana||1)===wAct+1))
   document.getElementById('pNextSem').innerHTML = nextSes.length
     ? '<div style="font-size:8px;font-weight:900;letter-spacing:.18em;color:#8B8A85;margin:16px 0 10px">PRÓXIMA SEMANA</div>'+
-      nextSes.map(s=>'<div class="glass pcard lock" style="opacity:.75"><div class="pnum">'+(s.numero)+'</div>'+
+      nextSes.map((s,ix)=>'<div class="glass pcard lock" style="opacity:.75"><div class="pnum">'+(ix+1)+'</div>'+
         '<div><div class="pn2">'+s.nombre+'</div><div class="pm2">SE ACTIVA AL CERRAR TU SEMANA ACTUAL</div></div>'+
         '<span class="pest lock">PRÓXIMAMENTE</span></div>').join('')
     : ''
