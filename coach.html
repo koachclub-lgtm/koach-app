@@ -449,7 +449,7 @@ small{color:var(--koach-text-secondary)}
 </div></div>
 
 <div class="vista" id="vSala">
-  <div class="hbar"><span class="hk" title="c8.0">KOACH</span><span class="rol" id="rolBadge" onclick="salir()">COACH</span></div>
+  <div class="hbar"><span class="hk" title="c8.0.1">KOACH</span><span class="rol" id="rolBadge" onclick="salir()">COACH</span></div>
   <button class="nuevo" onclick="toggleAlta()">+ NUEVO USUARIO · SOCIO O COACH</button>
   <button class="nuevo" style="background:rgba(255,255,255,.65);color:#121210;border:1.5px solid rgba(18,18,16,.15)" onclick="verBib()">📚 RUTINAS ESTÁNDAR · BIBLIOTECA</button>
   <div class="glass aform" id="fAlta" style="display:none">
@@ -2731,6 +2731,9 @@ function plRender(){
   const show=function(id,on){ const e=document.getElementById(id); if(e) e.style.display=on?'':'none' }
   show('pNav', true); show('pMacro', niv==='macro'); show('pMeso', niv==='meso')
   show('pTabs', niv==='micro'); show('pBloques', niv==='micro'); show('pOrgRow', false)
+  // Micro: la sesión primero, el dosificador debajo. Meso: dosificador bajo la lista de sesiones.
+  const _v=document.getElementById('pVivo'), _anc=document.getElementById(niv==='micro'?'pBloques':'pMeso')
+  if (_v && _anc && _anc.nextSibling!==_v) _anc.parentNode.insertBefore(_v, _anc.nextSibling)
   if (niv==='macro'){ show('pVivo', false); plPintarMacro() }
   else if (niv==='meso'){ calcDose(); show('pVivo', true); plPintarMeso() }
   plPintarNav()
