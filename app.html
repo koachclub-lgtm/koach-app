@@ -444,7 +444,7 @@ html,button,input,.pvS,.chk,.setChip{touch-action:manipulation}
 
   <!-- ══ HOME ══ -->
   <div class="vista conTab" id="vHome">
-    <div class="hbar"><span class="hk" title="v7.6">KOACH</span><div class="hav" id="hAv" onclick="salir()">K</div></div>
+    <div class="hbar"><span class="hk" title="v7.7">KOACH</span><div class="hav" id="hAv" onclick="salir()">K</div></div>
     <div class="ctx"><div class="fecha" id="hFecha">—</div><div class="prog" id="hProg">—</div></div>
     <div class="anillo">
       <svg width="180" height="180" viewBox="0 0 180 180">
@@ -715,6 +715,8 @@ function nombreEN(s){
   if (/COMPLETO|FULL/.test(x)) return 'TOTAL BODY'
   return x
 }
+// Fecha LOCAL (Chile). toISOString es UTC: después de las 21:00 registraba el día siguiente.
+function fLocal(d){ const z=new Date(d.getTime()-d.getTimezoneOffset()*60000); return z.toISOString().slice(0,10) }
 function lunes(){ const h=new Date(),d=(h.getDay()+6)%7,l=new Date(h); l.setDate(h.getDate()-d); l.setHours(0,0,0,0); return l }
 
 /* ══ UTILIDADES ══ */
@@ -873,7 +875,7 @@ async function entrar(){
     // Entrenamiento en curso: recuperar el de hoy, cerrar los abandonados
     S.enCurso = null
     try{
-      const hoyD = new Date().toISOString().split('T')[0]
+      const hoyD = fLocal(new Date())
       const { data: ec } = await sb.from('sesiones_registro')
         .select('id, sesion_protocolo_id, fecha').eq('socio_id',perfil.id).eq('estado','en_curso')
       ;(ec||[]).forEach(r=>{
@@ -881,7 +883,7 @@ async function entrar(){
         else if (r.fecha<hoyD) sb.from('sesiones_registro').update({estado:'omitida'}).eq('id',r.id).then(()=>{})
       })
     }catch(_){}
-    const lunesISO = lunes().toISOString().split('T')[0]
+    const lunesISO = fLocal(lunes())
     const { data: regs } = await sb.from('sesiones_registro')
       .select('sesion_protocolo_id, estado, fecha, bloques_completados')
       .eq('socio_id', perfil.id).gte('fecha', lunesISO)
@@ -981,7 +983,7 @@ function pintarHome(){
     ? `SESIONES COMPLETADAS ESTA SEMANA: <b>${hechasSes}</b>${ultTxt} · SEMANA COMPLETA`
     : `SESIONES COMPLETADAS ESTA SEMANA: <b>${hechasSes}</b>${ultTxt}` + (sem.proxima ? ` · SIGUE: <b>${sem.proxima.nombre}</b>` : '')
   const cta=document.getElementById('hCta')
-  const hoyISO2 = new Date().toISOString().split('T')[0]
+  const hoyISO2 = fLocal(new Date())
   const entrenoHoy = S.registros.some(r=>r.fecha===hoyISO2 && r.estado!=='incompleta')
   if (S.enCurso){
     const sesEC = S.programa.sesiones.find(x=>x.id===S.enCurso.sesion_protocolo_id)
@@ -995,11 +997,11 @@ function pintarHome(){
     const sigT = (sem.proxima && !sem.proxima._extra) ? ('MAÑANA → '+sem.proxima.nombre+' · ') : ''
     document.getElementById('hCtaS').textContent=sigT+'LA RECUPERACIÓN TAMBIÉN ENTRENA'
   } else if (sem.completa && sem.proxima && sem.proxima._extra){
-    cta.disabled=false; cta.onclick=abrirSesion
+    cta.disabled=false; cta.onclick=()=>abrirSesion()
     document.getElementById('hCtaT').textContent='COMENZAR EXTRA ★'
     document.getElementById('hCtaS').textContent=sem.proxima.nombre.replace('★ ','')+' · DESIGNADA POR TU COACH · SUMA VOLUMEN ESPECÍFICO'
   } else if (sem.completa && sem.proxima){
-    cta.disabled=false; cta.onclick=abrirSesion
+    cta.disabled=false; cta.onclick=()=>abrirSesion()
     document.getElementById('hCtaT').textContent='COMENZAR '+sem.proxima.nombre
     document.getElementById('hCtaS').textContent='SESIÓN DE TU SEMANA · PROGRAMADA POR TU COACH'
   } else if (sem.completa){ cta.disabled=false
@@ -1017,7 +1019,7 @@ function pintarHome(){
       }
     }
   } else if (sem.proxima){ cta.disabled=false
-    cta.onclick = abrirSesion
+    cta.onclick = ()=>abrirSesion()
     document.getElementById('hCtaT').textContent='COMENZAR SESIÓN'
     document.getElementById('hCtaS').textContent=`${sem.proxima.nombre} · 60 MIN · SUMA +${sem.proxima.suma_pct}% DE TU DOSIS`
   }
@@ -1167,7 +1169,7 @@ function resolverCap(s, ctx){
   return cap
 }
 function ctxDe(s){
-  const hoyC = new Date().toISOString().split('T')[0]
+  const hoyC = fLocal(new Date())
   const reg = S.registros.find(r=>r.sesion_numero===s.numero && r.estado!=='incompleta')
   const enC = S.registros.find(r=>r.sesion_numero===s.numero && r.estado==='en_curso' && r.fecha===hoyC)
   return { hecha:!!reg, regId:reg&&reg.id, enCurso:!!enC,
@@ -1192,7 +1194,7 @@ async function abrirSesion(num){
   if (!capG.can_start && !capG.can_continue){
     toast((REASON_TXT[capG.reason_code]||(()=>'Esta sesión aún no está habilitada.'))(null)); return }
   cargando('PREPARANDO TU SESIÓN…')
-  const hoyC = new Date().toISOString().split('T')[0]
+  const hoyC = fLocal(new Date())
   if (S.registros.some(r=>r.fecha===hoyC && r.estado!=='incompleta')){
     cargandoOff(); toast('Hoy ya sumaste tu sesión — la recuperación también entrena. Nos vemos mañana.'); return }
   S._desigActual = (num==null && S.sem&&S.sem.proxima&&S.sem.proxima._desigId) || null
@@ -1203,7 +1205,7 @@ async function abrirSesion(num){
   S.wk={}; S.setLog={}; S.rw={}; S.abierto=null; S.regId=null
   // INSTANCIA: crear o recuperar el registro en curso de hoy (persistencia server-side)
   try{
-    const hoyD = new Date().toISOString().split('T')[0]
+    const hoyD = fLocal(new Date())
     const { data: exi } = await sb.from('sesiones_registro').select('id')
       .eq('socio_id',S.perfil.id).eq('sesion_protocolo_id',ses.id).eq('fecha',hoyD).eq('estado','en_curso')
       .limit(1).maybeSingle()
@@ -1264,6 +1266,9 @@ function tipoDe(ej, be){
   return 'WEIGHT_REPS'
 }
 function esCircuito(b){
+  // v7.7: todos los bloques se registran por ejercicio y por set (el formato "ronda" no guardaba cargas por ejercicio
+  // → sin historial ni progresión). Se conserva la función para no romper llamadas existentes.
+  return false
   const rol=(b.rol||'').toLowerCase()
   const et=(b.etiqueta||'').toUpperCase()
   return rol==='activacion' || /ACTIV|MOVIL|CARDIO/.test(et) || b.bloque==='B1'
@@ -1400,7 +1405,13 @@ function pintarSesion(){
         : hechos>0 ? '<span class="estT par">◐ '+hechos+'/'+b.sets+'</span>'
         : '<span class="estT">○</span>'
       let resumen=''
-      if (w.tipo==='WEIGHT_REPS') resumen=(w.kg!=null?(w.kg+' KG · '):'CARGA A DEFINIR · ')+w.reps+' REPS'
+      const hechosF=[]; for(let n3=1;n3<=b.sets;n3++){ const f=S.setLog[setKey(be.id,n3)]; if(f&&f.peso!=null) hechosF.push(f) }
+      if (w.tipo==='WEIGHT_REPS' && hechosF.length){
+        const pesos=hechosF.map(f=>+f.peso), mn=Math.min(...pesos), mx=Math.max(...pesos)
+        const top=hechosF.filter(f=>+f.peso===mx).sort((a,x)=>(+x.reps||0)-(+a.reps||0))[0]
+        resumen='HECHO · '+(mn===mx?mx+' KG':mn+' → '+mx+' KG')+' · MEJOR SET '+mx+' × '+(top.reps||'—')+(w.kg!=null&&mx>w.kg?' · ↑ SOBRE LO PRESCRITO':'')
+      }
+      else if (w.tipo==='WEIGHT_REPS') resumen=(w.kg!=null?(w.kg+' KG · '):'CARGA A DEFINIR · ')+w.reps+' REPS'
       else if (w.tipo==='TIME') resumen=w.seg+' SEG'
       else resumen='PESO CORPORAL · '+w.reps+' REPS'
       return '<div class="exCard '+(abierto?'':'cerrado')+'" id="ex-'+be.id+'">'+
@@ -1490,6 +1501,10 @@ async function tapSetRow(beId,n,bId,ejId){
     target_peso:(w.kg!=null?w.kg:null), target_reps:w.reps||null, target_seg:w.seg||null,
     peso:(rv.kg!=null?rv.kg:null), reps:rv.reps||null, seg:(w.tipo==='TIME'?(rv.seg||null):null), completado:true }
   S.setLog[k]={...fila}
+  // v7.7: el peso/reps del set marcado pasan como punto de partida a los sets siguientes aún no marcados
+  const blkT=S._bfs.find(function(x){return x.id===bId})
+  if (blkT && rv.kg!=null){ for(let m=n+1;m<=blkT.sets;m++){ if(S.setLog[setKey(beId,m)]) continue
+    const km=beId+'#'+m; S.rw[km]=Object.assign({}, S.rw[km]||{reps:w.reps, seg:w.seg}, {kg:rv.kg, reps:rv.reps||w.reps}) } }
   pintarSesion()
   if(navigator.vibrate)navigator.vibrate(8)
   syncEnvio()
@@ -1749,7 +1764,7 @@ async function finalizar(){
     let rid = S.regId
     if (!rid){
       const { data: rec } = await sb.from('sesiones_registro').select('id')
-        .eq('socio_id',S.perfil.id).eq('fecha',new Date().toISOString().split('T')[0])
+        .eq('socio_id',S.perfil.id).eq('fecha',fLocal(new Date()))
         .eq('estado','en_curso').limit(1).maybeSingle()
       rid = rec && rec.id; S.regId = rid
     }
@@ -1868,7 +1883,7 @@ function pintarPlan(){
   // §2/§5/§33 · RESUMEN simple — PLAN consume el motor, jamás calcula (§3)
   const sem=S.sem||{}
   const hechasN=(S.registros||[]).filter(r=>r.estado && r.estado!=='en_curso' && r.estado!=='incompleta'
-    && r.fecha>= (function(){const d=new Date();const w=(d.getDay()+6)%7;d.setDate(d.getDate()-w);return d.toISOString().split('T')[0]})()).length
+    && r.fecha>= (function(){const d=new Date();const w=(d.getDay()+6)%7;d.setDate(d.getDate()-w);return fLocal(d)})()).length
   document.getElementById('pResumen').innerHTML =
     '<div style="font-size:8px;font-weight:900;letter-spacing:.18em;color:#8B8A85;margin-bottom:6px">TU SEMANA</div>'+
     '<div style="font-size:22px;font-weight:900;letter-spacing:.02em">'+(sem.pct_dosis!=null?sem.pct_dosis+'%':'—')+'<small style="font-size:9px;font-weight:900;color:#8B8A85"> COMPLETADO</small></div>'+
@@ -1966,8 +1981,8 @@ async function pintarCalendario(off){
   const y=ref.getFullYear(), m=ref.getMonth()
   const MESES=['ENERO','FEBRERO','MARZO','ABRIL','MAYO','JUNIO','JULIO','AGOSTO','SEPTIEMBRE','OCTUBRE','NOVIEMBRE','DICIEMBRE']
   document.getElementById('calTit').textContent = MESES[m]+' '+y
-  const d1=new Date(y,m,1).toISOString().split('T')[0]
-  const d2=new Date(y,m+1,1).toISOString().split('T')[0]
+  const d1=fLocal(new Date(y,m,1))
+  const d2=fLocal(new Date(y,m+1,1))
   let regs=[]
   try{
     const { data } = await sb.from('sesiones_registro')
@@ -2004,7 +2019,7 @@ async function verSemanaAnterior(){
   const off=S._semOff
   const lun=new Date(); const w=(lun.getDay()+6)%7; lun.setDate(lun.getDate()-w-off*7)
   const dom=new Date(lun); dom.setDate(dom.getDate()+7)
-  const d1=lun.toISOString().split('T')[0], d2=dom.toISOString().split('T')[0]
+  const d1=fLocal(lun), d2=fLocal(dom)
   try{
     const { data } = await sb.from('sesiones_registro')
       .select('id, fecha, estado, sesion_protocolo_id')
