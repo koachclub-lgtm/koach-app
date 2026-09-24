@@ -391,6 +391,35 @@ html,button,input,.pvS,.chk,.setChip{touch-action:manipulation}
 .uW.vig b,.uW.vig span{color:var(--koach-control,#F5F5F5)}
 .uW.vig u{background:rgba(245,245,245,.25)} .uW.vig u.on{background:var(--koach-control,#F5F5F5)}
 .uW.fut{opacity:.6;border-style:dashed}
+
+/* v7.9 · historial solo lectura */
+#oHist .hsTot{font-family:var(--font-mono);font-weight:500;font-size:10px;letter-spacing:.06em;color:#C9C8C2;margin:0 0 14px}
+#oHist .hsB{margin-bottom:16px;padding-top:10px;border-top:1px solid rgba(242,241,239,.12)}
+#oHist .hsBh{font-family:var(--font-mono);font-weight:500;font-size:10px;letter-spacing:.08em;color:#8B8A85;margin-bottom:8px}
+#oHist .hsE{margin-bottom:10px}
+#oHist .hsEn{font-family:var(--font-display);font-weight:700;font-size:15px;color:#F2F1EF;margin-bottom:4px}
+#oHist .hsS{display:flex;gap:10px;align-items:baseline;font-family:var(--font-mono);font-weight:500;font-size:11px;color:#C9C8C2;padding:3px 0}
+#oHist .hsS span{min-width:44px;color:#8B8A85;font-size:9.5px}
+#oHist .hsS b{font-weight:500;color:#F2F1EF}
+#oHist .hsS em{font-style:normal;margin-left:auto;font-size:9px;color:#6E6D68}
+/* v7.9 · dosis por músculo: cuánto llevo / cuánto necesito / cómo voy */
+.mRows{display:flex;flex-direction:column;gap:12px}
+.mRow .mTop{display:flex;align-items:baseline;justify-content:space-between;gap:8px}
+.mRow .mG{font-family:var(--font-display);font-weight:700;font-size:14px;letter-spacing:-0.01em;color:var(--koach-ink)}
+.mRow .mV{font-family:var(--font-mono);font-weight:500;font-size:13px;color:var(--koach-ink)}
+.mRow .mV small{font-size:10px;color:#6E6D68}
+.mRow .mBar{position:relative;height:8px;border-radius:4px;background:rgba(17,17,17,.10);margin-top:6px;overflow:hidden}
+.mRow .mBar i{position:absolute;left:0;top:0;bottom:0;width:0;border-radius:4px;background:#1C1C1C;transition:width .6s ease}
+.mRow.m0 .mBar i{background:transparent}
+.mRow.mP .mBar i{background:#6E6D68}
+.mRow.mO .mBar i::after{content:'';position:absolute;right:0;top:0;bottom:0;width:6px;background:repeating-linear-gradient(90deg,#1C1C1C 0 2px,transparent 2px 4px)}
+.mRow .mE{font-family:var(--font-mono);font-weight:500;font-size:9.5px;letter-spacing:.06em;color:#6E6D68;margin-top:4px}
+.mRow.mM .mE,.mRow.mC .mE,.mRow.mO .mE{color:var(--koach-ink)}
+.mRow.libre{opacity:.55}
+.uSem{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:10px}
+.uSem div{border:1px solid rgba(17,17,17,.10);border-radius:10px;padding:10px 8px}
+.uSem b{display:block;font-family:var(--font-display);font-weight:700;font-size:22px;letter-spacing:-0.02em;color:var(--koach-ink)}
+.uSem span{display:block;font-family:var(--font-mono);font-weight:500;font-size:9px;letter-spacing:.06em;color:#6E6D68;margin-top:2px}
 </style>
 </head>
 <body>
@@ -444,7 +473,7 @@ html,button,input,.pvS,.chk,.setChip{touch-action:manipulation}
 
   <!-- ══ HOME ══ -->
   <div class="vista conTab" id="vHome">
-    <div class="hbar"><span class="hk" title="v7.8">KOACH</span><div class="hav" id="hAv" onclick="salir()">K</div></div>
+    <div class="hbar"><span class="hk" title="v7.9">KOACH</span><div class="hav" id="hAv" onclick="salir()">K</div></div>
     <div class="ctx"><div class="fecha" id="hFecha">—</div><div class="prog" id="hProg">—</div></div>
     <div class="anillo">
       <svg width="180" height="180" viewBox="0 0 180 180">
@@ -466,7 +495,7 @@ html,button,input,.pvS,.chk,.setChip{touch-action:manipulation}
     <div class="glass panel">
       <h3><span>TRABAJO SEMANAL · SERIES POR MÚSCULO</span><span id="hCount">—</span></h3>
       <div class="rows" id="hRows"></div>
-      <div class="nota" style="margin-top:4px;text-align:left">⚪ SIN DOSIS · 🟢 ÓPTIMO · 🟡 CERCA DEL TECHO · 🔴 EXCESO</div>
+
     </div>
   </div>
 
@@ -652,7 +681,8 @@ const S = { perfil:null, asig:null, proto:null, programa:null, objetivos:null, r
             bloquesListos:0, cargasPrevias:{} }
 
 /* ══ MOTOR (probado 8/8) ══ */
-const ESTADOS_OK = ['completada','finalizada','incompleta']
+const ESTADOS_OK = ['completada']   // enum real: pendiente | en_curso | completada | omitida
+function esHecha(r){ return !!r && r.estado==='completada' }
 // F2 · el cálculo vive en KD (domain/koach-domain.js) · adaptador NORM aprobado
 function kdNormSesion(sesion){
   return { bloques:(sesion.bloques||[]).map(b=>({ sets:b.sets,
@@ -660,6 +690,15 @@ function kdNormSesion(sesion){
       const g=(ej.grupo||'').toUpperCase()
       return { grupo:g, sinergistas:Object.assign(g?{[g]:1.0}:{}, ej.sinergistas||{}), cuenta_dosis:(ej.cuenta_dosis!==undefined?ej.cuenta_dosis:ej.cuentaDosis) }
     }) })) }
+}
+// Dosis EJECUTADA: cada ejercicio aporta los sets que realmente se marcaron (registro legado por rondas = 1 set
+// de cada ejercicio del bloque). Mismo motor KD; solo cambia la entrada: lo hecho en vez de lo prescrito.
+function sesionEjecutada(ses, ejec){
+  const out=[]
+  ;(ses.bloques||[]).forEach(b=>(b.ejercicios||[]).forEach(e=>{
+    const n=(ejec.be[e.beId]||0)+(ejec.rondas[b.id]||0)
+    if (n>0) out.push({ sets:n, ejercicios:[e] }) }))
+  return { bloques:out }
 }
 function aporteSesion(sesion, bloquesCompletados = null){
   return KD.aporteSesionDOC3(kdNormSesion(sesion), bloquesCompletados).aporte
@@ -677,7 +716,9 @@ function calcularSemana(programa, registros, objetivos){
   validos.forEach(r=>{
     const ses = programa.sesiones.find(s=>s.numero===r.sesion_numero)
     if (!ses) return
-    const a = aporteSesion(ses, r.bloques_completados ?? null)
+    const a = (r.ejec && (Object.keys(r.ejec.be).length || Object.keys(r.ejec.rondas).length))
+      ? aporteSesion(sesionEjecutada(ses, r.ejec), null)
+      : aporteSesion(ses, r.bloques_completados ?? null)
     Object.entries(a).forEach(([g,v])=>{ if (g in acum) acum[g]+=v })
   })
   const musculos = Object.entries(objetivos).map(([grupo,o])=>({
@@ -689,7 +730,7 @@ function calcularSemana(programa, registros, objetivos){
   const tot = ex.filter(m=>m.fortalecido).length
   const _svc = KD.strengthVolumeCompletion(ex.map(m=>({muscle:m.grupo, aligned:m.series, target:m.objetivo})))
   const pct_dosis = (_svc.value===KD.NA) ? 0 : Math.floor(_svc.value*100)
-  const hechas = new Set(validos.filter(r=>r.estado!=='incompleta').map(r=>r.sesion_numero))
+  const hechas = new Set(validos.filter(esHecha).map(r=>r.sesion_numero))
   const prox = sesSem.find(s=>!hechas.has(s.numero)) || null
   let proxima = null
   if (prox){
@@ -836,9 +877,9 @@ async function entrar(){
       numero:s.numero, id:s.id, semana:(s.semana||1), nombre:nombreEN(s.objetivo)||('SESIÓN '+s.numero),
       bloquesFull:(bloques||[]).filter(b=>b.sesion_id===s.id),
       bloques:(bloques||[]).filter(b=>b.sesion_id===s.id).map(b=>({
-        sets:b.sets,
+        id:b.id, sets:b.sets,
         ejercicios:(b.bloque_ejercicios||[]).map(be=>({
-          grupo:be.ejercicios?.grupo_muscular, sinergistas:be.ejercicios?.sinergistas||{}, cuenta_dosis:be.ejercicios?.cuenta_dosis
+          beId:be.id, grupo:be.ejercicios?.grupo_muscular, sinergistas:be.ejercicios?.sinergistas||{}, cuenta_dosis:be.ejercicios?.cuenta_dosis
         })).filter(e=>e.grupo)
       }))
     })) }
@@ -885,8 +926,19 @@ async function entrar(){
     }catch(_){}
     const lunesISO = fLocal(lunes())
     const { data: regs } = await sb.from('sesiones_registro')
-      .select('sesion_protocolo_id, estado, fecha, bloques_completados')
+      .select('id, sesion_protocolo_id, estado, fecha, bloques_completados, completada_at')
       .eq('socio_id', perfil.id).gte('fecha', lunesISO)
+    // Sets realmente ejecutados de esta semana → la dosis sale de aquí, no de "sesión completa"
+    const _setsPorReg = {}
+    try{
+      const _rids=(regs||[]).filter(r=>r.estado==='completada').map(r=>r.id)
+      if (_rids.length){
+        const { data: srs } = await sb.from('set_registros').select('registro_id, bloque_id, bloque_ejercicio_id, completado').in('registro_id', _rids)
+        ;(srs||[]).forEach(x=>{ if(!x.completado) return; const o=_setsPorReg[x.registro_id]=_setsPorReg[x.registro_id]||{be:{},rondas:{}}
+          if (x.bloque_ejercicio_id) o.be[x.bloque_ejercicio_id]=(o.be[x.bloque_ejercicio_id]||0)+1
+          else if (x.bloque_id) o.rondas[x.bloque_id]=(o.rondas[x.bloque_id]||0)+1 })
+      }
+    }catch(_){}
     S.hechasCiclo = {}
     try{
       const _ids=S.programa.sesiones.map(s=>s.id)
@@ -896,7 +948,7 @@ async function entrar(){
       }
     }catch(_){}
     const numPorId = {}; S.programa.sesiones.forEach(s=>numPorId[s.id]=s.numero)
-    S.registros = (regs||[]).map(r=>({ sesion_numero:numPorId[r.sesion_protocolo_id], estado:r.estado,
+    S.registros = (regs||[]).map(r=>({ id:r.id, sesion_protocolo_id:r.sesion_protocolo_id, ejec:_setsPorReg[r.id]||null, sesion_numero:numPorId[r.sesion_protocolo_id], estado:r.estado,
       fecha:r.fecha, bloques_completados:r.bloques_completados??null })).filter(r=>r.sesion_numero)
 
     const { data: objs } = await sb.from('volumen_objetivos').select('*').eq('protocolo_id', S.proto.id)
@@ -916,13 +968,16 @@ async function entrar(){
       perfil:S.perfil, programa:S.programa, objetivos:S.objetivos, registros:S.registros, reqs:S._reqs||{}})) }catch(_e){}
     try{
       const { data: sol } = await sb.from('solicitudes').select('id, tipo, detalle, estado, sesion_protocolo_id')
-        .eq('socio_id', perfil.id).in('estado',['PENDIENTE','APROBADA'])
-      const pend = (sol||[]).filter(x=>x.estado==='PENDIENTE')
+        .eq('socio_id', perfil.id).in('estado',['pendiente','aprobada'])
+      // v7.9: vocabulario único en minúscula (BD) → claves internas en mayúscula para resolverCap
+      const pend = (sol||[]).filter(x=>x.estado==='pendiente')
       S._solExtra = pend.some(x=>x.tipo==='extra')
-      S._solPost = pend.filter(x=>x.tipo==='postergar').map(x=>x.detalle)
+      S._solPost = pend.filter(x=>x.tipo==='postergar').map(x=>x.sesion_protocolo_id||x.detalle)
       S._reqs = {}
-      ;(sol||[]).forEach(x=>{ if(x.sesion_protocolo_id && (x.tipo==='ADELANTAR'||x.tipo==='PREVIEW')){
-        S._reqs[x.sesion_protocolo_id]=Object.assign({},S._reqs[x.sesion_protocolo_id],{[x.tipo]:x.estado}) }})
+      ;(sol||[]).forEach(x=>{ if(x.sesion_protocolo_id && (x.tipo==='adelantar'||x.tipo==='preview')){
+        const k=x.tipo.toUpperCase(), prev=(S._reqs[x.sesion_protocolo_id]||{})[k]
+        if (prev==='APROBADA') return   // una aprobada no la pisa otra pendiente
+        S._reqs[x.sesion_protocolo_id]=Object.assign({},S._reqs[x.sesion_protocolo_id],{[k]:x.estado.toUpperCase()}) }})
     }catch(_){ S._solExtra=false; S._solPost=[] }
     pintarHome()
     vista('vHome')   // re-evalúa la tab bar ahora que S.asig existe
@@ -960,7 +1015,7 @@ function pintarHome(){
   if (sem.completa) ctx='completa'
   else if (dowL===0 && S.registros.length===0) ctx='lunes'
   document.getElementById('hSaludo').textContent = saludoDe(ctx)
-  const hechasSes = S.registros.filter(r=>r.estado!=='incompleta').length
+  const hechasSes = S.registros.filter(esHecha).length
   let voz
   if (sem.completa && sem.proxima && sem.proxima._extra) voz = `<b>Base completa</b> — 100%. Tu coach te designó <b>${sem.proxima.nombre}</b>: volumen específico sobre tu base. <b>Está lista cuando tú lo estés.</b>`
   else if (sem.completa) voz = `<b>Base completa</b> — 100%, tus <b>${den}/${den} estímulos</b> cumplidos. Las extras suman <b>volumen específico sobre tu base</b>. Solicítala y tu coach la designa.`
@@ -971,20 +1026,23 @@ function pintarHome(){
   } else voz = `Llevas el <b>${dosis}%</b> de tu dosis semanal.`
   document.getElementById('hVoz').innerHTML = voz
   const porDia={}
-  S.registros.forEach(r=>{ const d=new Date(r.fecha+'T12:00:00'); porDia[(d.getDay()+6)%7]=true })
+  S.registros.filter(esHecha).forEach(r=>{ const d=new Date(r.fecha+'T12:00:00'); porDia[(d.getDay()+6)%7]=true })
   document.getElementById('hDias').innerHTML = ['L','M','X','J','V','S'].map((l,i)=>`
     <div class="dia ${i===dowL?'hoy':'glass'} ${porDia[i]?'hecho':''}">
       <div class="dl">${l}</div><div class="dm">${i===dowL?'HOY':(porDia[i]?'✓':'·')}</div></div>`).join('')
   // Doble objetivo: sesiones designadas de la semana
-  const regsOrd = [...S.registros].filter(r=>r.estado!=='incompleta').sort((a,b)=>a.fecha<b.fecha?1:-1)
+  const regsOrd = [...S.registros].filter(esHecha).sort((a,b)=>a.fecha<b.fecha?1:-1)
   const ultima = regsOrd[0] ? S.programa.sesiones.find(s=>s.numero===regsOrd[0].sesion_numero) : null
-  const ultTxt = ultima ? ` · ÚLTIMA: <b>${ultima.nombre}</b>` : ''
-  document.getElementById('hSes').innerHTML = sem.completa
-    ? `SESIONES COMPLETADAS ESTA SEMANA: <b>${hechasSes}</b>${ultTxt} · SEMANA COMPLETA`
-    : `SESIONES COMPLETADAS ESTA SEMANA: <b>${hechasSes}</b>${ultTxt}` + (sem.proxima ? ` · SIGUE: <b>${sem.proxima.nombre}</b>` : '')
+  const _bs=baseSem(), _hechN=new Set(S.registros.filter(esHecha).map(r=>r.sesion_numero))
+  const _pend=_bs.filter(x=>!_hechN.has(x.numero))
+  const _prox=sem.proxima||null, _desp=_pend.filter(x=>!_prox||x.numero!==_prox.numero)[0]||null
+  document.getElementById('hSes').innerHTML =
+    `SESIONES <b>${hechasSes} / ${_bs.length}</b>`+
+    (ultima ? ` · ÚLTIMA <b>${ultima.nombre} ✓</b>` : '')+
+    (sem.completa ? ' · SEMANA COMPLETA' : (_prox ? ` · PRÓXIMA <b>${_prox.nombre}</b>` : '') + (_desp ? ` · DESPUÉS ${_desp.nombre}` : ''))
   const cta=document.getElementById('hCta')
   const hoyISO2 = fLocal(new Date())
-  const entrenoHoy = S.registros.some(r=>r.fecha===hoyISO2 && r.estado!=='incompleta')
+  const entrenoHoy = S.registros.some(r=>r.fecha===hoyISO2 && esHecha(r))
   if (S.enCurso){
     const sesEC = S.programa.sesiones.find(x=>x.id===S.enCurso.sesion_protocolo_id)
     cta.disabled=false
@@ -1030,7 +1088,21 @@ function pintarHome(){
 function pintarFilasMusc(elId){
   const sem=S.sem||{}; const orden=sem.musculos||[]
   const num=sem.fortalecidos||0, den=sem.exigibles||0, dosis=sem.pct_dosis||0
+  const fmtM = x => x%1===0 ? x : (+x).toFixed(1)
   const rowsHTML = orden.map(m=>{
+    // Estados del motor (mismos umbrales que el dosificador del coach): SIN DOSIS · EN PROGRESO · META · CERCA DEL TECHO · SOBRE TECHO
+    const est = !m.exigible ? ['libre','LIBRE'] : m.series<=0 ? ['m0','SIN DOSIS']
+      : (m.mav!=null && m.series>m.mav) ? ['mO','SOBRE TECHO']
+      : (m.mav!=null && m.series>=m.mav*0.85) ? ['mC','CERCA DEL TECHO']
+      : m.fortalecido ? ['mM','META ✓'] : ['mP','EN PROGRESO']
+    const w = m.exigible && m.objetivo>0 ? Math.min(Math.round(m.series/m.objetivo*100),100) : 0
+    return '<div class="mRow '+est[0]+'"><div class="mTop"><span class="mG">'+m.grupo+'</span>'+
+      '<span class="mV">'+fmtM(m.series)+(m.exigible?' <small>/ '+m.objetivo+'</small>':'')+'</span></div>'+
+      '<div class="mBar"><i data-w="'+w+'"></i></div><div class="mE">'+est[1]+'</div></div>'
+  }).join('')
+  const _el=document.getElementById(elId); _el.className='mRows'; _el.innerHTML=rowsHTML
+  setTimeout(()=>{ _el.querySelectorAll('.mBar i').forEach((f,i)=>setTimeout(()=>{ f.style.width=f.dataset.w+'%' },80+i*50)) }, 30)
+  if (false) orden.map(m=>{
     const fmt = x => x%1===0 ? x : (+x).toFixed(1)
     if (!m.exigible){
       const sN = m.series>0 ? fmt(m.series) : ''
@@ -1051,8 +1123,6 @@ function pintarFilasMusc(elId){
       <div class="bar"><div class="fill ${m.fortalecido?'fol':''}" data-w="${pct}"></div></div>
       <div class="v ${m.fortalecido?'si':''}">${m.fortalecido?'✓ ':''}${fmt(cov)}/${m.objetivo}<small>${sub}</small></div></div>`
   }).join('')
-  document.getElementById(elId).innerHTML = rowsHTML
-  setTimeout(()=>{ document.querySelectorAll('#'+elId+' .fill').forEach((f,i)=>setTimeout(()=>{ f.style.width=f.dataset.w+'%' },80+i*50)) }, 30)
   document.getElementById('hCount').textContent = `${num} DE ${den} METAS CUMPLIDAS`
   setTimeout(()=>{
     const C=490.1, obj=dosis/100
@@ -1067,18 +1137,18 @@ function pintarFilasMusc(elId){
     if (dosis>0){ const paso=Math.max(1,Math.round(dosis/14)); const it=setInterval(()=>{ c+=paso
       document.getElementById('hN').textContent=Math.min(c,dosis)
       if(c>=dosis) clearInterval(it) },70) }
-    document.querySelectorAll('#hRows .fill').forEach((f,i)=>setTimeout(()=>{ f.style.width=f.dataset.w+'%' },150+i*70))
   },350)
 }
-async function k2Postergar(nombre){
+async function k2Postergar(nombre, spId){
   const ok = await k2Solicitar('postergar', nombre, null,
-    'Avisado — tu coach reorganiza tu semana')
-  if (ok){ (S._solPost = S._solPost||[]).push(nombre); pintarPlan() }
+    'Avisado — tu coach reorganiza tu semana', spId)
+  if (ok){ (S._solPost = S._solPost||[]).push(spId||nombre); pintarPlan() }
 }
-async function k2Solicitar(tipo, detalle, btn, okTxt){
+async function k2Solicitar(tipo, detalle, btn, okTxt, spId){
   if (btn){ btn.disabled=true }
   try{
-    await sb.from('solicitudes').insert({ socio_id:S.perfil.id, tipo, detalle:detalle||null })
+    const { error } = await sb.from('solicitudes').insert({ socio_id:S.perfil.id, tipo, detalle:detalle||null, sesion_protocolo_id:spId||null })
+    if (error){ if(String(error.code)==='23505'||/duplicate/i.test(error.message)){ toast('Ya está enviada — tu coach la tiene en su panel.'); return true } throw error }
     toast(okTxt||'Solicitud enviada — tu coach la verá en su panel')
     return true
   }catch(e){ console.error(e); toast('No se pudo enviar — intenta de nuevo'); if(btn) btn.disabled=false; return false }
@@ -1170,20 +1240,22 @@ function resolverCap(s, ctx){
 }
 function ctxDe(s){
   const hoyC = fLocal(new Date())
-  const reg = S.registros.find(r=>r.sesion_numero===s.numero && r.estado!=='incompleta')
+  const reg = S.registros.find(r=>r.sesion_numero===s.numero && esHecha(r))
   const enC = S.registros.find(r=>r.sesion_numero===s.numero && r.estado==='en_curso' && r.fecha===hoyC)
   return { hecha:!!reg, regId:reg&&reg.id, enCurso:!!enC,
     prox: s.numero===(S.sem&&S.sem.proxima&&S.sem.proxima.numero) && !(S.sem&&S.sem.completa) }
 }
 async function solicitar(tipo, sesId, nombre){
   try{
+    if (S._reqEnvio) return; S._reqEnvio=true   // doble toque → una sola solicitud
     const { error } = await sb.from('solicitudes').insert({
-      socio_id:S.perfil.id, tipo:tipo, sesion_protocolo_id:sesId, detalle:nombre||null })
+      socio_id:S.perfil.id, tipo:String(tipo).toLowerCase(), sesion_protocolo_id:sesId, detalle:nombre||null })
+    S._reqEnvio=false
     if (error){ if(String(error.code)==='23505'||/duplicate/i.test(error.message)){ toast('Ya tienes una solicitud enviada para esta sesión.') } else throw error }
     else toast(tipo==='ADELANTAR' ? 'Solicitud enviada — tu coach la revisará.' : 'Solicitud de vista previa enviada.')
     S._reqs = S._reqs||{}; S._reqs[sesId]=Object.assign({},S._reqs[sesId],{[tipo]:'PENDIENTE'})
     pintarPlan()
-  }catch(e){ toast('No se pudo enviar — intenta de nuevo.') }
+  }catch(e){ S._reqEnvio=false; toast('No se pudo enviar — intenta de nuevo.') }
 }
 async function abrirSesion(num){
   let sesG = null
@@ -1195,7 +1267,7 @@ async function abrirSesion(num){
     toast((REASON_TXT[capG.reason_code]||(()=>'Esta sesión aún no está habilitada.'))(null)); return }
   cargando('PREPARANDO TU SESIÓN…')
   const hoyC = fLocal(new Date())
-  if (S.registros.some(r=>r.fecha===hoyC && r.estado!=='incompleta')){
+  if (S.registros.some(r=>r.fecha===hoyC && esHecha(r))){
     cargandoOff(); toast('Hoy ya sumaste tu sesión — la recuperación también entrena. Nos vemos mañana.'); return }
   S._desigActual = (num==null && S.sem&&S.sem.proxima&&S.sem.proxima._desigId) || null
   S._desigRec = !!(num==null && S.sem&&S.sem.proxima&&S.sem.proxima._rec)
@@ -1756,7 +1828,10 @@ async function finalizar(){
   }).filter(i=>i>=0)
   // Motor antes/después
   const antes=S.sem
-  const regsN=[...S.registros,{ sesion_numero:ses.numero, estado:'completada', bloques_completados:bloquesComp }]
+  const _ej={be:{},rondas:{}}; Object.values(S.setLog||{}).forEach(f=>{ if(!f) return
+    if (f.bloque_ejercicio_id) _ej.be[f.bloque_ejercicio_id]=(_ej.be[f.bloque_ejercicio_id]||0)+1
+    else if (f.bloque_id) _ej.rondas[f.bloque_id]=(_ej.rondas[f.bloque_id]||0)+1 })
+  const regsN=[...S.registros,{ sesion_numero:ses.numero, estado:'completada', bloques_completados:bloquesComp, ejec:_ej }]
   const despues=calcularSemana(S.programa, regsN, S.objetivos)
   const ganados=despues.fortalecidos-antes.fortalecidos
   try{
@@ -1816,7 +1891,7 @@ async function finalizar(){
     ? ((rw?.completa?.estado)||'Más fuerte que la anterior.')
     : ((rw?.normal?.estado)||'Más fuerte que el lunes.')
   // Siguiente sesión pendiente: por numero y estado real, nunca por nombre
-  const numsOk = new Set(regsN.filter(r=>r.estado!=='omitida').map(r=>r.sesion_numero))
+  const numsOk = new Set(regsN.filter(esHecha).map(r=>r.sesion_numero))
   const baseSes = baseSem()
   const hechasN = baseSes.filter(s=>numsOk.has(s.numero)).length
   const sig = baseSes.filter(s=>!numsOk.has(s.numero)).sort((x,y)=>x.numero-y.numero)[0]
@@ -1864,7 +1939,7 @@ function pintarCicloSocio(){
   for (let w=1; w<=N; w++){
     const ses=base.filter(s=>(s.semana||1)===w), h=ses.filter(s=>S.hechasCiclo&&S.hechasCiclo[s.id]).length
     const st = w<vig ? 'pas' : (w===vig ? 'vig' : 'fut')
-    const sub = w===vig ? ((S.semanaProg&&S.semanaProg!==vig)?'= S'+S.semanaProg:'AHORA') : (ses.length ? h+'/'+ses.length : '—')
+    const sub = (w===vig && S.semanaProg && S.semanaProg!==vig) ? '= S'+S.semanaProg : (ses.length ? h+'/'+ses.length : 'SIN PROG.')
     tiles.push('<div class="uW '+st+'"><b>S'+w+'</b><span>'+sub+'</span>'+
       (ses.length?'<i>'+ses.map(s=>'<u class="'+(S.hechasCiclo&&S.hechasCiclo[s.id]?'on':'')+'"></u>').join('')+'</i>':'')+'</div>')
   }
@@ -1882,16 +1957,16 @@ function pintarPlan(){
   pintarCicloSocio()
   // §2/§5/§33 · RESUMEN simple — PLAN consume el motor, jamás calcula (§3)
   const sem=S.sem||{}
-  const hechasN=(S.registros||[]).filter(r=>r.estado && r.estado!=='en_curso' && r.estado!=='incompleta'
+  const hechasN=(S.registros||[]).filter(r=>esHecha(r)
     && r.fecha>= (function(){const d=new Date();const w=(d.getDay()+6)%7;d.setDate(d.getDate()-w);return fLocal(d)})()).length
   document.getElementById('pResumen').innerHTML =
     '<div style="font-size:8px;font-weight:900;letter-spacing:.18em;color:#8B8A85;margin-bottom:6px">TU SEMANA</div>'+
-    '<div style="font-size:22px;font-weight:900;letter-spacing:.02em">'+(sem.pct_dosis!=null?sem.pct_dosis+'%':'—')+'<small style="font-size:9px;font-weight:900;color:#8B8A85"> COMPLETADO</small></div>'+
-    '<div style="font-size:9px;font-weight:800;color:#BEBDB8;margin-top:4px">'+hechasN+' sesión'+(hechasN===1?'':'es')+' realizada'+(hechasN===1?'':'s')+
-    ' · '+(sem.fortalecidos!=null?sem.fortalecidos+' de '+sem.exigibles+' metas completadas':'')+'</div>'+
+    '<div class="uSem"><div><b>'+hechasN+'<small style="font-size:13px;color:#6E6D68"> / '+baseSem().length+'</small></b><span>SESIONES HECHAS</span></div>'+
+    '<div><b>'+(sem.pct_dosis!=null?sem.pct_dosis+'%':'—')+'</b><span>DOSIS SEMANAL</span></div>'+
+    '<div><b>'+(sem.fortalecidos!=null?sem.fortalecidos:'—')+'<small style="font-size:13px;color:#6E6D68"> / '+(sem.exigibles||0)+'</small></b><span>METAS</span></div></div>'+
     (sem.proxima?'<div style="font-size:9px;font-weight:900;letter-spacing:.1em;margin-top:8px">PRÓXIMA · '+sem.proxima.nombre+'</div>':'')
   // §6 · LO ÚLTIMO
-  const ult=(S.registros||[]).filter(r=>r.estado && r.estado!=='en_curso' && r.estado!=='incompleta')
+  const ult=(S.registros||[]).filter(esHecha)
     .sort((x,y)=>String(y.fecha).localeCompare(String(x.fecha)))[0]
   if (ult){
     const nomU=(S.programa.sesiones.find(x=>x.numero===ult.sesion_numero)||{}).nombre||'SESIÓN'
@@ -1905,7 +1980,7 @@ function pintarPlan(){
   if (document.getElementById('pDet').style.display!=='none') pintarFilasMusc('pDetRows')
   document.getElementById('pSub').textContent =
     `PROGRAMA ${S.proto.programa} · SEMANA ${S.asig.semana_actual||1} DE ${S.proto.ciclo_semanas||6} · CICLO ${S.asig.ciclo_actual||1}`.toUpperCase()
-  const hechas = new Set(S.registros.filter(r=>r.estado!=='incompleta').map(r=>r.sesion_numero))
+  const hechas = new Set(S.registros.filter(esHecha).map(r=>r.sesion_numero))
   if (document.getElementById('pProg')) document.getElementById('pProg').innerHTML =
     `Esta semana llevas el <b>${S.sem.pct_dosis}%</b> de tu dosis · <b>${S.sem.fortalecidos} de ${S.sem.exigibles} músculos</b> fortalecidos.`
   const proxNum = S.sem?.proxima?.numero
@@ -1927,7 +2002,7 @@ function pintarPlan(){
     else if (ctx.enCurso){ est='EN CURSO'; cls='prox'; icon='▶'
       acciones=`<button class="pAct" onclick="event.stopPropagation();abrirSesion(${s.numero})">CONTINUAR →</button>` }
     else if (prox){
-      const post = (S._solPost||[]).includes(s.nombre)
+      const post = (S._solPost||[]).includes(s.id) || (S._solPost||[]).includes(s.nombre)
       est = post ? 'COORDINANDO' : 'PRÓXIMA →'; cls='prox'; icon=posSem(s)
       if (!post && S.sem?.proxima?.suma_pct!=null) extra=' · SUMA +'+S.sem.proxima.suma_pct+'%'
       if (post) extra=' · TU COACH REORGANIZA TU SEMANA' }
@@ -1953,8 +2028,8 @@ function pintarPlan(){
       <div><div class="pn2">${s.nombre}</div><div class="pm2">${grupos}${extra}</div></div>
       <span class="pest ${cls}">${est}</span></div>` +
       (acciones?`<div class="pActRow">${acciones}</div>`:'') +
-      (prox && !(S._solPost||[]).includes(s.nombre) ?
-      `<div style="text-align:right;margin:-4px 4px 10px"><button onclick="event.stopPropagation();k2Postergar('${s.nombre}')"
+      (prox && !(S._solPost||[]).includes(s.id) && !(S._solPost||[]).includes(s.nombre) ?
+      `<div style="text-align:right;margin:-4px 4px 10px"><button onclick="event.stopPropagation();k2Postergar('${(s.nombre||'').replace(/'/g,'')}','${s.id}')"
         style="background:none;border:none;font-size:8px;letter-spacing:.1em;color:var(--suave);font-weight:900;
         text-decoration:underline;cursor:pointer">NO PUEDO ESTA SESIÓN — AVISAR A MI COACH</button></div>` : '')
   }).join('')
@@ -1988,7 +2063,7 @@ async function pintarCalendario(off){
     const { data } = await sb.from('sesiones_registro')
       .select('id, fecha, estado, sesion_protocolo_id').eq('socio_id', S.perfil.id)
       .gte('fecha', d1).lt('fecha', d2)
-    regs=data||[]
+    regs=(data||[]).filter(esHecha)
   }catch(_e){}
   const spIds=[...new Set(regs.map(r=>r.sesion_protocolo_id))]
   const nom={}
@@ -2025,7 +2100,7 @@ async function verSemanaAnterior(){
       .select('id, fecha, estado, sesion_protocolo_id')
       .eq('socio_id', S.perfil.id).gte('fecha', d1).lt('fecha', d2).order('fecha')
     const nomDe = spid => { const s=(S.programa.sesiones||[]).find(x=>x.id===spid); return s?s.nombre:'SESIÓN' }
-    const filas=(data||[]).map(r=>{
+    const filas=(data||[]).filter(esHecha).map(r=>{
       const parcial=r.estado==='incompleta'
       return '<div class="glass pcard '+(parcial?'':'hecha')+'"><div class="pnum">'+(parcial?'◐':'✓')+'</div>'+
         '<div><div class="pn2">'+nomDe(r.sesion_protocolo_id)+'</div><div class="pm2">'+r.fecha+' · '+(parcial?'PARCIAL':'COMPLETADA')+'</div></div>'+
@@ -2039,37 +2114,63 @@ async function verSemanaAnterior(){
 }
 async function verHist(regId){
   const o=document.getElementById('oHist'); o.style.display='flex'
-  document.getElementById('hsBody').innerHTML='<div class="vacio">Cargando…</div>'
+  const body=document.getElementById('hsBody')
+  body.innerHTML='<div class="vacio">Cargando…</div>'
+  document.getElementById('hsTit').textContent='SESIÓN'; document.getElementById('hsFecha').textContent=''
   try{
-    const { data: reg } = await sb.from('sesiones_registro')
-      .select('fecha, estado, sesion_protocolo_id').eq('id',regId).single()
-    const { data: sp } = await sb.from('sesiones_protocolo').select('objetivo').eq('id',reg.sesion_protocolo_id).maybeSingle()
-    document.getElementById('hsTit').textContent = (sp&&nombreEN(sp.objetivo))||'SESIÓN'
+    if (!regId || regId==='undefined') throw new Error('sin id de registro')
+    const { data: reg, error: e1 } = await sb.from('sesiones_registro')
+      .select('id, fecha, estado, sesion_protocolo_id, created_at, completada_at').eq('id',regId).maybeSingle()
+    if (e1) throw e1
+    if (!reg) throw new Error('registro no encontrado')
+    const { data: sp } = await sb.from('sesiones_protocolo').select('nombre, objetivo, semana').eq('id',reg.sesion_protocolo_id).maybeSingle()
+    document.getElementById('hsTit').textContent = ((sp&&(nombreEN(sp.objetivo)||sp.nombre))||'SESIÓN').toUpperCase()
+    const MES=['ENE','FEB','MAR','ABR','MAY','JUN','JUL','AGO','SEP','OCT','NOV','DIC']
     const d=new Date(reg.fecha+'T12:00:00')
-    document.getElementById('hsFecha').textContent = reg.fecha+(reg.estado==='incompleta'?' · PARCIAL':' · COMPLETADA')
-    const { data: sets } = await sb.from('set_registros')
-      .select('bloque_id, bloque_ejercicio_id, ejercicio_id, set_numero, peso, reps, seg, completado, ejercicios(nombre)')
+    let dur=''
+    if (reg.completada_at && reg.created_at){ const m=Math.round((new Date(reg.completada_at)-new Date(reg.created_at))/60000); if(m>0&&m<300) dur=' · '+m+' MIN' }
+    const EST={completada:'COMPLETADA', en_curso:'EN CURSO', omitida:'NO FINALIZADA', pendiente:'PENDIENTE'}
+    document.getElementById('hsFecha').textContent = d.getDate()+' '+MES[d.getMonth()]+' '+d.getFullYear()+' · '+(EST[reg.estado]||String(reg.estado).toUpperCase())+(sp&&sp.semana?' · SEM '+sp.semana:'')+dur
+    const { data: sets, error: e2 } = await sb.from('set_registros')
+      .select('bloque_id, bloque_ejercicio_id, ejercicio_id, set_numero, peso, reps, seg, target_peso, target_reps, target_seg, completado')
       .eq('registro_id',regId).order('set_numero')
-    const porEj={}, rondas={}
-    ;(sets||[]).forEach(r=>{
-      if(!r.completado) return
-      if(!r.bloque_ejercicio_id){ rondas[r.bloque_id]=(rondas[r.bloque_id]||0)+1; return }
-      const k=r.bloque_ejercicio_id
-      porEj[k]=porEj[k]||{nombre:(r.ejercicios&&r.ejercicios.nombre)||'EJERCICIO', sets:[]}
-      porEj[k].sets.push(r)
-    })
-    let html=''
-    Object.values(porEj).forEach(e=>{
-      const filas=e.sets.map(x=>{
-        const val = x.seg!=null ? (x.seg+' SEG') : ((x.peso!=null?x.peso+' KG × ':'')+(x.reps!=null?x.reps:'—'))
-        return `<div style="display:flex;justify-content:space-between;font-size:9px;font-weight:800;color:#BEBDB8;padding:2px 0"><span>SET ${x.set_numero}</span><span>${val}</span></div>`
-      }).join('')
-      html+=`<div style="margin-bottom:12px"><div style="font-size:10px;font-weight:900;letter-spacing:.08em;color:#F2F1EF">${e.nombre}</div>${filas}</div>`
-    })
-    const rk=Object.entries(rondas)
-    if (rk.length) html+=rk.map(([b,n2])=>`<div style="font-size:9px;font-weight:900;color:#BEBDB8;margin-bottom:6px">CIRCUITO · ${n2} RONDAS COMPLETADAS ✓</div>`).join('')
-    document.getElementById('hsBody').innerHTML = html || '<div class="vacio">Sin sets registrados en esta sesión.</div>'
-  }catch(e){ document.getElementById('hsBody').innerHTML='<div class="vacio">No pudimos cargar el historial.</div>' }
+    if (e2) throw e2
+    const ok=(sets||[]).filter(x=>x.completado)
+    const bIds=[...new Set(ok.map(x=>x.bloque_id).filter(Boolean))]
+    const eIds=[...new Set(ok.map(x=>x.ejercicio_id).filter(Boolean))]
+    const beIds=[...new Set(ok.map(x=>x.bloque_ejercicio_id).filter(Boolean))]
+    const [rb, re, rbe] = await Promise.all([
+      bIds.length ? sb.from('bloques').select('id, bloque, etiqueta').in('id',bIds) : Promise.resolve({data:[]}),
+      eIds.length ? sb.from('ejercicios').select('id, nombre').in('id',eIds) : Promise.resolve({data:[]}),
+      beIds.length ? sb.from('bloque_ejercicios').select('id, orden, ejercicio_id').in('id',beIds) : Promise.resolve({data:[]})
+    ])
+    const B={}; (rb.data||[]).forEach(x=>B[x.id]=x)
+    const E={}; (re.data||[]).forEach(x=>E[x.id]=x.nombre)
+    const BE={}; (rbe.data||[]).forEach(x=>BE[x.id]=x)
+    const porBloque={}
+    ok.forEach(x=>{ const bk=x.bloque_id||'_'; const pb=porBloque[bk]=porBloque[bk]||{ej:{},rondas:0}
+      if (!x.bloque_ejercicio_id){ pb.rondas++; return }
+      const pe=pb.ej[x.bloque_ejercicio_id]=pb.ej[x.bloque_ejercicio_id]||{nombre:E[x.ejercicio_id]||'EJERCICIO', orden:(BE[x.bloque_ejercicio_id]||{}).orden||0, sets:[]}
+      pe.sets.push(x) })
+    const fmt=v=>(+v)%1===0?(+v):(+v).toFixed(1)
+    let vol=0, nSets=0
+    const html=Object.entries(porBloque).sort((a,b)=>String((B[a[0]]||{}).bloque||'Z').localeCompare(String((B[b[0]]||{}).bloque||'Z'))).map(([bk,pb])=>{
+      const bi=B[bk]||{}
+      let h='<div class="hsB"><div class="hsBh">'+(bi.bloque||'BLOQUE')+(bi.etiqueta?' · '+String(bi.etiqueta).toUpperCase():'')+'</div>'
+      if (pb.rondas) h+='<div class="hsE"><div class="hsEn">Circuito</div><div class="hsS"><span>'+pb.rondas+' RONDAS COMPLETADAS</span><span>SIN CARGAS POR EJERCICIO</span></div></div>'
+      Object.values(pb.ej).sort((a,b)=>a.orden-b.orden).forEach(e=>{
+        h+='<div class="hsE"><div class="hsEn">'+e.nombre+'</div>'+e.sets.sort((a,b)=>a.set_numero-b.set_numero).map(x=>{
+          nSets++; if(x.peso!=null&&x.reps!=null&&!isNaN(parseFloat(x.reps))) vol+=(+x.peso)*parseFloat(x.reps)
+          const hecho = x.seg!=null ? x.seg+' SEG' : ((x.peso!=null?fmt(x.peso)+' KG × ':'')+(x.reps!=null?x.reps:'—'))
+          const pres = x.target_seg!=null&&x.seg!=null ? x.target_seg+' SEG' : (x.target_peso!=null||x.target_reps!=null ? ((x.target_peso!=null?fmt(x.target_peso)+' KG × ':'')+(x.target_reps||'—')) : '')
+          return '<div class="hsS"><span>SET '+x.set_numero+'</span><b>'+hecho+'</b>'+(pres?'<em>PRESCRITO '+pres+'</em>':'')+'</div>'
+        }).join('')+'</div>' })
+      return h+'</div>'
+    }).join('')
+    const tot = nSets ? '<div class="hsTot">'+nSets+' SETS'+(vol?' · VOLUMEN '+Math.round(vol).toLocaleString('es-CL')+' KG':'')+'</div>' : ''
+    body.innerHTML = html ? tot+html : '<div class="vacio">Esta sesión no tiene sets registrados.</div>'
+  }catch(e){ console.error('historial', e)
+    body.innerHTML='<div class="vacio">No encontramos el registro de esta sesión.</div>' }
 }
 function verPreview(num){
   const s=S.programa.sesiones.find(x=>x.numero===num); if(!s) return
@@ -2090,14 +2191,14 @@ async function loadAvances(){
   document.getElementById('aSem').textContent = S.sem ? `${S.sem.fortalecidos}/${S.sem.exigibles}` : '—'
   try{
     const { count } = await sb.from('sesiones_registro').select('id',{count:'exact',head:true})
-      .eq('socio_id', S.perfil.id).in('estado', ['completada','finalizada'])
+      .eq('socio_id', S.perfil.id).eq('estado','completada')
     document.getElementById('aSes').textContent = count ?? 0
   }catch(_){ document.getElementById('aSes').textContent='—' }
   // Historial de sesiones realizadas
   try{
     const { data: hs } = await sb.from('sesiones_registro')
       .select('id, fecha, estado, sesion_protocolo_id, musculos_sumados')
-      .eq('socio_id', S.perfil.id).in('estado',['completada','finalizada','incompleta'])
+      .eq('socio_id', S.perfil.id).eq('estado','completada')
       .order('fecha',{ascending:false}).limit(8)
     const spIds = [...new Set((hs||[]).map(x=>x.sesion_protocolo_id).filter(Boolean))]
     const { data: sps } = await sb.from('sesiones_protocolo').select('id, objetivo').in('id', spIds)
