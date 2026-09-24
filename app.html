@@ -784,6 +784,27 @@ div.sp:active{transform:none}
 .hx__sets b{font-weight:500}
 .hx__sets em{margin-left:auto;font-style:normal;font-size:9.5px;letter-spacing:.08em;color:#8E8D88}
 .hx__sets em.hx__eq{color:#121212}
+
+/* ═══ v9.1 · ENCABEZADO KOACH en todas las vistas del socio (mismo lenguaje que el Home) ═══ */
+.kh{position:relative;margin:-16px -14px 18px;padding:calc(20px + env(safe-area-inset-top,0px)) 26px 54px;color:#F4F3F0;isolation:isolate;overflow:hidden}
+.kh .k2h__bg{position:absolute;inset:0;width:100%;height:100%;z-index:-2;fill:#141415}
+.kh .k2h__lines{position:absolute;top:0;right:0;width:78%;height:82%;z-index:-1;fill:none;stroke:rgba(244,243,240,.075);stroke-width:.7}
+.kh__top{display:flex;align-items:center;gap:14px;min-height:44px;margin-bottom:12px}
+.kh__brand{font-family:var(--font-mono);font-weight:500;font-size:10.5px;letter-spacing:.32em;color:rgba(244,243,240,.72)}
+.kh__slot{margin-left:auto}
+.kh__back{flex:0 0 44px;height:44px;border-radius:50%;border:1px solid rgba(244,243,240,.2);background:rgba(244,243,240,.06);color:#F4F3F0;font-size:18px;cursor:pointer;-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px)}
+.kh__k{font-family:var(--font-mono);font-weight:500;font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:rgba(244,243,240,.7);line-height:1.6}
+.kh__k--sub{margin-top:10px}
+.kh__t{margin:6px 0 0;font-family:var(--font-display);font-weight:700;font-size:clamp(38px,11.5vw,54px);line-height:.95;letter-spacing:-0.035em;color:#fff;overflow-wrap:anywhere}
+.kh--ses .kh__t{text-transform:uppercase;font-size:clamp(46px,14vw,68px);line-height:.88;letter-spacing:-0.045em}
+.kh__d{margin:14px 0 0;max-width:34ch;font-family:var(--font-display);font-size:16px;line-height:1.4;color:rgba(244,243,240,.72)}
+.kh__d b{color:#fff;font-weight:700}
+.kh__d:empty{display:none}
+/* indicador de guardado: vive en el encabezado de la sesión (ya no flota sobre otras vistas) */
+.kh #syncTag{position:static;font-family:var(--font-mono);font-size:9px;font-weight:500;letter-spacing:.14em;padding:7px 11px;border-radius:999px;background:rgba(244,243,240,.08);color:rgba(244,243,240,.85);border:1px solid rgba(244,243,240,.14)}
+.kh #syncTag.envio{background:rgba(244,243,240,.05);color:rgba(244,243,240,.6)}
+.kh #syncTag.err{background:rgba(244,243,240,.12);color:#fff;border-color:rgba(244,243,240,.4)}
+@media (max-width:350px){ .kh{padding-left:20px;padding-right:20px} .kh__brand{letter-spacing:.2em;font-size:9.5px} }
 </style>
 </head>
 <body>
@@ -838,7 +859,7 @@ div.sp:active{transform:none}
   <!-- ══ HOME ══ -->
   <div class="vista conTab" id="vHome">
     <div id="k2Home" aria-live="polite"></div>
-    <div class="hbar"><span class="hk" title="v9.0">KOACH</span><div class="hav" id="hAv" onclick="salir()">K</div></div>
+    <div class="hbar"><span class="hk" title="v9.1">KOACH</span><div class="hav" id="hAv" onclick="salir()">K</div></div>
     <div class="ctx"><div class="fecha" id="hFecha">—</div><div class="prog" id="hProg">—</div></div>
     <div class="anillo">
       <svg width="180" height="180" viewBox="0 0 180 180">
@@ -867,8 +888,7 @@ div.sp:active{transform:none}
 
   <!-- ══ PLAN ══ -->
   <div class="vista conTab" id="vPlan">
-    <div class="ph">Tu plan</div>
-    <div class="ps" id="pSub">—</div>
+    <header class="kh"><div class="kh__top"><span class="kh__brand">KOACH FITNESS CLUB</span></div><h1 class="kh__t">Tu plan</h1><div class="kh__k kh__k--sub" id="pSub">—</div></header>
     <div id="pCiclo"></div>
     <div class="glass" id="pResumen" style="padding:16px;margin-bottom:14px"></div>
     <div id="pUltimo"></div>
@@ -884,8 +904,7 @@ div.sp:active{transform:none}
 
   <!-- ══ AVANCES ══ -->
   <div class="vista conTab" id="vAvances">
-    <div class="ph">Tus avances</div>
-    <div class="ps" id="aSub">LO QUE LOS NÚMEROS DEMUESTRAN</div>
+    <header class="kh"><div class="kh__top"><span class="kh__brand">KOACH FITNESS CLUB</span></div><h1 class="kh__t">Tus avances</h1><div class="kh__k kh__k--sub" id="aSub">LO QUE LOS NÚMEROS DEMUESTRAN</div></header>
     <div class="astats">
       <div class="ast ink"><b id="aSes">—</b><span>SESIONES COMPLETADAS</span></div>
       <div class="glass ast"><b id="aSem">—</b><span>OBJETIVOS ESTA SEMANA</span></div>
@@ -919,8 +938,7 @@ div.sp:active{transform:none}
 
   <!-- ══ PERFIL ══ -->
   <div class="vista conTab" id="vPerfil">
-    <div class="ph">Perfil</div>
-    <div class="ps">TU CUENTA KOACH</div>
+    <header class="kh"><div class="kh__top"><span class="kh__brand">KOACH FITNESS CLUB</span></div><h1 class="kh__t">Perfil</h1><div class="kh__k kh__k--sub">TU CUENTA KOACH</div></header>
     <div class="glass idcard">
       <div class="idav" id="pfAv">K</div>
       <div><div class="idn" id="pfNom">—</div><div class="idm" id="pfProg">—</div></div>
@@ -961,12 +979,12 @@ div.sp:active{transform:none}
   </div>
 </div></div>
 <div class="vista" id="vSesion">
-    <div class="stop">
-      <button class="sback" onclick="volverHome()">←</button>
-      <div class="stit" id="sTit">SESIÓN</div>
-    </div>
-    <div class="ssub" id="sSub">—</div>
-    <div class="sobj" id="sObj"></div>
+    <header class="kh kh--ses">
+      <div class="kh__top"><button class="kh__back" onclick="volverHome()" aria-label="Volver">←</button><span class="kh__brand">KOACH FITNESS CLUB</span><span class="kh__slot" id="khSync"></span></div>
+      <div class="kh__k" id="sSub">—</div>
+      <h1 class="kh__t" id="sTit">SESIÓN</h1>
+      <p class="kh__d" id="sObj"></p>
+    </header>
     <div id="sBloques" class="cargando">CARGANDO TU SESIÓN…</div>
     <button class="btn fin" id="sFin" onclick="pedirFinal()" style="display:none">FINALIZAR SESIÓN</button>
   </div>
@@ -1260,6 +1278,13 @@ if (K2.on) document.documentElement.classList.add('k2')
 
 // ── Componentes ──
 // Cabecera hero: bloque carbón con borde inferior curvo (SVG) + líneas de contorno finas. Sin imagen, todo vectorial.
+function khDecorar(){
+  document.querySelectorAll('header.kh').forEach(h=>{ if(h.dataset.dec) return; h.dataset.dec=1
+    h.insertAdjacentHTML('afterbegin','<svg class="k2h__bg" viewBox="0 0 400 262" preserveAspectRatio="none" aria-hidden="true"><path d="M0 0 H400 V262 C400 246 386 232 362 232 H46 C21 232 0 213 0 188 Z"/></svg>'+k2Contour()) })
+  const t=document.getElementById('syncTag'), slot=document.getElementById('khSync')
+  if (t && slot && t.parentNode!==slot) slot.appendChild(t)
+}
+document.addEventListener('DOMContentLoaded', khDecorar)
 function k2Contour(){
   let d=''
   for (let i=0;i<16;i++){ const y0=18+i*9, a=10+i*1.4, ph=i*0.22
@@ -1971,7 +1996,7 @@ async function reanudar(){
   vista('vSesion')
   document.getElementById('sTit').textContent = ses.nombre
   document.getElementById('sSub').textContent = (!ses._extra?('SESIÓN '+posSem(ses)+' DE '+baseSem().length+' · '):'')+'EN CURSO · RETOMANDO DONDE QUEDASTE'
-  document.getElementById('sObj').innerHTML = 'Tus sets marcados <b>ya están guardados</b>. Continúa desde el siguiente.'
+  document.getElementById('sObj').innerHTML = 'Tus sets marcados ya están guardados.<br><b>Continúa desde el siguiente.</b>'
   try{
     const { data: sl } = await sb.from('set_registros').select('*').eq('registro_id',reg.id)
     ;(sl||[]).forEach(r=>{
@@ -2104,7 +2129,8 @@ async function abrirSesion(num){
   document.getElementById('sSub').textContent =
     (!ses._extra?('SESIÓN '+posSem(ses)+' DE '+_tot+' · '):'')+`PROGRAMADA POR TU COACH · ${(S.proto.programa||'').toUpperCase()}`
   const _pre = mensajePreSesion(ses)
-  document.getElementById('sObj').textContent = _pre.obj
+  const _op = objetivosSesion(ses).prim.slice(0,4)
+  document.getElementById('sObj').innerHTML = _op.length ? 'Objetivo de hoy: '+tonoPrograma().verbo+' principalmente<br><b>'+msgLista(_op)+'.</b>' : ''
   document.getElementById('sFin').style.display='none'
   // Sugeridos: última carga por ejercicio
   try{
