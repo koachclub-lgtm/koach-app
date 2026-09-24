@@ -65,3 +65,9 @@ Lenguaje visual EXCLUSIVO de sesiones: qué sesión es · dónde está en la sec
 - **Estados:** `available` (→) · `active` (punto + EN CURSO) · `completed` (✓ en la foto, abre historial) · `locked` / `future` (candado, baja opacidad, no clickeable) · `pending` (SOLICITADA). Variante `history` (foto más apagada).
 - **Fotos:** `SESSION_VISUAL` (upper/lower/total/metabolic × male/female) en `/img/session/`; tipo por nombre de sesión (`sessionTipo`), variante por sexo del protocolo; sin foto → monograma.
 - **Dónde:** Home V2 (tu semana) · Plan (sesiones de la semana, próxima semana, lo último) · Avances (historial). No en coach, ejercicios, bloques, admin ni solicitudes.
+
+## KoachHomeHero — `homeHero(o)` + `HOME_HERO_ASSETS`
+Tarjeta principal del Home (editorial). Capas: foto de fondo → overlay (horizontal oscuro a la izquierda + vertical al pie) → contenido HTML → CTA de vidrio.
+- **Foto:** identidad del Home, NO representa el ejercicio. Según `profiles.sex` explícito: `male` / `female`; sin dato → `default` (grafito, sin foto). Nunca se infiere. `position` configurable por asset.
+- **Contenido:** kicker (SESIÓN EN CURSO / PRÓXIMA SESIÓN / ENTRENAMIENTO DE HOY / SEMANA COMPLETADA) · título (nombre real) · subtítulo · descripción (regular + grupos en bold). Sin íconos musculares, métricas ni badges.
+- **CTA vidrio:** superficie translúcida con blur, borde 1px blanco 22%, estado → acción, separador tenue y círculo de acción. Toda la superficie es clickeable y ejecuta exactamente la acción del CTA del Home.
