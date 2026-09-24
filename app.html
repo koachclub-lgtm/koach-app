@@ -805,6 +805,43 @@ div.sp:active{transform:none}
 .kh #syncTag.envio{background:rgba(244,243,240,.05);color:rgba(244,243,240,.6)}
 .kh #syncTag.err{background:rgba(244,243,240,.12);color:#fff;border-color:rgba(244,243,240,.4)}
 @media (max-width:350px){ .kh{padding-left:20px;padding-right:20px} .kh__brand{letter-spacing:.2em;font-size:9.5px} }
+
+/* ═══ v9.2 · LEGIBILIDAD MÓVIL DE LA SESIÓN (mín. 11px en etiquetas, 13px secundarios, 17px ejercicio) ═══ */
+#vSesion .bloq{padding:16px 14px 14px;margin-bottom:14px}
+#vSesion .bh{gap:10px;margin-bottom:6px;flex-wrap:wrap}
+#vSesion .bh .bt{font-size:11px;padding:6px 11px;letter-spacing:.08em}
+#vSesion .bh .bn{font-size:11px;letter-spacing:.14em;color:#5E5D59}
+#vSesion .bh .bs{font-size:11px;letter-spacing:.08em;color:#5E5D59}
+#vSesion .exCard{padding:16px 4px 14px}
+#vSesion .exHead{gap:10px;align-items:flex-start;min-height:44px}
+#vSesion .exHead .exN{font-family:var(--font-display);font-size:17px;font-weight:700;letter-spacing:-0.01em;line-height:1.25;white-space:normal;
+  display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;padding-top:2px}
+#vSesion .exG{font-size:10.5px;letter-spacing:.06em;padding:6px 9px;border-radius:9px;flex-shrink:0;margin-top:1px}
+#vSesion .estT{font-size:12px;letter-spacing:.04em;margin-top:5px}
+#vSesion .chev{font-size:15px;padding:4px 4px 4px 2px;color:#8E8D88}
+#vSesion .resL{font-size:13px;font-weight:700;letter-spacing:.03em;color:#4A4945;margin-top:6px;line-height:1.35}
+#vSesion .exUlt{font-size:12px;color:#6E6D68;letter-spacing:.03em;margin-top:10px}
+#vSesion .presL{font-size:11.5px;color:#6E6D68;letter-spacing:.05em;margin-top:4px}
+/* fila de set en 2 niveles: [SET n · unidades] arriba, steppers anchos abajo, ✓ a la derecha (cabe en 320px sin aplastar) */
+#vSesion .setRow{grid-template-columns:minmax(0,1fr) minmax(0,1fr) 54px;grid-auto-rows:auto;column-gap:8px;row-gap:4px;padding:10px 0 12px;align-items:end}
+#vSesion .setRow .sn{grid-column:1 / 3;grid-row:1}
+#vSesion .setRow .chk{grid-column:3;grid-row:1 / 3;align-self:end}
+#vSesion .setRow .pvS{grid-row:2;position:relative;display:grid;grid-template-columns:40px minmax(0,1fr) 40px;gap:4px}
+#vSesion .setRow .pvS small{position:absolute;right:4px;top:-18px;font-size:10px;letter-spacing:.1em}
+#vSesion .setRow .pvS input{max-width:none;width:100%}
+#vSesion .setRow .sn{font-size:11px;color:#8E8D88;letter-spacing:.08em}
+#vSesion .pvS{gap:5px}
+#vSesion .pvS button{width:38px;height:44px;font-size:16px;border-radius:12px}
+#vSesion .pvS input{max-width:74px;font-size:17px;padding:10px 2px;border-radius:12px}
+#vSesion .pvS small{font-size:10px;color:#8E8D88}
+#vSesion .chk{width:54px;height:44px;font-size:17px;border-radius:13px}
+#vSesion .setsRow{gap:8px}
+#vSesion .setsRow .sl{font-size:10.5px;color:#8E8D88;letter-spacing:.1em}
+#vSesion .setChip{min-width:46px;height:44px;font-size:14px;border-radius:13px}
+#vSesion .bsets{font-size:12px;letter-spacing:.14em;padding:16px 12px;margin-top:14px;border-radius:16px}
+#vSesion .setRow > *{min-width:0}
+#vSesion .pvS input{min-width:0}
+@media (max-width:350px){ #vSesion .setRow{grid-template-columns:minmax(0,1fr) minmax(0,1fr) 46px;column-gap:6px} #vSesion .setRow .pvS{grid-template-columns:32px minmax(0,1fr) 32px;gap:3px} #vSesion .pvS button{width:auto;font-size:15px} #vSesion .pvS input{font-size:16px} #vSesion .chk{width:46px} #vSesion .exHead .exN{font-size:16px} }
 </style>
 </head>
 <body>
@@ -859,7 +896,7 @@ div.sp:active{transform:none}
   <!-- ══ HOME ══ -->
   <div class="vista conTab" id="vHome">
     <div id="k2Home" aria-live="polite"></div>
-    <div class="hbar"><span class="hk" title="v9.1">KOACH</span><div class="hav" id="hAv" onclick="salir()">K</div></div>
+    <div class="hbar"><span class="hk" title="v9.2">KOACH</span><div class="hav" id="hAv" onclick="salir()">K</div></div>
     <div class="ctx"><div class="fecha" id="hFecha">—</div><div class="prog" id="hProg">—</div></div>
     <div class="anillo">
       <svg width="180" height="180" viewBox="0 0 180 180">
@@ -2276,7 +2313,7 @@ function pintarSesion(){
             '<button onclick="rwStep(\''+be.id+'\','+n2+',\'kg\',2.5)">+</button><small>KG</small></div>'+
             '<div class="pvS"><button onclick="rwStep(\''+be.id+'\','+n2+',\'reps\',-1)">−</button>'+
             '<input id="rwR-'+be.id+'-'+n2+'" value="'+(rv.reps||'')+'" inputmode="numeric" onfocus="this.select()" onchange="rwSet(\''+be.id+'\','+n2+',\'reps\',this.value)">'+
-            '<button onclick="rwStep(\''+be.id+'\','+n2+',\'reps\',1)">+</button></div>'
+            '<button onclick="rwStep(\''+be.id+'\','+n2+',\'reps\',1)">+</button><small>REPS</small></div>'
         } else if (w.tipo==='TIME' && (ej.con_carga===true)){
           celdas = '<div class="pvS"><button onclick="rwStep(\''+be.id+'\','+n2+',\'kg\',-2.5)">−</button>'+
             '<input id="rwK-'+be.id+'-'+n2+'" class="'+(rv.kg==null?'falta':'')+'" value="'+(rv.kg==null?'':rv.kg)+'" placeholder="kg" inputmode="decimal" onfocus="this.select()" onchange="rwSet(\''+be.id+'\','+n2+',\'kg\',this.value)">'+
@@ -2292,7 +2329,7 @@ function pintarSesion(){
           celdas = '<div class="pvS"><span class="pcChip" style="padding:8px 9px">CORPORAL</span></div>'+
             '<div class="pvS"><button onclick="rwStep(\''+be.id+'\','+n2+',\'reps\',-1)">−</button>'+
             '<input id="rwR-'+be.id+'-'+n2+'" value="'+(rv.reps||'')+'" inputmode="numeric" onfocus="this.select()" onchange="rwSet(\''+be.id+'\','+n2+',\'reps\',this.value)">'+
-            '<button onclick="rwStep(\''+be.id+'\','+n2+',\'reps\',1)">+</button></div>'
+            '<button onclick="rwStep(\''+be.id+'\','+n2+',\'reps\',1)">+</button><small>REPS</small></div>'
         }
         filas += '<div class="setRow"><span class="sn">SET '+n2+'</span>'+celdas+
           '<button class="chk '+(done?'done':'')+'" onclick="tapSetRow(\''+be.id+'\','+n2+',\''+b.id+'\',\''+(ej.id||'')+'\')">'+(done?'✓':'○')+'</button></div>'
