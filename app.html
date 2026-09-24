@@ -420,6 +420,21 @@ html,button,input,.pvS,.chk,.setChip{touch-action:manipulation}
 .uSem div{border:1px solid rgba(17,17,17,.10);border-radius:10px;padding:10px 8px}
 .uSem b{display:block;font-family:var(--font-display);font-weight:700;font-size:22px;letter-spacing:-0.02em;color:var(--koach-ink)}
 .uSem span{display:block;font-family:var(--font-mono);font-weight:500;font-size:9px;letter-spacing:.06em;color:#6E6D68;margin-top:2px}
+
+/* v8.0 · membresía del socio */
+.memCard{background:rgba(255,255,255,.55);border:1px solid rgba(17,17,17,.10);border-radius:14px;padding:16px;margin-bottom:12px}
+.memCard .mK{display:flex;justify-content:space-between;font-family:var(--font-mono);font-weight:500;font-size:10px;letter-spacing:.08em;color:#6E6D68}
+.memCard .mE{color:var(--koach-ink)} .memCard .mE.vencida,.memCard .mE.cancelada{font-weight:500;text-decoration:underline}
+.memCard .mH{font-family:var(--font-display);font-weight:700;font-size:22px;letter-spacing:-0.02em;color:var(--koach-ink);margin-top:8px}
+.memCard .mS{font-family:var(--font-mono);font-weight:500;font-size:10px;letter-spacing:.04em;color:#6E6D68;margin-top:4px;line-height:1.5}
+.memCard .mBtns{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px}
+.memCard .mBtns button{font-family:var(--font-mono);font-weight:500;font-size:9.5px;letter-spacing:.05em;border:1px solid rgba(17,17,17,.2);background:transparent;border-radius:10px;padding:11px 6px;cursor:pointer;color:var(--koach-ink)}
+.memCard .mLi{display:flex;justify-content:space-between;font-family:var(--font-mono);font-weight:500;font-size:10px;color:var(--koach-ink);padding:7px 0;border-top:1px solid rgba(17,17,17,.08)}
+.memCard .mCta{display:block;text-align:center;margin-top:12px;font-family:var(--font-mono);font-weight:500;font-size:10px;letter-spacing:.06em;color:var(--koach-ink);text-decoration:none;border:1px solid var(--koach-ink);border-radius:10px;padding:11px}
+.memAv{background:#1C1C1C;color:#F3F2EF;border-radius:14px;padding:14px 16px;margin-bottom:12px;display:flex;flex-direction:column;gap:4px}
+.memAv b{font-family:var(--font-mono);font-weight:500;font-size:10px;letter-spacing:.08em}
+.memAv span{font-family:var(--font-display);font-size:15px;line-height:1.35}
+.memAv button{align-self:flex-start;margin-top:6px;background:transparent;border:1px solid rgba(243,242,239,.4);color:#F3F2EF;border-radius:8px;padding:7px 10px;font-family:var(--font-mono);font-size:9px;letter-spacing:.06em;cursor:pointer}
 </style>
 </head>
 <body>
@@ -473,7 +488,7 @@ html,button,input,.pvS,.chk,.setChip{touch-action:manipulation}
 
   <!-- ══ HOME ══ -->
   <div class="vista conTab" id="vHome">
-    <div class="hbar"><span class="hk" title="v7.9">KOACH</span><div class="hav" id="hAv" onclick="salir()">K</div></div>
+    <div class="hbar"><span class="hk" title="v8.0">KOACH</span><div class="hav" id="hAv" onclick="salir()">K</div></div>
     <div class="ctx"><div class="fecha" id="hFecha">—</div><div class="prog" id="hProg">—</div></div>
     <div class="anillo">
       <svg width="180" height="180" viewBox="0 0 180 180">
@@ -485,6 +500,7 @@ html,button,input,.pvS,.chk,.setChip{touch-action:manipulation}
       </svg>
       <div class="c"><b><span id="hN">0</span><small>%</small></b><span>DE TU DOSIS SEMANAL</span></div>
     </div>
+    <div id="hMemAviso"></div>
     <div class="voz"><div class="v1" id="hSaludo">—</div><div class="v2" id="hVoz">—</div></div>
     <button class="cta" id="hCta" onclick="abrirSesion()">
       <span><span class="t" id="hCtaT">COMENZAR SESIÓN</span><span class="s" id="hCtaS">—</span></span>
@@ -558,10 +574,7 @@ html,button,input,.pvS,.chk,.setChip{touch-action:manipulation}
       <div class="idav" id="pfAv">K</div>
       <div><div class="idn" id="pfNom">—</div><div class="idm" id="pfProg">—</div></div>
     </div>
-    <div class="memb" onclick="window.open('https://wa.me/56971333042?text=Hola%20KOACH%2C%20quiero%20gestionar%20mi%20membres%C3%ADa','_blank')">
-      <div><div class="mt2">MEMBRESÍA</div><div class="mv">KOACH CLUB</div></div>
-      <div class="me">ACTIVA · GESTIONAR →</div>
-    </div>
+    <div id="pfMem"></div>
     <div class="contacto">
       <a class="cbtn wsp" href="https://wa.me/56971333042" target="_blank">WHATSAPP KOACH →</a>
       <a class="cbtn mail" href="mailto:koachclub@gmail.com">CORREO →</a>
@@ -574,7 +587,7 @@ html,button,input,.pvS,.chk,.setChip{touch-action:manipulation}
         <div class="gl"><b>SERIE EFECTIVA</b><span>La unidad de trabajo que cuenta. La suma de series es lo que <em>dosificamos</em> para estimular tus músculos. Los compuestos suman fracción a los músculos que asisten — por eso hay decimales.</span></div>
         <div class="gl"><b>DOSIS</b><span>Tu cantidad ideal de trabajo semanal por músculo — la que promueve adaptaciones y el <em>equilibrio de todo tu cuerpo</em>.</span></div>
         <div class="gl"><b>MÍNIMO Y TECHO</b><span>Los rangos que validan el trabajo suficiente: bajo el mínimo no hay estímulo; sobre el techo solo hay fatiga. Tu barra: <em>8/12</em> = llevas 8 de 12.</span></div>
-        <div class="gl"><b>EL % (ANILLO)</b><span>Promedio de avance de <em>todos</em> tus músculos hacia su dosis. Solo el equilibrio llena el círculo. ⚪ sin dosis · 🟢 óptimo · 🟡 cerca del techo · 🔴 exceso.</span></div>
+        <div class="gl"><b>EL % (ANILLO)</b><span>Promedio de avance de <em>todos</em> tus músculos hacia su dosis. Solo el equilibrio llena el círculo. Estados: sin dosis · en progreso · meta · cerca del techo · sobre techo.</span></div>
         <div class="gl"><b>SESIÓN DESIGNADA</b><span>Diseñada por tu coach para tu semana. Se desbloquean en orden — la secuencia también es dosificación.</span></div>
         <div class="gl"><b>B1 · B2 · B3</b><span>Activación → Fuerza principal → Cierre. La arquitectura de tus 60 minutos.</span></div>
         <div class="gl"><b>ANCLA ◆</b><span>El ejercicio que no cambia en las 6 semanas: ahí se mide tu progresión — mismo movimiento, más carga.</span></div>
@@ -967,8 +980,8 @@ async function entrar(){
     try{ localStorage.setItem('kc_snap_'+S.perfil.id, JSON.stringify({v:2, ts:Date.now(),
       perfil:S.perfil, programa:S.programa, objetivos:S.objetivos, registros:S.registros, reqs:S._reqs||{}})) }catch(_e){}
     try{
-      const { data: sol } = await sb.from('solicitudes').select('id, tipo, detalle, estado, sesion_protocolo_id')
-        .eq('socio_id', perfil.id).in('estado',['pendiente','aprobada'])
+      const { data: sol } = await sb.from('solicitudes').select('id, tipo, detalle, estado, sesion_protocolo_id, nota_coach, revisado_at')
+        .eq('socio_id', perfil.id).in('estado',['pendiente','aprobada','rechazada']).order('created_at')
       // v7.9: vocabulario único en minúscula (BD) → claves internas en mayúscula para resolverCap
       const pend = (sol||[]).filter(x=>x.estado==='pendiente')
       S._solExtra = pend.some(x=>x.tipo==='extra')
@@ -977,8 +990,9 @@ async function entrar(){
       ;(sol||[]).forEach(x=>{ if(x.sesion_protocolo_id && (x.tipo==='adelantar'||x.tipo==='preview')){
         const k=x.tipo.toUpperCase(), prev=(S._reqs[x.sesion_protocolo_id]||{})[k]
         if (prev==='APROBADA') return   // una aprobada no la pisa otra pendiente
-        S._reqs[x.sesion_protocolo_id]=Object.assign({},S._reqs[x.sesion_protocolo_id],{[k]:x.estado.toUpperCase()}) }})
+        S._reqs[x.sesion_protocolo_id]=Object.assign({},S._reqs[x.sesion_protocolo_id],{[k]:x.estado.toUpperCase(), [k+'_NOTA']:x.nota_coach||null}) }})
     }catch(_){ S._solExtra=false; S._solPost=[] }
+    await cargarMembresia()
     pintarHome()
     vista('vHome')   // re-evalúa la tab bar ahora que S.asig existe
   }catch(e){ console.error(e); sinPrograma('No pudimos cargar tu semana. Revisa tu conexión e intenta de nuevo.') }
@@ -1043,7 +1057,11 @@ function pintarHome(){
   const cta=document.getElementById('hCta')
   const hoyISO2 = fLocal(new Date())
   const entrenoHoy = S.registros.some(r=>r.fecha===hoyISO2 && esHecha(r))
-  if (S.enCurso){
+  if (S.memBloqueo){
+    cta.disabled=false; cta.onclick=()=>tab('vPerfil')
+    document.getElementById('hCtaT').textContent=S.memBloqueoT||'MEMBRESÍA VENCIDA'
+    document.getElementById('hCtaS').textContent='TU HISTORIAL SIGUE AQUÍ · CONSULTA TU RENOVACIÓN →'
+  } else if (S.enCurso){
     const sesEC = S.programa.sesiones.find(x=>x.id===S.enCurso.sesion_protocolo_id)
     cta.disabled=false
     cta.onclick=()=>reanudar()
@@ -1229,6 +1247,8 @@ function resolverCap(s, ctx){
   // BLOQUEADA: la elegibilidad puede cambiar SOLO por aprobación del coach
   if (req.ADELANTAR==='APROBADA'){
     cap.can_start=true; cap.reason_code='ADVANCE_APPROVED'; cap.primary_action='EMPEZAR'; return cap }
+  if (req.ADELANTAR==='RECHAZADA') cap.rechazo = 'ADELANTO RECHAZADO'+(req.ADELANTAR_NOTA?' · '+req.ADELANTAR_NOTA:'')
+  if (req.PREVIEW==='RECHAZADA') cap.rechazo = (cap.rechazo?cap.rechazo+' · ':'')+'VISTA PREVIA RECHAZADA'+(req.PREVIEW_NOTA?' · '+req.PREVIEW_NOTA:'')
   if (req.ADELANTAR==='PENDIENTE'){
     cap.request_pending='ADELANTAR'; cap.reason_code='ADVANCE_APPROVAL_REQUIRED' }
   else { cap.can_request_advance=true; cap.reason_code='PREVIOUS_SESSION_REQUIRED' }
@@ -1258,6 +1278,7 @@ async function solicitar(tipo, sesId, nombre){
   }catch(e){ S._reqEnvio=false; toast('No se pudo enviar — intenta de nuevo.') }
 }
 async function abrirSesion(num){
+  if (S.memBloqueo){ toast(S.memBloqueo); return }
   let sesG = null
   if (num!=null){ sesG = S.programa.sesiones.find(x=>x.numero===num) }
   else { if (!S.sem?.proxima) return; sesG = S.programa.sesiones.find(x=>x.numero===S.sem.proxima.numero) }
@@ -2014,7 +2035,7 @@ function pintarPlan(){
       est = cap.request_pending ? 'SOLICITADA' : 'PRÓXIMA'
       extra = ' · '+(cap.request_pending
         ? (REASON_TXT.ADVANCE_APPROVAL_REQUIRED())
-        : REASON_TXT.PREVIOUS_SESSION_REQUIRED(prev&&prev.nombre))
+        : REASON_TXT.PREVIOUS_SESSION_REQUIRED(prev&&prev.nombre))+(cap.rechazo?' · '+cap.rechazo:'')
       const btns=[]
       if (cap.can_open_preview) btns.push(`<button class="pAct" onclick="event.stopPropagation();verPreview(${s.numero})">VER VISTA PREVIA</button>`)
       if (cap.can_request_advance) btns.push(`<button class="pAct sec" onclick="event.stopPropagation();solicitar('ADELANTAR','${s.id}','${(s.nombre||'').replace(/'/g,'')}')">SOLICITAR ADELANTAR</button>`)
@@ -2277,7 +2298,54 @@ async function loadAvances(){
   }catch(e){ console.error(e); document.getElementById('aPRs').innerHTML='<div class="vacio">Sin datos aún.</div>' }
 }
 
+// ═══ v8.0 · MI MEMBRESÍA (solo lectura; nunca muestra observaciones internas) ═══
+const _MMES=['ENE','FEB','MAR','ABR','MAY','JUN','JUL','AGO','SEP','OCT','NOV','DIC']
+function _fm(iso){ const d=new Date(String(iso).slice(0,10)+'T12:00:00'); return d.getDate()+' '+_MMES[d.getMonth()]+' '+d.getFullYear() }
+const _MEST={activa:'ACTIVA', proxima:'PRÓXIMA A VENCER', vencida:'VENCIDA', congelada:'CONGELADA', cancelada:'CANCELADA', finalizada:'FINALIZADA', futura:'COMIENZA PRONTO'}
+async function cargarMembresia(){
+  S.mem=[]; S.pagos=[]; S.memBloqueo=null
+  try{
+    const [rm, rp] = await Promise.all([
+      sb.from('v_membresias').select('id, fecha_inicio, fecha_fin, meses, estado_calc, dias_restantes').eq('socio_id', S.perfil.id).order('fecha_inicio',{ascending:false}),
+      sb.from('pagos').select('fecha_pago, monto_final, estado, metodo, anulado, membresia_id').eq('socio_id', S.perfil.id).eq('anulado',false).order('fecha_pago',{ascending:false})
+    ])
+    S.mem=rm.data||[]; S.pagos=rp.data||[]
+  }catch(_){}
+  const vig=S.mem.find(m=>['activa','proxima','congelada'].includes(m.estado_calc))
+    || S.mem.filter(m=>m.estado_calc==='futura').sort((a,b)=>a.fecha_inicio<b.fecha_inicio?-1:1)[0] || null
+  S.memVig = vig || S.mem[0] || null
+  // Política de acceso: sin registro → sin restricción (socios previos); vencida/cancelada y sin otra vigente → no inicia sesiones
+  if (!vig && S.mem.length && ['vencida','cancelada','finalizada'].includes(S.mem[0].estado_calc)){
+    S.memBloqueo='Tu membresía no está vigente. Tu historial sigue disponible — consulta tu renovación con KOACH.'
+    S.memBloqueoT = S.mem[0].estado_calc==='cancelada' ? 'MEMBRESÍA CANCELADA' : 'MEMBRESÍA VENCIDA'
+  }
+  // Aviso de vencimiento: 30 / 14 / 7 días, UNA vez por umbral (registrado en membresia_alertas)
+  const av=document.getElementById('hMemAviso'); if (av) av.innerHTML=''
+  if (vig && vig.estado_calc!=='congelada' && vig.dias_restantes<=30 && vig.dias_restantes>=0){
+    const umbral = vig.dias_restantes<=7 ? 7 : vig.dias_restantes<=14 ? 14 : 30
+    try{
+      const { error } = await sb.from('membresia_alertas').insert({ membresia_id:vig.id, umbral_dias:umbral })
+      if (!error && av) av.innerHTML='<div class="memAv"><b>TU MEMBRESÍA ESTÁ PRÓXIMA A VENCER</b><span>Vence el '+_fm(vig.fecha_fin)+'. Consulta tu renovación con KOACH.</span>'+
+        '<button onclick="this.parentNode.remove()">ENTENDIDO</button></div>'
+    }catch(_){}
+  }
+}
+function pintarMembresia(){
+  const el=document.getElementById('pfMem'); if(!el) return
+  const m=S.memVig
+  if (!m){ el.innerHTML='<div class="memCard"><div class="mK">KOACH MEMBERSHIP</div><div class="mS">Tu membresía aún no está registrada en la app. Consulta en recepción.</div></div>'; return }
+  const pagosM=(S.pagos||[])
+  el.innerHTML='<div class="memCard"><div class="mK"><span>KOACH MEMBERSHIP</span><span class="mE '+m.estado_calc+'">'+(_MEST[m.estado_calc]||'')+'</span></div>'+
+    '<div class="mH">'+_fm(m.fecha_inicio)+' — '+_fm(m.fecha_fin)+'</div>'+
+    '<div class="mS">'+m.meses+' MES'+(m.meses>1?'ES':'')+(S.proto?' · PROGRAMA '+String(S.proto.programa||'').toUpperCase():'')+
+    (m.dias_restantes>=0?' · '+m.dias_restantes+' DÍAS RESTANTES':'')+'</div>'+
+    '<div class="mBtns"><button onclick="det(\'dPagos\')">VER PAGOS · '+pagosM.length+'</button><button onclick="det(\'dMemH\')">VER HISTORIAL · '+S.mem.length+'</button></div>'+
+    '<div class="det" id="dPagos">'+(pagosM.length?pagosM.map(p=>'<div class="mLi"><span>'+_fm(p.fecha_pago)+'</span><span>$'+(+p.monto_final).toLocaleString('es-CL')+' · '+String(p.estado).toUpperCase()+'</span></div>').join(''):'Sin pagos registrados.')+'</div>'+
+    '<div class="det" id="dMemH">'+S.mem.map(x=>'<div class="mLi"><span>'+_fm(x.fecha_inicio)+' — '+_fm(x.fecha_fin)+'</span><span>'+x.meses+' M · '+(_MEST[x.estado_calc]||'')+'</span></div>').join('')+'</div>'+
+    '<a class="mCta" href="https://wa.me/56971333042?text=Hola%20KOACH%2C%20quiero%20consultar%20mi%20membres%C3%ADa" target="_blank">CONSULTAR RENOVACIÓN →</a></div>'
+}
 function pintarPerfil(){
+  pintarMembresia()
   const p=S.perfil||{}
   document.getElementById('pfAv').textContent=(p.nombre||'K')[0].toUpperCase()
   document.getElementById('pfNom').textContent=`${p.nombre||''} ${p.apellido||''}`.trim()||p.email
