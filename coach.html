@@ -527,7 +527,7 @@ small{color:var(--koach-text-secondary)}
 </div></div>
 
 <div class="vista" id="vSala">
-  <div class="hbar"><span class="hk" title="c8.9">KOACH</span><span class="rol" id="rolBadge" onclick="salir()">COACH</span></div>
+  <div class="hbar"><span class="hk" title="c9.0">KOACH</span><span class="rol" id="rolBadge" onclick="salir()">COACH</span></div>
   <div class="adAcc" id="accesos"></div>
   <div class="glass aform" id="fAlta" style="display:none">
     <h4>CREAR USUARIO — ENTRA AL INSTANTE CON SU CORREO Y CLAVE</h4>
@@ -1519,7 +1519,7 @@ async function cargarCatalogo(){
   function aplicar(data){
     EJCAT = data||[]
     const EQO=['BODYWEIGHT','DUMBBELL','BARBELL','HEX_BAR','KETTLEBELL','MINIBAND','PLATE','BOX','BANCO','CORE_ROLLER','BANDA','CABLE','MACHINE']
-    const MORD=['PECHO','ESPALDA','HOMBROS','TRÍCEPS','BÍCEPS','CORE','GLÚTEOS','CUÁDRICEPS','ISQUIOS','PANTORRILLAS','CARDIO','GLOBAL','MOVILIDAD']
+    const MORD=['PECHO','ESPALDA','HOMBROS','TRÍCEPS','BÍCEPS','CORE','GLÚTEOS','CUÁDRICEPS','ISQUIOS','GEMELOS','CARDIO','GLOBAL','MOVILIDAD']
     EJCAT.sort(function(a,b){
       const ga=MORD.indexOf(a.grupo_muscular), gb=MORD.indexOf(b.grupo_muscular)
       if(ga!==gb) return (ga<0?99:ga)-(gb<0?99:gb)
@@ -1530,15 +1530,17 @@ async function cargarCatalogo(){
     EJCAT._mord = MORD
   }
   // caché-primero: catálogo casi estático → instantáneo, revalida en silencio
-  try{ const c=JSON.parse(localStorage.getItem('kc_ejcat_v3')||'null'); if(c&&c.length) aplicar(c) }catch(_e){}
+  // v4 (24-sep-2026): BIBLIOTECA canonical desde el Google Sheet — se descarta cualquier catálogo previo
+  try{ ['kc_ejcat_v1','kc_ejcat_v2','kc_ejcat_v3'].forEach(function(k){ localStorage.removeItem(k) }) }catch(_e){}
+  try{ const c=JSON.parse(localStorage.getItem('kc_ejcat_v4')||'null'); if(c&&c.length) aplicar(c) }catch(_e){}
   const r = await sb.from('ejercicios')
     .select('id,nombre,grupo_muscular,estimulo,sinergistas,tipo_registro,con_carga,implemento,cuenta_dosis')
     .eq('activo', true)
   if (r.data && r.data.length){
     const fresh=JSON.stringify(r.data)
     let mismo=false
-    try{ mismo = fresh===JSON.stringify(JSON.parse(localStorage.getItem('kc_ejcat_v3')||'null')) }catch(_e){}
-    if (!mismo){ aplicar(JSON.parse(fresh)); try{ localStorage.setItem('kc_ejcat_v3', fresh) }catch(_e){} }
+    try{ mismo = fresh===JSON.stringify(JSON.parse(localStorage.getItem('kc_ejcat_v4')||'null')) }catch(_e){}
+    if (!mismo){ aplicar(JSON.parse(fresh)); try{ localStorage.setItem('kc_ejcat_v4', fresh) }catch(_e){} }
     else if (!EJCAT) aplicar(r.data)
   }
 }
@@ -2241,7 +2243,7 @@ async function elegirEj(ejId){
     repintarConservando()
   }
 }
-const SIGLA={'CUÁDRICEPS':'QUADS','GLÚTEOS':'GLUTS','ISQUIOS':'HAMS','ESPALDA':'LATS','PECHO':'PECS','HOMBROS':'DELTS','TRÍCEPS':'TRIS','BÍCEPS':'BIS','CORE':'CORE','CARDIO':'CARDIO','MOVILIDAD':'MOB','PANTORRILLAS':'CALFS','GLOBAL':'GLOBAL'}
+const SIGLA={'CUÁDRICEPS':'QUADS','GLÚTEOS':'GLUTS','ISQUIOS':'HAMS','ESPALDA':'LATS','PECHO':'PECS','HOMBROS':'DELTS','TRÍCEPS':'TRIS','BÍCEPS':'BIS','CORE':'CORE','CARDIO':'CARDIO','MOVILIDAD':'MOB','GEMELOS':'CALFS','GLOBAL':'GLOBAL'}
 function calcDose(){
   const vivo=document.getElementById('pVivo')
   if(!P||P.bib){ if(vivo)vivo.style.display='none'; return }
@@ -2301,7 +2303,7 @@ function calcDose(){
       '<div class="dzRowB"><i class="dzL">E</i><div class="dzT">'+guias+mObj+mMax+
         '<div class="dzE" style="width:'+dzPos(rv)+'%"></div></div></div></div>' }
   })
-  const ORD=['PECHO','ESPALDA','HOMBROS','TRÍCEPS','BÍCEPS','CORE','GLÚTEOS','CUÁDRICEPS','ISQUIOS','PANTORRILLAS','CARDIO','MOVILIDAD']
+  const ORD=['PECHO','ESPALDA','HOMBROS','TRÍCEPS','BÍCEPS','CORE','GLÚTEOS','CUÁDRICEPS','ISQUIOS','GEMELOS','CARDIO','MOVILIDAD']
   const esMeta=function(fi){ const o=objetivos[fi.g]; return !!(o && o.mev!=null && o.exigible!==false) }
   filas.sort(function(a,b){
     const ma=esMeta(a)?0:1, mb=esMeta(b)?0:1
