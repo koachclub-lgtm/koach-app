@@ -527,7 +527,7 @@ small{color:var(--koach-text-secondary)}
 </div></div>
 
 <div class="vista" id="vSala">
-  <div class="hbar"><span class="hk" title="c8.8">KOACH</span><span class="rol" id="rolBadge" onclick="salir()">COACH</span></div>
+  <div class="hbar"><span class="hk" title="c8.9">KOACH</span><span class="rol" id="rolBadge" onclick="salir()">COACH</span></div>
   <div class="adAcc" id="accesos"></div>
   <div class="glass aform" id="fAlta" style="display:none">
     <h4>CREAR USUARIO — ENTRA AL INSTANTE CON SU CORREO Y CLAVE</h4>
@@ -536,6 +536,12 @@ small{color:var(--koach-text-secondary)}
     <input id="nuEmail" type="email" placeholder="correo@ejemplo.cl" autocomplete="off">
     <input id="nuTel" inputmode="tel" placeholder="Teléfono (+569…)" autocomplete="off">
     <input id="nuPass" placeholder="Clave (mín. 4)" autocomplete="off">
+    <div id="nuDatosSocio">
+      <label>SEXO · DEFINE SU PLANIFICACIÓN Y SUS IMÁGENES</label>
+      <div class="roles" style="margin-bottom:10px"><button class="rolb" id="nuSexH" onclick="setSexo('hombre')">HOMBRE</button><button class="rolb" id="nuSexM" onclick="setSexo('mujer')">MUJER</button></div>
+      <label>FECHA DE NACIMIENTO</label>
+      <input id="nuNac" type="date">
+    </div>
     <div id="nuPlanes" style="display:none">
       <label style="margin-top:2px">MEMBRESÍA</label>
       <div id="nuPlanChips" style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px"></div>
@@ -1245,7 +1251,7 @@ async function verExtra(){
   document.getElementById('xVer').textContent='Toca una sesión para evaluar su impacto.'
   document.getElementById('xBtn').disabled=true
   vista('vExtra')
-  const sexo=a&&a.protocolos?a.protocolos.sexo:null
+  const sexo=(F&&(F.sex==='hombre'||F.sex==='mujer'))?F.sex:(a&&a.protocolos?a.protocolos.sexo:null)
   try{ const rp = await sb.from('protocolos').select('*').eq('sexo',sexo)
     ;(rp.data||[]).forEach(function(p){ if(!C.protos[p.id]) C.protos[p.id]=p }) }catch(_e){}
   const protos=Object.values(C.protos).filter(function(p){return ((!sexo||p.sexo===sexo) && !p.socio_id && p.estado!=='biblioteca')})
@@ -1340,9 +1346,12 @@ function nuSetPlan(i){
 }
 function toggleAlta(){ const f=document.getElementById('fAlta'); f.style.display=f.style.display==='none'?'block':'none'
   if(f.style.display==='block') cargarPlanes() }
+function setSexo(x){ window._nuSexo=x
+  document.getElementById('nuSexH').classList.toggle('on',x==='hombre'); document.getElementById('nuSexM').classList.toggle('on',x==='mujer') }
 function setRol(r){ window._nuRol=r
   document.getElementById('rSocio').classList.toggle('on',r==='socio')
   document.getElementById('rCoach').classList.toggle('on',r==='coach')
+  document.getElementById('nuDatosSocio').style.display = r==='socio' ? '' : 'none'
   const box=document.getElementById('nuPlanes')
   if(box) box.style.display = (r==='socio' && PLANES && PLANES.length) ? 'block' : 'none' }
 async function crearUsuario(){
@@ -1352,6 +1361,10 @@ async function crearUsuario(){
   msg.className='amsg'; msg.textContent=''
   if(!nombre||!email||pass.length<4){ msg.className='amsg err'
     msg.textContent=pass.length<4?'La clave necesita mínimo 4 caracteres':'Completa nombre y correo'; return }
+  const nac=document.getElementById('nuNac').value
+  if(window._nuRol==='socio' && (!window._nuSexo || !nac)){ msg.className='amsg err'
+    msg.textContent='Para un socio indica su sexo y fecha de nacimiento: definen su planificación.'; return }
+  if(window._nuRol==='socio' && (nac<'1920-01-01' || nac>=hoyISO())){ msg.className='amsg err'; msg.textContent='Revisa la fecha de nacimiento.'; return }
   btn.disabled=true; btn.textContent='CREANDO…'
   try{
     const sbAlta=supabase.createClient(SB_URL,SB_KEY,{auth:{persistSession:false,autoRefreshToken:false}})
@@ -1362,7 +1375,7 @@ async function crearUsuario(){
     const ini=document.getElementById('nuInicio').value || hoyISO()
     const perfilBase={id:r.data.user.id,nombre:nombre,apellido:apellido,email:email,role:window._nuRol,activo:true}
     if(tel) perfilBase.telefono=tel
-    if(window._nuRol==='socio') perfilBase.fecha_inicio=ini
+    if(window._nuRol==='socio'){ perfilBase.fecha_inicio=ini; perfilBase.sex=window._nuSexo; perfilBase.fecha_nacimiento=nac }
     let r2 = await sb.from('profiles').insert(perfilBase)
     if(r2.error && !/duplicate/i.test(r2.error.message||'')) throw r2.error
     // c8.7 · Registro comercial: MEMBRESÍA (vigencia) + PAGO (dinero), separados y auditados
@@ -1380,7 +1393,7 @@ async function crearUsuario(){
     msg.innerHTML='✓ <b>'+nombre+'</b> creado como <b>'+window._nuRol.toUpperCase()+'</b>. '+
       (window._nuRol==='coach'?'Entra aquí mismo con su correo y clave.':'Entra en /app.html — asígnale su programa.')
     btn.textContent='CREAR OTRO →'; btn.disabled=false
-    ;['nuNombre','nuApellido','nuEmail','nuPass'].forEach(function(x){document.getElementById(x).value=''})
+    ;['nuNombre','nuApellido','nuEmail','nuPass','nuNac'].forEach(function(x){document.getElementById(x).value=''}); setSexo(null)
     await loadSala()
   }catch(e){ msg.className='amsg err'
     msg.textContent=/already|registered/i.test(e.message||'')?'Ese correo ya tiene cuenta'
@@ -3383,6 +3396,10 @@ async function fAdmCargar(){
   const vig=AD.fMem.find(function(m){return ['activa','proxima','congelada'].indexOf(m.estado_calc)>-1})
     || AD.fMem.filter(function(m){return m.estado_calc==='futura'}).sort(function(a,b){return a.fecha_inicio<b.fecha_inicio?-1:1})[0] || AD.fMem[0] || null
   let h=''
+  const edad = F.fecha_nacimiento ? Math.floor((new Date(hoyISO())-new Date(F.fecha_nacimiento+'T12:00:00'))/31557600000) : null
+  h+='<div class="adCard"><div class="adK"><span>DATOS DEL SOCIO</span><span>'+(F.sex?String(F.sex).toUpperCase():'SEXO SIN DEFINIR')+'</span></div>'+
+    '<div class="adS">NACIMIENTO · '+(F.fecha_nacimiento?adF(F.fecha_nacimiento)+' · '+edad+' AÑOS':'SIN REGISTRAR')+'<br>Define su planificación (hombre / mujer) y las imágenes de sus sesiones.</div>'+
+    '<div class="adBtns"><button onclick="admFormDatos()">EDITAR DATOS</button></div></div>'
   if (vig){
     h+='<div class="adCard"><div class="adK"><span>MEMBRESÍA ACTUAL</span><span>'+(MEM_EST[vig.estado_calc]||vig.estado_calc)+'</span></div>'+
       '<div class="adH">'+adF(vig.fecha_inicio)+' — '+adF(vig.fecha_fin)+'</div>'+
@@ -3410,6 +3427,26 @@ async function fAdmCargar(){
   h+='<div class="adCard"><div class="adK"><span>ACCESO A LA APP · CUENTA</span></div><div class="adS">Distinto de la membresía: la cuenta, el historial y los pagos nunca se borran.</div>'+
     '<div class="adBtns"><button onclick="congelar()">'+(F.estado==='congelado'?'REACTIVAR ACCESO':'SUSPENDER ACCESO')+'</button><button onclick="cancelar()">DAR DE BAJA</button></div></div>'
   box.innerHTML=h
+}
+function admFormDatos(){
+  admAbrir('DATOS · '+nomDe(F.id).toUpperCase(),'<div class="adF"><label>SEXO</label><div class="adChips"><button id="adSxH" class="'+(F.sex==='hombre'?'on':'')+'" onclick="this.classList.add(\'on\');document.getElementById(\'adSxM\').classList.remove(\'on\')">HOMBRE</button>'+
+    '<button id="adSxM" class="'+(F.sex==='mujer'?'on':'')+'" onclick="this.classList.add(\'on\');document.getElementById(\'adSxH\').classList.remove(\'on\')">MUJER</button></div>'+
+    '<label>FECHA DE NACIMIENTO</label><input type="date" id="adNac" value="'+(F.fecha_nacimiento||'')+'"></div>'+
+    '<div class="adNote">Cambiar el sexo no cambia su programa actual; se aplica a sus imágenes de sesión y a los programas que se le asignen desde ahora.</div>'+
+    '<div class="adBtns"><button class="ink" onclick="admGuardarDatos()">GUARDAR</button></div>')
+}
+async function admGuardarDatos(){
+  const sex=document.getElementById('adSxH').classList.contains('on')?'hombre':document.getElementById('adSxM').classList.contains('on')?'mujer':null
+  const nac=document.getElementById('adNac').value||null
+  if (nac && (nac<'1920-01-01'||nac>=hoyISO())){ toast('Revisa la fecha de nacimiento.'); return }
+  const antes={sex:F.sex||null, fecha_nacimiento:F.fecha_nacimiento||null}
+  syncEnvio()
+  const r=await sb.from('profiles').update({sex:sex, fecha_nacimiento:nac}).eq('id',F.id)
+  if (r.error){ syncErr(r.error.message); toast('No se pudo guardar: '+r.error.message); return }
+  const ac=adActor()
+  await sb.from('admin_eventos').insert({socio_id:F.id, entidad:'perfil', entidad_id:F.id, accion:'editar_datos', antes:antes, despues:{sex:sex, fecha_nacimiento:nac}, actor_id:ac.id, actor_nombre:ac.nombre})
+  F.sex=sex; F.fecha_nacimiento=nac; const so=C.socios.find(function(x){return x.id===F.id}); if(so){ so.sex=sex; so.fecha_nacimiento=nac }
+  syncOk(); admCerrar(); toast('Datos guardados ✓'); fAdmCargar()
 }
 function admFormMem(id){
   const m=id?(AD.fMem||[]).find(function(x){return x.id===id}):null
