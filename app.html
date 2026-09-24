@@ -472,6 +472,35 @@ html,button,input,.pvS,.chk,.setChip{touch-action:manipulation}
 #oLoad .ldSpin i:nth-child(2){animation-delay:.15s} #oLoad .ldSpin i:nth-child(3){animation-delay:.3s}
 @keyframes ldRep{0%,100%{transform:scaleY(.3);opacity:.45}50%{transform:scaleY(1);opacity:1}}
 @media (prefers-reduced-motion:reduce){#oLoad .ldSpin i{animation:none;opacity:.8}}
+
+/* v8.2 · KOACH MUSCLE TARGET — plateado = anatomía; el estado lo dicen texto, barra y check (nunca color) */
+.mti{position:relative;display:inline-flex;flex-shrink:0;border-radius:22%;overflow:hidden;background:#141821}
+.mti img{width:100%;height:100%;display:block;object-fit:cover}
+.mti-compact{width:34px;height:34px}
+.mti-standard{width:58px;height:58px}
+.mti-featured{width:96px;height:96px}
+.mti i{position:absolute;right:3px;bottom:3px;width:17px;height:17px;border-radius:50%;background:#F3F2EF;color:#121210;font-style:normal;font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center;box-shadow:0 0 0 1.5px #121210}
+.mti-compact i{width:13px;height:13px;font-size:8px;right:1px;bottom:1px}
+.mRow{display:flex;align-items:center;gap:12px}
+.mRow .mBody{flex:1;min-width:0}
+.mtRow{display:flex;justify-content:center;gap:14px;margin:12px 0 8px;flex-wrap:wrap}
+.mtItem{display:flex;flex-direction:column;align-items:center;gap:6px}
+.mtItem span{font-family:var(--font-mono);font-weight:500;font-size:9.5px;letter-spacing:.08em;color:#F3F2EF}
+#oRw .rwG2{display:flex;flex-direction:column;gap:10px;margin-top:12px}
+#oRw .rwGi{display:flex;align-items:center;gap:12px}
+#oRw .rwGi b{display:block;font-family:var(--font-display);font-weight:700;font-size:15px;color:#F3F2EF}
+#oRw .rwGi small{display:block;font-family:var(--font-mono);font-weight:500;font-size:9.5px;letter-spacing:.06em;color:#8B8A85;margin-top:2px}
+#oRw .rwGi.on small{color:#F3F2EF}
+.mtGrid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.mtCard{display:flex;flex-direction:column;align-items:flex-start;gap:4px;padding:10px;border:1px solid rgba(17,17,17,.10);border-radius:12px;background:rgba(255,255,255,.45)}
+.mtCard b{font-family:var(--font-display);font-weight:700;font-size:12px;color:var(--koach-ink);margin-top:4px}
+.mtCard .mtV{font-family:var(--font-mono);font-weight:500;font-size:12px;color:var(--koach-ink)}
+.mtCard .mtV small{font-size:10px;color:#6E6D68}
+.mtCard .mBar{width:100%;height:6px;border-radius:3px;background:rgba(17,17,17,.10);overflow:hidden}
+.mtCard .mBar i{display:block;height:100%;background:#1C1C1C;border-radius:3px}
+.mtCard .mtE{font-family:var(--font-mono);font-weight:500;font-size:8.5px;letter-spacing:.05em;color:#6E6D68}
+.mtCard.ok .mtE{color:var(--koach-ink)}
+@media (max-width:360px){ .mtGrid{grid-template-columns:repeat(2,1fr)} }
 </style>
 </head>
 <body>
@@ -525,7 +554,7 @@ html,button,input,.pvS,.chk,.setChip{touch-action:manipulation}
 
   <!-- ══ HOME ══ -->
   <div class="vista conTab" id="vHome">
-    <div class="hbar"><span class="hk" title="v8.1">KOACH</span><div class="hav" id="hAv" onclick="salir()">K</div></div>
+    <div class="hbar"><span class="hk" title="v8.2">KOACH</span><div class="hav" id="hAv" onclick="salir()">K</div></div>
     <div class="ctx"><div class="fecha" id="hFecha">—</div><div class="prog" id="hProg">—</div></div>
     <div class="anillo">
       <svg width="180" height="180" viewBox="0 0 180 180">
@@ -577,6 +606,7 @@ html,button,input,.pvS,.chk,.setChip{touch-action:manipulation}
       <div class="ast ink"><b id="aSes">—</b><span>SESIONES COMPLETADAS</span></div>
       <div class="glass ast"><b id="aSem">—</b><span>OBJETIVOS ESTA SEMANA</span></div>
     </div>
+    <div class="glass panel"><h3><span>PROGRESO POR GRUPO</span><span>ESTA SEMANA</span></h3><div class="mtGrid" id="aGrupos"></div></div>
     <div class="glass panel hst">
       <h3><span>HISTORIAL DE SESIONES</span><span>LO REALIZADO</span></h3>
       <div class="glass" style="padding:14px;margin-bottom:14px">
@@ -749,6 +779,28 @@ function aporteSesion(sesion, bloquesCompletados = null){
   return KD.aporteSesionDOC3(kdNormSesion(sesion), bloquesCompletados).aporte
 }
 // c8.0: la base de la semana = sesiones del protocolo de la semana vigente (sin extras ★)
+// ═══════════ v8.2 · KOACH MUSCLE TARGET SYSTEM ═══════════
+// Capa de mapping (no toca enums de la BD): grupo del motor → asset + nombre visible. El icono NUNCA reemplaza el dato.
+const MUSCLE_MAP = {
+  'GLÚTEOS':['glutes','Glúteos'], 'CUÁDRICEPS':['quads','Cuádriceps'], 'ISQUIOS':['hams','Isquios'],
+  'ESPALDA':['lats','Espalda'], 'PECHO':['chest','Pecho'], 'HOMBROS':['shoulders','Hombros'],
+  'BÍCEPS':['biceps','Bíceps'], 'TRÍCEPS':['triceps','Tríceps'], 'CORE':['core','Core'],
+  // futuras capacidades (assets listos)
+  'GEMELOS':['calves','Gemelos'], 'ADUCTORES':['adductors','Aductores'], 'ABDUCTORES':['abductors','Abductores'],
+  'TRAPECIO':['upperback','Trapecio'], 'ESPALDA ALTA':['upperback','Espalda alta'], 'LUMBARES':['lowerback','Lumbares'],
+  'ANTEBRAZOS':['forearms','Antebrazos'], 'ABDOMINALES':['abs','Abdominales']
+}
+const MUSCLE_ALIAS = { GLUTS:'GLÚTEOS', QUADS:'CUÁDRICEPS', HAMS:'ISQUIOS', LATS:'ESPALDA', PECS:'PECHO', DELTS:'HOMBROS', BIS:'BÍCEPS', TRIS:'TRÍCEPS',
+  CALVES:'GEMELOS', ADDUCTORS:'ADUCTORES', ABDUCTORS:'ABDUCTORES', UPPER_BACK:'TRAPECIO', LOWER_BACK:'LUMBARES', FOREARMS:'ANTEBRAZOS' }
+// size: 'compact' (32) · 'standard' (56) · 'featured' (96). state opcional: 'done' → check. Sin asset → '' (nunca un hueco roto).
+function muscleIcon(grupo, size, state){
+  const k = MUSCLE_ALIAS[String(grupo||'').toUpperCase()] || String(grupo||'').toUpperCase()
+  const m = MUSCLE_MAP[k]; if (!m) return ''
+  return '<span class="mti mti-'+(size||'compact')+(state==='done'?' mti-done':'')+'" role="img" aria-label="'+m[1]+'">'+
+    '<img src="/img/muscle/muscle-'+m[0]+'.webp" alt="" loading="lazy" decoding="async" onerror="this.parentNode.style.display=\'none\'">'+
+    (state==='done'?'<i aria-hidden="true">✓</i>':'')+'</span>'
+}
+function muscleNombre(grupo){ const k=MUSCLE_ALIAS[String(grupo||'').toUpperCase()]||String(grupo||'').toUpperCase(); return (MUSCLE_MAP[k]||[null,grupo])[1] }
 // ═══════════ v8.1 · MENSAJERÍA DEL SOCIO ═══════════
 // EL MOTOR HABLA EN DATOS · LA INTERFAZ HABLA EN OBJETIVOS.
 // Una sola verdad (calcularSemana / aporteSesion / registros) → todos los textos salen de aquí, por reglas, nunca al azar.
@@ -819,7 +871,7 @@ function mensajePreSesion(ses){
   else if (despues!=null && despues>antes) proy=`Al completarla avanzarás al <b>${despues}%</b> de tu objetivo semanal.`
   else proy='Esta sesión suma trabajo a tu semana.'
   return { t:ses.nombre, h:'HOY VAMOS A ENTRENAR',
-    b:(o.prim.length?`Esta sesión está diseñada para ${t.verbo}:<div class="oObj">${o.prim.slice(0,4).join(' · ')}</div>`:'')+
+    b:(o.prim.length?`Esta sesión está diseñada para ${t.verbo}:<div class="mtRow">${o.prim.slice(0,4).map(g=>'<div class="mtItem">'+muscleIcon(g,'standard')+'<span>'+g+'</span></div>').join('')}</div>`:'')+
       (o.sec.length?`<div class="oSec">y complementar el trabajo de ${msgLista(o.sec.slice(0,2))}.</div>`:'')+`<div class="oPro">${proy}</div>`,
     obj:o.prim.length?('OBJETIVO DE HOY: '+t.verbo.toUpperCase()+' PRINCIPALMENTE '+msgLista(o.prim.slice(0,3)).toUpperCase()+'.'):'' }
 }
@@ -834,6 +886,9 @@ function mensajeCierre(ses, antes, despues, ejec, sig, hechasN, total){
   Object.values(S.setLog||{}).forEach(f=>{ if(f&&f.ejercicio_id&&f.peso!=null&&(mejor[f.ejercicio_id]==null||+f.peso>mejor[f.ejercicio_id])) mejor[f.ejercicio_id]=+f.peso })
   const cargas=Object.entries(mejor).filter(([ej,p])=>S.ultimos&&S.ultimos[ej]&&S.ultimos[ej].peso!=null&&p>+S.ultimos[ej].peso)
     .map(([ej,p])=>{ let nom=''; (S._bfs||[]).forEach(b=>(b.bloque_ejercicios||[]).forEach(be=>{ if(be.ejercicio_id===ej) nom=be.ejercicios?.nombre||nom })); return {nom, p, prev:+S.ultimos[ej].peso} }).filter(c=>c.nom)
+  const estados={}
+  despues.musculos.forEach(x=>{ estados[x.grupo] = !x.exigible ? '' : x.fortalecido ? (nuevosFlag(x.grupo)?'OBJETIVO CUMPLIDO ✓':'OBJETIVO CUMPLIDO') : x.series>0 ? 'EN PROGRESO · '+(x.series%1===0?x.series:(+x.series).toFixed(1))+' / '+x.objetivo : 'SIN EMPEZAR' })
+  function nuevosFlag(g){ return nuevos.has(g) }
   const semanaOk = !sig || despues.completa
   const logros=[]
   nuevos.forEach(g=>logros.push(['OBJETIVO CUMPLIDO', g+' ✓']))
@@ -841,13 +896,13 @@ function mensajeCierre(ses, antes, despues, ejec, sig, hechasN, total){
   if (semanaOk) return {
     k:'SEMANA COMPLETADA ✓', t:`LO HICISTE, ${n}.`, ses:ses.nombre,
     b:'Completaste el trabajo que teníamos planificado para esta semana.',
-    grupos, nuevos, logros,
+    grupos, nuevos, logros, estados,
     stats:[[`${despues.fortalecidos} DE ${despues.exigibles}`,'OBJETIVOS'],[`${hechasN} DE ${total}`,'SESIONES']],
     sig:null, cierre:'RECUPERA. LA PRÓXIMA SEMANA SEGUIMOS'+(String(S.proto&&S.proto.programa).toUpperCase()==='STRONG'?' CONSTRUYENDO TU VERSIÓN MÁS FUERTE.':'.') }
   return {
     k:'SESIÓN COMPLETADA', t:`BUEN TRABAJO, ${n}.`, ses:ses.nombre,
     b: grupos.length ? `Hoy sumaste trabajo para ${t.verbo}:` : 'Sesión registrada.',
-    grupos, nuevos, logros,
+    grupos, nuevos, logros, estados,
     stats:[[`${despues.pct_dosis}%`,'TU SEMANA'],[`${despues.fortalecidos} DE ${despues.exigibles}`,'OBJETIVOS COMPLETADOS']],
     sig: sig ? sig.nombre : null,
     cierre: nuevos.size ? t.cierre.toUpperCase() : 'SIGUES AVANZANDO HACIA TU OBJETIVO SEMANAL.' }
@@ -856,7 +911,8 @@ function pintarCierre(m){
   const el=document.getElementById('oRw')
   el.innerHTML='<div class="rwBox"><div class="rwK">'+m.k+'</div><div class="rwS">'+m.ses+'</div><div class="rwT">'+m.t+'</div>'+
     '<div class="rwB">'+m.b+'</div>'+
-    (m.grupos.length?'<div class="rwG">'+m.grupos.map(g=>'<span class="'+(m.nuevos.has(g)?'on':'')+'">'+g+(m.nuevos.has(g)?' ✓':'')+'</span>').join('')+'</div>':'')+
+    (m.grupos.length?'<div class="rwG2">'+m.grupos.map(g=>{ const e=m.estados[g]||''
+      return '<div class="rwGi'+(m.nuevos.has(g)?' on':'')+'">'+muscleIcon(g,'standard',m.nuevos.has(g)?'done':null)+'<div><b>'+g+'</b><small>'+e+'</small></div></div>' }).join('')+'</div>':'')+
     (m.logros.length?'<div class="rwL">'+m.logros.map(l=>'<div><small>'+l[0]+'</small><b>'+l[1]+'</b></div>').join('')+'</div>':'')+
     '<div class="rwSt">'+m.stats.map(s=>'<div><b>'+s[0]+'</b><small>'+s[1]+'</small></div>').join('')+'</div>'+
     (m.sig?'<div class="rwN"><small>PRÓXIMA</small><b>'+m.sig+'</b></div>':'')+
@@ -1263,9 +1319,9 @@ function pintarFilasMusc(elId){
       : (m.mav!=null && m.series>=m.mav*0.85 && m.fortalecido) ? ['mC','CERCA DEL LÍMITE']
       : m.fortalecido ? ['mM','OBJETIVO CUMPLIDO ✓'] : ['mP','EN PROGRESO']
     const w = m.exigible && m.objetivo>0 ? Math.min(Math.round(m.series/m.objetivo*100),100) : 0
-    return '<div class="mRow '+est[0]+'"><div class="mTop"><span class="mG">'+m.grupo+'</span>'+
+    return '<div class="mRow '+est[0]+'">'+muscleIcon(m.grupo,'compact')+'<div class="mBody"><div class="mTop"><span class="mG">'+m.grupo+'</span>'+
       '<span class="mV">'+fmtM(m.series)+(m.exigible?' <small>/ '+m.objetivo+'</small>':'')+'</span></div>'+
-      '<div class="mBar"><i data-w="'+w+'"></i></div><div class="mE">'+est[1]+'</div></div>'
+      '<div class="mBar"><i data-w="'+w+'"></i></div><div class="mE">'+est[1]+'</div></div></div>'
   }).join('')
   const _el=document.getElementById(elId); _el.className='mRows'; _el.innerHTML=rowsHTML
   setTimeout(()=>{ _el.querySelectorAll('.mBar i').forEach((f,i)=>setTimeout(()=>{ f.style.width=f.dataset.w+'%' },80+i*50)) }, 30)
@@ -2344,7 +2400,17 @@ function verPreview(num){
   }).join('')
   document.getElementById('oPrev').style.display='flex'
 }
+function pintarGruposAvances(){
+  const el=document.getElementById('aGrupos'); if(!el||!S.sem) return
+  const ms=[...(S.sem.musculos||[])].filter(m=>m.exigible).sort((a,b)=>ordMusc(a.grupo,b.grupo))
+  el.innerHTML = ms.length ? ms.map(m=>{ const e = m.fortalecido ? 'OBJETIVO CUMPLIDO' : m.series>0 ? 'EN PROGRESO' : 'SIN EMPEZAR'
+    const w=m.objetivo>0?Math.min(100,Math.round(m.series/m.objetivo*100)):0
+    return '<div class="mtCard'+(m.fortalecido?' ok':'')+'">'+muscleIcon(m.grupo,'standard',m.fortalecido?'done':null)+
+      '<b>'+m.grupo+'</b><div class="mtV">'+(m.series%1===0?m.series:(+m.series).toFixed(1))+' <small>/ '+m.objetivo+'</small></div>'+
+      '<div class="mBar"><i style="width:'+w+'%"></i></div><small class="mtE">'+e+'</small></div>' }).join('') : '<div class="vacio">Aún sin objetivos definidos.</div>'
+}
 async function loadAvances(){
+  pintarGruposAvances()
   pintarCalendario(S._calOff||0)
   document.getElementById('aSem').textContent = S.sem ? `${S.sem.fortalecidos}/${S.sem.exigibles}` : '—'
   try{
