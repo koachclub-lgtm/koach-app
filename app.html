@@ -597,6 +597,50 @@ html,button,input,.pvS,.chk,.setChip{touch-action:manipulation}
 .k2 .vista.conTab{padding-bottom:calc(110px + env(safe-area-inset-bottom,0px))}
 @media (prefers-reduced-motion:reduce){ .k2-ring__val,.k2-bar i,.k2-hero,.k2-cta{transition:none} }
 @media (max-width:350px){ .k2-week{gap:var(--k2-s3)} .k2-week__ring{width:112px;height:112px} .k2-week__ring svg{width:112px;height:112px} .k2-week__v b{font-size:34px} }
+/* ═══ KOACH MUSCLE STIMULUS WHEEL ═══ */
+.kw{display:block;margin:0 auto;max-width:100%;height:auto;overflow:visible}
+.kw-fill{transform-origin:150px 150px;animation:kwIn .7s cubic-bezier(.2,.7,.2,1) both;animation-delay:var(--d)}
+@keyframes kwIn{from{transform:scale(.55);opacity:0}to{transform:none;opacity:1}}
+.kw-seg{outline:none;transition:opacity .15s}
+.kw-seg:focus-visible path:first-child,.kw-seg:hover path:first-child{filter:brightness(.94)}
+.kw--dark .kw-seg:hover path:first-child{filter:brightness(1.25)}
+.kw-v{font-family:var(--font-display);font-weight:700;font-size:15px;letter-spacing:-.02em}
+.kw-vo{font-size:10px;font-weight:400}
+.kw-l{font-family:var(--font-mono);font-weight:500;font-size:6.6px;letter-spacing:.08em}
+.kw-lc{font-family:var(--font-mono);font-weight:500;font-size:9.5px;letter-spacing:.1em}
+.kw-cv{font-family:var(--font-display);font-weight:700;font-size:24px;letter-spacing:-.03em}
+.kw-cl{font-family:var(--font-mono);font-weight:500;font-size:6.5px;letter-spacing:.14em}
+.kwRes{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:10px}
+.kwRes div small{display:block;font-family:var(--font-mono);font-weight:500;font-size:9px;letter-spacing:.12em;color:#8E8D88}
+.kwRes div b{font-family:var(--font-display);font-weight:700;font-size:15px;color:inherit;text-transform:capitalize}
+.kwLeg{display:flex;flex-wrap:wrap;gap:10px 16px;justify-content:center;margin-top:12px;font-family:var(--font-mono);font-weight:500;font-size:9px;letter-spacing:.08em;color:#8E8D88}
+.kwLeg span{display:inline-flex;align-items:center;gap:6px}
+.kwLeg i{display:inline-block;width:14px;height:10px;border-radius:3px}
+@media (prefers-reduced-motion:reduce){.kw-fill{animation:none}}
+
+.k2-wk{margin-bottom:var(--k2-s5)}
+.k2-wk__e{font-family:var(--font-display);font-weight:700;font-size:15px;color:var(--k2-carbon)}
+.k2-wk__m{justify-content:center;margin-top:4px}
+.k2-wk .kwRes{margin-top:var(--k2-s3)}
+.kwCard{background:radial-gradient(120% 90% at 80% 0%,#26272B 0%,#1A1B1E 50%,#0F0F10 100%);border-radius:26px;padding:20px 16px 18px;color:#F4F3F0}
+.kwCard__h small{display:block;font-family:var(--font-mono);font-weight:500;font-size:9.5px;letter-spacing:.14em;color:#9C9EA3}
+.kwCard__h b{display:block;font-family:var(--font-display);font-weight:700;font-size:22px;letter-spacing:-.02em;margin:4px 0 6px}
+.kwCard .kwRes div b{color:#F4F3F0}
+.whBg{display:none;position:fixed;inset:0;z-index:95;background:rgba(18,18,16,.45);backdrop-filter:blur(6px)}
+.whBg.vis{display:block}
+.whSheet{position:absolute;left:50%;bottom:0;transform:translateX(-50%);width:100%;max-width:520px;background:#F4F3F0;border-radius:26px 26px 0 0;padding:22px 20px calc(26px + env(safe-area-inset-bottom,0px));animation:whUp .25s cubic-bezier(.2,.7,.2,1)}
+@keyframes whUp{from{transform:translate(-50%,40px);opacity:0}to{transform:translate(-50%,0);opacity:1}}
+.whX{position:absolute;right:14px;top:14px;border:none;background:rgba(18,18,18,.06);border-radius:10px;width:34px;height:34px;cursor:pointer}
+.whH{display:flex;align-items:center;gap:14px}
+.whH small{display:block;font-family:var(--font-mono);font-weight:500;font-size:9.5px;letter-spacing:.14em;color:#8E8D88}
+.whH b{display:block;font-family:var(--font-display);font-weight:700;font-size:26px;letter-spacing:-.02em;color:#121212}
+.whE{font-family:var(--font-mono);font-weight:500;font-size:10px;letter-spacing:.1em;color:#121212}
+.whG{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:18px 0 14px}
+.whG div{border:1px solid rgba(18,18,18,.08);border-radius:12px;padding:10px 8px}
+.whG b{display:block;font-family:var(--font-display);font-weight:700;font-size:22px;color:#121212}
+.whG small{font-family:var(--font-mono);font-weight:500;font-size:8.5px;letter-spacing:.1em;color:#8E8D88}
+.whN{font-family:var(--font-display);font-size:15px;color:#5E5D59}
+.whN b{color:#121212}
 </style>
 </head>
 <body>
@@ -651,7 +695,7 @@ html,button,input,.pvS,.chk,.setChip{touch-action:manipulation}
   <!-- ══ HOME ══ -->
   <div class="vista conTab" id="vHome">
     <div id="k2Home" aria-live="polite"></div>
-    <div class="hbar"><span class="hk" title="v8.3">KOACH</span><div class="hav" id="hAv" onclick="salir()">K</div></div>
+    <div class="hbar"><span class="hk" title="v8.4">KOACH</span><div class="hav" id="hAv" onclick="salir()">K</div></div>
     <div class="ctx"><div class="fecha" id="hFecha">—</div><div class="prog" id="hProg">—</div></div>
     <div class="anillo">
       <svg width="180" height="180" viewBox="0 0 180 180">
@@ -686,7 +730,7 @@ html,button,input,.pvS,.chk,.setChip{touch-action:manipulation}
     <div class="glass" id="pResumen" style="padding:16px;margin-bottom:14px"></div>
     <div id="pUltimo"></div>
     <button id="pDetBtn" onclick="togglePDet()" style="width:100%;background:none;border:1px solid rgba(242,241,239,.14);border-radius:12px;padding:11px;font-size:8px;font-weight:900;letter-spacing:.12em;color:#BEBDB8;cursor:pointer;margin-bottom:16px">VER DETALLE SEMANAL ▾</button>
-    <div id="pDet" style="display:none;margin-bottom:16px"><div class="rows" id="pDetRows"></div></div>
+    <div id="pDet" style="display:none;margin-bottom:16px"><div class="kwCard" id="pDetWheel"></div><div class="rows" id="pDetRows" style="display:none"></div></div>
     <div class="uK" id="pEstaSem" style="margin:4px 2px 10px">ESTA SEMANA</div>
     <div id="pLista"></div>
     <div id="pNextSem"></div>
@@ -843,6 +887,7 @@ html,button,input,.pvS,.chk,.setChip{touch-action:manipulation}
   </div>
 </div>
 <div class="ovl oscuro" id="oRw"></div>
+<div id="mWh" class="whBg" onclick="if(event.target===this)this.classList.remove('vis')"><div class="whSheet"><button class="whX" onclick="document.getElementById('mWh').classList.remove('vis')" aria-label="Cerrar">✕</button><div id="mWhBody"></div></div></div>
 
 <script>
 const SB_URL = 'https://siecbdatfgmqbpxqtvsl.supabase.co'
@@ -876,6 +921,115 @@ function aporteSesion(sesion, bloquesCompletados = null){
   return KD.aporteSesionDOC3(kdNormSesion(sesion), bloquesCompletados).aporte
 }
 // c8.0: la base de la semana = sesiones del protocolo de la semana vigente (sin extras ★)
+// ═══════════ KOACH MUSCLE STIMULUS WHEEL ═══════════
+// Pétalo lleno = META semanal. Relleno radial = estímulo real / meta. Sobre la meta: corona exterior que crece hacia
+// el TECHO (mav); tocar/pasar el techo = corona completa con muesca. El estado se lee por FORMA (pétalo lleno, corona,
+// muesca) y texto; el color solo refuerza. Datos: grupo · objetivo (meta) · mav (techo) · series (ejecutado) · prog (programado).
+const WHEEL_ORDEN=['PECHO','HOMBROS','BÍCEPS','TRÍCEPS','CORE','CUÁDRICEPS','ISQUIOS','GLÚTEOS','ESPALDA'] // superior arriba, inferior abajo
+function wheelEstado(d){
+  if (!(d.series>0)) return ['m0','SIN ESTÍMULO']
+  if (d.series<d.objetivo) return ['mP','EN PROGRESO']
+  if (d.mav!=null && d.series>d.mav) return ['mO','SOBRE EL LÍMITE']
+  if (d.mav!=null && d.series>=d.mav*0.85) return ['mC','CERCA DEL LÍMITE']
+  return ['mM','OBJETIVO CUMPLIDO']
+}
+function _wPetal(cx,cy,r0,r1,a0,a1,gap){ // sector anular con separación CONSTANTE en px (no en grados) → pétalos que no se tocan
+  gap=gap||0
+  const P=(r,a)=>{ const t=(a-90)*Math.PI/180; return [(cx+r*Math.cos(t)).toFixed(2),(cy+r*Math.sin(t)).toFixed(2)] }
+  const d=r=>gap/2/r*180/Math.PI
+  const o0=a0+d(r1), o1=a1-d(r1), i0=a0+d(r0), i1=a1-d(r0)
+  if (i1<=i0 || o1<=o0) return ''
+  const lg=(o1-o0)>180?1:0, A=P(r1,o0), B=P(r1,o1), C=P(r0,i1), D=P(r0,i0)
+  return 'M'+A+' A'+r1+' '+r1+' 0 '+lg+' 1 '+B+' L'+C+' A'+r0+' '+r0+' 0 '+lg+' 0 '+D+' Z'
+}
+// opts: { size, variant:'compact'|'detailed', theme:'light'|'dark', center:{v,l}, onTap:'fnName' }
+function stimulusWheel(datos, opts){
+  opts=opts||{}; const V=opts.variant||'compact', TH=opts.theme||'light', S0=opts.size||260
+  const ds=WHEEL_ORDEN.map(g=>datos.find(d=>d.grupo===g)).filter(Boolean).concat(datos.filter(d=>WHEEL_ORDEN.indexOf(d.grupo)<0))
+  const n=ds.length; if(!n) return ''
+  const cx=150, cy=150, rIn=36, rMeta=V==='detailed'?112:106, rCrown=rMeta+10, pad=0, R=2, GAP=5   // R: redondeo vía stroke · GAP: separación en px
+  const step=360/n
+  const uid='w'+Math.random().toString(36).slice(2,7)
+  const trackC = TH==='dark' ? '#2A2B2F' : '#E4E3DF'
+  const fillG = TH==='dark' ? ['#FFFFFF','#C7CBD1','#8C9199'] : ['#4A4C51','#26272B','#121212']
+  const crownC = TH==='dark' ? '#E9EBEE' : '#6E7178'
+  const txt = TH==='dark' ? '#F4F3F0' : '#121212', sub = TH==='dark' ? '#9C9EA3' : '#8E8D88'
+  let svg='<svg class="kw kw--'+V+' kw--'+TH+'" viewBox="'+(V==='compact'?'-26 -18 352 336':'0 0 300 300')+'" width="'+S0+'" role="img" aria-label="Estímulo muscular de la semana">'+
+    '<defs>'+(TH==='dark'
+      ? '<radialGradient id="'+uid+'g" cx="50%" cy="50%" r="55%"><stop offset="0" stop-color="'+fillG[2]+'"/><stop offset=".55" stop-color="'+fillG[1]+'"/><stop offset="1" stop-color="'+fillG[0]+'"/></radialGradient>'
+      : '<linearGradient id="'+uid+'g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#3A3C41"/><stop offset="1" stop-color="#141415"/></linearGradient>')+
+    '<pattern id="'+uid+'h" width="4" height="4" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><rect width="4" height="4" fill="'+crownC+'"/><line x1="0" y1="0" x2="0" y2="4" stroke="'+(TH==='dark'?'#121212':'#F4F3F0')+'" stroke-width="1.6"/></pattern></defs>'
+  ds.forEach((d,i)=>{
+    const a0=i*step+pad/2, a1=(i+1)*step-pad/2, am=(a0+a1)/2
+    const ratio=d.objetivo>0?Math.min(d.series/d.objetivo,1):0
+    const rFill=rIn+(rMeta-rIn)*ratio
+    const est=wheelEstado(d)
+    const tap=opts.onTap?' onclick="'+opts.onTap+'(\''+d.grupo+'\')" style="cursor:pointer"':''
+    // pista (meta) + relleno (estímulo); el stroke del mismo color redondea las esquinas
+    svg+='<g class="kw-seg kw-'+est[0]+'" data-g="'+d.grupo+'"'+tap+' tabindex="0" role="button" aria-label="'+(typeof muscleNombre==='function'?muscleNombre(d.grupo):d.grupo)+': '+est[1].toLowerCase()+'">'+
+      '<path d="'+_wPetal(cx,cy,rIn+R,rMeta-R,a0,a1,GAP+R*2)+'" fill="'+trackC+'" stroke="'+trackC+'" stroke-width="'+(R*2)+'" stroke-linejoin="round"/>'
+    if (ratio>0){ const r1=Math.max(rIn+R+2,rFill-R)
+      svg+='<path class="kw-fill" d="'+_wPetal(cx,cy,rIn+R,r1,a0,a1,GAP+R*2)+'" fill="url(#'+uid+'g)" stroke="url(#'+uid+'g)" stroke-width="'+(R*2)+'" stroke-linejoin="round" style="--d:'+(i*45)+'ms"/>' }
+    // corona: trabajo por encima de la meta, crece hacia el techo
+    if (d.series>d.objetivo && d.mav!=null && d.mav>d.objetivo){
+      const k=Math.min((d.series-d.objetivo)/(d.mav-d.objetivo),1), aw=(a1-a0-2)*k
+      const over=d.series>d.mav
+      svg+='<path d="'+_wPetal(cx,cy,rCrown-3,rCrown+3,am-aw/2,am+aw/2,0)+'" fill="'+(over?'url(#'+uid+'h)':crownC)+'" stroke="'+(over?crownC:'none')+'" stroke-width=".6"/>'
+      if (over){ const t=(am-90)*Math.PI/180; svg+='<circle cx="'+(cx+(rCrown+10)*Math.cos(t)).toFixed(1)+'" cy="'+(cy+(rCrown+10)*Math.sin(t)).toFixed(1)+'" r="2.6" fill="'+crownC+'"/>' }
+    }
+    // etiquetas
+    const t=(am-90)*Math.PI/180
+    if (V==='detailed'){
+      const rl=rIn+(rMeta-rIn)*0.66, x=cx+rl*Math.cos(t), y=cy+rl*Math.sin(t), onFill = rFill>rl+4
+      const c = onFill ? (TH==='dark'?'#121212':'#F4F3F0') : txt
+      svg+='<text x="'+x.toFixed(1)+'" y="'+(y-2).toFixed(1)+'" text-anchor="middle" class="kw-v" fill="'+c+'">'+(d.series%1===0?d.series:(+d.series).toFixed(1))+'<tspan class="kw-vo" fill-opacity=".6">/'+d.objetivo+'</tspan></text>'+
+        '<text x="'+x.toFixed(1)+'" y="'+(y+10).toFixed(1)+'" text-anchor="middle" class="kw-l" fill="'+c+'">'+(typeof muscleNombre==='function'?muscleNombre(d.grupo):d.grupo).toUpperCase()+'</text>'
+    } else {
+      const rl=rCrown+22, x=cx+rl*Math.cos(t), y=cy+rl*Math.sin(t)
+      const anc = Math.abs(Math.cos(t))<.3 ? 'middle' : (Math.cos(t)>0?'start':'end')
+      svg+='<text x="'+x.toFixed(1)+'" y="'+(y+3).toFixed(1)+'" text-anchor="'+anc+'" class="kw-lc" fill="'+sub+'">'+(typeof muscleNombre==='function'?muscleNombre(d.grupo):d.grupo).toUpperCase()+'</text>'
+    }
+    svg+='</g>'
+  })
+  if (opts.center) svg+='<text x="'+cx+'" y="'+(cy+4)+'" text-anchor="middle" class="kw-cv" fill="'+txt+'">'+opts.center.v+'</text>'+
+    '<text x="'+cx+'" y="'+(cy+17)+'" text-anchor="middle" class="kw-cl" fill="'+sub+'">'+opts.center.l+'</text>'
+  return svg+'</svg>'
+}
+// Lectura en 2–3 s: más trabajados / aún falta / pasados
+function wheelResumen(ds){
+  const ex=ds.filter(d=>d.objetivo>0)
+  const top=[...ex].filter(d=>d.series>0).sort((a,b)=>(b.series/b.objetivo)-(a.series/a.objetivo)).slice(0,2)
+  const falta=ex.filter(d=>d.series<d.objetivo).sort((a,b)=>(a.series/a.objetivo)-(b.series/b.objetivo)).slice(0,3)
+  const over=ex.filter(d=>d.mav!=null&&d.series>d.mav)
+  const nm=g=>(typeof muscleNombre==='function'?muscleNombre(g):g).toLowerCase()
+  return { top:top.map(d=>nm(d.grupo)), falta:falta.map(d=>nm(d.grupo)), over:over.map(d=>nm(d.grupo)) }
+}
+
+// ── Datos del socio para la rueda: meta · techo · ejecutado (motor) · programado (sesiones de la semana)
+function pintarWheelPlan(){
+  const el=document.getElementById('pDetWheel'); if(!el) return
+  const wd=wheelDatosSocio(), rs=wheelResumen(wd)
+  el.innerHTML='<div class="kwCard__h"><small>ESTÍMULO MUSCULAR · ESTA SEMANA</small><b>Balance de la semana</b></div>'+
+    stimulusWheel(wd,{variant:'detailed',theme:'dark',size:340,center:{v:(S.sem.fortalecidos||0)+'/'+(S.sem.exigibles||0),l:'OBJETIVOS'},onTap:'wheelDetalle'})+
+    '<div class="kwLeg"><span><i style="background:#2A2B2F"></i>META</span><span><i style="background:linear-gradient(90deg,#8C9199,#fff)"></i>HECHO</span><span><i style="background:#E9EBEE;height:3px"></i>SOBRE LA META</span><span><i style="background:repeating-linear-gradient(45deg,#E9EBEE 0 2px,#121212 2px 4px);height:4px"></i>SOBRE EL LÍMITE</span></div>'+
+    '<div class="kwRes">'+(rs.top.length?'<div><small>MÁS TRABAJADOS</small><b>'+rs.top.join(', ')+'</b></div>':'')+(rs.falta.length?'<div><small>AÚN FALTA ESTÍMULO</small><b>'+rs.falta.join(', ')+'</b></div>':'')+'</div>'
+}
+function wheelDatosSocio(){
+  const prog={}
+  baseSem().forEach(s=>{ const a=aporteSesion(s); Object.keys(a).forEach(g=>prog[g]=(prog[g]||0)+a[g]) })
+  return (S.sem&&S.sem.musculos||[]).filter(m=>m.exigible).map(m=>({ grupo:m.grupo, series:m.series, objetivo:m.objetivo, mav:m.mav, prog:+(prog[m.grupo]||0).toFixed(1) }))
+}
+function wheelDetalle(g){
+  const d=wheelDatosSocio().find(x=>x.grupo===g); if(!d) return
+  const est=wheelEstado(d), hechas=new Set(S.registros.filter(esHecha).map(r=>r.sesion_numero))
+  const prox=baseSem().filter(s=>!hechas.has(s.numero)).find(s=>(aporteSesion(s)[g]||0)>0)
+  const f=v=>(v%1===0?v:(+v).toFixed(1))
+  document.getElementById('mWhBody').innerHTML=
+    '<div class="whH">'+muscleIcon(g,'standard',est[0]==='mM'?'done':null)+'<div><small>ESTÍMULO SEMANAL</small><b>'+muscleNombre(g)+'</b><span class="whE">'+(est[1]==='OBJETIVO CUMPLIDO'?'OBJETIVO CUMPLIDO ✓':est[1])+'</span></div></div>'+
+    '<div class="whG"><div><b>'+d.objetivo+'</b><small>META</small></div><div><b>'+f(d.prog)+'</b><small>PROGRAMADO</small></div><div><b>'+f(d.series)+'</b><small>HECHO</small></div>'+(d.mav!=null?'<div><b>'+d.mav+'</b><small>LÍMITE</small></div>':'')+'</div>'+
+    '<div class="whN">'+(prox?'PRÓXIMO ESTÍMULO · <b>'+prox.nombre+'</b>':(d.series>=d.objetivo?'Tu objetivo de esta semana ya está cumplido.':'Esta semana no quedan sesiones que lo trabajen.'))+'</div>'
+  document.getElementById('mWh').classList.add('vis')
+}
 // ═══════════ HOME SOCIO V2 · KOACH DESIGN SYSTEM V2 (piloto) ═══════════
 // Activación aislada: ?home=v2 (queda guardado) · ?home=v1 vuelve al Home actual. El Home v1 sigue calculándose
 // debajo: V2 consume EXACTAMENTE las mismas fuentes (S.sem, estadoSemana, mensajeHome, objetivosSesion, CTA de v1).
@@ -938,10 +1092,14 @@ function pintarHomeV2(){
    '<header class="k2-head">'+k2Label('KOACH FITNESS CLUB')+'<button class="k2-av" onclick="salir()" aria-label="Salir">'+(n?n[0]:'K')+'</button></header>'+
    '<section class="k2-hello"><h1>Hola, '+(n||'')+'.</h1><p>'+tonoPrograma().construir.replace('Hoy comenzamos a construir','Hoy seguimos construyendo')+'</p></section>'+
    document.getElementById('hMemAviso').innerHTML+
-   '<section class="k2-week" aria-label="Tu objetivo semanal"><div class="k2-week__ring">'+k2Ring(e.pct,132)+'<div class="k2-week__v"><b>'+e.pct+'<small>%</small></b></div></div>'+
-     '<div class="k2-week__t">'+k2Label('TU OBJETIVO SEMANAL')+'<div class="k2-week__e">'+etapaSemana(e.pct).charAt(0)+etapaSemana(e.pct).slice(1).toLowerCase()+'</div>'+
-     '<div class="k2-week__m">'+k2Metric(e.hechas+'<small> / '+e.total+'</small>','SESIONES')+k2Metric((sem.fortalecidos||0)+'<small> / '+(sem.exigibles||0)+'</small>','OBJETIVOS')+'</div>'+
-     '<div class="k2-week__c">'+(PROGRAMA_TXT())+semTxt+'</div></div></section>'+
+   (()=>{ const wd=wheelDatosSocio(), rs=wheelResumen(wd)
+     return '<section class="k2-wk" aria-label="Tu semana">'+
+     '<div class="k2-sec__h">'+k2Label('TRABAJO SEMANAL')+'<span class="k2-wk__e">'+etapaSemana(e.pct).charAt(0)+etapaSemana(e.pct).slice(1).toLowerCase()+'</span></div>'+
+     stimulusWheel(wd,{variant:'compact',theme:'light',size:300,center:{v:e.pct+'%',l:'OBJETIVO SEMANAL'},onTap:'wheelDetalle'})+
+     '<div class="k2-week__m k2-wk__m">'+k2Metric(e.hechas+'<small> / '+e.total+'</small>','SESIONES')+k2Metric((sem.fortalecidos||0)+'<small> / '+(sem.exigibles||0)+'</small>','OBJETIVOS')+'</div>'+
+     '<div class="kwRes">'+(rs.top.length?'<div><small>MÁS TRABAJADOS</small><b>'+rs.top.join(', ')+'</b></div>':'')+(rs.falta.length?'<div><small>AÚN FALTA ESTÍMULO</small><b>'+rs.falta.join(', ')+'</b></div>':'')+
+       (rs.over.length?'<div><small>SOBRE EL LÍMITE</small><b>'+rs.over.join(', ')+'</b></div>':'')+'</div>'+
+     '<div class="k2-week__c" style="text-align:center">'+(PROGRAMA_TXT())+semTxt+' · TOCA UN MÚSCULO PARA VER DETALLE</div></section>' })()+
    (ses?'<section class="k2-hero'+(K2.foto?' k2-hero--foto':'')+'" '+(K2.foto?'style="--foto:url('+K2.foto+')"':'')+'>'+
      '<div class="k2-hero__anat" aria-hidden="true">'+obj.prim.slice(0,3).map(g=>muscleIcon(g,'featured')).join('')+'</div>'+
      '<div class="k2-hero__c">'+k2Label(etiqueta)+'<h2>'+ses.nombre+'</h2>'+(cuando?'<div class="k2-hero__w">'+cuando+'</div>':'')+
@@ -950,7 +1108,7 @@ function pintarHomeV2(){
      '<button class="k2-cta" id="k2Cta" '+(cta.disabled?'disabled':'')+' onclick="document.getElementById(\'hCta\').click()"><span>'+ctaT+'</span><small>'+ctaS+'</small></button></div></section>':
      '<section class="k2-hero"><div class="k2-hero__c">'+k2Label('TU SEMANA')+'<h2>'+m.t+'</h2><button class="k2-cta" '+(cta.disabled?'disabled':'')+' onclick="document.getElementById(\'hCta\').click()"><span>'+ctaT+'</span><small>'+ctaS+'</small></button></div></section>')+
    '<section class="k2-sec">'+'<div class="k2-sec__h">'+k2Label('TU SEMANA')+'<button class="k2-link" onclick="tab(\'vPlan\')">VER PLAN COMPLETO →</button></div><ol class="k2-tl">'+tl+'</ol></section>'+
-   (mus?'<section class="k2-sec">'+'<div class="k2-sec__h">'+k2Label('TU PROGRESO')+'<button class="k2-link" onclick="tab(\'vAvances\')">VER TODOS →</button></div><div class="k2-mts">'+mus+'</div></section>':'')+
+
    (ins?'<section class="k2-ins"><b>'+ins[0]+'</b><p>'+ins[1]+'</p></section>':'')
   requestAnimationFrame(()=>requestAnimationFrame(()=>box.classList.add('k2-in')))
 }
@@ -2368,7 +2526,7 @@ function pintarPlan(){
       '<button class="pAct" onclick="verHist(\''+ult.id+'\')">VER SESIÓN →</button></div>'
   } else document.getElementById('pUltimo').innerHTML=''
   // detalle muscular bajo demanda (misma anatomía member)
-  if (document.getElementById('pDet').style.display!=='none') pintarFilasMusc('pDetRows')
+  if (document.getElementById('pDet').style.display!=='none') pintarWheelPlan()
   document.getElementById('pSub').textContent =
     `PROGRAMA ${S.proto.programa} · SEMANA ${S.asig.semana_actual||1} DE ${S.proto.ciclo_semanas||6} · CICLO ${S.asig.ciclo_actual||1}`.toUpperCase()
   const hechas = new Set(S.registros.filter(esHecha).map(r=>r.sesion_numero))
@@ -2439,7 +2597,7 @@ function togglePDet(){
   const abre=d.style.display==='none'
   d.style.display=abre?'block':'none'
   b.textContent=abre?'OCULTAR DETALLE SEMANAL ▴':'VER DETALLE SEMANAL ▾'
-  if (abre) pintarFilasMusc('pDetRows')
+  if (abre) pintarWheelPlan()
 }
 async function pintarCalendario(off){
   S._calOff = off||0
