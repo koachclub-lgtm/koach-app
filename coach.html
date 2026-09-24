@@ -468,7 +468,7 @@ small{color:var(--koach-text-secondary)}
 </div></div>
 
 <div class="vista" id="vSala">
-  <div class="hbar"><span class="hk" title="c8.5">KOACH</span><span class="rol" id="rolBadge" onclick="salir()">COACH</span></div>
+  <div class="hbar"><span class="hk" title="c8.6">KOACH</span><span class="rol" id="rolBadge" onclick="salir()">COACH</span></div>
   <button class="nuevo" onclick="toggleAlta()">+ NUEVO USUARIO · SOCIO O COACH</button>
   <button class="nuevo" style="background:rgba(255,255,255,.65);color:#121210;border:1.5px solid rgba(18,18,16,.15)" onclick="verBib()">📚 RUTINAS ESTÁNDAR · BIBLIOTECA</button>
   <div class="glass aform" id="fAlta" style="display:none">
@@ -787,6 +787,14 @@ function kdNormSesion(sesion){
       return { grupo:g, sinergistas:prof, cuenta_dosis:(ej.cuenta_dosis!==undefined?ej.cuenta_dosis:ej.cuentaDosis) }
     }) } }) }
 }
+// Dosis EJECUTADA: cada ejercicio aporta los sets realmente marcados (ronda legada = 1 set de cada ejercicio del bloque)
+function sesionEjecutada(ses, ejec){
+  const out=[]
+  ;(ses.bloques||[]).forEach(function(b){ (b.ejercicios||[]).forEach(function(e){
+    const n=(ejec.be[e.beId]||0)+(ejec.rondas[b.id]||0)
+    if (n>0) out.push({ sets:n, ejercicios:[e] }) }) })
+  return { bloques:out }
+}
 function aporteSesion(sesion, bc){
   if (bc === undefined) bc = null
   return KD.aporteSesionDOC3(kdNormSesion(sesion), bc).aporte
@@ -796,7 +804,9 @@ function calcularSemana(programa, registros, objetivos){
   const validos=registros.filter(function(r){return ESTADOS_OK.indexOf(r.estado)>-1})
   validos.forEach(function(r){
     const s=programa.sesiones.find(function(x){return x.numero===r.sesion_numero}); if(!s)return
-    const a=aporteSesion(s,r.bloques_completados==null?null:r.bloques_completados)
+    const a=(r.ejec && (Object.keys(r.ejec.be).length || Object.keys(r.ejec.rondas).length))
+      ? aporteSesion(sesionEjecutada(s, r.ejec), null)
+      : aporteSesion(s,r.bloques_completados==null?null:r.bloques_completados)
     Object.entries(a).forEach(function(pair){ if(pair[0] in acum)acum[pair[0]]+=pair[1] })})
   const musculos=Object.entries(objetivos).map(function(pair){
     const grupo=pair[0], o=pair[1]
@@ -939,8 +949,8 @@ async function loadSala(){
         C.prog[pid]={ sesiones:(rses.data||[]).filter(function(s){return s.protocolo_id===pid}).map(function(s){
           return { numero:s.numero, semana:(s.semana||1), id:s.id, nombre:nombreEN(s.objetivo)||('SESION '+s.numero),
             bloques:(rblo.data||[]).filter(function(b){return b.sesion_id===s.id}).map(function(b){
-              return {sets:b.sets, ejercicios:(b.bloque_ejercicios||[]).map(function(be){
-                return {grupo:be.ejercicios?be.ejercicios.grupo_muscular:null,
+              return {id:b.id, sets:b.sets, ejercicios:(b.bloque_ejercicios||[]).map(function(be){
+                return {beId:be.id, grupo:be.ejercicios?be.ejercicios.grupo_muscular:null,
                         sinergistas:(be.ejercicios&&be.ejercicios.sinergistas)||{}, cuenta_dosis:(be.ejercicios?be.ejercicios.cuenta_dosis:null)}
               }).filter(function(e){return e.grupo})} }) } }) } })
       const robj = robjP || {data:[]}
@@ -954,20 +964,31 @@ async function loadSala(){
     // Lanzadas en paralelo desde el inicio (no dependen de protocolos)
     const [rreg, rsolP, rhoyP, rdxP] = await Promise.all([
       sb.from('sesiones_registro').select('*').in('socio_id',ids).gte('fecha',lunesISO),
-      sb.from('solicitudes').select('id,socio_id,tipo,detalle,created_at').eq('estado','pendiente').order('created_at',{ascending:false}).limit(20).then(function(r){return r}, function(){return {data:[]}}),
+      sb.from('solicitudes').select('id,socio_id,tipo,detalle,created_at,sesion_protocolo_id').eq('estado','pendiente').order('created_at',{ascending:false}).limit(20).then(function(r){return r}, function(){return {data:[]}}),
       sb.from('sesiones_registro').select('id,socio_id,sesion_protocolo_id,validada_at').eq('fecha',hoyISO()).in('socio_id',ids).then(function(r){return r}, function(){return {data:[]}}),
       sb.from('designaciones_extra').select('id,socio_id,sesion_protocolo_id,estado,motivo,created_at').in('socio_id',ids).neq('estado','retirada').then(function(r){return r}, function(){return {data:[]}})
     ])
     if(rreg.error) toast('Registros: '+rreg.error.message)
     ids.forEach(function(id){C.regs[id]=[]})
     ;(rreg.data||[]).forEach(function(r){ (C.regs[r.socio_id]=C.regs[r.socio_id]||[]).push(r) })
+    // c8.6 · sets realmente ejecutados (misma fuente que la app del socio → misma dosis)
+    const EJ={}
+    try{
+      const rids=(rreg.data||[]).filter(function(r){return r.estado==='completada'}).map(function(r){return r.id})
+      if (rids.length){
+        const rsr = await sb.from('set_registros').select('registro_id,bloque_id,bloque_ejercicio_id,completado').in('registro_id',rids)
+        ;(rsr.data||[]).forEach(function(x){ if(!x.completado) return; const o=EJ[x.registro_id]=EJ[x.registro_id]||{be:{},rondas:{}}
+          if (x.bloque_ejercicio_id) o.be[x.bloque_ejercicio_id]=(o.be[x.bloque_ejercicio_id]||0)+1
+          else if (x.bloque_id) o.rondas[x.bloque_id]=(o.rondas[x.bloque_id]||0)+1 })
+      }
+    }catch(_e){}
     C.socios.forEach(function(s){
       const a=C.asig[s.id]
       if(!a||!C.prog[a.protocolo_id]||!Object.keys(C.obj[a.protocolo_id]||{}).length){ C.sems[s.id]=null; return }
       const prog=C.prog[a.protocolo_id]
       const numPorId={}; prog.sesiones.forEach(function(x){numPorId[x.id]=x.numero})
       const rs2=(C.regs[s.id]||[]).map(function(r){
-        return {sesion_numero:numPorId[r.sesion_protocolo_id],estado:r.estado,fecha:r.fecha,
+        return {sesion_numero:numPorId[r.sesion_protocolo_id],estado:r.estado,fecha:r.fecha,ejec:EJ[r.id]||null,
           bloques_completados:r.bloques_completados==null?null:r.bloques_completados}
       }).filter(function(r){return r.sesion_numero})
       C.sems[s.id]=calcularSemana(prog, rs2, C.obj[a.protocolo_id])
@@ -1070,10 +1091,12 @@ function verFicha(id){
   const sols=C.sols.filter(function(x){return x.socio_id===id})
   document.getElementById('fSolN').textContent=sols.length+' PENDIENTE'+(sols.length===1?'':'S')
   document.getElementById('fSols').innerHTML = sols.length?sols.map(function(x){
-    return '<div class="fila"><div><div class="fn">'+(x.tipo==='extra'?'Sesión extra':'Postergar '+(x.detalle||''))+'</div>'+
-    '<div class="fm">PENDIENTE</div></div>'+
-    '<button class="bbtn ink" style="margin-left:auto" onclick="'+(x.tipo==='extra'?('atenderExtra(\''+x.id+'\',\''+id+'\')'):('atender(\''+x.id+'\')'))+'">'+
-    (x.tipo==='extra'?'DESIGNAR ★':'ATENDER ✓')+'</button></div>'
+    const TIT={extra:'Sesión extra', postergar:'Postergar '+(x.detalle||''), adelantar:'Adelantar '+(x.detalle||''), preview:'Vista previa '+(x.detalle||'')}
+    const accion = x.tipo==='extra' ? '<button class="bbtn ink" style="margin-left:auto" onclick="atenderExtra(\''+x.id+'\',\''+id+'\')">DESIGNAR ★</button>'
+      : (x.tipo==='adelantar'||x.tipo==='preview') ? '<button class="bbtn ink" style="margin-left:auto" onclick="resolverSolicitud(\''+x.id+'\',\'aprobada\')">APROBAR ✓</button><button class="bbtn" style="margin-left:6px" onclick="resolverSolicitud(\''+x.id+'\',\'rechazada\')">RECHAZAR</button>'
+      : '<button class="bbtn ink" style="margin-left:auto" onclick="atender(\''+x.id+'\')">ATENDER ✓</button>'
+    return '<div class="fila"><div><div class="fn">'+(TIT[x.tipo]||x.tipo)+'</div>'+
+    '<div class="fm">PENDIENTE</div></div>'+accion+'</div>'
   }).join('') : '<div class="vacio">Sin solicitudes pendientes</div>'
   const DIAS3=['LUN','MAR','MIE','JUE','VIE','SAB','DOM']
   const regs=(C.regs[id]||[]).slice().sort(function(a2,b2){return a2.fecha<b2.fecha?1:-1})
@@ -2692,19 +2715,19 @@ async function cargarSolicitudes(socioId){
   try{
     const { data } = await sb.from('solicitudes')
       .select('id, tipo, detalle, estado, created_at, sesion_protocolo_id')
-      .eq('socio_id', socioId).eq('estado','PENDIENTE').order('created_at')
+      .eq('socio_id', socioId).eq('estado','pendiente').order('created_at')
     const card=document.getElementById('cReqs')
     if (!card) return
     if (!data || !data.length){ card.style.display='none'; return }
     card.style.display='block'
     document.getElementById('pReqN').textContent = data.length+' PENDIENTE'+(data.length>1?'S':'')
-    const LBL={ADELANTAR:'SOLICITA ADELANTAR',PREVIEW:'SOLICITA VISTA PREVIA',extra:'PIDE SESIÓN EXTRA',postergar:'NO PUEDE UNA SESIÓN'}
+    const LBL={adelantar:'SOLICITA ADELANTAR',preview:'SOLICITA VISTA PREVIA',extra:'PIDE SESIÓN EXTRA',postergar:'NO PUEDE UNA SESIÓN'}
     document.getElementById('pReqs').innerHTML = data.map(function(q){
       return '<div style="display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid rgba(18,18,16,.06)">'+
         '<div style="flex:1"><div style="font-size:9px;font-weight:900;letter-spacing:.08em">'+(LBL[q.tipo]||q.tipo.toUpperCase())+'</div>'+
         '<div style="font-size:8px;font-weight:800;color:var(--koach-text-secondary)">'+(q.detalle||'')+'</div></div>'+
-        '<button class="pAct2 ok" onclick="resolverSolicitud(\''+q.id+'\',\'APROBADA\')">APROBAR</button>'+
-        '<button class="pAct2" onclick="resolverSolicitud(\''+q.id+'\',\'RECHAZADA\')">RECHAZAR</button></div>'
+        '<button class="pAct2 ok" onclick="resolverSolicitud(\''+q.id+'\',\'aprobada\')">APROBAR</button>'+
+        '<button class="pAct2" onclick="resolverSolicitud(\''+q.id+'\',\'rechazada\')">RECHAZAR</button></div>'
     }).join('')
   }catch(_e){}
 }
@@ -2712,8 +2735,9 @@ async function resolverSolicitud(id, estado){
   syncEnvio()
   const r = await sb.from('solicitudes').update({estado:estado, revisado_at:new Date().toISOString()}).eq('id',id)
   if (r.error){ syncErr(r.error.message); return }
-  syncOk(); toast(estado==='APROBADA'?'Solicitud aprobada — el socio ya lo ve.':'Solicitud rechazada.')
-  if (typeof F!=='undefined' && F && F.id) cargarSolicitudes(F.id)
+  syncOk(); toast(estado==='aprobada'?'Solicitud aprobada — el socio ya lo ve.':'Solicitud rechazada.')
+  C.sols=(C.sols||[]).filter(function(x){return x.id!==id})
+  if (typeof F!=='undefined' && F && F.id){ cargarSolicitudes(F.id); if(document.getElementById('vFicha').classList.contains('on')) verFicha(F.id) }
 }
 // ═══════════ MOTOR DE CONSTRUCCIÓN · c8.0 ═══════════
 // Un solo acceso: MACRO (ciclo) → MESO (semana) → MICRO (sesión).
