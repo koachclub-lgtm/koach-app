@@ -641,6 +641,40 @@ html,button,input,.pvS,.chk,.setChip{touch-action:manipulation}
 .whG small{font-family:var(--font-mono);font-weight:500;font-size:8.5px;letter-spacing:.1em;color:#8E8D88}
 .whN{font-family:var(--font-display);font-size:15px;color:#5E5D59}
 .whN b{color:#121212}
+/* ═══ KOACH SESSION PILL (DS V2) ═══ */
+.sp{--sp-bar:60px;--sp-d:78px;--sp-bg:#0F0F0F;
+  position:relative;display:flex;align-items:center;width:100%;min-height:var(--sp-d);margin:0 0 12px;padding:0;border:none;background:none;text-align:left;cursor:pointer;
+  -webkit-tap-highlight-color:transparent;transition:transform .14s cubic-bezier(.2,.7,.2,1);font:inherit;color:#fff}
+.sp:active{transform:scale(.985)}
+.sp__img{position:relative;z-index:2;flex:0 0 var(--sp-d);height:var(--sp-d);border-radius:50%;background:var(--sp-bg);padding:5px;box-sizing:border-box;
+  box-shadow:0 0 0 1px rgba(255,255,255,.06) inset,0 6px 18px rgba(15,15,15,.14)}
+.sp__img img{position:relative;z-index:1;width:100%;height:100%;border-radius:50%;object-fit:cover;display:block;filter:grayscale(1) contrast(1.05)}
+.sp__mono{position:absolute;inset:5px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:#1C1C1E;
+  font-family:var(--font-display);font-style:normal;font-weight:700;font-size:20px;letter-spacing:.02em;color:#9CA3AF}
+.sp__ok{position:absolute;z-index:3;right:2px;bottom:4px;width:20px;height:20px;border-radius:50%;background:#F4F3F0;color:#0F0F0F;font-size:11px;display:flex;align-items:center;justify-content:center;box-shadow:0 0 0 2px var(--sp-bg)}
+/* cuerpo que nace del círculo: solapa el círculo + filetes cóncavos arriba/abajo (unión orgánica) */
+.sp__body{position:relative;z-index:1;flex:1;min-width:0;height:var(--sp-bar);margin-left:-9px;padding:0 60px 0 22px;
+  background:var(--sp-bg);border-radius:0 calc(var(--sp-bar)/2) calc(var(--sp-bar)/2) 0;display:flex;flex-direction:column;justify-content:center;
+  box-shadow:0 1px 0 rgba(255,255,255,.07) inset;filter:drop-shadow(0 8px 14px rgba(15,15,15,.10))}
+.sp__neck{position:absolute;left:0;top:50%;transform:translateY(-50%);z-index:1;fill:var(--sp-bg);pointer-events:none}
+.sp__t{font-family:var(--font-display);font-weight:700;font-size:clamp(16px,5vw,20px);letter-spacing:.01em;line-height:1.05;text-transform:uppercase;color:#FFFFFF;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;background:linear-gradient(180deg,#FFFFFF 0%,#D9DCE0 100%);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+.sp__s{display:flex;align-items:center;gap:6px;margin-top:5px;font-family:var(--font-mono);font-weight:500;font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:#9CA3AF;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sp__dot{width:6px;height:6px;border-radius:50%;background:#F4F3F0;flex-shrink:0;box-shadow:0 0 0 3px rgba(244,243,240,.18)}
+.sp__go{position:absolute;z-index:2;right:9px;top:50%;transform:translateY(-50%);width:42px;height:42px;border-radius:50%;display:flex;align-items:center;justify-content:center;
+  background:radial-gradient(circle at 35% 30%,#2E2F33 0%,#18181A 70%);box-shadow:0 0 0 1px rgba(255,255,255,.16) inset;color:#fff}
+/* estados: mismo componente, cambia contraste/acción */
+.sp--completed .sp__img img{filter:grayscale(1) brightness(.72)}
+.sp--history .sp__img img{filter:grayscale(1) brightness(.6)}
+.sp--history .sp__t{-webkit-text-fill-color:#D4D6DA}
+.sp--locked,.sp--future{opacity:.5;cursor:default}
+.sp--pending{opacity:.72}
+div.sp{cursor:default}
+div.sp:active{transform:none}
+.spNote{margin:-6px 4px 14px calc(78px * .72 + 16px);font-family:var(--font-mono);font-weight:500;font-size:9.5px;letter-spacing:.08em;color:#6E6D68;line-height:1.5}
+.spActs{display:flex;flex-wrap:wrap;gap:8px;margin:-4px 0 14px calc(78px * .72 + 16px)}
+@media (max-width:350px){ .sp__body{padding-right:54px;padding-left:16px} .sp__go{width:38px;height:38px} .sp__s{letter-spacing:.1em;font-size:9.5px} .spNote,.spActs{margin-left:60px} }
+.k2-pills{margin-top:4px}
 </style>
 </head>
 <body>
@@ -695,7 +729,7 @@ html,button,input,.pvS,.chk,.setChip{touch-action:manipulation}
   <!-- ══ HOME ══ -->
   <div class="vista conTab" id="vHome">
     <div id="k2Home" aria-live="polite"></div>
-    <div class="hbar"><span class="hk" title="v8.4">KOACH</span><div class="hav" id="hAv" onclick="salir()">K</div></div>
+    <div class="hbar"><span class="hk" title="v8.5">KOACH</span><div class="hav" id="hAv" onclick="salir()">K</div></div>
     <div class="ctx"><div class="fecha" id="hFecha">—</div><div class="prog" id="hProg">—</div></div>
     <div class="anillo">
       <svg width="180" height="180" viewBox="0 0 180 180">
@@ -1030,6 +1064,44 @@ function wheelDetalle(g){
     '<div class="whN">'+(prox?'PRÓXIMO ESTÍMULO · <b>'+prox.nombre+'</b>':(d.series>=d.objetivo?'Tu objetivo de esta semana ya está cumplido.':'Esta semana no quedan sesiones que lo trabajen.'))+'</div>'
   document.getElementById('mWh').classList.add('vis')
 }
+// ═══════════ KOACH SESSION PILL ═══════════
+// Lenguaje visual exclusivo de SESIONES: qué sesión es · dónde está en la secuencia · puedo entrar.
+// El pill solo IDENTIFICA y NAVEGA: no calcula estados ni decide acceso (eso lo entregan resolverCap/ctxDe/estadoSemana).
+const SESSION_VISUAL = {          // registro central de fotografías (B/N, recorte circular por CSS)
+  upper:     { male:'/img/session/session-upper-male.webp',     female:'/img/session/session-upper-female.webp',     neutral:'/img/session/session-upper-male.webp' },
+  lower:     { male:'/img/session/session-lower-male.webp',     female:'/img/session/session-lower-female.webp' },
+  total:     { male:'/img/session/session-total-male.webp',     female:'/img/session/session-total-female.webp' },
+  metabolic: { male:'/img/session/session-metabolic-male.webp', female:'/img/session/session-metabolic-female.webp', neutral:'/img/session/session-metabolic-male.webp' }
+}
+function fechaCorta(iso){ const M=['ENE','FEB','MAR','ABR','MAY','JUN','JUL','AGO','SEP','OCT','NOV','DIC']; const d=new Date(String(iso).slice(0,10)+'T12:00:00'); return d.getDate()+' '+M[d.getMonth()] }
+function sessionTipo(nombre){
+  const n=String(nombre||'').toUpperCase()
+  if (/METAB|BURN|CARDIO|HIIT|CONDIC|RESIST/.test(n)) return 'metabolic'
+  if (/TOTAL|FULL|FUNCIONAL/.test(n)) return 'total'
+  if (/LOWER|GL[UÚ]TE|PIERNA|LEG|INFERIOR|ISQUIO|CU[AÁ]DRI/.test(n)) return 'lower'
+  if (/UPPER|ARMS|BRAZO|PUSH|PULL|PECHO|ESPALDA|HOMBRO|SUPERIOR|TORSO/.test(n)) return 'upper'
+  return null
+}
+function sessionVariante(){ const x=String((S.proto&&S.proto.sexo)||(S.perfil&&S.perfil.sexo)||'').toLowerCase()
+  return /muj|fem|^f$/.test(x)?'female':/homb|masc|^m$/.test(x)?'male':'neutral' }
+function sessionImagen(nombre){ const t=sessionTipo(nombre); if(!t) return null
+  const v=SESSION_VISUAL[t]; return v[sessionVariante()]||v.neutral||null }
+// o: { nombre, sub, estado:'available'|'active'|'completed'|'locked'|'pending'|'future', onClick, variant:'default'|'history' }
+function sessionPill(o){
+  const img=sessionImagen(o.nombre), off=['locked','future','pending'].includes(o.estado) && !o.onClick
+  const mono=String(o.nombre||'K').replace(/[^A-ZÁÉÍÓÚÑ0-9 ]/gi,'').split(' ').filter(Boolean).map(w=>w[0]).join('').slice(0,2)
+  const ico = o.estado==='locked'||(off&&o.estado!=='pending')
+    ? '<svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M8 11V8a4 4 0 0 1 8 0v3" fill="none" stroke="currentColor" stroke-width="1.8"/></svg>'
+    : '<svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M5 12h13M13 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>'
+  const tag = off ? 'div' : 'button'
+  return '<'+tag+' class="sp sp--'+(o.estado||'available')+(o.variant==='history'?' sp--history':'')+'"'+(off?' aria-disabled="true"':' type="button" onclick="'+o.onClick+'"')+
+    ' aria-label="'+String(o.nombre).replace(/"/g,'')+(o.sub?', '+String(o.sub).replace(/"/g,'').toLowerCase():'')+'">'+
+    '<svg class="sp__neck" viewBox="0 0 70 78" width="70" height="78" aria-hidden="true"><path d="M61.53 7.16 A10 10 0 0 0 67.3 9 L70 9 L70 69 L67.3 69 A10 10 0 0 0 61.53 70.84 A39 39 0 0 0 61.53 7.16 Z"/></svg>'+
+    '<span class="sp__img">'+(img?'<img src="'+img+'" alt="" loading="lazy" decoding="async" onerror="this.remove()">':'')+'<i class="sp__mono">'+mono+'</i>'+
+      (o.estado==='completed'?'<b class="sp__ok" aria-hidden="true">✓</b>':'')+'</span>'+
+    '<span class="sp__body"><span class="sp__t">'+o.nombre+'</span>'+(o.sub?'<span class="sp__s">'+(o.estado==='active'?'<i class="sp__dot"></i>':'')+o.sub+'</span>':'')+'</span>'+
+    '<span class="sp__go">'+ico+'</span></'+tag+'>'
+}
 // ═══════════ HOME SOCIO V2 · KOACH DESIGN SYSTEM V2 (piloto) ═══════════
 // Activación aislada: ?home=v2 (queda guardado) · ?home=v1 vuelve al Home actual. El Home v1 sigue calculándose
 // debajo: V2 consume EXACTAMENTE las mismas fuentes (S.sem, estadoSemana, mensajeHome, objetivosSesion, CTA de v1).
@@ -1072,8 +1144,13 @@ function pintarHomeV2(){
   const proy = (!e.entrenoHoy && !sesEC && e.prox && !e.prox._extra) ? proyeccionSesion(sesCompleta(e.prox)) : null
   // Timeline de la semana (orden real del plan)
   const hechas=new Set(S.registros.filter(esHecha).map(r=>r.sesion_numero))
-  const tl=e.bs.map(s=>{ const st = hechas.has(s.numero) ? 'COMPLETADA' : (e.prox && s.numero===e.prox.numero) ? 'PRÓXIMA' : 'PENDIENTE'
-    return '<li class="k2-tl__i k2-tl__i--'+(st==='COMPLETADA'?'done':st==='PRÓXIMA'?'next':'pend')+'"><span class="k2-tl__dot"></span><span class="k2-tl__n">'+s.nombre+'</span>'+k2Pill(st)+'</li>' }).join('')
+  const tl=e.bs.map((s,i)=>{ const reg=S.registros.find(r=>r.sesion_numero===s.numero && esHecha(r))
+    const esProx = e.prox && s.numero===e.prox.numero && !e.completa
+    const esEC = sesEC && sesEC.id===s.id
+    const est = reg ? 'completed' : esEC ? 'active' : esProx ? 'available' : 'locked'
+    const sub = 'SESIÓN '+(i+1)+' DE '+e.total+(reg?'':esEC?' · EN CURSO':esProx?(e.entrenoHoy?' · MAÑANA':' · PRÓXIMA'):'')
+    const on = reg ? "verHist('"+reg.id+"')" : (esEC||esProx) && !e.entrenoHoy ? "abrirSesion()" : null
+    return sessionPill({nombre:s.nombre, sub, estado:est, onClick:on}) }).join('')
   // Grupos prioritarios (máx 5): objetivos de la sesión protagonista → en progreso → resto; orden estable anatómico
   const ms=(sem.musculos||[]).filter(x=>x.exigible)
   const pri=[...obj.prim.map(g=>ms.find(x=>x.grupo===g)).filter(Boolean),
@@ -1107,7 +1184,7 @@ function pintarHomeV2(){
      (proy!=null && proy>e.pct?'<p class="k2-hero__p">Al completarla avanzarás al <b>'+proy+'%</b> de tu objetivo semanal.</p>':'')+
      '<button class="k2-cta" id="k2Cta" '+(cta.disabled?'disabled':'')+' onclick="document.getElementById(\'hCta\').click()"><span>'+ctaT+'</span><small>'+ctaS+'</small></button></div></section>':
      '<section class="k2-hero"><div class="k2-hero__c">'+k2Label('TU SEMANA')+'<h2>'+m.t+'</h2><button class="k2-cta" '+(cta.disabled?'disabled':'')+' onclick="document.getElementById(\'hCta\').click()"><span>'+ctaT+'</span><small>'+ctaS+'</small></button></div></section>')+
-   '<section class="k2-sec">'+'<div class="k2-sec__h">'+k2Label('TU SEMANA')+'<button class="k2-link" onclick="tab(\'vPlan\')">VER PLAN COMPLETO →</button></div><ol class="k2-tl">'+tl+'</ol></section>'+
+   '<section class="k2-sec">'+'<div class="k2-sec__h">'+k2Label('TU SEMANA')+'<button class="k2-link" onclick="tab(\'vPlan\')">VER PLAN COMPLETO →</button></div><div class="k2-pills">'+tl+'</div></section>'+
 
    (ins?'<section class="k2-ins"><b>'+ins[0]+'</b><p>'+ins[1]+'</p></section>':'')
   requestAnimationFrame(()=>requestAnimationFrame(()=>box.classList.add('k2-in')))
@@ -2521,9 +2598,7 @@ function pintarPlan(){
     const nomU=(S.programa.sesiones.find(x=>x.numero===ult.sesion_numero)||{}).nombre||'SESIÓN'
     document.getElementById('pUltimo').innerHTML =
       '<div style="font-size:8px;font-weight:900;letter-spacing:.18em;color:#8B8A85;margin:2px 0 8px">LO ÚLTIMO</div>'+
-      '<div class="glass pcard hecha"><div class="pnum">✓</div>'+
-      '<div><div class="pn2">'+nomU+'</div><div class="pm2">'+ult.fecha+' · COMPLETADA</div></div>'+
-      '<button class="pAct" onclick="verHist(\''+ult.id+'\')">VER SESIÓN →</button></div>'
+      sessionPill({nombre:nomU, sub:fechaCorta(ult.fecha)+' · COMPLETADA', estado:'completed', variant:'history', onClick:"verHist('"+ult.id+"')"})
   } else document.getElementById('pUltimo').innerHTML=''
   // detalle muscular bajo demanda (misma anatomía member)
   if (document.getElementById('pDet').style.display!=='none') pintarWheelPlan()
@@ -2572,11 +2647,20 @@ function pintarPlan(){
       acciones = btns.join(' ')
     }
     const abrible = prox
-    return `<div class="glass pcard ${ctx.hecha?'hecha':(cls==='prox'?'prox':'lock')}" ${abrible?'onclick="tab(\'vHome\');abrirSesion()"':''} style="${abrible?'cursor:pointer':''}">
-      <div class="pnum">${icon}</div>
-      <div><div class="pn2">${s.nombre}</div><div class="pm2">${grupos}${extra}</div></div>
-      <span class="pest ${cls}">${est}</span></div>` +
-      (acciones?`<div class="pActRow">${acciones}</div>`:'') +
+    // SESSION PILL: identifica y navega. La acción principal es el propio pill; el resto va debajo.
+    const _pos=posSem(s), _tot=baseSem().length
+    const pEst = ctx.hecha ? 'completed' : ctx.enCurso ? 'active' : prox ? 'available' : cap.can_start ? 'available' : cap.request_pending ? 'pending' : 'locked'
+    const pOn = ctx.hecha ? (cap.can_open_history?"verHist('"+ctx.regId+"')":null)
+      : ctx.enCurso ? 'abrirSesion('+s.numero+')'
+      : prox ? "tab('vHome');abrirSesion()"
+      : cap.can_start ? 'abrirSesion('+s.numero+')'
+      : cap.can_open_preview ? 'verPreview('+s.numero+')' : null
+    const pLbl = {completed:'', active:'EN CURSO', pending:'SOLICITADA', locked:''}[pEst] || (cap.can_start&&!prox?'ADELANTO APROBADO':(est.indexOf('COORDINANDO')>-1?'COORDINANDO':'PRÓXIMA'))
+    const pSub = 'SESIÓN '+_pos+' DE '+_tot+(pLbl?' · '+pLbl:'')+(ctx.hecha?extra:'')
+    const accSec = acciones.replace(/<button class="pAct" onclick="event.stopPropagation\(\);(verHist|abrirSesion|verPreview)[^<]*<\/button>/g,'')
+    return sessionPill({nombre:s.nombre, sub:pSub, estado:pEst, onClick:pOn}) +
+      ((!ctx.hecha && (grupos||extra))?`<div class="spNote">${grupos}${ctx.hecha?'':extra}</div>`:'') +
+      (accSec.trim()?`<div class="spActs">${accSec}</div>`:'') +
       (prox && !(S._solPost||[]).includes(s.id) && !(S._solPost||[]).includes(s.nombre) ?
       `<div style="text-align:right;margin:-4px 4px 10px"><button onclick="event.stopPropagation();k2Postergar('${(s.nombre||'').replace(/'/g,'')}','${s.id}')"
         style="background:none;border:none;font-size:8px;letter-spacing:.1em;color:var(--suave);font-weight:900;
@@ -2586,9 +2670,7 @@ function pintarPlan(){
   const nextSes=S.programa.sesiones.filter(s=>((s.semana||1)===wAct+1))
   document.getElementById('pNextSem').innerHTML = nextSes.length
     ? '<div class="uK" style="margin:18px 2px 10px">SEM '+(wAct+1)+(cicloSem(wAct+1)?' · '+cicloSem(wAct+1).rango:'')+' · PRÓXIMA</div>'+
-      nextSes.map((s,ix)=>'<div class="glass pcard lock" style="opacity:.75"><div class="pnum">'+(ix+1)+'</div>'+
-        '<div><div class="pn2">'+s.nombre+'</div><div class="pm2">TU COACH LA ACTIVA AL CERRAR ESTA SEMANA</div></div>'+
-        '<span class="pest lock">PRÓXIMAMENTE</span></div>').join('')
+      nextSes.map((s,ix)=>sessionPill({nombre:s.nombre, sub:'SESIÓN '+(ix+1)+' DE '+nextSes.length+' · SEM '+(wAct+1), estado:'future', onClick:null})).join('')
     : ''
 }
 
@@ -2769,9 +2851,7 @@ async function loadAvances(){
       const fecha = `${DIAS3[(d.getDay()+6)%7]} ${d.getDate()}`
       const gan = x.musculos_sumados?.ganados
       const der = x.estado==='incompleta' ? 'PARCIAL' : (gan!=null?('+'+gan):'✓')
-      return `<div class="pr" onclick="verHist(\'${x.id}\')" style="cursor:pointer"><div><div class="prn">${nomSes[x.sesion_protocolo_id]||'SESIÓN'}</div>
-        <div class="prm">${fecha} · SUMADA</div></div>
-        <div class="prk">${der}</div></div>`
+      return sessionPill({nombre:nomSes[x.sesion_protocolo_id]||'SESIÓN', sub:fechaCorta(x.fecha)+' · COMPLETADA', estado:'completed', variant:'history', onClick:"verHist('"+x.id+"')"})
     }).join('') : '<div class="vacio">Tus sesiones realizadas aparecen aquí.<br><b>A levantar.</b></div>'
   }catch(_){ document.getElementById('aHist').innerHTML='<div class="vacio">Sin sesiones aún.</div>' }
   try{
