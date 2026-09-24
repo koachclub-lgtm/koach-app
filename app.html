@@ -444,7 +444,7 @@ html,button,input,.pvS,.chk,.setChip{touch-action:manipulation}
 
   <!-- ══ HOME ══ -->
   <div class="vista conTab" id="vHome">
-    <div class="hbar"><span class="hk" title="v7.7">KOACH</span><div class="hav" id="hAv" onclick="salir()">K</div></div>
+    <div class="hbar"><span class="hk" title="v7.8">KOACH</span><div class="hav" id="hAv" onclick="salir()">K</div></div>
     <div class="ctx"><div class="fecha" id="hFecha">—</div><div class="prog" id="hProg">—</div></div>
     <div class="anillo">
       <svg width="180" height="180" viewBox="0 0 180 180">
@@ -1869,7 +1869,7 @@ function pintarCicloSocio(){
       (ses.length?'<i>'+ses.map(s=>'<u class="'+(S.hechasCiclo&&S.hechasCiclo[s.id]?'on':'')+'"></u>').join('')+'</i>':'')+'</div>')
   }
   el.innerHTML='<div class="uCard">'+
-    '<div class="uK">TU CICLO · '+((S.proto.programa||'')+' '+(S.proto.nivel||'')).toUpperCase()+'</div>'+
+    '<div class="uK">TU CICLO · '+(S.proto.programa||'').toUpperCase()+'</div>'+
     '<div class="uH">Semana '+vig+' de '+N+'</div>'+
     '<div class="uS">CICLO '+(S.asig.ciclo_actual||1)+(c0&&cN?' · '+_fmtC(c0.desde)+' — '+_fmtC(cN.hasta):'')+'</div>'+
     '<div class="uStrip">'+tiles.join('')+'</div></div>'
@@ -1904,7 +1904,7 @@ function pintarPlan(){
   // detalle muscular bajo demanda (misma anatomía member)
   if (document.getElementById('pDet').style.display!=='none') pintarFilasMusc('pDetRows')
   document.getElementById('pSub').textContent =
-    `${S.proto.programa} · ${S.proto.nivel} · SEMANA ${S.asig.semana_actual||1} DE ${S.proto.ciclo_semanas||6} · CICLO ${S.asig.ciclo_actual||1}`.toUpperCase()
+    `PROGRAMA ${S.proto.programa} · SEMANA ${S.asig.semana_actual||1} DE ${S.proto.ciclo_semanas||6} · CICLO ${S.asig.ciclo_actual||1}`.toUpperCase()
   const hechas = new Set(S.registros.filter(r=>r.estado!=='incompleta').map(r=>r.sesion_numero))
   if (document.getElementById('pProg')) document.getElementById('pProg').innerHTML =
     `Esta semana llevas el <b>${S.sem.pct_dosis}%</b> de tu dosis · <b>${S.sem.fortalecidos} de ${S.sem.exigibles} músculos</b> fortalecidos.`
@@ -2184,7 +2184,7 @@ function pintarPerfil(){
   const MES3 = ['ENE','FEB','MAR','ABR','MAY','JUN','JUL','AGO','SEP','OCT','NOV','DIC']
   const desdeTxt = desde ? ` · SOCIO DESDE ${MES3[desde.getMonth()]} ${desde.getFullYear()}` : ''
   document.getElementById('pfProg').textContent = (S.proto
-    ? `${S.proto.programa} · ${S.proto.nivel}` : 'SOCIO KOACH').toUpperCase() + desdeTxt
+    ? `PROGRAMA ${S.proto.programa}` : 'SOCIO KOACH').toUpperCase() + desdeTxt
   document.getElementById('dDatos').innerHTML =
     `<b>Email:</b> ${p.email||'—'}<br><b>WhatsApp:</b> ${p.telefono||'—'}<br>Para actualizar tus datos, habla con recepción.`
 }
