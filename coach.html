@@ -427,6 +427,28 @@ small{color:var(--koach-text-secondary)}
 .adF input,.adF select,.adF textarea{width:100%;box-sizing:border-box;font-family:var(--font-display);font-size:16px;padding:11px 12px;border:1px solid var(--koach-border-strong);border-radius:10px;background:var(--koach-control);color:var(--koach-ink)}
 .adF .adRow2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
 .adNote{font-family:var(--font-mono);font-weight:500;font-size:9.5px;color:var(--koach-text-secondary);margin-top:6px;line-height:1.5}
+/* ═══ KOACH MUSCLE STIMULUS WHEEL ═══ */
+.kw{display:block;margin:0 auto;max-width:100%;height:auto;overflow:visible}
+.kw-fill{transform-origin:150px 150px;animation:kwIn .7s cubic-bezier(.2,.7,.2,1) both;animation-delay:var(--d)}
+@keyframes kwIn{from{transform:scale(.55);opacity:0}to{transform:none;opacity:1}}
+.kw-seg{outline:none;transition:opacity .15s}
+.kw-seg:focus-visible path:first-child,.kw-seg:hover path:first-child{filter:brightness(.94)}
+.kw--dark .kw-seg:hover path:first-child{filter:brightness(1.25)}
+.kw-v{font-family:var(--font-display);font-weight:700;font-size:15px;letter-spacing:-.02em}
+.kw-vo{font-size:10px;font-weight:400}
+.kw-l{font-family:var(--font-mono);font-weight:500;font-size:6.6px;letter-spacing:.08em}
+.kw-lc{font-family:var(--font-mono);font-weight:500;font-size:9.5px;letter-spacing:.1em}
+.kw-cv{font-family:var(--font-display);font-weight:700;font-size:24px;letter-spacing:-.03em}
+.kw-cl{font-family:var(--font-mono);font-weight:500;font-size:6.5px;letter-spacing:.14em}
+.kwRes{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:10px}
+.kwRes div small{display:block;font-family:var(--font-mono);font-weight:500;font-size:9px;letter-spacing:.12em;color:#8E8D88}
+.kwRes div b{font-family:var(--font-display);font-weight:700;font-size:15px;color:inherit;text-transform:capitalize}
+.kwLeg{display:flex;flex-wrap:wrap;gap:10px 16px;justify-content:center;margin-top:12px;font-family:var(--font-mono);font-weight:500;font-size:9px;letter-spacing:.08em;color:#8E8D88}
+.kwLeg span{display:inline-flex;align-items:center;gap:6px}
+.kwLeg i{display:inline-block;width:14px;height:10px;border-radius:3px}
+@media (prefers-reduced-motion:reduce){.kw-fill{animation:none}}
+
+.plWheel .kw{max-width:320px}
 /* ═══ FIN CAPA 3 ═══ */
 /* ═══ MOTOR DE CONSTRUCCIÓN c8.0 · MACRO → MESO → MICRO ═══ */
 .plNav{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin:0 0 14px}
@@ -505,7 +527,7 @@ small{color:var(--koach-text-secondary)}
 </div></div>
 
 <div class="vista" id="vSala">
-  <div class="hbar"><span class="hk" title="c8.7">KOACH</span><span class="rol" id="rolBadge" onclick="salir()">COACH</span></div>
+  <div class="hbar"><span class="hk" title="c8.8">KOACH</span><span class="rol" id="rolBadge" onclick="salir()">COACH</span></div>
   <div class="adAcc" id="accesos"></div>
   <div class="glass aform" id="fAlta" style="display:none">
     <h4>CREAR USUARIO — ENTRA AL INSTANTE CON SU CORREO Y CLAVE</h4>
@@ -2808,6 +2830,96 @@ async function resolverSolicitud(id, estado){
   C.sols=(C.sols||[]).filter(function(x){return x.id!==id})
   if (typeof F!=='undefined' && F && F.id){ cargarSolicitudes(F.id); if(document.getElementById('vFicha').classList.contains('on')) verFicha(F.id) }
 }
+// ═══════════ KOACH MUSCLE STIMULUS WHEEL ═══════════
+// Pétalo lleno = META semanal. Relleno radial = estímulo real / meta. Sobre la meta: corona exterior que crece hacia
+// el TECHO (mav); tocar/pasar el techo = corona completa con muesca. El estado se lee por FORMA (pétalo lleno, corona,
+// muesca) y texto; el color solo refuerza. Datos: grupo · objetivo (meta) · mav (techo) · series (ejecutado) · prog (programado).
+const WHEEL_ORDEN=['PECHO','HOMBROS','BÍCEPS','TRÍCEPS','CORE','CUÁDRICEPS','ISQUIOS','GLÚTEOS','ESPALDA'] // superior arriba, inferior abajo
+function wheelEstado(d){
+  if (!(d.series>0)) return ['m0','SIN ESTÍMULO']
+  if (d.series<d.objetivo) return ['mP','EN PROGRESO']
+  if (d.mav!=null && d.series>d.mav) return ['mO','SOBRE EL LÍMITE']
+  if (d.mav!=null && d.series>=d.mav*0.85) return ['mC','CERCA DEL LÍMITE']
+  return ['mM','OBJETIVO CUMPLIDO']
+}
+function _wPetal(cx,cy,r0,r1,a0,a1){ // sector anular (ángulos en grados, 0 = arriba, sentido horario)
+  const P=(r,a)=>{ const t=(a-90)*Math.PI/180; return [(cx+r*Math.cos(t)).toFixed(2),(cy+r*Math.sin(t)).toFixed(2)] }
+  const lg=(a1-a0)>180?1:0, A=P(r1,a0), B=P(r1,a1), C=P(r0,a1), D=P(r0,a0)
+  return 'M'+A+' A'+r1+' '+r1+' 0 '+lg+' 1 '+B+' L'+C+' A'+r0+' '+r0+' 0 '+lg+' 0 '+D+' Z'
+}
+// opts: { size, variant:'compact'|'detailed', theme:'light'|'dark', center:{v,l}, onTap:'fnName' }
+function stimulusWheel(datos, opts){
+  opts=opts||{}; const V=opts.variant||'compact', TH=opts.theme||'light', S0=opts.size||260
+  const ds=WHEEL_ORDEN.map(g=>datos.find(d=>d.grupo===g)).filter(Boolean).concat(datos.filter(d=>WHEEL_ORDEN.indexOf(d.grupo)<0))
+  const n=ds.length; if(!n) return ''
+  const cx=150, cy=150, rIn=34, rMeta=V==='detailed'?112:106, rCrown=rMeta+10, pad=2.4, R=4   // R = radio de esquina (vía stroke)
+  const step=360/n
+  const uid='w'+Math.random().toString(36).slice(2,7)
+  const trackC = TH==='dark' ? '#2A2B2F' : '#E4E3DF'
+  const fillG = TH==='dark' ? ['#FFFFFF','#C7CBD1','#8C9199'] : ['#3A3B3F','#1E1F22','#121212']
+  const crownC = TH==='dark' ? '#E9EBEE' : '#6E7178'
+  const txt = TH==='dark' ? '#F4F3F0' : '#121212', sub = TH==='dark' ? '#9C9EA3' : '#8E8D88'
+  let svg='<svg class="kw kw--'+V+' kw--'+TH+'" viewBox="'+(V==='compact'?'-26 -18 352 336':'0 0 300 300')+'" width="'+S0+'" role="img" aria-label="Estímulo muscular de la semana">'+
+    '<defs><radialGradient id="'+uid+'g" cx="50%" cy="50%" r="55%"><stop offset="0" stop-color="'+fillG[2]+'"/><stop offset=".55" stop-color="'+fillG[1]+'"/><stop offset="1" stop-color="'+fillG[0]+'"/></radialGradient>'+
+    '<pattern id="'+uid+'h" width="4" height="4" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><rect width="4" height="4" fill="'+crownC+'"/><line x1="0" y1="0" x2="0" y2="4" stroke="'+(TH==='dark'?'#121212':'#F4F3F0')+'" stroke-width="1.6"/></pattern></defs>'
+  ds.forEach((d,i)=>{
+    const a0=i*step+pad/2, a1=(i+1)*step-pad/2, am=(a0+a1)/2
+    const ratio=d.objetivo>0?Math.min(d.series/d.objetivo,1):0
+    const rFill=rIn+(rMeta-rIn)*ratio
+    const est=wheelEstado(d)
+    const tap=opts.onTap?' onclick="'+opts.onTap+'(\''+d.grupo+'\')" style="cursor:pointer"':''
+    // pista (meta) + relleno (estímulo); el stroke del mismo color redondea las esquinas
+    svg+='<g class="kw-seg kw-'+est[0]+'" data-g="'+d.grupo+'"'+tap+' tabindex="0" role="button" aria-label="'+(typeof muscleNombre==='function'?muscleNombre(d.grupo):d.grupo)+': '+est[1].toLowerCase()+'">'+
+      '<path d="'+_wPetal(cx,cy,rIn+R,rMeta-R,a0+1.2,a1-1.2)+'" fill="'+trackC+'" stroke="'+trackC+'" stroke-width="'+(R*2)+'" stroke-linejoin="round"/>'
+    if (ratio>0){ const r1=Math.max(rIn+R+2,rFill-R)
+      svg+='<path class="kw-fill" d="'+_wPetal(cx,cy,rIn+R,r1,a0+1.2,a1-1.2)+'" fill="url(#'+uid+'g)" stroke="url(#'+uid+'g)" stroke-width="'+(R*2)+'" stroke-linejoin="round" style="--d:'+(i*45)+'ms"/>' }
+    // corona: trabajo por encima de la meta, crece hacia el techo
+    if (d.series>d.objetivo && d.mav!=null && d.mav>d.objetivo){
+      const k=Math.min((d.series-d.objetivo)/(d.mav-d.objetivo),1), aw=(a1-a0-2)*k
+      const over=d.series>d.mav
+      svg+='<path d="'+_wPetal(cx,cy,rCrown-3,rCrown+3,am-aw/2,am+aw/2)+'" fill="'+(over?'url(#'+uid+'h)':crownC)+'" stroke="'+(over?crownC:'none')+'" stroke-width=".6"/>'
+      if (over){ const t=(am-90)*Math.PI/180; svg+='<circle cx="'+(cx+(rCrown+10)*Math.cos(t)).toFixed(1)+'" cy="'+(cy+(rCrown+10)*Math.sin(t)).toFixed(1)+'" r="2.6" fill="'+crownC+'"/>' }
+    }
+    // etiquetas
+    const t=(am-90)*Math.PI/180
+    if (V==='detailed'){
+      const rl=rIn+(rMeta-rIn)*0.62, x=cx+rl*Math.cos(t), y=cy+rl*Math.sin(t), onFill = rFill>rl+4
+      const c = onFill ? (TH==='dark'?'#121212':'#F4F3F0') : txt
+      svg+='<text x="'+x.toFixed(1)+'" y="'+(y-2).toFixed(1)+'" text-anchor="middle" class="kw-v" fill="'+c+'">'+(d.series%1===0?d.series:(+d.series).toFixed(1))+'<tspan class="kw-vo" fill-opacity=".6">/'+d.objetivo+'</tspan></text>'+
+        '<text x="'+x.toFixed(1)+'" y="'+(y+10).toFixed(1)+'" text-anchor="middle" class="kw-l" fill="'+c+'">'+(typeof muscleNombre==='function'?muscleNombre(d.grupo):d.grupo).toUpperCase()+'</text>'
+    } else {
+      const rl=rCrown+22, x=cx+rl*Math.cos(t), y=cy+rl*Math.sin(t)
+      const anc = Math.abs(Math.cos(t))<.3 ? 'middle' : (Math.cos(t)>0?'start':'end')
+      svg+='<text x="'+x.toFixed(1)+'" y="'+(y+3).toFixed(1)+'" text-anchor="'+anc+'" class="kw-lc" fill="'+sub+'">'+(typeof muscleNombre==='function'?muscleNombre(d.grupo):d.grupo).toUpperCase()+'</text>'
+    }
+    svg+='</g>'
+  })
+  if (opts.center) svg+='<text x="'+cx+'" y="'+(cy+4)+'" text-anchor="middle" class="kw-cv" fill="'+txt+'">'+opts.center.v+'</text>'+
+    '<text x="'+cx+'" y="'+(cy+17)+'" text-anchor="middle" class="kw-cl" fill="'+sub+'">'+opts.center.l+'</text>'
+  return svg+'</svg>'
+}
+// Lectura en 2–3 s: más trabajados / aún falta / pasados
+function wheelResumen(ds){
+  const ex=ds.filter(d=>d.objetivo>0)
+  const top=[...ex].filter(d=>d.series>0).sort((a,b)=>(b.series/b.objetivo)-(a.series/a.objetivo)).slice(0,2)
+  const falta=ex.filter(d=>d.series<d.objetivo).sort((a,b)=>(a.series/a.objetivo)-(b.series/b.objetivo)).slice(0,3)
+  const over=ex.filter(d=>d.mav!=null&&d.series>d.mav)
+  const nm=g=>(typeof muscleNombre==='function'?muscleNombre(g):g).toLowerCase()
+  return { top:top.map(d=>nm(d.grupo)), falta:falta.map(d=>nm(d.grupo)), over:over.map(d=>nm(d.grupo)) }
+}
+
+// Coach · balance PROGRAMADO de la semana (antes de aplicar o proyectar): series programadas vs meta y techo
+function plWheelDatos(w){
+  const ac={}
+  plSesSem(w).forEach(function(s){
+    const a=aporteSesion({bloques:s.bloques.map(function(b){return {sets:b.sets,
+      ejercicios:b.items.map(function(it){return {grupo:it.grupo, sinergistas:it.sinergistas, cuenta_dosis:it.cuentaDosis}})}})})
+    Object.entries(a).forEach(function(p){ac[p[0]]=(ac[p[0]]||0)+p[1]})
+  })
+  const obj=P.objetivos||{}
+  return Object.entries(obj).filter(function(p){return p[1]&&p[1].mev!=null&&p[1].exigible!==false})
+    .map(function(p){return {grupo:p[0], series:+((ac[p[0]]||0).toFixed(1)), objetivo:p[1].mev, mav:p[1].mav!=null?p[1].mav:null}})
+}
 // ═══════════ MOTOR DE CONSTRUCCIÓN · c8.0 ═══════════
 // Un solo acceso: MACRO (ciclo) → MESO (semana) → MICRO (sesión).
 // Snapshots, nunca herencia dinámica: cada semana es una copia editable; la progresión la decide el coach.
@@ -2943,6 +3055,9 @@ function plPintarMeso(){
     (prevOk?'<button class="plArrow" onclick="plIrSem('+(w-1)+')">‹ S'+(w-1)+'</button>':'<span class="plArrow ghost"></span>')+
     '<div class="plWeekC"><div class="plH" style="font-size:20px">Semana '+w+'</div><div class="plS">'+plFmt(s.desde)+' – '+plFmt(s.hasta)+' · '+tag+'</div></div>'+
     (nextOk?'<button class="plArrow" onclick="plIrSem('+(w+1)+')">S'+(w+1)+' ›</button>':'<span class="plArrow ghost"></span>')+'</div>'
+  if (ses.length){ const wd=plWheelDatos(w)
+    h+='<div class="plCard plWheel"><div class="plK">BALANCE PROGRAMADO · SEM '+w+'</div>'+stimulusWheel(wd,{variant:'detailed',theme:'light',size:300,center:{v:(ev?ev.metas:0)+'/'+(ev?ev.total:0),l:'METAS PROG.'}})+
+      '<div class="kwLeg"><span><i style="background:#E4E3DF"></i>META</span><span><i style="background:#26272B"></i>PROGRAMADO</span><span><i style="background:#6E7178;height:3px"></i>SOBRE LA META</span><span><i style="background:repeating-linear-gradient(45deg,#6E7178 0 2px,#F4F3F0 2px 4px);height:4px"></i>SOBRE EL TECHO</span></div></div>' }
   if (ev) h+='<div class="plEvalRow"><span>'+(ev.pct==null?'—':ev.pct+'%')+' DOSIS PROGRAMADA</span><span>'+ev.metas+'/'+ev.total+' METAS</span>'+(ev.sobre?'<span>⚠ '+ev.sobre+' TECHO</span>':'<span>✓ BAJO TECHO</span>')+'</div>'
   h+='<div class="plCard" style="padding:6px 12px">'
   h+= ses.length ? ses.map(function(x,i){
