@@ -58,3 +58,10 @@ Visualización estándar del estímulo muscular semanal. Reemplaza anillo + lín
 - **Interacción:** `onTap` → hoja con meta, programado, hecho, límite, estado y próximo estímulo.
 - **Estados (texto):** SIN ESTÍMULO · EN PROGRESO · OBJETIVO CUMPLIDO · CERCA DEL LÍMITE · SOBRE EL LÍMITE.
 - **Dónde:** Home V2 (compacta) · Plan › detalle semanal (detallada, oscura) · Coach › planificador semana (detallada, programado). Avances: evolución histórica, pendiente.
+
+## KoachSessionPill — `sessionPill({nombre, sub, estado, onClick, variant})`
+Lenguaje visual EXCLUSIVO de sesiones: qué sesión es · dónde está en la secuencia · puedo entrar. No calcula nada: recibe estado y acción ya resueltos.
+- **Forma:** círculo con foto (78px) + cuello orgánico vectorial (filete r10 tangente a círculo y barra) + barra 60px + botón circular →. Solo la foto es asset.
+- **Estados:** `available` (→) · `active` (punto + EN CURSO) · `completed` (✓ en la foto, abre historial) · `locked` / `future` (candado, baja opacidad, no clickeable) · `pending` (SOLICITADA). Variante `history` (foto más apagada).
+- **Fotos:** `SESSION_VISUAL` (upper/lower/total/metabolic × male/female) en `/img/session/`; tipo por nombre de sesión (`sessionTipo`), variante por sexo del protocolo; sin foto → monograma.
+- **Dónde:** Home V2 (tu semana) · Plan (sesiones de la semana, próxima semana, lo último) · Avances (historial). No en coach, ejercicios, bloques, admin ni solicitudes.
