@@ -675,6 +675,32 @@ div.sp:active{transform:none}
 .spActs{display:flex;flex-wrap:wrap;gap:8px;margin:-4px 0 14px calc(78px * .72 + 16px)}
 @media (max-width:350px){ .sp__body{padding-right:54px;padding-left:16px} .sp__go{width:38px;height:38px} .sp__s{letter-spacing:.1em;font-size:9.5px} .spNote,.spActs{margin-left:60px} }
 .k2-pills{margin-top:4px}
+
+/* ═══ KOACH HOME HERO (editorial) ═══ */
+.hh{position:relative;overflow:hidden;border-radius:32px;min-height:clamp(430px,122vw,540px);margin:0 0 var(--k2-s5);background:radial-gradient(120% 90% at 80% 10%,#2A2C31 0%,#18191C 50%,#0B0B0C 100%);color:#fff;display:flex;isolation:isolate}
+.hh__bg{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:-2}
+.hh__ov{position:absolute;inset:0;z-index:-1;background:linear-gradient(90deg,rgba(5,5,7,.88) 0%,rgba(5,5,7,.66) 45%,rgba(5,5,7,.30) 100%),linear-gradient(180deg,rgba(0,0,0,.08) 0%,rgba(0,0,0,.15) 55%,rgba(0,0,0,.55) 100%)}
+.hh:not(.hh--foto) .hh__ov{background:none}
+.hh__c{display:flex;flex-direction:column;justify-content:flex-end;width:100%;padding:40px 30px 26px}
+.hh__k{font-family:var(--font-mono);font-weight:500;font-size:10.5px;letter-spacing:.3em;text-transform:uppercase;color:rgba(255,255,255,.75)}
+.hh__t{margin:10px 0 0;font-family:var(--font-display);font-weight:700;font-size:clamp(46px,15vw,68px);line-height:.9;letter-spacing:-0.035em;text-transform:uppercase;color:#fff;overflow-wrap:anywhere}
+.hh__s{margin-top:12px;font-family:var(--font-mono);font-weight:500;font-size:10.5px;letter-spacing:.22em;text-transform:uppercase;color:rgba(255,255,255,.75)}
+.hh__d{margin:22px 0 0;font-family:var(--font-display);font-weight:400;font-size:17px;line-height:1.38;color:rgba(255,255,255,.88)}
+.hh__d b{font-weight:700;color:#fff}
+.hh__cta{position:relative;display:flex;align-items:center;gap:16px;width:100%;margin-top:32px;min-height:112px;padding:22px 18px 22px 24px;border-radius:26px;cursor:pointer;text-align:left;color:#fff;
+  background:linear-gradient(135deg,rgba(175,180,185,.28),rgba(70,74,80,.36));-webkit-backdrop-filter:blur(18px) saturate(115%);backdrop-filter:blur(18px) saturate(115%);
+  border:1px solid rgba(255,255,255,.22);box-shadow:inset 0 1px 0 rgba(255,255,255,.20),0 12px 32px rgba(0,0,0,.22);transition:transform .18s ease,border-color .18s ease,opacity .18s ease}
+@media (hover:hover){.hh__cta:hover{transform:translateY(-1px);border-color:rgba(255,255,255,.32)}}
+.hh__cta:active{transform:scale(.99)}
+.hh__cta:disabled{cursor:default;opacity:.78}
+.hh__cta:disabled .hh__go{opacity:.5}
+.hh__ctx{flex:1;min-width:0}
+.hh__ctx b{display:block;font-family:var(--font-display);font-weight:700;font-size:18px;line-height:1.15;letter-spacing:-0.005em;text-transform:uppercase;color:#fff}
+.hh__ctx small{display:block;margin-top:8px;font-family:var(--font-mono);font-weight:500;font-size:9.5px;letter-spacing:.16em;text-transform:uppercase;color:rgba(255,255,255,.75)}
+.hh__sep{align-self:stretch;width:1px;background:rgba(255,255,255,.14)}
+.hh__go{flex:0 0 60px;height:60px;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;
+  background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.20);box-shadow:inset 0 1px 0 rgba(255,255,255,.14);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px)}
+@media (max-width:350px){ .hh__c{padding:32px 20px 20px} .hh__cta{padding:18px 14px 18px 18px;gap:12px} .hh__ctx b{font-size:16px} .hh__go{flex-basis:52px;height:52px} }
 </style>
 </head>
 <body>
@@ -729,7 +755,7 @@ div.sp:active{transform:none}
   <!-- ══ HOME ══ -->
   <div class="vista conTab" id="vHome">
     <div id="k2Home" aria-live="polite"></div>
-    <div class="hbar"><span class="hk" title="v8.6">KOACH</span><div class="hav" id="hAv" onclick="salir()">K</div></div>
+    <div class="hbar"><span class="hk" title="v8.7">KOACH</span><div class="hav" id="hAv" onclick="salir()">K</div></div>
     <div class="ctx"><div class="fecha" id="hFecha">—</div><div class="prog" id="hProg">—</div></div>
     <div class="anillo">
       <svg width="180" height="180" viewBox="0 0 180 180">
@@ -1103,6 +1129,34 @@ function sessionPill(o){
     '<span class="sp__body"><span class="sp__t">'+o.nombre+'</span>'+(o.sub?'<span class="sp__s">'+(o.estado==='active'?'<i class="sp__dot"></i>':'')+o.sub+'</span>':'')+'</span>'+
     '<span class="sp__go">'+ico+'</span></'+tag+'>'
 }
+
+// ═══════════ KOACH HOME HERO · tarjeta principal editorial ═══════════
+// Foto = identidad del Home (no representa el ejercicio). Contenido = HTML real sobre capas independientes.
+// Imagen según sexo EXPLÍCITO del perfil (profiles.sex); sin dato → default (sin foto, grafito). Nunca se infiere.
+const HOME_HERO_ASSETS = {
+  male:    { src:'/img/hero/hero-male.webp',   position:'64% 38%' },
+  female:  { src:'/img/hero/hero-female.webp', position:'62% 40%' },
+  default: { src:null, position:'center' }
+}
+function heroAsset(){ const x=String((S.perfil&&S.perfil.sex)||'').toLowerCase()
+  return x==='hombre'||x==='male' ? HOME_HERO_ASSETS.male : x==='mujer'||x==='female' ? HOME_HERO_ASSETS.female : HOME_HERO_ASSETS.default }
+function homeHero(o){
+  const a=heroAsset(), e=o.e, ses=o.ses, ec=!!o.sesEC
+  const bg = a.src ? '<img class="hh__bg" src="'+a.src+'" alt="" style="object-position:'+a.position+'" decoding="async" fetchpriority="high">' : ''
+  let kicker, sub, cta1, cta2, verbo='Diseñada para '
+  if (!ses){ kicker='TU SEMANA'; sub=''; cta1=o.ctaT; cta2=o.ctaS }
+  else if (ec){ kicker='SESIÓN EN CURSO'; sub='CONTINÚA DONDE QUEDASTE'; cta1='TIENES UN ENTRENAMIENTO EN CURSO'; cta2=ses.nombre+' · CONTINUAR DONDE QUEDASTE →' }
+  else if (e.entrenoHoy){ kicker='ENTRENAMIENTO DE HOY'; sub='COMPLETADA ✓'+(e.prox?' · PRÓXIMA: '+e.prox.nombre:''); verbo='Hoy sumaste trabajo para '; cta1=o.ctaT; cta2=o.ctaS }
+  else if (S.memBloqueo || e.completa){ kicker=e.completa?'SEMANA COMPLETADA':'TU PRÓXIMA SESIÓN'; sub=''; cta1=o.ctaT; cta2=o.ctaS }
+  else { kicker='PRÓXIMA SESIÓN'; sub='TU SIGUIENTE ENTRENAMIENTO'; cta1='COMENZAR ENTRENAMIENTO'; cta2=ses.nombre+' · SESIÓN '+posSem(ses)+' DE '+e.total+' →' }
+  const prim=(o.obj&&o.obj.prim||[]).slice(0,4)
+  const desc = ses && prim.length ? '<p class="hh__d">'+verbo+tonoPrograma().verbo+'<br><b>'+msgLista(prim)+'.</b></p>' : ''
+  return '<section class="hh'+(a.src?' hh--foto':'')+'" aria-label="'+(ses?ses.nombre:'Tu semana')+'">'+ bg +'<div class="hh__ov" aria-hidden="true"></div>'+
+    '<div class="hh__c"><div class="hh__k">'+kicker+'</div><h2 class="hh__t">'+(ses?ses.nombre:o.m.t)+'</h2>'+(sub?'<div class="hh__s">'+sub+'</div>':'')+desc+
+    '<button class="hh__cta" type="button" '+(o.disabled?'disabled':'')+' onclick="document.getElementById(\'hCta\').click()">'+
+      '<span class="hh__ctx"><b>'+cta1+'</b><small>'+cta2+'</small></span><span class="hh__sep" aria-hidden="true"></span>'+
+      '<span class="hh__go" aria-hidden="true"><svg viewBox="0 0 24 24" width="22" height="22"><path d="M5 12h13M13 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg></span></button></div></section>'
+}
 // ═══════════ HOME SOCIO V2 · KOACH DESIGN SYSTEM V2 (piloto) ═══════════
 // Activación aislada: ?home=v2 (queda guardado) · ?home=v1 vuelve al Home actual. El Home v1 sigue calculándose
 // debajo: V2 consume EXACTAMENTE las mismas fuentes (S.sem, estadoSemana, mensajeHome, objetivosSesion, CTA de v1).
@@ -1178,13 +1232,7 @@ function pintarHomeV2(){
      '<div class="kwRes">'+(rs.top.length?'<div><small>MÁS TRABAJADOS</small><b>'+rs.top.join(', ')+'</b></div>':'')+(rs.falta.length?'<div><small>AÚN FALTA ESTÍMULO</small><b>'+rs.falta.join(', ')+'</b></div>':'')+
        (rs.over.length?'<div><small>SOBRE EL LÍMITE</small><b>'+rs.over.join(', ')+'</b></div>':'')+'</div>'+
      '<div class="k2-week__c" style="text-align:center">'+(PROGRAMA_TXT())+semTxt+' · TOCA UN MÚSCULO PARA VER DETALLE</div></section>' })()+
-   (ses?'<section class="k2-hero'+(K2.foto?' k2-hero--foto':'')+'" '+(K2.foto?'style="--foto:url('+K2.foto+')"':'')+'>'+
-     '<div class="k2-hero__anat" aria-hidden="true">'+obj.prim.slice(0,3).map(g=>muscleIcon(g,'featured')).join('')+'</div>'+
-     '<div class="k2-hero__c">'+k2Label(etiqueta)+'<h2>'+ses.nombre+'</h2>'+(cuando?'<div class="k2-hero__w">'+cuando+'</div>':'')+
-     (obj.prim.length?'<p>'+(e.entrenoHoy&&!sesEC?'Hoy sumaste trabajo para ':'Diseñada para ')+tonoPrograma().verbo+' <b>'+msgLista(obj.prim.slice(0,4))+'</b>.</p>':'')+
-     (proy!=null && proy>e.pct?'<p class="k2-hero__p">Al completarla avanzarás al <b>'+proy+'%</b> de tu objetivo semanal.</p>':'')+
-     '<button class="k2-cta" id="k2Cta" '+(cta.disabled?'disabled':'')+' onclick="document.getElementById(\'hCta\').click()"><span>'+ctaT+'</span><small>'+ctaS+'</small></button></div></section>':
-     '<section class="k2-hero"><div class="k2-hero__c">'+k2Label('TU SEMANA')+'<h2>'+m.t+'</h2><button class="k2-cta" '+(cta.disabled?'disabled':'')+' onclick="document.getElementById(\'hCta\').click()"><span>'+ctaT+'</span><small>'+ctaS+'</small></button></div></section>')+
+   homeHero({ ses, sesEC, e, m, ctaT, ctaS, disabled:cta.disabled, obj })+
    '<section class="k2-sec">'+'<div class="k2-sec__h">'+k2Label('TU SEMANA')+'<button class="k2-link" onclick="tab(\'vPlan\')">VER PLAN COMPLETO →</button></div><div class="k2-pills">'+tl+'</div></section>'+
 
    (ins?'<section class="k2-ins"><b>'+ins[0]+'</b><p>'+ins[1]+'</p></section>':'')
