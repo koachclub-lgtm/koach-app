@@ -701,6 +701,40 @@ div.sp:active{transform:none}
 .hh__go{flex:0 0 60px;height:60px;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;
   background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.20);box-shadow:inset 0 1px 0 rgba(255,255,255,.14);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px)}
 @media (max-width:350px){ .hh__c{padding:32px 20px 20px} .hh__cta{padding:18px 14px 18px 18px;gap:12px} .hh__ctx b{font-size:16px} .hh__go{flex-basis:52px;height:52px} }
+
+/* ═══ v8.8 · CABECERA HERO (bloque carbón curvo + contornos) ═══ */
+.k2h{position:relative;margin:-16px -14px 0;padding:calc(20px + env(safe-area-inset-top,0px)) 26px 60px;color:#F4F3F0;isolation:isolate;overflow:hidden}
+.k2h__bg{position:absolute;inset:0;width:100%;height:100%;z-index:-2;fill:#141415}
+.k2h__lines{position:absolute;top:0;right:0;width:78%;height:78%;z-index:-1;fill:none;stroke:rgba(244,243,240,.075);stroke-width:.7}
+.k2h__top{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
+.k2h__brand{font-family:var(--font-mono);font-weight:500;font-size:10.5px;letter-spacing:.32em;color:rgba(244,243,240,.72)}
+.k2h__av{width:44px;height:44px;border-radius:50%;background:#0B0B0C;border:1px solid rgba(244,243,240,.18);color:#F4F3F0;font-family:var(--font-display);font-weight:700;font-size:16px;cursor:pointer}
+.k2h__t{margin:0;font-family:var(--font-display);font-weight:700;font-size:clamp(34px,10.5vw,46px);letter-spacing:-0.035em;line-height:1;color:#FFFFFF}
+.k2h__row{display:flex;align-items:flex-end;gap:14px;margin-top:10px}
+.k2h__p{flex:1;margin:0;font-family:var(--font-display);font-size:17px;line-height:1.35;color:rgba(244,243,240,.72)}
+.k2h__tag{flex-shrink:0;font-family:var(--font-mono);font-weight:500;font-size:8.5px;letter-spacing:.2em;line-height:1.7;color:rgba(244,243,240,.55);padding-bottom:2px}
+.k2h__tag i{display:block;width:18px;height:1px;background:rgba(244,243,240,.55);margin-bottom:8px}
+.k2 .k2-wk{margin-top:6px}
+.k2-wk__e{display:inline-flex;align-items:center;gap:6px;border:none;background:none;padding:4px 0;cursor:pointer;font-family:var(--font-display);font-weight:700;font-size:15px;color:var(--k2-carbon)}
+/* ═══ v8.8 · HERO DE SESIÓN compacto (atmósfera, no relleno) ═══ */
+.hh{min-height:0;border-radius:30px}
+.hh__bg{object-position:78% 32%!important}
+.hh__ov{background:linear-gradient(90deg,rgba(8,8,9,.94) 0%,rgba(8,8,9,.80) 42%,rgba(8,8,9,.25) 100%),linear-gradient(180deg,rgba(0,0,0,0) 55%,rgba(0,0,0,.40) 100%)!important}
+.hh__c{justify-content:flex-start;padding:34px 26px 26px}
+.hh__t{font-size:clamp(56px,19vw,84px);line-height:.86;letter-spacing:-0.045em}
+.hh__s{margin-top:14px}
+.hh__d{margin-top:18px;font-size:16px}
+.hh__n{position:absolute;top:22px;right:24px;text-align:right;z-index:1}
+.hh__n b{display:block;font-family:var(--font-display);font-weight:700;font-size:22px;color:#fff}
+.hh__n b small{font-size:14px;font-weight:400;color:rgba(255,255,255,.7)}
+.hh__n span{font-family:var(--font-mono);font-weight:500;font-size:9px;letter-spacing:.22em;color:rgba(255,255,255,.7)}
+.hh__pill{display:inline-flex;align-self:flex-start;align-items:center;gap:14px;margin-top:24px;padding:14px 22px 14px 26px;border-radius:999px;cursor:pointer;
+  background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.34);color:#fff;font-family:var(--font-mono);font-weight:500;font-size:11.5px;letter-spacing:.24em;
+  -webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);transition:background .18s ease,border-color .18s ease,transform .18s ease}
+@media (hover:hover){.hh__pill:hover{background:rgba(255,255,255,.10);border-color:rgba(255,255,255,.5)}}
+.hh__pill:active{transform:scale(.98)}
+.hh__pill:disabled{cursor:default;opacity:.7}
+@media (max-width:350px){ .k2h{padding-left:20px;padding-right:20px} .k2h__tag{display:none} .hh__c{padding:28px 20px 22px} }
 </style>
 </head>
 <body>
@@ -755,7 +789,7 @@ div.sp:active{transform:none}
   <!-- ══ HOME ══ -->
   <div class="vista conTab" id="vHome">
     <div id="k2Home" aria-live="polite"></div>
-    <div class="hbar"><span class="hk" title="v8.7">KOACH</span><div class="hav" id="hAv" onclick="salir()">K</div></div>
+    <div class="hbar"><span class="hk" title="v8.8">KOACH</span><div class="hav" id="hAv" onclick="salir()">K</div></div>
     <div class="ctx"><div class="fecha" id="hFecha">—</div><div class="prog" id="hProg">—</div></div>
     <div class="anillo">
       <svg width="180" height="180" viewBox="0 0 180 180">
@@ -1045,14 +1079,17 @@ function stimulusWheel(datos, opts){
       svg+='<text x="'+x.toFixed(1)+'" y="'+(y-2).toFixed(1)+'" text-anchor="middle" class="kw-v" fill="'+c+'">'+(d.series%1===0?d.series:(+d.series).toFixed(1))+'<tspan class="kw-vo" fill-opacity=".6">/'+d.objetivo+'</tspan></text>'+
         '<text x="'+x.toFixed(1)+'" y="'+(y+10).toFixed(1)+'" text-anchor="middle" class="kw-l" fill="'+c+'">'+(typeof muscleNombre==='function'?muscleNombre(d.grupo):d.grupo).toUpperCase()+'</text>'
     } else {
-      const rl=rCrown+22, x=cx+rl*Math.cos(t), y=cy+rl*Math.sin(t)
+      const rl=rCrown+26, x=cx+rl*Math.cos(t), y=cy+rl*Math.sin(t)
       const anc = Math.abs(Math.cos(t))<.3 ? 'middle' : (Math.cos(t)>0?'start':'end')
+      const r1=rMeta+4, r2=rCrown+17
+      svg+='<line x1="'+(cx+r1*Math.cos(t)).toFixed(1)+'" y1="'+(cy+r1*Math.sin(t)).toFixed(1)+'" x2="'+(cx+r2*Math.cos(t)).toFixed(1)+'" y2="'+(cy+r2*Math.sin(t)).toFixed(1)+'" stroke="'+sub+'" stroke-width=".6" opacity=".7"/>'+
+        '<circle cx="'+(cx+r1*Math.cos(t)).toFixed(1)+'" cy="'+(cy+r1*Math.sin(t)).toFixed(1)+'" r="1.3" fill="'+sub+'"/>'
       svg+='<text x="'+x.toFixed(1)+'" y="'+(y+3).toFixed(1)+'" text-anchor="'+anc+'" class="kw-lc" fill="'+sub+'">'+(typeof muscleNombre==='function'?muscleNombre(d.grupo):d.grupo).toUpperCase()+'</text>'
     }
     svg+='</g>'
   })
   if (opts.center) svg+='<text x="'+cx+'" y="'+(cy+4)+'" text-anchor="middle" class="kw-cv" fill="'+txt+'">'+opts.center.v+'</text>'+
-    '<text x="'+cx+'" y="'+(cy+17)+'" text-anchor="middle" class="kw-cl" fill="'+sub+'">'+opts.center.l+'</text>'
+    String(opts.center.l).split('|').map((l,k)=>'<text x="'+cx+'" y="'+(cy+16+k*8)+'" text-anchor="middle" class="kw-cl" fill="'+sub+'">'+l+'</text>').join('')
   return svg+'</svg>'
 }
 // Lectura en 2–3 s: más trabajados / aún falta / pasados
@@ -1151,11 +1188,14 @@ function homeHero(o){
   else { kicker='PRÓXIMA SESIÓN'; sub='TU SIGUIENTE ENTRENAMIENTO'; cta1='COMENZAR ENTRENAMIENTO'; cta2=ses.nombre+' · SESIÓN '+posSem(ses)+' DE '+e.total+' →' }
   const prim=(o.obj&&o.obj.prim||[]).slice(0,4)
   const desc = ses && prim.length ? '<p class="hh__d">'+verbo+tonoPrograma().verbo+'<br><b>'+msgLista(prim)+'.</b></p>' : ''
-  return '<section class="hh'+(a.src?' hh--foto':'')+'" aria-label="'+(ses?ses.nombre:'Tu semana')+'">'+ bg +'<div class="hh__ov" aria-hidden="true"></div>'+
+  // CTA compacto (pill): verbo corto. La acción es EXACTAMENTE la del CTA del Home (hCta).
+  const pillTxt = !ses ? (o.disabled?o.ctaT:'CONTINUAR') : ec ? 'CONTINUAR' : e.entrenoHoy ? 'HOY COMPLETADA ✓' : S.memBloqueo ? 'VER MI MEMBRESÍA'
+    : e.completa ? (o.disabled?'SEMANA COMPLETADA ✓':'PEDIR SESIÓN EXTRA') : 'COMENZAR'
+  const cnt = ses && !ses._extra ? '<div class="hh__n"><b>'+posSem(ses)+'<small> / '+e.total+'</small></b><span>SESIÓN</span></div>' : ''
+  return '<section class="hh'+(a.src?' hh--foto':'')+'" aria-label="'+(ses?ses.nombre:'Tu semana')+'">'+ bg +'<div class="hh__ov" aria-hidden="true"></div>'+ cnt +
     '<div class="hh__c"><div class="hh__k">'+kicker+'</div><h2 class="hh__t">'+(ses?ses.nombre:o.m.t)+'</h2>'+(sub?'<div class="hh__s">'+sub+'</div>':'')+desc+
-    '<button class="hh__cta" type="button" '+(o.disabled?'disabled':'')+' onclick="document.getElementById(\'hCta\').click()">'+
-      '<span class="hh__ctx"><b>'+cta1+'</b><small>'+cta2+'</small></span><span class="hh__sep" aria-hidden="true"></span>'+
-      '<span class="hh__go" aria-hidden="true"><svg viewBox="0 0 24 24" width="22" height="22"><path d="M5 12h13M13 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg></span></button></div></section>'
+    '<button class="hh__pill" type="button" '+(o.disabled?'disabled':'')+' onclick="document.getElementById(\'hCta\').click()" aria-label="'+cta1+' · '+cta2.replace(/→/g,'')+'">'+
+      '<span>'+pillTxt+'</span>'+(o.disabled?'':'<svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M5 12h13M13 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>')+'</button></div></section>'
 }
 // ═══════════ HOME SOCIO V2 · KOACH DESIGN SYSTEM V2 (piloto) ═══════════
 // Activación aislada: ?home=v2 (queda guardado) · ?home=v1 vuelve al Home actual. El Home v1 sigue calculándose
@@ -1169,6 +1209,25 @@ const K2 = { on:false }
 if (K2.on) document.documentElement.classList.add('k2')
 
 // ── Componentes ──
+// Cabecera hero: bloque carbón con borde inferior curvo (SVG) + líneas de contorno finas. Sin imagen, todo vectorial.
+function k2Contour(){
+  let d=''
+  for (let i=0;i<16;i++){ const y0=18+i*9, a=10+i*1.4, ph=i*0.22
+    let p='M 120 '+(y0).toFixed(1)
+    for (let x=120;x<=420;x+=12){ const y=y0+Math.sin((x/62)+ph)*a*0.55+Math.cos((x/140)-ph)*a*0.35; p+=' L '+x+' '+y.toFixed(1) }
+    d+='<path d="'+p+'" />' }
+  return '<svg class="k2h__lines" viewBox="0 0 420 240" preserveAspectRatio="xMaxYMin slice" aria-hidden="true">'+d+'</svg>'
+}
+function k2HeaderHero(n){
+  const frase=tonoPrograma().construir.replace('Hoy comenzamos a construir','Hoy seguimos construyendo')
+  return '<header class="k2h">'+
+    '<svg class="k2h__bg" viewBox="0 0 400 262" preserveAspectRatio="none" aria-hidden="true"><path d="M0 0 H400 V262 C400 246 386 232 362 232 H46 C21 232 0 213 0 188 Z"/></svg>'+
+    k2Contour()+
+    '<div class="k2h__top"><span class="k2h__brand">KOACH FITNESS CLUB</span><button class="k2h__av" onclick="salir()" aria-label="Salir">'+(n?n[0]:'K')+'</button></div>'+
+    '<h1 class="k2h__t">Hola, '+(n||'')+'.</h1>'+
+    '<div class="k2h__row"><p class="k2h__p">'+frase+'</p><div class="k2h__tag" aria-hidden="true"><i></i>DISCIPLINA<br>PROGRESO<br>RESULTADOS</div></div>'+
+  '</header>'
+}
 function k2Label(t){ return '<div class="k2-label">'+t+'</div>' }
 function k2Pill(estado){ // COMPLETADA · EN PROGRESO · PRÓXIMA · BLOQUEADA · PENDIENTE · OBJETIVO CUMPLIDO
   const k={'COMPLETADA':'done','OBJETIVO CUMPLIDO':'done','PRÓXIMA':'next','EN PROGRESO':'prog','BLOQUEADA':'lock','PENDIENTE':'pend'}[estado]||'pend'
@@ -1221,13 +1280,13 @@ function pintarHomeV2(){
   else if (!e.completa && e.total && e.hechas>0 && e.hechas>=Math.ceil(e.total/2)) ins=['VAS POR BUEN CAMINO.','Completaste '+e.hechas+' de '+e.total+' sesiones esta semana.']
   const semTxt=(S.asig?'SEMANA '+(S.asig.semana_actual||1)+' DE '+((S.proto&&S.proto.ciclo_semanas)||6)+' · CICLO '+(S.asig.ciclo_actual||1):'')
   box.innerHTML=
-   '<header class="k2-head">'+k2Label('KOACH FITNESS CLUB')+'<button class="k2-av" onclick="salir()" aria-label="Salir">'+(n?n[0]:'K')+'</button></header>'+
-   '<section class="k2-hello"><h1>Hola, '+(n||'')+'.</h1><p>'+tonoPrograma().construir.replace('Hoy comenzamos a construir','Hoy seguimos construyendo')+'</p></section>'+
+   k2HeaderHero(n)+
    document.getElementById('hMemAviso').innerHTML+
    (()=>{ const wd=wheelDatosSocio(), rs=wheelResumen(wd)
      return '<section class="k2-wk" aria-label="Tu semana">'+
-     '<div class="k2-sec__h">'+k2Label('TRABAJO SEMANAL')+'<span class="k2-wk__e">'+etapaSemana(e.pct).charAt(0)+etapaSemana(e.pct).slice(1).toLowerCase()+'</span></div>'+
-     stimulusWheel(wd,{variant:'compact',theme:'light',size:300,center:{v:e.pct+'%',l:'OBJETIVO SEMANAL'},onTap:'wheelDetalle'})+
+     '<div class="k2-sec__h">'+k2Label('TRABAJO SEMANAL')+'<button class="k2-wk__e" onclick="tab(\'vPlan\');setTimeout(()=>{ if(document.getElementById(\'pDet\').style.display===\'none\') togglePDet(); document.getElementById(\'pDet\').scrollIntoView({behavior:\'smooth\'}) },250)">'+etapaSemana(e.pct).charAt(0)+etapaSemana(e.pct).slice(1).toLowerCase()+
+       ' <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><circle cx="12" cy="12" r="10.5" fill="none" stroke="currentColor" stroke-width="1.3"/><path d="M9 15l6-6M10 9h5v5" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg></button></div>'+
+     stimulusWheel(wd,{variant:'compact',theme:'light',size:300,center:{v:e.pct+'%',l:'OBJETIVO|SEMANAL'},onTap:'wheelDetalle'})+
      '<div class="k2-week__m k2-wk__m">'+k2Metric(e.hechas+'<small> / '+e.total+'</small>','SESIONES')+k2Metric((sem.fortalecidos||0)+'<small> / '+(sem.exigibles||0)+'</small>','OBJETIVOS')+'</div>'+
      '<div class="kwRes">'+(rs.top.length?'<div><small>MÁS TRABAJADOS</small><b>'+rs.top.join(', ')+'</b></div>':'')+(rs.falta.length?'<div><small>AÚN FALTA ESTÍMULO</small><b>'+rs.falta.join(', ')+'</b></div>':'')+
        (rs.over.length?'<div><small>SOBRE EL LÍMITE</small><b>'+rs.over.join(', ')+'</b></div>':'')+'</div>'+
