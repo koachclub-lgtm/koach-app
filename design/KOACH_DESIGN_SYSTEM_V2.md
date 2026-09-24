@@ -47,3 +47,14 @@ Regla de aprobación funcional: cualquier diferencia de datos entre V1 y V2 = FA
 
 ## Pendiente
 - Dirección fotográfica: el hero acepta foto (`K2.foto`, se desatura automáticamente). Falta el set de fotos reales del gimnasio KOACH.
+
+## KoachStimulusWheel — `stimulusWheel(datos, opts)`
+Visualización estándar del estímulo muscular semanal. Reemplaza anillo + líneas.
+- **Datos por grupo:** `grupo` · `objetivo` (meta) · `mav` (techo/límite) · `series` (ejecutado o programado según vista).
+- **Lectura por forma:** pétalo lleno = meta cumplida · relleno radial = avance hacia la meta · corona exterior = trabajo sobre la meta (crece hacia el límite) · corona rayada + punto = sobre el límite · pétalo vacío = sin estímulo.
+- **Orden fijo (9 segmentos):** pecho, hombros, bíceps, tríceps, core, cuádriceps, isquios, glúteos, espalda (tren superior arriba, inferior abajo).
+- **Variantes:** `compact` (Home: etiquetas afuera, centro = % objetivo semanal) · `detailed` (Plan/Coach: valor y nombre dentro del pétalo, centro = metas).
+- **Temas:** `light` (operación diaria) · `dark` (momento inmersivo, relleno plata).
+- **Interacción:** `onTap` → hoja con meta, programado, hecho, límite, estado y próximo estímulo.
+- **Estados (texto):** SIN ESTÍMULO · EN PROGRESO · OBJETIVO CUMPLIDO · CERCA DEL LÍMITE · SOBRE EL LÍMITE.
+- **Dónde:** Home V2 (compacta) · Plan › detalle semanal (detallada, oscura) · Coach › planificador semana (detallada, programado). Avances: evolución histórica, pendiente.
