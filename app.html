@@ -896,7 +896,7 @@ div.sp:active{transform:none}
   <!-- ══ HOME ══ -->
   <div class="vista conTab" id="vHome">
     <div id="k2Home" aria-live="polite"></div>
-    <div class="hbar"><span class="hk" title="v9.2">KOACH</span><div class="hav" id="hAv" onclick="salir()">K</div></div>
+    <div class="hbar"><span class="hk" title="v9.3">KOACH</span><div class="hav" id="hAv" onclick="salir()">K</div></div>
     <div class="ctx"><div class="fecha" id="hFecha">—</div><div class="prog" id="hProg">—</div></div>
     <div class="anillo">
       <svg width="180" height="180" viewBox="0 0 180 180">
@@ -1690,7 +1690,7 @@ async function entrar(){
     // F-PERF · caché-primero: pintar al instante, revalidar en silencio
     try{
       const snap = JSON.parse(localStorage.getItem('kc_snap_'+user.id)||'null')
-      if (snap && snap.v===2 && snap.programa && snap.perfil){
+      if (snap && snap.v===3 && snap.programa && snap.perfil){   // v3: BIBLIOTECA canonical (snapshots previos descartados)
         S.perfil=snap.perfil; S.programa=snap.programa; S.objetivos=snap.objetivos||[]
         S.registros=snap.registros||[]; S._reqs=snap.reqs||{}
         S.sem = calcularSemana(S.programa, S.registros, S.objetivos)
@@ -1811,7 +1811,7 @@ async function entrar(){
       S.frases = cfg?.frases||null }catch(_){}
 
     S.sem = calcularSemana(S.programa, S.registros, S.objetivos)
-    try{ localStorage.setItem('kc_snap_'+S.perfil.id, JSON.stringify({v:2, ts:Date.now(),
+    try{ localStorage.setItem('kc_snap_'+S.perfil.id, JSON.stringify({v:3, ts:Date.now(),
       perfil:S.perfil, programa:S.programa, objetivos:S.objetivos, registros:S.registros, reqs:S._reqs||{}})) }catch(_e){}
     try{
       const { data: sol } = await sb.from('solicitudes').select('id, tipo, detalle, estado, sesion_protocolo_id, nota_coach, revisado_at')
@@ -2996,7 +2996,7 @@ async function verHist(regId){
     const beIds=[...new Set(ok.map(x=>x.bloque_ejercicio_id).filter(Boolean))]
     const [rb, re, rbe] = await Promise.all([
       bIds.length ? sb.from('bloques').select('id, bloque, etiqueta').in('id',bIds) : Promise.resolve({data:[]}),
-      eIds.length ? sb.from('ejercicios').select('id, nombre, grupo_muscular').in('id',eIds) : Promise.resolve({data:[]}),
+      eIds.length ? sb.from('v_ejercicios_nombres').select('id, nombre, grupo_muscular').in('id',eIds) : Promise.resolve({data:[]}),
       beIds.length ? sb.from('bloque_ejercicios').select('id, orden, ejercicio_id').in('id',beIds) : Promise.resolve({data:[]})
     ])
     const B={}; (rb.data||[]).forEach(x=>B[x.id]=x)
@@ -3105,7 +3105,7 @@ async function loadAvances(){
       .select('ejercicio_id, bloque_ejercicio_id, peso_kg, sets_completados, id, created_at')
       .eq('socio_id', S.perfil.id).order('created_at',{ascending:true}).limit(600)
     const ejIds = [...new Set((cs||[]).map(c=>c.ejercicio_id).filter(Boolean))]
-    const { data: ejs } = await sb.from('ejercicios')
+    const { data: ejs } = await sb.from('v_ejercicios_nombres')
       .select('id, nombre, grupo_muscular, patron_mov, pilar').in('id', ejIds)
     const info = {}; (ejs||[]).forEach(e=>info[e.id]=e)
     // Reps promedio por bloque_ejercicio (para tonelaje)
