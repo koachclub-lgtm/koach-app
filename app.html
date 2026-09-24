@@ -729,7 +729,7 @@ div.sp:active{transform:none}
   <!-- ══ HOME ══ -->
   <div class="vista conTab" id="vHome">
     <div id="k2Home" aria-live="polite"></div>
-    <div class="hbar"><span class="hk" title="v8.5">KOACH</span><div class="hav" id="hAv" onclick="salir()">K</div></div>
+    <div class="hbar"><span class="hk" title="v8.6">KOACH</span><div class="hav" id="hAv" onclick="salir()">K</div></div>
     <div class="ctx"><div class="fecha" id="hFecha">—</div><div class="prog" id="hProg">—</div></div>
     <div class="anillo">
       <svg width="180" height="180" viewBox="0 0 180 180">
@@ -1082,7 +1082,8 @@ function sessionTipo(nombre){
   if (/UPPER|ARMS|BRAZO|PUSH|PULL|PECHO|ESPALDA|HOMBRO|SUPERIOR|TORSO/.test(n)) return 'upper'
   return null
 }
-function sessionVariante(){ const x=String((S.proto&&S.proto.sexo)||(S.perfil&&S.perfil.sexo)||'').toLowerCase()
+// Segmentación por sexo del SOCIO (registrado en su alta); respaldo: sexo del protocolo asignado
+function sessionVariante(){ const x=String((S.perfil&&(S.perfil.sex||S.perfil.sexo))||(S.proto&&S.proto.sexo)||'').toLowerCase()
   return /muj|fem|^f$/.test(x)?'female':/homb|masc|^m$/.test(x)?'male':'neutral' }
 function sessionImagen(nombre){ const t=sessionTipo(nombre); if(!t) return null
   const v=SESSION_VISUAL[t]; return v[sessionVariante()]||v.neutral||null }
