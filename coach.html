@@ -468,7 +468,7 @@ small{color:var(--koach-text-secondary)}
 </div></div>
 
 <div class="vista" id="vSala">
-  <div class="hbar"><span class="hk" title="c8.4">KOACH</span><span class="rol" id="rolBadge" onclick="salir()">COACH</span></div>
+  <div class="hbar"><span class="hk" title="c8.5">KOACH</span><span class="rol" id="rolBadge" onclick="salir()">COACH</span></div>
   <button class="nuevo" onclick="toggleAlta()">+ NUEVO USUARIO · SOCIO O COACH</button>
   <button class="nuevo" style="background:rgba(255,255,255,.65);color:#121210;border:1.5px solid rgba(18,18,16,.15)" onclick="verBib()">📚 RUTINAS ESTÁNDAR · BIBLIOTECA</button>
   <div class="glass aform" id="fAlta" style="display:none">
@@ -824,7 +824,7 @@ function resolveCiclo(fechaInicio, ciclosemanas, semanaActual, sesionesPorSemana
   for (let w=1; w<=ciclosemanas; w++){
     const ds = new Date(ini); ds.setDate(ini.getDate()+(w-1)*7)
     const de = new Date(ds); de.setDate(ds.getDate()+6)
-    const fmt = function(d){ return d.toISOString().split("T")[0] }
+    const fmt = function(d){ return fLocal(d) }
     const estado_temporal = w<semanaActual?"PASADA": w===semanaActual?"ACTUAL":"FUTURA"
     const prog = sesionesPorSemana[w]||0, ejec = registrosPorSemana[w]||0
     let estado_semana
@@ -840,8 +840,10 @@ function resolveCiclo(fechaInicio, ciclosemanas, semanaActual, sesionesPorSemana
 function nombreEN(s){const x=(s||'').toUpperCase()
   if(/SUPERIOR/.test(x))return 'UPPER BODY'; if(/INFERIOR/.test(x))return 'LOWER BODY'
   if(/COMPLETO|FULL/.test(x))return 'TOTAL BODY'; return x}
+// Fecha LOCAL (Chile). toISOString es UTC: después de las 21:00 registraba el día siguiente.
+function fLocal(d){ const z=new Date(d.getTime()-d.getTimezoneOffset()*60000); return z.toISOString().slice(0,10) }
 function lunes(){const h=new Date(),d=(h.getDay()+6)%7,l=new Date(h);l.setDate(h.getDate()-d);l.setHours(0,0,0,0);return l}
-function hoyISO(){return new Date().toISOString().split('T')[0]}
+function hoyISO(){return fLocal(new Date())}
 function vista(id){document.querySelectorAll('.vista').forEach(function(v){v.classList.toggle('on',v.id===id)});window.scrollTo(0,0)
   document.getElementById('xGuardia').classList.toggle('vis', id==='vExtra')
   var pg=document.getElementById('pGuardia'); if(pg) pg.style.display = (id==='vPlan')?'block':'none'}
@@ -909,7 +911,7 @@ function cargando(){ const o=document.getElementById('oLoad'); if(o) o.classList
 function cargandoOff(){ const o=document.getElementById('oLoad'); if(o) o.classList.remove('vis') }
 async function loadSala(){
   cargando('sala')
-  const lunesISO = lunes().toISOString().split('T')[0]
+  const lunesISO = fLocal(lunes())
   const rs = await sb.from('profiles').select('*')
     .eq('role','socio').eq('activo',true).order('nombre')
   if(rs.error) toast('Perfiles: '+rs.error.message)
@@ -1256,7 +1258,7 @@ async function crearUsuario(){
         const rp = await sb.from('pagos').insert({ socio_id:r.data.user.id,
           tipo_membresia:(nuPlanSel.nombre||'MENSUAL').toLowerCase(),
           monto_base:nuPlanSel.precio, monto_final:nuPlanSel.precio,
-          fecha_pago:ini, fecha_vencimiento:d.toISOString().split('T')[0], estado:'pagado' })
+          fecha_pago:ini, fecha_vencimiento:fLocal(d), estado:'pagado' })
         if(rp.error) toast('Perfil creado; pago no registrado: '+rp.error.message)
       }catch(_e){}
     }
@@ -2436,7 +2438,7 @@ async function cargarSesionAP(id, numero, nombre, semana){
   P.sesiones.push({ id:id, numero:numero, nombre:nombre, semana:semana, bloques:bloques })
 }
 function esFijaIdx(i){ return !!ORG.fijas[ORG.orden[i]] }
-function lunesISO(){ const d=new Date(); const dw=(d.getDay()+6)%7; d.setDate(d.getDate()-dw); return d.toISOString().split('T')[0] }
+function lunesISO(){ const d=new Date(); const dw=(d.getDay()+6)%7; d.setDate(d.getDate()-dw); return fLocal(d) }
 async function abrirOrganizador(){
   if (!P || !P.sesiones || !orgSesiones().length){ toast('Abre primero una ficha con programa.'); return }
   ORG.fijas = {}; ORG.dirty=false
