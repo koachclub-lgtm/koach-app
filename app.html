@@ -735,6 +735,55 @@ div.sp:active{transform:none}
 .hh__pill:active{transform:scale(.98)}
 .hh__pill:disabled{cursor:default;opacity:.7}
 @media (max-width:350px){ .k2h{padding-left:20px;padding-right:20px} .k2h__tag{display:none} .hh__c{padding:28px 20px 22px} }
+
+/* ═══ v9.0 · HISTORIAL DE SESIÓN (rutina en solo lectura) ═══ */
+.hx{position:fixed;inset:0;z-index:920;background:rgba(10,10,11,.5);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);display:none;justify-content:center;align-items:flex-end}
+.hx__sheet{width:100%;max-width:520px;height:100%;overflow-y:auto;background:#F4F3F0;-webkit-overflow-scrolling:touch;animation:hxIn .28s cubic-bezier(.2,.7,.2,1)}
+@keyframes hxIn{from{transform:translateY(24px);opacity:0}to{transform:none;opacity:1}}
+.hx__head{position:relative;background:#141415;color:#F4F3F0;border-radius:0 0 28px 28px;padding:calc(14px + env(safe-area-inset-top,0px)) 22px 22px}
+.hx__top{display:flex;align-items:center;justify-content:space-between;font-family:var(--font-mono);font-weight:500;font-size:9.5px;letter-spacing:.2em;color:rgba(244,243,240,.55)}
+.hx__x{width:38px;height:38px;border-radius:50%;border:1px solid rgba(244,243,240,.18);background:rgba(244,243,240,.06);color:#F4F3F0;font-size:14px;cursor:pointer}
+.hx__hero{display:flex;align-items:center;gap:14px;margin-top:18px}
+.hx__hc{flex:1;min-width:0}
+.hx__k{font-family:var(--font-mono);font-weight:500;font-size:10px;letter-spacing:.16em;color:rgba(244,243,240,.7)}
+.hx__t{margin:6px 0 0;font-family:var(--font-display);font-weight:700;font-size:clamp(38px,12vw,54px);line-height:.9;letter-spacing:-0.04em;text-transform:uppercase;color:#fff;overflow-wrap:anywhere}
+.hx__img{flex:0 0 76px;height:76px;border-radius:50%;overflow:hidden;background:#0B0B0C;box-shadow:0 0 0 4px #0B0B0C,0 0 0 5px rgba(244,243,240,.12)}
+.hx__img:empty{display:none}
+.hx__img img{width:100%;height:100%;object-fit:cover;filter:grayscale(1) brightness(.8)}
+.hx__stats{display:flex;gap:22px;margin-top:20px;padding-top:16px;border-top:1px solid rgba(244,243,240,.1)}
+.hx__stats:empty{display:none}
+.hx__stats b{display:block;font-family:var(--font-display);font-weight:700;font-size:20px;letter-spacing:-0.02em;color:#fff}
+.hx__stats small{font-family:var(--font-mono);font-weight:500;font-size:9px;letter-spacing:.16em;color:rgba(244,243,240,.55)}
+.hx__body{padding:22px 20px calc(40px + env(safe-area-inset-bottom,0px))}
+.hx__bh{font-family:var(--font-mono);font-weight:500;font-size:10px;letter-spacing:.18em;color:#8E8D88;margin:0 0 8px}
+.hx__tr{margin-bottom:22px}
+.hx__grs{display:flex;flex-wrap:wrap;gap:10px 16px}
+.hx__g{display:flex;align-items:center;gap:8px;font-family:var(--font-display);font-weight:700;font-size:14px;color:#121212}
+.hx__g .mti{border-radius:10px}
+.hx__b{margin-bottom:22px}
+.hx__e{border-top:1px solid rgba(18,18,18,.08)}
+.hx__e:last-child{border-bottom:1px solid rgba(18,18,18,.08)}
+.hx__e summary{list-style:none;cursor:pointer;padding:14px 2px;-webkit-tap-highlight-color:transparent}
+.hx__e summary::-webkit-details-marker{display:none}
+.hx__e--flat{padding:14px 2px}
+.hx__eh{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.hx__en{font-family:var(--font-display);font-weight:700;font-size:17px;letter-spacing:-0.01em;color:#121212}
+.hx__chev{width:28px;height:28px;border-radius:50%;border:1px solid rgba(18,18,18,.14);flex-shrink:0;position:relative;transition:transform .2s ease}
+.hx__chev::after{content:'';position:absolute;left:50%;top:45%;width:7px;height:7px;border-right:1.5px solid #121212;border-bottom:1.5px solid #121212;transform:translate(-50%,-50%) rotate(45deg)}
+.hx__e[open] .hx__chev{transform:rotate(180deg)}
+.hx__best{display:flex;align-items:baseline;gap:10px;margin-top:6px}
+.hx__best small{font-family:var(--font-mono);font-weight:500;font-size:9px;letter-spacing:.16em;color:#8E8D88}
+.hx__best b{font-family:var(--font-display);font-weight:700;font-size:22px;letter-spacing:-0.02em;color:#121212}
+.hx__em{margin-top:4px;font-family:var(--font-mono);font-weight:500;font-size:9.5px;letter-spacing:.12em;color:#5E5D59}
+.hx__ok{color:#5E5D59}.hx__up{color:#121212;font-weight:500}.hx__dn{color:#8E8D88}
+.hx__sets{list-style:none;margin:0 0 14px;padding:4px 0 0}
+.hx__sets li{display:flex;align-items:baseline;gap:14px;padding:8px 12px;border-radius:10px;font-family:var(--font-mono);font-weight:500;font-size:12px;color:#121212}
+.hx__sets li:nth-child(odd){background:rgba(18,18,18,.035)}
+.hx__sets li.is-best{box-shadow:inset 2px 0 0 #121212}
+.hx__sn{min-width:48px;font-size:9.5px;letter-spacing:.14em;color:#8E8D88}
+.hx__sets b{font-weight:500}
+.hx__sets em{margin-left:auto;font-style:normal;font-size:9.5px;letter-spacing:.08em;color:#8E8D88}
+.hx__sets em.hx__eq{color:#121212}
 </style>
 </head>
 <body>
@@ -789,7 +838,7 @@ div.sp:active{transform:none}
   <!-- ══ HOME ══ -->
   <div class="vista conTab" id="vHome">
     <div id="k2Home" aria-live="polite"></div>
-    <div class="hbar"><span class="hk" title="v8.9">KOACH</span><div class="hav" id="hAv" onclick="salir()">K</div></div>
+    <div class="hbar"><span class="hk" title="v9.0">KOACH</span><div class="hav" id="hAv" onclick="salir()">K</div></div>
     <div class="ctx"><div class="fecha" id="hFecha">—</div><div class="prog" id="hProg">—</div></div>
     <div class="anillo">
       <svg width="180" height="180" viewBox="0 0 180 180">
@@ -961,14 +1010,14 @@ div.sp:active{transform:none}
   <div class="slide" id="slFin"><span class="stx">DESLIZA PARA FINALIZAR</span><div class="th">✓</div></div>
   <button onclick="finalizar()" style="margin-top:16px;width:min(86vw,340px);border:none;border-radius:18px;padding:16px;background:rgba(243,242,239,.14);color:#F3F2EF;font-family:inherit;font-size:10px;font-weight:900;letter-spacing:.14em;cursor:pointer">O TOCA AQUÍ PARA FINALIZAR →</button>
 </div>
-<div class="ovl oscuro" id="oHist" style="z-index:920">
-  <div class="ovlIn" style="max-width:420px;width:92%;max-height:82vh;overflow:auto;background:#171715;border-radius:22px;padding:20px 18px">
-    <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:4px">
-      <div style="font-size:8px;letter-spacing:.2em;font-weight:900;color:#8B8A85">HISTORIAL · SOLO LECTURA</div>
-      <button onclick="document.getElementById('oHist').style.display='none'" style="background:none;border:none;color:#F2F1EF;font-size:14px;cursor:pointer">✕</button></div>
-    <div id="hsTit" style="font-size:14px;font-weight:900;letter-spacing:.1em;color:#F2F1EF;margin-bottom:2px">—</div>
-    <div id="hsFecha" style="font-size:8px;font-weight:900;letter-spacing:.14em;color:#8B8A85;margin-bottom:14px">—</div>
-    <div id="hsBody"></div>
+<div id="oHist" class="hx" role="dialog" aria-modal="true" aria-labelledby="hsTit" style="display:none">
+  <div class="hx__sheet">
+    <header class="hx__head">
+      <div class="hx__top"><span>HISTORIAL · SOLO LECTURA</span><button class="hx__x" onclick="document.getElementById('oHist').style.display='none'" aria-label="Cerrar">✕</button></div>
+      <div class="hx__hero"><div class="hx__hc"><div class="hx__k" id="hsFecha">—</div><h2 class="hx__t" id="hsTit">—</h2></div><div class="hx__img" id="hsImg"></div></div>
+      <div class="hx__stats" id="hsStats"></div>
+    </header>
+    <div class="hx__body" id="hsBody"></div>
   </div>
 </div>
 <div class="ovl oscuro" id="oPrev" style="z-index:920">
@@ -2854,10 +2903,12 @@ async function verSemanaAnterior(){
   }catch(e){ toast('No pudimos cargar esa semana.') }
 }
 async function verHist(regId){
+  // v9.0 · Historial como la rutina: bloque → ejercicio (mejor set + total de sets) → desplegable set a set.
   const o=document.getElementById('oHist'); o.style.display='flex'
   const body=document.getElementById('hsBody')
   body.innerHTML='<div class="vacio">Cargando…</div>'
   document.getElementById('hsTit').textContent='SESIÓN'; document.getElementById('hsFecha').textContent=''
+  document.getElementById('hsStats').innerHTML=''; document.getElementById('hsImg').innerHTML=''
   try{
     if (!regId || regId==='undefined') throw new Error('sin id de registro')
     const { data: reg, error: e1 } = await sb.from('sesiones_registro')
@@ -2865,13 +2916,13 @@ async function verHist(regId){
     if (e1) throw e1
     if (!reg) throw new Error('registro no encontrado')
     const { data: sp } = await sb.from('sesiones_protocolo').select('nombre, objetivo, semana').eq('id',reg.sesion_protocolo_id).maybeSingle()
-    document.getElementById('hsTit').textContent = ((sp&&(nombreEN(sp.objetivo)||sp.nombre))||'SESIÓN').toUpperCase()
+    const nom=((sp&&(nombreEN(sp.objetivo)||sp.nombre))||'SESIÓN').toUpperCase()
+    document.getElementById('hsTit').textContent = nom
+    const img=sessionImagen(nom); document.getElementById('hsImg').innerHTML = img?'<img src="'+img+'" alt="">':''
     const MES=['ENE','FEB','MAR','ABR','MAY','JUN','JUL','AGO','SEP','OCT','NOV','DIC']
     const d=new Date(reg.fecha+'T12:00:00')
-    let dur=''
-    if (reg.completada_at && reg.created_at){ const m=Math.round((new Date(reg.completada_at)-new Date(reg.created_at))/60000); if(m>0&&m<300) dur=' · '+m+' MIN' }
-    const EST={completada:'COMPLETADA', en_curso:'EN CURSO', omitida:'NO FINALIZADA', pendiente:'PENDIENTE'}
-    document.getElementById('hsFecha').textContent = d.getDate()+' '+MES[d.getMonth()]+' '+d.getFullYear()+' · '+(EST[reg.estado]||String(reg.estado).toUpperCase())+(sp&&sp.semana?' · SEM '+sp.semana:'')+dur
+    const EST={completada:'SESIÓN COMPLETADA', en_curso:'SESIÓN EN CURSO', omitida:'NO FINALIZADA', pendiente:'PENDIENTE'}
+    document.getElementById('hsFecha').textContent = (EST[reg.estado]||String(reg.estado).toUpperCase())+' · '+d.getDate()+' '+MES[d.getMonth()]+' '+d.getFullYear()+(sp&&sp.semana?' · SEM '+sp.semana:'')
     const { data: sets, error: e2 } = await sb.from('set_registros')
       .select('bloque_id, bloque_ejercicio_id, ejercicio_id, set_numero, peso, reps, seg, target_peso, target_reps, target_seg, completado')
       .eq('registro_id',regId).order('set_numero')
@@ -2882,37 +2933,58 @@ async function verHist(regId){
     const beIds=[...new Set(ok.map(x=>x.bloque_ejercicio_id).filter(Boolean))]
     const [rb, re, rbe] = await Promise.all([
       bIds.length ? sb.from('bloques').select('id, bloque, etiqueta').in('id',bIds) : Promise.resolve({data:[]}),
-      eIds.length ? sb.from('ejercicios').select('id, nombre').in('id',eIds) : Promise.resolve({data:[]}),
+      eIds.length ? sb.from('ejercicios').select('id, nombre, grupo_muscular').in('id',eIds) : Promise.resolve({data:[]}),
       beIds.length ? sb.from('bloque_ejercicios').select('id, orden, ejercicio_id').in('id',beIds) : Promise.resolve({data:[]})
     ])
     const B={}; (rb.data||[]).forEach(x=>B[x.id]=x)
-    const E={}; (re.data||[]).forEach(x=>E[x.id]=x.nombre)
+    const E={}; (re.data||[]).forEach(x=>E[x.id]=x)
     const BE={}; (rbe.data||[]).forEach(x=>BE[x.id]=x)
     const porBloque={}
     ok.forEach(x=>{ const bk=x.bloque_id||'_'; const pb=porBloque[bk]=porBloque[bk]||{ej:{},rondas:0}
       if (!x.bloque_ejercicio_id){ pb.rondas++; return }
-      const pe=pb.ej[x.bloque_ejercicio_id]=pb.ej[x.bloque_ejercicio_id]||{nombre:E[x.ejercicio_id]||'EJERCICIO', orden:(BE[x.bloque_ejercicio_id]||{}).orden||0, sets:[]}
+      const pe=pb.ej[x.bloque_ejercicio_id]=pb.ej[x.bloque_ejercicio_id]||{nombre:(E[x.ejercicio_id]||{}).nombre||'Ejercicio', orden:(BE[x.bloque_ejercicio_id]||{}).orden||0, sets:[]}
       pe.sets.push(x) })
-    const fmt=v=>(+v)%1===0?(+v):(+v).toFixed(1)
+    const fmt=v=>(+v)%1===0?String(+v):(+v).toFixed(1)
+    const repsN=r=>{ const n=parseFloat(r); return isNaN(n)?null:n }
+    const txtSet=x=> x.seg!=null ? x.seg+' SEG' : ((x.peso!=null?fmt(x.peso)+' KG × ':'')+(x.reps!=null?x.reps:'—'))
+    const txtPre=x=> x.target_seg!=null&&x.seg!=null ? x.target_seg+' SEG' : (x.target_peso!=null||x.target_reps!=null ? ((x.target_peso!=null?fmt(x.target_peso)+' KG × ':'')+(x.target_reps||'—')) : '')
+    const sobre=x=> (x.peso!=null&&x.target_peso!=null&&+x.peso>+x.target_peso) || (x.seg!=null&&x.target_seg!=null&&+x.seg>+x.target_seg) || (x.peso==null&&x.seg==null&&repsN(x.reps)!=null&&repsN(x.target_reps)!=null&&repsN(x.reps)>repsN(x.target_reps))
+    const bajo=x=> (x.peso!=null&&x.target_peso!=null&&+x.peso<+x.target_peso) || (x.seg!=null&&x.target_seg!=null&&+x.seg<+x.target_seg)
     let vol=0, nSets=0
+    const grupos=new Set()
     const html=Object.entries(porBloque).sort((a,b)=>String((B[a[0]]||{}).bloque||'Z').localeCompare(String((B[b[0]]||{}).bloque||'Z'))).map(([bk,pb])=>{
       const bi=B[bk]||{}
-      let h='<div class="hsB"><div class="hsBh">'+(bi.bloque||'BLOQUE')+(bi.etiqueta?' · '+String(bi.etiqueta).toUpperCase():'')+'</div>'
-      if (pb.rondas) h+='<div class="hsE"><div class="hsEn">Circuito</div><div class="hsS"><span>'+pb.rondas+' RONDAS COMPLETADAS</span><span>SIN CARGAS POR EJERCICIO</span></div></div>'
+      let h='<section class="hx__b"><div class="hx__bh">'+(bi.bloque||'BLOQUE')+(bi.etiqueta?' · '+String(bi.etiqueta).toUpperCase():'')+'</div>'
+      if (pb.rondas) h+='<div class="hx__e hx__e--flat"><div class="hx__en">Circuito</div><div class="hx__em">'+pb.rondas+' RONDAS · SIN CARGAS POR EJERCICIO</div></div>'
       Object.values(pb.ej).sort((a,b)=>a.orden-b.orden).forEach(e=>{
-        h+='<div class="hsE"><div class="hsEn">'+e.nombre+'</div>'+e.sets.sort((a,b)=>a.set_numero-b.set_numero).map(x=>{
-          nSets++; if(x.peso!=null&&x.reps!=null&&!isNaN(parseFloat(x.reps))) vol+=(+x.peso)*parseFloat(x.reps)
-          const hecho = x.seg!=null ? x.seg+' SEG' : ((x.peso!=null?fmt(x.peso)+' KG × ':'')+(x.reps!=null?x.reps:'—'))
-          const pres = x.target_seg!=null&&x.seg!=null ? x.target_seg+' SEG' : (x.target_peso!=null||x.target_reps!=null ? ((x.target_peso!=null?fmt(x.target_peso)+' KG × ':'')+(x.target_reps||'—')) : '')
-          return '<div class="hsS"><span>SET '+x.set_numero+'</span><b>'+hecho+'</b>'+(pres?'<em>PRESCRITO '+pres+'</em>':'')+'</div>'
-        }).join('')+'</div>' })
-      return h+'</div>'
+        const ss=e.sets.sort((a,b)=>a.set_numero-b.set_numero)
+        ss.forEach(x=>{ nSets++; if(x.peso!=null&&repsN(x.reps)!=null) vol+=(+x.peso)*repsN(x.reps); const g=(E[x.ejercicio_id]||{}).grupo_muscular; if(g) grupos.add(g) })
+        // Mejor set: mayor carga (desempate por reps); por tiempo: más segundos; sin carga: más reps
+        const best=[...ss].sort((a,b)=> (b.peso!=null||a.peso!=null) ? ((+b.peso||0)-(+a.peso||0) || (repsN(b.reps)||0)-(repsN(a.reps)||0))
+          : (b.seg!=null||a.seg!=null) ? ((+b.seg||0)-(+a.seg||0)) : ((repsN(b.reps)||0)-(repsN(a.reps)||0)))[0]
+        const nSobre=ss.filter(sobre).length, nBajo=ss.filter(bajo).length
+        const estado = nSobre ? '<span class="hx__up">↑ SOBRE LO PRESCRITO</span>' : nBajo ? '<span class="hx__dn">BAJO LO PRESCRITO</span>' : '<span class="hx__ok">✓ SEGÚN LO PLANIFICADO</span>'
+        h+='<details class="hx__e"><summary><div class="hx__eh"><span class="hx__en">'+e.nombre+'</span><span class="hx__chev" aria-hidden="true"></span></div>'+
+          '<div class="hx__best"><small>MEJOR SET</small><b>'+txtSet(best)+'</b></div>'+
+          '<div class="hx__em">'+ss.length+' SET'+(ss.length>1?'S':'')+' · '+estado+'</div></summary>'+
+          '<ol class="hx__sets">'+ss.map(x=>{ const pre=txtPre(x), dif=pre && pre!==txtSet(x)
+            return '<li class="'+(x===best?'is-best':'')+'"><span class="hx__sn">SET '+x.set_numero+'</span><b>'+txtSet(x)+'</b>'+
+              (dif?'<em>'+(sobre(x)?'↑ ':'')+'PRESCRITO '+pre+'</em>':'<em class="hx__eq">✓</em>')+'</li>' }).join('')+'</ol></details>'
+      })
+      return h+'</section>'
     }).join('')
-    const tot = nSets ? '<div class="hsTot">'+nSets+' SETS'+(vol?' · VOLUMEN '+Math.round(vol).toLocaleString('es-CL')+' KG':'')+'</div>' : ''
-    body.innerHTML = html ? tot+html : '<div class="vacio">Esta sesión no tiene sets registrados.</div>'
+    // Cabecera: duración · sets · volumen (solo lo que existe)
+    let dur=null
+    if (reg.completada_at && reg.created_at){ const m=Math.round((new Date(reg.completada_at)-new Date(reg.created_at))/60000); if(m>0&&m<300) dur=m }
+    const st=[]; if(dur) st.push([dur+' MIN','DURACIÓN']); if(nSets) st.push([nSets,'SETS']); if(vol) st.push([Math.round(vol).toLocaleString('es-CL')+' KG','VOLUMEN'])
+    document.getElementById('hsStats').innerHTML = st.map(x=>'<div><b>'+x[0]+'</b><small>'+x[1]+'</small></div>').join('')
+    const gr=[...grupos].sort(ordMusc)
+    const trab = gr.length ? '<section class="hx__tr"><div class="hx__bh">TRABAJASTE</div><div class="hx__grs">'+gr.map(g=>'<div class="hx__g">'+muscleIcon(g,'compact')+'<span>'+muscleNombre(g)+'</span></div>').join('')+'</div></section>' : ''
+    body.innerHTML = html ? trab+html : '<div class="vacio">Esta sesión no tiene sets registrados.</div>'
   }catch(e){ console.error('historial', e)
     body.innerHTML='<div class="vacio">No encontramos el registro de esta sesión.</div>' }
 }
+
 function verPreview(num){
   const s=S.programa.sesiones.find(x=>x.numero===num); if(!s) return
   const cap=resolverCap(s, ctxDe(s))
