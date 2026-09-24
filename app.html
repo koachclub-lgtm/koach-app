@@ -789,7 +789,7 @@ div.sp:active{transform:none}
   <!-- ══ HOME ══ -->
   <div class="vista conTab" id="vHome">
     <div id="k2Home" aria-live="polite"></div>
-    <div class="hbar"><span class="hk" title="v8.8">KOACH</span><div class="hav" id="hAv" onclick="salir()">K</div></div>
+    <div class="hbar"><span class="hk" title="v8.9">KOACH</span><div class="hav" id="hAv" onclick="salir()">K</div></div>
     <div class="ctx"><div class="fecha" id="hFecha">—</div><div class="prog" id="hProg">—</div></div>
     <div class="anillo">
       <svg width="180" height="180" viewBox="0 0 180 180">
@@ -1202,10 +1202,11 @@ function homeHero(o){
 // debajo: V2 consume EXACTAMENTE las mismas fuentes (S.sem, estadoSemana, mensajeHome, objetivosSesion, CTA de v1).
 const K2 = { on:false }
 ;(function(){ try{
+  // v8.9: HOME V2 es el Home por defecto. ?home=v1 vuelve al anterior (queda guardado); ?home=v2 lo restablece.
   const q=new URLSearchParams(location.search).get('home')
-  if (q==='v2') localStorage.setItem('koach_home','v2'); if (q==='v1') localStorage.removeItem('koach_home')
-  K2.on = localStorage.getItem('koach_home')==='v2'
-}catch(_){ K2.on = new URLSearchParams(location.search).get('home')==='v2' } })()
+  if (q==='v1') localStorage.setItem('koach_home','v1'); if (q==='v2') localStorage.removeItem('koach_home')
+  K2.on = localStorage.getItem('koach_home')!=='v1'
+}catch(_){ K2.on = new URLSearchParams(location.search).get('home')!=='v1' } })()
 if (K2.on) document.documentElement.classList.add('k2')
 
 // ── Componentes ──
