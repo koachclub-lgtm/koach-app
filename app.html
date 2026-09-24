@@ -2655,7 +2655,8 @@ function pintarPlan(){
       : prox ? "tab('vHome');abrirSesion()"
       : cap.can_start ? 'abrirSesion('+s.numero+')'
       : cap.can_open_preview ? 'verPreview('+s.numero+')' : null
-    const pLbl = {completed:'', active:'EN CURSO', pending:'SOLICITADA', locked:''}[pEst] || (cap.can_start&&!prox?'ADELANTO APROBADO':(est.indexOf('COORDINANDO')>-1?'COORDINANDO':'PRÓXIMA'))
+    const _LB={completed:'', active:'EN CURSO', pending:'SOLICITADA', locked:''}
+    const pLbl = (pEst in _LB) ? _LB[pEst] : (cap.can_start&&!prox?'ADELANTO APROBADO':(est.indexOf('COORDINANDO')>-1?'COORDINANDO':'PRÓXIMA'))
     const pSub = 'SESIÓN '+_pos+' DE '+_tot+(pLbl?' · '+pLbl:'')+(ctx.hecha?extra:'')
     const accSec = acciones.replace(/<button class="pAct" onclick="event.stopPropagation\(\);(verHist|abrirSesion|verPreview)[^<]*<\/button>/g,'')
     return sessionPill({nombre:s.nombre, sub:pSub, estado:pEst, onClick:pOn}) +
