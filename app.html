@@ -941,7 +941,7 @@ div.sp:active{transform:none}
   <!-- ══ HOME ══ -->
   <div class="vista conTab" id="vHome">
     <div id="k2Home" aria-live="polite"></div>
-    <div class="hbar"><span class="hk" title="v9.8">KOACH</span><div class="hav" id="hAv" onclick="salir()">K</div></div>
+    <div class="hbar"><span class="hk" title="v9.9">KOACH</span><div class="hav" id="hAv" onclick="salir()">K</div></div>
     <div class="ctx"><div class="fecha" id="hFecha">—</div><div class="prog" id="hProg">—</div></div>
     <div class="anillo">
       <svg width="180" height="180" viewBox="0 0 180 180">
@@ -1516,7 +1516,7 @@ function estadoSemana(){
   const hechas=bs.filter(x=>hechasSet.has(x.numero)).length
   const hoy=fLocal(new Date())
   const hoyReg=S.registros.filter(r=>r.fecha===hoy && esHecha(r)).map(r=>S.programa.sesiones.find(s=>s.numero===r.sesion_numero)).filter(Boolean)
-  return { sem, bs, hechas, total:bs.length, restantes:bs.length-hechas, pct:sem.pct_dosis||0, entrenoHoy:hoyReg.length>0, hoySes:hoyReg[hoyReg.length-1]||null,
+  return { sem, bs, hechas, total:bs.length, restantes:bs.length-hechas, pct:sem.pct_dosis||0, entrenoHoy:hoyReg.length>0 && !esPrueba(), hoySes:hoyReg[hoyReg.length-1]||null,
     prox:sem.proxima||null, completa:!!sem.completa || (bs.length>0 && hechas>=bs.length) }
 }
 // ── HOME: título + cuerpo según estado REAL del día (A–E)
@@ -1882,6 +1882,8 @@ async function entrar(opts){
 }
 // v9.7 · COACH → SOCIO sin recargar: al volver a la app (y cada 60 s con la app visible) se refresca en silencio.
 // Nunca durante una sesión en curso (no se interrumpe el registro de sets).
+// Cuenta de PRUEBA interna (profiles.es_prueba): permite varias sesiones el mismo día para testear semanas completas.
+function esPrueba(){ return !!(S.perfil && S.perfil.es_prueba) }
 function refrescoSocio(){
   if (!S.perfil || document.visibilityState!=='visible') return
   const on=(document.querySelector('.vista.on')||{}).id
@@ -1951,7 +1953,7 @@ function pintarHome(){
     (sem.completa ? ' · SEMANA COMPLETA' : (_prox ? ` · PRÓXIMA <b>${_prox.nombre}</b>` : '') + (_desp ? ` · DESPUÉS ${_desp.nombre}` : ''))
   const cta=document.getElementById('hCta')
   const hoyISO2 = fLocal(new Date())
-  const entrenoHoy = S.registros.some(r=>r.fecha===hoyISO2 && esHecha(r))
+  const entrenoHoy = !esPrueba() && S.registros.some(r=>r.fecha===hoyISO2 && esHecha(r))
   if (S.memBloqueo){
     cta.disabled=false; cta.onclick=()=>tab('vPerfil')
     document.getElementById('hCtaT').textContent=S.memBloqueoT||'MEMBRESÍA VENCIDA'
@@ -2189,7 +2191,7 @@ async function abrirSesion(num){
     toast((REASON_TXT[capG.reason_code]||(()=>'Esta sesión aún no está habilitada.'))(null)); return }
   cargando('PREPARANDO TU SESIÓN…')
   const hoyC = fLocal(new Date())
-  if (S.registros.some(r=>r.fecha===hoyC && esHecha(r))){
+  if (!esPrueba() && S.registros.some(r=>r.fecha===hoyC && esHecha(r))){
     cargandoOff(); toast('Hoy ya sumaste tu sesión — la recuperación también entrena. Nos vemos mañana.'); return }
   S._desigActual = (num==null && S.sem&&S.sem.proxima&&S.sem.proxima._desigId) || null
   S._desigRec = !!(num==null && S.sem&&S.sem.proxima&&S.sem.proxima._rec)
