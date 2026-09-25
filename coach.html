@@ -450,6 +450,29 @@ small{color:var(--koach-text-secondary)}
 
 .plWheel .kw{max-width:320px}
 .plSemEst{font-family:var(--font-mono);font-weight:500;font-size:10.5px;letter-spacing:.08em;color:var(--koach-text-secondary);margin:0 2px 8px}
+
+/* ═══ c9.3 · ADHERENCIA ═══ */
+.fTabs--3{grid-template-columns:1fr 1fr 1fr}
+.fTabs--3 button{font-size:9.5px;letter-spacing:.05em;padding:11px 4px}
+.adhRes{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:4px 0 12px}
+.adhRes div{background:var(--koach-surface);border:1px solid var(--koach-border);border-radius:12px;padding:12px}
+.adhRes b{display:block;font-family:var(--font-display);font-weight:700;font-size:26px;letter-spacing:-0.02em;color:var(--koach-ink)}
+.adhRes span{font-family:var(--font-mono);font-weight:500;font-size:10px;letter-spacing:.08em;color:var(--koach-text-secondary)}
+#adhBusca{width:100%;box-sizing:border-box;margin-bottom:10px}
+.adhRow{display:block;width:100%;text-align:left;background:var(--koach-surface);border:1px solid var(--koach-border);border-radius:12px;padding:13px 14px;margin-bottom:8px;cursor:pointer;color:var(--koach-ink);font:inherit}
+.adhN{font-family:var(--font-display);font-weight:700;font-size:17px}
+.adhE{margin-top:6px;display:flex;flex-wrap:wrap;gap:4px}
+.adhE .adTag{font-size:10px;padding:4px 7px}
+.adhM{display:flex;flex-wrap:wrap;gap:4px 12px;margin-top:8px;font-family:var(--font-mono);font-weight:500;font-size:11px;letter-spacing:.03em;color:var(--koach-text-secondary)}
+.adhAl{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px}
+.adhG{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:4px 0 10px}
+.adhG b{display:block;font-family:var(--font-display);font-weight:700;font-size:26px;color:var(--koach-ink)}
+.adhG b i{font-style:normal;font-size:15px;color:var(--koach-text-secondary)}
+.adhG small{font-family:var(--font-mono);font-weight:500;font-size:10px;letter-spacing:.08em;color:var(--koach-text-secondary)}
+.adhW{display:grid;grid-template-columns:52px 1fr 76px 44px;align-items:center;gap:8px;padding:7px 0;font-family:var(--font-mono);font-weight:500;font-size:11px;color:var(--koach-ink)}
+.adhW span,.adhW em{color:var(--koach-text-secondary);font-style:normal}
+.adhBar{height:8px;border-radius:4px;background:rgba(18,18,18,.08);overflow:hidden}
+.adhBar i{display:block;height:100%;background:#1C1C1C;border-radius:4px}
 /* ═══ FIN CAPA 3 ═══ */
 /* ═══ MOTOR DE CONSTRUCCIÓN c8.0 · MACRO → MESO → MICRO ═══ */
 .plNav{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin:0 0 14px}
@@ -528,7 +551,7 @@ small{color:var(--koach-text-secondary)}
 </div></div>
 
 <div class="vista" id="vSala">
-  <div class="hbar"><span class="hk" title="c9.2">KOACH</span><span class="rol" id="rolBadge" onclick="salir()">COACH</span></div>
+  <div class="hbar"><span class="hk" title="c9.3">KOACH</span><span class="rol" id="rolBadge" onclick="salir()">COACH</span></div>
   <div class="adAcc" id="accesos"></div>
   <div class="glass aform" id="fAlta" style="display:none">
     <h4>CREAR USUARIO — ENTRA AL INSTANTE CON SU CORREO Y CLAVE</h4>
@@ -570,6 +593,14 @@ small{color:var(--koach-text-secondary)}
   <div class="adChips" id="solFT"></div>
   <div id="solLista"><div class="vacio">Cargando…</div></div>
 </div>
+<div class="vista" id="vAdh">
+  <div class="stop"><button class="sback" onclick="verSala()">←</button><div class="stit">Adherencia</div></div>
+  <div class="ssub">¿QUIÉN ESTÁ VINIENDO Y CUMPLIENDO SU PLAN?</div>
+  <div class="adhRes" id="adhRes"></div>
+  <input id="adhBusca" placeholder="Buscar por nombre o correo…" oninput="adhPintar()">
+  <div class="adChips" id="adhF"></div>
+  <div id="adhLista"><div class="vacio">Cargando…</div></div>
+</div>
 <div class="vista" id="vAdmin">
   <div class="stop"><button class="sback" onclick="verSala()">←</button><div class="stit">Membresías</div>
     <span class="rol" id="admCnt" style="margin-left:auto">—</span></div>
@@ -590,8 +621,9 @@ small{color:var(--koach-text-secondary)}
     <div class="stit" id="fNombre">—</div>
     <span class="rol" id="fEstado" style="margin-left:auto">ACTIVA</span></div>
   <div class="ssub" id="fMeta">—</div>
-  <div class="fTabs"><button id="fTbEnt" class="on" onclick="fTab('ent')">ENTRENAMIENTO</button><button id="fTbAdm" onclick="fTab('adm')">ADMIN</button></div>
+  <div class="fTabs fTabs--3"><button id="fTbEnt" class="on" onclick="fTab('ent')">ENTRENAMIENTO</button><button id="fTbAdh" onclick="fTab('adh')">ADHERENCIA</button><button id="fTbAdm" onclick="fTab('adm')">ADMIN</button></div>
   <div id="fTabAdm" style="display:none"></div>
+  <div id="fTabAdh" style="display:none"></div>
   <div id="fTabEnt">
   <div class="glass viva">
     <h3><span>SU SEMANA · EN VIVO</span><span id="fSemTit">—</span></h3>
@@ -1116,6 +1148,7 @@ function pintarSala(){
   document.getElementById('accesos').innerHTML=
     '<button class="'+(nSol?'hot':'')+'" onclick="verSolicitudes()"><span>SOLICITUDES</span><b>'+nSol+'</b></button>'+
     '<button class="'+((nVen||nVcd)?'hot':'')+'" onclick="verAdmin()"><span>MEMBRESÍAS'+(nVen?'<br>'+nVen+' VENCE ≤7 D':'')+(nVcd?'<br>'+nVcd+' VENCIDA'+(nVcd>1?'S':''):'')+'</span><b>›</b></button>'+
+    '<button onclick="verAdherencia()"><span>ADHERENCIA</span><b>›</b></button>'+
     '<button onclick="verBib()"><span>BIBLIOTECA</span><b>›</b></button>'+
     '<button onclick="toggleAlta()"><span>NUEVO USUARIO</span><b>+</b></button>'
   if(false && C.sols.length){
@@ -1177,7 +1210,7 @@ function verFicha(id){
   const MES3=['ENE','FEB','MAR','ABR','MAY','JUN','JUL','AGO','SEP','OCT','NOV','DIC']
   const d=F.created_at?new Date(F.created_at):null
   document.getElementById('fNombre').textContent=nomDe(id)
-  AD.socioTab='ent'; if(document.getElementById('fTabEnt')){ document.getElementById('fTabEnt').style.display=''; document.getElementById('fTabAdm').style.display='none'; document.getElementById('fTbEnt').classList.add('on'); document.getElementById('fTbAdm').classList.remove('on') }
+  AD.socioTab='ent'; if(document.getElementById('fTabEnt')){ document.getElementById('fTabEnt').style.display=''; document.getElementById('fTabAdm').style.display='none'; document.getElementById('fTabAdh').style.display='none'; document.getElementById('fTbEnt').classList.add('on'); document.getElementById('fTbAdm').classList.remove('on'); document.getElementById('fTbAdh').classList.remove('on') }
   const _mv=admEstadoSocio(F.id)
   document.getElementById('fEstado').textContent=(F.estado==='congelado')?'ACCESO SUSPENDIDO':(_mv.k==='sin'?'SIN MEMBRESÍA':_mv.t)
   document.getElementById('btnFrio').textContent=(F.estado==='congelado')?'REACTIVAR':'CONGELAR'
@@ -3399,7 +3432,9 @@ function fTab(t){
   AD.socioTab=t
   document.getElementById('fTabEnt').style.display=t==='ent'?'':'none'
   document.getElementById('fTabAdm').style.display=t==='adm'?'':'none'
-  document.getElementById('fTbEnt').classList.toggle('on',t==='ent'); document.getElementById('fTbAdm').classList.toggle('on',t==='adm')
+  document.getElementById('fTabAdh').style.display=t==='adh'?'':'none'
+  document.getElementById('fTbEnt').classList.toggle('on',t==='ent'); document.getElementById('fTbAdm').classList.toggle('on',t==='adm'); document.getElementById('fTbAdh').classList.toggle('on',t==='adh')
+  if (t==='adh') fAdhCargar()
   if (t==='adm') fAdmCargar()
 }
 async function fAdmCargar(){
@@ -3583,6 +3618,87 @@ function refrescoSala(){
 }
 document.addEventListener('visibilitychange', refrescoSala)
 setInterval(refrescoSala, 45000)
+// ═══════════ c9.3 · ADHERENCIA (radar de socios) ═══════════
+// Fuente única: vista v_adherencia (base). Asistencia = check_ins (hoy: día con rutina completada; también manual).
+const ADH={ f:'todos', rows:[] }
+const ADH_MES=['ENE','FEB','MAR','ABR','MAY','JUN','JUL','AGO','SEP','OCT','NOV','DIC']
+function adhF(iso){ if(!iso) return '—'; const d=new Date(String(iso).slice(0,10)+'T12:00:00'); return d.getDate()+' '+ADH_MES[d.getMonth()] }
+// Alertas operativas simples y transparentes (orden = prioridad)
+function adhAlertas(r){
+  const a=[]
+  if (!r.con_plan) a.push(['sinplan','SIN PLANIFICACIÓN'])
+  if (!r.membresia_vigente && ['vencida','cancelada','finalizada'].indexOf(r.membresia_ultima)>-1) a.push(['vencido','PLAN VENCIDO'])
+  const inicioViejo = r.fecha_inicio && ((new Date(hoyISO())-new Date(r.fecha_inicio+'T12:00:00'))/86400000)>=7
+  if (r.con_plan && ((r.dias_sin_visita!=null && r.dias_sin_visita>=7) || (r.dias_sin_visita==null && inicioViejo))) a.push(['sinasist', r.dias_sin_visita!=null?'SIN ASISTENCIA · '+r.dias_sin_visita+' DÍAS':'SIN ASISTENCIAS AÚN'])
+  if (r.con_plan && r.adherencia_4sem!=null && r.adherencia_4sem<50 && inicioViejo) a.push(['baja','BAJA ADHERENCIA · '+r.adherencia_4sem+'%'])
+  if (r.membresia_vigente && r.dias_membresia!=null && r.dias_membresia<=14) a.push(['vence','PLAN VENCE · '+r.dias_membresia+' D'])
+  if (r.pago_pendiente) a.push(['pago','PAGO PENDIENTE'])
+  if (r.con_plan && r.sem_vig>=r.ciclo_semanas) a.push(['ciclo','CICLO POR TERMINAR'])
+  return a
+}
+async function verAdherencia(){
+  vista('vAdh'); document.getElementById('adhLista').innerHTML='<div class="vacio">Cargando…</div>'
+  const r=await sb.from('v_adherencia').select('*').order('nombre')
+  ADH.rows=(r.data||[]).map(x=>Object.assign(x,{_al:adhAlertas(x)}))
+  adhPintar()
+}
+function adhPintar(){
+  const R=ADH.rows, conPlan=R.filter(x=>x.con_plan)
+  const asist=conPlan.filter(x=>x.visitas_semana>0).length
+  const sin7=conPlan.filter(x=>x._al.some(a=>a[0]==='sinasist')).length
+  const ad=conPlan.filter(x=>x.adherencia_4sem!=null), media=ad.length?Math.round(ad.reduce((s,x)=>s+x.adherencia_4sem,0)/ad.length):null
+  document.getElementById('adhRes').innerHTML=
+    '<div><b>'+conPlan.length+'</b><span>SOCIOS CON PLAN</span></div><div><b>'+asist+'</b><span>ASISTIERON ESTA SEMANA</span></div>'+
+    '<div><b>'+sin7+'</b><span>SIN ASISTIR 7+ DÍAS</span></div><div><b>'+(media==null?'—':media+'%')+'</b><span>ADHERENCIA MEDIA · 4 SEM</span></div>'
+  const F=[['todos','TODOS'],['seg','SEGUIMIENTO'],['sinasist','SIN ASISTENCIA 7 D'],['baja','BAJA ADHERENCIA'],['vence','PLAN POR VENCER'],['pago','PAGO PENDIENTE'],['vencido','VENCIDOS'],['sinplan','SIN PLANIFICACIÓN'],['ciclo','CICLO POR TERMINAR']]
+  const pasa=(x,k)=>k==='todos'||(k==='seg'?x._al.length>0:x._al.some(a=>a[0]===k))
+  document.getElementById('adhF').innerHTML=F.map(f=>'<button class="'+(ADH.f===f[0]?'on':'')+'" onclick="ADH.f=\''+f[0]+'\';adhPintar()">'+f[1]+' · '+R.filter(x=>pasa(x,f[0])).length+'</button>').join('')
+  const q=(document.getElementById('adhBusca').value||'').trim().toLowerCase()
+  const l=R.filter(x=>pasa(x,ADH.f) && (!q || ((x.nombre||'')+' '+(x.apellido||'')+' '+(x.email||'')).toLowerCase().indexOf(q)>-1))
+    .sort((a,b)=>(b._al.length-a._al.length)||String(a.nombre).localeCompare(String(b.nombre)))
+  document.getElementById('adhLista').innerHTML = l.length ? l.map(x=>{
+    const est = x._al.length ? x._al.slice(0,2).map(a=>'<span class="adTag ink">'+a[1]+'</span>').join('') : '<span class="adTag">AL DÍA</span>'
+    const plan = x.con_plan ? ('PLAN '+x.hechas_semana+' / '+(x.planif_semana==null||x.planif_semana<0?'—':x.planif_semana)+(x.adherencia_semana!=null?' · '+x.adherencia_semana+'%':'')) : 'SIN PLAN'
+    const ult = x.ultima_visita ? ('ÚLT. VISITA '+(x.dias_sin_visita===0?'HOY':x.dias_sin_visita===1?'AYER':'HACE '+x.dias_sin_visita+' D')) : 'SIN VISITAS'
+    return '<button class="adhRow" onclick="verFicha(\''+x.socio_id+'\');fTab(\'adh\')"><div class="adhN">'+(x.nombre||'')+' '+(x.apellido||'')+'</div>'+
+      '<div class="adhE">'+est+'</div>'+
+      '<div class="adhM"><span>'+plan+'</span><span>ASISTENCIAS '+x.visitas_semana+'</span><span>'+ult+'</span>'+(x.programa?'<span>'+x.programa+' · S'+x.sem_vig+'/'+x.ciclo_semanas+'</span>':'')+'</div></button>'
+  }).join('') : '<div class="vacio">Nadie en este filtro.</div>'
+}
+// Pestaña ADHERENCIA en la ficha del socio
+async function fAdhCargar(){
+  const box=document.getElementById('fTabAdh'); box.innerHTML='<div class="vacio">Cargando…</div>'
+  const [rv, rc] = await Promise.all([
+    sb.from('v_adherencia').select('*').eq('socio_id',F.id).maybeSingle(),
+    sb.from('check_ins').select('fecha, checked_in_at, source').eq('socio_id',F.id).order('fecha',{ascending:false}).limit(12)
+  ])
+  const x=rv.data
+  if (!x){ box.innerHTML='<div class="vacio">Sin datos de adherencia.</div>'; return }
+  const al=adhAlertas(x)
+  const sem=(x.semanas||[]).slice().sort((a,b)=>b.k-a.k)
+  const SRC={sesion_completada:'RUTINA COMPLETADA', manual:'REGISTRO MANUAL', qr:'QR', acceso:'CONTROL DE ACCESO'}
+  box.innerHTML=
+    (al.length?'<div class="adhAl">'+al.map(a=>'<span class="adTag ink">'+a[1]+'</span>').join('')+'</div>':'<div class="adhAl"><span class="adTag">AL DÍA</span></div>')+
+    '<div class="adCard"><div class="adK"><span>ESTA SEMANA</span><span>EN CURSO</span></div><div class="adhG">'+
+      '<div><b>'+x.visitas_semana+'</b><small>ASISTENCIAS</small></div>'+
+      '<div><b>'+x.hechas_semana+'<i> / '+(x.planif_semana==null||x.planif_semana<0?'—':x.planif_semana)+'</i></b><small>SESIONES</small></div>'+
+      '<div><b>'+(x.adherencia_semana==null?'—':x.adherencia_semana+'%')+'</b><small>ADHERENCIA</small></div></div>'+
+      '<div class="adS">ÚLTIMA VISITA · '+(x.ultima_visita_at?adFH(x.ultima_visita_at):'—')+(x.ultimo_entreno?'<br>ÚLTIMO ENTRENAMIENTO · '+String(x.ultimo_entreno.nombre||'').toUpperCase()+' · '+adhF(x.ultimo_entreno.fecha):'')+'</div></div>'+
+    '<div class="adCard"><div class="adK"><span>ÚLTIMAS 4 SEMANAS</span><span>'+(x.adherencia_4sem==null?'—':'PROMEDIO '+x.adherencia_4sem+'%')+'</span></div>'+
+      sem.map(s=>{ const pl=s.planif, pct=pl>0?Math.min(100,Math.round(100*s.hechas/pl)):null
+        return '<div class="adhW"><span>'+adhF(s.lunes)+'</span><div class="adhBar"><i style="width:'+(pct||0)+'%"></i></div><b>'+(pl==null?'NO APLICA':pl<0?'CONGELADO':s.hechas+' / '+pl)+'</b><em>'+s.visitas+' VIS.</em></div>' }).join('')+
+      '<div class="adS" style="margin-top:8px">PROMEDIO '+(x.visitas_prom_4sem==null?'—':x.visitas_prom_4sem)+' VISITAS / SEMANA</div></div>'+
+    '<div class="adCard"><div class="adK"><span>ASISTENCIAS</span><span>'+(rc.data||[]).length+'</span></div>'+
+      ((rc.data||[]).map(c=>'<div class="adLi"><span>'+adFH(c.checked_in_at)+'</span><span>'+(SRC[c.source]||c.source)+'</span></div>').join('')||'<div class="adS">Sin asistencias registradas.</div>')+
+      '<div class="adBtns"><button onclick="adhManual()">REGISTRAR ASISTENCIA DE HOY</button></div></div>'+
+    '<div class="adNote">Asistencia = día en que el socio completa su rutina (o registro manual de recepción). Adherencia = sesiones completadas de su plan / sesiones que correspondían esa semana (primera semana proporcional; semanas congeladas no cuentan).</div>'
+}
+async function adhManual(){
+  const ac=adActor(); syncEnvio()
+  const r=await sb.from('check_ins').insert({socio_id:F.id, fecha:hoyISO(), source:'manual', created_by:ac.id, metadata:{por:ac.nombre}})
+  if (r.error){ if(String(r.error.code)==='23505'){ syncOk(); toast('Ya tiene asistencia registrada hoy.') } else { syncErr(r.error.message); toast('No se pudo registrar: '+r.error.message) } return }
+  syncOk(); toast('Asistencia registrada ✓'); fAdhCargar()
+}
 let MG={primero:null}
 async function aplicarPrograma(){
   // Guardia de prescripción (advertencia, jamás bloqueo) — modal KOACH, no confirm nativo
