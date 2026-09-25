@@ -449,6 +449,7 @@ small{color:var(--koach-text-secondary)}
 @media (prefers-reduced-motion:reduce){.kw-fill{animation:none}}
 
 .plWheel .kw{max-width:320px}
+.plSemEst{font-family:var(--font-mono);font-weight:500;font-size:10.5px;letter-spacing:.08em;color:var(--koach-text-secondary);margin:0 2px 8px}
 /* ═══ FIN CAPA 3 ═══ */
 /* ═══ MOTOR DE CONSTRUCCIÓN c8.0 · MACRO → MESO → MICRO ═══ */
 .plNav{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin:0 0 14px}
@@ -527,7 +528,7 @@ small{color:var(--koach-text-secondary)}
 </div></div>
 
 <div class="vista" id="vSala">
-  <div class="hbar"><span class="hk" title="c9.1">KOACH</span><span class="rol" id="rolBadge" onclick="salir()">COACH</span></div>
+  <div class="hbar"><span class="hk" title="c9.2">KOACH</span><span class="rol" id="rolBadge" onclick="salir()">COACH</span></div>
   <div class="adAcc" id="accesos"></div>
   <div class="glass aform" id="fAlta" style="display:none">
     <h4>CREAR USUARIO — ENTRA AL INSTANTE CON SU CORREO Y CLAVE</h4>
@@ -1687,7 +1688,7 @@ async function abrirPlan(pid, proto, opts){
   const sids = (rses.data||[]).map(function(s){return s.id})
   const rblo = sids.length ? await sb.from('bloques').select('*, bloque_ejercicios(*, ejercicios(id,nombre,grupo_muscular,estimulo,sinergistas,tipo_registro,con_carga,cuenta_dosis,implemento,activo))').in('sesion_id',sids).order('bloque') : {data:[]}
   P = { pid:pid, proto:proto, tab:0, bib:esBib, base:esBase, sesiones:(rses.data||[]).map(function(s){
-    return { id:s.id, numero:s.numero, semana:(s.semana||1), nombre:nombreEN(s.objetivo)||('SESION '+s.numero),
+    return { id:s.id, numero:s.numero, semana:(s.semana||1), editada:!!s.editada, nombre:nombreEN(s.objetivo)||('SESION '+s.numero),
       bloques:(rblo.data||[]).filter(function(b){return b.sesion_id===s.id}).map(function(b){
         return { id:b.id, tag:b.bloque, etiqueta:b.etiqueta||null, sets:b.sets||3,
           desc:(b.descanso_seg!=null?b.descanso_seg:(b.descanso_segundos!=null?b.descanso_segundos:60)),
@@ -2145,7 +2146,7 @@ async function stepDesc(bi,d){
 }
 let _pendC=0
 function syncEnvio(){ _pendC++; const t=document.getElementById('syncTag'); t.style.display='block'; t.className='envio'; t.textContent='GUARDANDO…' }
-function syncOk(){ if(_pendC>0)_pendC--; if(_pendC>0)return; const t=document.getElementById('syncTag'); t.className=''; t.textContent='✓ GUARDADO'
+function syncOk(){ try{ plMarcarSucio() }catch(_e){} if(_pendC>0)_pendC--; if(_pendC>0)return; const t=document.getElementById('syncTag'); t.className=''; t.textContent='✓ GUARDADO'
   clearTimeout(window._syncH); window._syncH=setTimeout(function(){ t.style.display='none' }, 2600) }
 function syncErr(m){ _pendC=0; const t=document.getElementById('syncTag'); t.style.display='block'; t.className='err'; t.textContent='ERROR: '+(m||'') }
 async function editKg(beId,v){
@@ -2940,6 +2941,14 @@ function plWheelDatos(w){
 // Un solo acceso: MACRO (ciclo) → MESO (semana) → MICRO (sesión).
 // Snapshots, nunca herencia dinámica: cada semana es una copia editable; la progresión la decide el coach.
 let PL = { nivel:'macro', w:1, hecho:{}, regPorSes:{} }
+function plMarcarSucio(){ if (typeof P!=='undefined' && P) P._sucio=true }
+async function plResincronizar(w){
+  if (!confirm('Volver a derivar SEM '+w+' de SEM '+(w-1)+'?\nSe descartan los ajustes manuales hechos en esta semana.')) return
+  syncEnvio()
+  const r=await sb.rpc('koach_resincronizar_semana',{p_proto:P.pid, p_w:w})
+  if (r.error){ syncErr(r.error.message); toast(/SEMANA_CON_EJECUCION/.test(r.error.message)?'Esta semana ya tiene sesiones realizadas: no se puede revertir.':'No se pudo: '+r.error.message); return }
+  syncOk(); await plRecargar(); toast('✓ SEM '+w+' vuelve a nacer de SEM '+(w-1))
+}
 function plReset(){ const a=F&&C.asig[F.id]; PL = { nivel:'macro', w:(a&&a.semana_actual)||1, hecho:{}, regPorSes:{} } }
 function plActivo(){ return !!(P && !P.bib && !P.base && typeof F!=='undefined' && F && C.asig[F.id]) }
 function plAsig(){ return C.asig[F.id] }
@@ -3091,6 +3100,9 @@ function plPintarMeso(){
   }).join('') : '<div class="vacio">Semana sin programar.</div>'
   h+='</div>'
   const acc=[]
+  const ejec=ses.some(function(x){return !!PL.regPorSes[x.id]}), edit=ses.some(function(x){return x.editada})
+  if (ses.length) h=h.replace('<div class="plCard" style="padding:6px 12px">','<div class="plSemEst">'+(ejec?'EN EJECUCIÓN · YA NO SE RE-DERIVA':edit?'AJUSTADA POR EL COACH · LAS SIGUIENTES NACEN DE ESTA':(w>1?'PROYECTADA · SE ACTUALIZA SOLA DESDE SEM '+(w-1):'SEMANA BASE'))+'</div><div class="plCard" style="padding:6px 12px">')
+  if (edit && !ejec && w>1) acc.push('<button class="plBtn" onclick="plResincronizar('+w+')">↺ VOLVER A DERIVAR DE SEM '+(w-1)+'</button>')
   if (ses.length<6) acc.push('<button class="plBtn" onclick="abrirAddSes()">+ AGREGAR SESIÓN</button>')
   const prevSes = w>1 ? plSesSem(w-1) : []
   if (!ses.length && prevSes.length) acc.push('<button class="plBtn ink" onclick="plCopiarSemana('+(w-1)+','+w+')">COPIAR SEM '+(w-1)+' → SEM '+w+'</button>')
@@ -3121,8 +3133,9 @@ function plLineaProgresion(it, esBW, esT){
 }
 async function plAplicarKg(beId, v){ await editKg(beId, v); repintarConservando(); toast('Carga '+v+' KG prescrita — el coach decide, la data respalda') }
 // ─── NAVEGACIÓN ───
-function plIr(n){ PL.nivel=n; if(n==='micro'){ pintarPlan() } else plRender(); window.scrollTo(0,0) }
-function plIrSem(w){ PL.w=w; PL.nivel='meso'; plRender(); window.scrollTo(0,0) }
+// tras editar, las semanas siguientes se re-derivan en la base → al cambiar de nivel/semana se trae la versión vigente
+async function plIr(n){ PL.nivel=n; if(n==='micro'){ pintarPlan() } else if(P&&P._sucio){ P._sucio=false; await plRecargar() } else plRender(); window.scrollTo(0,0) }
+async function plIrSem(w){ PL.w=w; PL.nivel='meso'; if(P&&P._sucio){ P._sucio=false; await plRecargar() } else plRender(); window.scrollTo(0,0) }
 function plIrSes(id){ const i=P.sesiones.findIndex(function(s){return s.id===id}); if(i<0) return
   PL.w=P.sesiones[i].semana||1; P.tab=i; PL.nivel='micro'; pintarPlan(); window.scrollTo(0,0) }
 async function plRecargar(){ const nivel=PL.nivel, w=PL.w, sid=P.sesiones[P.tab]&&P.sesiones[P.tab].id
@@ -3187,14 +3200,19 @@ async function plProyectar(){
   }
   if (!pares.length){ toast('No hay semanas vacías para proyectar.'); return }
   if (!confirm('Proyectar '+pares.map(function(p){return 'S'+p.hacia}).join(', ')+' como copia de la semana anterior programada?\n\nSesiones, bloques y cargas se copian. Las semanas ya programadas no se tocan.')) return
-  const n=await plCopiar(pares); if(n<0) return
-  await plRecargar(); toast('✓ Ciclo proyectado — '+n+' sesiones en '+pares.length+' semana'+(pares.length>1?'s':''))
+  // c9.2 · la proyección la hace la base (misma regla que la progresión encadenada): atómica y consistente
+  syncEnvio()
+  const r=await sb.rpc('koach_reproyectar',{p_proto:P.pid, p_desde:pares[0].desde})
+  if (r.error){ syncErr(r.error.message); toast('No se pudo proyectar: '+r.error.message); return }
+  syncOk(); await plRecargar(); toast('✓ Ciclo proyectado — cada semana nace de la anterior')
 }
 async function plCopiarSemana(desde, hacia){
   if (plSesSem(hacia).length){ toast('SEM '+hacia+' ya tiene sesiones.'); return }
   if (hacia>plN()){ toast('SEM '+hacia+' queda fuera del ciclo.'); return }
-  const n=await plCopiar([{desde:desde, hacia:hacia}]); if(n<0) return
-  PL.w=hacia; PL.nivel='meso'
+  syncEnvio()
+  const r=await sb.rpc('koach_reproyectar',{p_proto:P.pid, p_desde:desde})
+  if (r.error){ syncErr(r.error.message); toast('No se pudo copiar: '+r.error.message); return }
+  syncOk(); PL.w=hacia; PL.nivel='meso'
   await plRecargar(); toast('✓ SEM '+hacia+' creada desde SEM '+desde+' — ajusta la progresión')
 }
 async function plMarcarVigente(w){
