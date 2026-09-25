@@ -914,7 +914,7 @@ div.sp:active{transform:none}
           <button class="ojo" onclick="ojo('rPass',this)">👁</button></div>
         <div class="err" id="rErr">—</div>
         <button class="btn" id="bReg" onclick="registro()">CREAR MI CUENTA</button>
-        <div class="okmsg" id="rOk">Cuenta creada. Revisa tu correo, confírmalo y vuelve a entrar. Tu coach te asignará tu programa.</div>
+        <div class="okmsg" id="rOk">Cuenta creada. Ya puedes entrar. Tu coach te asignará tu programa.</div>
         <div class="links"><a onclick="authVista('fLogin')">← Volver</a><span></span></div>
       </div>
       <div id="fRecu" style="display:none">
@@ -939,7 +939,7 @@ div.sp:active{transform:none}
   <!-- ══ HOME ══ -->
   <div class="vista conTab" id="vHome">
     <div id="k2Home" aria-live="polite"></div>
-    <div class="hbar"><span class="hk" title="v9.4">KOACH</span><div class="hav" id="hAv" onclick="salir()">K</div></div>
+    <div class="hbar"><span class="hk" title="v9.5">KOACH</span><div class="hav" id="hAv" onclick="salir()">K</div></div>
     <div class="ctx"><div class="fecha" id="hFecha">—</div><div class="prog" id="hProg">—</div></div>
     <div class="anillo">
       <svg width="180" height="180" viewBox="0 0 180 180">
@@ -1681,7 +1681,12 @@ async function login(){
   const b=document.getElementById('bLogin'); b.disabled=true; b.textContent='ENTRANDO…'
   const { error } = await sb.auth.signInWithPassword({ email, password:pass })
   if (error){ 
-    err.textContent = /credential|invalid/i.test(error.message||'') ? 'Email o contraseña incorrectos' : ('Error: '+(error.message||'intenta de nuevo'))
+    const _m=String(error.message||'')
+    err.textContent = /credential|invalid/i.test(_m) ? 'Email o contraseña incorrectos.'
+      : /not confirmed/i.test(_m) ? 'Tu cuenta aún no está activada. Avisa en recepción y lo resolvemos al tiro.'
+      : /rate|too many/i.test(_m) ? 'Demasiados intentos. Espera un minuto y vuelve a intentar.'
+      : /fetch|network/i.test(_m) ? 'Sin conexión. Revisa tu internet e intenta de nuevo.'
+      : 'No pudimos entrar: '+(_m||'intenta de nuevo')
     err.style.display='block'; b.disabled=false; b.textContent='ENTRAR A MI SEMANA'; return 
   }
   b.disabled=false; b.textContent='ENTRAR A MI SEMANA'
