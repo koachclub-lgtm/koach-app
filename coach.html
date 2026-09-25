@@ -527,7 +527,7 @@ small{color:var(--koach-text-secondary)}
 </div></div>
 
 <div class="vista" id="vSala">
-  <div class="hbar"><span class="hk" title="c9.0">KOACH</span><span class="rol" id="rolBadge" onclick="salir()">COACH</span></div>
+  <div class="hbar"><span class="hk" title="c9.1">KOACH</span><span class="rol" id="rolBadge" onclick="salir()">COACH</span></div>
   <div class="adAcc" id="accesos"></div>
   <div class="glass aform" id="fAlta" style="display:none">
     <h4>CREAR USUARIO — ENTRA AL INSTANTE CON SU CORREO Y CLAVE</h4>
@@ -1009,8 +1009,9 @@ async function entrar(){
 // c8.4 · Carga simple y fija: mismo mensaje siempre (sin nombre = sin lógica extra, pantalla instantánea)
 function cargando(){ const o=document.getElementById('oLoad'); if(o) o.classList.add('vis') }
 function cargandoOff(){ const o=document.getElementById('oLoad'); if(o) o.classList.remove('vis') }
-async function loadSala(){
-  cargando('sala')
+async function loadSala(silent){
+  if (!silent) cargando('sala')
+  C._lastSala = Date.now()
   const lunesISO = fLocal(lunes())
   const rs = await sb.from('profiles').select('*')
     .eq('role','socio').eq('activo',true).order('nombre')
@@ -3555,6 +3556,15 @@ async function admCancelar(memId){
   if (r.error){ syncErr(r.error.message); toast('No se pudo: '+r.error.message); return }
   syncOk(); admCerrar(); toast('Membresía cancelada'); await adCargarResumen(); fAdmCargar()
 }
+// c9.1 · SOCIO → COACH sin recargar: con la sala visible se refresca en silencio cada 45 s y al volver a la pestaña.
+function refrescoSala(){
+  if (document.visibilityState!=='visible' || !C.yo) return
+  const v=document.getElementById('vSala'); if(!v || !v.classList.contains('on')) return
+  if (Date.now()-(C._lastSala||0) < 20000) return
+  C._lastSala=Date.now(); loadSala(true).then(function(){ try{ cargandoOff() }catch(_e){} })
+}
+document.addEventListener('visibilitychange', refrescoSala)
+setInterval(refrescoSala, 45000)
 let MG={primero:null}
 async function aplicarPrograma(){
   // Guardia de prescripción (advertencia, jamás bloqueo) — modal KOACH, no confirm nativo
