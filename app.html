@@ -886,6 +886,16 @@ div.sp:active{transform:none}
 .mkd__h li b{font-weight:500}
 .mkd__h li em{margin-left:auto;font-style:normal;font-size:11px;letter-spacing:.1em;background:#121212;color:#F4F3F0;border-radius:999px;padding:3px 8px}
 .authNota{margin-top:14px;text-align:center;font-size:13px;line-height:1.4;color:#8E8D88}
+
+/* v10.0 · bloque terminado: la tarjeta pasa a gris grafito (se reconocen de un vistazo los bloques hechos) */
+#vSesion .bloq--done{background:#DCDAD5;border-color:rgba(18,18,18,.10);box-shadow:none}
+#vSesion .bloq--done .bh .bt{background:#5E5D59}
+#vSesion .bloq--done .bh .bn::after{content:' · TERMINADO';color:#121212}
+#vSesion .bloq--done .exCard{border-color:rgba(18,18,18,.10)}
+#vSesion .bloq--done .exN{color:#3A3935}
+#vSesion .bloq--done .exG{background:rgba(18,18,18,.08)}
+#vSesion .bloq--done .bsets.done{background:rgba(18,18,18,.08);color:#3A3935}
+#vSesion .bloq{transition:background-color .35s ease}
 </style>
 </head>
 <body>
@@ -941,7 +951,7 @@ div.sp:active{transform:none}
   <!-- ══ HOME ══ -->
   <div class="vista conTab" id="vHome">
     <div id="k2Home" aria-live="polite"></div>
-    <div class="hbar"><span class="hk" title="v9.9">KOACH</span><div class="hav" id="hAv" onclick="salir()">K</div></div>
+    <div class="hbar"><span class="hk" title="v10.0">KOACH</span><div class="hav" id="hAv" onclick="salir()">K</div></div>
     <div class="ctx"><div class="fecha" id="hFecha">—</div><div class="prog" id="hProg">—</div></div>
     <div class="anillo">
       <svg width="180" height="180" viewBox="0 0 180 180">
@@ -2350,7 +2360,7 @@ function pintarSesion(){
         return '<div class="circu"><div><div class="cn">'+(ej.nombre||'—')+'</div><div class="cg">'+(ej.grupo_muscular||'')+'</div></div>'+ed+'</div>'
       }).join('')
       const rondas = chipsSets('r'+bi, n=>!!S.setLog[rondaKey(b.id,n)], b.sets, "tapRonda('"+b.id+"',__N__,"+bi+")")
-      return '<div class="glass bloq" id="blq-'+bi+'"><div class="bh"><span class="bt">'+(b.bloque||('B'+(bi+1)))+'</span><span class="bn">'+titulo+'</span>'+
+      return '<div class="glass bloq'+(bloqueCompleto(b)?' bloq--done':'')+'" id="blq-'+bi+'"><div class="bh"><span class="bt">'+(b.bloque||('B'+(bi+1)))+'</span><span class="bn">'+titulo+'</span>'+
         '<span class="bs">'+b.sets+' RONDAS · '+(b.descanso_seg||b.descanso_segundos||60)+"'' DESC</span></div>"+
         filas+'<div class="rondaBox">'+rondas.replace('>SETS<','>RONDA / SET<')+'</div>'+btnTodas(bi)+'</div>'
     }
@@ -2421,7 +2431,7 @@ function pintarSesion(){
         '<div class="presL">'+presL+'</div>'+cue+
         '<div style="margin-top:6px">'+filas+'</div></div></div>'
     }).join('')
-    return '<div class="glass bloq" id="blq-'+bi+'"><div class="bh"><span class="bt">'+(b.bloque||('B'+(bi+1)))+'</span><span class="bn">'+titulo+'</span>'+
+    return '<div class="glass bloq'+(bloqueCompleto(b)?' bloq--done':'')+'" id="blq-'+bi+'"><div class="bh"><span class="bt">'+(b.bloque||('B'+(bi+1)))+'</span><span class="bn">'+titulo+'</span>'+
       '<span class="bs">'+b.sets+' SETS · '+(b.descanso_seg||b.descanso_segundos||60)+"'' DESC</span></div>"+cards+btnTodas(bi)+'</div>'
   }).join('')
   document.getElementById('sFin').style.display='block'
