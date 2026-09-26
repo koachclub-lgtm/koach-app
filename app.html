@@ -951,7 +951,7 @@ div.sp:active{transform:none}
   <!-- ══ HOME ══ -->
   <div class="vista conTab" id="vHome">
     <div id="k2Home" aria-live="polite"></div>
-    <div class="hbar"><span class="hk" title="v10.0">KOACH</span><div class="hav" id="hAv" onclick="salir()">K</div></div>
+    <div class="hbar"><span class="hk" title="v10.1">KOACH</span><div class="hav" id="hAv" onclick="salir()">K</div></div>
     <div class="ctx"><div class="fecha" id="hFecha">—</div><div class="prog" id="hProg">—</div></div>
     <div class="anillo">
       <svg width="180" height="180" viewBox="0 0 180 180">
@@ -3286,7 +3286,7 @@ async function cargarMembresia(){
   S.mem=[]; S.pagos=[]; S.memBloqueo=null
   try{
     const [rm, rp] = await Promise.all([
-      sb.from('v_membresias').select('id, fecha_inicio, fecha_fin, meses, estado_calc, dias_restantes').eq('socio_id', S.perfil.id).order('fecha_inicio',{ascending:false}),
+      sb.from('v_membresias').select('id, fecha_inicio, fecha_fin, meses, estado, estado_calc, dias_restantes, duracion_tipo, duracion_label').eq('socio_id', S.perfil.id).order('fecha_inicio',{ascending:false}),
       sb.from('pagos').select('fecha_pago, monto_final, estado, metodo, anulado, membresia_id').eq('socio_id', S.perfil.id).eq('anulado',false).order('fecha_pago',{ascending:false})
     ])
     S.mem=rm.data||[]; S.pagos=rp.data||[]
@@ -3294,6 +3294,10 @@ async function cargarMembresia(){
   const vig=S.mem.find(m=>['activa','proxima','congelada'].includes(m.estado_calc))
     || S.mem.filter(m=>m.estado_calc==='futura').sort((a,b)=>a.fecha_inicio<b.fecha_inicio?-1:1)[0] || null
   S.memVig = vig || S.mem[0] || null
+  // Acceso real = períodos encadenados (si pagó por adelantado, el siguiente período continúa sin corte)
+  const hoyM=fLocal(new Date()), vivos=S.mem.filter(m=>m.estado!=='cancelada' && m.fecha_fin>hoyM).sort((a,b)=>a.fecha_inicio<b.fecha_inicio?-1:1)
+  let finAcc=vivos.length?vivos[0].fecha_fin:null; vivos.slice(1).forEach(m=>{ if(m.fecha_inicio<=finAcc && m.fecha_fin>finAcc) finAcc=m.fecha_fin })
+  S.memFinAcceso=finAcc; S.memDiasAcceso=finAcc?Math.round((new Date(finAcc+'T12:00:00')-new Date(hoyM+'T12:00:00'))/86400000):null
   // Política de acceso: sin registro → sin restricción (socios previos); vencida/cancelada y sin otra vigente → no inicia sesiones
   if (!vig && S.mem.length && ['vencida','cancelada','finalizada'].includes(S.mem[0].estado_calc)){
     S.memBloqueo='Tu membresía no está vigente. Tu historial sigue disponible — consulta tu renovación con KOACH.'
@@ -3301,11 +3305,11 @@ async function cargarMembresia(){
   }
   // Aviso de vencimiento: 30 / 14 / 7 días, UNA vez por umbral (registrado en membresia_alertas)
   const av=document.getElementById('hMemAviso'); if (av) av.innerHTML=''
-  if (vig && vig.estado_calc!=='congelada' && vig.dias_restantes<=30 && vig.dias_restantes>=0){
-    const umbral = vig.dias_restantes<=7 ? 7 : vig.dias_restantes<=14 ? 14 : 30
+  if (vig && vig.estado_calc!=='congelada' && S.memDiasAcceso!=null && S.memDiasAcceso<=30 && S.memDiasAcceso>=0){
+    const umbral = S.memDiasAcceso<=7 ? 7 : S.memDiasAcceso<=14 ? 14 : 30
     try{
       const { error } = await sb.from('membresia_alertas').insert({ membresia_id:vig.id, umbral_dias:umbral })
-      if (!error && av) av.innerHTML='<div class="memAv"><b>TU MEMBRESÍA ESTÁ PRÓXIMA A VENCER</b><span>Vence el '+_fm(vig.fecha_fin)+'. Consulta tu renovación con KOACH.</span>'+
+      if (!error && av) av.innerHTML='<div class="memAv"><b>TU MEMBRESÍA ESTÁ PRÓXIMA A VENCER</b><span>Vence el '+_fm(S.memFinAcceso)+'. Consulta tu renovación con KOACH.</span>'+
         '<button onclick="this.parentNode.remove()">ENTENDIDO</button></div>'
     }catch(_){}
   }
@@ -3316,12 +3320,12 @@ function pintarMembresia(){
   if (!m){ el.innerHTML='<div class="memCard"><div class="mK">KOACH MEMBERSHIP</div><div class="mS">Tu membresía aún no está registrada en la app. Consulta en recepción.</div></div>'; return }
   const pagosM=(S.pagos||[])
   el.innerHTML='<div class="memCard"><div class="mK"><span>KOACH MEMBERSHIP</span><span class="mE '+m.estado_calc+'">'+(_MEST[m.estado_calc]||'')+'</span></div>'+
-    '<div class="mH">'+_fm(m.fecha_inicio)+' — '+_fm(m.fecha_fin)+'</div>'+
-    '<div class="mS">'+m.meses+' MES'+(m.meses>1?'ES':'')+(S.proto?' · PROGRAMA '+String(S.proto.programa||'').toUpperCase():'')+
-    (m.dias_restantes>=0?' · '+m.dias_restantes+' DÍAS RESTANTES':'')+'</div>'+
+    '<div class="mH">'+(S.memFinAcceso?'Vigente hasta el '+_fm(S.memFinAcceso):_fm(m.fecha_inicio)+' — '+_fm(m.fecha_fin))+'</div>'+
+    '<div class="mS">'+(m.duracion_label||(m.meses+' MESES'))+(S.proto?' · PROGRAMA '+String(S.proto.programa||'').toUpperCase():'')+
+    (S.memDiasAcceso!=null?' · QUEDAN '+S.memDiasAcceso+' DÍAS':'')+'</div>'+
     '<div class="mBtns"><button onclick="det(\'dPagos\')">VER PAGOS · '+pagosM.length+'</button><button onclick="det(\'dMemH\')">VER HISTORIAL · '+S.mem.length+'</button></div>'+
     '<div class="det" id="dPagos">'+(pagosM.length?pagosM.map(p=>'<div class="mLi"><span>'+_fm(p.fecha_pago)+'</span><span>$'+(+p.monto_final).toLocaleString('es-CL')+' · '+String(p.estado).toUpperCase()+'</span></div>').join(''):'Sin pagos registrados.')+'</div>'+
-    '<div class="det" id="dMemH">'+S.mem.map(x=>'<div class="mLi"><span>'+_fm(x.fecha_inicio)+' — '+_fm(x.fecha_fin)+'</span><span>'+x.meses+' M · '+(_MEST[x.estado_calc]||'')+'</span></div>').join('')+'</div>'+
+    '<div class="det" id="dMemH">'+S.mem.map(x=>'<div class="mLi"><span>'+(x.duracion_tipo==='dia'?_fm(x.fecha_inicio):_fm(x.fecha_inicio)+' — '+_fm(x.fecha_fin))+'</span><span>'+(x.duracion_label||x.meses+' M')+' · '+(_MEST[x.estado_calc]||'')+'</span></div>').join('')+'</div>'+
     '<a class="mCta" href="https://wa.me/56971333042?text=Hola%20KOACH%2C%20quiero%20consultar%20mi%20membres%C3%ADa" target="_blank">CONSULTAR RENOVACIÓN →</a></div>'
 }
 function pintarPerfil(){
