@@ -551,7 +551,7 @@ small{color:var(--koach-text-secondary)}
 </div></div>
 
 <div class="vista" id="vSala">
-  <div class="hbar"><span class="hk" title="c9.3">KOACH</span><span class="rol" id="rolBadge" onclick="salir()">COACH</span></div>
+  <div class="hbar"><span class="hk" title="c9.4">KOACH</span><span class="rol" id="rolBadge" onclick="salir()">COACH</span></div>
   <div class="adAcc" id="accesos"></div>
   <div class="glass aform" id="fAlta" style="display:none">
     <h4>CREAR USUARIO — ENTRA AL INSTANTE CON SU CORREO Y CLAVE</h4>
@@ -3293,7 +3293,7 @@ async function adCargarResumen(){
   try{
     const [rs, rm] = await Promise.all([
       sb.from('solicitudes').select('id',{count:'exact',head:true}).eq('estado','pendiente'),
-      sb.from('v_membresias').select('id,socio_id,estado_calc,dias_restantes,fecha_fin,fecha_inicio,pago_pendiente')
+      sb.from('v_membresias').select('id,socio_id,estado,estado_calc,dias_restantes,fecha_fin,fecha_inicio,pago_pendiente')
     ])
     AD.nPend = (rs.count!=null) ? rs.count : (C.sols||[]).length
     AD.mem = rm.data||[]
@@ -3398,10 +3398,21 @@ async function verAdmin(){
   await adCargarResumen()
   admPintar()
 }
+// Fin del ACCESO: períodos encadenados (pago adelantado) cuentan como uno solo
+function adFinCadena(ms){
+  const hoy=hoyISO(), vivos=(ms||[]).filter(function(m){return m.estado!=='cancelada' && m.estado_calc!=='cancelada' && m.fecha_fin>hoy}).sort(function(a,b){return a.fecha_inicio<b.fecha_inicio?-1:1})
+  if (!vivos.length) return null
+  let fin=vivos[0].fecha_fin; vivos.slice(1).forEach(function(m){ if (m.fecha_inicio<=fin && m.fecha_fin>fin) fin=m.fecha_fin })
+  return fin
+}
+function adDias(fin){ return fin ? Math.round((new Date(fin+'T12:00:00')-new Date(hoyISO()+'T12:00:00'))/86400000) : null }
 function admEstadoSocio(id){
   const m=adMemVigente(id)
   if (!m) return {k:'sin', t:'SIN MEMBRESÍA', m:null}
-  return {k:m.estado_calc, t:MEM_EST[m.estado_calc]||m.estado_calc, m:m}
+  const fin=adFinCadena(AD.mem.filter(function(x){return x.socio_id===id})), d=adDias(fin)
+  let k=m.estado_calc
+  if (k==='proxima' && d!=null && d>30) k='activa'   // ya renovó: el período siguiente está encadenado
+  return {k:k, t:MEM_EST[k]||k, m:Object.assign({},m,{fin_acceso:fin, dias_acceso:d})}
 }
 function admPintar(){
   const soc=C.socios.slice()
@@ -3411,7 +3422,8 @@ function admPintar(){
   const cuenta=function(k){ return soc.filter(function(s){ return k==='todos'||(k==='pago'?pend.has(s.id):(k==='activa'?['activa','futura'].indexOf(est[s.id].k)>-1:est[s.id].k===k)) }).length }
   document.getElementById('admF').innerHTML=F2.map(function(f){ return '<button class="'+(AD.admF===f[0]?'on':'')+'" onclick="AD.admF=\''+f[0]+'\';admPintar()">'+f[1]+' · '+cuenta(f[0])+'</button>' }).join('')
   // PRÓXIMOS VENCIMIENTOS 30/14/7
-  const pv=soc.map(function(s){ return [s, est[s.id].m] }).filter(function(p){ return p[1] && ['activa','proxima','congelada'].indexOf(p[1].estado_calc)>-1 && p[1].dias_restantes<=30 })
+  const pv=soc.map(function(s){ return [s, est[s.id].m] }).filter(function(p){ return p[1] && p[1].dias_acceso!=null && p[1].dias_acceso>=0 && p[1].dias_acceso<=30 })
+    .map(function(p){ return [p[0], Object.assign({},p[1],{dias_restantes:p[1].dias_acceso, fecha_fin:p[1].fin_acceso})] })
     .sort(function(a,b){return a[1].dias_restantes-b[1].dias_restantes})
   const tramo=function(d){ return d<=7?'7 DÍAS':d<=14?'14 DÍAS':'30 DÍAS' }
   document.getElementById('admVenc').innerHTML = pv.length ? '<div class="adCard"><div class="adK"><span>PRÓXIMOS VENCIMIENTOS</span><span>'+pv.length+'</span></div>'+
@@ -3456,25 +3468,32 @@ async function fAdmCargar(){
   h+='<div class="adCard"><div class="adK"><span>DATOS DEL SOCIO</span><span>'+(F.sex?String(F.sex).toUpperCase():'SEXO SIN DEFINIR')+'</span></div>'+
     '<div class="adS">NACIMIENTO · '+(F.fecha_nacimiento?adF(F.fecha_nacimiento)+' · '+edad+' AÑOS':'SIN REGISTRAR')+'<br>Define su planificación (hombre / mujer) y las imágenes de sus sesiones.</div>'+
     '<div class="adBtns"><button onclick="admFormDatos()">EDITAR DATOS</button></div></div>'
+  const finAcc=adFinCadena(AD.fMem), dAcc=adDias(finAcc)
+  h+='<div class="adCard"><div class="adK"><span>ACCESO VIGENTE</span><span>'+(finAcc?(dAcc<=30?'POR VENCER':'VIGENTE'):'SIN VIGENCIA')+'</span></div>'+
+    (finAcc?'<div class="adH">HASTA '+adF(finAcc)+'</div><div class="adS">QUEDAN '+dAcc+' DÍA'+(dAcc===1?'':'S')+(AD.fMem.filter(function(m){return m.estado_calc==='futura'}).length?' · INCLUYE PERÍODOS PAGADOS POR ADELANTADO':'')+'</div>'
+      :'<div class="adS">No tiene un período vigente. Registra un pago con su vigencia.</div>')+
+    '<div class="adBtns"><button class="ink" onclick="admFormPago()">REGISTRAR PAGO</button></div></div>'
   if (vig){
     h+='<div class="adCard"><div class="adK"><span>MEMBRESÍA ACTUAL</span><span>'+(MEM_EST[vig.estado_calc]||vig.estado_calc)+'</span></div>'+
       '<div class="adH">'+adF(vig.fecha_inicio)+' — '+adF(vig.fecha_fin)+'</div>'+
-      '<div class="adS">'+vig.meses+' MES'+(vig.meses>1?'ES':'')+' · '+adCLP(vig.valor)+' · '+(MEM_TIPO[vig.tipo_comercial]||'')+
+      '<div class="adS">'+(vig.duracion_label||(vig.meses+' MESES'))+' · '+adCLP(vig.valor)+' · '+(MEM_TIPO[vig.tipo_comercial]||'')+
       (vig.valor_referencia?' · REF '+adCLP(vig.valor_referencia):'')+'<br>'+
       (vig.dias_restantes>=0?vig.dias_restantes+' DÍAS RESTANTES':'VENCIÓ HACE '+(-vig.dias_restantes)+' DÍAS')+
       ' · PAGADO '+adCLP(vig.pagado)+(vig.pago_pendiente?' · <b>PAGO PENDIENTE</b>':'')+
       (vig.observaciones?'<br>INTERNO · '+adEsc(vig.observaciones):'')+'</div>'+
-      '<div class="adBtns"><button class="ink" onclick="admFormPago(\''+vig.id+'\')">REGISTRAR PAGO</button>'+
+      '<div class="adBtns">'+
       '<button onclick="admFormMem(\''+vig.id+'\')">EDITAR</button>'+
       '<button onclick="admFormCongelar(\''+vig.id+'\')">CONGELAR</button>'+
       '<button onclick="admFormCancelar(\''+vig.id+'\')">CANCELAR</button></div></div>'
   } else h+='<div class="adCard"><div class="adK"><span>MEMBRESÍA</span><span>SIN REGISTRO</span></div><div class="adS">Este socio no tiene membresía registrada.</div></div>'
-  h+='<div class="adBtns" style="margin:0 0 12px"><button class="ink" onclick="admFormMem()">+ NUEVA MEMBRESÍA / RENOVACIÓN</button></div>'
+  h+='<div class="adBtns" style="margin:0 0 12px"><button onclick="admFormMem()">+ PERÍODO MANUAL (EXCEPCIÓN)</button></div>'
   h+='<div class="adCard"><div class="adK"><span>HISTORIAL DE MEMBRESÍAS</span><span>'+AD.fMem.length+'</span></div>'+(AD.fMem.length?AD.fMem.map(function(m){
-    return '<div class="adLi"><span>'+adF(m.fecha_inicio)+' — '+adF(m.fecha_fin)+'<small>'+m.meses+' MES'+(m.meses>1?'ES':'')+' · '+(MEM_TIPO[m.tipo_comercial]||'')+(m.cancelada_motivo?' · '+adEsc(m.cancelada_motivo):'')+'</small></span>'+
+    return '<div class="adLi"><span>'+adF(m.fecha_inicio)+' — '+adF(m.fecha_fin)+'<small>'+(m.duracion_label||(m.meses+' MESES'))+' · '+(MEM_TIPO[m.tipo_comercial]||'')+(m.cancelada_motivo?' · '+adEsc(m.cancelada_motivo):'')+'</small></span>'+
       '<span>'+adCLP(m.valor)+'<small>'+(MEM_EST[m.estado_calc]||m.estado_calc)+'</small></span></div>' }).join(''):'<div class="adS">—</div>')+'</div>'
   h+='<div class="adCard"><div class="adK"><span>PAGOS</span><span>'+AD.fPag.length+'</span></div>'+(AD.fPag.length?AD.fPag.map(function(p){
-    return '<div class="adLi" style="'+(p.anulado?'opacity:.5;text-decoration:line-through':'')+'"><span>'+adF(p.fecha_pago)+'<small>'+(p.metodo?String(p.metodo).toUpperCase()+' · ':'')+(p.referencia?adEsc(p.referencia)+' · ':'')+(p.notas?adEsc(p.notas):'')+(p.anulado?' · ANULADO: '+adEsc(p.anulado_motivo||''):'')+'</small></span>'+
+    const pm=AD.fMem.find(function(m){return m.id===p.membresia_id})
+    const vg=pm?('<b>'+(pm.duracion_label||'')+'</b> · VIGENCIA '+(pm.duracion_tipo==='dia'?adF(pm.fecha_inicio):adF(pm.fecha_inicio)+' → '+adF(pm.fecha_fin))+'<br>'):''
+    return '<div class="adLi" style="'+(p.anulado?'opacity:.5;text-decoration:line-through':'')+'"><span>'+adF(p.fecha_pago)+'<small>'+vg+(p.metodo?String(p.metodo).toUpperCase()+' · ':'')+(p.referencia?adEsc(p.referencia)+' · ':'')+(p.notas?adEsc(p.notas):'')+(p.anulado?' · ANULADO: '+adEsc(p.anulado_motivo||''):'')+'</small></span>'+
       '<span>'+adCLP(p.monto_final)+'<small>'+String(p.estado).toUpperCase()+(p.anulado?'':' · <a onclick="admFormPagoEdit(\''+p.id+'\')" style="text-decoration:underline;cursor:pointer">CORREGIR</a>')+'</small></span></div>' }).join(''):'<div class="adS">Sin pagos registrados.</div>')+'</div>'
   if (cong.length) h+='<div class="adCard"><div class="adK"><span>CONGELAMIENTOS</span><span>'+cong.length+'</span></div>'+cong.map(function(c){
     return '<div class="adLi"><span>'+adF(c.desde)+' — '+adF(c.hasta)+'<small>'+(c.motivo?adEsc(c.motivo):'')+'</small></span><span>'+c.dias+' D<small>'+(c.extendio_vencimiento?'EXTENDIÓ VENCIMIENTO':'SIN EXTENSIÓN')+'</small></span></div>' }).join('')+'</div>'
@@ -3543,23 +3562,34 @@ async function admGuardarMem(id){
   if (r.error){ syncErr(r.error.message); toast('No se pudo guardar: '+r.error.message); return }
   syncOk(); admCerrar(); toast(id?'Membresía actualizada ✓':'Membresía creada ✓'); await adCargarResumen(); fAdmCargar()
 }
-function admFormPago(memId){
-  const m=(AD.fMem||[]).find(function(x){return x.id===memId})
-  admAbrir('REGISTRAR PAGO','<div class="adF"><div class="adRow2"><div><label>FECHA</label><input type="date" id="apF" value="'+hoyISO()+'"></div>'+
-    '<div><label>MONTO (CLP)</label><input inputmode="numeric" id="apM" value="'+(m?Math.max(0,m.valor-m.pagado):'')+'"></div></div>'+
+const AD_DUR=[['dia:1','DAY PASS'],['semana:1','1 SEMANA']].concat([1,2,3,4,5,6,7,8,9,10,11,12].map(function(n){return ['mes:'+n, n+' MES'+(n>1?'ES':'')]}))
+function admFormPago(){
+  admAbrir('REGISTRAR PAGO · '+nomDe(F.id).toUpperCase(),'<div class="adF"><div class="adRow2"><div><label>FECHA</label><input type="date" id="apF" value="'+hoyISO()+'" onchange="admPrevVig()"></div>'+
+    '<div><label>MONTO (CLP)</label><input inputmode="numeric" id="apM" placeholder="0"></div></div>'+
+    '<label>VIGENCIA</label><select id="apD" onchange="admPrevVig()"><option value="">SELECCIONAR DURACIÓN</option>'+AD_DUR.map(function(d){return '<option value="'+d[0]+'">'+d[1]+'</option>'}).join('')+'</select>'+
+    '<div class="adNote" id="apV">Elige la duración para ver hasta cuándo queda habilitado.</div>'+
     '<div class="adRow2"><div><label>ESTADO</label><select id="apE"><option value="pagado">PAGADO</option><option value="pendiente">PENDIENTE</option></select></div>'+
     '<div><label>MÉTODO</label><select id="apMe"><option value="">—</option><option>transferencia</option><option>efectivo</option><option>débito</option><option>crédito</option><option>otro</option></select></div></div>'+
     '<label>REFERENCIA</label><input id="apR" placeholder="opcional"><label>OBSERVACIÓN</label><input id="apO" placeholder="opcional">'+
-    '</div><div class="adBtns"><button class="ink" onclick="admGuardarPago(\''+memId+'\')">REGISTRAR</button></div>')
+    '</div><div class="adBtns"><button class="ink" onclick="admGuardarPago()">REGISTRAR</button></div>')
 }
-async function admGuardarPago(memId){
+async function admPrevVig(){
+  const d=document.getElementById('apD').value, f=document.getElementById('apF').value, el=document.getElementById('apV')
+  if (!d||!f){ el.textContent='Elige la duración para ver hasta cuándo queda habilitado.'; return }
+  const t=d.split(':'), r=await sb.rpc('admin_vigencia_preview',{p_socio:F.id,p_fecha:f,p_tipo:t[0],p_valor:+t[1]})
+  if (r.error||!r.data){ el.textContent='No se pudo calcular la vigencia.'; return }
+  const v=r.data
+  el.innerHTML='VIGENCIA RESULTANTE · <b>'+(t[0]==='dia'?adF(v.inicio):adF(v.inicio)+' → '+adF(v.fin))+'</b>'+(v.encadena?'<br>Tiene un plan vigente: el nuevo período se suma desde su término, no pierde días.':'')
+}
+async function admGuardarPago(){
   const g=function(x){return (document.getElementById(x)||{}).value}
-  const monto=parseInt(String(g('apM')).replace(/\D/g,''),10)
+  const monto=parseInt(String(g('apM')).replace(/\D/g,''),10), dur=g('apD')
   if(!g('apF')||isNaN(monto)){ toast('Fecha y monto son obligatorios.'); return }
-  const ac=adActor(); syncEnvio()
-  const r=await sb.rpc('admin_pago_registrar',{p_socio:F.id,p_membresia:memId,p_fecha:g('apF'),p_monto:monto,p_estado:g('apE'),p_metodo:g('apMe')||null,p_referencia:(g('apR')||'').trim()||null,p_obs:(g('apO')||'').trim()||null,p_actor:ac.id,p_actor_nombre:ac.nombre})
+  if(!dur){ toast('Selecciona la vigencia del pago.'); return }
+  const t=dur.split(':'), ac=adActor(); syncEnvio()
+  const r=await sb.rpc('admin_pago_con_vigencia',{p_socio:F.id,p_fecha:g('apF'),p_monto:monto,p_estado:g('apE'),p_tipo:t[0],p_valor:+t[1],p_metodo:g('apMe')||null,p_referencia:(g('apR')||'').trim()||null,p_obs:(g('apO')||'').trim()||null,p_actor:ac.id,p_actor_nombre:ac.nombre})
   if (r.error){ syncErr(r.error.message); toast('No se pudo registrar: '+r.error.message); return }
-  syncOk(); admCerrar(); toast('Pago registrado ✓'); await adCargarResumen(); fAdmCargar()
+  syncOk(); admCerrar(); toast('Pago registrado ✓ · vigencia hasta '+adF(r.data.fin)); await adCargarResumen(); fAdmCargar()
 }
 function admFormPagoEdit(pid){
   const p=(AD.fPag||[]).find(function(x){return x.id===pid}); if(!p) return
