@@ -473,6 +473,11 @@ small{color:var(--koach-text-secondary)}
 .adhW span,.adhW em{color:var(--koach-text-secondary);font-style:normal}
 .adhBar{height:8px;border-radius:4px;background:rgba(18,18,18,.08);overflow:hidden}
 .adhBar i{display:block;height:100%;background:#1C1C1C;border-radius:4px}
+
+/* c9.5 · la interfaz no ofrece lo que el rol no puede hacer (la base lo impone igual) */
+html:not([data-rol="admin"]) #rCoach, html:not([data-rol="admin"]) #rRecep, html:not([data-rol="admin"]) #rNutri{display:none}
+html[data-rol="coach"] #fTbAdm, html[data-rol="nutricionista"] #fTbAdm{display:none}
+html[data-rol="recepcion"] .fPlanBtn, html[data-rol="nutricionista"] .fPlanBtn{display:none}
 /* ═══ FIN CAPA 3 ═══ */
 /* ═══ MOTOR DE CONSTRUCCIÓN c8.0 · MACRO → MESO → MICRO ═══ */
 .plNav{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin:0 0 14px}
@@ -540,18 +545,11 @@ small{color:var(--koach-text-secondary)}
   <label>CONTRASEÑA</label><input id="lPass" type="password" autocomplete="current-password">
   <button class="btn" id="lBtn" onclick="login()">ENTRAR A LA SALA →</button>
   <div class="lerr" id="lErr"></div>
-  <div style="display:flex;align-items:center;gap:10px;margin:20px 0 14px">
-    <div style="flex:1;height:1px;background:rgba(18,18,16,.12)"></div>
-    <span style="font-size:7px;letter-spacing:.2em;color:#BEBDB8;font-weight:900">ACCESO RÁPIDO</span>
-    <div style="flex:1;height:1px;background:rgba(18,18,16,.12)"></div>
-  </div>
-  <label>PIN DE LA SALA</label>
-  <input id="lPin" type="password" inputmode="numeric" placeholder="····" style="text-align:center;letter-spacing:.5em;font-size:18px" onkeydown="if(event.key==='Enter')pinEntrar()">
-  <button class="btn" onclick="pinEntrar()">ENTRAR CON PIN →</button>
+  <div style="margin-top:16px;font-size:12px;line-height:1.5;color:#8E8D88;text-align:center">Acceso solo con cuenta personal del equipo KOACH.<br>Si no tienes cuenta, pídesela a un administrador.</div>
 </div></div>
 
 <div class="vista" id="vSala">
-  <div class="hbar"><span class="hk" title="c9.4">KOACH</span><span class="rol" id="rolBadge" onclick="salir()">COACH</span></div>
+  <div class="hbar"><span class="hk" title="c9.5">KOACH</span><span class="rol" id="rolBadge" onclick="salir()">COACH</span></div>
   <div class="adAcc" id="accesos"></div>
   <div class="glass aform" id="fAlta" style="display:none">
     <h4>CREAR USUARIO — ENTRA AL INSTANTE CON SU CORREO Y CLAVE</h4>
@@ -575,6 +573,8 @@ small{color:var(--koach-text-secondary)}
     <div class="roles">
       <button class="rolb on" id="rSocio" onclick="setRol('socio')">SOCIO</button>
       <button class="rolb" id="rCoach" onclick="setRol('coach')">COACH</button>
+      <button class="rolb" id="rRecep" onclick="setRol('recepcion')">RECEPCIÓN</button>
+      <button class="rolb" id="rNutri" onclick="setRol('nutricionista')">NUTRICIÓN</button>
     </div>
     <button class="btn" id="nuBtn" onclick="crearUsuario()">CREAR USUARIO →</button>
     <div class="amsg" id="nuMsg"></div>
@@ -984,21 +984,7 @@ function toast(m){let t=document.querySelector('.toast');if(!t){t=document.creat
   t.textContent=m;t.classList.add('vis');clearTimeout(t._x);t._x=setTimeout(function(){t.classList.remove('vis')},3000)}
 async function salir(){ try{localStorage.removeItem('koach_pin')}catch(_e){}
   await sb.auth.signOut(); location.reload() }
-const PIN_SALA='2026'
-function pinEntrar(){
-  const v=(document.getElementById('lPin').value||'').trim()
-  if(v!==PIN_SALA){ document.getElementById('lErr').textContent='PIN incorrecto'; return }
-  try{ localStorage.setItem('koach_pin', v) }catch(_e){}
-  entrarPin()
-}
-async function entrarPin(){
-  C.yo = { role:'admin', nombre:'Sala', _pin:true }
-  document.getElementById('rolBadge').textContent='SALA · PIN · SALIR'
-  vista('vSala')
-  document.getElementById('lista').innerHTML='<div class="vacio">Cargando la sala…</div>'
-  await loadSala()
-}
-
+// c9.5 · SEGURIDAD: se eliminó el acceso por PIN compartido. Cada persona entra con su cuenta y la base aplica su rol.
 async function login(){
   const b=document.getElementById('lBtn'), e=document.getElementById('lErr')
   e.textContent=''; b.disabled=true; b.textContent='VERIFICANDO…'
@@ -1018,18 +1004,13 @@ async function entrar(){
     let q = await sb.from('profiles').select('*').eq('id',user.id).maybeSingle()
     if(q.error){ alert('Error al cargar perfil:\n'+q.error.message); vista('vLogin'); return }
     let perfil = q.data
-    if(!perfil){
-      const pin = prompt('Esta cuenta no tiene perfil KOACH.\nIngresa el PIN de administrador para crearlo como ADMIN:')
-      if(pin==='2026'){
-        const ins = await sb.from('profiles').insert({
-          id:user.id, nombre:'Editor', apellido:'KOACH', email:user.email, role:'admin', activo:true }).select().maybeSingle()
-        if(ins.error){ alert('No se pudo crear el perfil:\n'+ins.error.message+'\n\n(fotografia este mensaje)'); await sb.auth.signOut(); vista('vLogin'); return }
-        perfil = ins.data
-      } else { await sb.auth.signOut(); vista('vLogin'); return }
-    }
+    if(!perfil){ alert('Esta cuenta no tiene perfil en KOACH. Pide a un administrador que la configure.'); await sb.auth.signOut(); vista('vLogin'); return }
+    if(perfil.activo===false){ alert('Esta cuenta está desactivada.'); await sb.auth.signOut(); vista('vLogin'); return }
     if(perfil.role==='socio'){ window.location.href='/app.html'; return }
     C.yo = perfil
-    document.getElementById('rolBadge').textContent = (perfil.role==='admin'?'ADMIN ⚙ · ':'COACH · ')+(perfil.nombre||'').toUpperCase()+' · SALIR'
+    document.documentElement.setAttribute('data-rol', perfil.role)
+    const ROLN={admin:'ADMIN ⚙', coach:'COACH', recepcion:'RECEPCIÓN', nutricionista:'NUTRICIÓN'}
+    document.getElementById('rolBadge').textContent = (ROLN[perfil.role]||'EQUIPO')+' · '+(perfil.nombre||'').toUpperCase()+' · SALIR'
     await loadSala()
     vista('vSala')
   }catch(e){
@@ -1145,12 +1126,13 @@ function pintarSala(){
   const nSol=(AD.nPend!=null?AD.nPend:C.sols.length)
   const nVen=(AD.mem||[]).filter(function(m){return m.estado_calc==='proxima' && m.dias_restantes<=7}).length
   const nVcd=C.socios.filter(function(s){ const e=admEstadoSocio(s.id); return e.k==='vencida' }).length
+  const R=(C.yo&&C.yo.role)||'coach', COM=(R==='admin'||R==='recepcion'), ENT=(R==='admin'||R==='coach')
   document.getElementById('accesos').innerHTML=
     '<button class="'+(nSol?'hot':'')+'" onclick="verSolicitudes()"><span>SOLICITUDES</span><b>'+nSol+'</b></button>'+
-    '<button class="'+((nVen||nVcd)?'hot':'')+'" onclick="verAdmin()"><span>MEMBRESÍAS'+(nVen?'<br>'+nVen+' VENCE ≤7 D':'')+(nVcd?'<br>'+nVcd+' VENCIDA'+(nVcd>1?'S':''):'')+'</span><b>›</b></button>'+
+    (COM?'<button class="'+((nVen||nVcd)?'hot':'')+'" onclick="verAdmin()"><span>MEMBRESÍAS'+(nVen?'<br>'+nVen+' VENCE ≤7 D':'')+(nVcd?'<br>'+nVcd+' VENCIDA'+(nVcd>1?'S':''):'')+'</span><b>›</b></button>':'')+
     '<button onclick="verAdherencia()"><span>ADHERENCIA</span><b>›</b></button>'+
-    '<button onclick="verBib()"><span>BIBLIOTECA</span><b>›</b></button>'+
-    '<button onclick="toggleAlta()"><span>NUEVO USUARIO</span><b>+</b></button>'
+    (ENT?'<button onclick="verBib()"><span>BIBLIOTECA</span><b>›</b></button>':'')+
+    ((R==='admin'||R==='recepcion'||R==='coach')?'<button onclick="toggleAlta()"><span>NUEVO USUARIO</span><b>+</b></button>':'')
   if(false && C.sols.length){
     b+='<div class="glass band"><div class="bt1" style="color:var(--ama)">🔔 SOLICITUDES · '+C.sols.length+' PENDIENTE'+(C.sols.length>1?'S':'')+'</div>'+
     C.sols.map(function(x){
@@ -1386,6 +1368,7 @@ function setSexo(x){ window._nuSexo=x
 function setRol(r){ window._nuRol=r
   document.getElementById('rSocio').classList.toggle('on',r==='socio')
   document.getElementById('rCoach').classList.toggle('on',r==='coach')
+  document.getElementById('rRecep').classList.toggle('on',r==='recepcion'); document.getElementById('rNutri').classList.toggle('on',r==='nutricionista')
   document.getElementById('nuDatosSocio').style.display = r==='socio' ? '' : 'none'
   const box=document.getElementById('nuPlanes')
   if(box) box.style.display = (r==='socio' && PLANES && PLANES.length) ? 'block' : 'none' }
@@ -3793,8 +3776,7 @@ async function aplicarProgramaGo(){
 
 ;(async function(){ const s = await sb.auth.getSession()
   if(s.data && s.data.session){ await entrar(); return }
-  let pin=null; try{ pin=localStorage.getItem('koach_pin') }catch(_e){}
-  if(pin===PIN_SALA){ await entrarPin(); return }
+  try{ localStorage.removeItem('koach_pin') }catch(_e){}
   vista('vLogin') })()
 </script>
 </body>
