@@ -14,6 +14,7 @@
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="/domain/koach-domain.js"></script>
+<script src="/domain/program-catalog.js"></script>
 <style>
 /* ═══════════ KOACH DS v1.0 · TOKENS + PRIMITIVES (P0) ═══════════ */
 @font-face{font-family:'Inter Display';src:url('/fonts/InterDisplay-Regular.woff2') format('woff2');font-weight:400;font-display:swap}
@@ -915,6 +916,13 @@ div.sp:active{transform:none}
 .bv__prog span{font-family:var(--font-display);font-weight:600;font-size:15px;color:#121212}
 .bv__prog small{font-family:var(--font-mono);font-weight:500;font-size:11px;letter-spacing:.06em;color:#8E8D88}
 .bv__nota{text-align:center;font-family:var(--font-display);font-size:14px;color:#6E6D68;margin:6px 0 0}
+
+/* v10.5 · tarjetas oficiales de programas (PROGRAM_CATALOG) */
+.pgc{background:#FBFAF8;border:1px solid rgba(18,18,18,.08);border-radius:20px;padding:20px 20px 18px;margin-bottom:12px}
+.pgc__n{margin:0;font-family:var(--font-display);font-weight:700;font-size:30px;letter-spacing:-0.02em;line-height:1;color:#121212}
+.pgc__t{margin-top:6px;font-family:var(--font-mono);font-weight:500;font-size:12.5px;letter-spacing:.16em;color:#121212}
+.pgc__d{margin:12px 0 0;font-family:var(--font-display);font-size:16px;line-height:1.5;color:#4A4945}
+.pgc__d + .pgc__d{margin-top:8px}
 </style>
 </head>
 <body>
@@ -974,7 +982,7 @@ div.sp:active{transform:none}
   <!-- ══ HOME ══ -->
   <div class="vista conTab" id="vHome">
     <div id="k2Home" aria-live="polite"></div>
-    <div class="hbar"><span class="hk" title="v10.4">KOACH</span><div class="hav" id="hAv" onclick="salir()">K</div></div>
+    <div class="hbar"><span class="hk" title="v10.5">KOACH</span><div class="hav" id="hAv" onclick="salir()">K</div></div>
     <div class="ctx"><div class="fecha" id="hFecha">—</div><div class="prog" id="hProg">—</div></div>
     <div class="anillo">
       <svg width="180" height="180" viewBox="0 0 180 180">
@@ -1961,7 +1969,7 @@ function pintarBienvenida(msg){
   const n=msgNombre(), fem=String((S.perfil&&S.perfil.sex)||'')==='mujer'
   const memOk = !!(S.memVig && ['activa','proxima','futura','congelada'].indexOf(S.memVig.estado_calc)>-1)
   const paso=(ok,t,d)=>'<li class="bv__p'+(ok?' is-ok':'')+'"><i>'+(ok?'✓':'')+'</i><div><b>'+t+'</b><span>'+d+'</span></div></li>'
-  const prog=[['STRONG','Fuerza + músculo','4 sesiones por semana'],['BURN','Recomposición + potencia','3 sesiones por semana'],['HEALTHY','Condición + fuerza','4 sesiones por semana']]
+  const prog=(window.PROGRAM_ORDER||[]).map(k=>programaDef(k)).filter(Boolean)   // copy oficial: domain/program-catalog.js
   const box=document.getElementById('k2Home')
   if (!box || !K2.on){   // Home clásico: mismo mensaje en sus elementos
     document.getElementById('hSaludo').textContent='Hola, '+(n||'socio')+'.'
@@ -1982,7 +1990,8 @@ function pintarBienvenida(msg){
       paso(false,'A entrenar','Tus sesiones, cargas y progreso aparecen aquí.')+
     '</ol></section>'+
     '<section class="k2-sec"><div class="k2-sec__h">'+k2Label('LOS PROGRAMAS KOACH')+'</div>'+
-      prog.map(p=>'<div class="bv__prog"><b>'+p[0]+'</b><span>'+p[1]+'</span><small>'+p[2]+'</small></div>').join('')+
+      prog.map(p=>'<article class="pgc"><h3 class="pgc__n">'+p.name+'</h3><div class="pgc__t">'+p.tagline+'</div>'+
+        p.description.split('\n\n').map(x=>'<p class="pgc__d">'+x+'</p>').join('')+'</article>').join('')+
     '</section>'+
     '<section class="k2-wk"><div class="k2-sec__h">'+k2Label('ASÍ VERÁS TU SEMANA')+'</div>'+
       stimulusWheel(wd,{variant:'compact',theme:'light',size:300,center:{v:'0%',l:'OBJETIVO|SEMANAL'}})+
