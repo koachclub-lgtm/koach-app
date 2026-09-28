@@ -479,6 +479,27 @@ small{color:var(--koach-text-secondary)}
 html:not([data-rol="admin"]) #rCoach, html:not([data-rol="admin"]) #rRecep, html:not([data-rol="admin"]) #rNutri{display:none}
 html[data-rol="coach"] #fTbAdm, html[data-rol="nutricionista"] #fTbAdm{display:none}
 html[data-rol="recepcion"] .fPlanBtn, html[data-rol="nutricionista"] .fPlanBtn{display:none}
+/* ═══ c10.0 · GUARDAR CAMBIOS ═══ */
+.plIndRow{display:flex;justify-content:flex-end;margin:0 2px 6px}
+.plInd{font-family:var(--font-mono);font-weight:500;font-size:10.5px;letter-spacing:.1em;color:var(--koach-text-secondary)}
+.plInd.is-dirty{color:#121212;font-weight:700}
+.plSave{position:sticky;bottom:calc(8px + env(safe-area-inset-bottom,0px));z-index:60;display:flex;align-items:center;gap:12px;margin:10px 0 0;padding:10px 10px 10px 16px;border-radius:16px;
+  background:rgba(251,250,248,.96);border:1px solid rgba(18,18,18,.10);box-shadow:0 8px 24px rgba(18,18,18,.10);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px)}
+.plSave span{flex:1;font-family:var(--font-mono);font-weight:500;font-size:10.5px;letter-spacing:.08em;color:#121212}
+.plSave button{border:none;border-radius:12px;padding:14px 18px;font-family:var(--font-mono);font-weight:500;font-size:12px;letter-spacing:.1em;cursor:pointer;background:#121212;color:#F4F3F0}
+.plSave--ok button,.plSave--saving button{background:rgba(18,18,18,.08);color:#5E5D59;cursor:default}
+.plSave--done button{background:#1F7A4A;color:#fff}
+.plSave--err{border-color:#121212}
+.plSave--err span{color:#121212;font-weight:700}
+.mSG{position:fixed;inset:0;z-index:990;background:rgba(10,10,11,.55);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);align-items:flex-end;justify-content:center}
+.mSG__c{width:100%;max-width:520px;background:#F4F3F0;border-radius:26px 26px 0 0;padding:24px 22px calc(24px + env(safe-area-inset-bottom,0px))}
+.mSG__k{font-family:var(--font-mono);font-weight:500;font-size:10px;letter-spacing:.18em;color:#8E8D88}
+.mSG__c h3{margin:6px 0 6px;font-family:var(--font-display);font-weight:700;font-size:26px;letter-spacing:-0.02em;color:#121212}
+.mSG__c p{margin:0 0 18px;font-family:var(--font-display);font-size:16px;line-height:1.4;color:#4A4945}
+.mSG__c button{display:block;width:100%;margin-top:10px;border-radius:14px;padding:16px;font-family:var(--font-mono);font-weight:500;font-size:12px;letter-spacing:.1em;cursor:pointer}
+.mSG__ok{background:#121212;color:#F4F3F0;border:none}
+.mSG__sec{background:transparent;color:#121212;border:1px solid rgba(18,18,18,.2)}
+.mSG__del{background:none;border:none;color:#8E8D88;text-decoration:underline;font-size:11px!important}
 /* ═══ FIN CAPA 3 ═══ */
 /* ═══ MOTOR DE CONSTRUCCIÓN c8.0 · MACRO → MESO → MICRO ═══ */
 .plNav{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin:0 0 14px}
@@ -550,7 +571,7 @@ html[data-rol="recepcion"] .fPlanBtn, html[data-rol="nutricionista"] .fPlanBtn{d
 </div></div>
 
 <div class="vista" id="vSala">
-  <div class="hbar"><span class="hk" title="c9.9">KOACH</span><span class="rol" id="rolBadge" onclick="salir()">COACH</span></div>
+  <div class="hbar"><span class="hk" title="c10.0">KOACH</span><span class="rol" id="rolBadge" onclick="salir()">COACH</span></div>
   <div class="adAcc" id="accesos"></div>
   <div class="glass aform" id="fAlta" style="display:none">
     <h4>CREAR USUARIO — ENTRA AL INSTANTE CON SU CORREO Y CLAVE</h4>
@@ -687,13 +708,21 @@ html[data-rol="recepcion"] .fPlanBtn, html[data-rol="nutricionista"] .fPlanBtn{d
     <button onclick="abrirOrganizador()" style="border:1.5px solid rgba(18,18,16,.16);background:none;border-radius:10px;padding:8px 12px;font-size:8px;font-weight:900;letter-spacing:.12em;cursor:pointer;color:#121210">⇅ REORGANIZAR SESIONES</button>
   </div>
   <div class="mtabs" id="pTabs"></div>
+  <div class="plIndRow"><span id="plSaveInd" class="plInd">GUARDADO ✓</span></div>
   <div id="pBloques" style="padding-bottom:120px"></div>
+  <div id="plSave" class="plSave plSave--ok" style="display:none"><span id="plSaveMsg"></span><button id="plSaveBtn" onclick="plGuardar()" disabled>GUARDADO ✓</button></div>
   <div class="guardia vis2" id="pGuardia" style="padding-top:11px">
-    <div class="gt1" id="pFootMsg">SE GUARDA AL INSTANTE · LA APP ORIENTA, EL COACH PROGRAMA</div>
+    <div class="gt1" id="pFootMsg">GUARDAR CAMBIOS PERSISTE LA SESIÓN · APLICAR PROGRAMA LA PUBLICA AL SOCIO</div>
     <button class="gb" onclick="aplicarPrograma()">APLICAR PROGRAMA →</button>
   </div>
 </div>
 
+<div id="mSinGuardar" class="mSG" style="display:none" role="dialog" aria-modal="true" aria-labelledby="mSinGuardarT">
+  <div class="mSG__c"><div class="mSG__k">PLANIFICADOR</div><h3 id="mSinGuardarT">Cambios sin guardar</h3><p id="mSinGuardarTxt"></p>
+    <button class="mSG__ok" onclick="plGuardGuardar()">GUARDAR Y CONTINUAR</button>
+    <button class="mSG__sec" onclick="plGuardCerrar()">SEGUIR EDITANDO</button>
+    <button class="mSG__del" onclick="plGuardDescartar()">Descartar cambios</button></div>
+</div>
 <!-- PICKER DE PROGRAMA BASE -->
 <div class="vista" id="vPicker">
   <div class="stop"><button class="sback" onclick="verFicha(F.id)">←</button>
@@ -1054,8 +1083,8 @@ async function loadSala(silent){
       pids.forEach(function(pid){
         C.prog[pid]={ sesiones:(rses.data||[]).filter(function(s){return s.protocolo_id===pid}).map(function(s){
           return { numero:s.numero, semana:(s.semana||1), id:s.id, nombre:nombreEN(s.objetivo)||('SESION '+s.numero),
-            bloques:(rblo.data||[]).filter(function(b){return b.sesion_id===s.id}).map(function(b){
-              return {id:b.id, sets:b.sets, ejercicios:(b.bloque_ejercicios||[]).map(function(be){
+            bloques:(rblo.data||[]).filter(function(b){return b.sesion_id===s.id}).sort(function(a,x){ return String(a.bloque).localeCompare(String(x.bloque)) }).map(function(b){
+              return {id:b.id, sets:b.sets, ejercicios:beOrd(b.bloque_ejercicios).map(function(be){
                 return {beId:be.id, grupo:be.ejercicios?be.ejercicios.grupo_muscular:null,
                         sinergistas:(be.ejercicios&&be.ejercicios.sinergistas)||{}, cuenta_dosis:(be.ejercicios?be.ejercicios.cuenta_dosis:null)}
               }).filter(function(e){return e.grupo})} }) } }) } })
@@ -1298,7 +1327,7 @@ async function evaluar(i){
   if(!s.bloques){
     const rb = await sb.from('bloques').select('*, bloque_ejercicios(*, ejercicios(id,nombre,grupo_muscular,estimulo,sinergistas,tipo_registro,con_carga,cuenta_dosis,implemento,activo))').eq('sesion_id',s.id).order('bloque')
     s.bloques=(rb.data||[]).map(function(b){
-      return {sets:b.sets, ejercicios:(b.bloque_ejercicios||[]).map(function(be){
+      return {sets:b.sets, ejercicios:beOrd(b.bloque_ejercicios).map(function(be){
         return {grupo:be.ejercicios?be.ejercicios.grupo_muscular:null,
                 sinergistas:(be.ejercicios&&be.ejercicios.sinergistas)||{}, cuenta_dosis:(be.ejercicios?be.ejercicios.cuenta_dosis:null)}
       }).filter(function(e){return e.grupo})} })
@@ -1705,12 +1734,12 @@ async function abrirPlan(pid, proto, opts){
   const rses = await qq
   const sids = (rses.data||[]).map(function(s){return s.id})
   const rblo = sids.length ? await sb.from('bloques').select('*, bloque_ejercicios(*, ejercicios(id,nombre,grupo_muscular,estimulo,sinergistas,tipo_registro,con_carga,cuenta_dosis,implemento,activo))').in('sesion_id',sids).order('bloque') : {data:[]}
-  P = { pid:pid, proto:proto, tab:0, bib:esBib, base:esBase, sesiones:(rses.data||[]).map(function(s){
+  P = { pid:pid, proto:proto, tab:0, bib:esBib, base:esBase, dirty:{}, sesiones:(rses.data||[]).map(function(s){
     return { id:s.id, numero:s.numero, semana:(s.semana||1), editada:!!s.editada, nombre:nombreEN(s.objetivo)||('SESION '+s.numero),
-      bloques:(rblo.data||[]).filter(function(b){return b.sesion_id===s.id}).map(function(b){
-        return { id:b.id, tag:b.bloque, etiqueta:b.etiqueta||null, sets:b.sets||3,
+      bloques:(rblo.data||[]).filter(function(b){return b.sesion_id===s.id}).sort(function(a,x){ return String(a.bloque).localeCompare(String(x.bloque)) }).map(function(b){
+        return { id:b.id, bId:b.id, tag:b.bloque, rol:b.rol||null, etiqueta:b.etiqueta||null, sets:b.sets||3,
           desc:(b.descanso_seg!=null?b.descanso_seg:(b.descanso_segundos!=null?b.descanso_segundos:60)),
-          items:(b.bloque_ejercicios||[]).map(function(be){
+          items:beOrd(b.bloque_ejercicios).map(function(be){
             return { beId:be.id, ejId:be.ejercicio_id,
               nombre:(be.ejercicios&&be.ejercicios.nombre)||'—',
               grupo:(be.ejercicios&&be.ejercicios.grupo_muscular)||'',
@@ -1752,7 +1781,7 @@ function repintarConservando(){
   pintarPlan()
   requestAnimationFrame(function(){ window.scrollTo(0, y) })
 }
-function pintarPlan(){
+function pintarPlan(){ setTimeout(function(){ try{ plSaveUI() }catch(_e){} },0)
   cargandoOff()
   if (!plActivo()){ ['pNav','pMacro','pMeso'].forEach(function(id){ const e=document.getElementById(id); if(e) e.style.display='none' })
     ;['pTabs','pBloques','pOrgRow'].forEach(function(id){ const e=document.getElementById(id); if(e) e.style.display='' }) }
@@ -1880,24 +1909,16 @@ async function crearBloque(){
   if(n>6){ toast('Máximo 6 bloques por sesión.'); return }
   const tp=TIPOS_BLOQUE[MB.tipo]
   document.getElementById('mBloq').style.display='none'
-  const r=await insertarBloque(ses.id, 'B'+n, tp[0], tp[1], MB.sets, MB.desc)
-  if(r.error){ console.error(r.error); toast('No pudimos crear el bloque: '+r.error.message); return }
-  toast('✓ Bloque '+tp[0]+' creado')
-  const proto=P.proto, tab=P.tab
-  await abrirPlan(P.pid, proto, P.bib?{modo:'bib',soloSesion:ses.id}:(P.base?{modo:'base'}:undefined))
-  P.tab=tab; pintarPlan()
+  const nid=plUuid()
+  ses.bloques.push({ id:nid, bId:nid, tag:'B'+n, rol:tp[1], etiqueta:tp[0], sets:MB.sets, desc:MB.desc, items:[] })
+  plDirty(); repintarConservando(); toast('Bloque '+tp[0]+' agregado · recuerda GUARDAR CAMBIOS')
 }
 async function elimBloque(bi){
   const ses=P.sesiones[P.tab], b=ses.bloques[bi]; if(!b) return
   if(b.items.length && !confirm('Este bloque tiene '+b.items.length+' ejercicio(s). ¿Eliminarlo igual?')) return
   if(!b.items.length && !confirm('¿Eliminar este bloque?')) return
-  await sb.from('bloque_ejercicios').delete().eq('bloque_id',b.id)
-  const r=await sb.from('bloques').delete().eq('id',b.id)
-  if(r.error){ toast('Eliminar bloque: '+r.error.message); return }
-  toast('Bloque eliminado')
-  const proto=P.proto, tab=P.tab
-  await abrirPlan(P.pid, proto, P.bib?{modo:'bib',soloSesion:ses.id}:(P.base?{modo:'base'}:undefined))
-  P.tab=Math.min(tab, P.sesiones.length-1); pintarPlan()
+  ses.bloques.splice(bi,1)
+  plDirty(); repintarConservando(); toast('Bloque quitado · recuerda GUARDAR CAMBIOS')
 }
 async function moverSesion(i, d){
   const j = i + d
@@ -2081,15 +2102,11 @@ document.addEventListener('pointerup',async function(){
   const b=P.sesiones[P.tab].bloques[bi]
   const cont=el.parentElement
   const orden=[].slice.call(cont.querySelectorAll('.lin')).map(function(x){return x.id.replace('pl-','')})
-  syncEnvio()
-  // c9.9 · reorden atómico en la base (antes, fila por fila chocaba con el orden único del bloque)
-  const r=await sb.rpc('koach_reordenar_bloque',{p_bloque:b.id, p_ids:orden})
-  if(r.error){ console.error('[reordenar]', r.error); syncErr(r.error.message); toast('No pudimos reordenar. Intenta nuevamente.'); await plRecargar(); return }
   orden.forEach(function(id,i){ const it=b.items.find(function(x){return x.beId===id}); if(it) it.orden=i+1 })
   b.items.sort(function(a,x){return (a.orden||0)-(x.orden||0)})
-  syncOk()
+  plDirty()
 })
-function tabTap(i){ if(window._dgMoved) return; P.tab=i; pintarPlan() }
+function tabTap(i){ if(window._dgMoved) return; if(i===P.tab) return; plGuard(function(){ P.tab=i; pintarPlan() }) }
 document.addEventListener('pointerdown', function(e){
   if(!P || P.bib) return
   const hdl = e.target.closest('#pTabs [data-hdl]')
@@ -2153,12 +2170,10 @@ function planItem(beId){
   return r
 }
 async function stepSets(bi,d){
-  const b=P.sesiones[P.tab].bloques[bi]; b.sets=Math.max(1,Math.min(8,(b.sets||3)+d)); pintarPlan()
-  syncEnvio(); const r=await sb.from('bloques').update({sets:b.sets}).eq('id',b.id); if(r.error)syncErr(r.error.message); else syncOk()
+  const b=P.sesiones[P.tab].bloques[bi]; b.sets=Math.max(1,Math.min(8,(b.sets||3)+d)); plDirty(); repintarConservando()
 }
 async function stepDesc(bi,d){
-  const b=P.sesiones[P.tab].bloques[bi]; b.desc=Math.max(15,Math.min(240,(b.desc||60)+d)); pintarPlan()
-  syncEnvio(); const r=await sb.from('bloques').update({descanso_seg:b.desc, descanso_segundos:b.desc}).eq('id',b.id); if(r.error)syncErr(r.error.message); else syncOk()
+  const b=P.sesiones[P.tab].bloques[bi]; b.desc=Math.max(15,Math.min(240,(b.desc||60)+d)); plDirty(); repintarConservando()
 }
 let _pendC=0
 function syncEnvio(){ _pendC++; const t=document.getElementById('syncTag'); t.style.display='block'; t.className='envio'; t.textContent='GUARDANDO…' }
@@ -2171,17 +2186,13 @@ async function editKg(beId,v){
   const n=parseFloat(String(v).replace(',','.')); if(isNaN(n)){pintarPlan();return}
   x.it.kg=n
   const inp=document.getElementById('pi-k-'+beId); if(inp){ inp.value=n; inp.classList.remove('falta') }
-  syncEnvio()
-  const r=await sb.from('bloque_ejercicios').update({kg_objetivo:n}).eq('id',beId)
-  if(r.error){ syncErr(r.error.message) } else syncOk()
+  plDirty()
 }
 async function editReps(beId,v){
   const x=planItem(beId); if(!x)return
   if(String(v).trim()===''){ return }
   x.it.reps=String(v).trim(); calcDose()
-  syncEnvio()
-  const r=await sb.from('bloque_ejercicios').update({reps_txt:x.it.reps}).eq('id',beId)
-  if(r.error){ syncErr(r.error.message) } else syncOk()
+  plDirty()
 }
 function stepItem(beId,k,d){
   const x=planItem(beId); if(!x)return
@@ -2203,8 +2214,7 @@ function stepItem(beId,k,d){
 async function quitarEj(beId){
   const x=planItem(beId); if(!x)return
   if(!confirm('¿Quitar '+x.it.nombre+' de este bloque?'))return
-  x.b.items=x.b.items.filter(function(i){return String(i.beId)!==String(beId)}); pintarPlan()
-  const r=await sb.from('bloque_ejercicios').delete().eq('id',beId); if(r.error)toast('No se pudo quitar: '+r.error.message)
+  x.b.items=x.b.items.filter(function(i){return String(i.beId)!==String(beId)}); plDirty(); repintarConservando()
 }
 function abrirSelector(modo,bi,beId){
   let grupo = null
@@ -2247,18 +2257,15 @@ async function elegirEj(ejId){
     const x=planItem(SEL.beId); if(!x)return
     x.it.ejId=e.id; x.it.nombre=e.nombre; x.it.grupo=e.grupo_muscular; x.it.sinergistas=e.sinergistas||{}
     x.it.tipoReg=e.tipo_registro||null; x.it.conCarga=(e.con_carga===true); x.it.cuentaDosis=(e.cuenta_dosis!==false); x.it.activo=true
-    repintarConservando()
-    const r=await sb.from('bloque_ejercicios').update({ejercicio_id:e.id}).eq('id',SEL.beId)
-    if(r.error)toast('Cambio: '+r.error.message)
+    plDirty(); repintarConservando()
   } else {
     const b=P.sesiones[P.tab].bloques[SEL.bi]
     let maxOrd = 0
     b.items.forEach(function(i2){ const o=parseInt(i2.orden); if(!isNaN(o)&&o>maxOrd) maxOrd=o })
     const nuevoOrd = maxOrd + 1
-    const r=await sb.from('bloque_ejercicios').insert({bloque_id:b.id,ejercicio_id:e.id,orden:nuevoOrd,reps_txt:'10'}).select().single()
-    if(r.error){ toast('Agregar: '+r.error.message); return }
+    const r={data:{id:plUuid()}}   // se crea en la base al GUARDAR CAMBIOS
     b.items.push({beId:r.data.id,ejId:e.id,nombre:e.nombre,grupo:e.grupo_muscular,sinergistas:e.sinergistas||{},kg:null,reps:'10',orden:nuevoOrd,tipoReg:e.tipo_registro||null,conCarga:(e.con_carga===true),cuentaDosis:(e.cuenta_dosis!==false),activo:true})
-    repintarConservando()
+    plDirty(); repintarConservando()
   }
 }
 const SIGLA={'CUÁDRICEPS':'QUADS','GLÚTEOS':'GLUTS','ISQUIOS':'HAMS','ESPALDA':'LATS','PECHO':'PECS','HOMBROS':'DELTS','TRÍCEPS':'TRIS','BÍCEPS':'BIS','CORE':'CORE','CARDIO':'CARDIO','MOVILIDAD':'MOB','GEMELOS':'CALFS','GLOBAL':'GLOBAL'}
@@ -2389,13 +2396,19 @@ async function clonarTpl(tplId){
   const ses=P.sesiones[P.tab]
   if (!ses){ toast('Abre una sesión primero.'); return }
   if (ses.bloques.length>=6){ toast('Máximo 6 bloques por sesión.'); return }
-  syncEnvio()
-  const r=await sb.rpc('koach_usar_bloque_tpl',{p_tpl:tplId, p_sesion:ses.id})
-  if (r.error){ console.error('[bloques prediseñados] usar', {code:r.error.code, message:r.error.message, details:r.error.details, hint:r.error.hint})
-    syncErr(r.error.message); toast(/SESION_LLENA/.test(r.error.message)?'Máximo 6 bloques por sesión.':'No pudimos agregar el bloque. Intenta nuevamente.'); return }
-  syncOk(); document.getElementById('mBibBloq').style.display='none'
-  const y=window.scrollY; await plRecargar(); window.scrollTo(0,y)
-  toast('Bloque agregado desde prediseñado — ajústalo a tu socio.')
+  const [rt, rb] = await Promise.all([
+    sb.from('bloques').select('etiqueta, rol, sets, descanso_seg, descanso_segundos').eq('id',tplId).single(),
+    sb.from('bloque_ejercicios').select('ejercicio_id, orden, reps_txt, kg_objetivo, ejercicios(id,nombre,grupo_muscular,sinergistas,tipo_registro,con_carga,cuenta_dosis,activo)').eq('bloque_id',tplId).order('orden') ])
+  if (rt.error||rb.error){ console.error('[bloques prediseñados] usar', rt.error||rb.error); toast('No pudimos agregar el bloque. Intenta nuevamente.'); return }
+  const t=rt.data, nid=plUuid()
+  ses.bloques.push({ id:nid, bId:nid, tag:'B'+(ses.bloques.length+1), rol:t.rol, etiqueta:t.etiqueta, sets:t.sets,
+    desc:(t.descanso_seg!=null?t.descanso_seg:t.descanso_segundos)||60,
+    items:(rb.data||[]).map(function(x,ix){ const e=x.ejercicios||{}; return { beId:plUuid(), ejId:x.ejercicio_id, nombre:e.nombre||'—', grupo:e.grupo_muscular||'',
+      sinergistas:e.sinergistas||{}, kg:(x.kg_objetivo!=null?x.kg_objetivo:null), orden:ix+1, tipoReg:e.tipo_registro||null, conCarga:e.con_carga, cuentaDosis:e.cuenta_dosis,
+      activo:e.activo, reps:(x.reps_txt||'10') } }) })
+  document.getElementById('mBibBloq').style.display='none'
+  plDirty(); repintarConservando(); calcDose()
+  toast('Bloque agregado desde prediseñado · recuerda GUARDAR CAMBIOS')
 }
 async function borrarTpl(tplId){
   if (!confirm('¿Eliminar este bloque prediseñado?\nNo afecta a las rutinas que ya lo usan.')) return
@@ -2470,19 +2483,10 @@ async function guardarOrdenBloques(){
   const ses=P.sesiones[P.tab]
   const v=validarReordenBloques(OB.orden, ses.bloques)
   if (!v.ok){ toast('No se guardó: '+v.err); return }
-  syncEnvio()
-  for (var i=0;i<OB.orden.length;i++){
-    const b=ses.bloques.find(function(x){return x.bId===OB.orden[i]})
-    if (b && b.tipo!=='B'+(i+1)){
-      const r=await sb.from('bloques').update({bloque:'B'+(i+1)}).eq('id',b.bId)
-      if (r.error){ syncErr(r.error.message); toast('Error al guardar el orden.'); return }
-      b.tipo='B'+(i+1)
-    }
-  }
   ses.bloques.sort(function(a,b2){ return OB.orden.indexOf(a.bId)-OB.orden.indexOf(b2.bId) })
-  syncOk(); document.getElementById('mOrgB').style.display='none'
-  repintarConservando(); calcDose()
-  toast('Orden de bloques guardado.')
+  document.getElementById('mOrgB').style.display='none'
+  plDirty(); repintarConservando(); calcDose()
+  toast('Orden de bloques actualizado · recuerda GUARDAR CAMBIOS')
 }
 document.addEventListener('pointerdown',function(e){
   const hd=e.target.closest('[data-obhdl]'); if(!hd)return
@@ -2552,7 +2556,7 @@ async function cargarSesionAP(id, numero, nombre, semana){
   const r = await sb.from('bloques').select('*, bloque_ejercicios(*, ejercicios(id,nombre,grupo_muscular,estimulo,sinergistas,tipo_registro,con_carga,cuenta_dosis,implemento,activo))').eq('sesion_id', id).order('bloque')
   const bloques=(r.data||[]).map(function(b){ return { bId:b.id, tipo:b.bloque, etiqueta:b.etiqueta, sets:b.sets,
     desc:(b.descanso_seg!=null?b.descanso_seg:(b.descanso_segundos!=null?b.descanso_segundos:60)),
-    items:(b.bloque_ejercicios||[]).map(function(be){ return { beId:be.id, ejId:be.ejercicio_id,
+    items:beOrd(b.bloque_ejercicios).map(function(be){ return { beId:be.id, ejId:be.ejercicio_id,
       nombre:(be.ejercicios&&be.ejercicios.nombre)||'—', grupo:(be.ejercicios&&be.ejercicios.grupo_muscular)||'',
       sinergistas:(be.ejercicios&&be.ejercicios.sinergistas)||{}, kg:(be.kg_objetivo!=null?be.kg_objetivo:null),
       orden:(be.orden!=null?be.orden:null), tipoReg:(be.ejercicios&&be.ejercicios.tipo_registro)||null,
@@ -2564,6 +2568,7 @@ async function cargarSesionAP(id, numero, nombre, semana){
 function esFijaIdx(i){ return !!ORG.fijas[ORG.orden[i]] }
 function lunesISO(){ const d=new Date(); const dw=(d.getDay()+6)%7; d.setDate(d.getDate()-dw); return fLocal(d) }
 async function abrirOrganizador(){
+  if (plEsDirty()){ plGuard(function(){ abrirOrganizador() }); return }
   if (!P || !P.sesiones || !orgSesiones().length){ toast('Abre primero una ficha con programa.'); return }
   ORG.fijas = {}; ORG.dirty=false
   orgRebuildSem()
@@ -2716,7 +2721,7 @@ async function orgAgregar(srcId, nombre){
     const bloques = (r.data||[]).map(function(b){ return {
       bId:b.id, tipo:b.bloque, sets:b.sets,
       desc:(b.descanso_seg!=null?b.descanso_seg:(b.descanso_segundos!=null?b.descanso_segundos:60)),
-      items:(b.bloque_ejercicios||[]).map(function(be){
+      items:beOrd(b.bloque_ejercicios).map(function(be){
         return { beId:be.id, ejId:be.ejercicio_id,
           nombre:(be.ejercicios&&be.ejercicios.nombre)||'—',
           grupo:(be.ejercicios&&be.ejercicios.grupo_muscular)||'',
@@ -2740,6 +2745,7 @@ let _exitForzado=false, _busyCmd=false, _idlgCb=null
 document.addEventListener('keydown',function(e){ if(e.key==='Escape'){
   ['mMenuRut','mInputDlg','mErrSalir'].forEach(function(id){const x=document.getElementById(id); if(x)x.style.display='none'}) }})
 function volverPlanner(){
+  if (plEsDirty()){ plGuard(volverPlanner); return }
   if (typeof _pendC!=='undefined' && _pendC>0){ toast('Guardando…'); setTimeout(volverPlanner, 600); return }
   const t=document.getElementById('syncTag')
   if (t && t.className==='err' && !_exitForzado){ document.getElementById('mErrSalir').style.display='block'; return }
@@ -2797,6 +2803,7 @@ async function saveAsStandard(nombre){
   finally{ _busyCmd=false }
 }
 function menuRutina(){
+  if (plEsDirty()){ plGuard(function(){ menuRutina() }); return }
   const ses=P && P.sesiones && P.sesiones[P.tab]; if(!ses)return
   const fila=function(txt, fn){ return '<button class="bbtn" style="width:100%;justify-content:flex-start;margin-bottom:8px;padding-left:16px" onclick="document.getElementById(\'mMenuRut\').style.display=\'none\';'+fn+'">'+txt+'</button>' }
   let html=''
@@ -3127,9 +3134,10 @@ function plLineaProgresion(it, esBW, esT){
 async function plAplicarKg(beId, v){ await editKg(beId, v); repintarConservando(); toast('Carga '+v+' KG prescrita — el coach decide, la data respalda') }
 // ─── NAVEGACIÓN ───
 // tras editar, las semanas siguientes se re-derivan en la base → al cambiar de nivel/semana se trae la versión vigente
-async function plIr(n){ PL.nivel=n; if(n==='micro'){ pintarPlan() } else if(P&&P._sucio){ P._sucio=false; await plRecargar() } else plRender(); window.scrollTo(0,0) }
-async function plIrSem(w){ PL.w=w; PL.nivel='meso'; if(P&&P._sucio){ P._sucio=false; await plRecargar() } else plRender(); window.scrollTo(0,0) }
+async function plIr(n){ if(plEsDirty() && n!=='micro'){ plGuard(function(){ plIr(n) }); return } PL.nivel=n; if(n==='micro'){ pintarPlan() } else if(P&&P._sucio){ P._sucio=false; await plRecargar() } else plRender(); window.scrollTo(0,0) }
+async function plIrSem(w){ if(plEsDirty()){ plGuard(function(){ plIrSem(w) }); return } PL.w=w; PL.nivel='meso'; if(P&&P._sucio){ P._sucio=false; await plRecargar() } else plRender(); window.scrollTo(0,0) }
 function plIrSes(id){ const i=P.sesiones.findIndex(function(s){return s.id===id}); if(i<0) return
+  if (plEsDirty() && P.sesiones[i].id!==(plSesActual()||{}).id){ plGuard(function(){ plIrSes(id) }); return }
   PL.w=P.sesiones[i].semana||1; P.tab=i; PL.nivel='micro'; pintarPlan(); window.scrollTo(0,0) }
 async function plRecargar(){ const nivel=PL.nivel, w=PL.w, sid=P.sesiones[P.tab]&&P.sesiones[P.tab].id
   await abrirPlan(P.pid, P.proto)
@@ -3693,6 +3701,78 @@ async function adhManual(){
   if (r.error){ if(String(r.error.code)==='23505'){ syncOk(); toast('Ya tiene asistencia registrada hoy.') } else { syncErr(r.error.message); toast('No se pudo registrar: '+r.error.message) } return }
   syncOk(); toast('Asistencia registrada ✓'); fAdhCargar()
 }
+// orden determinista de ejercicios: campo 'orden' (desempate estable por id), nunca el orden físico del query
+function beOrd(arr){ return (arr||[]).slice().sort(function(a,x){ return ((a.orden==null?9999:a.orden)-(x.orden==null?9999:x.orden)) || String(a.id).localeCompare(String(x.id)) }) }
+// ═══════════ c10.0 · GUARDAR CAMBIOS (edición local → guardado explícito y atómico) ═══════════
+// Mientras el KOACH edita una sesión, los cambios viven en memoria (P). GUARDAR CAMBIOS los persiste en UNA
+// transacción (koach_guardar_sesion), vuelve a leer desde la base y verifica que coincide. Nada se pierde en silencio.
+function plUuid(){ return (crypto && crypto.randomUUID) ? crypto.randomUUID() : 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g,function(c){const r=Math.random()*16|0;return (c==='x'?r:(r&0x3|0x8)).toString(16)}) }
+function plSesActual(){ return P && P.sesiones && P.sesiones[P.tab] }
+function plEsDirty(){ return !!(P && P.dirty && Object.keys(P.dirty).length) }
+function plDirty(){ const s=plSesActual(); if(!s) return; P.dirty=P.dirty||{}; P.dirty[s.id]=true; plSaveUI() }
+function plFirma(s){ return JSON.stringify((s.bloques||[]).map(function(b){ return [b.id,b.etiqueta||'',b.sets,b.desc,(b.items||[]).map(function(it){ return [it.beId,it.ejId,it.kg==null?null:+it.kg,String(it.reps==null?'':it.reps)] })] })) }
+function plPayload(s){
+  return (s.bloques||[]).map(function(b){ return { id:b.id, etiqueta:b.etiqueta||null, rol:b.rol||null, sets:b.sets, desc:b.desc,
+    items:(b.items||[]).map(function(it){ return { id:it.beId, ejercicio_id:it.ejId, kg:(it.kg==null||it.kg===''?null:it.kg), reps:(it.reps==null?null:String(it.reps)) } }) } })
+}
+function plSaveUI(estado){
+  const bar=document.getElementById('plSave'), ind=document.getElementById('plSaveInd'); if(!bar) return
+  const enMicro = P && (!plActivo() || PL.nivel==='micro') && document.getElementById('vPlan').classList.contains('on')
+  bar.style.display = enMicro ? '' : 'none'
+  const s=plSesActual(), sucio = !!(s && P.dirty && P.dirty[s.id])
+  const btn=document.getElementById('plSaveBtn')
+  const E = estado || (sucio ? 'dirty' : 'ok')
+  bar.className='plSave plSave--'+E
+  btn.disabled = (E==='ok' || E==='saving')
+  btn.textContent = {ok:'GUARDADO ✓', dirty:'GUARDAR CAMBIOS →', saving:'GUARDANDO…', done:'✓ CAMBIOS GUARDADOS', err:'REINTENTAR GUARDADO'}[E]
+  document.getElementById('plSaveMsg').textContent = E==='err' ? 'NO SE PUDIERON GUARDAR LOS CAMBIOS' : E==='dirty' ? 'CAMBIOS SIN GUARDAR · '+String(s.nombre||'').toUpperCase() : ''
+  if (ind){ ind.textContent = sucio ? 'CAMBIOS SIN GUARDAR' : 'GUARDADO ✓'; ind.className='plInd'+(sucio?' is-dirty':'') }
+}
+async function plReabrir(){
+  const nivel=PL.nivel, w=PL.w, sid=plSesActual()&&plSesActual().id, y=window.scrollY
+  await abrirPlan(P.pid, P.proto, P.bib?{modo:'bib', soloSesion:sid}:(P.base?{modo:'base'}:undefined))
+  PL.nivel=nivel; PL.w=w
+  const i=P.sesiones.findIndex(function(s){return s.id===sid}); if(i>-1) P.tab=i
+  pintarPlan(); window.scrollTo(0,y)
+}
+async function plGuardar(){
+  const s=plSesActual(); if(!s) return false
+  const firma=plFirma(s)
+  plSaveUI('saving'); syncEnvio()
+  const r=await sb.rpc('koach_guardar_sesion',{p_sesion:s.id, p_bloques:plPayload(s)})
+  if (r.error){
+    console.error('[guardar sesión]', {code:r.error.code, message:r.error.message, details:r.error.details, hint:r.error.hint})
+    syncErr(r.error.message); plSaveUI('err'); toast('No se pudieron guardar los cambios. Revisa tu conexión y reintenta.'); return false }
+  delete P.dirty[s.id]; syncOk()
+  // la base es la fuente de verdad: releer y verificar que coincide exactamente con lo que se guardó
+  await plReabrir()
+  const s2=plSesActual()
+  if (!s2 || plFirma(s2)!==firma){ console.error('[guardar sesión] verificación: la versión releída no coincide'); plSaveUI('err'); toast('Se guardó, pero la verificación no coincide. Revisa la sesión.'); return false }
+  plSaveUI('done'); setTimeout(function(){ plSaveUI() }, 1800)
+  return true
+}
+// Protección: nunca perder cambios en silencio (modal propio, sin confirm nativo)
+let _plPend=null
+function plGuard(accion){
+  if (!plEsDirty()){ accion(); return }
+  _plPend=accion
+  const s=P.sesiones.find(function(x){return P.dirty[x.id]})
+  document.getElementById('mSinGuardarTxt').textContent='Has realizado cambios en '+String((s&&s.nombre)||'esta sesión').toUpperCase()+' que aún no se guardan.'
+  document.getElementById('mSinGuardar').style.display='flex'
+}
+function plGuardCerrar(){ document.getElementById('mSinGuardar').style.display='none'; _plPend=null }
+async function plGuardGuardar(){
+  const a=_plPend; document.getElementById('mSinGuardar').style.display='none'
+  // si el cambio está en otra pestaña, vuelve a ella para guardarla
+  const sid=Object.keys(P.dirty||{})[0], i=P.sesiones.findIndex(function(x){return x.id===sid}); if(i>-1 && i!==P.tab){ P.tab=i }
+  const ok=await plGuardar(); _plPend=null
+  if (ok && a) a()
+}
+async function plGuardDescartar(){
+  const a=_plPend; document.getElementById('mSinGuardar').style.display='none'; _plPend=null
+  P.dirty={}; await plReabrir(); plSaveUI(); if (a) a()
+}
+window.addEventListener('beforeunload', function(e){ if (plEsDirty()){ e.preventDefault(); e.returnValue='' } })
 let MG={primero:null}
 async function aplicarPrograma(){
   // Guardia de prescripción (advertencia, jamás bloqueo) — modal KOACH, no confirm nativo
