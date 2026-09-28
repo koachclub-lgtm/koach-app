@@ -550,7 +550,7 @@ html[data-rol="recepcion"] .fPlanBtn, html[data-rol="nutricionista"] .fPlanBtn{d
 </div></div>
 
 <div class="vista" id="vSala">
-  <div class="hbar"><span class="hk" title="c9.8">KOACH</span><span class="rol" id="rolBadge" onclick="salir()">COACH</span></div>
+  <div class="hbar"><span class="hk" title="c9.9">KOACH</span><span class="rol" id="rolBadge" onclick="salir()">COACH</span></div>
   <div class="adAcc" id="accesos"></div>
   <div class="glass aform" id="fAlta" style="display:none">
     <h4>CREAR USUARIO — ENTRA AL INSTANTE CON SU CORREO Y CLAVE</h4>
@@ -2082,12 +2082,10 @@ document.addEventListener('pointerup',async function(){
   const cont=el.parentElement
   const orden=[].slice.call(cont.querySelectorAll('.lin')).map(function(x){return x.id.replace('pl-','')})
   syncEnvio()
-  for(let i=0;i<orden.length;i++){
-    const it=b.items.find(function(x){return x.beId===orden[i]})
-    if(it && it.orden!==i+1){ const r=await sb.from('bloque_ejercicios').update({orden:i+1}).eq('id',it.beId)
-      if(r.error){syncErr(r.error.message);return}
-      it.orden=i+1 }
-  }
+  // c9.9 · reorden atómico en la base (antes, fila por fila chocaba con el orden único del bloque)
+  const r=await sb.rpc('koach_reordenar_bloque',{p_bloque:b.id, p_ids:orden})
+  if(r.error){ console.error('[reordenar]', r.error); syncErr(r.error.message); toast('No pudimos reordenar. Intenta nuevamente.'); await plRecargar(); return }
+  orden.forEach(function(id,i){ const it=b.items.find(function(x){return x.beId===id}); if(it) it.orden=i+1 })
   b.items.sort(function(a,x){return (a.orden||0)-(x.orden||0)})
   syncOk()
 })
