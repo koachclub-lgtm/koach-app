@@ -899,6 +899,22 @@ div.sp:active{transform:none}
 .rSexo{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px}
 .rSexo button{border:1px solid rgba(18,18,18,.18);background:transparent;border-radius:12px;padding:13px;font-family:var(--font-mono);font-weight:500;font-size:12px;letter-spacing:.12em;color:#121212;cursor:pointer}
 .rSexo button.on{background:#121212;color:#F4F3F0;border-color:#121212}
+
+/* v10.4 · bienvenida */
+.bv__hero{background:radial-gradient(120% 90% at 85% 10%,#2A2C31 0%,#18191C 50%,#0B0B0C 100%)}
+.bv__hero .hh__t{font-size:clamp(52px,17vw,76px)}
+.bv__ps{list-style:none;margin:0;padding:0}
+.bv__p{display:flex;gap:14px;align-items:flex-start;padding:12px 0;border-bottom:1px solid rgba(18,18,18,.08)}
+.bv__p i{flex:0 0 26px;height:26px;border-radius:50%;border:1.5px solid rgba(18,18,18,.25);display:flex;align-items:center;justify-content:center;font-style:normal;font-size:13px;color:#F4F3F0}
+.bv__p.is-ok i{background:#121212;border-color:#121212}
+.bv__p b{display:block;font-family:var(--font-display);font-weight:700;font-size:17px;color:#121212}
+.bv__p span{display:block;margin-top:2px;font-family:var(--font-display);font-size:15px;color:#5E5D59}
+.bv__p:not(.is-ok) b{color:#5E5D59}
+.bv__prog{display:grid;grid-template-columns:auto 1fr;column-gap:14px;align-items:baseline;padding:13px 16px;margin-bottom:8px;background:#FBFAF8;border:1px solid rgba(18,18,18,.08);border-radius:16px}
+.bv__prog b{grid-row:span 2;font-family:var(--font-display);font-weight:700;font-size:20px;letter-spacing:-0.01em;color:#121212}
+.bv__prog span{font-family:var(--font-display);font-weight:600;font-size:15px;color:#121212}
+.bv__prog small{font-family:var(--font-mono);font-weight:500;font-size:11px;letter-spacing:.06em;color:#8E8D88}
+.bv__nota{text-align:center;font-family:var(--font-display);font-size:14px;color:#6E6D68;margin:6px 0 0}
 </style>
 </head>
 <body>
@@ -958,7 +974,7 @@ div.sp:active{transform:none}
   <!-- ══ HOME ══ -->
   <div class="vista conTab" id="vHome">
     <div id="k2Home" aria-live="polite"></div>
-    <div class="hbar"><span class="hk" title="v10.3">KOACH</span><div class="hav" id="hAv" onclick="salir()">K</div></div>
+    <div class="hbar"><span class="hk" title="v10.4">KOACH</span><div class="hav" id="hAv" onclick="salir()">K</div></div>
     <div class="ctx"><div class="fecha" id="hFecha">—</div><div class="prog" id="hProg">—</div></div>
     <div class="anillo">
       <svg width="180" height="180" viewBox="0 0 180 180">
@@ -1931,8 +1947,48 @@ function sinPrograma(msg){
   document.getElementById('hCtaS').textContent='TU COACH LO ACTIVA'
   document.getElementById('hDias').innerHTML=''
   document.getElementById('hRows').innerHTML=''
-  document.getElementById('hCount').textContent=''
+  document.getElementById('hCount').textContent='';
   (document.getElementById('hNota')||{}).textContent=''
+  pintarBienvenida(msg)
+}
+// ═══════════ v10.4 · BIENVENIDA (socio registrado, aún sin protocolo activo) ═══════════
+// El socio entra, ve cómo funciona KOACH y el estado de su activación. Cuando el equipo le asigna membresía
+// y protocolo, el Home normal aparece solo (refresco al volver a la app / cada 60 s).
+function pintarBienvenida(msg){
+  cargandoOff()
+  document.getElementById('tabbar').classList.add('vis')
+  vista('vHome'); document.querySelectorAll('.tb').forEach(b=>b.classList.toggle('on', b.id==='tb-vHome'))
+  const n=msgNombre(), fem=String((S.perfil&&S.perfil.sex)||'')==='mujer'
+  const memOk = !!(S.memVig && ['activa','proxima','futura','congelada'].indexOf(S.memVig.estado_calc)>-1)
+  const paso=(ok,t,d)=>'<li class="bv__p'+(ok?' is-ok':'')+'"><i>'+(ok?'✓':'')+'</i><div><b>'+t+'</b><span>'+d+'</span></div></li>'
+  const prog=[['STRONG','Fuerza + músculo','4 sesiones por semana'],['BURN','Recomposición + potencia','3 sesiones por semana'],['HEALTHY','Condición + fuerza','4 sesiones por semana']]
+  const box=document.getElementById('k2Home')
+  if (!box || !K2.on){   // Home clásico: mismo mensaje en sus elementos
+    document.getElementById('hSaludo').textContent='Hola, '+(n||'socio')+'.'
+    document.getElementById('hVoz').innerHTML = msg || 'Tu cuenta está lista. <b>El equipo KOACH activa tu membresía y tu protocolo</b> en tu primera visita.'
+    document.getElementById('hCta').disabled=true; document.getElementById('hCtaT').textContent='PROTOCOLO EN CAMINO'; document.getElementById('hCtaS').textContent='LO ACTIVA TU COACH'
+    return
+  }
+  const wd=['PECHO','HOMBROS','BÍCEPS','TRÍCEPS','CORE','CUÁDRICEPS','ISQUIOS','GLÚTEOS','ESPALDA'].map(g=>({grupo:g, series:0, objetivo:8, mav:null}))
+  box.innerHTML = k2HeaderHero(n) +
+    '<section class="hh bv__hero"><div class="hh__c">'+
+      '<div class="hh__k">TU CUENTA ESTÁ LISTA</div><h2 class="hh__t">'+(fem?'BIEN-<br>VENIDA':'BIEN-<br>VENIDO')+'</h2>'+
+      '<p class="hh__d">'+(msg || ('Ya eres parte de KOACH. En tu primera visita <b>activamos tu membresía y tu coach diseña tu protocolo individual.</b>'))+'</p>'+
+    '</div></section>'+
+    '<section class="k2-sec"><div class="k2-sec__h">'+k2Label('TU ACTIVACIÓN')+'</div><ol class="bv__ps">'+
+      paso(true,'Cuenta creada','Tus datos quedaron registrados.')+
+      paso(memOk,'Membresía','Se activa en recepción con tu primer pago.')+
+      paso(false,'Tu protocolo','Tu coach elige programa, nivel y semanas según tu evaluación.')+
+      paso(false,'A entrenar','Tus sesiones, cargas y progreso aparecen aquí.')+
+    '</ol></section>'+
+    '<section class="k2-sec"><div class="k2-sec__h">'+k2Label('LOS PROGRAMAS KOACH')+'</div>'+
+      prog.map(p=>'<div class="bv__prog"><b>'+p[0]+'</b><span>'+p[1]+'</span><small>'+p[2]+'</small></div>').join('')+
+    '</section>'+
+    '<section class="k2-wk"><div class="k2-sec__h">'+k2Label('ASÍ VERÁS TU SEMANA')+'</div>'+
+      stimulusWheel(wd,{variant:'compact',theme:'light',size:300,center:{v:'0%',l:'OBJETIVO|SEMANAL'}})+
+      '<p class="bv__nota">Cada pétalo es un grupo muscular. Se llena a medida que completas tus sesiones.</p></section>'+
+    '<section class="k2-ins"><b>¿TIENES DUDAS?</b><p>Escríbenos o acércate a recepción: te ayudamos a empezar.</p></section>'
+  requestAnimationFrame(()=>requestAnimationFrame(()=>box.classList.add('k2-in')))
 }
 function saludoDe(ctx){
   const fam = S.frases?.saludos?.[ctx] || ['De vuelta a la sala, {n}.']
@@ -2854,7 +2910,7 @@ const _vista = vista
 vista = function(id){
   _vista(id)
   const tb = document.getElementById('tabbar')
-  tb.classList.toggle('vis', ['vHome','vPlan','vAvances','vPerfil'].includes(id) && !!S.asig)
+  tb.classList.toggle('vis', ['vHome','vPlan','vAvances','vPerfil'].includes(id) && !!S.perfil)   // v10.4: también sin protocolo (bienvenida)
   if (id==='vHome') document.querySelectorAll('.tb').forEach(b=>b.classList.toggle('on', b.id==='tb-vHome'))
 }
 
@@ -2891,7 +2947,7 @@ function pintarCicloSocio(){
   if (est) est.textContent='SEM '+vig+(cs?' · '+cs.rango:'')+' · ESTA SEMANA'+(wp!==vig?' · REPITE SEM '+wp:'')
 }
 function pintarPlan(){
-  if (!S.programa){ document.getElementById('pLista').innerHTML='<div class="vacio">Tu coach te asignará tu programa.</div>'; return }
+  if (!S.programa){ document.getElementById('pLista').innerHTML='<div class="vacio">Tu protocolo aparecerá aquí cuando tu coach lo active.<br><b>Nos vemos en la sala.</b></div>'; return }
   pintarCicloSocio()
   // §2/§5/§33 · RESUMEN simple — PLAN consume el motor, jamás calcula (§3)
   const sem=S.sem||{}
@@ -3163,6 +3219,7 @@ function pintarGruposAvances(){
       '<div class="mBar"><i style="width:'+w+'%"></i></div><small class="mtE">'+e+'</small></div>' }).join('') : '<div class="vacio">Aún sin objetivos definidos.</div>'
 }
 async function loadAvances(){
+  if (!S.programa){ ['aPatrones','aPRs','aHist'].forEach(id=>{ const e=document.getElementById(id); if(e) e.innerHTML='<div class="vacio">Tus avances aparecen cuando completes tus primeras sesiones.</div>' }); return }
   pintarGruposAvances()
   pintarCalendario(S._calOff||0)
   document.getElementById('aSem').textContent = S.sem ? `${S.sem.fortalecidos}/${S.sem.exigibles}` : '—'
