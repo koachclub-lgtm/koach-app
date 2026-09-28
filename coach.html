@@ -550,7 +550,7 @@ html[data-rol="recepcion"] .fPlanBtn, html[data-rol="nutricionista"] .fPlanBtn{d
 </div></div>
 
 <div class="vista" id="vSala">
-  <div class="hbar"><span class="hk" title="c9.7">KOACH</span><span class="rol" id="rolBadge" onclick="salir()">COACH</span></div>
+  <div class="hbar"><span class="hk" title="c9.8">KOACH</span><span class="rol" id="rolBadge" onclick="salir()">COACH</span></div>
   <div class="adAcc" id="accesos"></div>
   <div class="glass aform" id="fAlta" style="display:none">
     <h4>CREAR USUARIO — ENTRA AL INSTANTE CON SU CORREO Y CLAVE</h4>
@@ -1872,7 +1872,7 @@ function mbStep(k,d){ if(k==='sets'){ MB.sets=Math.max(1,Math.min(8,MB.sets+d));
   else { MB.desc=Math.max(15,Math.min(240,MB.desc+d)); document.getElementById('mbDesc').textContent=MB.desc } }
 async function insertarBloque(sesId, codigo, etiqueta, rol, sets, desc){
   return await sb.from('bloques').insert({ sesion_id:sesId, bloque:codigo, etiqueta:etiqueta, rol:rol,
-    sets:sets, descanso_segundos:desc, descanso_seg:desc })
+    sets:sets, descanso_segundos:desc, descanso_seg:desc }).select().single()
 }
 async function crearBloque(){
   const ses=P.sesiones[P.tab]; if(!ses) return
@@ -2355,9 +2355,9 @@ async function abrirBibBloq(){
   document.getElementById('bibBloqPrev').style.display='none'
   const el=document.getElementById('bibBloqLista'); el.style.display='block'; el.innerHTML='<div class="vacio">Cargando…</div>'
   try{
-    const r=await sb.from('bloques').select('id, bloque, etiqueta, sets, bloque_ejercicios(id)')
-      .eq('sesion_id', CONT_BLOQUES).order('bloque')
-    const ts=(r.data||[])
+    const r=await sb.rpc('koach_bloques_tpl')
+    if (r.error){ console.error('[bloques prediseñados] listar', r.error); throw r.error }
+    const ts=(r.data||[]).map(function(t){ return { id:t.id, etiqueta:t.etiqueta, sets:t.sets, bloque_ejercicios:new Array(t.n) } })
     el.innerHTML = ts.length ? ts.map(function(t){
       const n=(t.bloque_ejercicios||[]).length
       return '<div style="display:flex;align-items:center;gap:10px;padding:12px 0;border-bottom:1px solid rgba(18,18,16,.06)">'+
@@ -2383,7 +2383,8 @@ async function verTpl(tplId){
       }).join('') : '<div class="vacio">Plantilla vacía — pendiente de contenido.</div>')+
       '<div style="display:flex;gap:10px;margin-top:14px">'+
       '<button class="bbtn" onclick="abrirBibBloq()" style="flex:1">← VOLVER</button>'+
-      (bes.length? '<button class="bbtn ink" style="flex:1.4" onclick="clonarTpl(\''+tplId+'\')">AGREGAR A SESIÓN</button>' : '')+'</div>'
+      (bes.length? '<button class="bbtn ink" style="flex:1.4" onclick="clonarTpl(\''+tplId+'\')">AGREGAR A SESIÓN</button>' : '')+'</div>'+
+      '<button class="bbtn" style="width:100%;margin-top:10px;opacity:.75" onclick="borrarTpl(\''+tplId+'\')">ELIMINAR PREDISEÑADO</button>'
   }catch(e){ prev.innerHTML='<div class="vacio">Error al cargar la plantilla.</div>' }
 }
 async function clonarTpl(tplId){
@@ -2391,59 +2392,35 @@ async function clonarTpl(tplId){
   if (!ses){ toast('Abre una sesión primero.'); return }
   if (ses.bloques.length>=6){ toast('Máximo 6 bloques por sesión.'); return }
   syncEnvio()
-  try{
-    const rt=await sb.from('bloques').select('etiqueta, rol, sets, descanso_seg, descanso_segundos').eq('id',tplId).single()
-    const t=rt.data
-    const n=ses.bloques.length+1
-    const rNew=await insertarBloque(ses.id, 'B'+n, t.etiqueta, t.rol, t.sets, (t.descanso_seg!=null?t.descanso_seg:t.descanso_segundos)||60)
-    if (rNew.error) throw rNew.error
-    const nb=rNew.data
-    const rb=await sb.from('bloque_ejercicios').select('ejercicio_id, orden, reps_txt, duracion_seg, kg_objetivo').eq('bloque_id',tplId).order('orden')
-    const filas=(rb.data||[]).map(function(x){ return { bloque_id:nb.id, ejercicio_id:x.ejercicio_id,
-      orden:x.orden, reps_txt:x.reps_txt, duracion_seg:x.duracion_seg, kg_objetivo:x.kg_objetivo } })
-    let besIns=[]
-    if (filas.length){
-      const ri=await sb.from('bloque_ejercicios').insert(filas).select('*, ejercicios(id,nombre,grupo_muscular,estimulo,sinergistas,tipo_registro,con_carga,cuenta_dosis,implemento,activo)')
-      if (ri.error) throw ri.error
-      besIns=ri.data||[]
-    }
-    ses.bloques.push({ bId:nb.id, tipo:'B'+n, etiqueta:t.etiqueta, sets:t.sets,
-      desc:(t.descanso_seg!=null?t.descanso_seg:t.descanso_segundos)||60,
-      items:besIns.map(function(be){ return { beId:be.id, ejId:be.ejercicio_id,
-        nombre:(be.ejercicios&&be.ejercicios.nombre)||'—', grupo:(be.ejercicios&&be.ejercicios.grupo_muscular)||'',
-        sinergistas:(be.ejercicios&&be.ejercicios.sinergistas)||{}, kg:(be.kg_objetivo!=null?be.kg_objetivo:null),
-        orden:(be.orden!=null?be.orden:null), tipoReg:(be.ejercicios&&be.ejercicios.tipo_registro)||null,
-        conCarga:(be.ejercicios?be.ejercicios.con_carga:null), cuentaDosis:(be.ejercicios?be.ejercicios.cuenta_dosis:null),
-        activo:(be.ejercicios?be.ejercicios.activo:null),
-        reps:(be.reps_txt!=null&&be.reps_txt!==''?be.reps_txt:'10') } }) })
-    syncOk()
-    document.getElementById('mBibBloq').style.display='none'
-    repintarConservando(); calcDose()
-    toast('Bloque agregado desde plantilla — ajústalo a tu socio.')
-  }catch(e){ syncErr(String(e&&e.message||e)); toast('No se pudo clonar el bloque.') }
+  const r=await sb.rpc('koach_usar_bloque_tpl',{p_tpl:tplId, p_sesion:ses.id})
+  if (r.error){ console.error('[bloques prediseñados] usar', {code:r.error.code, message:r.error.message, details:r.error.details, hint:r.error.hint})
+    syncErr(r.error.message); toast(/SESION_LLENA/.test(r.error.message)?'Máximo 6 bloques por sesión.':'No pudimos agregar el bloque. Intenta nuevamente.'); return }
+  syncOk(); document.getElementById('mBibBloq').style.display='none'
+  const y=window.scrollY; await plRecargar(); window.scrollTo(0,y)
+  toast('Bloque agregado desde prediseñado — ajústalo a tu socio.')
+}
+async function borrarTpl(tplId){
+  if (!confirm('¿Eliminar este bloque prediseñado?\nNo afecta a las rutinas que ya lo usan.')) return
+  const r=await sb.rpc('koach_borrar_bloque_tpl',{p_tpl:tplId})
+  if (r.error){ console.error('[bloques prediseñados] borrar', r.error); toast('No pudimos eliminarlo. Intenta nuevamente.'); return }
+  toast('Prediseñado eliminado.'); abrirBibBloq()
 }
 let TPL={bi:null}
 function abrirTplSave(bi){ TPL.bi=bi; document.getElementById('tplNom').value=''; document.getElementById('mTplSave').style.display='block' }
 async function confirmarTpl(){
-  const nom=(document.getElementById('tplNom').value||'').trim().toUpperCase()
+  const nom=(document.getElementById('tplNom').value||'').trim()
   if (!nom){ toast('Ponle un nombre al bloque.'); return }
   const b=P.sesiones[P.tab] && P.sesiones[P.tab].bloques[TPL.bi]
   if (!b){ return }
+  if (!b.items || !b.items.length){ toast('El bloque no tiene ejercicios: agrega al menos uno antes de guardarlo.'); return }
   syncEnvio()
-  try{
-    const rc=await sb.from('bloques').select('bloque').eq('sesion_id',CONT_BLOQUES)
-    const usados=(rc.data||[]).map(function(x){return x.bloque})
-    let code=null
-    for (var i=1;i<=6;i++){ if (usados.indexOf('B'+i)===-1){ code='B'+i; break } }
-    if (!code){ toast('La biblioteca de bloques está llena (máx 6 por ahora).'); syncOk(); return }
-    const rNew=await insertarBloque(CONT_BLOQUES, code, nom, 'fuerza_principal', b.sets, b.desc||60)
-    if (rNew.error) throw rNew.error
-    const filas=b.items.map(function(it,ix){ return { bloque_id:rNew.data.id, ejercicio_id:it.ejId,
-      orden:(it.orden!=null?it.orden:ix+1), reps_txt:it.reps, kg_objetivo:(it.kg!=null?it.kg:null) } })
-    if (filas.length){ const ri=await sb.from('bloque_ejercicios').insert(filas); if (ri.error) throw ri.error }
-    syncOk(); document.getElementById('mTplSave').style.display='none'
-    toast('★ Guardado como bloque prediseñado.')
-  }catch(e){ syncErr(String(e&&e.message||e)); toast('No se pudo guardar la plantilla.') }
+  // copia independiente y atómica en la base (bloque + ejercicios en una transacción)
+  const r=await sb.rpc('koach_guardar_bloque_tpl',{p_bloque:b.bId, p_nombre:nom})
+  if (r.error){
+    console.error('[bloques prediseñados] guardar', {code:r.error.code, message:r.error.message, details:r.error.details, hint:r.error.hint})
+    syncErr(r.error.message); toast('No pudimos guardar este bloque. Intenta nuevamente.'); return }
+  syncOk(); document.getElementById('mTplSave').style.display='none'
+  toast('Bloque guardado como prediseñado.')
 }
 // ═══ ORGANIZADOR DE BLOQUES (nivel 2 de la playlist) ═══
 const OB={orden:[], bloqueado:false}
