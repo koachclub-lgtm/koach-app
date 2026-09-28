@@ -549,7 +549,7 @@ html[data-rol="recepcion"] .fPlanBtn, html[data-rol="nutricionista"] .fPlanBtn{d
 </div></div>
 
 <div class="vista" id="vSala">
-  <div class="hbar"><span class="hk" title="c9.5">KOACH</span><span class="rol" id="rolBadge" onclick="salir()">COACH</span></div>
+  <div class="hbar"><span class="hk" title="c9.6">KOACH</span><span class="rol" id="rolBadge" onclick="salir()">COACH</span></div>
   <div class="adAcc" id="accesos"></div>
   <div class="glass aform" id="fAlta" style="display:none">
     <h4>CREAR USUARIO — ENTRA AL INSTANTE CON SU CORREO Y CLAVE</h4>
@@ -1127,9 +1127,10 @@ function pintarSala(){
   const nVen=(AD.mem||[]).filter(function(m){return m.estado_calc==='proxima' && m.dias_restantes<=7}).length
   const nVcd=C.socios.filter(function(s){ const e=admEstadoSocio(s.id); return e.k==='vencida' }).length
   const R=(C.yo&&C.yo.role)||'coach', COM=(R==='admin'||R==='recepcion'), ENT=(R==='admin'||R==='coach')
+  const nAct=C.socios.filter(function(s){ return s.activo!==false && (!C.asig[s.id] || !adMemVigente(s.id)) }).length
   document.getElementById('accesos').innerHTML=
     '<button class="'+(nSol?'hot':'')+'" onclick="verSolicitudes()"><span>SOLICITUDES</span><b>'+nSol+'</b></button>'+
-    (COM?'<button class="'+((nVen||nVcd)?'hot':'')+'" onclick="verAdmin()"><span>MEMBRESÍAS'+(nVen?'<br>'+nVen+' VENCE ≤7 D':'')+(nVcd?'<br>'+nVcd+' VENCIDA'+(nVcd>1?'S':''):'')+'</span><b>›</b></button>':'')+
+    (COM?'<button class="'+((nVen||nVcd||nAct)?'hot':'')+'" onclick="verAdmin()"><span>MEMBRESÍAS'+(nAct?'<br>'+nAct+' POR ACTIVAR':'')+(nVen?'<br>'+nVen+' VENCE ≤7 D':'')+(nVcd?'<br>'+nVcd+' VENCIDA'+(nVcd>1?'S':''):'')+'</span><b>›</b></button>':'')+
     '<button onclick="verAdherencia()"><span>ADHERENCIA</span><b>›</b></button>'+
     (ENT?'<button onclick="verBib()"><span>BIBLIOTECA</span><b>›</b></button>':'')+
     ((R==='admin'||R==='recepcion'||R==='coach')?'<button onclick="toggleAlta()"><span>NUEVO USUARIO</span><b>+</b></button>':'')
@@ -3399,10 +3400,13 @@ function admEstadoSocio(id){
 }
 function admPintar(){
   const soc=C.socios.slice()
+  if (!AD.admF) AD.admF = soc.some(function(s){ return !C.asig[s.id] || !adMemVigente(s.id) }) ? 'activar' : 'todos'
   const est={}; soc.forEach(function(s){ est[s.id]=admEstadoSocio(s.id) })
   const pend=new Set(AD.mem.filter(function(m){return m.pago_pendiente}).map(function(m){return m.socio_id}))
-  const F2=[['todos','TODOS'],['activa','ACTIVOS'],['proxima','PRÓXIMOS A VENCER'],['vencida','VENCIDOS'],['congelada','CONGELADOS'],['pago','PAGO PENDIENTE'],['sin','SIN MEMBRESÍA']]
-  const cuenta=function(k){ return soc.filter(function(s){ return k==='todos'||(k==='pago'?pend.has(s.id):(k==='activa'?['activa','futura'].indexOf(est[s.id].k)>-1:est[s.id].k===k)) }).length }
+  // POR ACTIVAR = se registró y le falta membresía o planificación (lo resuelve el equipo)
+  const porActivar=function(sid){ return est[sid].k==='sin' || !C.asig[sid] }
+  const F2=[['activar','POR ACTIVAR'],['todos','TODOS'],['activa','ACTIVOS'],['proxima','PRÓXIMOS A VENCER'],['vencida','VENCIDOS'],['congelada','CONGELADOS'],['pago','PAGO PENDIENTE'],['sin','SIN MEMBRESÍA']]
+  const cuenta=function(k){ return soc.filter(function(s){ return k==='todos'||(k==='activar'?porActivar(s.id):k==='pago'?pend.has(s.id):(k==='activa'?['activa','futura'].indexOf(est[s.id].k)>-1:est[s.id].k===k)) }).length }
   document.getElementById('admF').innerHTML=F2.map(function(f){ return '<button class="'+(AD.admF===f[0]?'on':'')+'" onclick="AD.admF=\''+f[0]+'\';admPintar()">'+f[1]+' · '+cuenta(f[0])+'</button>' }).join('')
   // PRÓXIMOS VENCIMIENTOS 30/14/7
   const pv=soc.map(function(s){ return [s, est[s.id].m] }).filter(function(p){ return p[1] && p[1].dias_acceso!=null && p[1].dias_acceso>=0 && p[1].dias_acceso<=30 })
@@ -3413,11 +3417,12 @@ function admPintar(){
     pv.map(function(p){ return '<div class="adLi" onclick="verFicha(\''+p[0].id+'\');fTab(\'adm\')" style="cursor:pointer"><span>'+adEsc(nomDe(p[0].id))+'<small>VENCE '+adF(p[1].fecha_fin)+'</small></span><span>'+p[1].dias_restantes+' D<small>'+tramo(p[1].dias_restantes)+'</small></span></div>' }).join('')+'</div>' : ''
   const b=(document.getElementById('admBusca').value||'').trim().toLowerCase()
   const l=soc.filter(function(s){ const k=AD.admF
-      return (k==='todos'||(k==='pago'?pend.has(s.id):(k==='activa'?['activa','futura'].indexOf(est[s.id].k)>-1:est[s.id].k===k))) && (!b || nomDe(s.id).toLowerCase().indexOf(b)>-1) })
+      return (k==='todos'||(k==='activar'?porActivar(s.id):k==='pago'?pend.has(s.id):(k==='activa'?['activa','futura'].indexOf(est[s.id].k)>-1:est[s.id].k===k))) && (!b || nomDe(s.id).toLowerCase().indexOf(b)>-1) })
   document.getElementById('admCnt').textContent=soc.length+' SOCIOS'
   document.getElementById('admLista').innerHTML = l.length ? l.map(function(s){ const e=est[s.id], m=e.m
     return '<div class="adRow"><div class="adB"><div class="adN">'+adEsc(nomDe(s.id))+'</div><div class="adM">'+
-      '<span class="adTag'+(['vencida','sin'].indexOf(e.k)>-1?' ink':'')+'">'+e.t+'</span>'+(pend.has(s.id)?'<span class="adTag ink">PAGO PENDIENTE</span>':'')+
+      '<span class="adTag'+(['vencida','sin'].indexOf(e.k)>-1?' ink':'')+'">'+e.t+'</span>'+(!C.asig[s.id]?'<span class="adTag ink">SIN PLANIFICACIÓN</span>':'')+(pend.has(s.id)?'<span class="adTag ink">PAGO PENDIENTE</span>':'')+
+      (s.registro_origen==='app'?'<span class="adTag">SE REGISTRÓ EN LA APP</span>':'')+
       (m?('<br>'+adF(m.fecha_inicio)+' — '+adF(m.fecha_fin)+' · '+m.dias_restantes+' D'):'')+'</div></div>'+
       '<button class="adGo" onclick="verFicha(\''+s.id+'\');fTab(\'adm\')">ABRIR →</button></div>' }).join('') : '<div class="vacio">Nadie en este filtro.</div>'
 }
