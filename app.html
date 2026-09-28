@@ -383,6 +383,16 @@ html,button,input,.pvS,.chk,.setChip{touch-action:manipulation}
 
 /* ── c8.0 · alineación con el motor del coach: etiquetas mono + tira del ciclo ── */
 .uK{font-family:var(--font-mono);font-weight:500;font-size:10px;letter-spacing:.06em;color:var(--koach-text-secondary,#5E5E5E);text-transform:uppercase}
+.kc-strip{display:flex;gap:6px;margin:4px 0 14px}
+.kc-w{flex:1;height:10px;border-radius:999px;border:1px solid rgba(18,18,16,.28);background:transparent}
+.kc-w--cumplida{background:#121210;border-color:#121210}
+.kc-w--en_curso{border-color:#121210;border-width:1.5px}
+.kc-w--pausa{border-style:dashed;opacity:.6}
+.kc-w--sin_plan{opacity:.3}
+.kc-p{font-size:13px;line-height:1.45;color:rgba(18,18,16,.72);margin:10px 0 0}
+#oRw.rw--ciclo .rwBox{border-top:1px solid #C9C8C2;padding-top:44px}
+#oRw.rw--ciclo .rwK{color:#C9C8C2;font-size:12px;letter-spacing:.24em}
+#oRw.rw--ciclo .rwSt b{font-size:34px}
 .uCard{background:rgba(255,255,255,.55);border:1px solid rgba(17,17,17,.10);border-radius:14px;padding:16px;margin-bottom:14px}
 .uH{font-family:var(--font-display);font-weight:700;font-size:24px;letter-spacing:-0.02em;line-height:1.05;color:var(--koach-ink);margin-top:6px}
 .uS{font-family:var(--font-mono);font-weight:500;font-size:10px;letter-spacing:.04em;color:var(--koach-text-secondary,#5E5E5E);margin-top:4px}
@@ -1204,6 +1214,7 @@ body.wl-on{overflow:hidden}
   <!-- ══ AVANCES ══ -->
   <div class="vista conTab" id="vAvances">
     <header class="kh"><div class="kh__top"><span class="kh__brand">KOACH FITNESS CLUB</span></div><h1 class="kh__t">Tus avances</h1><div class="kh__k kh__k--sub" id="aSub">LO QUE LOS NÚMEROS DEMUESTRAN</div></header>
+    <div id="aConst"></div>
     <div class="astats">
       <div class="ast ink"><b id="aSes">—</b><span>SESIONES COMPLETADAS</span></div>
       <div class="glass ast"><b id="aSem">—</b><span>OBJETIVOS ESTA SEMANA</span></div>
@@ -1792,7 +1803,7 @@ function mensajeCierre(ses, antes, despues, ejec, sig, hechasN, total){
   const estados={}
   despues.musculos.forEach(x=>{ estados[x.grupo] = !x.exigible ? '' : x.fortalecido ? (nuevosFlag(x.grupo)?'OBJETIVO CUMPLIDO ✓':'OBJETIVO CUMPLIDO') : x.series>0 ? 'EN PROGRESO · '+(x.series%1===0?x.series:(+x.series).toFixed(1))+' / '+x.objetivo : 'SIN EMPEZAR' })
   function nuevosFlag(g){ return nuevos.has(g) }
-  const semanaOk = !sig || despues.completa
+  const semanaOk = !sig   // vocabulario único: todas las sesiones programadas = semana completada = objetivos cumplidos
   const logros=[]
   nuevos.forEach(g=>logros.push(['OBJETIVO CUMPLIDO', g+' ✓']))
   cargas.slice(0,2).forEach(c=>logros.push(['NUEVA CARGA', c.nom+' · '+c.prev+' → '+c.p+' KG']))
@@ -1812,6 +1823,7 @@ function mensajeCierre(ses, antes, despues, ejec, sig, hechasN, total){
 }
 function pintarCierre(m){
   const el=document.getElementById('oRw')
+  el.classList.toggle('rw--ciclo', !!m.ciclo)
   el.innerHTML='<div class="rwBox"><div class="rwK">'+m.k+'</div><div class="rwS">'+m.ses+'</div><div class="rwT">'+m.t+'</div>'+
     '<div class="rwB">'+m.b+'</div>'+
     (m.grupos.length?'<div class="rwG2">'+m.grupos.map(g=>{ const e=m.estados[g]||''
@@ -3267,9 +3279,58 @@ async function finalizar(){
   const baseSes = baseSem()
   const hechasN = baseSes.filter(s=>numsOk.has(s.numero)).length
   const sig = baseSes.filter(s=>!numsOk.has(s.numero)).sort((x,y)=>x.numero-y.numero)[0]
-  pintarCierre(mensajeCierre(ses, antes, despues, _ej, sig, hechasN, baseSes.length))
+  const _m = mensajeCierre(ses, antes, despues, _ej, sig, hechasN, baseSes.length)
+  try{ const g = await cargarGamif(); if (g) aplicarGamifCierre(_m, g, sig) }catch(_g){ console.error('gamif', _g) }
+  pintarCierre(_m)
   }catch(eF){ console.error('finalizar', eF)
     toast('No se pudo cerrar la sesión: '+((eF&&eF.message)||eF)+' · Tus sets están a salvo.') }
+}
+
+/* ══ GAMIFICACIÓN MVP · CONSTANCIA (RPC koach_gamif_socio) ══
+   Etapa 1 · SEMANA COMPLETADA = todas las sesiones programadas (sin extras) = objetivos de la semana cumplidos.
+   Etapa 2 · CICLO COMPLETADO = última semana del ciclo completada.
+   Congelamiento = pausa (no rompe). Semana en curso no rompe. Sesiones extra no suman.
+   Nunca se muestra "racha 0": se muestra lo construido. */
+async function cargarGamif(){
+  try{ const { data, error } = await sb.rpc('koach_gamif_socio'); if (error) throw error
+    S.gamif = data || null; return S.gamif }catch(e){ console.error('gamif', e); return null }
+}
+function seccionConstancia(){
+  const g=S.gamif; if (!g || !g.con_plan) return ''
+  const sems=(g.semanas||[]).slice(-8), sa=g.semana_actual||{}
+  const cel=w=>'<i class="kc-w kc-w--'+w.estado+'" title="'+w.estado.replace('_',' ')+'"></i>'
+  const falta=(sa.estado==='en_curso' && sa.planif>0) ? Math.max(0, sa.planif-sa.hechas) : 0
+  const msg = sa.estado==='cumplida' ? 'Semana completada. Descansa según tu plan.'
+    : sa.estado==='pausa' ? 'Semana en pausa. Tu constancia te espera.'
+    : falta ? 'Te '+(falta===1?'falta 1 sesión':'faltan '+falta+' sesiones')+' para completar tu semana.'
+    : ''
+  const m1 = g.racha_semanas>0 ? k2Metric(g.racha_semanas,(g.racha_semanas===1?'SEMANA COMPLETADA':'SEMANAS SEGUIDAS'))
+    : g.semanas_cumplidas>0 ? k2Metric(g.semanas_cumplidas,(g.semanas_cumplidas===1?'SEMANA COMPLETADA':'SEMANAS COMPLETADAS')) : ''
+  const m2 = g.racha_max>1 && g.racha_max>g.racha_semanas ? k2Metric(g.racha_max,'TU MEJOR RACHA') : ''
+  const intro = (!m1 && !m2) ? '<p class="kc-p">Tu primera semana completada empieza con tu próxima sesión.</p>' : ''
+  return '<section class="k2-sec" aria-label="Constancia"><div class="k2-sec__h">'+k2Label('CONSTANCIA')+'</div>'+
+    (sems.length?'<div class="kc-strip">'+sems.map(cel).join('')+'</div>':'')+
+    ((m1||m2)?'<div class="k2-week__m">'+m1+m2+'</div>':'')+intro+
+    (msg?'<p class="kc-p">'+msg+'</p>':'')+'</section>'
+}
+function aplicarGamifCierre(m, g, sig){
+  const sa=g.semana_actual||{}
+  const pre=[]
+  if (g.de_vuelta) pre.push(['DE VUELTA','Volviste. Eso es lo que cuenta.'])
+  // Semana recién completada (todas las sesiones programadas): suma la racha
+  if (!sig && g.racha_semanas>1) pre.push(['CONSTANCIA', g.racha_semanas+' semanas completadas seguidas'])
+  m.logros = pre.concat(m.logros||[])
+  // Cierre de ciclo: última semana del ciclo cumplida y sin sesión pendiente
+  const N=g.semanas_ciclo||0
+  if (N && g.semana>=N && !sig){
+    const cumpl=(g.semanas||[]).slice(-N).filter(w=>w.estado==='cumplida').length
+    m.k='CICLO '+g.ciclo+' COMPLETADO'
+    m.t='TERMINASTE TU CICLO, '+msgNombre().toUpperCase()+'.'
+    m.b='Completaste '+cumpl+' de '+N+' semanas y '+g.sesiones_ciclo+' sesiones de '+String(g.programa||'').toUpperCase()+'.'
+    m.stats=[[cumpl+' DE '+N,'SEMANAS COMPLETADAS'],[String(g.sesiones_ciclo),'SESIONES']]
+    m.cierre='TU COACH PREPARA TU PRÓXIMO CICLO.'
+    m.ciclo=true
+  }
 }
 
 /* ══ NAVEGACIÓN POR TABS ══ */
@@ -3614,6 +3675,7 @@ function pintarDistribucion(){
     '<div class="dsu__sep">CARDIO Y GLOBAL · SERIES PROGRAMADAS</div>'+KD.DESIGNADOS.map(g=>fila(g, d.designadas[g]||0, true)).join('')
 }
 async function loadAvances(){
+  cargarGamif().then(()=>{ const el=document.getElementById('aConst'); if (el) el.innerHTML=seccionConstancia() })
   try{ pintarDistribucion() }catch(_e){ console.error(_e) }
   if (!S.programa){ ['aPatrones','aPRs','aHist'].forEach(id=>{ const e=document.getElementById(id); if(e) e.innerHTML='<div class="vacio">Tus avances aparecen cuando completes tus primeras sesiones.</div>' }); return }
   pintarGruposAvances()
