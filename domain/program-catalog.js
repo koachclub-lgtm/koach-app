@@ -1,5 +1,6 @@
 // ═══ KOACH · PROGRAM_CATALOG — COPY OFICIAL DE LOS PROGRAMAS (fuente única) ═══
 // Toda pantalla que muestre la definición de un programa lee de aquí. No reescribir este copy en otro lugar.
+// deploy: 2026-09-28 (sincroniza producción con main)
 // La frecuencia semanal NO es parte del programa: pertenece a la planificación individual de cada socio.
 ;(function(g){
   var PROGRAM_CATALOG = Object.freeze({
