@@ -896,6 +896,9 @@ div.sp:active{transform:none}
 #vSesion .bloq--done .exG{background:rgba(18,18,18,.08)}
 #vSesion .bloq--done .bsets.done{background:rgba(18,18,18,.08);color:#3A3935}
 #vSesion .bloq{transition:background-color .35s ease}
+.rSexo{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px}
+.rSexo button{border:1px solid rgba(18,18,18,.18);background:transparent;border-radius:12px;padding:13px;font-family:var(--font-mono);font-weight:500;font-size:12px;letter-spacing:.12em;color:#121212;cursor:pointer}
+.rSexo button.on{background:#121212;color:#F4F3F0;border-color:#121212}
 </style>
 </head>
 <body>
@@ -914,19 +917,23 @@ div.sp:active{transform:none}
           <button class="ojo" onclick="ojo('lPass',this)">👁</button></div>
         <div class="err" id="lErr">Email o contraseña incorrectos</div>
         <button class="btn" id="bLogin" onclick="login()">ENTRAR A MI SEMANA</button>
-        <div class="links"><a onclick="authVista('fRecu')">¿Olvidaste tu contraseña?</a><span></span></div>
-        <div class="authNota">¿Aún no tienes acceso? Tu cuenta la crea el equipo KOACH al inscribirte.</div>
+        <div class="links"><a onclick="authVista('fRecu')">¿Olvidaste tu contraseña?</a><a onclick="authVista('fReg')">Crear mi cuenta</a></div>
       </div>
       <div id="fReg" style="display:none">
-        <div class="lbl">NOMBRE</div><input class="inp" id="rNombre" placeholder="Tu nombre">
-        <div class="lbl">APELLIDO</div><input class="inp" id="rApellido" placeholder="Tu apellido">
-        <div class="lbl">EMAIL</div><input class="inp" type="email" id="rEmail" placeholder="tu@email.com">
+        <div class="authNota" style="margin:0 0 12px">Crea tu cuenta con tus datos. Luego el equipo KOACH activa tu membresía y tu plan.</div>
+        <div class="lbl">NOMBRE</div><input class="inp" id="rNombre" placeholder="Tu nombre" autocomplete="given-name">
+        <div class="lbl">APELLIDO</div><input class="inp" id="rApellido" placeholder="Tu apellido" autocomplete="family-name">
+        <div class="lbl">EMAIL</div><input class="inp" type="email" id="rEmail" placeholder="tu@email.com" autocomplete="email">
+        <div class="lbl">TELÉFONO</div><input class="inp" type="tel" id="rTel" placeholder="+56 9 1234 5678" autocomplete="tel">
+        <div class="lbl">SEXO</div>
+        <div class="rSexo"><button type="button" id="rSexH" onclick="regSexo('hombre')">HOMBRE</button><button type="button" id="rSexM" onclick="regSexo('mujer')">MUJER</button></div>
+        <div class="lbl">FECHA DE NACIMIENTO</div><input class="inp" type="date" id="rNac">
         <div class="lbl">CONTRASEÑA</div>
-        <div class="pw"><input class="inp" type="password" id="rPass" placeholder="Mínimo 4 caracteres">
+        <div class="pw"><input class="inp" type="password" id="rPass" placeholder="Mínimo 8 caracteres" autocomplete="new-password">
           <button class="ojo" onclick="ojo('rPass',this)">👁</button></div>
+        <div class="lbl">REPITE LA CONTRASEÑA</div><input class="inp" type="password" id="rPass2" autocomplete="new-password">
         <div class="err" id="rErr">—</div>
         <button class="btn" id="bReg" onclick="registro()">CREAR MI CUENTA</button>
-        <div class="okmsg" id="rOk">Cuenta creada. Ya puedes entrar. Tu coach te asignará tu programa.</div>
         <div class="links"><a onclick="authVista('fLogin')">← Volver</a><span></span></div>
       </div>
       <div id="fRecu" style="display:none">
@@ -951,7 +958,7 @@ div.sp:active{transform:none}
   <!-- ══ HOME ══ -->
   <div class="vista conTab" id="vHome">
     <div id="k2Home" aria-live="polite"></div>
-    <div class="hbar"><span class="hk" title="v10.2">KOACH</span><div class="hav" id="hAv" onclick="salir()">K</div></div>
+    <div class="hbar"><span class="hk" title="v10.3">KOACH</span><div class="hav" id="hAv" onclick="salir()">K</div></div>
     <div class="ctx"><div class="fecha" id="hFecha">—</div><div class="prog" id="hProg">—</div></div>
     <div class="anillo">
       <svg width="180" height="180" viewBox="0 0 180 180">
@@ -1704,21 +1711,33 @@ async function login(){
   b.disabled=false; b.textContent='ENTRAR A MI SEMANA'
   entrar()
 }
+function regSexo(x){ window._rSexo=x; document.getElementById('rSexH').classList.toggle('on',x==='hombre'); document.getElementById('rSexM').classList.toggle('on',x==='mujer') }
+// v10.3 · Registro propio del socio: cuenta + perfil completo en un paso (sin correos). Sin plan ni membresía:
+// el equipo los activa desde MEMBRESÍAS › POR ACTIVAR.
 async function registro(){
-  const nombre=document.getElementById('rNombre').value.trim(), apellido=document.getElementById('rApellido').value.trim()
-  const email=document.getElementById('rEmail').value.trim(), pass=document.getElementById('rPass').value
+  const v=id=>(document.getElementById(id).value||'').trim()
   const err=document.getElementById('rErr'); err.style.display='none'
-  if(!nombre||!email||pass.length<4){ err.textContent=pass.length<4?'Mínimo 4 caracteres':'Completa nombre y email'; err.style.display='block'; return }
-  const b=document.getElementById('bReg'); b.disabled=true; b.textContent='CREANDO…'
+  const f=(m)=>{ err.textContent=m; err.style.display='block' }
+  const nombre=v('rNombre'), apellido=v('rApellido'), email=v('rEmail').toLowerCase(), tel=v('rTel'), nac=v('rNac')
+  const pass=document.getElementById('rPass').value, pass2=document.getElementById('rPass2').value
+  if (nombre.length<2 || apellido.length<2) return f('Completa tu nombre y apellido.')
+  if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) return f('Revisa tu correo.')
+  if (!window._rSexo) return f('Indica tu sexo: define tu planificación.')
+  if (!nac) return f('Indica tu fecha de nacimiento.')
+  if (pass.length<8) return f('La contraseña debe tener al menos 8 caracteres.')
+  if (pass!==pass2) return f('Las contraseñas no coinciden.')
+  const b=document.getElementById('bReg'); b.disabled=true; b.textContent='CREANDO TU CUENTA…'
   try{
-    const { data, error } = await sb.auth.signUp({ email, password:pass,
-      options:{ emailRedirectTo: window.location.href.split('#')[0], data:{ nombre, apellido } } })
+    const r=await sb.rpc('registro_socio',{p_email:email,p_password:pass,p_nombre:nombre,p_apellido:apellido,p_telefono:tel||null,p_sexo:window._rSexo,p_fecha_nacimiento:nac})
+    if (r.error) throw r.error
+    const { error } = await sb.auth.signInWithPassword({ email, password:pass })
     if (error) throw error
-    if (data?.user?.id){ try{ await sb.from('profiles').insert({ id:data.user.id, nombre, apellido, email, role:'socio', activo:true }) }catch(_){} }
-    document.getElementById('rOk').style.display='block'; b.textContent='CORREO ENVIADO ✓'
+    b.textContent='CUENTA CREADA ✓'
+    await entrar()
   }catch(e){
-    err.textContent=/already|registered/i.test(e.message||'')?'Ese email ya tiene cuenta — recupera tu contraseña':('No se pudo: '+(e.message||'intenta de nuevo'))
-    err.style.display='block'; b.disabled=false; b.textContent='CREAR MI CUENTA'
+    const m=String(e.message||'')
+    f(/ya tiene una cuenta/i.test(m)?'Ese correo ya tiene cuenta. Usa "¿Olvidaste tu contraseña?".':m.replace(/^REGISTRO:\s*/,'')||'No se pudo crear la cuenta.')
+    b.disabled=false; b.textContent='CREAR MI CUENTA'
   }
 }
 async function recuperar(){
@@ -1905,7 +1924,7 @@ document.addEventListener('visibilitychange', refrescoSocio)
 setInterval(refrescoSocio, 60000)
 function sinPrograma(msg){
   document.getElementById('hSaludo').textContent = 'Hola, '+((S.perfil?.nombre)||'socio')+'.'
-  document.getElementById('hVoz').innerHTML = msg || 'Tu cuenta está lista. <b>Tu coach te asignará tu programa</b> — nos vemos en la sala.'
+  document.getElementById('hVoz').innerHTML = msg || 'Tu cuenta está lista. <b>En tu próxima visita, el equipo KOACH activa tu membresía y tu plan.</b> Nos vemos en la sala.'
   const _hD=document.getElementById('hD'); if(_hD) _hD.textContent='—'
   document.getElementById('hCta').disabled = true
   document.getElementById('hCtaT').textContent='PROGRAMA EN CAMINO'
