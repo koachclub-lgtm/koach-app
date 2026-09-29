@@ -500,6 +500,49 @@ html[data-rol="recepcion"] .fPlanBtn, html[data-rol="nutricionista"] .fPlanBtn{d
 .mSG__ok{background:#121212;color:#F4F3F0;border:none}
 .mSG__sec{background:transparent;color:#121212;border:1px solid rgba(18,18,18,.2)}
 .mSG__del{background:none;border:none;color:#8E8D88;text-decoration:underline;font-size:11px!important}
+/* ═══ c10.1 · consultor de cargas + dosificador simple ═══ */
+.mCg{position:fixed;inset:0;z-index:985;background:rgba(10,10,11,.5);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);align-items:flex-end;justify-content:center}
+.mCg__c{position:relative;width:100%;max-width:560px;max-height:84vh;overflow-y:auto;background:#F4F3F0;border-radius:24px 24px 0 0;padding:22px 20px calc(22px + env(safe-area-inset-bottom,0px))}
+.mCg__x{position:absolute;right:14px;top:14px;border:none;background:rgba(18,18,18,.07);border-radius:10px;width:36px;height:36px;cursor:pointer}
+.cgK{font-family:var(--font-mono);font-weight:500;font-size:10.5px;letter-spacing:.14em;color:#8E8D88;padding-right:40px}
+.cgT{margin:6px 0 12px;font-family:var(--font-display);font-weight:700;font-size:22px;color:#121212}
+.cgNone{font-family:var(--font-mono);font-weight:500;font-size:13px;letter-spacing:.1em;color:#121212}
+.cgNota{font-family:var(--font-display);font-size:15px;color:#5E5D59}
+.cgGrid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.cgGrid div{border:1px solid rgba(18,18,18,.1);border-radius:14px;padding:12px}
+.cgGrid small{display:block;font-family:var(--font-mono);font-weight:500;font-size:10px;letter-spacing:.12em;color:#8E8D88}
+.cgGrid b{display:block;margin:4px 0 2px;font-family:var(--font-display);font-weight:700;font-size:20px;color:#121212}
+.cgGrid span{font-family:var(--font-mono);font-weight:500;font-size:10.5px;color:#6E6D68}
+.cgSug{margin:12px 2px;font-family:var(--font-mono);font-weight:500;font-size:11.5px;letter-spacing:.06em;color:#4A4945}
+.cgHist{list-style:none;margin:0;padding:0}
+.cgHist li{display:flex;gap:12px;align-items:baseline;padding:9px 10px;border-radius:10px;font-family:var(--font-mono);font-size:13px}
+.cgHist li:nth-child(odd){background:rgba(18,18,18,.04)}
+.cgHist span{min-width:56px;color:#8E8D88}.cgHist em{margin-left:auto;font-style:normal;color:#8E8D88}
+.cgBtns{display:flex;flex-direction:column;gap:8px;margin-top:14px}
+.cgBtns button{border:1px solid rgba(18,18,18,.2);background:transparent;border-radius:14px;padding:15px;font-family:var(--font-mono);font-weight:500;font-size:12px;letter-spacing:.08em;cursor:pointer}
+.cgBtns button.ink{background:#121212;color:#F4F3F0;border-color:#121212}
+#cgBusca{width:100%;box-sizing:border-box;margin:10px 0}
+.cgRow{display:flex;justify-content:space-between;gap:10px;width:100%;text-align:left;border:none;border-bottom:1px solid rgba(18,18,18,.08);background:none;padding:12px 2px;cursor:pointer}
+.cgRow span{font-family:var(--font-display);font-weight:600;font-size:15px;color:#121212}
+.cgRow b{font-family:var(--font-mono);font-weight:500;font-size:10.5px;color:#6E6D68;white-space:nowrap}
+.plUlt{border:none;background:none;padding:6px 0;cursor:pointer;font-family:var(--font-mono);font-weight:500;font-size:11px;letter-spacing:.06em;color:#4A4945;text-align:left}
+.plUlt b{color:#121212}
+/* dosificador: META = lo programado · EJECUTADO = lo realizado · escala fija 0 · 10 · 20 · 20+ */
+.dzS{margin:0 0 12px}
+.dzS__h{display:flex;align-items:baseline;gap:8px}
+.dzS__h .g3{font-weight:800}
+.dzS__h .dzNums{margin-left:auto;font-family:var(--font-mono);font-weight:500;font-size:11px}
+.dzS__h .dzChip{font-family:var(--font-mono);font-weight:500;font-size:9.5px;letter-spacing:.08em}
+.dzS__t{position:relative;height:12px;margin-top:6px;border-radius:6px;background:rgba(18,18,18,.07)}
+.dzS__t em{position:absolute;top:-3px;bottom:-3px;width:1px;background:rgba(18,18,18,.25)}
+.dzS__t em::after{content:attr(data-l);position:absolute;top:16px;left:-6px;font-family:var(--font-mono);font-style:normal;font-size:8.5px;color:#8E8D88}
+.dzS__e{position:absolute;left:0;top:0;bottom:0;border-radius:6px;background:#121212}
+.dzS__m{position:absolute;top:-5px;bottom:-5px;width:3px;margin-left:-1px;border-radius:2px;background:#8A8F97;box-shadow:0 0 0 2px #F4F3F0}
+.dzS__esc{height:14px}
+
+.asOpc{margin-bottom:14px}.asOpc__t{font-family:var(--font-mono);font-weight:500;font-size:10.5px;letter-spacing:.12em;margin-bottom:8px}
+.asOpc__b{border:1px solid rgba(18,18,18,.12);border-radius:14px;padding:14px}.asOpc__b b{display:block;font-family:var(--font-display);font-size:17px}.asOpc__b span{display:block;font-size:14px;color:#6E6D68;margin:2px 0 10px}
+.plVacio{padding:22px 18px;text-align:center}.plVacio b{display:block;font-family:var(--font-display);font-size:20px}.plVacio span{display:block;margin-top:6px;font-size:15px;color:#6E6D68}
 /* ═══ FIN CAPA 3 ═══ */
 /* ═══ MOTOR DE CONSTRUCCIÓN c8.0 · MACRO → MESO → MICRO ═══ */
 .plNav{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin:0 0 14px}
@@ -571,7 +614,7 @@ html[data-rol="recepcion"] .fPlanBtn, html[data-rol="nutricionista"] .fPlanBtn{d
 </div></div>
 
 <div class="vista" id="vSala">
-  <div class="hbar"><span class="hk" title="c10.0">KOACH</span><span class="rol" id="rolBadge" onclick="salir()">COACH</span></div>
+  <div class="hbar"><span class="hk" title="c10.1">KOACH</span><span class="rol" id="rolBadge" onclick="salir()">COACH</span></div>
   <div class="adAcc" id="accesos"></div>
   <div class="glass aform" id="fAlta" style="display:none">
     <h4>CREAR USUARIO — ENTRA AL INSTANTE CON SU CORREO Y CLAVE</h4>
@@ -705,7 +748,7 @@ html[data-rol="recepcion"] .fPlanBtn, html[data-rol="nutricionista"] .fPlanBtn{d
     <div id="pVivoDose"></div>
   </div>
   <div id="pOrgRow" style="display:flex;justify-content:flex-end;margin-bottom:7px">
-    <button onclick="abrirOrganizador()" style="border:1.5px solid rgba(18,18,16,.16);background:none;border-radius:10px;padding:8px 12px;font-size:8px;font-weight:900;letter-spacing:.12em;cursor:pointer;color:#121210">⇅ REORGANIZAR SESIONES</button>
+    <button onclick="abrirOrganizador()" style="border:1.5px solid rgba(18,18,16,.16);background:none;border-radius:10px;padding:8px 12px;font-size:8px;font-weight:900;letter-spacing:.12em;cursor:pointer;color:#121210">⇅ REORGANIZAR SESIONES</button><button class="bqAdd" style="margin-left:8px" onclick="cgConsultor()">CONSULTAR CARGAS</button>
   </div>
   <div class="mtabs" id="pTabs"></div>
   <div class="plIndRow"><span id="plSaveInd" class="plInd">GUARDADO ✓</span></div>
@@ -723,6 +766,7 @@ html[data-rol="recepcion"] .fPlanBtn, html[data-rol="nutricionista"] .fPlanBtn{d
     <button class="mSG__sec" onclick="plGuardCerrar()">SEGUIR EDITANDO</button>
     <button class="mSG__del" onclick="plGuardDescartar()">Descartar cambios</button></div>
 </div>
+<div id="mCargas" class="mCg" style="display:none" onclick="if(event.target===this)this.style.display='none'"><div class="mCg__c"><button class="mCg__x" onclick="document.getElementById('mCargas').style.display='none'" aria-label="Cerrar">✕</button><div id="cgBody"></div></div></div>
 <!-- PICKER DE PROGRAMA BASE -->
 <div class="vista" id="vPicker">
   <div class="stop"><button class="sback" onclick="verFicha(F.id)">←</button>
@@ -771,16 +815,14 @@ html[data-rol="recepcion"] .fPlanBtn, html[data-rol="nutricionista"] .fPlanBtn{d
     <div style="display:flex;align-items:center;margin-bottom:12px">
       <div style="font-size:8px;letter-spacing:.18em;font-weight:900;color:var(--koach-text-secondary)">AGREGAR SESIÓN A LA SEMANA</div>
       <button onclick="document.getElementById('mAddSes').style.display='none'" style="margin-left:auto;border:none;background:rgba(18,18,16,.07);border-radius:10px;padding:8px 12px;font-weight:900;cursor:pointer">✕</button></div>
-    <div class="h3" style="margin-top:0"><span>RUTINAS ESTÁNDAR ★ · LA VÍA RÁPIDA</span></div>
-    <input id="asBusca" placeholder="Buscar rutina…" oninput="pintarAsBib()">
+    <div class="asOpc"><div class="asOpc__t">NUEVA SESIÓN · ¿CÓMO QUIERES COMENZAR?</div>
+      <div class="asOpc__b"><b>CREAR DESDE CERO</b><span>Comienza con una sesión vacía y arma sus bloques.</span>
+        <label>NOMBRE</label><input id="asNombre" placeholder="LOWER STRENGTH, PUSH, METABOLIC…">
+        <div style="display:flex;gap:8px"><button class="btn" onclick="agregarSesion('vacia')">CREAR Y EDITAR →</button>
+        <button class="btn" style="background:rgba(18,18,16,.08);color:#121210" onclick="agregarSesion('duplicar')">DUPLICAR ACTUAL</button></div></div></div>
+    <div class="h3"><span>O DESDE PREDISEÑADA · SE CLONA, LA PLANTILLA NO CAMBIA</span></div>
+    <input id="asBusca" placeholder="Buscar sesión prediseñada…" oninput="pintarAsBib()">
     <div id="asBib"><div class="vacio">Cargando rutinas…</div></div>
-    <div class="h3"><span>O CREAR</span></div>
-    <label>NOMBRE</label>
-    <input id="asNombre" placeholder="CORE, UPPER B, HÍBRIDO…">
-    <div style="display:flex;gap:8px">
-      <button class="btn" style="background:rgba(18,18,16,.08);color:#121210" onclick="agregarSesion('vacia')">CREAR VACÍA →</button>
-      <button class="btn" onclick="agregarSesion('duplicar')">DUPLICAR ACTUAL →</button>
-    </div>
   </div>
 </div>
 
@@ -977,6 +1019,16 @@ function calcularSemana(programa, registros, objetivos){
            completa:ex.length>0&&tot===ex.length, acum:acum }
 }
 // Semana EFECTIVA (misma regla que la app del socio): vigente sin programación → última programada ≤ vigente
+
+// c10.1 · FUENTE ÚNICA DE META: las series que el KOACH programó en la semana efectiva (motor aporteSesion).
+// Las tablas de objetivos externos (volumen_objetivos) ya no definen la META que se muestra.
+function objProgramados(programa, w){
+  const acc={}
+  ;((programa&&programa.sesiones)||[]).filter(function(x){ return !x._extra && (x.semana||1)===w }).forEach(function(x){
+    const a=aporteSesion({bloques:x.bloques}); Object.keys(a).forEach(function(g){ acc[g]=(acc[g]||0)+a[g] }) })
+  const o={}; Object.keys(acc).forEach(function(g){ if(acc[g]>0) o[g]={ mev:+acc[g].toFixed(1), mav:null, exigible:true } })
+  return o
+}
 function semEfectiva(semanas, vig){ const u=[...new Set(semanas)].sort(function(a,b){return a-b}); if(!u.length) return vig||1
   const le=u.filter(function(w){return w<=(vig||1)}); return le.length ? le[le.length-1] : u[0] }
 function semPorFecha(fi){ if(!fi) return null; const d=Math.floor((new Date(hoyISO()+'T12:00:00')-new Date(fi+'T12:00:00'))/86400000); return d<0?1:Math.floor(d/7)+1 }
@@ -1000,9 +1052,9 @@ function resolveCiclo(fechaInicio, ciclosemanas, semanaActual, sesionesPorSemana
   }
   return semanas
 }
-function nombreEN(s){const x=(s||'').toUpperCase()
-  if(/SUPERIOR/.test(x))return 'UPPER BODY'; if(/INFERIOR/.test(x))return 'LOWER BODY'
-  if(/COMPLETO|FULL/.test(x))return 'TOTAL BODY'; return x}
+function nombreEN(s){const x=String(s||'').toUpperCase().trim()
+  if(/^(TREN )?SUPERIOR$/.test(x))return 'UPPER BODY'; if(/^(TREN )?INFERIOR$/.test(x))return 'LOWER BODY'
+  if(/^(CUERPO )?COMPLETO$|^FULL( BODY)?$/.test(x))return 'TOTAL BODY'; return x}
 // Fecha LOCAL (Chile). toISOString es UTC: después de las 21:00 registraba el día siguiente.
 function fLocal(d){ const z=new Date(d.getTime()-d.getTimezoneOffset()*60000); return z.toISOString().slice(0,10) }
 function lunes(){const h=new Date(),d=(h.getDay()+6)%7,l=new Date(h);l.setDate(h.getDate()-d);l.setHours(0,0,0,0);return l}
@@ -1119,14 +1171,17 @@ async function loadSala(silent){
     }catch(_e){}
     C.socios.forEach(function(s){
       const a=C.asig[s.id]
-      if(!a||!C.prog[a.protocolo_id]||!Object.keys(C.obj[a.protocolo_id]||{}).length){ C.sems[s.id]=null; return }
+      if(!a||!C.prog[a.protocolo_id]){ C.sems[s.id]=null; return }
       const prog=C.prog[a.protocolo_id]
+      const _wEf=semEfectiva(prog.sesiones.map(function(x){return x.semana||1}), a.semana_actual||1)
+      const _objP=objProgramados(prog, _wEf)
+      if(!Object.keys(_objP).length){ C.sems[s.id]=null; return }
       const numPorId={}; prog.sesiones.forEach(function(x){numPorId[x.id]=x.numero})
       const rs2=(C.regs[s.id]||[]).map(function(r){
         return {sesion_numero:numPorId[r.sesion_protocolo_id],estado:r.estado,fecha:r.fecha,ejec:EJ[r.id]||null,
           bloques_completados:r.bloques_completados==null?null:r.bloques_completados}
       }).filter(function(r){return r.sesion_numero})
-      C.sems[s.id]=calcularSemana(prog, rs2, C.obj[a.protocolo_id])
+      C.sems[s.id]=calcularSemana(prog, rs2, _objP)
     })
     C.sols = (rsolP && rsolP.data) || []
     await adCargarResumen()
@@ -1721,14 +1776,8 @@ async function abrirPlan(pid, proto, opts){
   document.getElementById('pEstado').textContent = esBib ? 'ESTÁNDAR \u2605' : esBase ? 'BASE ⚙' : ((proto&&proto.estado)||'borrador').toUpperCase()
   vista('vPlan')
   document.getElementById('pBloques').innerHTML = '<div class="vacio">Cargando…</div>'
-  ULT = {}
-  if (!esBib && F){
-    try{
-      const rc = await sb.from('cargas').select('ejercicio_id, peso_kg, reps_realizadas, sets_completados, id, created_at, sesiones_registro(semana)')
-        .eq('socio_id', F.id).order('created_at',{ascending:false}).limit(400) // FIX: id es UUID aleatorio, NO orden cronológico — created_at es la única fuente real de 'última'
-      ;(rc.data||[]).forEach(function(c){ if(c.ejercicio_id && !(c.ejercicio_id in ULT)) ULT[c.ejercicio_id]=c })
-    }catch(_e){}
-  }
+  ULT = {}; HIST = {}
+  if (!esBib && !esBase && F){ try{ await cargarHistorialCargas(F.id) }catch(_e){ console.error('[cargas]', _e) } }
   let qq = sb.from('sesiones_protocolo').select('*').eq('protocolo_id',pid).order('numero') // Ajuste F-MULTI: cap de 6 eliminado, numeración es global entre semanas
   if (opts.soloSesion) qq = qq.eq('id', opts.soloSesion)
   const rses = await qq
@@ -1823,7 +1872,8 @@ function pintarPlan(){ setTimeout(function(){ try{ plSaveUI() }catch(_e){} },0)
       st.scrollTo({ left: Math.max(0,dest), behavior:'smooth' }) } }, 60)
   const ses = P.sesiones[P.tab]
   if(!ses){ document.getElementById('pBloques').innerHTML='<div class="vacio">Sin sesiones</div>'; calcDose(); return }
-  const htmlBloques = ses.bloques.map(function(b,bi){
+  if (!ses.bloques.length && !P.bib){ /* sesión vacía: estado inicial claro */ }
+  const htmlBloques = !ses.bloques.length ? '<div class="glass bq plVacio"><b>'+String(ses.nombre||'SESIÓN').toUpperCase()+'</b><span>Esta sesión todavía no tiene bloques.</span></div>' : ses.bloques.map(function(b,bi){
     return '<div class="glass bq"><div class="bqh"><span class="bqt">'+bloqueTag(b,bi)+'</span>'+
       '<button class="bqx" onclick="elimBloque('+bi+')" title="Eliminar bloque">✕</button>'+
       '<div class="stp"><span>SETS</span><button onclick="stepSets('+bi+',-1)">−</button><b>'+b.sets+'</b><button onclick="stepSets('+bi+',1)">+</button></div>'+
@@ -1831,7 +1881,7 @@ function pintarPlan(){ setTimeout(function(){ try{ plSaveUI() }catch(_e){} },0)
     b.items.map(function(it){
       const tiempo = esTiempo(it)
       const ult = ULT[it.ejId]
-      const ultTxt = plActivo() ? '' : (ult ? ('ÚLTIMA · '+(ult.peso_kg!=null?ult.peso_kg+' KG':'—')) : 'SIN REGISTRO ANTERIOR')
+      const ultTxt = plActivo() ? '' : (ult ? ('ÚLTIMO · '+(ult.peso_kg!=null?cgKg(ult.peso_kg)+' KG':'—')+(ult.reps_realizadas?' × '+ult.reps_realizadas:'')) : 'SIN REGISTRO ANTERIOR')
       const esBW = (it.tipoReg==='BODYWEIGHT_REPS') || (it.tipoReg==null && it.conCarga===false && !tiempo)
       const esT = (it.tipoReg==='TIME') || (it.tipoReg==null && tiempo)
       let controles = ''
@@ -2003,12 +2053,12 @@ async function agregarSesion(modo, bibSesId){
   try{
     if(modo==='vacia'){
       if(!nombre){ toast('Escribe un nombre para la sesión.'); document.getElementById('mAddSes').style.display='block'; return }
-      const fila={protocolo_id:P.pid, numero:num, nombre:nombre, objetivo:nombre}; if(_w!=null) fila.semana=_w
-      const rs = await sb.from('sesiones_protocolo').insert(fila).select().single()
+      const rs = await sb.rpc('koach_crear_sesion_vacia',{p_proto:P.pid, p_semana:(_w!=null?_w:1), p_nombre:nombre})
       if(rs.error) throw rs.error
-      const defs=[['B1','ACTIVACIÓN','activacion'],['B2','PRINCIPAL','fuerza_principal'],['B3','ACCESORIO','cierre_accesorio']]
-      for(let i=0;i<3;i++){ const rb=await insertarBloque(rs.data.id, defs[i][0], defs[i][1], defs[i][2], 3, 60)
-        if(rb.error) console.error('bloque def', rb.error) }
+      toast('✓ Sesión '+nombre.toUpperCase()+' creada — agrégale bloques')
+      await abrirPlan(P.pid, P.proto)
+      const ix=P.sesiones.findIndex(function(x){return x.id===rs.data}); if(ix>-1){ P.tab=ix; if(_w!=null){ PL.w=_w; PL.nivel='micro' } pintarPlan() }
+      return
     } else if(modo==='duplicar'){
       const src=P.sesiones[P.tab]; if(!src){ toast('No hay sesión activa'); return }
       await copiarSesionEn(src.id, P.pid, num, (nombre||((src.nombre||'SESIÓN')+' 2')), _w)
@@ -2049,11 +2099,9 @@ async function renombrarSesion(){
   const s=P.sesiones[P.tab]; if(!s) return
   const nombre=(document.getElementById('msNombre').value||'').trim()
   if(!nombre){ toast('Escribe el nuevo nombre'); return }
-  const r=await sb.from('sesiones_protocolo').update({nombre:nombre, objetivo:nombre}).eq('id',s.id)
-  if(r.error){ toast('Renombrar: '+r.error.message); return }
-  s.nombre=nombre.toUpperCase()
+  s.nombre=nombre.toUpperCase(); s._renombrada=true
   document.getElementById('mSes').style.display='none'
-  toast('✓ Renombrada'); pintarPlan()
+  plDirty(); pintarPlan(); toast('Nombre cambiado · recuerda GUARDAR CAMBIOS')
 }
 async function guardarComoEstandar(){
   const s=P.sesiones[P.tab]; if(!s) return
@@ -2299,53 +2347,41 @@ function calcDose(){
     ? '<b>PROYECCIÓN DE LA BASE · '+P.sesiones.length+' SESIONES</b>'
     : '<b>'+(plActivo()?'SEM '+PL.w+' · ':'')+nH+'/'+_pool.length+' SESIONES'+(_esVig?' · '+pct+'%':'')+'</b>'
   let alerta = ''
-  // DOSIFICADOR POR GRUPO MUSCULAR · escala única 0|10|20|20+ · programada=base · ejecutada=color
+  // DOSIFICADOR (c10.1): META = series que el KOACH programó · EJECUTADO = series realmente hechas.
+  // Escala fija de lectura 0 · 10 · 20 · 20+ (referencias, no metas). La marca gris es la META dinámica.
   const dzPos=function(v){ return v<=20 ? v/20*85 : 85+Math.min((v-20)/6*15,15) }
   const f1=function(x){ return +(+x).toFixed(1) }
-  const filas = Object.keys(universo).map(function(g){
-    const o=objetivos[g]||null, v=acum[g]||0, rv=(real[g]||0)
-    let tag='LIBRE', col='var(--koach-text-secondary)', prio=3
-    // Ajuste 04/05/61: el estado en el PLANIFICADOR describe la PRESCRIPCIÓN (PROG), no la ejecución.
-    // EJEC sigue mostrándose como dato separado (nums, barra E) pero nunca determina el color/tag.
-    if (o && o.mev!=null){
-      if (o.mav!=null && v>o.mav){ tag='SOBRE TECHO'; col='#1C1C1C'; prio=0
-        if(!alerta) alerta='⚠ '+(SIGLA[g]||g)+' '+f1(v)+'/'+o.mav+' TECHO' }
-      else if (v>=o.mev){ tag='EN RANGO'; col='#515449'; prio=2 }
-      else { tag='BAJO'; col='#121210'; prio=1 }
-    }
-    const guias='<em style="left:42.5%"></em><em style="left:85%"></em>'
-    const mObj=(o&&o.mev!=null)?'<span class="dzO" style="left:'+dzPos(o.mev)+'%"></span>':''
-    const mMax=(o&&o.mav!=null)?'<span class="dzM" style="left:'+dzPos(o.mav)+'%"></span>':''
-    const nums=(o&&o.mev!=null)
-      ? 'META '+o.mev+' · PROG '+f1(v)+' · EJEC '+f1(rv)
-      : 'PROG '+f1(v)+' · EJEC '+f1(rv)
-    return { g:g, prio:prio, v:v, html:'<div class="dz2">'+
-      '<div class="dzHead"><span class="g3">'+(SIGLA[g]||g)+'</span>'+
-        '<span class="dzChip" style="color:'+col+'">'+tag+'</span>'+
-        '<span class="dzNums">'+nums+'</span></div>'+
-      '<div class="dzRowB"><i class="dzL">P</i><div class="dzT">'+guias+mObj+mMax+
-        '<div class="dzP" style="width:'+dzPos(v)+'%"></div></div></div>'+
-      '<div class="dzRowB"><i class="dzL">E</i><div class="dzT">'+guias+mObj+mMax+
-        '<div class="dzE" style="width:'+dzPos(rv)+'%"></div></div></div></div>' }
+  const filas = Object.keys(universo).filter(function(g){ return (acum[g]||0)>0 || (real[g]||0)>0 }).map(function(g){
+    const meta=acum[g]||0, rv=(real[g]||0)
+    let tag='SIN EJECUTAR', prio=2
+    if (rv>0 && meta>0 && rv<meta){ tag='EN PROGRESO'; prio=1 }
+    else if (meta>0 && Math.abs(rv-meta)<0.05){ tag='META CUMPLIDA'; prio=3 }
+    else if (rv>meta && rv>0){ tag='SOBRE LO PROGRAMADO'; prio=0 }
+    const esc='<em style="left:0" data-l="0"></em><em style="left:42.5%" data-l="10"></em><em style="left:85%" data-l="20"></em><em style="left:100%" data-l="+"></em>'
+    return { g:g, prio:prio, v:meta, html:'<div class="dzS">'+
+      '<div class="dzS__h"><span class="g3">'+(SIGLA[g]||g)+'</span><span class="dzChip">'+tag+'</span>'+
+        '<span class="dzNums">'+f1(rv)+' / '+f1(meta)+' SERIES</span></div>'+
+      '<div class="dzS__t">'+esc+'<div class="dzS__e" style="width:'+dzPos(rv)+'%"></div>'+(meta>0?'<span class="dzS__m" style="left:'+dzPos(meta)+'%" title="META '+f1(meta)+'"></span>':'')+'</div><div class="dzS__esc"></div></div>' }
   })
   const ORD=['PECHO','ESPALDA','HOMBROS','TRÍCEPS','BÍCEPS','CORE','GLÚTEOS','CUÁDRICEPS','ISQUIOS','GEMELOS','CARDIO','MOVILIDAD']
-  const esMeta=function(fi){ const o=objetivos[fi.g]; return !!(o && o.mev!=null && o.exigible!==false) }
+  const esMeta=function(fi){ return (acum[fi.g]||0)>0 }
   filas.sort(function(a,b){
     const ma=esMeta(a)?0:1, mb=esMeta(b)?0:1
     if (ma!==mb) return ma-mb
     const ia=ORD.indexOf(a.g), ib=ORD.indexOf(b.g)
     return (ia<0?99:ia)-(ib<0?99:ib) })
-  const nMetas = Object.keys(objetivos).filter(function(g){return objetivos[g].mev!=null && objetivos[g].exigible!==false}).length
+  const nMetas = filas.filter(function(fi){ return (acum[fi.g]||0)>0 }).length
+  const nCumplidas = filas.filter(function(fi){ const m=acum[fi.g]||0; return m>0 && (real[fi.g]||0)>=m-0.05 }).length
   const nMetasVisibles = filas.filter(esMeta).length
   const LIM=Math.max(6,nMetasVisibles)
   const lista = P.vivoAll ? filas : filas.slice(0,LIM)
   const btn = filas.length>LIM
     ? '<button onclick="P.vivoAll=!P.vivoAll;calcDose()" style="width:100%;border:none;background:none;padding:9px 0 2px;font-size:7px;font-weight:900;letter-spacing:.12em;color:var(--koach-text-secondary);cursor:pointer">'+
       (P.vivoAll?'▲ VER MENOS':'▼ VER TAMBIÉN LOS ESTÍMULOS LIBRES ('+(filas.length-nMetasVisibles)+')')+'</button>' : ''
-  const cabecera='<div style="font-family:var(--font-mono);font-weight:500;font-size:11px;letter-spacing:.04em;color:var(--koach-text-primary);margin:0 0 8px">'+nMetas+' META'+(nMetas===1?'':'S')+'<span style="color:var(--koach-text-secondary);font-weight:400"> · mismo número en Su Semana</span></div>'
+  const cabecera='<div style="font-family:var(--font-mono);font-weight:500;font-size:11px;letter-spacing:.04em;color:var(--koach-text-primary);margin:0 0 8px">'+nCumplidas+' / '+nMetas+' GRUPOS CON META CUMPLIDA</div>'
   const regla=cabecera+'<div class="dzRule"><span style="width:14px"></span><div class="dzScale">'+
     '<s style="left:0%">0</s><s style="left:42.5%">10</s><s style="left:85%">20</s><s style="left:100%">20+</s></div><span></span></div>'+
-    '<div class="dzLeg">P = PROGRAMADO · E = EJECUTADO · | META · ¦ TECHO · SERIES EFECTIVAS</div>'
+    '<div class="dzLeg">META = SERIES QUE PROGRAMASTE · BARRA = EJECUTADO POR EL SOCIO · 10 Y 20 SON REFERENCIAS DE LECTURA</div>'
   const dzHTML = regla + lista.map(function(f){return f.html}).join('') + btn
   document.getElementById('pVivoDose').innerHTML = dzHTML
   try{ if (!P.base && typeof F!=='undefined' && F && F.id && _reqFor!==F.id){ _reqFor=F.id; cargarSolicitudes(F.id) } }catch(_e){}
@@ -2772,10 +2808,8 @@ function idlgOk(){
 }
 async function renameRoutine(nombre){
   const ses=P.sesiones[P.tab]; if(!ses)return
-  syncEnvio()
-  const r=await sb.from('sesiones_protocolo').update({nombre:nombre}).eq('id',ses.id)
-  if(r.error){syncErr(r.error.message);return}
-  ses.nombre=nombre; syncOk(); repintarConservando(); toast('Rutina renombrada.')
+  ses.nombre=String(nombre).toUpperCase(); ses._renombrada=true
+  plDirty(); repintarConservando(); toast('Nombre cambiado · recuerda GUARDAR CAMBIOS')
 }
 async function cloneRoutine(nombre){
   if (_busyCmd) return; _busyCmd=true
@@ -3116,22 +3150,22 @@ function plLineaProgresion(it, esBW, esT){
   const ult=ULT[it.ejId]
   const partes=[]
   if (ult && (ult.peso_kg!=null || ult.reps_realizadas!=null)){
-    const wU = ult.sesiones_registro && ult.sesiones_registro.semana
-    partes.push('<b>ÚLTIMA</b> '+(ult.peso_kg!=null?ult.peso_kg+' KG':'')+(ult.reps_realizadas!=null?' × '+ult.reps_realizadas:'')+(wU?' · S'+wU:''))
-  } else partes.push('SIN REGISTRO ANTERIOR')
+    partes.push('<button class="plUlt" onclick="cgDrawer(\''+it.ejId+'\',\''+it.beId+'\')"><b>ÚLTIMO</b> '+(ult.peso_kg!=null?cgKg(ult.peso_kg)+' KG':'')+(ult.reps_realizadas!=null?' × '+ult.reps_realizadas:'')+(ult.fecha?' · '+cgF(ult.fecha):'')+' →</button>')
+  } else partes.push('<button class="plUlt" onclick="cgDrawer(\''+it.ejId+'\',\''+it.beId+'\')">SIN REGISTRO ANTERIOR →</button>')
   if (PL.w>1){
     let prev=null
     plSesSem(PL.w-1).some(function(s){ return s.bloques.some(function(b){ return b.items.some(function(x){ if(x.ejId===it.ejId){prev=x;return true} return false }) }) })
     if (prev) partes.push('S'+(PL.w-1)+' PRESCRITO '+(prev.kg!=null?prev.kg+' KG × ':'')+prev.reps)
   }
   let prop=''
-  if (!esBW && !esT && ult && ult.peso_kg!=null && (it.kg==null || +it.kg<=+ult.peso_kg)){
-    const sug=+(+ult.peso_kg+2.5).toFixed(2)
-    prop='<button class="plProp" onclick="plAplicarKg(\''+it.beId+'\','+sug+')">PROPONER '+sug+' KG ↑</button>'
+  const _sug = (!esBW && !esT) ? cgSugerida(it.ejId, it.reps) : null
+  if (_sug!=null && ult && ult.peso_kg!=null && +_sug>+ult.peso_kg && (it.kg==null || +it.kg<+_sug)){
+    const sug=_sug
+    prop='<button class="plProp" onclick="plAplicarKg(\''+it.beId+'\','+sug+')">USAR SUGERIDA '+cgKg(sug)+' KG</button>'
   }
   return '<div class="plProg"><span>'+partes.join(' · ')+'</span>'+prop+'</div>'
 }
-async function plAplicarKg(beId, v){ await editKg(beId, v); repintarConservando(); toast('Carga '+v+' KG prescrita — el coach decide, la data respalda') }
+async function plAplicarKg(beId, v){ await editKg(beId, v); repintarConservando(); toast('Carga '+cgKg(v)+' KG aplicada · recuerda GUARDAR CAMBIOS') }
 // ─── NAVEGACIÓN ───
 // tras editar, las semanas siguientes se re-derivan en la base → al cambiar de nivel/semana se trae la versión vigente
 async function plIr(n){ if(plEsDirty() && n!=='micro'){ plGuard(function(){ plIr(n) }); return } PL.nivel=n; if(n==='micro'){ pintarPlan() } else if(P&&P._sucio){ P._sucio=false; await plRecargar() } else plRender(); window.scrollTo(0,0) }
@@ -3710,7 +3744,7 @@ function plUuid(){ return (crypto && crypto.randomUUID) ? crypto.randomUUID() : 
 function plSesActual(){ return P && P.sesiones && P.sesiones[P.tab] }
 function plEsDirty(){ return !!(P && P.dirty && Object.keys(P.dirty).length) }
 function plDirty(){ const s=plSesActual(); if(!s) return; P.dirty=P.dirty||{}; P.dirty[s.id]=true; plSaveUI() }
-function plFirma(s){ return JSON.stringify((s.bloques||[]).map(function(b){ return [b.id,b.etiqueta||'',b.sets,b.desc,(b.items||[]).map(function(it){ return [it.beId,it.ejId,it.kg==null?null:+it.kg,String(it.reps==null?'':it.reps)] })] })) }
+function plFirma(s){ return String(s.nombre||'').toUpperCase()+JSON.stringify((s.bloques||[]).map(function(b){ return [b.id,b.etiqueta||'',b.sets,b.desc,(b.items||[]).map(function(it){ return [it.beId,it.ejId,it.kg==null?null:+it.kg,String(it.reps==null?'':it.reps)] })] })) }
 function plPayload(s){
   return (s.bloques||[]).map(function(b){ return { id:b.id, etiqueta:b.etiqueta||null, rol:b.rol||null, sets:b.sets, desc:b.desc,
     items:(b.items||[]).map(function(it){ return { id:it.beId, ejercicio_id:it.ejId, kg:(it.kg==null||it.kg===''?null:it.kg), reps:(it.reps==null?null:String(it.reps)) } }) } })
@@ -3739,7 +3773,7 @@ async function plGuardar(){
   const s=plSesActual(); if(!s) return false
   const firma=plFirma(s)
   plSaveUI('saving'); syncEnvio()
-  const r=await sb.rpc('koach_guardar_sesion',{p_sesion:s.id, p_bloques:plPayload(s)})
+  const r=await sb.rpc('koach_guardar_sesion',{p_sesion:s.id, p_bloques:plPayload(s), p_nombre:(s._renombrada?s.nombre:null)})
   if (r.error){
     console.error('[guardar sesión]', {code:r.error.code, message:r.error.message, details:r.error.details, hint:r.error.hint})
     syncErr(r.error.message); plSaveUI('err'); toast('No se pudieron guardar los cambios. Revisa tu conexión y reintenta.'); return false }
@@ -3773,6 +3807,61 @@ async function plGuardDescartar(){
   P.dirty={}; await plReabrir(); plSaveUI(); if (a) a()
 }
 window.addEventListener('beforeunload', function(e){ if (plEsDirty()){ e.preventDefault(); e.returnValue='' } })
+// ═══════════ c10.1 · CONSULTOR DE CARGAS (historial REAL: socio + ejercicio_id) ═══════════
+// Una sola llamada por socio (koach_historial_cargas): último, mejor e historial de cada ejercicio → sin N+1.
+let HIST={}
+const CG_MES=['ENE','FEB','MAR','ABR','MAY','JUN','JUL','AGO','SEP','OCT','NOV','DIC']
+function cgF(iso){ if(!iso) return ''; const d=new Date(String(iso).slice(0,10)+'T12:00:00'); return d.getDate()+' '+CG_MES[d.getMonth()] }
+function cgKg(v){ return v==null?'—':((+v)%1===0?String(+v):(+v).toFixed(1)) }
+function cgSet(x){ return x ? ((x.peso!=null?cgKg(x.peso)+' KG × ':'')+(x.reps||'—')) : '' }
+async function cargarHistorialCargas(socioId){
+  HIST={}; ULT={}
+  if (!socioId) return
+  const r=await sb.rpc('koach_historial_cargas',{p_socio:socioId})
+  if (r.error){ console.error('[cargas] historial', r.error); return }
+  HIST=r.data||{}
+  Object.keys(HIST).forEach(function(ej){ const u=HIST[ej].ultimo||{}
+    ULT[ej]={ peso_kg:u.peso, reps_realizadas:u.reps, fecha:u.fecha, sesion:u.sesion, sets:u.sets, sesiones_registro:null } })
+}
+// Sugerida: solo si el rango de reps objetivo es comparable al último (±2); si no, no se inventa
+function cgSugerida(ej, repsObjetivo){
+  const h=HIST[ej]; if(!h || !h.ultimo || h.ultimo.peso==null || h.sugerida==null) return null
+  const ru=parseFloat(h.ultimo.reps), ro=parseFloat(repsObjetivo)
+  if (!isNaN(ru) && !isNaN(ro) && Math.abs(ru-ro)>2) return null
+  return +h.sugerida
+}
+function cgDrawer(ejId, beId){
+  const e=(EJCAT||[]).find(function(x){return x.id===ejId})||{}, h=HIST[ejId]
+  const it = beId ? plBuscarItem(beId) : null
+  const sug = cgSugerida(ejId, it && it.reps)
+  let html='<div class="cgK">HISTORIAL DE CARGAS'+(F?' · '+String(nomDe(F.id)).toUpperCase():'')+'</div><h3 class="cgT">'+(e.nombre||'Ejercicio')+'</h3>'
+  if (!h){ html+='<div class="cgNone">SIN REGISTRO ANTERIOR</div><p class="cgNota">El KOACH define la carga inicial.</p>' }
+  else {
+    html+='<div class="cgGrid"><div><small>ÚLTIMO</small><b>'+cgSet(h.ultimo)+'</b><span>'+cgF(h.ultimo.fecha)+(h.ultimo.sesion?' · '+String(h.ultimo.sesion).toUpperCase():'')+(h.ultimo.sets?' · '+h.ultimo.sets+' SERIES':'')+'</span></div>'+
+      '<div><small>MEJOR</small><b>'+cgSet(h.mejor)+'</b><span>'+cgF(h.mejor&&h.mejor.fecha)+'</span></div></div>'+
+      '<div class="cgSug">'+(sug!=null?'SUGERIDA · <b>'+cgKg(sug)+' KG</b>'+(+sug<=+h.ultimo.peso?' (mantener)':''):'SUGERENCIA NO DISPONIBLE'+(it&&it.reps?' para '+it.reps+' reps':''))+'</div>'+
+      '<ol class="cgHist">'+(h.hist||[]).map(function(x){ return '<li><span>'+cgF(x.fecha)+'</span><b>'+cgSet(x)+'</b><em>'+(x.sets||'')+' S</em></li>' }).join('')+'</ol>'
+    if (beId && h.ultimo.peso!=null) html+='<div class="cgBtns"><button onclick="cgUsar(\''+beId+'\','+(+h.ultimo.peso)+')">USAR ÚLTIMA · '+cgKg(h.ultimo.peso)+' KG</button>'+
+      (sug!=null && +sug!==+h.ultimo.peso?'<button class="ink" onclick="cgUsar(\''+beId+'\','+sug+')">USAR SUGERIDA · '+cgKg(sug)+' KG</button>':'')+'</div>'
+  }
+  document.getElementById('cgBody').innerHTML=html
+  document.getElementById('mCargas').style.display='flex'
+}
+function plBuscarItem(beId){ const s=plSesActual(); let r=null; if(s) s.bloques.forEach(function(b){ b.items.forEach(function(it){ if(it.beId===beId) r=it }) }); return r }
+async function cgUsar(beId, kg){ document.getElementById('mCargas').style.display='none'; await editKg(beId, kg); repintarConservando(); toast('Carga '+cgKg(kg)+' KG aplicada · recuerda GUARDAR CAMBIOS') }
+// Consultor global: buscar cualquier ejercicio antes de insertarlo
+function cgConsultor(){
+  document.getElementById('cgBody').innerHTML='<div class="cgK">CONSULTAR CARGAS'+(F?' · '+String(nomDe(F.id)).toUpperCase():'')+'</div>'+
+    '<input id="cgBusca" placeholder="Buscar ejercicio…" oninput="cgFiltrar()" autocomplete="off"><div id="cgLista"></div>'
+  document.getElementById('mCargas').style.display='flex'; cgFiltrar(); setTimeout(function(){ const i=document.getElementById('cgBusca'); if(i) i.focus() },50)
+}
+function cgFiltrar(){
+  const q=((document.getElementById('cgBusca')||{}).value||'').trim().toLowerCase()
+  const l=(EJCAT||[]).filter(function(e){ return !q || String(e.nombre).toLowerCase().indexOf(q)>-1 })
+    .sort(function(a,b){ return (HIST[b.id]?1:0)-(HIST[a.id]?1:0) || String(a.nombre).localeCompare(String(b.nombre)) }).slice(0,40)
+  document.getElementById('cgLista').innerHTML=l.map(function(e){ const h=HIST[e.id]
+    return '<button class="cgRow" onclick="cgDrawer(\''+e.id+'\')"><span>'+e.nombre+'</span><b>'+(h?'ÚLTIMO '+cgSet(h.ultimo)+' · '+cgF(h.ultimo.fecha):'SIN REGISTRO')+'</b></button>' }).join('')||'<div class="vacio">Sin resultados.</div>'
+}
 let MG={primero:null}
 async function aplicarPrograma(){
   // Guardia de prescripción (advertencia, jamás bloqueo) — modal KOACH, no confirm nativo

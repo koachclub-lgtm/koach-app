@@ -1077,7 +1077,7 @@ body.wl-on{overflow:hidden}
   <!-- ══ HOME ══ -->
   <div class="vista conTab" id="vHome">
     <div id="k2Home" aria-live="polite"></div>
-    <div class="hbar"><span class="hk" title="v10.7">KOACH</span><div class="hav" id="hAv" onclick="salir()">K</div></div>
+    <div class="hbar"><span class="hk" title="v10.8">KOACH</span><div class="hav" id="hAv" onclick="salir()">K</div></div>
     <div class="ctx"><div class="fecha" id="hFecha">—</div><div class="prog" id="hProg">—</div></div>
     <div class="anillo">
       <svg width="180" height="180" viewBox="0 0 180 180">
@@ -1735,6 +1735,16 @@ function pintarCierre(m){
     '<button class="rwBtn" onclick="document.getElementById(\'oRw\').classList.remove(\'vis\');entrar()">VER MI PROGRESO →</button></div>'
   el.classList.add('vis')
 }
+
+// c10.1 · FUENTE ÚNICA DE META: las series que el KOACH programó en la semana efectiva (motor aporteSesion).
+// Las tablas de objetivos externos (volumen_objetivos) ya no definen la META que se muestra.
+function objProgramados(programa, w){
+  const acc={}
+  ;((programa&&programa.sesiones)||[]).filter(function(x){ return !x._extra && (x.semana||1)===w }).forEach(function(x){
+    const a=aporteSesion({bloques:x.bloques}); Object.keys(a).forEach(function(g){ acc[g]=(acc[g]||0)+a[g] }) })
+  const o={}; Object.keys(acc).forEach(function(g){ if(acc[g]>0) o[g]={ mev:+acc[g].toFixed(1), mav:null, exigible:true } })
+  return o
+}
 function semEfectiva(semanas, vig){ const u=[...new Set(semanas)].sort((a,b)=>a-b); if(!u.length) return vig||1
   const le=u.filter(w=>w<=(vig||1)); return le.length ? le[le.length-1] : u[0] }
 function baseSem(){ return (S.programa&&S.programa.sesiones||[]).filter(s=>!s._extra && (s.semana||1)===(S.semanaProg||S.semanaActual||1)).sort((a,b)=>a.numero-b.numero) }
@@ -1781,10 +1791,11 @@ function calcularSemana(programa, registros, objetivos){
            completa: ex.length>0 && tot===ex.length }
 }
 function nombreEN(s){
-  const x = (s||'').toUpperCase()
-  if (/SUPERIOR/.test(x)) return 'UPPER BODY'
-  if (/INFERIOR/.test(x)) return 'LOWER BODY'
-  if (/COMPLETO|FULL/.test(x)) return 'TOTAL BODY'
+  // solo se traducen los nombres ANTIGUOS exactos; un nombre libre del KOACH se respeta tal cual
+  const x = String(s||'').toUpperCase().trim()
+  if (/^(TREN )?SUPERIOR$/.test(x)) return 'UPPER BODY'
+  if (/^(TREN )?INFERIOR$/.test(x)) return 'LOWER BODY'
+  if (/^(CUERPO )?COMPLETO$|^FULL( BODY)?$/.test(x)) return 'TOTAL BODY'
   return x
 }
 // Fecha LOCAL (Chile). toISOString es UTC: después de las 21:00 registraba el día siguiente.
@@ -2007,12 +2018,8 @@ async function entrar(opts){
     const numPorId = {}; S.programa.sesiones.forEach(s=>numPorId[s.id]=s.numero)
     S.registros = regs.map(r=>({ id:r.id, sesion_protocolo_id:r.sesion_protocolo_id, ejec:_setsPorReg[r.id]||null, sesion_numero:numPorId[r.sesion_protocolo_id], estado:r.estado,
       fecha:r.fecha, bloques_completados:r.bloques_completados??null })).filter(r=>r.sesion_numero)
-    S.objetivos = {}
-    ;(rObjs.data||[]).forEach(o=>{
-      const g=(o.grupo||'').toUpperCase()
-      if(!g || !(o.mev>0)) return
-      S.objetivos[g] = { mev:o.mev, mav:o.mav??null, exigible:(o.dominante===undefined||o.dominante===null)?true:!!o.dominante }
-    })
+    // META = lo que el KOACH programó en la semana efectiva (misma fuente que el coach)
+    S.objetivos = objProgramados(S.programa, S.semanaProg||S.semanaActual)
     if (!Object.keys(S.objetivos).length){ await memP; sinPrograma('Tu programa aún no tiene objetivos — avisa a tu coach.'); return }
     S._rSol = rSol
     S.sem = calcularSemana(S.programa, S.registros, S.objetivos)
@@ -3268,11 +3275,11 @@ async function verHist(regId){
   try{
     if (!regId || regId==='undefined') throw new Error('sin id de registro')
     const { data: reg, error: e1 } = await sb.from('sesiones_registro')
-      .select('id, fecha, estado, sesion_protocolo_id, created_at, completada_at').eq('id',regId).maybeSingle()
+      .select('id, fecha, estado, sesion_protocolo_id, created_at, completada_at, sesion_nombre').eq('id',regId).maybeSingle()
     if (e1) throw e1
     if (!reg) throw new Error('registro no encontrado')
     const { data: sp } = await sb.from('sesiones_protocolo').select('nombre, objetivo, semana').eq('id',reg.sesion_protocolo_id).maybeSingle()
-    const nom=((sp&&(nombreEN(sp.objetivo)||sp.nombre))||'SESIÓN').toUpperCase()
+    const nom=(reg.sesion_nombre || (sp&&(nombreEN(sp.objetivo)||sp.nombre)) || 'SESIÓN').toUpperCase()   // historial: nombre con que se ejecutó
     document.getElementById('hsTit').textContent = nom
     const img=sessionImagen(nom); document.getElementById('hsImg').innerHTML = img?'<img src="'+img+'" alt="">':''
     const MES=['ENE','FEB','MAR','ABR','MAY','JUN','JUL','AGO','SEP','OCT','NOV','DIC']
@@ -3377,7 +3384,7 @@ async function loadAvances(){
   // Historial de sesiones realizadas
   try{
     const { data: hs } = await sb.from('sesiones_registro')
-      .select('id, fecha, estado, sesion_protocolo_id, musculos_sumados')
+      .select('id, fecha, estado, sesion_protocolo_id, musculos_sumados, sesion_nombre')
       .eq('socio_id', S.perfil.id).eq('estado','completada')
       .order('fecha',{ascending:false}).limit(8)
     const spIds = [...new Set((hs||[]).map(x=>x.sesion_protocolo_id).filter(Boolean))]
@@ -3390,7 +3397,7 @@ async function loadAvances(){
       const fecha = `${DIAS3[(d.getDay()+6)%7]} ${d.getDate()}`
       const gan = x.musculos_sumados?.ganados
       const der = x.estado==='incompleta' ? 'PARCIAL' : (gan!=null?('+'+gan):'✓')
-      return sessionPill({nombre:nomSes[x.sesion_protocolo_id]||'SESIÓN', sub:fechaCorta(x.fecha)+' · COMPLETADA', estado:'completed', variant:'history', onClick:"verHist('"+x.id+"')"})
+      return sessionPill({nombre:(x.sesion_nombre||nomSes[x.sesion_protocolo_id]||'SESIÓN').toUpperCase(), sub:fechaCorta(x.fecha)+' · COMPLETADA', estado:'completed', variant:'history', onClick:"verHist('"+x.id+"')"})
     }).join('') : '<div class="vacio">Tus sesiones realizadas aparecen aquí.<br><b>A levantar.</b></div>'
   }catch(_){ document.getElementById('aHist').innerHTML='<div class="vacio">Sin sesiones aún.</div>' }
   try{
