@@ -543,6 +543,7 @@ html[data-rol="recepcion"] .fPlanBtn, html[data-rol="nutricionista"] .fPlanBtn{d
 .asOpc{margin-bottom:14px}.asOpc__t{font-family:var(--font-mono);font-weight:500;font-size:10.5px;letter-spacing:.12em;margin-bottom:8px}
 .asOpc__b{border:1px solid rgba(18,18,18,.12);border-radius:14px;padding:14px}.asOpc__b b{display:block;font-family:var(--font-display);font-size:17px}.asOpc__b span{display:block;font-size:14px;color:#6E6D68;margin:2px 0 10px}
 .plVacio{padding:22px 18px;text-align:center}.plVacio b{display:block;font-family:var(--font-display);font-size:20px}.plVacio span{display:block;margin-top:6px;font-size:15px;color:#6E6D68}
+.cgAnt{margin:0 0 10px;padding:9px 12px;border-radius:12px;background:rgba(18,18,18,.06);font-family:var(--font-mono);font-weight:500;font-size:10.5px;letter-spacing:.06em;color:#121212}
 /* ═══ FIN CAPA 3 ═══ */
 /* ═══ MOTOR DE CONSTRUCCIÓN c8.0 · MACRO → MESO → MICRO ═══ */
 .plNav{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin:0 0 14px}
@@ -614,7 +615,7 @@ html[data-rol="recepcion"] .fPlanBtn, html[data-rol="nutricionista"] .fPlanBtn{d
 </div></div>
 
 <div class="vista" id="vSala">
-  <div class="hbar"><span class="hk" title="c10.1">KOACH</span><span class="rol" id="rolBadge" onclick="salir()">COACH</span></div>
+  <div class="hbar"><span class="hk" title="c10.2">KOACH</span><span class="rol" id="rolBadge" onclick="salir()">COACH</span></div>
   <div class="adAcc" id="accesos"></div>
   <div class="glass aform" id="fAlta" style="display:none">
     <h4>CREAR USUARIO — ENTRA AL INSTANTE CON SU CORREO Y CLAVE</h4>
@@ -695,6 +696,7 @@ html[data-rol="recepcion"] .fPlanBtn, html[data-rol="nutricionista"] .fPlanBtn{d
     <div class="rows2" id="fRows"></div>
   </div>
   <button class="a2 ink" style="width:100%;margin-bottom:8px" onclick="verPlan()">PLANIFICADOR · CICLO → SEMANA → SESIÓN</button>
+  <button class="a2" style="width:100%;margin-bottom:8px" onclick="fichaCargas()">HISTORIAL DE CARGAS</button>
   <div class="acc2">
     <button class="a2 ink" onclick="verExtra()">DESIGNAR EXTRA ★</button>
     <button class="a2 ink" onclick="wsp()">WHATSAPP</button>
@@ -3150,8 +3152,10 @@ function plLineaProgresion(it, esBW, esT){
   const ult=ULT[it.ejId]
   const partes=[]
   if (ult && (ult.peso_kg!=null || ult.reps_realizadas!=null)){
-    partes.push('<button class="plUlt" onclick="cgDrawer(\''+it.ejId+'\',\''+it.beId+'\')"><b>ÚLTIMO</b> '+(ult.peso_kg!=null?cgKg(ult.peso_kg)+' KG':'')+(ult.reps_realizadas!=null?' × '+ult.reps_realizadas:'')+(ult.fecha?' · '+cgF(ult.fecha):'')+' →</button>')
-  } else partes.push('<button class="plUlt" onclick="cgDrawer(\''+it.ejId+'\',\''+it.beId+'\')">SIN REGISTRO ANTERIOR →</button>')
+    const h=HIST[it.ejId]||{}, sgx=(!esBW&&!esT)?cgSugerida(it.ejId, it.reps):null
+    partes.push('<button class="plUlt" onclick="cgDrawer(\''+it.ejId+'\',\''+it.beId+'\')">↳ <b>REF.</b> '+cgSet(h.ultimo||{peso:ult.peso_kg,reps:ult.reps_realizadas})+(ult.fecha?' · '+cgF(ult.fecha):'')+
+      (h.dias>56?' · <b>ANTIGUA</b>':'')+(sgx!=null?' · SUGERIDA '+cgKg(sgx)+' KG':'')+' →</button>')
+  } else partes.push('<button class="plUlt" onclick="cgDrawer(\''+it.ejId+'\',\''+it.beId+'\')">SIN REGISTROS PREVIOS →</button>')
   if (PL.w>1){
     let prev=null
     plSesSem(PL.w-1).some(function(s){ return s.bloques.some(function(b){ return b.items.some(function(x){ if(x.ejId===it.ejId){prev=x;return true} return false }) }) })
@@ -3813,7 +3817,7 @@ let HIST={}
 const CG_MES=['ENE','FEB','MAR','ABR','MAY','JUN','JUL','AGO','SEP','OCT','NOV','DIC']
 function cgF(iso){ if(!iso) return ''; const d=new Date(String(iso).slice(0,10)+'T12:00:00'); return d.getDate()+' '+CG_MES[d.getMonth()] }
 function cgKg(v){ return v==null?'—':((+v)%1===0?String(+v):(+v).toFixed(1)) }
-function cgSet(x){ return x ? ((x.peso!=null?cgKg(x.peso)+' KG × ':'')+(x.reps||'—')) : '' }
+function cgSet(x){ if(!x) return ''; if(x.peso==null && x.seg) return x.seg+' SEG'; return (x.peso!=null?cgKg(x.peso)+' KG × ':'')+(x.reps||'—')+(x.peso==null?' REPS':'') }
 async function cargarHistorialCargas(socioId){
   HIST={}; ULT={}
   if (!socioId) return
@@ -3824,25 +3828,30 @@ async function cargarHistorialCargas(socioId){
     ULT[ej]={ peso_kg:u.peso, reps_realizadas:u.reps, fecha:u.fecha, sesion:u.sesion, sets:u.sets, sesiones_registro:null } })
 }
 // Sugerida: solo si el rango de reps objetivo es comparable al último (±2); si no, no se inventa
+// Sugerencia = motor de la base (koach_historial_cargas): mismas reps → carga_sugerida_siguiente; otras (±6) → Epley;
+// referencia de 8+ semanas → conservadora (−10 %); 6+ meses o reps muy distintas → sin sugerencia.
 function cgSugerida(ej, repsObjetivo){
-  const h=HIST[ej]; if(!h || !h.ultimo || h.ultimo.peso==null || h.sugerida==null) return null
-  const ru=parseFloat(h.ultimo.reps), ro=parseFloat(repsObjetivo)
-  if (!isNaN(ru) && !isNaN(ro) && Math.abs(ru-ro)>2) return null
-  return +h.sugerida
+  const h=HIST[ej]; if(!h || !h.sug_por_reps) return null
+  const ro=parseInt(String(repsObjetivo||'').replace(/[^0-9]/g,''),10)
+  const v = !isNaN(ro) ? h.sug_por_reps[String(ro)] : h.sugerida
+  return (v==null || +v<=0) ? null : +v
 }
+function cgAntig(h){ if(!h || h.dias==null || h.dias<=56) return ''
+  return h.dias>=60 ? 'REFERENCIA ANTIGUA · HACE '+Math.round(h.dias/30)+' MES'+(Math.round(h.dias/30)>1?'ES':'') : 'REFERENCIA ANTIGUA · HACE '+Math.round(h.dias/7)+' SEMANAS' }
 function cgDrawer(ejId, beId){
   const e=(EJCAT||[]).find(function(x){return x.id===ejId})||{}, h=HIST[ejId]
   const it = beId ? plBuscarItem(beId) : null
   const sug = cgSugerida(ejId, it && it.reps)
   let html='<div class="cgK">HISTORIAL DE CARGAS'+(F?' · '+String(nomDe(F.id)).toUpperCase():'')+'</div><h3 class="cgT">'+(e.nombre||'Ejercicio')+'</h3>'
-  if (!h){ html+='<div class="cgNone">SIN REGISTRO ANTERIOR</div><p class="cgNota">El KOACH define la carga inicial.</p>' }
+  if (!h){ html+='<div class="cgNone">SIN REGISTROS PREVIOS</div><p class="cgNota">El KOACH define la carga inicial.</p>' }
   else {
-    html+='<div class="cgGrid"><div><small>ÚLTIMO</small><b>'+cgSet(h.ultimo)+'</b><span>'+cgF(h.ultimo.fecha)+(h.ultimo.sesion?' · '+String(h.ultimo.sesion).toUpperCase():'')+(h.ultimo.sets?' · '+h.ultimo.sets+' SERIES':'')+'</span></div>'+
+    const ant=cgAntig(h); if (ant) html+='<div class="cgAnt">'+ant+' · úsala como punto de partida, no como certeza</div>'
+    html+='<div class="cgGrid"><div><small>REFERENCIA · ÚLTIMA VEZ</small><b>'+cgSet(h.ultimo)+'</b><span>'+cgF(h.ultimo.fecha)+(h.ultimo.sesion?' · '+String(h.ultimo.sesion).toUpperCase():'')+(h.ultimo.sets?' · '+h.ultimo.sets+' SERIES':'')+'</span></div>'+
       '<div><small>MEJOR</small><b>'+cgSet(h.mejor)+'</b><span>'+cgF(h.mejor&&h.mejor.fecha)+'</span></div></div>'+
-      '<div class="cgSug">'+(sug!=null?'SUGERIDA · <b>'+cgKg(sug)+' KG</b>'+(+sug<=+h.ultimo.peso?' (mantener)':''):'SUGERENCIA NO DISPONIBLE'+(it&&it.reps?' para '+it.reps+' reps':''))+'</div>'+
+      '<div class="cgSug">'+(sug!=null?'SUGERIDA'+(it&&it.reps?' PARA '+it.reps+' REPS':'')+' · <b>'+cgKg(sug)+' KG</b>'+(h.dias>56?' · CONSERVADORA':''):'SUGERENCIA NO DISPONIBLE'+(it&&it.reps?' PARA '+it.reps+' REPS':''))+'</div>'+
       '<ol class="cgHist">'+(h.hist||[]).map(function(x){ return '<li><span>'+cgF(x.fecha)+'</span><b>'+cgSet(x)+'</b><em>'+(x.sets||'')+' S</em></li>' }).join('')+'</ol>'
     if (beId && h.ultimo.peso!=null) html+='<div class="cgBtns"><button onclick="cgUsar(\''+beId+'\','+(+h.ultimo.peso)+')">USAR ÚLTIMA · '+cgKg(h.ultimo.peso)+' KG</button>'+
-      (sug!=null && +sug!==+h.ultimo.peso?'<button class="ink" onclick="cgUsar(\''+beId+'\','+sug+')">USAR SUGERIDA · '+cgKg(sug)+' KG</button>':'')+'</div>'
+      (sug!=null && +sug!==+h.ultimo.peso?'<button class="ink" onclick="cgUsar(\''+beId+'\','+sug+')">USAR '+cgKg(sug)+' KG (SUGERIDA)</button>':'')+'</div>'
   }
   document.getElementById('cgBody').innerHTML=html
   document.getElementById('mCargas').style.display='flex'
@@ -3855,10 +3864,12 @@ function cgConsultor(){
     '<input id="cgBusca" placeholder="Buscar ejercicio…" oninput="cgFiltrar()" autocomplete="off"><div id="cgLista"></div>'
   document.getElementById('mCargas').style.display='flex'; cgFiltrar(); setTimeout(function(){ const i=document.getElementById('cgBusca'); if(i) i.focus() },50)
 }
+async function fichaCargas(){ if(!F) return; toast('Cargando historial…'); await cargarHistorialCargas(F.id); cgConsultor() }
 function cgFiltrar(){
   const q=((document.getElementById('cgBusca')||{}).value||'').trim().toLowerCase()
   const l=(EJCAT||[]).filter(function(e){ return !q || String(e.nombre).toLowerCase().indexOf(q)>-1 })
-    .sort(function(a,b){ return (HIST[b.id]?1:0)-(HIST[a.id]?1:0) || String(a.nombre).localeCompare(String(b.nombre)) }).slice(0,40)
+    .sort(function(a,b){ const fa=HIST[a.id]&&HIST[a.id].ultimo&&HIST[a.id].ultimo.fecha||'', fb=HIST[b.id]&&HIST[b.id].ultimo&&HIST[b.id].ultimo.fecha||''
+      return (fb>fa?1:fb<fa?-1:0) || String(a.nombre).localeCompare(String(b.nombre)) }).slice(0,40)
   document.getElementById('cgLista').innerHTML=l.map(function(e){ const h=HIST[e.id]
     return '<button class="cgRow" onclick="cgDrawer(\''+e.id+'\')"><span>'+e.nombre+'</span><b>'+(h?'ÚLTIMO '+cgSet(h.ultimo)+' · '+cgF(h.ultimo.fecha):'SIN REGISTRO')+'</b></button>' }).join('')||'<div class="vacio">Sin resultados.</div>'
 }
