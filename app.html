@@ -962,6 +962,61 @@ body.wl-on{overflow:hidden}
 @media (max-height:760px){ .wl__h{margin-top:16px} .wl__intro{margin-top:10px} .wl__cards{margin-top:14px;gap:8px} .wl__cards li{padding:10px 14px} .wl__fin{margin-top:14px} .wl__fin small{margin-top:6px} .wl__cta{margin-top:14px;padding:15px 30px} }
 @media (max-height:680px){ .wl__h{font-size:clamp(34px,10vw,44px)} .wl__cards p{font-size:13.5px;line-height:1.3} .wl__intro{font-size:15px;line-height:1.35} .wl__fin p{font-size:15px} }
 @media (prefers-reduced-motion:reduce){ #oWelcome{transition:none} }
+
+/* ═══ v10.7 · LOGIN KOACH (foto + glass) ═══ */
+#vLogin{position:relative;color:#F2F4F5;margin:-16px -14px;padding:0 20px}
+#vLogin .lgBg{position:fixed;inset:0;z-index:0;background:#10151B;overflow:hidden}
+.lgBg__img{position:absolute;inset:-24px;background-size:cover;background-repeat:no-repeat;opacity:0;transform:scale(1.06);
+  filter:blur(9px) saturate(.45) contrast(.92) brightness(.9);transition:opacity .8s ease;animation:lgDrift 38s ease-in-out infinite alternate}
+.lgBg__img.is-loaded{opacity:1}
+/* motion blur diagonal sutil: una copia desplazada muy tenue */
+.lgBg__img::after{content:'';position:absolute;inset:0;background:inherit;opacity:.35;transform:translate(14px,-8px);filter:blur(4px)}
+@keyframes lgDrift{from{transform:scale(1.06)}to{transform:scale(1.09) translate(-1%,-1%)}}
+.lgBg__ov{position:absolute;inset:0;background:
+  radial-gradient(130% 80% at 50% 30%,rgba(5,12,20,0) 0%,rgba(5,12,20,.55) 75%),
+  linear-gradient(180deg,rgba(8,14,22,.45) 0%,rgba(8,14,22,.55) 40%,rgba(8,10,12,.90) 78%,#080A0C 100%),
+  linear-gradient(0deg,rgba(21,32,43,.35),rgba(21,32,43,.35))}
+#vLogin .lg{position:relative;z-index:1;max-width:520px;margin:0 auto;min-height:100dvh;box-sizing:border-box;justify-content:flex-end;
+  padding:calc(40px + env(safe-area-inset-top,0px)) 0 calc(22px + env(safe-area-inset-bottom,0px));animation:lgIn .5s cubic-bezier(.2,.7,.2,1) both}
+@keyframes lgIn{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+#vLogin .k{font-family:var(--font-display);font-size:clamp(46px,14vw,58px);font-weight:800;letter-spacing:.18em;line-height:1;color:#fff;margin:0 0 10px}
+#vLogin .sub{font-family:var(--font-mono);font-weight:500;font-size:13px;letter-spacing:.3em;color:#C9D0D5;margin-bottom:clamp(22px,4vh,34px)}
+#vLogin .lbl{display:block;font-family:var(--font-mono);font-weight:500;font-size:12px;letter-spacing:.24em;color:#C9D0D5;margin:0 6px 9px}
+#vLogin .fld{position:relative;display:flex;align-items:center;min-height:70px;margin-bottom:18px;border-radius:22px;
+  background:linear-gradient(135deg,rgba(150,165,180,.20),rgba(40,52,64,.28));-webkit-backdrop-filter:blur(18px) saturate(120%);backdrop-filter:blur(18px) saturate(120%);
+  border:1px solid rgba(214,222,230,.22);box-shadow:inset 0 1px 0 rgba(255,255,255,.10);transition:border-color .18s ease,box-shadow .18s ease}
+#vLogin .fld:focus-within{border-color:rgba(230,236,242,.55);box-shadow:inset 0 1px 0 rgba(255,255,255,.14),0 0 0 3px rgba(201,208,213,.14)}
+.fld__ic{flex:0 0 24px;width:24px;height:24px;margin-left:20px;color:#DDE3E8}
+.fld__sep{flex:0 0 1px;align-self:stretch;margin:18px 0 18px 16px;background:rgba(214,222,230,.25)}
+#vLogin .fld .inp{flex:1;min-width:0;background:transparent;border:none;margin:0;padding:0 16px;height:68px;font-family:var(--font-display);font-size:18px;font-weight:500;color:#F2F4F5;border-radius:22px}
+#vLogin .fld .inp::placeholder{color:rgba(214,222,230,.62)}
+#vLogin .fld .ojo{position:static;flex:0 0 48px;height:48px;margin-right:10px;display:flex;align-items:center;justify-content:center;color:#DDE3E8;opacity:.55;border-radius:14px}
+#vLogin .fld .ojo:focus-visible{outline:2px solid #C9D0D5;opacity:1}
+/* formularios secundarios (crear cuenta / recuperar) comparten el lenguaje glass */
+#vLogin .lg > div > .inp,#vLogin .lg > div > .pw > .inp{background:rgba(150,165,180,.18);border:1px solid rgba(214,222,230,.22);color:#F2F4F5;font-size:17px;padding:18px;border-radius:18px;-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px)}
+#vLogin .lg > div > .inp::placeholder{color:rgba(214,222,230,.6)}
+#vLogin .lg > div > .pw .ojo{color:#DDE3E8;top:16px}
+#vLogin .btn{position:relative;display:flex;align-items:center;justify-content:center;gap:12px;min-height:76px;margin-top:8px;border-radius:999px;background:linear-gradient(180deg,#FFFFFF 0%,#DCE2E7 100%);color:#080A0C;
+  font-family:var(--font-display);font-size:17px;font-weight:800;letter-spacing:.16em;box-shadow:0 12px 34px rgba(0,0,0,.35);transition:transform .14s ease,opacity .14s ease}
+#vLogin .btn span{font-size:20px;letter-spacing:0}
+#vLogin .btn:active{transform:scale(.985)}
+#vLogin .btn:disabled{opacity:.75;cursor:default}
+#vLogin .btn:focus-visible{outline:3px solid #C9D0D5;outline-offset:3px}
+#vLogin .btn.is-error{animation:lgShake .4s ease}
+@keyframes lgShake{20%,60%{transform:translateX(-5px)}40%,80%{transform:translateX(5px)}}
+.btn__spin{width:18px;height:18px;border-radius:50%;border:2px solid rgba(8,10,12,.2);border-top-color:#080A0C;animation:lgSpin .8s linear infinite}
+@keyframes lgSpin{to{transform:rotate(360deg)}}
+#vLogin .err{font-family:var(--font-display);font-size:15px;font-weight:600;line-height:1.4;color:#F2F4F5;margin:-6px 6px 12px;padding:10px 14px;border-radius:14px;background:rgba(8,10,12,.55);border:1px solid rgba(214,222,230,.25)}
+#vLogin .okmsg{color:#F2F4F5;border-color:rgba(214,222,230,.35);background:rgba(8,10,12,.5);font-size:14px;font-weight:500}
+#vLogin .links{margin-top:22px;font-family:var(--font-display);font-size:16px;gap:12px}
+#vLogin .links a{display:inline-flex;align-items:center;min-height:44px;color:#E6EAED;font-weight:500;text-decoration:underline;text-decoration-color:rgba(230,234,237,.35);text-underline-offset:4px}
+#vLogin .foot{white-space:nowrap;font-family:var(--font-mono);font-weight:500;font-size:clamp(9px,2.55vw,10.5px);letter-spacing:.16em;color:rgba(201,208,213,.75);margin-top:clamp(20px,4vh,34px)}
+#vLogin .authNota{color:#C9D0D5;font-size:15px}
+#vLogin .rSexo button{color:#F2F4F5;border-color:rgba(214,222,230,.3)}
+#vLogin .rSexo button.on{background:#F2F4F5;color:#080A0C}
+@media (max-height:700px){ #vLogin .fld{min-height:62px;margin-bottom:14px} #vLogin .fld .inp{height:60px} #vLogin .btn{min-height:68px} #vLogin .sub{margin-bottom:18px} }
+@media (min-width:768px){ #vLogin .lg{justify-content:center} }
+@media (prefers-reduced-motion:reduce){ .lgBg__img,#vLogin .lg{animation:none} }
 </style>
 </head>
 <body>
@@ -969,19 +1024,20 @@ body.wl-on{overflow:hidden}
 
   <!-- ══ LOGIN ══ -->
   <div class="vista on" id="vLogin">
+    <div class="lgBg" aria-hidden="true"><div class="lgBg__img" id="lgBgImg"></div><div class="lgBg__ov"></div></div>
     <div class="lg">
       <div class="k">KOACH</div>
       <div class="sub">TU VERSIÓN MÁS FUERTE</div>
-      <div id="fLogin">
-        <div class="lbl">EMAIL</div>
-        <input class="inp" type="email" id="lEmail" placeholder="tu@email.com" autocomplete="email" inputmode="email">
-        <div class="lbl">CONTRASEÑA</div>
-        <div class="pw"><input class="inp" type="password" id="lPass" placeholder="••••••••" autocomplete="current-password">
-          <button class="ojo" onclick="ojo('lPass',this)">👁</button></div>
-        <div class="err" id="lErr">Email o contraseña incorrectos</div>
-        <button class="btn" id="bLogin" onclick="login()">ENTRAR A MI SEMANA</button>
-        <div class="links"><a onclick="authVista('fRecu')">¿Olvidaste tu contraseña?</a><a onclick="authVista('fReg')">Crear mi cuenta</a></div>
-      </div>
+      <form id="fLogin" onsubmit="event.preventDefault(); login()" novalidate>
+        <label class="lbl" for="lEmail">EMAIL</label>
+        <div class="fld"><svg class="fld__ic" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="3" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M4 7l8 6 8-6" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg><span class="fld__sep"></span><input class="inp" type="email" id="lEmail" name="email" placeholder="tu@email.com" autocomplete="email" inputmode="email" autocapitalize="off" spellcheck="false"></div>
+        <label class="lbl" for="lPass">CONTRASEÑA</label>
+        <div class="fld pw"><svg class="fld__ic" viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="10.5" width="14" height="10" rx="2.5" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M8 10.5V8a4 4 0 0 1 8 0v2.5" fill="none" stroke="currentColor" stroke-width="1.6"/></svg><span class="fld__sep"></span><input class="inp" type="password" id="lPass" name="password" placeholder="••••••••" autocomplete="current-password">
+          <button class="ojo" type="button" aria-label="Mostrar contraseña" onclick="ojo('lPass',this)"><svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z" fill="none" stroke="currentColor" stroke-width="1.6"/><circle cx="12" cy="12" r="3" fill="none" stroke="currentColor" stroke-width="1.6"/></svg></button></div>
+        <div class="err" id="lErr" role="alert">No pudimos iniciar sesión. Revisa tu correo y contraseña.</div>
+        <button class="btn" id="bLogin" type="submit">ENTRAR A MI SEMANA <span aria-hidden="true">→</span></button>
+        <div class="links"><a href="#" role="button" onclick="event.preventDefault();authVista('fRecu')">¿Olvidaste tu contraseña?</a><a href="#" role="button" onclick="event.preventDefault();authVista('fReg')">Crear mi cuenta</a></div>
+      </form>
       <div id="fReg" style="display:none">
         <div class="authNota" style="margin:0 0 12px">Crea tu cuenta con tus datos. Luego el equipo KOACH activa tu membresía y tu plan.</div>
         <div class="lbl">NOMBRE</div><input class="inp" id="rNombre" placeholder="Tu nombre" autocomplete="given-name">
@@ -1021,7 +1077,7 @@ body.wl-on{overflow:hidden}
   <!-- ══ HOME ══ -->
   <div class="vista conTab" id="vHome">
     <div id="k2Home" aria-live="polite"></div>
-    <div class="hbar"><span class="hk" title="v10.6">KOACH</span><div class="hav" id="hAv" onclick="salir()">K</div></div>
+    <div class="hbar"><span class="hk" title="v10.7">KOACH</span><div class="hav" id="hAv" onclick="salir()">K</div></div>
     <div class="ctx"><div class="fecha" id="hFecha">—</div><div class="prog" id="hProg">—</div></div>
     <div class="anillo">
       <svg width="180" height="180" viewBox="0 0 180 180">
@@ -1739,7 +1795,12 @@ function lunes(){ const h=new Date(),d=(h.getDay()+6)%7,l=new Date(h); l.setDate
 function vista(id){ document.querySelectorAll('.vista').forEach(v=>v.classList.toggle('on',v.id===id)); window.scrollTo(0,0) }
 function toast(m){ let t=document.querySelector('.toast'); if(!t){t=document.createElement('div');t.className='toast';document.body.appendChild(t)}
   t.textContent=m; t.classList.add('vis'); clearTimeout(t._x); t._x=setTimeout(()=>t.classList.remove('vis'),2400) }
-function ojo(id,b){ const i=document.getElementById(id); const v=i.type==='password'; i.type=v?'text':'password'; b.style.opacity=v?'1':'.5' }
+// Fondo del login: foto del KOACH guiando a una clienta. Mientras llega, grafito; luego fade-in (no bloquea el formulario).
+const LOGIN_BG = { src:'/img/login/login-bg.webp', fallback:'/img/hero/hero-female.webp', position:'58% 35%' }
+;(function(){ function set(u){ const el=document.getElementById('lgBgImg'); if(!el) return; el.style.backgroundImage='url('+u+')'; el.style.backgroundPosition=LOGIN_BG.position; el.classList.add('is-loaded') }
+  const im=new Image(); im.onload=()=>set(LOGIN_BG.src); im.onerror=()=>{ const f=new Image(); f.onload=()=>set(LOGIN_BG.fallback); f.src=LOGIN_BG.fallback }; im.src=LOGIN_BG.src })()
+function ojo(id,b){ const i=document.getElementById(id); const v=i.type==='password'; i.type=v?'text':'password'; b.style.opacity=v?'1':'.55'
+  b.setAttribute('aria-label', v?'Ocultar contraseña':'Mostrar contraseña'); b.setAttribute('aria-pressed', v?'true':'false') }
 function authVista(id){ ['fLogin','fReg','fRecu','fNueva'].forEach(f=>document.getElementById(f).style.display=f===id?'block':'none') }
 function flash(t,s,cb,ms){ document.getElementById('oFT').textContent=t; document.getElementById('oFS').textContent=s||''
   const f=document.getElementById('oFlash'); f.classList.add('vis')
@@ -1761,18 +1822,20 @@ function initSlide(el,onOk){
 async function login(){
   const email=document.getElementById('lEmail').value.trim(), pass=document.getElementById('lPass').value
   const err=document.getElementById('lErr'); err.style.display='none'
-  const b=document.getElementById('bLogin'); b.disabled=true; b.textContent='ENTRANDO…'
+  const b=document.getElementById('bLogin'); if (b.disabled) return   // sin doble envío
+  b.disabled=true; b.classList.add('is-loading'); b.innerHTML='<i class="btn__spin" aria-hidden="true"></i>ENTRANDO…'
   const { error } = await sb.auth.signInWithPassword({ email, password:pass })
   if (error){ 
     const _m=String(error.message||'')
-    err.textContent = /credential|invalid/i.test(_m) ? 'Email o contraseña incorrectos.'
+    err.textContent = /credential|invalid/i.test(_m) ? 'No pudimos iniciar sesión. Revisa tu correo y contraseña.'
       : /not confirmed/i.test(_m) ? 'Tu cuenta aún no está activada. Avisa en recepción y lo resolvemos al tiro.'
       : /rate|too many/i.test(_m) ? 'Demasiados intentos. Espera un minuto y vuelve a intentar.'
       : /fetch|network/i.test(_m) ? 'Sin conexión. Revisa tu internet e intenta de nuevo.'
       : 'No pudimos entrar: '+(_m||'intenta de nuevo')
-    err.style.display='block'; b.disabled=false; b.textContent='ENTRAR A MI SEMANA'; return 
+    err.style.display='block'; b.disabled=false; b.classList.remove('is-loading'); b.classList.add('is-error'); setTimeout(()=>b.classList.remove('is-error'),600)
+    b.innerHTML='ENTRAR A MI SEMANA <span aria-hidden="true">→</span>'; return 
   }
-  b.disabled=false; b.textContent='ENTRAR A MI SEMANA'
+  b.disabled=false; b.classList.remove('is-loading'); b.innerHTML='ENTRAR A MI SEMANA <span aria-hidden="true">→</span>'
   entrar()
 }
 function regSexo(x){ window._rSexo=x; document.getElementById('rSexH').classList.toggle('on',x==='hombre'); document.getElementById('rSexM').classList.toggle('on',x==='mujer') }
