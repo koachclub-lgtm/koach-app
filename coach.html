@@ -583,6 +583,35 @@ html[data-rol="recepcion"] .fPlanBtn, html[data-rol="nutricionista"] .fPlanBtn{d
 .plInd{font-size:13px !important;min-width:190px;text-align:right}
 .plSave span{font-size:12.5px !important}
 @media (max-width:430px){ .plQuien{margin-left:0} #vPlan .pv button{width:40px;height:40px} #vPlan .pv input{max-width:84px} }
+
+/* ═══ c10.4 · DASHBOARD COACH · ESCRITORIO / TABLET (solo #vSala) ═══ */
+.hbar__r{display:flex;align-items:center;gap:8px}
+.dashBtn{border:1px solid var(--koach-border-strong);background:none;border-radius:10px;padding:8px 12px;min-height:36px;font-family:var(--font-mono);font-weight:500;font-size:11px;letter-spacing:.1em;color:var(--koach-ink);cursor:pointer}
+.dshOpt{display:block;width:100%;text-align:left;margin-top:10px;padding:16px;border-radius:16px;border:1px solid rgba(18,18,18,.18);background:transparent;cursor:pointer}
+.dshOpt b{display:block;font-family:var(--font-mono);font-weight:500;font-size:13px;letter-spacing:.14em;color:#121212}
+.dshOpt span{display:block;margin-top:4px;font-family:var(--font-display);font-size:15px;color:#5E5D59}
+.dshOpt.on{background:#121212;border-color:#121212}.dshOpt.on b,.dshOpt.on span{color:#F4F3F0}
+/* ESCRITORIO: aprovecha el ancho */
+html.en-sala[data-dash="desktop"] body{max-width:1360px !important;padding-left:32px;padding-right:32px}
+html.en-sala[data-dash="desktop"] #vSala .adAcc{grid-template-columns:repeat(auto-fit,minmax(200px,1fr))}
+html.en-sala[data-dash="desktop"] #vSala .stats{grid-template-columns:repeat(4,1fr)}
+html.en-sala[data-dash="desktop"] #vSala #lista{display:grid;grid-template-columns:repeat(auto-fill,minmax(360px,1fr));gap:10px}
+html.en-sala[data-dash="desktop"] #vSala #lista .card{margin-bottom:0}
+html.en-sala[data-dash="desktop"] #vSala #bandejas{display:grid;grid-template-columns:repeat(auto-fit,minmax(420px,1fr));gap:10px}
+/* TABLET: táctil, 1–2 columnas, menos densidad */
+html.en-sala[data-dash="tablet"] body{max-width:900px !important}
+html.en-sala[data-dash="tablet"] #vSala .adAcc{grid-template-columns:1fr 1fr;gap:10px}
+html.en-sala[data-dash="tablet"] #vSala .adAcc button{min-height:64px;font-size:14px}
+html.en-sala[data-dash="tablet"] #vSala .adAcc button:last-child:nth-child(odd){grid-column:1 / -1}
+html.en-sala[data-dash="tablet"] #vSala .stats{grid-template-columns:1fr 1fr}
+html.en-sala[data-dash="tablet"] #vSala .st3 b{font-size:28px}
+.tRow{display:flex !important;align-items:center;gap:14px;min-height:64px;padding:10px 12px 10px 16px !important}
+.tRow__av{flex:0 0 40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:var(--koach-ink);color:var(--koach-bg);font-family:var(--font-display);font-weight:700;font-size:17px}
+.tRow__n{flex:1;min-width:0}
+.tRow__n b{display:block;font-family:var(--font-display);font-weight:700;font-size:17px;color:var(--koach-ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tRow__n small{display:block;margin-top:2px;font-family:var(--font-mono);font-weight:500;font-size:11.5px;letter-spacing:.04em;color:var(--koach-text-secondary)}
+.tRow__st{font-family:var(--font-mono);font-weight:500;font-size:12px;letter-spacing:.06em;color:var(--koach-ink)}
+.tRow__mas{flex:0 0 48px;height:48px;border:none;background:rgba(18,18,18,.05);border-radius:12px;font-size:16px;cursor:pointer;color:var(--koach-ink)}
 /* ═══ FIN CAPA 3 ═══ */
 /* ═══ MOTOR DE CONSTRUCCIÓN c8.0 · MACRO → MESO → MICRO ═══ */
 .plNav{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin:0 0 14px}
@@ -654,7 +683,7 @@ html[data-rol="recepcion"] .fPlanBtn, html[data-rol="nutricionista"] .fPlanBtn{d
 </div></div>
 
 <div class="vista" id="vSala">
-  <div class="hbar"><span class="hk" title="c10.3">KOACH</span><span class="rol" id="rolBadge" onclick="salir()">COACH</span></div>
+  <div class="hbar"><span class="hk" title="c10.4">KOACH</span><span class="hbar__r"><button class="dashBtn" onclick="dashMenu()" aria-label="Vista del dashboard">VISTA</button><span class="rol" id="rolBadge" onclick="salir()">COACH</span></span></div>
   <div class="adAcc" id="accesos"></div>
   <div class="glass aform" id="fAlta" style="display:none">
     <h4>CREAR USUARIO — ENTRA AL INSTANTE CON SU CORREO Y CLAVE</h4>
@@ -809,6 +838,17 @@ html[data-rol="recepcion"] .fPlanBtn, html[data-rol="nutricionista"] .fPlanBtn{d
     <button class="mSG__del" onclick="plGuardDescartar()">Descartar cambios</button></div>
 </div>
 <div id="mCargas" class="mCg" style="display:none" onclick="if(event.target===this)this.style.display='none'"><div class="mCg__c"><button class="mCg__x" onclick="document.getElementById('mCargas').style.display='none'" aria-label="Cerrar">✕</button><div id="cgBody"></div></div></div>
+<div id="mDash" class="mSG" style="display:none" role="dialog" aria-modal="true" aria-labelledby="mDashT">
+  <div class="mSG__c"><div class="mSG__k">DASHBOARD COACH</div><h3 id="mDashT">¿CÓMO VAS A USAR EL DASHBOARD?</h3><p>Se recuerda en este navegador. Puedes cambiarlo cuando quieras desde VISTA.</p>
+    <button class="dshOpt" id="dsh-desktop" onclick="dashElegir('desktop')"><b>ESCRITORIO</b><span>Vista completa para trabajar desde computador.</span></button>
+    <button class="dshOpt" id="dsh-tablet" onclick="dashElegir('tablet')"><b>TABLET</b><span>Vista táctil para trabajar en sala.</span></button>
+    <button class="dshOpt" id="dsh-auto" onclick="dashElegir('auto')"><b>AUTOMÁTICA</b><span>Decide según la pantalla y el puntero de este equipo.</span></button></div>
+</div>
+<div id="mDashSoc" class="mSG" style="display:none" onclick="if(event.target===this)this.style.display='none'">
+  <div class="mSG__c"><div class="mSG__k">SOCIO</div><h3 id="mDashSocN">—</h3>
+    <button class="mSG__ok" onclick="document.getElementById('mDashSoc').style.display='none';verFicha(window._dashSoc)">ABRIR</button>
+    <button class="mSG__sec" onclick="document.getElementById('mDashSoc').style.display='none';window.open(location.pathname+'#/socio/'+window._dashSoc,'_blank','noopener')">ABRIR EN NUEVA PESTAÑA</button></div>
+</div>
 <!-- PICKER DE PROGRAMA BASE -->
 <div class="vista" id="vPicker">
   <div class="stop"><button class="sback" onclick="verFicha(F.id)">←</button>
@@ -1102,6 +1142,7 @@ function fLocal(d){ const z=new Date(d.getTime()-d.getTimezoneOffset()*60000); r
 function lunes(){const h=new Date(),d=(h.getDay()+6)%7,l=new Date(h);l.setDate(h.getDate()-d);l.setHours(0,0,0,0);return l}
 function hoyISO(){return fLocal(new Date())}
 function vista(id){document.querySelectorAll('.vista').forEach(function(v){v.classList.toggle('on',v.id===id)});window.scrollTo(0,0)
+  document.documentElement.classList.toggle('en-sala', id==='vSala')
   document.getElementById('xGuardia').classList.toggle('vis', id==='vExtra')
   var pg=document.getElementById('pGuardia'); if(pg) pg.style.display = (id==='vPlan')?'block':'none'}
 function toast(m){let t=document.querySelector('.toast');if(!t){t=document.createElement('div');t.className='toast';document.body.appendChild(t)}
@@ -1136,7 +1177,8 @@ async function entrar(){
     const ROLN={admin:'ADMIN ⚙', coach:'COACH', recepcion:'RECEPCIÓN', nutricionista:'NUTRICIÓN'}
     document.getElementById('rolBadge').textContent = (ROLN[perfil.role]||'EQUIPO')+' · '+(perfil.nombre||'').toUpperCase()+' · SALIR'
     await loadSala()
-    vista('vSala'); document.title='Sala | KOACH'
+    document.documentElement.setAttribute('data-dash', dashModo())
+    vista('vSala'); document.title='Sala | KOACH'; dashSelectorInicial()
     if (location.hash && location.hash!=='#/' && location.hash!=='#') await rtAplicar()   // pestaña nueva / recarga / enlace copiado
   }catch(e){
     console.error(e)
@@ -1284,10 +1326,12 @@ function pintarSala(){
   document.getElementById('bandejas').innerHTML=b
   const hoySet=new Set(C.hoy.map(function(r){return r.socio_id}))
   const completas=Object.values(C.sems).filter(function(s){return s&&s.completa}).length
+  const _modo=dashModo()
   document.getElementById('pulso').innerHTML=
     '<div class="glass st3"><b>'+C.socios.length+'</b><span>SOCIOS ACTIVOS</span></div>'+
     '<div class="glass st3"><b>'+hoySet.size+'</b><span>ENTRENARON HOY</span></div>'+
-    '<div class="glass st3"><b>'+completas+'</b><span>SEMANAS COMPLETAS</span></div>'
+    (_modo==='desktop'?'<div class="glass st3"><b>'+completas+'</b><span>SEMANAS COMPLETAS</span></div>'+
+      '<div class="glass st3"><b>'+nSol+'</b><span>SOLICITUDES</span></div>':'')
   document.getElementById('nSoc').textContent=C.socios.length+' EN EL CLUB'
   document.getElementById('lista').innerHTML = C.socios.length ? C.socios.map(function(s){
     const a=C.asig[s.id], sem=C.sems[s.id]
@@ -1299,10 +1343,18 @@ function pintarSala(){
     const barra = sem?'<div class="sem"><div class="bar"><div class="fill" style="width:'+Math.round(sem.fortalecidos/Math.max(sem.exigibles,1)*100)+'%"></div></div>'+
       '<span class="x2">'+sem.fortalecidos+'<small>/'+sem.exigibles+'</small> METAS</span></div>':''
     const ex=(C.extras[s.id]||[]).filter(function(e){return e.estado==='disponible'}).length
+    if (_modo==='tablet'){
+      const est = !sem ? 'SIN SEMANA' : sem.completa ? 'SEMANA ✓' : hoySet.has(s.id) ? 'HOY ✓' : sem.pct_dosis+'%'
+      return '<a class="glass card cardLink tRow" href="#/socio/'+s.id+'" onclick="return rtClick(event,\''+s.id+'\')">'+
+        '<span class="tRow__av">'+(((s.nombre||'?')[0])||'?').toUpperCase()+'</span>'+
+        '<span class="tRow__n"><b>'+nomDe(s.id)+(ex?' ★'+ex:'')+'</b><small>'+(a?(((a.protocolos&&a.protocolos.programa)||'')+' · SEM '+(a.semana_actual||1)).toUpperCase():'SIN PROGRAMA')+'</small></span>'+
+        '<span class="tRow__st">'+est+'</span>'+
+        '<button class="tRow__mas" aria-label="Más opciones" onclick="dashSocioMenu(event,\''+s.id+'\')">•••</button></a>'
+    }
     return '<a class="glass card cardLink" href="#/socio/'+s.id+'" onclick="return rtClick(event,\''+s.id+'\')"><div class="ctop">'+
       '<span class="cardExt" role="link" tabindex="0" title="Abrir en nueva pestaña" aria-label="Abrir '+String(s.nombre||'').replace(/"/g,'')+' en nueva pestaña" onclick="event.preventDefault();event.stopPropagation();window.open(location.pathname+\'#/socio/'+s.id+'\',\'_blank\',\'noopener\')">↗</span>'+
       '<div class="av">'+(((s.nombre||'?')[0])||'?').toUpperCase()+'</div>'+
-      '<div><div class="cn2">'+nomDe(s.id)+(ex?' <span style="color:var(--ama)">★'+ex+'</span>':'')+'</div><div class="cm2">'+meta+'</div></div>'+badge+'</div>'+barra+'</div>'
+      '<div><div class="cn2">'+nomDe(s.id)+(ex?' <span style="color:var(--ama)">★'+ex+'</span>':'')+'</div><div class="cm2">'+meta+'</div></div>'+badge+'</div>'+barra+'</a>'
   }).join('') : '<div class="vacio">Sin socios activos aún</div>'
 }
 
@@ -3977,6 +4029,26 @@ function rtClick(ev, id){
   if (ev.metaKey || ev.ctrlKey || ev.shiftKey || ev.button===1) return true
   ev.preventDefault(); verFicha(id); return false
 }
+// ═══════════ c10.4 · DASHBOARD COACH: MODO ESCRITORIO / TABLET (solo presentación de la Sala) ═══════════
+// Preferencia del NAVEGADOR (no del perfil): localStorage 'koach_coach_dashboard_mode' = desktop | tablet | auto.
+// Solo la lee la Sala del coach. No toca planificador, ficha, routing ni la app del socio. Mismos datos y acciones.
+const DASH_KEY='koach_coach_dashboard_mode'
+const _dashMQ = window.matchMedia ? window.matchMedia('(pointer:fine) and (hover:hover) and (min-width:1100px)') : null
+function dashPref(){ try{ return localStorage.getItem(DASH_KEY) }catch(_e){ return null } }
+function dashModo(){ const p=dashPref(); if (p==='desktop'||p==='tablet') return p; return (_dashMQ && _dashMQ.matches) ? 'desktop' : 'tablet' }
+function dashAplicar(){ document.documentElement.setAttribute('data-dash', dashModo()); if (document.getElementById('vSala').classList.contains('on')) pintarSala(); dashMenuUI() }
+function dashElegir(m){
+  try{ localStorage.setItem(DASH_KEY, m) }catch(_e){}
+  document.getElementById('mDash').style.display='none'
+  dashAplicar(); toast('Vista del dashboard: '+({desktop:'ESCRITORIO',tablet:'TABLET',auto:'AUTOMÁTICA'})[m])
+}
+function dashSelectorInicial(){ if (!dashPref()){ document.getElementById('mDashT').textContent='¿CÓMO VAS A USAR EL DASHBOARD?'; dashMenuUI(); document.getElementById('mDash').style.display='flex' } }
+function dashMenu(){ document.getElementById('mDashT').textContent='VISTA DEL DASHBOARD'; dashMenuUI(); document.getElementById('mDash').style.display='flex' }
+function dashMenuUI(){ const p=dashPref()||''; ['desktop','tablet','auto'].forEach(function(k){ const b=document.getElementById('dsh-'+k); if(b){ b.classList.toggle('on', p===k); b.setAttribute('aria-pressed', p===k?'true':'false') } }) }
+if (_dashMQ && _dashMQ.addEventListener) _dashMQ.addEventListener('change', function(){ if ((dashPref()||'auto')==='auto') dashAplicar() })
+// Tablet: abrir en pestaña nueva desde •••
+function dashSocioMenu(ev, id){ ev.preventDefault(); ev.stopPropagation(); window._dashSoc=id
+  document.getElementById('mDashSocN').textContent=nomDe(id); document.getElementById('mDashSoc').style.display='flex' }
 let MG={primero:null}
 async function aplicarPrograma(){
   // Guardia de prescripción (advertencia, jamás bloqueo) — modal KOACH, no confirm nativo
