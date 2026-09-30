@@ -544,6 +544,45 @@ html[data-rol="recepcion"] .fPlanBtn, html[data-rol="nutricionista"] .fPlanBtn{d
 .asOpc__b{border:1px solid rgba(18,18,18,.12);border-radius:14px;padding:14px}.asOpc__b b{display:block;font-family:var(--font-display);font-size:17px}.asOpc__b span{display:block;font-size:14px;color:#6E6D68;margin:2px 0 10px}
 .plVacio{padding:22px 18px;text-align:center}.plVacio b{display:block;font-family:var(--font-display);font-size:20px}.plVacio span{display:block;margin-top:6px;font-size:15px;color:#6E6D68}
 .cgAnt{margin:0 0 10px;padding:9px 12px;border-radius:12px;background:rgba(18,18,18,.06);font-family:var(--font-mono);font-weight:500;font-size:10.5px;letter-spacing:.06em;color:#121212}
+
+/* ═══ c10.3 · ESCALA TIPOGRÁFICA DEL PLANIFICADOR (compacto ≠ ilegible) ═══ */
+:root{ --t-title:clamp(26px,3.2vw,34px); --t-user:clamp(19px,2.2vw,24px); --t-section:15px; --t-body:15px; --t-exercise:clamp(15.5px,1.6vw,18px);
+  --t-value:clamp(18px,1.9vw,21px); --t-meta:12px; --t-micro:11px }
+@media (min-width:1024px){ body{max-width:980px !important;padding-left:28px;padding-right:28px} }
+.cardLink{display:block;color:inherit;text-decoration:none;position:relative}
+.cardLink:focus-visible{outline:2px solid var(--koach-ink);outline-offset:3px}
+.cardExt{position:absolute;right:12px;top:10px;z-index:2;display:inline-flex;align-items:center;justify-content:center;width:36px;height:36px;border-radius:10px;
+  font-size:16px;color:var(--koach-ink);background:rgba(18,18,18,.05);opacity:.55;cursor:pointer}
+.cardExt:hover,.cardExt:focus-visible{opacity:1;background:rgba(18,18,18,.1)}
+#vPlan .stit{font-size:var(--t-title) !important}
+.plQuien{margin:2px 0 14px 50px}
+.plQuien__n{font-family:var(--font-display);font-weight:700;font-size:var(--t-user);letter-spacing:-0.01em;line-height:1.15;color:var(--koach-ink);overflow-wrap:anywhere}
+.plQuien__p{margin-top:3px;font-family:var(--font-mono);font-weight:500;font-size:13px;letter-spacing:.08em;color:var(--koach-ink)}
+.plQuien__m{margin-top:2px;font-family:var(--font-mono);font-weight:500;font-size:var(--t-micro);letter-spacing:.12em;color:var(--koach-text-secondary)}
+#vPlan .ssub{font-size:var(--t-micro) !important}
+#vPlan .plNav *{font-size:13.5px !important}
+#vPlan .mtab{font-size:14.5px !important;font-weight:700 !important;padding:9px 14px}
+#vPlan .mtab small,#vPlan .mtab .n{font-size:11px !important}
+#vPlan .bqt{font-size:var(--t-section) !important;letter-spacing:.06em !important;font-weight:700 !important;color:var(--koach-ink) !important}
+#vPlan .stp span{font-size:var(--t-micro) !important;color:var(--koach-text-secondary) !important}
+#vPlan .stp b{font-size:16px !important}
+#vPlan .stp button{width:40px;height:40px}
+#vPlan .chipG{font-size:11px !important;letter-spacing:.06em}
+#vPlan .ejN{font-size:var(--t-exercise) !important;font-weight:700 !important}
+#vPlan .ejN small{font-size:12px !important;letter-spacing:.03em}
+#vPlan .lbl{font-size:var(--t-micro) !important;color:var(--koach-text-secondary) !important}
+#vPlan .pv input{font-size:var(--t-value) !important;max-width:110px}
+#vPlan .pv button{width:44px;height:44px;font-size:18px}
+#vPlan .pv .pcx{font-size:12px !important}
+#vPlan .plProg,#vPlan .plUlt{font-size:13px !important}
+#vPlan .plSm{font-size:12px !important}
+#vPlan .plBtn{font-size:12.5px !important}
+#vPlan .dzS__h .g3,#vPlan .dzS__h .dzNums{font-size:13px !important}
+#vPlan .dzS__h .dzChip{font-size:11px !important}
+#vPlan #pOrgRow button{font-size:12px !important;min-height:40px}
+.plInd{font-size:13px !important;min-width:190px;text-align:right}
+.plSave span{font-size:12.5px !important}
+@media (max-width:430px){ .plQuien{margin-left:0} #vPlan .pv button{width:40px;height:40px} #vPlan .pv input{max-width:84px} }
 /* ═══ FIN CAPA 3 ═══ */
 /* ═══ MOTOR DE CONSTRUCCIÓN c8.0 · MACRO → MESO → MICRO ═══ */
 .plNav{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin:0 0 14px}
@@ -615,7 +654,7 @@ html[data-rol="recepcion"] .fPlanBtn, html[data-rol="nutricionista"] .fPlanBtn{d
 </div></div>
 
 <div class="vista" id="vSala">
-  <div class="hbar"><span class="hk" title="c10.2">KOACH</span><span class="rol" id="rolBadge" onclick="salir()">COACH</span></div>
+  <div class="hbar"><span class="hk" title="c10.3">KOACH</span><span class="rol" id="rolBadge" onclick="salir()">COACH</span></div>
   <div class="adAcc" id="accesos"></div>
   <div class="glass aform" id="fAlta" style="display:none">
     <h4>CREAR USUARIO — ENTRA AL INSTANTE CON SU CORREO Y CLAVE</h4>
@@ -737,6 +776,7 @@ html[data-rol="recepcion"] .fPlanBtn, html[data-rol="nutricionista"] .fPlanBtn{d
   <div class="stop"><button class="sback" onclick="volverPlanner()">←</button>
     <div class="stit">Planificador</div><button onclick="menuRutina()" style="margin-left:8px;background:none;border:1px solid var(--koach-border-strong);border-radius:8px;padding:6px 10px;font-size:12px;cursor:pointer;color:var(--koach-ink)">•••</button><div style="display:none"></div>
     <span class="rol" id="pEstado" style="margin-left:auto">BORRADOR</span></div>
+  <div class="plQuien" id="pQuien" style="display:none"><div class="plQuien__n" id="pQuienN">—</div><div class="plQuien__p" id="pQuienP">—</div><div class="plQuien__m">PLAN INDIVIDUAL</div></div>
   <div class="ssub" id="pMeta">—</div>
   <div id="pNav" class="plNav" style="display:none"></div>
   <div id="pMacro" style="display:none"></div>
@@ -1096,7 +1136,8 @@ async function entrar(){
     const ROLN={admin:'ADMIN ⚙', coach:'COACH', recepcion:'RECEPCIÓN', nutricionista:'NUTRICIÓN'}
     document.getElementById('rolBadge').textContent = (ROLN[perfil.role]||'EQUIPO')+' · '+(perfil.nombre||'').toUpperCase()+' · SALIR'
     await loadSala()
-    vista('vSala')
+    vista('vSala'); document.title='Sala | KOACH'
+    if (location.hash && location.hash!=='#/' && location.hash!=='#') await rtAplicar()   // pestaña nueva / recarga / enlace copiado
   }catch(e){
     console.error(e)
     alert('No se pudo entrar a la sala:\n'+(e.message||'intenta de nuevo'))
@@ -1258,7 +1299,8 @@ function pintarSala(){
     const barra = sem?'<div class="sem"><div class="bar"><div class="fill" style="width:'+Math.round(sem.fortalecidos/Math.max(sem.exigibles,1)*100)+'%"></div></div>'+
       '<span class="x2">'+sem.fortalecidos+'<small>/'+sem.exigibles+'</small> METAS</span></div>':''
     const ex=(C.extras[s.id]||[]).filter(function(e){return e.estado==='disponible'}).length
-    return '<div class="glass card" onclick="verFicha(\''+s.id+'\')"><div class="ctop">'+
+    return '<a class="glass card cardLink" href="#/socio/'+s.id+'" onclick="return rtClick(event,\''+s.id+'\')"><div class="ctop">'+
+      '<span class="cardExt" role="link" tabindex="0" title="Abrir en nueva pestaña" aria-label="Abrir '+String(s.nombre||'').replace(/"/g,'')+' en nueva pestaña" onclick="event.preventDefault();event.stopPropagation();window.open(location.pathname+\'#/socio/'+s.id+'\',\'_blank\',\'noopener\')">↗</span>'+
       '<div class="av">'+(((s.nombre||'?')[0])||'?').toUpperCase()+'</div>'+
       '<div><div class="cn2">'+nomDe(s.id)+(ex?' <span style="color:var(--ama)">★'+ex+'</span>':'')+'</div><div class="cm2">'+meta+'</div></div>'+badge+'</div>'+barra+'</div>'
   }).join('') : '<div class="vacio">Sin socios activos aún</div>'
@@ -1271,10 +1313,11 @@ async function validar(id){ try{ await sb.from('sesiones_registro').update({vali
   toast('Sesión validada ✓'); await loadSala() }catch(e){ toast('No se pudo validar — ¿existe la columna validada_at?') } }
 function cerrarTab(id){ window._tabs=window._tabs.filter(function(x){return x!==id})
   if(window._tabAct===id)window._tabAct=window._tabs[0]||null; pintarSala() }
-function verSala(){ vista('vSala'); pintarSala() }
+function verSala(){ vista('vSala'); pintarSala(); rtSet('#/', 'Sala | KOACH') }
 
-function verFicha(id){
+function verFicha(id, sinRuta){
   F = C.socios.find(function(s){return s.id===id}); if(!F) return
+  if (!sinRuta) rtPush('#/socio/'+id); document.title = rtNombreCorto(id)+' · Perfil | KOACH'
   window._tabs=window._tabs||[]; if(window._tabs.indexOf(id)===-1) window._tabs.push(id); window._tabAct=id
   const a=C.asig[id], sem=C.sems[id]
   const MES3=['ENE','FEB','MAR','ABR','MAY','JUN','JUL','AGO','SEP','OCT','NOV','DIC']
@@ -1667,7 +1710,7 @@ async function verPlan(){
   if(ru.error){ toast('No se pudo re-apuntar la asignación: '+ru.error.message); return }
   await loadSala()
   plReset()
-  abrirPlan(nuevo.id, nuevo)
+  return abrirPlan(nuevo.id, nuevo)
 }
 async function verPicker(){
   document.getElementById('pkMeta').textContent = (nomDe(F.id)+' · SIN PROGRAMA — ELIGE SU BASE').toUpperCase()
@@ -1692,7 +1735,7 @@ async function asignarBase(basePid){
   }
   await loadSala()
   plReset()
-  abrirPlan(nuevo.id, nuevo)
+  return abrirPlan(nuevo.id, nuevo)
 }
 function limpia(row, quitar){
   const o = {}
@@ -1764,6 +1807,7 @@ async function deshacerClon(pid){
 }
 async function abrirPlan(pid, proto, opts){
   opts = opts || {}
+  const _tok = (window._plTok=(window._plTok||0)+1), _fid = F && F.id
   if (opts.modo==='base' || opts.modo==='bib') cargando('base')
   else cargando('plan', (typeof F!=='undefined' && F) ? nomDe(F.id) : '')
   P = null
@@ -1774,7 +1818,11 @@ async function abrirPlan(pid, proto, opts){
     ? 'BIBLIOTECA · RUTINA ESTÁNDAR · SE GUARDA AL INSTANTE'
     : esBase
     ? ('⚠ BASE MAESTRA · '+((proto&&proto.programa)||'')+' '+((proto&&proto.nivel)||'')+' '+((proto&&proto.sexo)||'')+' · AFECTA CLONES FUTUROS').toUpperCase()
-    : (nomDe(F.id)+' · '+((proto&&proto.programa)||'')+' '+((proto&&proto.nivel)||'')+' · SU COPIA INDIVIDUAL').toUpperCase()
+    : ''
+  const _q=document.getElementById('pQuien'); _q.style.display=(esBib||esBase)?'none':''
+  document.getElementById('pMeta').style.display=(esBib||esBase)?'':'none'
+  if (!esBib && !esBase){ document.getElementById('pQuienN').textContent=nomDe(F.id)
+    document.getElementById('pQuienP').textContent=[(proto&&proto.programa)||'',(proto&&proto.nivel)||''].filter(Boolean).join(' · ').toUpperCase() }
   document.getElementById('pEstado').textContent = esBib ? 'ESTÁNDAR \u2605' : esBase ? 'BASE ⚙' : ((proto&&proto.estado)||'borrador').toUpperCase()
   vista('vPlan')
   document.getElementById('pBloques').innerHTML = '<div class="vacio">Cargando…</div>'
@@ -1785,6 +1833,7 @@ async function abrirPlan(pid, proto, opts){
   const rses = await qq
   const sids = (rses.data||[]).map(function(s){return s.id})
   const rblo = sids.length ? await sb.from('bloques').select('*, bloque_ejercicios(*, ejercicios(id,nombre,grupo_muscular,estimulo,sinergistas,tipo_registro,con_carga,cuenta_dosis,implemento,activo))').in('sesion_id',sids).order('bloque') : {data:[]}
+  if (_tok!==window._plTok || (F && F.id)!==_fid) return   // llegó tarde: el KOACH ya navegó a otro socio
   P = { pid:pid, proto:proto, tab:0, bib:esBib, base:esBase, dirty:{}, sesiones:(rses.data||[]).map(function(s){
     return { id:s.id, numero:s.numero, semana:(s.semana||1), editada:!!s.editada, nombre:nombreEN(s.objetivo)||('SESION '+s.numero),
       bloques:(rblo.data||[]).filter(function(b){return b.sesion_id===s.id}).sort(function(a,x){ return String(a.bloque).localeCompare(String(x.bloque)) }).map(function(b){
@@ -1832,7 +1881,7 @@ function repintarConservando(){
   pintarPlan()
   requestAnimationFrame(function(){ window.scrollTo(0, y) })
 }
-function pintarPlan(){ setTimeout(function(){ try{ plSaveUI() }catch(_e){} },0)
+function pintarPlan(){ setTimeout(function(){ try{ plSaveUI(); rtSyncPlan() }catch(_e){} },0)
   cargandoOff()
   if (!plActivo()){ ['pNav','pMacro','pMeso'].forEach(function(id){ const e=document.getElementById(id); if(e) e.style.display='none' })
     ;['pTabs','pBloques','pOrgRow'].forEach(function(id){ const e=document.getElementById(id); if(e) e.style.display='' }) }
@@ -3173,7 +3222,7 @@ async function plAplicarKg(beId, v){ await editKg(beId, v); repintarConservando(
 // ─── NAVEGACIÓN ───
 // tras editar, las semanas siguientes se re-derivan en la base → al cambiar de nivel/semana se trae la versión vigente
 async function plIr(n){ if(plEsDirty() && n!=='micro'){ plGuard(function(){ plIr(n) }); return } PL.nivel=n; if(n==='micro'){ pintarPlan() } else if(P&&P._sucio){ P._sucio=false; await plRecargar() } else plRender(); window.scrollTo(0,0) }
-async function plIrSem(w){ if(plEsDirty()){ plGuard(function(){ plIrSem(w) }); return } PL.w=w; PL.nivel='meso'; if(P&&P._sucio){ P._sucio=false; await plRecargar() } else plRender(); window.scrollTo(0,0) }
+async function plIrSem(w){ if(plEsDirty()){ plGuard(function(){ plIrSem(w) }); return } PL.w=w; PL.nivel='meso'; if(P&&P._sucio){ P._sucio=false; await plRecargar() } else plRender(); window.scrollTo(0,0); rtSyncPlan() }
 function plIrSes(id){ const i=P.sesiones.findIndex(function(s){return s.id===id}); if(i<0) return
   if (plEsDirty() && P.sesiones[i].id!==(plSesActual()||{}).id){ plGuard(function(){ plIrSes(id) }); return }
   PL.w=P.sesiones[i].semana||1; P.tab=i; PL.nivel='micro'; pintarPlan(); window.scrollTo(0,0) }
@@ -3872,6 +3921,61 @@ function cgFiltrar(){
       return (fb>fa?1:fb<fa?-1:0) || String(a.nombre).localeCompare(String(b.nombre)) }).slice(0,40)
   document.getElementById('cgLista').innerHTML=l.map(function(e){ const h=HIST[e.id]
     return '<button class="cgRow" onclick="cgDrawer(\''+e.id+'\')"><span>'+e.nombre+'</span><b>'+(h?'ÚLTIMO '+cgSet(h.ultimo)+' · '+cgF(h.ultimo.fecha):'SIN REGISTRO')+'</b></button>' }).join('')||'<div class="vacio">Sin resultados.</div>'
+}
+// ═══════════ c10.3 · RUTAS POR SOCIO (la URL define el socio activo) ═══════════
+// #/socio/<uuid>                → ficha      · #/socio/<uuid>/plan?w=2&s=<sesión> → planificador
+// Cada pestaña del navegador es un contexto JS propio: socio, semana, sesión, borrador y "sin guardar" viven en memoria de
+// esa pestaña. La sesión de Auth sí se comparte (correcto). No hay socio activo en localStorage.
+let _rtSilencio=false
+function rtParse(h){
+  const m=String(h||'').match(/^#\/socio\/([0-9a-f-]{36})(\/plan)?(?:\?(.*))?$/i)
+  if(!m) return { vista:'sala' }
+  const q=new URLSearchParams(m[3]||'')
+  return { vista:m[2]?'plan':'ficha', id:m[1].toLowerCase(), w:q.get('w')?+q.get('w'):null, s:q.get('s')||null }
+}
+function rtSet(hash, titulo){
+  if (titulo) document.title = titulo
+  if (location.hash===hash) return
+  _rtSilencio=true; history.replaceState(null,'',location.pathname+location.search+hash); setTimeout(function(){ _rtSilencio=false },0)
+}
+function rtPush(hash){ if (location.hash!==hash){ _rtSilencio=true; history.pushState(null,'',location.pathname+location.search+hash); setTimeout(function(){ _rtSilencio=false },0) } }
+function rtNombreCorto(id){ return String(nomDe(id)||'Socio').split(' ')[0] }
+function rtSyncPlan(){
+  if (!F || !P || P.bib || P.base) return
+  const s=plSesActual(), q=[]
+  if (plActivo() && PL.w) q.push('w='+PL.w)
+  if (s && (!plActivo() || PL.nivel==='micro')) q.push('s='+s.id)
+  rtSet('#/socio/'+F.id+'/plan'+(q.length?'?'+q.join('&'):''), rtNombreCorto(F.id)+' · Planner | KOACH')
+}
+async function rtAplicar(){
+  const r=rtParse(location.hash)
+  if (r.vista==='sala'){ if (document.getElementById('vFicha').classList.contains('on')||document.getElementById('vPlan').classList.contains('on')) verSala(); document.title='Sala | KOACH'; return }
+  if (!C.socios.some(function(s){ return s.id===r.id })){ rtError(); return }
+  if (r.vista==='ficha'){ verFicha(r.id); return }
+  verFicha(r.id, true)
+  await verPlan()
+  if (!P) return
+  if (r.w && plActivo()){ PL.w=r.w; PL.nivel='meso' }
+  if (r.s){ const i=P.sesiones.findIndex(function(x){return x.id===r.s}); if(i>-1){ P.tab=i; if(plActivo()) PL.nivel='micro' } }
+  if (plActivo() && PL.nivel!=='micro') plRender(); else pintarPlan()
+  rtSyncPlan()
+}
+function rtError(){
+  vista('vFicha'); F=null
+  document.getElementById('fNombre').textContent='Socio no disponible'
+  document.getElementById('fMeta').textContent='NO ENCONTRADO O SIN ACCESO CON TU ROL'
+  document.getElementById('fTabEnt').innerHTML='<div class="vacio">Este enlace apunta a un socio que no existe o que tu cuenta no puede ver.<br><br><button class="a2" onclick="location.hash=\'#/\'">IR A LA SALA</button></div>'
+  document.title='Socio no disponible | KOACH'
+}
+window.addEventListener('hashchange', function(){
+  if (_rtSilencio || !C.yo) return
+  if (typeof plEsDirty==='function' && plEsDirty()){ const h=location.hash; history.back(); plGuard(function(){ P.dirty={}; location.hash=h }); return }
+  rtAplicar()
+})
+// Enlace real: clic normal navega dentro de la pestaña; Ctrl/Cmd/Shift/clic central abren pestaña nueva (comportamiento del navegador)
+function rtClick(ev, id){
+  if (ev.metaKey || ev.ctrlKey || ev.shiftKey || ev.button===1) return true
+  ev.preventDefault(); verFicha(id); return false
 }
 let MG={primero:null}
 async function aplicarPrograma(){
