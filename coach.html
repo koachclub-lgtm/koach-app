@@ -659,6 +659,46 @@ html.en-sala[data-dash="tablet"] #vSala .st3 b{font-size:28px}
 @media (max-width:560px){ #vPlan .bqt{flex-basis:100%} #vPlan .stp{margin-left:0} #vPlan .stp + .stp{margin-left:auto} }
 @media (min-width:700px) and (max-width:1023px){ html.en-plan body{max-width:900px !important} }
 @media (max-width:430px){ #pTabs .mtab{min-width:112px} #vPlan .plNav .plCrumb{padding:6px 12px;font-size:14.5px !important} .plVolver{padding:0 10px} }
+
+/* ═══ c10.6 · ACCESO DIRECTO A ENTRENAMIENTO ═══ */
+.salaHead{display:flex;flex-wrap:wrap;align-items:center;gap:10px 16px;margin:6px 0 10px}
+.salaHead .h3{flex:1 1 auto;margin:0}
+.salaQ{display:flex;align-items:center;gap:8px;flex:1 1 280px;min-height:52px;padding:0 14px;border-radius:14px;border:1px solid var(--koach-border-strong);background:var(--koach-control)}
+.salaQ span{font-size:18px;opacity:.55}
+.salaQ input{flex:1;border:none !important;background:transparent !important;margin:0 !important;padding:12px 0 !important;font-size:16px;box-shadow:none !important;outline:none}
+.salaQ:focus-within{border-color:var(--koach-ink)}
+html.en-sala[data-dash="desktop"] .salaQ{flex:0 1 420px}
+html.en-sala[data-dash="tablet"] .salaHead{flex-direction:column-reverse;align-items:stretch}
+html.en-sala[data-dash="tablet"] .salaQ{min-height:60px;flex:0 0 auto}
+html.en-sala[data-dash="tablet"] .salaQ input{font-size:18px}
+.cardEnt{padding:0 !important;cursor:default}
+.cardEnt__lnk{display:block;padding:14px 16px 10px;color:inherit;text-decoration:none;position:relative}
+.eAcc{display:flex;flex-wrap:wrap;gap:8px;padding:0 16px 14px}
+.fCtx .eAcc{padding:0}
+.eBtn{display:inline-flex;align-items:center;justify-content:center;min-height:44px;padding:0 16px;border-radius:12px;border:1px solid var(--koach-border-strong);background:var(--koach-control);
+  color:var(--koach-ink);text-decoration:none;font-family:var(--font-mono);font-weight:500;font-size:12.5px;letter-spacing:.08em;cursor:pointer;flex:1 1 auto}
+.eBtn--ink{background:var(--koach-ink);color:var(--koach-control);border-color:var(--koach-ink);flex:1.4 1 auto}
+.eBtn--ghost{background:transparent}
+.eBtn:focus-visible,.cardEnt__lnk:focus-visible{outline:2px solid var(--koach-ink);outline-offset:2px}
+.eAcc__sin{align-self:center;font-family:var(--font-mono);font-size:12px;letter-spacing:.08em;color:var(--koach-text-secondary);flex:1}
+.tRow__go{font-size:20px;opacity:.5;margin-left:2px}
+.mSG__a{display:flex !important;align-items:center;justify-content:center;text-decoration:none;margin-top:8px}
+.fCtx{margin:0 0 12px}
+.fCtx__g{display:grid;grid-template-columns:repeat(auto-fit,minmax(118px,1fr));gap:8px;margin-bottom:10px}
+.fCtx__c{background:var(--koach-control);border:1px solid var(--koach-border);border-radius:12px;padding:10px 12px}
+.fCtx__c small{display:block;font-family:var(--font-mono);font-size:11px;letter-spacing:.12em;color:var(--koach-text-secondary)}
+.fCtx__c b{display:block;margin-top:3px;font-family:var(--font-display);font-weight:700;font-size:16px;color:var(--koach-ink);line-height:1.2}
+.fCtx__c em{font-style:normal;font-size:12px;opacity:.65}
+.fCtx__sin{font-family:var(--font-mono);font-size:13px;letter-spacing:.08em;margin-bottom:8px}
+.adVenc summary{cursor:pointer;list-style:none;min-height:44px;align-items:center}
+.adVenc summary::-webkit-details-marker{display:none}
+.eBtn--ic{flex:0 0 48px;padding:0;font-size:16px}
+.salaHead .h3{font-size:13px !important;letter-spacing:.1em}
+#vSala .cm2{font-size:11.5px !important;letter-spacing:.04em}
+#vSala .cn2{font-size:17px !important}
+#vSala .st3 span{font-size:11px !important}
+#vSala .badge{font-size:11px !important}
+#vSala .sem .x2{font-size:12px !important}
 /* ═══ FIN CAPA 3 ═══ */
 /* ═══ MOTOR DE CONSTRUCCIÓN c8.0 · MACRO → MESO → MICRO ═══ */
 .plNav{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin:0 0 14px}
@@ -730,7 +770,7 @@ html.en-sala[data-dash="tablet"] #vSala .st3 b{font-size:28px}
 </div></div>
 
 <div class="vista" id="vSala">
-  <div class="hbar"><span class="hk" title="c10.5">KOACH</span><span class="hbar__r"><button class="dashBtn" onclick="dashMenu()" aria-label="Vista del dashboard">VISTA</button><span class="rol" id="rolBadge" onclick="salir()">COACH</span></span></div>
+  <div class="hbar"><span class="hk" title="c10.6">KOACH</span><span class="hbar__r"><button class="dashBtn" onclick="dashMenu()" aria-label="Vista del dashboard">VISTA</button><span class="rol" id="rolBadge" onclick="salir()">COACH</span></span></div>
   <div class="adAcc" id="accesos"></div>
   <div class="glass aform" id="fAlta" style="display:none">
     <h4>CREAR USUARIO — ENTRA AL INSTANTE CON SU CORREO Y CLAVE</h4>
@@ -762,8 +802,10 @@ html.en-sala[data-dash="tablet"] #vSala .st3 b{font-size:28px}
   </div>
   <div class="mtabs" id="mesa"></div>
   <div class="stats" id="pulso"></div>
-  <div class="h3"><span>SOCIOS ACTIVOS · SU SEMANA EN VIVO</span><span id="nSoc">—</span></div>
+  <div class="salaHead"><div class="h3"><span>ENTRENAMIENTO · SOCIOS ACTIVOS</span><span id="nSoc">—</span></div>
+    <label class="salaQ"><span aria-hidden="true">⌕</span><input id="salaQ" type="search" placeholder="Buscar socio…" autocomplete="off" oninput="salaBuscar()" onkeydown="salaBuscarKey(event)" aria-label="Buscar socio por nombre o apellido"></label></div>
   <div id="lista"></div>
+  <div class="vacio" id="salaQv" style="display:none">Ningún socio coincide con la búsqueda.</div>
   <div id="bandejas" style="margin-top:12px"></div>
 </div>
 <div class="vista" id="vSol">
@@ -806,11 +848,11 @@ html.en-sala[data-dash="tablet"] #vSala .st3 b{font-size:28px}
   <div id="fTabAdm" style="display:none"></div>
   <div id="fTabAdh" style="display:none"></div>
   <div id="fTabEnt">
+  <div class="fCtx" id="fCtx"></div>
   <div class="glass viva">
     <h3><span>SU SEMANA · EN VIVO</span><span id="fSemTit">—</span></h3>
     <div class="rows2" id="fRows"></div>
   </div>
-  <button class="a2 ink" style="width:100%;margin-bottom:8px" onclick="verPlan()">PLANIFICADOR · CICLO → SEMANA → SESIÓN</button>
   <button class="a2" style="width:100%;margin-bottom:8px" onclick="fichaCargas()">HISTORIAL DE CARGAS</button>
   <div class="acc2">
     <button class="a2 ink" onclick="verExtra()">DESIGNAR EXTRA ★</button>
@@ -900,8 +942,7 @@ html.en-sala[data-dash="tablet"] #vSala .st3 b{font-size:28px}
 </div>
 <div id="mDashSoc" class="mSG" style="display:none" onclick="if(event.target===this)this.style.display='none'">
   <div class="mSG__c"><div class="mSG__k">SOCIO</div><h3 id="mDashSocN">—</h3>
-    <button class="mSG__ok" onclick="document.getElementById('mDashSoc').style.display='none';verFicha(window._dashSoc)">ABRIR</button>
-    <button class="mSG__sec" onclick="document.getElementById('mDashSoc').style.display='none';window.open(location.pathname+'#/socio/'+window._dashSoc,'_blank','noopener')">ABRIR EN NUEVA PESTAÑA</button></div>
+    <div id="mDashSocAcc"></div></div>
 </div>
 <!-- PICKER DE PROGRAMA BASE -->
 <div class="vista" id="vPicker">
@@ -1288,12 +1329,14 @@ async function loadSala(silent){
             exigible:(o.dominante===undefined||o.dominante===null)?true:!!o.dominante} }) })
     }
     // Lanzadas en paralelo desde el inicio (no dependen de protocolos)
+    const _ctxP = sb.rpc('koach_contexto_entreno', {}).then(function(r){ return r }, function(){ return {data:null} })
     const [rreg, rsolP, rhoyP, rdxP] = await Promise.all([
       sb.from('sesiones_registro').select('*').in('socio_id',ids).gte('fecha',lunesISO),
       sb.from('solicitudes').select('id,socio_id,tipo,detalle,created_at,sesion_protocolo_id').eq('estado','pendiente').order('created_at',{ascending:false}).limit(20).then(function(r){return r}, function(){return {data:[]}}),
       sb.from('sesiones_registro').select('id,socio_id,sesion_protocolo_id,validada_at').eq('fecha',hoyISO()).in('socio_id',ids).then(function(r){return r}, function(){return {data:[]}}),
       sb.from('designaciones_extra').select('id,socio_id,sesion_protocolo_id,estado,motivo,created_at').in('socio_id',ids).neq('estado','retirada').then(function(r){return r}, function(){return {data:[]}})
     ])
+    C.ctx={}; try{ const _rc=await _ctxP; ((_rc&&_rc.data)||[]).forEach(function(c){ C.ctx[c.socio_id]=c }) }catch(_e){}
     if(rreg.error) toast('Registros: '+rreg.error.message)
     ids.forEach(function(id){C.regs[id]=[]})
     ;(rreg.data||[]).forEach(function(r){ (C.regs[r.socio_id]=C.regs[r.socio_id]||[]).push(r) })
@@ -1399,17 +1442,19 @@ function pintarSala(){
     const ex=(C.extras[s.id]||[]).filter(function(e){return e.estado==='disponible'}).length
     if (_modo==='tablet'){
       const est = !sem ? 'SIN SEMANA' : sem.completa ? 'SEMANA ✓' : hoySet.has(s.id) ? 'HOY ✓' : sem.pct_dosis+'%'
-      return '<a class="glass card cardLink tRow" href="#/socio/'+s.id+'" onclick="return rtClick(event,\''+s.id+'\')">'+
+      const _x=ctxEnt(s.id)
+      return '<a class="glass card cardLink tRow" data-id="'+s.id+'" data-nom="'+_nomQ(s)+'" href="'+urlRutina(s.id)+'" onclick="return rtIr(event,\''+urlRutina(s.id)+'\')">'+
         '<span class="tRow__av">'+(((s.nombre||'?')[0])||'?').toUpperCase()+'</span>'+
-        '<span class="tRow__n"><b>'+nomDe(s.id)+(ex?' ★'+ex:'')+'</b><small>'+(a?(((a.protocolos&&a.protocolos.programa)||'')+' · SEM '+(a.semana_actual||1)).toUpperCase():'SIN PROGRAMA')+'</small></span>'+
-        '<span class="tRow__st">'+est+'</span>'+
+        '<span class="tRow__n"><b>'+nomDe(s.id)+(ex?' ★'+ex:'')+'</b><small>'+(_x?_x.etiqueta:(a?'SEM '+(a.semana_actual||1):'SIN PLANIFICACIÓN ACTIVA'))+'</small></span>'+
+        '<span class="tRow__st">'+est+'</span><span class="tRow__go" aria-hidden="true">→</span>'+
         '<button class="tRow__mas" aria-label="Más opciones" onclick="dashSocioMenu(event,\''+s.id+'\')">•••</button></a>'
     }
-    return '<a class="glass card cardLink" href="#/socio/'+s.id+'" onclick="return rtClick(event,\''+s.id+'\')"><div class="ctop">'+
-      '<span class="cardExt" role="link" tabindex="0" title="Abrir en nueva pestaña" aria-label="Abrir '+String(s.nombre||'').replace(/"/g,'')+' en nueva pestaña" onclick="event.preventDefault();event.stopPropagation();window.open(location.pathname+\'#/socio/'+s.id+'\',\'_blank\',\'noopener\')">↗</span>'+
+    const _xd=ctxEnt(s.id)
+    return '<div class="glass card cardLink cardEnt" data-id="'+s.id+'" data-nom="'+_nomQ(s)+'"><a class="cardEnt__lnk" href="#/socio/'+s.id+'" onclick="return rtClick(event,\''+s.id+'\')"><div class="ctop">'+
       '<div class="av">'+(((s.nombre||'?')[0])||'?').toUpperCase()+'</div>'+
-      '<div><div class="cn2">'+nomDe(s.id)+(ex?' <span style="color:var(--ama)">★'+ex+'</span>':'')+'</div><div class="cm2">'+meta+'</div></div>'+badge+'</div>'+barra+'</a>'
+      '<div><div class="cn2">'+nomDe(s.id)+(ex?' <span style="color:var(--ama)">★'+ex+'</span>':'')+'</div><div class="cm2">'+meta+(_xd?' · '+_xd.etiqueta:'')+'</div></div>'+badge+'</div>'+barra+'</a>'+accEnt(s.id,true)+'</div>'
   }).join('') : '<div class="vacio">Sin socios activos aún</div>'
+  if (document.getElementById('salaQ') && document.getElementById('salaQ').value) salaBuscar()
 }
 
 async function atender(id){ try{ await sb.from('solicitudes').update({estado:'atendida',atendida_at:new Date().toISOString()}).eq('id',id)
@@ -1435,6 +1480,7 @@ function verFicha(id, sinRuta){
   document.getElementById('btnFrio').textContent=(F.estado==='congelado')?'REACTIVAR':'CONGELAR'
   document.getElementById('fMeta').textContent=((a?(((a.protocolos&&a.protocolos.programa)||'')+' · '+((a.protocolos&&a.protocolos.nivel)||'')+' · SEMANA '+(a.semana_actual||1)+'/'+((a.protocolos&&a.protocolos.ciclo_semanas)||6)+' · CICLO '+(a.ciclo_actual||1)):'SIN PROGRAMA')+
     (d?(' · DESDE '+MES3[d.getMonth()]+' '+d.getFullYear()):'')).toUpperCase()
+  fPintarCtx(id)
   document.getElementById('fSemTit').innerHTML = sem?('<b>'+sem.pct_dosis+'%'+(sem.completa?' · SEMANA ✓':'')+'</b> · '+sem.fortalecidos+'/'+sem.exigibles+' METAS'):'SIN PROGRAMA'
   document.getElementById('fRows').innerHTML = sem?sem.musculos.filter(function(m){return m.exigible}).map(function(m){
     let z='z0',c=''
@@ -3595,8 +3641,9 @@ function admPintar(){
     .map(function(p){ return [p[0], Object.assign({},p[1],{dias_restantes:p[1].dias_acceso, fecha_fin:p[1].fin_acceso})] })
     .sort(function(a,b){return a[1].dias_restantes-b[1].dias_restantes})
   const tramo=function(d){ return d<=7?'7 DÍAS':d<=14?'14 DÍAS':'30 DÍAS' }
-  document.getElementById('admVenc').innerHTML = pv.length ? '<div class="adCard"><div class="adK"><span>PRÓXIMOS VENCIMIENTOS</span><span>'+pv.length+'</span></div>'+
-    pv.map(function(p){ return '<div class="adLi" onclick="verFicha(\''+p[0].id+'\');fTab(\'adm\')" style="cursor:pointer"><span>'+adEsc(nomDe(p[0].id))+'<small>VENCE '+adF(p[1].fecha_fin)+'</small></span><span>'+p[1].dias_restantes+' D<small>'+tramo(p[1].dias_restantes)+'</small></span></div>' }).join('')+'</div>' : ''
+  const _abierto = !!(document.querySelector('#admVenc details')||{}).open
+  document.getElementById('admVenc').innerHTML = pv.length ? '<details class="adCard adVenc"'+(_abierto?' open':'')+'><summary class="adK"><span>PRÓXIMOS VENCIMIENTOS · 30 DÍAS</span><span>'+pv.length+' ▾</span></summary>'+
+    pv.map(function(p){ return '<div class="adLi" onclick="verFicha(\''+p[0].id+'\');fTab(\'adm\')" style="cursor:pointer"><span>'+adEsc(nomDe(p[0].id))+'<small>VENCE '+adF(p[1].fecha_fin)+'</small></span><span>'+p[1].dias_restantes+' D<small>'+tramo(p[1].dias_restantes)+'</small></span></div>' }).join('')+'</details>' : ''
   const b=(document.getElementById('admBusca').value||'').trim().toLowerCase()
   const l=soc.filter(function(s){ const k=AD.admF
       return (k==='todos'||(k==='activar'?porActivar(s.id):k==='pago'?pend.has(s.id):(k==='activa'?['activa','futura'].indexOf(est[s.id].k)>-1:est[s.id].k===k))) && (!b || nomDe(s.id).toLowerCase().indexOf(b)>-1) })
@@ -4107,13 +4154,69 @@ function dashMenuUI(){ const p=dashPref()||''; ['desktop','tablet','auto'].forEa
 if (_dashMQ && _dashMQ.addEventListener) _dashMQ.addEventListener('change', function(){ if ((dashPref()||'auto')==='auto') dashAplicar() })
 // Tablet: abrir en pestaña nueva desde •••
 function dashSocioMenu(ev, id){ ev.preventDefault(); ev.stopPropagation(); window._dashSoc=id
-  document.getElementById('mDashSocN').textContent=nomDe(id); document.getElementById('mDashSoc').style.display='flex' }
+  document.getElementById('mDashSocN').textContent=nomDe(id)
+  const cerrar="document.getElementById('mDashSoc').style.display='none';"
+  const L=function(t,h,cls){ return '<a class="mSG__'+(cls||'sec')+' mSG__a" href="'+h+'" onclick="'+cerrar+'return rtIr(event,\''+h+'\')">'+t+'</a>' }
+  document.getElementById('mDashSocAcc').innerHTML = L('RUTINA DE HOY', urlRutina(id), 'ok') + L('PLANIFICADOR', urlPlan(id)) + L('PERFIL', '#/socio/'+id) +
+    '<a class="mSG__sec mSG__a" href="'+location.pathname+urlRutina(id)+'" target="_blank" rel="noopener noreferrer" onclick="'+cerrar+'">ABRIR RUTINA EN NUEVA PESTAÑA ↗</a>'
+  document.getElementById('mDashSoc').style.display='flex' }
 // c10.5 · enlaces reales de la cabecera del planificador (Ctrl/Cmd/Shift/clic central → el navegador abre pestaña nueva)
 function _nativo(ev){ return ev.metaKey||ev.ctrlKey||ev.shiftKey||ev.button===1 }
 function plHomeClick(ev){ if(_nativo(ev)) return true; ev.preventDefault()
   const ir=function(){ verSala() }; if (typeof plEsDirty==='function' && plEsDirty()){ plGuard(ir) } else ir(); return false }
 function plSocClick(ev){ if(_nativo(ev)) return true; ev.preventDefault()
   const ir=function(){ if(F&&F.id) verFicha(F.id); else verSala() }; if (typeof plEsDirty==='function' && plEsDirty()){ plGuard(ir) } else ir(); return false }
+// ═══════════ c10.6 · ACCESO DIRECTO A ENTRENAMIENTO ═══════════
+// Fuente única: RPC koach_contexto_entreno (misma regla que la app del socio: semana efectiva y primera sesión de esa semana
+// sin completar desde el lunes; si hoy hay una sesión en curso, esa). Sala, ficha y planner leen de aquí.
+function ctxEnt(id){
+  const c=(C.ctx||{})[id]; if(!c) return null
+  const enCurso = c.hoy_estado==='en_curso' ? { id:c.hoy_sesion_id, nombre:c.hoy_sesion_nombre } : null
+  const hoyOk = c.hoy_estado==='completada' ? { id:c.hoy_sesion_id, nombre:c.hoy_sesion_nombre } : null
+  const pend = c.pend_sesion_id ? { id:c.pend_sesion_id, nombre:c.pend_sesion_nombre, numero:c.pend_numero } : null
+  const abrir = enCurso || (hoyOk && !pend ? hoyOk : null) || pend || hoyOk
+  return { programa:c.programa, nivel:c.nivel, ciclo:c.ciclo, semana:c.semana, total:c.total_semanas, sesSem:c.sesiones_semana, hechas:c.hechas_semana,
+    enCurso:enCurso, hoyOk:hoyOk, pend:pend, abrir:abrir,
+    etiqueta: enCurso ? 'EN CURSO · '+String(enCurso.nombre||'').toUpperCase()
+            : hoyOk ? (pend ? 'HOY ✓ · PRÓXIMA '+String(pend.nombre||'').toUpperCase() : 'HOY ✓ · SEMANA COMPLETA')
+            : pend ? (pend.numero===1&&!c.hechas_semana ? 'HOY · ' : 'PRÓXIMA · ')+String(pend.nombre||'').toUpperCase()
+            : 'SEMANA COMPLETA' }
+}
+function urlRutina(id){ const x=ctxEnt(id); return x&&x.abrir ? '#/socio/'+id+'/plan?w='+x.semana+'&s='+x.abrir.id : '#/socio/'+id+'/plan' }
+function urlPlan(id){ return '#/socio/'+id+'/plan' }
+function rtIr(ev, hash){ if (ev && (ev.metaKey||ev.ctrlKey||ev.shiftKey||ev.button===1)) return true
+  if (ev){ ev.preventDefault(); ev.stopPropagation() }
+  const ir=function(){ if (location.hash===hash) rtAplicar(); else location.hash=hash }
+  if (document.getElementById('vPlan').classList.contains('on') && typeof plEsDirty==='function' && plEsDirty()) plGuard(ir); else ir(); return false }
+function accEnt(id, compacto){
+  const x=ctxEnt(id)
+  if (!C.asig[id]) return '<div class="eAcc"><span class="eAcc__sin">SIN PLANIFICACIÓN ACTIVA</span><a class="eBtn" href="'+'#/socio/'+id+'" onclick="return rtIr(event,\'#/socio/'+id+'\')">ASIGNAR PLAN</a></div>'
+  if (x && !x.abrir) return '<div class="eAcc"><span class="eAcc__sin">NO HAY SESIÓN PENDIENTE ESTA SEMANA</span>'+
+    '<a class="eBtn" href="'+urlPlan(id)+'" onclick="return rtIr(event,\''+urlPlan(id)+'\')">VER PLANIFICADOR</a></div>'
+  const lbl = x&&x.abrir ? (x.enCurso?'SESIÓN EN CURSO':(x.hoyOk&&!x.pend?'VER SESIÓN DE HOY':'RUTINA DE HOY')) : 'RUTINA DE HOY'
+  return '<div class="eAcc">'+
+    '<a class="eBtn eBtn--ink" href="'+urlRutina(id)+'" onclick="return rtIr(event,\''+urlRutina(id)+'\')">'+lbl+' →</a>'+
+    '<a class="eBtn" href="'+urlPlan(id)+'" onclick="return rtIr(event,\''+urlPlan(id)+'\')">PLANIFICADOR</a>'+
+    (compacto?'':'<a class="eBtn eBtn--ghost" href="#/socio/'+id+'" onclick="return rtIr(event,\'#/socio/'+id+'\')">PERFIL</a>')+
+    '<a class="eBtn eBtn--ic" href="'+location.pathname+urlRutina(id)+'" target="_blank" rel="noopener noreferrer" title="Abrir rutina en nueva pestaña" aria-label="Abrir rutina de '+String(nomDe(id)).replace(/"/g,'')+' en nueva pestaña">↗</a></div>'
+}
+function _nomQ(s){ return String((s.nombre||'')+' '+(s.apellido||'')).toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/"/g,'') }
+function fPintarCtx(id){
+  const el=document.getElementById('fCtx'); if(!el) return
+  const x=ctxEnt(id)
+  if (!C.asig[id]){ el.innerHTML='<div class="fCtx__sin">SIN PLANIFICACIÓN ACTIVA</div><button class="eBtn eBtn--ink" onclick="verPlan()">ASIGNAR PLAN</button>'; return }
+  const cel=function(k,v){ return '<div class="fCtx__c"><small>'+k+'</small><b>'+v+'</b></div>' }
+  el.innerHTML = '<div class="fCtx__g">'+
+    cel('PROGRAMA', x?String(x.programa||'—').toUpperCase():'—')+cel('CICLO', x&&x.ciclo!=null?x.ciclo:'—')+
+    cel('SEMANA', x?x.semana+' <em>DE '+(x.total||'—')+'</em>':'—')+
+    cel(x&&x.enCurso?'EN CURSO':'PRÓXIMA', x&&x.abrir?String(x.abrir.nombre||'').toUpperCase():'SEMANA COMPLETA')+
+    cel('ESTA SEMANA', x?x.hechas+' / '+x.sesSem:'—')+'</div>'+accEnt(id,true)
+}
+function salaBuscar(){ const q=(document.getElementById('salaQ').value||'').trim().toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'')
+  let n=0; document.querySelectorAll('#lista [data-nom]').forEach(function(el){ const ok=!q || el.getAttribute('data-nom').indexOf(q)>-1; el.style.display=ok?'':'none'; if(ok) n++ })
+  const v=document.getElementById('salaQv'); if(v) v.style.display = (q && !n) ? '' : 'none' }
+function salaBuscarKey(ev){ if (ev.key!=='Enter') return; const f=[...document.querySelectorAll('#lista [data-nom]')].filter(function(e){return e.style.display!=='none'})
+  if (f.length===1){ const id=f[0].getAttribute('data-id'); location.hash=urlRutina(id) } }
 let MG={primero:null}
 async function aplicarPrograma(){
   // Guardia de prescripción (advertencia, jamás bloqueo) — modal KOACH, no confirm nativo
