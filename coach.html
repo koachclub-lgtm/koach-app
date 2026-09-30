@@ -612,6 +612,53 @@ html.en-sala[data-dash="tablet"] #vSala .st3 b{font-size:28px}
 .tRow__n small{display:block;margin-top:2px;font-family:var(--font-mono);font-weight:500;font-size:11.5px;letter-spacing:.04em;color:var(--koach-text-secondary)}
 .tRow__st{font-family:var(--font-mono);font-weight:500;font-size:12px;letter-spacing:.06em;color:var(--koach-ink)}
 .tRow__mas{flex:0 0 48px;height:48px;border:none;background:rgba(18,18,18,.05);border-radius:12px;font-size:16px;cursor:pointer;color:var(--koach-ink)}
+
+/* ═══ c10.5 · CABECERA DE ORIENTACIÓN DEL PLANIFICADOR ═══ */
+.plHdr{margin-bottom:14px}
+.plHdr__top{display:flex;align-items:center;gap:8px;margin-bottom:10px}
+.plHdr__sp{flex:1}
+.plHome,.plVolver{display:inline-flex;align-items:center;min-height:44px;padding:0 14px;border-radius:12px;border:1px solid var(--koach-border-strong);
+  font-family:var(--font-mono);font-weight:500;font-size:12.5px;letter-spacing:.1em;color:var(--koach-ink);text-decoration:none;background:var(--koach-control)}
+.plHome{background:var(--koach-ink);color:var(--koach-control);border-color:var(--koach-ink)}
+.plHome:focus-visible,.plVolver:focus-visible,#pTabs .mtab:focus-visible,.plCrumb:focus-visible{outline:2px solid var(--koach-ink);outline-offset:2px}
+.plHdr__top .rol{font-size:12px !important}
+.plHdr__tit{margin:0 !important}
+#vPlan .plQuien{margin:4px 0 0 0}
+.plQuien__p{display:block}
+.plQuien__m{font-size:12px;color:var(--koach-text-secondary);letter-spacing:.1em}
+#vPlan .ssub{margin-left:0 !important}
+.plHdr__top > button{min-height:44px;min-width:44px}
+/* orientación: CICLO · SEMANA · SESIÓN */
+#vPlan .plNav{gap:8px;margin:0 0 14px;align-items:stretch}
+#vPlan .plNav .plCrumb{display:inline-flex;flex-direction:column;align-items:flex-start;justify-content:center;min-height:52px;padding:6px 16px;border-radius:12px;font-size:16px !important;font-weight:600;letter-spacing:.02em;line-height:1.15}
+#vPlan .plNav .plCrumb small{display:block;font-size:11px !important;letter-spacing:.14em;opacity:.65;margin-bottom:2px}
+#vPlan .plNav .plCrumb .v{display:block;white-space:nowrap}
+#vPlan .plNav .plCrumb em{font-style:normal;font-size:13px !important;opacity:.7;margin-left:6px}
+#vPlan .plNav .plCrumb:last-child small{color:var(--koach-control) !important;opacity:.7}
+#vPlan .plNav .plCrumb:last-child{background:var(--koach-ink);color:var(--koach-control);border-color:var(--koach-ink)}
+#vPlan .plNav .plSep{align-self:center;font-size:18px !important;opacity:.4}
+/* pestañas de sesión: ocupan el ancho, crecen según su nombre, scroll limpio si no caben */
+#pTabs{display:flex;gap:10px;flex-wrap:nowrap;overflow-x:auto;scrollbar-width:thin;padding:2px 2px 8px !important;margin-bottom:8px !important}
+#pTabs .mtab{flex:1 0 auto;min-width:132px;min-height:60px;padding:10px 16px !important;border-radius:14px !important;justify-content:center}
+#pTabs .mtab.on{padding-bottom:10px !important;margin-bottom:0 !important;border-radius:14px !important}
+#pTabs .sN{font-size:11.5px !important;letter-spacing:.14em;opacity:.6}
+#pTabs .sT{font-size:16px !important;font-weight:650 !important;line-height:1.2}
+#pTabs .mtabAdd{flex:0 0 auto;min-width:64px;border-style:dashed !important;align-items:center;background:transparent !important;cursor:pointer}
+#pTabs .mtabAdd .sT{font-size:16px !important}
+.mtabAdd__t{display:none}
+@media (min-width:1024px){
+  html.en-plan body{max-width:1280px !important;padding-left:36px;padding-right:36px}
+  .plHdr{display:flex;flex-wrap:wrap;align-items:flex-end;column-gap:28px}
+  .plHdr__top{flex-basis:100%}
+  .plHdr__tit{flex-basis:100%}
+  #pTabs .mtab{min-width:160px}
+  .mtabAdd__t{display:inline}
+  #pTabs .mtabAdd{min-width:170px}
+}
+#vPlan .bqh{flex-wrap:wrap;row-gap:8px}
+@media (max-width:560px){ #vPlan .bqt{flex-basis:100%} #vPlan .stp{margin-left:0} #vPlan .stp + .stp{margin-left:auto} }
+@media (min-width:700px) and (max-width:1023px){ html.en-plan body{max-width:900px !important} }
+@media (max-width:430px){ #pTabs .mtab{min-width:112px} #vPlan .plNav .plCrumb{padding:6px 12px;font-size:14.5px !important} .plVolver{padding:0 10px} }
 /* ═══ FIN CAPA 3 ═══ */
 /* ═══ MOTOR DE CONSTRUCCIÓN c8.0 · MACRO → MESO → MICRO ═══ */
 .plNav{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin:0 0 14px}
@@ -683,7 +730,7 @@ html.en-sala[data-dash="tablet"] #vSala .st3 b{font-size:28px}
 </div></div>
 
 <div class="vista" id="vSala">
-  <div class="hbar"><span class="hk" title="c10.4">KOACH</span><span class="hbar__r"><button class="dashBtn" onclick="dashMenu()" aria-label="Vista del dashboard">VISTA</button><span class="rol" id="rolBadge" onclick="salir()">COACH</span></span></div>
+  <div class="hbar"><span class="hk" title="c10.5">KOACH</span><span class="hbar__r"><button class="dashBtn" onclick="dashMenu()" aria-label="Vista del dashboard">VISTA</button><span class="rol" id="rolBadge" onclick="salir()">COACH</span></span></div>
   <div class="adAcc" id="accesos"></div>
   <div class="glass aform" id="fAlta" style="display:none">
     <h4>CREAR USUARIO — ENTRA AL INSTANTE CON SU CORREO Y CLAVE</h4>
@@ -802,11 +849,18 @@ html.en-sala[data-dash="tablet"] #vSala .st3 b{font-size:28px}
 
 <!-- PLANIFICADOR -->
 <div class="vista" id="vPlan">
-  <div class="stop"><button class="sback" onclick="volverPlanner()">←</button>
-    <div class="stit">Planificador</div><button onclick="menuRutina()" style="margin-left:8px;background:none;border:1px solid var(--koach-border-strong);border-radius:8px;padding:6px 10px;font-size:12px;cursor:pointer;color:var(--koach-ink)">•••</button><div style="display:none"></div>
-    <span class="rol" id="pEstado" style="margin-left:auto">BORRADOR</span></div>
-  <div class="plQuien" id="pQuien" style="display:none"><div class="plQuien__n" id="pQuienN">—</div><div class="plQuien__p" id="pQuienP">—</div><div class="plQuien__m">PLAN INDIVIDUAL</div></div>
-  <div class="ssub" id="pMeta">—</div>
+  <div class="plHdr">
+    <div class="plHdr__top">
+      <a class="plHome" href="coach.html#/" onclick="return plHomeClick(event)" title="Volver al dashboard (Ctrl/Cmd+clic: nueva pestaña)">⌂ HOME</a>
+      <a class="plVolver" id="pVolverSoc" href="#" onclick="return plSocClick(event)">← PERFIL</a>
+      <span class="plHdr__sp"></span>
+      <span class="rol" id="pEstado">BORRADOR</span>
+      <button onclick="menuRutina()" style="margin-left:8px;background:none;border:1px solid var(--koach-border-strong);border-radius:8px;padding:6px 10px;font-size:12px;cursor:pointer;color:var(--koach-ink)">•••</button>
+    </div>
+    <div class="stit plHdr__tit">Planificador</div>
+    <div class="plQuien" id="pQuien" style="display:none"><div class="plQuien__n" id="pQuienN">—</div><div class="plQuien__p"><span id="pQuienP">—</span><span class="plQuien__m"> · PLAN INDIVIDUAL</span></div></div>
+    <div class="ssub" id="pMeta">—</div>
+  </div>
   <div id="pNav" class="plNav" style="display:none"></div>
   <div id="pMacro" style="display:none"></div>
   <div id="pMeso" style="display:none"></div>
@@ -1142,7 +1196,7 @@ function fLocal(d){ const z=new Date(d.getTime()-d.getTimezoneOffset()*60000); r
 function lunes(){const h=new Date(),d=(h.getDay()+6)%7,l=new Date(h);l.setDate(h.getDate()-d);l.setHours(0,0,0,0);return l}
 function hoyISO(){return fLocal(new Date())}
 function vista(id){document.querySelectorAll('.vista').forEach(function(v){v.classList.toggle('on',v.id===id)});window.scrollTo(0,0)
-  document.documentElement.classList.toggle('en-sala', id==='vSala')
+  document.documentElement.classList.toggle('en-sala', id==='vSala'); document.documentElement.classList.toggle('en-plan', id==='vPlan')
   document.getElementById('xGuardia').classList.toggle('vis', id==='vExtra')
   var pg=document.getElementById('pGuardia'); if(pg) pg.style.display = (id==='vPlan')?'block':'none'}
 function toast(m){let t=document.querySelector('.toast');if(!t){t=document.createElement('div');t.className='toast';document.body.appendChild(t)}
@@ -1872,6 +1926,7 @@ async function abrirPlan(pid, proto, opts){
     ? ('⚠ BASE MAESTRA · '+((proto&&proto.programa)||'')+' '+((proto&&proto.nivel)||'')+' '+((proto&&proto.sexo)||'')+' · AFECTA CLONES FUTUROS').toUpperCase()
     : ''
   const _q=document.getElementById('pQuien'); _q.style.display=(esBib||esBase)?'none':''
+  const _vs=document.getElementById('pVolverSoc'); _vs.style.display=(esBib||esBase)?'none':''; if(F&&F.id) _vs.setAttribute('href','coach.html#/socio/'+F.id)
   document.getElementById('pMeta').style.display=(esBib||esBase)?'':'none'
   if (!esBib && !esBase){ document.getElementById('pQuienN').textContent=nomDe(F.id)
     document.getElementById('pQuienP').textContent=[(proto&&proto.programa)||'',(proto&&proto.nivel)||''].filter(Boolean).join(' · ').toUpperCase() }
@@ -1956,10 +2011,11 @@ function pintarPlan(){ setTimeout(function(){ try{ plSaveUI(); rtSyncPlan() }cat
     const nom = ((P.bib ? (s.nombre||'') : s.nombre)||'').replace(/ Y /g,' + ')
     const hdl = ''  // header = solo navegación; reorganizar vive en ORGANIZAR SEMANA (próxima vista)
     const opc = (i===P.tab && !P.bib && !P.base) ? '<button class="tabOpc" onclick="event.stopPropagation();abrirSesOpc()">•••</button>' : ''
-    return '<div class="mtab '+(i===P.tab?'on':'')+'" data-sid="'+s.id+'" data-i="'+i+'" onclick="tabTap('+i+')">'+
-      '<span class="sN">'+hdl+(P.bib?'★':(_plW!=null?_plPos:(i+1)))+'</span><span class="sT">'+nom+'</span>'+opc+'</div>'
+    const _num = P.bib?'★':String(_plW!=null?_plPos:(i+1)).padStart(2,'0')
+    return '<div class="mtab '+(i===P.tab?'on':'')+'" role="tab" tabindex="0" aria-selected="'+(i===P.tab)+'" data-sid="'+s.id+'" data-i="'+i+'" onclick="tabTap('+i+')" onkeydown="if(event.key===\'Enter\'||event.key===\' \'){event.preventDefault();tabTap('+i+')}">'+
+      '<span class="sN">'+hdl+_num+'</span><span class="sT">'+nom+'</span>'+opc+'</div>'
   }).join('') + ((!P.bib && !P.base) ? ((_plW!=null?plSesSem(_plW).length:P.sesiones.length)<6
-      ? '<div class="mtab" style="border-style:dashed;justify-content:center" onclick="abrirAddSes()"><span class="sT" style="font-size:15px">+</span></div>'
+      ? '<button type="button" class="mtab mtabAdd" onclick="abrirAddSes()" aria-label="Nueva sesión"><span class="sT">+<span class="mtabAdd__t"> NUEVA SESIÓN</span></span></button>'
       : '<div class="mtab" style="opacity:.4" onclick="toast(\'Esta semana ya tiene 6 sesiones programadas.\')"><span class="sT">MAX</span></div>') : '')
   const viejo=document.getElementById('pDelSes'); if(viejo) viejo.remove()
   const vHint=document.getElementById('pHint'); if(vHint) vHint.remove()
@@ -3148,9 +3204,12 @@ function plRender(){
 function plPintarNav(){
   const ses = PL.nivel==='micro' ? P.sesiones[P.tab] : null
   const it=function(txt,fn,on){ return fn ? '<button class="plCrumb'+(on?' on':'')+'" onclick="'+fn+'">'+txt+'</button>' : '<span class="plCrumb on">'+txt+'</span>' }
-  let h = it('CICLO', PL.nivel==='macro'?null:"plIr('macro')", PL.nivel==='macro')
-  if (PL.nivel!=='macro') h += '<span class="plSep">›</span>'+it('SEM '+PL.w, PL.nivel==='meso'?null:'plIrSem('+PL.w+')', PL.nivel==='meso')
-  if (ses) h += '<span class="plSep">›</span>'+it(plEsc((ses.nombre||'SESIÓN').toUpperCase()), null, true)
+  const _a=plAsig()||{}, _pr=(_a.protocolos||P.proto||{}), _cn=_a.ciclo_actual
+  const _cTxt='<small>CICLO</small><span class="v">'+(_cn!=null?_cn:'—')+(_pr.programa?'<em>· '+plEsc(String(_pr.programa).toUpperCase())+'</em>':'')+'</span>'
+  const _sTxt='<small>SEMANA</small><span class="v">'+PL.w+'<em>DE '+plN()+'</em></span>'
+  let h = it(_cTxt, PL.nivel==='macro'?null:"plIr('macro')", PL.nivel==='macro')
+  if (PL.nivel!=='macro') h += '<span class="plSep">›</span>'+it(_sTxt, PL.nivel==='meso'?null:'plIrSem('+PL.w+')', PL.nivel==='meso')
+  if (ses) h += '<span class="plSep">›</span>'+it('<small>SESIÓN</small><span class="v">'+plEsc((ses.nombre||'SESIÓN').toUpperCase())+'</span>', null, true)
   document.getElementById('pNav').innerHTML = h
 }
 function plPintarMacro(){
@@ -4049,6 +4108,12 @@ if (_dashMQ && _dashMQ.addEventListener) _dashMQ.addEventListener('change', func
 // Tablet: abrir en pestaña nueva desde •••
 function dashSocioMenu(ev, id){ ev.preventDefault(); ev.stopPropagation(); window._dashSoc=id
   document.getElementById('mDashSocN').textContent=nomDe(id); document.getElementById('mDashSoc').style.display='flex' }
+// c10.5 · enlaces reales de la cabecera del planificador (Ctrl/Cmd/Shift/clic central → el navegador abre pestaña nueva)
+function _nativo(ev){ return ev.metaKey||ev.ctrlKey||ev.shiftKey||ev.button===1 }
+function plHomeClick(ev){ if(_nativo(ev)) return true; ev.preventDefault()
+  const ir=function(){ verSala() }; if (typeof plEsDirty==='function' && plEsDirty()){ plGuard(ir) } else ir(); return false }
+function plSocClick(ev){ if(_nativo(ev)) return true; ev.preventDefault()
+  const ir=function(){ if(F&&F.id) verFicha(F.id); else verSala() }; if (typeof plEsDirty==='function' && plEsDirty()){ plGuard(ir) } else ir(); return false }
 let MG={primero:null}
 async function aplicarPrograma(){
   // Guardia de prescripción (advertencia, jamás bloqueo) — modal KOACH, no confirm nativo
