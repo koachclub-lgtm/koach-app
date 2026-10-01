@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<title>KOACH · Tu Semana</title>
+<title>KOACH</title>
 <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
 <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png">
 <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16.png">
@@ -969,21 +969,48 @@ body.wl-on{overflow:hidden}
 @media (prefers-reduced-motion:reduce){ #oWelcome{transition:none} }
 
 /* ═══ v10.7 · LOGIN KOACH (foto + glass) ═══ */
+/* ═══ v11.0 · WELCOME / ACCESO (foto + marca + mensaje + dos decisiones) ═══ */
+#vLogin{background:#000}
+.wel{position:relative;z-index:1;max-width:520px;margin:0 auto;min-height:100dvh;box-sizing:border-box;display:flex;flex-direction:column;justify-content:space-between;
+  padding:calc(env(safe-area-inset-top,0px) + 26px) 8px calc(env(safe-area-inset-bottom,0px) + 26px);transition:opacity .22s ease, transform .22s ease}
+.wel__logo{width:40px;height:auto;display:block;opacity:.96}
+.wel__firma{font-family:var(--font-display);font-weight:700;font-size:13px;letter-spacing:.22em;color:#fff;margin-bottom:12px}
+.wel__h{margin:0;font-family:var(--font-display);font-weight:700;font-size:clamp(32px,9.6vw,42px);line-height:1.02;letter-spacing:-.01em;color:#fff;text-wrap:balance}
+.wel__sub{margin:14px 0 0;font-family:var(--font-display);font-weight:400;font-size:clamp(17px,4.6vw,19px);line-height:1.42;color:#BFC4C8}
+.wel__cta{display:flex;flex-direction:column;gap:12px;margin-top:clamp(24px,4.5vh,36px)}
+.wel__b{display:flex;align-items:center;justify-content:center;gap:12px;width:100%;min-height:62px;border-radius:999px;cursor:pointer;
+  font-family:var(--font-display);font-weight:700;font-size:16.5px;letter-spacing:.12em;transition:transform .12s ease, background .2s ease}
+.wel__b--pri{background:#ECEDEE;color:#0A0A0A;border:1px solid #ECEDEE;justify-content:space-between;padding:0 28px}
+.wel__b--pri span{font-size:20px}
+.wel__b--sec{background:transparent;color:#fff;border:1.5px solid rgba(236,237,238,.75)}
+.wel__b:active{transform:scale(.985)}
+.wel__b:focus-visible,.lgBack:focus-visible{outline:2px solid #fff;outline-offset:3px}
+#vLogin.is-form .wel{opacity:0;transform:translateY(-10px);pointer-events:none;position:absolute;inset:0;margin:0 auto}
+#vLogin.is-form .lgBg__img{filter:contrast(1.06) brightness(.7)}
+#lgForms{opacity:0;transform:translateY(14px);transition:opacity .24s ease, transform .24s ease}
+#lgForms.in{opacity:1;transform:none}
+#vLogin .lg{animation:none}
+.lgTop{display:flex;align-items:center;justify-content:space-between;margin-bottom:auto;padding-bottom:28px}
+.lgBack{min-height:44px;padding:0 4px;background:none;border:none;color:#E6EAED;font-family:var(--font-mono);font-weight:500;font-size:13px;letter-spacing:.16em;cursor:pointer}
+.lgTop__k{width:26px;height:auto;opacity:.9}
+.lgTit{margin:0 0 22px;font-family:var(--font-display);font-weight:700;font-size:clamp(28px,8vw,34px);letter-spacing:-.005em;color:#fff}
+#vLogin .lg{display:flex;flex-direction:column}
+@media (prefers-reduced-motion:reduce){ .wel,#lgForms,.lgBg__img,.wel__b{transition:none !important} }
 #vLogin{position:relative;color:#F2F4F5;margin:-16px -14px;padding:0 20px}
 #vLogin .lgBg{position:fixed;inset:0;z-index:0;background:#10151B;overflow:hidden}
-.lgBg__img{position:absolute;inset:-24px;background-size:cover;background-repeat:no-repeat;opacity:0;transform:scale(1.06);
-  filter:blur(9px) saturate(.45) contrast(.92) brightness(.9);transition:opacity .8s ease;animation:lgDrift 38s ease-in-out infinite alternate}
+.lgBg__img{position:absolute;inset:0;background-size:cover;background-repeat:no-repeat;background-position:50% 30%;opacity:0;
+  filter:contrast(1.06);transition:opacity .5s ease, filter .3s ease}
+@media (min-aspect-ratio:3/4){ .lgBg__img{background-position:50% 40%} }
 .lgBg__img.is-loaded{opacity:1}
 /* motion blur diagonal sutil: una copia desplazada muy tenue */
-.lgBg__img::after{content:'';position:absolute;inset:0;background:inherit;opacity:.35;transform:translate(14px,-8px);filter:blur(4px)}
-@keyframes lgDrift{from{transform:scale(1.06)}to{transform:scale(1.09) translate(-1%,-1%)}}
 .lgBg__ov{position:absolute;inset:0;background:
-  radial-gradient(130% 80% at 50% 30%,rgba(5,12,20,0) 0%,rgba(5,12,20,.55) 75%),
-  linear-gradient(180deg,rgba(8,14,22,.45) 0%,rgba(8,14,22,.55) 40%,rgba(8,10,12,.90) 78%,#080A0C 100%),
-  linear-gradient(0deg,rgba(21,32,43,.35),rgba(21,32,43,.35))}
+  linear-gradient(180deg,rgba(0,0,0,.42) 0%,rgba(0,0,0,0) 20%,rgba(0,0,0,.04) 46%,rgba(0,0,0,.62) 68%,rgba(0,0,0,.88) 86%,#000 100%),
+  linear-gradient(0deg,rgba(0,0,0,.12),rgba(0,0,0,.12))}
 #vLogin .lg{position:relative;z-index:1;max-width:520px;margin:0 auto;min-height:100dvh;box-sizing:border-box;justify-content:flex-end;
   padding:calc(40px + env(safe-area-inset-top,0px)) 0 calc(22px + env(safe-area-inset-bottom,0px));animation:lgIn .5s cubic-bezier(.2,.7,.2,1) both}
 @keyframes lgIn{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+#lgForms[hidden]{display:none !important}
+#vLogin .lg#lgForms{animation:none;display:flex;flex-direction:column;justify-content:flex-end}
 #vLogin .k{font-family:var(--font-display);font-size:clamp(46px,14vw,58px);font-weight:800;letter-spacing:.18em;line-height:1;color:#fff;margin:0 0 10px}
 #vLogin .sub{font-family:var(--font-mono);font-weight:500;font-size:13px;letter-spacing:.3em;color:#C9D0D5;margin-bottom:clamp(22px,4vh,34px)}
 #vLogin .lbl{display:block;font-family:var(--font-mono);font-weight:500;font-size:12px;letter-spacing:.24em;color:#C9D0D5;margin:0 6px 9px}
@@ -1037,9 +1064,21 @@ body.wl-on{overflow:hidden}
   <!-- ══ LOGIN ══ -->
   <div class="vista" id="vLogin">
     <div class="lgBg" aria-hidden="true"><div class="lgBg__img" id="lgBgImg"></div><div class="lgBg__ov"></div></div>
-    <div class="lg">
-      <div class="k">KOACH</div>
-      <div class="sub">TU VERSIÓN MÁS FUERTE</div>
+    <div class="wel" id="lgWel">
+      <img class="wel__logo" src="/img/brand/isotipo-blanco.png" alt="KOACH" width="46" height="48">
+      <div class="wel__body">
+        <div class="wel__firma">KOACH FITNESS CLUB</div>
+        <h1 class="wel__h">TU VERSIÓN MÁS FUERTE<br>COMIENZA AQUÍ.</h1>
+        <p class="wel__sub">Entrena con propósito.<br>Nosotros nos encargamos del resto.</p>
+        <div class="wel__cta">
+          <button type="button" class="wel__b wel__b--pri" onclick="authVista('fReg')">QUIERO UNIRME <span aria-hidden="true">→</span></button>
+          <button type="button" class="wel__b wel__b--sec" onclick="authVista('fLogin')">INICIAR SESIÓN</button>
+        </div>
+      </div>
+    </div>
+    <div class="lg" id="lgForms" hidden>
+      <div class="lgTop"><button type="button" class="lgBack" onclick="bienvenida()" aria-label="Volver al inicio">← VOLVER</button><img src="/img/brand/isotipo-blanco.png" alt="" width="26" height="27" class="lgTop__k"></div>
+      <h2 class="lgTit" id="lgTit">INICIAR SESIÓN</h2>
       <form id="fLogin" onsubmit="event.preventDefault(); login()" novalidate>
         <label class="lbl" for="lEmail">EMAIL</label>
         <div class="fld"><svg class="fld__ic" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="3" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M4 7l8 6 8-6" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg><span class="fld__sep"></span><input class="inp" type="email" id="lEmail" name="email" placeholder="tu@email.com" autocomplete="email" inputmode="email" autocapitalize="off" spellcheck="false"></div>
@@ -1047,8 +1086,8 @@ body.wl-on{overflow:hidden}
         <div class="fld pw"><svg class="fld__ic" viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="10.5" width="14" height="10" rx="2.5" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M8 10.5V8a4 4 0 0 1 8 0v2.5" fill="none" stroke="currentColor" stroke-width="1.6"/></svg><span class="fld__sep"></span><input class="inp" type="password" id="lPass" name="password" placeholder="••••••••" autocomplete="current-password">
           <button class="ojo" type="button" aria-label="Mostrar contraseña" onclick="ojo('lPass',this)"><svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z" fill="none" stroke="currentColor" stroke-width="1.6"/><circle cx="12" cy="12" r="3" fill="none" stroke="currentColor" stroke-width="1.6"/></svg></button></div>
         <div class="err" id="lErr" role="alert">No pudimos iniciar sesión. Revisa tu correo y contraseña.</div>
-        <button class="btn" id="bLogin" type="submit">ENTRAR A MI SEMANA <span aria-hidden="true">→</span></button>
-        <div class="links"><a href="#" role="button" onclick="event.preventDefault();authVista('fRecu')">¿Olvidaste tu contraseña?</a><a href="#" role="button" onclick="event.preventDefault();authVista('fReg')">Crear mi cuenta</a></div>
+        <button class="btn" id="bLogin" type="submit">ENTRAR <span aria-hidden="true">→</span></button>
+        <div class="links"><a href="#" role="button" onclick="event.preventDefault();authVista('fRecu')">¿Olvidaste tu contraseña?</a><span></span></div>
       </form>
       <div id="fReg" style="display:none">
         <div class="authNota" style="margin:0 0 12px">Crea tu cuenta con tus datos. Luego el equipo KOACH activa tu membresía y tu plan.</div>
@@ -1065,7 +1104,7 @@ body.wl-on{overflow:hidden}
         <div class="lbl">REPITE LA CONTRASEÑA</div><input class="inp" type="password" id="rPass2" autocomplete="new-password">
         <div class="err" id="rErr">—</div>
         <button class="btn" id="bReg" onclick="registro()">CREAR MI CUENTA</button>
-        <div class="links"><a onclick="authVista('fLogin')">← Volver</a><span></span></div>
+        <div class="links"><a href="#" role="button" onclick="event.preventDefault();authVista('fLogin')">Ya tengo cuenta · Iniciar sesión</a><span></span></div>
       </div>
       <div id="fRecu" style="display:none">
         <div class="lbl">EMAIL DE TU CUENTA</div>
@@ -1073,7 +1112,7 @@ body.wl-on{overflow:hidden}
         <div class="err" id="cErr">—</div>
         <button class="btn" id="bRecu" onclick="recuperar()">ENVIAR ENLACE</button>
         <div class="okmsg" id="cOk">Enviado. Abre el enlace del correo desde este teléfono para definir tu nueva contraseña.</div>
-        <div class="links"><a onclick="authVista('fLogin')">← Volver</a><span></span></div>
+        <div class="links"><a href="#" role="button" onclick="event.preventDefault();authVista('fLogin')">← Volver a iniciar sesión</a><span></span></div>
       </div>
       <div id="fNueva" style="display:none">
         <div class="lbl">TU NUEVA CONTRASEÑA</div>
@@ -1082,7 +1121,6 @@ body.wl-on{overflow:hidden}
         <div class="err" id="nErr">—</div>
         <button class="btn" id="bNueva" onclick="nuevaClave()">GUARDAR Y ENTRAR</button>
       </div>
-      <div class="foot">KOACH CLUB · CONCEPCIÓN · EL CLUB DEL 1%</div>
     </div>
   </div>
 
@@ -1815,16 +1853,27 @@ function fLocal(d){ const z=new Date(d.getTime()-d.getTimezoneOffset()*60000); r
 function lunes(){ const h=new Date(),d=(h.getDay()+6)%7,l=new Date(h); l.setDate(h.getDate()-d); l.setHours(0,0,0,0); return l }
 
 /* ══ UTILIDADES ══ */
-function vista(id){ document.querySelectorAll('.vista').forEach(v=>v.classList.toggle('on',v.id===id)); window.scrollTo(0,0) }
+function vista(id){ document.querySelectorAll('.vista').forEach(v=>v.classList.toggle('on',v.id===id)); window.scrollTo(0,0); if(id==='vLogin') fotoLogin() }
 function toast(m){ let t=document.querySelector('.toast'); if(!t){t=document.createElement('div');t.className='toast';document.body.appendChild(t)}
   t.textContent=m; t.classList.add('vis'); clearTimeout(t._x); t._x=setTimeout(()=>t.classList.remove('vis'),2400) }
 // Fondo del login: foto del KOACH guiando a una clienta. Mientras llega, grafito; luego fade-in (no bloquea el formulario).
-const LOGIN_BG = { src:'/img/login/login-bg.webp', fallback:'/img/hero/hero-female.webp', position:'58% 35%' }
-;(function(){ function set(u){ const el=document.getElementById('lgBgImg'); if(!el) return; el.style.backgroundImage='url('+u+')'; el.style.backgroundPosition=LOGIN_BG.position; el.classList.add('is-loaded') }
-  const im=new Image(); im.onload=()=>set(LOGIN_BG.src); im.onerror=()=>{ const f=new Image(); f.onload=()=>set(LOGIN_BG.fallback); f.src=LOGIN_BG.fallback }; im.src=LOGIN_BG.src })()
+// Foto oficial del acceso: se descarga SOLO cuando se muestra el acceso (quien ya tiene sesión nunca la baja). AVIF → WebP.
+const LOGIN_BG = { avif:'/img/login/login-bg.avif', webp:'/img/login/login-bg.webp' }
+function fotoLogin(){ if (fotoLogin._ok) return; fotoLogin._ok=true
+  const el=document.getElementById('lgBgImg'); if(!el) return
+  const set=u=>{ el.style.backgroundImage='url('+u+')'; el.classList.add('is-loaded') }
+  const a=new Image(); a.onload=()=>set(LOGIN_BG.avif); a.onerror=()=>{ const w=new Image(); w.onload=()=>set(LOGIN_BG.webp); w.src=LOGIN_BG.webp }; a.src=LOGIN_BG.avif }
 function ojo(id,b){ const i=document.getElementById(id); const v=i.type==='password'; i.type=v?'text':'password'; b.style.opacity=v?'1':'.55'
   b.setAttribute('aria-label', v?'Ocultar contraseña':'Mostrar contraseña'); b.setAttribute('aria-pressed', v?'true':'false') }
-function authVista(id){ ['fLogin','fReg','fRecu','fNueva'].forEach(f=>document.getElementById(f).style.display=f===id?'block':'none') }
+const AUTH_TIT={ fLogin:'INICIAR SESIÓN', fReg:'CREAR MI CUENTA', fRecu:'RECUPERAR ACCESO', fNueva:'NUEVA CONTRASEÑA' }
+function authVista(id){ ['fLogin','fReg','fRecu','fNueva'].forEach(f=>document.getElementById(f).style.display=f===id?'block':'none')
+  document.getElementById('lgTit').textContent=AUTH_TIT[id]||''
+  document.querySelector('#lgForms .lgBack').style.display = id==='fNueva' ? 'none' : ''
+  const w=document.getElementById('lgWel'), f=document.getElementById('lgForms'); document.getElementById('vLogin').classList.add('is-form')
+  w.setAttribute('aria-hidden','true'); f.hidden=false; requestAnimationFrame(()=>f.classList.add('in'))
+  setTimeout(()=>{ const i=f.querySelector('#'+id+' input'); if(i && id!=='fNueva' && matchMedia('(pointer:fine)').matches) i.focus() }, 260) }
+function bienvenida(){ const f=document.getElementById('lgForms'), w=document.getElementById('lgWel'); document.getElementById('vLogin').classList.remove('is-form')
+  f.classList.remove('in'); f.hidden=true; w.removeAttribute('aria-hidden'); const e=document.getElementById('lErr'); if(e) e.style.display='none' }
 function flash(t,s,cb,ms){ document.getElementById('oFT').textContent=t; document.getElementById('oFS').textContent=s||''
   const f=document.getElementById('oFlash'); f.classList.add('vis')
   setTimeout(()=>{ f.classList.remove('vis'); if(cb)cb() }, ms||1500) }
@@ -1856,9 +1905,9 @@ async function login(){
       : /fetch|network/i.test(_m) ? 'Sin conexión. Revisa tu internet e intenta de nuevo.'
       : 'No pudimos entrar: '+(_m||'intenta de nuevo')
     err.style.display='block'; b.disabled=false; b.classList.remove('is-loading'); b.classList.add('is-error'); setTimeout(()=>b.classList.remove('is-error'),600)
-    b.innerHTML='ENTRAR A MI SEMANA <span aria-hidden="true">→</span>'; return 
+    b.innerHTML='ENTRAR <span aria-hidden="true">→</span>'; return 
   }
-  b.disabled=false; b.classList.remove('is-loading'); b.innerHTML='ENTRAR A MI SEMANA <span aria-hidden="true">→</span>'
+  b.disabled=false; b.classList.remove('is-loading'); b.innerHTML='ENTRAR <span aria-hidden="true">→</span>'
   entrar()
 }
 function regSexo(x){ window._rSexo=x; document.getElementById('rSexH').classList.toggle('on',x==='hombre'); document.getElementById('rSexM').classList.toggle('on',x==='mujer') }
