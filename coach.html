@@ -732,6 +732,75 @@ html.en-sala[data-dash="tablet"] .salaQ input{font-size:18px}
 #vPlan.plRO #plSave,#vPlan.plRO #pTabs .mtabAdd,#vPlan.plRO #pOrgRow{display:none !important}
 #vPlan.plRO #pBloques{opacity:.9}
 .plROban{margin:0 0 12px;padding:12px 14px;border-radius:12px;background:#121212;color:#F4F3F0;font-family:var(--font-mono);font-size:12px;letter-spacing:.1em}
+
+/* ═══ c10.9 · SELECTOR DE EJERCICIOS ═══ */
+html.selAbierto,html.selAbierto body{overflow:hidden}
+.selM{position:fixed;inset:0;z-index:80;background:rgba(18,18,16,.45);backdrop-filter:blur(6px);display:flex;align-items:center;justify-content:center}
+.selM__c{display:flex;flex-direction:column;width:min(1040px,calc(100vw - 64px));height:min(82dvh,900px);background:#F4F3F0;border-radius:18px;overflow:hidden;box-shadow:0 24px 80px rgba(0,0,0,.25)}
+.selM__h{flex:0 0 auto;padding:18px 22px 10px;border-bottom:1px solid rgba(18,18,16,.08);background:#F4F3F0}
+.selM__top{display:flex;align-items:center;gap:12px;margin-bottom:12px}
+.selM__t{font-family:var(--font-mono);font-weight:500;font-size:13px;letter-spacing:.16em;color:#121212}
+.selM__x{margin-left:auto;width:44px;height:44px;border:none;border-radius:12px;background:rgba(18,18,16,.07);font-size:16px;cursor:pointer}
+.selM__q{display:flex;align-items:center;gap:10px;min-height:54px;padding:0 16px;border-radius:14px;border:1px solid rgba(18,18,16,.18);background:#fff}
+.selM__q:focus-within{border-color:#121212}
+.selM__q span{font-size:19px;opacity:.5}
+.selM__q input{flex:1;border:none !important;background:transparent !important;margin:0 !important;padding:12px 0 !important;font-size:17px !important;outline:none;box-shadow:none !important}
+.selM__chips{display:flex;gap:6px;overflow-x:auto;padding:10px 0 4px;scrollbar-width:none}
+.selChip{flex:0 0 auto;min-height:36px;padding:0 12px;border:none;border-radius:10px;background:rgba(18,18,16,.07);color:#5E5D59;font-family:var(--font-mono);font-weight:500;font-size:12px;letter-spacing:.08em;cursor:pointer}
+.selChip.on{background:#121212;color:#F4F3F0}
+.selM__l{flex:1 1 auto;overflow-y:auto;overscroll-behavior:contain;padding:0 22px 24px;scrollbar-width:thin;scrollbar-color:rgba(18,18,16,.25) transparent}
+.selM__l::-webkit-scrollbar{width:8px}.selM__l::-webkit-scrollbar-thumb{background:rgba(18,18,16,.22);border-radius:8px}
+.selGH{position:sticky;top:0;z-index:2;display:flex;align-items:baseline;gap:10px;padding:14px 4px 8px;background:#F4F3F0;border-bottom:1.5px solid #121212}
+.selGH b{font-family:var(--font-display);font-weight:700;font-size:14.5px;letter-spacing:.12em;color:#121212}
+.selGH small{font-family:var(--font-mono);font-size:11.5px;letter-spacing:.06em;color:#5E5D59}
+#selEj .selRow{display:flex;align-items:center;gap:12px;min-height:52px;padding:6px 10px;border-top:1px solid rgba(18,18,16,.07);cursor:pointer;border-radius:10px}
+#selEj .selRow:hover,#selEj .selRow.kb{background:rgba(18,18,16,.06)}
+#selEj .selRow:active{background:rgba(18,18,16,.1)}
+#selEj .selRow:focus-visible,#selEj .selRow.kb{outline:2px solid #121212;outline-offset:-2px}
+#selEj .selN{flex:1;font-family:var(--font-display);font-weight:600;font-size:17px;color:#121212}
+.selImp{font-family:var(--font-mono);font-size:11px;letter-spacing:.06em;color:#5E5D59;text-transform:uppercase}
+.selAct{font-family:var(--font-mono);font-size:11px;letter-spacing:.1em;padding:4px 8px;border-radius:8px;background:#121212;color:#F4F3F0}
+#selEj .selRow.act{background:rgba(18,18,16,.05)}
+.selVacio{padding:40px 0;text-align:center}.selVacio p{font-family:var(--font-mono);font-size:13px;letter-spacing:.12em;margin:0 0 14px}
+@media (max-width:1023px){ .selM__c{width:calc(100vw - 32px);height:calc(100dvh - 48px)} }
+@media (max-width:640px){ .selM{align-items:stretch} .selM__c{width:100vw;height:100dvh;border-radius:0;padding-top:env(safe-area-inset-top,0px)}
+  .selM__h{padding:12px 14px 8px} .selM__l{padding:0 14px calc(24px + env(safe-area-inset-bottom,0px))} #selEj .selN{font-size:16px} }
+
+/* ═══ c10.9 · BARRA DE ACCIONES ÚNICA DEL PLANIFICADOR ═══ */
+.plDock{position:sticky;bottom:0;z-index:40;margin:18px -4px 0;padding:10px 4px calc(10px + env(safe-area-inset-bottom,0px));background:linear-gradient(180deg,rgba(243,242,239,0),var(--koach-bg,#F3F2EF) 28%)}
+.plDock__in{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:16px;background:rgba(18,18,16,.94);backdrop-filter:blur(16px);box-shadow:0 10px 30px rgba(0,0,0,.18)}
+#pGuardia .plSave{position:static;display:flex;align-items:center;gap:10px;flex:1 1 auto;min-width:0;margin:0;padding:0;background:none;box-shadow:none;border:none}
+.plDock__st{flex:1 1 auto;min-width:0;font-family:var(--font-mono) !important;font-weight:500;font-size:12.5px !important;letter-spacing:.08em;color:#F4F3F0 !important;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.plSave--dirty .plDock__st{color:#F2D49B !important}.plSave--err .plDock__st{color:#F2A3A3 !important}
+#pGuardia .plDock__save{flex:0 0 auto;min-width:150px;min-height:48px;padding:0 16px;border-radius:12px;border:1px solid rgba(244,243,240,.35);background:transparent;color:#F4F3F0;font-family:var(--font-mono);font-weight:500;font-size:12.5px;letter-spacing:.1em;cursor:pointer}
+#pGuardia .plDock__save:disabled{opacity:.45;cursor:default}
+#pGuardia .plSave--dirty .plDock__save,#pGuardia .plSave--err .plDock__save{background:#F4F3F0;color:#121212;border-color:#F4F3F0;opacity:1}
+#pGuardia .plDock__apl{flex:0 0 auto;width:auto;min-width:200px;min-height:48px;padding:0 20px;border-radius:12px;font-size:13px !important;letter-spacing:.12em;background:#F4F3F0;color:#121212}
+.plDock__msg{display:none;margin:6px 4px 0;font-size:11px !important;color:#5E5D59}
+@media (max-width:640px){ .plDock__in{flex-wrap:wrap} #pGuardia .plSave{flex:1 1 100%} .plDock__st{font-size:11.5px !important}
+  #pGuardia .plDock__save{min-width:0;flex:1 1 auto} #pGuardia .plDock__apl{flex:1 1 100%;min-width:0} }
+/* ═══ c10.9 · DOSIFICACIÓN SEMANAL (prescripción) ═══ */
+.dsHead{display:flex;flex-wrap:wrap;justify-content:space-between;gap:6px 14px;margin:2px 0 12px;font-family:var(--font-mono);font-weight:500;font-size:12px;letter-spacing:.08em;color:#121212}
+.dsLeg{color:#5E5D59;font-size:11.5px}.dsLeg b{color:#121212;font-weight:600}
+.dsx,.dsr{display:grid;grid-template-columns:72px 1fr 52px;align-items:center;gap:12px}
+.dsx{margin-bottom:4px}.dsx__t{position:relative;height:18px}
+.dsx__t i{position:absolute;transform:translateX(-50%);font-style:normal;font-family:var(--font-mono);font-size:11.5px;color:#8B8A85}
+.dsx__t i.ref{color:#121212;font-weight:600}
+.dsr{min-height:34px}
+.dsr__g{font-family:var(--font-display);font-weight:700;font-size:15px;letter-spacing:.04em;color:#121212}
+.dsr__v{text-align:right;font-family:var(--font-mono);font-weight:600;font-size:15px;color:#121212}
+.dsr__t{position:relative;height:14px;border-radius:8px;background:rgba(18,18,16,.06);overflow:visible}
+.dsr__t i{position:absolute;top:-4px;bottom:-4px;width:0;border-left:1px dashed rgba(18,18,16,.14)}
+.dsr__t i.ref{border-left:1.5px solid rgba(18,18,16,.32)}
+.dsr__f{position:absolute;left:0;top:0;bottom:0;border-radius:8px;background:linear-gradient(90deg,rgba(150,200,226,.38),rgba(118,182,214,.82));
+  box-shadow:0 0 12px rgba(118,182,214,.35), inset 0 1px 0 rgba(255,255,255,.45);transition:width .25s ease}
+.dsr__m{position:absolute;top:-5px;bottom:-5px;width:2.5px;margin-left:-1.25px;border-radius:2px;background:#121212;transition:left .25s ease}
+.dsNota{margin-top:10px;font-size:11.5px;color:#8B8A85}
+.dsVacio{padding:10px 0;font-size:13px;color:#5E5D59}
+@media (min-width:1024px){ .dsx,.dsr{grid-template-columns:90px 1fr 60px} .dsr{min-height:36px} }
+@media (prefers-reduced-motion:reduce){ .dsr__f,.dsr__m{transition:none} }
+#pVivo h3 span:first-child{font-size:13.5px !important;letter-spacing:.12em}
+#pVivoTit{font-size:12px !important;letter-spacing:.08em}
 /* ═══ FIN CAPA 3 ═══ */
 /* ═══ MOTOR DE CONSTRUCCIÓN c8.0 · MACRO → MESO → MICRO ═══ */
 .plNav{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin:0 0 14px}
@@ -810,7 +879,7 @@ html.en-sala[data-dash="tablet"] .salaQ input{font-size:18px}
 </div></div>
 
 <div class="vista" id="vSala">
-  <div class="hbar"><span class="hk" title="c10.8">KOACH</span><span class="hbar__r"><button class="dashBtn" onclick="dashMenu()" aria-label="Vista del dashboard">VISTA</button><span class="rol" id="rolBadge" onclick="salir()">COACH</span></span></div>
+  <div class="hbar"><span class="hk" title="c10.9">KOACH</span><span class="hbar__r"><button class="dashBtn" onclick="dashMenu()" aria-label="Vista del dashboard">VISTA</button><span class="rol" id="rolBadge" onclick="salir()">COACH</span></span></div>
   <div class="adAcc" id="accesos"></div>
   <div class="glass aform" id="fAlta" style="display:none">
     <h4>CREAR USUARIO — ENTRA AL INSTANTE CON SU CORREO Y CLAVE</h4>
@@ -951,7 +1020,7 @@ html.en-sala[data-dash="tablet"] .salaQ input{font-size:18px}
     <div id="pReqs"></div>
   </div>
   <div class="glass viva" id="pVivo" style="display:none">
-    <h3><span>DOSIFICADOR POR GRUPO MUSCULAR</span><span id="pVivoTit">—</span></h3>
+    <h3><span>DOSIFICACIÓN SEMANAL</span><span id="pVivoTit">—</span></h3>
     <div id="pVivoDose"></div>
   </div>
   <div id="pOrgRow" style="display:flex;justify-content:flex-end;margin-bottom:7px">
@@ -959,11 +1028,13 @@ html.en-sala[data-dash="tablet"] .salaQ input{font-size:18px}
   </div>
   <div class="mtabs" id="pTabs"></div>
   <div class="plIndRow"><span id="plSaveInd" class="plInd">GUARDADO ✓</span></div>
-  <div id="pBloques" style="padding-bottom:120px"></div>
-  <div id="plSave" class="plSave plSave--ok" style="display:none"><span id="plSaveMsg"></span><button id="plSaveBtn" onclick="plGuardar()" disabled>GUARDADO ✓</button></div>
-  <div class="guardia vis2" id="pGuardia" style="padding-top:11px">
-    <div class="gt1" id="pFootMsg">GUARDAR CAMBIOS PERSISTE LA SESIÓN · APLICAR PROGRAMA LA PUBLICA AL SOCIO</div>
-    <button class="gb" onclick="aplicarPrograma()">APLICAR PROGRAMA →</button>
+  <div id="pBloques"></div>
+  <div class="plDock" id="pGuardia">
+    <div class="plDock__in">
+      <div id="plSave" class="plSave plSave--ok"><span id="plSaveMsg" class="plDock__st">GUARDADO ✓</span><button id="plSaveBtn" class="plDock__save" onclick="plGuardar()" disabled>GUARDAR</button></div>
+      <button class="gb plDock__apl" type="button" onclick="plAplicar()">APLICAR PROGRAMA →</button>
+    </div>
+    <div class="gt1 plDock__msg" id="pFootMsg"></div>
   </div>
 </div>
 
@@ -1173,14 +1244,15 @@ html.en-sala[data-dash="tablet"] .salaQ input{font-size:18px}
 </div>
 
 <!-- SELECTOR DE EJERCICIOS -->
-<div id="selEj" style="display:none;position:fixed;inset:0;z-index:60;background:rgba(18,18,16,.4);backdrop-filter:blur(6px)">
-  <div style="position:absolute;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:560px;max-height:78vh;background:var(--koach-surface);border-radius:10px 10px 0 0;padding:16px 14px;overflow-y:auto">
-    <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
-      <div style="font-size:8px;letter-spacing:.18em;font-weight:900;color:var(--koach-text-secondary)" id="selTit">ELEGIR EJERCICIO</div>
-      <button onclick="cerrarSelector()" style="margin-left:auto;border:none;background:rgba(18,18,16,.07);border-radius:10px;padding:8px 12px;font-weight:900;cursor:pointer">✕</button></div>
-    <div id="selChips" style="display:flex;gap:6px;overflow-x:auto;padding-bottom:8px;margin-bottom:6px"></div>
-    <input id="selBusca" placeholder="Buscar ejercicio…" oninput="pintarSelector()" style="margin-bottom:10px">
-    <div id="selLista"></div>
+<div id="selEj" class="selM" style="display:none" role="dialog" aria-modal="true" aria-labelledby="selTit" onclick="if(event.target===this)cerrarSelector()">
+  <div class="selM__c">
+    <div class="selM__h">
+      <div class="selM__top"><div class="selM__t" id="selTit">SELECCIONAR EJERCICIO</div>
+        <button type="button" class="selM__x" onclick="cerrarSelector()" aria-label="Cerrar">✕</button></div>
+      <label class="selM__q"><span aria-hidden="true">⌕</span><input id="selBusca" type="search" placeholder="Buscar ejercicio…" autocomplete="off" oninput="selBuscar()" onkeydown="selTecla(event)" aria-label="Buscar ejercicio por nombre"></label>
+      <div id="selChips" class="selM__chips"></div>
+    </div>
+    <div class="selM__l" id="selScroll"><div id="selLista" role="listbox" aria-labelledby="selTit"></div></div>
   </div>
 </div>
 
@@ -2518,16 +2590,42 @@ async function quitarEj(beId){
   if(!confirm('¿Quitar '+x.it.nombre+' de este bloque?'))return
   x.b.items=x.b.items.filter(function(i){return String(i.beId)!==String(beId)}); plDirty(); repintarConservando()
 }
+// c10.9 · Selector de ejercicios. Causa del "abre abajo": el modal se reutiliza y su contenedor con scroll nunca volvía a 0
+// (conservaba el desplazamiento de la apertura anterior); además "cambiar" filtraba de entrada al grupo del ejercicio.
+// Regla: siempre abre ARRIBA, sin filtro previo; el ejercicio actual solo se marca.
 function abrirSelector(modo,bi,beId){
-  let grupo = null
-  if (modo==='cambiar' && beId){ const x=planItem(beId); if(x) grupo = x.it.grupo || null }
-  SEL={modo:modo,bi:bi,beId:beId,grupo:grupo}
+  let actual = null
+  if (modo==='cambiar' && beId){ const x=planItem(beId); if(x) actual = x.it.ejId || null }
+  SEL={modo:modo,bi:bi,beId:beId,grupo:null,actual:actual,foco:-1}
   document.getElementById('selTit').textContent = modo==='agregar'?'AGREGAR EJERCICIO AL BLOQUE':'CAMBIAR EJERCICIO'
   document.getElementById('selBusca').value=''
-  document.getElementById('selEj').style.display='block'
+  document.getElementById('selEj').style.display='flex'
+  document.documentElement.classList.add('selAbierto')
   pintarChipsSel()
   pintarSelector()
+  selArriba()
+  if (matchMedia('(pointer:fine)').matches) setTimeout(function(){ document.getElementById('selBusca').focus({preventScroll:true}) },30)
 }
+function selArriba(){ const sc=document.getElementById('selScroll'); if(sc) sc.scrollTop=0 }
+function selBuscar(){ SEL.foco=-1; pintarSelector(); selArriba() }
+// Orden: grupos en el orden funcional existente (MORD del catálogo) y ejercicios alfabéticos dentro de cada grupo
+const SEL_COL = (typeof Intl!=='undefined' && Intl.Collator) ? new Intl.Collator('es', { sensitivity:'base', numeric:true }) : { compare:function(a,b){ return String(a).localeCompare(String(b)) } }
+function selGrupos(lista){
+  const M=(EJCAT&&EJCAT._mord)||[], porG={}, vistos={}
+  lista.forEach(function(e){ if(vistos[e.id]) return; vistos[e.id]=1; const g=e.grupo_muscular||'OTROS'; (porG[g]=porG[g]||[]).push(e) })
+  return Object.keys(porG).sort(function(a,b){ const ia=M.indexOf(a), ib=M.indexOf(b); return (ia<0?99:ia)-(ib<0?99:ib) || SEL_COL.compare(a,b) })
+    .map(function(g){ return { g:g, items:porG[g].sort(function(a,b){ return SEL_COL.compare(a.nombre||'', b.nombre||'') }) } })
+}
+function selTecla(ev){
+  const filas=[...document.querySelectorAll('#selLista .selRow')]
+  if (ev.key==='Escape'){ ev.preventDefault(); cerrarSelector(); return }
+  if (ev.key==='ArrowDown'||ev.key==='ArrowUp'){ ev.preventDefault(); if(!filas.length) return
+    SEL.foco = Math.max(0, Math.min(filas.length-1, (SEL.foco<0 && ev.key==='ArrowDown') ? 0 : SEL.foco+(ev.key==='ArrowDown'?1:-1)))
+    filas.forEach(function(f,i){ f.classList.toggle('kb',i===SEL.foco); f.setAttribute('aria-selected', i===SEL.foco) })
+    filas[SEL.foco].scrollIntoView({block:'nearest'}); return }
+  if (ev.key==='Enter'){ ev.preventDefault(); const f = filas[SEL.foco>=0?SEL.foco:0]; if (f && (SEL.foco>=0 || filas.length===1)) f.click() }
+}
+document.addEventListener('keydown', function(ev){ if (ev.key==='Escape' && document.getElementById('selEj') && document.getElementById('selEj').style.display!=='none' && document.activeElement && document.activeElement.id!=='selBusca') cerrarSelector() })
 function pintarChipsSel(){
   const grupos = []
   ;(EJCAT||[]).forEach(function(e){ const g=e.grupo_muscular||''; if(g && grupos.indexOf(g)===-1) grupos.push(g) })
@@ -2536,21 +2634,25 @@ function pintarChipsSel(){
   const chip = function(txt, val){
     const on = SEL.grupo===val
     const arg = (val===null) ? 'null' : ('\''+val+'\'')
-    return '<button onclick="setGrupoSel('+arg+')" style="flex-shrink:0;border:none;border-radius:8px;padding:8px 12px;font-size:7.5px;font-weight:900;letter-spacing:.06em;cursor:pointer;'+
-      (on?'background:#121210;color:#F3F2EF':'background:rgba(18,18,16,.07);color:var(--koach-text-secondary)')+'">'+txt+'</button>'
+    return '<button type="button" class="selChip'+(on?' on':'')+'" aria-pressed="'+on+'" onclick="setGrupoSel('+arg+')">'+txt+'</button>'
   }
-  document.getElementById('selChips').innerHTML = chip('VER TODOS', null) + grupos.map(function(g){ return chip(g, g) }).join('')
+  document.getElementById('selChips').innerHTML = chip('TODOS', null) + grupos.map(function(g){ return chip(SIGLA[g]||g, g) }).join('')
 }
-function setGrupoSel(g){ SEL.grupo=g; pintarChipsSel(); pintarSelector() }
-function cerrarSelector(){ document.getElementById('selEj').style.display='none' }
+function setGrupoSel(g){ SEL.grupo=g; SEL.foco=-1; pintarChipsSel(); pintarSelector(); selArriba() }
+function cerrarSelector(){ document.getElementById('selEj').style.display='none'; document.documentElement.classList.remove('selAbierto') }
+function _selNorm(t){ return String(t||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'') }
 function pintarSelector(){
-  const q=(document.getElementById('selBusca').value||'').toLowerCase()
+  const q=_selNorm(document.getElementById('selBusca').value)
   const lista=(EJCAT||[]).filter(function(e){
     if (SEL.grupo && (e.grupo_muscular||'')!==SEL.grupo) return false
-    return !q || (e.nombre||'').toLowerCase().indexOf(q)>-1 || (e.grupo_muscular||'').toLowerCase().indexOf(q)>-1 })
-  document.getElementById('selLista').innerHTML = lista.slice(0,80).map(function(e){
-    return '<div class="selRow" onclick="elegirEj(\''+e.id+'\')"><span class="selG">'+(e.grupo_muscular||'')+'</span><span class="selN">'+e.nombre+'</span></div>'
-  }).join('') || '<div class="vacio">Sin resultados</div>'
+    return !q || _selNorm(e.nombre).indexOf(q)>-1 })
+  const gr=selGrupos(lista)
+  document.getElementById('selLista').innerHTML = gr.length ? gr.map(function(G){
+    return '<div class="selGH" role="presentation"><b>'+(SIGLA[G.g]||G.g)+'</b><small>'+G.g+' · '+G.items.length+'</small></div>'+
+      G.items.map(function(e){ const act = SEL.actual && String(e.id)===String(SEL.actual)
+        return '<div class="selRow'+(act?' act':'')+'" role="option" tabindex="-1" aria-selected="false" onclick="elegirEj(\''+e.id+'\')"><span class="selN">'+plEsc(e.nombre)+'</span>'+
+          (act?'<span class="selAct">ACTUAL</span>':'')+(e.implemento?'<span class="selImp">'+String(e.implemento).replace('_',' ')+'</span>':'')+'</div>' }).join('')
+  }).join('') : '<div class="selVacio"><p>NO ENCONTRAMOS ESE EJERCICIO</p><button type="button" class="eBtn" onclick="document.getElementById(\'selBusca\').value=\'\';setGrupoSel(null)">LIMPIAR BÚSQUEDA</button></div>'
 }
 async function elegirEj(ejId){
   const e=(EJCAT||[]).find(function(x){return String(x.id)===String(ejId)}); if(!e)return
@@ -2584,63 +2686,36 @@ function calcDose(){
       return {sets:b.sets,ejercicios:b.items.map(function(it){return {grupo:it.grupo, sinergistas:it.sinergistas, cuenta_dosis:it.cuentaDosis}})} })})
     Object.entries(a).forEach(function(p2){ acum[p2[0]]=(acum[p2[0]]||0)+p2[1] })
   })
-  const sem = (!P.base && F && C.sems[F.id] && _esVig) ? C.sems[F.id] : null
-  const real = sem ? sem.acum : {}
-  const objetivos = P.objetivos||{}
-  // UNIVERSO: todo estímulo presente en la programación, en lo realizado o con meta
-  const universo={}
-  Object.keys(acum).forEach(function(g){universo[g]=1})
-  Object.keys(real).forEach(function(g){universo[g]=1})
-  Object.keys(objetivos).forEach(function(g){ if(objetivos[g].exigible!==false) universo[g]=1 })
-  const hechas = {}
-  ;((!P.base && F && C.regs[F.id])||[]).forEach(function(r){ if(ESTADOS_OK.indexOf(r.estado)>-1 && r.estado!=='incompleta') hechas[r.sesion_protocolo_id]=1 })
-  let nH = 0
-  _pool.forEach(function(s){ if(hechas[s.id] || (PL.hecho&&PL.hecho[s.id])) nH++ })
-  const pct = sem ? sem.pct_dosis : 0
-  document.getElementById('pVivoTit').innerHTML = P.base
-    ? '<b>PROYECCIÓN DE LA BASE · '+P.sesiones.length+' SESIONES</b>'
-    : '<b>'+(plActivo()?'SEM '+PL.w+' · ':'')+nH+'/'+_pool.length+' SESIONES'+(_esVig?' · '+pct+'%':'')+'</b>'
-  let alerta = ''
-  // DOSIFICADOR (c10.1): META = series que el KOACH programó · EJECUTADO = series realmente hechas.
-  // Escala fija de lectura 0 · 10 · 20 · 20+ (referencias, no metas). La marca gris es la META dinámica.
-  const dzPos=function(v){ return v<=20 ? v/20*85 : 85+Math.min((v-20)/6*15,15) }
-  const f1=function(x){ return +(+x).toFixed(1) }
-  const filas = Object.keys(universo).filter(function(g){ return (acum[g]||0)>0 || (real[g]||0)>0 }).map(function(g){
-    const meta=acum[g]||0, rv=(real[g]||0)
-    let tag='SIN EJECUTAR', prio=2
-    if (rv>0 && meta>0 && rv<meta){ tag='EN PROGRESO'; prio=1 }
-    else if (meta>0 && Math.abs(rv-meta)<0.05){ tag='META CUMPLIDA'; prio=3 }
-    else if (rv>meta && rv>0){ tag='SOBRE LO PROGRAMADO'; prio=0 }
-    const esc='<em style="left:0" data-l="0"></em><em style="left:42.5%" data-l="10"></em><em style="left:85%" data-l="20"></em><em style="left:100%" data-l="+"></em>'
-    return { g:g, prio:prio, v:meta, html:'<div class="dzS">'+
-      '<div class="dzS__h"><span class="g3">'+(SIGLA[g]||g)+'</span><span class="dzChip">'+tag+'</span>'+
-        '<span class="dzNums">'+f1(rv)+' / '+f1(meta)+' SERIES</span></div>'+
-      '<div class="dzS__t">'+esc+'<div class="dzS__e" style="width:'+dzPos(rv)+'%"></div>'+(meta>0?'<span class="dzS__m" style="left:'+dzPos(meta)+'%" title="META '+f1(meta)+'"></span>':'')+'</div><div class="dzS__esc"></div></div>' }
-  })
-  const ORD=['PECHO','ESPALDA','HOMBROS','TRÍCEPS','BÍCEPS','CORE','GLÚTEOS','CUÁDRICEPS','ISQUIOS','GEMELOS','CARDIO','MOVILIDAD']
-  const esMeta=function(fi){ return (acum[fi.g]||0)>0 }
-  filas.sort(function(a,b){
-    const ma=esMeta(a)?0:1, mb=esMeta(b)?0:1
-    if (ma!==mb) return ma-mb
-    const ia=ORD.indexOf(a.g), ib=ORD.indexOf(b.g)
-    return (ia<0?99:ia)-(ib<0?99:ib) })
-  const nMetas = filas.filter(function(fi){ return (acum[fi.g]||0)>0 }).length
-  const nCumplidas = filas.filter(function(fi){ const m=acum[fi.g]||0; return m>0 && (real[fi.g]||0)>=m-0.05 }).length
-  const nMetasVisibles = filas.filter(esMeta).length
-  const LIM=Math.max(6,nMetasVisibles)
-  const lista = P.vivoAll ? filas : filas.slice(0,LIM)
-  const btn = filas.length>LIM
-    ? '<button onclick="P.vivoAll=!P.vivoAll;calcDose()" style="width:100%;border:none;background:none;padding:9px 0 2px;font-size:7px;font-weight:900;letter-spacing:.12em;color:var(--koach-text-secondary);cursor:pointer">'+
-      (P.vivoAll?'▲ VER MENOS':'▼ VER TAMBIÉN LOS ESTÍMULOS LIBRES ('+(filas.length-nMetasVisibles)+')')+'</button>' : ''
-  const cabecera='<div style="font-family:var(--font-mono);font-weight:500;font-size:11px;letter-spacing:.04em;color:var(--koach-text-primary);margin:0 0 8px">'+nCumplidas+' / '+nMetas+' GRUPOS CON META CUMPLIDA</div>'
-  const regla=cabecera+'<div class="dzRule"><span style="width:14px"></span><div class="dzScale">'+
-    '<s style="left:0%">0</s><s style="left:42.5%">10</s><s style="left:85%">20</s><s style="left:100%">20+</s></div><span></span></div>'+
-    '<div class="dzLeg">META = SERIES QUE PROGRAMASTE · BARRA = EJECUTADO POR EL SOCIO · 10 Y 20 SON REFERENCIAS DE LECTURA</div>'
-  const dzHTML = regla + lista.map(function(f){return f.html}).join('') + btn
-  document.getElementById('pVivoDose').innerHTML = dzHTML
+  // c10.9 · DOSIFICACIÓN SEMANAL = series efectivas PROGRAMADAS (borrador local incluido). Nada de ejecución del socio.
+  // Motor existente (KD.aporteSesionDOC3): por ejercicio, sets del bloque × coeficiente de cada músculo de su perfil;
+  // excluye cuenta_dosis=false (CARDIO/MOVILIDAD) y lo que no es músculo (GLOBAL). Una fila por grupo canónico.
+  const ORD=['PECHO','ESPALDA','HOMBROS','TRÍCEPS','BÍCEPS','CORE','GLÚTEOS','CUÁDRICEPS','ISQUIOS','GEMELOS']
+  const gs=Object.keys(acum).filter(function(g){ return acum[g]>0.0001 })
+    .sort(function(a,b){ const ia=ORD.indexOf(a), ib=ORD.indexOf(b); return (ia<0?99:ia)-(ib<0?99:ib) || a.localeCompare(b) })
+  const maxV=gs.reduce(function(m,g){ return Math.max(m,acum[g]) },0)
+  const dom=Math.max(30, Math.ceil((maxV+0.0001)/10)*10)
+  const X=function(v){ return Math.max(0,Math.min(100, v/dom*100)) }
+  const f1=function(x){ return (Math.round(x*10)/10).toFixed(1) }
+  const ticks=[]; for (let t=10; t<=dom; t+=10) ticks.push(t)
+  const REF={10:'MEV',20:'REFERENCIA',30:'TECHO'}
+  const nSes=_pool.length
+  document.getElementById('pVivoTit').innerHTML = P.base ? 'BASE · '+nSes+' SESIONES' : (plActivo()?'SEMANA '+PL.w+' · ':'')+nSes+' SESION'+(nSes===1?'':'ES')
+  const escala='<div class="dsx"><span class="dsx__g"></span><div class="dsx__t">'+
+    ticks.map(function(t){ return '<i class="'+(REF[t]?'ref':'')+'" style="left:'+X(t)+'%">'+t+'</i>' }).join('')+'</div><span class="dsx__v"></span></div>'
+  const filas=gs.map(function(g){ const v=acum[g], sig=SIGLA[g]||g
+    const tip=sig+' · '+f1(v)+' SERIES EFECTIVAS PROGRAMADAS'+(plActivo()?' · SEMANA '+PL.w:'')
+    return '<div class="dsr"><span class="dsr__g">'+sig+'</span><div class="dsr__t" title="'+tip+'">'+
+      ticks.map(function(t){ return '<i class="'+(REF[t]?'ref':'')+'" style="left:'+X(t)+'%"></i>' }).join('')+
+      '<div class="dsr__f" style="width:'+X(v)+'%"></div><span class="dsr__m" style="left:'+X(v)+'%" aria-label="'+tip+'"></span></div>'+
+      '<span class="dsr__v">'+f1(v)+'</span></div>' }).join('')
+  document.getElementById('pVivoDose').innerHTML =
+    '<div class="dsHead"><span>SERIES EFECTIVAS PROGRAMADAS</span><span class="dsLeg"><b>10</b> MEV · <b>20</b> REFERENCIA · <b>30</b> TECHO</span></div>'+
+    (gs.length ? escala+filas+'<div class="dsNota">Referencias operativas KOACH para auditar la semana; no son reglas universales.</div>'
+               : '<div class="dsVacio">Esta semana todavía no tiene series efectivas programadas.</div>')
+  const alerta=''
   try{ if (!P.base && typeof F!=='undefined' && F && F.id && _reqFor!==F.id){ _reqFor=F.id; cargarSolicitudes(F.id) } }catch(_e){}
   const fm=document.getElementById('pFootMsg')
-  if(fm) fm.textContent = alerta ? (alerta+' — LA APP ORIENTA, EL COACH PROGRAMA') : 'SE GUARDA AL INSTANTE · LA APP ORIENTA, EL COACH PROGRAMA'
+  if(fm){ fm.textContent = P.base ? '⚙ EDITAS LA BASE MAESTRA — CLONES EXISTENTES NO CAMBIAN' : ''; fm.style.display = P.base ? '' : 'none' }
 }
 // ═══ ORGANIZADOR SEMANAL (playlist) ═══
 const CONT_BLOQUES='7184a0bc-a107-42dc-89b7-951f7cfd2909'
@@ -4012,14 +4087,14 @@ function plPayload(s){
 function plSaveUI(estado){
   const bar=document.getElementById('plSave'), ind=document.getElementById('plSaveInd'); if(!bar) return
   const enMicro = P && (!plActivo() || PL.nivel==='micro') && document.getElementById('vPlan').classList.contains('on')
-  bar.style.display = enMicro ? '' : 'none'
+  bar.style.visibility = enMicro ? '' : 'hidden'
   const s=plSesActual(), sucio = !!(s && P.dirty && P.dirty[s.id])
   const btn=document.getElementById('plSaveBtn')
   const E = estado || (sucio ? 'dirty' : 'ok')
   bar.className='plSave plSave--'+E
   btn.disabled = (E==='ok' || E==='saving')
-  btn.textContent = {ok:'GUARDADO ✓', dirty:'GUARDAR CAMBIOS →', saving:'GUARDANDO…', done:'✓ CAMBIOS GUARDADOS', err:'REINTENTAR GUARDADO'}[E]
-  document.getElementById('plSaveMsg').textContent = E==='err' ? 'NO SE PUDIERON GUARDAR LOS CAMBIOS' : E==='dirty' ? 'CAMBIOS SIN GUARDAR · '+String(s.nombre||'').toUpperCase() : ''
+  btn.textContent = {ok:'GUARDAR', dirty:'GUARDAR CAMBIOS', saving:'GUARDANDO…', done:'GUARDAR', err:'REINTENTAR'}[E]
+  document.getElementById('plSaveMsg').textContent = {ok:'GUARDADO ✓', dirty:'CAMBIOS SIN GUARDAR', saving:'GUARDANDO…', done:'GUARDADO ✓', err:'ERROR AL GUARDAR'}[E]
   if (ind){ ind.textContent = sucio ? 'CAMBIOS SIN GUARDAR' : 'GUARDADO ✓'; ind.className='plInd'+(sucio?' is-dirty':'') }
 }
 async function plReabrir(){
@@ -4362,6 +4437,13 @@ function gpObsoleto(){
   document.getElementById('gpBody').innerHTML='<p class="gpTxt">El programa de este socio cambió (en otra pestaña o por otro coach). Para no escribir sobre un ciclo cerrado, <b>no se guardaron estos cambios</b>.</p>'+
     '<button type="button" class="mSG__ok" onclick="gpCerrar();if(P)P.dirty={};loadSala().then(function(){location.hash=\'#/socio/'+(F?F.id:'')+'/plan\';rtAplicar()})">ABRIR EL PROGRAMA ACTUAL</button>'
   m.style.display='flex'
+}
+// c10.9 · APLICAR PROGRAMA con cambios sin guardar: primero guarda (y verifica); solo si el guardado se confirma, aplica.
+async function plAplicar(){
+  if (P && P.ro){ toast('Ciclo cerrado: solo lectura'); return }
+  const s=plSesActual()
+  if (s && P.dirty && P.dirty[s.id]){ const ok=await plGuardar(); if (ok===false){ toast('Primero hay que guardar los cambios: el guardado falló, no se aplicó el programa.'); return } }
+  aplicarPrograma()
 }
 let MG={primero:null}
 async function aplicarPrograma(){

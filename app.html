@@ -972,12 +972,15 @@ body.wl-on{overflow:hidden}
 /* ═══ v11.0 · WELCOME / ACCESO (foto + marca + mensaje + dos decisiones) ═══ */
 #vLogin{background:#000}
 .wel{position:relative;z-index:1;max-width:520px;margin:0 auto;min-height:100dvh;box-sizing:border-box;display:flex;flex-direction:column;justify-content:space-between;
-  padding:calc(env(safe-area-inset-top,0px) + 26px) 8px calc(env(safe-area-inset-bottom,0px) + 26px);transition:opacity .22s ease, transform .22s ease}
+  padding:calc(env(safe-area-inset-top,0px) + 26px) 8px calc(env(safe-area-inset-bottom,0px) + 18px);transition:opacity .22s ease, transform .22s ease}
 .wel__logo{width:40px;height:auto;display:block;opacity:.96}
 .wel__firma{font-family:var(--font-display);font-weight:700;font-size:13px;letter-spacing:.22em;color:#fff;margin-bottom:12px}
 .wel__h{margin:0;font-family:var(--font-display);font-weight:700;font-size:clamp(32px,9.6vw,42px);line-height:1.02;letter-spacing:-.01em;color:#fff;text-wrap:balance}
 .wel__sub{margin:14px 0 0;font-family:var(--font-display);font-weight:400;font-size:clamp(17px,4.6vw,19px);line-height:1.42;color:#BFC4C8}
-.wel__cta{display:flex;flex-direction:column;gap:12px;margin-top:clamp(24px,4.5vh,36px)}
+.wel__cta{display:flex;flex-direction:column;gap:10px;margin-top:clamp(72px,13vh,124px)}
+.wel__alt{align-self:center;min-height:48px;padding:0 18px;background:none;border:none;cursor:pointer;font-family:var(--font-display);font-weight:500;font-size:15.5px;
+  color:#D4D8DB;text-decoration:underline;text-decoration-color:rgba(212,216,219,.35);text-underline-offset:5px}
+.wel__alt:focus-visible{outline:2px solid #fff;outline-offset:2px;border-radius:8px}
 .wel__b{display:flex;align-items:center;justify-content:center;gap:12px;width:100%;min-height:62px;border-radius:999px;cursor:pointer;
   font-family:var(--font-display);font-weight:700;font-size:16.5px;letter-spacing:.12em;transition:transform .12s ease, background .2s ease}
 .wel__b--pri{background:#ECEDEE;color:#0A0A0A;border:1px solid #ECEDEE;justify-content:space-between;padding:0 28px}
@@ -1068,11 +1071,10 @@ body.wl-on{overflow:hidden}
       <img class="wel__logo" src="/img/brand/isotipo-blanco.png" alt="KOACH" width="46" height="48">
       <div class="wel__body">
         <div class="wel__firma">KOACH FITNESS CLUB</div>
-        <h1 class="wel__h">TU VERSIÓN MÁS FUERTE<br>COMIENZA AQUÍ.</h1>
-        <p class="wel__sub">Entrena con propósito.<br>Nosotros nos encargamos del resto.</p>
+        <h1 class="wel__h">TU VERSIÓN<br>MÁS FUERTE<br>COMIENZA AQUÍ.</h1>
         <div class="wel__cta">
-          <button type="button" class="wel__b wel__b--pri" onclick="authVista('fReg')">QUIERO UNIRME <span aria-hidden="true">→</span></button>
-          <button type="button" class="wel__b wel__b--sec" onclick="authVista('fLogin')">INICIAR SESIÓN</button>
+          <button type="button" class="wel__b wel__b--pri" onclick="authVista('fLogin')">INICIAR SESIÓN <span aria-hidden="true">→</span></button>
+          <button type="button" class="wel__alt" onclick="authVista('fReg')">Crear mi cuenta</button>
         </div>
       </div>
     </div>
@@ -1853,7 +1855,8 @@ function fLocal(d){ const z=new Date(d.getTime()-d.getTimezoneOffset()*60000); r
 function lunes(){ const h=new Date(),d=(h.getDay()+6)%7,l=new Date(h); l.setDate(h.getDate()-d); l.setHours(0,0,0,0); return l }
 
 /* ══ UTILIDADES ══ */
-function vista(id){ document.querySelectorAll('.vista').forEach(v=>v.classList.toggle('on',v.id===id)); window.scrollTo(0,0); if(id==='vLogin') fotoLogin() }
+function vista(id){ document.querySelectorAll('.vista').forEach(v=>v.classList.toggle('on',v.id===id)); window.scrollTo(0,0); if(id==='vLogin') fotoLogin()
+  if (id!=='vSesion' && S && S._planPend) setTimeout(function(){ planActualizado('pendiente') }, 50) }
 function toast(m){ let t=document.querySelector('.toast'); if(!t){t=document.createElement('div');t.className='toast';document.body.appendChild(t)}
   t.textContent=m; t.classList.add('vis'); clearTimeout(t._x); t._x=setTimeout(()=>t.classList.remove('vis'),2400) }
 // Fondo del login: foto del KOACH guiando a una clienta. Mientras llega, grafito; luego fade-in (no bloquea el formulario).
@@ -2004,7 +2007,7 @@ async function entrar(opts){
     const { data:{ session:_ses } } = await sb.auth.getSession()   // local: no depende de la red para saber quién es
     const user = _ses && _ses.user
     if (!user){ if (hayTokenGuardado()) authEspera(true); else { authListo(); vista('vLogin') } return }
-    authListo()
+    authListo(); rtPlanSuscribir(user.id)
     // F-PERF · caché-primero: pintar al instante, revalidar en silencio
     try{
       const snap = JSON.parse(localStorage.getItem('kc_snap_'+user.id)||'null')
@@ -2152,7 +2155,60 @@ function refrescoSocio(){
   entrar({silent:true})
 }
 document.addEventListener('visibilitychange', refrescoSocio)
-setInterval(refrescoSocio, 60000)
+window.addEventListener('online', function(){ S._lastLoad=0; refrescoSocio() })
+setInterval(refrescoSocio, 300000)   // respaldo cada 5 min; la vía principal es Realtime
+// ═══ v11.1 · COACH → SOCIO EN VIVO ═══
+// Realtime solo avisa "algo cambió" (fila de su asignación: plan_revision sube 1 vez por guardado confirmado, al COMMIT).
+// La verdad se vuelve a consultar con la carga normal. RLS: el socio solo recibe sus propias filas (socio_id = auth.uid()).
+// Si está ejecutando una sesión, NO se toca lo que está registrando: el cambio queda pendiente y se aplica al salir de la sesión.
+let _rtCanal=null, _rtDeb=null
+function rtPlanSuscribir(uid){
+  if (_rtCanal || !uid || !sb.channel) return
+  _rtCanal = sb.channel('plan:'+uid)
+    .on('postgres_changes', { event:'*', schema:'public', table:'asignaciones', filter:'socio_id=eq.'+uid }, function(){
+      clearTimeout(_rtDeb); _rtDeb=setTimeout(function(){ planActualizado('rt') }, 600) })
+    .subscribe(function(st){
+      if (st==='SUBSCRIBED'){ if (_rtCanal && _rtCanal._caido){ _rtCanal._caido=false; planActualizado('reconexion') } }
+      else if (st==='CHANNEL_ERROR' || st==='TIMED_OUT' || st==='CLOSED'){ if(_rtCanal) _rtCanal._caido=true } })
+}
+function aplicarEnSesion(nueva){
+  const vieja=S.sesionAbierta||{}, conSets=new Set()
+  Object.keys(S.setLog||{}).forEach(function(k){ if(k.indexOf('be:')===0) conSets.add(k.slice(3).split('#')[0]) })
+  const viejoBe={}; (vieja.bloquesFull||[]).forEach(function(b){ (b.bloque_ejercicios||[]).forEach(function(be){ viejoBe[be.id]=be }) })
+  // ejercicio con sets ya registrados → se mantiene tal cual (no se reescribe su ejecución)
+  const bf=(nueva.bloquesFull||[]).map(function(b){ return Object.assign({},b,{ bloque_ejercicios:(b.bloque_ejercicios||[]).map(function(be){ return (conSets.has(be.id)&&viejoBe[be.id]) ? viejoBe[be.id] : be }) }) })
+  // si el coach quitó un ejercicio que el socio ya empezó a registrar, se conserva en su bloque
+  ;(vieja.bloquesFull||[]).forEach(function(b){ (b.bloque_ejercicios||[]).forEach(function(be){
+    if (conSets.has(be.id) && !bf.some(function(x){ return (x.bloque_ejercicios||[]).some(function(y){ return y.id===be.id }) })){
+      const tb=bf.find(function(x){ return x.id===b.id }) || bf.find(function(x){ return x.bloque===b.bloque }); if (tb) tb.bloque_ejercicios.push(be) } }) })
+  Object.keys(S.wk||{}).forEach(function(id){ if(!conSets.has(id)) delete S.wk[id] })   // lo no registrado toma la nueva prescripción
+  S.sesionAbierta=Object.assign({}, nueva, { bloquesFull:bf })
+  pintarSesion()
+}
+function planFirma(){ try{ return JSON.stringify([S.programa, (S.asig||{}).semana_actual, (S.asig||{}).protocolo_id]) }catch(_e){ return '' } }
+async function planActualizado(origen){
+  if (!S.perfil) return
+  const on=(document.querySelector('.vista.on')||{}).id
+  if (planActualizado._run) { planActualizado._otra=true; return }
+  if (on==='vSesion'){
+    // Sesión abierta: se actualiza la prescripción de lo que AÚN NO se registra; lo ya registrado no se toca.
+    const sid=S.sesionAbierta && S.sesionAbierta.id
+    planActualizado._run=true
+    try{ await entrar({ silent:true }) } finally { planActualizado._run=false }
+    const nueva = sid && S.programa && (S.programa.sesiones||[]).find(function(x){ return x.id===sid })
+    if (!nueva){ S._planPend=true; if(!S._avisoPend){ S._avisoPend=true; toast('Tu KOACH actualizó tu plan · lo verás al terminar esta sesión') } return }
+    const antes=JSON.stringify(S.sesionAbierta.bloquesFull||[])
+    aplicarEnSesion(nueva)
+    if (JSON.stringify(S.sesionAbierta.bloquesFull||[])!==antes) toast('Tu KOACH actualizó esta sesión ✓')
+    if (planActualizado._otra){ planActualizado._otra=false; planActualizado('rt') }
+    return }
+  planActualizado._run=true
+  const antes=planFirma()
+  try{ await entrar({ silent:true }) } finally { planActualizado._run=false }
+  S._planPend=false; S._avisoPend=false
+  if (origen!=='reconexion' && planFirma()!==antes) toast('Tu KOACH actualizó tu plan ✓')
+  if (planActualizado._otra){ planActualizado._otra=false; planActualizado('rt') }
+}
 function sinPrograma(msg){
   document.getElementById('hSaludo').textContent = 'Hola, '+((S.perfil?.nombre)||'socio')+'.'
   document.getElementById('hVoz').innerHTML = msg || 'Tu cuenta está lista. <b>En tu próxima visita, el equipo KOACH activa tu membresía y tu plan.</b> Nos vemos en la sala.'
