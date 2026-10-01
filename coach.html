@@ -705,6 +705,33 @@ html.en-sala[data-dash="tablet"] .salaQ input{font-size:18px}
 #vSala .st3 span{font-size:11px !important}
 #vSala .badge{font-size:11px !important}
 #vSala .sem .x2{font-size:12px !important}
+
+/* ═══ c10.8 · GESTIONAR PROGRAMA ═══ */
+.gpBtn{flex:1 1 100%;margin-top:8px}
+.mSG__c.gp{max-width:520px;max-height:calc(100dvh - 40px);overflow:auto}
+.gpAct{border:1px solid rgba(18,18,18,.14);border-radius:14px;padding:12px 14px;margin:6px 0 14px}
+.gpAct small,.gpLbl{display:block;font-family:var(--font-mono);font-size:11px;letter-spacing:.14em;color:#5E5D59}
+.gpAct b{display:block;margin-top:4px;font-family:var(--font-display);font-size:19px;color:#121212}
+.gpAct span{display:block;margin-top:2px;font-family:var(--font-mono);font-size:12.5px;letter-spacing:.06em;color:#121212}
+.gpAct em{display:block;margin-top:6px;font-style:normal;font-size:13px;color:#5E5D59}
+.gpLbl{margin:14px 0 8px}
+.gpChips{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.gpChip{min-height:56px;border-radius:12px;border:1px solid rgba(18,18,18,.18);background:transparent;cursor:pointer;padding:8px;text-align:left}
+.gpChip b{display:block;font-family:var(--font-display);font-size:15px;color:#121212}
+.gpChip small{display:block;margin-top:2px;font-family:var(--font-mono);font-size:10.5px;letter-spacing:.04em;color:#5E5D59}
+.gpChip.on{background:#121212;border-color:#121212}.gpChip.on b,.gpChip.on small{color:#F4F3F0}
+.gpChips--n .gpChip{min-height:48px;text-align:center}
+.gpGo{margin-top:16px}
+.gpTxt{font-size:15px;line-height:1.5;color:#121212;margin:4px 0 14px}
+.gpErr{font-size:13px;color:#8A1C1C;margin:8px 0}
+.gpCarga{padding:20px 0;font-family:var(--font-mono);font-size:12px;letter-spacing:.12em;color:#5E5D59}
+.gpAnt{display:flex;align-items:center;gap:10px;padding:10px 0;border-top:1px solid rgba(18,18,18,.1)}
+.gpAnt span{flex:1}.gpAnt b{display:block;font-size:14px;color:#121212}.gpAnt small{display:block;font-family:var(--font-mono);font-size:11.5px;color:#5E5D59;margin-top:2px}
+.gpAnt .eBtn{flex:0 0 auto}
+#vPlan.plRO #pBloques,#vPlan.plRO #pOrgRow,#vPlan.plRO #pTabs .opc,#vPlan.plRO #pTabs .mtabAdd,#vPlan.plRO #plSave,#vPlan.plRO #pReqs{pointer-events:none}
+#vPlan.plRO #plSave,#vPlan.plRO #pTabs .mtabAdd,#vPlan.plRO #pOrgRow{display:none !important}
+#vPlan.plRO #pBloques{opacity:.9}
+.plROban{margin:0 0 12px;padding:12px 14px;border-radius:12px;background:#121212;color:#F4F3F0;font-family:var(--font-mono);font-size:12px;letter-spacing:.1em}
 /* ═══ FIN CAPA 3 ═══ */
 /* ═══ MOTOR DE CONSTRUCCIÓN c8.0 · MACRO → MESO → MICRO ═══ */
 .plNav{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin:0 0 14px}
@@ -783,7 +810,7 @@ html.en-sala[data-dash="tablet"] .salaQ input{font-size:18px}
 </div></div>
 
 <div class="vista" id="vSala">
-  <div class="hbar"><span class="hk" title="c10.6">KOACH</span><span class="hbar__r"><button class="dashBtn" onclick="dashMenu()" aria-label="Vista del dashboard">VISTA</button><span class="rol" id="rolBadge" onclick="salir()">COACH</span></span></div>
+  <div class="hbar"><span class="hk" title="c10.8">KOACH</span><span class="hbar__r"><button class="dashBtn" onclick="dashMenu()" aria-label="Vista del dashboard">VISTA</button><span class="rol" id="rolBadge" onclick="salir()">COACH</span></span></div>
   <div class="adAcc" id="accesos"></div>
   <div class="glass aform" id="fAlta" style="display:none">
     <h4>CREAR USUARIO — ENTRA AL INSTANTE CON SU CORREO Y CLAVE</h4>
@@ -956,6 +983,9 @@ html.en-sala[data-dash="tablet"] .salaQ input{font-size:18px}
 <div id="mDashSoc" class="mSG" style="display:none" onclick="if(event.target===this)this.style.display='none'">
   <div class="mSG__c"><div class="mSG__k">SOCIO</div><h3 id="mDashSocN">—</h3>
     <div id="mDashSocAcc"></div></div>
+</div>
+<div id="mGP" class="mSG" style="display:none" role="dialog" aria-modal="true" aria-labelledby="gpT" onclick="if(event.target===this&&!GP.run)gpCerrar()">
+  <div class="mSG__c gp"><div class="mSG__k">ENTRENAMIENTO</div><h3 id="gpT">GESTIONAR PROGRAMA</h3><div id="gpBody"></div></div>
 </div>
 <!-- PICKER DE PROGRAMA BASE -->
 <div class="vista" id="vPicker">
@@ -1913,7 +1943,7 @@ function limpia(row, quitar){
 async function clonarPrograma(basePid, socioId){
   // Idempotencia: ¿ya existe su copia? → se reutiliza, jamás se duplica
   try{
-    const rex = await sb.from('protocolos').select('*').eq('socio_id',socioId).limit(1).maybeSingle()
+    const rex = await sb.from('protocolos').select('*').eq('socio_id',socioId).neq('estado','archivado').limit(1).maybeSingle()
     if(rex.data){ toast('Ya tenía su copia individual — abriéndola'); return rex.data }
   }catch(_e){}
   let nuevoPid = null
@@ -2003,7 +2033,7 @@ async function abrirPlan(pid, proto, opts){
   const sids = (rses.data||[]).map(function(s){return s.id})
   const rblo = sids.length ? await sb.from('bloques').select('*, bloque_ejercicios(*, ejercicios(id,nombre,grupo_muscular,estimulo,sinergistas,tipo_registro,con_carga,cuenta_dosis,implemento,activo))').in('sesion_id',sids).order('bloque') : {data:[]}
   if (_tok!==window._plTok || (F && F.id)!==_fid) return   // llegó tarde: el KOACH ya navegó a otro socio
-  P = { pid:pid, proto:proto, tab:0, bib:esBib, base:esBase, dirty:{}, sesiones:(rses.data||[]).map(function(s){
+  P = { pid:pid, proto:proto, tab:0, bib:esBib, base:esBase, ro:!!opts.soloLectura||(proto&&proto.estado==='archivado'), dirty:{}, sesiones:(rses.data||[]).map(function(s){
     return { id:s.id, numero:s.numero, semana:(s.semana||1), editada:!!s.editada, nombre:nombreEN(s.objetivo)||('SESION '+s.numero),
       bloques:(rblo.data||[]).filter(function(b){return b.sesion_id===s.id}).sort(function(a,x){ return String(a.bloque).localeCompare(String(x.bloque)) }).map(function(b){
         return { id:b.id, bId:b.id, tag:b.bloque, rol:b.rol||null, etiqueta:b.etiqueta||null, sets:b.sets||3,
@@ -2051,6 +2081,9 @@ function repintarConservando(){
   requestAnimationFrame(function(){ window.scrollTo(0, y) })
 }
 function pintarPlan(){ setTimeout(function(){ try{ plSaveUI(); rtSyncPlan() }catch(_e){} },0)
+  document.getElementById('vPlan').classList.toggle('plRO', !!(P&&P.ro))
+  let _ban=document.getElementById('plROban'); if (P&&P.ro){ if(!_ban){ _ban=document.createElement('div'); _ban.id='plROban'; _ban.className='plROban'; const t=document.getElementById('pTabs'); t.parentNode.insertBefore(_ban,t) }
+    _ban.textContent='CICLO CERRADO · SOLO LECTURA · '+String((P.proto&&P.proto.programa)||'')+' '+String((P.proto&&P.proto.nivel)||'') } else if(_ban) _ban.remove()
   cargandoOff()
   if (!plActivo()){ ['pNav','pMacro','pMeso'].forEach(function(id){ const e=document.getElementById(id); if(e) e.style.display='none' })
     ;['pTabs','pBloques','pOrgRow'].forEach(function(id){ const e=document.getElementById(id); if(e) e.style.display='' }) }
@@ -3205,7 +3238,7 @@ async function plResincronizar(w){
   syncOk(); await plRecargar(); toast('✓ SEM '+w+' vuelve a nacer de SEM '+(w-1))
 }
 function plReset(){ const a=F&&C.asig[F.id]; PL = { nivel:'macro', w:(a&&a.semana_actual)||1, hecho:{}, regPorSes:{} } }
-function plActivo(){ return !!(P && !P.bib && !P.base && typeof F!=='undefined' && F && C.asig[F.id]) }
+function plActivo(){ return !!(P && !P.bib && !P.base && !P.ro && typeof F!=='undefined' && F && C.asig[F.id] && C.asig[F.id].protocolo_id===P.pid) }
 function plAsig(){ return C.asig[F.id] }
 function plN(){ const a=plAsig(); return (a&&a.protocolos&&a.protocolos.ciclo_semanas)||(P&&P.proto&&P.proto.ciclo_semanas)||6 }
 function plVigente(){ const a=plAsig(); return (a&&a.semana_actual)||1 }
@@ -3998,12 +4031,16 @@ async function plReabrir(){
 }
 async function plGuardar(){
   const s=plSesActual(); if(!s) return false
+  if (P.ro){ toast('Ciclo cerrado: solo lectura'); return false }
+  if (!P.bib && !P.base && F){ const ra=await sb.from('asignaciones').select('protocolo_id').eq('socio_id',F.id).eq('activo',true).maybeSingle()
+    if (!ra.error && (!ra.data || ra.data.protocolo_id!==P.pid)){ plSaveUI('err'); gpObsoleto(); return false } }
   const firma=plFirma(s)
   plSaveUI('saving'); syncEnvio()
   const r=await sb.rpc('koach_guardar_sesion',{p_sesion:s.id, p_bloques:plPayload(s), p_nombre:(s._renombrada?s.nombre:null)})
   if (r.error){
     console.error('[guardar sesión]', {code:r.error.code, message:r.error.message, details:r.error.details, hint:r.error.hint})
-    syncErr(r.error.message); plSaveUI('err'); toast('No se pudieron guardar los cambios. Revisa tu conexión y reintenta.'); return false }
+    syncErr(r.error.message); plSaveUI('err')
+    if (/CICLO_CERRADO|no existe|not found/i.test(r.error.message||'')) gpObsoleto(); else toast('No se pudieron guardar los cambios. Revisa tu conexión y reintenta.'); return false }
   delete P.dirty[s.id]; syncOk()
   // la base es la fuente de verdad: releer y verificar que coincide exactamente con lo que se guardó
   await plReabrir()
@@ -4220,19 +4257,112 @@ function _nomQ(s){ return String((s.nombre||'')+' '+(s.apellido||'')).toLowerCas
 function fPintarCtx(id){
   const el=document.getElementById('fCtx'); if(!el) return
   const x=ctxEnt(id)
-  if (!C.asig[id]){ el.innerHTML='<div class="fCtx__sin">SIN PLANIFICACIÓN ACTIVA</div><button class="eBtn eBtn--ink" onclick="verPlan()">ASIGNAR PLAN</button>'; return }
+  if (!C.asig[id]){ el.innerHTML='<div class="fCtx__sin">SIN PROGRAMA ACTIVO</div><div class="eAcc" style="padding:0"><button class="eBtn eBtn--ink" onclick="gpAbrir()">ASIGNAR PROGRAMA</button></div>'; return }
   const cel=function(k,v){ return '<div class="fCtx__c"><small>'+k+'</small><b>'+v+'</b></div>' }
   el.innerHTML = '<div class="fCtx__g">'+
     cel('PROGRAMA', x?String(x.programa||'—').toUpperCase():'—')+cel('CICLO', x&&x.ciclo!=null?x.ciclo:'—')+
     cel('SEMANA', x?x.semana+' <em>DE '+(x.total||'—')+'</em>':'—')+
     cel(x&&x.enCurso?'EN CURSO':'PRÓXIMA', x&&x.abrir?String(x.abrir.nombre||'').toUpperCase():'SEMANA COMPLETA')+
-    cel('ESTA SEMANA', x?x.hechas+' / '+x.sesSem:'—')+'</div>'+accEnt(id,true)
+    cel('ESTA SEMANA', x?x.hechas+' / '+x.sesSem:'—')+'</div>'+accEnt(id,true)+
+    '<button type="button" class="eBtn eBtn--ghost gpBtn" onclick="gpAbrir()">GESTIONAR PROGRAMA</button>'
 }
 function salaBuscar(){ const q=(document.getElementById('salaQ').value||'').trim().toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'')
   let n=0; document.querySelectorAll('#lista [data-nom]').forEach(function(el){ const ok=!q || el.getAttribute('data-nom').indexOf(q)>-1; el.style.display=ok?'':'none'; if(ok) n++ })
   const v=document.getElementById('salaQv'); if(v) v.style.display = (q && !n) ? '' : 'none' }
 function salaBuscarKey(ev){ if (ev.key!=='Enter') return; const f=[...document.querySelectorAll('#lista [data-nom]')].filter(function(e){return e.style.display!=='none'})
   if (f.length===1){ const id=f[0].getAttribute('data-id'); location.hash=urlRutina(id) } }
+// ═══════════ c10.8 · GESTIONAR PROGRAMA ═══════════
+// Sin entrenamiento real en el ciclo → se REEMPLAZA (o se quita). Con entrenamiento → se CIERRA el ciclo (historial intacto, solo
+// lectura) y nace un ciclo nuevo desde la semana 1. La decisión la toma el servidor (koach_cambiar_programa), atómica y con bloqueo.
+let GP={ st:null, prog:null, niv:null, run:false, bases:[] }
+const GP_NIV={ BASICO:'BÁSICO', INTERMEDIO:'INTERMEDIO', AVANZADO:'AVANZADO', STD:'ESTÁNDAR' }
+function gpCerrar(){ document.getElementById('mGP').style.display='none' }
+async function gpAbrir(){
+  if (!F) return; const id=F.id
+  document.getElementById('mGP').style.display='flex'; document.getElementById('gpBody').innerHTML='<div class="gpCarga">Cargando…</div>'
+  const [re, rb] = await Promise.all([ sb.rpc('koach_programa_estado',{p_socio:id}), sb.from('protocolos').select('id,programa,nivel,sexo').is('socio_id',null).neq('estado','biblioteca') ])
+  if (!F || F.id!==id) return
+  if (re.error){ document.getElementById('gpBody').innerHTML='<div class="gpErr">No se pudo leer el programa: '+plEsc(re.error.message)+'</div>'; return }
+  GP.st=re.data||{}; GP.bases=rb.data||[]
+  const sexo = GP.st.sexo || (F.sexo) || (F.sex) || null
+  GP.sexo = sexo; GP.prog = GP.st.programa || 'STRONG'; GP.niv = GP.st.nivel || 'BASICO'
+  gpPintar()
+}
+function gpBase(){ return GP.bases.find(function(b){ return b.programa===GP.prog && b.nivel===GP.niv && (!GP.sexo || b.sexo===GP.sexo) }) }
+function gpPintar(){
+  const st=GP.st||{}, b=document.getElementById('gpBody')
+  const progs=(window.PROGRAM_ORDER||['STRONG','BURN','HEALTHY']).filter(function(p){ return GP.bases.some(function(x){ return x.programa===p && (!GP.sexo||x.sexo===GP.sexo) }) })
+  const nivs=['BASICO','INTERMEDIO','AVANZADO','STD'].filter(function(n){ return GP.bases.some(function(x){ return x.programa===GP.prog && x.nivel===n && (!GP.sexo||x.sexo===GP.sexo) }) })
+  if (nivs.indexOf(GP.niv)===-1) GP.niv=nivs[0]
+  const mismo = st.activo && st.programa===GP.prog && st.nivel===GP.niv
+  let h=''
+  if (st.activo){
+    h+='<div class="gpAct"><small>PROGRAMA ACTUAL</small><b>'+st.programa+' · '+(GP_NIV[st.nivel]||st.nivel)+'</b><span>CICLO '+st.ciclo+' · SEMANA '+st.semana+' DE '+(st.total||'—')+'</span>'+
+       '<em>'+(st.tiene_ejecucion ? st.completadas+' sesión'+(st.completadas===1?'':'es')+' completada'+(st.completadas===1?'':'s')+' en este ciclo · el historial se conserva'
+                                  : 'Sin entrenamientos registrados en este ciclo')+'</em></div>'
+  } else h+='<div class="gpAct"><small>PROGRAMA ACTUAL</small><b>SIN PROGRAMA ACTIVO</b></div>'
+  h+='<div class="gpLbl">'+(st.activo?'NUEVO PROGRAMA':'PROGRAMA')+'</div><div class="gpChips">'+progs.map(function(p){ const d=window.programaDef?programaDef(p):null
+      return '<button type="button" class="gpChip'+(p===GP.prog?' on':'')+'" aria-pressed="'+(p===GP.prog)+'" onclick="GP.prog=\''+p+'\';gpPintar()"><b>'+p+'</b>'+(d?'<small>'+d.tagline+'</small>':'')+'</button>' }).join('')+'</div>'
+  h+='<div class="gpLbl">NIVEL</div><div class="gpChips gpChips--n">'+nivs.map(function(n){ return '<button type="button" class="gpChip'+(n===GP.niv?' on':'')+'" aria-pressed="'+(n===GP.niv)+'" onclick="GP.niv=\''+n+'\';gpPintar()"><b>'+(GP_NIV[n]||n)+'</b></button>' }).join('')+'</div>'
+  if (!GP.sexo) h+='<div class="gpErr">Este socio no tiene sexo registrado: se muestran todas las variantes.</div>'
+  let pri
+  if (!st.activo) pri='ASIGNAR PROGRAMA'
+  else if (!st.tiene_ejecucion) pri='REEMPLAZAR PLANIFICACIÓN'
+  else pri = mismo ? 'INICIAR NUEVO CICLO' : 'CAMBIAR PROGRAMA · NUEVO CICLO'
+  h+='<button type="button" class="mSG__ok gpGo" onclick="gpConfirmar(false)"'+(gpBase()?'':' disabled')+'>'+pri+'</button>'
+  if (st.activo && !st.tiene_ejecucion) h+='<button type="button" class="mSG__sec" onclick="gpConfirmar(true)">QUITAR PROGRAMA ACTUAL</button>'
+  h+='<button type="button" class="mSG__sec" onclick="gpCerrar()">CANCELAR</button>'
+  const ant=st.anteriores||[]
+  if (ant.length) h+='<div class="gpLbl">CICLOS ANTERIORES · SOLO LECTURA</div>'+ant.map(function(a){
+      return '<div class="gpAnt"><span><b>CICLO '+a.ciclo+' · '+a.programa+' '+(GP_NIV[a.nivel]||a.nivel)+'</b><small>'+fCorta(a.desde)+' – '+fCorta(a.hasta)+' · '+a.completadas+' sesiones</small></span>'+
+        '<button type="button" class="eBtn" onclick="gpVerAnterior(\''+a.protocolo_id+'\')">VER</button></div>' }).join('')
+  b.innerHTML=h
+}
+function fCorta(d){ if(!d) return '—'; const p=String(d).slice(0,10).split('-'); return p[2]+'/'+p[1]+'/'+p[0].slice(2) }
+function gpConfirmar(quitar){
+  const st=GP.st||{}, base=gpBase(); if(!quitar && !base) return
+  const act = st.activo ? st.programa+' · '+(GP_NIV[st.nivel]||st.nivel) : ''
+  const nue = base ? GP.prog+' · '+(GP_NIV[GP.niv]||GP.niv) : ''
+  let tit, txt, btn
+  if (quitar){ tit='QUITAR PROGRAMA'; txt='Vas a quitar <b>'+act+'</b>. No hay entrenamientos registrados, así que la planificación se elimina y el socio queda <b>SIN PROGRAMA ACTIVO</b> hasta que le asignes otro.'; btn='QUITAR' }
+  else if (!st.activo){ tit='ASIGNAR PROGRAMA'; txt='Se asignará <b>'+nue+'</b> desde la <b>SEMANA 1</b>.'; btn='ASIGNAR' }
+  else if (!st.tiene_ejecucion){ tit='REEMPLAZAR PLANIFICACIÓN'; txt='Vas a sustituir <b>'+act+'</b> por <b>'+nue+'</b>.<br><br>No existen entrenamientos registrados, por lo que la planificación actual se reemplaza por completo y el socio parte desde la <b>SEMANA 1</b>.'; btn='REEMPLAZAR' }
+  else { tit = (act===nue ? 'INICIAR NUEVO CICLO' : 'CAMBIAR PROGRAMA'); txt='Este ciclo ya tiene entrenamientos registrados. Para conservar el historial, <b>'+act+' · CICLO '+st.ciclo+'</b> quedará cerrado (solo lectura) y comenzará <b>'+nue+' · CICLO '+(st.ciclo+1)+'</b> desde la <b>SEMANA 1</b>.<br><br>Cargas, sesiones y récords del socio no se borran.'; btn='INICIAR NUEVO CICLO' }
+  document.getElementById('gpT').textContent=tit
+  document.getElementById('gpBody').innerHTML='<p class="gpTxt">'+txt+'</p><div class="gpErr" id="gpErr" style="display:none"></div>'+
+    '<button type="button" class="mSG__ok" id="gpOk" onclick="gpEjecutar('+(quitar?'true':'false')+')">'+btn+'</button>'+
+    '<button type="button" class="mSG__sec" id="gpNo" onclick="document.getElementById(\'gpT\').textContent=\'GESTIONAR PROGRAMA\';gpPintar()">CANCELAR</button>'
+}
+async function gpEjecutar(quitar){
+  if (GP.run) return; GP.run=true
+  const ok=document.getElementById('gpOk'), no=document.getElementById('gpNo'); ok.disabled=true; no.disabled=true; ok.textContent='PROCESANDO…'
+  const id=F.id, base=gpBase()
+  const r=await sb.rpc('koach_cambiar_programa',{ p_socio:id, p_base: quitar?null:(base&&base.id), p_asig_actual:(GP.st&&GP.st.asig_id)||null, p_quitar:!!quitar })
+  GP.run=false
+  if (r.error){ const m=String(r.error.message||''); const e=document.getElementById('gpErr'); e.style.display=''
+    e.textContent = /PROGRAMA_CAMBIADO/.test(m) ? 'El programa de este socio ya cambió (otra pestaña u otro coach). Cerramos y recargamos el actual.' : /CON_HISTORIAL/.test(m) ? 'Este ciclo tiene entrenamientos: usa INICIAR NUEVO CICLO.' : 'No se pudo completar: '+m+'. No se modificó nada.'
+    ok.textContent='REINTENTAR'; ok.disabled=false; no.disabled=false
+    if (/PROGRAMA_CAMBIADO/.test(m)){ await loadSala(); setTimeout(function(){ gpCerrar(); verFicha(id) }, 1400) }
+    return }
+  const d=r.data||{}
+  gpCerrar(); document.getElementById('gpT').textContent='GESTIONAR PROGRAMA'
+  if (P && P.pid && !P.bib && !P.base) P.dirty={}
+  await loadSala()
+  toast(d.modo==='quitado' ? 'Programa quitado' : d.modo==='nuevo_ciclo' ? 'Ciclo '+d.ciclo+' iniciado desde la semana 1 ✓' : 'Programa asignado desde la semana 1 ✓')
+  if (d.modo==='quitado'){ verFicha(id); return }
+  location.hash='#/socio/'+id+'/plan?w=1'
+}
+async function gpVerAnterior(pid){
+  gpCerrar()
+  const r=await sb.from('protocolos').select('*').eq('id',pid).single(); if(r.error){ toast('No se pudo abrir el ciclo'); return }
+  vista('vPlan'); plReset(); await abrirPlan(pid, r.data, { soloLectura:true })
+}
+function gpObsoleto(){
+  const m=document.getElementById('mGP'); document.getElementById('gpT').textContent='ESTE CICLO YA NO ESTÁ ACTIVO'
+  document.getElementById('gpBody').innerHTML='<p class="gpTxt">El programa de este socio cambió (en otra pestaña o por otro coach). Para no escribir sobre un ciclo cerrado, <b>no se guardaron estos cambios</b>.</p>'+
+    '<button type="button" class="mSG__ok" onclick="gpCerrar();if(P)P.dirty={};loadSala().then(function(){location.hash=\'#/socio/'+(F?F.id:'')+'/plan\';rtAplicar()})">ABRIR EL PROGRAMA ACTUAL</button>'
+  m.style.display='flex'
+}
 let MG={primero:null}
 async function aplicarPrograma(){
   // Guardia de prescripción (advertencia, jamás bloqueo) — modal KOACH, no confirm nativo
