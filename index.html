@@ -14,7 +14,9 @@
 <script>
 // Entrada única (start_url del icono). Socios → app.html (que resuelve su sesión); el equipo → panel del coach.
 // koach_rol es solo una pista de ruteo (no autoriza nada): cada página valida sesión y rol contra Supabase.
+// dashboard.koachclub.cl es la puerta del equipo; app.koachclub.cl (y cualquier otra) la de socios.
 var r=null; try{ r=localStorage.getItem('koach_rol') }catch(e){}
-location.replace((r && r!=='socio' ? '/coach.html' : '/app.html') + location.search + location.hash)
+var equipo = /^dashboard\./i.test(location.hostname) || (r && r!=='socio')
+location.replace((equipo ? '/coach.html' : '/app.html') + location.search + location.hash)
 </script>
 </head><body style="margin:0;background:#000;min-height:100vh"></body></html>

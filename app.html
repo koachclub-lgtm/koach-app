@@ -970,6 +970,17 @@ body.wl-on{overflow:hidden}
 
 /* ═══ v10.7 · LOGIN KOACH (foto + glass) ═══ */
 /* ═══ v11.0 · WELCOME / ACCESO (foto + marca + mensaje + dos decisiones) ═══ */
+/* ═══ v11.2 · invitación a pantalla de inicio ═══ */
+.a2hs{position:fixed;left:12px;right:12px;bottom:calc(12px + env(safe-area-inset-bottom,0px));z-index:120;display:flex;flex-wrap:wrap;align-items:center;gap:12px;
+  padding:14px;border-radius:18px;background:rgba(10,10,10,.94);color:#F4F3F0;box-shadow:0 14px 40px rgba(0,0,0,.35);max-width:520px;margin:0 auto;animation:a2hsIn .25s ease}
+.a2hs img{border-radius:10px;flex:0 0 44px}
+.a2hs__t{flex:1 1 200px;min-width:0}.a2hs__t b{display:block;font-family:var(--font-mono);font-weight:500;font-size:11.5px;letter-spacing:.14em}
+.a2hs__t span{display:block;margin-top:4px;font-size:14px;line-height:1.4;color:#D4D8DB}.a2hs__t span b{display:inline;font-family:inherit;font-size:inherit;letter-spacing:0;color:#fff}
+.a2hs__b{display:flex;gap:8px;flex:1 1 100%;justify-content:flex-end}
+.a2hs__ok,.a2hs__x{min-height:44px;padding:0 16px;border-radius:12px;font-family:var(--font-mono);font-weight:500;font-size:12px;letter-spacing:.12em;cursor:pointer}
+.a2hs__ok{background:#F4F3F0;color:#0A0A0A;border:none}.a2hs__x{background:transparent;color:#F4F3F0;border:1px solid rgba(244,243,240,.35)}
+@keyframes a2hsIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+@media (prefers-reduced-motion:reduce){ .a2hs{animation:none} }
 #vLogin{background:#000}
 .wel{position:relative;z-index:1;max-width:520px;margin:0 auto;min-height:100dvh;box-sizing:border-box;display:flex;flex-direction:column;justify-content:space-between;
   padding:calc(env(safe-area-inset-top,0px) + 26px) 8px calc(env(safe-area-inset-bottom,0px) + 18px);transition:opacity .22s ease, transform .22s ease}
@@ -1961,6 +1972,30 @@ async function nuevaClave(){
   history.replaceState(null,'',window.location.pathname); entrar()
 }
 
+// ═══ v11.2 · DIAGNÓSTICO DE ARRANQUE (solo con ?debug=1 o localStorage koach_debug=1; nunca registra tokens) ═══
+const KDBG = (function(){ try{ if (/[?&]debug=1/.test(location.search)) localStorage.setItem('koach_debug','1'); return localStorage.getItem('koach_debug')==='1' }catch(_e){ return false } })()
+function klog(ev, extra){ if (!KDBG) return; try{ console.info('[KOACH]', ev, Object.assign({ url:location.origin+location.pathname+location.hash, pwa:esPWA() }, extra||{})) }catch(_e){} }
+function esPWA(){ try{ return !!(window.navigator.standalone || matchMedia('(display-mode: standalone)').matches) }catch(_e){ return false } }
+klog('APP_START')
+// ═══ v11.2 · INVITACIÓN A AGREGAR KOACH A INICIO (una sola vez, nunca bloquea) ═══
+let _instEvt=null
+window.addEventListener('beforeinstallprompt', function(e){ e.preventDefault(); _instEvt=e })
+function invitarInstalar(){
+  try{ if (esPWA() || localStorage.getItem('koach_a2hs_visto') || document.getElementById('a2hs')) return }catch(_e){ return }
+  // nunca encima de la bienvenida del primer ingreso ni durante una sesión: espera a que el socio esté libre
+  const wl=document.getElementById('oWelcome'), on=(document.querySelector('.vista.on')||{}).id
+  if ((wl && wl.isConnected && getComputedStyle(wl).display!=='none' && getComputedStyle(wl).visibility!=='hidden') || on==='vSesion' || on==='vLogin'){ setTimeout(invitarInstalar, 4000); return }
+  const ios=/iphone|ipad|ipod/i.test(navigator.userAgent) || (navigator.platform==='MacIntel' && navigator.maxTouchPoints>1)
+  if (!ios && !_instEvt) return
+  const el=document.createElement('div'); el.id='a2hs'; el.className='a2hs'; el.setAttribute('role','dialog'); el.setAttribute('aria-label','Agregar KOACH a tu pantalla de inicio')
+  el.innerHTML='<img src="/icon-192.png" alt="" width="44" height="44"><div class="a2hs__t"><b>YA ESTÁS DENTRO DE KOACH</b><span>'+
+    (ios ? 'Para entrar más rápido: toca <b>Compartir</b> <span aria-hidden="true">⎋</span> y luego <b>Agregar a pantalla de inicio</b>.' : 'Agrega KOACH a tu pantalla de inicio para abrirlo como una app.')+
+    '</span></div><div class="a2hs__b">'+(ios?'':'<button type="button" class="a2hs__ok" id="a2hsOk">AGREGAR</button>')+'<button type="button" class="a2hs__x" id="a2hsX" aria-label="Cerrar">AHORA NO</button></div>'
+  document.body.appendChild(el)
+  const fin=function(){ try{ localStorage.setItem('koach_a2hs_visto','1') }catch(_e){} el.remove() }
+  document.getElementById('a2hsX').onclick=fin
+  const ok=document.getElementById('a2hsOk'); if (ok) ok.onclick=async function(){ try{ _instEvt.prompt(); await _instEvt.userChoice }catch(_e){} _instEvt=null; fin() }
+}
 // ═══ v10.9 · SESIÓN PERSISTENTE (Supabase Auth es la fuente de verdad; la contraseña la guarda el teléfono) ═══
 // Arranque: nunca se muestra el login antes de saber si hay sesión. Si hay sesión guardada pero no se pudo validar
 // por red, no se piden credenciales: se ofrece reintentar. Error de red / perfil / membresía ≠ cerrar sesión.
@@ -1975,11 +2010,11 @@ async function leerSesion(){
        return { ses:(r&&r.data&&r.data.session)||null } }catch(e){ return { ses:null, err:e } }
 }
 async function arrancarAuth(){
-  authEspera(false)
+  authEspera(false); klog('AUTH_INITIALIZING', { tokenGuardado:hayTokenGuardado() })
   const r = await leerSesion()
-  if (r.ses){ return entrar() }
-  if (hayTokenGuardado()){ authEspera(true); return }          // sesión guardada que la red no dejó renovar: no pedir clave
-  authListo(); vista('vLogin')
+  if (r.ses){ klog('SESSION_FOUND', { expira:r.ses.expires_at }); return entrar() }
+  if (hayTokenGuardado()){ klog('SESSION_OFFLINE', { error:String((r.err&&r.err.message)||'') }); authEspera(true); return }   // sesión guardada que la red no dejó renovar: no pedir clave
+  klog('SESSION_MISSING'); authListo(); vista('vLogin')
 }
 window.addEventListener('online', function(){ const o=document.getElementById('oAuth'); if (o && o.style.display!=='none') arrancarAuth() })
 // Cerrar sesión explícito: solo este dispositivo (scope local) y sin dejar datos del socio en el teléfono
@@ -1988,6 +2023,7 @@ async function salir(){ window._saliendo=true
   try{ await sb.auth.signOut({ scope:'local' }) }catch(_e){}
   location.reload() }
 sb.auth.onAuthStateChange(function(ev){
+  klog('AUTH_EVENT', { evento:ev })
   if (ev==='PASSWORD_RECOVERY'){ authListo(); vista('vLogin'); authVista('fNueva'); return }
   // La sesión terminó de verdad (refresh token inválido/revocado), no por un cierre explícito
   if (ev==='SIGNED_OUT' && !window._saliendo && S.perfil){ S.perfil=null; authListo(); vista('vLogin'); authVista('fLogin')
@@ -2007,7 +2043,8 @@ async function entrar(opts){
     const { data:{ session:_ses } } = await sb.auth.getSession()   // local: no depende de la red para saber quién es
     const user = _ses && _ses.user
     if (!user){ if (hayTokenGuardado()) authEspera(true); else { authListo(); vista('vLogin') } return }
-    authListo(); rtPlanSuscribir(user.id)
+    authListo(); rtPlanSuscribir(user.id); klog('ROUTE_RESOLVED', { destino:'home' })
+    if (!(opts && opts.silent)) setTimeout(invitarInstalar, 2500)
     // F-PERF · caché-primero: pintar al instante, revalidar en silencio
     try{
       const snap = JSON.parse(localStorage.getItem('kc_snap_'+user.id)||'null')
