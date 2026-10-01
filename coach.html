@@ -801,6 +801,10 @@ html.selAbierto,html.selAbierto body{overflow:hidden}
 @media (prefers-reduced-motion:reduce){ .dsr__f,.dsr__m{transition:none} }
 #pVivo h3 span:first-child{font-size:13.5px !important;letter-spacing:.12em}
 #pVivoTit{font-size:12px !important;letter-spacing:.08em}
+
+.cuL{display:block;margin:12px 0 6px;font-family:var(--font-mono);font-size:11.5px;letter-spacing:.14em;color:#5E5D59}
+.cuI{width:100%;box-sizing:border-box;min-height:52px;padding:0 14px;border-radius:12px;border:1px solid rgba(18,18,16,.2);background:#fff;font-size:17px}
+#mCuenta .mSG__ok{margin-top:16px}
 /* ═══ FIN CAPA 3 ═══ */
 /* ═══ MOTOR DE CONSTRUCCIÓN c8.0 · MACRO → MESO → MICRO ═══ */
 .plNav{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin:0 0 14px}
@@ -879,7 +883,7 @@ html.selAbierto,html.selAbierto body{overflow:hidden}
 </div></div>
 
 <div class="vista" id="vSala">
-  <div class="hbar"><span class="hk" title="c10.9">KOACH</span><span class="hbar__r"><button class="dashBtn" onclick="dashMenu()" aria-label="Vista del dashboard">VISTA</button><span class="rol" id="rolBadge" onclick="salir()">COACH</span></span></div>
+  <div class="hbar"><span class="hk" title="c11.0">KOACH</span><span class="hbar__r"><button class="dashBtn" onclick="dashMenu()" aria-label="Vista del dashboard">VISTA</button><button class="dashBtn" onclick="cuentaAbrir()" aria-label="Mi cuenta: cambiar contraseña">MI CLAVE</button><span class="rol" id="rolBadge" onclick="salir()">COACH</span></span></div>
   <div class="adAcc" id="accesos"></div>
   <div class="glass aform" id="fAlta" style="display:none">
     <h4>CREAR USUARIO — ENTRA AL INSTANTE CON SU CORREO Y CLAVE</h4>
@@ -1057,6 +1061,19 @@ html.selAbierto,html.selAbierto body{overflow:hidden}
 </div>
 <div id="mGP" class="mSG" style="display:none" role="dialog" aria-modal="true" aria-labelledby="gpT" onclick="if(event.target===this&&!GP.run)gpCerrar()">
   <div class="mSG__c gp"><div class="mSG__k">ENTRENAMIENTO</div><h3 id="gpT">GESTIONAR PROGRAMA</h3><div id="gpBody"></div></div>
+</div>
+<div id="mCuenta" class="mSG" style="display:none" role="dialog" aria-modal="true" aria-labelledby="cuT" onclick="if(event.target===this)cuentaCerrar()">
+  <form class="mSG__c" onsubmit="event.preventDefault();cuentaGuardar()" novalidate>
+    <div class="mSG__k">MI CUENTA</div><h3 id="cuT">CAMBIAR MI CONTRASEÑA</h3>
+    <input type="email" name="username" id="cuUser" autocomplete="username" readonly hidden>
+    <label class="cuL" for="cuP1">NUEVA CONTRASEÑA</label>
+    <input class="cuI" type="password" id="cuP1" name="new-password" autocomplete="new-password" minlength="8" placeholder="Mínimo 8 caracteres">
+    <label class="cuL" for="cuP2">REPÍTELA</label>
+    <input class="cuI" type="password" id="cuP2" name="new-password-2" autocomplete="new-password" minlength="8">
+    <div class="gpErr" id="cuErr" role="alert" style="display:none"></div>
+    <button type="submit" class="mSG__ok" id="cuOk">GUARDAR NUEVA CONTRASEÑA</button>
+    <button type="button" class="mSG__sec" onclick="cuentaCerrar()">CANCELAR</button>
+  </form>
 </div>
 <!-- PICKER DE PROGRAMA BASE -->
 <div class="vista" id="vPicker">
@@ -4444,6 +4461,29 @@ async function plAplicar(){
   const s=plSesActual()
   if (s && P.dirty && P.dirty[s.id]){ const ok=await plGuardar(); if (ok===false){ toast('Primero hay que guardar los cambios: el guardado falló, no se aplicó el programa.'); return } }
   aplicarPrograma()
+}
+// c11.0 · Cambiar mi contraseña (equipo). Supabase Auth guarda la clave; KOACH nunca la almacena.
+async function cuentaAbrir(){
+  ['cuP1','cuP2'].forEach(function(i){ document.getElementById(i).value='' }); document.getElementById('cuErr').style.display='none'
+  try{ const r=await sb.auth.getSession(); document.getElementById('cuUser').value=(r.data.session&&r.data.session.user.email)||'' }catch(_e){}
+  const b=document.getElementById('cuOk'); b.disabled=false; b.textContent='GUARDAR NUEVA CONTRASEÑA'
+  document.getElementById('mCuenta').style.display='flex'; setTimeout(function(){ document.getElementById('cuP1').focus() },30)
+}
+function cuentaCerrar(){ document.getElementById('mCuenta').style.display='none' }
+async function cuentaGuardar(){
+  const p1=document.getElementById('cuP1').value, p2=document.getElementById('cuP2').value, e=document.getElementById('cuErr'), b=document.getElementById('cuOk')
+  const err=function(t){ e.textContent=t; e.style.display='' }
+  if (p1.length<8) return err('Usa al menos 8 caracteres.')
+  if (p1!==p2) return err('Las contraseñas no coinciden.')
+  b.disabled=true; b.textContent='GUARDANDO…'; e.style.display='none'
+  const r=await sb.auth.updateUser({ password:p1 })
+  b.disabled=false; b.textContent='GUARDAR NUEVA CONTRASEÑA'
+  if (r.error){ const m=String(r.error.message||'')
+    return err(/same|different from the old/i.test(m) ? 'La nueva contraseña debe ser distinta de la actual.'
+      : /reauth|recent/i.test(m) ? 'Por seguridad, cierra sesión, vuelve a entrar y repite el cambio.'
+      : /weak|pwned|leaked/i.test(m) ? 'Esa contraseña es demasiado débil o aparece en filtraciones conocidas. Elige otra.'
+      : 'No se pudo cambiar: '+m) }
+  cuentaCerrar(); toast('Contraseña actualizada ✓ — tu sesión sigue abierta')
 }
 let MG={primero:null}
 async function aplicarPrograma(){
