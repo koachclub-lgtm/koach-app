@@ -1,6 +1,20 @@
 <!doctype html>
-<html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<html lang="es"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>KOACH</title><meta name="robots" content="noindex">
-<script>location.replace('/coach.html'+location.search+location.hash)</script>
-</head><body style="font-family:system-ui;background:#F4F3F0;color:#121212;display:flex;min-height:100vh;align-items:center;justify-content:center">
-<a href="/coach.html">Entrar a KOACH →</a></body></html>
+<meta name="theme-color" content="#000000">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black">
+<meta name="apple-mobile-web-app-title" content="KOACH">
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png">
+<link rel="icon" href="/favicon.ico" sizes="any">
+<link rel="manifest" href="/manifest.webmanifest">
+<script>
+// Entrada única (start_url del icono). Socios → app.html (que resuelve su sesión); el equipo → panel del coach.
+// koach_rol es solo una pista de ruteo (no autoriza nada): cada página valida sesión y rol contra Supabase.
+var r=null; try{ r=localStorage.getItem('koach_rol') }catch(e){}
+location.replace((r && r!=='socio' ? '/coach.html' : '/app.html') + location.search + location.hash)
+</script>
+</head><body style="margin:0;background:#000;min-height:100vh"></body></html>

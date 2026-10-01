@@ -1,16 +1,21 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="es" class="boot">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<meta name="theme-color" content="#F3F2EF">
 <title>KOACH · Tu Semana</title>
 <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
 <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png">
 <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16.png">
-<link rel="icon" href="/favicon.ico">
+<link rel="icon" href="/favicon.ico" sizes="any">
 <link rel="manifest" href="/manifest.webmanifest">
-<meta name="theme-color" content="#0A0A0A">
+<meta name="theme-color" content="#000000">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black">
+<meta name="apple-mobile-web-app-title" content="KOACH">
+<meta name="application-name" content="KOACH">
+<style>html.boot,html.boot body{background:#000 !important}</style>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="/domain/koach-domain.js"></script>
@@ -1020,10 +1025,17 @@ body.wl-on{overflow:hidden}
 </style>
 </head>
 <body>
+<div id="oAuth" role="status" aria-live="polite" style="position:fixed;inset:0;z-index:9999;background:#000;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:22px;padding:env(safe-area-inset-top,0) 24px env(safe-area-inset-bottom,0);font-family:system-ui,-apple-system,sans-serif;color:#fff;text-align:center">
+  <img src="/icon-192.png" alt="" width="96" height="96" style="width:96px;height:96px">
+  <div id="oAuthT" style="font-size:12px;letter-spacing:.22em;opacity:.75">PREPARANDO TU CLUB…</div>
+  <div id="oAuthS" style="display:none;font-size:15px;line-height:1.45;opacity:.85;max-width:300px">Tu sesión sigue guardada en este teléfono. Revisa tu conexión.</div>
+  <button id="oAuthB" type="button" onclick="arrancarAuth()" style="display:none;min-height:48px;padding:0 26px;border-radius:14px;border:1px solid rgba(255,255,255,.4);background:#fff;color:#000;font-size:13px;letter-spacing:.14em;font-weight:600">REINTENTAR</button>
+</div>
+
 <div class="wrap">
 
   <!-- ══ LOGIN ══ -->
-  <div class="vista on" id="vLogin">
+  <div class="vista" id="vLogin">
     <div class="lgBg" aria-hidden="true"><div class="lgBg__img" id="lgBgImg"></div><div class="lgBg__ov"></div></div>
     <div class="lg">
       <div class="k">KOACH</div>
@@ -1896,8 +1908,39 @@ async function nuevaClave(){
   if (error){ err.textContent='No se pudo: '+error.message; err.style.display='block'; b.disabled=false; b.textContent='GUARDAR Y ENTRAR'; return }
   history.replaceState(null,'',window.location.pathname); entrar()
 }
-async function salir(){ await sb.auth.signOut(); location.reload() }
-sb.auth.onAuthStateChange(ev=>{ if(ev==='PASSWORD_RECOVERY'){ vista('vLogin'); authVista('fNueva') } })
+
+// ═══ v10.9 · SESIÓN PERSISTENTE (Supabase Auth es la fuente de verdad; la contraseña la guarda el teléfono) ═══
+// Arranque: nunca se muestra el login antes de saber si hay sesión. Si hay sesión guardada pero no se pudo validar
+// por red, no se piden credenciales: se ofrece reintentar. Error de red / perfil / membresía ≠ cerrar sesión.
+const SB_STORE = 'sb-'+SB_URL.replace(/^https?:\/\//,'').split('.')[0]+'-auth-token'
+function hayTokenGuardado(){ try{ return !!localStorage.getItem(SB_STORE) }catch(_e){ return false } }
+function authListo(){ document.documentElement.classList.remove('boot'); const o=document.getElementById('oAuth'); if(o) o.style.display='none' }
+function authEspera(sinRed){ document.documentElement.classList.add('boot'); const o=document.getElementById('oAuth'); if(!o) return; o.style.display='flex'
+  document.getElementById('oAuthT').textContent = sinRed ? 'SIN CONEXIÓN' : 'PREPARANDO TU CLUB…'
+  document.getElementById('oAuthS').style.display = sinRed ? '' : 'none'; document.getElementById('oAuthB').style.display = sinRed ? '' : 'none' }
+async function leerSesion(){
+  try{ const r = await Promise.race([ sb.auth.getSession(), new Promise(function(_,rej){ setTimeout(function(){ rej(new Error('timeout')) }, 12000) }) ])
+       return { ses:(r&&r.data&&r.data.session)||null } }catch(e){ return { ses:null, err:e } }
+}
+async function arrancarAuth(){
+  authEspera(false)
+  const r = await leerSesion()
+  if (r.ses){ return entrar() }
+  if (hayTokenGuardado()){ authEspera(true); return }          // sesión guardada que la red no dejó renovar: no pedir clave
+  authListo(); vista('vLogin')
+}
+window.addEventListener('online', function(){ const o=document.getElementById('oAuth'); if (o && o.style.display!=='none') arrancarAuth() })
+// Cerrar sesión explícito: solo este dispositivo (scope local) y sin dejar datos del socio en el teléfono
+async function salir(){ window._saliendo=true
+  try{ if (S.perfil) localStorage.removeItem('kc_snap_'+S.perfil.id); localStorage.removeItem('koach_rol') }catch(_e){}
+  try{ await sb.auth.signOut({ scope:'local' }) }catch(_e){}
+  location.reload() }
+sb.auth.onAuthStateChange(function(ev){
+  if (ev==='PASSWORD_RECOVERY'){ authListo(); vista('vLogin'); authVista('fNueva'); return }
+  // La sesión terminó de verdad (refresh token inválido/revocado), no por un cierre explícito
+  if (ev==='SIGNED_OUT' && !window._saliendo && S.perfil){ S.perfil=null; authListo(); vista('vLogin'); authVista('fLogin')
+    const e=document.getElementById('lErr'); if(e){ e.textContent='Tu sesión finalizó. Vuelve a ingresar para continuar.'; e.style.display='block' } }
+})
 
 /* ══ CARGA DEL HOME ══ */
 async function entrar(opts){
@@ -1909,7 +1952,10 @@ async function entrar(opts){
     document.getElementById('hSaludo').textContent='Cargando tu semana…'
   }
   try{
-    const { data:{ user } } = await sb.auth.getUser()
+    const { data:{ session:_ses } } = await sb.auth.getSession()   // local: no depende de la red para saber quién es
+    const user = _ses && _ses.user
+    if (!user){ if (hayTokenGuardado()) authEspera(true); else { authListo(); vista('vLogin') } return }
+    authListo()
     // F-PERF · caché-primero: pintar al instante, revalidar en silencio
     try{
       const snap = JSON.parse(localStorage.getItem('kc_snap_'+user.id)||'null')
@@ -1936,7 +1982,8 @@ async function entrar(opts){
       sb.from('coach_config').select('frases').eq('activo',true).limit(1).maybeSingle()
     ])
     const perfil = rPerfil.data
-    if (perfil && (perfil.role === 'coach' || perfil.role === 'admin')){
+    try{ if (perfil && perfil.role) localStorage.setItem('koach_rol', perfil.role) }catch(_e){}
+    if (perfil && perfil.role && perfil.role !== 'socio'){
       window.location.href = '/coach.html'   // el equipo vive en el panel del coach
       return
     }
@@ -3583,8 +3630,7 @@ document.addEventListener('DOMContentLoaded', async ()=>{
   })
   initSlide(document.getElementById('slFin'), finalizar)
   document.getElementById('oFin').addEventListener('click', e=>{ if(e.target.id==='oFin') e.target.classList.remove('vis') })
-  const { data:{ session } } = await sb.auth.getSession()
-  if (session) entrar()
+  arrancarAuth()
 })
 </script>
 </body>

@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="es" class="boot">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
@@ -7,9 +7,15 @@
 <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
 <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png">
 <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16.png">
-<link rel="icon" href="/favicon.ico">
+<link rel="icon" href="/favicon.ico" sizes="any">
 <link rel="manifest" href="/manifest.webmanifest">
-<meta name="theme-color" content="#0A0A0A">
+<meta name="theme-color" content="#000000">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black">
+<meta name="apple-mobile-web-app-title" content="KOACH">
+<meta name="application-name" content="KOACH">
+<style>html.boot,html.boot body{background:#000 !important}</style>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="/domain/koach-domain.js"></script>
@@ -758,8 +764,15 @@ html.en-sala[data-dash="tablet"] .salaQ input{font-size:18px}
 </style>
 </head>
 <body>
+<div id="oAuth" role="status" aria-live="polite" style="position:fixed;inset:0;z-index:9999;background:#000;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:22px;padding:env(safe-area-inset-top,0) 24px env(safe-area-inset-bottom,0);font-family:system-ui,-apple-system,sans-serif;color:#fff;text-align:center">
+  <img src="/icon-192.png" alt="" width="96" height="96" style="width:96px;height:96px">
+  <div id="oAuthT" style="font-size:12px;letter-spacing:.22em;opacity:.75">PREPARANDO TU CLUB…</div>
+  <div id="oAuthS" style="display:none;font-size:15px;line-height:1.45;opacity:.85;max-width:300px">Tu sesión sigue guardada en este teléfono. Revisa tu conexión.</div>
+  <button id="oAuthB" type="button" onclick="arrancarAuth()" style="display:none;min-height:48px;padding:0 26px;border-radius:14px;border:1px solid rgba(255,255,255,.4);background:#fff;color:#000;font-size:13px;letter-spacing:.14em;font-weight:600">REINTENTAR</button>
+</div>
 
-<div class="vista on" id="vLogin"><div class="lwrap">
+
+<div class="vista" id="vLogin"><div class="lwrap">
   <div class="lk">KOACH</div>
   <div class="ls">SALA · PANEL DEL COACH</div>
   <label>EMAIL</label><input id="lEmail" type="email" autocomplete="email">
@@ -1242,8 +1255,9 @@ function vista(id){document.querySelectorAll('.vista').forEach(function(v){v.cla
   var pg=document.getElementById('pGuardia'); if(pg) pg.style.display = (id==='vPlan')?'block':'none'}
 function toast(m){let t=document.querySelector('.toast');if(!t){t=document.createElement('div');t.className='toast';document.body.appendChild(t)}
   t.textContent=m;t.classList.add('vis');clearTimeout(t._x);t._x=setTimeout(function(){t.classList.remove('vis')},3000)}
-async function salir(){ try{localStorage.removeItem('koach_pin')}catch(_e){}
-  await sb.auth.signOut(); location.reload() }
+async function salir(){ window._saliendo=true; try{ localStorage.removeItem('koach_pin'); localStorage.removeItem('koach_rol') }catch(_e){}
+  try{ await sb.auth.signOut({ scope:'local' }) }catch(_e){}   // solo este dispositivo: no cierra las otras pestañas/tablets del coach
+  location.reload() }
 // c9.5 · SEGURIDAD: se eliminó el acceso por PIN compartido. Cada persona entra con su cuenta y la base aplica su rol.
 async function login(){
   const b=document.getElementById('lBtn'), e=document.getElementById('lErr')
@@ -1258,14 +1272,16 @@ async function login(){
 }
 async function entrar(){
   try{
-    const u = await sb.auth.getUser()
-    const user = u.data ? u.data.user : null
-    if(!user){ vista('vLogin'); return }
+    const _s = await sb.auth.getSession()
+    const user = _s.data && _s.data.session ? _s.data.session.user : null
+    if(!user){ if (hayTokenGuardado()) authEspera(true); else { authListo(); vista('vLogin') } return }
+    authListo()
     let q = await sb.from('profiles').select('*').eq('id',user.id).maybeSingle()
-    if(q.error){ alert('Error al cargar perfil:\n'+q.error.message); vista('vLogin'); return }
+    if(q.error){ authEspera(true); return }   // falla de red/consulta ≠ cerrar sesión: se ofrece reintentar
     let perfil = q.data
     if(!perfil){ alert('Esta cuenta no tiene perfil en KOACH. Pide a un administrador que la configure.'); await sb.auth.signOut(); vista('vLogin'); return }
     if(perfil.activo===false){ alert('Esta cuenta está desactivada.'); await sb.auth.signOut(); vista('vLogin'); return }
+    try{ localStorage.setItem('koach_rol', perfil.role) }catch(_e){}
     if(perfil.role==='socio'){ window.location.href='/app.html'; return }
     C.yo = perfil
     document.documentElement.setAttribute('data-rol', perfil.role)
@@ -4279,10 +4295,31 @@ async function aplicarProgramaGo(){
   await loadSala()
 }
 
-;(async function(){ const s = await sb.auth.getSession()
-  if(s.data && s.data.session){ await entrar(); return }
-  try{ localStorage.removeItem('koach_pin') }catch(_e){}
-  vista('vLogin') })()
+
+// ═══ v10.9 · SESIÓN PERSISTENTE (Supabase Auth es la fuente de verdad; la contraseña la guarda el teléfono) ═══
+// Arranque: nunca se muestra el login antes de saber si hay sesión. Si hay sesión guardada pero no se pudo validar
+// por red, no se piden credenciales: se ofrece reintentar. Error de red / perfil / membresía ≠ cerrar sesión.
+const SB_STORE = 'sb-'+SB_URL.replace(/^https?:\/\//,'').split('.')[0]+'-auth-token'
+function hayTokenGuardado(){ try{ return !!localStorage.getItem(SB_STORE) }catch(_e){ return false } }
+function authListo(){ document.documentElement.classList.remove('boot'); const o=document.getElementById('oAuth'); if(o) o.style.display='none' }
+function authEspera(sinRed){ document.documentElement.classList.add('boot'); const o=document.getElementById('oAuth'); if(!o) return; o.style.display='flex'
+  document.getElementById('oAuthT').textContent = sinRed ? 'SIN CONEXIÓN' : 'PREPARANDO TU CLUB…'
+  document.getElementById('oAuthS').style.display = sinRed ? '' : 'none'; document.getElementById('oAuthB').style.display = sinRed ? '' : 'none' }
+async function leerSesion(){
+  try{ const r = await Promise.race([ sb.auth.getSession(), new Promise(function(_,rej){ setTimeout(function(){ rej(new Error('timeout')) }, 12000) }) ])
+       return { ses:(r&&r.data&&r.data.session)||null } }catch(e){ return { ses:null, err:e } }
+}
+async function arrancarAuth(){
+  authEspera(false)
+  const r = await leerSesion()
+  if (r.ses){ return entrar() }
+  if (hayTokenGuardado()){ authEspera(true); return }          // sesión guardada que la red no dejó renovar: no pedir clave
+  authListo(); vista('vLogin')
+}
+window.addEventListener('online', function(){ const o=document.getElementById('oAuth'); if (o && o.style.display!=='none') arrancarAuth() })
+try{ localStorage.removeItem('koach_pin') }catch(_e){}
+sb.auth.onAuthStateChange(function(ev){ if (ev==='SIGNED_OUT' && !window._saliendo && C.yo){ C.yo=null; authListo(); vista('vLogin'); const e=document.getElementById('lErr'); if(e){ e.textContent='Tu sesión finalizó. Vuelve a ingresar.'; e.style.display='block' } } })
+arrancarAuth()
 </script>
 </body>
 </html>
