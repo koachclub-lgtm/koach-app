@@ -930,7 +930,7 @@ html.selAbierto,html.selAbierto body{overflow:hidden}
 </div></div>
 
 <div class="vista" id="vSala">
-  <div class="hbar"><span class="hk" title="c11.4">KOACH</span><span class="hbar__r"><button class="dashBtn" onclick="dashMenu()" aria-label="Vista del dashboard">VISTA</button><button class="dashBtn" onclick="cuentaAbrir()" aria-label="Mi cuenta: cambiar contraseña">MI CLAVE</button><span class="rol" id="rolBadge" onclick="salir()">COACH</span></span></div>
+  <div class="hbar"><span class="hk" title="c11.5">KOACH</span><span class="hbar__r"><button class="dashBtn" onclick="dashMenu()" aria-label="Vista del dashboard">VISTA</button><button class="dashBtn" onclick="cuentaAbrir()" aria-label="Mi cuenta: cambiar contraseña">MI CLAVE</button><span class="rol" id="rolBadge" onclick="salir()">COACH</span></span></div>
   <div class="adAcc" id="accesos"></div>
   <div class="glass aform" id="fAlta" style="display:none">
     <h4>CREAR USUARIO — ENTRA AL INSTANTE CON SU CORREO Y CLAVE</h4>
@@ -1650,11 +1650,12 @@ async function validar(id){ try{ await sb.from('sesiones_registro').update({vali
   toast('Sesión validada ✓'); await loadSala() }catch(e){ toast('No se pudo validar — ¿existe la columna validada_at?') } }
 function cerrarTab(id){ window._tabs=window._tabs.filter(function(x){return x!==id})
   if(window._tabAct===id)window._tabAct=window._tabs[0]||null; pintarSala() }
-function verSala(){ vista('vSala'); pintarSala(); rtSet('#/', 'Sala | KOACH') }
+function verSala(){ vista('vSala'); pintarSala(); rtSet('#/', 'Sala | KOACH'); socRTSeguir(null) }
 
 function verFicha(id, sinRuta){
   F = C.socios.find(function(s){return s.id===id}); if(!F) return
   if (!sinRuta) rtPush('#/socio/'+id); document.title = rtNombreCorto(id)+' · Perfil | KOACH'
+  socRTSeguir(id)
   window._tabs=window._tabs||[]; if(window._tabs.indexOf(id)===-1) window._tabs.push(id); window._tabAct=id
   const a=C.asig[id], sem=C.sems[id]
   const MES3=['ENE','FEB','MAR','ABR','MAY','JUN','JUL','AGO','SEP','OCT','NOV','DIC']
@@ -2184,6 +2185,7 @@ async function abrirPlan(pid, proto, opts){
   const sids = (rses.data||[]).map(function(s){return s.id})
   const rblo = sids.length ? await sb.from('bloques').select('*, bloque_ejercicios(*, ejercicios(id,nombre,grupo_muscular,estimulo,sinergistas,tipo_registro,con_carga,cuenta_dosis,implemento,activo))').in('sesion_id',sids).order('bloque') : {data:[]}
   if (_tok!==window._plTok || (F && F.id)!==_fid) return   // llegó tarde: el KOACH ya navegó a otro socio
+  setTimeout(function(){ plLeerRev() }, 0)
   P = { pid:pid, proto:proto, tab:0, bib:esBib, base:esBase, ro:!!opts.soloLectura||(proto&&proto.estado==='archivado'), dirty:{}, sesiones:(rses.data||[]).map(function(s){
     return { id:s.id, numero:s.numero, semana:(s.semana||1), editada:!!s.editada, nombre:nombreEN(s.objetivo)||('SESION '+s.numero),
       bloques:(rblo.data||[]).filter(function(b){return b.sesion_id===s.id}).sort(function(a,x){ return String(a.bloque).localeCompare(String(x.bloque)) }).map(function(b){
@@ -4204,8 +4206,10 @@ async function plReabrir(){
 async function plGuardar(){
   const s=plSesActual(); if(!s) return false
   if (P.ro){ toast('Ciclo cerrado: solo lectura'); return false }
-  if (!P.bib && !P.base && F){ const ra=await sb.from('asignaciones').select('protocolo_id').eq('socio_id',F.id).eq('activo',true).maybeSingle()
-    if (!ra.error && (!ra.data || ra.data.protocolo_id!==P.pid)){ plSaveUI('err'); gpObsoleto(); return false } }
+  if (!P.bib && !P.base && F){ const ra=await sb.from('asignaciones').select('protocolo_id, plan_revision').eq('socio_id',F.id).eq('activo',true).maybeSingle()
+    if (!ra.error && (!ra.data || ra.data.protocolo_id!==P.pid)){ plSaveUI('err'); gpObsoleto(); return false }
+    // c11.5 · otro coach/dispositivo guardó esta planificación después de que la abriste: no se pisa sin preguntar
+    if (!ra.error && ra.data && P._rev!=null && ra.data.plan_revision!==P._rev && !P._forzar){ plConflicto(); return false } }
   const firma=plFirma(s)
   plSaveUI('saving'); syncEnvio()
   const r=await sb.rpc('koach_guardar_sesion',{p_sesion:s.id, p_bloques:plPayload(s), p_nombre:(s._renombrada?s.nombre:null)})
@@ -4219,6 +4223,8 @@ async function plGuardar(){
   const s2=plSesActual()
   if (!s2 || plFirma(s2)!==firma){ console.error('[guardar sesión] verificación: la versión releída no coincide'); plSaveUI('err'); toast('Se guardó, pero la verificación no coincide. Revisa la sesión.'); return false }
   plSaveUI('done'); setTimeout(function(){ plSaveUI() }, 1800)
+  plLeerRev()
+  if (P && P._remoto){ P._remoto=false; setTimeout(function(){ socRefrescar('tras-guardar') }, 300) }   // c11.5: trae lo que llegó mientras editabas
   return true
 }
 // Protección: nunca perder cambios en silencio (modal propio, sin confirm nativo)
@@ -4678,6 +4684,44 @@ async function scAccion(acc, rid, sesId, hoy){
   SC.st=r.data; scCerrar(); scPintar()
   toast({anular:'Inicio anulado ✓', cerrar:'Sesión cerrada como incompleta ✓ — sus registros se conservan', completar:'Sesión marcada completada ✓', habilitar:'Sesión habilitada ✓ — el socio ya la ve', quitar_habilitacion:'Habilitación retirada'}[acc]||'Listo')
   loadSala().then(function(){ if (F) fPintarCtx(F.id) })
+}
+// ═══ c11.5 · SOCIO ABIERTO EN VIVO (otro monitor / otra pestaña / el socio entrenando) ═══
+// La pestaña escucha SOLO al socio de su URL. Cualquier cambio confirmado en la base (planificación guardada por otro
+// coach, sets que registra el socio, sesiones cerradas) → se vuelve a consultar la verdad. Si hay cambios sin guardar
+// en esta pestaña, no se pisan: se avisa y se recarga después de guardar.
+let _socRT=null, _socRTid=null, _socDeb=null
+function socRTSeguir(id){
+  if (_socRTid===id) return
+  try{ if (_socRT) sb.removeChannel(_socRT) }catch(_e){}
+  _socRT=null; _socRTid=id; if (!id || !sb.channel) return
+  _socRT = sb.channel('coach-socio:'+id+':'+Math.random().toString(36).slice(2,8))
+    .on('postgres_changes', { event:'*', schema:'public', table:'asignaciones', filter:'socio_id=eq.'+id }, function(){ clearTimeout(_socDeb); _socDeb=setTimeout(function(){ socRefrescar('rt') }, 700) })
+    .subscribe()
+}
+async function socRefrescar(origen){
+  if (!F || F.id!==_socRTid) return
+  const id=F.id, enPlan=document.getElementById('vPlan').classList.contains('on'), enFicha=document.getElementById('vFicha').classList.contains('on')
+  if (!enPlan && !enFicha) return
+  await cargarHistorialCargas(id); if (!F || F.id!==id) return
+  if (enPlan && P && !P.bib && !P.base && !P.ro){
+    if (typeof plEsDirty==='function' && plEsDirty()){ P._remoto=true; if (origen==='rt') toast('Hay datos nuevos de este socio: se cargarán al guardar tus cambios'); return }
+    if (typeof _pendC!=='undefined' && _pendC>0) return
+    const y=window.scrollY; await plRecargar(); window.scrollTo(0,y)
+  } else if (enFicha){ await loadSala(); if (F && F.id===id) fPintarCtx(id) }
+}
+document.addEventListener('visibilitychange', function(){ if (document.visibilityState==='visible' && F) socRefrescar('foco') })
+// c11.5 · versión de la planificación vista por esta pestaña (asignaciones.plan_revision)
+async function plLeerRev(){ if (!P || P.bib || P.base || !F) return; const pid=P.pid
+  const r=await sb.from('asignaciones').select('plan_revision').eq('socio_id',F.id).eq('activo',true).maybeSingle()
+  if (P && P.pid===pid && r.data) P._rev=r.data.plan_revision }
+function plConflicto(){
+  plSaveUI('dirty')
+  scModal('CAMBIOS NUEVOS EN ESTA PLANIFICACIÓN',
+    '<p class="gpTxt">Mientras editabas, se guardaron cambios en la planificación de este socio desde otro dispositivo o por otro coach (o el sistema la ajustó tras una sesión del socio).</p>'+
+    '<p class="gpTxt">Si guardas igual, <b>tu versión de esta sesión reemplaza a la nueva</b>.</p>'+
+    '<button type="button" class="mSG__ok" onclick="scCerrar();P.dirty={};plRecargar().then(plLeerRev)">CARGAR LO NUEVO (DESCARTA MIS CAMBIOS)</button>'+
+    '<button type="button" class="mSG__sec" onclick="scCerrar();P._forzar=true;plGuardar().finally(function(){P._forzar=false})">GUARDAR MI VERSIÓN IGUAL</button>'+
+    '<button type="button" class="mSG__sec" onclick="scCerrar()">SEGUIR EDITANDO</button>')
 }
 let MG={primero:null}
 async function aplicarPrograma(){

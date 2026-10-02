@@ -2230,7 +2230,9 @@ let _rtCanal=null, _rtDeb=null
 function rtPlanSuscribir(uid){
   if (_rtCanal || !uid || !sb.channel) return
   _rtCanal = sb.channel('plan:'+uid)
-    .on('postgres_changes', { event:'*', schema:'public', table:'asignaciones', filter:'socio_id=eq.'+uid }, function(){
+    .on('postgres_changes', { event:'*', schema:'public', table:'asignaciones', filter:'socio_id=eq.'+uid }, function(ev){
+      const n=ev&&ev.new, o=ev&&ev.old
+      if (ev && ev.eventType==='UPDATE' && n && o && o.plan_revision!=null && n.plan_revision===o.plan_revision && n.activo===o.activo && n.semana_actual===o.semana_actual) return   // solo cambió la ejecución
       clearTimeout(_rtDeb); _rtDeb=setTimeout(function(){ planActualizado('rt') }, 600) })
     .subscribe(function(st){
       if (st==='SUBSCRIBED'){ if (_rtCanal && _rtCanal._caido){ _rtCanal._caido=false; planActualizado('reconexion') } }
@@ -2697,23 +2699,13 @@ async function abrirSesion(num){
   const _op = objetivosSesion(ses).prim.slice(0,4)
   document.getElementById('sObj').innerHTML = _op.length ? 'Objetivo de hoy: '+tonoPrograma().verbo+' principalmente<br><b>'+msgLista(_op)+'.</b>' : ''
   document.getElementById('sFin').style.display='none'
-  // Sugeridos: última carga por ejercicio
+  // v11.5 · MEMORIA DE CARGAS = MISMA FUENTE QUE EL COACH (koach_historial_cargas): sets completados de sesiones no
+  // anuladas (+ historial legado). Antes leía cualquier set con peso y la tabla `cargas` por su cuenta → el coach no veía
+  // lo mismo. Ahora socio, planificador y ficha leen exactamente el mismo dato desde la base.
+  S.sugeridos={}; S.ultimos={}
   try{
-    const { data: cs } = await sb.from('cargas').select('bloque_ejercicio_id, peso_kg, id, created_at')
-      .eq('socio_id', S.perfil.id).order('created_at',{ascending:false}).limit(300)
-    S.sugeridos={}
-    ;(cs||[]).forEach(c=>{ if(!(c.bloque_ejercicio_id in S.sugeridos)) S.sugeridos[c.bloque_ejercicio_id]=c.peso_kg })
-  }catch(_){ S.sugeridos={} }
-  try{
-    // c8.1: orden por created_at (el id es UUID aleatorio → "último" salía al azar). Respaldo: cargas por ejercicio,
-    // así la semana copiada (bloque_ejercicio nuevo) igual lee lo ejecutado la semana anterior.
-    const { data: us } = await sb.from('set_registros').select('ejercicio_id, peso, reps, seg, id, created_at')
-      .eq('socio_id', S.perfil.id).order('created_at',{ascending:false}).limit(400)
-    S.ultimos={}
-    ;(us||[]).forEach(u=>{ if(u.ejercicio_id && (u.peso!=null||u.seg!=null||u.reps!=null) && !(u.ejercicio_id in S.ultimos)) S.ultimos[u.ejercicio_id]=u })
-    const { data: uc } = await sb.from('cargas').select('ejercicio_id, peso_kg, reps_realizadas, created_at')
-      .eq('socio_id', S.perfil.id).order('created_at',{ascending:false}).limit(300)
-    ;(uc||[]).forEach(c=>{ if(c.ejercicio_id && c.peso_kg!=null && !(c.ejercicio_id in S.ultimos)) S.ultimos[c.ejercicio_id]={peso:c.peso_kg, reps:c.reps_realizadas} })
+    const { data: hm } = await sb.rpc('koach_historial_cargas', { p_socio:S.perfil.id })
+    Object.keys(hm||{}).forEach(ej=>{ const u=(hm[ej]||{}).ultimo; if (u && (u.peso!=null||u.seg!=null||u.reps!=null)) S.ultimos[ej]={ peso:u.peso, reps:u.reps, seg:u.seg } })
   }catch(_){ S.ultimos={} }
   pintarSesion()
   // Overlay de activación
