@@ -846,6 +846,12 @@ html.selAbierto,html.selAbierto body{overflow:hidden}
 .scOpt b{font-family:var(--font-display);font-size:15px;color:#121212}.scOpt small{font-family:var(--font-mono);font-size:11px;letter-spacing:.08em;color:#5E5D59}
 .scOpt.on{border-color:#121212;border-width:2px}.scOpt:disabled{opacity:.45;cursor:default}
 .scChk{display:flex;gap:10px;align-items:center;margin:4px 0 12px;font-size:14px;color:#121212}
+
+/* ═══ c11.4 · MODALES SEGUROS EN iPHONE ═══
+   Regla: si hay fondo, hay contenido visible. El panel nunca puede quedar fuera de la pantalla ni detrás de su propio fondo. */
+.mSG{display:none;height:100%;height:100dvh;max-height:-webkit-fill-available;padding-top:env(safe-area-inset-top,0px);box-sizing:border-box;overflow:hidden}
+.mSG > .mSG__c{position:relative;z-index:1;isolation:isolate;max-height:calc(100% - 12px);overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;box-sizing:border-box;transform:translateZ(0)}
+@supports (-webkit-touch-callout:none){ .mSG,.mCg,.selM,.adSheetBg{-webkit-backdrop-filter:none !important;backdrop-filter:none !important;background:rgba(10,10,11,.62) !important} }
 /* ═══ FIN CAPA 3 ═══ */
 /* ═══ MOTOR DE CONSTRUCCIÓN c8.0 · MACRO → MESO → MICRO ═══ */
 .plNav{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin:0 0 14px}
@@ -924,7 +930,7 @@ html.selAbierto,html.selAbierto body{overflow:hidden}
 </div></div>
 
 <div class="vista" id="vSala">
-  <div class="hbar"><span class="hk" title="c11.3">KOACH</span><span class="hbar__r"><button class="dashBtn" onclick="dashMenu()" aria-label="Vista del dashboard">VISTA</button><button class="dashBtn" onclick="cuentaAbrir()" aria-label="Mi cuenta: cambiar contraseña">MI CLAVE</button><span class="rol" id="rolBadge" onclick="salir()">COACH</span></span></div>
+  <div class="hbar"><span class="hk" title="c11.4">KOACH</span><span class="hbar__r"><button class="dashBtn" onclick="dashMenu()" aria-label="Vista del dashboard">VISTA</button><button class="dashBtn" onclick="cuentaAbrir()" aria-label="Mi cuenta: cambiar contraseña">MI CLAVE</button><span class="rol" id="rolBadge" onclick="salir()">COACH</span></span></div>
   <div class="adAcc" id="accesos"></div>
   <div class="glass aform" id="fAlta" style="display:none">
     <h4>CREAR USUARIO — ENTRA AL INSTANTE CON SU CORREO Y CLAVE</h4>
@@ -1091,7 +1097,7 @@ html.selAbierto,html.selAbierto body{overflow:hidden}
     <button class="mSG__del" onclick="plGuardDescartar()">Descartar cambios</button></div>
 </div>
 <div id="mCargas" class="mCg" style="display:none" onclick="if(event.target===this)this.style.display='none'"><div class="mCg__c"><button class="mCg__x" onclick="document.getElementById('mCargas').style.display='none'" aria-label="Cerrar">✕</button><div id="cgBody"></div></div></div>
-<div id="mDash" class="mSG" style="display:none" role="dialog" aria-modal="true" aria-labelledby="mDashT">
+<div id="mDash" class="mSG" style="display:none" role="dialog" aria-modal="true" aria-labelledby="mDashT" onclick="if(event.target===this)dashElegir(dashPref()||'auto')">
   <div class="mSG__c"><div class="mSG__k">DASHBOARD COACH</div><h3 id="mDashT">¿CÓMO VAS A USAR EL DASHBOARD?</h3><p>Se recuerda en este navegador. Puedes cambiarlo cuando quieras desde VISTA.</p>
     <button class="dshOpt" id="dsh-desktop" onclick="dashElegir('desktop')"><b>ESCRITORIO</b><span>Vista completa para trabajar desde computador.</span></button>
     <button class="dshOpt" id="dsh-tablet" onclick="dashElegir('tablet')"><b>TABLET</b><span>Vista táctil para trabajar en sala.</span></button>
@@ -4370,7 +4376,10 @@ function dashElegir(m){
   document.getElementById('mDash').style.display='none'
   dashAplicar(); toast('Vista del dashboard: '+({desktop:'ESCRITORIO',tablet:'TABLET',auto:'AUTOMÁTICA'})[m])
 }
-function dashSelectorInicial(){ if (!dashPref()){ document.getElementById('mDashT').textContent='¿CÓMO VAS A USAR EL DASHBOARD?'; dashMenuUI(); document.getElementById('mDash').style.display='flex' } }
+function dashEsTelefono(){ try{ return matchMedia('(pointer:coarse)').matches && Math.min(screen.width, screen.height) < 700 }catch(_e){ return false } }
+function dashSelectorInicial(){
+  if (!dashPref() && dashEsTelefono()){ try{ localStorage.setItem(DASH_KEY,'auto') }catch(_e){} dashAplicar(); return }
+  if (!dashPref()){ document.getElementById('mDashT').textContent='¿CÓMO VAS A USAR EL DASHBOARD?'; dashMenuUI(); document.getElementById('mDash').style.display='flex' } }
 function dashMenu(){ document.getElementById('mDashT').textContent='VISTA DEL DASHBOARD'; dashMenuUI(); document.getElementById('mDash').style.display='flex' }
 function dashMenuUI(){ const p=dashPref()||''; ['desktop','tablet','auto'].forEach(function(k){ const b=document.getElementById('dsh-'+k); if(b){ b.classList.toggle('on', p===k); b.setAttribute('aria-pressed', p===k?'true':'false') } }) }
 if (_dashMQ && _dashMQ.addEventListener) _dashMQ.addEventListener('change', function(){ if ((dashPref()||'auto')==='auto') dashAplicar() })
@@ -4651,6 +4660,7 @@ function scElegir(){
   const st=SC.st||{}, ses=st.sesiones||[], px=st.proxima
   scModal(st.entreno_hoy?'HABILITAR OTRA SESIÓN HOY':'ELEGIR LA SESIÓN DEL SOCIO',
     (st.entreno_hoy?'<p class="gpTxt">El socio ya realizó una sesión hoy. La que elijas quedará disponible de inmediato.</p>':'<p class="gpTxt">La sesión que elijas será la próxima del socio. No cambia el orden de la planificación.</p>')+
+    ((st.abiertas||[]).length?'<p class="gpTxt">'+(st.abiertas||[]).map(function(a){return '<b>'+plEsc(String(a.nombre||'').toUpperCase())+'</b>'}).join(', ')+' sigue abierta: <b>no se modifica</b> (ni sets, ni cargas, ni su estado).</p>':'')+
     '<div class="scList">'+ses.map(function(x){ const hecha=x.estado==='completada'
       return '<button type="button" class="scOpt'+(px&&px.id===x.id?' on':'')+'"'+(hecha?' disabled':'')+' onclick="scHabilitar(\''+x.id+'\')"><b>'+String(x.numero).padStart(2,'0')+' · '+plEsc(String(x.nombre||'').toUpperCase())+'</b><small>'+(SC_EST[x.estado]||x.estado)+'</small></button>' }).join('')+'</div>'+
     '<label class="scChk"><input type="checkbox" id="scHoy"'+(st.entreno_hoy?' checked':'')+'> Permitir entrenarla hoy aunque ya haya completado otra sesión</label>'+
