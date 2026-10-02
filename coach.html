@@ -805,6 +805,9 @@ html.selAbierto,html.selAbierto body{overflow:hidden}
 .cuL{display:block;margin:12px 0 6px;font-family:var(--font-mono);font-size:11.5px;letter-spacing:.14em;color:#5E5D59}
 .cuI{width:100%;box-sizing:border-box;min-height:52px;padding:0 14px;border-radius:12px;border:1px solid rgba(18,18,16,.2);background:#fff;font-size:17px}
 #mCuenta .mSG__ok{margin-top:16px}
+
+.adIng__l{display:flex;flex-wrap:wrap;gap:6px 16px;margin-top:6px;font-family:var(--font-mono);font-size:12px;letter-spacing:.04em;color:#121212}
+.adIng__l b{font-weight:600;letter-spacing:.1em}.adIng__nm{color:#5E5D59}.adIng__t{flex-basis:100%;font-size:11px;letter-spacing:.12em}
 /* ═══ FIN CAPA 3 ═══ */
 /* ═══ MOTOR DE CONSTRUCCIÓN c8.0 · MACRO → MESO → MICRO ═══ */
 .plNav{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin:0 0 14px}
@@ -883,7 +886,7 @@ html.selAbierto,html.selAbierto body{overflow:hidden}
 </div></div>
 
 <div class="vista" id="vSala">
-  <div class="hbar"><span class="hk" title="c11.0">KOACH</span><span class="hbar__r"><button class="dashBtn" onclick="dashMenu()" aria-label="Vista del dashboard">VISTA</button><button class="dashBtn" onclick="cuentaAbrir()" aria-label="Mi cuenta: cambiar contraseña">MI CLAVE</button><span class="rol" id="rolBadge" onclick="salir()">COACH</span></span></div>
+  <div class="hbar"><span class="hk" title="c11.1">KOACH</span><span class="hbar__r"><button class="dashBtn" onclick="dashMenu()" aria-label="Vista del dashboard">VISTA</button><button class="dashBtn" onclick="cuentaAbrir()" aria-label="Mi cuenta: cambiar contraseña">MI CLAVE</button><span class="rol" id="rolBadge" onclick="salir()">COACH</span></span></div>
   <div class="adAcc" id="accesos"></div>
   <div class="glass aform" id="fAlta" style="display:none">
     <h4>CREAR USUARIO — ENTRA AL INSTANTE CON SU CORREO Y CLAVE</h4>
@@ -941,6 +944,7 @@ html.selAbierto,html.selAbierto body{overflow:hidden}
   <div class="stop"><button class="sback" onclick="verSala()">←</button><div class="stit">Membresías</div>
     <span class="rol" id="admCnt" style="margin-left:auto">—</span></div>
   <div class="ssub">VIGENCIA · PAGOS · HISTORIAL COMERCIAL</div>
+  <div id="admIng"></div>
   <div id="admVenc"></div>
   <input id="admBusca" placeholder="Buscar socio…" oninput="admPintar()">
   <div class="adChips" id="admF"></div>
@@ -3646,7 +3650,7 @@ async function adCargarResumen(){
   try{
     const [rs, rm] = await Promise.all([
       sb.from('solicitudes').select('id',{count:'exact',head:true}).eq('estado','pendiente'),
-      sb.from('v_membresias').select('id,socio_id,estado,estado_calc,dias_restantes,fecha_fin,fecha_inicio,pago_pendiente')
+      sb.from('v_membresias').select('id,socio_id,estado,estado_calc,dias_restantes,fecha_fin,fecha_inicio,pago_pendiente,tipo_comercial,valor_referencia')
     ])
     AD.nPend = (rs.count!=null) ? rs.count : (C.sols||[]).length
     AD.mem = rm.data||[]
@@ -3774,8 +3778,10 @@ function admPintar(){
   const pend=new Set(AD.mem.filter(function(m){return m.pago_pendiente}).map(function(m){return m.socio_id}))
   // POR ACTIVAR = se registró y le falta membresía o planificación (lo resuelve el equipo)
   const porActivar=function(sid){ return est[sid].k==='sin' || !C.asig[sid] }
-  const F2=[['activar','POR ACTIVAR'],['todos','TODOS'],['activa','ACTIVOS'],['proxima','PRÓXIMOS A VENCER'],['vencida','VENCIDOS'],['congelada','CONGELADOS'],['pago','PAGO PENDIENTE'],['sin','SIN MEMBRESÍA']]
-  const cuenta=function(k){ return soc.filter(function(s){ return k==='todos'||(k==='activar'?porActivar(s.id):k==='pago'?pend.has(s.id):(k==='activa'?['activa','futura'].indexOf(est[s.id].k)>-1:est[s.id].k===k)) }).length }
+  const esUgc=function(sid){ const m=adMemVigente(sid); return !!(m && m.tipo_comercial==='ugc') }
+  admIngresos()
+  const F2=[['activar','POR ACTIVAR'],['todos','TODOS'],['activa','ACTIVOS'],['proxima','PRÓXIMOS A VENCER'],['vencida','VENCIDOS'],['congelada','CONGELADOS'],['pago','PAGO PENDIENTE'],['ugc','UGC'],['sin','SIN MEMBRESÍA']]
+  const cuenta=function(k){ return soc.filter(function(s){ return k==='todos'||(k==='activar'?porActivar(s.id):k==='pago'?pend.has(s.id):k==='ugc'?esUgc(s.id):(k==='activa'?['activa','futura'].indexOf(est[s.id].k)>-1:est[s.id].k===k)) }).length }
   document.getElementById('admF').innerHTML=F2.map(function(f){ return '<button class="'+(AD.admF===f[0]?'on':'')+'" onclick="AD.admF=\''+f[0]+'\';admPintar()">'+f[1]+' · '+cuenta(f[0])+'</button>' }).join('')
   // PRÓXIMOS VENCIMIENTOS 30/14/7
   const pv=soc.map(function(s){ return [s, est[s.id].m] }).filter(function(p){ return p[1] && p[1].dias_acceso!=null && p[1].dias_acceso>=0 && p[1].dias_acceso<=30 })
@@ -3787,7 +3793,7 @@ function admPintar(){
     pv.map(function(p){ return '<div class="adLi" onclick="verFicha(\''+p[0].id+'\');fTab(\'adm\')" style="cursor:pointer"><span>'+adEsc(nomDe(p[0].id))+'<small>VENCE '+adF(p[1].fecha_fin)+'</small></span><span>'+p[1].dias_restantes+' D<small>'+tramo(p[1].dias_restantes)+'</small></span></div>' }).join('')+'</details>' : ''
   const b=(document.getElementById('admBusca').value||'').trim().toLowerCase()
   const l=soc.filter(function(s){ const k=AD.admF
-      return (k==='todos'||(k==='activar'?porActivar(s.id):k==='pago'?pend.has(s.id):(k==='activa'?['activa','futura'].indexOf(est[s.id].k)>-1:est[s.id].k===k))) && (!b || nomDe(s.id).toLowerCase().indexOf(b)>-1) })
+      return (k==='todos'||(k==='activar'?porActivar(s.id):k==='pago'?pend.has(s.id):k==='ugc'?esUgc(s.id):(k==='activa'?['activa','futura'].indexOf(est[s.id].k)>-1:est[s.id].k===k))) && (!b || bpScore(b, nomDe(s.id), [s.email,s.telefono].filter(Boolean).join(' '))>0) })
   document.getElementById('admCnt').textContent=soc.length+' SOCIOS'
   document.getElementById('admLista').innerHTML = l.length ? l.map(function(s){ const e=est[s.id], m=e.m
     return '<div class="adRow"><div class="adB"><div class="adN">'+adEsc(nomDe(s.id))+'</div><div class="adM">'+
@@ -3852,7 +3858,7 @@ async function fAdmCargar(){
     const pm=AD.fMem.find(function(m){return m.id===p.membresia_id})
     const vg=pm?('<b>'+(pm.duracion_label||'')+'</b> · VIGENCIA '+(pm.duracion_tipo==='dia'?adF(pm.fecha_inicio):adF(pm.fecha_inicio)+' → '+adF(pm.fecha_fin))+'<br>'):''
     return '<div class="adLi" style="'+(p.anulado?'opacity:.5;text-decoration:line-through':'')+'"><span>'+adF(p.fecha_pago)+'<small>'+vg+(p.metodo?String(p.metodo).toUpperCase()+' · ':'')+(p.referencia?adEsc(p.referencia)+' · ':'')+(p.notas?adEsc(p.notas):'')+(p.anulado?' · ANULADO: '+adEsc(p.anulado_motivo||''):'')+'</small></span>'+
-      '<span>'+adCLP(p.monto_final)+'<small>'+String(p.estado).toUpperCase()+(p.anulado?'':' · <a onclick="admFormPagoEdit(\''+p.id+'\')" style="text-decoration:underline;cursor:pointer">CORREGIR</a>')+'</small></span></div>' }).join(''):'<div class="adS">Sin pagos registrados.</div>')+'</div>'
+      '<span>'+(p.metodo==='ugc' ? 'UGC<small>VALOR REF. '+adCLP((pm&&pm.valor_referencia)||0)+' · PAGADO $0 · NO MONETARIO' : adCLP(p.monto_final)+'<small>'+String(p.estado).toUpperCase())+(p.anulado?'':' · <a onclick="admFormPagoEdit(\''+p.id+'\')" style="text-decoration:underline;cursor:pointer">CORREGIR</a>')+'</small></span></div>' }).join(''):'<div class="adS">Sin pagos registrados.</div>')+'</div>'
   if (cong.length) h+='<div class="adCard"><div class="adK"><span>CONGELAMIENTOS</span><span>'+cong.length+'</span></div>'+cong.map(function(c){
     return '<div class="adLi"><span>'+adF(c.desde)+' — '+adF(c.hasta)+'<small>'+(c.motivo?adEsc(c.motivo):'')+'</small></span><span>'+c.dias+' D<small>'+(c.extendio_vencimiento?'EXTENDIÓ VENCIMIENTO':'SIN EXTENSIÓN')+'</small></span></div>' }).join('')+'</div>'
   h+='<div class="adCard"><div class="adK"><span>REGISTRO DE CAMBIOS</span><span>'+(re.data||[]).length+'</span></div>'+((re.data||[]).map(function(e){
@@ -3923,11 +3929,12 @@ async function admGuardarMem(id){
 const AD_DUR=[['dia:1','DAY PASS'],['semana:1','1 SEMANA']].concat([1,2,3,4,5,6,7,8,9,10,11,12].map(function(n){return ['mes:'+n, n+' MES'+(n>1?'ES':'')]}))
 function admFormPago(){
   admAbrir('REGISTRAR PAGO · '+nomDe(F.id).toUpperCase(),'<div class="adF"><div class="adRow2"><div><label>FECHA</label><input type="date" id="apF" value="'+hoyISO()+'" onchange="admPrevVig()"></div>'+
-    '<div><label>MONTO (CLP)</label><input inputmode="numeric" id="apM" placeholder="0"></div></div>'+
+    '<div><label id="apML">MONTO (CLP)</label><input inputmode="numeric" id="apM" placeholder="0"></div></div>'+
     '<label>VIGENCIA</label><select id="apD" onchange="admPrevVig()"><option value="">SELECCIONAR DURACIÓN</option>'+AD_DUR.map(function(d){return '<option value="'+d[0]+'">'+d[1]+'</option>'}).join('')+'</select>'+
     '<div class="adNote" id="apV">Elige la duración para ver hasta cuándo queda habilitado.</div>'+
-    '<div class="adRow2"><div><label>ESTADO</label><select id="apE"><option value="pagado">PAGADO</option><option value="pendiente">PENDIENTE</option></select></div>'+
-    '<div><label>MÉTODO</label><select id="apMe"><option value="">—</option><option>transferencia</option><option>efectivo</option><option>débito</option><option>crédito</option><option>otro</option></select></div></div>'+
+    '<div class="adRow2"><div id="apEW"><label>ESTADO</label><select id="apE"><option value="pagado">PAGADO</option><option value="pendiente">PENDIENTE</option></select></div>'+
+    '<div><label>MODALIDAD</label><select id="apMe" onchange="admModalidad()"><option value="">—</option><option>transferencia</option><option>efectivo</option><option>débito</option><option>crédito</option><option>otro</option><option value="ugc">UGC · NO MONETARIO</option></select></div></div>'+
+    '<div class="adNote" id="apUgc" style="display:none">UGC: activa la membresía igual que un pago, pero <b>no suma a caja ni a ingresos</b>. MONTO PAGADO <b>$0</b>. El valor referencial queda registrado para saber cuánto entregamos en colaboraciones.</div>'+
     '<label>REFERENCIA</label><input id="apR" placeholder="opcional"><label>OBSERVACIÓN</label><input id="apO" placeholder="opcional">'+
     '</div><div class="adBtns"><button class="ink" onclick="admGuardarPago()">REGISTRAR</button></div>')
 }
@@ -3939,9 +3946,24 @@ async function admPrevVig(){
   const v=r.data
   el.innerHTML='VIGENCIA RESULTANTE · <b>'+(t[0]==='dia'?adF(v.inicio):adF(v.inicio)+' → '+adF(v.fin))+'</b>'+(v.encadena?'<br>Tiene un plan vigente: el nuevo período se suma desde su término, no pierde días.':'')
 }
+function admModalidad(){
+  const u=document.getElementById('apMe').value==='ugc'
+  document.getElementById('apML').textContent = u ? 'VALOR REFERENCIAL (CLP)' : 'MONTO (CLP)'
+  document.getElementById('apM').placeholder = u ? 'Ej: 80000' : '0'
+  document.getElementById('apUgc').style.display = u ? '' : 'none'; document.getElementById('apEW').style.visibility = u ? 'hidden' : ''
+  document.getElementById('apO').placeholder = u ? 'Ej: 1 mes a cambio de contenido UGC para redes' : 'opcional'
+}
 async function admGuardarPago(){
   const g=function(x){return (document.getElementById(x)||{}).value}
   const monto=parseInt(String(g('apM')).replace(/\D/g,''),10), dur=g('apD')
+  if (g('apMe')==='ugc'){
+    if(!g('apF')||isNaN(monto)){ toast('Fecha y valor referencial son obligatorios.'); return }
+    if(!dur){ toast('Selecciona la vigencia.'); return }
+    const t=dur.split(':'), ac=adActor(); syncEnvio()
+    const r=await sb.rpc('admin_pago_ugc',{p_socio:F.id,p_fecha:g('apF'),p_tipo:t[0],p_valor:+t[1],p_valor_ref:monto,p_obs:(g('apO')||'').trim()||null,p_actor:ac.id,p_actor_nombre:ac.nombre})
+    if (r.error){ syncErr(r.error.message); toast('No se pudo registrar: '+r.error.message); return }
+    syncOk(); admCerrar(); toast('UGC registrado ✓ · vigencia hasta '+adF(r.data.fin)+' · sin ingreso monetario'); await adCargarResumen(); fAdmCargar(); return
+  }
   if(!g('apF')||isNaN(monto)){ toast('Fecha y monto son obligatorios.'); return }
   if(!dur){ toast('Selecciona la vigencia del pago.'); return }
   const t=dur.split(':'), ac=adActor(); syncEnvio()
@@ -4042,7 +4064,7 @@ function adhPintar(){
   const pasa=(x,k)=>k==='todos'||(k==='seg'?x._al.length>0:x._al.some(a=>a[0]===k))
   document.getElementById('adhF').innerHTML=F.map(f=>'<button class="'+(ADH.f===f[0]?'on':'')+'" onclick="ADH.f=\''+f[0]+'\';adhPintar()">'+f[1]+' · '+R.filter(x=>pasa(x,f[0])).length+'</button>').join('')
   const q=(document.getElementById('adhBusca').value||'').trim().toLowerCase()
-  const l=R.filter(x=>pasa(x,ADH.f) && (!q || ((x.nombre||'')+' '+(x.apellido||'')+' '+(x.email||'')).toLowerCase().indexOf(q)>-1))
+  const l=R.filter(x=>pasa(x,ADH.f) && (!q || bpScore(q,(x.nombre||'')+' '+(x.apellido||''),x.email||'')>0))
     .sort((a,b)=>(b._al.length-a._al.length)||String(a.nombre).localeCompare(String(b.nombre)))
   document.getElementById('adhLista').innerHTML = l.length ? l.map(x=>{
     const est = x._al.length ? x._al.slice(0,2).map(a=>'<span class="adTag ink">'+a[1]+'</span>').join('') : '<span class="adTag">AL DÍA</span>'
@@ -4358,9 +4380,13 @@ function fPintarCtx(id){
     cel('ESTA SEMANA', x?x.hechas+' / '+x.sesSem:'—')+'</div>'+accEnt(id,true)+
     '<button type="button" class="eBtn eBtn--ghost gpBtn" onclick="gpAbrir()">GESTIONAR PROGRAMA</button>'
 }
-function salaBuscar(){ const q=(document.getElementById('salaQ').value||'').trim().toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'')
-  let n=0; document.querySelectorAll('#lista [data-nom]').forEach(function(el){ const ok=!q || el.getAttribute('data-nom').indexOf(q)>-1; el.style.display=ok?'':'none'; if(ok) n++ })
-  const v=document.getElementById('salaQv'); if(v) v.style.display = (q && !n) ? '' : 'none' }
+function salaBuscar(){ const raw=document.getElementById('salaQ').value||'', q=bpNorm(raw), lista=document.getElementById('lista')
+  const els=[...lista.querySelectorAll(':scope > [data-nom]')]
+  if (!els._orig) els.forEach(function(el,i){ if(el.dataset.o==null) el.dataset.o=i })
+  let n=0; const sc=els.map(function(el){ const so=(C.socios||[]).find(function(x){return x.id===el.dataset.id})||{}
+    const v=q ? bpScore(q, el.getAttribute('data-nom'), [so.email,so.telefono].filter(Boolean).join(' ')) : 1; el.style.display=v?'':'none'; if(v) n++; return {el:el,v:v} })
+  sc.sort(function(a,b){ return q ? (b.v-a.v || (+a.el.dataset.o)-(+b.el.dataset.o)) : (+a.el.dataset.o)-(+b.el.dataset.o) }).forEach(function(x){ lista.appendChild(x.el) })
+  const v=document.getElementById('salaQv'); if(v){ v.style.display = (q && !n) ? '' : 'none'; v.textContent='No encontramos socios para “'+raw.trim()+'”.' } }
 function salaBuscarKey(ev){ if (ev.key!=='Enter') return; const f=[...document.querySelectorAll('#lista [data-nom]')].filter(function(e){return e.style.display!=='none'})
   if (f.length===1){ const id=f[0].getAttribute('data-id'); location.hash=urlRutina(id) } }
 // ═══════════ c10.8 · GESTIONAR PROGRAMA ═══════════
@@ -4484,6 +4510,38 @@ async function cuentaGuardar(){
       : /weak|pwned|leaked/i.test(m) ? 'Esa contraseña es demasiado débil o aparece en filtraciones conocidas. Elige otra.'
       : 'No se pudo cambiar: '+m) }
   cuentaCerrar(); toast('Contraseña actualizada ✓ — tu sesión sigue abierta')
+}
+// ═══ c11.1 · BÚSQUEDA DE PERSONAS (nombre + apellido, sin tildes, por palabras en cualquier orden, tolera un error de tipeo) ═══
+function bpNorm(t){ return String(t||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9@.+ ]/g,' ').replace(/\s+/g,' ').trim() }
+function _lev(a,b,max){ if (Math.abs(a.length-b.length)>max) return max+1; let p=Array.from({length:b.length+1},(_,i)=>i)
+  for (let i=1;i<=a.length;i++){ const c=[i]; let mn=i; for (let j=1;j<=b.length;j++){ c[j]=Math.min(p[j]+1,c[j-1]+1,p[j-1]+(a[i-1]===b[j-1]?0:1)); if(c[j]<mn) mn=c[j] } if (mn>max) return max+1; p=c } return p[b.length] }
+// Puntaje (0 = no coincide). Todas las palabras escritas deben encontrar una palabra del nombre (o del correo/teléfono).
+function bpScore(q, nombre, extra){
+  const Q=bpNorm(q); if(!Q) return 1
+  const N=bpNorm(nombre), W=N.split(' ').filter(Boolean), X=bpNorm(extra||'')
+  let total=0
+  for (const t of Q.split(' ')){
+    let best=0
+    W.forEach(function(w){ if (w.indexOf(t)===0) best=Math.max(best,3); else if (w.indexOf(t)>-1) best=Math.max(best,2)
+      else if (t.length>=5){ const tope=t.length>=8?2:1; const pref=w.slice(0,Math.max(t.length,Math.min(w.length,t.length+1)))
+        if (_lev(t,pref,tope)<=tope || _lev(t,w,tope)<=tope) best=Math.max(best,1) } })
+    if (!best && X && X.indexOf(t)>-1) best=1
+    if (!best) return 0
+    total+=best
+  }
+  if (N.indexOf(Q)===0) total+=6; else if (W.some(function(w){ return w.indexOf(Q)===0 })) total+=3; else if (N.indexOf(Q)>-1) total+=2
+  return total
+}
+// c11.1 · Ingresos del mes: dinero cobrado separado de UGC / canjes / cortesías (valor referencial, no suma a caja)
+async function admIngresos(){
+  const el=document.getElementById('admIng'); if(!el) return
+  const h=hoyISO(), d=h.slice(0,8)+'01', r=await sb.rpc('admin_resumen_ingresos',{p_desde:d,p_hasta:h})
+  if (r.error || !r.data){ el.innerHTML=''; return }
+  const x=r.data, nm=x.no_monetario||{}, it=function(k,l){ const v=nm[k]; return v&&v.n ? '<span><b>'+l+'</b> '+v.n+' · ref. '+adCLP(v.valor_ref)+'</span>' : '' }
+  const nmTxt=[it('ugc','UGC'),it('canje','CANJE'),it('cortesia','CORTESÍA')].filter(Boolean).join('')
+  el.innerHTML='<div class="adCard adIng"><div class="adK"><span>ESTE MES · INGRESOS</span><span>'+adCLP(x.cobrado)+'</span></div>'+
+    '<div class="adIng__l"><span><b>COBRADO</b> '+adCLP(x.cobrado)+' · '+x.n_cobrado+' pagos</span>'+(x.pendiente?'<span><b>PENDIENTE</b> '+adCLP(x.pendiente)+'</span>':'')+'</div>'+
+    (nmTxt?'<div class="adIng__l adIng__nm"><span class="adIng__t">NO MONETARIO (no suma a caja)</span>'+nmTxt+'</div>':'')+'</div>'
 }
 let MG={primero:null}
 async function aplicarPrograma(){
