@@ -830,6 +830,22 @@ html.selAbierto,html.selAbierto body{overflow:hidden}
 .dsr--0 .dsr__g,.dsr--0 .dsr__v{color:#9A9993}
 .dsSep{margin:12px 0 6px;padding-top:10px;border-top:1px dashed rgba(18,18,16,.15);font-family:var(--font-mono);font-size:11.5px;letter-spacing:.12em;color:#5E5D59}
 .dsr--d .dsr__f{background:linear-gradient(90deg,rgba(150,150,145,.30),rgba(120,120,115,.55));box-shadow:none}
+
+/* ═══ c11.3 · control de entrenamiento ═══ */
+.scCard{flex:1 1 100%;margin-top:12px;padding:12px 14px;border-radius:14px;border:1px solid rgba(18,18,16,.12);background:rgba(255,255,255,.5)}
+.scK{font-family:var(--font-mono);font-size:11.5px;letter-spacing:.14em;color:#5E5D59;margin-bottom:6px}
+.scRow{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:10px;padding:10px 0;border-top:1px solid rgba(18,18,16,.08)}
+.scRow b{display:block;font-family:var(--font-display);font-size:16px;color:#121212}
+.scRow small{display:block;margin-top:3px;font-family:var(--font-mono);font-size:11.5px;letter-spacing:.04em;color:#5E5D59}
+.scRow--abierta{background:rgba(242,212,155,.18);margin:0 -14px;padding:10px 14px}
+.scPill{display:inline-block;margin-top:4px;padding:3px 8px;border-radius:8px;background:rgba(18,18,16,.08);font-family:var(--font-mono);font-size:11px;letter-spacing:.08em;color:#121212}
+.scPill--hab{background:#121212;color:#F4F3F0}
+.scBtns{display:flex;gap:8px;flex-wrap:wrap}
+.scList{display:flex;flex-direction:column;gap:8px;margin:6px 0 12px}
+.scOpt{display:flex;justify-content:space-between;align-items:center;min-height:52px;padding:0 14px;border-radius:12px;border:1px solid rgba(18,18,16,.18);background:transparent;cursor:pointer;text-align:left}
+.scOpt b{font-family:var(--font-display);font-size:15px;color:#121212}.scOpt small{font-family:var(--font-mono);font-size:11px;letter-spacing:.08em;color:#5E5D59}
+.scOpt.on{border-color:#121212;border-width:2px}.scOpt:disabled{opacity:.45;cursor:default}
+.scChk{display:flex;gap:10px;align-items:center;margin:4px 0 12px;font-size:14px;color:#121212}
 /* ═══ FIN CAPA 3 ═══ */
 /* ═══ MOTOR DE CONSTRUCCIÓN c8.0 · MACRO → MESO → MICRO ═══ */
 .plNav{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin:0 0 14px}
@@ -908,7 +924,7 @@ html.selAbierto,html.selAbierto body{overflow:hidden}
 </div></div>
 
 <div class="vista" id="vSala">
-  <div class="hbar"><span class="hk" title="c11.2">KOACH</span><span class="hbar__r"><button class="dashBtn" onclick="dashMenu()" aria-label="Vista del dashboard">VISTA</button><button class="dashBtn" onclick="cuentaAbrir()" aria-label="Mi cuenta: cambiar contraseña">MI CLAVE</button><span class="rol" id="rolBadge" onclick="salir()">COACH</span></span></div>
+  <div class="hbar"><span class="hk" title="c11.3">KOACH</span><span class="hbar__r"><button class="dashBtn" onclick="dashMenu()" aria-label="Vista del dashboard">VISTA</button><button class="dashBtn" onclick="cuentaAbrir()" aria-label="Mi cuenta: cambiar contraseña">MI CLAVE</button><span class="rol" id="rolBadge" onclick="salir()">COACH</span></span></div>
   <div class="adAcc" id="accesos"></div>
   <div class="glass aform" id="fAlta" style="display:none">
     <h4>CREAR USUARIO — ENTRA AL INSTANTE CON SU CORREO Y CLAVE</h4>
@@ -1100,6 +1116,9 @@ html.selAbierto,html.selAbierto body{overflow:hidden}
     <button type="submit" class="mSG__ok" id="cuOk">GUARDAR NUEVA CONTRASEÑA</button>
     <button type="button" class="mSG__sec" onclick="cuentaCerrar()">CANCELAR</button>
   </form>
+</div>
+<div id="mSC" class="mSG" style="display:none" role="dialog" aria-modal="true" aria-labelledby="scT" onclick="if(event.target===this&&!SC.run)scCerrar()">
+  <div class="mSG__c gp"><div class="mSG__k">CONTROL DE ENTRENAMIENTO</div><h3 id="scT">—</h3><div id="scBody"></div></div>
 </div>
 <!-- PICKER DE PROGRAMA BASE -->
 <div class="vista" id="vPicker">
@@ -4414,7 +4433,9 @@ function fPintarCtx(id){
     cel('SEMANA', x?x.semana+' <em>DE '+(x.total||'—')+'</em>':'—')+
     cel(x&&x.enCurso?'EN CURSO':'PRÓXIMA', x&&x.abrir?String(x.abrir.nombre||'').toUpperCase():'SEMANA COMPLETA')+
     cel('ESTA SEMANA', x?x.hechas+' / '+x.sesSem:'—')+'</div>'+accEnt(id,true)+
-    '<button type="button" class="eBtn eBtn--ghost gpBtn" onclick="gpAbrir()">GESTIONAR PROGRAMA</button>'
+    '<button type="button" class="eBtn eBtn--ghost gpBtn" onclick="gpAbrir()">GESTIONAR PROGRAMA</button>'+
+    '<div class="scCard" id="scCard"><div class="scK">CONTROL DE ENTRENAMIENTO</div><div class="gpCarga">Cargando…</div></div>'
+  scCargar(id)
 }
 function salaBuscar(){ const raw=document.getElementById('salaQ').value||'', q=bpNorm(raw), lista=document.getElementById('lista')
   const els=[...lista.querySelectorAll(':scope > [data-nom]')]
@@ -4582,6 +4603,72 @@ async function admIngresos(){
 // c11.2 · la cabecera del planificador queda fija; al bajar se compacta (sin perder nombre, programa ni navegación)
 ;(function(){ let raf=0; window.addEventListener('scroll', function(){ if(raf) return; raf=requestAnimationFrame(function(){ raf=0
   const v=document.getElementById('vPlan'); if (v && v.classList.contains('on')) v.classList.toggle('plCompacto', window.scrollY>60) }) }, {passive:true}) })()
+// ═══ c11.3 · CONTROL DE ENTRENAMIENTO (coach override, autoritativo en la base: koach_sesion_accion) ═══
+// Anular inicio (sin datos) · cerrar incompleta (conserva sets) · marcar completada (auditado) · habilitar sesión (otra hoy).
+let SC={ st:null, run:false, sid:null }
+const SC_EST={ completada:'COMPLETADA', en_curso:'EN CURSO', omitida:'INCOMPLETA', pendiente:'PENDIENTE' }
+function scFecha(f){ if(!f) return '—'; const d=new Date(String(f).length>10?f:f+'T12:00:00'); return d.toLocaleDateString('es-CL',{day:'2-digit',month:'short'}).toUpperCase() }
+async function scCargar(id){
+  SC.sid=id; const el=document.getElementById('scCard'); if(!el) return
+  const r=await sb.rpc('koach_sesiones_socio',{p_socio:id}); if (SC.sid!==id || !document.getElementById('scCard')) return
+  if (r.error){ el.innerHTML='<div class="scK">CONTROL DE ENTRENAMIENTO</div><div class="gpErr">No se pudo leer: '+plEsc(r.error.message)+'</div>'; return }
+  SC.st=r.data||{}; scPintar()
+}
+function scPintar(){
+  const st=SC.st||{}, el=document.getElementById('scCard'); if(!el||!st.activo){ if(el) el.innerHTML=''; return }
+  let h='<div class="scK">CONTROL DE ENTRENAMIENTO</div>'
+  ;(st.abiertas||[]).forEach(function(a){
+    h+='<div class="scRow scRow--abierta"><div><b>'+plEsc(String(a.nombre||'SESIÓN').toUpperCase())+'</b><span class="scPill">● '+(a.estado==='en_curso'?'EN CURSO':'SIN CERRAR')+'</span>'+
+      '<small>INICIADA '+scFecha(a.iniciada_at||a.fecha)+' · '+a.ejercicios+' / '+a.total_ejercicios+' ejercicios · '+a.sets+' sets registrados</small></div>'+
+      '<button type="button" class="eBtn" onclick="scGestionar(\''+a.id+'\')">GESTIONAR</button></div>' })
+  const px=st.proxima, hb=st.habilitada
+  h+='<div class="scRow"><div><small>PRÓXIMA SESIÓN</small><b>'+(px?plEsc(String(px.nombre||'').toUpperCase()):'SEMANA COMPLETA')+'</b>'+
+    (hb?'<span class="scPill scPill--hab">HABILITADA POR KOACH'+(hb.permite_hoy?' · OTRA HOY':'')+'</span>':(st.entreno_hoy?'<span class="scPill">YA ENTRENÓ HOY</span>':''))+'</div>'+
+    '<div class="scBtns">'+(hb?'<button type="button" class="eBtn eBtn--ghost" onclick="scAccion(\'quitar_habilitacion\')">QUITAR</button>':'')+
+    '<button type="button" class="eBtn eBtn--ink" onclick="scElegir()">'+(st.entreno_hoy?'HABILITAR OTRA HOY':'ELEGIR SESIÓN')+'</button></div></div>'
+  el.innerHTML=h
+}
+function scCerrar(){ document.getElementById('mSC').style.display='none' }
+function scModal(t,b){ document.getElementById('scT').textContent=t; document.getElementById('scBody').innerHTML=b; document.getElementById('mSC').style.display='flex' }
+function scGestionar(rid){
+  const a=(SC.st.abiertas||[]).find(function(x){return x.id===rid}); if(!a) return
+  const conDatos=a.sets>0
+  scModal(String(a.nombre||'SESIÓN').toUpperCase(),
+    '<p class="gpTxt">Iniciada '+scFecha(a.iniciada_at||a.fecha)+' · <b>'+a.ejercicios+' / '+a.total_ejercicios+'</b> ejercicios · <b>'+a.sets+'</b> sets registrados.</p>'+
+    (conDatos?'<p class="gpTxt">Esta sesión ya contiene entrenamiento registrado: no se puede anular. Cerrarla conserva sets, pesos, reps y cargas.</p>':'')+
+    '<div class="gpErr" id="scErr" style="display:none"></div>'+
+    '<button type="button" class="mSG__ok" onclick="scAccion(\'cerrar\',\''+a.id+'\')">CERRAR COMO INCOMPLETA</button>'+
+    (conDatos?'':'<button type="button" class="mSG__sec" onclick="scAccion(\'anular\',\''+a.id+'\')">ANULAR INICIO (FUE POR ERROR)</button>')+
+    '<button type="button" class="mSG__sec" onclick="scConfirmarCompletar(\''+a.id+'\')">MARCAR COMO COMPLETADA</button>'+
+    '<button type="button" class="mSG__sec" onclick="scCerrar()">CANCELAR</button>')
+}
+function scConfirmarCompletar(rid){
+  const a=(SC.st.abiertas||[]).find(function(x){return x.id===rid})
+  scModal('MARCAR COMPLETADA','<p class="gpTxt">Vas a dar por completada <b>'+plEsc(String(a.nombre||'').toUpperCase())+'</b> con '+a.sets+' sets registrados. Queda registrado que la cerró el coach.</p><p class="gpTxt">Úsalo solo si el socio realmente la entrenó; para destrabar el avance usa CERRAR COMO INCOMPLETA.</p><div class="gpErr" id="scErr" style="display:none"></div>'+
+    '<button type="button" class="mSG__ok" onclick="scAccion(\'completar\',\''+rid+'\')">SÍ, MARCAR COMPLETADA</button><button type="button" class="mSG__sec" onclick="scGestionar(\''+rid+'\')">VOLVER</button>')
+}
+function scElegir(){
+  const st=SC.st||{}, ses=st.sesiones||[], px=st.proxima
+  scModal(st.entreno_hoy?'HABILITAR OTRA SESIÓN HOY':'ELEGIR LA SESIÓN DEL SOCIO',
+    (st.entreno_hoy?'<p class="gpTxt">El socio ya realizó una sesión hoy. La que elijas quedará disponible de inmediato.</p>':'<p class="gpTxt">La sesión que elijas será la próxima del socio. No cambia el orden de la planificación.</p>')+
+    '<div class="scList">'+ses.map(function(x){ const hecha=x.estado==='completada'
+      return '<button type="button" class="scOpt'+(px&&px.id===x.id?' on':'')+'"'+(hecha?' disabled':'')+' onclick="scHabilitar(\''+x.id+'\')"><b>'+String(x.numero).padStart(2,'0')+' · '+plEsc(String(x.nombre||'').toUpperCase())+'</b><small>'+(SC_EST[x.estado]||x.estado)+'</small></button>' }).join('')+'</div>'+
+    '<label class="scChk"><input type="checkbox" id="scHoy"'+(st.entreno_hoy?' checked':'')+'> Permitir entrenarla hoy aunque ya haya completado otra sesión</label>'+
+    '<div class="gpErr" id="scErr" style="display:none"></div><button type="button" class="mSG__sec" onclick="scCerrar()">CANCELAR</button>')
+}
+function scHabilitar(sesId){ scAccion('habilitar', null, sesId, !!(document.getElementById('scHoy')||{}).checked) }
+async function scAccion(acc, rid, sesId, hoy){
+  if (SC.run || !F) return; SC.run=true
+  document.querySelectorAll('#scBody button').forEach(function(b){ b.disabled=true })
+  const r=await sb.rpc('koach_sesion_accion',{ p_socio:F.id, p_accion:acc, p_registro:rid||null, p_sesion:sesId||null, p_permite_hoy:!!hoy })
+  SC.run=false
+  if (r.error){ const e=document.getElementById('scErr'); const m=String(r.error.message||'')
+    if (e){ e.style.display=''; e.textContent = /CON_EJECUCION/.test(m)?'Esta sesión ya tiene entrenamiento registrado: ciérrala como incompleta.' : /SESION_COMPLETADA/.test(m)?'La sesión ya está completada: es historial y no se modifica.' : 'No se pudo: '+m }
+    document.querySelectorAll('#scBody button').forEach(function(b){ b.disabled=false }); if(!e) toast('No se pudo: '+m); return }
+  SC.st=r.data; scCerrar(); scPintar()
+  toast({anular:'Inicio anulado ✓', cerrar:'Sesión cerrada como incompleta ✓ — sus registros se conservan', completar:'Sesión marcada completada ✓', habilitar:'Sesión habilitada ✓ — el socio ya la ve', quitar_habilitacion:'Habilitación retirada'}[acc]||'Listo')
+  loadSala().then(function(){ if (F) fPintarCtx(F.id) })
+}
 let MG={primero:null}
 async function aplicarPrograma(){
   // Guardia de prescripción (advertencia, jamás bloqueo) — modal KOACH, no confirm nativo

@@ -1741,7 +1741,7 @@ function estadoSemana(){
   const hechas=bs.filter(x=>hechasSet.has(x.numero)).length
   const hoy=fLocal(new Date())
   const hoyReg=S.registros.filter(r=>r.fecha===hoy && esHecha(r)).map(r=>S.programa.sesiones.find(s=>s.numero===r.sesion_numero)).filter(Boolean)
-  return { sem, bs, hechas, total:bs.length, restantes:bs.length-hechas, pct:sem.pct_dosis||0, entrenoHoy:hoyReg.length>0 && !esPrueba(), hoySes:hoyReg[hoyReg.length-1]||null,
+  return { sem, bs, hechas, total:bs.length, restantes:bs.length-hechas, pct:sem.pct_dosis||0, entrenoHoy:hoyReg.length>0 && !esPrueba() && !habHoy(), hoySes:hoyReg[hoyReg.length-1]||null,
     prox:sem.proxima||null, completa:!!sem.completa || (bs.length>0 && hechas>=bs.length) }
 }
 // ── HOME: título + cuerpo según estado REAL del día (A–E)
@@ -2086,6 +2086,7 @@ async function entrar(opts){
     const uid = user.id, hoyD = fLocal(new Date()), lunesISO = fLocal(lunes())
     const COLS_BLOQ = '*, bloque_ejercicios(*, ejercicios(id,nombre,grupo_muscular,estimulo,sinergistas,tipo_registro,con_carga,cuenta_dosis,implemento,activo))'
     // Oleada 1: todo lo que solo depende del usuario
+    const _rHab = sb.from('sesion_habilitada').select('id, sesion_protocolo_id, permite_hoy, fecha, estado').eq('socio_id', uid).eq('estado','activa').maybeSingle().then(r=>r, ()=>({data:null}))
     const [rPerfil, rAsig, rRegs, rEc, rDx, rSol, rCfg] = await Promise.all([
       sb.from('profiles').select('*').eq('id', uid).single(),
       sb.from('asignaciones').select('*, protocolos(*)').eq('socio_id', uid).eq('activo', true).limit(1).maybeSingle(),
@@ -2184,6 +2185,8 @@ async function entrar(opts){
     if (!Object.keys(S.objetivos).length){ await memP; sinPrograma('Tu programa aún no tiene objetivos — avisa a tu coach.'); return }
     S._rSol = rSol
     S.sem = calcularSemana(S.programa, S.registros, S.objetivos)
+    try{ S.hab = (await _rHab).data || null }catch(_e){ S.hab=null }
+    aplicarHabilitada()
     try{ localStorage.setItem('kc_snap_'+S.perfil.id, JSON.stringify({v:3, ts:Date.now(),
       perfil:S.perfil, programa:S.programa, objetivos:S.objetivos, registros:S.registros, reqs:S._reqs||{}})) }catch(_e){}
     try{
@@ -2405,7 +2408,7 @@ function pintarHome(){
     (sem.completa ? ' · SEMANA COMPLETA' : (_prox ? ` · PRÓXIMA <b>${_prox.nombre}</b>` : '') + (_desp ? ` · DESPUÉS ${_desp.nombre}` : ''))
   const cta=document.getElementById('hCta')
   const hoyISO2 = fLocal(new Date())
-  const entrenoHoy = !esPrueba() && S.registros.some(r=>r.fecha===hoyISO2 && esHecha(r))
+  const entrenoHoy = !esPrueba() && !habHoy() && S.registros.some(r=>r.fecha===hoyISO2 && esHecha(r))
   if (S.memBloqueo){
     cta.disabled=false; cta.onclick=()=>tab('vPerfil')
     document.getElementById('hCtaT').textContent=S.memBloqueoT||'MEMBRESÍA VENCIDA'
@@ -2586,6 +2589,17 @@ const REASON_TXT = {
   SESSION_IN_PROGRESS: () => 'SESIÓN EN CURSO',
   WEEK_COMPLETE: () => 'TU SEMANA BASE ESTÁ COMPLETA'
 }
+// ═══ v11.4 · SESIÓN HABILITADA POR EL COACH (autoritativa en la base: tabla sesion_habilitada) ═══
+// El socio no elige: si su KOACH habilitó una sesión, esa es la próxima (aunque no sea la siguiente por orden);
+// con permite_hoy, puede entrenarla aunque ya haya completado otra hoy. Se consume sola al completarla.
+function habHoy(){ const h=S.hab; return !!(h && h.permite_hoy && h.fecha===fLocal(new Date())) }
+function aplicarHabilitada(){
+  const h=S.hab; if (!h || !S.programa || !S.sem) return
+  const ses=(S.programa.sesiones||[]).find(x=>x.id===h.sesion_protocolo_id); if (!ses) return
+  if ((S.registros||[]).some(r=>r.sesion_protocolo_id===ses.id && esHecha(r) && r.fecha>=String(h.fecha))) return
+  S.sem.proxima = { numero:ses.numero, id:ses.id, nombre:ses.nombre||('SESIÓN '+ses.numero), fortaleceria:0, trabaja:0, suma_pct:0, _hab:true }
+  S.sem.completa = false
+}
 function resolverCap(s, ctx){
   ctx = ctx||{}
   const req = (S._reqs && S._reqs[s.id]) || {}
@@ -2618,7 +2632,7 @@ function ctxDe(s){
   const reg = S.registros.find(r=>r.sesion_numero===s.numero && esHecha(r))
   const enC = S.registros.find(r=>r.sesion_numero===s.numero && r.estado==='en_curso' && r.fecha===hoyC)
   return { hecha:!!reg, regId:reg&&reg.id, enCurso:!!enC,
-    prox: s.numero===(S.sem&&S.sem.proxima&&S.sem.proxima.numero) && !(S.sem&&S.sem.completa) }
+    prox: (S.sem&&S.sem.proxima&&S.sem.proxima._hab) ? s.id===S.sem.proxima.id : (s.numero===(S.sem&&S.sem.proxima&&S.sem.proxima.numero) && !(S.sem&&S.sem.completa)) }
 }
 async function solicitar(tipo, sesId, nombre){
   try{
@@ -2643,7 +2657,7 @@ async function abrirSesion(num){
     toast((REASON_TXT[capG.reason_code]||(()=>'Esta sesión aún no está habilitada.'))(null)); return }
   cargando('PREPARANDO TU SESIÓN…')
   const hoyC = fLocal(new Date())
-  if (!esPrueba() && S.registros.some(r=>r.fecha===hoyC && esHecha(r))){
+  if (!esPrueba() && !habHoy() && S.registros.some(r=>r.fecha===hoyC && esHecha(r))){
     cargandoOff(); toast('Hoy ya sumaste tu sesión — la recuperación también entrena. Nos vemos mañana.'); return }
   S._desigActual = (num==null && S.sem&&S.sem.proxima&&S.sem.proxima._desigId) || null
   S._desigRec = !!(num==null && S.sem&&S.sem.proxima&&S.sem.proxima._rec)
