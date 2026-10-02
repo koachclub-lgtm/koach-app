@@ -7,15 +7,22 @@
 (function(root){
 'use strict'
 const KD = {
-  DOMAIN_VERSION: 'koach-domain@1.0.1-F2',
+  DOMAIN_VERSION: 'koach-domain@1.1.0',
   VOLUME_ALGORITHM_VERSION: 'vol-doc3-v1',
   COMPLETION_ALGORITHM_VERSION: 'compl-doc3-v1',
   // Músculos evaluables por el motor muscular (DOC3 §4.5: CARDIO/MOB fuera; GLOBAL no es músculo; CORE modelable)
   MUSCLE_KEYS: ['PECHO','ESPALDA','HOMBROS','TRÍCEPS','BÍCEPS','CORE','GLÚTEOS','CUÁDRICEPS','ISQUIOS','PANTORRILLAS',
                 'PECS','LATS','DELTS','TRIS','BIS','GLUTS','QUADS','HAMS','CALFS'],
   NON_MUSCLE_KEYS: ['CARDIO','MOVILIDAD','MOB','GLOBAL'],
-  NA: 'N/A'
+  NA: 'N/A',
+  // 1.1 · Catálogo canónico (mismo orden que la biblioteca). UN grupo = UNA fila: los alias se suman en su grupo.
+  GRUPOS: ['PECHO','ESPALDA','HOMBROS','TRÍCEPS','BÍCEPS','CORE','GLÚTEOS','CUÁDRICEPS','ISQUIOS','GEMELOS'],
+  DESIGNADOS: ['CARDIO','GLOBAL'],
+  ALIAS: { PECS:'PECHO', LATS:'ESPALDA', DORSAL:'ESPALDA', DELTS:'HOMBROS', TRIS:'TRÍCEPS', TRICEPS:'TRÍCEPS', BIS:'BÍCEPS', BICEPS:'BÍCEPS',
+           GLUTS:'GLÚTEOS', GLUTEOS:'GLÚTEOS', GLUTES:'GLÚTEOS', QUADS:'CUÁDRICEPS', CUADRICEPS:'CUÁDRICEPS', HAMS:'ISQUIOS',
+           CALFS:'GEMELOS', CALVES:'GEMELOS', PANTORRILLAS:'GEMELOS', MOB:'MOVILIDAD' }
 }
+KD.canon = function(k){ const K=String(k||'').toUpperCase().trim(); return KD.ALIAS[K] || K }
 const isNum = v => typeof v==='number' && isFinite(v)
 const esMusculo = k => KD.NON_MUSCLE_KEYS.indexOf(String(k).toUpperCase())===-1
 
@@ -137,7 +144,7 @@ KD.legacyAporteSesion = function(sesion, bloquesCompletados){
       if(!g||g==='MOVILIDAD')return
       suma(g, sets*1.0)
       Object.entries(ej.sinergistas||{}).forEach(([sg,p])=>{
-        const s2=sg.toUpperCase()
+        const s2=KD.canon(sg)
         if(s2!=='MOVILIDAD') suma(s2, sets*(parseFloat(p)||0))
       })
     })
@@ -155,12 +162,28 @@ KD.aporteSesionDOC3 = function(sesion, bloquesCompletados){
       const prof = ej.sinergistas
       if (!prof || Object.keys(prof).length===0){ noEval.push(ej.nombre||ej.id||'?'); return }
       Object.entries(prof).forEach(([k,c])=>{
-        const K=String(k).toUpperCase()
+        const K=KD.canon(k)
         if (!esMusculo(K)) return
         const v=parseFloat(c); if(isNum(v)&&v>0) a[K]=(a[K]||0)+sets*v
       })
     })
   }); return { aporte:a, noEvaluable:noEval }
+}
+
+/* ── 1.1 · DISTRIBUCIÓN SEMANAL (una sola fórmula para el Planificador del coach y la app del socio) ──
+   sesiones: [{bloques:[{sets, ejercicios:[{grupo, sinergistas, cuenta_dosis}]}]}] de UNA semana.
+   musculos: series efectivas programadas por grupo canónico (TODOS los grupos, 0 incluido).
+   designadas: CARDIO/GLOBAL = sets prescritos de ejercicios de ese grupo (no se convierten en volumen muscular). */
+KD.distribucionSemana = function(sesiones){
+  const musculos={}, designadas={}, noEvaluable=[]
+  KD.GRUPOS.forEach(g=>{ musculos[g]=0 }); KD.DESIGNADOS.forEach(g=>{ designadas[g]=0 })
+  ;(sesiones||[]).forEach(s=>{
+    const r=KD.aporteSesionDOC3(s)
+    Object.entries(r.aporte).forEach(([k,v])=>{ if (musculos[k]!=null) musculos[k]+=v; else musculos[k]=(musculos[k]||0)+v })
+    noEvaluable.push.apply(noEvaluable, r.noEvaluable)
+    ;(s.bloques||[]).forEach(b=>{ (b.ejercicios||[]).forEach(ej=>{ const g=KD.canon(ej.grupo); if (designadas[g]!=null) designadas[g]+=(b.sets||0) }) })
+  })
+  return { musculos, designadas, noEvaluable }
 }
 
 if (typeof module!=='undefined' && module.exports) module.exports = KD

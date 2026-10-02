@@ -808,6 +808,28 @@ html.selAbierto,html.selAbierto body{overflow:hidden}
 
 .adIng__l{display:flex;flex-wrap:wrap;gap:6px 16px;margin-top:6px;font-family:var(--font-mono);font-size:12px;letter-spacing:.04em;color:#121212}
 .adIng__l b{font-weight:600;letter-spacing:.1em}.adIng__nm{color:#5E5D59}.adIng__t{flex-basis:100%;font-size:11px;letter-spacing:.12em}
+
+/* ═══ c11.2 · CABECERA FIJA DEL PLANIFICADOR ═══ */
+#vPlan .plHdr{position:sticky;top:0;z-index:45;margin:0 -12px 14px;padding:calc(10px + env(safe-area-inset-top,0px)) 12px 12px;
+  background:rgba(243,242,239,.92);backdrop-filter:blur(14px) saturate(1.2);-webkit-backdrop-filter:blur(14px) saturate(1.2);
+  border-bottom:1px solid rgba(18,18,16,.08);box-shadow:0 6px 18px -14px rgba(0,0,0,.35)}
+#vPlan .plHdr--base{background:rgba(232,229,222,.95)}
+#vPlan .plHdr--base .plQuien__n{letter-spacing:.06em}
+#vPlan .plHdr--base .plQuien__m{color:#8A4B12 !important;font-weight:600}
+#vPlan .plHdr__tit{transition:font-size .15s ease, margin .15s ease}
+#vPlan.plCompacto .plHdr{padding-top:calc(6px + env(safe-area-inset-top,0px));padding-bottom:8px}
+#vPlan.plCompacto .plHdr__tit{font-size:18px !important;margin:0 !important}
+#vPlan.plCompacto .plHdr__top{margin-bottom:4px}
+#vPlan.plCompacto .plQuien__n{font-size:17px}
+@media (min-width:1024px){ #vPlan .plHdr{margin:0 -36px 16px;padding-left:36px;padding-right:36px}
+  #vPlan.plCompacto .plHdr{display:flex;flex-wrap:wrap;align-items:center;column-gap:18px}
+  #vPlan.plCompacto .plHdr__top{flex:0 0 auto;order:2;margin:0 0 0 auto}
+  #vPlan.plCompacto .plHdr__tit{order:0}#vPlan.plCompacto .plQuien{order:1;margin:0} }
+.selM,.mSG,#mAdm{z-index:90 !important}
+/* dosificador: filas en cero y designadas */
+.dsr--0 .dsr__g,.dsr--0 .dsr__v{color:#9A9993}
+.dsSep{margin:12px 0 6px;padding-top:10px;border-top:1px dashed rgba(18,18,16,.15);font-family:var(--font-mono);font-size:11.5px;letter-spacing:.12em;color:#5E5D59}
+.dsr--d .dsr__f{background:linear-gradient(90deg,rgba(150,150,145,.30),rgba(120,120,115,.55));box-shadow:none}
 /* ═══ FIN CAPA 3 ═══ */
 /* ═══ MOTOR DE CONSTRUCCIÓN c8.0 · MACRO → MESO → MICRO ═══ */
 .plNav{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin:0 0 14px}
@@ -886,7 +908,7 @@ html.selAbierto,html.selAbierto body{overflow:hidden}
 </div></div>
 
 <div class="vista" id="vSala">
-  <div class="hbar"><span class="hk" title="c11.1">KOACH</span><span class="hbar__r"><button class="dashBtn" onclick="dashMenu()" aria-label="Vista del dashboard">VISTA</button><button class="dashBtn" onclick="cuentaAbrir()" aria-label="Mi cuenta: cambiar contraseña">MI CLAVE</button><span class="rol" id="rolBadge" onclick="salir()">COACH</span></span></div>
+  <div class="hbar"><span class="hk" title="c11.2">KOACH</span><span class="hbar__r"><button class="dashBtn" onclick="dashMenu()" aria-label="Vista del dashboard">VISTA</button><button class="dashBtn" onclick="cuentaAbrir()" aria-label="Mi cuenta: cambiar contraseña">MI CLAVE</button><span class="rol" id="rolBadge" onclick="salir()">COACH</span></span></div>
   <div class="adAcc" id="accesos"></div>
   <div class="glass aform" id="fAlta" style="display:none">
     <h4>CREAR USUARIO — ENTRA AL INSTANTE CON SU CORREO Y CLAVE</h4>
@@ -1017,7 +1039,7 @@ html.selAbierto,html.selAbierto body{overflow:hidden}
       <button onclick="menuRutina()" style="margin-left:8px;background:none;border:1px solid var(--koach-border-strong);border-radius:8px;padding:6px 10px;font-size:12px;cursor:pointer;color:var(--koach-ink)">•••</button>
     </div>
     <div class="stit plHdr__tit">Planificador</div>
-    <div class="plQuien" id="pQuien" style="display:none"><div class="plQuien__n" id="pQuienN">—</div><div class="plQuien__p"><span id="pQuienP">—</span><span class="plQuien__m"> · PLAN INDIVIDUAL</span></div></div>
+    <div class="plQuien" id="pQuien"><div class="plQuien__n" id="pQuienN">—</div><div class="plQuien__p"><span id="pQuienP">—</span><span class="plQuien__m" id="pQuienM"> · PLAN INDIVIDUAL</span></div></div>
     <div class="ssub" id="pMeta">—</div>
   </div>
   <div id="pNav" class="plNav" style="display:none"></div>
@@ -2110,11 +2132,22 @@ async function abrirPlan(pid, proto, opts){
     : esBase
     ? ('⚠ BASE MAESTRA · '+((proto&&proto.programa)||'')+' '+((proto&&proto.nivel)||'')+' '+((proto&&proto.sexo)||'')+' · AFECTA CLONES FUTUROS').toUpperCase()
     : ''
-  const _q=document.getElementById('pQuien'); _q.style.display=(esBib||esBase)?'none':''
+  // c11.2 · cabecera fija contextual: QUÉ estoy editando, leído del protocolo abierto (nunca de un socio global)
   const _vs=document.getElementById('pVolverSoc'); _vs.style.display=(esBib||esBase)?'none':''; if(F&&F.id) _vs.setAttribute('href','coach.html#/socio/'+F.id)
-  document.getElementById('pMeta').style.display=(esBib||esBase)?'':'none'
-  if (!esBib && !esBase){ document.getElementById('pQuienN').textContent=nomDe(F.id)
-    document.getElementById('pQuienP').textContent=[(proto&&proto.programa)||'',(proto&&proto.nivel)||''].filter(Boolean).join(' · ').toUpperCase() }
+  document.getElementById('pMeta').style.display='none'
+  const _pp=function(arr){ return arr.filter(Boolean).join(' · ').toUpperCase() }
+  const _hdr=document.querySelector('#vPlan .plHdr'); _hdr.classList.toggle('plHdr--base', !!esBase); _hdr.classList.toggle('plHdr--bib', !!esBib)
+  if (esBase){ document.getElementById('pQuienN').textContent='BASE MAESTRA'
+    document.getElementById('pQuienP').textContent=_pp([proto&&proto.programa, proto&&proto.nivel, proto&&proto.sexo])
+    document.getElementById('pQuienM').textContent=' · AFECTA CLONES FUTUROS'
+    document.title=String((proto&&proto.programa)||'')+' '+String((proto&&proto.nivel)||'').toLowerCase()+' · Master | KOACH' }
+  else if (esBib){ document.getElementById('pQuienN').textContent='BIBLIOTECA'
+    document.getElementById('pQuienP').textContent=_pp([(proto&&proto.nombre)||'RUTINA ESTÁNDAR'])
+    document.getElementById('pQuienM').textContent=' · SE GUARDA AL INSTANTE'
+    document.title='Biblioteca · Planner | KOACH' }
+  else { document.getElementById('pQuienN').textContent=nomDe(F.id)
+    document.getElementById('pQuienP').textContent=_pp([proto&&proto.programa, proto&&proto.nivel])
+    document.getElementById('pQuienM').textContent=proto&&proto.estado==='archivado' ? ' · CICLO CERRADO' : ' · PLAN INDIVIDUAL' }
   document.getElementById('pEstado').textContent = esBib ? 'ESTÁNDAR \u2605' : esBase ? 'BASE ⚙' : ((proto&&proto.estado)||'borrador').toUpperCase()
   vista('vPlan')
   document.getElementById('pBloques').innerHTML = '<div class="vacio">Cargando…</div>'
@@ -2699,40 +2732,40 @@ function calcDose(){
   if(!P||P.bib){ if(vivo)vivo.style.display='none'; return }
   vivo.style.display='block'
   // PROYECCIÓN por SEMANA (c8.0): la dosis es semanal — sumar el ciclo entero la multiplicaba
-  const _pool = plActivo() ? plSesSem(PL.w) : P.sesiones
+  // fuera del ciclo de un socio (base maestra): la semana de la sesión abierta — la dosis siempre es SEMANAL
+  const _wTab = ((P.sesiones[P.tab]||{}).semana)||1
+  const _pool = plActivo() ? plSesSem(PL.w) : P.sesiones.filter(function(x){ return (x.semana||1)===_wTab })
   const _esVig = !plActivo() || PL.w===plVigente()
-  const acum={}
-  _pool.forEach(function(s){
-    const a=aporteSesion({bloques:s.bloques.map(function(b){
-      return {sets:b.sets,ejercicios:b.items.map(function(it){return {grupo:it.grupo, sinergistas:it.sinergistas, cuenta_dosis:it.cuentaDosis}})} })})
-    Object.entries(a).forEach(function(p2){ acum[p2[0]]=(acum[p2[0]]||0)+p2[1] })
-  })
+  // c11.2 · MOTOR ÚNICO (KD.distribucionSemana): mismo cálculo que ve el socio en AVANCES. Borrador local incluido.
+  const _dist=KD.distribucionSemana(_pool.map(function(s){ return kdNormSesion({bloques:s.bloques.map(function(b){
+      return {sets:b.sets,ejercicios:b.items.map(function(it){return {grupo:it.grupo, sinergistas:it.sinergistas, cuenta_dosis:it.cuentaDosis}})} })}) }))
+  const acum=_dist.musculos, desig=_dist.designadas
   // c10.9 · DOSIFICACIÓN SEMANAL = series efectivas PROGRAMADAS (borrador local incluido). Nada de ejecución del socio.
   // Motor existente (KD.aporteSesionDOC3): por ejercicio, sets del bloque × coeficiente de cada músculo de su perfil;
   // excluye cuenta_dosis=false (CARDIO/MOVILIDAD) y lo que no es músculo (GLOBAL). Una fila por grupo canónico.
-  const ORD=['PECHO','ESPALDA','HOMBROS','TRÍCEPS','BÍCEPS','CORE','GLÚTEOS','CUÁDRICEPS','ISQUIOS','GEMELOS']
-  const gs=Object.keys(acum).filter(function(g){ return acum[g]>0.0001 })
-    .sort(function(a,b){ const ia=ORD.indexOf(a), ib=ORD.indexOf(b); return (ia<0?99:ia)-(ib<0?99:ib) || a.localeCompare(b) })
-  const maxV=gs.reduce(function(m,g){ return Math.max(m,acum[g]) },0)
+  // filas = catálogo canónico completo (0 visible), luego CARDIO y GLOBAL; nunca se ordena por volumen
+  const gs=KD.GRUPOS.slice()
+  const maxV=Math.max.apply(null, gs.map(function(g){ return acum[g]||0 }).concat(KD.DESIGNADOS.map(function(g){ return desig[g]||0 })).concat([0]))
   const dom=Math.max(30, Math.ceil((maxV+0.0001)/10)*10)
   const X=function(v){ return Math.max(0,Math.min(100, v/dom*100)) }
   const f1=function(x){ return (Math.round(x*10)/10).toFixed(1) }
   const ticks=[]; for (let t=10; t<=dom; t+=10) ticks.push(t)
   const REF={10:'MEV',20:'REFERENCIA',30:'TECHO'}
   const nSes=_pool.length
-  document.getElementById('pVivoTit').innerHTML = P.base ? 'BASE · '+nSes+' SESIONES' : (plActivo()?'SEMANA '+PL.w+' · ':'')+nSes+' SESION'+(nSes===1?'':'ES')
+  document.getElementById('pVivoTit').innerHTML = P.base ? 'BASE · SEMANA '+_wTab+' · '+nSes+' SESION'+(nSes===1?'':'ES') : (plActivo()?'SEMANA '+PL.w+' · ':'')+nSes+' SESION'+(nSes===1?'':'ES')
   const escala='<div class="dsx"><span class="dsx__g"></span><div class="dsx__t">'+
     ticks.map(function(t){ return '<i class="'+(REF[t]?'ref':'')+'" style="left:'+X(t)+'%">'+t+'</i>' }).join('')+'</div><span class="dsx__v"></span></div>'
-  const filas=gs.map(function(g){ const v=acum[g], sig=SIGLA[g]||g
-    const tip=sig+' · '+f1(v)+' SERIES EFECTIVAS PROGRAMADAS'+(plActivo()?' · SEMANA '+PL.w:'')
-    return '<div class="dsr"><span class="dsr__g">'+sig+'</span><div class="dsr__t" title="'+tip+'">'+
+  const fila=function(g, v, tipo){ const sig=SIGLA[g]||g
+    const tip=sig+' · '+(tipo==='d' ? Math.round(v)+' SERIES DESIGNADAS' : f1(v)+' SERIES EFECTIVAS PROGRAMADAS')+(plActivo()?' · SEMANA '+PL.w:'')
+    return '<div class="dsr'+(tipo==='d'?' dsr--d':'')+(v>0?'':' dsr--0')+'"><span class="dsr__g">'+sig+'</span><div class="dsr__t" title="'+tip+'" tabindex="0" aria-label="'+tip+'">'+
       ticks.map(function(t){ return '<i class="'+(REF[t]?'ref':'')+'" style="left:'+X(t)+'%"></i>' }).join('')+
       '<div class="dsr__f" style="width:'+X(v)+'%"></div><span class="dsr__m" style="left:'+X(v)+'%" aria-label="'+tip+'"></span></div>'+
-      '<span class="dsr__v">'+f1(v)+'</span></div>' }).join('')
+      '<span class="dsr__v">'+(tipo==='d'?Math.round(v):f1(v))+'</span></div>' }
+  const filas=gs.map(function(g){ return fila(g, acum[g]||0, 'm') }).join('')+
+    '<div class="dsSep">CARDIO / GLOBAL · SERIES DESIGNADAS</div>'+KD.DESIGNADOS.map(function(g){ return fila(g, desig[g]||0, 'd') }).join('')
   document.getElementById('pVivoDose').innerHTML =
-    '<div class="dsHead"><span>SERIES EFECTIVAS PROGRAMADAS</span><span class="dsLeg"><b>10</b> MEV · <b>20</b> REFERENCIA · <b>30</b> TECHO</span></div>'+
-    (gs.length ? escala+filas+'<div class="dsNota">Referencias operativas KOACH para auditar la semana; no son reglas universales.</div>'
-               : '<div class="dsVacio">Esta semana todavía no tiene series efectivas programadas.</div>')
+    '<div class="dsHead"><span>MÚSCULOS · SERIES EFECTIVAS PROGRAMADAS</span><span class="dsLeg"><b>10</b> MEV · <b>20</b> REFERENCIA · <b>30</b> TECHO</span></div>'+
+    escala+filas+'<div class="dsNota">Referencias operativas KOACH para auditar la semana; no son reglas universales.</div>'
   const alerta=''
   try{ if (!P.base && typeof F!=='undefined' && F && F.id && _reqFor!==F.id){ _reqFor=F.id; cargarSolicitudes(F.id) } }catch(_e){}
   const fm=document.getElementById('pFootMsg')
@@ -4253,6 +4286,7 @@ function cgFiltrar(){
 // esa pestaña. La sesión de Auth sí se comparte (correcto). No hay socio activo en localStorage.
 let _rtSilencio=false
 function rtParse(h){
+  const mb=String(h||'').match(/^#\/base\/([0-9a-f-]{36})$/i); if (mb) return { vista:'base', pid:mb[1].toLowerCase() }
   const m=String(h||'').match(/^#\/socio\/([0-9a-f-]{36})(\/plan)?(?:\?(.*))?$/i)
   if(!m) return { vista:'sala' }
   const q=new URLSearchParams(m[3]||'')
@@ -4266,6 +4300,7 @@ function rtSet(hash, titulo){
 function rtPush(hash){ if (location.hash!==hash){ _rtSilencio=true; history.pushState(null,'',location.pathname+location.search+hash); setTimeout(function(){ _rtSilencio=false },0) } }
 function rtNombreCorto(id){ return String(nomDe(id)||'Socio').split(' ')[0] }
 function rtSyncPlan(){
+  if (P && P.base){ rtSet('#/base/'+P.pid, document.title); return }
   if (!F || !P || P.bib || P.base) return
   const s=plSesActual(), q=[]
   if (plActivo() && PL.w) q.push('w='+PL.w)
@@ -4274,6 +4309,7 @@ function rtSyncPlan(){
 }
 async function rtAplicar(){
   const r=rtParse(location.hash)
+  if (r.vista==='base'){ await editarBase(r.pid); return }
   if (r.vista==='sala'){ if (document.getElementById('vFicha').classList.contains('on')||document.getElementById('vPlan').classList.contains('on')) verSala(); document.title='Sala | KOACH'; return }
   if (!C.socios.some(function(s){ return s.id===r.id })){ rtError(); return }
   if (r.vista==='ficha'){ verFicha(r.id); return }
@@ -4543,6 +4579,9 @@ async function admIngresos(){
     '<div class="adIng__l"><span><b>COBRADO</b> '+adCLP(x.cobrado)+' · '+x.n_cobrado+' pagos</span>'+(x.pendiente?'<span><b>PENDIENTE</b> '+adCLP(x.pendiente)+'</span>':'')+'</div>'+
     (nmTxt?'<div class="adIng__l adIng__nm"><span class="adIng__t">NO MONETARIO (no suma a caja)</span>'+nmTxt+'</div>':'')+'</div>'
 }
+// c11.2 · la cabecera del planificador queda fija; al bajar se compacta (sin perder nombre, programa ni navegación)
+;(function(){ let raf=0; window.addEventListener('scroll', function(){ if(raf) return; raf=requestAnimationFrame(function(){ raf=0
+  const v=document.getElementById('vPlan'); if (v && v.classList.contains('on')) v.classList.toggle('plCompacto', window.scrollY>60) }) }, {passive:true}) })()
 let MG={primero:null}
 async function aplicarPrograma(){
   // Guardia de prescripción (advertencia, jamás bloqueo) — modal KOACH, no confirm nativo

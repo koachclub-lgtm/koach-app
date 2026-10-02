@@ -981,6 +981,24 @@ body.wl-on{overflow:hidden}
 .a2hs__ok{background:#F4F3F0;color:#0A0A0A;border:none}.a2hs__x{background:transparent;color:#F4F3F0;border:1px solid rgba(244,243,240,.35)}
 @keyframes a2hsIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
 @media (prefers-reduced-motion:reduce){ .a2hs{animation:none} }
+/* ═══ v11.3 · distribución del entrenamiento (socio) ═══ */
+.dsu__sub{margin-top:6px;font-family:var(--font-mono);font-weight:500;font-size:11.5px;letter-spacing:.1em;color:#5E5D59}
+.dsu__info{margin:-4px 0 12px}.dsu__info summary{cursor:pointer;min-height:44px;display:flex;align-items:center;font-size:14px;color:#121212;list-style:none}
+.dsu__info summary::-webkit-details-marker{display:none}.dsu__info p{margin:0 0 6px;font-size:14.5px;line-height:1.45;color:#5E5D59}
+.dsu{display:flex;flex-direction:column;gap:12px;padding:16px;border-radius:20px;background:rgba(255,255,255,.55);border:1px solid rgba(18,18,16,.06)}
+.dsu__h{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:6px}
+.dsu__h span{font-family:var(--font-display);font-weight:700;font-size:15px;letter-spacing:.06em;color:#121212}
+.dsu__h b{font-family:var(--font-mono);font-weight:600;font-size:15px;color:#121212}
+.dsu__t{height:10px;border-radius:6px;background:rgba(18,18,16,.07);overflow:hidden}
+.dsu__t i{display:block;height:100%;border-radius:6px;background:linear-gradient(90deg,rgba(150,200,226,.45),rgba(118,182,214,.9));transition:width .4s ease}
+.dsu__r--0 .dsu__h span,.dsu__r--0 .dsu__h b{color:#A2A19B}
+.dsu__r--d .dsu__t i{background:linear-gradient(90deg,rgba(150,150,145,.35),rgba(120,120,115,.6))}
+.dsu__sep{margin-top:4px;padding-top:10px;border-top:1px dashed rgba(18,18,16,.14);font-family:var(--font-mono);font-size:11px;letter-spacing:.12em;color:#5E5D59}
+.dsu__vacio b{display:block;font-family:var(--font-mono);font-weight:500;font-size:12px;letter-spacing:.14em;color:#121212}
+.dsu__vacio span{display:block;margin-top:6px;font-size:15px;line-height:1.45;color:#5E5D59}
+.dsu__sk{height:28px;border-radius:8px;background:linear-gradient(90deg,rgba(18,18,16,.05),rgba(18,18,16,.09),rgba(18,18,16,.05));background-size:200% 100%;animation:dsuSk 1.2s linear infinite}
+@keyframes dsuSk{to{background-position:-200% 0}}
+@media (prefers-reduced-motion:reduce){ .dsu__t i{transition:none} .dsu__sk{animation:none} }
 #vLogin{background:#000}
 .wel{position:relative;z-index:1;max-width:520px;margin:0 auto;min-height:100dvh;box-sizing:border-box;display:flex;flex-direction:column;justify-content:space-between;
   padding:calc(env(safe-area-inset-top,0px) + 26px) 8px calc(env(safe-area-inset-bottom,0px) + 18px);transition:opacity .22s ease, transform .22s ease}
@@ -1208,6 +1226,13 @@ body.wl-on{overflow:hidden}
       <p class="mk__p">Aquí están tus mejores pesos en los patrones principales de movimiento.</p>
       <div class="mk__def"><b>PR · PERSONAL RECORD</b><span>Tu mejor marca registrada en una sesión completada.</span></div>
       <div id="aPatrones" class="mk__grid"><div class="vacio">Cargando…</div></div>
+    </section>
+    <section class="mk mk--dist" aria-labelledby="dsTit">
+      <div class="mk__k" id="dsTit">DISTRIBUCIÓN DEL ENTRENAMIENTO</div>
+      <div class="dsu__sub" id="dsSub">SERIES EFECTIVAS PROGRAMADAS POR GRUPO MUSCULAR</div>
+      <p class="mk__p">Así se reparte el volumen de tu semana. Una barra más larga significa más énfasis en ese grupo dentro de tu planificación.</p>
+      <details class="dsu__info"><summary>ⓘ ¿Qué significa?</summary><p>Las <b>series efectivas</b> son el volumen de entrenamiento asignado a cada grupo muscular en tu planificación de esta semana. No mide lo que ya hiciste: eso lo ves en tu ciclo semanal del Home. Cardio y Global muestran las series programadas para ese estímulo.</p></details>
+      <div id="aDist" class="dsu"><div class="dsu__sk"></div><div class="dsu__sk"></div><div class="dsu__sk"></div></div>
     </section>
     <section class="mk mk--hist">
       <div class="mk__k">MAYORES PROGRESOS</div>
@@ -3560,7 +3585,29 @@ function pintarGruposAvances(){
       '<b>'+m.grupo+'</b><div class="mtV">'+(m.series%1===0?m.series:(+m.series).toFixed(1))+' <small>/ '+m.objetivo+'</small></div>'+
       '<div class="mBar"><i style="width:'+w+'%"></i></div><small class="mtE">'+e+'</small></div>' }).join('') : '<div class="vacio">Aún sin objetivos definidos.</div>'
 }
+// ═══ v11.3 · DISTRIBUCIÓN DEL ENTRENAMIENTO (socio, solo lectura) ═══
+// Misma fórmula que el dosificador del coach (KD.distribucionSemana). Fuente: la planificación GUARDADA de la semana
+// efectiva (S.programa → baseSem). Nunca la ejecución: completar sesiones no cambia las barras.
+const DSU_SIG={'PECHO':'PECS','ESPALDA':'LATS','HOMBROS':'DELTS','TRÍCEPS':'TRIS','BÍCEPS':'BIS','CORE':'CORE','GLÚTEOS':'GLUTS','CUÁDRICEPS':'QUADS','ISQUIOS':'HAMS','GEMELOS':'CALFS','CARDIO':'CARDIO','GLOBAL':'GLOBAL'}
+function pintarDistribucion(){
+  const box=document.getElementById('aDist'); if(!box) return
+  if (!S.perfil) return
+  const ses = (S.programa && S.programa.sesiones) ? baseSem() : null
+  if (!S.programa || !ses || !ses.length){
+    box.innerHTML='<div class="dsu__vacio"><b>TU PLANIFICACIÓN AÚN NO ESTÁ DISPONIBLE</b><span>Cuando tu KOACH asigne tu programa, aquí verás cómo se distribuye tu entrenamiento.</span></div>'
+    document.getElementById('dsSub').textContent='SERIES EFECTIVAS PROGRAMADAS POR GRUPO MUSCULAR'; return }
+  const d=KD.distribucionSemana(ses.map(kdNormSesion))
+  const w=S.semanaProg||S.semanaActual||1, prog=String((S.proto&&S.proto.programa)||'').toUpperCase()
+  document.getElementById('dsSub').textContent='SEMANA '+w+(prog?' · '+prog:'')+' · SERIES EFECTIVAS PROGRAMADAS'
+  const vals=KD.GRUPOS.map(g=>d.musculos[g]||0).concat(KD.DESIGNADOS.map(g=>d.designadas[g]||0))
+  const max=Math.max(1, ...vals), f1=x=>(Math.round(x*10)/10).toFixed(1)
+  const fila=(g,v,des)=>'<div class="dsu__r'+(des?' dsu__r--d':'')+(v>0?'':' dsu__r--0')+'"><div class="dsu__h"><span>'+DSU_SIG[g]+'</span><b>'+(des?Math.round(v):f1(v))+'</b></div>'+
+    '<div class="dsu__t" role="img" aria-label="'+DSU_SIG[g]+': '+(des?Math.round(v)+' series programadas':f1(v)+' series efectivas programadas')+'"><i style="width:'+(v/max*100)+'%"></i></div></div>'
+  box.innerHTML = KD.GRUPOS.map(g=>fila(g, d.musculos[g]||0, false)).join('')+
+    '<div class="dsu__sep">CARDIO Y GLOBAL · SERIES PROGRAMADAS</div>'+KD.DESIGNADOS.map(g=>fila(g, d.designadas[g]||0, true)).join('')
+}
 async function loadAvances(){
+  try{ pintarDistribucion() }catch(_e){ console.error(_e) }
   if (!S.programa){ ['aPatrones','aPRs','aHist'].forEach(id=>{ const e=document.getElementById(id); if(e) e.innerHTML='<div class="vacio">Tus avances aparecen cuando completes tus primeras sesiones.</div>' }); return }
   pintarGruposAvances()
   pintarCalendario(S._calOff||0)
