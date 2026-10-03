@@ -307,6 +307,44 @@ html,button,input,.pvS,.chk,.setChip{touch-action:manipulation}
 .ks__cta{grid-column:1/-1;min-height:54px;border:0;border-radius:16px;background:#F4F3F0;color:#121212;font-family:var(--font-mono);font-weight:500;font-size:11px;letter-spacing:.12em;cursor:pointer}
 .ks__sec{min-height:48px;border-radius:16px;border:1px solid rgba(255,255,255,.22);background:transparent;color:#F4F3F0;font-family:var(--font-mono);font-weight:500;font-size:10px;letter-spacing:.12em;cursor:pointer}
 .ks__st{min-height:18px;margin:12px 2px 0;font-size:13px;color:#A7A9AE}
+/* ═══ c13 · MOMENTO DE LOGRO (micro-secuencia 2,6 s) ═══ */
+.kwin{position:fixed;inset:0;z-index:1300;display:none;flex-direction:column;align-items:center;justify-content:center;gap:22px;background:#0B0B0B;color:#F4F3F0;cursor:pointer;padding:24px}
+.kwin.vis{display:flex;animation:kwIn .2s ease-out both}
+.kwin.out{animation:kwOut .4s ease-in forwards}
+.kwin__k{width:92px;height:92px;fill:#F4F3F0;overflow:visible}
+.kwin__bar{transform-box:fill-box;transform-origin:left center;animation:kwBar .45s cubic-bezier(.2,.8,.2,1) .15s both}
+.kwin__chev{transform-box:fill-box;transform-origin:center;animation:kwChev .5s cubic-bezier(.34,1.56,.64,1) .3s both}
+.kwin.vis .kwin__k{animation:kwPulse .3s ease-out .65s both}
+.kwin__msg{font-family:var(--font-display,'Inter Display',Inter,sans-serif);font-weight:700;font-size:clamp(40px,12vw,64px);line-height:.95;letter-spacing:-.035em;text-align:center;clip-path:inset(100% 0 0 0);animation:kwMsg .55s cubic-bezier(.2,.8,.2,1) .95s both}
+.kwin__dato{font-family:'Space Mono',var(--font-mono,monospace);font-weight:700;font-size:20px;letter-spacing:.06em;opacity:0;animation:kwFade .35s ease-out 1.5s both}
+.kwin__dato:empty{display:none}
+.kwin__sem{display:flex;gap:6px;width:min(240px,60vw)}
+.kwin__sem:empty{display:none}
+.kwin__sem i{flex:1;height:6px;border-radius:3px;background:rgba(255,255,255,.16);position:relative;overflow:hidden}
+.kwin__sem i.on::after{content:'';position:absolute;inset:0;background:#F4F3F0;transform-origin:left;transform:scaleX(0);animation:kwFill .35s ease-out calc(1.7s + var(--d)) forwards}
+.kwin__slo{font-family:'Space Mono',var(--font-mono,monospace);font-weight:700;font-size:12px;letter-spacing:.2em;color:#A7A9AE;opacity:0;animation:kwFade .4s ease-out 1.7s both}
+@keyframes kwIn{from{opacity:0}to{opacity:1}}
+@keyframes kwOut{to{opacity:0;transform:scale(.98)}}
+@keyframes kwBar{from{transform:scaleX(0)}to{transform:scaleX(1)}}
+@keyframes kwChev{from{transform:translateY(40%);opacity:0}to{transform:none;opacity:1}}
+@keyframes kwPulse{50%{transform:scale(1.06)}}
+@keyframes kwMsg{to{clip-path:inset(0 0 0 0)}}
+@keyframes kwFade{to{opacity:1}}
+@keyframes kwFill{to{transform:scaleX(1)}}
+@media (prefers-reduced-motion:reduce){.kwin *,.kwin{animation:none!important;clip-path:none!important;opacity:1!important}.kwin__sem i.on::after{transform:none}}
+/* Hoja COMPARTE TU LOGRO */
+.ks__top small{display:block;margin-top:6px;font-size:13px;color:#A7A9AE;font-family:var(--font-display,Inter,sans-serif);letter-spacing:0}
+.ks__seg--3{grid-template-columns:repeat(3,1fr)}
+.ks__add{position:absolute;left:50%;bottom:22px;transform:translateX(-50%);width:calc(100% - 36px);min-height:64px;border-radius:18px;background:#F4F3F0;color:#121212;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;font-family:var(--font-mono);font-weight:500;font-size:12px;letter-spacing:.14em;cursor:pointer;box-shadow:0 12px 30px rgba(0,0,0,.35)}
+.ks__add small{font-family:var(--font-display,Inter,sans-serif);font-size:12px;letter-spacing:0;color:#5E5D59}
+.ks__add input{position:absolute;inset:0;opacity:0;cursor:pointer}
+.ks__hint{position:absolute;left:50%;top:12px;transform:translateX(-50%);padding:6px 12px;border-radius:999px;background:rgba(0,0,0,.55);font-family:var(--font-mono);font-size:9px;letter-spacing:.14em;white-space:nowrap;pointer-events:none}
+.ks__stage.apuntar canvas{cursor:crosshair}
+.ks__wide{grid-column:1/-1}
+.ks__sem{margin:14px 2px 0;font-size:13px;color:#A7A9AE}
+.ks__sem:empty{display:none}
+.ks__prog{width:100%;min-height:48px;margin-top:10px;border:0;background:transparent;color:#F4F3F0;font-family:var(--font-mono);font-weight:500;font-size:11px;letter-spacing:.12em;cursor:pointer}
+
 #oRw .rwShare{display:flex;gap:14px;align-items:center;margin-top:22px;padding:12px;border:1px solid rgba(255,255,255,.14);border-radius:18px;cursor:pointer;background:transparent;width:100%;text-align:left;color:inherit}
 #oRw .rwShare img{width:96px;height:171px;border-radius:10px;object-fit:cover;background:#1E1F22;flex-shrink:0}
 #oRw .rwShare b{display:block;font-size:16px;font-weight:600}
@@ -1886,20 +1924,9 @@ function mensajeCierre(ses, antes, despues, ejec, sig, hechasN, total){
     cierre: nuevos.size ? t.cierre.toUpperCase() : 'SIGUES AVANZANDO HACIA TU OBJETIVO SEMANAL.' }
 }
 function pintarCierre(m){
-  const el=document.getElementById('oRw')
-  el.classList.toggle('rw--ciclo', !!m.ciclo)
-  el.innerHTML='<div class="rwBox"><div class="rwK">'+m.k+'</div><div class="rwS">'+m.ses+'</div><div class="rwT">'+m.t+'</div>'+
-    '<button type="button" class="rwShare" onclick="abrirCompartir()"><img id="rwShareImg" alt="Vista previa de tu tarjeta"><span><small>TU TARJETA DE HOY</small><b>Comparte tu sesión</b><small>IMAGEN · TRANSPARENTE →</small></span></button>'+
-    '<div class="rwB">'+m.b+'</div>'+
-    (m.grupos.length?'<div class="rwG2">'+m.grupos.map(g=>{ const e=m.estados[g]||''
-      return '<div class="rwGi'+(m.nuevos.has(g)?' on':'')+'">'+muscleIcon(g,'standard',m.nuevos.has(g)?'done':null)+'<div><b>'+g+'</b><small>'+e+'</small></div></div>' }).join('')+'</div>':'')+
-    (m.logros.length?'<div class="rwL">'+m.logros.map(l=>'<div><small>'+l[0]+'</small><b>'+l[1]+'</b></div>').join('')+'</div>':'')+
-    '<div class="rwSt">'+m.stats.map(s=>'<div><b>'+s[0]+'</b><small>'+s[1]+'</small></div>').join('')+'</div>'+
-    (m.sig?'<div class="rwN"><small>PRÓXIMA</small><b>'+m.sig+'</b></div>':'')+
-    '<div class="rwC">'+m.cierre+'</div>'+
-    '<button class="rwBtn" onclick="document.getElementById(\'oRw\').classList.remove(\'vis\');entrar()">VER MI PROGRESO →</button></div>'
-  el.classList.add('vis')
-  KS.data = null; ksMiniatura()
+  // c13 · El cierre ya no muestra el informe muscular: micro-secuencia de logro → COMPARTE TU LOGRO DE HOY.
+  // El detalle de objetivos y músculos vive en Avances.
+  cierreMomento(m)
 }
 
 // c10.1 · FUENTE ÚNICA DE META: las series que el KOACH programó en la semana efectiva (motor aporteSesion).
@@ -3992,22 +4019,37 @@ document.addEventListener('DOMContentLoaded', async ()=>{
   arrancarAuth()
 })
 </script>
-<div class="ks" id="oShare" role="dialog" aria-modal="true" aria-label="Compartir sesión">
+<div class="kwin" id="oWin" aria-live="assertive" onclick="cmSaltar()">
+  <svg class="kwin__k" viewBox="0 0 460 462" aria-hidden="true"><rect class="kwin__bar" x="0" y="0" width="460" height="94"/><polygon class="kwin__chev" points="0,339 231,131 460,336 460,456 231,251 0,462"/></svg>
+  <div class="kwin__msg" id="cmMsg">LO LOGRASTE.</div>
+  <div class="kwin__dato" id="cmDato"></div>
+  <div class="kwin__sem" id="cmSem"></div>
+  <div class="kwin__slo">1% MEJOR CADA DÍA</div>
+</div>
+<div class="ks" id="oShare" role="dialog" aria-modal="true" aria-label="Comparte tu logro">
   <div class="ks__box">
-    <div class="ks__top"><b>COMPARTIR SESIÓN</b><button type="button" class="ks__x" onclick="cerrarCompartir()" aria-label="Cerrar">×</button></div>
-    <div class="ks__seg" role="group" aria-label="Formato"><button type="button" data-ksf="imagen" aria-pressed="true">IMAGEN</button><button type="button" data-ksf="transparente" aria-pressed="false">TRANSPARENTE</button></div>
-    <div class="ks__stage" id="ksStage"><canvas id="ksCv" width="1080" height="1920" aria-label="Vista previa de la tarjeta"></canvas></div>
-    <div class="ks__opts" id="ksOImg">
-      <div class="ks__row"><span>FONDO</span><label class="ks__chip">USAR MI FOTO<input type="file" id="ksFoto" accept="image/*"></label><button type="button" class="ks__chip" id="ksSinFoto" aria-pressed="true">SIN FOTO</button></div>
+    <div class="ks__top"><div><b id="ksTit">COMPARTE TU LOGRO DE HOY</b><small id="ksSub">Te lo mereces. Descarga tu imagen o agrega tu selfie.</small></div><button type="button" class="ks__x" onclick="cerrarCompartir()" aria-label="Cerrar">×</button></div>
+    <div class="ks__seg ks__seg--3" role="group" aria-label="Formato"><button type="button" data-ksf="gris" aria-pressed="false">GRIS</button><button type="button" data-ksf="foto" aria-pressed="true">CON TU FOTO</button><button type="button" data-ksf="transparente" aria-pressed="false">TRANSPARENTE</button></div>
+    <div class="ks__stage" id="ksStage"><canvas id="ksCv" width="1080" height="1920" aria-label="Vista previa"></canvas>
+      <label class="ks__add" id="ksAdd">AGREGA TU SELFIE<small>o elige una foto de tu entrenamiento</small><input type="file" id="ksFoto" accept="image/*"></label>
+      <div class="ks__hint" id="ksHint">TOCA LA FOTO PARA ELEGIR DÓNDE APUNTAR</div>
+    </div>
+    <div class="ks__opts" id="ksOFoto" hidden>
+      <div class="ks__row"><span>ESTILO</span><button type="button" class="ks__chip" data-ks="estilo" data-v="tarjeta" aria-pressed="true">TARJETA</button><button type="button" class="ks__chip" data-ks="estilo" data-v="senalador" aria-pressed="false">SEÑALADOR</button><label class="ks__chip">CAMBIAR FOTO<input type="file" id="ksFoto2" accept="image/*"></label></div>
+      <div class="ks__row" data-solo="senalador"><span>RUTA</span><button type="button" class="ks__chip" data-ks="ruta" data-v="auto" aria-pressed="true">AUTO</button><button type="button" class="ks__chip" data-ks="ruta" data-v="DIAG" aria-pressed="false">DIAGONAL</button><button type="button" class="ks__chip" data-ks="ruta" data-v="L" aria-pressed="false">L</button><button type="button" class="ks__chip" data-ks="ruta" data-v="GAMMA" aria-pressed="false">Γ</button><button type="button" class="ks__chip" data-ks="ruta" data-v="ELBOW" aria-pressed="false">CODO</button></div>
+      <div class="ks__row" data-solo="senalador"><span>MARCA</span><button type="button" class="ks__chip" data-ks="mira" data-v="circulo" aria-pressed="true">MIRA</button><button type="button" class="ks__chip" data-ks="mira" data-v="cuadro" aria-pressed="false">MARCO</button></div>
     </div>
     <div class="ks__opts" id="ksOTr" hidden>
       <div class="ks__row"><span>DATOS</span><button type="button" class="ks__chip" data-ks="lado" data-v="izq" aria-pressed="true">IZQUIERDA</button><button type="button" class="ks__chip" data-ks="lado" data-v="der" aria-pressed="false">DERECHA</button></div>
-      <div class="ks__row"><span>SEÑALADOR</span><button type="button" class="ks__chip" data-ks="largo" data-v="corta" aria-pressed="false">CORTO</button><button type="button" class="ks__chip" data-ks="largo" data-v="media" aria-pressed="true">MEDIO</button><button type="button" class="ks__chip" data-ks="largo" data-v="larga" aria-pressed="false">LARGO</button></div>
-      <div class="ks__row"><span>MIRA</span><button type="button" class="ks__chip" data-ks="mira" data-v="circulo" aria-pressed="true">CIRCULAR</button><button type="button" class="ks__chip" data-ks="mira" data-v="cuadro" aria-pressed="false">CUADRADA</button></div>
+      <div class="ks__row"><span>RUTA</span><button type="button" class="ks__chip" data-ks="rutaT" data-v="DIAG" aria-pressed="false">DIAGONAL</button><button type="button" class="ks__chip" data-ks="rutaT" data-v="L" aria-pressed="false">L</button><button type="button" class="ks__chip" data-ks="rutaT" data-v="ELBOW" aria-pressed="true">CODO</button></div>
+      <div class="ks__row"><span>LARGO</span><button type="button" class="ks__chip" data-ks="largo" data-v="corta" aria-pressed="false">S</button><button type="button" class="ks__chip" data-ks="largo" data-v="media" aria-pressed="true">M</button><button type="button" class="ks__chip" data-ks="largo" data-v="larga" aria-pressed="false">L</button></div>
+      <div class="ks__row"><span>MARCA</span><button type="button" class="ks__chip" data-ks="mira" data-v="circulo" aria-pressed="true">MIRA</button><button type="button" class="ks__chip" data-ks="mira" data-v="cuadro" aria-pressed="false">MARCO</button></div>
       <div class="ks__row"><span>CAPA</span><button type="button" class="ks__chip" data-ks="tema" data-v="blanco" aria-pressed="true">BLANCA</button><button type="button" class="ks__chip" data-ks="tema" data-v="carbon" aria-pressed="false">CARBÓN</button></div>
     </div>
-    <div class="ks__acts"><button type="button" class="ks__cta" id="ksShare">COMPARTIR</button><button type="button" class="ks__sec" id="ksSave">GUARDAR</button><button type="button" class="ks__sec" id="ksCopy">COPIAR</button></div>
+    <div class="ks__acts" id="ksActs"></div>
     <p class="ks__st" id="ksSt" aria-live="polite"></p>
+    <div class="ks__sem" id="ksSem"></div>
+    <button type="button" class="ks__prog" id="ksProg" onclick="ksVerProgreso()">VER MI PROGRESO →</button>
   </div>
 </div>
 <script>
@@ -4061,14 +4103,54 @@ function fondoBN(foto) {
   const f = document.createElement('canvas'); f.width = W; f.height = H; const fx = f.getContext('2d'); fx.imageSmoothingQuality = 'high'; fx.drawImage(src, 0, 0, W, H);
   BG_CACHE.key = key; BG_CACHE.canvas = f; return f;
 }
-function renderImagen(ctx, d, foto) {
+// Foto nítida casi B/N (saturación 15%) para el modo CON TU FOTO
+const NIT_CACHE = { src: null, canvas: null };
+function fotoNitida(foto) {
+  if (NIT_CACHE.src === foto && NIT_CACHE.canvas) return NIT_CACHE.canvas;
+  const f = document.createElement('canvas'); f.width = W; f.height = H; const x = f.getContext('2d');
+  const r = Math.max(W / foto.width, H / foto.height), w = foto.width * r, h = foto.height * r;
+  x.drawImage(foto, (W - w) / 2, (H - h) / 2, w, h);
+  const px = x.getImageData(0, 0, W, H), dt = px.data;
+  for (let i = 0; i < dt.length; i += 4) { const l = .2126 * dt[i] + .7152 * dt[i + 1] + .0722 * dt[i + 2]; dt[i] = l + (dt[i] - l) * .15; dt[i + 1] = l + (dt[i + 1] - l) * .15; dt[i + 2] = l + (dt[i + 2] - l) * .15; }
+  x.putImageData(px, 0, 0); NIT_CACHE.src = foto; NIT_CACHE.canvas = f; return f;
+}
+// Luminancia promedio (0–1) de una zona del fondo
+function lumZona(cv, x, y, w, h) {
+  const s = document.createElement('canvas'); s.width = 24; s.height = 24; const c = s.getContext('2d');
+  c.drawImage(cv, x, y, w, h, 0, 0, 24, 24); const d = c.getImageData(0, 0, 24, 24).data; let t = 0;
+  for (let i = 0; i < d.length; i += 4) t += (.2126 * d[i] + .7152 * d[i + 1] + .0722 * d[i + 2]) / 255;
+  return t / (d.length / 4);
+}
+let NOISE = null;
+function ruido(ctx) {
+  if (!NOISE) { NOISE = document.createElement('canvas'); NOISE.width = NOISE.height = 128; const n = NOISE.getContext('2d'), im = n.createImageData(128, 128);
+    for (let i = 0; i < im.data.length; i += 4) { const v = Math.random() * 255; im.data[i] = im.data[i + 1] = im.data[i + 2] = v; im.data[i + 3] = 255 } n.putImageData(im, 0, 0) }
+  return ctx.createPattern(NOISE, 'repeat');
+}
+function renderImagen(ctx, d, foto, opt) {
   ctx.clearRect(0, 0, W, H);
-  const bg = fondoBN(foto); ctx.drawImage(bg, 0, 0);
+  const nitida = !!(opt && opt.nitida && foto);
+  const bg = nitida ? fotoNitida(foto) : fondoBN(foto); ctx.drawImage(bg, 0, 0);
   const cx = 100, cy = 250, cw = 880, ch = 1330, r = 56;
-  // Tarjeta de vidrio: sombra, fondo aclarado y borde luminoso
+  if (nitida) {
+    // Vidrio grafito: la foto respira; el tinte se ajusta para mantener contraste ≥ 4,5:1
+    const lum = lumZona(bg, cx, cy, cw, ch), alfa = Math.min(.52, Math.max(.32, .32 + (lum - .30) * .6));
+    ctx.save(); ctx.shadowColor = 'rgba(0,0,0,0.30)'; ctx.shadowBlur = 60; ctx.shadowOffsetY = 18; rrect(ctx, cx, cy, cw, ch, r); ctx.fillStyle = 'rgba(18,18,18,0.01)'; ctx.fill(); ctx.restore();
+    ctx.save(); rrect(ctx, cx, cy, cw, ch, r); ctx.clip();
+    ctx.drawImage(fondoBN(foto), 0, 0);
+    ctx.fillStyle = 'rgba(18,18,18,' + alfa.toFixed(2) + ')'; ctx.fillRect(cx, cy, cw, ch);
+    const g = ctx.createLinearGradient(0, cy + 360, 0, cy + 760); g.addColorStop(0, 'rgba(18,18,18,0)'); g.addColorStop(.35, 'rgba(18,18,18,0.10)'); g.addColorStop(.75, 'rgba(18,18,18,0.10)'); g.addColorStop(1, 'rgba(18,18,18,0)');
+    ctx.fillStyle = g; ctx.fillRect(cx, cy + 360, cw, 400);
+    ctx.globalAlpha = .03; ctx.fillStyle = ruido(ctx); ctx.fillRect(cx, cy, cw, ch); ctx.globalAlpha = 1;
+    ctx.restore();
+    rrect(ctx, cx + 1, cy + 1, cw - 2, ch - 2, r); ctx.strokeStyle = 'rgba(255,255,255,0.22)'; ctx.lineWidth = 2; ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(cx + r, cy + 2); ctx.lineTo(cx + cw - r, cy + 2); ctx.strokeStyle = 'rgba(255,255,255,0.35)'; ctx.lineWidth = 2; ctx.stroke();
+  } else {
+  // Tarjeta de vidrio gris (pieza aprobada): sombra, fondo aclarado y borde luminoso
   ctx.save(); ctx.shadowColor = 'rgba(0,0,0,0.28)'; ctx.shadowBlur = 60; ctx.shadowOffsetY = 18; rrect(ctx, cx, cy, cw, ch, r); ctx.fillStyle = 'rgba(255,255,255,0.14)'; ctx.fill(); ctx.restore();
   ctx.save(); rrect(ctx, cx, cy, cw, ch, r); ctx.clip(); ctx.globalAlpha = 0.35; ctx.drawImage(bg, 0, 0); ctx.globalAlpha = 1; ctx.fillStyle = 'rgba(255,255,255,0.10)'; ctx.fillRect(cx, cy, cw, ch); ctx.restore();
   rrect(ctx, cx + 1, cy + 1, cw - 2, ch - 2, r); ctx.strokeStyle = 'rgba(255,255,255,0.38)'; ctx.lineWidth = 2; ctx.stroke();
+  }
   const ink = '#FFFFFF', soft = 'rgba(255,255,255,0.78)', x = cx + 64, R = cx + cw - 64;
   ctx.save(); ctx.shadowColor = 'rgba(0,0,0,0.22)'; ctx.shadowBlur = 14;
   // Encabezado: píldora + isotipo
@@ -4141,8 +4223,40 @@ function progreso(ctx, hist, x, y, w, h, ink, soft) {
   ctx.beginPath(); P.forEach(([px, py], i) => i ? ctx.lineTo(px, py) : ctx.moveTo(px, py)); ctx.stroke();
   ctx.fillStyle = ink; P.forEach(([px, py], i) => { ctx.beginPath(); ctx.arc(px, py, i === P.length - 1 ? 13 : 7, 0, Math.PI * 2); ctx.fill(); });
 }
-function renderSenalador(ctx, d, tema, lado, tam, largo, mira) {
+// Rutas del señalador: KX-DIAG · KX-L · KX-Γ · KX-ELBOW (+ recta H/V cuando el target está alineado)
+function rutaAuto(sx, sy, tx, ty) {
+  const dx = tx - sx, dy = ty - sy;
+  if (Math.abs(dy) < H * .08 || Math.abs(dx) < W * .08) return 'RECTA';
+  const ang = Math.atan2(Math.abs(dy), Math.abs(dx)) * 180 / Math.PI;
+  let r = ang < 25 ? 'ELBOW' : ang > 65 ? 'L' : 'DIAG';
+  if (r === 'DIAG') { for (let t = .1; t < 1; t += .1) { const px = sx + dx * t, py = sy + dy * t; if (px > W * .3 && px < W * .7 && py < H * .3) { r = 'ELBOW'; break } } }
+  return r;
+}
+function puntosRuta(ruta, sx, sy, tx, ty, dir) {
+  if (ruta === 'L') return [[sx, sy], [tx, sy], [tx, ty]];
+  if (ruta === 'GAMMA') { const vx = sx + dir * 44; return [[sx, sy], [vx, sy], [vx, ty], [tx, ty]] }
+  if (ruta === 'ELBOW') return [[sx, sy], [sx + dir * 70, sy], [tx, ty]];
+  return [[sx, sy], [tx, ty]];
+}
+function marcador(ctx, ex, ey, mira, ink) {
+  ctx.fillStyle = ink; ctx.beginPath(); ctx.arc(ex, ey, 16, 0, Math.PI * 2); ctx.fill(); ctx.lineWidth = 4; ctx.strokeStyle = ink;
+  if (mira === 'cuadro' || mira === 'frame') {
+    const q = 46, t = 18; ctx.beginPath();
+    [[-1, -1], [1, -1], [1, 1], [-1, 1]].forEach(([u, v]) => { ctx.moveTo(ex + u * q, ey + v * (q - t)); ctx.lineTo(ex + u * q, ey + v * q); ctx.lineTo(ex + u * (q - t), ey + v * q); });
+    ctx.stroke(); ctx.lineWidth = 2; ctx.strokeRect(ex - 28, ey - 28, 56, 56);
+  } else {
+    ctx.beginPath(); ctx.arc(ex, ey, 44, 0, Math.PI * 2); ctx.stroke();
+    [[0, -70, 0, -54], [0, 54, 0, 70], [-70, 0, -54, 0], [54, 0, 70, 0]].forEach(([a, b, c, e]) => { ctx.beginPath(); ctx.moveTo(ex + a, ey + b); ctx.lineTo(ex + c, ey + e); ctx.stroke(); });
+  }
+}
+function renderSenalador(ctx, d, tema, lado, tam, largo, mira, o) {
+  o = o || {};
   ctx.clearRect(0, 0, W, H);
+  if (o.fondo) {
+    ctx.drawImage(o.fondo, 0, 0);
+    if (o.target) lado = o.target.x < W / 2 ? 'der' : 'izq';
+    if (tema === 'auto') { const lum = lumZona(o.fondo, lado === 'der' ? W - 72 - 450 : 72, 260, 450, 1300); tema = lum > .58 ? 'carbon' : 'blanco' }
+  }
   const k = tam || 1, ax = lado === 'der' ? 1008 : 72, ay = 260;
   const ink = tema === 'carbon' ? C.ink : '#FFFFFF';
   const soft = tema === 'carbon' ? 'rgba(18,18,18,0.72)' : 'rgba(255,255,255,0.86)';
@@ -4192,20 +4306,15 @@ function renderSenalador(ctx, d, tema, lado, tam, largo, mira) {
   // Señalador hacia el cuerpo
   if (yMarca !== null) {
   const dist = { corta: 170, media: 300, larga: 440 }[largo || 'media'];
-  const sx = der ? x0 - 26 : xr + 26, ex = der ? x0 - dist : xr + dist, ey = { corta: 960, media: 1130, larga: 1260 }[largo || 'media'], kx = der ? x0 - 70 : xr + 70;
+  const sx = der ? x0 - 26 : xr + 26, dir = der ? -1 : 1;
+  const T = o.target || { x: der ? x0 - dist : xr + dist, y: { corta: 960, media: 1130, larga: 1260 }[largo || 'media'] };
+  const ruta = o.ruta && o.ruta !== 'auto' ? o.ruta : (o.target ? rutaAuto(sx, yMarca, T.x, T.y) : 'ELBOW');
+  const P = puntosRuta(ruta, sx, yMarca, T.x, T.y, dir);
   ctx.strokeStyle = ink; ctx.lineWidth = 5; ctx.lineCap = 'round'; ctx.lineJoin = 'round';
-  ctx.beginPath(); ctx.moveTo(sx, yMarca); ctx.lineTo(kx, yMarca); ctx.lineTo(ex, ey); ctx.stroke();
+  ctx.beginPath(); P.forEach(([px, py], i) => i ? ctx.lineTo(px, py) : ctx.moveTo(px, py)); ctx.stroke();
   ctx.fillStyle = ink; ctx.beginPath(); ctx.arc(sx, yMarca, 9, 0, Math.PI * 2); ctx.fill();
-  ctx.beginPath(); ctx.arc(ex, ey, 16, 0, Math.PI * 2); ctx.fill();
-  ctx.lineWidth = 4;
-  if (mira === 'cuadro') {
-    const q = 46, t = 18; ctx.beginPath();
-    [[-1, -1], [1, -1], [1, 1], [-1, 1]].forEach(([u, v]) => { ctx.moveTo(ex + u * q, ey + v * (q - t)); ctx.lineTo(ex + u * q, ey + v * q); ctx.lineTo(ex + u * (q - t), ey + v * q); });
-    ctx.stroke(); ctx.lineWidth = 2; ctx.strokeRect(ex - 28, ey - 28, 56, 56);
-  } else {
-    ctx.beginPath(); ctx.arc(ex, ey, 44, 0, Math.PI * 2); ctx.stroke();
-    [[0, -70, 0, -54], [0, 54, 0, 70], [-70, 0, -54, 0], [54, 0, 70, 0]].forEach(([a, b, c, e]) => { ctx.beginPath(); ctx.moveTo(ex + a, ey + b); ctx.lineTo(ex + c, ey + e); ctx.stroke(); });
-  }
+  marcador(ctx, T.x, T.y, mira, ink);
+  o.rutaUsada = ruta;
   }
   ctx.setTransform(1, 0, 0, 1, 0, 0);
   ctx.restore();
@@ -4213,11 +4322,11 @@ function renderSenalador(ctx, d, tema, lado, tam, largo, mira) {
 
 
   const alfaOk = c => { const x = c.getContext('2d'); return [[2,2],[W-3,2],[2,H-3],[W-3,H-3],[W/2,120]].every(([a,b]) => x.getImageData(a,b,1,1).data[3] === 0); };
-  return { W, H, renderImagen, renderSenalador, alfaOk, fondoBN, BG_CACHE };
+  return { W, H, renderImagen, renderSenalador, alfaOk, fondoBN, fotoNitida, BG_CACHE, NIT_CACHE };
 })();
 
-/* Controlador de la hoja Compartir */
-const KS = { formato: 'imagen', lado: 'izq', largo: 'media', mira: 'circulo', tema: 'blanco', foto: null, data: null };
+/* Controlador: MOMENTO DE LOGRO (micro-animación) + COMPARTE TU LOGRO (gris · con tu foto · transparente) */
+const KS = { formato: 'foto', estilo: 'tarjeta', ruta: 'auto', rutaT: 'ELBOW', lado: 'izq', largo: 'media', mira: 'circulo', tema: 'blanco', foto: null, target: null, data: null, desdeCierre: false, cierre: null };
 const ksEl = id => document.getElementById(id);
 function ksSt(t) { ksEl('ksSt').textContent = t || '' }
 async function ksFuentes() { try { await Promise.all(["700 100px 'Inter Display'", "600 100px 'Inter Display'", "700 100px 'Space Mono'"].map(f => document.fonts.load(f))) } catch (_) {} }
@@ -4234,52 +4343,121 @@ function ksDatos(j) {
     num: (j.hechas ?? 0) + ' de ' + (j.planif ?? 0), ej: pr.ejercicio || '', kg: pr.kg || null, reps: pr.reps || '',
     nueva: !!pr.nueva, antes: pr.antes, hist: (pr.hist || []).map(Number), musc: (j.musculos || []).slice(0, 3), cierre: '1% mejor cada día' };
 }
+// Target sugerido por el músculo principal del día (el socio lo ajusta tocando la foto)
+function ksTargetSugerido() {
+  const m = String(((KS.data || {}).musculos || [])[0] || '').toLowerCase(), W = KT.W, H = KT.H;
+  if (/b[ií]ceps|tr[ií]ceps/.test(m)) return { x: W * .30, y: H * .44 };
+  if (/cu[aá]driceps|isquios|gemelos/.test(m)) return { x: W * .5, y: H * .70 };
+  if (/gl[uú]teos/.test(m)) return { x: W * .5, y: H * .60 };
+  return { x: W * .5, y: H * .42 };
+}
 function ksPintar() {
   if (!KS.data) return;
-  const cv = ksEl('ksCv'), ctx = cv.getContext('2d'), d = ksDatos(KS.data);
-  if (KS.formato === 'imagen') { ksEl('ksStage').classList.remove('dam'); KT.renderImagen(ctx, d, KS.foto) }
-  else { ksEl('ksStage').classList.add('dam'); KT.renderSenalador(ctx, d, KS.tema, KS.lado, 1, KS.largo, KS.mira) }
-  ksEl('ksOImg').hidden = KS.formato !== 'imagen'; ksEl('ksOTr').hidden = KS.formato === 'imagen'; ksEl('ksCopy').hidden = KS.formato === 'imagen';
+  const cv = ksEl('ksCv'), ctx = cv.getContext('2d'), d = ksDatos(KS.data), st = ksEl('ksStage');
+  const sinFoto = KS.formato === 'foto' && !KS.foto;
+  st.classList.toggle('dam', KS.formato === 'transparente');
+  st.classList.toggle('apuntar', KS.formato === 'foto' && !!KS.foto && KS.estilo === 'senalador');
+  ksEl('ksAdd').hidden = !sinFoto;
+  ksEl('ksHint').hidden = !(KS.formato === 'foto' && KS.foto && KS.estilo === 'senalador');
+  if (KS.formato === 'gris' || sinFoto) KT.renderImagen(ctx, d, null);
+  else if (KS.formato === 'foto') {
+    if (KS.estilo === 'tarjeta') KT.renderImagen(ctx, d, KS.foto, { nitida: true });
+    else { if (!KS.target) KS.target = ksTargetSugerido(); KT.renderSenalador(ctx, d, 'auto', 'izq', 1, 'media', KS.mira, { fondo: KT.fotoNitida(KS.foto), target: KS.target, ruta: KS.ruta }) }
+  } else KT.renderSenalador(ctx, d, KS.tema, KS.lado, 1, KS.largo, KS.mira, { ruta: KS.rutaT });
+  ksEl('ksOFoto').hidden = !(KS.formato === 'foto' && KS.foto);
+  document.querySelectorAll('#ksOFoto [data-solo="senalador"]').forEach(r => r.hidden = KS.estilo !== 'senalador');
+  ksEl('ksOTr').hidden = KS.formato !== 'transparente';
+  ksAcciones(sinFoto);
 }
-async function ksMiniatura() {
-  try {
-    const j = await ksCargar(); if (!j) return; await ksFuentes();
-    const c = document.createElement('canvas'); c.width = KT.W; c.height = KT.H;
-    KT.renderImagen(c.getContext('2d'), ksDatos(j), null);
-    const img = ksEl('rwShareImg'); if (img) img.src = c.toDataURL('image/jpeg', 0.6);
-  } catch (e) { console.error('tarjeta', e) }
+function ksAcciones(sinFoto) {
+  const a = ksEl('ksActs');
+  if (sinFoto) { a.innerHTML = '<button type="button" class="ks__sec ks__wide" onclick="ksFormato(\'gris\')">USAR LA VERSIÓN GRIS</button>'; return }
+  a.innerHTML = KS.formato === 'transparente'
+    ? '<button type="button" class="ks__cta" onclick="ksCopiar()">COPIAR PARA TU HISTORIA</button><button type="button" class="ks__sec" onclick="ksCompartir()">COMPARTIR</button><button type="button" class="ks__sec" onclick="ksGuardarBtn()">GUARDAR</button>'
+    : '<button type="button" class="ks__cta" onclick="ksCompartir()">COMPARTIR</button><button type="button" class="ks__sec ks__wide" onclick="ksGuardarBtn()">GUARDAR IMAGEN</button>';
 }
-async function abrirCompartir() {
+function ksFormato(f) { KS.formato = f; document.querySelectorAll('[data-ksf]').forEach(x => x.setAttribute('aria-pressed', String(x.dataset.ksf === f))); ksSt(''); ksPintar() }
+function ksSemanaLinea() {
+  const j = KS.data || {}, h = j.hechas, p = j.planif; if (!p) return '';
+  const f = Math.max(0, p - h);
+  return 'Sesión ' + Math.min(h, p) + ' de ' + p + ' · ' + (f ? 'te ' + (f === 1 ? 'falta 1 sesión' : 'faltan ' + f + ' sesiones') + ' para completar tu semana' : 'semana completada ✓');
+}
+async function abrirCompartir(desdeCierre) {
+  KS.desdeCierre = !!desdeCierre;
+  ksEl('ksTit').textContent = 'COMPARTE TU LOGRO DE HOY';
   ksEl('oShare').classList.add('vis'); ksSt('Preparando tu tarjeta…');
-  try { const j = await ksCargar(); if (!j) { ksSt('Completa una sesión para generar tu tarjeta.'); return } await ksFuentes(); ksPintar(); ksSt('') }
+  try { const j = await ksCargar(); if (!j) { ksSt('Completa una sesión para generar tu tarjeta.'); return } await ksFuentes(); ksPintar(); ksSt('');
+    ksEl('ksSem').textContent = ksSemanaLinea() }
   catch (e) { console.error(e); ksSt('No pudimos cargar los datos de tu sesión. Revisa tu conexión.') }
 }
-function cerrarCompartir() { ksEl('oShare').classList.remove('vis') }
-function ksNombre() { const d = KS.data ? ksDatos(KS.data) : { rut: 'sesion' }; return 'koach-' + d.rut.toLowerCase().replace(/[^a-z0-9]+/g, '-') + '-' + (KS.formato === 'imagen' ? 'imagen' : 'capa') + '.png' }
+function cerrarCompartir() { ksEl('oShare').classList.remove('vis'); if (KS.desdeCierre) { KS.desdeCierre = false; try { entrar() } catch (_) {} } }
+function ksVerProgreso() { ksEl('oShare').classList.remove('vis'); KS.desdeCierre = false; try { entrar().then(() => { try { vista('vAvances'); if (typeof loadAvances === 'function') loadAvances() } catch (_) {} }) } catch (_) {} }
+function ksNombre() { const d = KS.data ? ksDatos(KS.data) : { rut: 'sesion' }; return 'koach-' + d.rut.toLowerCase().replace(/[^a-z0-9]+/g, '-') + '-' + KS.formato + '.png' }
 async function ksBlob() {
   ksPintar(); const cv = ksEl('ksCv');
-  if (KS.formato !== 'imagen' && !KT.alfaOk(cv)) throw new Error('sin transparencia');
+  if (KS.formato === 'transparente' && !KT.alfaOk(cv)) throw new Error('sin transparencia');
   return await new Promise((ok, no) => cv.toBlob(b => b ? ok(b) : no(new Error('png')), 'image/png'));
 }
 function ksGuardar(blob) { const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = ksNombre(); document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 4000) }
-document.querySelectorAll('[data-ksf]').forEach(b => b.onclick = () => { KS.formato = b.dataset.ksf; document.querySelectorAll('[data-ksf]').forEach(x => x.setAttribute('aria-pressed', String(x === b))); ksPintar() });
-document.querySelectorAll('[data-ks]').forEach(b => b.onclick = () => { KS[b.dataset.ks] = b.dataset.v; document.querySelectorAll('[data-ks="' + b.dataset.ks + '"]').forEach(x => x.setAttribute('aria-pressed', String(x === b))); ksPintar() });
-ksEl('ksFoto').onchange = async e => { const f = e.target.files && e.target.files[0]; if (!f) return;
-  try { KS.foto = await createImageBitmap(f) } catch (_) { const im = new Image(); im.src = URL.createObjectURL(f); await im.decode(); KS.foto = im }
-  KT.BG_CACHE.key = null; ksEl('ksSinFoto').setAttribute('aria-pressed', 'false'); ksPintar() };
-ksEl('ksSinFoto').onclick = () => { KS.foto = null; KT.BG_CACHE.key = null; ksEl('ksFoto').value = ''; ksEl('ksSinFoto').setAttribute('aria-pressed', 'true'); ksPintar() };
-ksEl('ksShare').onclick = async () => {
+async function ksCompartir() {
   try {
     const blob = await ksBlob(), file = new File([blob], ksNombre(), { type: 'image/png' });
     if (navigator.canShare && navigator.canShare({ files: [file] })) { await navigator.share({ files: [file] }); ksSt('') }
     else { ksGuardar(blob); ksSt('Tu teléfono no permite compartir directo: la imagen se descargó.') }
   } catch (e) { if (e && e.name === 'AbortError') return; console.error(e); ksSt('No se pudo compartir. Prueba con GUARDAR.') }
-};
-ksEl('ksSave').onclick = async () => { try { ksGuardar(await ksBlob()); ksSt(KS.formato === 'imagen' ? 'Imagen guardada.' : 'PNG transparente guardado.') } catch (e) { console.error(e); ksSt('No se pudo generar la imagen.') } };
-ksEl('ksCopy').onclick = async () => {
+}
+async function ksGuardarBtn() { try { ksGuardar(await ksBlob()); ksSt('Imagen guardada.') } catch (e) { console.error(e); ksSt('No se pudo generar la imagen.') } }
+async function ksCopiar() {
   try { await navigator.clipboard.write([new ClipboardItem({ 'image/png': ksBlob() })]); ksSt('Copiada. Abre tu historia, elige tu foto y pega.') }
-  catch (e) { console.error(e); ksSt('Tu navegador no permite copiar imágenes. Usa GUARDAR o COMPARTIR.') }
-};
+  catch (e) { console.error(e); ksSt('Tu navegador no permite copiar imágenes. Usa COMPARTIR o GUARDAR.') }
+}
+async function ksCargarFoto(f) {
+  if (!f) return;
+  try { KS.foto = await createImageBitmap(f, { imageOrientation: 'from-image' }) } catch (_) { try { KS.foto = await createImageBitmap(f) } catch (__) { const im = new Image(); im.src = URL.createObjectURL(f); await im.decode(); KS.foto = im } }
+  KT.BG_CACHE.key = null; KT.NIT_CACHE.src = null; KS.target = null; ksFormato('foto');
+}
+document.querySelectorAll('[data-ksf]').forEach(b => b.onclick = () => ksFormato(b.dataset.ksf));
+document.querySelectorAll('[data-ks]').forEach(b => b.onclick = () => { KS[b.dataset.ks] = b.dataset.v; document.querySelectorAll('[data-ks="' + b.dataset.ks + '"]').forEach(x => x.setAttribute('aria-pressed', String(x.dataset.v === b.dataset.v))); ksPintar() });
+ksEl('ksFoto').onchange = e => ksCargarFoto(e.target.files && e.target.files[0]);
+ksEl('ksFoto2').onchange = e => ksCargarFoto(e.target.files && e.target.files[0]);
+// Tocar la foto = elegir el target; el sistema traza la ruta y elige el lado del bloque
+ksEl('ksCv').addEventListener('click', e => {
+  if (!(KS.formato === 'foto' && KS.foto && KS.estilo === 'senalador')) return;
+  const r = ksEl('ksCv').getBoundingClientRect();
+  KS.target = { x: (e.clientX - r.left) / r.width * KT.W, y: (e.clientY - r.top) / r.height * KT.H }; ksPintar();
+});
+
+/* ── Micro-secuencia de logro: isotipo → mensaje → eslogan + semana → pantalla de compartir (2,6 s; hitos 3,4 s) ── */
+let _cmT = null, _cmFin = null;
+function cmMensaje(m, j) {
+  const pr = j && j.pr;
+  if (m && m.ciclo) return ['CICLO COMPLETADO.', '', true];
+  if (m && /SEMANA COMPLETADA/.test(String(m.k || ''))) return ['SEMANA COMPLETADA.', '', true];
+  if (m && (m.logros || []).some(l => l[0] === 'DE VUELTA')) return ['VOLVISTE.', '', false];
+  if (pr && pr.nueva && pr.kg) return ['NUEVA MARCA.', String(pr.kg).replace('.', ',') + ' KG × ' + (pr.reps || ''), true];
+  const op = ['LO LOGRASTE.', 'HOY SUMASTE.', 'CUMPLIDO.'];
+  let last = null; try { last = localStorage.getItem('k_cm_last') } catch (_) {}
+  const pick = op.filter(x => x !== last)[Math.floor(Math.random() * (op.length - 1))];
+  try { localStorage.setItem('k_cm_last', pick) } catch (_) {}
+  return [pick, '', false];
+}
+function cmSaltar() { if (_cmFin) _cmFin() }
+async function cierreMomento(m) {
+  KS.data = null; KS.cierre = m;
+  const ov = ksEl('oWin'), datosP = ksCargar().catch(() => null);
+  const j = await Promise.race([datosP, new Promise(r => setTimeout(() => r(null), 700))]);
+  const [msg, dato, hito] = cmMensaje(m, j);
+  ksEl('cmMsg').textContent = msg; ksEl('cmDato').textContent = dato;
+  const h = j && j.hechas, p = j && j.planif;
+  ksEl('cmSem').innerHTML = p ? Array.from({ length: p }, (_, i) => '<i style="--d:' + (i * 70) + 'ms" class="' + (i < h ? 'on' : '') + '"></i>').join('') : '';
+  ov.classList.remove('vis', 'out'); void ov.offsetWidth; ov.classList.add('vis');
+  try { if (navigator.vibrate) navigator.vibrate(18) } catch (_) {}
+  const dur = matchMedia('(prefers-reduced-motion: reduce)').matches ? 1200 : (hito ? 3400 : 2600);
+  await new Promise(res => { _cmFin = res; _cmT = setTimeout(res, dur) });
+  clearTimeout(_cmT); _cmFin = null;
+  ov.classList.add('out'); abrirCompartir(true);
+  setTimeout(() => ov.classList.remove('vis', 'out'), 420);
+}
 </script>
 </body>
 </html>
