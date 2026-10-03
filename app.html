@@ -307,7 +307,7 @@ html,button,input,.pvS,.chk,.setChip{touch-action:manipulation}
 .ks__sec{min-height:48px;border-radius:16px;border:1px solid rgba(255,255,255,.22);background:transparent;color:#F4F3F0;font-family:var(--font-mono);font-weight:500;font-size:10px;letter-spacing:.12em;cursor:pointer}
 .ks__st{min-height:18px;margin:12px 2px 0;font-size:13px;color:#A7A9AE}
 #oRw .rwShare{display:flex;gap:14px;align-items:center;margin-top:22px;padding:12px;border:1px solid rgba(255,255,255,.14);border-radius:18px;cursor:pointer;background:transparent;width:100%;text-align:left;color:inherit}
-#oRw .rwShare img{width:64px;height:114px;border-radius:10px;object-fit:cover;background:#1E1F22;flex-shrink:0}
+#oRw .rwShare img{width:96px;height:171px;border-radius:10px;object-fit:cover;background:#1E1F22;flex-shrink:0}
 #oRw .rwShare b{display:block;font-size:16px;font-weight:600}
 #oRw .rwShare small{display:block;margin-top:4px;font-family:var(--font-mono);font-size:10px;letter-spacing:.12em;color:#A7A9AE}
 .ovl{position:fixed;inset:0;z-index:900;display:none;flex-direction:column;align-items:center;justify-content:center;
@@ -1861,7 +1861,7 @@ function mensajeCierre(ses, antes, despues, ejec, sig, hechasN, total){
   const cargas=Object.entries(mejor).filter(([ej,p])=>S.ultimos&&S.ultimos[ej]&&S.ultimos[ej].peso!=null&&p>+S.ultimos[ej].peso)
     .map(([ej,p])=>{ let nom=''; (S._bfs||[]).forEach(b=>(b.bloque_ejercicios||[]).forEach(be=>{ if(be.ejercicio_id===ej) nom=be.ejercicios?.nombre||nom })); return {nom, p, prev:+S.ultimos[ej].peso} }).filter(c=>c.nom)
   const estados={}
-  despues.musculos.forEach(x=>{ estados[x.grupo] = !x.exigible ? '' : x.fortalecido ? (nuevosFlag(x.grupo)?'OBJETIVO CUMPLIDO ✓':'OBJETIVO CUMPLIDO') : x.series>0 ? 'EN PROGRESO · '+(x.series%1===0?x.series:(+x.series).toFixed(1))+' / '+x.objetivo : 'SIN EMPEZAR' })
+  despues.musculos.forEach(x=>{ estados[x.grupo] = !x.exigible ? '' : x.fortalecido ? (nuevosFlag(x.grupo)?'OBJETIVO CUMPLIDO ✓':'OBJETIVO CUMPLIDO') : x.series>0 ? (x.objetivo>0 && x.series/x.objetivo>=0.9 ? 'CASI CUMPLIDO' : 'EN PROGRESO') : 'SIN EMPEZAR' })
   function nuevosFlag(g){ return nuevos.has(g) }
   const semanaOk = !sig   // vocabulario único: todas las sesiones programadas = semana completada = objetivos cumplidos
   const logros=[]
@@ -1885,6 +1885,7 @@ function pintarCierre(m){
   const el=document.getElementById('oRw')
   el.classList.toggle('rw--ciclo', !!m.ciclo)
   el.innerHTML='<div class="rwBox"><div class="rwK">'+m.k+'</div><div class="rwS">'+m.ses+'</div><div class="rwT">'+m.t+'</div>'+
+    '<button type="button" class="rwShare" onclick="abrirCompartir()"><img id="rwShareImg" alt="Vista previa de tu tarjeta"><span><small>TU TARJETA DE HOY</small><b>Comparte tu sesión</b><small>IMAGEN · TRANSPARENTE →</small></span></button>'+
     '<div class="rwB">'+m.b+'</div>'+
     (m.grupos.length?'<div class="rwG2">'+m.grupos.map(g=>{ const e=m.estados[g]||''
       return '<div class="rwGi'+(m.nuevos.has(g)?' on':'')+'">'+muscleIcon(g,'standard',m.nuevos.has(g)?'done':null)+'<div><b>'+g+'</b><small>'+e+'</small></div></div>' }).join('')+'</div>':'')+
@@ -1892,7 +1893,6 @@ function pintarCierre(m){
     '<div class="rwSt">'+m.stats.map(s=>'<div><b>'+s[0]+'</b><small>'+s[1]+'</small></div>').join('')+'</div>'+
     (m.sig?'<div class="rwN"><small>PRÓXIMA</small><b>'+m.sig+'</b></div>':'')+
     '<div class="rwC">'+m.cierre+'</div>'+
-    '<button type="button" class="rwShare" onclick="abrirCompartir()"><img id="rwShareImg" alt=""><span><b>Tu tarjeta de hoy</b><small>COMPARTIR EN HISTORIAS →</small></span></button>'+
     '<button class="rwBtn" onclick="document.getElementById(\'oRw\').classList.remove(\'vis\');entrar()">VER MI PROGRESO →</button></div>'
   el.classList.add('vis')
   KS.data = null; ksMiniatura()
