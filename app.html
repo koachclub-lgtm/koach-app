@@ -20,6 +20,7 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="/domain/koach-domain.js"></script>
 <script src="/domain/program-catalog.js"></script>
+<script src="/domain/koach-avatar.js"></script>
 <style>
 /* ═══════════ KOACH DS v1.0 · TOKENS + PRIMITIVES (P0) ═══════════ */
 @font-face{font-family:'Inter Display';src:url('/fonts/InterDisplay-Regular.woff2') format('woff2');font-weight:400;font-display:swap}
@@ -388,6 +389,9 @@ html,button,input,.pvS,.chk,.setChip{touch-action:manipulation}
 .vacio{font-size:10px;color:var(--gris);font-weight:700;text-align:center;padding:24px 14px;line-height:1.7}
 /* ── PERFIL ── */
 .idcard{display:flex;align-items:center;gap:14px;padding:18px 16px;margin-bottom:10px}
+.idav--btn{position:relative;border:0;padding:0;cursor:pointer;overflow:visible;font:inherit}
+.idav img{width:100%;height:100%;object-fit:cover;border-radius:50%;display:block}
+.idav__ed{position:absolute;right:-2px;bottom:-2px;width:20px;height:20px;border-radius:50%;background:#F4F3F0;color:#121212;font-size:11px;display:flex;align-items:center;justify-content:center;box-shadow:0 0 0 2px rgba(0,0,0,.12)}
 .idav{width:52px;height:52px;border-radius:50%;background:var(--tinta);color:var(--hueso);display:flex;
   align-items:center;justify-content:center;font-size:19px;font-weight:900}
 .idn{font-size:16px;font-weight:900}
@@ -1319,7 +1323,7 @@ body.wl-on{overflow:hidden}
   <div class="vista conTab" id="vPerfil">
     <header class="kh"><div class="kh__top"><span class="kh__brand">KOACH FITNESS CLUB</span></div><h1 class="kh__t">Perfil</h1><div class="kh__k kh__k--sub">TU CUENTA KOACH</div></header>
     <div class="glass idcard">
-      <div class="idav" id="pfAv">K</div>
+      <button type="button" class="idav idav--btn" id="pfAv" onclick="perfilFoto()" aria-label="Editar foto de perfil">K</button>
       <div><div class="idn" id="pfNom">—</div><div class="idm" id="pfProg">—</div></div>
     </div>
     <div id="pfMem"></div>
@@ -3949,7 +3953,7 @@ function pintarMembresia(){
 function pintarPerfil(){
   pintarMembresia()
   const p=S.perfil||{}
-  document.getElementById('pfAv').textContent=(p.nombre||'K')[0].toUpperCase()
+  pintarAvatarPerfil()
   document.getElementById('pfNom').textContent=`${p.nombre||''} ${p.apellido||''}`.trim()||p.email
   const desde = p.created_at ? new Date(p.created_at) : null
   const MES3 = ['ENE','FEB','MAR','ABR','MAY','JUN','JUL','AGO','SEP','OCT','NOV','DIC']
@@ -3960,6 +3964,19 @@ function pintarPerfil(){
     `<b>Email:</b> ${p.email||'—'}<br><b>WhatsApp:</b> ${p.telefono||'—'}<br>Para actualizar tus datos, habla con recepción.`
 }
 function det(id){ document.getElementById(id).classList.toggle('vis') }
+/* Foto de perfil: una sola fuente (profiles.avatar_path). Alimenta Perfil/credencial, Sala y buscador del coach. */
+async function pintarAvatarPerfil(){
+  const el=document.getElementById('pfAv'), p=S.perfil||{}; if(!el) return
+  const ini=(p.nombre||'K')[0].toUpperCase()
+  if (!p.avatar_path || !window.KAvatar){ el.innerHTML=ini+'<span class="idav__ed" aria-hidden="true">+</span>'; return }
+  await KAvatar.urls(sb,[p.avatar_path])
+  const u=KAvatar.urlDe(p.avatar_path)
+  el.innerHTML = u ? '<img src="'+u+'" alt="" onerror="this.remove()"><span class="idav__ed" aria-hidden="true">✎</span>' : ini
+}
+function perfilFoto(){
+  const p=S.perfil; if(!p||!window.KAvatar) return
+  KAvatar.editar(sb, p.id, p.avatar_path||null, function(nuevo){ p.avatar_path=nuevo; pintarAvatarPerfil(); toast(nuevo?'Foto guardada ✓':'Foto eliminada') })
+}
 
 /* ══ ARRANQUE ══ */
 document.addEventListener('DOMContentLoaded', async ()=>{

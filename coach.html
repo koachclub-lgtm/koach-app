@@ -20,6 +20,7 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="/domain/koach-domain.js"></script>
 <script src="/domain/program-catalog.js"></script>
+<script src="/domain/koach-avatar.js"></script>
 <style>
 /* ═══════════ KOACH DS v1.0 · TOKENS + PRIMITIVES (P0) ═══════════ */
 @font-face{font-family:'Inter Display';src:url('/fonts/InterDisplay-Regular.woff2') format('woff2');font-weight:400;font-display:swap}
@@ -910,6 +911,43 @@ html.selAbierto,html.selAbierto body{overflow:hidden}
 .plProg span{flex:1;min-width:0}
 .plProp{font-family:var(--font-mono);font-weight:500;font-size:9.5px;letter-spacing:.03em;border:1px solid var(--koach-accent);color:var(--koach-accent);background:var(--koach-control);border-radius:var(--radius-pill);padding:6px 10px;cursor:pointer}
 
+/* ═══ c12 · SALA EN VIVO (roster por actividad real) ═══ */
+.rost{margin:6px 0 18px}
+.rost__h,.atn__h{display:flex;justify-content:space-between;align-items:baseline;font-family:var(--font-mono,'IBM Plex Mono',monospace);font-weight:500;font-size:11px;letter-spacing:.16em;color:#8E8D88;margin:0 2px 12px}
+.rost__h span:last-child{color:var(--ink,#121212)}
+.rost__g{display:grid;grid-template-columns:repeat(auto-fill,minmax(104px,1fr));gap:10px}
+.rost__i{display:flex;flex-direction:column;align-items:center;gap:6px;padding:12px 6px 10px;border-radius:18px;text-decoration:none;color:inherit;background:rgba(255,255,255,.35);border:1px solid rgba(18,18,18,.08);min-height:44px}
+.rost__i .kav{width:64px;height:64px;font-size:24px}
+.rost__i b{font-size:14px;letter-spacing:.02em;text-transform:uppercase;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.rost__i small{font-family:var(--font-mono,monospace);font-size:9.5px;letter-spacing:.1em;color:#5E5D59;text-transform:uppercase;text-align:center;line-height:1.35}
+.rost__i em{font-style:normal;font-family:var(--font-mono,monospace);font-size:10px;letter-spacing:.1em}
+.rost__v{padding:14px 4px;font-size:14px;color:#5E5D59}
+.atn{margin:18px 0 6px}
+.atn__r{display:flex;align-items:center;gap:12px;padding:10px 4px;border-top:1px solid rgba(18,18,18,.08)}
+.atn__r .kav{width:36px;height:36px;font-size:14px}
+.atn__t{flex:1;min-width:0}.atn__t b{display:block;font-size:15px}.atn__t small{display:block;font-family:var(--font-mono,monospace);font-size:9.5px;letter-spacing:.1em;color:#5E5D59;margin-top:3px}
+.atn__r a{min-height:44px;padding:0 14px;border-radius:12px;border:1px solid rgba(18,18,18,.18);font-family:var(--font-mono,monospace);font-size:10px;letter-spacing:.12em;color:var(--ink,#121212);display:inline-flex;align-items:center;text-decoration:none}
+.atn__mas{margin-top:6px;min-height:44px;width:100%;border:0;background:transparent;font-family:var(--font-mono,monospace);font-size:10px;letter-spacing:.12em;color:#5E5D59;cursor:pointer}
+.qRow{display:flex;align-items:center;gap:12px;padding:10px 12px;margin-bottom:8px;border-radius:16px;background:rgba(255,255,255,.35);border:1px solid rgba(18,18,18,.08)}
+.qRow .kav{width:44px;height:44px;font-size:17px}
+.qRow__t{flex:1;min-width:0;text-decoration:none;color:inherit}.qRow__t b{display:block;font-size:15px}.qRow__t small{display:block;font-family:var(--font-mono,monospace);font-size:9.5px;letter-spacing:.1em;color:#5E5D59;margin-top:3px}
+.qRow__a{display:flex;gap:6px;flex-shrink:0}.qRow__a a{min-height:44px;padding:0 12px;border-radius:12px;display:inline-flex;align-items:center;font-family:var(--font-mono,monospace);font-size:10px;letter-spacing:.1em;text-decoration:none;border:1px solid rgba(18,18,18,.18);color:var(--ink,#121212)}
+.qRow__a a.ink{background:#121212;color:#F4F3F0;border-color:#121212}
+@media (max-width:520px){.qRow{flex-wrap:wrap}.qRow__a{width:100%}.qRow__a a{flex:1;justify-content:center}}
+.fHead{display:flex;align-items:center;gap:14px;margin:4px 0 6px}
+.fHead .kav{width:60px;height:60px;font-size:22px;cursor:pointer}
+.fHead button{border:0;padding:0;background:transparent;cursor:pointer;border-radius:50%}
+.fAcc3{display:grid;grid-template-columns:1fr;gap:8px;margin:6px 0 14px}
+.fAcc3 a,.fAcc3 button{min-height:56px;border-radius:16px;display:flex;align-items:center;justify-content:space-between;padding:0 18px;font-family:var(--font-mono,monospace);font-weight:500;font-size:12px;letter-spacing:.12em;text-decoration:none;cursor:pointer;border:1px solid rgba(18,18,18,.18);background:transparent;color:var(--ink,#121212)}
+.fAcc3 .ink{background:#121212;color:#F4F3F0;border-color:#121212}
+@media (min-width:900px){.fAcc3{grid-template-columns:repeat(3,1fr)}}
+.scMsg{display:block;font-size:14px;color:#5E5D59;margin-top:4px}
+.scUlt{display:flex;justify-content:space-between;align-items:baseline;gap:10px;padding:10px 0;border-bottom:1px solid rgba(18,18,18,.08)}
+.scUlt small{font-family:var(--font-mono,monospace);font-size:9.5px;letter-spacing:.12em;color:#5E5D59}
+.scSec{background:transparent;border:0;font-family:var(--font-mono,monospace);font-size:10px;letter-spacing:.1em;color:#5E5D59;min-height:44px;cursor:pointer;text-decoration:underline}
+/* ↗ solo escritorio con mouse: en tablet no hay ventanas accidentales */
+.soloDesk{display:none!important}
+@media (hover:hover) and (pointer:fine){.soloDesk{display:inline-flex!important}}
 </style>
 </head>
 <body>
@@ -934,8 +972,7 @@ html.selAbierto,html.selAbierto body{overflow:hidden}
 </div></div>
 
 <div class="vista" id="vSala">
-  <div class="hbar"><span class="hk" title="c11.6">KOACH</span><span class="hbar__r"><button class="dashBtn" onclick="dashMenu()" aria-label="Vista del dashboard">VISTA</button><button class="dashBtn" onclick="cuentaAbrir()" aria-label="Mi cuenta: cambiar contraseña">MI CLAVE</button><span class="rol" id="rolBadge" onclick="salir()">COACH</span></span></div>
-  <div class="adAcc" id="accesos"></div>
+  <div class="hbar"><span class="hk" title="c12">KOACH</span><span class="hbar__r"><button class="dashBtn" onclick="dashMenu()" aria-label="Vista del dashboard">VISTA</button><button class="dashBtn" onclick="cuentaAbrir()" aria-label="Mi cuenta: cambiar contraseña">MI CLAVE</button><span class="rol" id="rolBadge" onclick="salir()">COACH</span></span></div>
   <div class="glass aform" id="fAlta" style="display:none">
     <h4>CREAR USUARIO — ENTRA AL INSTANTE CON SU CORREO Y CLAVE</h4>
     <input id="nuNombre" placeholder="Nombre">
@@ -965,12 +1002,15 @@ html.selAbierto,html.selAbierto body{overflow:hidden}
     <div class="amsg" id="nuMsg"></div>
   </div>
   <div class="mtabs" id="mesa"></div>
-  <div class="stats" id="pulso"></div>
-  <div class="salaHead"><div class="h3"><span>ENTRENAMIENTO · SOCIOS ACTIVOS</span><span id="nSoc">—</span></div>
+  <div class="stats" id="pulso" style="display:none"></div>
+  <section class="rost" aria-label="En sala ahora"><div class="rost__h"><span>SALA</span><span id="rostN">—</span></div><div class="rost__g" id="rostG"></div></section>
+  <div class="salaHead"><div class="h3"><span>BUSCAR SOCIO</span><span id="nSoc">—</span></div>
     <label class="salaQ"><span aria-hidden="true">⌕</span><input id="salaQ" type="search" placeholder="Buscar socio…" autocomplete="off" oninput="salaBuscar()" onkeydown="salaBuscarKey(event)" aria-label="Buscar socio por nombre o apellido"></label></div>
   <div id="lista"></div>
   <div class="vacio" id="salaQv" style="display:none">Ningún socio coincide con la búsqueda.</div>
+  <section class="atn" id="atn" aria-label="Requieren atención"></section>
   <div id="bandejas" style="margin-top:12px"></div>
+  <div class="adAcc" id="accesos"></div>
 </div>
 <div class="vista" id="vSol">
   <div class="stop"><button class="sback" onclick="verSala()">←</button><div class="stit">Solicitudes</div>
@@ -1006,7 +1046,7 @@ html.selAbierto,html.selAbierto body{overflow:hidden}
 
 <div class="vista" id="vFicha">
   <div class="stop"><button class="sback" onclick="verSala()">←</button>
-    <div class="stit" id="fNombre">—</div>
+    <div class="fHead"><button type="button" id="fAvBtn" onclick="fichaFoto()" aria-label="Foto del socio"></button><div class="stit" id="fNombre">—</div></div>
     <span class="rol" id="fEstado" style="margin-left:auto">ACTIVA</span></div>
   <div class="ssub" id="fMeta">—</div>
   <div class="fTabs fTabs--3"><button id="fTbEnt" class="on" onclick="fTab('ent')">ENTRENAMIENTO</button><button id="fTbAdh" onclick="fTab('adh')">ADHERENCIA</button><button id="fTbAdm" onclick="fTab('adm')">ADMIN</button></div>
@@ -1620,31 +1660,19 @@ function pintarSala(){
     (_modo==='desktop'?'<div class="glass st3"><b>'+completas+'</b><span>SEMANAS COMPLETAS</span></div>'+
       '<div class="glass st3"><b>'+nSol+'</b><span>SOLICITUDES</span></div>':'')
   document.getElementById('nSoc').textContent=C.socios.length+' EN EL CLUB'
-  document.getElementById('lista').innerHTML = C.socios.length ? C.socios.map(function(s){
-    const a=C.asig[s.id], sem=C.sems[s.id]
-    const meta=a?(((a.protocolos&&a.protocolos.programa)||'')+' · '+((a.protocolos&&a.protocolos.nivel)||'')+' · SEM '+(a.semana_actual||1)+'/'+((a.protocolos&&a.protocolos.ciclo_semanas)||6)).toUpperCase():'SIN PROGRAMA'
-    let badge='<span class="badge off">SIN SEMANA</span>'
-    if(sem){ badge = sem.completa?'<span class="badge done">SEMANA ✓ · 100%</span>'
-      : hoySet.has(s.id)?'<span class="badge hoy">HOY ✓ · '+sem.pct_dosis+'%</span>'
-      : '<span class="badge off">'+sem.pct_dosis+'% DOSIS</span>' }
-    const barra = sem?'<div class="sem"><div class="bar"><div class="fill" style="width:'+Math.round(sem.fortalecidos/Math.max(sem.exigibles,1)*100)+'%"></div></div>'+
-      '<span class="x2">'+sem.fortalecidos+'<small>/'+sem.exigibles+'</small> METAS</span></div>':''
-    const ex=(C.extras[s.id]||[]).filter(function(e){return e.estado==='disponible'}).length
-    if (_modo==='tablet'){
-      const est = !sem ? 'SIN SEMANA' : sem.completa ? 'SEMANA ✓' : hoySet.has(s.id) ? 'HOY ✓' : sem.pct_dosis+'%'
-      const _x=ctxEnt(s.id)
-      return '<a class="glass card cardLink tRow" data-id="'+s.id+'" data-nom="'+_nomQ(s)+'" href="'+urlRutina(s.id)+'" onclick="return rtIr(event,\''+urlRutina(s.id)+'\')">'+
-        '<span class="tRow__av">'+(((s.nombre||'?')[0])||'?').toUpperCase()+'</span>'+
-        '<span class="tRow__n"><b>'+nomDe(s.id)+(ex?' ★'+ex:'')+'</b><small>'+(_x?_x.etiqueta:(a?'SEM '+(a.semana_actual||1):'SIN PLANIFICACIÓN ACTIVA'))+'</small></span>'+
-        '<span class="tRow__st">'+est+'</span><span class="tRow__go" aria-hidden="true">→</span>'+
-        '<button class="tRow__mas" aria-label="Más opciones" onclick="dashSocioMenu(event,\''+s.id+'\')">•••</button></a>'
-    }
-    const _xd=ctxEnt(s.id)
-    return '<div class="glass card cardLink cardEnt" data-id="'+s.id+'" data-nom="'+_nomQ(s)+'"><a class="cardEnt__lnk" href="#/socio/'+s.id+'" onclick="return rtClick(event,\''+s.id+'\')"><div class="ctop">'+
-      '<div class="av">'+(((s.nombre||'?')[0])||'?').toUpperCase()+'</div>'+
-      '<div><div class="cn2">'+nomDe(s.id)+(ex?' <span style="color:var(--ama)">★'+ex+'</span>':'')+'</div><div class="cm2">'+meta+(_xd?' · '+_xd.etiqueta:'')+'</div></div>'+badge+'</div>'+barra+'</a>'+accEnt(s.id,true)+'</div>'
-  }).join('') : '<div class="vacio">Sin socios activos aún</div>'
+  document.getElementById('lista').innerHTML = C.socios.map(function(s){
+    const a=C.asig[s.id], x=ctxEnt(s.id), ex=(C.extras[s.id]||[]).filter(function(e){return e.estado==='disponible'}).length
+    const meta=a?(((a.protocolos&&a.protocolos.programa)||'')+' · SEMANA '+(a.semana_actual||1)).toUpperCase():'SIN PLANIFICACIÓN ACTIVA'
+    return '<div class="qRow" data-id="'+s.id+'" data-nom="'+_nomQ(s)+'">'+avSocio(s.id)+
+      '<a class="qRow__t" href="#/socio/'+s.id+'" onclick="return rtClick(event,\''+s.id+'\')"><b>'+nomDe(s.id)+(ex?' ★'+ex:'')+'</b><small>'+meta+(x&&x.etiqueta?' · '+x.etiqueta:'')+'</small></a>'+
+      '<div class="qRow__a">'+(a?'<a class="ink" href="'+urlRutina(s.id)+'" onclick="return rtIr(event,\''+urlRutina(s.id)+'\')">ENTRENAMIENTO</a>':'')+
+      '<a href="#/socio/'+s.id+'" onclick="return rtClick(event,\''+s.id+'\')">PERFIL</a></div></div>'
+  }).join('')
+  salaVisibilidadLista()
+  salaPresenciaPintar()
+  salaFotos()
   if (document.getElementById('salaQ') && document.getElementById('salaQ').value) salaBuscar()
+  salaPresenciaCargar()
 }
 
 async function atender(id){ try{ await sb.from('solicitudes').update({estado:'atendida',atendida_at:new Date().toISOString()}).eq('id',id)
@@ -1665,6 +1693,7 @@ function verFicha(id, sinRuta){
   const MES3=['ENE','FEB','MAR','ABR','MAY','JUN','JUL','AGO','SEP','OCT','NOV','DIC']
   const d=F.created_at?new Date(F.created_at):null
   document.getElementById('fNombre').textContent=nomDe(id)
+  fichaAvatar()
   AD.socioTab='ent'; if(document.getElementById('fTabEnt')){ document.getElementById('fTabEnt').style.display=''; document.getElementById('fTabAdm').style.display='none'; document.getElementById('fTabAdh').style.display='none'; document.getElementById('fTbEnt').classList.add('on'); document.getElementById('fTbAdm').classList.remove('on'); document.getElementById('fTbAdh').classList.remove('on') }
   const _mv=admEstadoSocio(F.id)
   document.getElementById('fEstado').textContent=(F.estado==='congelado')?'ACCESO SUSPENDIDO':(_mv.k==='sin'?'SIN MEMBRESÍA':_mv.t)
@@ -3843,7 +3872,7 @@ function admPintar(){
   // POR ACTIVAR = se registró y le falta membresía o planificación (lo resuelve el equipo)
   const porActivar=function(sid){ return est[sid].k==='sin' || !C.asig[sid] }
   const esUgc=function(sid){ const m=adMemVigente(sid); return !!(m && m.tipo_comercial==='ugc') }
-  admIngresos()
+  if (((C.yo&&C.yo.role)||'')==='admin') admIngresos(); else { const _ing=document.getElementById('admIng'); if(_ing) _ing.innerHTML='' }
   const F2=[['activar','POR ACTIVAR'],['todos','TODOS'],['activa','ACTIVOS'],['proxima','PRÓXIMOS A VENCER'],['vencida','VENCIDOS'],['congelada','CONGELADOS'],['pago','PAGO PENDIENTE'],['ugc','UGC'],['sin','SIN MEMBRESÍA']]
   const cuenta=function(k){ return soc.filter(function(s){ return k==='todos'||(k==='activar'?porActivar(s.id):k==='pago'?pend.has(s.id):k==='ugc'?esUgc(s.id):(k==='activa'?['activa','futura'].indexOf(est[s.id].k)>-1:est[s.id].k===k)) }).length }
   document.getElementById('admF').innerHTML=F2.map(function(f){ return '<button class="'+(AD.admF===f[0]?'on':'')+'" onclick="AD.admF=\''+f[0]+'\';admPintar()">'+f[1]+' · '+cuenta(f[0])+'</button>' }).join('')
@@ -3868,6 +3897,14 @@ function admPintar(){
 }
 
 // ═══ FICHA · pestañas ENTRENAMIENTO | ADMIN ═══
+function fichaAvatar(){ const b=document.getElementById('fAvBtn'); if(!b||!F) return
+  b.innerHTML=avSocio(F.id)
+  if (window.KAvatar && F.avatar_path && !KAvatar.urlDe(F.avatar_path)) KAvatar.urls(sb,[F.avatar_path]).then(function(){ if(F) document.getElementById('fAvBtn').innerHTML=avSocio(F.id) }) }
+function fichaFoto(){ if(!F||!window.KAvatar) return; const sid=F.id
+  KAvatar.editar(sb, sid, F.avatar_path||null, function(nuevo){
+    const so=C.socios.find(function(x){return x.id===sid}); if(so) so.avatar_path=nuevo
+    if (F && F.id===sid){ F.avatar_path=nuevo; fichaAvatar() } salaPresenciaPintar(); toast(nuevo?'Foto guardada ✓':'Foto eliminada') },
+    { titulo:'FOTO DE '+String(nomDe(sid)).toUpperCase() }) }
 function fTab(t){
   AD.socioTab=t
   document.getElementById('fTabEnt').style.display=t==='ent'?'':'none'
@@ -4099,9 +4136,60 @@ function salaRTIniciar(){
   if (_salaRT || !sb.channel) return
   _salaRT = sb.channel('sala:'+Math.random().toString(36).slice(2,8))
     .on('postgres_changes', { event:'*', schema:'public', table:'asignaciones' }, function(){
-      clearTimeout(_salaDeb); _salaDeb=setTimeout(function(){ C._lastSala=0; refrescoSala() }, 3000) })
+      clearTimeout(_salaDeb); _salaDeb=setTimeout(function(){ salaPresenciaCargar(true) }, 1500) })
     .subscribe()
 }
+// ═══════════ c12 · SALA = ACTIVIDAD REAL ═══════════
+// Fuente: koach_sala_estado (inicio de la sesión + último set guardado). EN SALA = actividad ≤ 30 min y comenzó hace ≤ 3 h.
+// La señal en vivo (asignaciones.ejec_revision, se mueve con cada set) dispara un refetch liviano de presencia.
+// Un timer local (sin red) solo reclasifica a quien pasa de activo a "sin actividad".
+C.pres = C.pres || []
+function presCat(x){
+  if (x.fecha < hoyISO()) return 'anterior'
+  const now=Date.now(), ult=new Date(x.ultima).getTime(), ini=new Date(x.inicio).getTime()
+  return (now-ult <= 30*60000 && now-ini <= 3*3600000) ? 'en_sala' : 'atencion'
+}
+function presMin(t){ return Math.max(0, Math.round((Date.now()-new Date(t).getTime())/60000)) }
+function avSocio(id, cls){ const so=(C.socios||[]).find(function(x){return x.id===id})||(C.pres||[]).find(function(x){return x.socio_id===id})||{}
+  return window.KAvatar ? KAvatar.html(so.avatar_path, so.nombre, 'kav'+(cls?' '+cls:'')) : '<span class="kav">'+String(so.nombre||'?')[0].toUpperCase()+'</span>' }
+async function salaFotos(){
+  if (!window.KAvatar) return
+  const ps=(C.socios||[]).map(function(x){return x.avatar_path}).concat((C.pres||[]).map(function(x){return x.avatar_path})).filter(Boolean)
+  const antes=ps.filter(function(p){return !KAvatar.urlDe(p)}).length; if(!antes) return
+  await KAvatar.urls(sb, ps); salaPresenciaPintar()
+  document.querySelectorAll('#lista .qRow').forEach(function(el){ const k=el.querySelector('.kav'); if(k) k.outerHTML=avSocio(el.dataset.id) })
+}
+function salaVisibilidadLista(){ const q=(document.getElementById('salaQ')||{}).value||''; const l=document.getElementById('lista'); if(l) l.style.display=q.trim()?'':'none' }
+let _presRun=false
+async function salaPresenciaCargar(forzar){
+  if (_presRun) return; if (!forzar && Date.now()-(C._presAt||0) < 5000) return; _presRun=true; C._presAt=Date.now()
+  try{ const r=await sb.rpc('koach_sala_estado'); if(!r.error){ C.pres=r.data||[]; salaPresenciaPintar(); salaFotos() } }
+  catch(e){ console.error('presencia', e) } finally{ _presRun=false }
+}
+function salaPresenciaPintar(){
+  const g=document.getElementById('rostG'); if(!g) return
+  const pres=(C.pres||[]).map(function(x){ return Object.assign({}, x, { cat: presCat(x) }) })
+  const en=pres.filter(function(x){return x.cat==='en_sala'}).sort(function(a,b){return new Date(a.inicio)-new Date(b.inicio)})
+  document.getElementById('rostN').textContent = en.length+' EN SALA'
+  g.innerHTML = en.length ? en.map(function(x){
+    const m=presMin(x.inicio), est = m<2 ? 'EN CURSO' : m+' MIN'
+    return '<a class="rost__i" href="#/socio/'+x.socio_id+'" onclick="return rtClick(event,\''+x.socio_id+'\')">'+avSocio(x.socio_id)+
+      '<b>'+plEsc(String(x.nombre||'').split(' ')[0])+'</b><small>'+plEsc(String(x.sesion||'SESIÓN'))+'</small><em>'+est+'</em></a>' }).join('')
+    : '<div class="rost__v">Nadie entrenando en este momento.</div>'
+  const at=pres.filter(function(x){return x.cat!=='en_sala'}).sort(function(a,b){ return (a.cat===b.cat?0:(a.cat==='atencion'?-1:1)) || (new Date(b.ultima)-new Date(a.ultima)) })
+  const el=document.getElementById('atn'); if(!el) return
+  if (!at.length){ el.innerHTML=''; return }
+  const ver=el.dataset.todo==='1' ? at : at.slice(0,4)
+  el.innerHTML='<div class="atn__h"><span>REQUIEREN ATENCIÓN · '+at.length+'</span></div>'+ver.map(function(x){
+    const d = x.cat==='anterior' ? 'SESIÓN ABIERTA DESDE '+(x.fecha===fLocal(new Date(Date.now()-864e5))?'AYER':adhF(x.fecha))
+      : 'SIN ACTIVIDAD · '+presMin(x.ultima)+' MIN'
+    return '<div class="atn__r">'+avSocio(x.socio_id)+'<div class="atn__t"><b>'+plEsc(nomDe(x.socio_id)||x.nombre||'')+'</b><small>'+plEsc(String(x.sesion||'').toUpperCase())+' · '+d+(x.n_sets?' · '+x.n_sets+' SETS':'')+'</small></div>'+
+      '<a href="#/socio/'+x.socio_id+'" onclick="return rtClick(event,\''+x.socio_id+'\')">REVISAR</a></div>' }).join('')+
+    (at.length>4 && el.dataset.todo!=='1' ? '<button type="button" class="atn__mas" onclick="document.getElementById(\'atn\').dataset.todo=\'1\';salaPresenciaPintar()">VER TODAS ('+at.length+')</button>' : '')
+}
+setInterval(function(){ const v=document.getElementById('vSala'); if(v&&v.classList.contains('on')&&document.visibilityState==='visible') salaPresenciaPintar() }, 30000)
+document.addEventListener('visibilitychange', function(){ if(document.visibilityState==='visible') salaPresenciaCargar(true) })
+
 // ═══════════ c9.3 · ADHERENCIA (radar de socios) ═══════════
 // Fuente única: vista v_adherencia (base). Asistencia = check_ins (hoy: día con rutina completada; también manual).
 const ADH={ f:'todos', rows:[] }
@@ -4409,7 +4497,7 @@ function dashSocioMenu(ev, id){ ev.preventDefault(); ev.stopPropagation(); windo
   const cerrar="document.getElementById('mDashSoc').style.display='none';"
   const L=function(t,h,cls){ return '<a class="mSG__'+(cls||'sec')+' mSG__a" href="'+h+'" onclick="'+cerrar+'return rtIr(event,\''+h+'\')">'+t+'</a>' }
   document.getElementById('mDashSocAcc').innerHTML = L('RUTINA DE HOY', urlRutina(id), 'ok') + L('PLANIFICADOR', urlPlan(id)) + L('PERFIL', '#/socio/'+id) +
-    '<a class="mSG__sec mSG__a" href="'+location.pathname+urlRutina(id)+'" target="_blank" rel="noopener noreferrer" onclick="'+cerrar+'">ABRIR RUTINA EN NUEVA PESTAÑA ↗</a>'
+    '<a class="mSG__sec mSG__a soloDesk" href="'+location.pathname+urlRutina(id)+'" target="_blank" rel="noopener noreferrer" onclick="'+cerrar+'">ABRIR EN OTRA PESTAÑA ↗</a>'
   document.getElementById('mDashSoc').style.display='flex' }
 // c10.5 · enlaces reales de la cabecera del planificador (Ctrl/Cmd/Shift/clic central → el navegador abre pestaña nueva)
 function _nativo(ev){ return ev.metaKey||ev.ctrlKey||ev.shiftKey||ev.button===1 }
@@ -4449,7 +4537,7 @@ function accEnt(id, compacto){
     '<a class="eBtn eBtn--ink" href="'+urlRutina(id)+'" onclick="return rtIr(event,\''+urlRutina(id)+'\')">'+lbl+' →</a>'+
     '<a class="eBtn" href="'+urlPlan(id)+'" onclick="return rtIr(event,\''+urlPlan(id)+'\')">PLANIFICADOR</a>'+
     (compacto?'':'<a class="eBtn eBtn--ghost" href="#/socio/'+id+'" onclick="return rtIr(event,\'#/socio/'+id+'\')">PERFIL</a>')+
-    '<a class="eBtn eBtn--ic" href="'+location.pathname+urlRutina(id)+'" target="_blank" rel="noopener noreferrer" title="Abrir rutina en nueva pestaña" aria-label="Abrir rutina de '+String(nomDe(id)).replace(/"/g,'')+' en nueva pestaña">↗</a></div>'
+    '<a class="eBtn eBtn--ic soloDesk" href="'+location.pathname+urlRutina(id)+'" target="_blank" rel="noopener noreferrer" title="Abrir en otra pestaña" aria-label="Abrir rutina de '+String(nomDe(id)).replace(/"/g,'')+' en otra pestaña">ABRIR EN OTRA PESTAÑA ↗</a></div>'
 }
 function _nomQ(s){ return String((s.nombre||'')+' '+(s.apellido||'')).toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/"/g,'') }
 function fPintarCtx(id){
@@ -4457,13 +4545,16 @@ function fPintarCtx(id){
   const x=ctxEnt(id)
   if (!C.asig[id]){ el.innerHTML='<div class="fCtx__sin">SIN PROGRAMA ACTIVO</div><div class="eAcc" style="padding:0"><button class="eBtn eBtn--ink" onclick="gpAbrir()">ASIGNAR PROGRAMA</button></div>'; return }
   const cel=function(k,v){ return '<div class="fCtx__c"><small>'+k+'</small><b>'+v+'</b></div>' }
-  el.innerHTML = '<div class="fCtx__g">'+
+  const lblR = x&&x.abrir ? (x.enCurso?'SESIÓN EN CURSO':'RUTINA DE HOY') : 'RUTINA DE HOY'
+  el.innerHTML = '<div class="fAcc3">'+
+      (x&&x.abrir?'<a class="ink" href="'+urlRutina(id)+'" onclick="return rtIr(event,\''+urlRutina(id)+'\')">'+lblR+'<span aria-hidden="true">→</span></a>':'<a class="ink" href="'+urlPlan(id)+'" onclick="return rtIr(event,\''+urlPlan(id)+'\')">SEMANA COMPLETA<span aria-hidden="true">→</span></a>')+
+      '<a href="'+urlPlan(id)+'" onclick="return rtIr(event,\''+urlPlan(id)+'\')">PLANIFICADOR<span aria-hidden="true">→</span></a>'+
+      '<button type="button" onclick="gpAbrir()">GESTIONAR PROGRAMA<span aria-hidden="true">→</span></button></div>'+
+    '<div class="scCard" id="scCard"><div class="scK">CONTROL DE ENTRENAMIENTO</div><div class="gpCarga">Cargando…</div></div>'+
+    '<div class="fCtx__g" style="margin-top:14px">'+
     cel('PROGRAMA', x?String(x.programa||'—').toUpperCase():'—')+cel('CICLO', x&&x.ciclo!=null?x.ciclo:'—')+
     cel('SEMANA', x?x.semana+' <em>DE '+(x.total||'—')+'</em>':'—')+
-    cel(x&&x.enCurso?'EN CURSO':'PRÓXIMA', x&&x.abrir?String(x.abrir.nombre||'').toUpperCase():'SEMANA COMPLETA')+
-    cel('ESTA SEMANA', x?x.hechas+' / '+x.sesSem:'—')+'</div>'+accEnt(id,true)+
-    '<button type="button" class="eBtn eBtn--ghost gpBtn" onclick="gpAbrir()">GESTIONAR PROGRAMA</button>'+
-    '<div class="scCard" id="scCard"><div class="scK">CONTROL DE ENTRENAMIENTO</div><div class="gpCarga">Cargando…</div></div>'
+    cel('ESTA SEMANA', x?x.hechas+' / '+x.sesSem:'—')+'</div>'
   scCargar(id)
 }
 function salaBuscar(){ const raw=document.getElementById('salaQ').value||'', q=bpNorm(raw), lista=document.getElementById('lista')
@@ -4472,7 +4563,8 @@ function salaBuscar(){ const raw=document.getElementById('salaQ').value||'', q=b
   let n=0; const sc=els.map(function(el){ const so=(C.socios||[]).find(function(x){return x.id===el.dataset.id})||{}
     const v=q ? bpScore(q, el.getAttribute('data-nom'), [so.email,so.telefono].filter(Boolean).join(' ')) : 1; el.style.display=v?'':'none'; if(v) n++; return {el:el,v:v} })
   sc.sort(function(a,b){ return q ? (b.v-a.v || (+a.el.dataset.o)-(+b.el.dataset.o)) : (+a.el.dataset.o)-(+b.el.dataset.o) }).forEach(function(x){ lista.appendChild(x.el) })
-  const v=document.getElementById('salaQv'); if(v){ v.style.display = (q && !n) ? '' : 'none'; v.textContent='No encontramos socios para “'+raw.trim()+'”.' } }
+  const v=document.getElementById('salaQv'); if(v){ v.style.display = (q && !n) ? '' : 'none'; v.textContent='No encontramos socios para “'+raw.trim()+'”.' }
+  lista.style.display = q ? '' : 'none' }
 function salaBuscarKey(ev){ if (ev.key!=='Enter') return; const f=[...document.querySelectorAll('#lista [data-nom]')].filter(function(e){return e.style.display!=='none'})
   if (f.length===1){ const id=f[0].getAttribute('data-id'); location.hash=urlRutina(id) } }
 // ═══════════ c10.8 · GESTIONAR PROGRAMA ═══════════
@@ -4645,18 +4737,30 @@ async function scCargar(id){
 }
 function scPintar(){
   const st=SC.st||{}, el=document.getElementById('scCard'); if(!el||!st.activo){ if(el) el.innerHTML=''; return }
+  const px=st.proxima, hb=st.habilitada, ab=st.abiertas||[], x=F?ctxEnt(F.id):null
   let h='<div class="scK">CONTROL DE ENTRENAMIENTO</div>'
-  ;(st.abiertas||[]).forEach(function(a){
-    h+='<div class="scRow scRow--abierta"><div><b>'+plEsc(String(a.nombre||'SESIÓN').toUpperCase())+'</b><span class="scPill">● '+(a.estado==='en_curso'?'EN CURSO':'SIN CERRAR')+'</span>'+
-      '<small>INICIADA '+scFecha(a.iniciada_at||a.fecha)+' · '+a.ejercicios+' / '+a.total_ejercicios+' ejercicios · '+a.sets+' sets registrados</small></div>'+
-      '<button type="button" class="eBtn" onclick="scGestionar(\''+a.id+'\')">GESTIONAR</button></div>' })
-  const px=st.proxima, hb=st.habilitada
-  h+='<div class="scRow"><div><small>PRÓXIMA SESIÓN</small><b>'+(px?plEsc(String(px.nombre||'').toUpperCase()):'SEMANA COMPLETA')+'</b>'+
-    (hb?'<span class="scPill scPill--hab">HABILITADA POR KOACH'+(hb.permite_hoy?' · OTRA HOY':'')+'</span>':(st.entreno_hoy?'<span class="scPill">YA ENTRENÓ HOY</span>':''))+'</div>'+
-    '<div class="scBtns">'+(hb?'<button type="button" class="eBtn eBtn--ghost" onclick="scAccion(\'quitar_habilitacion\')">QUITAR</button>':'')+
-    '<button type="button" class="eBtn eBtn--ink" onclick="scElegir()">'+(st.entreno_hoy?'HABILITAR OTRA HOY':'ELEGIR SESIÓN')+'</button></div></div>'
+  if (x && x.hoyOk) h+='<div class="scUlt"><div><small>ÚLTIMA SESIÓN</small><b> '+plEsc(String(x.hoyOk.nombre||'').toUpperCase())+'</b></div><small>✓ COMPLETADA HOY</small></div>'
+  ab.forEach(function(a){
+    h+='<div class="scRow scRow--abierta"><div><small>SESIÓN ABIERTA</small><b>'+plEsc(String(a.nombre||'SESIÓN').toUpperCase())+'</b>'+
+      '<span class="scMsg">Iniciada '+scFecha(a.iniciada_at||a.fecha)+' · '+a.sets+' sets registrados</span></div>'+
+      '<button type="button" class="eBtn" onclick="scGestionar(\''+a.id+'\')">REVISAR SESIÓN ABIERTA</button></div>' })
+  let msg='', cta=''
+  if (!px){ msg='Completó todas las sesiones de la semana.'; cta='<button type="button" class="scSec" onclick="scElegir()">ELEGIR OTRA SESIÓN</button>' }
+  else if (hb){ msg='Habilitada por KOACH'+(hb.permite_hoy?' para hoy':'')+'. El socio ya la ve.'
+    cta='<button type="button" class="eBtn eBtn--ghost" onclick="scAccion(\'quitar_habilitacion\')">QUITAR HABILITACIÓN</button>' }
+  else if (ab.length){ msg='Hay una sesión anterior abierta.'
+    cta='<button type="button" class="eBtn eBtn--ink" onclick="scHabilitarDirecto(\''+px.id+'\')">HABILITAR DE TODAS FORMAS</button>' }
+  else if (st.entreno_hoy){ msg='Ya completó una sesión hoy.'
+    cta='<button type="button" class="eBtn eBtn--ink" onclick="scHabilitarDirecto(\''+px.id+'\')">HABILITAR HOY</button>' }
+  else { msg='Lista para entrenar.'
+    cta=F?'<a class="eBtn eBtn--ink" href="'+urlRutina(F.id)+'" onclick="return rtIr(event,\''+urlRutina(F.id)+'\')">ABRIR RUTINA</a>':'' }
+  h+='<div class="scRow"><div><small>PRÓXIMA SESIÓN</small><b>'+(px?plEsc(String(px.nombre||'').toUpperCase()):'SEMANA COMPLETA')+'</b><span class="scMsg">'+msg+'</span></div>'+
+    '<div class="scBtns">'+cta+'</div></div>'+
+    (px?'<button type="button" class="scSec" onclick="scElegir()">ELEGIR OTRA SESIÓN</button>':'')
   el.innerHTML=h
 }
+// Override del coach: SIEMPRE una sesión concreta (socio + ciclo + semana + sesión), nunca un permiso global.
+function scHabilitarDirecto(sesId){ scAccion('habilitar', null, sesId, true) }
 function scCerrar(){ document.getElementById('mSC').style.display='none' }
 function scModal(t,b){ document.getElementById('scT').textContent=t; document.getElementById('scBody').innerHTML=b; document.getElementById('mSC').style.display='flex' }
 function scGestionar(rid){
