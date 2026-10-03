@@ -26,6 +26,8 @@
 @font-face{font-family:'Inter Display';src:url('/fonts/InterDisplay-SemiBold.woff2') format('woff2');font-weight:600;font-display:swap}
 @font-face{font-family:'Inter Display';src:url('/fonts/InterDisplay-Bold.woff2') format('woff2');font-weight:700;font-display:swap}
 @font-face{font-family:'IBM Plex Mono';src:url('/fonts/IBMPlexMono-Medium.woff2') format('woff2');font-weight:500;font-display:swap}
+@font-face{font-family:'Space Mono';src:url('/fonts/SpaceMono-Regular.woff2') format('woff2');font-weight:400;font-display:swap}
+@font-face{font-family:'Space Mono';src:url('/fonts/SpaceMono-Bold.woff2') format('woff2');font-weight:700;font-display:swap}
 :root{
   --koach-bg:#B3B3B3; --koach-surface:#A3A3A3; --koach-ink:#1C1C1C;
   --koach-border-strong:#3A3A3A; --koach-border:#888888; --koach-divider:#787878;
@@ -283,6 +285,31 @@ html,button,input,.pvS,.chk,.setChip{touch-action:manipulation}
 .fin{width:100%;margin:6px 0 30px}
 /* ── OVERLAYS ── */
 .locked{filter:blur(3px) grayscale(1);opacity:.45;pointer-events:none;transition:all .5s}
+.ks{position:fixed;inset:0;z-index:1200;display:none;overflow-y:auto;background:#121212;color:#F4F3F0;padding:calc(18px + env(safe-area-inset-top,0px)) 18px calc(24px + env(safe-area-inset-bottom,0px))}
+.ks.vis{display:block}
+.ks [hidden]{display:none!important}
+.ks__box{max-width:440px;margin:0 auto}
+.ks__top{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px}
+.ks__top b{font-family:var(--font-mono);font-weight:500;font-size:11px;letter-spacing:.16em}
+.ks__x{width:44px;height:44px;border-radius:999px;border:1px solid rgba(255,255,255,.22);background:transparent;color:#F4F3F0;font-size:22px;cursor:pointer}
+.ks__seg{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:14px}
+.ks__seg button,.ks__chip{min-height:40px;border-radius:999px;border:1px solid rgba(255,255,255,.22);background:transparent;color:#A7A9AE;font-family:var(--font-mono);font-weight:500;font-size:10px;letter-spacing:.12em;cursor:pointer;padding:0 14px;display:inline-flex;align-items:center;justify-content:center;position:relative}
+.ks__seg button[aria-pressed="true"],.ks__chip[aria-pressed="true"]{background:#F4F3F0;color:#121212;border-color:#F4F3F0}
+.ks__chip input{position:absolute;inset:0;opacity:0;cursor:pointer}
+.ks__stage{position:relative;width:100%;max-width:300px;margin:0 auto 14px;aspect-ratio:9/16;border-radius:22px;overflow:hidden;border:1px solid rgba(255,255,255,.14);background:#1E1F22}
+.ks__stage.dam{background-color:#fff;background-image:linear-gradient(45deg,#cfcfcd 25%,transparent 25%),linear-gradient(-45deg,#cfcfcd 25%,transparent 25%),linear-gradient(45deg,transparent 75%,#cfcfcd 75%),linear-gradient(-45deg,transparent 75%,#cfcfcd 75%);background-size:20px 20px;background-position:0 0,0 10px,10px -10px,-10px 0}
+.ks__stage canvas{position:absolute;inset:0;width:100%;height:100%}
+.ks__opts{display:flex;flex-direction:column;gap:8px;margin-bottom:12px}
+.ks__row{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+.ks__row span{font-family:var(--font-mono);font-size:9px;letter-spacing:.14em;color:#8E8D88;min-width:78px}
+.ks__acts{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:6px}
+.ks__cta{grid-column:1/-1;min-height:54px;border:0;border-radius:16px;background:#F4F3F0;color:#121212;font-family:var(--font-mono);font-weight:500;font-size:11px;letter-spacing:.12em;cursor:pointer}
+.ks__sec{min-height:48px;border-radius:16px;border:1px solid rgba(255,255,255,.22);background:transparent;color:#F4F3F0;font-family:var(--font-mono);font-weight:500;font-size:10px;letter-spacing:.12em;cursor:pointer}
+.ks__st{min-height:18px;margin:12px 2px 0;font-size:13px;color:#A7A9AE}
+#oRw .rwShare{display:flex;gap:14px;align-items:center;margin-top:22px;padding:12px;border:1px solid rgba(255,255,255,.14);border-radius:18px;cursor:pointer;background:transparent;width:100%;text-align:left;color:inherit}
+#oRw .rwShare img{width:64px;height:114px;border-radius:10px;object-fit:cover;background:#1E1F22;flex-shrink:0}
+#oRw .rwShare b{display:block;font-size:16px;font-weight:600}
+#oRw .rwShare small{display:block;margin-top:4px;font-family:var(--font-mono);font-size:10px;letter-spacing:.12em;color:#A7A9AE}
 .ovl{position:fixed;inset:0;z-index:900;display:none;flex-direction:column;align-items:center;justify-content:center;
   padding:30px;text-align:center}
 .ovl.vis{display:flex;animation:oin .25s ease}
@@ -1865,8 +1892,10 @@ function pintarCierre(m){
     '<div class="rwSt">'+m.stats.map(s=>'<div><b>'+s[0]+'</b><small>'+s[1]+'</small></div>').join('')+'</div>'+
     (m.sig?'<div class="rwN"><small>PRÓXIMA</small><b>'+m.sig+'</b></div>':'')+
     '<div class="rwC">'+m.cierre+'</div>'+
+    '<button type="button" class="rwShare" onclick="abrirCompartir()"><img id="rwShareImg" alt=""><span><b>Tu tarjeta de hoy</b><small>COMPARTIR EN HISTORIAS →</small></span></button>'+
     '<button class="rwBtn" onclick="document.getElementById(\'oRw\').classList.remove(\'vis\');entrar()">VER MI PROGRESO →</button></div>'
   el.classList.add('vis')
+  KS.data = null; ksMiniatura()
 }
 
 // c10.1 · FUENTE ÚNICA DE META: las series que el KOACH programó en la semana efectiva (motor aporteSesion).
@@ -3945,6 +3974,295 @@ document.addEventListener('DOMContentLoaded', async ()=>{
   document.getElementById('oFin').addEventListener('click', e=>{ if(e.target.id==='oFin') e.target.classList.remove('vis') })
   arrancarAuth()
 })
+</script>
+<div class="ks" id="oShare" role="dialog" aria-modal="true" aria-label="Compartir sesión">
+  <div class="ks__box">
+    <div class="ks__top"><b>COMPARTIR SESIÓN</b><button type="button" class="ks__x" onclick="cerrarCompartir()" aria-label="Cerrar">×</button></div>
+    <div class="ks__seg" role="group" aria-label="Formato"><button type="button" data-ksf="imagen" aria-pressed="true">IMAGEN</button><button type="button" data-ksf="transparente" aria-pressed="false">TRANSPARENTE</button></div>
+    <div class="ks__stage" id="ksStage"><canvas id="ksCv" width="1080" height="1920" aria-label="Vista previa de la tarjeta"></canvas></div>
+    <div class="ks__opts" id="ksOImg">
+      <div class="ks__row"><span>FONDO</span><label class="ks__chip">USAR MI FOTO<input type="file" id="ksFoto" accept="image/*"></label><button type="button" class="ks__chip" id="ksSinFoto" aria-pressed="true">SIN FOTO</button></div>
+    </div>
+    <div class="ks__opts" id="ksOTr" hidden>
+      <div class="ks__row"><span>DATOS</span><button type="button" class="ks__chip" data-ks="lado" data-v="izq" aria-pressed="true">IZQUIERDA</button><button type="button" class="ks__chip" data-ks="lado" data-v="der" aria-pressed="false">DERECHA</button></div>
+      <div class="ks__row"><span>SEÑALADOR</span><button type="button" class="ks__chip" data-ks="largo" data-v="corta" aria-pressed="false">CORTO</button><button type="button" class="ks__chip" data-ks="largo" data-v="media" aria-pressed="true">MEDIO</button><button type="button" class="ks__chip" data-ks="largo" data-v="larga" aria-pressed="false">LARGO</button></div>
+      <div class="ks__row"><span>MIRA</span><button type="button" class="ks__chip" data-ks="mira" data-v="circulo" aria-pressed="true">CIRCULAR</button><button type="button" class="ks__chip" data-ks="mira" data-v="cuadro" aria-pressed="false">CUADRADA</button></div>
+      <div class="ks__row"><span>CAPA</span><button type="button" class="ks__chip" data-ks="tema" data-v="blanco" aria-pressed="true">BLANCA</button><button type="button" class="ks__chip" data-ks="tema" data-v="carbon" aria-pressed="false">CARBÓN</button></div>
+    </div>
+    <div class="ks__acts"><button type="button" class="ks__cta" id="ksShare">COMPARTIR</button><button type="button" class="ks__sec" id="ksSave">GUARDAR</button><button type="button" class="ks__sec" id="ksCopy">COPIAR</button></div>
+    <p class="ks__st" id="ksSt" aria-live="polite"></p>
+  </div>
+</div>
+<script>
+/* ══ TARJETAS KOACH · compartir sesión (PNG 1080×1920 en el dispositivo; transparente con alfa real) ══ */
+const KT = (() => {
+const W = 1080, H = 1920;
+const C = { surface:'#D2D2D0', ink:'#121212', off:'#F4F3F0', muted:'#5E5D59', faint:'#8E8D88', dim:'#A7A9AE' };
+const kg = v => { const n = +v; return Number.isFinite(n) ? (n % 1 === 0 ? String(n) : n.toFixed(1).replace('.', ',')) : '—'; };
+
+function setFont(ctx, weight, size, fam, track) {
+  ctx.font = weight + ' ' + size + 'px ' + (fam === 'mono' ? "'IBM Plex Mono', monospace" : fam === 'space' ? "'Space Mono', 'IBM Plex Mono', monospace" : "'Inter Display', Inter, Arial, sans-serif");
+  if ('letterSpacing' in ctx) ctx.letterSpacing = (track || 0) + 'px';
+}
+function text(ctx, s, x, y, o) {
+  setFont(ctx, o.w || 400, o.size, o.fam, o.track);
+  ctx.fillStyle = o.color; ctx.textAlign = o.align || 'left'; ctx.textBaseline = 'alphabetic';
+  ctx.fillText(s, x, y);
+  return ctx.measureText(s).width;
+}
+function spark(ctx, hist, x, y, w, h, color, lw) {
+  const s = hist.filter(Number.isFinite); if (s.length < 2) return;
+  const lo = Math.min(...s), hi = Math.max(...s), span = (hi - lo) || 1;
+  const P = s.map((v, i) => [x + i * (w / (s.length - 1)), y + h - (v - lo) / span * h]);
+  ctx.strokeStyle = color; ctx.lineWidth = lw; ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+  ctx.beginPath(); ctx.moveTo(P[0][0], P[0][1]);
+  for (let i = 1; i < P.length; i++) { const a = P[i - 1], b = P[i], cx = (a[0] + b[0]) / 2; ctx.bezierCurveTo(cx, a[1], cx, b[1], b[0], b[1]); }
+  ctx.stroke();
+  const L = P[P.length - 1]; ctx.fillStyle = color; ctx.beginPath(); ctx.arc(L[0], L[1], lw * 2.2, 0, Math.PI * 2); ctx.fill();
+}
+function check(ctx, cx, cy, r, stroke, lw) {
+  ctx.strokeStyle = stroke; ctx.lineWidth = lw; ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+  ctx.beginPath(); ctx.moveTo(cx - r * 0.45, cy + r * 0.02); ctx.lineTo(cx - r * 0.1, cy + r * 0.36); ctx.lineTo(cx + r * 0.48, cy - r * 0.32); ctx.stroke();
+}
+function rrect(ctx, x, y, w, h, r) { ctx.beginPath(); ctx.roundRect ? ctx.roundRect(x, y, w, h, r) : ctx.rect(x, y, w, h); }
+
+/* Formato 1 · IMAGEN: foto B/N desenfocada + tarjeta de vidrio con la data */
+const BG_CACHE = { key: null, canvas: null };
+function fondoBN(foto) {
+  const key = foto ? 'foto' : 'base';
+  if (BG_CACHE.key === key && BG_CACHE.canvas) return BG_CACHE.canvas;
+  // Desenfoque portable (también Safari): reducir mucho, pasar a gris y volver a escalar en dos pasos
+  const sw = 54, sh = 96, a = document.createElement('canvas'); a.width = sw; a.height = sh; const ax = a.getContext('2d');
+  if (foto) { const r = Math.max(sw / foto.width, sh / foto.height), w = foto.width * r, h = foto.height * r; ax.drawImage(foto, (sw - w) / 2, (sh - h) / 2, w, h); }
+  else { const g = ax.createRadialGradient(sw * .58, sh * .3, 1, sw * .55, sh * .45, sh * .55); g.addColorStop(0, '#1A1A1A'); g.addColorStop(.45, '#3C3C3B'); g.addColorStop(1, '#A9A9A7'); ax.fillStyle = g; ax.fillRect(0, 0, sw, sh); }
+  const px = ax.getImageData(0, 0, sw, sh); for (let i = 0; i < px.data.length; i += 4) { const l = .2126 * px.data[i] + .7152 * px.data[i + 1] + .0722 * px.data[i + 2]; const v = 46 + l * 0.72; px.data[i] = px.data[i + 1] = px.data[i + 2] = v; }
+  ax.putImageData(px, 0, 0);
+  // Caja de desenfoque: promedia 3 veces con vecinos en la versión pequeña, luego sube en pasos ×2
+  for (let n = 0; n < 3; n++) { ax.globalAlpha = 0.5; [[1,0],[-1,0],[0,1],[0,-1]].forEach(([dx, dy]) => ax.drawImage(a, dx, dy)); ax.globalAlpha = 1; }
+  let src = a, w = sw, h = sh;
+  while (w < W) { const n2 = document.createElement('canvas'); w = Math.min(W, w * 2); h = Math.min(H, h * 2); n2.width = w; n2.height = h; const nx = n2.getContext('2d'); nx.imageSmoothingEnabled = true; nx.imageSmoothingQuality = 'high'; nx.drawImage(src, 0, 0, w, h); src = n2; }
+  const f = document.createElement('canvas'); f.width = W; f.height = H; const fx = f.getContext('2d'); fx.imageSmoothingQuality = 'high'; fx.drawImage(src, 0, 0, W, H);
+  BG_CACHE.key = key; BG_CACHE.canvas = f; return f;
+}
+function renderImagen(ctx, d, foto) {
+  ctx.clearRect(0, 0, W, H);
+  const bg = fondoBN(foto); ctx.drawImage(bg, 0, 0);
+  const cx = 100, cy = 250, cw = 880, ch = 1330, r = 56;
+  // Tarjeta de vidrio: sombra, fondo aclarado y borde luminoso
+  ctx.save(); ctx.shadowColor = 'rgba(0,0,0,0.28)'; ctx.shadowBlur = 60; ctx.shadowOffsetY = 18; rrect(ctx, cx, cy, cw, ch, r); ctx.fillStyle = 'rgba(255,255,255,0.14)'; ctx.fill(); ctx.restore();
+  ctx.save(); rrect(ctx, cx, cy, cw, ch, r); ctx.clip(); ctx.globalAlpha = 0.35; ctx.drawImage(bg, 0, 0); ctx.globalAlpha = 1; ctx.fillStyle = 'rgba(255,255,255,0.10)'; ctx.fillRect(cx, cy, cw, ch); ctx.restore();
+  rrect(ctx, cx + 1, cy + 1, cw - 2, ch - 2, r); ctx.strokeStyle = 'rgba(255,255,255,0.38)'; ctx.lineWidth = 2; ctx.stroke();
+  const ink = '#FFFFFF', soft = 'rgba(255,255,255,0.78)', x = cx + 64, R = cx + cw - 64;
+  ctx.save(); ctx.shadowColor = 'rgba(0,0,0,0.22)'; ctx.shadowBlur = 14;
+  // Encabezado: píldora + isotipo
+  const pill = (d.prog + ' | Semana ' + d.sem).toUpperCase();
+  setFont(ctx, 700, 26, 'space', 1); const pw = ctx.measureText(pill).width + 48;
+  rrect(ctx, x, cy + 60, pw, 58, 29); ctx.fillStyle = 'rgba(255,255,255,0.20)'; ctx.fill();
+  text(ctx, pill, x + 24, cy + 98, { w: 700, size: 26, fam: 'space', track: 1, color: ink });
+  logoK(ctx, R - 56, cy + 58, 58, ink);
+  // Título
+  text(ctx, d.rut, x, cy + 230, { w: 700, size: 78, track: -3, color: ink });
+  text(ctx, 'SESIÓN COMPLETADA · MÉTODO KOACH', x, cy + 285, { w: 700, size: 26, fam: 'space', track: 2, color: soft });
+  // PR + gráfico (solo si la sesión tuvo cargas)
+  if (d.kg) {
+  text(ctx, 'PR · OF THE DAY', x, cy + 400, { w: 700, size: 28, fam: 'space', track: 2, color: soft });
+  setFont(ctx, 700, 120, 'space', -6); const wN = ctx.measureText(kg(d.kg)).width;
+  text(ctx, kg(d.kg), x, cy + 520, { w: 700, size: 120, fam: 'space', track: -6, color: ink });
+  text(ctx, 'KG', x + wN + 10, cy + 520, { w: 700, size: 46, fam: 'space', color: ink });
+  setFont(ctx, 700, 28, 'space', 0);
+  wrap(ctx, (d.ej + ' × ' + d.reps + ' reps').toUpperCase(), 360).forEach((l, i) => text(ctx, l, R, cy + 470 + i * 38, { w: 700, size: 28, fam: 'space', color: ink, align: 'right' }));
+  const gy = cy + 560, gh = 150, s = d.hist.filter(Number.isFinite);
+  if (s.length > 1) {
+    const lo = Math.min(...s), hi = Math.max(...s), sp = (hi - lo) || 1;
+    const P = s.map((v, i) => [x + i * ((R - x) / (s.length - 1)), gy + gh - 12 - (v - lo) / sp * (gh - 30)]);
+    ctx.beginPath(); P.forEach(([px, py], i) => i ? ctx.lineTo(px, py) : ctx.moveTo(px, py)); ctx.lineTo(R, gy + gh); ctx.lineTo(x, gy + gh); ctx.closePath(); ctx.fillStyle = 'rgba(255,255,255,0.16)'; ctx.fill();
+    ctx.strokeStyle = ink; ctx.lineWidth = 5; ctx.lineJoin = 'round'; ctx.beginPath(); P.forEach(([px, py], i) => i ? ctx.lineTo(px, py) : ctx.moveTo(px, py)); ctx.stroke();
+    const L = P[P.length - 1]; ctx.fillStyle = ink; ctx.beginPath(); ctx.arc(L[0], L[1], 11, 0, Math.PI * 2); ctx.fill();
+  }
+  }
+  // Músculos con check
+  let my = cy + 820; const colW = (R - x) / 3;
+  d.musc.slice(0, 3).forEach((m, i) => { if (!m) return; const mx = x + i * colW; ctx.strokeStyle = ink; ctx.lineWidth = 4; ctx.beginPath(); ctx.arc(mx + 20, my - 12, 20, 0, Math.PI * 2); ctx.stroke(); check(ctx, mx + 20, my - 12, 20, ink, 5); text(ctx, m.toUpperCase(), mx + 52, my, { w: 700, size: 30, fam: 'space', color: ink }); });
+  // Semana en barras
+  const [hech, tot] = String(d.num).split(/\s*de\s*/i).map(Number); const n = Number.isFinite(tot) && tot > 0 && tot < 10 ? tot : 0;
+  if (n) {
+    text(ctx, 'ESTA SEMANA', x, cy + 930, { w: 700, size: 26, fam: 'space', track: 2, color: soft });
+    text(ctx, (hech || 0) + ' / ' + n + ' SESIONES', R, cy + 930, { w: 700, size: 26, fam: 'space', track: 1, color: ink, align: 'right' });
+    const gap = 18, bw = (R - x - gap * (n - 1)) / n;
+    for (let i = 0; i < n; i++) { rrect(ctx, x + i * (bw + gap), cy + 960, bw, 120, 24); ctx.fillStyle = i < hech ? 'rgba(255,255,255,0.88)' : 'rgba(255,255,255,0.18)'; ctx.fill(); }
+  }
+  // Cierre centrado: eslogan + isotipo
+  logoK(ctx, cx + cw / 2 - 45, cy + 1130, 90, ink);
+  text(ctx, d.cierre.toUpperCase(), cx + cw / 2, cy + 1272, { w: 700, size: 24, fam: 'space', track: 2, color: ink, align: 'center' });
+  ctx.restore();
+}
+
+/* Formato 2b · CAPA SEÑALADOR: bloque de datos a un costado + línea que apunta al cuerpo */
+function wrap(ctx, s, maxW) {
+  const words = String(s).split(/\s+/), lines = []; let cur = '';
+  words.forEach(w => { const t = cur ? cur + ' ' + w : w; if (ctx.measureText(t).width > maxW && cur) { lines.push(cur); cur = w; } else cur = t; });
+  if (cur) lines.push(cur); return lines.slice(0, 2);
+}
+function logoK(ctx, x, y, h, color) {
+  // Isotipo KOACH: barra + chevron (proporciones del archivo oficial)
+  const w = h * (460 / 462); ctx.fillStyle = color;
+  ctx.fillRect(x, y, w, h * 0.2035);
+  ctx.beginPath();
+  [[0, .7338], [.5022, .2835], [1, .7273], [1, .987], [.5022, .5433], [0, 1]].forEach(([u, v], i) => { const px = x + u * w, py = y + v * h; i ? ctx.lineTo(px, py) : ctx.moveTo(px, py); });
+  ctx.closePath(); ctx.fill();
+  return w;
+}
+function progreso(ctx, hist, x, y, w, h, ink, soft) {
+  const s = hist.filter(Number.isFinite); if (s.length < 2) return;
+  ctx.save(); ctx.shadowBlur = 0; ctx.shadowColor = 'transparent';
+  ctx.strokeStyle = soft; ctx.lineWidth = 2;
+  for (let i = 0; i < 3; i++) { const gy = y + i * h / 2; ctx.setLineDash(i === 2 ? [] : [6, 10]); ctx.beginPath(); ctx.moveTo(x, gy); ctx.lineTo(x + w, gy); ctx.stroke(); }
+  ctx.setLineDash([]); ctx.restore();
+  const lo = Math.min(...s), hi = Math.max(...s), span = (hi - lo) || 1;
+  const P = s.map((v, i) => [x + 12 + i * ((w - 24) / (s.length - 1)), y + h - 10 - (v - lo) / span * (h - 20)]);
+  ctx.strokeStyle = ink; ctx.lineWidth = 6; ctx.lineJoin = 'round'; ctx.lineCap = 'round';
+  ctx.beginPath(); P.forEach(([px, py], i) => i ? ctx.lineTo(px, py) : ctx.moveTo(px, py)); ctx.stroke();
+  ctx.fillStyle = ink; P.forEach(([px, py], i) => { ctx.beginPath(); ctx.arc(px, py, i === P.length - 1 ? 13 : 7, 0, Math.PI * 2); ctx.fill(); });
+}
+function renderSenalador(ctx, d, tema, lado, tam, largo, mira) {
+  ctx.clearRect(0, 0, W, H);
+  const k = tam || 1, ax = lado === 'der' ? 1008 : 72, ay = 260;
+  const ink = tema === 'carbon' ? C.ink : '#FFFFFF';
+  const soft = tema === 'carbon' ? 'rgba(18,18,18,0.72)' : 'rgba(255,255,255,0.86)';
+  const grid = tema === 'carbon' ? 'rgba(18,18,18,0.28)' : 'rgba(255,255,255,0.45)';
+  const der = lado === 'der';
+  const bw = 450, x0 = der ? W - 72 - bw : 72, xr = x0 + bw, al = der ? 'right' : 'left', tx = der ? xr : x0;
+  ctx.save();
+  ctx.setTransform(k, 0, 0, k, ax * (1 - k), ay * (1 - k));
+  if (tema !== 'carbon') { ctx.shadowColor = 'rgba(0,0,0,0.55)'; ctx.shadowBlur = 26; ctx.shadowOffsetY = 2; }
+  const lab = (t, y) => text(ctx, t.toUpperCase(), tx, y, { w: 700, size: 28, fam: 'space', track: 3, color: soft, align: al });
+  let y = 260;
+  lab('Sesión completada', y);
+  setFont(ctx, 800, 86, 'sans', -3);
+  wrap(ctx, d.rut.toUpperCase(), bw).forEach(l => { y += 90; text(ctx, l, tx, y, { w: 800, size: 86, track: -3, color: ink, align: al }); });
+  y += 50; lab('Método KOACH', y);
+  y += 34; ctx.fillStyle = ink; ctx.fillRect(x0, y, bw, 4);
+  let yMarca = null;
+  if (d.kg) {
+  y += 66; lab('PR · of the day', y);
+  y += 196;
+  yMarca = y - 78;
+  setFont(ctx, 700, 200, 'space', -12); const wN = ctx.measureText(kg(d.kg)).width;
+  setFont(ctx, 700, 64, 'space', 0); const wU = ctx.measureText('KG').width + 14;
+  const xN = der ? xr - wN - wU : x0;
+  text(ctx, kg(d.kg), xN, y, { w: 700, size: 200, fam: 'space', track: -12, color: ink });
+  text(ctx, 'KG', xN + wN + 14, y, { w: 700, size: 64, fam: 'space', color: ink });
+  setFont(ctx, 700, 40, 'space', 0);
+  wrap(ctx, (d.ej + ' × ' + d.reps + ' reps').toUpperCase(), bw).forEach(l => { y += 54; text(ctx, l, tx, y, { w: 700, size: 40, fam: 'space', color: ink, align: al }); });
+  y += 44; progreso(ctx, d.hist, x0, y, bw, 120, ink, grid);
+  y += 172; ctx.fillStyle = ink; ctx.fillRect(x0, y, bw, 4);
+  }
+  y += 12;
+  d.musc.slice(0, 3).forEach(m => {
+    if (!m) return; y += 78;
+    const t = m.toUpperCase();
+    setFont(ctx, 700, 50, 'space', 0); const wm = ctx.measureText(t).width;
+    const cx = der ? xr - wm - 50 : x0 + 25;
+    ctx.strokeStyle = ink; ctx.lineWidth = 5; ctx.beginPath(); ctx.arc(cx, y - 18, 24, 0, Math.PI * 2); ctx.stroke();
+    check(ctx, cx, y - 18, 24, ink, 6);
+    text(ctx, t, der ? xr : x0 + 68, y, { w: 700, size: 50, fam: 'space', color: ink, align: al });
+  });
+  // Cierre: isotipo dominante y eslogan como subtítulo centrado bajo el logo
+  setFont(ctx, 700, 26, 'space', 2); const wS = ctx.measureText(d.cierre.toUpperCase()).width;
+  const kh = 130, kw = kh * (460 / 462), blockW = Math.max(kw, wS), cS = der ? xr - blockW / 2 : x0 + blockW / 2;
+  y += 64; logoK(ctx, cS - kw / 2, y, kh, ink);
+  y += kh + 52; text(ctx, d.cierre.toUpperCase(), cS, y, { w: 700, size: 26, fam: 'space', track: 2, color: ink, align: 'center' });
+  // Señalador hacia el cuerpo
+  if (yMarca !== null) {
+  const dist = { corta: 170, media: 300, larga: 440 }[largo || 'media'];
+  const sx = der ? x0 - 26 : xr + 26, ex = der ? x0 - dist : xr + dist, ey = { corta: 960, media: 1130, larga: 1260 }[largo || 'media'], kx = der ? x0 - 70 : xr + 70;
+  ctx.strokeStyle = ink; ctx.lineWidth = 5; ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+  ctx.beginPath(); ctx.moveTo(sx, yMarca); ctx.lineTo(kx, yMarca); ctx.lineTo(ex, ey); ctx.stroke();
+  ctx.fillStyle = ink; ctx.beginPath(); ctx.arc(sx, yMarca, 9, 0, Math.PI * 2); ctx.fill();
+  ctx.beginPath(); ctx.arc(ex, ey, 16, 0, Math.PI * 2); ctx.fill();
+  ctx.lineWidth = 4;
+  if (mira === 'cuadro') {
+    const q = 46, t = 18; ctx.beginPath();
+    [[-1, -1], [1, -1], [1, 1], [-1, 1]].forEach(([u, v]) => { ctx.moveTo(ex + u * q, ey + v * (q - t)); ctx.lineTo(ex + u * q, ey + v * q); ctx.lineTo(ex + u * (q - t), ey + v * q); });
+    ctx.stroke(); ctx.lineWidth = 2; ctx.strokeRect(ex - 28, ey - 28, 56, 56);
+  } else {
+    ctx.beginPath(); ctx.arc(ex, ey, 44, 0, Math.PI * 2); ctx.stroke();
+    [[0, -70, 0, -54], [0, 54, 0, 70], [-70, 0, -54, 0], [54, 0, 70, 0]].forEach(([a, b, c, e]) => { ctx.beginPath(); ctx.moveTo(ex + a, ey + b); ctx.lineTo(ex + c, ey + e); ctx.stroke(); });
+  }
+  }
+  ctx.setTransform(1, 0, 0, 1, 0, 0);
+  ctx.restore();
+}
+
+
+  const alfaOk = c => { const x = c.getContext('2d'); return [[2,2],[W-3,2],[2,H-3],[W-3,H-3],[W/2,120]].every(([a,b]) => x.getImageData(a,b,1,1).data[3] === 0); };
+  return { W, H, renderImagen, renderSenalador, alfaOk, fondoBN, BG_CACHE };
+})();
+
+/* Controlador de la hoja Compartir */
+const KS = { formato: 'imagen', lado: 'izq', largo: 'media', mira: 'circulo', tema: 'blanco', foto: null, data: null };
+const ksEl = id => document.getElementById(id);
+function ksSt(t) { ksEl('ksSt').textContent = t || '' }
+async function ksFuentes() { try { await Promise.all(["700 100px 'Inter Display'", "600 100px 'Inter Display'", "700 100px 'Space Mono'"].map(f => document.fonts.load(f))) } catch (_) {} }
+async function ksCargar() {
+  if (KS.data) return KS.data;
+  const { data, error } = await sb.rpc('koach_tarjeta_sesion');
+  if (error) throw error;
+  KS.data = data; return data;
+}
+function ksDatos(j) {
+  const pr = j.pr || {};
+  const tit = s => String(s || '').toLowerCase().replace(/(^|\s)\S/g, c => c.toUpperCase());
+  return { rut: tit(j.rutina || 'Sesión'), prog: String(j.programa || 'KOACH').toUpperCase(), sem: j.semana || 1,
+    num: (j.hechas ?? 0) + ' de ' + (j.planif ?? 0), ej: pr.ejercicio || '', kg: pr.kg || null, reps: pr.reps || '',
+    nueva: !!pr.nueva, antes: pr.antes, hist: (pr.hist || []).map(Number), musc: (j.musculos || []).slice(0, 3), cierre: '1% mejor cada día' };
+}
+function ksPintar() {
+  if (!KS.data) return;
+  const cv = ksEl('ksCv'), ctx = cv.getContext('2d'), d = ksDatos(KS.data);
+  if (KS.formato === 'imagen') { ksEl('ksStage').classList.remove('dam'); KT.renderImagen(ctx, d, KS.foto) }
+  else { ksEl('ksStage').classList.add('dam'); KT.renderSenalador(ctx, d, KS.tema, KS.lado, 1, KS.largo, KS.mira) }
+  ksEl('ksOImg').hidden = KS.formato !== 'imagen'; ksEl('ksOTr').hidden = KS.formato === 'imagen'; ksEl('ksCopy').hidden = KS.formato === 'imagen';
+}
+async function ksMiniatura() {
+  try {
+    const j = await ksCargar(); if (!j) return; await ksFuentes();
+    const c = document.createElement('canvas'); c.width = KT.W; c.height = KT.H;
+    KT.renderImagen(c.getContext('2d'), ksDatos(j), null);
+    const img = ksEl('rwShareImg'); if (img) img.src = c.toDataURL('image/jpeg', 0.6);
+  } catch (e) { console.error('tarjeta', e) }
+}
+async function abrirCompartir() {
+  ksEl('oShare').classList.add('vis'); ksSt('Preparando tu tarjeta…');
+  try { const j = await ksCargar(); if (!j) { ksSt('Completa una sesión para generar tu tarjeta.'); return } await ksFuentes(); ksPintar(); ksSt('') }
+  catch (e) { console.error(e); ksSt('No pudimos cargar los datos de tu sesión. Revisa tu conexión.') }
+}
+function cerrarCompartir() { ksEl('oShare').classList.remove('vis') }
+function ksNombre() { const d = KS.data ? ksDatos(KS.data) : { rut: 'sesion' }; return 'koach-' + d.rut.toLowerCase().replace(/[^a-z0-9]+/g, '-') + '-' + (KS.formato === 'imagen' ? 'imagen' : 'capa') + '.png' }
+async function ksBlob() {
+  ksPintar(); const cv = ksEl('ksCv');
+  if (KS.formato !== 'imagen' && !KT.alfaOk(cv)) throw new Error('sin transparencia');
+  return await new Promise((ok, no) => cv.toBlob(b => b ? ok(b) : no(new Error('png')), 'image/png'));
+}
+function ksGuardar(blob) { const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = ksNombre(); document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 4000) }
+document.querySelectorAll('[data-ksf]').forEach(b => b.onclick = () => { KS.formato = b.dataset.ksf; document.querySelectorAll('[data-ksf]').forEach(x => x.setAttribute('aria-pressed', String(x === b))); ksPintar() });
+document.querySelectorAll('[data-ks]').forEach(b => b.onclick = () => { KS[b.dataset.ks] = b.dataset.v; document.querySelectorAll('[data-ks="' + b.dataset.ks + '"]').forEach(x => x.setAttribute('aria-pressed', String(x === b))); ksPintar() });
+ksEl('ksFoto').onchange = async e => { const f = e.target.files && e.target.files[0]; if (!f) return;
+  try { KS.foto = await createImageBitmap(f) } catch (_) { const im = new Image(); im.src = URL.createObjectURL(f); await im.decode(); KS.foto = im }
+  KT.BG_CACHE.key = null; ksEl('ksSinFoto').setAttribute('aria-pressed', 'false'); ksPintar() };
+ksEl('ksSinFoto').onclick = () => { KS.foto = null; KT.BG_CACHE.key = null; ksEl('ksFoto').value = ''; ksEl('ksSinFoto').setAttribute('aria-pressed', 'true'); ksPintar() };
+ksEl('ksShare').onclick = async () => {
+  try {
+    const blob = await ksBlob(), file = new File([blob], ksNombre(), { type: 'image/png' });
+    if (navigator.canShare && navigator.canShare({ files: [file] })) { await navigator.share({ files: [file] }); ksSt('') }
+    else { ksGuardar(blob); ksSt('Tu teléfono no permite compartir directo: la imagen se descargó.') }
+  } catch (e) { if (e && e.name === 'AbortError') return; console.error(e); ksSt('No se pudo compartir. Prueba con GUARDAR.') }
+};
+ksEl('ksSave').onclick = async () => { try { ksGuardar(await ksBlob()); ksSt(KS.formato === 'imagen' ? 'Imagen guardada.' : 'PNG transparente guardado.') } catch (e) { console.error(e); ksSt('No se pudo generar la imagen.') } };
+ksEl('ksCopy').onclick = async () => {
+  try { await navigator.clipboard.write([new ClipboardItem({ 'image/png': ksBlob() })]); ksSt('Copiada. Abre tu historia, elige tu foto y pega.') }
+  catch (e) { console.error(e); ksSt('Tu navegador no permite copiar imágenes. Usa GUARDAR o COMPARTIR.') }
+};
 </script>
 </body>
 </html>
