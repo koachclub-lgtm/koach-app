@@ -852,6 +852,8 @@ html.selAbierto,html.selAbierto body{overflow:hidden}
 .mSG{display:none;height:100%;height:100dvh;max-height:-webkit-fill-available;padding-top:env(safe-area-inset-top,0px);box-sizing:border-box;overflow:hidden}
 .mSG > .mSG__c{position:relative;z-index:1;isolation:isolate;max-height:calc(100% - 12px);overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;box-sizing:border-box;transform:translateZ(0)}
 @supports (-webkit-touch-callout:none){ .mSG,.mCg,.selM,.adSheetBg{-webkit-backdrop-filter:none !important;backdrop-filter:none !important;background:rgba(10,10,11,.62) !important} }
+
+.lOlv{display:block;margin:12px auto 0;min-height:44px;padding:0 10px;background:none;border:none;color:#5E5D59;font-size:14px;text-decoration:underline;text-underline-offset:4px;cursor:pointer}
 /* ═══ FIN CAPA 3 ═══ */
 /* ═══ MOTOR DE CONSTRUCCIÓN c8.0 · MACRO → MESO → MICRO ═══ */
 .plNav{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin:0 0 14px}
@@ -926,11 +928,13 @@ html.selAbierto,html.selAbierto body{overflow:hidden}
   <label>CONTRASEÑA</label><input id="lPass" type="password" autocomplete="current-password">
   <button class="btn" id="lBtn" onclick="login()">ENTRAR A LA SALA →</button>
   <div class="lerr" id="lErr"></div>
+  <button type="button" class="lOlv" onclick="coachRecuperar()">¿Olvidaste tu contraseña?</button>
+  <div class="lerr" id="lRec" style="display:none"></div>
   <div style="margin-top:16px;font-size:12px;line-height:1.5;color:#8E8D88;text-align:center">Acceso solo con cuenta personal del equipo KOACH.<br>Si no tienes cuenta, pídesela a un administrador.</div>
 </div></div>
 
 <div class="vista" id="vSala">
-  <div class="hbar"><span class="hk" title="c11.5">KOACH</span><span class="hbar__r"><button class="dashBtn" onclick="dashMenu()" aria-label="Vista del dashboard">VISTA</button><button class="dashBtn" onclick="cuentaAbrir()" aria-label="Mi cuenta: cambiar contraseña">MI CLAVE</button><span class="rol" id="rolBadge" onclick="salir()">COACH</span></span></div>
+  <div class="hbar"><span class="hk" title="c11.6">KOACH</span><span class="hbar__r"><button class="dashBtn" onclick="dashMenu()" aria-label="Vista del dashboard">VISTA</button><button class="dashBtn" onclick="cuentaAbrir()" aria-label="Mi cuenta: cambiar contraseña">MI CLAVE</button><span class="rol" id="rolBadge" onclick="salir()">COACH</span></span></div>
   <div class="adAcc" id="accesos"></div>
   <div class="glass aform" id="fAlta" style="display:none">
     <h4>CREAR USUARIO — ENTRA AL INSTANTE CON SU CORREO Y CLAVE</h4>
@@ -1452,14 +1456,14 @@ async function entrar(){
     if(!perfil){ alert('Esta cuenta no tiene perfil en KOACH. Pide a un administrador que la configure.'); await sb.auth.signOut(); vista('vLogin'); return }
     if(perfil.activo===false){ alert('Esta cuenta está desactivada.'); await sb.auth.signOut(); vista('vLogin'); return }
     try{ localStorage.setItem('koach_rol', perfil.role) }catch(_e){}
-    if(perfil.role==='socio'){ window.location.href='/app.html'; return }
+    if(perfil.role==='socio'){ window.location.href = PUERTA.socio; return }   // c11.6: el socio vive en app.koachclub.cl
     C.yo = perfil
     document.documentElement.setAttribute('data-rol', perfil.role)
     const ROLN={admin:'ADMIN ⚙', coach:'COACH', recepcion:'RECEPCIÓN', nutricionista:'NUTRICIÓN'}
     document.getElementById('rolBadge').textContent = (ROLN[perfil.role]||'EQUIPO')+' · '+(perfil.nombre||'').toUpperCase()+' · SALIR'
     await loadSala()
     document.documentElement.setAttribute('data-dash', dashModo())
-    vista('vSala'); document.title='Sala | KOACH'; dashSelectorInicial()
+    vista('vSala'); document.title='Sala | KOACH'; dashSelectorInicial(); salaRTIniciar()
     if (location.hash && location.hash!=='#/' && location.hash!=='#') await rtAplicar()   // pestaña nueva / recarga / enlace copiado
   }catch(e){
     console.error(e)
@@ -4087,7 +4091,17 @@ function refrescoSala(){
   C._lastSala=Date.now(); loadSala(true).then(function(){ try{ cargandoOff() }catch(_e){} })
 }
 document.addEventListener('visibilitychange', refrescoSala)
-setInterval(refrescoSala, 45000)
+setInterval(refrescoSala, 120000)   // respaldo; la vía principal es la señal en vivo (abajo)
+// c11.6 · SALA EN VIVO: cualquier set, sesión o planificación guardada de cualquier socio llega como cambio de su
+// asignación (ejec_revision / plan_revision). La Sala se refresca sola (agrupado cada 3 s), sin esperar 45 s.
+let _salaRT=null, _salaDeb=null
+function salaRTIniciar(){
+  if (_salaRT || !sb.channel) return
+  _salaRT = sb.channel('sala:'+Math.random().toString(36).slice(2,8))
+    .on('postgres_changes', { event:'*', schema:'public', table:'asignaciones' }, function(){
+      clearTimeout(_salaDeb); _salaDeb=setTimeout(function(){ C._lastSala=0; refrescoSala() }, 3000) })
+    .subscribe()
+}
 // ═══════════ c9.3 · ADHERENCIA (radar de socios) ═══════════
 // Fuente única: vista v_adherencia (base). Asistencia = check_ins (hoy: día con rutina completada; también manual).
 const ADH={ f:'todos', rows:[] }
@@ -4723,6 +4737,21 @@ function plConflicto(){
     '<button type="button" class="mSG__sec" onclick="scCerrar();P._forzar=true;plGuardar().finally(function(){P._forzar=false})">GUARDAR MI VERSIÓN IGUAL</button>'+
     '<button type="button" class="mSG__sec" onclick="scCerrar()">SEGUIR EDITANDO</button>')
 }
+// ═══ c11.6 · DOS PUERTAS OFICIALES POR ROL ═══
+// Socios: app.koachclub.cl · Equipo: dashboard.koachclub.cl. Cada dominio guarda su propia sesión (normal y correcto);
+// ambos leen el MISMO proyecto Supabase. En previews/local se usan rutas relativas.
+const PUERTA = (function(){ const k=/(^|\.)koachclub\.cl$/i.test(location.hostname)
+  return { socio: k ? 'https://app.koachclub.cl/app.html' : '/app.html', equipo: k ? 'https://dashboard.koachclub.cl/coach.html' : '/coach.html' } })()
+// Recuperación del equipo: el enlace vuelve al MISMO dominio del panel; al llegar se abre MI CLAVE para crear la nueva
+async function coachRecuperar(){
+  const email=(document.getElementById('lEmail').value||'').trim(), el=document.getElementById('lRec'); el.style.display=''
+  if(!email){ el.textContent='Escribe tu correo arriba y vuelve a tocar “¿Olvidaste tu contraseña?”.'; return }
+  if (coachRecuperar._t && Date.now()-coachRecuperar._t<60000){ el.textContent='Ya enviamos un enlace. Espera un minuto antes de pedir otro.'; return }
+  coachRecuperar._t=Date.now()
+  const r=await sb.auth.resetPasswordForEmail(email, { redirectTo: location.origin+'/coach.html' })
+  el.textContent = r.error && /rate|seconds|limit/i.test(r.error.message||'') ? 'Se pidieron demasiados enlaces seguidos. Espera unos minutos e inténtalo otra vez.'
+    : 'Si existe una cuenta con ese correo, te enviamos un enlace para crear una nueva contraseña. Revisa también Spam.'
+}
 let MG={primero:null}
 async function aplicarPrograma(){
   // Guardia de prescripción (advertencia, jamás bloqueo) — modal KOACH, no confirm nativo
@@ -4808,7 +4837,8 @@ async function arrancarAuth(){
 }
 window.addEventListener('online', function(){ const o=document.getElementById('oAuth'); if (o && o.style.display!=='none') arrancarAuth() })
 try{ localStorage.removeItem('koach_pin') }catch(_e){}
-sb.auth.onAuthStateChange(function(ev){ if (ev==='SIGNED_OUT' && !window._saliendo && C.yo){ C.yo=null; authListo(); vista('vLogin'); const e=document.getElementById('lErr'); if(e){ e.textContent='Tu sesión finalizó. Vuelve a ingresar.'; e.style.display='block' } } })
+sb.auth.onAuthStateChange(function(ev){ if (ev==='PASSWORD_RECOVERY'){ setTimeout(function(){ cuentaAbrir(); document.getElementById('cuT').textContent='CREA TU NUEVA CONTRASEÑA' }, 1200); return }
+  if (ev==='SIGNED_OUT' && !window._saliendo && C.yo){ C.yo=null; authListo(); vista('vLogin'); const e=document.getElementById('lErr'); if(e){ e.textContent='Tu sesión finalizó. Vuelve a ingresar.'; e.style.display='block' } } })
 arrancarAuth()
 </script>
 </body>

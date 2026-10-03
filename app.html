@@ -1142,12 +1142,12 @@ body.wl-on{overflow:hidden}
         <input class="inp" type="email" id="cEmail" placeholder="tu@email.com">
         <div class="err" id="cErr">—</div>
         <button class="btn" id="bRecu" onclick="recuperar()">ENVIAR ENLACE</button>
-        <div class="okmsg" id="cOk">Enviado. Abre el enlace del correo desde este teléfono para definir tu nueva contraseña.</div>
+        <div class="okmsg" id="cOk">Si existe una cuenta con ese correo, te enviamos un enlace. Ábrelo desde este teléfono para crear tu nueva contraseña. Si no aparece en unos minutos, revisa Spam o No deseado.</div>
         <div class="links"><a href="#" role="button" onclick="event.preventDefault();authVista('fLogin')">← Volver a iniciar sesión</a><span></span></div>
       </div>
       <div id="fNueva" style="display:none">
         <div class="lbl">TU NUEVA CONTRASEÑA</div>
-        <div class="pw"><input class="inp" type="password" id="nPass" placeholder="Mínimo 4 caracteres">
+        <div class="pw"><input class="inp" type="password" id="nPass" name="new-password" autocomplete="new-password" placeholder="Mínimo 8 caracteres">
           <button class="ojo" onclick="ojo('nPass',this)">👁</button></div>
         <div class="err" id="nErr">—</div>
         <button class="btn" id="bNueva" onclick="nuevaClave()">GUARDAR Y ENTRAR</button>
@@ -1983,14 +1983,15 @@ async function recuperar(){
   const err=document.getElementById('cErr'); err.style.display='none'
   if(!email){ err.textContent='Escribe tu email'; err.style.display='block'; return }
   const b=document.getElementById('bRecu'); b.disabled=true; b.textContent='ENVIANDO…'
-  const { error } = await sb.auth.resetPasswordForEmail(email, { redirectTo: window.location.href.split('#')[0] })
-  if (error){ err.textContent='No se pudo: '+error.message; err.style.display='block'; b.disabled=false; b.textContent='ENVIAR ENLACE'; return }
+  // c11.6 · el enlace vuelve SIEMPRE a la puerta del socio en este mismo dominio (nunca a otro origen)
+  const { error } = await sb.auth.resetPasswordForEmail(email, { redirectTo: location.origin+'/app.html' })
+  if (error && /rate|seconds|limit/i.test(error.message||'')){ err.textContent='Se pidieron demasiados enlaces seguidos. Espera unos minutos e inténtalo otra vez.'; err.style.display='block'; b.disabled=false; b.textContent='ENVIAR ENLACE'; return }
   document.getElementById('cOk').style.display='block'; b.textContent='ENLACE ENVIADO ✓'
 }
 async function nuevaClave(){
   const pass=document.getElementById('nPass').value
   const err=document.getElementById('nErr'); err.style.display='none'
-  if(pass.length<4){ err.textContent='Mínimo 4 caracteres'; err.style.display='block'; return }
+  if(pass.length<8){ err.textContent='Usa al menos 8 caracteres.'; err.style.display='block'; return }
   const b=document.getElementById('bNueva'); b.disabled=true; b.textContent='GUARDANDO…'
   const { error } = await sb.auth.updateUser({ password:pass })
   if (error){ err.textContent='No se pudo: '+error.message; err.style.display='block'; b.disabled=false; b.textContent='GUARDAR Y ENTRAR'; return }
@@ -2099,7 +2100,7 @@ async function entrar(opts){
     const perfil = rPerfil.data
     try{ if (perfil && perfil.role) localStorage.setItem('koach_rol', perfil.role) }catch(_e){}
     if (perfil && perfil.role && perfil.role !== 'socio'){
-      window.location.href = '/coach.html'   // el equipo vive en el panel del coach
+      window.location.href = (/(^|\.)koachclub\.cl$/i.test(location.hostname) ? 'https://dashboard.koachclub.cl/coach.html' : '/coach.html')   // c11.6: el equipo vive en dashboard.koachclub.cl
       return
     }
     S.perfil = perfil
