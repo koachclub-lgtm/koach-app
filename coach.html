@@ -949,6 +949,170 @@ html.selAbierto,html.selAbierto body{overflow:hidden}
 /* ↗ solo escritorio con mouse: en tablet no hay ventanas accidentales */
 .soloDesk{display:none!important}
 @media (hover:hover) and (pointer:fine){.soloDesk{display:inline-flex!important}}
+/* ═══════════ c14 · SHELL COACH (marca + navegación) · desktop ≥1200 · tablet 641–1199 · móvil ≤640 ═══════════ */
+:root{--ks-top:60px;--ks-live:#2FA36B}
+.kHd{position:fixed;top:0;left:0;right:0;z-index:55;background:#111;color:#F4F4F2;padding-top:env(safe-area-inset-top,0px)}
+.kHd__r{display:flex;align-items:center;gap:24px;height:60px;padding:0 32px;max-width:1600px;margin:0 auto}
+.kHd__brand{display:flex;align-items:center;gap:11px;color:#fff;height:44px;text-decoration:none;flex:none}
+.kHd__brand svg{height:21px;width:auto;fill:currentColor}
+.kHd__brand b{font:700 15px/1 var(--font-display);letter-spacing:.26em}
+.kHd__ttl{display:none}
+.kNav{display:flex;align-items:stretch;height:60px;flex:1;min-width:0}
+.kNav>button{display:flex;align-items:center;gap:8px;padding:0 13px;border:0;background:none;cursor:pointer;font:500 12px/1 var(--font-mono);letter-spacing:.07em;color:#A3A3A0;position:relative;white-space:nowrap}
+.kNav>button:hover,.kNav>button.on{color:#fff}
+.kNav>button.on::after{content:'';position:absolute;left:13px;right:13px;bottom:0;height:3px;background:#fff;border-radius:3px 3px 0 0}
+.kNav .kN-mas{display:none}
+.kLv{display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--ks-live);flex:none;animation:kLv 2.4s infinite}
+@keyframes kLv{0%{box-shadow:0 0 0 0 rgba(47,163,107,.55)}70%{box-shadow:0 0 0 7px rgba(47,163,107,0)}100%{box-shadow:0 0 0 0 rgba(47,163,107,0)}}
+@media (prefers-reduced-motion:reduce){.kLv{animation:none}}
+.kBdg{min-width:20px;height:20px;padding:0 6px;border-radius:999px;background:#F4F4F2;color:#111;font:500 11px/20px var(--font-mono);text-align:center;letter-spacing:0}
+.kBdg--dot{min-width:7px;width:7px;height:7px;padding:0;background:#C9A23B}
+.kHd__x{display:flex;align-items:center;gap:10px;margin-left:auto;flex:none}
+.kNew{display:flex;align-items:center;gap:8px;height:36px;padding:0 14px;border:1px solid rgba(255,255,255,.3);border-radius:999px;background:none;color:#fff;cursor:pointer;font:500 12px var(--font-mono);letter-spacing:.06em;white-space:nowrap}
+.kNew:hover{background:rgba(255,255,255,.08)}
+.kNew i{font-style:normal;font-size:16px;line-height:1}
+.kMe{display:flex;align-items:center;gap:10px;height:44px;padding:0 8px 0 4px;border:0;border-radius:999px;background:none;color:#fff;cursor:pointer;text-align:left}
+.kMe:hover{background:rgba(255,255,255,.07)}
+.kMe__av{width:32px;height:32px;border-radius:50%;background:#515449;display:grid;place-items:center;font:600 13px var(--font-display);flex:none}
+.kMe__t{display:flex;flex-direction:column;gap:3px}
+.kMe__t b{font:600 13px/1 var(--font-display)}
+.kMe__t small{font:500 10px/1 var(--font-mono);letter-spacing:.08em;color:#A3A3A0}
+.kMe em{font-style:normal;color:#A3A3A0;font-size:11px}
+.kHd :focus-visible,.kBn :focus-visible,.kOt :focus-visible,.kMenu :focus-visible{outline:2px solid #7FB8FF;outline-offset:2px}
+.kOt{position:fixed;left:0;right:0;top:calc(60px + env(safe-area-inset-top,0px));z-index:54;background:var(--koach-surface);border-bottom:1px solid var(--koach-divider)}
+.kOt__r{max-width:1600px;margin:0 auto;padding:0 32px;height:40px;display:flex;align-items:center;gap:6px;overflow-x:auto;scrollbar-width:none}
+.kOt__r::-webkit-scrollbar{display:none}
+.kOt__k{font:500 10px var(--font-mono);letter-spacing:.1em;color:var(--koach-text-secondary);margin-right:6px;white-space:nowrap}
+.kOt__t{display:flex;align-items:center;height:30px;border-radius:6px;background:rgba(244,244,242,.55);white-space:nowrap;flex:none}
+.kOt__t.on{background:#F4F4F2;box-shadow:inset 0 -2px 0 #111}
+.kOt__t button{border:0;background:none;cursor:pointer;height:100%;color:#111}
+.kOt__t button:first-child{padding:0 4px 0 12px;font:600 13px var(--font-display)}
+.kOt__t .x{width:30px;color:var(--koach-text-muted);font-size:12px}
+.kOt__t .x:hover{color:#111}
+.kBn{display:none!important}
+#kMenu .kScrim{position:fixed;inset:0;z-index:60}
+.kMenu{position:fixed;top:calc(56px + env(safe-area-inset-top,0px));right:20px;z-index:61;background:#F4F4F2;color:#111;border:1px solid var(--koach-border-strong);border-radius:10px;min-width:240px;padding:6px;display:flex;flex-direction:column}
+.kMenu--mas{right:auto}
+.kMenu__h{padding:12px 12px 10px;border-bottom:1px solid var(--koach-divider);margin-bottom:4px}
+.kMenu__h b{display:block;font:600 15px var(--font-display)}
+.kMenu__h small{font:500 11px var(--font-mono);color:var(--koach-text-secondary);letter-spacing:.06em}
+.kMenu button{display:flex;justify-content:space-between;align-items:center;gap:12px;min-height:44px;padding:0 12px;border:0;border-radius:6px;background:none;cursor:pointer;font:500 14px var(--font-display);color:#111;text-align:left}
+.kMenu button:hover{background:#E6E6E4}
+.kMenu button small{font:500 11px var(--font-mono);color:var(--koach-text-secondary);letter-spacing:.04em}
+.kMenu hr{border:0;border-top:1px solid var(--koach-divider);margin:4px 0}
+.kMenu .danger{color:#8A2B22}
+.kMenu--mas .kM-me{display:none}
+@media (min-width:641px){.kMenu--mas .kM-mem,.kMenu--mas .kM-alta{display:none}}
+
+/* Cuerpo con shell */
+html.ks-on body{padding-top:calc(var(--ks-top) + env(safe-area-inset-top,0px) + 20px) !important}
+html.ks-on #syncTag{top:calc(var(--ks-top) + env(safe-area-inset-top,0px) + 8px)}
+html.ks-on #vPlan .plHdr{top:calc(var(--ks-top) + env(safe-area-inset-top,0px))}
+html.ks-on #vPlan .plHome{display:none}
+html.ks-on #vSala .hbar,html.ks-on #vSala #mesa,html.ks-on #vSala #accesos,html.ks-on #vSala #pulso{display:none !important}
+
+/* SALA — layout */
+html.ks-on.en-sala body{max-width:1600px !important;padding-left:32px !important;padding-right:32px !important;padding-bottom:48px}
+html.ks-on #vSala .rost{margin:0 0 4px}
+html.ks-on #vSala .rost__h{display:flex;align-items:center;justify-content:flex-start;gap:16px;margin:0 0 14px;color:var(--koach-ink)}
+html.ks-on #vSala .rost__h span:first-child{font:700 30px/1 var(--font-display);letter-spacing:-.03em;color:var(--koach-ink);text-transform:none}
+html.ks-on #vSala #rostN{display:flex;align-items:center;gap:8px;font:500 12px var(--font-mono);letter-spacing:.08em;color:var(--koach-ink)}
+html.ks-on #vSala .rost__g{display:flex;flex-wrap:wrap;gap:12px}
+html.ks-on #vSala .rost__i{width:140px;flex:none;padding:16px 10px 14px;gap:0;background:var(--koach-control);border:1px solid var(--koach-divider);border-radius:10px;transition:border-color .15s}
+html.ks-on #vSala .rost__i:hover{border-color:var(--koach-ink)}
+html.ks-on #vSala .rost__i .kav{width:64px;height:64px;font-size:22px;margin-bottom:10px}
+html.ks-on #vSala .rost__i b{font:600 16px/1.15 var(--font-display);letter-spacing:-.01em;text-transform:none}
+html.ks-on #vSala .rost__i small{font:500 11px/1.3 var(--font-mono);letter-spacing:.06em;color:var(--koach-text-secondary);margin-top:4px;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+html.ks-on #vSala .rost__i em{display:flex;align-items:center;gap:6px;margin-top:10px;font:500 13px/1 var(--font-mono);letter-spacing:.04em;color:var(--koach-ink)}
+html.ks-on #vSala .rost__i em .kLv{width:6px;height:6px}
+html.ks-on #vSala .rost__v{padding:18px 2px;font:400 15px var(--font-display);color:var(--koach-text-secondary)}
+.salaCols{display:grid;grid-template-columns:minmax(0,7fr) minmax(0,5fr);gap:32px;margin-top:28px;align-items:start}
+html.ks-on #vSala .salaHead{display:flex !important;flex-direction:column !important;align-items:stretch !important;gap:10px;margin:0 0 10px}
+html.ks-on #vSala .salaHead .h3{margin:0 !important;display:flex;justify-content:space-between;font:500 12px var(--font-mono) !important;letter-spacing:.1em !important;color:var(--koach-text-secondary)}
+html.ks-on #vSala #nSoc{color:var(--koach-text-muted)}
+html.ks-on #vSala .salaQ{flex:0 0 auto !important;min-height:52px;border-radius:10px}
+html.ks-on #vSala #lista{display:flex !important;flex-direction:column;gap:8px}
+html.ks-on #vSala #lista[style*="none"]{display:none !important}
+html.ks-on #vSala .qRow{margin:0;border-radius:10px;background:var(--koach-control);border:1px solid var(--koach-divider);padding:12px 12px 12px 14px}
+html.ks-on #vSala .qRow[style*="none"]{display:none !important}
+html.ks-on #vSala .qRow .kav{width:40px;height:40px;font-size:15px}
+html.ks-on #vSala .qRow__t b{font:600 15px/1.2 var(--font-display)}
+html.ks-on #vSala .qRow__t small{font:500 11px/1.4 var(--font-mono);letter-spacing:.05em;color:var(--koach-text-secondary)}
+html.ks-on #vSala .qRow__a a{min-height:36px;border-radius:999px;font:500 11px var(--font-mono);letter-spacing:.07em;padding:0 14px}
+.salaHint{font:400 14px var(--font-display);color:var(--koach-text-secondary);margin:2px 2px 0}
+html.ks-on #vSala .atn{margin:0}
+html.ks-on #vSala .atn__h,.kTray__h{display:flex;align-items:center;justify-content:space-between;margin:0 0 10px;min-height:24px;font:500 12px var(--font-mono);letter-spacing:.1em;color:var(--koach-text-secondary)}
+html.ks-on #vSala .atn__h b,.kTray__h b{min-width:22px;height:22px;padding:0 7px;border-radius:999px;background:#111;color:#F4F4F2;font:500 11px/22px var(--font-mono);text-align:center;letter-spacing:0}
+html.ks-on #vSala .atn__l,.kTray__l{background:var(--koach-control);border:1px solid var(--koach-divider);border-radius:10px;overflow:hidden}
+html.ks-on #vSala .atn__r,html.ks-on #vSala .kTray .brow{display:flex;align-items:center;gap:12px;padding:10px 12px;border-top:1px solid var(--koach-divider);margin:0}
+html.ks-on #vSala .atn__r:first-child,html.ks-on #vSala .kTray .brow:first-child{border-top:0}
+html.ks-on #vSala .atn__r .kav,html.ks-on #vSala .kTray .kav{width:36px;height:36px;font-size:14px}
+html.ks-on #vSala .atn__t b,html.ks-on #vSala .kTray .btx b{display:block;font:600 14px/1.2 var(--font-display);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+html.ks-on #vSala .atn__t small,html.ks-on #vSala .kTray .btx small{display:block;font:500 11px/1.35 var(--font-mono);letter-spacing:.04em;color:var(--koach-text-secondary);margin-top:2px}
+html.ks-on #vSala .kTray .btx{flex:1;min-width:0}
+html.ks-on #vSala .atn__r a,html.ks-on #vSala .kTray .bbtn{min-height:36px;padding:0 14px;border-radius:999px;border:1px solid var(--koach-border-strong) !important;background:transparent !important;color:var(--koach-ink) !important;font:500 11px var(--font-mono);letter-spacing:.07em;display:inline-flex;align-items:center;flex:none}
+html.ks-on #vSala .atn__mas,.kTray__m{display:block;width:100%;min-height:42px;margin:0;border:0;border-top:1px solid var(--koach-divider);background:var(--koach-control);font:500 11px var(--font-mono);letter-spacing:.08em;color:var(--koach-text-secondary);cursor:pointer}
+html.ks-on #vSala .atn__mas{border:1px solid var(--koach-divider);border-top:0;border-radius:0 0 10px 10px;margin-top:-1px}
+html.ks-on #vSala .atn__l:has(+ .atn__mas){border-radius:10px 10px 0 0}
+.kTray__m:hover,html.ks-on #vSala .atn__mas:hover{color:#111;background:#ECECEA}
+html.ks-on #vSala #bandejas{margin-top:24px}
+html.ks-on #vSala #bandejas:empty{display:none}
+html.ks-on #vSala #atn:empty + #bandejas{margin-top:0}
+html.ks-on #vSala .salaQ input{font:500 17px var(--font-display) !important;letter-spacing:0 !important}
+
+/* TABLET */
+@media (max-width:1199px){
+  .kHd__r{padding:0 20px;gap:16px}
+  .kNav>button{padding:0 12px}.kNav>button.on::after{left:12px;right:12px}
+  .kNew{width:44px;height:44px;padding:0;justify-content:center}.kNew span{display:none}
+  .kMe__t{display:none}
+  .kOt__r{padding:0 20px;height:48px}.kOt__t{height:36px}.kOt__t .x{width:36px}
+  html.ks-on.en-sala body{padding-left:20px !important;padding-right:20px !important}
+  html.ks-on #vSala .rost__g{flex-wrap:nowrap;overflow-x:auto;padding-bottom:4px;scrollbar-width:none}
+  html.ks-on #vSala .rost__g::-webkit-scrollbar{display:none}
+  html.ks-on #vSala .rost__i{width:128px}
+  .salaCols{gap:24px;margin-top:24px}
+  html.ks-on #vSala .qRow__a a,html.ks-on #vSala .atn__r a,html.ks-on #vSala .kTray .bbtn{min-height:44px;padding:0 16px}
+  html.ks-on #vSala .salaQ{min-height:56px}
+}
+@media (max-width:900px){
+  .kNav .kN-adh,.kNav .kN-bib{display:none}.kNav .kN-mas{display:flex}
+  .kHd__brand b{display:none}
+  .salaCols{grid-template-columns:minmax(0,1fr)}
+}
+/* MÓVIL */
+@media (max-width:640px){
+  .kHd__r{height:56px;padding:0 12px 0 16px;gap:12px}
+  .kHd__brand svg{height:19px}
+  .kNav,.kNew,.kOt{display:none !important}
+  .kHd__ttl{display:block;font:600 17px var(--font-display);letter-spacing:-.01em;padding-left:12px;border-left:1px solid rgba(255,255,255,.22);line-height:22px}
+  .kMe{padding:0 2px}.kMe em{display:none}
+  .kMenu{left:8px !important;right:8px;top:auto;bottom:calc(72px + env(safe-area-inset-bottom,0px));min-width:0}
+  .kMenu--me{top:calc(52px + env(safe-area-inset-top,0px));bottom:auto}
+  .kMenu--mas .kM-me{display:flex}
+  #kMenu .kScrim{background:rgba(17,17,17,.35)}
+  html.ks-on.ks-bn .kBn{display:grid !important;position:fixed;left:0;right:0;bottom:0;z-index:55;grid-template-columns:repeat(4,1fr);height:calc(64px + env(safe-area-inset-bottom,0px));padding-bottom:env(safe-area-inset-bottom,0px);background:#F4F4F2;border-top:1px solid var(--koach-border-strong)}
+  .kBn button{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;border:0;background:none;cursor:pointer;font:500 10px var(--font-mono);letter-spacing:.08em;color:var(--koach-text-muted);position:relative}
+  .kBn button.on{color:#111}
+  .kBn button.on::before{content:'';position:absolute;top:0;left:28%;right:28%;height:3px;background:#111;border-radius:0 0 3px 3px}
+  .kBn svg{width:22px;height:22px;stroke:currentColor;fill:none;stroke-width:1.7}
+  .kBn .kBdg{position:absolute;top:8px;left:calc(50% + 6px);background:#111;color:#F4F4F2;min-width:18px;height:18px;line-height:18px;font-size:10px;padding:0 5px}
+  html.ks-on.ks-bn body{padding-bottom:calc(84px + env(safe-area-inset-bottom,0px)) !important}
+  html.ks-on.ks-bn .toast{bottom:calc(84px + env(safe-area-inset-bottom,0px))}
+  html.ks-on body{padding-top:calc(var(--ks-top) + env(safe-area-inset-top,0px) + 14px) !important}
+  html.ks-on.en-sala body{padding-left:16px !important;padding-right:16px !important}
+  html.ks-on #vSala .rost__h span:first-child{display:none}
+  html.ks-on #vSala .rost__g{gap:8px;margin:0 -16px;padding:0 16px 4px}
+  html.ks-on #vSala .rost__i{width:auto;min-width:184px;display:grid;grid-template-columns:44px minmax(0,1fr) auto;grid-template-rows:auto auto;column-gap:10px;align-items:center;text-align:left;padding:10px 12px 10px 10px}
+  html.ks-on #vSala .rost__i .kav{width:44px;height:44px;font-size:17px;margin:0;grid-row:1 / 3}
+  html.ks-on #vSala .rost__i b{grid-column:2;align-self:end}
+  html.ks-on #vSala .rost__i small{grid-column:2;margin-top:2px;align-self:start;text-align:left}
+  html.ks-on #vSala .rost__i em{grid-column:3;grid-row:1 / 3;margin:0;font-size:12px}
+  .salaCols{margin-top:22px;gap:22px}
+  html.ks-on #vSala .qRow{flex-wrap:wrap;padding:12px}
+  html.ks-on #vSala .qRow__a{width:100%}
+  html.ks-on #vSala .qRow__a a{flex:1;justify-content:center}
+}
 </style>
 </head>
 <body>
@@ -960,6 +1124,10 @@ html.selAbierto,html.selAbierto body{overflow:hidden}
 </div>
 
 
+<header class="kHd" id="kHd" style="display:none"></header>
+<div class="kOt" id="kOt" style="display:none"></div>
+<nav class="kBn" id="kBn" aria-label="Principal" style="display:none"></nav>
+<div id="kMenu"></div>
 <div class="vista" id="vLogin"><div class="lwrap">
   <div class="lk">KOACH</div>
   <div class="ls">SALA · PANEL DEL COACH</div>
@@ -1004,13 +1172,17 @@ html.selAbierto,html.selAbierto body{overflow:hidden}
   </div>
   <div class="mtabs" id="mesa"></div>
   <div class="stats" id="pulso" style="display:none"></div>
-  <section class="rost" aria-label="En sala ahora"><div class="rost__h"><span>SALA</span><span id="rostN">—</span></div><div class="rost__g" id="rostG"></div></section>
+  <section class="rost" aria-label="En sala ahora"><div class="rost__h"><span>Sala</span><span id="rostN">—</span></div><div class="rost__g" id="rostG"></div></section>
+  <div class="salaCols"><div class="salaCol salaCol--q">
   <div class="salaHead"><div class="h3"><span>BUSCAR SOCIO</span><span id="nSoc">—</span></div>
     <label class="salaQ"><span aria-hidden="true">⌕</span><input id="salaQ" type="search" placeholder="Buscar socio…" autocomplete="off" oninput="salaBuscar()" onkeydown="salaBuscarKey(event)" aria-label="Buscar socio por nombre o apellido"></label></div>
   <div id="lista"></div>
   <div class="vacio" id="salaQv" style="display:none">Ningún socio coincide con la búsqueda.</div>
+  <p class="salaHint" id="salaHint">Escribe un nombre para buscar entre los socios del club.</p>
+  </div><div class="salaCol salaCol--b">
   <section class="atn" id="atn" aria-label="Requieren atención"></section>
-  <div id="bandejas" style="margin-top:12px"></div>
+  <div id="bandejas"></div>
+  </div></div>
   <div class="adAcc" id="accesos"></div>
 </div>
 <div class="vista" id="vSol">
@@ -1468,7 +1640,8 @@ function hoyISO(){return fLocal(new Date())}
 function vista(id){document.querySelectorAll('.vista').forEach(function(v){v.classList.toggle('on',v.id===id)});window.scrollTo(0,0)
   document.documentElement.classList.toggle('en-sala', id==='vSala'); document.documentElement.classList.toggle('en-plan', id==='vPlan')
   document.getElementById('xGuardia').classList.toggle('vis', id==='vExtra')
-  var pg=document.getElementById('pGuardia'); if(pg) pg.style.display = (id==='vPlan')?'block':'none'}
+  var pg=document.getElementById('pGuardia'); if(pg) pg.style.display = (id==='vPlan')?'block':'none'
+  if (typeof kShellSync==='function') kShellSync(id)}
 function toast(m){let t=document.querySelector('.toast');if(!t){t=document.createElement('div');t.className='toast';document.body.appendChild(t)}
   t.textContent=m;t.classList.add('vis');clearTimeout(t._x);t._x=setTimeout(function(){t.classList.remove('vis')},3000)}
 async function salir(){ window._saliendo=true; try{ localStorage.removeItem('koach_pin'); localStorage.removeItem('koach_rol') }catch(_e){}
@@ -1644,13 +1817,15 @@ function pintarSala(){
           : '<button class="bbtn ink" onclick="atender(\''+x.id+'\')">ATENDER ✓</button>')+'</div>'
     }).join('')+'</div>'
   }
+  if (typeof kShellBadges==='function') kShellBadges({sol:nSol, mem:(nAct+nVen+nVcd), memT:nAct+' por activar · '+nVen+' vencen ≤7 d · '+nVcd+' vencidas', COM:COM, ENT:ENT, R:R})
   if(C.hoy.length){
-    b+='<div class="glass band"><div class="bt1" style="color:var(--ok)">✓ SESIONES DE HOY · '+C.hoy.length+'</div>'+
-    C.hoy.map(function(r){
-      return '<div class="brow"><div class="btx"><b>'+nomDe(r.socio_id)+'</b> · '+spNombre(r.sesion_protocolo_id)+'</div>'+
+    const _hp=C.hoy.filter(function(r){return !r.validada_at}), _ho=_hp.concat(C.hoy.filter(function(r){return r.validada_at})), _hv=window._hoyTodo?_ho:_ho.slice(0,4)
+    b+='<section class="kTray" aria-label="Sesiones de hoy por validar"><div class="kTray__h"><span>SESIONES DE HOY · POR VALIDAR</span><b>'+_hp.length+'</b></div><div class="kTray__l">'+
+    _hv.map(function(r){
+      return '<div class="brow">'+avSocio(r.socio_id)+'<div class="btx"><b>'+nomDe(r.socio_id)+'</b><small>'+String(spNombre(r.sesion_protocolo_id)||'').toUpperCase()+'</small></div>'+
       (r.validada_at?'<span style="font-size:8px;font-weight:900;color:var(--ok)">VALIDADA ✓</span>'
         :'<button class="bbtn ok" onclick="validar(\''+r.id+'\')">VALIDAR ✓</button>')+'</div>'
-    }).join('')+'</div>'
+    }).join('')+(_ho.length>4&&!window._hoyTodo?'<button type="button" class="kTray__m" onclick="window._hoyTodo=1;pintarSala()">VER TODAS ('+_ho.length+')</button>':'')+'</div></section>'
   }
   document.getElementById('bandejas').innerHTML=b
   const hoySet=new Set(C.hoy.map(function(r){return r.socio_id}))
@@ -4171,7 +4346,8 @@ async function salaFotos(){
   await KAvatar.urls(sb, ps); salaPresenciaPintar()
   document.querySelectorAll('#lista .qRow').forEach(function(el){ const k=el.querySelector('.kav'); if(k) k.outerHTML=avSocio(el.dataset.id) })
 }
-function salaVisibilidadLista(){ const q=(document.getElementById('salaQ')||{}).value||''; const l=document.getElementById('lista'); if(l) l.style.display=q.trim()?'':'none' }
+function salaVisibilidadLista(){ const q=(document.getElementById('salaQ')||{}).value||''; const l=document.getElementById('lista'); if(l) l.style.display=q.trim()?'':'none'
+  const h=document.getElementById('salaHint'); if(h){ h.style.display=q.trim()?'none':''; h.textContent='Escribe un nombre para buscar entre los '+((C.socios||[]).length)+' socios.' } }
 let _presRun=false
 async function salaPresenciaCargar(forzar){
   if (_presRun) return; if (!forzar && Date.now()-(C._presAt||0) < 5000) return; _presRun=true; C._presAt=Date.now()
@@ -4182,21 +4358,21 @@ function salaPresenciaPintar(){
   const g=document.getElementById('rostG'); if(!g) return
   const pres=(C.pres||[]).map(function(x){ return Object.assign({}, x, { cat: presCat(x) }) })
   const en=pres.filter(function(x){return x.cat==='en_sala'}).sort(function(a,b){return new Date(a.inicio)-new Date(b.inicio)})
-  document.getElementById('rostN').textContent = en.length+' EN SALA'
+  document.getElementById('rostN').innerHTML = '<i class="kLv" aria-hidden="true"></i>'+en.length+' ENTRENANDO AHORA'
   g.innerHTML = en.length ? en.map(function(x){
     const m=presMin(x.inicio), est = m<2 ? 'EN CURSO' : m+' MIN'
     return '<a class="rost__i" href="#/socio/'+x.socio_id+'" onclick="return rtClick(event,\''+x.socio_id+'\')">'+avSocio(x.socio_id)+
-      '<b>'+plEsc(String(x.nombre||'').split(' ')[0])+'</b><small>'+plEsc(String(x.sesion||'SESIÓN'))+'</small><em>'+est+'</em></a>' }).join('')
+      '<b>'+plEsc(String(x.nombre||'').split(' ')[0])+'</b><small>'+plEsc(String(x.sesion||'SESIÓN'))+'</small><em><i class="kLv" aria-hidden="true"></i>'+est+'</em></a>' }).join('')
     : '<div class="rost__v">Nadie entrenando en este momento.</div>'
   const at=pres.filter(function(x){return x.cat!=='en_sala'}).sort(function(a,b){ return (a.cat===b.cat?0:(a.cat==='atencion'?-1:1)) || (new Date(b.ultima)-new Date(a.ultima)) })
   const el=document.getElementById('atn'); if(!el) return
   if (!at.length){ el.innerHTML=''; return }
   const ver=el.dataset.todo==='1' ? at : at.slice(0,4)
-  el.innerHTML='<div class="atn__h"><span>REQUIEREN ATENCIÓN · '+at.length+'</span></div>'+ver.map(function(x){
+  el.innerHTML='<div class="atn__h"><span>REQUIEREN ATENCIÓN</span><b>'+at.length+'</b></div><div class="atn__l">'+ver.map(function(x){
     const d = x.cat==='anterior' ? 'SESIÓN ABIERTA DESDE '+(x.fecha===fLocal(new Date(Date.now()-864e5))?'AYER':adhF(x.fecha))
-      : 'SIN ACTIVIDAD · '+presMin(x.ultima)+' MIN'
+      : 'SIN ACTIVIDAD · '+(function(m){ return m<60 ? m+' MIN' : Math.floor(m/60)+'H '+String(m%60).padStart(2,'0')+'M' })(presMin(x.ultima))
     return '<div class="atn__r">'+avSocio(x.socio_id)+'<div class="atn__t"><b>'+plEsc(nomDe(x.socio_id)||x.nombre||'')+'</b><small>'+plEsc(String(x.sesion||'').toUpperCase())+' · '+d+(x.n_sets?' · '+x.n_sets+' SETS':'')+'</small></div>'+
-      '<a href="#/socio/'+x.socio_id+'" onclick="return rtClick(event,\''+x.socio_id+'\')">REVISAR</a></div>' }).join('')+
+      '<a href="#/socio/'+x.socio_id+'" onclick="return rtClick(event,\''+x.socio_id+'\')">REVISAR</a></div>' }).join('')+'</div>'+
     (at.length>4 && el.dataset.todo!=='1' ? '<button type="button" class="atn__mas" onclick="document.getElementById(\'atn\').dataset.todo=\'1\';salaPresenciaPintar()">VER TODAS ('+at.length+')</button>' : '')
 }
 setInterval(function(){ const v=document.getElementById('vSala'); if(v&&v.classList.contains('on')&&document.visibilityState==='visible') salaPresenciaPintar() }, 30000)
@@ -4576,7 +4752,8 @@ function salaBuscar(){ const raw=document.getElementById('salaQ').value||'', q=b
     const v=q ? bpScore(q, el.getAttribute('data-nom'), [so.email,so.telefono].filter(Boolean).join(' ')) : 1; el.style.display=v?'':'none'; if(v) n++; return {el:el,v:v} })
   sc.sort(function(a,b){ return q ? (b.v-a.v || (+a.el.dataset.o)-(+b.el.dataset.o)) : (+a.el.dataset.o)-(+b.el.dataset.o) }).forEach(function(x){ lista.appendChild(x.el) })
   const v=document.getElementById('salaQv'); if(v){ v.style.display = (q && !n) ? '' : 'none'; v.textContent='No encontramos socios para “'+raw.trim()+'”.' }
-  lista.style.display = q ? '' : 'none' }
+  lista.style.display = q ? '' : 'none'
+  const _h=document.getElementById('salaHint'); if(_h) _h.style.display = raw.trim() ? 'none' : '' }
 function salaBuscarKey(ev){ if (ev.key!=='Enter') return; const f=[...document.querySelectorAll('#lista [data-nom]')].filter(function(e){return e.style.display!=='none'})
   if (f.length===1){ const id=f[0].getAttribute('data-id'); location.hash=urlRutina(id) } }
 // ═══════════ c10.8 · GESTIONAR PROGRAMA ═══════════
@@ -4956,6 +5133,102 @@ try{ localStorage.removeItem('koach_pin') }catch(_e){}
 sb.auth.onAuthStateChange(function(ev){ if (ev==='PASSWORD_RECOVERY'){ setTimeout(function(){ cuentaAbrir(); document.getElementById('cuT').textContent='CREA TU NUEVA CONTRASEÑA' }, 1200); return }
   if (ev==='SIGNED_OUT' && !window._saliendo && C.yo){ C.yo=null; authListo(); vista('vLogin'); const e=document.getElementById('lErr'); if(e){ e.textContent='Tu sesión finalizó. Vuelve a ingresar.'; e.style.display='block' } } })
 arrancarAuth()
+
+// ═══════════ c14 · SHELL COACH: marca + navegación arriba (desktop/tablet) · abajo (móvil) ═══════════
+// Solo presentación. Reutiliza verSala/verSolicitudes/verAdmin/verAdherencia/verBib/toggleAlta/dashMenu/cuentaAbrir/salir.
+// Desde el planificador toda navegación pasa por la guardia de cambios sin guardar (plGuard).
+const KS={ v:'vLogin', b:{sol:0,mem:0,memT:'',COM:false,ENT:false,R:'coach'}, menu:null }
+const KS_K='<svg viewBox="0 0 460 462" aria-hidden="true"><rect width="460" height="94"/><polygon points="0,339 231,131 460,336 460,456 231,251 0,462"/></svg>'
+const KS_ROL={admin:'ADMIN', coach:'COACH', recepcion:'RECEPCIÓN', nutricionista:'NUTRICIÓN'}
+const KS_TIT={vSala:'Sala',vSol:'Solicitudes',vAdmin:'Membresías',vAdh:'Adherencia',vBib:'Biblioteca',vFicha:'Socio',vPlan:'Planificador',vExtra:'Rutina extra',vPicker:'Biblioteca'}
+const KS_NAV={vSala:'sala',vSol:'sol',vAdmin:'mem',vAdh:'adh',vBib:'bib'}
+const KS_ICO={
+  sala:'<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M5.6 5.6a9 9 0 0 0 0 12.8M18.4 5.6a9 9 0 0 1 0 12.8M8.5 8.5a5 5 0 0 0 0 7M15.5 8.5a5 5 0 0 1 0 7"/></svg>',
+  soc:'<svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5"/><path d="M16 16l4.5 4.5"/></svg>',
+  sol:'<svg viewBox="0 0 24 24"><path d="M3.5 13.5 6 5h12l2.5 8.5V19H3.5z"/><path d="M3.5 13.5H9a3 3 0 0 0 6 0h5.5"/></svg>',
+  mas:'<svg viewBox="0 0 24 24"><circle cx="5" cy="12" r="1.3"/><circle cx="12" cy="12" r="1.3"/><circle cx="19" cy="12" r="1.3"/></svg>' }
+function kGo(fn){ KS.menu=null; kShellMenu()
+  if (KS.v==='vPlan' && typeof plEsDirty==='function' && plEsDirty()){ plGuard(fn); return } fn() }
+const KS_ACC={
+  sala:function(){ kGo(function(){ verSala() }) },
+  sol:function(){ kGo(function(){ verSolicitudes() }) },
+  mem:function(){ kGo(function(){ verAdmin() }) },
+  adh:function(){ kGo(function(){ verAdherencia() }) },
+  bib:function(){ kGo(function(){ verBib() }) },
+  alta:function(){ kGo(function(){ if(KS.v!=='vSala') verSala(); const f=document.getElementById('fAlta'); if(f && f.style.display==='none') toggleAlta(); if(f){ f.scrollIntoView({block:'start'}) } }) },
+  socios:function(){ kGo(function(){ if(KS.v!=='vSala') verSala(); const q=document.getElementById('salaQ'); if(q){ q.focus(); q.scrollIntoView({block:'center'}) } }) },
+  vista:function(){ KS.menu=null; kShellMenu(); dashMenu() },
+  clave:function(){ KS.menu=null; kShellMenu(); cuentaAbrir() },
+  salir:function(){ KS.menu=null; kShellMenu(); salir() }
+}
+function kAcc(k){ const f=KS_ACC[k]; if(f) f() }
+function kMenuT(k){ KS.menu = KS.menu===k ? null : k; kShellMenu() }
+function kShellBadges(b){ KS.b=Object.assign(KS.b,b); kShellPaint() }
+function kShellSync(id){ KS.v=id; KS.menu=null; kShellPaint(); kShellMenu() }
+function kShellPaint(){
+  const on = !!(C && C.yo) && KS.v!=='vLogin', H=document.documentElement
+  H.classList.toggle('ks-on', on)
+  const hd=document.getElementById('kHd'), ot=document.getElementById('kOt'), bn=document.getElementById('kBn')
+  if (!hd) return
+  if (!on){ hd.style.display=ot.style.display=bn.style.display='none'; return }
+  const b=KS.b, act=KS_NAV[KS.v]||'', c=function(k,x){ return (act===k?'on':'')+(x?' '+x:'') }
+  const yo=C.yo||{}, nom=String(yo.nombre||'').trim()||'Equipo', ini=nom[0].toUpperCase()
+  const alta=(b.R==='admin'||b.R==='recepcion'||b.R==='coach')
+  hd.innerHTML='<div class="kHd__r">'+
+    '<a class="kHd__brand" href="#/" onclick="kAcc(\'sala\');return false" aria-label="KOACH · ir a Sala">'+KS_K+'<b>KOACH</b></a>'+
+    '<span class="kHd__ttl">'+(KS_TIT[KS.v]||'')+'</span>'+
+    '<nav class="kNav" aria-label="Principal">'+
+      '<button type="button" class="'+c('sala')+'" onclick="kAcc(\'sala\')"'+(act==='sala'?' aria-current="page"':'')+'><i class="kLv" aria-hidden="true"></i>SALA</button>'+
+      '<button type="button" class="'+c('sol')+'" onclick="kAcc(\'sol\')"'+(act==='sol'?' aria-current="page"':'')+'>SOLICITUDES'+(b.sol?' <span class="kBdg">'+b.sol+'</span>':'')+'</button>'+
+      (b.COM?'<button type="button" class="'+c('mem','kN-mem')+'" onclick="kAcc(\'mem\')" title="'+b.memT+'"'+(act==='mem'?' aria-current="page"':'')+'>MEMBRESÍAS'+(b.mem?' <span class="kBdg kBdg--dot" aria-label="con pendientes"></span>':'')+'</button>':'')+
+      '<button type="button" class="'+c('adh','kN-adh')+'" onclick="kAcc(\'adh\')"'+(act==='adh'?' aria-current="page"':'')+'>ADHERENCIA</button>'+
+      (b.ENT?'<button type="button" class="'+c('bib','kN-bib')+'" onclick="kAcc(\'bib\')"'+(act==='bib'?' aria-current="page"':'')+'>BIBLIOTECA</button>':'')+
+      '<button type="button" class="kN-mas'+((act==='adh'||act==='bib')?' on':'')+'" onclick="kMenuT(\'mas\')" aria-haspopup="menu" aria-expanded="'+(KS.menu==='mas')+'">MÁS ▾</button>'+
+    '</nav>'+
+    '<div class="kHd__x">'+
+      (alta?'<button type="button" class="kNew" onclick="kAcc(\'alta\')" aria-label="Nuevo socio"><i aria-hidden="true">+</i><span>NUEVO SOCIO</span></button>':'')+
+      '<button type="button" class="kMe" onclick="kMenuT(\'me\')" aria-haspopup="menu" aria-expanded="'+(KS.menu==='me')+'"><span class="kMe__av">'+plEsc(ini)+'</span><span class="kMe__t"><b>'+plEsc(nom.split(' ')[0])+'</b><small>'+(KS_ROL[yo.role]||'EQUIPO')+'</small></span><em aria-hidden="true">▾</em></button>'+
+    '</div></div>'
+  hd.style.display=''
+  // socios abiertos (ex-pills): barra de contexto, solo si hay
+  const tabs=(window._tabs||[]).filter(function(id){ return (C.socios||[]).some(function(s){return s.id===id}) })
+  if (tabs.length){
+    ot.innerHTML='<div class="kOt__r"><span class="kOt__k">ABIERTOS</span>'+tabs.map(function(id){
+      const on=(KS.v==='vFicha'||KS.v==='vPlan'||KS.v==='vExtra') && window._tabAct===id, n=nomDe(id).split(' ')
+      return '<span class="kOt__t'+(on?' on':'')+'"><button type="button" onclick="kGo(function(){verFicha(\''+id+'\')})">'+plEsc(n[0]+(n[1]?' '+n[1]:''))+'</button><button type="button" class="x" aria-label="Cerrar '+plEsc(n[0])+'" onclick="cerrarTab(\''+id+'\');kShellPaint()">✕</button></span>' }).join('')+'</div>'
+    ot.style.display=''
+  } else { ot.innerHTML=''; ot.style.display='none' }
+  // móvil: navegación inferior (no en planner/extra: allí manda la barra de guardar)
+  const bnOn = !(KS.v==='vPlan'||KS.v==='vExtra'||KS.v==='vPicker')
+  bn.innerHTML=
+    '<button type="button" class="'+(act==='sala'?'on':'')+'" onclick="kAcc(\'sala\')">'+KS_ICO.sala+'SALA</button>'+
+    '<button type="button" class="'+(KS.v==='vFicha'?'on':'')+'" onclick="kAcc(\'socios\')">'+KS_ICO.soc+'SOCIOS</button>'+
+    '<button type="button" class="'+(act==='sol'?'on':'')+'" onclick="kAcc(\'sol\')">'+KS_ICO.sol+(b.sol?'<span class="kBdg">'+b.sol+'</span>':'')+'SOLICITUDES</button>'+
+    '<button type="button" class="'+((act==='mem'||act==='adh'||act==='bib')?'on':'')+'" onclick="kMenuT(\'mas\')" aria-haspopup="menu">'+KS_ICO.mas+'MÁS</button>'
+  bn.style.display = bnOn ? '' : 'none'
+  H.classList.toggle('ks-bn', bnOn)
+  requestAnimationFrame(function(){ H.style.setProperty('--ks-top', (hd.offsetHeight+(ot.style.display==='none'?0:ot.offsetHeight))+'px') })
+}
+function kShellMenu(){
+  const el=document.getElementById('kMenu'); if(!el) return
+  if (!KS.menu){ el.innerHTML=''; return }
+  const b=KS.b, yo=(C&&C.yo)||{}, nom=String(yo.nombre||'Equipo')
+  const me='<div class="kMenu__h"><b>'+plEsc(nom)+'</b><small>'+(KS_ROL[yo.role]||'EQUIPO')+' · KOACH CLUB</small></div>'+
+    '<button type="button" onclick="kAcc(\'vista\')">Vista del dashboard</button>'+
+    '<button type="button" onclick="kAcc(\'clave\')">Mi clave</button><hr>'+
+    '<button type="button" class="danger" onclick="kAcc(\'salir\')">Cerrar sesión</button>'
+  const alta=(b.R==='admin'||b.R==='recepcion'||b.R==='coach')
+  const mas=(b.COM?'<button type="button" class="kM-mem" onclick="kAcc(\'mem\')">Membresías'+(b.mem?'<small>'+b.memT.split(' · ')[0].toUpperCase()+'</small>':'')+'</button>':'')+
+    '<button type="button" onclick="kAcc(\'adh\')">Adherencia</button>'+
+    (b.ENT?'<button type="button" onclick="kAcc(\'bib\')">Biblioteca</button>':'')+
+    (alta?'<button type="button" class="kM-alta" onclick="kAcc(\'alta\')">Nuevo socio<small>+</small></button>':'')+
+    '<button type="button" class="kM-me" onclick="kMenuT(\'me\')">Mi cuenta<small>'+plEsc(nom.split(' ')[0].toUpperCase())+'</small></button>'
+  let left=''
+  if (KS.menu==='mas'){ const m=document.querySelector('.kNav .kN-mas'); if(m && m.offsetParent){ const r=m.getBoundingClientRect(); left='left:'+Math.round(r.left)+'px;' } }
+  el.innerHTML='<div class="kScrim" onclick="KS.menu=null;kShellMenu()"></div><div class="kMenu kMenu--'+KS.menu+'" role="menu" style="'+left+'">'+(KS.menu==='me'?me:mas)+'</div>'
+}
+document.addEventListener('keydown', function(e){ if(e.key==='Escape' && KS.menu){ KS.menu=null; kShellMenu() } })
+addEventListener('resize', function(){ if(document.documentElement.classList.contains('ks-on')) kShellPaint() })
 </script>
 </body>
 </html>
