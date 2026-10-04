@@ -1435,7 +1435,8 @@ function objProgramados(programa, w){
 }
 function semEfectiva(semanas, vig){ const u=[...new Set(semanas)].sort(function(a,b){return a-b}); if(!u.length) return vig||1
   const le=u.filter(function(w){return w<=(vig||1)}); return le.length ? le[le.length-1] : u[0] }
-function semPorFecha(fi){ if(!fi) return null; const d=Math.floor((new Date(hoyISO()+'T12:00:00')-new Date(fi+'T12:00:00'))/86400000); return d<0?1:Math.floor(d/7)+1 }
+// c14 · semanas lunes–domingo (mismo criterio que koach_ciclo_calc en la base)
+function semPorFecha(fi){ if(!fi) return null; const lun=function(x){ const d=new Date(x+'T12:00:00'); d.setDate(d.getDate()-((d.getDay()+6)%7)); return d }; const d=Math.round((lun(hoyISO())-lun(fi))/86400000); return d<0?1:Math.floor(d/7)+1 }
 // ═══ CICLO TEMPORAL (Ajuste 32-43) ═══ resolver puro, probado con datos reales antes de integrar
 function resolveCiclo(fechaInicio, ciclosemanas, semanaActual, sesionesPorSemana, registrosPorSemana){
   const ini = new Date(fechaInicio+"T12:00:00")
@@ -3515,7 +3516,7 @@ function plPintarMacro(){
   if (con.length && wEf!==vig) al.push('<b>SEM '+vig+' vigente sin programar.</b> El socio está repitiendo SEM '+wEf+'. Proyecta el ciclo o copia una semana.')
   if (wF && wF!==vig){
     if (wF>N) al.push('<b>Por fecha el ciclo ya terminó</b> (van '+wF+' semanas desde el inicio). Renueva o cierra el ciclo.')
-    else al.push('<b>Por fecha corresponde SEM '+wF+'</b> y la vigente es SEM '+vig+'.<button class="plBtn" onclick="plMarcarVigente('+wF+')">MARCAR SEM '+wF+' COMO VIGENTE</button>')
+    else al.push('<b>SEM '+vig+' vigente</b> (descuenta pausas de membresía). La semana se calcula sola desde la fecha de inicio.<button class="plBtn" onclick="plAjustarInicio()">AJUSTAR INICIO DEL CICLO</button>')
   }
   if (al.length) h+='<div class="plCard plAlert"><div class="plK">REVISAR</div>'+al.map(function(t){return '<div class="plTxt">'+t+'</div>'}).join('')+'</div>'
   // PROYECCIÓN
@@ -3587,7 +3588,6 @@ function plPintarMeso(){
   const prevSes = w>1 ? plSesSem(w-1) : []
   if (!ses.length && prevSes.length) acc.push('<button class="plBtn ink" onclick="plCopiarSemana('+(w-1)+','+w+')">COPIAR SEM '+(w-1)+' → SEM '+w+'</button>')
   if (ses.length && w<N && !plSesSem(w+1).length) acc.push('<button class="plBtn" onclick="plCopiarSemana('+w+','+(w+1)+')">DUPLICAR → SEM '+(w+1)+'</button>')
-  if (w!==vig && w<=N) acc.push('<button class="plBtn" onclick="plMarcarVigente('+w+')">MARCAR COMO SEMANA VIGENTE</button>')
   h+='<div class="plAcc">'+acc.join('')+'</div>'
   document.getElementById('pMeso').innerHTML=h
 }
@@ -3698,13 +3698,17 @@ async function plCopiarSemana(desde, hacia){
   syncOk(); PL.w=hacia; PL.nivel='meso'
   await plRecargar(); toast('✓ SEM '+hacia+' creada desde SEM '+desde+' — ajusta la progresión')
 }
-async function plMarcarVigente(w){
-  if (!confirm('Marcar SEM '+w+' como la semana vigente de '+nomDe(F.id).split(' ')[0]+'?\nSu app pasa a mostrar las sesiones de esa semana.')) return
+// c14 · La semana del ciclo es AUTOMÁTICA (fecha de inicio + pausas reales). El coach no mueve el reloj:
+// solo corrige una fecha mal ingresada (excepcional, queda en admin_eventos).
+async function plAjustarInicio(){
+  const a=plAsig(); if(!a) return
+  const v=prompt('Fecha real de inicio del ciclo de '+nomDe(F.id).split(' ')[0]+' (AAAA-MM-DD).\nLa semana actual se recalcula sola.', a.fecha_inicio||hoyISO())
+  if (!v) return; if (!/^\d{4}-\d{2}-\d{2}$/.test(v.trim())){ toast('Formato: AAAA-MM-DD'); return }
   syncEnvio()
-  const r=await sb.from('asignaciones').update({semana_actual:w}).eq('socio_id',F.id).eq('activo',true)
-  if (r.error){ syncErr(r.error.message); toast('No se pudo marcar la semana.'); return }
-  syncOk(); plAsig().semana_actual=w
-  await loadSala(); plRender(); toast('SEM '+w+' vigente ✓ — el socio ya la ve')
+  const r=await sb.rpc('koach_ajustar_inicio_ciclo',{p_socio:F.id, p_inicio:v.trim()})
+  if (r.error){ syncErr(r.error.message); toast('No se pudo ajustar: '+r.error.message); return }
+  syncOk(); a.fecha_inicio=v.trim(); a.semana_actual=(r.data&&r.data.semana)||a.semana_actual
+  await loadSala(); plRender(); toast('Inicio ajustado ✓ — semana '+((r.data&&r.data.semana)||'')+(r.data&&r.data.estado==='completado'?' · ciclo completado':''))
 }
 // ─── ACCIONES MESO ───
 async function plMover(id, d){
