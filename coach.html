@@ -903,6 +903,7 @@ html.selAbierto,html.selAbierto body{overflow:hidden}
 .plSt{font-family:var(--font-display);font-weight:700;font-size:15px;letter-spacing:-0.01em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .plSm{font-family:var(--font-mono);font-weight:500;font-size:9px;letter-spacing:.03em;color:var(--koach-text-secondary);margin-top:2px}
 .plUD{display:flex;flex-direction:column;gap:3px}
+.plRen{width:32px;height:47px;border:1px solid var(--koach-border-strong);background:var(--koach-control);border-radius:var(--radius-xs);font-size:13px;cursor:pointer;color:var(--koach-ink);margin-right:6px;flex:none}
 .plUD button{width:32px;height:22px;border:1px solid var(--koach-border-strong);background:var(--koach-control);border-radius:var(--radius-xs);font-size:8px;cursor:pointer;color:var(--koach-ink)}
 .plGo{width:36px;height:36px;border:none;background:var(--koach-ink);color:var(--koach-control);border-radius:var(--radius-sm);font-size:16px;cursor:pointer}
 .plAcc{margin-bottom:12px}
@@ -3056,10 +3057,7 @@ async function abrirOrganizador(){
     try{
       const r = await sb.from('sesiones_registro').select('sesion_protocolo_id, estado')
         .eq('socio_id', F.id).gte('fecha', lunesISO())
-      ;(r.data||[]).forEach(function(x){
-        if (x.estado==='en_curso') ORG.fijas[x.sesion_protocolo_id]='EN CURSO'
-        else if (ESTADOS_OK.indexOf(x.estado)>-1 && x.estado!=='incompleta') ORG.fijas[x.sesion_protocolo_id]='REALIZADA'
-      })
+      void r   // c15: orden libre — el historial se liga por id de sesión, no por posición
     }catch(_e){}
   }
   document.getElementById('orgCtx').textContent =
@@ -3570,13 +3568,13 @@ function plPintarMeso(){
     const reg=PL.regPorSes[x.id], hecha=PL.hecho[x.id]
     const nb=x.bloques.length, ne=x.bloques.reduce(function(a,b){return a+b.items.length},0), sc=plSinCarga(x)
     const est = hecha ? '✓ '+String(hecha).toUpperCase() : (reg && reg.estado==='en_curso' ? 'EN CURSO' : (w<vig?'SIN EJECUTAR':'PROGRAMADA'))
-    const lock = !!reg
     return '<div class="plSes">'+
       '<div class="plSn">'+(i+1)+'</div>'+
       '<button class="plSb" onclick="plIrSes(\''+x.id+'\')"><div class="plSt">'+plEsc((x.nombre||'SESIÓN').toUpperCase())+'</div>'+
       '<div class="plSm">'+nb+' BLOQUES · '+ne+' EJ'+(sc?' · '+sc+' SIN CARGA':'')+' · '+est+'</div></button>'+
-      '<div class="plUD"><button '+((i>0&&!lock&&!PL.regPorSes[ses[i-1].id])?'onclick="plMover(\''+x.id+'\',-1)"':'disabled')+'>▲</button>'+
-      '<button '+((i<ses.length-1&&!lock&&!PL.regPorSes[ses[i+1].id])?'onclick="plMover(\''+x.id+'\',1)"':'disabled')+'>▼</button></div>'+
+      '<button class="plRen" title="Renombrar" aria-label="Renombrar sesión" onclick="plRenombrar(\''+x.id+'\')">✎</button>'+
+      '<div class="plUD"><button '+(i>0?'onclick="plMover(\''+x.id+'\',-1)"':'disabled')+'>▲</button>'+
+      '<button '+(i<ses.length-1?'onclick="plMover(\''+x.id+'\',1)"':'disabled')+'>▼</button></div>'+
       '<button class="plGo" onclick="plIrSes(\''+x.id+'\')">›</button></div>'
   }).join('') : '<div class="vacio">Semana sin programar.</div>'
   h+='</div>'
@@ -3711,11 +3709,21 @@ async function plAjustarInicio(){
   await loadSala(); plRender(); toast('Inicio ajustado ✓ — semana '+((r.data&&r.data.semana)||'')+(r.data&&r.data.estado==='completado'?' · ciclo completado':''))
 }
 // ─── ACCIONES MESO ───
+// c15 · Renombrar directo desde la semana (sin GUARDAR CAMBIOS, sin re-proyectar contenido)
+function plRenombrar(id){
+  const x=P.sesiones.find(function(s){return s.id===id}); if(!x) return
+  if (plEsDirty()){ plGuard(function(){ plRenombrar(id) }); return }
+  idlgAbrir('RENOMBRAR SESIÓN','El socio verá el nuevo nombre al instante', x.nombre||'', 'GUARDAR', async function(nombre){
+    syncEnvio()
+    const r=await sb.rpc('koach_renombrar_sesion',{p_sesion:id, p_nombre:nombre})
+    if (r.error){ syncErr(r.error.message); toast('No se pudo renombrar: '+r.error.message); return }
+    x.nombre=r.data.nombre; x.objetivo=r.data.nombre; syncOk(); plRender(); toast('Nombre guardado ✓')
+  })
+}
 async function plMover(id, d){
   const ses=plSesSem(PL.w), i=ses.findIndex(function(s){return s.id===id}), j=i+d
   if (i<0 || j<0 || j>=ses.length) return
   const a=ses[i], b=ses[j]
-  if (PL.regPorSes[a.id] || PL.regPorSes[b.id]){ toast('Una sesión con registro no cambia de posición.'); return }
   const na=a.numero, nb=b.numero, tmp=-(100000+Math.floor(Math.random()*800000))
   syncEnvio()
   const r1=await sb.from('sesiones_protocolo').update({numero:tmp}).eq('id',a.id)

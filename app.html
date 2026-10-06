@@ -1513,7 +1513,38 @@ body.wl-on{overflow:hidden}
 <script>
 const SB_URL = 'https://siecbdatfgmqbpxqtvsl.supabase.co'
 const SB_KEY = 'sb_publishable_ffGsmagqocuP1n1jvKUVGw_hVzdojas'
-const sb = supabase.createClient(SB_URL, SB_KEY)
+// c15 · SESIÓN PERSISTENTE: el refresh token se refleja en una cookie de 400 días en .koachclub.cl.
+// localStorage es por origen (app.koachclub.cl ≠ koachclub.cl ≠ vercel) y el sistema puede vaciarlo;
+// la cookie es la fuente de verdad del refresh token y re-hidrata la sesión sin pedir clave.
+const SB_STORE_KEY = 'sb-'+SB_URL.replace(/^https?:\/\//,'').split('.')[0]+'-auth-token'
+const KC_CK = 'kc_rt'
+function kcCkGet(){ try{ const m=document.cookie.match(/(?:^|;\s*)kc_rt=([^;]*)/); return m?decodeURIComponent(m[1]):null }catch(_e){ return null } }
+function kcCkDom(){ return /(^|\.)koachclub\.cl$/i.test(location.hostname) ? '; Domain=.koachclub.cl' : '' }
+function kcCkSet(v){ try{ document.cookie=KC_CK+'='+encodeURIComponent(v)+'; Max-Age=34560000; Path=/; SameSite=Lax'+(location.protocol==='https:'?'; Secure':'')+kcCkDom() }catch(_e){} }
+function kcCkDel(){ try{ document.cookie=KC_CK+'=; Max-Age=0; Path=/; SameSite=Lax'+(location.protocol==='https:'?'; Secure':'')+kcCkDom() }catch(_e){} }
+const kcStorage = {
+  getItem: function(k){
+    let v=null; try{ v=localStorage.getItem(k) }catch(_e){}
+    if (k!==SB_STORE_KEY) return v
+    const rt=kcCkGet(); if (!rt) return v
+    try{
+      if (v){ const o=JSON.parse(v)
+        if (o && o.refresh_token && o.refresh_token!==rt){ o.refresh_token=rt; o.expires_at=1; return JSON.stringify(o) }   // otro origen ya rotó el token
+        return v }
+      // sin sesión local pero con token en cookie → sesión mínima vencida: supabase la renueva sola
+      return JSON.stringify({ access_token:'kc', refresh_token:rt, expires_at:1, expires_in:0, token_type:'bearer', user:null })
+    }catch(_e){ return v }
+  },
+  setItem: function(k,v){
+    try{ localStorage.setItem(k,v) }catch(_e){}
+    if (k===SB_STORE_KEY){ try{ const o=JSON.parse(v); if (o && o.refresh_token) kcCkSet(o.refresh_token) }catch(_e){} }
+  },
+  removeItem: function(k){
+    try{ localStorage.removeItem(k) }catch(_e){}
+    if (k===SB_STORE_KEY) kcCkDel()
+  }
+}
+const sb = supabase.createClient(SB_URL, SB_KEY, { auth:{ storage:kcStorage, storageKey:SB_STORE_KEY, persistSession:true, autoRefreshToken:true, detectSessionInUrl:true } })
 const S = { perfil:null, asig:null, proto:null, programa:null, objetivos:null, registros:null,
             sem:null, frases:null, sesionAbierta:null, pesos:{}, marcas:{}, setsHechos:{}, sugeridos:{},
             bloquesListos:0, cargasPrevias:{} }
@@ -2169,7 +2200,7 @@ function invitarInstalar(){
 // Arranque: nunca se muestra el login antes de saber si hay sesión. Si hay sesión guardada pero no se pudo validar
 // por red, no se piden credenciales: se ofrece reintentar. Error de red / perfil / membresía ≠ cerrar sesión.
 const SB_STORE = 'sb-'+SB_URL.replace(/^https?:\/\//,'').split('.')[0]+'-auth-token'
-function hayTokenGuardado(){ try{ return !!localStorage.getItem(SB_STORE) }catch(_e){ return false } }
+function hayTokenGuardado(){ try{ return !!localStorage.getItem(SB_STORE) || !!kcCkGet() }catch(_e){ return !!kcCkGet() } }
 function authListo(){ document.documentElement.classList.remove('boot'); const o=document.getElementById('oAuth'); if(o) o.style.display='none' }
 function authEspera(sinRed){ document.documentElement.classList.add('boot'); const o=document.getElementById('oAuth'); if(!o) return; o.style.display='flex'
   document.getElementById('oAuthT').textContent = sinRed ? 'SIN CONEXIÓN' : 'PREPARANDO TU CLUB…'
