@@ -2277,7 +2277,7 @@ const SB_STORE = 'sb-'+SB_URL.replace(/^https?:\/\//,'').split('.')[0]+'-auth-to
 function hayTokenGuardado(){ try{ return !!localStorage.getItem(SB_STORE) || !!kcCkGet() }catch(_e){ return !!kcCkGet() } }
 function authListo(){ document.documentElement.classList.remove('boot'); const o=document.getElementById('oAuth'); if(o) o.style.display='none' }
 function authEspera(sinRed){ document.documentElement.classList.add('boot'); const o=document.getElementById('oAuth'); if(!o) return; o.style.display='flex'
-  document.getElementById('oAuthT').textContent = sinRed ? 'SIN CONEXIÓN' : 'PREPARANDO TU CLUB…'
+  document.getElementById('oAuthT').textContent = sinRed ? 'NO PUDIMOS CONECTAR' : 'PREPARANDO TU CLUB…'
   document.getElementById('oAuthS').style.display = sinRed ? '' : 'none'; document.getElementById('oAuthB').style.display = sinRed ? '' : 'none' }
 async function leerSesion(){
   try{ const r = await Promise.race([ sb.auth.getSession(), new Promise(function(_,rej){ setTimeout(function(){ rej(new Error('timeout')) }, 12000) }) ])
@@ -2345,6 +2345,11 @@ async function entrar(opts){
       sb.from('solicitudes').select('id, tipo, detalle, estado, sesion_protocolo_id, nota_coach, revisado_at').eq('socio_id', uid).in('estado',['pendiente','aprobada','rechazada']).order('created_at'),
       sb.from('coach_config').select('frases').eq('activo',true).limit(1).maybeSingle()
     ])
+    // v11.7 · ERROR DE RED ≠ SIN PERFIL ≠ SIN PROGRAMA ≠ LOGOUT: una consulta fallida nunca manda al login ni a "sin programa"
+    if (rPerfil.error || rAsig.error){
+      klog(rPerfil.error ? 'PROFILE_LOAD_FAILED' : 'MEMBERSHIP_LOAD_FAILED', { error:String(((rPerfil.error||rAsig.error)||{}).message||'') })
+      if (S._cachePintado){ cargandoOff&&cargandoOff(); toast('Sin conexión: mostramos lo último guardado. Reintentaremos solos.'); setTimeout(function(){ S._lastLoad=0; refrescoSocio() }, 8000); return }
+      authEspera(true); return }
     const perfil = rPerfil.data
     try{ if (perfil && perfil.role) localStorage.setItem('koach_rol', perfil.role) }catch(_e){}
     if (perfil && perfil.role && perfil.role !== 'socio'){
@@ -2455,7 +2460,10 @@ async function entrar(opts){
     if (opts.silent){ const on=(document.querySelector('.vista.on')||{}).id
       if (on==='vPlan') pintarPlan(); else if (on==='vAvances' && typeof loadAvances==='function') loadAvances() }
     else vista('vHome')   // re-evalúa la tab bar ahora que S.asig existe
-  }catch(e){ console.error(e); sinPrograma('No pudimos cargar tu semana. Revisa tu conexión e intenta de nuevo.') }
+  }catch(e){ console.error(e); klog('NETWORK_ERROR', { error:String((e&&e.message)||e) })
+    // sin datos cargados: pantalla de reintento (la sesión se conserva); con datos en pantalla: se mantienen
+    if (S._cachePintado || (S.perfil && S.programa)){ try{ cargandoOff() }catch(_e){} toast('No pudimos actualizar tu semana. Reintentaremos al volver la conexión.') }
+    else authEspera(true) }
 }
 // v9.7 · COACH → SOCIO sin recargar: al volver a la app (y cada 60 s con la app visible) se refresca en silencio.
 // Nunca durante una sesión en curso (no se interrumpe el registro de sets).
