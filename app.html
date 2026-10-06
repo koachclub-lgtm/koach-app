@@ -1239,6 +1239,21 @@ body.wl-on{overflow:hidden}
 .dsu__sk{height:28px;border-radius:8px;background:linear-gradient(90deg,rgba(18,18,16,.05),rgba(18,18,16,.09),rgba(18,18,16,.05));background-size:200% 100%;animation:dsuSk 1.2s linear infinite}
 @keyframes dsuSk{to{background-position:-200% 0}}
 @media (prefers-reduced-motion:reduce){ .dsu__t i{transition:none} .dsu__sk{animation:none} }
+/* ═══ v11.8 · foto en el primer acceso ═══ */
+.regTip{margin:8px 2px 4px;font-size:14px;line-height:1.45;color:#BFC4C8}.regTip b{color:#fff}
+.oFoto{position:fixed;inset:0;z-index:130;display:flex;align-items:flex-end;justify-content:center;background:rgba(0,0,0,0);transition:background .25s ease}
+.oFoto.in{background:rgba(0,0,0,.6)}
+.oFoto__c{width:100%;max-width:520px;box-sizing:border-box;padding:28px 22px calc(22px + env(safe-area-inset-bottom,0px));border-radius:24px 24px 0 0;background:#0E0E0F;color:#F4F3F0;text-align:center;
+  transform:translateY(24px);opacity:0;transition:transform .25s ease, opacity .25s ease}
+.oFoto.in .oFoto__c{transform:none;opacity:1}
+.oFoto__av{position:relative;width:96px;height:96px;margin:0 auto 18px;border-radius:50%;background:#1D1D1F;border:1.5px dashed rgba(244,243,240,.35);display:flex;align-items:center;justify-content:center;font-family:var(--font-display);font-weight:700;font-size:38px}
+.oFoto__av span{position:absolute;right:-2px;bottom:-2px;width:32px;height:32px;border-radius:50%;background:#F4F3F0;color:#0A0A0A;font-size:22px;line-height:32px}
+.oFoto h2{margin:0;font-family:var(--font-display);font-weight:700;font-size:22px;letter-spacing:.02em}
+.oFoto p{margin:10px auto 20px;max-width:340px;font-size:15.5px;line-height:1.45;color:#BFC4C8}
+.oFoto__ok{width:100%;min-height:58px;border:none;border-radius:999px;background:#ECEDEE;color:#0A0A0A;font-family:var(--font-display);font-weight:700;font-size:16px;letter-spacing:.12em;cursor:pointer}
+.oFoto__no{width:100%;min-height:48px;margin-top:8px;border:none;background:none;color:#D4D8DB;font-size:15px;text-decoration:underline;text-underline-offset:4px;cursor:pointer}
+.oFoto small{display:block;margin-top:6px;font-size:12.5px;color:#8B8A85}
+@media (prefers-reduced-motion:reduce){ .oFoto,.oFoto__c{transition:none} }
 #vLogin{background:#000}
 .wel{position:relative;z-index:1;max-width:520px;margin:0 auto;min-height:100dvh;box-sizing:border-box;display:flex;flex-direction:column;justify-content:space-between;
   padding:calc(env(safe-area-inset-top,0px) + 26px) 8px calc(env(safe-area-inset-bottom,0px) + 18px);transition:opacity .22s ease, transform .22s ease}
@@ -1372,6 +1387,7 @@ body.wl-on{overflow:hidden}
         <div class="lbl">CONTRASEÑA</div>
         <div class="pw"><input class="inp" type="password" id="rPass" placeholder="Mínimo 8 caracteres" autocomplete="new-password">
           <button class="ojo" onclick="ojo('rPass',this)">👁</button></div>
+        <div class="regTip">Elige una clave que puedas recordar. Al crear tu cuenta, tu teléfono te ofrecerá <b>guardarla</b>: acepta, y la próxima vez se completa sola.</div>
         <div class="lbl">REPITE LA CONTRASEÑA</div><input class="inp" type="password" id="rPass2" autocomplete="new-password">
         <div class="err" id="rErr">—</div>
         <button class="btn" id="bReg" onclick="registro()">CREAR MI CUENTA</button>
@@ -2258,7 +2274,7 @@ function invitarInstalar(){
   try{ if (esPWA() || localStorage.getItem('koach_a2hs_visto') || document.getElementById('a2hs')) return }catch(_e){ return }
   // nunca encima de la bienvenida del primer ingreso ni durante una sesión: espera a que el socio esté libre
   const wl=document.getElementById('oWelcome'), on=(document.querySelector('.vista.on')||{}).id
-  if ((wl && wl.isConnected && getComputedStyle(wl).display!=='none' && getComputedStyle(wl).visibility!=='hidden') || on==='vSesion' || on==='vLogin'){ setTimeout(invitarInstalar, 4000); return }
+  if (document.getElementById('oFoto') || (wl && wl.isConnected && getComputedStyle(wl).display!=='none' && getComputedStyle(wl).visibility!=='hidden') || on==='vSesion' || on==='vLogin'){ setTimeout(invitarInstalar, 4000); return }
   const ios=/iphone|ipad|ipod/i.test(navigator.userAgent) || (navigator.platform==='MacIntel' && navigator.maxTouchPoints>1)
   if (!ios && !_instEvt) return
   const el=document.createElement('div'); el.id='a2hs'; el.className='a2hs'; el.setAttribute('role','dialog'); el.setAttribute('aria-label','Agregar KOACH a tu pantalla de inicio')
@@ -2361,6 +2377,7 @@ async function entrar(opts){
     S.frases = (rCfg && rCfg.data && rCfg.data.frases) || null
     const memP = cargarMembresia()   // en paralelo con el resto (no depende del programa)
     if (!opts.silent && welcomeDebeMostrarse()) mostrarWelcome()
+    else if (!opts.silent) setTimeout(pedirFoto, 1500)
     const asig = rAsig.data
     if (!asig){ await memP; sinPrograma(); return }
     S.asig = asig; S.proto = asig.protocolos
@@ -2610,6 +2627,28 @@ function mostrarWelcome(){
   el.style.display='block'; document.body.classList.add('wl-on')
   requestAnimationFrame(()=>el.classList.add('is-in'))
 }
+// ═══ v11.8 · FOTO DE PERFIL EN EL PRIMER ACCESO (opcional) ═══
+// Se pide una vez tras la bienvenida (o al primer acceso si ya la vio). OMITIR la descarta; siempre puede
+// agregarla después desde su Perfil. Usa el mismo editor/almacenamiento de siempre (KAvatar · profiles.avatar_path).
+function _fotoKey(){ return 'koach_foto_pedida_'+((S.perfil&&S.perfil.id)||'') }
+function pedirFoto(){
+  try{ if (!S.perfil || S.perfil.role!=='socio' || S.perfil.avatar_path || !window.KAvatar || localStorage.getItem(_fotoKey()) || document.getElementById('oFoto')) return }catch(_e){ return }
+  const on=(document.querySelector('.vista.on')||{}).id, wl=document.getElementById('oWelcome')
+  if (on==='vSesion' || on==='vLogin' || (wl && getComputedStyle(wl).display!=='none')){ setTimeout(pedirFoto, 3000); return }
+  const el=document.createElement('div'); el.id='oFoto'; el.className='oFoto'; el.setAttribute('role','dialog'); el.setAttribute('aria-modal','true'); el.setAttribute('aria-labelledby','oFotoT')
+  const ini=String(S.perfil.nombre||'K')[0].toUpperCase()
+  el.innerHTML='<div class="oFoto__c"><div class="oFoto__av" aria-hidden="true">'+ini+'<span>+</span></div>'+
+    '<h2 id="oFotoT">AGREGA TU FOTO DE PERFIL</h2>'+
+    '<p>Así tu KOACH te reconoce en la sala y aparece en tu credencial del club. Es opcional.</p>'+
+    '<button type="button" class="oFoto__ok" id="oFotoOk">SUBIR FOTO</button>'+
+    '<button type="button" class="oFoto__no" id="oFotoNo">AHORA NO</button>'+
+    '<small>Puedes agregarla o cambiarla cuando quieras desde tu Perfil.</small></div>'
+  document.body.appendChild(el); requestAnimationFrame(function(){ el.classList.add('in') })
+  const fin=function(){ try{ localStorage.setItem(_fotoKey(),'1') }catch(_e){} el.classList.remove('in'); setTimeout(function(){ el.remove() }, 250) }
+  document.getElementById('oFotoNo').onclick=fin
+  document.getElementById('oFotoOk').onclick=function(){ fin()
+    KAvatar.editar(sb, S.perfil.id, S.perfil.avatar_path||null, function(nuevo){ S.perfil.avatar_path=nuevo; try{ pintarAvatarPerfil() }catch(_e){} if (nuevo) toast('Foto guardada ✓') }) }
+}
 async function cerrarWelcome(){
   const el=document.getElementById('oWelcome')
   el.classList.add('is-out')
@@ -2617,7 +2656,7 @@ async function cerrarWelcome(){
     const r=await sb.from('profiles').update({onboarding_visto_at:ahora}).eq('id',S.perfil.id)
     if (!r.error) S.perfil.onboarding_visto_at=ahora
   }catch(_e){}
-  setTimeout(()=>{ el.style.display='none'; el.classList.remove('is-in','is-out'); document.body.classList.remove('wl-on') }, 360)
+  setTimeout(()=>{ el.style.display='none'; el.classList.remove('is-in','is-out'); document.body.classList.remove('wl-on'); setTimeout(pedirFoto, 500) }, 360)
 }
 function saludoDe(ctx){
   const fam = S.frases?.saludos?.[ctx] || ['De vuelta a la sala, {n}.']
