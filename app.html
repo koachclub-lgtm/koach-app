@@ -74,13 +74,14 @@
 @font-face{font-family:'IBM Plex Mono';src:url('/fonts/IBMPlexMono-Medium.woff2') format('woff2');font-weight:500;font-display:swap}
 @font-face{font-family:'Space Mono';src:url('/fonts/SpaceMono-Regular.woff2') format('woff2');font-weight:400;font-display:swap}
 @font-face{font-family:'Space Mono';src:url('/fonts/SpaceMono-Bold.woff2') format('woff2');font-weight:700;font-display:swap}
-@font-face{font-family:'KOACH Display';src:url('/fonts/Archivo-Var-400-800.woff2') format('woff2');font-weight:400 700;font-display:swap}
-@font-face{font-family:'KOACH Display';src:url('/fonts/Archivo-Expanded-ExtraBold.woff2') format('woff2');font-weight:800 900;font-display:swap}
+@font-face{font-family:'KOACH Display';src:url('/fonts/Archivo-Var-400-800.woff2') format('woff2');font-weight:400 900;font-display:swap}
+@font-face{font-family:'KOACH Symbols';src:url('/fonts/KOACH-Symbols-400.woff2') format('woff2');font-weight:400 500;font-display:swap;unicode-range:U+0393,U+2190-21FF,U+2260-2265,U+2300-23FF,U+2460-24FF,U+2500-25FF,U+2600-26FF,U+2700-27BF,U+2800-28FF,U+29C9}
+@font-face{font-family:'KOACH Symbols';src:url('/fonts/KOACH-Symbols-700.woff2') format('woff2');font-weight:600 900;font-display:swap;unicode-range:U+0393,U+2190-21FF,U+2260-2265,U+2300-23FF,U+2460-24FF,U+2500-25FF,U+2600-26FF,U+2700-27BF,U+2800-28FF,U+29C9}
 @font-face{font-family:'KOACH Display Fallback';src:local('Arial'),local('Liberation Sans');size-adjust:98.4%;ascent-override:89.2%;descent-override:21.3%;line-gap-override:0%}
 @font-face{font-family:'Space Mono Fallback';src:local('Courier New'),local('Liberation Mono');size-adjust:102%;ascent-override:109.8%;descent-override:35.4%;line-gap-override:0%}
 /* c18 · TIPOGRAFÍA BRAND STRONG (manual de marca: Archivo + Space Mono) — activa con ?tipo=a, se desactiva con ?tipo=off.
-   Pesos 800–900 → Archivo Expanded ExtraBold (titulares/métricas de alto impacto); 400–700 → Archivo variable; mono → Space Mono. */
-html[data-tipo="a"]{--font-display:'KOACH Display','KOACH Display Fallback',Arial,sans-serif;--font-mono:'Space Mono','Space Mono Fallback','Courier New',monospace}
+   Archivo variable 400–800 (900 se ve como 800, sin ensanchar: el ancho Expanded va por rol en fase 3); íconos/símbolos (● ▲ ✓ ↗ …) siguen saliendo de Inter Display vía 'KOACH Symbols' para no mover el layout. */
+html[data-tipo="a"]{--font-display:'KOACH Display','KOACH Symbols','KOACH Display Fallback',Arial,sans-serif;--font-mono:'Space Mono','KOACH Symbols','Space Mono Fallback','Courier New',monospace}
 html[data-tipo="a"] body{word-spacing:.03em}
 :root{
   --koach-bg:#B3B3B3; --koach-surface:#A3A3A3; --koach-ink:#1C1C1C;
