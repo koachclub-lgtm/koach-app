@@ -1606,7 +1606,7 @@ html.ks-on #vSala .salaQ input{font:500 17px var(--font-display) !important;lett
   <div id="orgBLista"></div>
   <div style="display:flex;gap:10px;margin-top:16px">
     <button class="bbtn" onclick="document.getElementById('mOrgB').style.display='none'" style="flex:1">CANCELAR</button>
-    <button class="bbtn ink" onclick="guardarOrdenBloques()" style="flex:1.4">APLICAR CAMBIOS</button>
+    <button class="bbtn ink" id="obAplicar" onclick="guardarOrdenBloques()" style="flex:1.4" disabled>APLICAR CAMBIOS</button>
   </div>
 </div></div>
 <!-- MODAL GUARDAR COMO PREDISEÑADO -->
@@ -3270,6 +3270,9 @@ function pintarOrgB(){
         '<span class="oHdl" data-obhdl>⠿</span></div>')+'</div>'
   }).join('')
   if (OB.edit) setTimeout(function(){ const x=document.getElementById('obRenI'); if(x){ x.focus(); x.select() } },20)
+  // APLICAR solo si hay un cambio real (orden o nombre)
+  const _orig=ses.bloques.map(function(b){return b.bId}).join(','), _ren=Object.keys(OB.renom||{}).some(function(k){ const b=por[k]; return b && String(OB.renom[k]||'')!==String(b.etiqueta||'') })
+  const _ap=document.getElementById('obAplicar'); if (_ap) _ap.disabled = !(OB.orden.join(',')!==_orig || _ren)
 }
 function obRen(id){ OB.edit=id; pintarOrgB() }
 function obRenNo(){ OB.edit=null; pintarOrgB() }
