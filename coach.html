@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="es" class="boot">
 <head>
-<script>(function(){try{var q=new URLSearchParams(location.search).get('tipo');if(q==='off')localStorage.removeItem('k_tipo');else if(q)localStorage.setItem('k_tipo',q);var t=localStorage.getItem('k_tipo');if(t)document.documentElement.setAttribute('data-tipo',t)}catch(e){}})()</script>
+<script>(function(){var t='a';try{var q=new URLSearchParams(location.search).get('tipo');if(q)localStorage.setItem('k_tipo',q);t=localStorage.getItem('k_tipo')||'a'}catch(e){}if(t!=='off')document.documentElement.setAttribute('data-tipo','a')})()</script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>KOACH · Sala</title>
@@ -32,15 +32,98 @@
 @font-face{font-family:'IBM Plex Mono';src:url('/fonts/IBMPlexMono-Medium.woff2') format('woff2');font-weight:500;font-display:swap}
 @font-face{font-family:'Space Mono';src:url('/fonts/SpaceMono-Regular.woff2') format('woff2');font-weight:400;font-display:swap}
 @font-face{font-family:'Space Mono';src:url('/fonts/SpaceMono-Bold.woff2') format('woff2');font-weight:700;font-display:swap}
-@font-face{font-family:'KOACH Display';src:url('/fonts/Archivo-Var-400-800.woff2') format('woff2');font-weight:400 900;font-display:swap}
+@font-face{font-family:'KOACH Display';src:url('/fonts/Archivo-Var.woff2') format('woff2');font-weight:400 900;font-stretch:100% 115%;font-display:swap}
 @font-face{font-family:'KOACH Symbols';src:url('/fonts/KOACH-Symbols-400.woff2') format('woff2');font-weight:400 500;font-display:swap;unicode-range:U+0393,U+2190-21FF,U+2260-2265,U+2300-23FF,U+2460-24FF,U+2500-25FF,U+2600-26FF,U+2700-27BF,U+2800-28FF,U+29C9}
 @font-face{font-family:'KOACH Symbols';src:url('/fonts/KOACH-Symbols-700.woff2') format('woff2');font-weight:600 900;font-display:swap;unicode-range:U+0393,U+2190-21FF,U+2260-2265,U+2300-23FF,U+2460-24FF,U+2500-25FF,U+2600-26FF,U+2700-27BF,U+2800-28FF,U+29C9}
 @font-face{font-family:'KOACH Display Fallback';src:local('Arial'),local('Liberation Sans');size-adjust:98.4%;ascent-override:89.2%;descent-override:21.3%;line-gap-override:0%}
 @font-face{font-family:'Space Mono Fallback';src:local('Courier New'),local('Liberation Mono');size-adjust:102%;ascent-override:109.8%;descent-override:35.4%;line-gap-override:0%}
-/* c18 · TIPOGRAFÍA BRAND STRONG (manual de marca: Archivo + Space Mono) — activa con ?tipo=a, se desactiva con ?tipo=off.
+/* c18 · TIPOGRAFÍA BRAND STRONG (manual de marca: Archivo + Space Mono) — ACTIVA PARA TODOS desde c18.3; ?tipo=off la apaga en ese navegador (salida de emergencia), ?tipo=a la vuelve a encender.
    Archivo variable 400–800 (900 se ve como 800, sin ensanchar: el ancho Expanded va por rol en fase 3); íconos/símbolos (● ▲ ✓ ↗ …) siguen saliendo de Inter Display vía 'KOACH Symbols' para no mover el layout. */
 html[data-tipo="a"]{--font-display:'KOACH Display','KOACH Symbols','KOACH Display Fallback',Arial,sans-serif;--font-mono:'Space Mono','KOACH Symbols','Space Mono Fallback','Courier New',monospace}
 html[data-tipo="a"] body{word-spacing:.03em}
+
+/* c18.3 CAPA BRAND STRONG — generada desde el CSS existente; solo aplica con html[data-tipo="a"] */
+/* piso de legibilidad: nada bajo 10 px */
+html[data-tipo="a"] .ls{font-size:10px;letter-spacing:.06em}
+html[data-tipo="a"] label{font-size:10px;letter-spacing:.06em}
+html[data-tipo="a"] .rol{font-size:10px;letter-spacing:.06em}
+html[data-tipo="a"] .h3{font-size:10px;letter-spacing:.06em}
+html[data-tipo="a"] .st3 span{font-size:10px;letter-spacing:.06em}
+html[data-tipo="a"] .band .bt1{font-size:10px;letter-spacing:.06em}
+html[data-tipo="a"] .brow .btx small{font-size:10px}
+html[data-tipo="a"] .bbtn{font-size:10px}
+html[data-tipo="a"] .cm2{font-size:10px}
+html[data-tipo="a"] .badge{font-size:10px}
+html[data-tipo="a"] .nuevo{font-size:10px;letter-spacing:.06em}
+html[data-tipo="a"] .aform h4{font-size:10px;letter-spacing:.06em}
+html[data-tipo="a"] .rolb{font-size:10px;letter-spacing:.06em}
+html[data-tipo="a"] .amsg{font-size:10px}
+html[data-tipo="a"] .ssub{font-size:10px;letter-spacing:.06em}
+html[data-tipo="a"] .viva h3{font-size:10px;letter-spacing:.06em}
+html[data-tipo="a"] .row2 .g{font-size:10px}
+html[data-tipo="a"] .row2 .v{font-size:10px}
+html[data-tipo="a"] .a2{font-size:10px}
+html[data-tipo="a"] .sec h3{font-size:10px;letter-spacing:.06em}
+html[data-tipo="a"] .fm{font-size:10px}
+html[data-tipo="a"] .pel{font-size:10px}
+html[data-tipo="a"] .solctx .sc1{font-size:10px;letter-spacing:.06em}
+html[data-tipo="a"] .pl .pm{font-size:10px}
+html[data-tipo="a"] .impacto{font-size:10px}
+html[data-tipo="a"] .gt1{font-size:10px;letter-spacing:.06em}
+html[data-tipo="a"] .bqt{font-size:10px;letter-spacing:.06em}
+html[data-tipo="a"] .stp span{font-size:10px}
+html[data-tipo="a"] .chipG{font-size:10px}
+html[data-tipo="a"] .ejN small{font-size:10px}
+html[data-tipo="a"] .addEj{font-size:10px;letter-spacing:.06em}
+html[data-tipo="a"] .dr .g2{font-size:10px}
+html[data-tipo="a"] .dv{font-size:10px}
+html[data-tipo="a"] .pkM{font-size:10px}
+html[data-tipo="a"] .selG{font-size:10px}
+html[data-tipo="a"] .lbl{font-size:10px;letter-spacing:.06em}
+html[data-tipo="a"] .vd .g3{font-size:10px}
+html[data-tipo="a"] .dzLeg{font-size:10px}
+html[data-tipo="a"] .dzN{font-size:10px}
+html[data-tipo="a"] .dzN small{font-size:10px}
+html[data-tipo="a"] .dzL{font-size:10px}
+html[data-tipo="a"] .pAct2{font-size:10px;letter-spacing:.06em}
+html[data-tipo="a"] .oFoco{font-size:10px}
+html[data-tipo="a"] .oEst{font-size:10px;letter-spacing:.06em}
+html[data-tipo="a"] .vv{font-size:10px}
+html[data-tipo="a"] .delSes{font-size:10px}
+html[data-tipo="a"] #syncTag{font-size:10px;letter-spacing:.06em}
+html[data-tipo="a"] .pv .pcx{font-size:10px}
+html[data-tipo="a"] #oLoad .ldPasos{font-size:10px}
+html[data-tipo="a"] #oLoad .ldF{font-size:10px;letter-spacing:.06em}
+html[data-tipo="a"] #oLoad .lm{font-size:10px;letter-spacing:.06em}
+html[data-tipo="a"] .hintStrip{font-size:10px;letter-spacing:.06em}
+html[data-tipo="a"] .addBloque{font-size:10px;letter-spacing:.06em}
+html[data-tipo="a"] .adChips button{font-size:10px}
+html[data-tipo="a"] .adRow .adM{font-size:10px}
+html[data-tipo="a"] .adTag{font-size:10px}
+html[data-tipo="a"] .adGo{font-size:10px}
+html[data-tipo="a"] .adK{font-size:10px}
+html[data-tipo="a"] .adLi small{font-size:10px}
+html[data-tipo="a"] .adF label{font-size:10px}
+html[data-tipo="a"] .adNote{font-size:10px}
+html[data-tipo="a"] .kw-l{font-size:10px}
+html[data-tipo="a"] .kw-lc{font-size:10px;letter-spacing:.06em}
+html[data-tipo="a"] .kw-cl{font-size:10px;letter-spacing:.06em}
+html[data-tipo="a"] .kwRes div small{font-size:10px;letter-spacing:.06em}
+html[data-tipo="a"] .kwLeg{font-size:10px}
+html[data-tipo="a"] .fTabs--3 button{font-size:10px}
+html[data-tipo="a"] .dzS__h .dzChip{font-size:10px}
+html[data-tipo="a"] .dzS__t em::after{font-size:10px}
+html[data-tipo="a"] .plStats span{font-size:10px}
+html[data-tipo="a"] .plEvalRow span{font-size:10px}
+html[data-tipo="a"] .plSm{font-size:10px}
+html[data-tipo="a"] .plUD button{font-size:10px}
+html[data-tipo="a"] .plProg{font-size:10px}
+html[data-tipo="a"] .plProp{font-size:10px}
+html[data-tipo="a"] .rost__i small{font-size:10px;letter-spacing:.06em}
+html[data-tipo="a"] .atn__t small{font-size:10px;letter-spacing:.06em}
+html[data-tipo="a"] .qRow__t small{font-size:10px;letter-spacing:.06em}
+html[data-tipo="a"] .scUlt small{font-size:10px;letter-spacing:.06em}
+html[data-tipo="a"] [style*="font-size:7.5px"],html[data-tipo="a"] [style*="font-size:8px"],html[data-tipo="a"] [style*="font-size:9px"]{font-size:10px!important}
 :root{
   /* v1.1 · GRIS=arquitectura · BLANCO=interacción · NEGRO=información */
   --koach-bg:#D0D0CE; --koach-surface:#BEBEBC; --koach-surface-raised:#C8C8C6;
