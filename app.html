@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="es" class="boot">
 <head>
+<script>(function(){try{var q=new URLSearchParams(location.search).get('tipo');if(q==='off')localStorage.removeItem('k_tipo');else if(q)localStorage.setItem('k_tipo',q);var t=localStorage.getItem('k_tipo');if(t)document.documentElement.setAttribute('data-tipo',t)}catch(e){}})()</script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>KOACH</title>
@@ -73,6 +74,14 @@
 @font-face{font-family:'IBM Plex Mono';src:url('/fonts/IBMPlexMono-Medium.woff2') format('woff2');font-weight:500;font-display:swap}
 @font-face{font-family:'Space Mono';src:url('/fonts/SpaceMono-Regular.woff2') format('woff2');font-weight:400;font-display:swap}
 @font-face{font-family:'Space Mono';src:url('/fonts/SpaceMono-Bold.woff2') format('woff2');font-weight:700;font-display:swap}
+@font-face{font-family:'KOACH Display';src:url('/fonts/Archivo-Var-400-800.woff2') format('woff2');font-weight:400 700;font-display:swap}
+@font-face{font-family:'KOACH Display';src:url('/fonts/Archivo-Expanded-ExtraBold.woff2') format('woff2');font-weight:800 900;font-display:swap}
+@font-face{font-family:'KOACH Display Fallback';src:local('Arial'),local('Liberation Sans');size-adjust:98.4%;ascent-override:89.2%;descent-override:21.3%;line-gap-override:0%}
+@font-face{font-family:'Space Mono Fallback';src:local('Courier New'),local('Liberation Mono');size-adjust:102%;ascent-override:109.8%;descent-override:35.4%;line-gap-override:0%}
+/* c18 · TIPOGRAFÍA BRAND STRONG (manual de marca: Archivo + Space Mono) — activa con ?tipo=a, se desactiva con ?tipo=off.
+   Pesos 800–900 → Archivo Expanded ExtraBold (titulares/métricas de alto impacto); 400–700 → Archivo variable; mono → Space Mono. */
+html[data-tipo="a"]{--font-display:'KOACH Display','KOACH Display Fallback',Arial,sans-serif;--font-mono:'Space Mono','Space Mono Fallback','Courier New',monospace}
+html[data-tipo="a"] body{word-spacing:.03em}
 :root{
   --koach-bg:#B3B3B3; --koach-surface:#A3A3A3; --koach-ink:#1C1C1C;
   --koach-border-strong:#3A3A3A; --koach-border:#888888; --koach-divider:#787878;
