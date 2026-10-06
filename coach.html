@@ -961,6 +961,31 @@ html.selAbierto,html.selAbierto body{overflow:hidden}
 .adBtns--col{flex-direction:column}.adBtns--col button{width:100%;min-height:52px}
 .adBtns button.danger{background:#8A1C1C;color:#fff;border-color:#8A1C1C}
 .adNote--warn{background:rgba(242,212,155,.35);border-radius:12px;padding:12px;margin-top:12px}
+
+/* ═══ c18.4 · bloques: barra arriba, organizador por bloque, diferenciación ═══ */
+.plSesBar{flex-basis:100%;display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-top:10px}
+.plSesBar:empty{display:none}
+.plSesBar__n{flex:1 1 auto;font-family:var(--font-mono);font-size:12px;letter-spacing:.1em;color:#5E5D59;min-width:0}
+.plSesBar button{min-height:44px;padding:0 16px;border-radius:12px;border:1px solid rgba(18,18,16,.22);background:#fff;font-family:var(--font-mono);font-weight:500;font-size:12.5px;letter-spacing:.1em;color:#121212;cursor:pointer}
+.plSesBar button.ink{background:#121212;color:#F4F3F0;border-color:#121212}
+#vPlan.plCompacto .plSesBar{margin-top:4px}#vPlan.plCompacto .plSesBar__n{display:none}
+#vPlan .bq{border:1px solid rgba(18,18,16,.08)}
+#vPlan .bq--t0{background:#F7F6F3}
+#vPlan .bq--t1{background:#ECEBE7}
+#vPlan .bq .bqh{margin:-4px -4px 10px;padding:8px 10px;border-radius:12px}
+#vPlan .bq--t0 .bqh{background:#E7E6E1}
+#vPlan .bq--t1 .bqh{background:#DAD9D3}
+#vPlan .bq--curso{box-shadow:inset 3px 0 0 #121212}
+#vPlan .bq--hecho{opacity:.82}
+.bqEst{font-style:normal;margin-left:8px;padding:3px 8px;border-radius:8px;background:rgba(18,18,16,.1);font-family:var(--font-mono);font-size:11px;letter-spacing:.08em;color:#121212}
+.bqEst--c{background:#121212;color:#F4F3F0}
+.ocard{display:flex;align-items:center;gap:10px}
+.ocard--fijo{opacity:.65;background:rgba(18,18,16,.04)}
+.ocard .oUD{min-width:44px;min-height:44px}
+.obRen{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.obRen input{flex:1 1 160px;min-height:44px;padding:0 10px;border-radius:10px;border:1px solid rgba(18,18,16,.25);font-size:16px;text-transform:uppercase}
+.obRenB{min-height:44px;padding:0 12px;border-radius:10px;border:1px solid rgba(18,18,16,.2);background:none;font-family:var(--font-mono);font-size:11.5px;letter-spacing:.08em;cursor:pointer}
+.obRenB--ok{background:#121212;color:#F4F3F0;border-color:#121212}
 /* ═══ FIN CAPA 3 ═══ */
 /* ═══ MOTOR DE CONSTRUCCIÓN c8.0 · MACRO → MESO → MICRO ═══ */
 .plNav{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin:0 0 14px}
@@ -1581,7 +1606,7 @@ html.ks-on #vSala .salaQ input{font:500 17px var(--font-display) !important;lett
   <div id="orgBLista"></div>
   <div style="display:flex;gap:10px;margin-top:16px">
     <button class="bbtn" onclick="document.getElementById('mOrgB').style.display='none'" style="flex:1">CANCELAR</button>
-    <button class="bbtn ink" onclick="guardarOrdenBloques()" style="flex:1.4">GUARDAR ORDEN</button>
+    <button class="bbtn ink" onclick="guardarOrdenBloques()" style="flex:1.4">APLICAR CAMBIOS</button>
   </div>
 </div></div>
 <!-- MODAL GUARDAR COMO PREDISEÑADO -->
@@ -2597,8 +2622,10 @@ function pintarPlan(){ setTimeout(function(){ try{ plSaveUI(); rtSyncPlan() }cat
   const ses = P.sesiones[P.tab]
   if(!ses){ document.getElementById('pBloques').innerHTML='<div class="vacio">Sin sesiones</div>'; calcDose(); return }
   if (!ses.bloques.length && !P.bib){ /* sesión vacía: estado inicial claro */ }
+  plBarraSesion(ses)
   const htmlBloques = !ses.bloques.length ? '<div class="glass bq plVacio"><b>'+String(ses.nombre||'SESIÓN').toUpperCase()+'</b><span>Esta sesión todavía no tiene bloques.</span></div>' : ses.bloques.map(function(b,bi){
-    return '<div class="glass bq"><div class="bqh"><span class="bqt">'+bloqueTag(b,bi)+'</span>'+
+    const _be=(OB.estado||{})[b.bId]
+    return '<div class="glass bq bq--t'+(bi%2)+(_be?' bq--'+_be:'')+'" data-bi="'+bi+'"><div class="bqh"><span class="bqt">'+bloqueTag(b,bi)+(_be==='hecho'?' <i class="bqEst">✓ COMPLETADO</i>':_be==='curso'?' <i class="bqEst bqEst--c">● EN CURSO</i>':'')+'</span>'+
       '<button class="bqx" onclick="elimBloque('+bi+')" title="Eliminar bloque">✕</button>'+
       '<div class="stp"><span>SETS</span><button onclick="stepSets('+bi+',-1)">−</button><b>'+b.sets+'</b><button onclick="stepSets('+bi+',1)">+</button></div>'+
       '<div class="stp"><span>DESC</span><button onclick="stepDesc('+bi+',-15)">−</button><b>'+b.desc+'s</b><button onclick="stepDesc('+bi+',15)">+</button></div></div>'+
@@ -2653,7 +2680,7 @@ function pintarPlan(){ setTimeout(function(){ try{ plSaveUI(); rtSyncPlan() }cat
       : '<div class="glass emptySes"><h4>'+(ses.nombre||'SESIÓN')+' · SESIÓN VACÍA</h4>'+
         '<p>Aún no hay bloques en esta sesión.<br>Constrúyela agregando su primer bloque.</p></div>')+
     (ses.bloques.length<6 ? '<button class="addBloque" onclick="abrirBloque()">+ AGREGAR BLOQUE</button>' : '') +
-    (ses.bloques.length>1 ? '<button class="addBloque" style="margin-top:8px;opacity:.85" onclick="abrirOrgBloques()">⇅ REORGANIZAR BLOQUES</button>' : '')
+
   calcDose()
   if (plActivo()) plRender()
 }
@@ -3198,35 +3225,60 @@ async function confirmarTpl(){
 }
 // ═══ ORGANIZADOR DE BLOQUES (nivel 2 de la playlist) ═══
 const OB={orden:[], bloqueado:false}
+// c18.4 · ORGANIZAR BLOQUES con granularidad de BLOQUE: solo los bloques COMPLETADOS quedan fijos (anclas históricas).
+// Completado = en el registro vigente de la sesión, sus sets marcados como hechos ≥ sets prescritos × ejercicios
+// (o la sesión entera ya fue completada). Mover cambia solo el orden (mismo id de bloque; sets, cargas y reps
+// quedan asociados por bloque_id). APLICAR modifica el borrador → GUARDAR CAMBIOS lo persiste (un solo modelo).
+async function obEstados(ses){
+  const est={}; if (P.base || P.bib || !F) return est
+  const rr=await sb.from('sesiones_registro').select('id,estado').eq('sesion_protocolo_id',ses.id).neq('estado','anulada').order('created_at',{ascending:false}).limit(1)
+  const reg=rr.data&&rr.data[0]; if (!reg) return est
+  if (reg.estado==='completada'){ ses.bloques.forEach(function(b){ est[b.bId]='hecho' }); return est }
+  const rs=await sb.from('set_registros').select('bloque_id,completado').eq('registro_id',reg.id).eq('completado',true)
+  const n={}; (rs.data||[]).forEach(function(x){ if(x.bloque_id) n[x.bloque_id]=(n[x.bloque_id]||0)+1 })
+  ses.bloques.forEach(function(b){ const meta=(b.sets||0)*Math.max(1,b.items.length), h=n[b.bId]||0
+    est[b.bId] = (meta>0 && h>=meta) ? 'hecho' : h>0 ? 'curso' : null })
+  return est
+}
 async function abrirOrgBloques(){
   const ses=P.sesiones[P.tab]; if(!ses) return
-  if (!P.base){
-    try{
-      const r=await sb.from('sesiones_registro').select('id').eq('sesion_protocolo_id',ses.id).limit(1)
-      if (r.data && r.data.length){ toast('Esta sesión ya tiene historia — su orden de bloques no se reescribe.'); return }
-    }catch(_e){}
-  }
+  OB.estado = await obEstados(ses); OB.renom={}; OB.edit=null
   OB.orden = ses.bloques.map(function(b){return b.bId})
   document.getElementById('orgBCtx').textContent = (ses.nombre||'SESIÓN').toUpperCase()
   pintarOrgB()
   document.getElementById('mOrgB').style.display='block'
+  repintarConservando()
 }
+function obNombre(b,i){ const v=(OB.renom&&OB.renom[b.bId]!=null)?OB.renom[b.bId]:b.etiqueta; return v?String(v).toUpperCase():('BLOQUE '+(i+1)) }
 function pintarOrgB(){
   const ses=P.sesiones[P.tab]
   const por={}; ses.bloques.forEach(function(b){por[b.bId]=b})
   document.getElementById('orgBLista').innerHTML = OB.orden.map(function(id,i){
     const b=por[id]; if(!b) return ''
-    return '<div class="ocard" data-obid="'+id+'">'+
-      '<span class="oNum">'+String(i+1).padStart(2,'0')+'</span>'+
-      '<div><div class="oNom">'+(b.etiqueta?String(b.etiqueta).toUpperCase():('BLOQUE '+(i+1)))+'</div>'+
-      '<div class="oFoco">'+b.items.length+' EJERCICIOS · '+b.sets+' SETS</div></div>'+
-      '<div class="oCtl"><button class="oUD" onclick="obMove(\''+id+'\',-1)">▲</button>'+
-      '<button class="oUD" onclick="obMove(\''+id+'\',1)">▼</button>'+
-      '<span class="oHdl" data-obhdl>⠿</span></div></div>'
+    const e=(OB.estado||{})[id], fijo=e==='hecho'
+    const nom = OB.edit===id
+      ? '<div class="obRen"><input id="obRenI" maxlength="40" value="'+String((OB.renom[id]!=null?OB.renom[id]:b.etiqueta)||'').replace(/"/g,'&quot;')+'" placeholder="Ej: FUERZA PRINCIPAL" onkeydown="if(event.key===\'Enter\')obRenOk(\''+id+'\');if(event.key===\'Escape\')obRenNo()">'+
+        '<button class="obRenB" onclick="obRenNo()">CANCELAR</button><button class="obRenB obRenB--ok" onclick="obRenOk(\''+id+'\')">GUARDAR</button></div>'
+      : '<div class="oNom">'+obNombre(b,i)+'</div>'
+    return '<div class="ocard'+(fijo?' ocard--fijo':'')+'" data-obid="'+id+'">'+
+      '<span class="oNum">'+(fijo?'✓':String(i+1).padStart(2,'0'))+'</span>'+
+      '<div style="flex:1;min-width:0">'+nom+
+      '<div class="oFoco">'+(fijo?'COMPLETADO · ORDEN BLOQUEADO':(e==='curso'?'EN CURSO · ':'')+b.items.length+' EJERCICIOS · '+b.sets+' SETS')+'</div></div>'+
+      (fijo?'':'<div class="oCtl">'+(OB.edit===id?'':'<button class="oUD" aria-label="Renombrar bloque" onclick="obRen(\''+id+'\')">✎</button>')+
+        '<button class="oUD" aria-label="Subir" onclick="obMove(\''+id+'\',-1)">▲</button>'+
+        '<button class="oUD" aria-label="Bajar" onclick="obMove(\''+id+'\',1)">▼</button>'+
+        '<span class="oHdl" data-obhdl>⠿</span></div>')+'</div>'
   }).join('')
+  if (OB.edit) setTimeout(function(){ const x=document.getElementById('obRenI'); if(x){ x.focus(); x.select() } },20)
 }
+function obRen(id){ OB.edit=id; pintarOrgB() }
+function obRenNo(){ OB.edit=null; pintarOrgB() }
+function obRenOk(id){ const v=(document.getElementById('obRenI').value||'').trim(); OB.renom[id]=v; OB.edit=null; pintarOrgB() }
 function obMove(id,dir){
-  const i=OB.orden.indexOf(id); const j=i+dir
+  const fijo=function(x){ return (OB.estado||{})[x]==='hecho' }
+  if (fijo(id)) return
+  const i=OB.orden.indexOf(id); let j=i+dir
+  while (j>=0 && j<OB.orden.length && fijo(OB.orden[j])) j+=dir      // los completados son anclas: se saltan
   if (i<0||j<0||j>=OB.orden.length) return
   OB.orden[i]=OB.orden[j]; OB.orden[j]=id
   if(navigator.vibrate)navigator.vibrate(8)
@@ -3246,10 +3298,20 @@ async function guardarOrdenBloques(){
   const ses=P.sesiones[P.tab]
   const v=validarReordenBloques(OB.orden, ses.bloques)
   if (!v.ok){ toast('No se guardó: '+v.err); return }
+  // ¿el socio completó algún bloque mientras organizabas? → no aplicar a ciegas
+  const ahora=await obEstados(ses), antes=OB.estado||{}
+  const nuevos=Object.keys(ahora).filter(function(k){ return ahora[k]==='hecho' && antes[k]!=='hecho' })
+  if (nuevos.length){
+    const movido=nuevos.some(function(k){ return OB.orden.indexOf(k)!==ses.bloques.findIndex(function(b){return b.bId===k}) })
+    OB.estado=ahora
+    if (movido){ OB.orden=ses.bloques.map(function(b){return b.bId}); pintarOrgB()
+      scModal('LA SESIÓN CAMBIÓ MIENTRAS EDITABAS','<p class="gpTxt">'+nuevos.map(function(k){ const b=ses.bloques.find(function(x){return x.bId===k}); return '<b>'+obNombre(b,ses.bloques.indexOf(b))+'</b>' }).join(', ')+' se acaba de completar y su posición queda fija. Recalculamos los movimientos permitidos: vuelve a ordenar los bloques pendientes.</p><button type="button" class="mSG__ok" onclick="scCerrar()">ACTUALIZAR</button>'); return }
+  }
+  Object.keys(OB.renom||{}).forEach(function(k){ const b=ses.bloques.find(function(x){return x.bId===k}); if(b && (ahora[k]!=='hecho')) b.etiqueta=OB.renom[k]||null })
   ses.bloques.sort(function(a,b2){ return OB.orden.indexOf(a.bId)-OB.orden.indexOf(b2.bId) })
   document.getElementById('mOrgB').style.display='none'
   plDirty(); repintarConservando(); calcDose()
-  toast('Orden de bloques actualizado · recuerda GUARDAR CAMBIOS')
+  toast('Bloques actualizados en el borrador · toca GUARDAR CAMBIOS para que el socio los vea')
 }
 document.addEventListener('pointerdown',function(e){
   const hd=e.target.closest('[data-obhdl]'); if(!hd)return
@@ -3755,6 +3817,7 @@ function plSemanas(){
 }
 // ─── RENDER ───
 function plRender(){
+  if (PL.nivel!=='micro') plBarraSesion(null)
   const niv=PL.nivel
   const show=function(id,on){ const e=document.getElementById(id); if(e) e.style.display=on?'':'none' }
   show('pNav', true); show('pMacro', niv==='macro'); show('pMeso', niv==='meso')
@@ -4451,7 +4514,10 @@ C.pres = C.pres || []
 function presCat(x){
   if (x.fecha < hoyISO()) return 'anterior'
   const now=Date.now(), ult=new Date(x.ultima).getTime(), ini=new Date(x.inicio).getTime()
-  return (now-ult <= 30*60000 && now-ini <= 3*3600000) ? 'en_sala' : 'atencion'
+  // c18.4 · ventana medida en 276 sesiones reales: pausa máx. entre sets p50 17 min / p90 41 min; primer set p90 45 min.
+  // Sin sets todavía: 60 min desde el inicio. Con sets: 45 min desde el último. Teléfono bloqueado no cambia nada (es dato de la base).
+  const sinSets = !(x.n_sets>0)
+  return ((sinSets ? now-ini <= 60*60000 : now-ult <= 45*60000) && now-ini <= 3*3600000) ? 'en_sala' : 'atencion'
 }
 function presMin(t){ return Math.max(0, Math.round((Date.now()-new Date(t).getTime())/60000)) }
 function avSocio(id, cls){ const so=(C.socios||[]).find(function(x){return x.id===id})||(C.pres||[]).find(function(x){return x.socio_id===id})||{}
@@ -5249,6 +5315,16 @@ async function admPagoAnular(pid){
 // Posible duplicado al registrar (advierte, no bloquea): mismo día y mismo monto con un pago válido del socio
 function admPosibleDuplicado(fecha, monto){
   return (AD.fPag||[]).find(function(x){ return !x.anulado && x.fecha_pago===fecha && +x.monto_final===+monto })
+}
+// c18.4 · barra de acciones de la sesión dentro de la cabecera fija (no al final de la página)
+function plBarraSesion(ses){
+  let bar=document.getElementById('plSesBar')
+  if (!bar){ bar=document.createElement('div'); bar.id='plSesBar'; bar.className='plSesBar'; const h=document.querySelector('#vPlan .plHdr'); if(h) h.appendChild(bar) }
+  const ro=P&&P.ro, n=(ses&&ses.bloques||[]).length
+  bar.innerHTML = (!ses||ro) ? '' :
+    '<span class="plSesBar__n">'+String(ses.nombre||'SESIÓN').toUpperCase()+' · '+n+' BLOQUE'+(n===1?'':'S')+'</span>'+
+    (n<6?'<button type="button" onclick="abrirBloque()">+ BLOQUE</button>':'')+
+    (n>1?'<button type="button" class="ink" onclick="abrirOrgBloques()">⇅ ORGANIZAR BLOQUES</button>':'')
 }
 let MG={primero:null}
 async function aplicarPrograma(){
