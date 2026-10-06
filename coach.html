@@ -4355,26 +4355,55 @@ async function salaPresenciaCargar(forzar){
   try{ const r=await sb.rpc('koach_sala_estado'); if(!r.error){ C.pres=r.data||[]; salaPresenciaPintar(); salaFotos() } }
   catch(e){ console.error('presencia', e) } finally{ _presRun=false }
 }
+// ── c17.1 · SALA CUENTA PERSONAS, NO SESIONES ──
+// La base puede tener varias sesiones abiertas de una misma persona (p.ej. LOWER y LOWER 1). La Sala agrupa por
+// socio_id (nunca por nombre): una tarjeta por persona, contador = personas únicas. Las sesiones van dentro de su contexto.
+function salaPersonas(rows){
+  const M=new Map()
+  ;(rows||[]).forEach(function(r){ const x=Object.assign({}, r, { cat: presCat(r) })
+    if (!M.has(x.socio_id)) M.set(x.socio_id, { socio_id:x.socio_id, nombre:x.nombre, sesiones:[] })
+    M.get(x.socio_id).sesiones.push(x) })
+  const t=function(v){ return v ? new Date(v).getTime() : 0 }
+  const recientes=function(a,b){ return (t(b.ultima)-t(a.ultima)) || (t(b.inicio)-t(a.inicio)) }
+  return Array.from(M.values()).map(function(p){
+    p.sesiones.sort(recientes)
+    p.activas = p.sesiones.filter(function(x){ return x.cat==='en_sala' })
+    p.enSala = p.activas.length>0
+    p.principal = p.enSala ? p.activas[0] : p.sesiones[0]              // actividad más reciente; empate → inicio más reciente
+    // Atención: sesiones de días anteriores siempre; las de hoy sin actividad solo si la persona no está entrenando
+    p.atencion = p.sesiones.filter(function(x){ return x.cat==='anterior' || (x.cat==='atencion' && !p.enSala) })
+    p.ultima = p.principal ? p.principal.ultima : null
+    return p })
+}
 function salaPresenciaPintar(){
   const g=document.getElementById('rostG'); if(!g) return
-  const pres=(C.pres||[]).map(function(x){ return Object.assign({}, x, { cat: presCat(x) }) })
-  const en=pres.filter(function(x){return x.cat==='en_sala'}).sort(function(a,b){return new Date(a.inicio)-new Date(b.inicio)})
+  const per=salaPersonas(C.pres)
+  const en=per.filter(function(p){ return p.enSala }).sort(function(a,b){ return new Date(a.principal.inicio)-new Date(b.principal.inicio) })
   document.getElementById('rostN').innerHTML = '<i class="kLv" aria-hidden="true"></i>'+en.length+' ENTRENANDO AHORA'
-  g.innerHTML = en.length ? en.map(function(x){
-    const m=presMin(x.inicio), est = m<2 ? 'EN CURSO' : m+' MIN'
-    return '<a class="rost__i" href="#/socio/'+x.socio_id+'" onclick="return rtClick(event,\''+x.socio_id+'\')">'+avSocio(x.socio_id)+
-      '<b>'+plEsc(String(x.nombre||'').split(' ')[0])+'</b><small>'+plEsc(String(x.sesion||'SESIÓN'))+'</small><em><i class="kLv" aria-hidden="true"></i>'+est+'</em></a>' }).join('')
+  g.innerHTML = en.length ? en.map(function(p){ const x=p.principal
+    const m=presMin(x.inicio), est = m<2 ? 'EN CURSO' : m+' MIN', mas=p.sesiones.length-1
+    return '<a class="rost__i" href="#/socio/'+p.socio_id+'" onclick="return rtClick(event,\''+p.socio_id+'\')">'+avSocio(p.socio_id)+
+      '<b>'+plEsc(String(p.nombre||'').split(' ')[0])+'</b><small>'+plEsc(String(x.sesion||'SESIÓN'))+(mas>0?' · +'+mas+' ABIERTA'+(mas>1?'S':''):'')+'</small><em><i class="kLv" aria-hidden="true"></i>'+est+'</em></a>' }).join('')
     : '<div class="rost__v">Nadie entrenando en este momento.</div>'
-  const at=pres.filter(function(x){return x.cat!=='en_sala'}).sort(function(a,b){ return (a.cat===b.cat?0:(a.cat==='atencion'?-1:1)) || (new Date(b.ultima)-new Date(a.ultima)) })
+  const at=per.filter(function(p){ return p.atencion.length }).sort(function(a,b){
+    const ca=a.atencion.some(function(x){return x.cat==='atencion'}), cb=b.atencion.some(function(x){return x.cat==='atencion'})
+    return (ca===cb?0:(ca?-1:1)) || (new Date(b.ultima)-new Date(a.ultima)) })
   const el=document.getElementById('atn'); if(!el) return
   if (!at.length){ el.innerHTML=''; return }
+  const nInc=at.reduce(function(s,p){ return s+p.atencion.length },0)
   const ver=el.dataset.todo==='1' ? at : at.slice(0,4)
-  el.innerHTML='<div class="atn__h"><span>REQUIEREN ATENCIÓN</span><b>'+at.length+'</b></div><div class="atn__l">'+ver.map(function(x){
-    const d = x.cat==='anterior' ? 'SESIÓN ABIERTA DESDE '+(x.fecha===fLocal(new Date(Date.now()-864e5))?'AYER':adhF(x.fecha))
-      : 'SIN ACTIVIDAD · '+(function(m){ return m<60 ? m+' MIN' : Math.floor(m/60)+'H '+String(m%60).padStart(2,'0')+'M' })(presMin(x.ultima))
-    return '<div class="atn__r">'+avSocio(x.socio_id)+'<div class="atn__t"><b>'+plEsc(nomDe(x.socio_id)||x.nombre||'')+'</b><small>'+plEsc(String(x.sesion||'').toUpperCase())+' · '+d+(x.n_sets?' · '+x.n_sets+' SETS':'')+'</small></div>'+
-      '<a href="#/socio/'+x.socio_id+'" onclick="return rtClick(event,\''+x.socio_id+'\')">REVISAR</a></div>' }).join('')+'</div>'+
-    (at.length>4 && el.dataset.todo!=='1' ? '<button type="button" class="atn__mas" onclick="document.getElementById(\'atn\').dataset.todo=\'1\';salaPresenciaPintar()">VER TODAS ('+at.length+')</button>' : '')
+  const desde=function(f){ return f===fLocal(new Date(Date.now()-864e5)) ? 'AYER' : adhF(f) }
+  el.innerHTML='<div class="atn__h"><span>REQUIEREN ATENCIÓN'+(nInc>at.length?' <small>· '+nInc+' sesiones</small>':'')+'</span><b>'+at.length+'</b></div><div class="atn__l">'+ver.map(function(p){
+    const a=p.atencion, sets=a.reduce(function(s,x){ return s+(x.n_sets||0) },0)
+    let d
+    if (a.length===1){ const x=a[0]
+      d = plEsc(String(x.sesion||'').toUpperCase())+' · '+(x.cat==='anterior' ? 'SESIÓN ABIERTA DESDE '+desde(x.fecha)
+        : 'SIN ACTIVIDAD · '+(function(m){ return m<60 ? m+' MIN' : Math.floor(m/60)+'H '+String(m%60).padStart(2,'0')+'M' })(presMin(x.ultima))) }
+    else { const vieja=a.reduce(function(m,x){ return (!m || x.fecha<m) ? x.fecha : m }, null)
+      d = a.length+' SESIONES ABIERTAS'+(a.some(function(x){return x.cat==='anterior'}) ? ' DESDE '+desde(vieja) : '')+' · '+a.map(function(x){ return plEsc(String(x.sesion||'').toUpperCase()) }).join(', ') }
+    return '<div class="atn__r">'+avSocio(p.socio_id)+'<div class="atn__t"><b>'+plEsc(nomDe(p.socio_id)||p.nombre||'')+'</b><small>'+d+(sets?' · '+sets+' SETS':'')+'</small></div>'+
+      '<a href="#/socio/'+p.socio_id+'" onclick="return rtClick(event,\''+p.socio_id+'\')">REVISAR</a></div>' }).join('')+'</div>'+
+    (at.length>4 && el.dataset.todo!=='1' ? '<button type="button" class="atn__mas" onclick="document.getElementById(\'atn\').dataset.todo=\'1\';salaPresenciaPintar()">VER TODOS ('+at.length+')</button>' : '')
 }
 setInterval(function(){ const v=document.getElementById('vSala'); if(v&&v.classList.contains('on')&&document.visibilityState==='visible') salaPresenciaPintar() }, 30000)
 document.addEventListener('visibilitychange', function(){ if(document.visibilityState==='visible') salaPresenciaCargar(true) })
