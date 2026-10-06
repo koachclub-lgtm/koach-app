@@ -855,6 +855,15 @@ html.selAbierto,html.selAbierto body{overflow:hidden}
 @supports (-webkit-touch-callout:none){ .mSG,.mCg,.selM,.adSheetBg{-webkit-backdrop-filter:none !important;backdrop-filter:none !important;background:rgba(10,10,11,.62) !important} }
 
 .lOlv{display:block;margin:12px auto 0;min-height:44px;padding:0 10px;background:none;border:none;color:#5E5D59;font-size:14px;text-decoration:underline;text-underline-offset:4px;cursor:pointer}
+
+/* ═══ c17.2 · pagos gestionables ═══ */
+.adPago{align-items:center}
+.adPago__mas{flex:0 0 44px;height:44px;margin-left:8px;border:none;border-radius:12px;background:rgba(18,18,16,.06);font-size:16px;cursor:pointer}
+.adPago--anulado{opacity:.55}.adPago--anulado > span:first-child{text-decoration:line-through}
+.adPago__anul{margin-left:8px;padding:4px 8px;border-radius:8px;background:rgba(138,28,28,.1);color:#8A1C1C;font-family:var(--font-mono);font-size:11px;letter-spacing:.1em}
+.adBtns--col{flex-direction:column}.adBtns--col button{width:100%;min-height:52px}
+.adBtns button.danger{background:#8A1C1C;color:#fff;border-color:#8A1C1C}
+.adNote--warn{background:rgba(242,212,155,.35);border-radius:12px;padding:12px;margin-top:12px}
 /* ═══ FIN CAPA 3 ═══ */
 /* ═══ MOTOR DE CONSTRUCCIÓN c8.0 · MACRO → MESO → MICRO ═══ */
 .plNav{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin:0 0 14px}
@@ -4146,8 +4155,8 @@ async function fAdmCargar(){
   h+='<div class="adCard"><div class="adK"><span>PAGOS</span><span>'+AD.fPag.length+'</span></div>'+(AD.fPag.length?AD.fPag.map(function(p){
     const pm=AD.fMem.find(function(m){return m.id===p.membresia_id})
     const vg=pm?('<b>'+(pm.duracion_label||'')+'</b> · VIGENCIA '+(pm.duracion_tipo==='dia'?adF(pm.fecha_inicio):adF(pm.fecha_inicio)+' → '+adF(pm.fecha_fin))+'<br>'):''
-    return '<div class="adLi" style="'+(p.anulado?'opacity:.5;text-decoration:line-through':'')+'"><span>'+adF(p.fecha_pago)+'<small>'+vg+(p.metodo?String(p.metodo).toUpperCase()+' · ':'')+(p.referencia?adEsc(p.referencia)+' · ':'')+(p.notas?adEsc(p.notas):'')+(p.anulado?' · ANULADO: '+adEsc(p.anulado_motivo||''):'')+'</small></span>'+
-      '<span>'+(p.metodo==='ugc' ? 'UGC<small>VALOR REF. '+adCLP((pm&&pm.valor_referencia)||0)+' · PAGADO $0 · NO MONETARIO' : adCLP(p.monto_final)+'<small>'+String(p.estado).toUpperCase())+(p.anulado?'':' · <a onclick="admFormPagoEdit(\''+p.id+'\')" style="text-decoration:underline;cursor:pointer">CORREGIR</a>')+'</small></span></div>' }).join(''):'<div class="adS">Sin pagos registrados.</div>')+'</div>'
+    return '<div class="adLi adPago'+(p.anulado?' adPago--anulado':'')+'"><span>'+adF(p.fecha_pago)+'<small>'+vg+(p.metodo?String(p.metodo).toUpperCase()+' · ':'')+(p.referencia?adEsc(p.referencia)+' · ':'')+(p.notas?adEsc(p.notas):'')+(p.anulado?' · ANULADO: '+adEsc(p.anulado_motivo||''):'')+'</small></span>'+
+      '<span>'+(p.metodo==='ugc' ? 'UGC<small>VALOR REF. '+adCLP((pm&&pm.valor_referencia)||0)+' · PAGADO $0 · NO MONETARIO' : adCLP(p.monto_final)+'<small>'+String(p.estado).toUpperCase())+'</small></span>'+(p.anulado?'<span class="adPago__anul">ANULADO</span>':'<button type="button" class="adPago__mas" aria-label="Gestionar pago" onclick="admPagoMenu(\''+p.id+'\')">•••</button>')+'</div>'}).join(''):'<div class="adS">Sin pagos registrados.</div>')+'</div>'
   if (cong.length) h+='<div class="adCard"><div class="adK"><span>CONGELAMIENTOS</span><span>'+cong.length+'</span></div>'+cong.map(function(c){
     return '<div class="adLi"><span>'+adF(c.desde)+' — '+adF(c.hasta)+'<small>'+(c.motivo?adEsc(c.motivo):'')+'</small></span><span>'+c.dias+' D<small>'+(c.extendio_vencimiento?'EXTENDIÓ VENCIMIENTO':'SIN EXTENSIÓN')+'</small></span></div>' }).join('')+'</div>'
   h+='<div class="adCard"><div class="adK"><span>REGISTRO DE CAMBIOS</span><span>'+(re.data||[]).length+'</span></div>'+((re.data||[]).map(function(e){
@@ -4242,7 +4251,17 @@ function admModalidad(){
   document.getElementById('apUgc').style.display = u ? '' : 'none'; document.getElementById('apEW').style.visibility = u ? 'hidden' : ''
   document.getElementById('apO').placeholder = u ? 'Ej: 1 mes a cambio de contenido UGC para redes' : 'opcional'
 }
-async function admGuardarPago(){
+async function admGuardarPago(forzar){
+  if (admGuardarPago._run) return
+  const g=function(x){return (document.getElementById(x)||{}).value}
+  if (!forzar && g('apMe')!=='ugc'){ const _m=parseInt(String(g('apM')).replace(/\D/g,''),10), _d=admPosibleDuplicado(g('apF'), _m)
+    if (_d){ const box=document.getElementById('apDup')||(function(){ const x=document.createElement('div'); x.id='apDup'; x.className='adNote adNote--warn'; document.getElementById('mAdmBody').appendChild(x); return x })()
+      box.innerHTML='<b>POSIBLE PAGO DUPLICADO</b><br>Ya existe un pago de '+adCLP(_d.monto_final)+' registrado el '+adF(_d.fecha_pago)+(_d.metodo?' ('+String(_d.metodo).toUpperCase()+')':'')+'.'+
+        '<div class="adBtns"><button onclick="document.getElementById(\'apDup\').remove()">CANCELAR</button><button class="ink" onclick="admGuardarPago(true)">REGISTRAR DE TODAS FORMAS</button></div>'
+      box.scrollIntoView({block:'nearest'}); return } }
+  admGuardarPago._run=true; try{ return await _admGuardarPago() } finally { admGuardarPago._run=false }
+}
+async function _admGuardarPago(){
   const g=function(x){return (document.getElementById(x)||{}).value}
   const monto=parseInt(String(g('apM')).replace(/\D/g,''),10), dur=g('apD')
   if (g('apMe')==='ugc'){
@@ -4257,7 +4276,7 @@ async function admGuardarPago(){
   if(!dur){ toast('Selecciona la vigencia del pago.'); return }
   const t=dur.split(':'), ac=adActor(); syncEnvio()
   const r=await sb.rpc('admin_pago_con_vigencia',{p_socio:F.id,p_fecha:g('apF'),p_monto:monto,p_estado:g('apE'),p_tipo:t[0],p_valor:+t[1],p_metodo:g('apMe')||null,p_referencia:(g('apR')||'').trim()||null,p_obs:(g('apO')||'').trim()||null,p_actor:ac.id,p_actor_nombre:ac.nombre})
-  if (r.error){ syncErr(r.error.message); toast('No se pudo registrar: '+r.error.message); return }
+  if (r.error){ syncErr(r.error.message); toast(/DUPLICADO_RECIENTE/.test(r.error.message)?'Ese pago ya se registró hace unos segundos (doble toque): no se duplicó.':'No se pudo registrar: '+r.error.message); return }
   syncOk(); admCerrar(); toast('Pago registrado ✓ · vigencia hasta '+adF(r.data.fin)); await adCargarResumen(); fAdmCargar()
 }
 function admFormPagoEdit(pid){
@@ -5074,6 +5093,65 @@ async function coachRecuperar(){
   const r=await sb.auth.resetPasswordForEmail(email, { redirectTo: location.origin+'/coach.html' })
   el.textContent = r.error && /rate|seconds|limit/i.test(r.error.message||'') ? 'Se pidieron demasiados enlaces seguidos. Espera unos minutos e inténtalo otra vez.'
     : 'Si existe una cuenta con ese correo, te enviamos un enlace para crear una nueva contraseña. Revisa también Spam.'
+}
+// ═══════════ c17.2 · GESTIÓN DE PAGOS: EDITAR · ANULAR (revierte vigencia) · ANTI-DUPLICADO ═══════════
+// Nada se borra. ANULAR deja la fila en el historial, cancela el período que ese pago generó y reacomoda la cadena.
+// EDITAR corrige solo datos del pago (fecha, monto, método, referencia, nota); la vigencia se corrige en la membresía.
+const PAGO_MOT=['PAGO DUPLICADO','MONTO INCORRECTO','FECHA INCORRECTA','MEDIO DE PAGO INCORRECTO','OTRO']
+function admPagoMenu(pid){
+  const p=(AD.fPag||[]).find(function(x){return x.id===pid}); if(!p) return
+  admAbrir('PAGO · '+adF(p.fecha_pago)+' · '+adCLP(p.monto_final),
+    '<div class="adBtns adBtns--col"><button onclick="admPagoEditar(\''+pid+'\')">EDITAR PAGO</button>'+
+    '<button onclick="admPagoAnularForm(\''+pid+'\')">ANULAR PAGO</button>'+
+    '<button onclick="admCerrar();(document.querySelector(\'.adCard .adK span\')||{}).scrollIntoView&&[...document.querySelectorAll(\'.adCard .adK span\')].find(function(x){return /REGISTRO DE CAMBIOS/.test(x.textContent)}).scrollIntoView({behavior:\'smooth\'})">VER REGISTRO DE CAMBIOS</button></div>')
+}
+function _motSel(id, def){ return '<label>MOTIVO</label><select id="'+id+'" onchange="document.getElementById(\''+id+'O\').style.display=this.value===\'OTRO\'?\'\':\'none\'">'+
+  PAGO_MOT.map(function(m){ return '<option'+(m===def?' selected':'')+'>'+m+'</option>' }).join('')+'</select><input id="'+id+'O" placeholder="Describe el motivo" style="display:none">' }
+function _motVal(id){ const v=document.getElementById(id).value; return v==='OTRO' ? (document.getElementById(id+'O').value||'').trim() : v }
+function admPagoEditar(pid){
+  const p=(AD.fPag||[]).find(function(x){return x.id===pid}); if(!p) return
+  const pm=(AD.fMem||[]).find(function(m){return m.id===p.membresia_id})
+  const mets=['débito','crédito','transferencia','efectivo','otro']; if (p.metodo && mets.indexOf(p.metodo)<0) mets.push(p.metodo)
+  admAbrir('EDITAR PAGO','<div class="adF"><div class="adRow2"><div><label>FECHA DEL PAGO</label><input type="date" id="peF" value="'+(p.fecha_pago||'')+'"></div>'+
+    '<div><label>'+(p.metodo==='ugc'?'MONTO (UGC = $0)':'MONTO (CLP)')+'</label><input inputmode="numeric" id="peM" value="'+(p.monto_final||0)+'"'+(p.metodo==='ugc'?' disabled':'')+'></div></div>'+
+    '<label>MÉTODO</label><select id="peMe"'+(p.metodo==='ugc'?' disabled':'')+'>'+mets.map(function(m){ return '<option'+(m===p.metodo?' selected':'')+'>'+m+'</option>' }).join('')+'</select>'+
+    '<label>REFERENCIA / COMPROBANTE</label><input id="peR" value="'+adEsc(p.referencia||'')+'">'+
+    '<label>OBSERVACIÓN</label><input id="peN" value="'+adEsc(p.notas||'')+'">'+
+    (pm?'<div class="adNote">Vigencia asociada: <b>'+(pm.duracion_label||'')+'</b> · '+adF(pm.fecha_inicio)+' → '+adF(pm.fecha_fin)+'. Editar el pago no cambia la vigencia.</div>':'')+
+    _motSel('peMo','MONTO INCORRECTO')+'</div>'+
+    '<div class="adBtns"><button onclick="admCerrar()">CANCELAR</button><button class="ink" id="peOk" onclick="admPagoGuardarEdicion(\''+pid+'\')">GUARDAR CAMBIOS</button></div>')
+}
+async function admPagoGuardarEdicion(pid){
+  const b=document.getElementById('peOk'); if (b.disabled) return
+  const mot=_motVal('peMo'); if(!mot){ toast('Indica el motivo de la corrección.'); return }
+  const monto=parseInt(String(document.getElementById('peM').value).replace(/\D/g,''),10)
+  b.disabled=true; b.textContent='GUARDANDO…'; const ac=adActor(); syncEnvio()
+  const r=await sb.rpc('admin_pago_editar',{p_id:pid,p_fecha:document.getElementById('peF').value||null,p_monto:isNaN(monto)?null:monto,p_metodo:document.getElementById('peMe').value||null,
+    p_referencia:(document.getElementById('peR').value||'').trim()||null,p_notas:(document.getElementById('peN').value||'').trim()||null,p_motivo:mot,p_actor:ac.id,p_actor_nombre:ac.nombre})
+  if (r.error){ b.disabled=false; b.textContent='GUARDAR CAMBIOS'; syncErr(r.error.message); toast('No se pudo: '+r.error.message); return }
+  syncOk(); admCerrar(); toast('Pago corregido ✓'); await adCargarResumen(); fAdmCargar()
+}
+function admPagoAnularForm(pid){
+  const p=(AD.fPag||[]).find(function(x){return x.id===pid}); if(!p) return
+  const pm=(AD.fMem||[]).find(function(m){return m.id===p.membresia_id})
+  admAbrir('ANULAR PAGO','<div class="adCard"><div class="adK"><span>'+adF(p.fecha_pago)+'</span><span>'+adCLP(p.monto_final)+'</span></div><div class="adS">'+String(p.metodo||'').toUpperCase()+(pm?' · generó '+adF(pm.fecha_inicio)+' → '+adF(pm.fecha_fin):'')+'</div></div>'+
+    '<div class="adNote">Este pago dejará de contabilizarse y se recalculará la vigencia de la membresía asociada. El registro queda en el historial como ANULADO.</div>'+
+    '<div class="adF">'+_motSel('paMo','PAGO DUPLICADO')+'</div>'+
+    '<div class="adBtns"><button onclick="admCerrar()">CANCELAR</button><button class="danger" id="paOk" onclick="admPagoAnular(\''+pid+'\')">ANULAR PAGO</button></div>')
+}
+async function admPagoAnular(pid){
+  const b=document.getElementById('paOk'); if (b.disabled) return
+  const mot=_motVal('paMo'); if(!mot){ toast('Indica el motivo.'); return }
+  b.disabled=true; b.textContent='ANULANDO…'; const ac=adActor(); syncEnvio()
+  const r=await sb.rpc('admin_pago_anular',{p_id:pid,p_motivo:mot,p_actor:ac.id,p_actor_nombre:ac.nombre})
+  if (r.error){ b.disabled=false; b.textContent='ANULAR PAGO'; syncErr(r.error.message); toast(/YA_ANULADO/.test(r.error.message)?'Ese pago ya estaba anulado.':'No se pudo: '+r.error.message); return }
+  syncOk(); admCerrar()
+  toast('Pago anulado ✓'+(r.data&&r.data.acceso_hasta?' · acceso hasta '+adF(r.data.acceso_hasta):' · sin membresía vigente'))
+  await adCargarResumen(); fAdmCargar()
+}
+// Posible duplicado al registrar (advierte, no bloquea): mismo día y mismo monto con un pago válido del socio
+function admPosibleDuplicado(fecha, monto){
+  return (AD.fPag||[]).find(function(x){ return !x.anulado && x.fecha_pago===fecha && +x.monto_final===+monto })
 }
 let MG={primero:null}
 async function aplicarPrograma(){
