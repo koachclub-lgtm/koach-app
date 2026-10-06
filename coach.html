@@ -1555,7 +1555,8 @@ function kdNormSesion(sesion){
   return { bloques:(sesion.bloques||[]).map(function(b){ return { sets:b.sets,
     ejercicios:(b.ejercicios||[]).map(function(ej){
       const g=(ej.grupo||'').toUpperCase()
-      const prof = Object.assign(g?{[g]:1.0}:{}, ej.sinergistas||{})
+      const prof = g?{[g]:1.0}:{}
+      Object.keys(ej.sinergistas||{}).forEach(function(k){ if (KD.canon(k)!==KD.canon(g)) prof[k]=ej.sinergistas[k] })  // auto-alias (PECHO+PECS) no duplica
       return { grupo:g, sinergistas:prof, cuenta_dosis:(ej.cuenta_dosis!==undefined?ej.cuenta_dosis:ej.cuentaDosis) }
     }) } }) }
 }

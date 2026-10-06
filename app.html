@@ -15,7 +15,51 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black">
 <meta name="apple-mobile-web-app-title" content="KOACH">
 <meta name="application-name" content="KOACH">
-<style>html.boot,html.boot body{background:#000 !important}</style>
+<style>html.boot,html.boot body{background:#000 !important}
+/* ═══ c17 · BODY MAP entre bloques (micro-recompensa) ═══ */
+.kbm{position:fixed;inset:0;z-index:1250;display:none;flex-direction:column;background:#0A0B0D;color:#F2F1EE;cursor:pointer;-webkit-tap-highlight-color:transparent;
+  padding:calc(env(safe-area-inset-top,0px) + 30px) 22px calc(env(safe-area-inset-bottom,0px) + 26px);font-family:var(--font-display,'Inter Display',Inter,sans-serif);
+  animation:kbmIn 180ms ease-out both}
+.kbm.vis{display:flex}
+.kbm.out{animation:kbmOut .22s ease-in forwards}
+.kbm__top{display:flex;justify-content:space-between;align-items:baseline;font:500 11px var(--font-mono,'IBM Plex Mono',monospace);color:#6B7078;letter-spacing:.04em;animation:kbmFade 300ms ease-out var(--tb) both}
+.kbm__top b{color:#A9ADB4;font-weight:600}
+.kbm__st{flex:1;display:flex;align-items:center;justify-content:center;min-height:0}
+.kbm__bd{display:flex;gap:4%;width:100%;max-width:360px;justify-content:center;animation:kbmBody 340ms cubic-bezier(.2,.8,.2,1) var(--tb) both}
+.kbm__fg{flex:1;display:flex;flex-direction:column;align-items:center;gap:6px;min-width:0}
+.kbm__fg svg{width:100%;height:auto;max-height:50vh;overflow:visible;display:block}
+.kbm__fg small{font:500 9px var(--font-mono,'IBM Plex Mono',monospace);color:#4C5058;letter-spacing:.08em}
+.kbm .pl{fill:#191B1F;stroke:#0A0B0D;stroke-width:1.3;stroke-linejoin:round}
+.kbm .pl.m{fill:#22252A}
+.kbm .lit{fill:#5FD4E0;stroke:none;opacity:0;animation:kbmLit 620ms cubic-bezier(.2,.8,.2,1) var(--d) both}
+.kbm .lit.p1{animation:kbmLit 620ms cubic-bezier(.2,.8,.2,1) var(--d) both,kbmBreathe 1.8s ease-in-out calc(var(--d) + 620ms) infinite}
+.kbm.soft .lit{animation:kbmSoft 700ms ease-out var(--d) both}
+.kbm .scan{animation:kbmScan var(--sd) cubic-bezier(.45,.05,.4,1) var(--ts) both}
+.kbm__cp{min-height:150px}
+.kbm__tt{font-weight:800;font-size:clamp(30px,9.4vw,40px);line-height:.95;letter-spacing:-.04em;margin:0 0 14px;animation:kbmRise 440ms cubic-bezier(.2,.8,.2,1) var(--tt) both}
+.kbm__tt i{font-style:normal;color:#5FD4E0}
+.kbm__tt--lg{font-size:clamp(25px,7.4vw,34px)}
+.kbm__ms{display:flex;flex-direction:column;gap:7px;margin-bottom:14px}
+.kbm__mu{display:flex;align-items:center;gap:10px;font-weight:700;font-size:15px;letter-spacing:.02em;animation:kbmFade 280ms ease-out var(--d) both}
+.kbm__mu span{display:flex;gap:3px}.kbm__mu span i{width:14px;height:3px;border-radius:2px;background:#2A2D33}.kbm__mu span i.on{background:#5FD4E0}
+.kbm__mu.l2{color:#C6C9CF}.kbm__mu.l3{color:#6B7078}
+.kbm__ft{display:flex;justify-content:space-between;align-items:center;gap:12px;animation:kbmFade 300ms ease-out var(--tl) both}
+.kbm__ln{font-weight:700;font-size:14px;letter-spacing:.06em;color:#A9ADB4}
+.kbm__sg{display:flex;gap:4px}.kbm__sg i{width:22px;height:4px;border-radius:2px;background:#24272C}.kbm__sg i.d{background:#5A5F67}.kbm__sg i.n{background:#5FD4E0}
+.kbm__au{position:absolute;left:22px;right:22px;bottom:calc(env(safe-area-inset-bottom,0px) + 12px);height:2px;background:#1B1D21;border-radius:2px;overflow:hidden}
+.kbm__au i{display:block;height:100%;background:#4A4F57;transform-origin:left;animation:kbmFill var(--ad) linear var(--tl) both}
+@keyframes kbmIn{from{opacity:0}to{opacity:1}}
+@keyframes kbmOut{to{opacity:0}}
+@keyframes kbmFade{from{opacity:0}to{opacity:1}}
+@keyframes kbmBody{from{opacity:0;transform:scale(.965)}to{opacity:1;transform:none}}
+@keyframes kbmScan{0%{transform:translateY(-8px);opacity:0}8%{opacity:1}88%{opacity:1}100%{transform:translateY(250px);opacity:0}}
+@keyframes kbmLit{0%{opacity:0}38%{opacity:1}100%{opacity:var(--o)}}
+@keyframes kbmSoft{from{opacity:0}to{opacity:var(--o)}}
+@keyframes kbmBreathe{0%,100%{opacity:var(--o)}50%{opacity:calc(var(--o) * .72)}}
+@keyframes kbmRise{from{clip-path:inset(100% -6% -12% -6%);transform:translateY(10px)}to{clip-path:inset(-30% -6% -12% -6%);transform:none}}
+@keyframes kbmFill{from{transform:scaleX(0)}to{transform:scaleX(1)}}
+@media (prefers-reduced-motion:reduce){.kbm,.kbm *{animation:none!important}.kbm .lit{opacity:var(--o)}.kbm .scan{display:none}}
+</style>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="/domain/koach-domain.js"></script>
@@ -1489,6 +1533,7 @@ body.wl-on{overflow:hidden}
   <div class="osub" id="oActS"></div>
   <div class="slide" id="slAct"><span class="stx">DESLIZA PARA COMENZAR</span><div class="th">→</div></div>
 </div>
+<div class="kbm" id="oBM" role="status" aria-live="polite"></div>
 <div class="ovl oscuro" id="oFlash"><div class="fk">KOACH</div><div class="ftx" id="oFT"></div><div class="fsb" id="oFS"></div></div>
 <div id="oLoad" role="status" aria-live="polite"><div class="ldBox"><div class="ldK">KOACH FITNESS CLUB</div>
   <div class="ldSpin" aria-hidden="true"><i></i><i></i><i></i></div>
@@ -1584,7 +1629,9 @@ function kdNormSesion(sesion){
   return { bloques:(sesion.bloques||[]).map(b=>({ sets:b.sets,
     ejercicios:(b.ejercicios||[]).map(ej=>{
       const g=(ej.grupo||'').toUpperCase()
-      return { grupo:g, sinergistas:Object.assign(g?{[g]:1.0}:{}, ej.sinergistas||{}), cuenta_dosis:(ej.cuenta_dosis!==undefined?ej.cuenta_dosis:ej.cuentaDosis) }
+      const prof=g?{[g]:1.0}:{}
+      Object.keys(ej.sinergistas||{}).forEach(k=>{ if (KD.canon(k)!==KD.canon(g)) prof[k]=ej.sinergistas[k] })  // auto-alias (PECHO+PECS) no duplica
+      return { grupo:g, sinergistas:prof, cuenta_dosis:(ej.cuenta_dosis!==undefined?ej.cuenta_dosis:ej.cuentaDosis) }
     }) })) }
 }
 // Dosis EJECUTADA: cada ejercicio aporta los sets que realmente se marcaron (registro legado por rondas = 1 set
@@ -2748,7 +2795,7 @@ async function reanudar(){
   const ses = S.programa.sesiones.find(x=>x.id===reg.sesion_protocolo_id)
   if(!ses){ toast('No encontramos esa sesión en tu programa actual'); return }
   S.sesionAbierta = ses
-  S.pesos={}; S.marcas={}; S.setsHechos={}; S.bloquesListos=0
+  S.pesos={}; S.marcas={}; S.setsHechos={}; S.bloquesListos=0; S._flb={}
   S.wk={}; S.setLog={}; S.rw={}; S.abierto=null; S.regId=reg.id
   S._desigActual = ses._desigId||null; S._desigRec = !!ses._rec
   vista('vSesion')
@@ -2867,7 +2914,7 @@ async function abrirSesion(num){
   S._desigRec = !!(num==null && S.sem&&S.sem.proxima&&S.sem.proxima._rec)
   const ses = sesG
   S.sesionAbierta = ses
-  S.pesos={}; S.marcas={}; S.setsHechos={}; S.bloquesListos=0
+  S.pesos={}; S.marcas={}; S.setsHechos={}; S.bloquesListos=0; S._flb={}
   S.wk={}; S.setLog={}; S.rw={}; S.abierto=null; S.regId=null
   // INSTANCIA: crear o recuperar el registro en curso de hoy (persistencia server-side)
   try{
@@ -3211,6 +3258,86 @@ async function tapRonda(bId,n,bi){
     else { S.setLog[k].id=r.data.id; syncOk(); chequearBloque(bId) }
   })
 }
+
+/* ═══ c17 · BODY MAP entre bloques ═══
+   Fuente única: KD.aporteSesionDOC3 sobre el bloque recién completado (mismo motor que la dosis).
+   Intensidad = aporte ÷ máximo del bloque (contribución, no fatiga). Claves canónicas KD.GRUPOS. */
+const BM={
+ F:[[null,'55,29 65,29 66,37 54,37',0],[null,'29,90 37,88 36,106 33,121 27,121 26,105',1],[null,'27,123 33,123 34,131 30,136 26,131',1],
+  [null,'49,113 71,113 68,121 60,124 52,121',0],[null,'45,179 53,179 53,185 45,185',1],[null,'44,187 53,187 52,212 50,236 45,236 43,212',1],
+  [null,'44,238 51,238 52,244 41,245',1],['HOMBROS','42,40 34,42 29,50 28,62 33,64 38,56 43,48',1],['PECHO','59,42 45,42 40,50 40,62 48,68 59,66',1],
+  ['BÍCEPS','29,66 34,66 39,60 40,72 37,86 30,88 27,78',1],['CORE','52,70 68,70 70,86 69,104 64,111 56,111 51,104 50,86',0],
+  ['CORE','41,65 48,70 49,86 50,104 44,103 41,86',1],['CUÁDRICEPS','48,124 58,127 58,142 56,166 53,177 46,177 42,160 42,138',1]],
+ B:[[null,'55,29 65,29 66,37 54,37',0],[null,'29,90 37,88 36,106 33,121 27,121 26,105',1],[null,'27,123 33,123 34,131 30,136 26,131',1],
+  [null,'45,179 53,179 53,184 45,184',1],[null,'46,222 51,222 50,236 46,236',1],[null,'44,238 51,238 52,244 41,245',1],
+  [null,'45,96 51,99 52,106 54,113 45,113 43,104',1],['ESPALDA','60,31 66,35 75,41 68,49 62,64 58,64 52,49 45,41 54,35',0],
+  ['ESPALDA','44,47 51,52 57,66 57,90 51,95 45,90 42,70',1],['ESPALDA','53,98 59,97 59,112 55,112 52,105',1],
+  ['HOMBROS','42,40 34,42 29,50 28,61 33,63 39,54 43,46',1],['TRÍCEPS','28,64 33,65 39,58 39,70 38,86 31,88 27,77',1],
+  ['GLÚTEOS','45,116 59,115 59,138 52,142 45,137 43,126',1],['ISQUIOS','44,141 51,144 58,141 57,166 54,177 46,177 43,160',1],
+  ['GEMELOS','44,186 53,186 54,202 51,220 46,220 43,202',1]],
+ T:{ act:{tb:150,ts:400,sd:950,tt:1250,tn:1450,tl:1700,ad:900,cap:.6,soft:true},
+     main:{tb:150,ts:450,sd:750,tt:1150,tn:1350,tl:1650,ad:1500,cap:1,soft:false},
+     sec:{tb:150,ts:400,sd:650,tt:1000,tn:1200,tl:1450,ad:1100,cap:1,soft:false},
+     fin:{tb:100,ts:300,sd:450,tt:700,tn:850,tl:1050,ad:1200,cap:1,soft:false} },
+ timer:null, after:null
+}
+BM.lv=r=>r>=.75?1:r>=.4?.55:r>=.15?.3:0
+BM.mir=p=>p.split(' ').map(q=>{const [x,y]=q.split(',');return (120-x)+','+y}).join(' ')
+BM.cy=p=>{const ys=p.split(' ').map(q=>+q.split(',')[1]);return ys.reduce((s,v)=>s+v,0)/ys.length}
+BM.fig=function(shapes,rel,t,id){
+  let base='',lit=''
+  const add=(k,p)=>{ base+='<polygon class="pl'+(k?' m':'')+'" points="'+p+'"/>'
+    const l=k?BM.lv(rel[k]||0):0, o=l*t.cap
+    if(o>0) lit+='<polygon class="lit'+(l===1&&!t.soft?' p1':'')+'" points="'+p+'" style="--o:'+o+';--d:'+Math.round(t.ts+t.sd*BM.cy(p)/250)+'ms" filter="url(#bmg'+id+')"/>' }
+  shapes.forEach(([k,p,m])=>{ add(k,p); if(m) add(k,BM.mir(p)) })
+  return '<svg viewBox="0 0 120 250" aria-hidden="true"><defs><filter id="bmg'+id+'" x="-40%" y="-40%" width="180%" height="180%"><feGaussianBlur in="SourceGraphic" stdDeviation="2.2" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>'+
+    '<linearGradient id="bms'+id+'" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stop-color="#5FD4E0" stop-opacity="0"/><stop offset=".85" stop-color="#5FD4E0" stop-opacity=".5"/><stop offset="1" stop-color="#D9F6FA"/></linearGradient></defs>'+
+    '<ellipse class="pl" cx="60" cy="17" rx="10" ry="12.5"/>'+base+lit+'<rect class="scan" x="14" y="-14" width="92" height="14" fill="url(#bms'+id+')"/></svg>'
+}
+// Aporte del bloque bi → {GRUPO: relativo 0..1}, con el motor KD y claves canónicas
+function aporteBloque(b){
+  const ses={ bloques:[{ sets:b.sets||0, ejercicios:(b.bloque_ejercicios||[]).map(be=>{ const ej=be.ejercicios||{}
+    return { grupo:ej.grupo_muscular, sinergistas:ej.sinergistas||{}, cuenta_dosis:ej.cuenta_dosis, nombre:ej.nombre } }) }] }
+  const ap=KD.aporteSesionDOC3(kdNormSesion(ses), null).aporte, out={}
+  Object.entries(ap).forEach(([k,v])=>{ const K=KD.canon(k); if (KD.GRUPOS.indexOf(K)>-1) out[K]=(out[K]||0)+v })
+  const mx=Math.max(0,...Object.values(out)); if(mx>0) Object.keys(out).forEach(k=>out[k]=out[k]/mx)
+  return out
+}
+function cerrarBodyMap(){
+  const el=document.getElementById('oBM'); if(!el||!el.classList.contains('vis')) return
+  clearTimeout(BM.timer); el.classList.add('out')
+  setTimeout(()=>{ el.classList.remove('vis','out'); el.innerHTML=''; const f=BM.after; BM.after=null; if(f) f() },220)
+}
+function transicionBloque(bi){
+  const bfs=S._bfs||[], b=bfs[bi]; if(!b) return
+  const el=document.getElementById('oBM'); if(!el){ return }
+  const rol=String(b.rol||'').toLowerCase(), et=String(b.etiqueta||'').toUpperCase()
+  const pend=bfs.map((x,i)=>i).filter(i=>i!==bi && !bloqueCompleto(bfs[i]))
+  const ultimo=pend.length===0
+  const NOM={B1:'ACTIVACIÓN',B2:'FUERZA PRINCIPAL',B3:'CIERRE ACCESORIO'}
+  let v = (rol==='activacion' || /ACTIV/.test(et)) ? 'act' : (/FINISHER/.test(et) || ultimo) ? 'fin' : (rol==='fuerza_principal' || /PRINCIPAL/.test(et)) ? 'main' : 'sec'
+  const t=BM.T[v]
+  const tit = et==='PRINCIPAL' ? 'BLOQUE PRINCIPAL' : (et || NOM[b.bloque] || ('BLOQUE '+(bi+1)))
+  const linea = ultimo ? 'SOLO QUEDA CERRAR.' : v==='act' ? 'CUERPO LISTO.' : v==='main' ? 'TRABAJO HECHO.' : 'SIGUE.'
+  let rel={}; try{ rel=aporteBloque(b) }catch(e){ klog&&klog('BODYMAP_ERR',{e:String(e)}) }
+  const ord=Object.entries(rel).map(([k,r])=>[k,r,BM.lv(r)]).filter(x=>x[2]>0).sort((a,c)=>c[1]-a[1]).slice(0,3)
+  const nombres=ord.map(([k,r,l],i)=>{ const n=l===1?3:l===.55?2:1
+    return '<div class="kbm__mu'+(n===3?'':n===2?' l2':' l3')+'" style="--d:'+(t.tn+i*90)+'ms"><span>'+[0,1,2].map(j=>'<i class="'+(j<n?'on':'')+'"></i>').join('')+'</span>'+k+'</div>' }).join('')
+  const segs=bfs.map((x,i)=>'<i class="'+(i===bi?'n':bloqueCompleto(x)?'d':'')+'"></i>').join('')
+  el.className='kbm'+(t.soft?' soft':'')
+  el.style.cssText='--tb:'+t.tb+'ms;--ts:'+t.ts+'ms;--sd:'+t.sd+'ms;--tt:'+t.tt+'ms;--tl:'+t.tl+'ms;--ad:'+t.ad+'ms'
+  el.innerHTML='<div class="kbm__top"><b>BLOQUE '+(bi+1)+' DE '+bfs.length+'</b><span>toca para seguir</span></div>'+
+    '<div class="kbm__st"><div class="kbm__bd"><div class="kbm__fg">'+BM.fig(BM.F,rel,t,'f')+'<small>FRONTAL</small></div><div class="kbm__fg">'+BM.fig(BM.B,rel,t,'b')+'<small>POSTERIOR</small></div></div></div>'+
+    '<div class="kbm__cp"><div class="kbm__tt'+(tit.length>13?' kbm__tt--lg':'')+'">'+tit+' <i>✓</i></div><div class="kbm__ms">'+nombres+'</div>'+
+    '<div class="kbm__ft"><span class="kbm__ln">'+linea+'</span><span class="kbm__sg">'+segs+'</span></div></div><div class="kbm__au"><i></i></div>'
+  el.setAttribute('aria-label', tit+' completado. '+ord.map(x=>x[0]).join(', ')+'. '+linea)
+  el.onclick=cerrarBodyMap
+  BM.after=()=>{ const dest= ultimo ? document.getElementById('slFin') : document.getElementById('blq-'+pend.find(i=>i>bi) ) || document.getElementById('blq-'+pend[0])
+    if(dest&&dest.scrollIntoView) dest.scrollIntoView({behavior: matchMedia('(prefers-reduced-motion:reduce)').matches?'auto':'smooth', block:'start'}) }
+  el.classList.add('vis')
+  if(navigator.vibrate) navigator.vibrate(12)
+  clearTimeout(BM.timer); BM.timer=setTimeout(cerrarBodyMap, t.tl+t.ad+(matchMedia('(prefers-reduced-motion:reduce)').matches?900:0))
+}
 function chequearBloque(bId){
   const bi=S._bfs.findIndex(b=>b.id===bId); if(bi<0)return
   const b=S._bfs[bi]
@@ -3220,9 +3347,10 @@ function chequearBloque(bId){
     const bes=b.bloque_ejercicios||[]
     completo = bes.length>0 && bes.every(be=>setsHechosDe(be.id,b.sets)>=b.sets)
   }
-  if (completo && !S['_fl'+bi]){ S['_fl'+bi]=true
-    const [t,s]=frasesBloque(S.bloquesListos); S.bloquesListos++
-    flash(t,s)
+  if (!S._flb) S._flb={}
+  if (completo && !S._flb[bi]){ S._flb[bi]=true
+    S.bloquesListos++
+    transicionBloque(bi)
   }
 }
 let SE={k:null}
