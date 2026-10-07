@@ -1165,7 +1165,7 @@ html,button,input,.pvS,.chk,.setChip{touch-action:manipulation}
 .k2 .tabbar{bottom:calc(10px + env(safe-area-inset-bottom,0px));background:rgba(251,250,248,.92);backdrop-filter:blur(14px);border:1px solid var(--k2-line);box-shadow:var(--k2-shadow);border-radius:999px;padding:6px}
 .k2 .tb{border-radius:999px;color:var(--k2-g3)}
 .k2 .tb.on{background:var(--k2-carbon);color:var(--k2-off)}
-.k2 .vista.conTab{padding-bottom:calc(124px + env(safe-area-inset-bottom,0px))}
+.k2 .vista.conTab{padding-bottom:calc(96px + env(safe-area-inset-bottom,0px))}
 @media (prefers-reduced-motion:reduce){ .k2-ring__val,.k2-bar i,.k2-hero,.k2-cta{transition:none} }
 @media (max-width:350px){ .k2-week{gap:var(--k2-s3)} .k2-week__ring{width:112px;height:112px} .k2-week__ring svg{width:112px;height:112px} .k2-week__v b{font-size:34px} }
 /* ═══ KOACH MUSCLE STIMULUS WHEEL ═══ */
@@ -3039,6 +3039,24 @@ function saludoDe(ctx){
   const fam = S.frases?.saludos?.[ctx] || ['De vuelta a la sala, {n}.']
   return fam[Math.floor(Math.random()*fam.length)].replace('{n}', S.perfil.nombre||'')
 }
+
+/* c35 · TITULARES QUE SE ADAPTAN AL LARGO DEL NOMBRE: nunca se corta una palabra; el tamaño baja hasta que la palabra
+   más larga cabe y el titular ocupa como máximo 3 líneas (manual: display bold, palabras completas). */
+function fitTitulo(el, max, min, lineas){
+  if(!el || !el.offsetParent) return
+  el.style.overflowWrap='normal'; el.style.wordBreak='keep-all'; el.style.hyphens='none'
+  let fs=max; el.style.fontSize=fs+'px'
+  const lh=()=>parseFloat(getComputedStyle(el).lineHeight)||fs*.9
+  let guard=40
+  while(guard-- > 0 && fs>min && (el.scrollWidth>el.clientWidth+1 || el.offsetHeight>lh()*(lineas||3)+2)){ fs-=2; el.style.fontSize=fs+'px' }
+}
+function fitTitulares(){
+  document.querySelectorAll('.hh__t').forEach(function(el){ fitTitulo(el, Math.min(84, Math.round(el.clientWidth*.2)), 30, 3) })
+  document.querySelectorAll('#vSesion .kh__t').forEach(function(el){ fitTitulo(el, 58, 28, 2) })
+}
+;(function(){ let t; window.addEventListener('resize',function(){ clearTimeout(t); t=setTimeout(fitTitulares,120) })
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(fitTitulares) })()
+
 function pintarHome(){
   cargandoOff()
   document.getElementById('tabbar').classList.add('vis')
@@ -3131,6 +3149,7 @@ function pintarHome(){
   // Anatomía SOCIO: meta ↔ completado. Barra = 100% del target. Sin semáforo, sin techo, sin proyección.
   pintarFilasMusc('hRows')
   pintarHomeV2()
+  requestAnimationFrame(fitTitulares)
 }
 function pintarFilasMusc(elId){
   const sem=S.sem||{}; const orden=sem.musculos||[]
@@ -3605,7 +3624,7 @@ function pintarSesion(){
   }).join('')
   document.getElementById('sFin').style.display='block'
   document.getElementById('syncTag').style.display='block'
-  syncOk()
+  syncOk(); requestAnimationFrame(fitTitulares)
 }
 let _pend=0
 function syncEnvio(){ _pend++; const t=document.getElementById('syncTag'); t.className='envio'; t.textContent='GUARDANDO…' }
