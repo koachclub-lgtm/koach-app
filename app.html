@@ -170,6 +170,18 @@ html[data-tipo="a"] body{word-spacing:.03em}
 .kcr__perf b{display:block;margin-top:6px;font:800 clamp(40px,12vw,60px)/.9 var(--font-display);font-stretch:108%;font-variant-numeric:tabular-nums;letter-spacing:-.01em}
 .kcr__perf b span{font-size:.42em;letter-spacing:.02em;margin-left:6px}
 .kcr__perf em{display:block;margin-top:6px;font:400 10.5px var(--font-mono);font-style:normal;letter-spacing:.04em;color:var(--mu)}
+/* c27 · HOY: MI SEMANA con métricas arriba de la rueda */
+.k2h__p b{font-weight:800;font-stretch:104%;text-transform:uppercase;color:#FFFFFF}
+.k2-m3{display:grid;grid-template-columns:.8fr 2fr;border-top:2px solid #0B0B0C;border-bottom:1px solid rgba(11,11,12,.14);margin:6px 0 10px}
+.k2-m3>div{padding:12px 0}.k2-m3>div+div{padding-left:14px;border-left:1px solid rgba(11,11,12,.14)}
+.k2-m3 small{display:block;font:700 10px var(--font-mono);letter-spacing:.08em;color:#5E6066}
+.k2-m3 b{display:block;margin-top:6px;font:700 30px/.95 var(--font-mono);letter-spacing:-.04em;color:#0B0B0C;font-variant-numeric:tabular-nums}
+.k2-m3 b span{font-size:13px;letter-spacing:0;color:#6F7377}
+.k2-m3 em{display:block;margin-top:6px;font:400 10px var(--font-mono);font-style:normal;letter-spacing:.04em;color:#5E6066}
+.k2-m3__bar{height:6px;border-radius:3px;background:rgba(11,11,12,.1);margin-top:8px;overflow:hidden}
+.k2-m3__bar i{display:block;height:100%;width:0;background:#0B0B0C;transition:width .5s ease}
+.k2-m3__obj{margin:8px 0 0;text-align:center;font:400 10.5px var(--font-mono);letter-spacing:.04em;color:#5E6066}.k2-m3__obj b{color:#0B0B0C}
+@media (prefers-reduced-motion:reduce){.k2-m3__bar i{transition:none}}
 /* c18.3 CAPA BRAND STRONG — generada desde el CSS existente; solo aplica con html[data-tipo="a"] */
 html[data-tipo="a"] .kH1,html[data-tipo="a"] .kH2,html[data-tipo="a"] .wl__h,html[data-tipo="a"] .wel__h,html[data-tipo="a"] .wl__fin h2,html[data-tipo="a"] .sp__t,html[data-tipo="a"] .lgTit,html[data-tipo="a"] .kh__t,html[data-tipo="a"] .kh--ses .kh__t,html[data-tipo="a"] .k2h__t,html[data-tipo="a"] .k2-hero h2,html[data-tipo="a"] .k2-hello h1,html[data-tipo="a"] .hx__t,html[data-tipo="a"] .hh__t,html[data-tipo="a"] .bv__hero .hh__t,html[data-tipo="a"] .kwin__msg,html[data-tipo="a"] .kbm__tt,html[data-tipo="a"] .avTop h3,html[data-tipo="a"] .fz h3,html[data-tipo="a"] .mkd h3,html[data-tipo="a"] .uH,html[data-tipo="a"] .oFoto h2{font-stretch:112%;text-transform:uppercase;letter-spacing:-.005em}
 html[data-tipo="a"] .rwn,html[data-tipo="a"] .mk__kg,html[data-tipo="a"] .k2-week__v b,html[data-tipo="a"] .avPr__n,html[data-tipo="a"] .anillo .c b,html[data-tipo="a"] #oRw .rwSt b,html[data-tipo="a"] .pgc__n,html[data-tipo="a"] .fzP,html[data-tipo="a"] .avRes b,html[data-tipo="a"] .kc-mt b,html[data-tipo="a"] .ast b,html[data-tipo="a"] .kw-cv,html[data-tipo="a"] .avCs b,html[data-tipo="a"] .whG b,html[data-tipo="a"] .uSem b,html[data-tipo="a"] .p2St b,html[data-tipo="a"] .k2-metric b,html[data-tipo="a"] .hx__best b,html[data-tipo="a"] .hh__n b,html[data-tipo="a"] .avPr b,html[data-tipo="a"] .whH b{font-family:var(--font-mono);font-weight:700;letter-spacing:-.04em}
@@ -1996,7 +2008,7 @@ function pintarWheelPlan(){
   el.innerHTML='<div class="kwCard__h"><small>ESTÍMULO MUSCULAR · ESTA SEMANA</small><b>Balance de la semana</b></div>'+
     stimulusWheel(wd,{variant:'detailed',theme:'dark',size:340,center:{v:(S.sem.fortalecidos||0)+'/'+(S.sem.exigibles||0),l:'OBJETIVOS'},onTap:'wheelDetalle'})+
     '<div class="kwLeg"><span><i style="background:#2A2B2F"></i>META</span><span><i style="background:linear-gradient(90deg,#8C9199,#fff)"></i>HECHO</span><span><i style="background:#E9EBEE;height:3px"></i>SOBRE LA META</span><span><i style="background:repeating-linear-gradient(45deg,#E9EBEE 0 2px,#121212 2px 4px);height:4px"></i>SOBRE EL LÍMITE</span></div>'+
-    '<div class="kwRes">'+(rs.top.length?'<div><small>MÁS TRABAJADOS</small><b>'+rs.top.join(', ')+'</b></div>':'')+(rs.falta.length?'<div><small>AÚN FALTA ESTÍMULO</small><b>'+rs.falta.join(', ')+'</b></div>':'')+'</div>'
+    '<div class="kwRes">'+(rs.top.length?'<div><small>MÁS ESTÍMULO ESTA SEMANA</small><b>'+rs.top.join(' · ')+'</b></div>':'')+(rs.falta.length?'<div><small>AÚN POR DESARROLLAR</small><b>'+rs.falta.join(' · ')+'</b></div>':'')+'</div>'
 }
 function wheelDatosSocio(){
   const prog={}
@@ -2113,8 +2125,23 @@ function k2Contour(){
     d+='<path d="'+p+'" />' }
   return '<svg class="k2h__lines" viewBox="0 0 420 240" preserveAspectRatio="xMaxYMin slice" aria-hidden="true">'+d+'</svg>'
 }
-function k2HeaderHero(n){
-  const frase=tonoPrograma().construir.replace('Hoy comenzamos a construir','Hoy seguimos construyendo')
+/* c27 · frase del hero según la sesión real de hoy (músculos = objetivos directos de la sesión) */
+function listaNatural(a){ return a.length<=1 ? (a[0]||'') : a.slice(0,-1).join(', ')+' y '+a[a.length-1] }
+function fraseHoy(c){
+  const base=tonoPrograma().construir.replace('Hoy comenzamos a construir','Hoy seguimos construyendo')
+  if (!c || S.memBloqueo) return base
+  const g=((c.obj&&c.obj.prim)||[]).map(x=>String(muscleNombre(x)||'').toLowerCase()).filter(Boolean)
+  const b=t=>'<b>'+t+'</b>', nom=c.ses&&c.ses.nombre?c.ses.nombre:''
+  if (c.sesEC) return 'Vamos en la mitad de tu '+b(nom||'sesión')+'. Termina lo que empezaste.'
+  if (c.e && c.e.entrenoHoy) return g.length ? 'Hoy ya entrenaste '+b(listaNatural(g.slice(0,3)))+'. Ahora toca recuperar.' : 'Hoy ya entrenaste. Ahora toca recuperar.'
+  if (c.e && c.e.completa) return 'Semana completa. Ahora toca recuperar y volver más fuerte.'
+  if (!c.ses) return base
+  if (!g.length) return 'Hoy toca '+b(nom)+' para seguir construyendo tu versión más fuerte.'
+  if (g.length>=4) return 'Hoy nos toca un '+b('full body')+': '+listaNatural(g.slice(0,4))+'.'
+  return 'Hoy nos toca entrenar '+b(listaNatural(g))+' para seguir construyendo tu versión más fuerte.'
+}
+function k2HeaderHero(n, ctx){
+  const frase=fraseHoy(ctx)
   return '<header class="k2h">'+
     '<svg class="k2h__bg" viewBox="0 0 400 262" preserveAspectRatio="none" aria-hidden="true"><path d="M0 0 H400 V262 C400 246 386 232 362 232 H46 C21 232 0 213 0 188 Z"/></svg>'+
     k2Contour()+
@@ -2175,22 +2202,47 @@ function pintarHomeV2(){
   else if (!e.completa && e.total && e.hechas>0 && e.hechas>=Math.ceil(e.total/2)) ins=['VAS POR BUEN CAMINO.','Completaste '+e.hechas+' de '+e.total+' sesiones esta semana.']
   const semTxt=(S.asig?'SEMANA '+(S.asig.semana_actual||1)+' DE '+((S.proto&&S.proto.ciclo_semanas)||6)+' · CICLO '+(S.asig.ciclo_actual||1):'')
   box.innerHTML=
-   k2HeaderHero(n)+
+   k2HeaderHero(n,{ses,sesEC,e,obj})+
    document.getElementById('hMemAviso').innerHTML+
-   (()=>{ const wd=wheelDatosSocio(), rs=wheelResumen(wd)
-     return '<section class="k2-wk" aria-label="Tu semana">'+
-     '<div class="k2-sec__h">'+k2Label('TRABAJO SEMANAL')+'<button class="k2-wk__e" onclick="tab(\'vPlan\');setTimeout(()=>{ const d=document.getElementById(\'pDist\'); if(d) d.scrollIntoView({behavior:\'smooth\'}) },250)">'+etapaSemana(e.pct).charAt(0)+etapaSemana(e.pct).slice(1).toLowerCase()+
-       ' <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><circle cx="12" cy="12" r="10.5" fill="none" stroke="currentColor" stroke-width="1.3"/><path d="M9 15l6-6M10 9h5v5" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg></button></div>'+
-     stimulusWheel(wd,{variant:'compact',theme:'light',size:300,center:{v:e.pct+'%',l:'OBJETIVO|SEMANAL'},onTap:'wheelDetalle'})+
-     '<div class="k2-week__m k2-wk__m">'+k2Metric(e.hechas+'<small> / '+e.total+'</small>','SESIONES')+k2Metric((sem.fortalecidos||0)+'<small> / '+(sem.exigibles||0)+'</small>','OBJETIVOS')+'</div>'+
-     '<div class="kwRes">'+(rs.top.length?'<div><small>MÁS TRABAJADOS</small><b>'+rs.top.join(', ')+'</b></div>':'')+(rs.falta.length?'<div><small>AÚN FALTA ESTÍMULO</small><b>'+rs.falta.join(', ')+'</b></div>':'')+
-       (rs.over.length?'<div><small>SOBRE EL LÍMITE</small><b>'+rs.over.join(', ')+'</b></div>':'')+'</div>'+
-     '<div class="k2-week__c" style="text-align:center">'+(PROGRAMA_TXT())+semTxt+' · TOCA UN MÚSCULO PARA VER DETALLE</div></section>' })()+
    homeHero({ ses, sesEC, e, m, ctaT, ctaS, disabled:cta.disabled, obj })+
    '<section class="k2-sec">'+'<div class="k2-sec__h">'+k2Label('TU SEMANA')+'<button class="k2-link" onclick="tab(\'vPlan\')">VER PLAN COMPLETO →</button></div><div class="k2-pills">'+tl+'</div></section>'+
+   (()=>{ const wd=wheelDatosSocio(), rs=wheelResumen(wd)
+     return '<section class="k2-wk" aria-label="Tu semana">'+
+     '<div class="k2-sec__h">'+k2Label('MI SEMANA')+'<button class="k2-wk__e" onclick="tab(\'vPlan\');setTimeout(()=>{ const d=document.getElementById(\'pDist\'); if(d) d.scrollIntoView({behavior:\'smooth\'}) },250)">'+etapaSemana(e.pct).charAt(0)+etapaSemana(e.pct).slice(1).toLowerCase()+
+       ' <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><circle cx="12" cy="12" r="10.5" fill="none" stroke="currentColor" stroke-width="1.3"/><path d="M9 15l6-6M10 9h5v5" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg></button></div>'+
+     '<div class="k2-m3"><div><small>SESIONES</small><b>'+e.hechas+'<span>/'+e.total+'</span></b><em>COMPLETADAS</em></div>'+
+       '<div><small>CARGA SEMANAL</small><b id="k2Carga">—</b><div class="k2-m3__bar"><i id="k2CargaBar"></i></div><em id="k2CargaT">CALCULANDO…</em></div></div>'+
+     stimulusWheel(wd,{variant:'compact',theme:'light',size:300,center:{v:e.pct+'%',l:'OBJETIVO|SEMANAL'},onTap:'wheelDetalle'})+
+     '<p class="k2-m3__obj">OBJETIVO SEMANAL <b>'+e.pct+'%</b> · '+(sem.fortalecidos||0)+' DE '+(sem.exigibles||0)+' METAS MUSCULARES</p>'+
+     '<div class="kwRes">'+(rs.top.length?'<div><small>MÁS ESTÍMULO ESTA SEMANA</small><b>'+rs.top.join(' · ')+'</b></div>':'')+(rs.falta.length?'<div><small>AÚN POR DESARROLLAR</small><b>'+rs.falta.join(' · ')+'</b></div>':'')+
+       (rs.over.length?'<div><small>SOBRE EL LÍMITE</small><b>'+rs.over.join(', ')+'</b></div>':'')+'</div>'+
+     '<div class="k2-week__c" style="text-align:center">'+(PROGRAMA_TXT())+semTxt+' · TOCA UN MÚSCULO PARA VER DETALLE</div></section>' })()+
 
    (ins?'<section class="k2-ins"><b>'+ins[0]+'</b><p>'+ins[1]+'</p></section>':'')
   requestAnimationFrame(()=>requestAnimationFrame(()=>box.classList.add('k2-in')))
+  cargaSemanalPintar()
+}
+/* c27 · CARGA SEMANAL = Σ peso × reps de series completadas desde el lunes (misma regla que Avances/credencial).
+   Referencia = carga de la semana pasada: siempre real, y "más fuerte que la anterior" es el método. */
+let _cargaAt=0
+async function cargaSemanalPintar(forzar){
+  const pinta=function(c){ const b=document.getElementById('k2Carga'), t=document.getElementById('k2CargaT'), br=document.getElementById('k2CargaBar'); if(!b||!c) return
+    b.innerHTML=Math.round(c.esta).toLocaleString('es-CL')+'<span> KG</span>'
+    if (c.pasada>0){ const p=Math.round(c.esta/c.pasada*100); br.style.width=Math.min(100,p)+'%'
+      t.textContent = p>=100 ? 'SUPERASTE LA SEMANA PASADA ('+Math.round(c.pasada).toLocaleString('es-CL')+' KG)' : p+'% DE LA SEMANA PASADA · '+Math.round(c.pasada).toLocaleString('es-CL')+' KG' }
+    else { br.style.width=c.esta>0?'100%':'0'; t.textContent = c.esta>0 ? 'PRIMERA SEMANA CON REGISTRO' : 'AÚN SIN SERIES ESTA SEMANA' } }
+  if (S.carga && !forzar && Date.now()-_cargaAt<60000){ pinta(S.carga); return }
+  try{
+    const hoy=new Date(), lun=new Date(hoy); lun.setDate(hoy.getDate()-((hoy.getDay()+6)%7)); const ant=new Date(lun); ant.setDate(lun.getDate()-7)
+    const L=fLocal(lun), A=fLocal(ant)
+    const r=await sb.from('set_registros').select('peso,reps,completado,sesiones_registro!inner(fecha,estado)').eq('socio_id',S.perfil.id).eq('completado',true).gte('sesiones_registro.fecha',A).limit(5000)
+    if (r.error) throw r.error
+    const c={esta:0,pasada:0}
+    ;(r.data||[]).forEach(function(x){ const sr=x.sesiones_registro||{}, p=+x.peso||0, n=parseInt(String(x.reps||'').match(/\d+/)||0,10)||0
+      if (sr.estado==='anulada' || p<=0 || p>500 || !n) return
+      if (sr.fecha>=L) c.esta+=p*n; else c.pasada+=p*n })
+    S.carga=c; _cargaAt=Date.now(); pinta(c)
+  }catch(e){ const t=document.getElementById('k2CargaT'); if(t) t.textContent='NO DISPONIBLE'; console.error('carga semanal',e) }
 }
 function PROGRAMA_TXT(){ return S.proto&&S.proto.programa ? 'PROGRAMA '+String(S.proto.programa).toUpperCase()+' · ' : '' }
 // ═══════════ v8.2 · KOACH MUSCLE TARGET SYSTEM ═══════════
