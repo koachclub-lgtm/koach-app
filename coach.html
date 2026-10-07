@@ -4912,10 +4912,15 @@ function kidTone(id){ const a=C.asig&&C.asig[id], p=String((a&&a.protocolos&&a.p
 /* Código del socio: profiles.numero_socio (correlativo, lo asigna la base al registrarse y no cambia).
    Barras = Code 39 real del texto "K00025": escaneable cuando haya validación de credencial. */
 function kodeTxt(n){ return n!=null ? String(n).padStart(5,'0') : null }
-const K39={'0':'000110100','1':'100100001','2':'001100001','3':'101100000','4':'000110001','5':'100110000','6':'001110000','7':'000100101','8':'100100100','9':'001100100','K':'100000011','*':'010010100'}
-function kodeSvg(cod){ const t='*K'+(cod||'00000')+'*'; let x=0, r=''
+/* Member ID KOACH: KCH-<n.º de socio>-<mes/año de ingreso>. No incluye el programa: el ID dura toda la vida del socio
+   aunque cambie de STRONG a BURN. Las barras codifican exactamente este texto (Code 39). */
+function koachId(p){ p=p||{}; if(p.numero_socio==null) return null
+  const d=new Date(String(p.fecha_inicio||p.created_at||'').slice(0,10)+'T12:00:00'), ok=!isNaN(d)
+  return 'KCH-'+String(p.numero_socio).padStart(5,'0')+(ok?'-'+String(d.getMonth()+1).padStart(2,'0')+String(d.getFullYear()).slice(2):'') }
+const K39={'0':'000110100','1':'100100001','2':'001100001','3':'101100000','4':'000110001','5':'100110000','6':'001110000','7':'000100101','8':'100100100','9':'001100100','C':'101001000','H':'100001100','K':'100000011','-':'010000101','*':'010010100'}
+function kodeSvg(id){ const t='*'+String(id||'KCH-00000').toUpperCase().replace(/[^0-9CHK-]/g,'')+'*'; let x=0, r=''
   for(const ch of t){ const p=K39[ch]||K39['0']; for(let k=0;k<9;k++){ const w=p[k]==='1'?3:1; if(k%2===0) r+='<rect x="'+x+'" y="0" width="'+w+'" height="10"/>'; x+=w } x+=1 }
-  return '<svg viewBox="0 0 '+(x-1)+' 10" preserveAspectRatio="none" role="img" aria-label="Código K'+(cod||'')+'" fill="currentColor">'+r+'</svg>' }
+  return '<svg viewBox="0 0 '+(x-1)+' 10" preserveAspectRatio="none" role="img" aria-label="Member ID '+(id||'')+'" fill="currentColor">'+r+'</svg>' }
 function kidCard(id, nombre, estado, sub, live){
   const so=(C.socios||[]).find(function(x){return x.id===id})||(C.pres||[]).find(function(x){return x.socio_id===id})||{}
   const nom=String(nomDe(id)||nombre||so.nombre||'Socio').trim(), w=nom.split(/\s+/)
@@ -4926,7 +4931,7 @@ function kidCard(id, nombre, estado, sub, live){
       '<span class="kid__pr">'+plEsc(T.p)+(cod?'<em>#'+cod+'</em>':'')+'</span><img src="/img/brand/isotipo-blanco.png" alt="" width="14" height="15"></div>'+
     '<div class="kid__n"><span>'+plEsc(n1)+'</span>'+(n2?'<span>'+plEsc(n2)+'</span>':'')+'</div>'+
     '<div class="kid__st">'+(live?'<i aria-hidden="true"></i>':'')+plEsc(estado)+'</div>'+
-    '<div class="kid__f"><small>'+plEsc(sub||'')+'</small><span class="kid__bc" aria-hidden="true">'+kodeSvg(cod)+'</span></div></a>'
+    '<div class="kid__f"><small>'+plEsc(sub||'')+'</small><span class="kid__bc" aria-hidden="true">'+kodeSvg(koachId(so))+'</span></div></a>'
 }
 function kidDur(m){ return m<60 ? m+' MIN' : Math.floor(m/60)+'H '+String(m%60).padStart(2,'0')+'M' }
 let _recAt=0, _recRun=false
