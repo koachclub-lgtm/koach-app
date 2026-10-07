@@ -150,6 +150,9 @@ html[data-tipo="a"] body{word-spacing:.03em}
 #vPerfil .memCard{background:transparent;border:0;border-top:2px solid #0B0B0C;border-bottom:1px solid rgba(11,11,12,.18);border-radius:0;padding:14px 2px 16px;margin:14px 0 12px}
 #vPerfil .memCard .mK{font:700 10.5px var(--font-mono);letter-spacing:.08em;color:#0B0B0C}
 #vPerfil .memCard .mH{font-weight:800;font-stretch:108%;text-transform:uppercase;font-size:22px;letter-spacing:-.005em;margin-top:10px}
+#vPerfil .memCard .mDias{display:flex;align-items:baseline;gap:12px;margin:10px 0 6px}
+#vPerfil .memCard .mDias b{font-family:'Space Mono','IBM Plex Mono',monospace;font-weight:700;font-size:clamp(64px,20vw,88px);line-height:.9;letter-spacing:-.04em;color:#0B0B0C;font-variant-numeric:tabular-nums}
+#vPerfil .memCard .mDias span{font:700 12px 'Space Mono','IBM Plex Mono',monospace;letter-spacing:.12em;color:#0B0B0C}
 #vPerfil .memCard .mS{font:400 10.5px/1.6 var(--font-mono);letter-spacing:.04em;color:#43464A}
 #vPerfil .memCard .mBtns button,#vPerfil .memCard .mCta{border-radius:6px;min-height:44px;font:700 10.5px var(--font-mono);letter-spacing:.06em;border:1px solid rgba(11,11,12,.3)}
 #vPerfil .memCard .mCta{display:flex;align-items:center;justify-content:center;background:#0B0B0C;color:#F4F3F0;border-color:#0B0B0C;text-decoration:none}
@@ -4880,8 +4883,12 @@ function pintarMembresia(){
   if (!m){ el.innerHTML='<div class="memCard"><div class="mK">KOACH MEMBERSHIP</div><div class="mS">Tu membresía aún no está registrada en la app. Consulta en recepción.</div></div>'; return }
   const pagosM=(S.pagos||[])
   el.innerHTML='<div class="memCard"><div class="mK"><span>KOACH MEMBERSHIP</span><span class="mE '+m.estado_calc+'">'+(_MEST[m.estado_calc]||'')+'</span></div>'+
-    '<div class="mH">'+(S.memFinAcceso?'Vigente hasta el '+_fm(S.memFinAcceso):_fm(m.fecha_inicio)+' — '+_fm(m.fecha_fin))+'</div>'+
-    '<div class="mS">'+[S.proto?String(S.proto.programa||'').toUpperCase():null, trayectoriaMeses()?trayTxt(trayectoriaMeses())+' DE TRAYECTORIA':null, S.memDiasAcceso!=null?S.memDiasAcceso+' DÍAS RESTANTES':null, 'PLAN '+String(m.duracion_label||(m.meses+' MESES')).toUpperCase()].filter(Boolean).join(' · ')+'</div>'+
+    // c36 · lo relevante primero: los días que quedan (cifra dominante, como el panel del coach); la vigencia pasa a detalle
+    (S.memDiasAcceso!=null
+      ? '<div class="mDias"><b>'+S.memDiasAcceso+'</b><span>'+(S.memDiasAcceso===1?'DÍA RESTANTE':'DÍAS RESTANTES')+'</span></div>'
+      : '<div class="mH">'+_fm(m.fecha_inicio)+' — '+_fm(m.fecha_fin)+'</div>')+
+    '<div class="mS">PLAN PAGADO · '+_fm(m.fecha_inicio).toUpperCase()+' → '+_fm(S.memFinAcceso||m.fecha_fin).toUpperCase()+'</div>'+
+    '<div class="mS">'+[S.proto?String(S.proto.programa||'').toUpperCase():null, 'PLAN '+String(m.duracion_label||(m.meses+' MESES')).toUpperCase(), trayectoriaMeses()?trayTxt(trayectoriaMeses())+' DE TRAYECTORIA':null].filter(Boolean).join(' · ')+'</div>'+
     '<div class="mBtns"><button onclick="det(\'dPagos\')">VER PAGOS · '+pagosM.length+'</button><button onclick="det(\'dMemH\')">VER HISTORIAL · '+S.mem.length+'</button></div>'+
     '<div class="det" id="dPagos">'+(pagosM.length?pagosM.map(p=>'<div class="mLi"><span>'+_fm(p.fecha_pago)+'</span><span>$'+(+p.monto_final).toLocaleString('es-CL')+' · '+String(p.estado).toUpperCase()+'</span></div>').join(''):'Sin pagos registrados.')+'</div>'+
     '<div class="det" id="dMemH">'+S.mem.map(x=>'<div class="mLi"><span>'+(x.duracion_tipo==='dia'?_fm(x.fecha_inicio):_fm(x.fecha_inicio)+' — '+_fm(x.fecha_fin))+'</span><span>'+(x.duracion_label||x.meses+' M')+' · '+(_MEST[x.estado_calc]||'')+'</span></div>').join('')+'</div>'+
