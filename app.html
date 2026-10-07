@@ -592,6 +592,7 @@ html,button,input,.pvS,.chk,.setChip{touch-action:manipulation}
 .ks__cta{grid-column:1/-1;min-height:54px;border:0;border-radius:16px;background:#F4F3F0;color:#121212;font-family:var(--font-mono);font-weight:500;font-size:11px;letter-spacing:.12em;cursor:pointer}
 .ks__sec{min-height:48px;border-radius:16px;border:1px solid rgba(255,255,255,.22);background:transparent;color:#F4F3F0;font-family:var(--font-mono);font-weight:500;font-size:10px;letter-spacing:.12em;cursor:pointer}
 .ks__st{min-height:18px;margin:12px 2px 0;font-size:13px;color:#A7A9AE}
+.kUpd{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(96px + env(safe-area-inset-bottom,0px));z-index:1500;min-height:48px;padding:0 18px;border:0;border-radius:999px;background:#111;color:#F6F5F2;font:700 11px 'Space Mono','IBM Plex Mono',monospace;letter-spacing:.12em;box-shadow:0 10px 30px rgba(0,0,0,.25);cursor:pointer;white-space:nowrap}
 /* ═══ c30 · RUTINA ACTIVA · HYBRID EDITORIAL (hueso, grises suaves, negro; celeste solo como punto de señal) ═══ */
 #vSesion{--wxBg:#F6F5F2;--wxP:#ECEBE7;--wxP2:#E3E2DE;--wxLn:rgba(17,17,17,.12);--wxInk:#111;--wxG5:#4A4945;--wxG4:#6B6A65;--wxG3:#9A9993;--wxSig:#3FA9B5;
   --wxD:'KOACH Display','Inter Display',Inter,Arial,sans-serif;--wxM:'Space Mono','IBM Plex Mono',monospace;font-variant-numeric:tabular-nums}
@@ -3506,6 +3507,24 @@ function wxRestFin(){ clearInterval(S._restT); S.rest=null; pintarSesion() }
 function wxKgHoy(){ let t=0; Object.values(S.setLog||{}).forEach(f=>{ if(f&&f.peso!=null) t+=(+f.peso||0)*(parseInt(f.reps)||0) }); return Math.round(t) }
 function wxSetsHoy(bfs){ let h=0,t=0; bfs.forEach(b=>{ if(esCircuito(b)){ t+=b.sets; h+=rondasHechas(b.id,b.sets) } else (b.bloque_ejercicios||[]).forEach(be=>{ t+=b.sets; h+=setsHechosDe(be.id,b.sets) }) }); return [h,t] }
 
+
+/* c31 · ACTUALIZACIÓN AUTOMÁTICA: cada deploy cambia el ETag del HTML. Al volver a la app (o cada 10 min) se compara;
+   si cambió, recarga sola. Si el socio está entrenando, no interrumpe: muestra "NUEVA VERSIÓN · ACTUALIZAR" (los sets ya están guardados). */
+;(function(){
+  let base=null, avisado=false
+  async function etag(){ try{ const r=await fetch(location.pathname+'?v='+Date.now(),{method:'HEAD',cache:'no-store'}); return r.headers.get('etag')||r.headers.get('last-modified') }catch(_){ return null } }
+  function entrenando(){ const v=document.getElementById('vSesion'); return !!(v&&v.classList.contains('on')) }
+  function aviso(){ if(avisado) return; avisado=true
+    const b=document.createElement('button'); b.type='button'; b.className='kUpd'; b.textContent='NUEVA VERSIÓN DE KOACH · ACTUALIZAR'
+    b.onclick=function(){ location.reload() }; document.body.appendChild(b) }
+  async function revisar(){ const e=await etag(); if(!e) return
+    if(base==null){ base=e; return }
+    if(e!==base){ if(entrenando()) aviso(); else location.reload() } }
+  setTimeout(revisar,4000)
+  document.addEventListener('visibilitychange',function(){ if(document.visibilityState==='visible') revisar() })
+  window.addEventListener('pageshow',function(ev){ if(ev.persisted) revisar() })
+  setInterval(revisar,10*60*1000)
+})()
 function pintarSesion(){
   cargandoOff()
   const ses=S.sesionAbierta
