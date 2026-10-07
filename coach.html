@@ -1422,6 +1422,56 @@ html.selAbierto,html.selAbierto body{overflow:hidden}
 .salaQ{position:relative}
 .salaQx{position:absolute;right:6px;top:50%;transform:translateY(-50%);width:36px;height:36px;border:0;border-radius:10px;background:rgba(18,18,18,.08);font-size:20px;line-height:1;color:#121212;cursor:pointer}
 .salaQ input::-webkit-search-cancel-button{display:none}
+
+/* ═══ c45 · CONTROL DE SESIONES (panel compacto en un solo screen) ═══ */
+.cc__h{display:flex;justify-content:space-between;align-items:baseline;gap:10px;flex-wrap:wrap;margin-bottom:10px}
+.cc__w{font-family:var(--font-mono);font-size:12px;letter-spacing:.1em;color:#5E5D59}.cc__w b{color:#121212;font-size:14px}
+.cc{display:grid;grid-template-columns:1fr;gap:12px}
+@media (min-width:900px){ .cc{grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);align-items:stretch} }
+.cc__l{display:flex;flex-direction:column;gap:10px;min-width:0}
+.cc__r{min-width:0;padding:12px 14px;border-radius:16px;background:#fff;border:1px solid rgba(18,18,18,.1)}
+.ccLive{display:flex;flex-wrap:wrap;align-items:center;gap:6px 10px;padding:10px 14px;border-radius:14px;border:1.5px solid #2BB8C7;background:rgba(43,184,199,.06)}
+.ccLive b{font-family:var(--font-display);font-size:17px}.ccLive small{flex-basis:100%;font-family:var(--font-mono);font-size:11.5px;color:#5E5D59}
+.ccLive em,.ccR em,.ccNext em{font-style:normal;font-family:var(--font-mono);font-size:12px;color:#8E8D88;margin-right:6px}
+.ccNext{flex:1;display:flex;gap:16px;align-items:stretch;padding:16px;border-radius:16px;background:#121212;color:#F4F3F0}
+.ccNext__n{font-family:var(--font-mono);font-weight:700;font-size:64px;line-height:.9;letter-spacing:-.04em;color:#F4F3F0}
+.ccNext__c{display:flex;flex-direction:column;gap:6px;min-width:0;flex:1}
+.ccNext__c small{font-family:var(--font-mono);font-size:11px;letter-spacing:.14em;color:#A9A8A3}
+.ccNext__c b{font-family:var(--font-display);font-weight:800;font-size:24px;line-height:1.1}
+.ccNext__p{display:flex;flex-wrap:wrap;align-items:center;gap:8px}.ccNext__p span:last-child{font-size:13.5px;color:#C9C8C3}
+.ccBtns{display:flex;flex-wrap:wrap;gap:8px;margin-top:6px}
+.ccB{display:inline-flex;align-items:center;justify-content:center;min-height:44px;padding:0 14px;border-radius:12px;border:1px solid rgba(18,18,18,.22);background:#fff;color:#121212;text-decoration:none;font-family:var(--font-mono);font-weight:500;font-size:11.5px;letter-spacing:.1em;cursor:pointer;white-space:nowrap}
+.ccNext .ccB{background:transparent;color:#F4F3F0;border-color:rgba(244,243,240,.35)}
+.ccNext .ccB--on{background:#F4F3F0;color:#121212;border-color:#F4F3F0}
+.ccB--ink{background:#121212;color:#F4F3F0;border-color:#121212}
+.ccB--lnk{border-color:transparent;background:none;text-decoration:underline;text-underline-offset:3px}
+.ccNext .ccB--lnk{color:#C9C8C3}
+.ccA__h{display:flex;align-items:center;gap:10px;margin-bottom:6px}
+.ccA__h b{font-family:var(--font-mono);font-weight:700;font-size:40px;line-height:1}.ccA__h span{font-family:var(--font-mono);font-size:11px;letter-spacing:.14em;color:#5E5D59;line-height:1.3}
+.ccA__ok{font-size:14px;color:#5E5D59;padding:6px 0}
+.ccL{list-style:none;margin:0;padding:0;display:flex;flex-direction:column}
+.ccR{display:grid;grid-template-columns:minmax(0,1fr) auto auto;align-items:center;gap:8px;padding:9px 0;border-top:1px solid rgba(18,18,18,.08)}
+.ccR__t b{display:block;font-family:var(--font-display);font-size:15.5px;line-height:1.15;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ccR__t small{display:block;font-family:var(--font-mono);font-size:11px;letter-spacing:.04em;color:#5E5D59;margin-top:2px}
+.ccWk{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px;margin-top:12px}
+.ccWk__i{display:flex;align-items:center;gap:10px;min-height:52px;padding:6px 12px;border-radius:12px;background:#fff;border:1px solid rgba(18,18,18,.12);color:#121212;text-decoration:none}
+.ccWk__i i{font-style:normal;font-size:17px;width:18px;text-align:center}
+.ccWk__i span{flex:1;min-width:0;font-family:var(--font-display);font-weight:700;font-size:14px;line-height:1.1}
+.ccWk__i span em{display:block;font-style:normal;font-family:var(--font-mono);font-size:10.5px;color:#8E8D88}
+.ccWk__i small{font-family:var(--font-mono);font-size:10px;letter-spacing:.1em;color:#5E5D59}
+.ccWk__i--completada{background:rgba(18,18,18,.04)}
+.ccWk__i--sin_cerrar{border-style:dashed}
+.ccWk__i--hab{border-color:#2BB8C7;box-shadow:inset 0 0 0 1px #2BB8C7}.ccWk__i--hab small{color:#13808C}
+.ccWk__i--en_curso{border-color:#121212}
+@media (max-width:640px){ .ccR{grid-template-columns:minmax(0,1fr) auto} .ccR .opPill{display:none} .ccNext__n{font-size:44px} .ccNext__c b{font-size:20px} .ccB{white-space:normal} }
+/* cabecera del socio más compacta en escritorio: deja el primer viewport para operar */
+@media (min-width:900px){
+  .mh{padding:10px 16px 0;margin-bottom:10px}
+  .mh__av,.mh__av .kav{width:64px !important;height:64px !important;font-size:26px !important}
+  .mh__n h1{font-size:clamp(24px,2.2vw,30px) !important}
+  .mh__s b{font-size:clamp(32px,3vw,44px)}
+  .mh__bar{margin-top:8px}.mh__doors button{min-height:44px}
+}
 /* ═══ FIN CAPA 3 ═══ */
 /* ═══ MOTOR DE CONSTRUCCIÓN c8.0 · MACRO → MESO → MICRO ═══ */
 .plNav{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin:0 0 14px}
@@ -6107,46 +6157,69 @@ function scCuando(t, conDia){ if(!t) return ''; const d=new Date(t), hoy=new Dat
   const dia = d.toDateString()===hoy.toDateString() ? 'HOY' : d.toDateString()===ay.toDateString() ? 'AYER' : DS[d.getDay()]+' '+d.getDate()+' '+MS[d.getMonth()]
   return dia+(conDia===false?'':' · '+String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0')) }
 const SC_PILL={ completada:['COMPLETADA','ok'], en_curso:['EN CURSO','live'], sin_cerrar:['SIN CERRAR','warn'], incompleta:['INCOMPLETA','mute'], pendiente:['PENDIENTE','mute'] }
+// c45 · CONTROL DE SESIONES (panel, no feed): izquierda = AHORA + SIGUIENTE (acción dominante); derecha = REQUIEREN
+// ATENCIÓN en filas compactas (máx. 3 + VER TODAS); abajo = la semana en una línea. Detalle a pedido (RESOLVER).
+function scIncOrden(ab){ return ab.filter(function(a){return a.abandonada}).sort(function(a,b){
+  return ((b.parece_completa?1:0)-(a.parece_completa?1:0)) || (new Date(b.iniciada_at||b.fecha)-new Date(a.iniciada_at||a.fecha)) }) }
+function scIncFila(a){
+  const nom=plEsc(String(a.nombre||'SESIÓN').toUpperCase()), lab=scIdx(a.sesion_id), falta=Math.max(0,(a.total_ejercicios||0)-(a.ejercicios||0))
+  return '<li class="ccR" id="ccR_'+a.id+'"><div class="ccR__t"><b>'+(lab?'<em>'+lab+'</em>':'')+nom+'</b>'+
+    '<small>'+a.ejercicios+'/'+a.total_ejercicios+' EJ · '+a.sets+' SETS'+(falta&&!a.parece_completa?' · '+falta+' PEND.':'')+' · '+scCuando(a.iniciada_at||a.fecha)+'</small></div>'+
+    (a.parece_completa?'<span class="opPill opPill--ok">PARECE COMPLETA</span><button type="button" class="ccB ccB--ink" onclick="scFinalizar(\''+a.id+'\')">FINALIZAR →</button>'
+      :'<span class="opPill opPill--warn">SIN CERRAR</span><button type="button" class="ccB" onclick="scResolver(\''+a.id+'\')">RESOLVER →</button>')+'</li>'
+}
+function scResolver(rid){
+  const a=((SC.st&&SC.st.abiertas)||[]).find(function(x){return x.id===rid}); if(!a) return
+  const falta=Math.max(0,(a.total_ejercicios||0)-(a.ejercicios||0))
+  scModal(String(a.nombre||'SESIÓN').toUpperCase(),'<p class="gpTxt">'+scCuando(a.iniciada_at||a.fecha)+' · <b>'+a.ejercicios+' / '+a.total_ejercicios+'</b> ejercicios · <b>'+a.sets+'</b> sets registrados'+(falta?' · faltan '+falta:'')+'.</p>'+
+    '<p class="gpTxt">Cerrarla conserva sus sets y deja avanzar la secuencia.</p><div class="gpErr" id="scErr" style="display:none"></div>'+
+    '<button type="button" class="mSG__ok" onclick="scAccion(\'cerrar\',\''+rid+'\')">CERRAR INCOMPLETA</button>'+
+    '<button type="button" class="mSG__sec" onclick="scFinalizar(\''+rid+'\')">FINALIZAR COMO COMPLETADA…</button>'+
+    (a.sets>0?'':'<button type="button" class="mSG__sec" onclick="scAccion(\'anular\',\''+rid+'\')">ANULAR INICIO (FUE POR ERROR)</button>')+
+    '<button type="button" class="mSG__sec" onclick="scCerrar()">VOLVER</button>')
+}
+function scVerTodas(){
+  const inc=scIncOrden((SC.st&&SC.st.abiertas)||[])
+  scModal('REQUIEREN ATENCIÓN · '+inc.length,'<ul class="ccL">'+inc.map(scIncFila).join('')+'</ul><button type="button" class="mSG__sec" onclick="scCerrar()">CERRAR</button>')
+}
 function scPintar(){
   const st=SC.st||{}, el=document.getElementById('scCard'); if(!el||!st.activo){ if(el) el.innerHTML=''; return }
   const ses=st.sesiones||[], ab=st.abiertas||[], px=st.proxima, hb=st.habilitada, sig=st.siguiente_tras_abierta
-  let h='<div class="opH"><div class="kcK">OPERACIÓN DE HOY</div><div class="opH__w">SEMANA '+(st.semana||'—')+(st.total_semanas?' DE '+st.total_semanas:'')+'</div></div>'
-  // 1 · INCIDENCIAS: sesiones sin cerrar (días anteriores o sin actividad > 3 h). La que se está entrenando ahora es solo informativa.
-  ab.forEach(function(a){
-    const nom=plEsc(String(a.nombre||'SESIÓN').toUpperCase()), lab=scIdx(a.sesion_id), falta=Math.max(0,(a.total_ejercicios||0)-(a.ejercicios||0))
-    if (!a.abandonada){
-      h+='<div class="opLive"><span class="opPill opPill--live">EN CURSO AHORA</span><b>'+(lab?lab+' · ':'')+nom+'</b><small>'+a.ejercicios+' / '+a.total_ejercicios+' ejercicios · '+a.sets+' sets · desde '+scCuando(a.iniciada_at)+'</small></div>'; return }
-    h+='<div class="opInc" role="status"><div class="opInc__h"><span class="opPill opPill--warn">SESIÓN SIN CERRAR</span>'+(a.parece_completa?'<span class="opPill opPill--ok">PARECE COMPLETA</span>':'')+'</div>'+
-      '<div class="opInc__t">'+(lab?'<em>'+lab+'</em>':'')+nom+'</div>'+
-      '<div class="opInc__m">'+scCuando(a.iniciada_at||a.fecha)+' · <b>'+a.ejercicios+' / '+a.total_ejercicios+'</b> ejercicios · '+a.sets+' sets</div>'+
-      '<div class="opInc__s">'+(a.parece_completa?'Registró todo, pero no tocó FINALIZAR.':'Faltan '+falta+' ejercicio'+(falta===1?'':'s')+'. El socio no cerró esta sesión.')+'</div>'+
-      '<div class="opBtns">'+(a.parece_completa
-        ? '<button type="button" class="opB opB--ink" onclick="scFinalizar(\''+a.id+'\')">FINALIZAR SESIÓN</button><button type="button" class="opB" onclick="scCerrarInc(\''+a.id+'\')">CERRAR INCOMPLETA</button>'
-        : '<button type="button" class="opB opB--ink" onclick="scCerrarInc(\''+a.id+'\')">CERRAR INCOMPLETA</button><button type="button" class="opB" onclick="scFinalizar(\''+a.id+'\')">FINALIZAR…</button>')+
-      (a.sets>0?'':'<button type="button" class="opB opB--lnk" onclick="scAccion(\'anular\',\''+a.id+'\')" title="Solo inicios sin datos">ANULAR INICIO</button>')+'</div></div>' })
-  // 2 · SIGUIENTE
+  const vivo=ab.filter(function(a){return !a.abandonada}), inc=scIncOrden(ab)
+  const prog=st.programadas||ses.length, hechas=st.hechas||0, sinC=ses.filter(function(z){return z.estado==='sin_cerrar'}).length
+  let h='<div class="cc__h"><span class="kcK">CONTROL DE SESIONES</span><span class="cc__w">SEMANA '+(st.semana||'—')+(st.total_semanas?' DE '+st.total_semanas:'')+
+    ' · <b>'+hechas+'/'+prog+'</b> COMPLETADAS'+(sinC?' · '+sinC+' SIN CERRAR':'')+'</span></div><div class="cc">'
+  // ── IZQUIERDA: AHORA + SIGUIENTE
+  h+='<div class="cc__l">'
+  vivo.forEach(function(a){ const lab=scIdx(a.sesion_id)
+    h+='<div class="ccLive"><span class="opPill opPill--live">EN CURSO · AHORA</span><b>'+(lab?'<em>'+lab+'</em>':'')+plEsc(String(a.nombre||'').toUpperCase())+'</b>'+
+      '<small>'+a.ejercicios+'/'+a.total_ejercicios+' EJ · '+a.sets+' SETS · DESDE '+scCuando(a.iniciada_at)+'</small></div>' })
   const bloqueada = px && !px.habilitada && px.estado==='sin_cerrar'
   let pill='', sub='', b1='', b2=''
-  const abrir=F?'<a class="opB opB--ink" href="'+urlRutina(F.id)+'" onclick="return rtIr(event,\''+urlRutina(F.id)+'\')">ABRIR RUTINA</a>':''
-  if (!px){ pill='<span class="opPill opPill--ok">SEMANA COMPLETA</span>'; sub='Completó todas las sesiones de la semana. Puedes darle una sesión extra.' }
+  const abrir=F?'<a class="ccB ccB--on" href="'+urlRutina(F.id)+'" onclick="return rtIr(event,\''+urlRutina(F.id)+'\')">ABRIR RUTINA</a>':''
+  if (!px){ pill='<span class="opPill opPill--ok">SEMANA COMPLETA</span>'; sub='Puedes darle una sesión extra.' }
   else if (hb){ pill='<span class="opPill opPill--on">'+(hb.extra?'EXTRA · ':'')+'HABILITADA ✓</span>'; sub='El socio ya puede verla'+(hb.permite_hoy?' · también hoy':'')+'.'
-    b1=abrir; b2='<button type="button" class="opB" onclick="scAccion(\'quitar_habilitacion\')">QUITAR HABILITACIÓN</button>' }
-  else if (bloqueada){ pill='<span class="opPill opPill--warn">ESPERA CIERRE</span>'; sub='Hoy el socio vería '+scIdx(px.id)+' '+plEsc(String(px.nombre||'').toUpperCase())+' de nuevo, hasta que cierres esa sesión o habilites la siguiente.'
-    if (sig) b1='<button type="button" class="opB opB--ink" onclick="scHabilitarDirecto(\''+sig.id+'\')">HABILITAR '+scIdx(sig.id)+' DE TODAS FORMAS</button>' }
-  else if (st.entreno_hoy){ pill='<span class="opPill opPill--mute">MAÑANA</span>'; sub='Ya completó una sesión hoy.'
-    b1='<button type="button" class="opB opB--ink" onclick="scHabilitarDirecto(\''+px.id+'\')">HABILITAR PARA HOY</button>' }
+    b1=abrir; b2='<button type="button" class="ccB ccB--lnk" onclick="scAccion(\'quitar_habilitacion\')">QUITAR HABILITACIÓN</button>' }
+  else if (bloqueada){ pill='<span class="opPill opPill--warn">ESPERA CIERRE</span>'; sub='Hay una sesión sin cerrar: habilítala igual o cierra la anterior.'
+    if (sig) b1='<button type="button" class="ccB ccB--on" onclick="scHabilitarDirecto(\''+sig.id+'\')">HABILITAR AHORA</button>' }
+  else if (st.entreno_hoy){ pill='<span class="opPill opPill--mute">YA ENTRENÓ HOY</span>'; sub='Puedes habilitarla igual para hoy.'
+    b1='<button type="button" class="ccB ccB--on" onclick="scHabilitarDirecto(\''+px.id+'\')">HABILITAR AHORA</button>' }
   else { pill='<span class="opPill opPill--on">DISPONIBLE</span>'; sub='El socio ya puede iniciarla.'; b1=abrir }
-  const pxNom = !px ? 'SEMANA COMPLETA' : (bloqueada && sig ? sig.nombre : px.nombre)
-  const pxLab = !px ? '' : scIdx(bloqueada && sig ? sig.id : px.id)
-  h+='<div class="opNext"><small>SIGUIENTE</small><div class="opNext__t">'+(pxLab?'<em>'+pxLab+'</em>':'')+plEsc(String(pxNom||'').toUpperCase())+pill+'</div><div class="opNext__s">'+sub+'</div>'+
-    '<div class="opBtns">'+b1+b2+'<button type="button" class="opB" onclick="scElegir()">ELEGIR OTRA</button></div></div>'
-  // 3 · ESTA SEMANA
-  if (ses.length) h+='<div class="opWk"><div class="opWk__h"><span>ESTA SEMANA</span><b>'+(st.hechas||0)+' / '+(st.programadas||ses.length)+'</b></div>'+ses.map(function(z,i){
+  const pxS = !px ? null : (bloqueada && sig ? sig : px), pxLab = pxS ? scIdx(pxS.id) : ''
+  h+='<div class="ccNext"><div class="ccNext__n" aria-hidden="true">'+(pxLab?pxLab.replace('S','').padStart(2,'0'):'✓')+'</div><div class="ccNext__c">'+
+    '<small>SIGUIENTE SESIÓN</small><b>'+plEsc(String(pxS?pxS.nombre:'SEMANA COMPLETA').toUpperCase())+'</b><div class="ccNext__p">'+pill+'<span>'+sub+'</span></div>'+
+    '<div class="ccBtns">'+b1+'<button type="button" class="ccB" onclick="scElegir()">ELEGIR OTRA</button>'+b2+'</div></div></div></div>'
+  // ── DERECHA: REQUIEREN ATENCIÓN
+  h+='<div class="cc__r"><div class="ccA__h"><b>'+inc.length+'</b><span>REQUIEREN<br>ATENCIÓN</span></div>'+
+    (inc.length ? '<ul class="ccL">'+inc.slice(0,3).map(scIncFila).join('')+'</ul>'+(inc.length>3?'<button type="button" class="ccB ccB--lnk" onclick="scVerTodas()">VER LAS '+inc.length+' →</button>':'')
+               : '<div class="ccA__ok">Todo cerrado. Sin sesiones pendientes de resolver.</div>')+'</div></div>'
+  // ── SEMANA en una línea
+  if (ses.length) h+='<div class="ccWk" aria-label="Semana">'+ses.map(function(z,i){
       const u='#/socio/'+F.id+'/plan?w='+st.semana+'&s='+z.id, esX=hb&&hb.sesion_id===z.id, pl=SC_PILL[z.estado]||SC_PILL.pendiente
       const ic={completada:'✓',en_curso:'●',sin_cerrar:'◐',incompleta:'–',pendiente:'○'}[z.estado]||'○'
-      return '<a class="opRow opRow--'+z.estado+(esX?' opRow--hab':'')+'" href="'+u+'" onclick="return rtIr(event,\''+u+'\')" title="Abrir en el planificador"><i aria-hidden="true">'+ic+'</i>'+
-        '<span><em>S'+(i+1)+'</em>'+plEsc(String(z.nombre||'').toUpperCase())+'</span><small>'+(z.estado==='completada'&&z.cuando?scCuando(z.cuando):'')+'</small>'+
-        (esX&&z.estado!=='completada'?'<span class="opPill opPill--on">HABILITADA</span>':z.estado==='pendiente'?'':'<span class="opPill opPill--'+pl[1]+'">'+pl[0]+'</span>')+'</a>' }).join('')+'</div>'
+      return '<a class="ccWk__i ccWk__i--'+z.estado+(esX?' ccWk__i--hab':'')+'" href="'+u+'" onclick="return rtIr(event,\''+u+'\')" title="Abrir en el planificador">'+
+        '<i aria-hidden="true">'+ic+'</i><span><em>'+String(i+1).padStart(2,'0')+'</em>'+plEsc(String(z.nombre||'').toUpperCase())+'</span>'+
+        '<small>'+(esX&&z.estado!=='completada'?'HABILITADA':pl[0])+'</small></a>' }).join('')+'</div>'
   el.innerHTML=h
 }
 // FINALIZAR: completa solo si está todo registrado; si falta, se ofrece cerrar como incompleta (no se falsifica adherencia)
