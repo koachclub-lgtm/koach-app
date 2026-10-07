@@ -164,6 +164,23 @@ button.bxI:hover,button.bxI:focus-visible{transform:translateY(-2px);box-shadow:
 .nu__cta[disabled]{opacity:.5;cursor:progress}
 #mAdmBody .vt{margin-top:4px}
 @media (max-width:640px){ .nu{padding:14px;border-radius:18px} .nu__s{grid-template-columns:1fr} .nu__n{display:none} .nu__g,.vtR2{grid-template-columns:1fr} .vtBig{font-size:38px} }
+
+/* c38 · control de acceso */
+.acBan{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px;margin:10px 0 12px;padding:14px 16px;border-radius:16px;background:#121212;color:#F4F3F0}
+.acBan--pr{background:#FBFAF8;color:#121212;border:1px solid rgba(18,18,18,.18)}
+.acBan__t{display:flex;gap:12px;align-items:flex-start;min-width:0;flex:1 1 320px}
+.acBan__d{flex:none;width:10px;height:10px;border-radius:50%;background:#E0533D;margin-top:5px}.acBan--pr .acBan__d{background:#C9A227}
+.acBan b{display:block;font-family:var(--font-mono);font-weight:500;font-size:12.5px;letter-spacing:.12em}
+.acBan small{display:block;margin-top:4px;font-size:13.5px;line-height:1.45;opacity:.8}
+.acBan__b{display:flex;gap:8px;flex-wrap:wrap}
+.acBan__b button,.acCtl__b button{min-height:44px;padding:0 16px;border-radius:999px;border:1px solid currentColor;background:none;color:inherit;font-family:var(--font-mono);font-size:11.5px;letter-spacing:.1em;cursor:pointer}
+.acBan__b button.ink{background:#F4F3F0;color:#121212;border-color:#F4F3F0}.acBan--pr .acBan__b button.ink{background:#121212;color:#F4F3F0;border-color:#121212}
+.acCtl{display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:space-between;margin:0 0 12px;padding:14px 16px;border-radius:16px;border:1px solid rgba(18,18,18,.18);background:#FBFAF8;color:#121212}
+.acCtl--on{background:#121212;color:#F4F3F0;border-color:#121212}
+.acCtl__k{font-family:var(--font-mono);font-size:10.5px;letter-spacing:.16em;opacity:.65}
+.acCtl__t{margin-top:4px;font-family:var(--font-mono);font-size:13px;letter-spacing:.06em}
+.acCtl__s{margin-top:4px;font-size:13px;line-height:1.45;opacity:.75;max-width:640px}
+.acCtl__b{display:flex;gap:8px;flex-wrap:wrap}.acCtl__b button.ink{background:#121212;color:#F4F3F0}
 </style>
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
@@ -1689,6 +1706,7 @@ html.ks-on #vSala .salaQ input{font:500 17px var(--font-display) !important;lett
   <div id="admIng"></div>
   <div id="admVenc"></div>
   <input id="admBusca" placeholder="Buscar socio…" oninput="admPintar()">
+  <div id="admCtrl"></div>
   <div class="adChips" id="admF"></div>
   <div id="admLista"><div class="vacio">Cargando…</div></div>
 </div>
@@ -1718,6 +1736,7 @@ html.ks-on #vSala .salaQ input{font:500 17px var(--font-display) !important;lett
       <div class="mh__acc" id="fAccCtx"></div>
     </div>
   </section>
+  <div id="fAccBan" aria-live="polite"></div>
   <div id="fTabAdm" style="display:none"></div>
   <div id="fTabEnt">
   <div class="fCtx" id="fCtx"></div>
@@ -2363,6 +2382,7 @@ function cerrarTab(id){ window._tabs=window._tabs.filter(function(x){return x!==
 function verSala(){ vista('vSala'); pintarSala(); rtSet('#/', 'Sala | KOACH'); socRTSeguir(null) }
 
 function verFicha(id, sinRuta){
+  accBan._sid=null; const _ab=document.getElementById('fAccBan'); if(_ab) _ab.innerHTML=''
   F = C.socios.find(function(s){return s.id===id}); if(!F) return
   if (!sinRuta) rtPush('#/socio/'+id); document.title = rtNombreCorto(id)+' · Perfil | KOACH'
   socRTSeguir(id)
@@ -4634,7 +4654,7 @@ async function solResolver(id, estado){
 async function verAdmin(){
   vista('vAdmin')
   document.getElementById('admLista').innerHTML='<div class="vacio">Cargando…</div>'
-  await adCargarResumen()
+  await Promise.all([adCargarResumen(), accCargarTodos()])
   admPintar()
 }
 // Fin del ACCESO: períodos encadenados (pago adelantado) cuentan como uno solo
@@ -4662,8 +4682,10 @@ function admPintar(){
   const porActivar=function(sid){ return est[sid].k==='sin' || !C.asig[sid] }
   const esUgc=function(sid){ const m=adMemVigente(sid); return !!(m && m.tipo_comercial==='ugc') }
   if (((C.yo&&C.yo.role)||'')==='admin') admIngresos(); else { const _ing=document.getElementById('admIng'); if(_ing) _ing.innerHTML='' }
-  const F2=[['activar','POR ACTIVAR'],['todos','TODOS'],['activa','ACTIVOS'],['proxima','PRÓXIMOS A VENCER'],['vencida','VENCIDOS'],['congelada','CONGELADOS'],['pago','PAGO PENDIENTE'],['ugc','UGC'],['sin','SIN MEMBRESÍA']]
-  const cuenta=function(k){ return soc.filter(function(s){ return k==='todos'||(k==='activar'?porActivar(s.id):k==='pago'?pend.has(s.id):k==='ugc'?esUgc(s.id):(k==='activa'?['activa','futura'].indexOf(est[s.id].k)>-1:est[s.id].k===k)) }).length }
+  const F2=[['activar','POR ACTIVAR'],['todos','TODOS'],['activa','ACTIVOS'],['proxima','PRÓXIMOS A VENCER'],['vencida','VENCIDOS'],['congelada','CONGELADOS'],['pago','PAGO PENDIENTE'],['ugc','UGC'],['sin','SIN MEMBRESÍA'],['sinacc','SIN ACCESO A LA APP']]
+  const sinAcc=function(sid){ const a=AD.acc&&AD.acc[sid]; return !!a && ['ok','prorroga','staff'].indexOf(a.estado)<0 }
+  accCtrlPintar(soc.filter(function(s){ return sinAcc(s.id) }).length)
+  const cuenta=function(k){ return soc.filter(function(s){ return k==='todos'||(k==='sinacc'?sinAcc(s.id):k==='activar'?porActivar(s.id):k==='pago'?pend.has(s.id):k==='ugc'?esUgc(s.id):(k==='activa'?['activa','futura'].indexOf(est[s.id].k)>-1:est[s.id].k===k)) }).length }
   document.getElementById('admF').innerHTML=F2.map(function(f){ return '<button class="'+(AD.admF===f[0]?'on':'')+'" onclick="AD.admF=\''+f[0]+'\';admPintar()">'+f[1]+' · '+cuenta(f[0])+'</button>' }).join('')
   // PRÓXIMOS VENCIMIENTOS 30/14/7
   const pv=soc.map(function(s){ return [s, est[s.id].m] }).filter(function(p){ return p[1] && p[1].dias_acceso!=null && p[1].dias_acceso>=0 && p[1].dias_acceso<=30 })
@@ -4675,11 +4697,11 @@ function admPintar(){
     pv.map(function(p){ return '<div class="adLi" onclick="verFicha(\''+p[0].id+'\');fTab(\'adm\')" style="cursor:pointer"><span>'+adEsc(nomDe(p[0].id))+'<small>VENCE '+adF(p[1].fecha_fin)+'</small></span><span>'+p[1].dias_restantes+' D<small>'+tramo(p[1].dias_restantes)+'</small></span></div>' }).join('')+'</details>' : ''
   const b=(document.getElementById('admBusca').value||'').trim().toLowerCase()
   const l=soc.filter(function(s){ const k=AD.admF
-      return (k==='todos'||(k==='activar'?porActivar(s.id):k==='pago'?pend.has(s.id):k==='ugc'?esUgc(s.id):(k==='activa'?['activa','futura'].indexOf(est[s.id].k)>-1:est[s.id].k===k))) && (!b || bpScore(b, nomDe(s.id), [s.email,s.telefono].filter(Boolean).join(' '))>0) })
+      return (k==='todos'||(k==='sinacc'?sinAcc(s.id):k==='activar'?porActivar(s.id):k==='pago'?pend.has(s.id):k==='ugc'?esUgc(s.id):(k==='activa'?['activa','futura'].indexOf(est[s.id].k)>-1:est[s.id].k===k))) && (!b || bpScore(b, nomDe(s.id), [s.email,s.telefono].filter(Boolean).join(' '))>0) })
   document.getElementById('admCnt').textContent=soc.length+' SOCIOS'
   document.getElementById('admLista').innerHTML = l.length ? l.map(function(s){ const e=est[s.id], m=e.m
     return '<div class="adRow"><div class="adB"><div class="adN">'+adEsc(nomDe(s.id))+'</div><div class="adM">'+
-      '<span class="adTag'+(['vencida','sin'].indexOf(e.k)>-1?' ink':'')+'">'+e.t+'</span>'+(!C.asig[s.id]?'<span class="adTag ink">SIN PLANIFICACIÓN</span>':'')+(pend.has(s.id)?'<span class="adTag ink">PAGO PENDIENTE</span>':'')+
+      '<span class="adTag'+(['vencida','sin'].indexOf(e.k)>-1?' ink':'')+'">'+e.t+'</span>'+(!C.asig[s.id]?'<span class="adTag ink">SIN PLANIFICACIÓN</span>':'')+(pend.has(s.id)?'<span class="adTag ink">PAGO PENDIENTE</span>':'')+(sinAcc(s.id)?'<span class="adTag ink">'+(AD.accCtrl&&AD.accCtrl.on?'SIN ACCESO':'SE BLOQUEA EL '+adF(AD.accCtrl&&AD.accCtrl.desde).toUpperCase())+'</span>':(AD.acc&&AD.acc[s.id]&&AD.acc[s.id].estado==='prorroga'?'<span class="adTag">PRÓRROGA HASTA '+adF(AD.acc[s.id].prorroga_hasta).toUpperCase()+'</span>':''))+
       (s.registro_origen==='app'?'<span class="adTag">SE REGISTRÓ EN LA APP</span>':'')+
       (m?('<br>'+adF(m.fecha_inicio)+' — '+adF(m.fecha_fin)+' · '+m.dias_restantes+' D'):'')+'</div></div>'+
       '<button class="adGo" onclick="verFicha(\''+s.id+'\');fTab(\'adm\')">ABRIR →</button></div>' }).join('') : '<div class="vacio">Nadie en este filtro.</div>'
@@ -4972,7 +4994,7 @@ async function admGuardarPago(forzar){
     if (r.error){ syncErr(r.error.message); eb.innerHTML='<div class="vtErr" role="alert">'+adEsc(vtError(r.error.message))+'</div>'; return }
     syncOk(); admCerrar()
     toast(v.tipo_comercial==='ugc' ? 'UGC registrado ✓ · vigencia hasta '+adF(r.data.fin)+' · sin ingreso monetario' : 'Venta registrada ✓ · vigencia hasta '+adF(r.data.fin))
-    await adCargarResumen(); fAdmCargar()
+    await adCargarResumen(); fAdmCargar(); accBan(F.id)
   } finally { admGuardarPago._run=false; if(b && b.isConnected){ b.disabled=false; b.textContent='REGISTRAR' } }
 }
 function admFormPagoEdit(pid){
@@ -5844,6 +5866,68 @@ document.addEventListener('keydown', function(ev){
   if (!f.length) return; const a=f[0], z=f[f.length-1]
   if (ev.shiftKey && document.activeElement===a){ ev.preventDefault(); z.focus() } else if (!ev.shiftKey && document.activeElement===z){ ev.preventDefault(); a.focus() }
 })
+// ═══ c38 · CONTROL DE ACCESO POR PAGO (regla única en el servidor: koach_acceso_socio) ═══
+const ACC_EST={ sin_membresia:'SIN PAGO REGISTRADO', pago_pendiente:'PAGO PENDIENTE', vencida:'MEMBRESÍA VENCIDA', congelada:'MEMBRESÍA CONGELADA', futura:'MEMBRESÍA AÚN NO COMIENZA' }
+function accEsCom(){ const r=(C.yo&&C.yo.role)||''; return r==='admin'||r==='recepcion' }
+async function accCargarTodos(){
+  try{ const r=await sb.rpc('admin_acceso_socios'); if (r.error) return
+    AD.acc={}; (r.data||[]).forEach(function(x){ AD.acc[x.socio_id]=x }); const a=(r.data||[])[0]
+    AD.accCtrl = a ? { on:!!a.control, desde:a.control_desde } : AD.accCtrl }catch(_e){}
+}
+function accCtrlPintar(n){
+  const el=document.getElementById('admCtrl'); if (!el) return
+  const c=AD.accCtrl||{}, adm=((C.yo&&C.yo.role)||'')==='admin'
+  if (!c.desde && !adm){ el.innerHTML=''; return }
+  el.innerHTML='<div class="acCtl'+(c.on?' acCtl--on':'')+'"><div><div class="acCtl__k">CONTROL DE ACCESO POR PAGO</div>'+
+    '<div class="acCtl__t">'+(c.on?'ACTIVO':'SE ACTIVA EL '+adF(c.desde).toUpperCase())+' · <b>'+n+'</b> '+(n===1?'SOCIO':'SOCIOS')+(c.on?' SIN ACCESO':(n===1?' QUEDARÍA':' QUEDARÍAN')+' SIN ACCESO')+'</div>'+
+    '<div class="acCtl__s">Sin pago registrado o vigente, el socio ve los menús pero no su rutina ni su credencial. Regulariza con REGISTRAR PAGO o da una PRÓRROGA.</div></div>'+
+    '<div class="acCtl__b">'+(n?'<button type="button" onclick="AD.admF=\'sinacc\';admPintar()">VER '+n+' →</button>':'')+
+    (adm?(c.on?'<button type="button" onclick="accCtrlFecha(1)">POSPONER 1 DÍA</button>':'<button type="button" class="ink" onclick="accCtrlFecha(0)">ACTIVAR HOY</button>'):'')+'</div></div>'
+}
+async function accCtrlFecha(dias){
+  const d=new Date(); d.setDate(d.getDate()+dias); const f=fLocal(d)
+  if (!dias && !confirm('¿Activar hoy el control? Los socios sin pago registrado dejarán de ver su rutina y su credencial.')) return
+  const r=await sb.rpc('admin_control_acceso',{ p_desde:f })
+  if (r.error){ toast('No se pudo: '+r.error.message); return }
+  toast(dias?'Control pospuesto al '+adF(f):'Control de acceso ACTIVO ✓'); await accCargarTodos(); admPintar()
+}
+async function accBan(id){
+  const el=document.getElementById('fAccBan'); if (!el) return; el.innerHTML=''
+  const r=await sb.rpc('admin_acceso_de',{ p_socio:id }); if (!F || F.id!==id || r.error || !r.data) return
+  const a=r.data; if (AD.acc) AD.acc[id]=Object.assign({},AD.acc[id]||{},{ estado:a.estado, prorroga_hasta:a.prorroga_hasta })
+  if (a.estado==='ok' || a.estado==='staff') return
+  const com=accEsCom(), pr=a.estado==='prorroga'
+  const tit = pr ? 'ACCESO CON PRÓRROGA HASTA EL '+adF(a.prorroga_hasta).toUpperCase() : (a.control?'SIN ACCESO A LA APP · ':'SE BLOQUEA EL '+adF(a.control_desde).toUpperCase()+' · ')+(ACC_EST[a.estado]||'SIN PAGO')
+  const sub = pr ? 'Motivo: '+adEsc(a.prorroga_motivo||'—')+(a.prorroga_por?' · la dio '+adEsc(a.prorroga_por):'')+'. Al vencer, se bloquea si no hay pago registrado.'
+    : a.estado==='congelada' ? 'Vuelve a tener acceso al terminar el congelamiento.'
+    : a.estado==='futura' ? 'Su membresía registrada aún no comienza. Revisa las fechas si ya debería estar entrenando.'
+    : 'El socio ve los menús, pero no su rutina ni su credencial. Valida su pago o dale una prórroga si no puede pagar ahora.'
+  el.innerHTML='<div class="acBan'+(pr?' acBan--pr':'')+'" role="status"><div class="acBan__t"><span class="acBan__d" aria-hidden="true"></span><div><b>'+tit+'</b><small>'+sub+'</small></div></div><div class="acBan__b">'+
+    (com && !pr && a.estado!=='congelada' ? '<button type="button" class="ink" onclick="fTab(\'adm\');setTimeout(admFormPago,60)">REGISTRAR PAGO</button>' : com && pr ? '<button type="button" class="ink" onclick="fTab(\'adm\');setTimeout(admFormPago,60)">REGISTRAR PAGO</button>' : '')+
+    (a.estado!=='congelada' ? (pr?'<button type="button" onclick="accProrroga()">EXTENDER</button><button type="button" onclick="accProrrogaQuitar()">QUITAR PRÓRROGA</button>':'<button type="button" onclick="accProrroga()">DAR PRÓRROGA</button>') : '')+'</div></div>'
+}
+function accProrroga(){
+  admAbrir('PRÓRROGA DE ACCESO · '+nomDe(F.id).toUpperCase(),'<div class="adF"><label>DÍAS DE ACCESO MIENTRAS REGULARIZA</label><div class="adChips" id="prD">'+
+    [1,3,7,15].map(function(d){ return '<button type="button" data-d="'+d+'" class="'+(d===3?'on':'')+'" onclick="document.querySelectorAll(\'#prD button\').forEach(b=>b.classList.toggle(\'on\',b===this))">'+d+' DÍA'+(d>1?'S':'')+'</button>' }).join('')+'</div>'+
+    '<label>MOTIVO (OBLIGATORIO)</label><input id="prM" placeholder="Ej: paga el viernes por transferencia"></div>'+
+    '<div class="adNote">Mientras dure, el socio ve su rutina y su credencial. Queda registrado quién la dio y por qué. Al vencer, si no hay pago registrado, se bloquea solo.</div>'+
+    '<div id="prErr"></div><div class="adBtns"><button class="ink" id="prOk" onclick="accProrrogaDar()">DAR PRÓRROGA</button></div>')
+  setTimeout(function(){ const i=document.getElementById('prM'); if(i) i.focus() },60)
+}
+async function accProrrogaDar(){
+  const b=document.getElementById('prOk'); if (b.disabled) return
+  const d=+((document.querySelector('#prD button.on')||{}).dataset||{}).d||3, m=(document.getElementById('prM').value||'').trim()
+  if (m.length<3){ document.getElementById('prErr').innerHTML='<div class="vtErr">Indica el motivo de la prórroga.</div>'; return }
+  b.disabled=true; b.textContent='GUARDANDO…'
+  const r=await sb.rpc('admin_prorroga_dar',{ p_socio:F.id, p_dias:d, p_motivo:m })
+  if (r.error){ b.disabled=false; b.textContent='DAR PRÓRROGA'; document.getElementById('prErr').innerHTML='<div class="vtErr">'+adEsc(vtError(r.error.message))+'</div>'; return }
+  admCerrar(); toast('Prórroga hasta el '+adF(r.data.hasta)+' ✓'); accBan._sid=null; accBan(F.id); accBan._sid=F.id
+}
+async function accProrrogaQuitar(){
+  if (!confirm('¿Quitar la prórroga? Si no tiene pago registrado, pierde el acceso a su rutina de inmediato.')) return
+  const r=await sb.rpc('admin_prorroga_quitar',{ p_socio:F.id }); if (r.error){ toast('No se pudo: '+r.error.message); return }
+  toast('Prórroga quitada'); accBan(F.id)
+}
 // ═══ c11.1 · BÚSQUEDA DE PERSONAS (nombre + apellido, sin tildes, por palabras en cualquier orden, tolera un error de tipeo) ═══
 function bpNorm(t){ return String(t||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9@.+ ]/g,' ').replace(/\s+/g,' ').trim() }
 function _lev(a,b,max){ if (Math.abs(a.length-b.length)>max) return max+1; let p=Array.from({length:b.length+1},(_,i)=>i)
@@ -6104,6 +6188,7 @@ function plBarraSesion(ses){
 // ═══════════ c22 · CABECERA DEL SOCIO (member header) ═══════════
 function mhPintar(id, finAcc, dAcc){
   if (!F || F.id!==id) return
+  if (accBan._sid!==id){ accBan._sid=id; accBan(id) }
   if (finAcc===undefined){ const ms=(AD.mem||[]).filter(function(m){return m.socio_id===id && m.estado!=='cancelada'})
     if (!ms.length && !mhPintar._q){ mhPintar._q=1; sb.from('v_membresias').select('*').eq('socio_id',id).then(function(r){ mhPintar._q=0; if (F && F.id===id && r.data && r.data.length){ const v=r.data.filter(function(m){return m.estado!=='cancelada'}), f=adFinCadena(v); mhPintar(id, f, adDias(f)) } }) }
     finAcc=adFinCadena(ms); dAcc=adDias(finAcc) }

@@ -1,0 +1,5 @@
+-- Aplicadas en producción vía MCP el 07-oct-2026: koach_control_acceso_pago, koach_control_acceso_gate, koach_acceso_socio_staff.
+-- Regla única: koach_acceso_socio(socio) → ok | prorroga | sin_membresia | pago_pendiente | vencida | congelada | futura
+-- Interruptor: koach_ajustes['control_acceso_pago'].activo_desde (antes de esa fecha solo avisa)
+-- RLS: protocolos, sesiones_protocolo, bloques, bloque_ejercicios, volumen_objetivos exigen (select koach_gate()) al socio
+-- Prórrogas: acceso_prorrogas (1–31 días, motivo obligatorio, auditadas) vía admin_prorroga_dar / admin_prorroga_quitar

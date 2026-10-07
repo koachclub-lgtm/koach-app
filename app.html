@@ -12,7 +12,22 @@
 <link rel="manifest" href="/manifest.webmanifest">
 <meta name="theme-color" content="#000000">
 <meta name="color-scheme" content="only light">
-<style>:root{color-scheme:only light}</style>
+<style>:root{color-scheme:only light}
+/* c38 · control de acceso por pago */
+html.accBloq #vHome > :not(.lockAcc), html.accBloq #vPlan > :not(.lockAcc), html.accBloq #vAvances > :not(.lockAcc), html.accBloq #vHist > :not(.lockAcc){display:none!important}
+html.accBloq #vHome > #lock_vHome{display:flex!important} html.accBloq #vHome > #k2Home{display:none!important}
+html.accBloq #pfCard, html.accBloq #vPerfil .kpc__f, html.accBloq #vPerfil [onclick="abrirCredencial()"]{display:none!important}
+.lockAcc{margin:calc(18px + env(safe-area-inset-top,0px)) 16px 18px;padding:26px 22px;border-radius:22px;background:#121212;color:#F4F3F0;display:flex;flex-direction:column;align-items:flex-start}
+#vPerfil .lockAcc{margin-top:8px}
+.lockAcc__i{width:52px;height:52px;border-radius:50%;border:1px solid rgba(244,243,240,.3);display:flex;align-items:center;justify-content:center;margin-bottom:18px}
+.lockAcc__k{font-family:var(--font-mono,'Space Mono',monospace);font-size:11px;letter-spacing:.18em;color:#9C9B96}
+.lockAcc__t{margin:8px 0 10px;font-family:var(--font-display,'Archivo',sans-serif);font-weight:800;font-size:30px;line-height:1.02;letter-spacing:-.01em;text-transform:uppercase}
+.lockAcc__b{margin:0 0 20px;font-size:15px;line-height:1.5;color:#C9C8C3}
+.lockAcc__cta,.lockAcc__sec{display:flex;align-items:center;justify-content:center;width:100%;min-height:52px;border-radius:14px;font-family:var(--font-mono,'Space Mono',monospace);font-size:12.5px;letter-spacing:.12em;text-decoration:none;box-sizing:border-box;cursor:pointer}
+.lockAcc__cta{background:#F4F3F0;color:#121212;border:none}
+.lockAcc__sec{margin-top:10px;background:none;color:#F4F3F0;border:1px solid rgba(244,243,240,.35)}
+.lockAcc__sec[disabled]{opacity:.5}
+</style>
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black">
@@ -4854,6 +4869,8 @@ async function cargarMembresia(){
     ])
     S.mem=rm.data||[]; S.pagos=rp.data||[]
   }catch(_){}
+  // c38 · CONTROL DE ACCESO: el servidor decide (membresía vigente + pago registrado, o prórroga del staff)
+  try{ const ra=await sb.rpc('mi_acceso'); S.acceso=(ra && !ra.error && ra.data) || null }catch(_){ S.acceso=null }
   const vig=S.mem.find(m=>['activa','proxima','congelada'].includes(m.estado_calc))
     || S.mem.filter(m=>m.estado_calc==='futura').sort((a,b)=>a.fecha_inicio<b.fecha_inicio?-1:1)[0] || null
   S.memVig = vig || S.mem[0] || null
@@ -4866,8 +4883,13 @@ async function cargarMembresia(){
     S.memBloqueo='Tu membresía no está vigente. Tu historial sigue disponible — consulta tu renovación con KOACH.'
     S.memBloqueoT = S.mem[0].estado_calc==='cancelada' ? 'MEMBRESÍA CANCELADA' : 'MEMBRESÍA VENCIDA'
   }
+  if (S.acceso && S.acceso.acceso===false){ const t=accTxt(S.acceso); S.memBloqueo=t.b; S.memBloqueoT=t.t }
+  else if (S.acceso && (S.acceso.estado==='ok' || S.acceso.estado==='prorroga')){ S.memBloqueo=null }   // pagó o tiene prórroga: el servidor manda
+  aplicarBloqueo()
   // Aviso de vencimiento: 30 / 14 / 7 días, UNA vez por umbral (registrado en membresia_alertas)
   const av=document.getElementById('hMemAviso'); if (av) av.innerHTML=''
+  if (av && S.acceso && S.acceso.estado==='prorroga') av.innerHTML='<div class="memAv"><b>ACCESO CON PRÓRROGA HASTA EL '+_fm(S.acceso.prorroga_hasta).toUpperCase()+'</b><span>KOACH te dio unos días para regularizar tu pago. Acércate a recepción antes de esa fecha para no perder el acceso a tu rutina.</span><button onclick="this.parentNode.remove()">ENTENDIDO</button></div>'
+  else if (av && S.acceso && S.acceso.aviso) av.innerHTML='<div class="memAv"><b>'+accTxt(S.acceso).t+'</b><span>Desde el '+_fm(S.acceso.control_desde)+' necesitarás tu membresía pagada para ver tu rutina y tu credencial. Regularízala en recepción.</span><button onclick="this.parentNode.remove()">ENTENDIDO</button></div>'
   if (vig && vig.estado_calc!=='congelada' && S.memDiasAcceso!=null && S.memDiasAcceso<=30 && S.memDiasAcceso>=0){
     const umbral = S.memDiasAcceso<=7 ? 7 : S.memDiasAcceso<=14 ? 14 : 30
     try{
@@ -4877,6 +4899,33 @@ async function cargarMembresia(){
     }catch(_){}
   }
 }
+function accTxt(a){
+  const e=a&&a.estado, v=a&&a.vence?_fm(a.vence).toUpperCase():''
+  return e==='pago_pendiente' ? { t:'TU PAGO ESTÁ PENDIENTE', b:'Tu membresía está registrada, pero el pago aún no. Regularízalo en recepción para ver tu rutina y tu credencial.' }
+    : e==='vencida' ? { t:'TU MEMBRESÍA VENCIÓ'+(v?' EL '+v:''), b:'Renueva en recepción para volver a ver tu rutina y tu credencial. Tu historial y tu progreso siguen guardados.' }
+    : e==='congelada' ? { t:'TU MEMBRESÍA ESTÁ EN PAUSA', b:'Tu rutina vuelve a estar disponible cuando termine la pausa.' }
+    : e==='futura' ? { t:'TU MEMBRESÍA COMIENZA EL '+(a.inicia?_fm(a.inicia).toUpperCase():'PRÓXIMO PERÍODO'), b:'Desde ese día verás tu rutina y tu credencial.' }
+    : { t:'TU PAGO NO ESTÁ REGISTRADO', b:'Para ver tu rutina y tu credencial, tu membresía debe estar pagada. Acércate a recepción o habla con tu coach para regularizarla.' }
+}
+// Bloqueo: los menús siguen visibles, pero HOY · PLAN · AVANCES y la credencial muestran solo el candado
+function aplicarBloqueo(){
+  const on=!!(S.acceso && S.acceso.acceso===false)
+  document.documentElement.classList.toggle('accBloq', on)
+  document.querySelectorAll('.lockAcc').forEach(function(x){ x.remove() })
+  if (!on) return
+  const t=accTxt(S.acceso)
+  const html='<div class="lockAcc__i" aria-hidden="true">'+
+      '<svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg></div>'+
+    '<div class="lockAcc__k">ACCESO RESTRINGIDO</div><h2 class="lockAcc__t">'+t.t+'</h2><p class="lockAcc__b">'+t.b+'</p>'+
+    '<a class="lockAcc__cta" href="https://wa.me/56971333042?text='+encodeURIComponent('Hola KOACH, quiero regularizar mi membresía')+'" target="_blank" rel="noopener">HABLAR CON KOACH →</a>'+
+    '<button type="button" class="lockAcc__sec" onclick="accReintentar(this)">YA PAGUÉ · ACTUALIZAR</button>'
+  ;['vHome','vPlan','vAvances','vHist','vPerfil'].forEach(function(id){ const v=document.getElementById(id); if(!v) return
+    const d=document.createElement('section'); d.className='lockAcc'; d.id='lock_'+id; d.setAttribute('role','status'); d.innerHTML=html
+    if (id==='vPerfil'){ const h=v.querySelector('.kh'); if (h) h.after(d); else v.prepend(d) } else v.prepend(d) })
+}
+async function accReintentar(b){ b.disabled=true; b.textContent='REVISANDO…'
+  await cargarMembresia()
+  if (S.acceso && S.acceso.acceso){ toast('Acceso habilitado ✓'); entrar() } else { b.disabled=false; b.textContent='YA PAGUÉ · ACTUALIZAR'; toast('Aún no vemos el pago registrado. Pide a recepción que lo ingrese.') } }
 function pintarMembresia(){
   const el=document.getElementById('pfMem'); if(!el) return
   const m=S.memVig
@@ -4952,6 +5001,7 @@ function pintarTarjetaPerfil(){
   document.getElementById('pfBc').innerHTML=kodeSvg(koachId(p))
 }
 async function abrirCredencial(){
+  if (S.acceso && S.acceso.acceso===false){ toast(accTxt(S.acceso).t+' · tu credencial se habilita con tu membresía al día.'); return }
   const p=S.perfil||{}; let el=document.getElementById('oCred')
   if(!el){ el=document.createElement('div'); el.id='oCred'; el.setAttribute('role','dialog'); el.setAttribute('aria-modal','true'); el.setAttribute('aria-label','Mi credencial KOACH'); document.body.appendChild(el) }
   const m=S.memVig, est=m&&m.estado_calc
