@@ -181,6 +181,19 @@ button.bxI:hover,button.bxI:focus-visible{transform:translateY(-2px);box-shadow:
 .acCtl__t{margin-top:4px;font-family:var(--font-mono);font-size:13px;letter-spacing:.06em}
 .acCtl__s{margin-top:4px;font-size:13px;line-height:1.45;opacity:.75;max-width:640px}
 .acCtl__b{display:flex;gap:8px;flex-wrap:wrap}.acCtl__b button.ink{background:#121212;color:#F4F3F0}
+/* c40 · hoja KOACH de confirmación / aviso */
+.kHoja{position:fixed;inset:0;z-index:2000;background:rgba(12,12,13,.55);display:flex;align-items:center;justify-content:center;padding:20px;animation:kHf .15s ease-out}
+@supports (-webkit-touch-callout:none){ .kHoja{background:rgba(10,10,11,.66)} }
+.kHoja__c{width:100%;max-width:440px;background:#F6F5F2;color:#111;border-radius:22px;padding:22px 20px 18px;box-shadow:0 30px 80px rgba(0,0,0,.35);animation:kHu .22s cubic-bezier(.2,.8,.2,1)}
+.kHoja__c--pel{border-top:4px solid #111}
+.kHoja__k{display:block;font:700 10px/1.3 'Space Mono','IBM Plex Mono',monospace;letter-spacing:.14em;color:#6B6A65}
+.kHoja__t{margin:8px 0 0;font-family:'KOACH Display','Inter Display',Inter,Arial,sans-serif;font-weight:800;font-size:22px;line-height:1.15;letter-spacing:-.01em}
+.kHoja__p{margin:10px 0 0;font-size:14px;line-height:1.5;color:#4A4945}
+.kHoja__b{display:flex;gap:8px;margin-top:18px}.kHoja__b button{flex:1;min-height:52px;border-radius:14px;font:700 11px 'Space Mono','IBM Plex Mono',monospace;letter-spacing:.12em;cursor:pointer}
+.kHoja__no{background:transparent;border:1.5px solid #111;color:#111}.kHoja__si{background:#111;border:0;color:#F6F5F2}
+.kHoja__b button:focus-visible{outline:2px solid #111;outline-offset:3px}
+@keyframes kHf{from{opacity:0}}@keyframes kHu{from{opacity:0;transform:translateY(12px)}}
+@media (prefers-reduced-motion:reduce){ .kHoja,.kHoja__c{animation:none} }
 </style>
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
@@ -2162,7 +2175,40 @@ function vista(id){document.querySelectorAll('.vista').forEach(function(v){v.cla
   document.getElementById('xGuardia').classList.toggle('vis', id==='vExtra')
   var pg=document.getElementById('pGuardia'); if(pg) pg.style.display = (id==='vPlan')?'block':'none'
   if (typeof kShellSync==='function') kShellSync(id)}
-function toast(m){let t=document.querySelector('.toast');if(!t){t=document.createElement('div');t.className='toast';document.body.appendChild(t)}
+/* ═══ c40 · KOACH STATE SYSTEM · P0 ═══
+   koachMsg: ningún texto técnico llega al usuario (errores de red, acceso, permisos y datos → voz KOACH; el detalle va a consola con código corto).
+   kConfirm / kAviso: hoja KOACH en vez de los diálogos confirm/alert del navegador (Esc cancela, foco seguro en acciones destructivas). */
+function koachMsg(m){
+  const t=String(m==null?'':m); if(!t) return t
+  const tec=/(Failed to fetch|NetworkError|Load failed|fetch|timeout|JWT|token|not authenticated|401|403|permission denied|row-level security|RLS|425\d\d|PGRST|duplicate key|23505|violates|null value|does not exist|column|relation|syntax error|function .*\(|sql|capa-|42P01|42703|PostgREST|TypeError|undefined|Cannot read)/i
+  if(!tec.test(t)) return t
+  const cod='KX-'+(Math.abs([...t].reduce((a,c)=>(a*31+c.charCodeAt(0))|0,7))%9000+1000)
+  try{ console.warn('[KOACH '+cod+']', t) }catch(_){}
+  const pre=(t.split(/[:\n—]/)[0]||'').trim(), humano = pre && pre.length<60 && !tec.test(pre) ? pre.replace(/[—–-]\s*$/,'').trim() : ''
+  let m2
+  if(/Failed to fetch|NetworkError|Load failed|fetch|timeout/i.test(t)) m2='Sin conexión. Revisa tu internet e intenta de nuevo.'
+  else if(/JWT|token|not authenticated|401/i.test(t)) m2='Tu sesión expiró. Vuelve a entrar.'
+  else if(/permission denied|row-level security|RLS|42501|403|PERMISO/i.test(t)) m2='No tienes permiso para esta acción.'
+  else if(/duplicate key|23505/i.test(t)) m2='Ese registro ya existe.'
+  else m2='No se pudo completar. Intenta de nuevo; si sigue, avisa a soporte.'
+  return (humano && !/^(error|perfiles|asignaciones|registros|bloques|crear|guardar|eliminar|orden|biblioteca)$/i.test(humano) ? humano+' · ' : '')+m2+' ('+cod+')'
+}
+function kHoja(o){ return new Promise(function(res){
+  const prev=document.activeElement, bg=document.createElement('div'); bg.className='kHoja'; bg.setAttribute('role','dialog'); bg.setAttribute('aria-modal','true')
+  const pel=!!o.peligro, lines=String(o.msg||'').split('\n').filter(Boolean), tit=lines.shift()||''
+  bg.innerHTML='<div class="kHoja__c'+(pel?' kHoja__c--pel':'')+'"><span class="kHoja__k">'+(o.k||(pel?'CONFIRMA · NO SE PUEDE DESHACER':'CONFIRMA'))+'</span><h3 class="kHoja__t"></h3>'+(lines.length?'<p class="kHoja__p"></p>':'')+
+    '<div class="kHoja__b">'+(o.aviso?'':'<button type="button" class="kHoja__no">'+(o.no||'VOLVER')+'</button>')+'<button type="button" class="kHoja__si">'+(o.si||(o.aviso?'ENTENDIDO':pel?'SÍ, CONFIRMAR':'CONFIRMAR'))+'</button></div></div>'
+  bg.querySelector('.kHoja__t').textContent=tit; const p=bg.querySelector('.kHoja__p'); if(p) p.textContent=lines.join(' ')
+  function fin(v){ document.removeEventListener('keydown',kd,true); bg.remove(); try{prev&&prev.focus()}catch(_){}; res(v) }
+  function kd(e){ if(e.key==='Escape'){ e.preventDefault(); fin(!!o.aviso) } }
+  bg.addEventListener('click',function(e){ if(e.target===bg) fin(!!o.aviso) })
+  const si=bg.querySelector('.kHoja__si'), no=bg.querySelector('.kHoja__no'); si.onclick=function(){ fin(true) }; if(no) no.onclick=function(){ fin(false) }
+  document.addEventListener('keydown',kd,true); document.body.appendChild(bg); setTimeout(function(){ (pel&&no?no:si).focus() },30)
+}) }
+function kConfirm(msg){ const t=String(msg||''); return kHoja({ msg:t, peligro:/eliminar|cancelar|quitar|archivar|descarta|pierde|congelar|dejarán de ver|desmarcar/i.test(t) }) }
+function kAviso(msg,k){ return kHoja({ msg:koachMsg(msg), aviso:true, k:k||'AVISO' }) }
+
+function toast(m){m=koachMsg(m);let t=document.querySelector('.toast');if(!t){t=document.createElement('div');t.className='toast';document.body.appendChild(t)}
   t.textContent=m;t.classList.add('vis');clearTimeout(t._x);t._x=setTimeout(function(){t.classList.remove('vis')},3000)}
 async function salir(){ window._saliendo=true; try{ localStorage.removeItem('koach_pin'); localStorage.removeItem('koach_rol') }catch(_e){}
   try{ await sb.auth.signOut({ scope:'local' }) }catch(_e){}   // solo este dispositivo: no cierra las otras pestañas/tablets del coach
@@ -2188,8 +2234,8 @@ async function entrar(){
     let q = await sb.from('profiles').select('*').eq('id',user.id).maybeSingle()
     if(q.error){ authEspera(true); return }   // falla de red/consulta ≠ cerrar sesión: se ofrece reintentar
     let perfil = q.data
-    if(!perfil){ alert('Esta cuenta no tiene perfil en KOACH. Pide a un administrador que la configure.'); await sb.auth.signOut(); vista('vLogin'); return }
-    if(perfil.activo===false){ alert('Esta cuenta está desactivada.'); await sb.auth.signOut(); vista('vLogin'); return }
+    if(!perfil){ kAviso('Esta cuenta no tiene perfil en KOACH.\nPide a un administrador que la configure.','ACCESO'); await sb.auth.signOut(); vista('vLogin'); return }
+    if(perfil.activo===false){ kAviso('Esta cuenta está desactivada.\nHabla con administración para reactivarla.','ACCESO'); await sb.auth.signOut(); vista('vLogin'); return }
     try{ localStorage.setItem('koach_rol', perfil.role) }catch(_e){}
     if(perfil.role==='socio'){ window.location.href = PUERTA.socio; return }   // c11.6: el socio vive en app.koachclub.cl
     C.yo = perfil
@@ -2202,7 +2248,7 @@ async function entrar(){
     if (location.hash && location.hash!=='#/' && location.hash!=='#') await rtAplicar()   // pestaña nueva / recarga / enlace copiado
   }catch(e){
     console.error(e)
-    alert('No se pudo entrar a la sala:\n'+(e.message||'intenta de nuevo'))
+    kAviso('No pudimos entrar a la sala.\n'+koachMsg(e.message||'Intenta de nuevo.'),'ACCESO')
     vista('vLogin')
   }
 }
@@ -2444,12 +2490,12 @@ function wsp(){ const t=((F&&F.telefono)||'').replace(/\D/g,'')
   window.open('https://wa.me/'+t,'_blank') }
 async function congelar(){
   const nuevo=F.estado==='congelado'?null:'congelado'
-  if(!confirm(nuevo?('¿Congelar el acceso de '+nomDe(F.id)+'?'):('¿Reactivar a '+nomDe(F.id)+'?')))return
+  if(!await kConfirm(nuevo?('¿Congelar el acceso de '+nomDe(F.id)+'?'):('¿Reactivar a '+nomDe(F.id)+'?')))return
   try{ await sb.from('profiles').update({estado:nuevo}).eq('id',F.id); F.estado=nuevo
     toast(nuevo?'Acceso congelado':'Acceso reactivado ✓'); verFicha(F.id) }catch(e){ toast('No se pudo actualizar') }
 }
 async function cancelar(){
-  if(!confirm('¿CANCELAR la membresía de '+nomDe(F.id)+'? El socio no podrá entrar.'))return
+  if(!await kConfirm('¿CANCELAR la membresía de '+nomDe(F.id)+'? El socio no podrá entrar.'))return
   try{ await sb.from('profiles').update({activo:false,estado:'cancelado'}).eq('id',F.id)
     toast('Membresía cancelada'); await loadSala(); verSala() }catch(e){ toast('No se pudo cancelar') }
 }
@@ -2638,7 +2684,7 @@ let BIB_ERR = null
 async function verBases(){
   document.getElementById('basesLista').innerHTML='<div class="vacio">Cargando protocolos base…</div>'
   const rp = await sb.from('protocolos').select('*').is('socio_id',null).neq('estado','biblioteca')
-  if(rp.error){ document.getElementById('basesLista').innerHTML='<div class="vacio">'+rp.error.message+'</div>'; return }
+  if(rp.error){ document.getElementById('basesLista').innerHTML='<div class="vacio">'+koachMsg(rp.error.message)+'</div>'; return }
   const bases=(rp.data||[]).sort(function(a,b){return ((a.programa||'')+(a.nivel||'')+(a.sexo||'')).localeCompare((b.programa||'')+(b.nivel||'')+(b.sexo||''))})
   document.getElementById('basesLista').innerHTML = bases.map(function(p){
     return '<div class="glass pkCard" onclick="editarBase(\''+p.id+'\')"><div class="pkN">'+(p.programa||p.nombre||'')+' · '+(p.nivel||'')+' · '+(p.sexo||'')+'</div>'+
@@ -2781,7 +2827,7 @@ async function editarRutinaStd(sesId){
   abrirPlan(bp.id, bp, { modo:'bib', soloSesion:sesId })
 }
 async function borrarRutinaStd(sesId){
-  if(!confirm('¿Archivar esta rutina estándar? (las ya designadas a socios no se tocan)')) return
+  if(!await kConfirm('¿Archivar esta rutina estándar? (las ya designadas a socios no se tocan)')) return
   const rb = await sb.from('bloques').select('id').eq('sesion_id',sesId)
   const bids=(rb.data||[]).map(function(b){return b.id})
   if(bids.length) await sb.from('bloque_ejercicios').delete().in('bloque_id',bids)
@@ -2830,7 +2876,7 @@ async function verPlan(){
     toast('Falta correr capa3-planificador.sql en Supabase'); return }
   plReset()
   if (pr.socio_id === F.id){ return abrirPlan(a.protocolo_id, pr) }
-  if(!confirm('Este socio entrena la plantilla BASE "'+(pr.programa||'')+' '+(pr.nivel||'')+'".\n\nCrear SU COPIA editable ahora?\n(La base queda intacta — editas solo su programa.)')) return
+  if(!await kConfirm('Este socio entrena la plantilla BASE "'+(pr.programa||'')+' '+(pr.nivel||'')+'".\n\nCrear SU COPIA editable ahora?\n(La base queda intacta — editas solo su programa.)')) return
   toast('Clonando su programa…')
   const nuevo = await clonarPrograma(a.protocolo_id, F.id)
   if(!nuevo){ return }
@@ -2844,7 +2890,7 @@ async function verPicker(){
   document.getElementById('pkMeta').textContent = (nomDe(F.id)+' · SIN PROGRAMA — ELIGE SU BASE').toUpperCase()
   vista('vPicker')
   const rp = await sb.from('protocolos').select('*').is('socio_id', null)
-  if(rp.error){ document.getElementById('pkLista').innerHTML='<div class="vacio">'+rp.error.message+'</div>'; return }
+  if(rp.error){ document.getElementById('pkLista').innerHTML='<div class="vacio">'+koachMsg(rp.error.message)+'</div>'; return }
   const bases = (rp.data||[]).filter(function(p){return p.estado!=='biblioteca'})
     .sort(function(a,b){ return ((a.programa||'')+(a.nivel||'')).localeCompare((b.programa||'')+(b.nivel||'')) })
   document.getElementById('pkLista').innerHTML = bases.map(function(p){
@@ -3163,8 +3209,8 @@ async function crearBloque(){
 }
 async function elimBloque(bi){
   const ses=P.sesiones[P.tab], b=ses.bloques[bi]; if(!b) return
-  if(b.items.length && !confirm('Este bloque tiene '+b.items.length+' ejercicio(s). ¿Eliminarlo igual?')) return
-  if(!b.items.length && !confirm('¿Eliminar este bloque?')) return
+  if(b.items.length && !await kConfirm('Este bloque tiene '+b.items.length+' ejercicio(s). ¿Eliminarlo igual?')) return
+  if(!b.items.length && !await kConfirm('¿Eliminar este bloque?')) return
   ses.bloques.splice(bi,1)
   plDirty(); repintarConservando(); toast('Bloque quitado · recuerda GUARDAR CAMBIOS')
 }
@@ -3216,7 +3262,7 @@ async function previewBib(sesId){
   const bids=(rb.data||[]).map(function(b){return b.id})
   let nEj=0
   if(bids.length){ const rbe=await sb.from('bloque_ejercicios').select('id').in('bloque_id',bids); nEj=(rbe.data||[]).length }
-  if(!confirm((s.objetivo||s.nombre||'RUTINA').toUpperCase()+'\n'+(rb.data||[]).length+' bloques · '+nEj+' ejercicios\n\n¿Agregar como copia a esta semana?')) return
+  if(!await kConfirm((s.objetivo||s.nombre||'RUTINA').toUpperCase()+'\n'+(rb.data||[]).length+' bloques · '+nEj+' ejercicios\n\n¿Agregar como copia a esta semana?')) return
   agregarSesion('bib', sesId)
 }
 async function copiarSesionEn(srcId, destPid, numero, nombre, semana){
@@ -3273,7 +3319,7 @@ async function eliminarSesion(){
   const s=P.sesiones[P.tab]; if(!s) return
   const rr = await sb.from('sesiones_registro').select('id').eq('sesion_protocolo_id',s.id).limit(1)
   if((rr.data||[]).length){ toast('Esta sesión ya tiene registros — el histórico se protege, no se elimina.'); return }
-  if(!confirm('¿Eliminar "'+s.nombre+'" de la semana? Sus bloques y líneas se pierden.')) return
+  if(!await kConfirm('¿Eliminar "'+s.nombre+'" de la semana? Sus bloques y líneas se pierden.')) return
   try{
     const rb = await sb.from('bloques').select('id').eq('sesion_id',s.id)
     const bids=(rb.data||[]).map(function(b){return b.id})
@@ -3459,7 +3505,7 @@ function stepItem(beId,k,d){
 }
 async function quitarEj(beId){
   const x=planItem(beId); if(!x)return
-  if(!confirm('¿Quitar '+x.it.nombre+' de este bloque?'))return
+  if(!await kConfirm('¿Quitar '+x.it.nombre+' de este bloque?'))return
   x.b.items=x.b.items.filter(function(i){return String(i.beId)!==String(beId)}); plDirty(); repintarConservando()
 }
 // c10.9 · Selector de ejercicios. Causa del "abre abajo": el modal se reutiliza y su contenedor con scroll nunca volvía a 0
@@ -3648,7 +3694,7 @@ async function clonarTpl(tplId){
   toast('Bloque agregado desde prediseñado · recuerda GUARDAR CAMBIOS')
 }
 async function borrarTpl(tplId){
-  if (!confirm('¿Eliminar este bloque prediseñado?\nNo afecta a las rutinas que ya lo usan.')) return
+  if (!await kConfirm('¿Eliminar este bloque prediseñado?\nNo afecta a las rutinas que ya lo usan.')) return
   const r=await sb.rpc('koach_borrar_bloque_tpl',{p_tpl:tplId})
   if (r.error){ console.error('[bloques prediseñados] borrar', r.error); toast('No pudimos eliminarlo. Intenta nuevamente.'); return }
   toast('Prediseñado eliminado.'); abrirBibBloq()
@@ -4213,7 +4259,7 @@ function plWheelDatos(w){
 let PL = { nivel:'macro', w:1, hecho:{}, regPorSes:{} }
 function plMarcarSucio(){ if (typeof P!=='undefined' && P) P._sucio=true }
 async function plResincronizar(w){
-  if (!confirm('Volver a derivar SEM '+w+' de SEM '+(w-1)+'?\nSe descartan los ajustes manuales hechos en esta semana.')) return
+  if (!await kConfirm('Volver a derivar SEM '+w+' de SEM '+(w-1)+'?\nSe descartan los ajustes manuales hechos en esta semana.')) return
   syncEnvio()
   const r=await sb.rpc('koach_resincronizar_semana',{p_proto:P.pid, p_w:w})
   if (r.error){ syncErr(r.error.message); toast(/SEMANA_CON_EJECUCION/.test(r.error.message)?'Esta semana ya tiene sesiones realizadas: no se puede revertir.':'No se pudo: '+r.error.message); return }
@@ -4424,7 +4470,7 @@ async function plSetDuracion(n){
   const N=plN(); if(n===N) return
   const maxW=Math.max.apply(null,[0].concat(plSemanasConSes()))
   if (n<maxW){ toast('SEM '+maxW+' tiene sesiones programadas — vacíala antes de acortar el ciclo a '+n+'.'); return }
-  if (!confirm('Ciclo de '+n+' semanas para '+nomDe(F.id).split(' ')[0]+'?')) return
+  if (!await kConfirm('Ciclo de '+n+' semanas para '+nomDe(F.id).split(' ')[0]+'?')) return
   syncEnvio()
   const r=await sb.from('protocolos').update({ciclo_semanas:n}).eq('id',P.pid)
   if (r.error){ syncErr(r.error.message); toast('No se pudo cambiar la duración.'); return }
@@ -4475,7 +4521,7 @@ async function plProyectar(){
     if (ultima!=null){ pares.push({desde:ultima, hacia:w}); ultima=w }
   }
   if (!pares.length){ toast('No hay semanas vacías para proyectar.'); return }
-  if (!confirm('Proyectar '+pares.map(function(p){return 'S'+p.hacia}).join(', ')+' como copia de la semana anterior programada?\n\nSesiones, bloques y cargas se copian. Las semanas ya programadas no se tocan.')) return
+  if (!await kConfirm('Proyectar '+pares.map(function(p){return 'S'+p.hacia}).join(', ')+' como copia de la semana anterior programada?\n\nSesiones, bloques y cargas se copian. Las semanas ya programadas no se tocan.')) return
   // c9.2 · la proyección la hace la base (misma regla que la progresión encadenada): atómica y consistente
   syncEnvio()
   const r=await sb.rpc('koach_reproyectar',{p_proto:P.pid, p_desde:pares[0].desde})
@@ -5886,7 +5932,7 @@ function accCtrlPintar(n){
 }
 async function accCtrlFecha(dias){
   const d=new Date(); d.setDate(d.getDate()+dias); const f=fLocal(d)
-  if (!dias && !confirm('¿Activar hoy el control? Los socios sin pago registrado dejarán de ver su rutina y su credencial.')) return
+  if (!dias && !await kConfirm('¿Activar hoy el control? Los socios sin pago registrado dejarán de ver su rutina y su credencial.')) return
   const r=await sb.rpc('admin_control_acceso',{ p_desde:f })
   if (r.error){ toast('No se pudo: '+r.error.message); return }
   toast(dias?'Control pospuesto al '+adF(f):'Control de acceso ACTIVO ✓'); await accCargarTodos(); admPintar()
@@ -5924,7 +5970,7 @@ async function accProrrogaDar(){
   admCerrar(); toast('Prórroga hasta el '+adF(r.data.hasta)+' ✓'); accBan._sid=null; accBan(F.id); accBan._sid=F.id
 }
 async function accProrrogaQuitar(){
-  if (!confirm('¿Quitar la prórroga? Si no tiene pago registrado, pierde el acceso a su rutina de inmediato.')) return
+  if (!await kConfirm('¿Quitar la prórroga? Si no tiene pago registrado, pierde el acceso a su rutina de inmediato.')) return
   const r=await sb.rpc('admin_prorroga_quitar',{ p_socio:F.id }); if (r.error){ toast('No se pudo: '+r.error.message); return }
   toast('Prórroga quitada'); accBan(F.id)
 }

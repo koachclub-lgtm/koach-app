@@ -27,6 +27,19 @@ html.accBloq #pfCard, html.accBloq #vPerfil .kpc__f, html.accBloq #vPerfil [oncl
 .lockAcc__cta{background:#F4F3F0;color:#121212;border:none}
 .lockAcc__sec{margin-top:10px;background:none;color:#F4F3F0;border:1px solid rgba(244,243,240,.35)}
 .lockAcc__sec[disabled]{opacity:.5}
+/* c40 · hoja KOACH de confirmación / aviso */
+.kHoja{position:fixed;inset:0;z-index:2000;background:rgba(12,12,13,.55);display:flex;align-items:center;justify-content:center;padding:20px;animation:kHf .15s ease-out}
+@supports (-webkit-touch-callout:none){ .kHoja{background:rgba(10,10,11,.66)} }
+.kHoja__c{width:100%;max-width:440px;background:#F6F5F2;color:#111;border-radius:22px;padding:22px 20px 18px;box-shadow:0 30px 80px rgba(0,0,0,.35);animation:kHu .22s cubic-bezier(.2,.8,.2,1)}
+.kHoja__c--pel{border-top:4px solid #111}
+.kHoja__k{display:block;font:700 10px/1.3 'Space Mono','IBM Plex Mono',monospace;letter-spacing:.14em;color:#6B6A65}
+.kHoja__t{margin:8px 0 0;font-family:'KOACH Display','Inter Display',Inter,Arial,sans-serif;font-weight:800;font-size:22px;line-height:1.15;letter-spacing:-.01em}
+.kHoja__p{margin:10px 0 0;font-size:14px;line-height:1.5;color:#4A4945}
+.kHoja__b{display:flex;gap:8px;margin-top:18px}.kHoja__b button{flex:1;min-height:52px;border-radius:14px;font:700 11px 'Space Mono','IBM Plex Mono',monospace;letter-spacing:.12em;cursor:pointer}
+.kHoja__no{background:transparent;border:1.5px solid #111;color:#111}.kHoja__si{background:#111;border:0;color:#F6F5F2}
+.kHoja__b button:focus-visible{outline:2px solid #111;outline-offset:3px}
+@keyframes kHf{from{opacity:0}}@keyframes kHu{from{opacity:0;transform:translateY(12px)}}
+@media (prefers-reduced-motion:reduce){ .kHoja,.kHoja__c{animation:none} }
 </style>
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
@@ -2571,7 +2584,40 @@ function lunes(){ const h=new Date(),d=(h.getDay()+6)%7,l=new Date(h); l.setDate
 /* ══ UTILIDADES ══ */
 function vista(id){ document.querySelectorAll('.vista').forEach(v=>v.classList.toggle('on',v.id===id)); window.scrollTo(0,0); if(id==='vLogin') fotoLogin()
   if (id!=='vSesion' && S && S._planPend) setTimeout(function(){ planActualizado('pendiente') }, 50) }
-function toast(m){ let t=document.querySelector('.toast'); if(!t){t=document.createElement('div');t.className='toast';document.body.appendChild(t)}
+/* ═══ c40 · KOACH STATE SYSTEM · P0 ═══
+   koachMsg: ningún texto técnico llega al usuario (errores de red, acceso, permisos y datos → voz KOACH; el detalle va a consola con código corto).
+   kConfirm / kAviso: hoja KOACH en vez de los diálogos confirm/alert del navegador (Esc cancela, foco seguro en acciones destructivas). */
+function koachMsg(m){
+  const t=String(m==null?'':m); if(!t) return t
+  const tec=/(Failed to fetch|NetworkError|Load failed|fetch|timeout|JWT|token|not authenticated|401|403|permission denied|row-level security|RLS|425\d\d|PGRST|duplicate key|23505|violates|null value|does not exist|column|relation|syntax error|function .*\(|sql|capa-|42P01|42703|PostgREST|TypeError|undefined|Cannot read)/i
+  if(!tec.test(t)) return t
+  const cod='KX-'+(Math.abs([...t].reduce((a,c)=>(a*31+c.charCodeAt(0))|0,7))%9000+1000)
+  try{ console.warn('[KOACH '+cod+']', t) }catch(_){}
+  const pre=(t.split(/[:\n—]/)[0]||'').trim(), humano = pre && pre.length<60 && !tec.test(pre) ? pre.replace(/[—–-]\s*$/,'').trim() : ''
+  let m2
+  if(/Failed to fetch|NetworkError|Load failed|fetch|timeout/i.test(t)) m2='Sin conexión. Revisa tu internet e intenta de nuevo.'
+  else if(/JWT|token|not authenticated|401/i.test(t)) m2='Tu sesión expiró. Vuelve a entrar.'
+  else if(/permission denied|row-level security|RLS|42501|403|PERMISO/i.test(t)) m2='No tienes permiso para esta acción.'
+  else if(/duplicate key|23505/i.test(t)) m2='Ese registro ya existe.'
+  else m2='No se pudo completar. Intenta de nuevo; si sigue, avisa a soporte.'
+  return (humano && !/^(error|perfiles|asignaciones|registros|bloques|crear|guardar|eliminar|orden|biblioteca)$/i.test(humano) ? humano+' · ' : '')+m2+' ('+cod+')'
+}
+function kHoja(o){ return new Promise(function(res){
+  const prev=document.activeElement, bg=document.createElement('div'); bg.className='kHoja'; bg.setAttribute('role','dialog'); bg.setAttribute('aria-modal','true')
+  const pel=!!o.peligro, lines=String(o.msg||'').split('\n').filter(Boolean), tit=lines.shift()||''
+  bg.innerHTML='<div class="kHoja__c'+(pel?' kHoja__c--pel':'')+'"><span class="kHoja__k">'+(o.k||(pel?'CONFIRMA · NO SE PUEDE DESHACER':'CONFIRMA'))+'</span><h3 class="kHoja__t"></h3>'+(lines.length?'<p class="kHoja__p"></p>':'')+
+    '<div class="kHoja__b">'+(o.aviso?'':'<button type="button" class="kHoja__no">'+(o.no||'VOLVER')+'</button>')+'<button type="button" class="kHoja__si">'+(o.si||(o.aviso?'ENTENDIDO':pel?'SÍ, CONFIRMAR':'CONFIRMAR'))+'</button></div></div>'
+  bg.querySelector('.kHoja__t').textContent=tit; const p=bg.querySelector('.kHoja__p'); if(p) p.textContent=lines.join(' ')
+  function fin(v){ document.removeEventListener('keydown',kd,true); bg.remove(); try{prev&&prev.focus()}catch(_){}; res(v) }
+  function kd(e){ if(e.key==='Escape'){ e.preventDefault(); fin(!!o.aviso) } }
+  bg.addEventListener('click',function(e){ if(e.target===bg) fin(!!o.aviso) })
+  const si=bg.querySelector('.kHoja__si'), no=bg.querySelector('.kHoja__no'); si.onclick=function(){ fin(true) }; if(no) no.onclick=function(){ fin(false) }
+  document.addEventListener('keydown',kd,true); document.body.appendChild(bg); setTimeout(function(){ (pel&&no?no:si).focus() },30)
+}) }
+function kConfirm(msg){ const t=String(msg||''); return kHoja({ msg:t, peligro:/eliminar|cancelar|quitar|archivar|descarta|pierde|congelar|dejarán de ver|desmarcar/i.test(t) }) }
+function kAviso(msg,k){ return kHoja({ msg:koachMsg(msg), aviso:true, k:k||'AVISO' }) }
+
+function toast(m){m=koachMsg(m); let t=document.querySelector('.toast'); if(!t){t=document.createElement('div');t.className='toast';document.body.appendChild(t)}
   t.textContent=m; t.classList.add('vis'); clearTimeout(t._x); t._x=setTimeout(()=>t.classList.remove('vis'),2400) }
 // Fondo del login: foto del KOACH guiando a una clienta. Mientras llega, grafito; luego fade-in (no bloquea el formulario).
 // Foto oficial del acceso: se descarga SOLO cuando se muestra el acceso (quien ya tiene sesión nunca la baja). AVIF → WebP.
@@ -3796,7 +3842,7 @@ async function tapSet(beId,n,bId,ejId){
 async function tapRonda(bId,n,bi){
   const k=rondaKey(bId,n)
   if (S.setLog[k]){ 
-    if(!confirm('¿Desmarcar la ronda '+n+'?'))return
+    if(!await kConfirm('¿Desmarcar la ronda '+n+'?'))return
     const fila=S.setLog[k]; delete S.setLog[k]; pintarSesion(); syncEnvio()
     if(fila.id) sb.from('set_registros').delete().eq('id',fila.id).then(()=>syncOk())
     else syncOk()
