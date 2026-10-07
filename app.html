@@ -86,42 +86,63 @@
 html[data-tipo="a"]{--font-display:'KOACH Display','KOACH Symbols','KOACH Display Fallback',Arial,sans-serif;--font-mono:'Space Mono','KOACH Symbols','Space Mono Fallback','Courier New',monospace}
 html[data-tipo="a"] body{word-spacing:.03em}
 
-/* ═══ c18.3 · CREDENCIAL CLUB DEL 1% (Perfil › Mi credencial) ═══ */
-.kcr{position:fixed;inset:0;z-index:140;display:none;flex-direction:column;align-items:center;overflow-y:auto;background:#0A0A0B;color:#F4F3F0;
-  padding:calc(env(safe-area-inset-top,0px) + 18px) 20px calc(env(safe-area-inset-bottom,0px) + 28px)}
+/* ═══ c24 · TARJETA DE IDENTIFICACIÓN KOACH (Perfil + credencial a pantalla completa) ═══
+   Tono = programa (STRONG gris claro · BURN gris oscuro · HEALTHY negro · sin programa hueso). Nombre protagonista. */
+.kpc,.kcr{--bg:#F4F3F0;--fg:#0B0B0C;--mu:rgba(11,11,12,.62);--ln:rgba(11,11,12,.2);--ph:rgba(11,11,12,.1)}
+.t-strong{--bg:#979C9F;--fg:#0B0B0C;--mu:rgba(11,11,12,.7);--ln:rgba(11,11,12,.28);--ph:rgba(11,11,12,.12)}
+.t-burn{--bg:#434649;--fg:#F4F3F0;--mu:rgba(244,243,240,.66);--ln:rgba(244,243,240,.26);--ph:rgba(244,243,240,.1)}
+.t-healthy{--bg:#0B0B0C;--fg:#F4F3F0;--mu:rgba(244,243,240,.62);--ln:rgba(244,243,240,.26);--ph:rgba(244,243,240,.08)}
+.kpc{background:var(--bg);color:var(--fg);border:1px solid var(--ln);border-radius:22px;overflow:hidden;margin-bottom:10px}
+.kpc__h{display:flex;align-items:center;gap:12px;padding:16px 16px 0}
+.kpc .idav{width:64px;height:64px;border-radius:14px;background:var(--ph);color:var(--fg);font:800 26px var(--font-display)}
+.kpc .idav img{border-radius:14px;filter:grayscale(1)}
+.kpc__pr{flex:1;min-width:0;display:flex;flex-direction:column;gap:5px;font:700 11px var(--font-mono);letter-spacing:.06em}
+.kpc__pr em{font-style:normal;font-weight:400;color:var(--mu)}
+.kpc__h>img,.kcr__h img{width:18px;height:auto;align-self:flex-start}
+.kpc.t-strong .kpc__h>img,.kpc.t-none .kpc__h>img,.kcr.t-strong .kcr__h img,.kcr.t-none .kcr__h img{filter:invert(1)}
+.kpc__n{padding:14px 16px 0;font:800 clamp(30px,9.4vw,40px)/.98 var(--font-display);font-stretch:108%;text-transform:uppercase;letter-spacing:-.005em;overflow-wrap:normal;word-break:normal}
+.kpc__n span{display:block}
+.kpc__m{padding:8px 16px 14px;font:700 10.5px var(--font-mono);letter-spacing:.05em;color:var(--mu);text-transform:uppercase}
+.kpc__f{width:100%;display:grid;grid-template-columns:1fr auto;align-items:center;border:0;border-top:1px solid var(--ln);background:none;color:var(--fg);padding:0;cursor:pointer;font:inherit;min-height:52px}
+.kpc__f>span:first-child{padding:0 16px;text-align:left;font:700 11px var(--font-mono);letter-spacing:.06em}
+.kpc__bc{border-left:1px solid var(--ln);padding:10px 14px;display:flex}
+.kpc__bc svg{width:96px;height:28px;display:block}
+/* credencial a pantalla completa: la pantalla ES la tarjeta */
+.kcr{position:fixed;inset:0;z-index:140;display:none;flex-direction:column;overflow-y:auto;background:var(--bg);color:var(--fg);
+  padding:calc(env(safe-area-inset-top,0px) + 14px) 22px calc(env(safe-area-inset-bottom,0px) + 22px)}
 .kcr.vis{display:flex;animation:kcrIn .22s ease-out both}
-.kcr__top{width:100%;max-width:400px;display:flex;justify-content:space-between;align-items:center;margin-bottom:22px}
-.kcr__top span{font:400 11px var(--font-mono);letter-spacing:.08em;color:#9C9EA3}
-.kcr__x{width:44px;height:44px;border-radius:50%;border:1px solid rgba(244,243,240,.22);background:none;color:#F4F3F0;font-size:20px;cursor:pointer}
-.kcr__card{position:relative;width:100%;max-width:400px;border-radius:26px;overflow:hidden;border:1px solid rgba(244,243,240,.18);
-  background:radial-gradient(140% 90% at 85% 0%,#2A2B2F 0%,#161719 45%,#0C0C0D 100%)}
-.kcr__card::after{content:"";position:absolute;inset:-40% -60%;background:linear-gradient(105deg,transparent 42%,rgba(244,243,240,.07) 50%,transparent 58%);animation:kcrSheen 5.5s ease-in-out infinite;pointer-events:none}
-.kcr__h{display:flex;justify-content:space-between;align-items:flex-start;padding:22px 22px 0}
-.kcr__h img{width:30px;height:auto;display:block}
-.kcr__club{text-align:right;font:400 10.5px var(--font-mono);letter-spacing:.08em;color:#9C9EA3;line-height:1.5}
-.kcr__club b{display:block;font:700 15px var(--font-mono);letter-spacing:.02em;color:#F4F3F0}
-.kcr__ph{width:112px;height:112px;margin:26px auto 18px;border-radius:50%;overflow:hidden;background:#1F2023;border:1px solid rgba(244,243,240,.2);
-  display:grid;place-items:center;font:800 40px 'KOACH Display',var(--font-display);color:#F4F3F0}
-.kcr__ph img{width:100%;height:100%;object-fit:cover;display:block}
-.kcr__n{padding:0 18px;text-align:center;font:800 clamp(24px,7.4vw,32px)/1 'KOACH Display',var(--font-display);font-stretch:112%;text-transform:uppercase;letter-spacing:-.005em;overflow-wrap:anywhere}
-.kcr__st{display:flex;justify-content:center;margin:14px 0 22px}
-.kcr__st span{display:inline-flex;align-items:center;gap:8px;padding:6px 14px;border-radius:999px;border:1px solid rgba(244,243,240,.3);font:700 10.5px var(--font-mono);letter-spacing:.06em}
-.kcr__st i{width:7px;height:7px;border-radius:50%;background:#5FD4E0;animation:kcrPulse 1.6s ease-in-out infinite}
-.kcr--off .kcr__st i{background:#6F7377;animation:none}
-.kcr--off .kcr__st span{color:#9C9EA3}
-.kcr__g{display:grid;grid-template-columns:1fr 1fr;border-top:1px solid rgba(244,243,240,.14)}
-.kcr__g>div{padding:14px 20px}
-.kcr__g>div+div{border-left:1px solid rgba(244,243,240,.14);text-align:right}
-.kcr__g small{display:block;font:400 10px var(--font-mono);letter-spacing:.08em;color:#9C9EA3;margin-bottom:5px}
-.kcr__g b{font:700 13px var(--font-mono);letter-spacing:.02em}
-.kcr__live{padding:12px 20px;border-top:1px solid rgba(244,243,240,.14);text-align:center;font:400 10.5px var(--font-mono);letter-spacing:.06em;color:#9C9EA3;font-variant-numeric:tabular-nums}
-.kcr__live b{color:#F4F3F0;font-weight:700}
-.kcr__msg{max-width:400px;margin:18px 0 0;font-size:14px;line-height:1.45;color:#BFC4C8;text-align:center}
-.kcr__slo{margin-top:26px;font:700 12px var(--font-mono);letter-spacing:.2em;color:#9C9EA3}
+.kcr__h{display:flex;justify-content:space-between;align-items:center;gap:12px}
+.kcr__b{display:flex;align-items:center;gap:10px;font:700 11px var(--font-mono);letter-spacing:.08em}
+.kcr__x{width:44px;height:44px;border-radius:50%;border:1px solid var(--ln);background:none;color:var(--fg);font-size:18px;cursor:pointer}
+.kcr__club{margin-top:22px;font:700 12px var(--font-mono);letter-spacing:.14em;color:var(--mu)}
+.kcr__id{display:flex;align-items:center;gap:14px;margin-top:14px}
+.kcr__ph{position:relative;width:88px;height:88px;flex:none;border-radius:18px;overflow:hidden;background:var(--ph);display:grid;place-items:center;font:800 36px var(--font-display)}
+.kcr__ph img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;filter:grayscale(1) contrast(1.05)}
+.kcr__tags{display:flex;flex-direction:column;gap:6px;align-items:flex-start}
+.kcr__tags span{display:inline-flex;align-items:center;height:30px;padding:0 12px;border-radius:999px;border:1px solid var(--fg);font:700 11px var(--font-mono);letter-spacing:.06em}
+.kcr__tags span+span{border-color:var(--ln);font-weight:400}
+.kcr__n{margin:22px 0 0;font:800 clamp(46px,13.4vw,84px)/.9 var(--font-display);font-stretch:106%;text-transform:uppercase;letter-spacing:-.01em;overflow-wrap:normal;word-break:normal}
+.kcr__n span{display:block}
+.kcr__st{display:flex;align-items:center;gap:8px;margin-top:16px;font:700 11.5px var(--font-mono);letter-spacing:.06em;text-transform:uppercase}
+.kcr__st i{width:8px;height:8px;border-radius:50%;background:#5FD4E0;animation:kcrPulse 1.6s ease-in-out infinite}
+.kcr--off .kcr__st i{background:var(--mu);animation:none}
+.kcr__g{display:grid;grid-template-columns:1fr 1fr;margin-top:22px;border-top:1px solid var(--ln)}
+.kcr__g>div{padding:12px 0;border-bottom:1px solid var(--ln)}
+.kcr__g>div:nth-child(even){text-align:right}
+.kcr__g small{display:block;font:400 10.5px var(--font-mono);letter-spacing:.08em;color:var(--mu);margin-bottom:4px}
+.kcr__g b{font:700 14px var(--font-mono);letter-spacing:.02em}
+.kcr__msg{margin:16px 0 0;font-size:14px;line-height:1.45;color:var(--mu)}
+.kcr__live{margin-top:14px;font:400 11px var(--font-mono);letter-spacing:.06em;color:var(--mu);font-variant-numeric:tabular-nums}
+.kcr__live b{color:var(--fg)}
+.kcr__ft{margin-top:auto;padding-top:24px}
+.kcr__bc{display:block;width:100%;height:76px;color:var(--fg)}
+.kcr__bc svg{width:100%;height:100%;display:block}
+.kcr__code{display:flex;justify-content:space-between;margin-top:10px;font:700 12px var(--font-mono);letter-spacing:.14em}
+.kcr__code span:last-child{font-weight:400;color:var(--mu);letter-spacing:.1em}
+.kcr--off .kcr__n,.kcr--off .kcr__ph,.kcr--off .kcr__bc{opacity:.5}
 @keyframes kcrIn{from{opacity:0}to{opacity:1}}
-@keyframes kcrSheen{0%,55%{transform:translateX(-35%)}85%,100%{transform:translateX(35%)}}
 @keyframes kcrPulse{0%,100%{opacity:1}50%{opacity:.35}}
-@media (prefers-reduced-motion:reduce){.kcr.vis,.kcr__card::after,.kcr__st i{animation:none}}
+@media (prefers-reduced-motion:reduce){.kcr.vis,.kcr__st i{animation:none}}
 /* c18.3 CAPA BRAND STRONG — generada desde el CSS existente; solo aplica con html[data-tipo="a"] */
 html[data-tipo="a"] .kH1,html[data-tipo="a"] .kH2,html[data-tipo="a"] .wl__h,html[data-tipo="a"] .wel__h,html[data-tipo="a"] .wl__fin h2,html[data-tipo="a"] .sp__t,html[data-tipo="a"] .lgTit,html[data-tipo="a"] .kh__t,html[data-tipo="a"] .kh--ses .kh__t,html[data-tipo="a"] .k2h__t,html[data-tipo="a"] .k2-hero h2,html[data-tipo="a"] .k2-hello h1,html[data-tipo="a"] .hx__t,html[data-tipo="a"] .hh__t,html[data-tipo="a"] .bv__hero .hh__t,html[data-tipo="a"] .kwin__msg,html[data-tipo="a"] .kbm__tt,html[data-tipo="a"] .avTop h3,html[data-tipo="a"] .fz h3,html[data-tipo="a"] .mkd h3,html[data-tipo="a"] .uH,html[data-tipo="a"] .oFoto h2{font-stretch:112%;text-transform:uppercase;letter-spacing:-.005em}
 html[data-tipo="a"] .rwn,html[data-tipo="a"] .mk__kg,html[data-tipo="a"] .k2-week__v b,html[data-tipo="a"] .avPr__n,html[data-tipo="a"] .anillo .c b,html[data-tipo="a"] #oRw .rwSt b,html[data-tipo="a"] .pgc__n,html[data-tipo="a"] .fzP,html[data-tipo="a"] .avRes b,html[data-tipo="a"] .kc-mt b,html[data-tipo="a"] .ast b,html[data-tipo="a"] .kw-cv,html[data-tipo="a"] .avCs b,html[data-tipo="a"] .whG b,html[data-tipo="a"] .uSem b,html[data-tipo="a"] .p2St b,html[data-tipo="a"] .k2-metric b,html[data-tipo="a"] .hx__best b,html[data-tipo="a"] .hh__n b,html[data-tipo="a"] .avPr b,html[data-tipo="a"] .whH b{font-family:var(--font-mono);font-weight:700;letter-spacing:-.04em}
@@ -1672,9 +1693,12 @@ body.wl-on{overflow:hidden}
   <!-- ══ PERFIL ══ -->
   <div class="vista conTab" id="vPerfil">
     <header class="kh"><div class="kh__top"><span class="kh__brand">KOACH FITNESS CLUB</span></div><h1 class="kh__t">Perfil</h1><div class="kh__k kh__k--sub">TU CUENTA KOACH</div></header>
-    <div class="glass idcard">
-      <button type="button" class="idav idav--btn" id="pfAv" onclick="perfilFoto()" aria-label="Editar foto de perfil">K</button>
-      <div><div class="idn" id="pfNom">—</div><div class="idm" id="pfProg">—</div></div>
+    <div class="kpc t-none" id="pfCard">
+      <div class="kpc__h"><button type="button" class="idav idav--btn" id="pfAv" onclick="perfilFoto()" aria-label="Editar foto de perfil">K</button>
+        <div class="kpc__pr"><span id="pfProgK">KOACH</span><em id="pfCod"></em></div><img src="/img/brand/isotipo-blanco.png" alt="" width="18" height="19"></div>
+      <div class="kpc__n" id="pfNom">—</div>
+      <div class="kpc__m" id="pfProg">—</div>
+      <button type="button" class="kpc__f" onclick="abrirCredencial()"><span>VER MI CREDENCIAL →</span><span class="kpc__bc" id="pfBc" aria-hidden="true"></span></button>
     </div>
     <div id="pfMem"></div>
     <div class="contacto">
@@ -4603,9 +4627,10 @@ function pintarPerfil(){
   document.getElementById('pfNom').textContent=`${p.nombre||''} ${p.apellido||''}`.trim()||p.email
   const desde = p.created_at ? new Date(p.created_at) : null
   const MES3 = ['ENE','FEB','MAR','ABR','MAY','JUN','JUL','AGO','SEP','OCT','NOV','DIC']
-  const desdeTxt = desde ? ` · SOCIO DESDE ${MES3[desde.getMonth()]} ${desde.getFullYear()}` : ''
+  const desdeTxt = desde ? ` · ${String(p.sex||'')==='mujer'?'SOCIA':'SOCIO'} DESDE ${MES3[desde.getMonth()]} ${desde.getFullYear()}` : ''
   document.getElementById('pfProg').textContent = (S.proto
     ? `PROGRAMA ${S.proto.programa}` : 'SOCIO KOACH').toUpperCase() + desdeTxt
+  pintarTarjetaPerfil()
   document.getElementById('dDatos').innerHTML =
     `<b>Email:</b> ${p.email||'—'}<br><b>WhatsApp:</b> ${p.telefono||'—'}<br>Para actualizar tus datos, habla con recepción.`
 }
@@ -4615,36 +4640,55 @@ function det(id){ document.getElementById(id).classList.toggle('vis') }
    Prueba de membresía para beneficios (estacionamiento, convenios). Reloj en vivo: una captura de pantalla
    queda congelada, la credencial real avanza segundo a segundo. Estado según membresía real (S.memVig). */
 let _kcrT=null
+/* Código del socio: profiles.numero_socio (correlativo, asignado por la base al registrarse, no cambia).
+   Barras = Code 39 real de "K00025": escaneable cuando se habilite la validación de credencial. */
+function kodeTxt(n){ return n!=null ? String(n).padStart(5,'0') : null }
+const K39={'0':'000110100','1':'100100001','2':'001100001','3':'101100000','4':'000110001','5':'100110000','6':'001110000','7':'000100101','8':'100100100','9':'001100100','K':'100000011','*':'010010100'}
+function kodeSvg(cod){ const t='*K'+(cod||'00000')+'*'; let x=0, r=''
+  for(const ch of t){ const p=K39[ch]||K39['0']; for(let k=0;k<9;k++){ const w=p[k]==='1'?3:1; if(k%2===0) r+='<rect x="'+x+'" y="0" width="'+w+'" height="10"/>'; x+=w } x+=1 }
+  return '<svg viewBox="0 0 '+(x-1)+' 10" preserveAspectRatio="none" role="img" aria-label="Código K'+(cod||'')+'" fill="currentColor">'+r+'</svg>' }
+function kidTono(){ const p=String((S.proto&&S.proto.programa)||'').toUpperCase(); return { p:p||'KOACH', t:p==='STRONG'?'strong':p==='BURN'?'burn':p==='HEALTHY'?'healthy':'none' } }
+function kidNombreHTML(nom){ const w=String(nom||'').trim().split(/\s+/).filter(Boolean); if(!w.length) return '—'
+  const esc=function(x){return x.replace(/[<>&]/g,'')}
+  const a=w.length>3?w.slice(0,2).join(' '):w[0], b=w.length>3?w.slice(2).join(' '):w.slice(1).join(' ')
+  return '<span>'+esc(a)+'</span>'+(b?'<span>'+esc(b)+'</span>':'') }
+function pintarTarjetaPerfil(){
+  const p=S.perfil||{}, T=kidTono(), c=document.getElementById('pfCard'); if(!c) return
+  c.className='kpc t-'+T.t
+  document.getElementById('pfNom').innerHTML=kidNombreHTML(`${p.nombre||''} ${p.apellido||''}`.trim()||p.email)
+  document.getElementById('pfProgK').textContent=T.p
+  const cod=kodeTxt(p.numero_socio); document.getElementById('pfCod').textContent=cod?'#'+cod:''
+  document.getElementById('pfBc').innerHTML=kodeSvg(cod)
+}
 async function abrirCredencial(){
   const p=S.perfil||{}; let el=document.getElementById('oCred')
-  if(!el){ el=document.createElement('div'); el.id='oCred'; el.className='kcr'; el.setAttribute('role','dialog'); el.setAttribute('aria-modal','true'); el.setAttribute('aria-label','Mi credencial KOACH'); document.body.appendChild(el) }
+  if(!el){ el=document.createElement('div'); el.id='oCred'; el.setAttribute('role','dialog'); el.setAttribute('aria-modal','true'); el.setAttribute('aria-label','Mi credencial KOACH'); document.body.appendChild(el) }
   const m=S.memVig, est=m&&m.estado_calc
   const activa = !!m && ['activa','proxima'].includes(est) && !S.memBloqueo
   const estTxt = activa ? 'MEMBRESÍA ACTIVA' : est==='congelada' ? 'MEMBRESÍA CONGELADA' : est==='futura' ? 'MEMBRESÍA COMIENZA PRONTO' : m ? 'MEMBRESÍA NO VIGENTE' : 'MEMBRESÍA NO REGISTRADA'
-  const fem=String(p.sex||'')==='mujer'
-  const nombre=(`${p.nombre||''} ${p.apellido||''}`.trim()||'SOCIO KOACH')
-  const ini=(p.nombre||'K')[0].toUpperCase()
+  const fem=String(p.sex||'')==='mujer', T=kidTono(), cod=kodeTxt(p.numero_socio)
+  const nombre=(`${p.nombre||''} ${p.apellido||''}`.trim()||'SOCIO KOACH'), ini=(p.nombre||'K')[0].toUpperCase()
   const MES3=['ENE','FEB','MAR','ABR','MAY','JUN','JUL','AGO','SEP','OCT','NOV','DIC']
   const d0=p.fecha_inicio?new Date(String(p.fecha_inicio).slice(0,10)+'T12:00:00'):(p.created_at?new Date(p.created_at):null)
   const desde=d0?MES3[d0.getMonth()]+' '+d0.getFullYear():'—'
   const hasta=activa&&S.memFinAcceso?_fm(S.memFinAcceso).toUpperCase():'—'
-  const prog=S.proto&&S.proto.programa?String(S.proto.programa).toUpperCase():'KOACH'
-  el.className='kcr'+(activa?'':' kcr--off')
-  el.innerHTML='<div class="kcr__top"><span>MI CREDENCIAL</span><button type="button" class="kcr__x" onclick="cerrarCredencial()" aria-label="Cerrar">✕</button></div>'+
-    '<div class="kcr__card"><div class="kcr__h"><img src="/img/brand/isotipo-blanco.png" alt="KOACH" width="30" height="31"><div class="kcr__club">KOACH CLUB<b>CLUB DEL 1%</b></div></div>'+
-    '<div class="kcr__ph" id="kcrPh">'+ini+'</div><div class="kcr__n">'+nombre.replace(/[<>&]/g,'')+'</div>'+
-    '<div class="kcr__st"><span><i></i>'+(fem?'SOCIA':'SOCIO')+' · '+estTxt+'</span></div>'+
-    '<div class="kcr__g"><div><small>PROGRAMA</small><b>'+prog+'</b></div><div><small>VIGENTE HASTA</small><b>'+hasta+'</b></div></div>'+
-    '<div class="kcr__g"><div><small>'+(fem?'SOCIA':'SOCIO')+' DESDE</small><b>'+desde+'</b></div><div><small>SEDE</small><b>CONCEPCIÓN</b></div></div>'+
-    '<div class="kcr__live" id="kcrLive" aria-live="off"></div></div>'+
+  el.className='kcr t-'+T.t+(activa?'':' kcr--off')
+  el.innerHTML='<div class="kcr__h"><span class="kcr__b"><img src="/img/brand/isotipo-blanco.png" alt="" width="18" height="19">KOACH CLUB</span><button type="button" class="kcr__x" onclick="cerrarCredencial()" aria-label="Cerrar">✕</button></div>'+
+    '<div class="kcr__club">CLUB DEL 1%</div>'+
+    '<div class="kcr__id"><div class="kcr__ph" id="kcrPh">'+ini+'</div><div class="kcr__tags"><span>'+T.p+'</span><span>'+(fem?'SOCIA':'SOCIO')+(cod?' #'+cod:'')+'</span></div></div>'+
+    '<h1 class="kcr__n">'+kidNombreHTML(nombre)+'</h1>'+
+    '<div class="kcr__st"><i aria-hidden="true"></i>'+estTxt+'</div>'+
+    '<div class="kcr__g"><div><small>PROGRAMA</small><b>'+T.p+'</b></div><div><small>VIGENTE HASTA</small><b>'+hasta+'</b></div>'+
+      '<div><small>'+(fem?'SOCIA':'SOCIO')+' DESDE</small><b>'+desde+'</b></div><div><small>SEDE</small><b>CONCEPCIÓN</b></div></div>'+
     (activa?'':'<p class="kcr__msg">Tu credencial se activa con tu membresía vigente. Consulta tu renovación con KOACH.</p>')+
-    '<div class="kcr__slo">1% MEJOR CADA DÍA</div>'
+    '<div class="kcr__live" id="kcrLive" aria-live="off"></div>'+
+    '<div class="kcr__ft"><div class="kcr__bc">'+kodeSvg(cod)+'</div><div class="kcr__code"><span>K'+(cod||'—')+'</span><span>1% MEJOR CADA DÍA</span></div></div>'
   el.classList.add('vis'); document.documentElement.style.overflow='hidden'
   const tick=()=>{ const n=new Date(), z=x=>String(x).padStart(2,'0'), l=document.getElementById('kcrLive'); if(!l) return
     l.innerHTML='VERIFICADA EN VIVO · <b>'+z(n.getDate())+' '+MES3[n.getMonth()]+' '+n.getFullYear()+' · '+z(n.getHours())+':'+z(n.getMinutes())+':'+z(n.getSeconds())+'</b>' }
   tick(); clearInterval(_kcrT); _kcrT=setInterval(tick,1000)
   if (p.avatar_path && window.KAvatar){ try{ await KAvatar.urls(sb,[p.avatar_path]); const u=KAvatar.urlDe(p.avatar_path), ph=document.getElementById('kcrPh')
-    if(u&&ph) ph.innerHTML='<img src="'+u+'" alt="" onerror="this.remove()">' }catch(_){} }
+    if(u&&ph) ph.innerHTML=ini+'<img src="'+u+'" alt="" onerror="this.remove()">' }catch(_){} }
 }
 function cerrarCredencial(){ clearInterval(_kcrT); const el=document.getElementById('oCred'); if(el) el.classList.remove('vis'); document.documentElement.style.overflow='' }
 /* Foto de perfil: una sola fuente (profiles.avatar_path). Alimenta Perfil/credencial, Sala y buscador del coach. */
