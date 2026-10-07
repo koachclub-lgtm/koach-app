@@ -162,6 +162,14 @@ html[data-tipo="a"] body{word-spacing:.03em}
 .kcr__st b i{width:8px;height:8px;border-radius:50%;background:#5FD4E0;animation:kcrPulse 1.6s ease-in-out infinite;flex:none}
 .kcr--off .kcr__st b i{background:var(--mu);animation:none}
 .kcr__code span:first-child{letter-spacing:.1em}
+/* c26 · la credencial no lleva programa: un solo tono gris claro para todos */
+.t-pass{--bg:#ADB1B4;--fg:#0B0B0C;--mu:rgba(11,11,12,.66);--ln:rgba(11,11,12,.26);--ph:rgba(11,11,12,.1)}
+.kpc.t-pass .kpc__h>img,.kcr.t-pass .kcr__h img{filter:invert(1)}
+.kcr__perf{margin-top:18px;padding:14px 0 4px;border-top:2px solid var(--fg)}
+.kcr__perf small{display:block;font:700 10.5px var(--font-mono);letter-spacing:.08em}
+.kcr__perf b{display:block;margin-top:6px;font:800 clamp(40px,12vw,60px)/.9 var(--font-display);font-stretch:108%;font-variant-numeric:tabular-nums;letter-spacing:-.01em}
+.kcr__perf b span{font-size:.42em;letter-spacing:.02em;margin-left:6px}
+.kcr__perf em{display:block;margin-top:6px;font:400 10.5px var(--font-mono);font-style:normal;letter-spacing:.04em;color:var(--mu)}
 /* c18.3 CAPA BRAND STRONG — generada desde el CSS existente; solo aplica con html[data-tipo="a"] */
 html[data-tipo="a"] .kH1,html[data-tipo="a"] .kH2,html[data-tipo="a"] .wl__h,html[data-tipo="a"] .wel__h,html[data-tipo="a"] .wl__fin h2,html[data-tipo="a"] .sp__t,html[data-tipo="a"] .lgTit,html[data-tipo="a"] .kh__t,html[data-tipo="a"] .kh--ses .kh__t,html[data-tipo="a"] .k2h__t,html[data-tipo="a"] .k2-hero h2,html[data-tipo="a"] .k2-hello h1,html[data-tipo="a"] .hx__t,html[data-tipo="a"] .hh__t,html[data-tipo="a"] .bv__hero .hh__t,html[data-tipo="a"] .kwin__msg,html[data-tipo="a"] .kbm__tt,html[data-tipo="a"] .avTop h3,html[data-tipo="a"] .fz h3,html[data-tipo="a"] .mkd h3,html[data-tipo="a"] .uH,html[data-tipo="a"] .oFoto h2{font-stretch:112%;text-transform:uppercase;letter-spacing:-.005em}
 html[data-tipo="a"] .rwn,html[data-tipo="a"] .mk__kg,html[data-tipo="a"] .k2-week__v b,html[data-tipo="a"] .avPr__n,html[data-tipo="a"] .anillo .c b,html[data-tipo="a"] #oRw .rwSt b,html[data-tipo="a"] .pgc__n,html[data-tipo="a"] .fzP,html[data-tipo="a"] .avRes b,html[data-tipo="a"] .kc-mt b,html[data-tipo="a"] .ast b,html[data-tipo="a"] .kw-cv,html[data-tipo="a"] .avCs b,html[data-tipo="a"] .whG b,html[data-tipo="a"] .uSem b,html[data-tipo="a"] .p2St b,html[data-tipo="a"] .k2-metric b,html[data-tipo="a"] .hx__best b,html[data-tipo="a"] .hh__n b,html[data-tipo="a"] .avPr b,html[data-tipo="a"] .whH b{font-family:var(--font-mono);font-weight:700;letter-spacing:-.04em}
@@ -4673,6 +4681,12 @@ function kodeSvg(id){ const t='*'+String(id||'KCH-00000').toUpperCase().replace(
 /* Trayectoria KOACH = suma de meses de membresía adquiridos (incluye renovaciones anticipadas; excluye canceladas). */
 function trayectoriaMeses(){ return (S.mem||[]).filter(function(m){ return m.estado!=='cancelada' && m.estado_calc!=='cancelada' }).reduce(function(a,m){ return a+(+m.meses||0) },0) }
 function trayTxt(n){ return String(n).padStart(2,'0')+(n===1?' MES':' MESES') }
+/* Performance = kilos totales movidos en KOACH (koach_avances_socio.kg_total: peso × reps de sets completados) */
+function kgFmt(n){ return Math.round(+n||0).toLocaleString('es-CL') }
+async function kgTotalCargar(){
+  if (S.av && S.av.kg_total!=null) return S.av.kg_total
+  try{ const { data, error } = await sb.rpc('koach_avances_socio'); if(!error && data){ S.av=Object.assign({}, S.av||{}, data); return data.kg_total } }catch(_){}
+  return null }
 function kidTono(){ const p=String((S.proto&&S.proto.programa)||'').toUpperCase(); return { p:p||'KOACH', t:p==='STRONG'?'strong':p==='BURN'?'burn':p==='HEALTHY'?'healthy':'none' } }
 function kidNombreHTML(nom){ const w=String(nom||'').trim().split(/\s+/).filter(Boolean); if(!w.length) return '—'
   const esc=function(x){return x.replace(/[<>&]/g,'')}
@@ -4680,12 +4694,13 @@ function kidNombreHTML(nom){ const w=String(nom||'').trim().split(/\s+/).filter(
   return '<span>'+esc(a)+'</span>'+(b?'<span>'+esc(b)+'</span>':'') }
 function pintarTarjetaPerfil(){
   const p=S.perfil||{}, T=kidTono(), c=document.getElementById('pfCard'); if(!c) return
-  c.className='kpc t-'+T.t
+  c.className='kpc t-pass'
   document.getElementById('pfNom').innerHTML=kidNombreHTML(`${p.nombre||''} ${p.apellido||''}`.trim()||p.email)
-  document.getElementById('pfProgK').textContent=T.p
+  document.getElementById('pfProgK').textContent='CLUB DEL 1%'
   const cod=kodeTxt(p.numero_socio), fem=String(p.sex||'')==='mujer', tm=trayectoriaMeses()
   document.getElementById('pfCod').textContent=cod?(fem?'SOCIA':'SOCIO')+' #'+cod:''
-  document.getElementById('pfProg').textContent=T.p+(tm?' · TRAYECTORIA KOACH '+trayTxt(tm):'')
+  const pf=document.getElementById('pfProg'); pf.textContent='PERFORMANCE · CALCULANDO…'
+  kgTotalCargar().then(function(kg){ pf.textContent = kg!=null ? 'PERFORMANCE · '+kgFmt(kg)+' KG MOVIDOS EN KOACH' : 'PERFORMANCE KOACH' })
   document.getElementById('pfBc').innerHTML=kodeSvg(koachId(p))
 }
 async function abrirCredencial(){
@@ -4700,14 +4715,13 @@ async function abrirCredencial(){
   const d0=p.fecha_inicio?new Date(String(p.fecha_inicio).slice(0,10)+'T12:00:00'):(p.created_at?new Date(p.created_at):null)
   const desde=d0?MES3[d0.getMonth()]+' '+d0.getFullYear():'—'
   const hasta=activa&&S.memFinAcceso?_fm(S.memFinAcceso).toUpperCase():'—'
-  el.className='kcr t-'+T.t+(activa?'':' kcr--off')
+  el.className='kcr t-pass'+(activa?'':' kcr--off')
   el.innerHTML='<div class="kcr__h"><span class="kcr__b"><img src="/img/brand/isotipo-blanco.png" alt="" width="18" height="19">KOACH CLUB</span><button type="button" class="kcr__x" onclick="cerrarCredencial()" aria-label="Cerrar">✕</button></div>'+
     '<div class="kcr__club">MEMBERSHIP PASS · CLUB DEL 1%</div>'+
-    '<div class="kcr__id"><div class="kcr__ph" id="kcrPh">'+ini+'</div><div class="kcr__tags"><span>'+T.p+'</span><span>'+(fem?'SOCIA':'SOCIO')+(cod?' #'+cod:'')+'</span></div></div>'+
+    '<div class="kcr__id"><div class="kcr__ph" id="kcrPh">'+ini+'</div><div class="kcr__tags"><span>'+(fem?'SOCIA':'SOCIO')+(cod?' #'+cod:'')+'</span><span>CONCEPCIÓN</span></div></div>'+
     '<h1 class="kcr__n">'+kidNombreHTML(nombre)+'</h1>'+
-    '<div class="kcr__g"><div class="kcr__st"><small>MEMBRESÍA</small><b><i aria-hidden="true"></i>'+estTxt.replace('MEMBRESÍA ','')+'</b></div><div><small>PROGRAMA</small><b>'+T.p+'</b></div>'+
-      '<div><small>VIGENTE HASTA</small><b>'+hasta+'</b></div><div><small>TRAYECTORIA</small><b>'+(tm?trayTxt(tm):'—')+'</b></div>'+
-      '<div><small>'+(fem?'SOCIA':'SOCIO')+' N.º</small><b>'+(cod||'—')+'</b></div><div><small>SEDE</small><b>CONCEPCIÓN</b></div></div>'+
+    '<div class="kcr__perf"><small>PERFORMANCE · KILOS MOVIDOS EN KOACH</small><b id="kcrKg">—</b><em>Peso × repeticiones de cada serie registrada</em></div>'+
+    '<div class="kcr__g"><div class="kcr__st"><small>MEMBRESÍA</small><b><i aria-hidden="true"></i>'+estTxt.replace('MEMBRESÍA ','')+'</b></div><div><small>VIGENTE HASTA</small><b>'+hasta+'</b></div></div>'+
     (activa?'':'<p class="kcr__msg">Tu credencial se activa con tu membresía vigente. Consulta tu renovación con KOACH.</p>')+
     '<div class="kcr__live" id="kcrLive" aria-live="off"></div>'+
     '<div class="kcr__ft"><div class="kcr__bc">'+kodeSvg(kid)+'</div><div class="kcr__code"><span>'+(kid||'—')+'</span><span>1% MEJOR CADA DÍA</span></div></div>'
@@ -4715,6 +4729,7 @@ async function abrirCredencial(){
   const tick=()=>{ const n=new Date(), z=x=>String(x).padStart(2,'0'), l=document.getElementById('kcrLive'); if(!l) return
     l.innerHTML='VERIFICADA EN VIVO · <b>'+z(n.getDate())+' '+MES3[n.getMonth()]+' '+n.getFullYear()+' · '+z(n.getHours())+':'+z(n.getMinutes())+':'+z(n.getSeconds())+'</b>' }
   tick(); clearInterval(_kcrT); _kcrT=setInterval(tick,1000)
+  kgTotalCargar().then(function(kg){ const b=document.getElementById('kcrKg'); if(b) b.innerHTML = kg!=null ? kgFmt(kg)+'<span>KG</span>' : '—' })
   if (p.avatar_path && window.KAvatar){ try{ await KAvatar.urls(sb,[p.avatar_path]); const u=KAvatar.urlDe(p.avatar_path), ph=document.getElementById('kcrPh')
     if(u&&ph) ph.innerHTML=ini+'<img src="'+u+'" alt="" onerror="this.remove()">' }catch(_){} }
 }
