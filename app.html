@@ -1737,8 +1737,16 @@ body.wl-on{overflow:hidden}
         <div class="lbl">TU NUEVA CONTRASEÑA</div>
         <div class="pw"><input class="inp" type="password" id="nPass" name="new-password" autocomplete="new-password" placeholder="Mínimo 8 caracteres">
           <button class="ojo" onclick="ojo('nPass',this)">👁</button></div>
-        <div class="err" id="nErr">—</div>
-        <button class="btn" id="bNueva" onclick="nuevaClave()">GUARDAR Y ENTRAR</button>
+        <div class="lbl">CONFIRMA LA CONTRASEÑA</div>
+        <div class="pw"><input class="inp" type="password" id="nPass2" name="new-password-2" autocomplete="new-password">
+          <button class="ojo" onclick="ojo('nPass2',this)">👁</button></div>
+        <div class="err" id="nErr" role="alert">—</div>
+        <button class="btn" id="bNueva" onclick="nuevaClave()">GUARDAR CONTRASEÑA</button>
+      </div>
+      <div id="fInval" style="display:none">
+        <div class="okmsg" style="display:block">Este enlace ya fue usado o venció. Pide uno nuevo a recepción o solicítalo tú mismo con tu correo.</div>
+        <button class="btn" onclick="authVista('fRecu')">SOLICITAR UNO NUEVO</button>
+        <div class="links"><a href="#" role="button" onclick="event.preventDefault();authVista('fLogin')">← Volver a iniciar sesión</a><span></span></div>
       </div>
     </div>
   </div>
@@ -2545,8 +2553,8 @@ function fotoLogin(){ if (fotoLogin._ok) return; fotoLogin._ok=true
   const a=new Image(); a.onload=()=>set(LOGIN_BG.avif); a.onerror=()=>{ const w=new Image(); w.onload=()=>set(LOGIN_BG.webp); w.src=LOGIN_BG.webp }; a.src=LOGIN_BG.avif }
 function ojo(id,b){ const i=document.getElementById(id); const v=i.type==='password'; i.type=v?'text':'password'; b.style.opacity=v?'1':'.55'
   b.setAttribute('aria-label', v?'Ocultar contraseña':'Mostrar contraseña'); b.setAttribute('aria-pressed', v?'true':'false') }
-const AUTH_TIT={ fLogin:'INICIAR SESIÓN', fReg:'CREAR MI CUENTA', fRecu:'RECUPERAR ACCESO', fNueva:'NUEVA CONTRASEÑA' }
-function authVista(id){ ['fLogin','fReg','fRecu','fNueva'].forEach(f=>document.getElementById(f).style.display=f===id?'block':'none')
+const AUTH_TIT={ fLogin:'INICIAR SESIÓN', fReg:'CREAR MI CUENTA', fRecu:'RECUPERAR ACCESO', fNueva:'CREA TU NUEVA CONTRASEÑA', fInval:'ESTE ENLACE YA NO ES VÁLIDO' }
+function authVista(id){ ['fLogin','fReg','fRecu','fNueva','fInval'].forEach(f=>document.getElementById(f).style.display=f===id?'block':'none')
   document.getElementById('lgTit').textContent=AUTH_TIT[id]||''
   document.querySelector('#lgForms .lgBack').style.display = id==='fNueva' ? 'none' : ''
   const w=document.getElementById('lgWel'), f=document.getElementById('lgForms'); document.getElementById('vLogin').classList.add('is-form')
@@ -2633,10 +2641,18 @@ async function nuevaClave(){
   const pass=document.getElementById('nPass').value
   const err=document.getElementById('nErr'); err.style.display='none'
   if(pass.length<8){ err.textContent='Usa al menos 8 caracteres.'; err.style.display='block'; return }
+  if(pass!==document.getElementById('nPass2').value){ err.textContent='Las contraseñas no coinciden.'; err.style.display='block'; return }
   const b=document.getElementById('bNueva'); b.disabled=true; b.textContent='GUARDANDO…'
   const { error } = await sb.auth.updateUser({ password:pass })
-  if (error){ err.textContent='No se pudo: '+error.message; err.style.display='block'; b.disabled=false; b.textContent='GUARDAR Y ENTRAR'; return }
-  history.replaceState(null,'',window.location.pathname); entrar()
+  if (error){ const m=String(error.message||'')
+    err.textContent = /same|different from the old/i.test(m) ? 'La nueva contraseña debe ser distinta de la anterior.'
+      : /weak|pwned|leaked/i.test(m) ? 'Esa contraseña es muy débil o aparece en filtraciones conocidas. Elige otra.'
+      : /session|jwt|expired|missing/i.test(m) ? 'El enlace venció mientras estabas aquí. Solicita uno nuevo.'
+      : 'No pudimos guardar la contraseña. Intenta otra vez.'
+    err.style.display='block'; b.disabled=false; b.textContent='GUARDAR CONTRASEÑA'; return }
+  try{ await sb.rpc('registrar_acceso_restablecido') }catch(_e){}
+  b.textContent='CONTRASEÑA GUARDADA ✓'
+  history.replaceState(null,'',window.location.pathname); entrar()   // la sesión de recuperación sigue abierta: directo a HOME
 }
 
 // ═══ v11.2 · DIAGNÓSTICO DE ARRANQUE (solo con ?debug=1 o localStorage koach_debug=1; nunca registra tokens) ═══
@@ -2676,7 +2692,27 @@ async function leerSesion(){
   try{ const r = await Promise.race([ sb.auth.getSession(), new Promise(function(_,rej){ setTimeout(function(){ rej(new Error('timeout')) }, 12000) }) ])
        return { ses:(r&&r.data&&r.data.session)||null } }catch(e){ return { ses:null, err:e } }
 }
+// c30 · Recuperación de acceso. ?acceso=<token_hash> llega desde el Dashboard (copiado y enviado por WhatsApp):
+// se canjea aquí con verifyOtp (recovery oficial de Supabase) y el token se borra de la barra de inmediato.
+// #error_code=otp_expired llega cuando un enlace de correo ya se usó o venció.
+async function canjeAcceso(){
+  let th=null, malo=false
+  try{ th=new URLSearchParams(location.search).get('acceso')
+       const hp=new URLSearchParams(String(location.hash||'').replace(/^#/,''))
+       malo = !!(hp.get('error_code')||hp.get('error')) }catch(_e){}
+  if (!th && !malo) return false
+  history.replaceState(null,'',location.pathname)
+  if (malo && !th){ const r=await leerSesion(); if (r.ses) return false   // ya tiene sesión en este teléfono: sigue normal
+    authListo(); vista('vLogin'); authVista('fInval'); return true }
+  authEspera(false)
+  try{ await sb.auth.signOut({ scope:'local' }) }catch(_e){}   // si el teléfono tenía otra sesión, el enlace manda
+  const { data, error } = await sb.auth.verifyOtp({ token_hash:th, type:'recovery' })
+  authListo(); vista('vLogin')
+  if (error || !data || !data.session){ klog('RECOVERY_LINK_INVALID'); authVista('fInval'); return true }
+  klog('RECOVERY_LINK_OK'); authVista('fNueva'); return true
+}
 async function arrancarAuth(){
+  if (await canjeAcceso()) return
   authEspera(false); klog('AUTH_INITIALIZING', { tokenGuardado:hayTokenGuardado() })
   const r = await leerSesion()
   if (r.ses){ klog('SESSION_FOUND', { expira:r.ses.expires_at }); return entrar() }

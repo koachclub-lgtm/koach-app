@@ -687,6 +687,16 @@ html[data-rol="recepcion"] .fPlanBtn, html[data-rol="nutricionista"] .fPlanBtn{d
 .mSG__c button{display:block;width:100%;margin-top:10px;border-radius:14px;padding:16px;font-family:var(--font-mono);font-weight:500;font-size:12px;letter-spacing:.1em;cursor:pointer}
 .mSG__ok{background:#121212;color:#F4F3F0;border:none}
 .mSG__sec{background:transparent;color:#121212;border:1px solid rgba(18,18,18,.2)}
+.acI{display:flex;flex-direction:column;gap:2px;margin-top:6px}.acI__m{font-family:var(--font-mono);font-size:12.5px;color:#121212;word-break:break-all}.acI__u{font-family:var(--font-mono);font-size:11px;letter-spacing:.06em;color:#8E8D88}
+.acM{position:relative}.acX{position:absolute;top:14px;right:14px;width:44px!important;height:44px;margin:0!important;padding:0!important;border:none;background:none;font-size:16px!important;color:#5E5D59}
+.acSoc{font-family:var(--font-display);font-weight:700;font-size:15px;letter-spacing:.02em;color:#121212;margin:2px 0 2px}.acMail{font-family:var(--font-mono);font-size:12.5px;color:#4A4945;word-break:break-all;margin-bottom:6px}
+.acSt{font-family:var(--font-mono);font-size:10.5px;letter-spacing:.14em;color:#515449;margin:12px 0 4px}.acHr{height:1px;background:rgba(18,18,18,.12);margin:16px 0 4px}
+.acOpt{text-align:left;background:#FBFAF8!important;color:#121212!important;border:1px solid rgba(18,18,18,.18)!important;min-height:44px}.acOpt b{display:block;font-size:12.5px;letter-spacing:.1em}.acOpt span{display:block;margin-top:4px;font-family:var(--font-display);font-size:13.5px;letter-spacing:0;color:#5E5D59;text-transform:none}
+.acOpt[disabled],.mSG__ok[disabled]{opacity:.45;cursor:not-allowed}
+.acLink{display:flex;align-items:center;gap:8px;margin:12px 0 2px;padding:12px 14px;border-radius:12px;background:#E9E7E2;font-family:var(--font-mono);font-size:12px;color:#4A4945;overflow:hidden;white-space:nowrap}
+.acErr{margin-top:12px;padding:12px 14px;border-radius:12px;background:#EFE6E2;font-family:var(--font-mono);font-size:11.5px;letter-spacing:.04em;line-height:1.5;color:#7A2E1E}.acErr b{display:block;letter-spacing:.12em;margin-bottom:2px}
+.acL{display:block;margin-top:12px;font-family:var(--font-mono);font-size:10.5px;letter-spacing:.14em;color:#8E8D88}.acIn{width:100%;min-height:48px;margin-top:6px;padding:0 14px;border-radius:12px;border:1px solid rgba(18,18,18,.22);background:#FBFAF8;font-family:var(--font-mono);font-size:14px;color:#121212;box-sizing:border-box}
+.acLnk{background:none!important;border:none!important;color:#121212!important;text-align:left;padding:12px 0!important;min-height:44px;text-decoration:underline}
 .mSG__del{background:none;border:none;color:#8E8D88;text-decoration:underline;font-size:11px!important}
 /* ═══ c10.1 · consultor de cargas + dosificador simple ═══ */
 .mCg{position:fixed;inset:0;z-index:985;background:rgba(10,10,11,.5);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);align-items:flex-end;justify-content:center}
@@ -1760,6 +1770,10 @@ html.ks-on #vSala .salaQ input{font:500 17px var(--font-display) !important;lett
     <button type="submit" class="mSG__ok" id="cuOk">GUARDAR NUEVA CONTRASEÑA</button>
     <button type="button" class="mSG__sec" onclick="cuentaCerrar()">CANCELAR</button>
   </form>
+</div>
+<div id="mAcc" class="mSG" style="display:none" role="dialog" aria-modal="true" aria-labelledby="acT" onclick="if(event.target===this&&!ACC.run)accCerrar()">
+  <div class="mSG__c acM"><button type="button" class="acX" onclick="accCerrar()" aria-label="Cerrar">✕</button>
+    <div class="mSG__k">ACCESO A LA APP</div><h3 id="acT">RECUPERAR ACCESO</h3><div id="acBody" aria-live="polite"></div></div>
 </div>
 <div id="mSC" class="mSG" style="display:none" role="dialog" aria-modal="true" aria-labelledby="scT" onclick="if(event.target===this&&!SC.run)scCerrar()">
   <div class="mSG__c gp"><div class="mSG__k">CONTROL DE ENTRENAMIENTO</div><h3 id="scT">—</h3><div id="scBody"></div></div>
@@ -4684,17 +4698,20 @@ async function fAdmCargar(){
   // ACTIVIDAD
   const e0=ev[0]
   h+='<section class="pfC pfC--w2"><div class="pfRow2"><div><div class="pfK"><span>ACTIVIDAD ADMINISTRATIVA</span></div>'+
-    (e0?'<div class="pfS"><b>'+String(e0.accion).replace(/_/g,' ').toUpperCase()+' '+String(e0.entidad||'').toUpperCase()+'</b> · '+adFH(e0.created_at)+' · '+adEsc(e0.actor_nombre||'')+'</div>':'<div class="pfS">Sin cambios registrados.</div>')+
+    (e0?'<div class="pfS"><b>'+evLbl(e0)+'</b> · '+adFH(e0.created_at)+' · '+adEsc(e0.actor_nombre||'')+'</div>':'<div class="pfS">Sin cambios registrados.</div>')+
     '</div><button type="button" class="pfB" onclick="pfVer(\'pfAct\',this)">VER REGISTRO ('+ev.length+')</button></div>'+
     '<div class="pfDet" id="pfAct" hidden>'+ev.map(function(e){
-      return '<div class="adLi"><span>'+String(e.accion).replace(/_/g,' ').toUpperCase()+' '+String(e.entidad||'').toUpperCase()+'<small>'+(e.motivo?adEsc(e.motivo):'')+'</small></span><span>'+adFH(e.created_at)+'<small>'+adEsc(e.actor_nombre||'')+'</small></span></div>' }).join('')+'</div></section>'
+      return '<div class="adLi"><span>'+evLbl(e)+'<small>'+(e.motivo?adEsc(e.motivo):'')+'</small></span><span>'+adFH(e.created_at)+'<small>'+adEsc(e.actor_nombre||'')+'</small></span></div>' }).join('')+'</div></section>'
   // ACCESO A LA APP
-  h+='<section class="pfC"><div class="pfRow2"><div><div class="pfK"><span>ACCESO A LA APP</span></div><div class="pfS"><b>'+(F.estado==='congelado'?'ACCESO SUSPENDIDO':'CUENTA ACTIVA')+'</b> · independiente de la membresía</div></div>'+
+  h+='<section class="pfC"><div class="pfRow2"><div><div class="pfK"><span>ACCESO A LA APP</span></div><div class="pfS"><b>'+(F.estado==='congelado'?'ACCESO SUSPENDIDO':'CUENTA ACTIVA ✓')+'</b> · independiente de la membresía</div>'+
+    '<div class="acI" id="acInfo"><span class="acI__m">'+(so.email?adEsc(so.email):'SIN CORREO REGISTRADO')+'</span><span class="acI__u" id="acUlt">Último acceso · …</span></div></div>'+
     '<div class="pfMenuW"><button type="button" class="pfB" onclick="pfMenu(this)" aria-haspopup="true">CUENTA ▾</button><div class="pfMenu pfMenu--r" hidden>'+
-    '<button onclick="congelar()">'+(F.estado==='congelado'?'REACTIVAR ACCESO':'SUSPENDER ACCESO')+'</button><button class="pfDanger" onclick="cancelar()">DAR DE BAJA</button></div></div></div></section>'
+    '<button onclick="congelar()">'+(F.estado==='congelado'?'REACTIVAR ACCESO':'SUSPENDER ACCESO')+'</button><button class="pfDanger" onclick="cancelar()">DAR DE BAJA</button></div></div></div>'+
+    (accPuede()?'<div class="pfBtns"><button type="button" class="pfB pfB--ink" id="acBtn" onclick="accAbrir()">RECUPERAR ACCESO</button></div>':'')+'</section>'
   h+='</div>'
   mhPintar(id, finAcc, dAcc)
   box.innerHTML=h
+  if (accPuede()) accEstado(id)
 }
 function admFormDatos(){
   admAbrir('DATOS · '+nomDe(F.id).toUpperCase(),'<div class="adF"><label>SEXO</label><div class="adChips"><button id="adSxH" class="'+(F.sex==='hombre'?'on':'')+'" onclick="this.classList.add(\'on\');document.getElementById(\'adSxM\').classList.remove(\'on\')">HOMBRE</button>'+
@@ -5524,6 +5541,120 @@ async function cuentaGuardar(){
       : 'No se pudo cambiar: '+m) }
   cuentaCerrar(); toast('Contraseña actualizada ✓ — tu sesión sigue abierta')
 }
+// ═══ c30 · RECUPERACIÓN DE ACCESO DE SOCIOS ═══
+// El coach nunca ve ni maneja contraseñas. Todo pasa por la Edge Function koach-acceso (service role solo en servidor):
+// valida sesión + rol + socio objetivo, usa el recovery oficial de Supabase Auth y deja registro en admin_eventos.
+const ACC={ run:false, est:null, sid:null, url:null, espera:0, tm:null, foco:null }
+const ACC_LBL={ recovery_email_sent:'RECUPERACIÓN ENVIADA POR CORREO', recovery_link_generated:'ENLACE DE ACCESO GENERADO', email_updated:'CORREO DE ACCESO CORREGIDO', access_restored:'ACCESO RESTABLECIDO POR EL SOCIO' }
+function evLbl(e){ return ACC_LBL[e.accion] || (String(e.accion).replace(/_/g,' ').toUpperCase()+' '+String(e.entidad||'').toUpperCase()) }
+function accPuede(){ return ['admin','coach','recepcion'].indexOf((C.yo&&C.yo.role)||'')>=0 && !(C.yo&&C.yo._pin) }
+async function accLlamar(accion, extra){
+  try{
+    const r=await sb.functions.invoke('koach-acceso', { body:Object.assign({ accion:accion, socio_id:ACC.sid }, extra||{}) })
+    if (r.error){ let b=null; try{ b=await r.error.context.json() }catch(_e){}
+      return b || { ok:false, codigo:'RED', msg:'No pudimos conectar con el servidor. Revisa la conexión e intenta otra vez.' } }
+    return r.data || { ok:false, msg:'Respuesta vacía.' }
+  }catch(_e){ return { ok:false, codigo:'RED', msg:'No pudimos conectar con el servidor. Revisa la conexión e intenta otra vez.' } }
+}
+async function accEstado(sid){
+  if (ACC.sid!==sid){ ACC.espera=0; ACC.url=null } ACC.sid=sid; ACC.est=null; const u=document.getElementById('acUlt'); if(!u) return
+  const r=await accLlamar('estado'); if (ACC.sid!==sid || !document.getElementById('acUlt')) return
+  ACC.est=r.ok?r:null
+  const b=document.getElementById('acBtn')
+  if (!r.ok){ u.textContent='Estado de cuenta no disponible'; return }
+  if (!r.existe){ u.textContent='SIN CUENTA DE ACCESO'; if(b) b.textContent='VER ACCESO'; return }
+  const m=document.querySelector('#acInfo .acI__m'); if (m) m.textContent=r.email||'SIN CORREO REGISTRADO'
+  if (r.nunca_ingreso){ u.textContent='CUENTA CREADA · AÚN NO HA INGRESADO'; if(b) b.textContent='ENVIAR ACCESO' }
+  else u.textContent='Último acceso · '+adFH(r.ultimo_acceso).toUpperCase()
+}
+function accNombre(){ return (nomDe(ACC.sid)||'SOCIO').toUpperCase() }
+function accCab(){ const e=ACC.est||{}
+  const st=!e.existe?'SIN CUENTA DE ACCESO':!e.email?'SIN CORREO REGISTRADO':e.nunca_ingreso?'CUENTA CREADA · AÚN NO HA INGRESADO':'CUENTA ACTIVA ✓'
+  return '<div class="acSoc">'+adEsc(accNombre())+'</div><div class="acSt">'+st+'</div>'+(e.email?'<div class="acMail">'+adEsc(e.email)+'</div>':'') }
+function accErr(r){ const t=String(r.msg||'No pudimos completar la acción.'), tit=r.codigo==='RATE'?'NO PUDIMOS ENVIAR EL CORREO':r.codigo==='EMAIL_INVALIDO'?'EL CORREO NO ES VÁLIDO':r.codigo==='SIN_PERMISO'?'SIN PERMISO':'NO SE PUDO'
+  return '<div class="acErr" role="alert"><b>'+tit+'</b>'+adEsc(t.replace(/^El correo no es válido\.\s*/,''))+'</div>' }
+async function accAbrir(){
+  if (!ACC.sid) ACC.sid=F&&F.id
+  ACC.url=null; ACC.foco=document.activeElement
+  document.getElementById('mAcc').style.display='flex'
+  if (!ACC.est){ document.getElementById('acBody').innerHTML='<div class="acSt">CARGANDO…</div>'; await accEstado(ACC.sid) }
+  accMenu()
+}
+function accMenu(msgHtml){
+  const e=ACC.est||{}, nuevo=!!e.nunca_ingreso
+  document.getElementById('acT').textContent= nuevo?'ENVIAR ACCESO':'RECUPERAR ACCESO'
+  let h=accCab()
+  if (!e.existe){ h+='<div class="acErr"><b>SIN CUENTA DE ACCESO</b>Este socio no tiene cuenta en la app. Pídele que se registre en app.koachclub.cl.</div>'; return accPintar(h) }
+  if (!e.email){ h+='<div class="acHr"></div><button type="button" class="mSG__ok" onclick="accCorregir()">AGREGAR CORREO</button>'; return accPintar(h) }
+  const esp=ACC.espera>Date.now(), seg=Math.ceil((ACC.espera-Date.now())/1000)
+  h+='<div class="acHr"></div>'+
+    '<button type="button" class="acOpt" id="acMail" onclick="accCorreo()"'+(esp?' disabled':'')+'><b>'+(esp?'REENVIAR EN '+seg+' S':'ENVIAR POR CORREO')+'</b><span>'+(nuevo?'Envía un enlace para que cree su contraseña y entre.':'Envía un enlace para crear una nueva contraseña.')+'</span></button>'+
+    '<button type="button" class="acOpt" onclick="accEnlace()"><b>GENERAR ENLACE</b><span>Enlace temporal seguro para enviarlo directo por WhatsApp. Úsalo si el correo no llega.</span></button>'+
+    (msgHtml||'')+'<div class="acHr"></div><button type="button" class="acLnk" onclick="accCorregir()">¿EL CORREO ESTÁ MAL? CORREGIR CORREO →</button>'
+  accPintar(h)
+  if (esp) accTic()
+}
+function accTic(){ clearTimeout(ACC.tm); ACC.tm=setTimeout(function(){ const b=document.getElementById('acMail'); if (!b) return
+  const seg=Math.ceil((ACC.espera-Date.now())/1000)
+  if (seg>0){ b.querySelector('b').textContent='REENVIAR EN '+seg+' S'; accTic() } else { b.disabled=false; b.querySelector('b').textContent='REENVIAR POR CORREO' } },1000)
+}
+function accPintar(h){ document.getElementById('acBody').innerHTML=h; setTimeout(function(){ const f=document.querySelector('#mAcc .acM button:not([disabled]):not(.acX), #mAcc .acM input'); if(f) f.focus() },30) }
+async function accCorreo(){
+  if (ACC.run || ACC.espera>Date.now()) return
+  ACC.run=true; const b=document.getElementById('acMail'); if(b){ b.disabled=true; b.querySelector('b').textContent='ENVIANDO…' }
+  const r=await accLlamar('enviar_correo'); ACC.run=false
+  if (!r.ok){ if (r.codigo==='RATE') ACC.espera=Date.now()+60000; return accMenu(accErr(r)) }
+  ACC.espera=Date.now()+(r.espera_seg||60)*1000
+  accMenu('<div class="acSt">ENLACE ENVIADO ✓</div><div class="acMail">Enviamos las instrucciones a '+adEsc(r.destino)+'. Si no aparece en unos minutos, que revise Spam o usa GENERAR ENLACE.</div>')
+}
+async function accEnlace(){
+  if (ACC.run) return; ACC.run=true
+  accPintar(accCab()+'<div class="acSt">GENERANDO ENLACE SEGURO…</div>')
+  const r=await accLlamar('generar_enlace'); ACC.run=false
+  if (!r.ok) return accMenu(accErr(r))
+  ACC.url=r.url
+  document.getElementById('acT').textContent='ENLACE LISTO'
+  accPintar(accCab()+'<div class="acLink" aria-label="Enlace de acceso (oculto)">app.koachclub.cl/app.html?acceso=••••••••</div>'+
+    '<div class="acMail">Válido temporalmente y por un solo uso. Al abrirlo, el socio crea su nueva contraseña y entra directo a su HOME. Si generas otro, este deja de funcionar.</div>'+
+    '<button type="button" class="mSG__ok" id="acCopy" onclick="accCopiar()">COPIAR ENLACE</button>'+
+    '<button type="button" class="mSG__sec" onclick="accMenu()">VOLVER</button>')
+}
+async function accCopiar(){
+  const b=document.getElementById('acCopy'); if (!ACC.url || !b) return
+  const txt='Hola '+(nomDe(ACC.sid)||'').split(' ')[0]+', aquí tienes tu acceso a KOACH. Ábrelo y crea tu nueva contraseña: '+ACC.url
+  let ok=false
+  try{ await navigator.clipboard.writeText(txt); ok=true }catch(_e){
+    try{ const t=document.createElement('textarea'); t.value=txt; t.setAttribute('readonly',''); t.style.position='fixed'; t.style.opacity='0'; document.body.appendChild(t); t.select(); ok=document.execCommand('copy'); t.remove() }catch(_e2){} }
+  b.textContent= ok?'COPIADO ✓':'NO SE PUDO COPIAR'; if (ok) toast('Enlace copiado ✓ — pégalo en WhatsApp')
+}
+function accCorregir(){
+  const e=ACC.est||{}
+  document.getElementById('acT').textContent= e.email?'CORREGIR CORREO':'AGREGAR CORREO'
+  accPintar('<div class="acSoc">'+adEsc(accNombre())+'</div>'+(e.email?'<span class="acL">CORREO ACTUAL</span><div class="acMail">'+adEsc(e.email)+'</div>':'<div class="acSt">SIN CORREO REGISTRADO</div>')+
+    '<label class="acL" for="acNew">NUEVO CORREO</label><input class="acIn" id="acNew" type="email" inputmode="email" autocomplete="off" autocapitalize="none" spellcheck="false" placeholder="nombre@gmail.com" onkeydown="if(event.key===\'Enter\')accGuardarMail()">'+
+    '<div id="acMErr"></div><button type="button" class="mSG__ok" id="acMOk" onclick="accGuardarMail()">ACTUALIZAR CORREO</button><button type="button" class="mSG__sec" onclick="accMenu()">VOLVER</button>')
+}
+async function accGuardarMail(){
+  const v=String(document.getElementById('acNew').value||'').trim(), box=document.getElementById('acMErr'), b=document.getElementById('acMOk')
+  if (!/^[^\s@]+@[^\s@]+\.[a-z]{2,}$/i.test(v)){ box.innerHTML=accErr({ codigo:'EMAIL_INVALIDO', msg:'Revisa la dirección escrita.' }); return }
+  if (ACC.run) return; ACC.run=true; b.disabled=true; b.textContent='ACTUALIZANDO…'
+  const r=await accLlamar('corregir_correo', { email:v }); ACC.run=false
+  if (!r.ok){ b.disabled=false; b.textContent='ACTUALIZAR CORREO'; box.innerHTML=accErr(r); return }
+  ACC.est=Object.assign({}, ACC.est, { email:r.email }); ACC.espera=0
+  const so=(C.socios||[]).find(function(x){return x.id===ACC.sid}); if (so) so.email=r.email
+  const m=document.querySelector('#acInfo .acI__m'); if (m) m.textContent=r.email
+  document.getElementById('acT').textContent='CORREO ACTUALIZADO'
+  accPintar(accCab()+'<div class="acSt">CORREO ACTUALIZADO ✓</div><button type="button" class="mSG__ok" onclick="accMenu();accCorreo()">ENVIAR RECUPERACIÓN</button><button type="button" class="mSG__sec" onclick="accEnlace()">GENERAR ENLACE</button>')
+}
+function accCerrar(){ clearTimeout(ACC.tm); ACC.url=null; document.getElementById('mAcc').style.display='none'; try{ if (ACC.foco) ACC.foco.focus() }catch(_e){} }
+document.addEventListener('keydown', function(ev){
+  const m=document.getElementById('mAcc'); if (!m || m.style.display==='none') return
+  if (ev.key==='Escape' && !ACC.run){ ev.preventDefault(); accCerrar(); return }
+  if (ev.key!=='Tab') return
+  const f=[].slice.call(m.querySelectorAll('button:not([disabled]),input,[href]')).filter(function(x){ return x.offsetParent!==null })
+  if (!f.length) return; const a=f[0], z=f[f.length-1]
+  if (ev.shiftKey && document.activeElement===a){ ev.preventDefault(); z.focus() } else if (!ev.shiftKey && document.activeElement===z){ ev.preventDefault(); a.focus() }
+})
 // ═══ c11.1 · BÚSQUEDA DE PERSONAS (nombre + apellido, sin tildes, por palabras en cualquier orden, tolera un error de tipeo) ═══
 function bpNorm(t){ return String(t||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9@.+ ]/g,' ').replace(/\s+/g,' ').trim() }
 function _lev(a,b,max){ if (Math.abs(a.length-b.length)>max) return max+1; let p=Array.from({length:b.length+1},(_,i)=>i)
