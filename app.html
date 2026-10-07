@@ -13,6 +13,14 @@
 <meta name="theme-color" content="#000000">
 <meta name="color-scheme" content="only light">
 <style>:root{color-scheme:only light}
+/* c44 · estados KOACH (L1/L2): isotipo · label · titular · contexto · micro-estado */
+.kSt{display:flex;flex-direction:column;gap:10px;padding:22px 18px;border-radius:22px;background:#fff;color:#111;text-align:left}
+.kSt--auth{background:transparent;color:#F4F3F0;padding:4px 0 18px}
+.kSt__t{margin:0;font-family:'KOACH Display','Inter Display',Inter,Arial,sans-serif;font-weight:900;font-stretch:108%;font-size:clamp(24px,7.4vw,32px);line-height:1;letter-spacing:-.01em}
+.kSt__p{margin:0;font-size:14.5px;line-height:1.5;color:#4A4945}.kSt--auth .kSt__p{color:rgba(244,243,240,.72)}
+.kSt__ms{font:700 9.5px 'Space Mono','IBM Plex Mono',monospace;letter-spacing:.14em;color:#6B6A65}
+.kSt .kIso--ink{filter:brightness(0);width:22px}
+.kwin .kLogo--foot{opacity:.7}
 /* ═══ c41 · CAPA DE MARCA PARA PANTALLAS INTERMEDIAS (un solo sistema: isotipo · label mono · titular · dato · logotipo firma) ═══ */
 .kLogo{display:block;height:auto}
 .kLogo--hdr{width:112px}.kLogo--wel{width:150px}.kLogo--flash{width:120px;margin:0 auto 22px;opacity:.9}
@@ -1837,8 +1845,9 @@ body.wl-on{overflow:hidden}
         <button class="btn" id="bNueva" onclick="nuevaClave()">GUARDAR CONTRASEÑA</button>
       </div>
       <div id="fInval" style="display:none">
-        <div class="okmsg" style="display:block">Este enlace ya fue usado o venció. Pide uno nuevo a recepción o solicítalo tú mismo con tu correo.</div>
-        <button class="btn" onclick="authVista('fRecu')">SOLICITAR UNO NUEVO</button>
+        <div class="kSt kSt--auth" role="status"><span class="kLbl">RECUPERAR ACCESO</span>
+          <p class="kSt__p">Los enlaces vencen a la hora o cuando ya se usaron. Pide uno nuevo con tu correo; llega en segundos.</p></div>
+        <button class="btn" onclick="authVista('fRecu')">PEDIR UN NUEVO ENLACE</button>
         <div class="links"><a href="#" role="button" onclick="event.preventDefault();authVista('fLogin')">← Volver a iniciar sesión</a><span></span></div>
       </div>
     </div>
@@ -4404,7 +4413,7 @@ function pintarCicloSocio(){
   el.innerHTML='<div class="p2Cyc" role="list" aria-label="Semanas del ciclo">'+h+'</div>'
 }
 function pintarPlan(){
-  if (!S.programa){ document.getElementById('pLista').innerHTML='<div class="vacio">Tu protocolo aparecerá aquí cuando tu coach lo active.<br><b>Nos vemos en la sala.</b></div>'; return }
+  if (!S.programa){ document.getElementById('pLista').innerHTML='<div class="kSt"><img class="kIso kIso--ink" src="/img/brand/isotipo-blanco.png" alt=""><span class="kLbl kLbl--dk">TU PLAN</span><h2 class="kSt__t">TU KOACH ESTÁ PREPARANDO TU PLAN.</h2><p class="kSt__p">Lo verás aquí apenas esté activo: tus sesiones, tus cargas y tu semana.</p><span class="kSt__ms">● PLAN EN PREPARACIÓN</span></div><div hidden><b>Nos vemos en la sala.</b></div>'; return }
   const ci=cicloInfo(), N=(ci&&ci.semanas)||(S.proto&&S.proto.ciclo_semanas)||6, vig=S.semanaActual||1
   const fmt=d=>{ if(!d) return ''; const x=new Date(String(d).slice(0,10)+'T12:00:00'); return x.getDate()+' '+_MES[x.getMonth()] }
   document.getElementById('pTit').textContent=String((S.proto&&S.proto.programa)||'Tu plan').toUpperCase()
@@ -5214,6 +5223,7 @@ document.addEventListener('DOMContentLoaded', async ()=>{
   <div class="kwin__dato" id="cmDato"></div>
   <div class="kwin__sem" id="cmSem"></div>
   <div class="kwin__slo">1% MEJOR CADA DÍA</div>
+  <img class="kLogo kLogo--foot" src="/img/brand/logotipo-koach.png" alt="KOACH">
 </div>
 <div class="ks" id="oShare" role="dialog" aria-modal="true" aria-label="Comparte tu logro">
   <div class="ks__box">
