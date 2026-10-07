@@ -1398,6 +1398,30 @@ html.selAbierto,html.selAbierto body{overflow:hidden}
 }
 
 @media (max-width:640px){ .mh{padding:12px 12px 0} .mh__acc .pfB{white-space:normal;min-width:0;padding:0 8px;font-size:11.5px} .mh__s{padding:2px 14px} .mh__n h1{font-size:24px !important} .mh__code{font-size:11px;letter-spacing:.1em} .mh__doors button{padding:0 8px;font-size:13px;letter-spacing:.1em} .pfRow2{flex-wrap:wrap} }
+
+/* ═══ c23 · aviso de ejercicio repetido (informativo, no error) ═══ */
+.dupBg{position:fixed;inset:0;z-index:120;display:none;align-items:center;justify-content:center;padding:16px;background:rgba(10,10,11,.55)}
+.dupC{position:relative;width:100%;max-width:520px;max-height:calc(100% - 24px);overflow:auto;box-sizing:border-box;padding:24px 22px 20px;border-radius:20px;background:#FBFAF8;color:#121212;box-shadow:0 30px 60px -30px rgba(0,0,0,.5)}
+.dupX{position:absolute;top:10px;right:10px;width:44px;height:44px;border:0;border-radius:12px;background:none;font-size:16px;cursor:pointer;color:#5E5D59}
+.dupK{font-family:var(--font-mono);font-size:11.5px;letter-spacing:.14em;color:#5E5D59;padding-right:44px}
+.dupN{margin:6px 0 8px;font-family:var(--font-display);font-weight:800;font-size:24px;line-height:1.15}
+.dupD{margin:0 0 14px;font-size:15px;line-height:1.45;color:#5E5D59}
+.dupL{font-family:var(--font-mono);font-size:10.5px;letter-spacing:.14em;color:#5E5D59;margin:10px 0 6px}
+.dupC ul{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px}
+.dupR{display:flex;flex-direction:column;gap:2px;padding:10px 12px;border-radius:12px;background:#F1F0EC;border:1px solid rgba(18,18,18,.08)}
+.dupR b{font-family:var(--font-display);font-size:15px}
+.dupR span{font-family:var(--font-mono);font-size:12px;letter-spacing:.04em;color:#5E5D59}
+.dupR--h{background:#121212;border-color:#121212}.dupR--h b,.dupR--h span{color:#F4F3F0}
+.dupB{display:flex;gap:8px;margin-top:18px}
+.dupBtn{flex:1;min-height:52px;padding:0 12px;border-radius:14px;border:1px solid rgba(18,18,18,.22);background:#FBFAF8;color:#121212;font-family:var(--font-mono);font-weight:500;font-size:12px;letter-spacing:.1em;cursor:pointer}
+.dupBtn--ink{background:#121212;color:#F4F3F0;border-color:#121212}
+.dupBtn:focus-visible,.dupX:focus-visible{outline:2px solid #121212;outline-offset:2px}
+@media (max-width:520px){ .dupB{flex-direction:column} }
+
+/* c42 · limpiar búsqueda de Sala */
+.salaQ{position:relative}
+.salaQx{position:absolute;right:6px;top:50%;transform:translateY(-50%);width:36px;height:36px;border:0;border-radius:10px;background:rgba(18,18,18,.08);font-size:20px;line-height:1;color:#121212;cursor:pointer}
+.salaQ input::-webkit-search-cancel-button{display:none}
 /* ═══ FIN CAPA 3 ═══ */
 /* ═══ MOTOR DE CONSTRUCCIÓN c8.0 · MACRO → MESO → MICRO ═══ */
 .plNav{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin:0 0 14px}
@@ -1715,7 +1739,7 @@ html.ks-on #vSala .salaQ input{font:500 17px var(--font-display) !important;lett
   <div class="stats" id="pulso" style="display:none"></div>
   <section class="sl" aria-label="Sala">
     <div class="sl__h"><div class="sl__ti"><h2 class="sl__t">Sala</h2><span class="sl__n" id="rostN">—</span></div>
-      <div class="sl__q"><label class="salaQ"><span aria-hidden="true">⌕</span><input id="salaQ" type="search" placeholder="Buscar socio…" autocomplete="off" oninput="salaBuscar()" onkeydown="salaBuscarKey(event)" aria-label="Buscar socio por nombre o apellido"></label><span class="sl__c" id="nSoc">—</span></div></div>
+      <div class="sl__q"><label class="salaQ"><span aria-hidden="true">⌕</span><input id="salaQ" type="search" placeholder="Buscar socio…" autocomplete="off" oninput="salaBuscar()" onkeydown="salaBuscarKey(event)" aria-label="Buscar socio por nombre o apellido"><button type="button" id="salaQx" class="salaQx" hidden onclick="salaLimpiar()" aria-label="Limpiar búsqueda">×</button></label><span class="sl__c" id="nSoc">—</span></div></div>
     <div class="sl__res"><div id="lista"></div><div class="vacio" id="salaQv" style="display:none">Ningún socio coincide con la búsqueda.</div><p class="salaHint" id="salaHint" hidden></p></div>
     <div class="kidG" id="rostG"></div>
     <div class="sl__s" id="recH" hidden>Últimos en sala</div>
@@ -3552,6 +3576,7 @@ function abrirSelector(modo,bi,beId){
   pintarSelector()
   selArriba()
   if (matchMedia('(pointer:fine)').matches) setTimeout(function(){ document.getElementById('selBusca').focus({preventScroll:true}) },30)
+  dupEjecutados()   // precarga (1 consulta por semana) de lo ya realizado
 }
 function selArriba(){ const sc=document.getElementById('selScroll'); if(sc) sc.scrollTop=0 }
 function selBuscar(){ SEL.foco=-1; pintarSelector(); selArriba() }
@@ -3601,8 +3626,13 @@ function pintarSelector(){
           (act?'<span class="selAct">ACTUAL</span>':'')+(e.implemento?'<span class="selImp">'+String(e.implemento).replace('_',' ')+'</span>':'')+'</div>' }).join('')
   }).join('') : '<div class="selVacio"><p>NO ENCONTRAMOS ESE EJERCICIO</p><button type="button" class="eBtn" onclick="document.getElementById(\'selBusca\').value=\'\';setGrupoSel(null)">LIMPIAR BÚSQUEDA</button></div>'
 }
-async function elegirEj(ejId){
+async function elegirEj(ejId, confirmado){
   const e=(EJCAT||[]).find(function(x){return String(x.id)===String(ejId)}); if(!e)return
+  // c23 · ejercicio repetido en la semana: se avisa ANTES de insertar; el coach decide
+  if (!confirmado && !(SEL.modo==='cambiar' && String(SEL.actual)===String(e.id))){
+    const rep_=await dupDetectar(e.id, SEL.modo==='cambiar'?SEL.beId:null)
+    if (rep_.programado.length || rep_.realizado.length){ dupModal(e, rep_); return }
+  }
   cerrarSelector()
   if(SEL.modo==='cambiar'){
     const x=planItem(SEL.beId); if(!x)return
@@ -5246,6 +5276,7 @@ function salaRecPintar(){
 }
 function salaPresenciaPintar(){
   const g=document.getElementById('rostG'); if(!g) return
+  const _q=document.getElementById('salaQ'); if (_q && bpNorm(_q.value)) { salaBuscar(); return }
   const per=salaPersonas(C.pres)
   const en=per.filter(function(p){ return p.enSala }).sort(function(a,b){ return new Date(a.principal.inicio)-new Date(b.principal.inicio) })
   document.getElementById('rostN').innerHTML = '<i class="kLv" aria-hidden="true"></i>'+en.length+' ENTRENANDO AHORA'
@@ -5653,17 +5684,30 @@ function fPintarCtx(id){
     '</div></div>'
   scCargar(id)
 }
-function salaBuscar(){ const raw=document.getElementById('salaQ').value||'', q=bpNorm(raw), lista=document.getElementById('lista')
-  const els=[...lista.querySelectorAll(':scope > [data-nom]')]
-  if (!els._orig) els.forEach(function(el,i){ if(el.dataset.o==null) el.dataset.o=i })
-  let n=0; const sc=els.map(function(el){ const so=(C.socios||[]).find(function(x){return x.id===el.dataset.id})||{}
-    const v=q ? bpScore(q, el.getAttribute('data-nom'), [so.email,so.telefono].filter(Boolean).join(' ')) : 1; el.style.display=v?'':'none'; if(v) n++; return {el:el,v:v} })
-  sc.sort(function(a,b){ return q ? (b.v-a.v || (+a.el.dataset.o)-(+b.el.dataset.o)) : (+a.el.dataset.o)-(+b.el.dataset.o) }).forEach(function(x){ lista.appendChild(x.el) })
-  const v=document.getElementById('salaQv'); if(v){ v.style.display = (q && !n) ? '' : 'none'; v.textContent='No encontramos socios para “'+raw.trim()+'”.' }
-  lista.style.display = q ? '' : 'none'
-  const _h=document.getElementById('salaHint'); if(_h) _h.style.display = raw.trim() ? 'none' : '' }
-function salaBuscarKey(ev){ if (ev.key!=='Enter') return; const f=[...document.querySelectorAll('#lista [data-nom]')].filter(function(e){return e.style.display!=='none'})
-  if (f.length===1){ const id=f[0].getAttribute('data-id'); location.hash=urlRutina(id) } }
+// c42 · SALA = UNA SOLA REPRESENTACIÓN DEL SOCIO: el buscador filtra el MISMO grid de tarjetas (kidCard).
+// Sin texto: roster de presencia. Con texto: socios del club como tarjetas, con su estado real (en sala / no está).
+function salaBuscar(){
+  const inp=document.getElementById('salaQ'), raw=(inp&&inp.value)||'', q=bpNorm(raw)
+  const lista=document.getElementById('lista'); if (lista) lista.style.display='none'
+  const qv=document.getElementById('salaQv'), hint=document.getElementById('salaHint'), cl=document.getElementById('salaQx')
+  if (cl) cl.hidden = !raw
+  if (!q){ if(qv) qv.style.display='none'; document.querySelectorAll('#recH,#recG,#atn').forEach(function(e){ e.style.display='' }); salaPresenciaPintar(); return }
+  document.querySelectorAll('#recH,#recG,#atn').forEach(function(e){ e.style.display='none' })
+  const per=salaPersonas(C.pres||[]), enSala={}; per.forEach(function(p){ if(p.enSala) enSala[p.socio_id]=p })
+  const res=(C.socios||[]).map(function(so){ const nom=((so.nombre||'')+' '+(so.apellido||'')).trim()
+      return { so:so, nom:nom, v:bpScore(q, nom, [so.email,so.telefono].filter(Boolean).join(' ')) } })
+    .filter(function(x){ return x.v>0 }).sort(function(a,b){ return (b.v-a.v) || SEL_COL.compare(a.nom,b.nom) })
+  document.getElementById('rostN').textContent = res.length+' RESULTADO'+(res.length===1?'':'S')
+  const g=document.getElementById('rostG')
+  g.innerHTML = res.map(function(x){ const id=x.so.id, p=enSala[id]
+    if (p){ const m=presMin(p.principal.inicio); return kidCard(id, x.nom, (m<2?'RECIÉN LLEGA':kidDur(m)+' EN SALA'), String(p.principal.sesion||'SESIÓN'), true) }
+    const c=ctxEnt(id), ctx = !C.asig[id] ? 'SIN PLANIFICACIÓN' : c && c.hoyOk ? 'ENTRENÓ HOY' : c && c.pend ? 'PRÓXIMA · '+String(c.pend.nombre||'').toUpperCase() : 'SEMANA COMPLETA'
+    return kidCard(id, x.nom, 'NO ESTÁ EN SALA', ctx, false) }).join('')
+  if (qv){ qv.style.display = res.length ? 'none' : ''; qv.textContent='No encontramos socios para “'+raw.trim()+'”.' }
+  if (hint) hint.hidden=true
+}
+function salaLimpiar(){ const i=document.getElementById('salaQ'); i.value=''; salaBuscar(); i.focus() }
+function salaBuscarKey(ev){ if (ev.key==='Escape'){ ev.preventDefault(); if (ev.target.value) salaLimpiar(); else ev.target.blur() } }
 // ═══════════ c10.8 · GESTIONAR PROGRAMA ═══════════
 // Sin entrenamiento real en el ciclo → se REEMPLAZA (o se quita). Con entrenamiento → se CIERRA el ciclo (historial intacto, solo
 // lectura) y nace un ciclo nuevo desde la semana 1. La decisión la toma el servidor (koach_cambiar_programa), atómica y con bloqueo.
@@ -6340,6 +6384,70 @@ window.addEventListener('scroll', function(){ const v=document.getElementById('v
 document.addEventListener('keydown', function(e){ if(e.key!=='Escape') return
   document.querySelectorAll('.pfMenu:not([hidden])').forEach(function(m){ m.hidden=true; const b=m.previousElementSibling; if(b){ b.setAttribute('aria-expanded','false'); b.focus() } }) })
 function pfVer(idd,b){ const d=document.getElementById(idd); d.hidden=!d.hidden; b.classList.toggle('on',!d.hidden) }
+// ═══════════ c23 · EJERCICIO REPETIDO EN LA SEMANA (aviso, no bloqueo) ═══════════
+// Fuente: la planificación EN MEMORIA (guardada + borrador sin guardar) de la semana que se edita, comparada por
+// ejercicio_id; más lo REALIZADO esa semana (sets completados en sesiones no anuladas), 1 consulta por semana en caché.
+function dupSemana(){
+  if (!P) return []
+  const w = plActivo() ? PL.w : (((P.sesiones[P.tab]||{}).semana)||1)
+  return plActivo() ? plSesSem(w) : P.sesiones.filter(function(x){ return (x.semana||1)===w })
+}
+function dupIndice(excluirBeId){            // Map ejId → apariciones (se arma desde el borrador: siempre al día)
+  const M=new Map()
+  dupSemana().forEach(function(ses){ (ses.bloques||[]).forEach(function(b,bi){ (b.items||[]).forEach(function(it){
+    if (!it.ejId || it.beId===excluirBeId) return
+    const k=String(it.ejId); if(!M.has(k)) M.set(k,[])
+    M.get(k).push({ sesId:ses.id, sesNum:ses.numero, sesNombre:ses.nombre||('SESIÓN '+ses.numero), bi:bi, bloque:b.etiqueta||'', sets:b.sets, reps:it.reps, actual:ses===P.sesiones[P.tab] }) }) }) })
+  return M
+}
+async function dupEjecutados(){
+  if (!P || P.bib || P.base || !F) return null
+  const ses=dupSemana(), key=P.pid+':'+ses.map(function(x){return x.id}).join(',')
+  if (P._dupEj && P._dupEj.key===key) return P._dupEj.p
+  const pr=(async function(){
+    const ids=ses.map(function(x){return x.id}); if(!ids.length) return new Map()
+    const r=await sb.from('set_registros').select('ejercicio_id,peso,reps,seg,created_at,sesiones_registro!inner(sesion_protocolo_id,fecha,estado)')
+      .eq('socio_id',F.id).eq('completado',true).in('sesiones_registro.sesion_protocolo_id',ids).neq('sesiones_registro.estado','anulada')
+    const M=new Map(); if (r.error) return M
+    ;(r.data||[]).forEach(function(x){ const k=String(x.ejercicio_id), sr=x.sesiones_registro||{}, s2=ses.find(function(z){return z.id===sr.sesion_protocolo_id})||{}
+      const cur=M.get(k); if (!cur || (+x.peso||0)>(+cur.peso||0)) M.set(k,{ peso:x.peso, reps:x.reps, seg:x.seg, fecha:sr.fecha, estado:sr.estado, sesId:sr.sesion_protocolo_id, sesNum:s2.numero, sesNombre:s2.nombre||'' }) })
+    return M })()
+  P._dupEj={key:key, p:pr}
+  return pr
+}
+async function dupDetectar(ejId, excluirBeId){
+  const prog=(dupIndice(excluirBeId).get(String(ejId))||[])
+  let hecho=null; try{ const M=await dupEjecutados(); hecho=M?M.get(String(ejId)):null }catch(_e){}
+  return { programado: prog.filter(function(o){ return !(hecho && o.sesId===hecho.sesId) }), realizado: hecho?[hecho]:[] }
+}
+function dupModal(e, r){
+  const nP=r.programado.length, mismaSes=nP && r.programado.every(function(o){return o.actual})
+  const tit = r.realizado.length ? 'EJERCICIO YA REALIZADO ESTA SEMANA' : mismaSes ? 'YA ESTÁ PROGRAMADO EN ESTA SESIÓN' : nP>1 ? 'EJERCICIO YA PROGRAMADO '+nP+' VECES ESTA SEMANA' : 'EJERCICIO YA PROGRAMADO ESTA SEMANA'
+  const fila=function(o){ return '<li class="dupR"><b>'+(o.actual?'ESTA SESIÓN':'S'+(o.sesNum||'?')+' · '+plEsc(String(o.sesNombre).toUpperCase()))+'</b><span>B'+(o.bi+1)+(o.bloque?' · '+plEsc(String(o.bloque).toUpperCase()):'')+' · '+(o.sets||'—')+' × '+plEsc(String(o.reps||'—'))+'</span></li>' }
+  const filaH=function(h){ return '<li class="dupR dupR--h"><b>S'+(h.sesNum||'?')+' · '+plEsc(String(h.sesNombre||'').toUpperCase())+'</b><span>'+(h.peso!=null?h.peso+' KG × '+plEsc(String(h.reps||'—')):(h.seg?h.seg+' S':'REALIZADO'))+' · '+(h.estado==='completada'?'COMPLETADA':'REGISTRADO')+(h.fecha?' · '+plEsc(adhF?adhF(h.fecha):h.fecha):'')+'</span></li>' }
+  let box=document.getElementById('mDup'); if(!box){ box=document.createElement('div'); box.id='mDup'; box.className='dupBg'; document.body.appendChild(box) }
+  box.innerHTML='<div class="dupC" role="dialog" aria-modal="true" aria-labelledby="dupT" aria-describedby="dupD">'+
+    '<button type="button" class="dupX" aria-label="Cerrar sin agregar" onclick="dupCerrar()">✕</button>'+
+    '<div class="dupK" id="dupT">'+tit+'</div><h3 class="dupN">'+plEsc(String(e.nombre).toUpperCase())+'</h3>'+
+    '<p class="dupD" id="dupD">'+(r.realizado.length?'El socio ya lo entrenó esta semana. ¿Quieres volver a programarlo?':'Ya está en la semana que estás editando. Repetirlo puede ser intencional: tú decides.')+'</p>'+
+    (r.realizado.length?'<div class="dupL">YA REALIZADO</div><ul>'+r.realizado.map(filaH).join('')+'</ul>':'')+
+    (nP?'<div class="dupL">'+(r.realizado.length?'TAMBIÉN PROGRAMADO':'YA PROGRAMADO EN')+'</div><ul>'+r.programado.map(fila).join('')+'</ul>':'')+
+    '<div class="dupB"><button type="button" class="dupBtn" id="dupRe">REEMPLAZAR EJERCICIO</button><button type="button" class="dupBtn dupBtn--ink" id="dupOk">CONTINUAR DE TODAS FORMAS</button></div></div>'
+  box.style.display='flex'
+  DUP.prev=document.activeElement
+  document.getElementById('dupRe').onclick=function(){ dupCerrar() }            // vuelve al selector; no se agrega nada
+  document.getElementById('dupOk').onclick=function(){ dupCerrar(true); elegirEj(e.id, true) }
+  box.onkeydown=function(ev){
+    if (ev.key==='Escape'){ ev.preventDefault(); dupCerrar(); return }
+    if (ev.key==='Tab'){ const f=[...box.querySelectorAll('button')], i=f.indexOf(document.activeElement)
+      ev.preventDefault(); f[(i+(ev.shiftKey?-1:1)+f.length)%f.length].focus() } }
+  setTimeout(function(){ document.getElementById('dupRe').focus() },20)   // foco en la opción segura: Enter no repite por accidente
+}
+const DUP={prev:null}
+function dupCerrar(seguir){
+  const b=document.getElementById('mDup'); if(b) b.style.display='none'
+  if (!seguir){ const q=document.getElementById('selBusca'); if(q && document.getElementById('selEj').style.display!=='none') q.focus({preventScroll:true}) }
+}
 let MG={primero:null}
 async function aplicarPrograma(){
   // Guardia de prescripción (advertencia, jamás bloqueo) — modal KOACH, no confirm nativo
@@ -6375,11 +6483,11 @@ async function aplicarPrograma(){
     if (fueraBib>0) partes.push(fueraBib+' fuera de la biblioteca vigente')
     if (sobre.length) partes.push('proyecta SOBRE TECHO: '+sobre.join(', '))
     if (corto.length) partes.push('no proyecta a completar: '+corto.join(', '))
-    document.getElementById('mgMsg').textContent = 'Esta programación contiene: '+partes.join(' · ')+'.'
-    document.getElementById('mGuard').style.display='block'
-    return
+    // c23.1 · APLICAR aplica de inmediato (el socio lo ve en vivo). Lo pendiente queda como aviso, sin pedir confirmación.
+    MG.aviso='Aplicado · '+partes.join(' · ')+'. Puedes completarlo cuando quieras; las cargas vacías se llenan solas al entrenar.'
   }
-  aplicarProgramaGo()
+  const _av=MG.aviso; MG.aviso=null
+  Promise.resolve(aplicarProgramaGo()).then(function(){ if (_av) setTimeout(function(){ toast(_av) }, 1800) })
 }
 function mgAplicar(){ document.getElementById('mGuard').style.display='none'; aplicarProgramaGo() }
 function mgRevisar(){
