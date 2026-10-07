@@ -1174,10 +1174,17 @@ html.selAbierto,html.selAbierto body{overflow:hidden}
 .kcWeek .kcS--px{background:#121212;color:#F4F3F0}.kcWeek .kcS--px small{color:#A7A9AE}
 .kcWeek .kcS--en_curso{box-shadow:inset 0 -3px 0 #121212!important}
 /* v4 · utilidades compactas (P2) */
-.kcUt{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
-.kcU{min-height:44px;padding:0 16px;border-radius:999px;border:1px solid rgba(18,18,16,.2);background:transparent;font-family:var(--font-mono,monospace);font-weight:500;font-size:11px;letter-spacing:.1em;color:#121212;cursor:pointer;display:inline-flex;align-items:center;gap:8px}
-.kcU b{font-weight:500;color:#5E5D59}.kcU span{font-size:9px;color:#5E5D59;transition:transform .15s}
-.kcU.on{background:#121212;color:#F4F3F0;border-color:#121212}.kcU.on b{color:#C9C8C2}.kcU.on span{transform:rotate(180deg);color:#C9C8C2}
+.kcUt{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-top:12px}
+@media (max-width:640px){ .kcUt{grid-template-columns:1fr} }
+.kcU{min-height:64px;padding:12px 16px;border-radius:16px;border:1.5px solid #121212;background:#FBFAF8;color:#121212;cursor:pointer;display:flex;flex-direction:column;align-items:flex-start;justify-content:center;gap:4px;text-align:left;transition:background .15s}
+.kcU:hover{background:#fff}
+.kcU b{font-family:var(--font-mono,monospace);font-weight:500;font-size:12px;letter-spacing:.1em}
+.kcU small{font-size:12.5px;color:#5E5D59}
+.kcU b span{display:inline-block;font-size:9px;margin-left:4px;transition:transform .15s}
+.kcU.on{background:#121212;color:#F4F3F0}.kcU.on small{color:#C9C8C2}.kcU.on b span{transform:rotate(180deg)}
+.kcWeek .kcS--extra{background:rgba(95,212,224,.16)!important;box-shadow:inset 0 0 0 2px #2BB3C0!important}
+.kcWeek .kcS--extra i,.kcWeek .kcS--extra small{color:#0E7C86}
+.kcWeek .kcS--extra.kcS--px{background:#0E3B40!important;color:#F4F3F0}.kcWeek .kcS--extra.kcS--px small,.kcWeek .kcS--extra.kcS--px i{color:#5FD4E0}
 .kcU:focus-visible,.pfB:focus-visible,.pfMenu button:focus-visible{outline:2px solid #121212;outline-offset:2px}
 .fAdhIn{margin-top:12px}
 /* v4 · cabecera compacta al hacer scroll (identidad + programa + puertas) */
@@ -5227,17 +5234,23 @@ async function cgUsar(beId, kg){ document.getElementById('mCargas').style.displa
 // Consultor global: buscar cualquier ejercicio antes de insertarlo
 function cgConsultor(){
   document.getElementById('cgBody').innerHTML='<div class="cgK">CONSULTAR CARGAS'+(F?' · '+String(nomDe(F.id)).toUpperCase():'')+'</div>'+
-    '<input id="cgBusca" placeholder="Buscar ejercicio…" oninput="cgFiltrar()" autocomplete="off"><div id="cgLista"></div>'
+    '<input id="cgBusca" placeholder="Buscar ejercicio…" oninput="cgFiltrar()" autocomplete="off"><div class="cgK" style="margin:10px 0 4px">EJERCICIOS REGISTRADOS · ÚLTIMO PESO</div><div id="cgLista"></div>'
   document.getElementById('mCargas').style.display='flex'; cgFiltrar(); setTimeout(function(){ const i=document.getElementById('cgBusca'); if(i) i.focus() },50)
 }
-async function fichaCargas(){ if(!F) return; toast('Cargando historial…'); await cargarHistorialCargas(F.id); cgConsultor() }
+let CG_EXTRA=[]
+async function fichaCargas(){ if(!F) return; toast('Cargando historial…'); await cargarHistorialCargas(F.id)
+  // Nombres de los ejercicios registrados (sin tocar EJCAT: el planificador carga el catálogo completo por su cuenta)
+  const ids=Object.keys(HIST||{}), cat=(EJCAT||[]).concat(CG_EXTRA), faltan=ids.filter(function(i){ return !cat.find(function(e){return e.id===i}) })
+  if (faltan.length){ const r=await sb.from('ejercicios').select('id,nombre').in('id',faltan); CG_EXTRA=CG_EXTRA.concat(r.data||[]) }
+  cgConsultor() }
 function cgFiltrar(){
   const q=((document.getElementById('cgBusca')||{}).value||'').trim().toLowerCase()
-  const l=(EJCAT||[]).filter(function(e){ return !q || String(e.nombre).toLowerCase().indexOf(q)>-1 })
+  const base=(EJCAT||[]).concat(CG_EXTRA.filter(function(x){ return !(EJCAT||[]).find(function(e){return e.id===x.id}) }))
+  const l=base.filter(function(e){ return q ? String(e.nombre).toLowerCase().indexOf(q)>-1 : !!HIST[e.id] })
     .sort(function(a,b){ const fa=HIST[a.id]&&HIST[a.id].ultimo&&HIST[a.id].ultimo.fecha||'', fb=HIST[b.id]&&HIST[b.id].ultimo&&HIST[b.id].ultimo.fecha||''
       return (fb>fa?1:fb<fa?-1:0) || String(a.nombre).localeCompare(String(b.nombre)) }).slice(0,40)
   document.getElementById('cgLista').innerHTML=l.map(function(e){ const h=HIST[e.id]
-    return '<button class="cgRow" onclick="cgDrawer(\''+e.id+'\')"><span>'+e.nombre+'</span><b>'+(h?'ÚLTIMO '+cgSet(h.ultimo)+' · '+cgF(h.ultimo.fecha):'SIN REGISTRO')+'</b></button>' }).join('')||'<div class="vacio">Sin resultados.</div>'
+    return '<button class="cgRow" onclick="cgDrawer(\''+e.id+'\')"><span>'+e.nombre+'</span><b>'+(h?'ÚLTIMO '+cgSet(h.ultimo)+' · '+cgF(h.ultimo.fecha):'SIN REGISTRO')+'</b></button>' }).join('')||'<div class="vacio">'+(q?'Sin resultados para “'+plEsc(q)+'”.':'Este socio aún no registra cargas.')+'</div>'
 }
 // ═══════════ c10.3 · RUTAS POR SOCIO (la URL define el socio activo) ═══════════
 // #/socio/<uuid>                → ficha      · #/socio/<uuid>/plan?w=2&s=<sesión> → planificador
@@ -5379,9 +5392,9 @@ function fPintarCtx(id){
   el.innerHTML='<div class="kc">'+
     '<section class="kcOp" id="scCard" aria-label="Operación de hoy"><div class="kcK">OPERACIÓN DE HOY</div><div class="gpCarga">Cargando…</div></section>'+
     '<div class="kcUt" role="group" aria-label="Utilidades de entrenamiento">'+
-      '<button type="button" class="kcU" onclick="fichaCargas()">CARGAS</button>'+
-      '<button type="button" class="kcU" onclick="gpAbrir()">PROGRAMA</button>'+
-      '<button type="button" class="kcU kcU--adh" id="kcUAdh" aria-expanded="false" aria-controls="fTabAdh" onclick="fAdhToggle(this)">ADHERENCIA <b id="kcUAdhV">—</b><span aria-hidden="true">▾</span></button>'+
+      '<button type="button" class="kcU" onclick="fichaCargas()"><b>HISTORIAL DE CARGAS</b><small>último peso por ejercicio</small></button>'+
+      '<button type="button" class="kcU" onclick="gpAbrir()"><b>GESTIONAR PROGRAMA</b><small>cambiar · nuevo ciclo</small></button>'+
+      '<button type="button" class="kcU kcU--adh" id="kcUAdh" aria-expanded="false" aria-controls="fTabAdh" onclick="fAdhToggle(this)"><b>ADHERENCIA <span aria-hidden="true">▾</span></b><small id="kcUAdhV">—</small></button>'+
     '</div></div>'
   scCargar(id)
 }
@@ -5583,10 +5596,13 @@ function scPintar(){
     '<div class="kcBtns">'+cta+'<button type="button" class="kcB" onclick="scElegir()">ELEGIR OTRA</button></div></div>'
   // 2 · la semana de un vistazo: cada sesión abre directo en el planificador
   const ses=st.sesiones||[], ic={completada:'✓',en_curso:'●',omitida:'◐',pendiente:'○'}
+  const DS=['DOM','LUN','MAR','MIÉ','JUE','VIE','SÁB'], MS=['ENE','FEB','MAR','ABR','MAY','JUN','JUL','AGO','SEP','OCT','NOV','DIC']
+  const cuando=function(t){ if(!t) return ''; const d=new Date(t); return DS[d.getDay()]+' '+d.getDate()+' '+MS[d.getMonth()]+' · '+String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0') }
   if (ses.length) h+='<div class="kcWeek" aria-label="Sesiones de la semana">'+ses.map(function(z){
-      const u='#/socio/'+F.id+'/plan?w='+st.semana+'&s='+z.id, esPx=px&&px.id===z.id
-      return '<a class="kcS kcS--'+z.estado+(esPx?' kcS--px':'')+'" href="'+u+'" onclick="return rtIr(event,\''+u+'\')" title="Abrir en el planificador">'+
-        '<i>'+(ic[z.estado]||'○')+'</i><span><small>'+String(z.numero).padStart(2,'0')+(esPx?' · PRÓXIMA':'')+'</small><b>'+plEsc(String(z.nombre||'').toUpperCase())+'</b></span></a>' }).join('')+'</div>'
+      const u='#/socio/'+F.id+'/plan?w='+st.semana+'&s='+z.id, esPx=px&&px.id===z.id, esX=hb&&hb.sesion_id===z.id
+      const meta = z.estado==='completada' ? cuando(z.cuando) : z.estado==='en_curso' ? 'EN CURSO · '+cuando(z.cuando) : esX ? 'SESIÓN EXTRA · HABILITADA' : esPx ? 'PRÓXIMA' : 'PENDIENTE'
+      return '<a class="kcS kcS--'+z.estado+(esPx?' kcS--px':'')+(esX?' kcS--extra':'')+'" href="'+u+'" onclick="return rtIr(event,\''+u+'\')" title="Abrir en el planificador">'+
+        '<i>'+(esX&&z.estado!=='completada'?'★':(ic[z.estado]||'○'))+'</i><span><small>'+String(z.numero).padStart(2,'0')+' · '+meta+(esX&&z.estado!=='pendiente'?' · EXTRA':'')+'</small><b>'+plEsc(String(z.nombre||'').toUpperCase())+'</b></span></a>' }).join('')+'</div>'
   // 3 · sesiones abiertas con acciones directas (sin pasos intermedios)
   ab.forEach(function(a){
     h+='<div class="kcOpen" role="status"><div class="kcOpen__t"><small><i aria-hidden="true"></i>INCIDENCIA · SESIÓN ABIERTA · '+scFecha(a.iniciada_at||a.fecha)+'</small><b>'+plEsc(String(a.nombre||'SESIÓN').toUpperCase())+'</b>'+
