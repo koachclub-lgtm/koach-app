@@ -991,22 +991,38 @@ html.selAbierto,html.selAbierto body{overflow:hidden}
 .adIng__l{display:flex;flex-wrap:wrap;gap:6px 16px;margin-top:6px;font-family:var(--font-mono);font-size:12px;letter-spacing:.04em;color:#121212}
 .adIng__l b{font-weight:600;letter-spacing:.1em}.adIng__nm{color:#5E5D59}.adIng__t{flex-basis:100%;font-size:11px;letter-spacing:.12em}
 
+/* ═══ c29 · CABECERA DEL PLANIFICADOR: un solo componente, dos estados ═══
+   Capas (z-index): contenido 0 · ficha sticky 30 · plDock 40 · planner sticky 45 · abiertos 54 · nav global 55 · menús 60-61 · modales 90+ · toast.
+   Scroll container: la ventana. Offset superior: --ks-top (alto medido de nav + abiertos). Alto propio: --pl-hdr-h (ResizeObserver). */
+#vPlan .plCtx{display:none;font-family:var(--font-mono);font-size:11px;letter-spacing:.08em;color:#5E5D59;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#vPlan .plHdr .mtabs{margin:12px 0 0;order:9;flex-basis:100%}
+/* arriba la cabecera expandida acompaña el scroll (no tapa nada); al condensarse queda fija */
+#vPlan.plCompacto .plHdr{position:sticky;display:flex;flex-wrap:wrap;align-items:center;column-gap:12px;row-gap:6px;padding-top:8px;padding-bottom:8px}
+#vPlan.plCompacto .plHdr__tit,#vPlan.plCompacto .plQuien__p,#vPlan.plCompacto #pMeta,#vPlan.plCompacto .plHdr__top .plHome,#vPlan.plCompacto #pEstado,#vPlan.plCompacto .plSesBar__n{display:none !important}
+#vPlan.plCompacto .plQuien{order:1;flex:1 1 220px;min-width:0;margin:0}
+#vPlan.plCompacto .plQuien__n{font-size:17px !important;line-height:1.15;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#vPlan.plCompacto .plCtx{display:block}
+#vPlan.plCompacto .plSesBar{order:2;flex:0 0 auto;flex-basis:auto;margin:0;flex-wrap:nowrap}
+#vPlan.plCompacto .plHdr__top{order:3;flex:0 0 auto;margin:0 !important;gap:6px}
+#vPlan.plCompacto .plHdr .mtabs{order:9;margin:2px 0 0;flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none}
+#vPlan.plCompacto .plHdr .mtabs::-webkit-scrollbar{display:none}
+#vPlan.plCompacto .plHdr .mtabs button{flex:0 0 auto;min-height:36px;white-space:nowrap}
+#vPlan .bq,#vPlan input,#vPlan select,#vPlan textarea,#vPlan .lin{scroll-margin-top:calc(var(--ks-top,0px) + var(--pl-hdr-h,120px) + 12px);scroll-margin-bottom:120px}
+@media (max-width:640px){
+  #vPlan.plCompacto .plQuien{flex:1 1 0}
+  #vPlan.plCompacto .plSesBar{order:4;flex:1 1 100%}
+  #vPlan.plCompacto .plSesBar button{flex:1 1 auto;min-height:44px}
+  #vPlan.plCompacto .plHdr__top .plVolver{display:none}
+}
 /* ═══ c11.2 · CABECERA FIJA DEL PLANIFICADOR ═══ */
-#vPlan .plHdr{position:sticky;top:0;z-index:45;margin:0 -12px 14px;padding:calc(10px + env(safe-area-inset-top,0px)) 12px 12px;
+#vPlan .plHdr{position:relative;top:0;z-index:45;margin:0 -12px 14px;padding:calc(10px + env(safe-area-inset-top,0px)) 12px 12px;
   background:rgba(243,242,239,.92);backdrop-filter:blur(14px) saturate(1.2);-webkit-backdrop-filter:blur(14px) saturate(1.2);
   border-bottom:1px solid rgba(18,18,16,.08);box-shadow:0 6px 18px -14px rgba(0,0,0,.35)}
 #vPlan .plHdr--base{background:rgba(232,229,222,.95)}
 #vPlan .plHdr--base .plQuien__n{letter-spacing:.06em}
 #vPlan .plHdr--base .plQuien__m{color:#8A4B12 !important;font-weight:600}
 #vPlan .plHdr__tit{transition:font-size .15s ease, margin .15s ease}
-#vPlan.plCompacto .plHdr{padding-top:calc(6px + env(safe-area-inset-top,0px));padding-bottom:8px}
-#vPlan.plCompacto .plHdr__tit{font-size:18px !important;margin:0 !important}
-#vPlan.plCompacto .plHdr__top{margin-bottom:4px}
-#vPlan.plCompacto .plQuien__n{font-size:17px}
-@media (min-width:1024px){ #vPlan .plHdr{margin:0 -36px 16px;padding-left:36px;padding-right:36px}
-  #vPlan.plCompacto .plHdr{display:flex;flex-wrap:wrap;align-items:center;column-gap:18px}
-  #vPlan.plCompacto .plHdr__top{flex:0 0 auto;order:2;margin:0 0 0 auto}
-  #vPlan.plCompacto .plHdr__tit{order:0}#vPlan.plCompacto .plQuien{order:1;margin:0} }
+@media (min-width:1024px){ #vPlan .plHdr{margin:0 -36px 16px;padding-left:36px;padding-right:36px} }
 .selM,.mSG,#mAdm{z-index:90 !important}
 /* dosificador: filas en cero y designadas */
 .dsr--0 .dsr__g,.dsr--0 .dsr__v{color:#9A9993}
@@ -1052,7 +1068,7 @@ html.selAbierto,html.selAbierto body{overflow:hidden}
 .plSesBar__n{flex:1 1 auto;font-family:var(--font-mono);font-size:12px;letter-spacing:.1em;color:#5E5D59;min-width:0}
 .plSesBar button{min-height:44px;padding:0 16px;border-radius:12px;border:1px solid rgba(18,18,16,.22);background:#fff;font-family:var(--font-mono);font-weight:500;font-size:12.5px;letter-spacing:.1em;color:#121212;cursor:pointer}
 .plSesBar button.ink{background:#121212;color:#F4F3F0;border-color:#121212}
-#vPlan.plCompacto .plSesBar{margin-top:4px}#vPlan.plCompacto .plSesBar__n{display:none}
+
 #vPlan .bq{border:1px solid rgba(18,18,16,.08)}
 #vPlan .bq--t0{background:#F7F6F3}
 #vPlan .bq--t1{background:#ECEBE7}
@@ -1101,29 +1117,6 @@ html.selAbierto,html.selAbierto body{overflow:hidden}
   #vPlan .lin .linRx{grid-template-columns:1fr 1fr;gap:10px;margin-top:6px}
   #vPlan .lin .linRx .lbl{margin-bottom:3px}
   #vPlan .lin > .plProg,#vPlan .lin > .plUlt{margin-top:6px !important;padding-top:6px !important}
-}
-/* cabecera fija al bajar: una sola línea → más pantalla para el bloque */
-#vPlan .plSesBar{order:3}
-@media (min-width:900px){
-  #vPlan.plCompacto .plHdr{flex-wrap:nowrap;align-items:center;column-gap:16px}
-  #vPlan.plCompacto .plHdr__tit{display:none}
-  #vPlan.plCompacto .plQuien{order:1;flex:1 1 auto;min-width:0}
-  #vPlan.plCompacto .plQuien__p{display:none}
-  #vPlan.plCompacto .plSesBar{order:2;flex:0 0 auto;flex-basis:auto;margin:0}
-  #vPlan.plCompacto .plSesBar__n{display:none}
-  #vPlan.plCompacto .plHdr__top{order:3;flex:0 0 auto;margin:0 !important}
-  #vPlan.plCompacto .plHdr__top .plHome{display:none}
-}
-
-/* c19 · teléfono/tablet vertical: cabecera al bajar en dos filas cortas y barra de acciones en una sola fila */
-@media (max-width:899px){
-  #vPlan.plCompacto .plHdr__tit,#vPlan.plCompacto .plQuien__p,#vPlan.plCompacto .plSesBar__n,#vPlan.plCompacto .plHdr__top .plVolver,#vPlan.plCompacto .plHdr__top .plHome{display:none !important}
-  #vPlan.plCompacto .plHdr{display:flex;flex-wrap:wrap;align-items:center;column-gap:10px}
-  #vPlan.plCompacto .plQuien{order:1;flex:1 1 auto;min-width:0;margin:0}
-  #vPlan.plCompacto .plQuien__n{font-size:17px !important;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-  #vPlan.plCompacto .plHdr__top{order:2;flex:0 0 auto;margin:0 !important}
-  #vPlan.plCompacto .plSesBar{order:3;flex-basis:100%;margin-top:6px}
-  #vPlan.plCompacto .plSesBar button{min-height:40px;flex:1 1 auto}
 }
 @media (max-width:640px){
   #pGuardia .plDock__in{flex-wrap:nowrap}
@@ -1420,7 +1413,7 @@ html.selAbierto,html.selAbierto body{overflow:hidden}
 /* Cuerpo con shell */
 html.ks-on body{padding-top:calc(var(--ks-top) + env(safe-area-inset-top,0px) + 20px) !important}
 html.ks-on #syncTag{top:calc(var(--ks-top) + env(safe-area-inset-top,0px) + 8px)}
-html.ks-on #vPlan .plHdr{top:calc(var(--ks-top) + env(safe-area-inset-top,0px))}
+html.ks-on #vPlan .plHdr,html.ks-on #vFicha .mh{top:var(--ks-top)}
 html.ks-on #vPlan .plHome{display:none}
 html.ks-on #vSala .hbar,html.ks-on #vSala #mesa,html.ks-on #vSala #accesos,html.ks-on #vSala #pulso{display:none !important}
 
@@ -1706,8 +1699,9 @@ html.ks-on #vSala .salaQ input{font:500 17px var(--font-display) !important;lett
       <button onclick="menuRutina()" style="margin-left:8px;background:none;border:1px solid var(--koach-border-strong);border-radius:8px;padding:6px 10px;font-size:12px;cursor:pointer;color:var(--koach-ink)">•••</button>
     </div>
     <div class="stit plHdr__tit">Planificador</div>
-    <div class="plQuien" id="pQuien"><div class="plQuien__n" id="pQuienN">—</div><div class="plQuien__p"><span id="pQuienP">—</span><span class="plQuien__m" id="pQuienM"> · PLAN INDIVIDUAL</span></div></div>
+    <div class="plQuien" id="pQuien"><div class="plQuien__n" id="pQuienN">—</div><div class="plCtx" id="plCtx" aria-live="polite"></div><div class="plQuien__p"><span id="pQuienP">—</span><span class="plQuien__m" id="pQuienM"> · PLAN INDIVIDUAL</span></div></div>
     <div class="ssub" id="pMeta">—</div>
+    <div class="mtabs" id="pTabs" role="tablist" aria-label="Sesiones de la semana"></div>
   </div>
   <div id="pNav" class="plNav" style="display:none"></div>
   <div id="pMacro" style="display:none"></div>
@@ -1723,7 +1717,6 @@ html.ks-on #vSala .salaQ input{font:500 17px var(--font-display) !important;lett
   <div id="pOrgRow" style="display:flex;justify-content:flex-end;margin-bottom:7px">
     <button onclick="abrirOrganizador()" style="border:1.5px solid rgba(18,18,16,.16);background:none;border-radius:10px;padding:8px 12px;font-size:8px;font-weight:900;letter-spacing:.12em;cursor:pointer;color:#121210">⇅ REORGANIZAR SESIONES</button><button class="bqAdd" style="margin-left:8px" onclick="cgConsultor()">CONSULTAR CARGAS</button>
   </div>
-  <div class="mtabs" id="pTabs"></div>
   <div class="plIndRow"><span id="plSaveInd" class="plInd">GUARDADO ✓</span></div>
   <div id="pBloques"></div>
   <div class="plDock" id="pGuardia">
@@ -5565,7 +5558,14 @@ async function admIngresos(){
 }
 // c11.2 · la cabecera del planificador queda fija; al bajar se compacta (sin perder nombre, programa ni navegación)
 ;(function(){ let raf=0; window.addEventListener('scroll', function(){ if(raf) return; raf=requestAnimationFrame(function(){ raf=0
-  const v=document.getElementById('vPlan'); if (v && v.classList.contains('on')) v.classList.toggle('plCompacto', window.scrollY>60) }) }, {passive:true}) })()
+  const v=document.getElementById('vPlan'); if (!v || !v.classList.contains('on')) return
+  const h=v.querySelector('.plHdr'), y=window.scrollY, c=v.classList.contains('plCompacto')
+  if (!c){ PLH.exp=h.offsetHeight; if (y > Math.max(40, PLH.exp-PLH.cmp+32)) v.classList.add('plCompacto') }
+  else { PLH.cmp=h.offsetHeight; if (y < 8) v.classList.remove('plCompacto') } }) }, {passive:true}) })()
+// Alto real de la cabecera → scroll-margin de los controles (que un input no quede bajo el sticky)
+const PLH={exp:220,cmp:100}
+;(function(){ if(!window.ResizeObserver) return; const h=document.querySelector('#vPlan .plHdr'); if(!h) return
+  new ResizeObserver(function(){ document.documentElement.style.setProperty('--pl-hdr-h', h.offsetHeight+'px') }).observe(h) })()
 // ═══ c11.3 · CONTROL DE ENTRENAMIENTO (coach override, autoritativo en la base: koach_sesion_accion) ═══
 // Anular inicio (sin datos) · cerrar incompleta (conserva sets) · marcar completada (auditado) · habilitar sesión (otra hoy).
 let SC={ st:null, run:false, sid:null }
@@ -5774,6 +5774,8 @@ function plBarraSesion(ses){
   let bar=document.getElementById('plSesBar')
   if (!bar){ bar=document.createElement('div'); bar.id='plSesBar'; bar.className='plSesBar'; const h=document.querySelector('#vPlan .plHdr'); if(h) h.appendChild(bar) }
   const ro=P&&P.ro, n=(ses&&ses.bloques||[]).length
+  const cx=document.getElementById('plCtx'); if (cx){ const a=F&&C.asig&&C.asig[F.id], N=a&&a.protocolos&&a.protocolos.ciclo_semanas
+    cx.textContent = ses ? ((typeof PL!=='undefined'&&PL.w)?'S'+PL.w+(N?'/'+N:'')+' · ':'')+String(ses.nombre||'SESIÓN').toUpperCase() : '' }
   bar.innerHTML = (!ses||ro) ? '' :
     '<span class="plSesBar__n">'+String(ses.nombre||'SESIÓN').toUpperCase()+' · '+n+' BLOQUE'+(n===1?'':'S')+'</span>'+
     (n<6?'<button type="button" onclick="abrirBloque()">+ BLOQUE</button>':'')+
