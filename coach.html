@@ -12,7 +12,63 @@
 <link rel="manifest" href="/manifest.webmanifest">
 <meta name="theme-color" content="#000000">
 <meta name="color-scheme" content="only light">
-<style>:root{color-scheme:only light}</style>
+<style>:root{color-scheme:only light}
+/* ═══ c21 · BIBLIOTECA VISUAL — carátulas de programa (manual de marca) + rutinas extras ═══ */
+#vBib{max-width:1240px}
+.bxK{font:400 10.5px var(--font-mono);letter-spacing:.08em;color:#6F7377;text-transform:uppercase}
+.bxH{display:flex;justify-content:space-between;align-items:flex-end;gap:16px;margin:30px 0 14px;flex-wrap:wrap}
+.bxH h2{margin:4px 0 0;font:800 clamp(24px,3vw,34px)/1 var(--font-display);font-stretch:112%;text-transform:uppercase;letter-spacing:-.005em;color:#121210}
+.bxH p{margin:0;max-width:420px;font-size:13px;line-height:1.45;color:#6F7377;text-align:right}
+.bxTabs{display:flex;gap:8px;flex-wrap:wrap;margin:6px 0 4px}
+.bxTabs button{font:700 10.5px var(--font-mono);letter-spacing:.06em;padding:9px 16px;border-radius:999px;border:1px solid rgba(18,18,16,.2);background:none;color:#121210;cursor:pointer}
+.bxTabs button[aria-pressed="true"]{background:#121210;color:#F3F2EF;border-color:#121210}
+.bxP{display:grid;grid-template-columns:minmax(300px,420px) 1fr;gap:18px;margin-bottom:26px;align-items:start}
+@media(max-width:980px){.bxP{grid-template-columns:1fr}}
+.bxId{position:relative;aspect-ratio:1.6/1;border-radius:22px;overflow:hidden;color:#F4F3F0;background:#0B0B0C;border:1px solid rgba(244,243,240,.22);display:flex;flex-direction:column}
+.bxId::before{content:"";position:absolute;inset:0;background:var(--img) center/150% no-repeat;filter:grayscale(1) contrast(1.1);opacity:.6}
+.bxId::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(11,11,12,.15) 0%,rgba(11,11,12,.55) 55%,rgba(11,11,12,.92) 100%)}
+.bxId>*{position:relative;z-index:1}
+.bxId__t{flex:1;display:flex;justify-content:space-between;align-items:flex-start;padding:22px 24px}
+.bxId__n{font:800 clamp(40px,5vw,62px)/.9 var(--font-display);font-stretch:115%;letter-spacing:-.01em}
+.bxId__t img{width:34px;height:auto}
+.bxId__b{display:grid;grid-template-columns:1fr auto;border-top:1px solid rgba(244,243,240,.4)}
+.bxId__tag{padding:14px 24px;font:700 12.5px/1.35 var(--font-mono);letter-spacing:.04em;text-transform:uppercase}
+.bxId__bc{border-left:1px solid rgba(244,243,240,.4);padding:12px 22px;display:flex;align-items:stretch;gap:2px}
+.bxId__bc i{display:block;background:#F4F3F0}
+.bxP__side{display:flex;flex-direction:column;gap:12px}
+.bxP__d{font-size:14px;line-height:1.5;color:#3E4044;margin:0}
+.bxP__m{display:flex;gap:8px;flex-wrap:wrap}
+.bxP__m span{font:400 10.5px var(--font-mono);letter-spacing:.06em;padding:5px 11px;border:1px solid rgba(18,18,16,.22);border-radius:999px;color:#121210}
+.bxT{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.bxTk{position:relative;min-height:138px;border-radius:16px;overflow:hidden;border:1px solid rgba(18,18,16,.12);background:#121210;color:#F4F3F0;text-align:left;cursor:pointer;padding:0;display:flex;flex-direction:column;justify-content:space-between;transition:transform .15s ease,box-shadow .15s ease}
+.bxTk::before{content:"";position:absolute;inset:0;background:var(--img) center/150% no-repeat;filter:grayscale(1);opacity:.35}
+.bxTk::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(18,18,16,.2),rgba(18,18,16,.9))}
+.bxTk>*{position:relative;z-index:1}
+.bxTk:hover,.bxTk:focus-visible{transform:translateY(-2px);box-shadow:0 10px 24px rgba(18,18,16,.25);outline:none}
+.bxTk__top{display:flex;justify-content:space-between;align-items:center;padding:12px 14px 0;font:400 10px var(--font-mono);letter-spacing:.08em;color:rgba(244,243,240,.75)}
+.bxTk__lv{display:flex;gap:3px}.bxTk__lv i{width:12px;height:3px;border-radius:2px;background:rgba(244,243,240,.25)}.bxTk__lv i.on{background:#F4F3F0}
+.bxTk__n{padding:0 14px;font:800 20px/1 var(--font-display);font-stretch:110%;text-transform:uppercase}
+.bxTk__f{display:flex;justify-content:space-between;gap:10px;white-space:nowrap;padding:10px 14px 12px;font:400 10px var(--font-mono);letter-spacing:.06em;color:rgba(244,243,240,.7)}
+.bxWarn{font:400 10.5px var(--font-mono);letter-spacing:.05em;color:#8A3B26;margin:0}
+.bxX{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:14px}
+.bxC{border-radius:20px;overflow:hidden;background:#F4F3F0;border:1px solid rgba(18,18,16,.1);display:flex;flex-direction:column}
+.bxC__img{position:relative;aspect-ratio:16/10;background:#121210 var(--img) center/150% no-repeat;filter:grayscale(1)}
+.bxC__img::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(18,18,16,0) 40%,rgba(18,18,16,.75) 100%)}
+.bxC__tag{position:absolute;z-index:1;left:12px;top:12px;font:700 10px var(--font-mono);letter-spacing:.06em;padding:5px 10px;border-radius:999px;background:#F4F3F0;color:#121210}
+.bxC__star{position:absolute;z-index:1;right:12px;top:10px;color:#F4F3F0;font-size:18px}
+.bxC__nm{position:absolute;z-index:1;left:14px;right:14px;bottom:12px;color:#F4F3F0;font:800 22px/1 var(--font-display);font-stretch:112%;text-transform:uppercase;overflow-wrap:anywhere}
+.bxC__b{padding:12px 14px 14px;display:flex;flex-direction:column;gap:10px;flex:1}
+.bxC__fo{font:700 11px var(--font-mono);letter-spacing:.04em;color:#121210;text-transform:uppercase}
+.bxC__st{display:flex;gap:14px;font:400 10px var(--font-mono);letter-spacing:.06em;color:#6F7377}
+.bxC__a{display:flex;gap:8px;margin-top:auto}
+.bxC__a button{flex:1;min-height:42px;border-radius:999px;font:700 11px var(--font-mono);letter-spacing:.06em;cursor:pointer;border:1px solid rgba(18,18,16,.2);background:none;color:#121210}
+.bxC__a button.ink{background:#121210;color:#F3F2EF;border-color:#121210}
+.bxNew{border-radius:20px;border:1.5px dashed rgba(18,18,16,.3);background:none;min-height:260px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;cursor:pointer;color:#121210}
+.bxNew b{font:800 20px var(--font-display);font-stretch:110%;text-transform:uppercase}
+.bxNew span{font:400 10.5px var(--font-mono);letter-spacing:.06em;color:#6F7377}
+@media(max-width:760px){.bxH p{text-align:left}.bxNew{min-height:170px}}
+.bxNew i{font-style:normal;width:46px;height:46px;border-radius:50%;background:#121210;color:#F3F2EF;display:grid;place-items:center;font-size:22px}
+</style>
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black">
@@ -1591,16 +1647,15 @@ html.ks-on #vSala .salaQ input{font:500 17px var(--font-display) !important;lett
   <div id="pkLista"><div class="vacio">Cargando plantillas…</div></div>
 </div>
 
-<!-- BIBLIOTECA DE RUTINAS ESTÁNDAR -->
+<!-- BIBLIOTECA VISUAL (c21) -->
 <div class="vista" id="vBib">
   <div class="stop"><button class="sback" onclick="verSala()">←</button>
-    <div class="stit">Rutinas estándar</div></div>
-  <div class="ssub">LA BIBLIOTECA · SE DESIGNAN COMO EXTRAS ★ A CUALQUIER SOCIO</div>
-  <button class="nuevo" onclick="crearRutinaStd()">+ CREAR RUTINA ESTÁNDAR</button>
+    <div class="stit">Biblioteca</div></div>
+  <div class="ssub">PROGRAMAS KOACH · 18 PROTOCOLOS BASE · RUTINAS EXTRAS ★</div>
+  <div id="bibProg"><div class="vacio">Cargando programas…</div></div>
+  <div class="bxH"><div><div class="bxK">Rutinas extras ★ · se designan a cualquier socio</div><h2>Rutinas extras</h2></div>
+    <p>Sesiones prediseñadas para sumar a la semana de un socio, fuera de su protocolo.</p></div>
   <div id="bibLista"><div class="vacio">Cargando biblioteca…</div></div>
-  <div class="h3" style="margin-top:18px"><span>EL CEREBRO TÉCNICO</span><span>MANTENIMIENTO</span></div>
-  <button class="nuevo" style="background:rgba(255,255,255,.65);color:#121210;border:1.5px solid rgba(180,68,44,.3)" onclick="verBases()">⚙ EDITAR PROTOCOLOS BASE (18)</button>
-  <div id="basesLista"></div>
 </div>
 
 <!-- HOJA AGREGAR SESIÓN A LA SEMANA -->
@@ -2369,9 +2424,64 @@ async function editarBase(pid){
   if(rp.error){ toast(rp.error.message); return }
   abrirPlan(pid, rp.data, { modo:'base' })
 }
+const BX_PROG={
+  STRONG:{tag:'GAIN MUSCLE<br>& STRENGTH',d:'Fuerza para hipertrofia localizada: prioriza los grupos que más importan sin dejar de trabajar todo el cuerpo.',img:{hombre:'/img/session/session-upper-male.webp',mujer:'/img/session/session-upper-female.webp'}},
+  BURN:{tag:'FAT LOSS<br>& PERFORMANCE',d:'Híbrido de circuitos con máquinas de fuerza y peso libre: estímulo metabólico, más gasto energético y recomposición corporal.',img:{hombre:'/img/session/session-metabolic-male.webp',mujer:'/img/session/session-metabolic-female.webp'}},
+  HEALTHY:{tag:'VITALITY<br>& WELLNESS',d:'Fuerza controlada y progresiva, baja intensidad: para empezar de cero o volver de una pausa, a su propio ritmo.',img:{hombre:'/img/session/session-total-male.webp',mujer:'/img/session/session-total-female.webp'}}
+}
+const BX_NIV={BASICO:['BÁSICO',1],INTERMEDIO:['INTERMEDIO',2],AVANZADO:['AVANZADO',3]}
+let BX_TAB='STRONG', BX_BASES=[]
+function bxBarcode(seed){ let h=0; for(const c of String(seed)) h=(h*31+c.charCodeAt(0))>>>0
+  let o=''; for(let k=0;k<26;k++){ h=(h*1103515245+12345)>>>0; o+='<i style="width:'+(1+(h>>>16)%3)+'px"></i>' } return o }
+function bxEsc(t){ return String(t==null?'':t).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]}) }
+function bxProgramas(){
+  const el=document.getElementById('bibProg'); if(!el) return
+  const progs=['STRONG','BURN','HEALTHY']
+  const tabs='<div class="bxTabs" role="group" aria-label="Programa">'+progs.map(function(p){return '<button type="button" aria-pressed="'+(p===BX_TAB)+'" onclick="BX_TAB=\''+p+'\';bxProgramas()">'+p+' · '+BX_BASES.filter(function(b){return (b.programa||'').toUpperCase()===p}).length+'</button>'}).join('')+'</div>'
+  const p=BX_TAB, P=BX_PROG[p]
+  const bases=BX_BASES.filter(function(b){return (b.programa||'').toUpperCase()===p})
+    .sort(function(a,b){ return ((BX_NIV[a.nivel]||[0,9])[1]-(BX_NIV[b.nivel]||[0,9])[1]) || String(a.sexo).localeCompare(String(b.sexo)) })
+  const ciclo=bases[0]&&bases[0].ciclo_semanas
+  el.innerHTML='<div class="bxH" style="margin-top:18px"><div><div class="bxK">Programas · protocolos base</div><h2>Programas KOACH</h2></div>'+
+    '<p class="bxWarn">⚠ BASE MAESTRA: editarla cambia los clones que se asignen desde ahora. Los socios ya asignados no se tocan.</p></div>'+tabs+
+    '<section class="bxP" aria-label="'+p+'"><div class="bxId" style="--img:url('+P.img.hombre+')">'+
+      '<div class="bxId__t"><span class="bxId__n">'+p+'</span><img src="/img/brand/isotipo-blanco.png" alt="" width="34" height="35"></div>'+
+      '<div class="bxId__b"><div class="bxId__tag">'+P.tag+'</div><div class="bxId__bc" aria-hidden="true">'+bxBarcode(p)+'</div></div></div>'+
+    '<div class="bxP__side"><p class="bxP__d">'+P.d+'</p><div class="bxP__m"><span>'+bases.length+' PROTOCOLOS</span><span>3 NIVELES · 2 SEXOS</span>'+(ciclo?'<span>CICLO '+ciclo+' SEMANAS</span>':'')+'</div>'+
+    '<div class="bxT">'+(bases.length?bases.map(function(b){ const nv=BX_NIV[b.nivel]||[b.nivel||'—',0], sx=String(b.sexo||'').toLowerCase()
+      return '<button type="button" class="bxTk" style="--img:url('+(P.img[sx]||P.img.hombre)+')" onclick="editarBase(\''+b.id+'\')" aria-label="Editar base '+bxEsc(b.nombre)+'">'+
+        '<div class="bxTk__top"><span>'+(sx==='mujer'?'MUJER':'HOMBRE')+'</span><span class="bxTk__lv">'+[1,2,3].map(function(k){return '<i class="'+(k<=nv[1]?'on':'')+'"></i>'}).join('')+'</span></div>'+
+        '<div class="bxTk__n">'+nv[0]+'</div>'+
+        '<div class="bxTk__f"><span>'+(b._ses!=null?b._ses+' SESIONES':'')+'</span><span>EDITAR →</span></div></button>' }).join('')
+      :'<div class="vacio">Sin protocolos base para '+p+'</div>')+'</div></div></section>'
+}
+const BX_CAT=[
+  [/GL[ÚU]TE|GLUTE|BOOTY/,'GLÚTEOS','/img/muscle/muscle-glutes.webp'],[/CORE|ABS|ABDOM/,'CORE','/img/muscle/muscle-core.webp'],
+  [/BRAZO|ARMS|B[ÍI]CEP|TR[ÍI]CEP/,'BRAZOS','/img/muscle/muscle-biceps.webp'],[/METAB|H[ÍI]BRID|HIIT|CARDIO|XPRESS|BURN/,'METABÓLICO','/img/session/session-metabolic-male.webp'],
+  [/PUSH|PECHO|CHEST/,'PUSH','/img/muscle/muscle-chest.webp'],[/PULL|ESPALDA|BACK/,'PULL','/img/muscle/muscle-upperback.webp'],
+  [/UPPER|TREN SUP/,'UPPER','/img/session/session-upper-male.webp'],[/LOWER|PIERNA|LEG|TREN INF/,'LOWER','/img/session/session-lower-female.webp'],
+  [/TOTAL|FULL/,'TOTAL BODY','/img/session/session-total-male.webp'],[/MOVILID|MOBIL|RECOVERY|STRETCH/,'MOVILIDAD','/img/muscle/muscle-lowerback.webp']]
+const BX_MUSC={'GLÚTEOS':'muscle-glutes','CORE':'muscle-core','ISQUIOS':'muscle-hams','CUÁDRICEPS':'muscle-quads','ESPALDA':'muscle-upperback','PECHO':'muscle-chest','HOMBROS':'muscle-shoulders','BÍCEPS':'muscle-biceps','TRÍCEPS':'muscle-triceps','GEMELOS':'muscle-calves'}
+function bxCat(nombre, grupos){
+  const N=String(nombre||'').toUpperCase()
+  for(const c of BX_CAT){ if(c[0].test(N)) return {t:c[1],img:c[2]} }
+  const top=(grupos||[]).find(function(g){return BX_MUSC[g]})
+  return top?{t:top,img:'/img/muscle/'+BX_MUSC[top]+'.webp'}:{t:'EXTRA',img:'/img/session/session-total-female.webp'}
+}
 async function verBib(){
   vista('vBib')
   document.getElementById('bibLista').innerHTML='<div class="vacio">Cargando biblioteca…</div>'
+  // Programas: 18 protocolos base
+  try{
+    const rp=await sb.from('protocolos').select('id,nombre,programa,nivel,sexo,ciclo_semanas').is('socio_id',null).neq('estado','biblioteca')
+    BX_BASES=rp.data||[]
+    const ids=BX_BASES.map(function(b){return b.id})
+    if(ids.length){ const rs=await sb.from('sesiones_protocolo').select('protocolo_id,semana').in('protocolo_id',ids)
+      const c={}; (rs.data||[]).forEach(function(x){ if((x.semana||1)===1) c[x.protocolo_id]=(c[x.protocolo_id]||0)+1 }); BX_BASES.forEach(function(b){ b._ses=c[b.id]||0 }) }
+    if(rp.error) throw rp.error
+    bxProgramas()
+  }catch(e){ document.getElementById('bibProg').innerHTML='<div class="vacio">No pudimos cargar los programas.<br><b>'+bxEsc(e.message||e)+'</b></div>' }
+  // Rutinas extras
   BIB_ERR = null
   const bp = await bibProto()
   if(!bp){
@@ -2379,9 +2489,9 @@ async function verBib(){
       '<button class="bbtn ink" onclick="verBib()">REINTENTAR</button></div>'
     return
   }
-  const rs = await sb.from('sesiones_protocolo').select('*').eq('protocolo_id',bp.id).order('numero')
+  const rs = await sb.from('sesiones_protocolo').select('id,numero,nombre,objetivo,bloques(bloque_ejercicios(ejercicios(grupo_muscular)))').eq('protocolo_id',bp.id).order('numero')
   if(rs.error){
-    document.getElementById('bibLista').innerHTML='<div class="vacio">No pudimos cargar las rutinas.<br><b>'+rs.error.message+'</b><br><br>'+
+    document.getElementById('bibLista').innerHTML='<div class="vacio">No pudimos cargar las rutinas.<br><b>'+bxEsc(rs.error.message)+'</b><br><br>'+
       '<button class="bbtn ink" onclick="verBib()">REINTENTAR</button></div>'
     return
   }
@@ -2390,13 +2500,19 @@ async function verBib(){
   let uso = {}
   try{ const ru = await sb.from('designaciones_extra').select('sesion_protocolo_id').in('sesion_protocolo_id', sids.length?sids:['00000000-0000-0000-0000-000000000000'])
     ;(ru.data||[]).forEach(function(d){ uso[d.sesion_protocolo_id]=(uso[d.sesion_protocolo_id]||0)+1 }) }catch(_e){}
-  document.getElementById('bibLista').innerHTML = ses.length ? ses.map(function(s){
-    return '<div class="glass pkCard"><div class="pkN">\u2605 '+(s.objetivo||('RUTINA '+s.numero)).toUpperCase()+'</div>'+
-    '<div class="pkM">'+(uso[s.id]?('DESIGNADA '+uso[s.id]+' VEC'+(uso[s.id]===1?'':'ES')):'AÚN SIN DESIGNAR')+'</div>'+
-    '<div style="display:flex;gap:6px;margin-top:10px">'+
-    '<button class="bbtn ink" onclick="editarRutinaStd(\''+s.id+'\')">EDITAR \u2192</button>'+
-    '<button class="bbtn" style="background:rgba(18,18,16,.06)" onclick="borrarRutinaStd(\''+s.id+'\')">ARCHIVAR</button></div></div>'
-  }).join('') : '<div class="vacio">Aún sin rutinas estándar — crea la primera (CORE, BRAZOS, GLUTE FOCUS…)</div>'
+  const nueva='<button type="button" class="bxNew" onclick="crearRutinaStd()"><i>+</i><b>Crear rutina extra</b><span>CORE · GLÚTEOS · BRAZOS · METABÓLICO…</span></button>'
+  document.getElementById('bibLista').innerHTML = '<div class="bxX">'+nueva+ses.map(function(s){
+    const cnt={}; let nEj=0, cardio=false
+    ;(s.bloques||[]).forEach(function(b){ (b.bloque_ejercicios||[]).forEach(function(be){ nEj++; const g=String((be.ejercicios||{}).grupo_muscular||'').toUpperCase()
+      if(g==='CARDIO'||g==='GLOBAL'){ cardio=true; return } if(g&&g!=='MOVILIDAD') cnt[g]=(cnt[g]||0)+1 }) })
+    const grupos=Object.keys(cnt).sort(function(a,b){return cnt[b]-cnt[a]})
+    const nom=s.objetivo||s.nombre||('RUTINA '+s.numero), cat=bxCat(nom,grupos)
+    const foco=grupos.slice(0,3).join(' · ')+(cardio?(grupos.length?' + ':'')+'CARDIO':'')
+    return '<article class="bxC"><div class="bxC__img" style="--img:url('+cat.img+')"><span class="bxC__tag">'+cat.t+'</span><span class="bxC__star" aria-hidden="true">★</span><div class="bxC__nm">'+bxEsc(nom)+'</div></div>'+
+      '<div class="bxC__b"><div class="bxC__fo">'+(foco||'Sin ejercicios aún')+'</div>'+
+      '<div class="bxC__st"><span>'+nEj+' EJERCICIOS</span><span>'+(uso[s.id]?'DESIGNADA '+uso[s.id]+(uso[s.id]===1?' VEZ':' VECES'):'AÚN SIN DESIGNAR')+'</span></div>'+
+      '<div class="bxC__a"><button type="button" class="ink" onclick="editarRutinaStd(\''+s.id+'\')">EDITAR →</button><button type="button" onclick="borrarRutinaStd(\''+s.id+'\')">ARCHIVAR</button></div></div></article>'
+  }).join('')+'</div>'
 }
 const TIPOS_RUT = ['CORE','GLÚTEOS','BRAZOS','UPPER','LOWER','TOTAL BODY','HÍBRIDO','CARDIO','MOVILIDAD','RECOVERY']
 let mrTipo = null
