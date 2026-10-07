@@ -13,6 +13,45 @@
 <meta name="theme-color" content="#000000">
 <meta name="color-scheme" content="only light">
 <style>:root{color-scheme:only light}
+/* ═══ c23 · SALA = TARJETAS DE IDENTIFICACIÓN VERTICALES (manual de marca) ═══ */
+#vSala .salaHint{display:none!important}
+.sl{margin:4px 0 18px}
+.sl__h{display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap;margin-bottom:16px}
+.sl__ti{display:flex;align-items:baseline;gap:14px;flex-wrap:wrap}
+.sl__t{margin:0;font:800 clamp(28px,3.4vw,40px)/1 var(--font-display);font-stretch:112%;text-transform:uppercase;letter-spacing:-.005em}
+.sl__n{display:inline-flex;align-items:center;gap:8px;font:700 11px var(--font-mono);letter-spacing:.06em}
+.sl__q{display:flex;align-items:center;gap:12px;flex:0 1 460px;min-width:260px}
+.sl__q .salaQ{flex:1;margin:0}
+.sl__c{font:400 10.5px var(--font-mono);letter-spacing:.06em;color:#6F7377;white-space:nowrap}
+.sl__res #lista{margin-bottom:16px}
+.sl__s{margin:26px 0 10px;font:700 11px var(--font-mono);letter-spacing:.08em;text-transform:uppercase;color:#6F7377}
+.kidG{display:grid;grid-template-columns:repeat(auto-fill,minmax(176px,1fr));gap:12px}
+.kidV{grid-column:1/-1;padding:26px 0;font:400 15px var(--font-display);color:#6F7377}
+.kid{--bg:#FFFFFF;--fg:#0B0B0C;--mu:rgba(11,11,12,.6);--ln:rgba(11,11,12,.18);
+  display:flex;flex-direction:column;border-radius:18px;overflow:hidden;background:var(--bg);color:var(--fg);border:1px solid var(--ln);text-decoration:none;transition:transform .15s ease,box-shadow .15s ease}
+.kid:hover,.kid:focus-visible{transform:translateY(-2px);box-shadow:0 10px 22px rgba(18,18,16,.22);outline:none}
+.kid.t-strong{--bg:#979C9F;--mu:rgba(11,11,12,.66);--ln:rgba(11,11,12,.28)}
+.kid.t-burn{--bg:#434649;--fg:#F4F3F0;--mu:rgba(244,243,240,.62);--ln:rgba(244,243,240,.26)}
+.kid.t-healthy{--bg:#0B0B0C;--fg:#F4F3F0;--mu:rgba(244,243,240,.62);--ln:rgba(244,243,240,.26)}
+.kid__h{display:flex;justify-content:space-between;align-items:center;padding:11px 12px;font:700 10.5px var(--font-mono);letter-spacing:.06em}
+.kid__h img{width:16px;height:auto}
+.kid.t-strong .kid__h img,.kid.t-none .kid__h img{filter:invert(1)}
+.kid__ph{position:relative;margin:0 12px;aspect-ratio:3/4;border-radius:12px;overflow:hidden;background:rgba(11,11,12,.12);display:grid;place-items:center;font:800 54px 'KOACH Display',var(--font-display);color:var(--mu)}
+.kid.t-burn .kid__ph,.kid.t-healthy .kid__ph{background:rgba(244,243,240,.08)}
+.kid__ph img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;filter:grayscale(1) contrast(1.05)}
+.kid__live{position:absolute;left:8px;top:8px;display:inline-flex;align-items:center;gap:6px;padding:4px 9px;border-radius:999px;background:#0B0B0C;color:#F4F3F0;font:700 10px var(--font-mono);letter-spacing:.06em}
+.kid__live i{width:7px;height:7px;border-radius:50%;background:#5FD4E0;animation:kidPulse 1.6s ease-in-out infinite}
+.kid__n{padding:12px 12px 0;font:800 17px/1.02 var(--font-display);font-stretch:110%;text-transform:uppercase;overflow-wrap:anywhere}
+.kid__n span{display:block;color:var(--mu)}
+.kid__st{padding:6px 12px 10px;font:700 10.5px var(--font-mono);letter-spacing:.04em;text-transform:uppercase}
+.kid__f{margin-top:auto;display:grid;grid-template-columns:1fr auto;border-top:1px solid var(--ln)}
+.kid__f small{padding:9px 12px;font:400 10px var(--font-mono);letter-spacing:.04em;color:var(--mu);text-transform:uppercase;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.kid__bc{border-left:1px solid var(--ln);padding:8px 10px;display:flex;gap:2px}
+.kid__bc i{display:block;background:var(--fg)}
+.kidG--rec .kid{opacity:.92}
+@keyframes kidPulse{0%,100%{opacity:1}50%{opacity:.35}}
+@media (prefers-reduced-motion:reduce){.kid__live i{animation:none}}
+@media(max-width:640px){.kidG{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.sl__q{flex-basis:100%}}
 /* ═══ c21.1 · BIBLIOTECA — tarjetas de identificación en escala de grises (sin imágenes), todas del mismo tamaño ═══ */
 #vBib{width:min(1360px,calc(100vw - 40px));position:relative;left:50%;transform:translateX(-50%)}
 .bxK{font:400 10.5px var(--font-mono);letter-spacing:.08em;color:#6F7377;text-transform:uppercase}
@@ -1517,17 +1556,14 @@ html.ks-on #vSala .salaQ input{font:500 17px var(--font-display) !important;lett
   </div>
   <div class="mtabs" id="mesa"></div>
   <div class="stats" id="pulso" style="display:none"></div>
-  <section class="rost" aria-label="En sala ahora"><div class="rost__h"><span>Sala</span><span id="rostN">—</span></div><div class="rost__g" id="rostG"></div></section>
-  <div class="salaCols"><div class="salaCol salaCol--q">
-  <div class="salaHead"><div class="h3"><span>BUSCAR SOCIO</span><span id="nSoc">—</span></div>
-    <label class="salaQ"><span aria-hidden="true">⌕</span><input id="salaQ" type="search" placeholder="Buscar socio…" autocomplete="off" oninput="salaBuscar()" onkeydown="salaBuscarKey(event)" aria-label="Buscar socio por nombre o apellido"></label></div>
-  <div id="lista"></div>
-  <div class="vacio" id="salaQv" style="display:none">Ningún socio coincide con la búsqueda.</div>
-  <p class="salaHint" id="salaHint">Escribe un nombre para buscar entre los socios del club.</p>
-  </div><div class="salaCol salaCol--b">
-  <section class="atn" id="atn" aria-label="Requieren atención"></section>
-  <div id="bandejas"></div>
-  </div></div>
+  <section class="sl" aria-label="Sala">
+    <div class="sl__h"><div class="sl__ti"><h2 class="sl__t">Sala</h2><span class="sl__n" id="rostN">—</span></div>
+      <div class="sl__q"><label class="salaQ"><span aria-hidden="true">⌕</span><input id="salaQ" type="search" placeholder="Buscar socio…" autocomplete="off" oninput="salaBuscar()" onkeydown="salaBuscarKey(event)" aria-label="Buscar socio por nombre o apellido"></label><span class="sl__c" id="nSoc">—</span></div></div>
+    <div class="sl__res"><div id="lista"></div><div class="vacio" id="salaQv" style="display:none">Ningún socio coincide con la búsqueda.</div><p class="salaHint" id="salaHint" hidden></p></div>
+    <div class="kidG" id="rostG"></div>
+    <div class="sl__s" id="recH" hidden>Últimos en sala</div>
+    <div class="kidG kidG--rec" id="recG"></div>
+  </section>
   <div class="adAcc" id="accesos"></div>
 </div>
 <div class="vista" id="vSol">
@@ -1537,6 +1573,8 @@ html.ks-on #vSala .salaQ input{font:500 17px var(--font-display) !important;lett
   <div class="adChips" id="solFE"></div>
   <div class="adChips" id="solFT"></div>
   <div id="solLista"><div class="vacio">Cargando…</div></div>
+  <section class="atn" id="atn" aria-label="Requieren atención" style="margin-top:22px"></section>
+  <div id="bandejas"></div>
 </div>
 <div class="vista" id="vAdh">
   <div class="stop"><button class="sback" onclick="verSala()">←</button><div class="stit">Adherencia</div></div>
@@ -4422,6 +4460,7 @@ function solUrgencia(q){
   return ['SEMANA PASADA',4]
 }
 async function verSolicitudes(socioId){
+  try{ if(!document.getElementById('bandejas').innerHTML) pintarSala(); salaPresenciaCargar(true) }catch(_e){}
   AD.solSocio = socioId||null
   vista('vSol')
   document.getElementById('solLista').innerHTML='<div class="vacio">Cargando…</div>'
@@ -4865,16 +4904,59 @@ function salaPersonas(rows){
     p.ultima = p.principal ? p.principal.ultima : null
     return p })
 }
+
+// ═══ c23 · SALA: tarjeta de identificación vertical por socio (tono = programa) ═══
+function kidTone(id){ const a=C.asig&&C.asig[id], p=String((a&&a.protocolos&&a.protocolos.programa)||'').toUpperCase()
+  return { p:p||'KOACH', t: p==='STRONG'?'strong':p==='BURN'?'burn':p==='HEALTHY'?'healthy':'none' } }
+function kidBarcode(seed){ let h=0; for(const c of String(seed)) h=(h*31+c.charCodeAt(0))>>>0
+  let o=''; for(let k=0;k<12;k++){ h=(h*1103515245+12345)>>>0; o+='<i style="width:'+(1+(h>>>16)%3)+'px"></i>' } return o }
+function kidCard(id, nombre, estado, sub, live){
+  const so=(C.socios||[]).find(function(x){return x.id===id})||(C.pres||[]).find(function(x){return x.socio_id===id})||{}
+  const nom=String(nomDe(id)||nombre||so.nombre||'Socio').trim(), parts=nom.split(/\s+/), n1=parts.shift(), n2=parts.join(' ')
+  const T=kidTone(id), u=(window.KAvatar&&so.avatar_path)?KAvatar.urlDe(so.avatar_path):null
+  return '<a class="kid t-'+T.t+'" href="#/socio/'+id+'" onclick="return rtClick(event,\''+id+'\')" aria-label="'+plEsc(nom)+' · '+plEsc(estado)+'">'+
+    '<div class="kid__h"><span>'+plEsc(T.p)+'</span><img src="/img/brand/isotipo-blanco.png" alt="" width="16" height="17"></div>'+
+    '<div class="kid__ph">'+(u?'<img src="'+u+'" alt="" loading="lazy" onerror="this.remove()">':plEsc(String(n1||'?')[0].toUpperCase()))+
+      (live?'<span class="kid__live"><i></i>EN SALA</span>':'')+'</div>'+
+    '<div class="kid__n">'+plEsc(n1)+(n2?'<span>'+plEsc(n2)+'</span>':'')+'</div>'+
+    '<div class="kid__st">'+plEsc(estado)+'</div>'+
+    '<div class="kid__f"><small>'+plEsc(sub||'')+'</small><span class="kid__bc" aria-hidden="true">'+kidBarcode(id)+'</span></div></a>'
+}
+function kidDur(m){ return m<60 ? m+' MIN' : Math.floor(m/60)+'H '+String(m%60).padStart(2,'0')+'M' }
+let _recAt=0, _recRun=false
+async function salaRecCargar(forzar){
+  if (_recRun || (!forzar && Date.now()-_recAt<60000)) return; _recRun=true; _recAt=Date.now()
+  try{ const d=new Date(); d.setDate(d.getDate()-3)
+    const r=await sb.from('sesiones_registro').select('socio_id,fecha,iniciada_at,completada_at,duracion_minutos,sesion_nombre,estado').gte('fecha',fLocal(d)).order('fecha',{ascending:false}).limit(400)
+    if(!r.error){ C.rec=r.data||[]; salaRecPintar() } }catch(e){ console.error('recientes',e) } finally{ _recRun=false }
+}
+function salaRecPintar(){
+  const g=document.getElementById('recG'), h=document.getElementById('recH'); if(!g) return
+  const enSala=new Set(salaPersonas(C.pres||[]).filter(function(p){return p.enSala}).map(function(p){return p.socio_id}))
+  const hoy=fLocal(new Date()), dia=function(n){ const d=new Date(); d.setDate(d.getDate()-n); return fLocal(d) }
+  const M=new Map()
+  ;(C.rec||[]).forEach(function(r){ if(enSala.has(r.socio_id)) return
+    const t=new Date(r.completada_at||r.iniciada_at||(r.fecha+'T12:00:00')).getTime(), cur=M.get(r.socio_id)
+    if(!cur || t>cur._t) M.set(r.socio_id, Object.assign({_t:t}, r)) })
+  const L=Array.from(M.values()).sort(function(a,b){return b._t-a._t}).slice(0,12)
+  if(h) h.hidden=!L.length
+  g.innerHTML=L.map(function(r){
+    let est
+    if (r.fecha===hoy) est = r.completada_at ? 'ENTRENÓ HOY'+(r.duracion_minutos?' · '+kidDur(r.duracion_minutos):'') : 'ESTUVO HOY'
+    else if (r.fecha===dia(1)) est='ESTUVO AYER'
+    else if (r.fecha===dia(2)) est='ESTUVO ANTEAYER'
+    else est='HACE '+Math.round((new Date(hoy+'T12:00:00')-new Date(r.fecha+'T12:00:00'))/864e5)+' DÍAS'
+    return kidCard(r.socio_id, '', est, r.sesion_nombre||'', false) }).join('')
+}
 function salaPresenciaPintar(){
   const g=document.getElementById('rostG'); if(!g) return
   const per=salaPersonas(C.pres)
   const en=per.filter(function(p){ return p.enSala }).sort(function(a,b){ return new Date(a.principal.inicio)-new Date(b.principal.inicio) })
   document.getElementById('rostN').innerHTML = '<i class="kLv" aria-hidden="true"></i>'+en.length+' ENTRENANDO AHORA'
-  g.innerHTML = en.length ? en.map(function(p){ const x=p.principal
-    const m=presMin(x.inicio), est = m<2 ? 'EN CURSO' : m+' MIN', mas=p.sesiones.length-1
-    return '<a class="rost__i" href="#/socio/'+p.socio_id+'" onclick="return rtClick(event,\''+p.socio_id+'\')">'+avSocio(p.socio_id)+
-      '<b>'+plEsc(String(p.nombre||'').split(' ')[0])+'</b><small>'+plEsc(String(x.sesion||'SESIÓN'))+(mas>0?' · +'+mas+' ABIERTA'+(mas>1?'S':''):'')+'</small><em><i class="kLv" aria-hidden="true"></i>'+est+'</em></a>' }).join('')
-    : '<div class="rost__v">Nadie entrenando en este momento.</div>'
+  g.innerHTML = en.length ? en.map(function(p){ const x=p.principal, m=presMin(x.inicio), mas=p.sesiones.length-1
+    return kidCard(p.socio_id, p.nombre, (m<2?'RECIÉN LLEGA':kidDur(m)+' EN SALA'), String(x.sesion||'SESIÓN')+(mas>0?' · +'+mas:''), true) }).join('')
+    : '<div class="kidV">Nadie entrenando en este momento.</div>'
+  salaRecPintar(); salaRecCargar()
   const at=per.filter(function(p){ return p.atencion.length }).sort(function(a,b){
     const ca=a.atencion.some(function(x){return x.cat==='atencion'}), cb=b.atencion.some(function(x){return x.cat==='atencion'})
     return (ca===cb?0:(ca?-1:1)) || (new Date(b.ultima)-new Date(a.ultima)) })
