@@ -1434,6 +1434,13 @@ body.wl-on{overflow:hidden}
 .oFoto__no{width:100%;min-height:48px;margin-top:8px;border:none;background:none;color:#D4D8DB;font-size:15px;text-decoration:underline;text-underline-offset:4px;cursor:pointer}
 .oFoto small{display:block;margin-top:6px;font-size:12.5px;color:#8B8A85}
 @media (prefers-reduced-motion:reduce){ .oFoto,.oFoto__c{transition:none} }
+/* ═══ v11.9 · estados de Avances ═══ */
+.avLoad{display:flex;flex-direction:column;gap:10px;padding:8px 0}
+.avLoad i{display:block;height:22px;border-radius:8px;background:linear-gradient(90deg,rgba(18,18,16,.05),rgba(18,18,16,.1),rgba(18,18,16,.05));background-size:200% 100%;animation:dsuSk 1.2s linear infinite}
+.avErr{display:flex;flex-direction:column;gap:6px;padding:16px;border-radius:16px;border:1px solid rgba(138,28,28,.25);background:rgba(138,28,28,.05)}
+.avErr b{font-family:var(--font-mono);font-weight:500;font-size:12px;letter-spacing:.12em;color:#121212}
+.avErr span{font-size:14.5px;color:#5E5D59}
+.avErr button{align-self:flex-start;min-height:44px;padding:0 16px;margin-top:4px;border-radius:12px;border:1px solid #121212;background:#121212;color:#F4F3F0;font-family:var(--font-mono);font-size:12px;letter-spacing:.12em;cursor:pointer}
 #vLogin{background:#000}
 .wel{position:relative;z-index:1;max-width:520px;margin:0 auto;min-height:100dvh;box-sizing:border-box;display:flex;flex-direction:column;justify-content:space-between;
   padding:calc(env(safe-area-inset-top,0px) + 26px) 8px calc(env(safe-area-inset-bottom,0px) + 18px);transition:opacity .22s ease, transform .22s ease}
@@ -4307,16 +4314,18 @@ async function loadComposicion(){
 async function loadAvances(){
   avOrdenar(); loadComposicion()
   cargarGamif().then(()=>{ pintarConstanciaAv(); loadFuerza() })
-  const vac='<div class="vacio">Tus avances aparecen cuando completes tus primeras sesiones.</div>'
+  // v11.9 · tres estados reales: CARGANDO · DATOS (o vacío legítimo) · ERROR con reintento (no se confunde con "sin progreso")
+  if (!S.av) document.getElementById('avTop5').innerHTML='<div class="avLoad" aria-busy="true"><i></i><i></i><i></i></div>'
   try{
     const { data, error } = await sb.rpc('koach_avances_socio'); if (error) throw error
     S.av=data||{}; pintarAvancesV2()
-  }catch(e){ console.error('avances', e); document.getElementById('avTop5').innerHTML=vac }
+  }catch(e){ console.error('avances', e); klog && klog('AVANCES_LOAD_FAILED', { error:String((e&&e.message)||e) })
+    document.getElementById('avTop5').innerHTML='<div class="avErr"><b>NO PUDIMOS CARGAR TUS AVANCES</b><span>Revisa tu conexión.</span><button type="button" onclick="loadAvances()">REINTENTAR</button></div>' }
 }
 function pintarAvancesV2(){
   const v=S.av||{}, t5=v.top5||[], pg=v.progresos||[], tn=v.tonelaje||[]
   document.getElementById('avRes').innerHTML=
-    '<div><b>'+(v.sesiones||0)+'</b><small>SESIONES<br>COMPLETADAS</small></div>'+
+    '<div><b>'+(v.sesiones||0)+'</b><small>SESIONES<br>ENTRENADAS</small></div>'+
     '<div><b>'+(v.ejercicios_con_marca||0)+'</b><small>EJERCICIOS<br>CON MARCA</small></div>'+
     '<div><b>'+(v.mayor_subida_kg>0?'+'+avKg(v.mayor_subida_kg):'—')+'</b><small>KG TU MAYOR<br>SUBIDA</small></div>'
   document.getElementById('avTop5').innerHTML='<div class="avK">TOP 5 · PERSONAL RECORDS</div><h3>Tus marcas personales</h3>'+
@@ -4341,7 +4350,7 @@ function fzPerfil(ej){ const prof={}; if(!ej||ej.cuenta_dosis===false) return pr
 async function fzCargar(){
   const ci=cicloInfo(); const ini=(ci&&ci.inicio)||(S.asig&&S.asig.fecha_inicio); if(!ini||!S.perfil) return null
   const { data: sets, error } = await sb.from('set_registros').select('peso,reps,ejercicio_id,registro_id,sesiones_registro!inner(fecha,estado)')
-    .eq('socio_id', S.perfil.id).eq('completado', true).gt('peso', 0).gte('sesiones_registro.fecha', ini).eq('sesiones_registro.estado','completada')
+    .eq('socio_id', S.perfil.id).eq('completado', true).gt('peso', 0).lte('peso', 500).gte('sesiones_registro.fecha', ini).neq('sesiones_registro.estado','anulada')   // v11.9: ejecución real = sets hechos en sesiones no anuladas (aunque el socio no haya tocado FINALIZAR)
   if (error) throw error
   const ids=[...new Set((sets||[]).map(s=>s.ejercicio_id).filter(Boolean))]
   const ejs={}; if(ids.length){ const r=await sb.from('ejercicios').select('id,nombre,grupo_muscular,sinergistas,cuenta_dosis').in('id', ids); (r.data||[]).forEach(e=>ejs[e.id]=e) }
@@ -4392,7 +4401,8 @@ const fzMiles=n=>String(Math.round(n)).replace(/\B(?=(\d{3})+(?!\d))/g,'.')
 const fzSet=s=>avKg(s.peso)+' kg × '+s.reps
 async function loadFuerza(){
   const el=document.getElementById('avFuerza'); if(!el) return
-  try{ FZ.data=await fzCargar(); pintarFuerza() }catch(e){ console.error('fuerza', e); el.innerHTML='' }
+  try{ FZ.data=await fzCargar(); pintarFuerza() }catch(e){ console.error('fuerza', e)
+    el.innerHTML='<div class="avErr"><b>NO PUDIMOS CARGAR TU FUERZA POR GRUPO</b><span>Revisa tu conexión.</span><button type="button" onclick="loadFuerza()">REINTENTAR</button></div>' }
 }
 function pintarFuerza(){
   const el=document.getElementById('avFuerza'), d=FZ.data; if(!el) return
@@ -4469,7 +4479,7 @@ function pintarConstanciaAv(){
 function avCal(b){ const c=document.getElementById('aConst'); const ab=c.hidden; c.hidden=!ab; b.setAttribute('aria-expanded',String(ab)); b.textContent=ab?'OCULTAR CALENDARIO ▴':'VER CALENDARIO DE CONSTANCIA ▸'; if(ab) c.innerHTML=seccionConstancia(true) }
 
 // ═══════════ v9.4 · TUS MEJORES MARCAS (PR · Personal Record) ═══════════
-// Fuente: set_registros completados de sesiones CERRADAS (estado completada). Nunca cargas programadas.
+// Fuente: set_registros completados de sesiones no anuladas (aunque no se haya tocado FINALIZAR). Nunca cargas programadas.
 // PR de un ejercicio = mayor carga completada (desempate: más reps). Progreso = mismo ejercicio: mejor set de su
 // primera sesión vs PR. Patrón = ejercicios.patron_base (KNEE DOMINANT · HIP DOMINANT · PUSH · PULL).
 const MK_PATRONES=['KNEE DOMINANT','HIP DOMINANT','PUSH','PULL']
@@ -4478,7 +4488,7 @@ function mkF(iso){ const d=new Date(String(iso).slice(0,10)+'T12:00:00'); return
 function mkKg(v){ return (+v)%1===0?String(+v):(+v).toFixed(1) }
 function mkMejor(a,b){ return (+b.peso-+a.peso) || ((parseFloat(b.reps)||0)-(parseFloat(a.reps)||0)) }
 async function calcularMarcas(){
-  const { data: regs } = await sb.from('sesiones_registro').select('id, fecha, created_at').eq('socio_id', S.perfil.id).eq('estado','completada')
+  const { data: regs } = await sb.from('sesiones_registro').select('id, fecha, created_at').eq('socio_id', S.perfil.id).neq('estado','anulada')   // v11.9: misma regla de ejecución real
   const R={}; (regs||[]).forEach(r=>R[r.id]=r)
   const ids=Object.keys(R); if(!ids.length) return { porEj:{}, info:{} }
   const { data: sets } = await sb.from('set_registros').select('registro_id, ejercicio_id, peso, reps, completado').in('registro_id', ids)
