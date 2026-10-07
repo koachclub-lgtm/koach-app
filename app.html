@@ -113,6 +113,7 @@ html[data-tipo="a"] body{word-spacing:.03em}
 .kcr.vis{display:flex;animation:kcrIn .22s ease-out both}
 .kcr__h{display:flex;justify-content:space-between;align-items:center;gap:12px}
 .kcr__b{display:flex;align-items:center;gap:10px;font:700 11px var(--font-mono);letter-spacing:.08em}
+.kcr__b--logo img{display:block;width:148px;height:auto;filter:brightness(0)}
 .kcr__x{width:44px;height:44px;border-radius:50%;border:1px solid var(--ln);background:none;color:var(--fg);font-size:18px;cursor:pointer}
 .kcr__club{margin-top:22px;font:700 12px var(--font-mono);letter-spacing:.14em;color:var(--mu)}
 .kcr__id{display:flex;align-items:center;gap:14px;margin-top:14px}
@@ -4760,21 +4761,25 @@ async function abrirCredencial(){
   if(!el){ el=document.createElement('div'); el.id='oCred'; el.setAttribute('role','dialog'); el.setAttribute('aria-modal','true'); el.setAttribute('aria-label','Mi credencial KOACH'); document.body.appendChild(el) }
   const m=S.memVig, est=m&&m.estado_calc
   const activa = !!m && ['activa','proxima'].includes(est) && !S.memBloqueo
-  const estTxt = activa ? 'MEMBRESÍA ACTIVA' : est==='congelada' ? 'MEMBRESÍA CONGELADA' : est==='futura' ? 'MEMBRESÍA COMIENZA PRONTO' : m ? 'MEMBRESÍA NO VIGENTE' : 'MEMBRESÍA NO REGISTRADA'
+  // c28 · Credencial compartible: identidad y pertenencia, sin datos personales ni comerciales (sin RUT, sin vencimiento).
+  // El n.º de socio y el mes/año de ingreso viven solo codificados en el Member ID del código de barras.
+  const estTxt = activa ? 'ACTIVA' : est==='congelada' ? 'EN PAUSA' : est==='futura' ? 'POR COMENZAR' : 'POR REACTIVAR'
   const fem=String(p.sex||'')==='mujer', T=kidTono(), cod=kodeTxt(p.numero_socio), kid=koachId(p), tm=trayectoriaMeses()
   const nombre=(`${p.nombre||''} ${p.apellido||''}`.trim()||'SOCIO KOACH'), ini=(p.nombre||'K')[0].toUpperCase()
   const MES3=['ENE','FEB','MAR','ABR','MAY','JUN','JUL','AGO','SEP','OCT','NOV','DIC']
   const d0=p.fecha_inicio?new Date(String(p.fecha_inicio).slice(0,10)+'T12:00:00'):(p.created_at?new Date(p.created_at):null)
   const desde=d0?MES3[d0.getMonth()]+' '+d0.getFullYear():'—'
-  const hasta=activa&&S.memFinAcceso?_fm(S.memFinAcceso).toUpperCase():'—'
+  // Antigüedad real desde el ingreso (no meses comprados)
+  const mesesClub=d0?Math.max(0,(new Date().getFullYear()-d0.getFullYear())*12+(new Date().getMonth()-d0.getMonth())):0
+  const antig=mesesClub>=12?Math.floor(mesesClub/12)+(Math.floor(mesesClub/12)===1?' AÑO':' AÑOS'):mesesClub<1?'PRIMER MES':mesesClub+(mesesClub===1?' MES':' MESES')
   el.className='kcr t-pass'+(activa?'':' kcr--off')
-  el.innerHTML='<div class="kcr__h"><span class="kcr__b"><img src="/img/brand/isotipo-blanco.png" alt="" width="18" height="19">KOACH CLUB</span><button type="button" class="kcr__x" onclick="cerrarCredencial()" aria-label="Cerrar">✕</button></div>'+
+  el.innerHTML='<div class="kcr__h"><span class="kcr__b kcr__b--logo"><img src="/img/brand/logotipo-koach.png" alt="KOACH" width="148" height="31"></span><button type="button" class="kcr__x" onclick="cerrarCredencial()" aria-label="Cerrar">✕</button></div>'+
     '<div class="kcr__club">MEMBERSHIP PASS · CLUB DEL 1%</div>'+
-    '<div class="kcr__id"><div class="kcr__ph" id="kcrPh">'+ini+'</div><div class="kcr__tags"><span>'+(fem?'SOCIA':'SOCIO')+(cod?' #'+cod:'')+'</span><span>CONCEPCIÓN</span></div></div>'+
+    '<div class="kcr__id"><div class="kcr__ph" id="kcrPh">'+ini+'</div><div class="kcr__tags"><span>'+(fem?'MIEMBRA':'MIEMBRO')+' DESDE '+desde+'</span><span>CONCEPCIÓN</span></div></div>'+
     '<h1 class="kcr__n">'+kidNombreHTML(nombre)+'</h1>'+
-    '<div class="kcr__perf"><small>PERFORMANCE · KILOS MOVIDOS EN KOACH</small><b id="kcrKg">—</b><em>Peso × repeticiones de cada serie registrada</em></div>'+
-    '<div class="kcr__g"><div class="kcr__st"><small>MEMBRESÍA</small><b><i aria-hidden="true"></i>'+estTxt.replace('MEMBRESÍA ','')+'</b></div><div><small>VIGENTE HASTA</small><b>'+hasta+'</b></div></div>'+
-    (activa?'':'<p class="kcr__msg">Tu credencial se activa con tu membresía vigente. Consulta tu renovación con KOACH.</p>')+
+    '<div class="kcr__perf"><small>PERFORMANCE</small><b id="kcrKg">—</b><em>KILOS LEVANTADOS EN KOACH</em></div>'+
+    '<div class="kcr__g"><div class="kcr__st"><small>TU VERSIÓN MÁS FUERTE</small><b><i aria-hidden="true"></i>'+estTxt+'</b></div><div><small>EN EL CLUB</small><b>'+antig+'</b></div></div>'+
+    (activa?'':'<p class="kcr__msg">Tu credencial vuelve a activarse con tu membresía. Consulta con KOACH.</p>')+
     '<div class="kcr__live" id="kcrLive" aria-live="off"></div>'+
     '<div class="kcr__ft"><div class="kcr__bc">'+kodeSvg(kid)+'</div><div class="kcr__code"><span>'+(kid||'—')+'</span><span>1% MEJOR CADA DÍA</span></div></div>'
   el.classList.add('vis'); document.documentElement.style.overflow='hidden'
