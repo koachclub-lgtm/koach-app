@@ -13,6 +13,48 @@
 <meta name="theme-color" content="#000000">
 <meta name="color-scheme" content="only light">
 <style>:root{color-scheme:only light}
+/* ═══ c41 · CAPA DE MARCA PARA PANTALLAS INTERMEDIAS (un solo sistema: isotipo · label mono · titular · dato · logotipo firma) ═══ */
+.kLogo{display:block;height:auto}
+.kLogo--hdr{width:112px}.kLogo--wel{width:150px}.kLogo--flash{width:120px;margin:0 auto 22px;opacity:.9}
+.kLogo--foot{position:absolute;left:50%;bottom:calc(28px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);width:92px;opacity:.8}
+.kIso{display:block;width:40px;height:auto}
+.kIso--breathe{animation:kBr 1.6s ease-in-out infinite}
+@keyframes kBr{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.35;transform:scale(.94)}}
+.kLbl{display:block;font:700 10px/1.4 'Space Mono','IBM Plex Mono',monospace;letter-spacing:.16em;text-transform:uppercase;color:rgba(244,243,240,.7)}
+.kLbl--dk{color:#6B6A65}
+#oAuth{gap:18px!important}#oAuth .kLbl{opacity:1}
+#oLoad{background:#0B0B0C!important;gap:0!important}
+#oLoad .ldBox{display:flex;flex-direction:column;align-items:center;gap:18px;text-align:center}
+#oLoad .ldT{font-family:'KOACH Display','Inter Display',Inter,Arial,sans-serif;font-weight:800;font-stretch:106%;font-size:22px;letter-spacing:.01em;color:#F4F3F0}
+#oLoad .ldS{font-size:14px;color:rgba(244,243,240,.6);margin-top:-8px}
+.k2h__top{position:relative}
+.k2h__brand{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);font-size:0!important;line-height:0}
+.k2h__brand .kLogo,.wl__brand .kLogo{animation:khLogo .9s cubic-bezier(.2,.8,.2,1) .05s both}
+.k2h__top .k2h__av{margin-left:auto}
+.wl__brand{gap:14px!important}.wel__firma{margin-bottom:16px!important}
+/* transición entre bloques v2: editorial, sin ilustración */
+.kbm--v2{align-items:center;justify-content:center;padding:calc(28px + env(safe-area-inset-top,0px)) 28px calc(28px + env(safe-area-inset-bottom,0px));background:#0B0B0C!important}
+.kbm2__iso{position:absolute;top:calc(26px + env(safe-area-inset-top,0px));left:50%;transform:translateX(-50%);width:30px;opacity:.9}
+.kbm2__c{width:100%;max-width:420px;display:flex;flex-direction:column;gap:14px;animation:kUp .45s cubic-bezier(.2,.8,.2,1) both}
+.kbm2__t{margin:0;font-family:'KOACH Display','Inter Display',Inter,Arial,sans-serif;font-weight:900;font-stretch:110%;font-size:clamp(36px,11vw,56px);line-height:.95;letter-spacing:-.02em;color:#F4F3F0;overflow-wrap:normal}
+.kbm2__t--lg{font-size:clamp(30px,9vw,44px)}
+.kbm2__t::after{content:' ✓';font-size:.6em;vertical-align:.25em;color:rgba(244,243,240,.75)}
+.kbm2__n{display:flex;align-items:baseline;gap:10px;border-top:1px solid rgba(244,243,240,.18);padding-top:14px}
+.kbm2__n b{font-family:'Space Mono','IBM Plex Mono',monospace;font-weight:700;font-size:44px;letter-spacing:-.03em;color:#F4F3F0;line-height:1}
+.kbm2__n span{font:700 11px 'Space Mono',monospace;letter-spacing:.12em;color:rgba(244,243,240,.7)}
+.kbm2__ms{display:flex;flex-direction:column;gap:10px}
+.kbm2__m{display:grid;grid-template-columns:110px 1fr;align-items:center;gap:12px;opacity:0;animation:kIn .4s ease forwards;animation-delay:var(--d)}
+.kbm2__m span{font:700 11px 'Space Mono',monospace;letter-spacing:.1em;color:#F4F3F0}
+.kbm2__m i{height:4px;border-radius:2px;background:rgba(244,243,240,.14);overflow:hidden}.kbm2__m u{display:block;height:100%;background:#F4F3F0}
+.kbm2__sg{display:flex;gap:6px}.kbm2__sg i{flex:1;height:4px;border-radius:2px;background:rgba(244,243,240,.16)}.kbm2__sg i.d{background:rgba(244,243,240,.6)}.kbm2__sg i.n{background:#F4F3F0}
+.kbm2__nx{margin:4px 0 0;font:700 11px 'Space Mono',monospace;letter-spacing:.14em;color:rgba(244,243,240,.75)}
+.kbm2__ft{position:absolute;left:0;right:0;bottom:calc(26px + env(safe-area-inset-bottom,0px));display:flex;flex-direction:column;align-items:center;gap:10px}
+.kbm2__ft .kbm__au{position:static;width:120px}
+@keyframes kUp{from{opacity:0;transform:translateY(14px)}}@keyframes kIn{to{opacity:1}}
+/* pregunta de cierre */
+.kFinQ{position:absolute;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:520px;background:#F6F5F2;border-radius:24px 24px 0 0;padding:22px 18px calc(26px + env(safe-area-inset-bottom,0px))}
+.kFinQ__t{font-family:'KOACH Display','Inter Display',Inter,Arial,sans-serif;font-weight:800;font-size:22px;line-height:1.1;margin:8px 0 8px;color:#111}
+@media (prefers-reduced-motion:reduce){ .kIso--breathe,.kbm2__c,.kbm2__m,.k2h__brand .kLogo,.wl__brand .kLogo{animation:none;opacity:1} }
 /* c38 · control de acceso por pago */
 html.accBloq #vHome > :not(.lockAcc), html.accBloq #vPlan > :not(.lockAcc), html.accBloq #vAvances > :not(.lockAcc), html.accBloq #vHist > :not(.lockAcc){display:none!important}
 html.accBloq #vHome > #lock_vHome{display:flex!important} html.accBloq #vHome > #k2Home{display:none!important}
@@ -1714,10 +1756,11 @@ body.wl-on{overflow:hidden}
 </head>
 <body>
 <div id="oAuth" role="status" aria-live="polite" style="position:fixed;inset:0;z-index:9999;background:#000;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:22px;padding:env(safe-area-inset-top,0) 24px env(safe-area-inset-bottom,0);font-family:system-ui,-apple-system,sans-serif;color:#fff;text-align:center">
-  <img src="/icon-192.png" alt="" width="96" height="96" style="width:96px;height:96px">
-  <div id="oAuthT" style="font-size:12px;letter-spacing:.22em;opacity:.75">PREPARANDO TU CLUB…</div>
+  <img class="kIso kIso--breathe" src="/img/brand/isotipo-blanco.png" alt="" width="44" height="46">
+  <div id="oAuthT" class="kLbl">PREPARANDO TU CLUB…</div>
   <div id="oAuthS" style="display:none;font-size:15px;line-height:1.45;opacity:.85;max-width:300px">Tu sesión sigue guardada en este teléfono. Revisa tu conexión.</div>
   <button id="oAuthB" type="button" onclick="arrancarAuth()" style="display:none;min-height:48px;padding:0 26px;border-radius:14px;border:1px solid rgba(255,255,255,.4);background:#fff;color:#000;font-size:13px;letter-spacing:.14em;font-weight:600">REINTENTAR</button>
+  <img class="kLogo kLogo--foot" src="/img/brand/logotipo-koach.png" alt="KOACH">
 </div>
 
 <div class="wrap">
@@ -1726,9 +1769,8 @@ body.wl-on{overflow:hidden}
   <div class="vista" id="vLogin">
     <div class="lgBg" aria-hidden="true"><div class="lgBg__img" id="lgBgImg"></div><div class="lgBg__ov"></div></div>
     <div class="wel" id="lgWel">
-      <img class="wel__logo" src="/img/brand/isotipo-blanco.png" alt="KOACH" width="46" height="48">
       <div class="wel__body">
-        <div class="wel__firma">KOACH FITNESS CLUB</div>
+        <div class="wel__firma"><img class="kLogo kLogo--wel" src="/img/brand/logotipo-koach.png" alt="KOACH Fitness Club"></div>
         <h1 class="wel__h">TU VERSIÓN<br>MÁS FUERTE<br>COMIENZA AQUÍ.</h1>
         <div class="wel__cta">
           <button type="button" class="wel__b wel__b--pri" onclick="authVista('fLogin')">INICIAR SESIÓN <span aria-hidden="true">→</span></button>
@@ -1937,13 +1979,12 @@ body.wl-on{overflow:hidden}
   <div class="slide" id="slAct"><span class="stx">DESLIZA PARA COMENZAR</span><div class="th">→</div></div>
 </div>
 <div class="kbm" id="oBM" role="status" aria-live="polite"></div>
-<div class="ovl oscuro" id="oFlash"><div class="fk">KOACH</div><div class="ftx" id="oFT"></div><div class="fsb" id="oFS"></div></div>
-<div id="oLoad" role="status" aria-live="polite"><div class="ldBox"><div class="ldK">KOACH FITNESS CLUB</div>
-  <div class="ldSpin" aria-hidden="true"><i></i><i></i><i></i></div>
-  <div class="ldT" id="oLoadM">ENTRANDO A TU PLAN</div><div class="ldS" id="oLoadS">Sincronizando tu semana y progreso.</div></div></div>
+<div class="ovl oscuro" id="oFlash"><img class="kLogo kLogo--flash" src="/img/brand/logotipo-koach.png" alt="KOACH"><div class="ftx" id="oFT"></div><div class="fsb" id="oFS"></div></div>
+<div id="oLoad" role="status" aria-live="polite"><div class="ldBox"><img class="kIso kIso--breathe" src="/img/brand/isotipo-blanco.png" alt="" width="44" height="46">
+  <div class="ldT" id="oLoadM">ENTRANDO A TU PLAN</div><div class="ldS" id="oLoadS">Sincronizando tu semana y progreso.</div></div><img class="kLogo kLogo--foot" src="/img/brand/logotipo-koach.png" alt="KOACH"></div>
 <div id="mFinQ" style="display:none;position:fixed;inset:0;z-index:82;background:rgba(18,18,16,.5);backdrop-filter:blur(6px)">
-  <div style="position:absolute;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:520px;background:#F3F2EF;border-radius:24px 24px 0 0;padding:22px 16px 26px">
-    <div style="font-size:15px;font-weight:900;letter-spacing:.02em;margin-bottom:6px">¿COMPLETASTE TODAS TUS SERIES?</div>
+  <div class="kFinQ">
+    <span class="kLbl kLbl--dk">CERRAR SESIÓN</span><div class="kFinQ__t">¿COMPLETASTE TODAS TUS SERIES?</div>
     <div id="fqSub" style="font-size:10px;color:#7C7B76;line-height:1.6;margin-bottom:18px">Confirma tu sesión para registrar correctamente tu progreso.</div>
     <button class="btn" onclick="completarTodo()" style="margin-bottom:9px">✓ SÍ, COMPLETÉ TODO</button>
     <button class="btn" style="background:rgba(18,18,16,.08);color:#121210" onclick="abrirFinB()">NO, HICE ALGUNOS CAMBIOS</button>
@@ -2281,7 +2322,7 @@ function k2HeaderHero(n, ctx){
   return '<header class="k2h">'+
     '<svg class="k2h__bg" viewBox="0 0 400 262" preserveAspectRatio="none" aria-hidden="true"><path d="M0 0 H400 V262 C400 246 386 232 362 232 H46 C21 232 0 213 0 188 Z"/></svg>'+
     k2Contour()+
-    '<div class="k2h__top"><span class="k2h__brand">KOACH FITNESS CLUB</span><button class="k2h__av" onclick="salir()" aria-label="Salir">'+(n?n[0]:'K')+'</button></div>'+
+    '<div class="k2h__top"><span class="k2h__brand"><img class="kLogo kLogo--hdr" src="/img/brand/logotipo-koach.png" alt="KOACH Fitness Club"></span><button class="k2h__av" onclick="salir()" aria-label="Salir">'+(n?n[0]:'K')+'</button></div>'+
     '<h1 class="k2h__t">Hola, '+(n||'')+'.</h1>'+
     '<div class="k2h__row"><p class="k2h__p">'+frase+'</p><div class="k2h__tag" aria-hidden="true"><i></i>DISCIPLINA<br>PROGRESO<br>RESULTADOS</div></div>'+
   '</header>'
@@ -3101,7 +3142,7 @@ function mostrarWelcome(){
   el.innerHTML=
     '<div class="wl__bg" style="background-image:url('+foto+')"></div><div class="wl__ov"></div><div class="wl__grain"></div>'+
     '<div class="wl__c">'+
-      '<div class="wl__brand"><span>KOACH FITNESS CLUB</span><i></i></div>'+
+      '<div class="wl__brand"><img class="kLogo kLogo--hdr" src="/img/brand/logotipo-koach.png" alt="KOACH Fitness Club"><i></i></div>'+
       '<h1 class="wl__h">YA ERES PARTE<br>DEL CLUB<br><em>DEL 1%</em></h1>'+
       '<p class="wl__intro"><b>'+t.intro+'</b><br>Desde ahora, cada sesión tiene un propósito y cada progreso se mide.</p>'+
       '<ol class="wl__cards">'+
@@ -3337,10 +3378,10 @@ function volverHome(){
 
 /* ══ SESIÓN ══ */
 function cargando(m){ const o=document.getElementById('oLoad'); if(!o)return
-  const MSG={'RECUPERANDO TU ENTRENAMIENTO…':['ENTRANDO A TU PLAN','Sincronizando tu semana y progreso.'],
-    'PREPARANDO TU SESIÓN…':['PREPARANDO SESIÓN','A pocas reps de ser más fuerte.'],
-    'REGISTRANDO TU SESIÓN…':['GUARDANDO TU SESIÓN','Actualizando tu semana.']}
-  const x=MSG[m]||['ENTRANDO A TU PLAN','Sincronizando tu semana y progreso.']
+  const MSG={'RECUPERANDO TU ENTRENAMIENTO…':['RETOMANDO TU SESIÓN','Tus sets marcados ya están guardados.'],
+    'PREPARANDO TU SESIÓN…':['PREPARANDO TU SESIÓN','Cargas, series y descansos de hoy.'],
+    'REGISTRANDO TU SESIÓN…':['GUARDANDO TU SESIÓN','Sumando tu trabajo a la semana.']}
+  const x=MSG[m]||['CARGANDO TU SEMANA','Plan, sesiones y progreso.']
   document.getElementById('oLoadM').textContent=x[0]; document.getElementById('oLoadS').textContent=x[1]; o.classList.add('vis') }
 function cargandoOff(){ const o=document.getElementById('oLoad'); if(o)o.classList.remove('vis') }
 async function reanudar(){
@@ -3926,12 +3967,18 @@ function transicionBloque(bi){
   const nombres=ord.map(([k,r,l],i)=>{ const n=l===1?3:l===.55?2:1
     return '<div class="kbm__mu'+(n===3?'':n===2?' l2':' l3')+'" style="--d:'+(t.tn+i*90)+'ms"><span>'+[0,1,2].map(j=>'<i class="'+(j<n?'on':'')+'"></i>').join('')+'</span>'+k+'</div>' }).join('')
   const segs=bfs.map((x,i)=>'<i class="'+(i===bi?'n':bloqueCompleto(x)?'d':'')+'"></i>').join('')
-  el.className='kbm'+(t.soft?' soft':'')
+  el.className='kbm kbm--v2'+(t.soft?' soft':'')
   el.style.cssText='--tb:'+t.tb+'ms;--ts:'+t.ts+'ms;--sd:'+t.sd+'ms;--tt:'+t.tt+'ms;--tl:'+t.tl+'ms;--ad:'+t.ad+'ms'
-  el.innerHTML='<div class="kbm__top"><b>BLOQUE '+(bi+1)+' DE '+bfs.length+'</b><span>toca para seguir</span></div>'+
-    '<div class="kbm__st"><div class="kbm__bd"><div class="kbm__fg">'+BM.fig(BM.F,rel,t,'f')+'<small>FRONTAL</small></div><div class="kbm__fg">'+BM.fig(BM.B,rel,t,'b')+'<small>POSTERIOR</small></div></div></div>'+
-    '<div class="kbm__cp"><div class="kbm__tt'+(tit.length>13?' kbm__tt--lg':'')+'">'+tit+' <i>✓</i></div><div class="kbm__ms">'+nombres+'</div>'+
-    '<div class="kbm__ft"><span class="kbm__ln">'+linea+'</span><span class="kbm__sg">'+segs+'</span></div></div><div class="kbm__au"><i></i></div>'
+  const mx=ord.length?ord[0][1]:1, kgB=(()=>{ let k=0; (b.bloque_ejercicios||[]).forEach(be=>{ for(let n=1;n<=b.sets;n++){ const f=S.setLog[setKey(be.id,n)]; if(f&&f.peso!=null) k+=(+f.peso||0)*(parseInt(f.reps)||0) } }); return Math.round(k) })()
+  const sig = ultimo ? null : bfs[pend.find(i=>i>bi)!=null?pend.find(i=>i>bi):pend[0]]
+  el.innerHTML='<img class="kIso kbm2__iso" src="/img/brand/isotipo-blanco.png" alt="" width="34" height="35">'+
+    '<div class="kbm2__c"><span class="kLbl">BLOQUE '+(bi+1)+' DE '+bfs.length+' · COMPLETADO</span>'+
+    '<h2 class="kbm2__t'+(tit.length>14?' kbm2__t--lg':'')+'">'+tit+'</h2>'+
+    (kgB?'<div class="kbm2__n"><b>'+kgB.toLocaleString('es-CL')+'</b><span>KG MOVIDOS</span></div>':'')+
+    (ord.length?'<div class="kbm2__ms">'+ord.map(([k,r],i)=>'<div class="kbm2__m" style="--d:'+(t.tn+i*90)+'ms"><span>'+String(k).toUpperCase()+'</span><i><u style="width:'+Math.max(18,Math.round(r/mx*100))+'%"></u></i></div>').join('')+'</div>':'')+
+    '<div class="kbm2__sg" aria-hidden="true">'+segs+'</div>'+
+    '<p class="kbm2__nx">'+(ultimo?'SOLO QUEDA CERRAR TU SESIÓN.':'SIGUE · '+String((sig&&(sig.etiqueta||sig.bloque))||'SIGUIENTE BLOQUE').toUpperCase())+'</p></div>'+
+    '<div class="kbm2__ft"><span class="kLbl">TOCA PARA SEGUIR</span><div class="kbm__au"><i></i></div></div>'
   el.setAttribute('aria-label', tit+' completado. '+ord.map(x=>x[0]).join(', ')+'. '+linea)
   el.onclick=cerrarBodyMap
   BM.after=()=>{ const dest= ultimo ? document.getElementById('slFin') : document.getElementById('blq-'+pend.find(i=>i>bi) ) || document.getElementById('blq-'+pend[0])
