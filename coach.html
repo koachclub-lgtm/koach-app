@@ -1164,7 +1164,28 @@ html.selAbierto,html.selAbierto body{overflow:hidden}
 .kcS--completada{background:rgba(18,18,16,.04);color:#5E5D59}
 .kcS--en_curso{border-color:#121212;box-shadow:inset 3px 0 0 #121212}
 .kcS--px{border-color:#121212;border-width:2px}
-.kcOpen{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:10px;margin:10px -16px 0;padding:10px 16px;background:rgba(242,212,155,.22)}
+.kcOpen{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:10px;margin:12px 0 0;padding:10px 14px;background:transparent;border:1px solid rgba(18,18,16,.16);border-left:3px solid #121212;border-radius:12px}
+.kcOpen__t small i{display:inline-block;width:7px;height:7px;border-radius:50%;background:#121212;margin-right:7px;vertical-align:1px}
+/* v4 · timeline como control de progreso: celdas unidas, estados por forma (no por color) */
+.kcWeek{gap:0!important;border:1px solid rgba(18,18,16,.14);border-radius:14px;overflow:hidden;padding:0!important;margin:12px 0 0}
+.kcWeek .kcS{border:0!important;border-right:1px solid rgba(18,18,16,.1)!important;border-radius:0!important;box-shadow:none!important;background:transparent}
+.kcWeek .kcS:last-child{border-right:0!important}
+.kcWeek .kcS--completada{background:rgba(18,18,16,.05)}
+.kcWeek .kcS--px{background:#121212;color:#F4F3F0}.kcWeek .kcS--px small{color:#A7A9AE}
+.kcWeek .kcS--en_curso{box-shadow:inset 0 -3px 0 #121212!important}
+/* v4 · utilidades compactas (P2) */
+.kcUt{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+.kcU{min-height:44px;padding:0 16px;border-radius:999px;border:1px solid rgba(18,18,16,.2);background:transparent;font-family:var(--font-mono,monospace);font-weight:500;font-size:11px;letter-spacing:.1em;color:#121212;cursor:pointer;display:inline-flex;align-items:center;gap:8px}
+.kcU b{font-weight:500;color:#5E5D59}.kcU span{font-size:9px;color:#5E5D59;transition:transform .15s}
+.kcU.on{background:#121212;color:#F4F3F0;border-color:#121212}.kcU.on b{color:#C9C8C2}.kcU.on span{transform:rotate(180deg);color:#C9C8C2}
+.kcU:focus-visible,.pfB:focus-visible,.pfMenu button:focus-visible{outline:2px solid #121212;outline-offset:2px}
+.fAdhIn{margin-top:12px}
+/* v4 · cabecera compacta al hacer scroll (identidad + programa + puertas) */
+#vFicha .mh{position:sticky;top:0;z-index:30}
+.mh.mh--mini{padding-top:8px;box-shadow:0 8px 20px rgba(0,0,0,.08)}
+.mh.mh--mini .mh__stats,.mh.mh--mini .mh__code{display:none}
+.mh.mh--mini .mh__av{width:40px;height:40px;font-size:16px}
+.mh.mh--mini .stit{font-size:22px}
 .kcOpen__t b{display:block;font-family:var(--font-display);font-weight:700;font-size:17px}
 .kcHoy{margin-top:10px;font-family:var(--font-mono);font-size:12px;letter-spacing:.08em;color:#121212}
 .kcAccG{display:grid;grid-template-columns:1fr 1fr;gap:8px}
@@ -1624,7 +1645,8 @@ html.ks-on #vSala .salaQ input{font:500 17px var(--font-display) !important;lett
   <div id="fTabAdm" style="display:none"></div>
   <div id="fTabEnt">
   <div class="fCtx" id="fCtx"></div>
-  <div id="fTabAdh" class="fAdhIn"></div>
+  <div id="fTabAdh" class="fAdhIn" hidden></div>
+  <div class="fLegacy" hidden>
   <div class="glass viva">
     <h3><span>SU SEMANA · EN VIVO</span><span id="fSemTit">—</span></h3>
     <div class="rows2" id="fRows"></div>
@@ -1640,6 +1662,7 @@ html.ks-on #vSala .salaQ input{font:500 17px var(--font-display) !important;lett
   <div class="peligro" style="display:none">
     <button class="pel frio" id="btnFrio" onclick="congelar()">CONGELAR</button>
     <button class="pel rojo" onclick="cancelar()">CANCELAR</button>
+  </div>
   </div>
   </div>
 </div>
@@ -4596,9 +4619,9 @@ function fTab(t){
   AD.socioTab=t
   document.getElementById('fTabEnt').style.display=t==='ent'?'':'none'
   document.getElementById('fTabAdm').style.display=t==='adm'?'':'none'
-  document.getElementById('fTabAdh').style.display=t==='ent'?'':'none'
+  document.getElementById('fTabAdh').style.display=''
   document.getElementById('fTbEnt').classList.toggle('on',t==='ent'); document.getElementById('fTbAdm').classList.toggle('on',t==='adm'); document.getElementById('fTbAdh').classList.toggle('on',t==='adh')
-  if (t==='ent') fAdhCargar()
+  if (t==='ent'){ const d=document.getElementById('fTabAdh'); if(d) d.hidden=true; fAdhCargar() }
   if (t==='adm') fAdmCargar()
   mhAcciones()
 }
@@ -5039,6 +5062,7 @@ function adhPintar(){
   }).join('') : '<div class="vacio">Nadie en este filtro.</div>'
 }
 // Pestaña ADHERENCIA en la ficha del socio
+function fAdhToggle(b){ const d=document.getElementById('fTabAdh'); if(!d) return; d.hidden=!d.hidden; b.setAttribute('aria-expanded',String(!d.hidden)); b.classList.toggle('on',!d.hidden) }
 async function fAdhCargar(){
   const box=document.getElementById('fTabAdh'); box.innerHTML='<div class="vacio">Cargando…</div>'
   const [rv, rc] = await Promise.all([
@@ -5048,6 +5072,7 @@ async function fAdhCargar(){
   const x=rv.data
   if (!x){ box.innerHTML='<div class="vacio">Sin datos de adherencia.</div>'; return }
   const al=adhAlertas(x)
+  const uv=document.getElementById('kcUAdhV'); if(uv) uv.textContent=(x.adherencia_semana==null?'—':x.adherencia_semana+'%')+' · '+x.hechas_semana+'/'+(x.planif_semana>0?x.planif_semana:'—')+(x.adherencia_4sem==null?'':' · 4 SEM '+x.adherencia_4sem+'%')
   const sem=(x.semanas||[]).slice().sort((a,b)=>b.k-a.k)
   const SRC={sesion_completada:'RUTINA COMPLETADA', manual:'REGISTRO MANUAL', qr:'QR', acceso:'CONTROL DE ACCESO'}
   box.innerHTML=
@@ -5350,14 +5375,14 @@ function fPintarCtx(id){
   const so=(C.socios||[]).find(function(s){return s.id===id})||{}, a=C.asig[id]||{}, pr=a.protocolos||{}
   const chip=function(k,v){ return '<span class="kcChip"><small>'+k+'</small><b>'+v+'</b></span>' }
   const url=x&&x.abrir?urlRutina(id):urlPlan(id)
+  // v4 · P1 en la cabecera (Rutina · Planificador) · operación al centro · P2 como utilidades compactas · P3 en ···
   el.innerHTML='<div class="kc">'+
-    '<div class="kcGrid"><section class="kcOp" id="scCard" aria-label="Operación de hoy"><div class="kcK">OPERACIÓN DE HOY</div><div class="gpCarga">Cargando…</div></section>'+
-    '<section class="kcAcc" aria-label="Más de entrenamiento"><div class="kcK">MÁS DE ENTRENAMIENTO</div><div class="kcAccG">'+
-      '<button type="button" class="kcA" onclick="fichaCargas()"><b>HISTORIAL DE CARGAS</b><small>pesos por ejercicio</small></button>'+
-      '<button type="button" class="kcA" onclick="verExtra()"><b>DESIGNAR EXTRA ★</b><small>sesión adicional</small></button>'+
-      '<button type="button" class="kcA" onclick="gpAbrir()"><b>GESTIONAR PROGRAMA</b><small>cambiar · nuevo ciclo</small></button>'+
-      '<button type="button" class="kcA" onclick="wsp()"><b>WHATSAPP</b><small>'+plEsc(so.telefono||'escribir al socio')+'</small></button>'+
-    '</div></section></div></div>'
+    '<section class="kcOp" id="scCard" aria-label="Operación de hoy"><div class="kcK">OPERACIÓN DE HOY</div><div class="gpCarga">Cargando…</div></section>'+
+    '<div class="kcUt" role="group" aria-label="Utilidades de entrenamiento">'+
+      '<button type="button" class="kcU" onclick="fichaCargas()">CARGAS</button>'+
+      '<button type="button" class="kcU" onclick="gpAbrir()">PROGRAMA</button>'+
+      '<button type="button" class="kcU kcU--adh" id="kcUAdh" aria-expanded="false" aria-controls="fTabAdh" onclick="fAdhToggle(this)">ADHERENCIA <b id="kcUAdhV">—</b><span aria-hidden="true">▾</span></button>'+
+    '</div></div>'
   scCargar(id)
 }
 function salaBuscar(){ const raw=document.getElementById('salaQ').value||'', q=bpNorm(raw), lista=document.getElementById('lista')
@@ -5548,7 +5573,7 @@ function scPintar(){
   if (!px){ msg='Completó todas las sesiones de la semana.' }
   else if (hb){ msg='Habilitada por KOACH'+(hb.permite_hoy?' para hoy':'')+' · el socio ya la ve'
     cta='<button type="button" class="kcB" onclick="scAccion(\'quitar_habilitacion\')">QUITAR HABILITACIÓN</button>' }
-  else if (ab.length){ msg='Hay '+(ab.length===1?'una sesión abierta':ab.length+' sesiones abiertas')+' (abajo)'
+  else if (ab.length){ msg='Hay '+(ab.length===1?'una sesión abierta':ab.length+' sesiones abiertas')+' sin cerrar'
     cta='<button type="button" class="kcB kcB--ink" onclick="scHabilitarDirecto(\''+px.id+'\')">HABILITAR IGUAL</button>' }
   else if (st.entreno_hoy){ msg='Ya completó una sesión hoy'
     cta='<button type="button" class="kcB kcB--ink" onclick="scHabilitarDirecto(\''+px.id+'\')">HABILITAR OTRA HOY</button>' }
@@ -5564,7 +5589,7 @@ function scPintar(){
         '<i>'+(ic[z.estado]||'○')+'</i><span><small>'+String(z.numero).padStart(2,'0')+(esPx?' · PRÓXIMA':'')+'</small><b>'+plEsc(String(z.nombre||'').toUpperCase())+'</b></span></a>' }).join('')+'</div>'
   // 3 · sesiones abiertas con acciones directas (sin pasos intermedios)
   ab.forEach(function(a){
-    h+='<div class="kcOpen"><div class="kcOpen__t"><small>SESIÓN ABIERTA · '+scFecha(a.iniciada_at||a.fecha)+'</small><b>'+plEsc(String(a.nombre||'SESIÓN').toUpperCase())+'</b>'+
+    h+='<div class="kcOpen" role="status"><div class="kcOpen__t"><small><i aria-hidden="true"></i>INCIDENCIA · SESIÓN ABIERTA · '+scFecha(a.iniciada_at||a.fecha)+'</small><b>'+plEsc(String(a.nombre||'SESIÓN').toUpperCase())+'</b>'+
       '<span>'+a.ejercicios+'/'+a.total_ejercicios+' ejercicios · '+a.sets+' sets</span></div><div class="kcBtns">'+
       '<button type="button" class="kcB" onclick="scAccion(\'cerrar\',\''+a.id+'\')" title="Conserva sets, pesos y reps">CERRAR INCOMPLETA</button>'+
       (a.sets>0?'':'<button type="button" class="kcB" onclick="scAccion(\'anular\',\''+a.id+'\')" title="Solo inicios sin datos">ANULAR</button>')+
@@ -5770,17 +5795,23 @@ function mhAcciones(){
     const url=x&&x.abrir?urlRutina(id):urlPlan(id)
     el.innerHTML='<a class="pfB pfB--ink" href="'+url+'" onclick="return rtIr(event,\''+url+'\')">'+(x&&x.enCurso?'SESIÓN EN CURSO →':'RUTINA DE HOY →')+'</a>'+
       '<a class="pfB" href="'+urlPlan(id)+'" onclick="return rtIr(event,\''+urlPlan(id)+'\')">PLANIFICADOR</a>'+
-      '<div class="pfMenuW"><button type="button" class="pfB pfB--ico" onclick="pfMenu(this)" aria-label="Más acciones" aria-haspopup="true">···</button><div class="pfMenu pfMenu--r" hidden>'+
-      '<button onclick="fichaCargas()">HISTORIAL DE CARGAS</button><button onclick="verExtra()">DESIGNAR EXTRA ★</button><button onclick="gpAbrir()">GESTIONAR PROGRAMA</button><button onclick="wsp()">WHATSAPP</button></div></div>'
+      '<div class="pfMenuW"><button type="button" class="pfB pfB--ico" onclick="pfMenu(this)" aria-label="Más acciones de '+plEsc(nomDe(id))+'" aria-haspopup="menu" aria-expanded="false">···</button><div class="pfMenu pfMenu--r" role="menu" hidden>'+
+      '<button role="menuitem" onclick="verExtra()">DESIGNAR SESIÓN EXTRA ★</button><button role="menuitem" onclick="wsp()">WHATSAPP'+(((C.socios||[]).find(function(s){return s.id===id})||{}).telefono?' · '+plEsc(((C.socios||[]).find(function(s){return s.id===id})||{}).telefono):'')+'</button></div></div>'
   } else {
     el.innerHTML='<button type="button" class="pfB pfB--ink" onclick="admFormPago()">REGISTRAR PAGO</button><button type="button" class="pfB" onclick="admFormDatos()">EDITAR DATOS</button>'+
-      '<div class="pfMenuW"><button type="button" class="pfB pfB--ico" onclick="pfMenu(this)" aria-label="Más acciones" aria-haspopup="true">···</button><div class="pfMenu pfMenu--r" hidden>'+
-      '<button onclick="admFormMem()">+ PERÍODO MANUAL</button><button onclick="wsp()">WHATSAPP</button></div></div>'
+      '<div class="pfMenuW"><button type="button" class="pfB pfB--ico" onclick="pfMenu(this)" aria-label="Más acciones de '+plEsc(nomDe(id))+'" aria-haspopup="menu" aria-expanded="false">···</button><div class="pfMenu pfMenu--r" role="menu" hidden>'+
+      '<button role="menuitem" onclick="admFormMem()">+ PERÍODO MANUAL</button><button role="menuitem" onclick="wsp()">WHATSAPP</button></div></div>'
   }
 }
 function pfMenu(b){ const m=b.nextElementSibling, ab=m.hidden
   document.querySelectorAll('.pfMenu').forEach(function(x){ x.hidden=true }); m.hidden=!ab; b.setAttribute('aria-expanded',String(ab))
   if (ab) setTimeout(function(){ document.addEventListener('click', function f(e){ if(!m.contains(e.target)&&e.target!==b){ m.hidden=true; b.setAttribute('aria-expanded','false') } document.removeEventListener('click',f) }) },0) }
+// v4 · cabecera compacta al bajar en la ficha (con histéresis para que no salte)
+window.addEventListener('scroll', function(){ const v=document.getElementById('vFicha'); if(!v||!v.classList.contains('on')) return
+  const mh=v.querySelector('.mh'); if(!mh) return; const y=window.scrollY
+  if (!mh.classList.contains('mh--mini') && y>260) mh.classList.add('mh--mini'); else if (mh.classList.contains('mh--mini') && y<120) mh.classList.remove('mh--mini') }, {passive:true})
+document.addEventListener('keydown', function(e){ if(e.key!=='Escape') return
+  document.querySelectorAll('.pfMenu:not([hidden])').forEach(function(m){ m.hidden=true; const b=m.previousElementSibling; if(b){ b.setAttribute('aria-expanded','false'); b.focus() } }) })
 function pfVer(idd,b){ const d=document.getElementById(idd); d.hidden=!d.hidden; b.classList.toggle('on',!d.hidden) }
 let MG={primero:null}
 async function aplicarPrograma(){
