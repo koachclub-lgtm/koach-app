@@ -1,0 +1,4 @@
+-- Aplicada en producción (siecbdatfgmqbpxqtvsl) vía MCP el 07-oct-2026 como "koach_motor_ventas_unificado".
+-- planes(duracion_tipo, duracion_valor, orden) = catálogo único · _int_crear_cuenta_auth (usada por registro_socio y admin_alta_socio)
+-- _int_venta_registrar / admin_venta_registrar = motor de venta único · admin_alta_socio = alta atómica cuenta+perfil+venta
+-- Ver definición vigente con: select pg_get_functiondef('public.admin_alta_socio'::regproc);
