@@ -1,0 +1,3 @@
+-- Aplicada en producción vía MCP el 07-oct-2026 como "koach_acceso_admin_rpc".
+-- admin_acceso_estado · admin_acceso_clave (solo admin, bcrypt, nunca se guarda ni registra la clave)
+-- admin_acceso_correo (auth.users + auth.identities + profiles) · admin_acceso_registrar (auditoría)

@@ -4750,7 +4750,7 @@ async function fAdmCargar(){
   h+='<section class="pfC"><div class="pfRow2"><div><div class="pfK"><span>ACCESO A LA APP</span></div><div class="pfS"><b>'+(F.estado==='congelado'?'ACCESO SUSPENDIDO':'CUENTA ACTIVA ✓')+'</b> · independiente de la membresía</div>'+
     '<div class="acI" id="acInfo"><span class="acI__m">'+(so.email?adEsc(so.email):'SIN CORREO REGISTRADO')+'</span><span class="acI__u" id="acUlt">Último acceso · …</span></div></div>'+
     '<div class="pfMenuW"><button type="button" class="pfB" onclick="pfMenu(this)" aria-haspopup="true">CUENTA ▾</button><div class="pfMenu pfMenu--r" hidden>'+
-    '<button onclick="congelar()">'+(F.estado==='congelado'?'REACTIVAR ACCESO':'SUSPENDER ACCESO')+'</button><button class="pfDanger" onclick="cancelar()">DAR DE BAJA</button></div></div></div>'+
+    (((C.yo&&C.yo.role)==='admin')?'<button onclick="accAbrir().then(accClave)">CAMBIAR CONTRASEÑA</button>':'')+'<button onclick="congelar()">'+(F.estado==='congelado'?'REACTIVAR ACCESO':'SUSPENDER ACCESO')+'</button><button class="pfDanger" onclick="cancelar()">DAR DE BAJA</button></div></div></div>'+
     (accPuede()?'<div class="pfBtns"><button type="button" class="pfB pfB--ink" id="acBtn" onclick="accAbrir()">RECUPERAR ACCESO</button></div>':'')+'</section>'
   h+='</div>'
   mhPintar(id, finAcc, dAcc)
@@ -5672,19 +5672,35 @@ const ACC={ run:false, est:null, sid:null, url:null, espera:0, tm:null, foco:nul
 const ACC_LBL={ recovery_email_sent:'RECUPERACIÓN ENVIADA POR CORREO', recovery_link_generated:'ENLACE DE ACCESO GENERADO', email_updated:'CORREO DE ACCESO CORREGIDO', access_restored:'ACCESO RESTABLECIDO POR EL SOCIO' }
 function evLbl(e){ return ACC_LBL[e.accion] || (String(e.accion).replace(/_/g,' ').toUpperCase()+' '+String(e.entidad||'').toUpperCase()) }
 function accPuede(){ return ['admin','coach','recepcion'].indexOf((C.yo&&C.yo.role)||'')>=0 && !(C.yo&&C.yo._pin) }
+// c35 · estado, contraseña y correo van por RPC (Supabase, SECURITY DEFINER, permisos en el servidor);
+// el correo de recuperación lo envía Supabase Auth directo; solo GENERAR ENLACE necesita la Edge Function.
+function accRpcErr(e){ const m=String((e&&e.message)||'')
+  const msg=m.replace(/^.*?(PERMISO_DENEGADO|ACCESO):\s*/,'')
+  return { ok:false, codigo:/PERMISO/.test(m)?'SIN_PERMISO':/no es válido/.test(m)?'EMAIL_INVALIDO':'ERROR', msg:(msg.charAt(0).toUpperCase()+msg.slice(1))||'No pudimos completar la acción.' } }
 async function accLlamar(accion, extra){
+  extra=extra||{}
   try{
-    const r=await sb.functions.invoke('koach-acceso', { body:Object.assign({ accion:accion, socio_id:ACC.sid }, extra||{}) })
+    if (accion==='estado'){ const r=await sb.rpc('admin_acceso_estado',{ p_socio:ACC.sid }); return r.error?accRpcErr(r.error):r.data }
+    if (accion==='clave'){ const r=await sb.rpc('admin_acceso_clave',{ p_socio:ACC.sid, p_password:extra.password }); return r.error?accRpcErr(r.error):{ ok:true } }
+    if (accion==='corregir_correo'){ const r=await sb.rpc('admin_acceso_correo',{ p_socio:ACC.sid, p_email:extra.email }); return r.error?accRpcErr(r.error):r.data }
+    if (accion==='enviar_correo'){
+      const em=(ACC.est&&ACC.est.email)||''; if (!em) return { ok:false, codigo:'SIN_EMAIL', msg:'Sin correo registrado. Agrega uno primero.' }
+      const r=await sb.auth.resetPasswordForEmail(em, { redirectTo:'https://app.koachclub.cl/app.html' })
+      if (r.error) return /rate|seconds|limit/i.test(r.error.message||'') ? { ok:false, codigo:'RATE', msg:'Demasiados intentos. Prueba nuevamente en unos minutos.' } : { ok:false, msg:'No pudimos enviar el correo. Intenta otra vez.' }
+      try{ await sb.rpc('admin_acceso_registrar',{ p_socio:ACC.sid, p_accion:'recovery_email_sent' }) }catch(_e){}
+      const pr=em.split('@'); return { ok:true, destino:(pr[0].length<=2?pr[0][0]+'*':pr[0].slice(0,4)+'***')+'@'+pr[1], espera_seg:60 }
+    }
+    const r=await sb.functions.invoke('koach-acceso', { body:Object.assign({ accion:accion, socio_id:ACC.sid }, extra) })
     if (r.error){ let b=null; try{ b=await r.error.context.json() }catch(_e){}
-      return b || { ok:false, codigo:'RED', msg:'No pudimos conectar con el servidor. Revisa la conexión e intenta otra vez.' } }
+      return (b && typeof b.ok==='boolean') ? b : { ok:false, codigo:'NO_DISP', msg:'El enlace directo aún no está habilitado. Usa ENVIAR POR CORREO'+((ACC.est&&ACC.est.puede_clave)?' o ESTABLECER CONTRASEÑA.':'.') } }
     return r.data || { ok:false, msg:'Respuesta vacía.' }
   }catch(_e){ return { ok:false, codigo:'RED', msg:'No pudimos conectar con el servidor. Revisa la conexión e intenta otra vez.' } }
 }
 async function accEstado(sid){
-  if (ACC.sid!==sid){ ACC.espera=0; ACC.url=null } ACC.sid=sid; ACC.est=null; const u=document.getElementById('acUlt'); if(!u) return
-  const r=await accLlamar('estado'); if (ACC.sid!==sid || !document.getElementById('acUlt')) return
+  if (ACC.sid!==sid){ ACC.espera=0; ACC.url=null } ACC.sid=sid; ACC.est=null
+  const r=await accLlamar('estado'); if (ACC.sid!==sid) return
   ACC.est=r.ok?r:null
-  const b=document.getElementById('acBtn')
+  const u=document.getElementById('acUlt'), b=document.getElementById('acBtn'); if (!u) return
   if (!r.ok){ u.textContent='Estado de cuenta no disponible'; return }
   if (!r.existe){ u.textContent='SIN CUENTA DE ACCESO'; if(b) b.textContent='VER ACCESO'; return }
   const m=document.querySelector('#acInfo .acI__m'); if (m) m.textContent=r.email||'SIN CORREO REGISTRADO'
@@ -5698,7 +5714,7 @@ function accCab(){ const e=ACC.est||{}
 function accErr(r){ const t=String(r.msg||'No pudimos completar la acción.'), tit=r.codigo==='RATE'?'NO PUDIMOS ENVIAR EL CORREO':r.codigo==='EMAIL_INVALIDO'?'EL CORREO NO ES VÁLIDO':r.codigo==='SIN_PERMISO'?'SIN PERMISO':'NO SE PUDO'
   return '<div class="acErr" role="alert"><b>'+tit+'</b>'+adEsc(t.replace(/^El correo no es válido\.\s*/,''))+'</div>' }
 async function accAbrir(){
-  if (!ACC.sid) ACC.sid=F&&F.id
+  const _sid=F&&F.id; if (_sid && _sid!==ACC.sid){ ACC.sid=_sid; ACC.est=null; ACC.espera=0 }
   ACC.url=null; ACC.foco=document.activeElement
   document.getElementById('mAcc').style.display='flex'
   if (!ACC.est){ document.getElementById('acBody').innerHTML='<div class="acSt">CARGANDO…</div>'; await accEstado(ACC.sid) }
@@ -5708,12 +5724,14 @@ function accMenu(msgHtml){
   const e=ACC.est||{}, nuevo=!!e.nunca_ingreso
   document.getElementById('acT').textContent= nuevo?'ENVIAR ACCESO':'RECUPERAR ACCESO'
   let h=accCab()
+  if (!ACC.est){ h+='<div class="acErr"><b>NO SE PUDO LEER LA CUENTA</b>Revisa la conexión y vuelve a abrir.</div>'; return accPintar(h) }
   if (!e.existe){ h+='<div class="acErr"><b>SIN CUENTA DE ACCESO</b>Este socio no tiene cuenta en la app. Pídele que se registre en app.koachclub.cl.</div>'; return accPintar(h) }
   if (!e.email){ h+='<div class="acHr"></div><button type="button" class="mSG__ok" onclick="accCorregir()">AGREGAR CORREO</button>'; return accPintar(h) }
   const esp=ACC.espera>Date.now(), seg=Math.ceil((ACC.espera-Date.now())/1000)
   h+='<div class="acHr"></div>'+
     '<button type="button" class="acOpt" id="acMail" onclick="accCorreo()"'+(esp?' disabled':'')+'><b>'+(esp?'REENVIAR EN '+seg+' S':'ENVIAR POR CORREO')+'</b><span>'+(nuevo?'Envía un enlace para que cree su contraseña y entre.':'Envía un enlace para crear una nueva contraseña.')+'</span></button>'+
     '<button type="button" class="acOpt" onclick="accEnlace()"><b>GENERAR ENLACE</b><span>Enlace temporal seguro para enviarlo directo por WhatsApp. Úsalo si el correo no llega.</span></button>'+
+    (e.puede_clave?'<button type="button" class="acOpt" onclick="accClave()"><b>ESTABLECER CONTRASEÑA</b><span>Defines una clave nueva y se la entregas en persona. Solo administración.</span></button>':'')+
     (msgHtml||'')+'<div class="acHr"></div><button type="button" class="acLnk" onclick="accCorregir()">¿EL CORREO ESTÁ MAL? CORREGIR CORREO →</button>'
   accPintar(h)
   if (esp) accTic()
@@ -5769,6 +5787,29 @@ async function accGuardarMail(){
   const m=document.querySelector('#acInfo .acI__m'); if (m) m.textContent=r.email
   document.getElementById('acT').textContent='CORREO ACTUALIZADO'
   accPintar(accCab()+'<div class="acSt">CORREO ACTUALIZADO ✓</div><button type="button" class="mSG__ok" onclick="accMenu();accCorreo()">ENVIAR RECUPERACIÓN</button><button type="button" class="mSG__sec" onclick="accEnlace()">GENERAR ENLACE</button>')
+}
+function accClave(){
+  document.getElementById('acT').textContent='ESTABLECER CONTRASEÑA'
+  accPintar('<div class="acSoc">'+adEsc(accNombre())+'</div><div class="acMail">'+adEsc((ACC.est&&ACC.est.email)||'')+'</div>'+
+    '<form onsubmit="event.preventDefault();accClaveGuardar()" novalidate><input type="email" autocomplete="username" value="'+adEsc((ACC.est&&ACC.est.email)||'')+'" hidden readonly>'+
+    '<label class="acL" for="acP1">NUEVA CONTRASEÑA</label><input class="acIn" id="acP1" type="password" autocomplete="new-password" minlength="8" placeholder="Mínimo 8 caracteres">'+
+    '<label class="acL" for="acP2">REPÍTELA</label><input class="acIn" id="acP2" type="password" autocomplete="new-password" minlength="8">'+
+    '<button type="button" class="acLnk" onclick="accVerClave(this)" aria-pressed="false">MOSTRAR</button>'+
+    '<div class="acMail">La clave anterior deja de funcionar. Sus otros dispositivos con sesión abierta siguen dentro. La clave no queda guardada ni registrada en KOACH.</div>'+
+    '<div id="acPErr"></div><button type="submit" class="mSG__ok" id="acPOk">GUARDAR CONTRASEÑA</button></form><button type="button" class="mSG__sec" onclick="accMenu()">VOLVER</button>')
+}
+function accVerClave(b){ const on=b.getAttribute('aria-pressed')!=='true'; ['acP1','acP2'].forEach(function(i){ document.getElementById(i).type=on?'text':'password' }); b.setAttribute('aria-pressed',on); b.textContent=on?'OCULTAR':'MOSTRAR' }
+async function accClaveGuardar(){
+  const p1=document.getElementById('acP1').value, p2=document.getElementById('acP2').value, box=document.getElementById('acPErr'), b=document.getElementById('acPOk')
+  const err=function(t){ box.innerHTML='<div class="acErr" role="alert"><b>NO SE PUDO</b>'+adEsc(t)+'</div>' }
+  if (p1.length<8) return err('Usa al menos 8 caracteres.')
+  if (p1!==p2) return err('Las contraseñas no coinciden.')
+  if (ACC.run) return; ACC.run=true; b.disabled=true; b.textContent='GUARDANDO…'
+  const r=await accLlamar('clave',{ password:p1 }); ACC.run=false
+  if (!r.ok){ b.disabled=false; b.textContent='GUARDAR CONTRASEÑA'; return err(r.msg) }
+  document.getElementById('acT').textContent='CONTRASEÑA ACTUALIZADA'
+  accPintar(accCab()+'<div class="acSt">CONTRASEÑA ACTUALIZADA ✓</div><div class="acMail">Ya puede entrar en app.koachclub.cl con su correo y la clave nueva. Recomiéndale cambiarla desde su perfil.</div><button type="button" class="mSG__ok" onclick="accCerrar()">LISTO</button>')
+  toast('Contraseña actualizada ✓')
 }
 function accCerrar(){ clearTimeout(ACC.tm); ACC.url=null; document.getElementById('mAcc').style.display='none'; try{ if (ACC.foco) ACC.foco.focus() }catch(_e){} }
 document.addEventListener('keydown', function(ev){
