@@ -82,6 +82,15 @@ html.accBloq #pfCard, html.accBloq #vPerfil .kpc__f, html.accBloq #vPerfil [oncl
 .kHoja__b button:focus-visible{outline:2px solid #111;outline-offset:3px}
 @keyframes kHf{from{opacity:0}}@keyframes kHu{from{opacity:0;transform:translateY(12px)}}
 @media (prefers-reduced-motion:reduce){ .kHoja,.kHoja__c{animation:none} }
+
+/* c42 · sesión sin cerrar (HOY) */
+.opAv{margin:12px 16px;padding:18px;border-radius:18px;background:#FBFAF8;border:1px solid rgba(18,18,18,.14);border-left:3px solid #2BB3C0}
+.opAv__k{font-family:var(--font-mono,'Space Mono',monospace);font-size:10.5px;letter-spacing:.16em;color:#5E5D59}
+.opAv__t{margin-top:6px;font-family:var(--font-display,'Archivo',sans-serif);font-weight:800;font-size:22px;line-height:1.05;color:#121212}
+.opAv__m{margin-top:6px;font-family:var(--font-mono,'Space Mono',monospace);font-size:12px;letter-spacing:.08em;color:#121212}
+.opAv__b{margin:10px 0 0;font-size:14.5px;line-height:1.45;color:#4A4945}
+.opAv__cta{display:block;width:100%;margin-top:14px;min-height:50px;border:none;border-radius:14px;background:#121212;color:#F4F3F0;font-family:var(--font-mono,'Space Mono',monospace);font-size:12px;letter-spacing:.12em;cursor:pointer}
+.opAv__cta[disabled]{opacity:.5}
 </style>
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
@@ -2380,7 +2389,7 @@ function pintarHomeV2(){
   const semTxt=(S.asig?'SEMANA '+(S.asig.semana_actual||1)+' DE '+((S.proto&&S.proto.ciclo_semanas)||6)+' · CICLO '+(S.asig.ciclo_actual||1):'')
   box.innerHTML=
    k2HeaderHero(n,{ses,sesEC,e,obj})+
-   document.getElementById('hMemAviso').innerHTML+
+   document.getElementById('hMemAviso').innerHTML+opAvisoHTML()+
    homeHero({ ses, sesEC, e, m, ctaT, ctaS, disabled:cta.disabled, obj })+
    '<section class="k2-sec">'+'<div class="k2-sec__h">'+k2Label('TU SEMANA')+'<button class="k2-link" onclick="tab(\'vPlan\')">VER PLAN COMPLETO →</button></div><div class="k2-pills">'+tl+'</div></section>'+
    (()=>{ const wd=wheelDatosSocio(), rs=wheelResumen(wd)
@@ -2880,6 +2889,7 @@ async function entrar(opts){
     const uid = user.id, hoyD = fLocal(new Date()), lunesISO = fLocal(lunes())
     const COLS_BLOQ = '*, bloque_ejercicios(*, ejercicios(id,nombre,grupo_muscular,estimulo,sinergistas,tipo_registro,con_carga,cuenta_dosis,implemento,activo))'
     // Oleada 1: todo lo que solo depende del usuario
+    const _rOp = sb.rpc('mi_operacion').then(r=>r, ()=>({data:null}))   // c42 · resolver único (mismo que ve el coach)
     const _rHab = sb.from('sesion_habilitada').select('id, sesion_protocolo_id, permite_hoy, fecha, estado').eq('socio_id', uid).eq('estado','activa').maybeSingle().then(r=>r, ()=>({data:null}))
     const [rPerfil, rAsig, rRegs, rEc, rDx, rSol, rCfg] = await Promise.all([
       sb.from('profiles').select('*').eq('id', uid).single(),
@@ -2964,12 +2974,10 @@ async function entrar(opts){
         })
       })
     }catch(_){}
-    // Entrenamiento en curso: recuperar el de hoy, cerrar los abandonados
+    // Entrenamiento en curso: se recupera el de hoy. c42 · las de días anteriores YA NO se cierran en silencio como "omitida"
+    // (eso borraba sesiones completas por sets y repetía la secuencia): quedan SIN CERRAR y las resuelve el socio o su coach.
     S.enCurso = null
-    ;(rEc.data||[]).forEach(r=>{
-      if (r.fecha===hoyD && !S.enCurso) S.enCurso = r
-      else if (r.fecha<hoyD) sb.from('sesiones_registro').update({estado:'omitida'}).eq('id',r.id).then(()=>{})
-    })
+    ;(rEc.data||[]).forEach(r=>{ if (r.fecha===hoyD && !S.enCurso) S.enCurso = r })
     // Sets realmente ejecutados de esta semana → la dosis sale de aquí, no de "sesión completa"
     const _setsPorReg = {}
     ;(rSrs.data||[]).forEach(x=>{ if(!x.completado) return; const o=_setsPorReg[x.registro_id]=_setsPorReg[x.registro_id]||{be:{},rondas:{}}
@@ -2987,6 +2995,8 @@ async function entrar(opts){
     S.sem = calcularSemana(S.programa, S.registros, S.objetivos)
     try{ S.hab = (await _rHab).data || null }catch(_e){ S.hab=null }
     aplicarHabilitada()
+    try{ S.op = (await _rOp).data || null }catch(_e){ S.op=null }
+    aplicarOperacion()
     try{ localStorage.setItem('kc_snap_'+S.perfil.id, JSON.stringify({v:3, ts:Date.now(),
       perfil:S.perfil, programa:S.programa, objetivos:S.objetivos, registros:S.registros, reqs:S._reqs||{}})) }catch(_e){}
     try{
@@ -3439,6 +3449,35 @@ const REASON_TXT = {
 // El socio no elige: si su KOACH habilitó una sesión, esa es la próxima (aunque no sea la siguiente por orden);
 // con permite_hoy, puede entrenarla aunque ya haya completado otra hoy. Se consume sola al completarla.
 function habHoy(){ const h=S.hab; return !!(h && h.permite_hoy && h.fecha===fLocal(new Date())) }
+// c42 · La próxima sesión la decide el servidor (koach_operacion), igual que en el Dashboard del coach.
+// Una sesión cerrada como incompleta por el coach ya no traba la secuencia; una sin cerrar sí, hasta que se resuelva.
+function aplicarOperacion(){
+  const op=S.op; if (!op || !op.activo || !op.proxima || !S.programa || !S.sem) return
+  const cur=S.sem.proxima; if (cur && (cur._extra || cur._desigId)) return   // las designaciones extra del coach mandan
+  if (cur && cur.id===op.proxima.id) return
+  const ses=(S.programa.sesiones||[]).find(x=>x.id===op.proxima.id); if (!ses) return
+  S.sem.proxima = Object.assign({ numero:ses.numero, id:ses.id, nombre:ses.nombre||('SESIÓN '+ses.numero), fortaleceria:0, trabaja:0, suma_pct:0 },
+    (cur && cur.numero===ses.numero) ? cur : {}, { id:ses.id, _hab:true })
+  S.sem.completa = false
+}
+// Sesión de un día anterior que quedó abierta → tarjeta en HOY (el socio puede cerrarla SOLO si está completa por sets)
+function opEsc(t){ return String(t==null?'':t).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]}) }
+function opAvisoHTML(){
+  const op=S.op, hoy=fLocal(new Date()); if (!op || !op.abiertas) return ''
+  const a=op.abiertas.find(x=>x.fecha<hoy && x.estado==='en_curso'); if (!a) return ''
+  const n=opEsc(String(a.nombre||'TU SESIÓN').toUpperCase()), cuando=(function(){ const d=new Date(a.fecha+'T12:00:00'), y=new Date(); y.setDate(y.getDate()-1); return fLocal(d)===fLocal(y)?'AYER':_fm(a.fecha).toUpperCase() })()
+  return '<section class="opAv" role="status"><div class="opAv__k">SESIÓN SIN CERRAR · '+cuando+'</div><div class="opAv__t">'+n+'</div>'+
+    '<div class="opAv__m">'+a.ejercicios+' / '+a.total_ejercicios+' EJERCICIOS · '+a.sets+' SETS</div>'+
+    (a.parece_completa
+      ? '<p class="opAv__b">Registraste todos los ejercicios, pero no tocaste FINALIZAR. ¿La terminaste?</p><button type="button" class="opAv__cta" onclick="opFinalizarPendiente(\''+a.id+'\',this)">SÍ, LA TERMINÉ · CERRARLA</button>'
+      : '<p class="opAv__b">Quedó a medias. Tus sets están guardados; tu coach la revisará.</p>')+'</section>'
+}
+async function opFinalizarPendiente(id, b){
+  if (b.disabled) return; b.disabled=true; b.textContent='CERRANDO…'
+  const r=await sb.rpc('mi_finalizar_pendiente',{ p_registro:id })
+  if (r.error){ b.disabled=false; b.textContent='SÍ, LA TERMINÉ · CERRARLA'; toast(String(r.error.message||'').replace(/^SESION:\s*/,'')||'No se pudo cerrar.'); return }
+  toast('Sesión cerrada ✓ · cuenta en tu semana'); S._lastLoad=0; entrar({ silent:true })
+}
 function aplicarHabilitada(){
   const h=S.hab; if (!h || !S.programa || !S.sem) return
   const ses=(S.programa.sesiones||[]).find(x=>x.id===h.sesion_protocolo_id); if (!ses) return
@@ -4201,8 +4240,8 @@ async function finalizar(){
     let rid = S.regId
     if (!rid){
       const { data: rec } = await sb.from('sesiones_registro').select('id')
-        .eq('socio_id',S.perfil.id).eq('fecha',fLocal(new Date()))
-        .eq('estado','en_curso').limit(1).maybeSingle()
+        .eq('socio_id',S.perfil.id).eq('sesion_protocolo_id',ses.id)
+        .eq('estado','en_curso').order('created_at',{ascending:false}).limit(1).maybeSingle()
       rid = rec && rec.id; S.regId = rid
     }
     if (!rid) throw new Error('No encontramos tu entrenamiento en curso')
@@ -4210,9 +4249,10 @@ async function finalizar(){
       estado:'completada', completada_at:new Date().toISOString(),
       bloques_completados:bloquesComp,
       musculos_sumados:{ ganados, total:despues.fortalecidos, exigibles:despues.exigibles }
-    }).eq('id', rid).select('id')
+    }).eq('id', rid).neq('estado','completada').select('id')
     if (error) throw error
-    if (!updOk || !updOk.length) throw new Error('El cierre no se aplicó — reintenta')
+    if (!updOk || !updOk.length){ const { data:ya } = await sb.from('sesiones_registro').select('estado').eq('id',rid).maybeSingle()
+      if (!(ya && ya.estado==='completada')) throw new Error('El cierre no se aplicó — reintenta') }   // doble toque: ya estaba cerrada
     // Cargas: derivadas del registro real por set (máximo peso + sets hechos)
     const inserts=[]
     bfs.forEach(b=>(b.bloque_ejercicios||[]).forEach(be=>{

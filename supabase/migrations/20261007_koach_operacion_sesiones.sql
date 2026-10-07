@@ -1,0 +1,7 @@
+-- Aplicadas en producción vía MCP el 07-oct-2026: koach_operacion_sesiones_resolver, koach_contexto_entreno_resuelta.
+-- koach_operacion(socio) = RESOLVER ÚNICO (Coach vía koach_sesiones_socio, Socio vía mi_operacion)
+--   estados por sesión: completada · en_curso · sin_cerrar · incompleta · pendiente
+--   avanzar secuencia = completada o incompleta cerrada explícitamente; adherencia = solo completada
+-- mi_finalizar_pendiente: el socio cierra tarde SOLO si está completa por sets (completada_at = último set)
+-- koach_sesion_accion: idempotente (habilitar/cerrar/completar/quitar), completada_at real
+-- iniciada_at default now() (antes siempre null)
