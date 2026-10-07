@@ -30,15 +30,15 @@
   height:214px;border-radius:18px;background:var(--bg);color:var(--fg);border:1px solid var(--ln);display:flex;flex-direction:column;overflow:hidden;text-align:left;padding:0;font:inherit;width:100%}
 button.bxI{cursor:pointer;transition:transform .15s ease,box-shadow .15s ease}
 button.bxI:hover,button.bxI:focus-visible{transform:translateY(-2px);box-shadow:0 10px 22px rgba(18,18,16,.22);outline:none}
-.bxI.t-strong{--bg:#0B0B0C}
+.bxI.t-extra{--bg:#FFFFFF;--fg:#0B0B0C;--mu:rgba(11,11,12,.6);--ln:rgba(11,11,12,.18)}
+.bxI.t-strong{--bg:#979C9F;--fg:#0B0B0C;--mu:rgba(11,11,12,.66);--ln:rgba(11,11,12,.28)}
 .bxI.t-burn{--bg:#434649}
-.bxI.t-healthy{--bg:#979C9F;--fg:#0B0B0C;--mu:rgba(11,11,12,.66);--ln:rgba(11,11,12,.28)}
-.bxI.t-extra{--bg:#E6E5E2;--fg:#0B0B0C;--mu:rgba(11,11,12,.6);--ln:rgba(11,11,12,.22)}
+.bxI.t-healthy{--bg:#0B0B0C}
 .bxI__h{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;padding:14px 16px 0}
 .bxI__n{font:800 24px/1 var(--font-display);font-stretch:115%;text-transform:uppercase;letter-spacing:-.005em;overflow-wrap:anywhere}
 .bxI__s{margin-top:5px;font:700 10.5px var(--font-mono);letter-spacing:.06em;color:var(--mu);text-transform:uppercase}
 .bxI__h img{width:22px;height:auto;flex:none}
-.t-healthy .bxI__h img,.t-extra .bxI__h img{filter:invert(1)}
+.t-strong .bxI__h img,.t-extra .bxI__h img{filter:invert(1)}
 .bxI__lv{display:flex;gap:3px;margin-top:7px}.bxI__lv i{width:14px;height:3px;border-radius:2px;background:var(--ln)}.bxI__lv i.on{background:var(--fg)}
 .bxI__sp{flex:1;display:grid;grid-template-columns:1fr 1fr;gap:6px 14px;padding:10px 16px 10px;align-content:start}
 .bxI__sp div{min-width:0}
@@ -1641,9 +1641,9 @@ html.ks-on #vSala .salaQ input{font:500 17px var(--font-display) !important;lett
     <div class="stit">Biblioteca</div></div>
   <div class="bxBar"><div class="bxTabs" id="bxTabs" role="group" aria-label="Filtrar"></div>
     <p class="bxWarn">⚠ BASE MAESTRA: editarla cambia los clones que se asignen desde ahora.</p></div>
-  <div id="bibProg"><div class="vacio">Cargando programas…</div></div>
   <div class="bxSec"><b>Rutinas extras ★</b><span>Sesiones prediseñadas para sumar a la semana de un socio, fuera de su protocolo.</span></div>
   <div id="bibLista"><div class="vacio">Cargando biblioteca…</div></div>
+  <div id="bibProg"><div class="vacio">Cargando programas…</div></div>
 </div>
 
 <!-- HOJA AGREGAR SESIÓN A LA SEMANA -->
@@ -2428,7 +2428,7 @@ function bxSp(k,v){ return '<div><small>'+k+'</small><b>'+v+'</b></div>' }
 function bxTabs(){
   const el=document.getElementById('bxTabs'); if(!el) return
   const cnt=function(p){return BX_BASES.filter(function(b){return (b.programa||'').toUpperCase()===p}).length}
-  el.innerHTML=[['TODOS','TODOS · '+BX_BASES.length],['STRONG','STRONG · '+cnt('STRONG')],['BURN','BURN · '+cnt('BURN')],['HEALTHY','HEALTHY · '+cnt('HEALTHY')],['EXTRAS','EXTRAS ★'+(BX_EXTRAS?' · '+BX_EXTRAS:'')]]
+  el.innerHTML=[['TODOS','TODOS'],['EXTRAS','EXTRAS ★'+(BX_EXTRAS?' · '+BX_EXTRAS:'')],['STRONG','STRONG · '+cnt('STRONG')],['BURN','BURN · '+cnt('BURN')],['HEALTHY','HEALTHY · '+cnt('HEALTHY')]]
     .map(function(x){return '<button type="button" aria-pressed="'+(x[0]===BX_TAB)+'" onclick="bxFiltro(\''+x[0]+'\')">'+x[1]+'</button>'}).join('')
 }
 function bxFiltro(t){ BX_TAB=t; bxTabs(); bxProgramas()
@@ -2492,9 +2492,9 @@ async function verBib(){
     const grupos=Object.keys(cnt).sort(function(a,b){return cnt[b]-cnt[a]})
     const nom=s.objetivo||s.nombre||('RUTINA '+s.numero), cat=bxCat(nom,grupos)
     const foco=grupos.slice(0,2).join(' · ')+(cardio?(grupos.length?' + ':'')+'CARDIO':'')
-    return '<article class="bxI t-extra"><div class="bxI__h"><div><div class="bxI__n">'+bxEsc(nom)+'</div><div class="bxI__s">★ EXTRA · '+cat+'</div></div>'+
+    return '<article class="bxI t-extra"><div class="bxI__h"><div style="min-width:0"><div class="bxI__n" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis'+(nom.length>11?';font-size:19px':'')+'" title="'+bxEsc(nom)+'">'+bxEsc(nom)+'</div><div class="bxI__s">★ EXTRA · '+cat+'</div></div>'+
       '<img src="/img/brand/isotipo-blanco.png" alt="" width="22" height="23"></div>'+
-      '<div class="bxI__sp"><div style="grid-column:1/-1"><small>FOCO</small><b>'+(foco||'—')+'</b></div>'+bxSp('EJERCICIOS',String(nEj))+bxSp('DESIGNADA',uso[s.id]?uso[s.id]+(uso[s.id]===1?' VEZ':' VECES'):'AÚN NO')+bxSp('DURACIÓN',((String(s.nombre||'').match(/(\d+)\s*MIN/i)||[])[1]||'')?(String(s.nombre).match(/(\d+)\s*MIN/i)[1]+' MIN'):'LIBRE')+'</div>'+
+      '<div class="bxI__sp" style="grid-template-columns:repeat(3,minmax(0,1fr))"><div style="grid-column:1/-1"><small>FOCO</small><b>'+(foco||'—')+'</b></div>'+bxSp('EJERCICIOS',String(nEj))+bxSp('DESIGNADA',uso[s.id]?uso[s.id]+(uso[s.id]===1?' VEZ':' VECES'):'AÚN NO')+bxSp('DURACIÓN',((String(s.nombre||'').match(/(\d+)\s*MIN/i)||[])[1]||'')?(String(s.nombre).match(/(\d+)\s*MIN/i)[1]+' MIN'):'LIBRE')+'</div>'+
       '<div class="bxI__f"><div class="bxI__a"><button type="button" class="ink" onclick="editarRutinaStd(\''+s.id+'\')">EDITAR →</button><button type="button" onclick="borrarRutinaStd(\''+s.id+'\')">ARCHIVAR</button></div>'+
       '<div class="bxI__bc" aria-hidden="true">'+bxBarcode(nom)+'</div></div></article>'
   }).join('')+'</div>'
