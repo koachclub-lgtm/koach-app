@@ -289,6 +289,8 @@ button.bxI:hover,button.bxI:focus-visible{transform:translateY(-2px);box-shadow:
 <script src="/domain/koach-series.js"></script>
 <script src="/domain/program-catalog.js"></script>
 <script src="/domain/koach-avatar.js"></script>
+<script src="/staff/asist-comun.js"></script>
+<script src="/staff/equipo.js"></script>
 <style>
 /* ═══════════ KOACH DS v1.0 · TOKENS + PRIMITIVES (P0) ═══════════ */
 @font-face{font-family:'Inter Display';src:url('/fonts/InterDisplay-Regular.woff2') format('woff2');font-weight:400;font-display:swap}
@@ -1917,6 +1919,8 @@ html.is-grabbing,html.is-grabbing *{cursor:grabbing !important}
 .kMenu button{display:flex;justify-content:space-between;align-items:center;gap:12px;min-height:44px;padding:0 12px;border:0;border-radius:6px;background:none;cursor:pointer;font:500 14px var(--font-display);color:#111;text-align:left}
 .kMenu button:hover{background:#E6E6E4}
 .kMenu button small{font:500 11px var(--font-mono);color:var(--koach-text-secondary);letter-spacing:.04em}
+.kMenu a{display:flex;align-items:center;min-height:44px;padding:0 12px;border-radius:6px;font:500 14px var(--font-display);color:#111;text-decoration:none}
+.kMenu a:hover{background:#E6E6E4}
 .kMenu hr{border:0;border-top:1px solid var(--koach-divider);margin:4px 0}
 .kMenu .danger{color:#8A2B22}
 .kMenu--mas .kM-me{display:none}
@@ -1994,7 +1998,7 @@ html.ks-on #vSala .salaQ input{font:500 17px var(--font-display) !important;lett
   html.ks-on #vSala .salaQ{min-height:56px}
 }
 @media (max-width:900px){
-  .kNav .kN-adh,.kNav .kN-bib{display:none}.kNav .kN-mas{display:flex}
+  .kNav .kN-adh,.kNav .kN-bib,.kNav .kN-eq{display:none}.kNav .kN-mas{display:flex}
   .kHd__brand b{display:none}
   .salaCols{grid-template-columns:minmax(0,1fr)}
 }
@@ -5915,6 +5919,7 @@ function cgFiltrar(){
 let _rtSilencio=false
 function rtParse(h){
   const mb=String(h||'').match(/^#\/base\/([0-9a-f-]{36})$/i); if (mb) return { vista:'base', pid:mb[1].toLowerCase() }
+  const me=String(h||'').match(/^#\/equipo(?:\/(mi|reg|eq))?$/i); if (me) return { vista:'equipo', tab:(me[1]||'hoy').toLowerCase() }
   const m=String(h||'').match(/^#\/socio\/([0-9a-f-]{36})(\/plan)?(?:\?(.*))?$/i)
   if(!m) return { vista:'sala' }
   const q=new URLSearchParams(m[3]||'')
@@ -5938,7 +5943,8 @@ function rtSyncPlan(){
 async function rtAplicar(){
   const r=rtParse(location.hash)
   if (r.vista==='base'){ await editarBase(r.pid); return }
-  if (r.vista==='sala'){ if (document.getElementById('vFicha').classList.contains('on')||document.getElementById('vPlan').classList.contains('on')) verSala(); document.title='Sala | KOACH'; return }
+  if (r.vista==='equipo'){ EQUIPO.ver(r.tab); return }
+  if (r.vista==='sala'){ if (document.getElementById('vFicha').classList.contains('on')||document.getElementById('vPlan').classList.contains('on')||(document.getElementById('vEquipo')&&document.getElementById('vEquipo').classList.contains('on'))) verSala(); document.title='Sala | KOACH'; return }
   if (!C.socios.some(function(s){ return s.id===r.id })){ rtError(); return }
   if (r.vista==='ficha'){ verFicha(r.id); return }
   verFicha(r.id, true)
@@ -7375,8 +7381,8 @@ arrancarAuth()
 const KS={ v:'vLogin', b:{sol:0,mem:0,memT:'',COM:false,ENT:false,R:'coach'}, menu:null }
 const KS_K='<svg viewBox="0 0 460 462" aria-hidden="true"><rect width="460" height="94"/><polygon points="0,339 231,131 460,336 460,456 231,251 0,462"/></svg>'
 const KS_ROL={admin:'ADMIN', coach:'COACH', recepcion:'RECEPCIÓN', nutricionista:'NUTRICIÓN'}
-const KS_TIT={vSala:'Sala',vSol:'Solicitudes',vAdmin:'Membresías',vAdh:'Adherencia',vBib:'Biblioteca',vFicha:'Socio',vPlan:'Planificador',vExtra:'Rutina extra',vPicker:'Biblioteca'}
-const KS_NAV={vSala:'sala',vSol:'sol',vAdmin:'mem',vAdh:'adh',vBib:'bib'}
+const KS_TIT={vEquipo:'Equipo',vSala:'Sala',vSol:'Solicitudes',vAdmin:'Membresías',vAdh:'Adherencia',vBib:'Biblioteca',vFicha:'Socio',vPlan:'Planificador',vExtra:'Rutina extra',vPicker:'Biblioteca'}
+const KS_NAV={vEquipo:'equipo',vSala:'sala',vSol:'sol',vAdmin:'mem',vAdh:'adh',vBib:'bib'}
 const KS_ICO={
   sala:'<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M5.6 5.6a9 9 0 0 0 0 12.8M18.4 5.6a9 9 0 0 1 0 12.8M8.5 8.5a5 5 0 0 0 0 7M15.5 8.5a5 5 0 0 1 0 7"/></svg>',
   soc:'<svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5"/><path d="M16 16l4.5 4.5"/></svg>',
@@ -7392,6 +7398,8 @@ const KS_ACC={
   bib:function(){ kGo(function(){ verBib() }) },
   alta:function(){ kGo(function(){ if(KS.v!=='vSala') verSala(); const f=document.getElementById('fAlta'); if(f && f.style.display==='none') toggleAlta(); if(f){ f.scrollIntoView({block:'start'}) } }) },
   socios:function(){ kGo(function(){ if(KS.v!=='vSala') verSala(); const q=document.getElementById('salaQ'); if(q){ q.focus(); q.scrollIntoView({block:'center'}) } }) },
+  equipo:function(){ kGo(function(){ EQUIPO.ver() }) },
+  miasist:function(){ kGo(function(){ EQUIPO.ver('mi') }) },
   vista:function(){ KS.menu=null; kShellMenu(); dashMenu() },
   clave:function(){ KS.menu=null; kShellMenu(); cuentaAbrir() },
   salir:function(){ KS.menu=null; kShellMenu(); salir() }
@@ -7418,7 +7426,8 @@ function kShellPaint(){
       (b.COM?'<button type="button" class="'+c('mem','kN-mem')+'" onclick="kAcc(\'mem\')" title="'+b.memT+'"'+(act==='mem'?' aria-current="page"':'')+'>MEMBRESÍAS'+(b.mem?' <span class="kBdg kBdg--dot" aria-label="con pendientes"></span>':'')+'</button>':'')+
       '<button type="button" class="'+c('adh','kN-adh')+'" onclick="kAcc(\'adh\')"'+(act==='adh'?' aria-current="page"':'')+'>ADHERENCIA</button>'+
       (b.ENT?'<button type="button" class="'+c('bib','kN-bib')+'" onclick="kAcc(\'bib\')"'+(act==='bib'?' aria-current="page"':'')+'>BIBLIOTECA</button>':'')+
-      '<button type="button" class="kN-mas'+((act==='adh'||act==='bib')?' on':'')+'" onclick="kMenuT(\'mas\')" aria-haspopup="menu" aria-expanded="'+(KS.menu==='mas')+'">MÁS ▾</button>'+
+      (b.R==='admin'?'<button type="button" class="'+c('equipo','kN-eq')+'" onclick="kAcc(\'equipo\')"'+(act==='equipo'?' aria-current="page"':'')+'>EQUIPO</button>':'')+
+      '<button type="button" class="kN-mas'+((act==='adh'||act==='bib'||act==='equipo')?' on':'')+'" onclick="kMenuT(\'mas\')" aria-haspopup="menu" aria-expanded="'+(KS.menu==='mas')+'">MÁS ▾</button>'+
     '</nav>'+
     '<div class="kHd__x">'+
       (alta?'<button type="button" class="kNew" onclick="kAcc(\'alta\')" aria-label="Nuevo socio"><i aria-hidden="true">+</i><span>NUEVO SOCIO</span></button>':'')+
@@ -7439,7 +7448,7 @@ function kShellPaint(){
     '<button type="button" class="'+(act==='sala'?'on':'')+'" onclick="kAcc(\'sala\')">'+KS_ICO.sala+'SALA</button>'+
     '<button type="button" class="'+(KS.v==='vFicha'?'on':'')+'" onclick="kAcc(\'socios\')">'+KS_ICO.soc+'SOCIOS</button>'+
     '<button type="button" class="'+(act==='sol'?'on':'')+'" onclick="kAcc(\'sol\')">'+KS_ICO.sol+(b.sol?'<span class="kBdg">'+b.sol+'</span>':'')+'SOLICITUDES</button>'+
-    '<button type="button" class="'+((act==='mem'||act==='adh'||act==='bib')?'on':'')+'" onclick="kMenuT(\'mas\')" aria-haspopup="menu">'+KS_ICO.mas+'MÁS</button>'
+    '<button type="button" class="'+((act==='mem'||act==='adh'||act==='bib'||act==='equipo')?'on':'')+'" onclick="kMenuT(\'mas\')" aria-haspopup="menu">'+KS_ICO.mas+'MÁS</button>'
   bn.style.display = bnOn ? '' : 'none'
   H.classList.toggle('ks-bn', bnOn)
   requestAnimationFrame(function(){ H.style.setProperty('--ks-top', (hd.offsetHeight+(ot.style.display==='none'?0:ot.offsetHeight))+'px') })
@@ -7449,6 +7458,8 @@ function kShellMenu(){
   if (!KS.menu){ el.innerHTML=''; return }
   const b=KS.b, yo=(C&&C.yo)||{}, nom=String(yo.nombre||'Equipo')
   const me='<div class="kMenu__h"><b>'+plEsc(nom)+'</b><small>'+(KS_ROL[yo.role]||'EQUIPO')+' · KOACH CLUB</small></div>'+
+    '<button type="button" onclick="kAcc(\'miasist\')">Mi asistencia</button>'+
+    (yo.role==='admin'||yo.role==='recepcion'?'<a href="/kiosko.html" target="_blank" rel="noopener" onclick="KS.menu=null;kShellMenu()">Abrir kiosko QR ↗</a>':'')+
     '<button type="button" onclick="kAcc(\'vista\')">Vista del dashboard</button>'+
     '<button type="button" onclick="kAcc(\'clave\')">Mi clave</button><hr>'+
     '<button type="button" class="danger" onclick="kAcc(\'salir\')">Cerrar sesión</button>'
@@ -7456,6 +7467,7 @@ function kShellMenu(){
   const mas=(b.COM?'<button type="button" class="kM-mem" onclick="kAcc(\'mem\')">Membresías'+(b.mem?'<small>'+b.memT.split(' · ')[0].toUpperCase()+'</small>':'')+'</button>':'')+
     '<button type="button" onclick="kAcc(\'adh\')">Adherencia</button>'+
     (b.ENT?'<button type="button" onclick="kAcc(\'bib\')">Biblioteca</button>':'')+
+    '<button type="button" class="kM-eq" onclick="kAcc(\''+(b.R==='admin'?'equipo':'miasist')+'\')">'+(b.R==='admin'?'Equipo · asistencia':'Mi asistencia')+'</button>'+
     (alta?'<button type="button" class="kM-alta" onclick="kAcc(\'alta\')">Nuevo socio<small>+</small></button>':'')+
     '<button type="button" class="kM-me" onclick="kMenuT(\'me\')">Mi cuenta<small>'+plEsc(nom.split(' ')[0].toUpperCase())+'</small></button>'
   let left=''

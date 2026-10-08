@@ -1,0 +1,227 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow">
+<meta name="theme-color" content="#0E0E0E">
+<title>Kiosko de asistencia | KOACH</title>
+<link rel="icon" href="/favicon-32.png">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js"></script>
+<script src="/staff/asist-comun.js"></script>
+<style>
+@font-face{font-family:'KOACH Display';src:url('/fonts/Archivo-Var.woff2') format('woff2');font-weight:400 900;font-stretch:100% 115%;font-display:swap}
+@font-face{font-family:'Space Mono';src:url('/fonts/SpaceMono-Regular.woff2') format('woff2');font-weight:400;font-display:swap}
+@font-face{font-family:'Space Mono';src:url('/fonts/SpaceMono-Bold.woff2') format('woff2');font-weight:700;font-display:swap}
+:root{--bg:#0E0E0E;--sf:#181818;--ln:#2A2A2A;--ink:#F4F4F2;--mut:#8C8C88;--plata:#C9CACC;--ok:#3DDC84;--sal:#F2B544;--err:#FF6B5E;
+  --fd:'KOACH Display',Arial,sans-serif;--fm:'Space Mono','Courier New',monospace}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;background:var(--bg);color:var(--ink);font-family:var(--fd);-webkit-font-smoothing:antialiased}
+body{display:flex;flex-direction:column;min-height:100vh;padding:env(safe-area-inset-top,0) 0 env(safe-area-inset-bottom,0)}
+.hd{display:flex;align-items:center;justify-content:center;padding:22px 24px 10px;position:relative}
+.hd img{height:26px;width:auto;display:block}
+.hd__t{position:absolute;left:24px;top:50%;transform:translateY(-30%);font:700 10px/1 var(--fm);letter-spacing:.14em;color:var(--mut)}
+.hd__r{position:absolute;right:24px;top:50%;transform:translateY(-30%);font:700 10px/1 var(--fm);letter-spacing:.14em;color:var(--mut);text-align:right}
+.hd__r b{display:block;font:800 22px/1 var(--fd);color:var(--ink);letter-spacing:0;margin-bottom:4px}
+main{flex:1;display:grid;grid-template-columns:minmax(0,1.25fr) minmax(280px,.75fr);gap:28px;padding:18px 28px 28px;max-width:1400px;width:100%;margin:0 auto}
+@media (max-width:900px){ main{grid-template-columns:1fr} .hd__t{display:none} }
+.qrz{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:20px;text-align:center}
+.k{font:700 11px/1.3 var(--fm);letter-spacing:.16em;color:var(--mut);text-transform:uppercase}
+.qrz h1{font:800 clamp(26px,3.4vw,44px)/1 var(--fd);text-transform:uppercase;letter-spacing:-.01em}
+.qrc{position:relative;background:#fff;border-radius:10px;padding:22px;width:min(62vh,440px);max-width:86vw;aspect-ratio:1}
+.qrc svg{width:100%;height:100%;display:block}
+.qrc.is-off svg{opacity:.06;filter:blur(2px)}
+.qrc__msg{position:absolute;inset:0;display:none;align-items:center;justify-content:center;flex-direction:column;gap:10px;color:#111;font:800 22px/1.1 var(--fd);text-transform:uppercase;padding:24px}
+.qrc.is-off .qrc__msg{display:flex}
+.bar{width:min(62vh,440px);max-width:86vw;height:4px;background:var(--ln);border-radius:999px;overflow:hidden}
+.bar i{display:block;height:100%;background:var(--plata);transform-origin:left center;transition:transform .9s linear}
+.row{display:flex;align-items:center;justify-content:space-between;width:min(62vh,440px);max-width:86vw;gap:12px}
+.btn{appearance:none;border:1px solid var(--ln);background:transparent;color:var(--ink);font:700 11px/1 var(--fm);letter-spacing:.14em;padding:12px 16px;border-radius:999px;cursor:pointer;text-transform:uppercase}
+.btn:hover{border-color:var(--plata)}
+.btn--p{background:var(--ink);color:#111;border-color:var(--ink)}
+.lst{background:var(--sf);border:1px solid var(--ln);border-radius:10px;padding:18px;display:flex;flex-direction:column;min-height:0}
+.lst__h{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:12px}
+.lst__l{display:flex;flex-direction:column;gap:2px;overflow:auto}
+.li{display:grid;grid-template-columns:1fr auto auto;gap:14px;align-items:center;padding:11px 0;border-bottom:1px solid var(--ln)}
+.li:last-child{border-bottom:0}
+.li b{font:700 16px/1.15 var(--fd);text-transform:uppercase;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.li span{font:700 10px/1 var(--fm);letter-spacing:.12em}
+.li span.e{color:var(--ok)} .li span.s{color:var(--sal)}
+.li em{font:400 13px/1 var(--fm);font-style:normal;color:var(--mut)}
+.vac{color:var(--mut);font:400 12px/1.5 var(--fm);padding:14px 0}
+.flash{position:fixed;inset:0;z-index:20;background:rgba(10,10,10,.94);display:none;align-items:center;justify-content:center;flex-direction:column;gap:14px;text-align:center;padding:24px}
+.flash.vis{display:flex;animation:fi .18s ease-out}
+.flash__t{font:800 clamp(48px,9vw,120px)/.9 var(--fd);text-transform:uppercase;letter-spacing:-.02em}
+.flash__t.e{color:var(--ok)} .flash__t.s{color:var(--sal)}
+.flash__n{font:800 clamp(24px,4vw,44px)/1 var(--fd);text-transform:uppercase}
+.flash__h{font:700 clamp(16px,2vw,22px)/1 var(--fm);color:var(--mut);letter-spacing:.1em}
+@keyframes fi{from{opacity:0;transform:scale(.98)}to{opacity:1;transform:none}}
+.login{max-width:380px;margin:8vh auto 0;padding:0 24px;width:100%;display:none;flex-direction:column;gap:12px}
+.login.vis{display:flex}
+.login h2{font:800 28px/1 var(--fd);text-transform:uppercase;margin-bottom:6px}
+.login p{color:var(--mut);font:400 12px/1.5 var(--fm);margin-bottom:8px}
+.in{width:100%;background:var(--sf);border:1px solid var(--ln);color:var(--ink);border-radius:8px;padding:14px;font:400 15px/1.2 var(--fd)}
+.in:focus{outline:none;border-color:var(--plata)}
+.err{color:var(--err);font:400 12px/1.5 var(--fm);min-height:18px}
+.full main,.full .lst{display:none}
+.nota{position:fixed;left:0;right:0;bottom:0;text-align:center;font:400 10px/1.4 var(--fm);color:#5a5a58;padding:8px 12px calc(8px + env(safe-area-inset-bottom,0))}
+</style>
+</head>
+<body>
+<header class="hd">
+  <span class="hd__t" id="term">ASISTENCIA DEL EQUIPO</span>
+  <img src="/img/brand/logotipo-koach.png" alt="KOACH">
+  <span class="hd__r" id="reloj"><b>--:--</b><span id="fec">—</span></span>
+</header>
+
+<section class="login" id="vLogin" aria-labelledby="lT">
+  <h2 id="lT">Kiosko de asistencia</h2>
+  <p>Inicia sesión con una cuenta de <b>recepción</b> o <b>admin</b>. Esta pantalla queda mostrando el QR que el equipo escanea para marcar entrada y salida.</p>
+  <input class="in" id="lEmail" type="email" autocomplete="username" placeholder="Correo">
+  <input class="in" id="lPass" type="password" autocomplete="current-password" placeholder="Contraseña" onkeydown="if(event.key==='Enter')K.login()">
+  <div class="err" id="lErr" role="alert"></div>
+  <button class="btn btn--p" id="lBtn" onclick="K.login()">ABRIR KIOSKO</button>
+</section>
+
+<main id="vKio" hidden>
+  <section class="qrz" aria-live="polite">
+    <div class="k">ENTRADA · SALIDA DEL EQUIPO</div>
+    <h1>Escanea para marcar</h1>
+    <div class="qrc is-off" id="qrc"><div id="qr" aria-label="Código QR de asistencia" role="img"></div><div class="qrc__msg" id="qrMsg">Generando código…</div></div>
+    <div class="bar" aria-hidden="true"><i id="bar"></i></div>
+    <div class="row"><span class="k" id="cnt">—</span><button class="btn" onclick="K.nuevo(true)">QR NUEVO</button></div>
+    <div class="k" style="max-width:440px;color:#6c6c69">Abre la cámara de tu celular y apunta al código. Cada QR sirve una sola vez y cambia solo.</div>
+  </section>
+  <aside class="lst" aria-labelledby="hT">
+    <div class="lst__h"><span class="k" id="hT">MARCAS DE HOY</span><span class="k" id="adentro">—</span></div>
+    <div class="lst__l" id="hoy"><div class="vac">Sin marcas todavía.</div></div>
+  </aside>
+</main>
+
+<div class="flash" id="flash" role="status" aria-live="assertive"><div class="flash__t" id="fT">ENTRADA</div><div class="flash__n" id="fN">—</div><div class="flash__h" id="fH">—</div></div>
+<div class="nota" id="nota"></div>
+
+<script>
+(function(){
+  'use strict'
+  var A = KAsist, sb = A.cliente()
+  var ROTA_SEG = 45, TTL_SEG = 90, POLL_MS = 2000
+  var S = { tok:null, emitido:0, offset:0, poll:null, rota:null, ocupado:false, terminal:'PC CENTRAL', ultimoUso:null, wake:null }
+  try { var t = new URLSearchParams(location.search).get('terminal'); if (t) S.terminal = t.toUpperCase().slice(0,40) } catch(_){}
+  document.getElementById('term').textContent = 'KIOSKO · ' + S.terminal
+
+  function $(id){ return document.getElementById(id) }
+  function ahora(){ return Date.now() + S.offset }
+
+  // Reloj
+  function reloj(){ var d = new Date(ahora())
+    $('reloj').firstChild.textContent = A.hora(d.toISOString())
+    $('fec').textContent = A.fecha(d.toISOString(), true).toUpperCase() }
+  setInterval(reloj, 1000); reloj()
+
+  async function arrancar(){
+    var s = await sb.auth.getSession()
+    if (!s.data || !s.data.session){ $('vLogin').classList.add('vis'); $('vKio').hidden = true; return }
+    var u = s.data.session.user
+    var p = await sb.from('profiles').select('role,nombre').eq('id', u.id).maybeSingle()
+    if (!p.data || ['admin','recepcion'].indexOf(p.data.role) < 0){
+      $('lErr').textContent = 'Esta cuenta no puede abrir el kiosko. Usa una cuenta de recepción o admin.'
+      await sb.auth.signOut({ scope:'local' }); $('vLogin').classList.add('vis'); return }
+    $('vLogin').classList.remove('vis'); $('vKio').hidden = false
+    $('nota').textContent = 'Sesión del kiosko: ' + (p.data.nombre || '') + ' · ' + p.data.role.toUpperCase()
+    pantallaEncendida()
+    await nuevo(false)
+    clearInterval(S.poll); S.poll = setInterval(tick, POLL_MS)
+  }
+
+  async function login(){
+    var b = $('lBtn'); b.disabled = true; $('lErr').textContent = ''
+    try {
+      var r = await sb.auth.signInWithPassword({ email: $('lEmail').value.trim(), password: $('lPass').value })
+      if (r.error) throw r.error
+      await arrancar()
+    } catch(e){ $('lErr').textContent = /credential/i.test(e.message||'') ? 'Correo o contraseña incorrectos.' : A.mensaje(e).texto }
+    b.disabled = false
+  }
+
+  function dibujar(token){
+    var url = location.origin + '/marcar.html?t=' + token
+    var q = qrcode(0, 'M'); q.addData(url); q.make()
+    $('qr').innerHTML = q.createSvgTag({ cellSize: 8, margin: 0, scalable: true })
+    $('qrc').classList.remove('is-off')
+  }
+
+  async function nuevo(manual){
+    if (S.ocupado) return; S.ocupado = true
+    try {
+      var r = await sb.rpc('asist_kiosko_emitir', { p_terminal: S.terminal, p_ttl_seg: TTL_SEG })
+      if (r.error) throw r.error
+      S.tok = r.data; S.emitido = Date.parse(r.data.server_now)
+      S.offset = S.emitido - Date.now()
+      dibujar(r.data.token)
+      clearTimeout(S.rota); S.rota = setTimeout(function(){ nuevo(false) }, ROTA_SEG * 1000)
+      barra()
+    } catch(e){
+      var m = A.mensaje(e)
+      $('qrc').classList.add('is-off'); $('qrMsg').innerHTML = m.titulo + '<small style="font:400 12px/1.4 var(--fm);text-transform:none">' + A.esc(m.texto) + '</small>'
+      if (m.codigo === 'SESION' || m.codigo === 'SIN_PERMISO'){ $('vLogin').classList.add('vis'); $('vKio').hidden = true }
+      clearTimeout(S.rota); S.rota = setTimeout(function(){ nuevo(false) }, 5000)
+    }
+    S.ocupado = false
+  }
+
+  function barra(){
+    if (!S.tok) return
+    var trans = (ahora() - S.emitido) / 1000, rest = Math.max(0, Math.ceil(ROTA_SEG - trans))
+    $('bar').style.transform = 'scaleX(' + Math.max(0, Math.min(1, rest / ROTA_SEG)) + ')'
+    $('cnt').textContent = 'NUEVO CÓDIGO EN ' + rest + ' S'
+  }
+  setInterval(barra, 1000)
+
+  async function tick(){
+    if (!S.tok || document.hidden) return
+    try {
+      var r = await sb.rpc('asist_kiosko_estado', { p_token_id: S.tok.id })
+      if (r.error) throw r.error
+      var d = r.data || {}
+      if (d.server_now) S.offset = Date.parse(d.server_now) - Date.now()
+      lista(d.hoy || [], d.adentro)
+      if (d.token && d.token.estado === 'usado' && S.ultimoUso !== S.tok.id){
+        S.ultimoUso = S.tok.id
+        var ult = (d.hoy || [])[0] || {}
+        flash(ult.tipo || 'entrada', d.token.usado_por || ult.nombre || '', d.token.usado_at || ult.at)
+        nuevo(false)
+      } else if (d.token && d.token.estado !== 'activo' && S.ultimoUso !== S.tok.id){ nuevo(false) }
+    } catch(e){ var m = A.mensaje(e); if (m.codigo === 'SESION') arrancar() }
+  }
+
+  function lista(h, adentro){
+    $('adentro').textContent = (adentro || 0) + ' EN EL CLUB'
+    $('hoy').innerHTML = h.length ? h.map(function(x){
+      return '<div class="li"><b>' + A.esc(x.nombre) + '</b><span class="' + (x.tipo === 'entrada' ? 'e' : 's') + '">' + (x.tipo === 'entrada' ? 'ENTRADA' : 'SALIDA') + (x.origen === 'manual' ? ' · MANUAL' : '') + '</span><em>' + A.hora(x.at) + '</em></div>'
+    }).join('') : '<div class="vac">Sin marcas todavía.</div>'
+  }
+
+  var _fx = null
+  function flash(tipo, nombre, at){
+    $('fT').textContent = tipo === 'salida' ? 'SALIDA' : 'ENTRADA'
+    $('fT').className = 'flash__t ' + (tipo === 'salida' ? 's' : 'e')
+    $('fN').textContent = String(nombre || '').toUpperCase()
+    $('fH').textContent = at ? A.hora(at, true) : ''
+    $('flash').classList.add('vis'); clearTimeout(_fx); _fx = setTimeout(function(){ $('flash').classList.remove('vis') }, 2600)
+  }
+
+  async function pantallaEncendida(){
+    try { if ('wakeLock' in navigator){ S.wake = await navigator.wakeLock.request('screen') } } catch(_){}
+  }
+  document.addEventListener('visibilitychange', function(){
+    if (!document.hidden && S.tok){ pantallaEncendida(); nuevo(false) }
+  })
+
+  window.K = { login: login, nuevo: nuevo }
+  arrancar()
+})()
+</script>
+</body>
+</html>
