@@ -223,6 +223,20 @@ button.bxI:hover,button.bxI:focus-visible{transform:translateY(-2px);box-shadow:
 .opPick{display:grid;grid-template-columns:38px 1fr auto;gap:10px;align-items:center;padding:10px 0;border-bottom:1px solid rgba(18,18,18,.08)}
 .opPick__n{font-family:var(--font-mono);font-size:13px;color:#8E8D88}.opPick__t b{display:block;font-size:15px}.opPick__t small{font-family:var(--font-mono);font-size:10.5px;letter-spacing:.12em;color:#8E8D88}
 .opPick.on .opPick__t small{color:#0E6F78}
+
+/* c48 · carga del panel: solo el logotipo, en 3D (giro suave en perspectiva + brillo que recorre las letras) */
+#oLoad.vis{align-items:center;justify-content:center}
+.ld3d{display:flex;flex-direction:column;align-items:center;perspective:900px}
+.ld3d__obj{position:relative;width:min(52vw,440px);transform-style:preserve-3d;animation:ld3dGiro 3.2s cubic-bezier(.45,.05,.25,1) infinite}
+.ld3d__logo{display:block;width:100%;height:auto;filter:drop-shadow(0 18px 30px rgba(0,0,0,.55))}
+.ld3d__sheen{position:absolute;inset:0;-webkit-mask:url(/img/brand/logotipo-koach.png) center/contain no-repeat;mask:url(/img/brand/logotipo-koach.png) center/contain no-repeat;
+  background:linear-gradient(105deg,transparent 35%,rgba(255,255,255,.95) 50%,transparent 65%) no-repeat;background-size:250% 100%;animation:ld3dBrillo 3.2s ease-in-out infinite;mix-blend-mode:overlay}
+.ld3d__floor{display:block;width:min(40vw,320px);height:14px;margin-top:34px;border-radius:50%;background:radial-gradient(closest-side,rgba(255,255,255,.14),transparent);animation:ld3dPiso 3.2s cubic-bezier(.45,.05,.25,1) infinite}
+.ldSr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+@keyframes ld3dGiro{0%{transform:rotateY(-24deg) rotateX(10deg) translateZ(0)}50%{transform:rotateY(24deg) rotateX(-6deg) translateZ(40px)}100%{transform:rotateY(-24deg) rotateX(10deg) translateZ(0)}}
+@keyframes ld3dBrillo{0%{background-position:120% 0}55%,100%{background-position:-60% 0}}
+@keyframes ld3dPiso{0%,100%{transform:scaleX(.82);opacity:.7}50%{transform:scaleX(1.05);opacity:1}}
+@media (prefers-reduced-motion:reduce){ .ld3d__obj,.ld3d__sheen,.ld3d__floor{animation:none} }
 </style>
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
@@ -2003,13 +2017,8 @@ html.ks-on #vSala .salaQ input{font:500 17px var(--font-display) !important;lett
 
 <!-- HOJA AGREGAR SESIÓN A LA SEMANA -->
 <div id="oLoad" role="status" aria-live="polite">
-  <div class="ldBox">
-    <div class="ldK">KOACH FITNESS CLUB</div>
-    <div class="ldSpin" aria-hidden="true"><i></i><i></i><i></i></div>
-    <div class="ldT" id="oLoadM">PREPARANDO SESIÓN</div>
-    <div class="ldS" id="oLoadS">A pocas reps de ser más fuerte</div>
-  </div>
-  <div class="ldF">EL KOACH DECIDE · LOS DATOS RESPALDAN</div>
+  <div class="ld3d" aria-hidden="true"><div class="ld3d__obj"><img class="ld3d__logo" src="/img/brand/logotipo-koach.png" alt=""><span class="ld3d__sheen"></span></div><span class="ld3d__floor"></span></div>
+  <span class="ldSr" id="oLoadM">PREPARANDO SESIÓN</span><span class="ldSr" id="oLoadS">Cargando la sala</span>
 </div>
 <div id="syncTag">✓ GUARDADO</div>
 <div id="mGuard" style="display:none;position:fixed;inset:0;z-index:80;background:rgba(18,18,16,.45);backdrop-filter:blur(6px)">
