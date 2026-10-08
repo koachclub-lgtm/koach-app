@@ -223,6 +223,21 @@ html.bk-on{overflow:hidden}
 .bk__cd.go b{filter:none}
 .bk__cd.go b.pop{animation:bkGo .95s cubic-bezier(.16,1,.3,1) forwards}
 @keyframes bkGo{0%{transform:translateY(6vh) scale(.55);opacity:0}30%{transform:translateY(6vh) scale(1.06);opacity:1}70%{transform:translateY(6vh) scale(1);opacity:1}100%{transform:translateY(5vh) scale(1);opacity:0}}
+/* cierre del bloque · gris intermedio */
+#oBloque.fin{--bg:#BDBDB9;--ink:#141414}
+.bk__fin{position:absolute;inset:0;z-index:6;display:grid;place-items:center;background:#BDBDB9;color:#141414;opacity:0;transition:opacity .35s ease;padding:24px;cursor:pointer;text-align:center}
+.bk__fin.on{opacity:1}
+.bk__finIn{display:flex;flex-direction:column;align-items:center;gap:6px;transform:translateY(10px);transition:transform .5s cubic-bezier(.2,.8,.2,1)}
+.bk__fin.on .bk__finIn{transform:none}
+.bk__finK{font:700 10px var(--wxM);letter-spacing:.2em;color:rgba(20,20,20,.6)}
+.bk__finB{font-family:var(--wxD);font-weight:900;font-stretch:112%;font-size:clamp(84px,26vw,110px);line-height:.85;letter-spacing:-.03em;margin-top:8px}
+.bk__finN{font-style:normal;font-family:var(--wxD);font-weight:800;font-stretch:106%;font-size:15px;letter-spacing:.06em}
+.bk__finKg{display:flex;align-items:baseline;gap:6px;margin-top:26px;font-family:var(--wxD);font-weight:900;font-stretch:110%;font-size:clamp(48px,15vw,64px);line-height:.9;letter-spacing:-.03em}
+.bk__finKg i{font:700 12px var(--wxM);letter-spacing:.1em;font-style:normal;color:rgba(20,20,20,.6)}
+.bk__finS{font:700 9.5px var(--wxM);letter-spacing:.16em;color:rgba(20,20,20,.6)}
+.bk__finHoy{margin-top:22px;padding:9px 14px;border-radius:999px;background:rgba(255,255,255,.55);box-shadow:inset 0 1px 0 #fff;font:700 10px var(--wxM);letter-spacing:.12em}
+.bk__finGo{margin-top:28px;font:700 9px var(--wxM);letter-spacing:.18em;color:rgba(20,20,20,.5)}
+@media (prefers-reduced-motion:reduce){ .bk__fin,.bk__finIn{transition:none} }
 @media (max-width:360px){ .bk__fix{padding:0 16px}.bk__scroll{padding:10px 16px 8px}.bk__foot{padding-left:16px;padding-right:16px}.kLogo--bk{width:96px}.bk__sb{gap:8px} }
 @media (prefers-reduced-motion:reduce){ .bk__t.tick,.bk__cd b.pop,.bk__cd.go b.pop,.bk__cta.pulse{animation:none} #oBloque,#oBloque *{transition-duration:.01s!important} }
 /* ═══ c62 · HOME · fondo fotográfico + paneles de vidrio (titular negro con curva se mantiene) ═══ */
@@ -4181,7 +4196,8 @@ function bkPintar(){
   if (hecho){ cta='DESMARCAR SET '+String(n).padStart(2,'0'); ctaCls=' bk__cta--sec' }
   else if (done){ cta='BLOQUE COMPLETADO ✓'; ctaCls=' bk__cta--sec' }
   else cta='✓ COMPLETAR SET '+String(n).padStart(2,'0')
-  const sig = done ? (BK.bi+1<bfs.length ? '<button type="button" class="bk__cta" onclick="bkSiguiente()">SIGUIENTE · '+bkCod(bfs[BK.bi+1],BK.bi+1)+' '+bkNom(bfs[BK.bi+1],BK.bi+1)+' →</button>' : '<button type="button" class="bk__cta" onclick="bkCerrar();pedirFinal()">FINALIZAR SESIÓN →</button>') : ''
+  // c70 · bloque completado: se vuelve a la pantalla de la rutina (los tres bloques); el siguiente se inicia desde ahí
+  const sig = done ? '<button type="button" class="bk__cta" onclick="bkCerrar()">VOLVER A LA SESIÓN →</button>' : ''
   // c65 · lenguaje de estados: BLANCO = entrenamiento · NEGRO = descanso · GO = vuelta al entrenamiento
   const restS = rest ? Math.max(0,Math.ceil((BK.rest.fin-Date.now())/1000)) : 0
   const over = !rest && !done && BK.over && BK.over.bId===b.id && BK.over.regId===S.regId
@@ -4227,9 +4243,20 @@ async function bkCompletar(){ const b=(S._bfs||[])[BK.bi]; if(!b) return
   finally{ S._restInfo=null; BK._busy=false }
   bkOverFin()
   const sig=bkSetActual(b)
-  if (sig){ BK.set=sig; bkRestIni(b) } else { BK.set=n; bkRestFin(true) }
-  bkPintar()
+  if (sig){ BK.set=sig; bkRestIni(b); bkPintar() } else { BK.set=n; bkRestFin(true); bkPintar(); bkFinBloque(b) }
 }
+/* c70 · cierre del bloque: pantalla breve en gris intermedio con el bloque y los kilos; vuelve sola a la rutina (o al tocar) */
+function bkFinBloque(b){ const o=document.getElementById('oBloque'); if(!o||!b) return
+  const bfs=S._bfs||[], kg=bkKgBloque(b); let kgHoy=0, sh=0, stt=0; bfs.forEach(x=>{ kgHoy+=bkKgBloque(x); sh+=bkSetsHechos(x); stt+=(x.sets||0) }); const st=[sh,stt]
+  const prim=bkPrimerPendiente(bfs), ult=prim<0, nomV=(b.etiqueta?b.etiqueta.toUpperCase():bkNom(b,BK.bi))
+  const el=document.createElement('div'); el.className='bk__fin'; el.setAttribute('role','status'); el.setAttribute('aria-live','polite')
+  el.innerHTML='<div class="bk__finIn"><span class="bk__finK">'+(ult?'SESIÓN COMPLETA':'BLOQUE COMPLETADO')+'</span><b class="bk__finB">'+bkCod(b,BK.bi)+'</b><em class="bk__finN">'+bkEsc(nomV)+'</em>'+
+    '<div class="bk__finKg">'+kg.toLocaleString('es-CL')+'<i>KG</i></div><span class="bk__finS">EN ESTE BLOQUE</span>'+
+    '<div class="bk__finHoy">HOY · '+kgHoy.toLocaleString('es-CL')+' KG · '+st[0]+'/'+st[1]+' SETS</div>'+
+    '<span class="bk__finGo">'+(ult?'FINALIZA TU SESIÓN DESDE LA RUTINA':'TOCA PARA CONTINUAR')+'</span></div>'
+  o.appendChild(el); o.classList.add('fin'); requestAnimationFrame(function(){ el.classList.add('on') })
+  const cerrar=function(){ clearTimeout(BK._fin); BK._fin=null; el.remove(); o.classList.remove('fin'); BK.cap = prim>=0 ? prim : null; bkCerrar() }
+  el.onclick=cerrar; BK._fin=setTimeout(cerrar, 2600) }
 async function bkDesmarcar(){ const b=(S._bfs||[])[BK.bi]; if(!b) return; const n=BK.set
   if (!(await kConfirm('¿Desmarcar el set '+String(n).padStart(2,'0')+' en todos los ejercicios del bloque?\nSe borra el registro de ese set.'))) return
   for (const be of bkBes(b)){ if(S.setLog[setKey(be.id,n)]) await tapSetRow(be.id,n,b.id,(be.ejercicios||{}).id) }
