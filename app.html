@@ -2478,8 +2478,8 @@ function homeHero(o){
   const prim=(o.obj&&o.obj.prim||[]).slice(0,4)
   const desc = ses && prim.length ? '<p class="hh__d">'+verbo+tonoPrograma().verbo+'<br><b>'+msgLista(prim)+'.</b></p>' : ''
   // CTA compacto (pill): verbo corto. La acción es EXACTAMENTE la del CTA del Home (hCta).
-  const pillTxt = !ses ? (o.disabled?o.ctaT:'CONTINUAR') : ec ? 'CONTINUAR' : e.entrenoHoy ? 'HOY COMPLETADA ✓' : S.memBloqueo ? 'VER MI MEMBRESÍA'
-    : e.completa ? (o.disabled?'SEMANA COMPLETADA ✓':'PEDIR SESIÓN EXTRA') : 'COMENZAR'
+  const pillTxt = !ses ? (o.disabled?o.ctaT:'START') : ec ? 'START' : e.entrenoHoy ? 'HOY COMPLETADA ✓' : S.memBloqueo ? 'VER MI MEMBRESÍA'
+    : e.completa ? (o.disabled?'SEMANA COMPLETADA ✓':'PEDIR SESIÓN EXTRA') : 'START'
   const cnt = ses && !ses._extra ? '<div class="hh__n"><b>'+posSem(ses)+'<small> / '+e.total+'</small></b><span>SESIÓN</span></div>' : ''
   return '<section class="hh'+(a.src?' hh--foto':'')+'" aria-label="'+(ses?ses.nombre:'Tu semana')+'">'+ bg +'<div class="hh__ov" aria-hidden="true"></div>'+ cnt +
     '<div class="hh__c"><div class="hh__k">'+kicker+'</div><h2 class="hh__t">'+(ses?ses.nombre:o.m.t)+'</h2>'+(sub?'<div class="hh__s">'+sub+'</div>':'')+desc+
@@ -2541,7 +2541,7 @@ function k2HeaderHero(n, ctx){
     '<div class="k2h__top"><span class="k2h__brand"><img class="kLogo kLogo--hdr" src="/img/brand/logotipo-koach.png" alt="KOACH Fitness Club"></span><button class="k2h__av" onclick="salir()" aria-label="Salir">'+(n?n[0]:'K')+'</button></div>'+
     '<span class="k2h__date">'+k2FechaHoy()+'</span>'+
     '<h1 class="k2h__t">Hola, '+(n||'')+'.</h1>'+
-    '<div class="k2h__row"><p class="k2h__p">'+frase+'</p><div class="k2h__tag" aria-hidden="true"><i></i>DISCIPLINA<br>PROGRESO<br>RESULTADOS</div></div>'+
+    '<div class="k2h__row"><p class="k2h__p">'+frase+'</p><div class="k2h__tag" aria-hidden="true"><i></i>EL CLUB<br>DEL 1%</div></div>'+
   '</header>'
 }
 function k2Label(t){ return '<div class="k2-label">'+t+'</div>' }
