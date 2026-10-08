@@ -1633,6 +1633,15 @@ html.is-grabbing,html.is-grabbing *{cursor:grabbing !important}
 .tcLey{display:flex;flex-wrap:wrap;gap:6px 16px;margin:8px 2px 0;font-family:'Space Mono',var(--font-mono);font-size:10.5px;letter-spacing:.1em;color:#5E5D59}
 .tcLey span{display:inline-flex;align-items:center;gap:6px}.tcLey i{display:inline-block;width:12px;height:12px;border-radius:3px}
 .tcLey__d{background:#121212}.tcLey__p{background:#F7F6F3;border:1px solid rgba(18,18,18,.25)}.tcLey__h{background:#E4E3DF}.tcLey__i{border:1.5px dashed #121212}
+
+/* ═══ c57 · tarjeta completa arrastrable; isotipo solo como marca, contraste por tono ═══ */
+.tc__body{cursor:grab;touch-action:none;-webkit-user-drag:none;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none}
+.tc--hecha .tc__body,.tc--inc .tc__body,.tc--curso .tc__body{cursor:default}
+.tc__h{pointer-events:none;cursor:default}
+.tc .tc__iso{color:#5E5D59 !important;opacity:1 !important}                         /* blanca / gris claro → gris oscuro */
+.tc--next .tc__iso,.tc--curso .tc__iso{color:#A9A8A3 !important}                    /* negra → gris claro */
+.tc.is-armed{transform:scale(1.015);box-shadow:0 10px 24px -14px rgba(0,0,0,.45)}
+.tc.is-drag{opacity:.92;box-shadow:0 18px 34px -16px rgba(0,0,0,.5);transition:none}
 /* ═══ FIN CAPA 3 ═══ */
 /* ═══ MOTOR DE CONSTRUCCIÓN c8.0 · MACRO → MESO → MICRO ═══ */
 .plNav{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin:0 0 14px}
@@ -6373,11 +6382,11 @@ function scPintar(){
     else if (esN){ est=st.entreno_hoy?'SIGUIENTE · MAÑANA':'DISPONIBLE'; cls='next' }
     else { est='PENDIENTE'; cls='pend' }
     h+='<div class="tc tc--'+cls+(SCD.open===z.id?' is-open':'')+'" role="listitem" data-sid="'+z.id+'">'+
-      '<button type="button" class="tc__body" onclick="scAbrirRes(\''+z.id+'\')" aria-expanded="'+(SCD.open===z.id)+'" aria-controls="tcRes">'+
+      '<button type="button" class="tc__body" onpointerdown="scCardDown(event,\''+z.id+'\','+(mov?1:0)+')" onclick="scCardClick(event)" oncontextmenu="return false" ondragstart="return false" onkeydown="scCardKey(event,\''+z.id+'\','+(mov?1:0)+')" title="'+(mov?'Mantén presionado y mueve para reordenar · doble toque para ver el resumen':'Doble toque para ver el resumen')+'" aria-expanded="'+(SCD.open===z.id)+'" aria-controls="tcRes">'+
         '<span class="tc__k"><em>'+String(i+1).padStart(2,'0')+'</em>'+(esN||esX?'<i>'+(enV?'AHORA':esX?'HABILITADA':'SIGUIENTE')+'</i>':'')+'</span>'+
         '<b class="tc__n">'+scNomL(z.nombre)+'</b><span class="tc__s">'+est+'</span></button>'+
       // c54 · KOACH Drag Handle (asset oficial). Solo él inicia el arrastre; tocar la tarjeta abre el resumen.
-      (mov?'<span class="tc__h" role="button" tabindex="0" aria-roledescription="controlador de arrastre" aria-label="Mover '+scNomL(z.nombre)+': arrastra, o usa las flechas izquierda y derecha" onpointerdown="scPD(event,\''+z.id+'\')" onkeydown="scKeyMove(event,\''+z.id+'\')"><svg class="tc__iso" viewBox="40 180 790 795" aria-hidden="true" focusable="false"><rect x="52" y="190" width="768" height="162" fill="currentColor"/><polygon points="52,757 438,415 818,752 818,950 438,615 52,962" fill="currentColor"/></svg></span>'
+      (mov?'<span class="tc__h" aria-hidden="true"><svg class="tc__iso" viewBox="40 180 790 795" aria-hidden="true" focusable="false"><rect x="52" y="190" width="768" height="162" fill="currentColor"/><polygon points="52,757 438,415 818,752 818,950 438,615 52,962" fill="currentColor"/></svg></span>'
           :'<span class="tc__h tc__h--lock" aria-disabled="true" title="'+(z.estado==='completada'?'Realizada':'Sesión abierta')+': posición fija"><svg class="tc__iso" viewBox="40 180 790 795" aria-hidden="true" focusable="false"><rect x="52" y="190" width="768" height="162" fill="currentColor"/><polygon points="52,757 438,415 818,752 818,950 438,615 52,962" fill="currentColor"/></svg></span>')+'</div>' })
   // c56 · leyenda: qué significa cada tono (el negro = la que le toca ahora, no un día fijo)
   h+='</div><div class="tcLey" aria-hidden="true"><span><i class="tcLey__d"></i>LE TOCA AHORA</span><span><i class="tcLey__p"></i>PENDIENTE</span><span><i class="tcLey__h"></i>REALIZADA</span><span><i class="tcLey__i"></i>SIN CERRAR</span></div>'
@@ -6814,6 +6823,44 @@ function scFinalizarConf(rid){
   scModal('ESTA SESIÓN SIGUE ABIERTA','<p class="gpTxt"><b>'+scNomL(a.nombre)+'</b> · '+a.ejercicios+' de '+a.total_ejercicios+' ejercicios · '+a.sets+' sets registrados.</p>'+
     '<p class="gpTxt">¿Quieres cerrarla manualmente? Se conservan solo los sets que el socio registró: no se inventan ejercicios, reps ni cargas. Queda como <b>incompleta</b> y su posición se fija.</p>'+
     '<div class="gpErr" id="scErr" style="display:none"></div><button type="button" class="mSG__ok" onclick="scAccion(\'cerrar\',\''+rid+'\')">FINALIZAR (QUEDA INCOMPLETA)</button><button type="button" class="mSG__sec" onclick="scCerrar()">CANCELAR</button>')
+}
+// c57 · TODA LA TARJETA ES ARRASTRABLE · doble toque / doble clic = resumen
+// Mouse: presionar y mover (umbral 6 px) arrastra. Táctil: mantener ~220 ms y mover arrastra; un deslizamiento rápido
+// sigue desplazando la fila. Un toque simple no hace nada (evita aperturas accidentales); dos toques abren el resumen.
+const SCT={ last:{}, t:null }
+function scCardClick(ev){ ev.preventDefault() }
+function scCardKey(ev,id,mov){
+  if (ev.key==='Enter' || ev.key===' '){ ev.preventDefault(); scAbrirRes(id); return }
+  if (mov && (ev.key==='ArrowLeft' || ev.key==='ArrowRight')){ ev.preventDefault(); if (!SCB.org) scOrgEntrar(); scMover(id, ev.key==='ArrowLeft'?-1:1) } }
+function scCardDown(ev,id,mov){
+  if (ev.button>0) return
+  const card=ev.currentTarget.closest('.tc'), x0=ev.clientX, y0=ev.clientY, tactil=ev.pointerType!=='mouse'
+  let armado=!tactil, arrastrando=false
+  clearTimeout(SCT.t); if (tactil && mov) SCT.t=setTimeout(function(){ armado=true; card.classList.add('is-armed'); try{ navigator.vibrate&&navigator.vibrate(12) }catch(_e){} }, 220)
+  const lane=card.closest('.tb2'), sl0=lane?lane.scrollLeft:0
+  const mv=function(e){ const dx=e.clientX-x0, dy=e.clientY-y0, d=Math.hypot(dx,dy)
+    if (!arrastrando){
+      if (d<6) return
+      // táctil sin mantener (o tarjeta fija): es desplazamiento de la fila, no arrastre
+      if (!armado || !mov){ clearTimeout(SCT.t); card.classList.remove('is-armed'); if (tactil && lane){ e.preventDefault(); lane.scrollLeft=sl0-dx } return }
+      arrastrando=true; SCD.drag=true; card.classList.add('is-drag'); document.documentElement.classList.add('is-grabbing')
+    }
+    e.preventDefault()
+    card.style.transform='translate('+dx+'px,'+dy+'px)'; card.style.zIndex=5
+    if (lane){ const r=lane.getBoundingClientRect(); if (e.clientX>r.right-48) lane.scrollLeft+=14; else if (e.clientX<r.left+48) lane.scrollLeft-=14 }
+    card.style.pointerEvents='none'; const t=document.elementFromPoint(e.clientX,e.clientY); card.style.pointerEvents=''
+    const c=t&&t.closest&&t.closest('.tc'); document.querySelectorAll('.tc').forEach(function(x){ x.classList.remove('is-over') })
+    const base=(SC.st&&SC.st.sesiones)||[], z=c&&base.find(function(q){return q.id===c.dataset.sid})
+    SCD.over = (c && z && c.dataset.sid!==id && scMovible(z)) ? c.dataset.sid : null; if (SCD.over) c.classList.add('is-over') }
+  const fin=function(){ clearTimeout(SCT.t); document.removeEventListener('pointermove',mv); document.removeEventListener('pointerup',up); document.removeEventListener('pointercancel',cancelar)
+    card.classList.remove('is-armed','is-drag'); card.style.transform=''; card.style.zIndex=''; document.documentElement.classList.remove('is-grabbing')
+    document.querySelectorAll('.tc').forEach(function(x){ x.classList.remove('is-over') }) }
+  const cancelar=function(){ fin(); setTimeout(function(){ SCD.drag=false },0) }
+  const up=function(){ const o=SCD.over, eraDrag=arrastrando; SCD.over=null; fin(); setTimeout(function(){ SCD.drag=false },0)
+    if (eraDrag){ if (o) scSwap(id,o); return }
+    if (lane && Math.abs(lane.scrollLeft-sl0)>4) return
+    const now=Date.now(); if (now-(SCT.last[id]||0) < 360){ SCT.last[id]=0; scAbrirRes(id) } else SCT.last[id]=now }
+  document.addEventListener('pointermove',mv,{passive:false}); document.addEventListener('pointerup',up); document.addEventListener('pointercancel',cancelar)
 }
 let MG={primero:null}
 async function aplicarPrograma(){
