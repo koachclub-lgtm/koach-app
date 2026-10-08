@@ -4049,6 +4049,13 @@ function wxSetsHoy(bfs){ let h=0,t=0; bfs.forEach(b=>{ if(esCircuito(b)){ t+=b.s
    Misma lógica de registro (rwGet/rwSet/rwStep + tapSetRow). Orden obligatorio de bloques: COMENZAR solo en el primer bloque sin terminar.
    El descanso es un reloj de pared (fin = Date.now()+seg): sigue corriendo aunque la pestaña pase a segundo plano y sobrevive a una recarga. */
 const BK = { bi:null, set:null, cap:null, rest:null, _t:null, _wl:null, _cdS:null, _go:null }
+/* c66 · háptica unificada. Android: navigator.vibrate. iPhone: Safari no expone vibración; el único háptico disponible es el del
+   interruptor nativo (<input type="checkbox" switch>, iOS 18+) y solo dentro de un toque del usuario → sirve como confirmación táctil
+   en COMPLETAR SET y SALTAR, nunca como alerta desde el reloj. */
+function kHaptic(p){ try{ if(navigator.vibrate){ navigator.vibrate(p||12); return }
+  let l=document.getElementById('kHap'); if(!l){ l=document.createElement('label'); l.id='kHap'; l.setAttribute('aria-hidden','true'); l.style.cssText='position:fixed;left:-9999px;top:-9999px;width:1px;height:1px;overflow:hidden;opacity:0'
+    l.innerHTML='<input type="checkbox" switch tabindex="-1">'; document.body.appendChild(l) }
+  l.click() }catch(_){} }
 const bkMMSS = s => String(Math.floor(s/60)).padStart(2,'0')+':'+String(s%60).padStart(2,'0')
 const bkDesc = b => (b.descanso_seg||b.descanso_segundos||60)
 const bkBes  = b => [...(b.bloque_ejercicios||[])].sort((a,x)=>(a.orden||0)-(x.orden||0))
@@ -4133,7 +4140,7 @@ function bkPintar(){
   o.classList.toggle('rest', !!rest); o.classList.remove('cd','go'); clearTimeout(BK._go)
   o.innerHTML='<div class="bk__fix"><header class="bk__top"><button type="button" class="bk__rb" onclick="bkCerrar()" aria-label="Volver a la sesión">←</button><img class="kLogo kLogo--bk" src="/img/brand/logotipo-koach.png" alt="KOACH"><span class="bk__sv" id="bkSync">'+(((document.getElementById('syncTag')||{}).textContent)||'✓ GUARDADO')+'</span></header>'+
     '<div class="bk__bh"><div><span class="bk__k">'+kLab+'</span><div class="bk__bn"><b>'+cod+'</b><em>'+nom+'</em></div></div>'+
-    (rest ? '<button type="button" class="bk__desc run" onclick="bkRestFin()" aria-label="Descanso, '+restS+' segundos. Toca para saltar">'+top+'</button>' : '<div class="bk__desc">'+top+'</div>')+
+    (rest ? '<button type="button" class="bk__desc run" onclick="kHaptic(12);bkRestFin()" aria-label="Descanso, '+restS+' segundos. Toca para saltar">'+top+'</button>' : '<div class="bk__desc">'+top+'</div>')+
     (rest ? '<u class="bk__bar" id="bkBar" aria-hidden="true" style="width:'+bkRestPct()+'%"></u>' : '')+'</div>'+
     '<div class="bk__strip" role="group" aria-label="Sets del bloque">'+tabs+'</div></div>'+
     '<div class="bk__scroll" id="bkScroll">'+filas+'</div>'+
@@ -4146,8 +4153,8 @@ async function bkCompletar(){ const b=(S._bfs||[])[BK.bi]; if(!b) return
   for (const be of bes){ const w=S.wk[be.id]||{}, rv=S.rw[be.id+'#'+n]||{}
     if (w.tipo==='WEIGHT_REPS' && rv.kg==null){ toast('Define el peso de '+(be.ejercicios&&be.ejercicios.nombre||'cada ejercicio')+' antes de completar el set.'); return } }
   const cta=document.querySelector('#oBloque .bk__cta'); if(cta) cta.disabled=true
+  kHaptic(12) // dentro del toque: en iPhone es la única ventana para el háptico
   for (const be of bes){ if(!S.setLog[setKey(be.id,n)]) await tapSetRow(be.id,n,b.id,(be.ejercicios||{}).id) }
-  if (navigator.vibrate) navigator.vibrate(12)
   const sig=bkSetActual(b)
   if (sig){ BK.set=sig; bkRestIni(b) } else { BK.set=n; bkRestFin(true) }
   bkPintar()
