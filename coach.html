@@ -163,6 +163,45 @@ button.bxI:hover,button.bxI:focus-visible{transform:translateY(-2px);box-shadow:
 .nu__cta{display:block;width:100%;margin-top:12px;min-height:56px;border:none;border-radius:16px;background:#121212;color:#F4F3F0;font-family:var(--font-mono);font-weight:500;font-size:13px;letter-spacing:.14em;cursor:pointer}
 .nu__cta[disabled]{opacity:.5;cursor:progress}
 #mAdmBody .vt{margin-top:4px}
+/* c61 · CAJA DE VENTA: una sola pantalla en escritorio/tablet. Sin cajas dentro de cajas: columnas + divisores. */
+#mAdm.adWide .adSheet{max-width:1180px;width:calc(100vw - 40px);max-height:calc(100dvh - 24px);padding:12px 22px 0}
+#mAdm.adWide .adSheetTop{margin-bottom:6px}
+.vt.vtC{display:grid !important;grid-template-columns:minmax(0,1.08fr) minmax(0,1fr);column-gap:32px;row-gap:0;align-items:stretch}
+.vtCc{display:flex;flex-direction:column;min-width:0}
+.vtC .vtZ--not{grid-column:1 / -1}
+.vtC .vtR3{display:grid;grid-template-columns:minmax(0,1.4fr) minmax(0,1fr);gap:12px;align-items:start}
+.vtC .vtR3 textarea{margin-top:4px!important;box-sizing:border-box}
+.vtC .vtZ--ini{flex:1}
+.vtC .vtZ{padding:8px 0 10px;border-top:1px solid rgba(18,18,18,.1);min-width:0}
+.vtC .vtZ--pag{flex:1}
+.vtC .vtZ--dur,.vtC .vtZ--val{border-top:0;padding-top:2px}
+.vtC .vtZ--pag{border-top:1px solid rgba(18,18,18,.1)}
+.vtC .vtK{margin-bottom:6px;font-size:11px}.vtC .vtK--s{margin:10px 0 0;font-size:10.5px;color:#5E5D59!important}
+.vtC .vtPs{grid-template-columns:repeat(6,minmax(0,1fr))!important;gap:6px}
+.vtC .vtP{min-height:48px!important;padding:6px 10px;border-radius:12px}
+.vtC .vtP b{font-size:22px!important}.vtC .vtP span{font-size:9.5px!important;margin-top:2px}
+.vtC .vtPs--c{grid-template-columns:repeat(3,minmax(0,1fr))!important;margin-top:6px;padding-top:6px}
+.vtC .vtPs--c .vtP{min-height:40px!important}
+.vtC .vtR2{display:grid;grid-template-columns:minmax(0,190px) minmax(0,1fr);gap:14px;align-items:center}
+.vtC .vtL{margin-top:0}.vtC .vtL input{min-height:44px;margin-top:0}
+.vtC .vtZ--not .vtL input{margin-top:4px;height:46px;font-family:var(--font-display);font-size:14.5px;font-weight:400}
+.vtC .vtVig{margin:0;min-height:44px;font-size:14px}.vtC .vtVig b{font-size:15px}
+.vtC .vtMoney{padding:0 2px 2px}.vtC .vtMoney span{font-size:26px}.vtC .vtMoney input{font-size:46px;line-height:1.05}
+.vtC .vtSub{margin:4px 0 0}
+.vtC .vtCh{gap:6px;margin-top:6px}.vtC .vtCh button{min-height:38px;padding:0 12px;font-size:11px;letter-spacing:.07em}
+.vtC .vtZ--not .vtL{color:#5E5D59}.vtC textarea{min-height:0;height:46px;margin-top:4px;padding:8px 12px;font-size:14.5px;resize:none;overflow:auto}
+.vtC .vtZ--not .vtL + .vtL{margin-top:6px}
+.vtSr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+.vtFoot{position:sticky;bottom:0;z-index:3;margin:2px -22px 0;padding:10px 22px calc(14px + env(safe-area-inset-bottom,0px));background:var(--koach-surface,#F4F3F0);border-top:1px solid rgba(18,18,18,.14)}
+.vtFoot #apErr .vtErr{margin:0 0 8px}
+.vtFoot__r{display:flex;align-items:center;gap:16px}
+.vtSum{flex:1;min-width:0;display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 8px;font-family:'Space Mono',var(--font-mono),monospace;font-size:12px;letter-spacing:.08em;color:#121212}
+.vtSum small{font-size:10px;letter-spacing:.16em;color:#8E8D88;margin-right:4px}.vtSum i{font-style:normal;color:#C9C8C3}
+.vtSum__m{font-weight:700;font-size:16px}
+.vtGo{flex:none;min-height:54px;min-width:260px;padding:0 26px;border:0;border-radius:16px;background:#121212;color:#F4F3F0;font-family:'Space Mono',var(--font-mono),monospace;font-weight:700;font-size:13px;letter-spacing:.14em;cursor:pointer}
+.vtGo:disabled{opacity:.5}
+@media (max-width:860px){ .vt.vtC{grid-template-columns:1fr} .vtC .vtR3{grid-template-columns:1fr} .vtC .vtZ--val{border-top:1px solid rgba(18,18,18,.1);padding-top:10px} .vtFoot__r{flex-direction:column;align-items:stretch} .vtGo{min-width:0;width:100%} }
+@media (max-width:520px){ .vtC .vtPs{grid-template-columns:repeat(4,minmax(0,1fr))!important} }
 @media (max-width:640px){ .nu{padding:14px;border-radius:18px} .nu__s{grid-template-columns:1fr} .nu__n{display:none} .nu__g,.vtR2{grid-template-columns:1fr} .vtBig{font-size:38px} }
 
 /* c38 · control de acceso */
@@ -5291,6 +5330,24 @@ async function vtMontar(p, boxId, ctx){
     return '<button type="button" class="vtP" data-k="'+k+'" onclick="vtDur(\''+p+'\',\''+k+'\')"><b>'+vtLbl(k)+'</b><span>'+adCLP(c.precio)+'</span></button>' }).join('')
   const durB=function(lista){ return lista.map(function(d){ const n=d[1].split(' ')
       return '<button type="button" class="vtP" data-k="'+d[0]+'" onclick="vtDur(\''+p+'\',\''+d[0]+'\')" aria-pressed="false"><b>'+(/^\d/.test(n[0])?n[0]:d[1])+'</b>'+(/^\d/.test(n[0])?'<span>'+n.slice(1).join(' ')+'</span>':'')+'</button>' }).join('') }
+  if (ctx.caja){ box.classList.add('vtC')
+    box.innerHTML=
+     '<div class="vtCc"><section class="vtZ vtZ--dur"><div class="vtK">1 · DURACIÓN</div>'+
+       '<div class="vtPs" role="group" aria-label="Duración en meses">'+durB(VT_DUR.filter(function(d){return d[0].indexOf('mes:')===0}))+'</div>'+
+       '<div class="vtPs vtPs--c" role="group" aria-label="Pases cortos">'+durB(VT_DUR.filter(function(d){return d[0].indexOf('mes:')!==0}))+'</div></section>'+
+     '<section class="vtZ vtZ--ini"><div class="vtK">2 · INICIO Y VIGENCIA</div><div class="vtR2"><label class="vtL"><span class="vtSr">FECHA DE INICIO</span><input type="date" id="'+p+'Ini" value="'+s.fecha+'" onchange="vtFecha(\''+p+'\',this.value)" aria-label="Fecha de inicio del plan"></label>'+
+       '<div class="vtVig" id="'+p+'Vig" aria-live="polite">Elige la duración</div></div></section></div>'+
+     '<div class="vtCc"><section class="vtZ vtZ--val"><div class="vtK" id="'+p+'VK">3 · VALOR COBRADO</div>'+
+       '<label class="vtMoney" id="'+p+'MW"><span>$</span><input inputmode="numeric" id="'+p+'M" placeholder="0" oninput="vtMonto(\''+p+'\',this.value)" aria-label="Valor cobrado"><b id="'+p+'ML" hidden>VALOR COBRADO</b></label>'+
+       '<div class="vtSub" id="'+p+'BigS"></div><div class="vtBig" id="'+p+'Big" hidden>—</div>'+
+       '<div class="vtTg" id="'+p+'Tg" hidden><button type="button" id="'+p+'Std"></button><button type="button" id="'+p+'Cus"></button></div>'+
+       '<div id="'+p+'TcW"><div class="vtK vtK--s">4 · TIPO DE VENTA · OPCIONAL</div><div class="vtCh" role="group" aria-label="Tipo de venta">'+VT_TC.map(function(t){ return '<button type="button" data-v="'+t[0]+'" onclick="vtTc(\''+p+'\',\''+t[0]+'\')">'+t[1]+'</button>' }).join('')+'</div></div></section>'+
+     '<section class="vtZ vtZ--pag"><div class="vtK">5 · PAGO</div><div class="vtCh" id="'+p+'Met" role="group" aria-label="Forma de pago">'+VT_MET.map(function(m){ return '<button type="button" data-v="'+m[0]+'" onclick="vtMet(\''+p+'\',\''+m[0]+'\')">'+m[1]+'</button>' }).join('')+'</div>'+
+       '<div class="vtK vtK--s">ESTADO</div><div class="vtCh" id="'+p+'Est" role="group" aria-label="Estado del pago"><button type="button" data-v="pagado" class="on" onclick="vtEst(\''+p+'\',\'pagado\')">PAGADO</button><button type="button" data-v="pendiente" onclick="vtEst(\''+p+'\',\'pendiente\')">PENDIENTE</button></div>'+
+       '<div class="vtNote" id="'+p+'Ugc" style="display:none">UGC activa la membresía igual que un pago, pero <b>no suma a caja</b>: el pago queda en $0 y el valor ingresado se registra como referencia.</div></section></div>'+
+     '<section class="vtZ vtZ--not"><div class="vtK">6 · NOTA Y REFERENCIA</div><div class="vtR3"><label class="vtL" id="'+p+'ObsL">POR QUÉ UGC, DESCUENTO U OTRA CONDICIÓN<textarea id="'+p+'Obs" rows="2" oninput="this.style.height=\'auto\';this.style.height=Math.min(this.scrollHeight,140)+\'px\'" placeholder="Opcional · ej: canje por contenido de marzo"></textarea></label>'+
+       '<label class="vtL">REFERENCIA DEL PAGO<input id="'+p+'Ref" placeholder="Opcional · n.º de transferencia o voucher"></label></div></section>'
+    vtPintar(p); return }
   box.innerHTML=
    '<div class="vtCol"><div class="vtS"><div class="vtK">1 · DURACIÓN</div>'+
      '<div class="vtPs" role="group" aria-label="Duración en meses">'+durB(VT_DUR.filter(function(d){return d[0].indexOf('mes:')===0}))+'</div>'+
@@ -5376,9 +5433,14 @@ function vtError(m){ const t=String(m||'')
 const AD_DUR=VT_DUR
 function admFormPago(){
   document.getElementById('mAdm').classList.add('adWide')
-  admAbrir('REGISTRAR VENTA · '+nomDe(F.id).toUpperCase(),'<div id="apVt" class="vt"></div><div id="apErr"></div><div class="adBtns"><button class="ink" id="apOk" onclick="admGuardarPago()">REGISTRAR</button></div>')
-  vtMontar('ap','apVt',{ socio:F.id })
+  admAbrir('REGISTRAR VENTA · '+nomDe(F.id).toUpperCase(),'<div id="apVt" class="vt"></div><div class="vtFoot"><div id="apErr"></div><div class="vtFoot__r"><div class="vtSum" id="apSum" aria-live="polite"></div><button type="button" class="vtGo" id="apOk" onclick="admGuardarPago()">REGISTRAR VENTA →</button></div></div>')
+  vtMontar('ap','apVt',{ socio:F.id, caja:true, onChange:vtSumPintar })
 }
+function vtSumPintar(r){ const el=document.getElementById('apSum'); if(!el) return
+  const TC={descuento:'DESCUENTO',promocion:'PROMOCIÓN',convenio:'CONVENIO',canje:'CANJE',cortesia:'CORTESÍA',otro:'OTRO'}, MET={}; VT_MET.forEach(function(m){ MET[m[0]]=m[1] })
+  const it=[ r.dur||'SIN DURACIÓN', r.vig?(adF(r.vig.inicio)+(r.vig.fin&&r.vig.fin!==r.vig.inicio?' → '+adF(r.vig.fin):'')):'—', r.monto!=null?adCLP(r.monto):'$ —' ]
+  if (r.ugc) it.push('UGC · $0 A CAJA'); else { if (r.tc && r.tc!=='normal') it.push(TC[r.tc]||String(r.tc).toUpperCase()); it.push(r.met?MET[r.met]:'SIN MEDIO DE PAGO'); it.push(r.est==='pendiente'?'PENDIENTE':'PAGADO') }
+  el.innerHTML='<small>RESUMEN</small>'+it.map(function(x,i){ return '<span'+(i===2?' class="vtSum__m"':'')+'>'+x+'</span>' }).join('<i>·</i>') }
 async function admGuardarPago(forzar){
   if (admGuardarPago._run) return
   const pl=vtPayload('ap'), eb=document.getElementById('apErr')
@@ -5397,7 +5459,7 @@ async function admGuardarPago(forzar){
     syncOk(); admCerrar()
     toast(v.tipo_comercial==='ugc' ? 'UGC registrado ✓ · vigencia hasta '+adF(r.data.fin)+' · sin ingreso monetario' : 'Venta registrada ✓ · vigencia hasta '+adF(r.data.fin))
     await adCargarResumen(); fAdmCargar(); accBan(F.id)
-  } finally { admGuardarPago._run=false; if(b && b.isConnected){ b.disabled=false; b.textContent='REGISTRAR' } }
+  } finally { admGuardarPago._run=false; if(b && b.isConnected){ b.disabled=false; b.textContent=(b.classList.contains('vtGo')?'REGISTRAR VENTA →':'REGISTRAR') } }
 }
 function admFormPagoEdit(pid){
   const p=(AD.fPag||[]).find(function(x){return x.id===pid}); if(!p) return
