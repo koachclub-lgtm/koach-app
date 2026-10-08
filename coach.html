@@ -1554,6 +1554,47 @@ html.selAbierto,html.selAbierto body{overflow:hidden}
 .tbOrgL{align-self:center;font-family:var(--font-mono);font-size:11.5px;letter-spacing:.1em;color:#13808C}
 .tbB:disabled{opacity:.4;cursor:default}
 .tbC--fija{opacity:.55}
+/* ═══ c53 · TABLERO V2: nombre dominante, resumen desplegable, manija de arrastre ═══ */
+.tb2{display:grid;grid-auto-flow:column;grid-auto-columns:calc((100% - 20px) / 3);gap:10px;overflow-x:auto;scroll-snap-type:x mandatory;padding-bottom:4px;overscroll-behavior-x:contain}
+.tb2::-webkit-scrollbar{height:6px}.tb2::-webkit-scrollbar-thumb{background:rgba(18,18,18,.18);border-radius:6px}
+@media (max-width:640px){ .tb2{grid-auto-columns:78%} }
+.tc{position:relative;scroll-snap-align:start;border-radius:16px;background:#F7F6F3;border:1px solid rgba(18,18,18,.12);color:#121212;transition:box-shadow .15s ease, transform .15s ease, opacity .15s ease}
+.tc__body{display:flex;flex-direction:column;gap:6px;width:100%;min-height:128px;padding:14px 46px 14px 16px;border:0;background:none;color:inherit;text-align:left;cursor:pointer;border-radius:16px}
+.tc__k{display:flex;align-items:center;gap:8px}
+.tc__k em{font-style:normal;font-family:'Space Mono',var(--font-mono);font-size:12px;letter-spacing:.08em;opacity:.6}
+.tc__k i{font-style:normal;padding:3px 8px;border-radius:7px;background:#2BB8C7;color:#06272B;font-family:'Space Mono',var(--font-mono);font-size:10px;font-weight:700;letter-spacing:.1em}
+.tc__n{font-family:var(--font-display);font-weight:800;font-size:clamp(22px,2.1vw,30px);line-height:1.05;letter-spacing:.01em}
+.tc__s{margin-top:auto;font-family:'Space Mono',var(--font-mono);font-size:11px;letter-spacing:.1em;opacity:.75}
+.tc__h{position:absolute;top:10px;right:8px;width:36px;height:44px;display:flex;align-items:center;justify-content:center;border-radius:10px;font-size:18px;opacity:.55;cursor:grab;touch-action:none;user-select:none}
+.tc__h:hover,.tc__h:focus-visible{opacity:1;background:rgba(128,128,128,.14);outline:none}
+.tc__lock{position:absolute;top:14px;right:16px;font-size:14px;opacity:.5}
+.tc--next{background:#121212;color:#F4F3F0;border-color:#121212}
+.tc--curso{background:#121212;color:#F4F3F0;border-color:#2BB8C7;box-shadow:0 0 0 3px rgba(43,184,199,.22)}
+.tc--hecha{background:#E4E3DF;color:#5E5D59;border-color:transparent}
+.tc--inc{background:#FBFAF8;border:1.5px dashed #121212}
+.tc.is-open{box-shadow:0 0 0 2px #121212}.tc--next.is-open,.tc--curso.is-open{box-shadow:0 0 0 2px #2BB8C7}
+.tc.is-drag{opacity:.45;transform:scale(.98)}.tc.is-over{transform:translateY(-4px);box-shadow:0 0 0 3px #2BB8C7}
+.tcRes{margin-top:10px;padding:14px 16px;border-radius:16px;background:#fff;border:1px solid rgba(18,18,18,.12);animation:tcIn .18s ease}
+@keyframes tcIn{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:none}}
+@media (prefers-reduced-motion:reduce){ .tcRes{animation:none} }
+.tcRes__h{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:10px;padding-bottom:10px;border-bottom:1px solid rgba(18,18,18,.08)}
+.tcRes__h small{display:block;font-family:'Space Mono',var(--font-mono);font-size:10.5px;letter-spacing:.12em;color:#5E5D59}
+.tcRes__h b{font-family:var(--font-display);font-weight:800;font-size:22px}
+.tcRes__a{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.tcRes__a .tbB{display:inline-flex;align-items:center;text-decoration:none}
+.tcRes__ok{font-family:'Space Mono',var(--font-mono);font-size:11px;letter-spacing:.1em;color:#13808C}
+.tcRes__x{width:44px;height:44px;border:0;border-radius:12px;background:rgba(18,18,18,.06);cursor:pointer}
+.tcRes__g{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:8px 16px;padding-top:10px}
+.tcRes__c{padding-top:10px;font-size:14px;color:#5E5D59}
+.tcB__h{font-family:'Space Mono',var(--font-mono);font-size:11px;letter-spacing:.1em;color:#5E5D59;padding:4px 0}.tcB__h span{float:right}
+.tcE{display:flex;justify-content:space-between;gap:10px;padding:5px 0;border-top:1px solid rgba(18,18,18,.06);font-size:14.5px}
+.tcE span{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.tcE em{font-style:normal;font-family:'Space Mono',var(--font-mono);font-size:12px;white-space:nowrap}
+/* cabecera del socio: foto con más protagonismo y datos en Space Mono; WhatsApp y extra directos */
+@media (min-width:900px){ .mh__av,.mh__av .kav{width:84px !important;height:84px !important;font-size:32px !important} }
+.mh__code,.mh__prog,.mh__s small,.mh__s em{font-family:'Space Mono',var(--font-mono) !important}
+.pfB--wa{width:44px;padding:0}.pfB--wa svg{width:20px;height:20px}
+@media (min-width:1024px){ html.en-ficha body{max-width:1360px !important;padding-left:28px;padding-right:28px} }
 /* ═══ FIN CAPA 3 ═══ */
 /* ═══ MOTOR DE CONSTRUCCIÓN c8.0 · MACRO → MESO → MICRO ═══ */
 .plNav{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin:0 0 14px}
@@ -6262,12 +6303,14 @@ function scVerTodas(){
   const inc=scIncOrden((SC.st&&SC.st.abiertas)||[])
   scModal('REQUIEREN ATENCIÓN · '+inc.length,'<ul class="ccL">'+inc.map(scIncFila).join('')+'</ul><button type="button" class="mSG__sec" onclick="scCerrar()">CERRAR</button>')
 }
-// c50 · TABLERO DE LA SEMANA: el entrenamiento del socio como tarjetas que se operan directo.
-// Cada sesión es una tarjeta (número grande, nombre bold, estado por tono) con sus acciones a la vista;
-// las pendientes se mueven (arrastrar en escritorio, ◀ ▶ en táctil). Completadas / sin cerrar / en curso quedan fijas.
 const SCB={ drag:null, run:false }
 function scNomL(n){ return plEsc(String(n||'').replace(/^S\d+\s*[—-]\s*/,'').toUpperCase()) }
 function scMovible(z){ return z && (z.estado==='pendiente') }
+// c53 · TABLERO DE LA SEMANA V2 — el nombre manda (el número es secundario); tocar una tarjeta despliega su resumen
+// debajo (bloques · ejercicios · series×reps) con EDITAR / HABILITAR / FINALIZAR; la manija ⠿ la arrastra (mouse y táctil).
+// Arrastrar arma un borrador de orden que se publica con PUBLICAR ORDEN (el socio no ve el pivoteo).
+const SCD={ open:null, det:{}, pd:null }
+function scFechaC(t){ if(!t) return ''; const d=new Date(t); return String(d.getDate()).padStart(2,'0')+'/'+String(d.getMonth()+1).padStart(2,'0') }
 function scPintar(){
   const st=SC.st||{}, el=document.getElementById('scCard'); if(!el||!st.activo){ if(el) el.innerHTML=''; return }
   const ab=st.abiertas||[], px=st.proxima, hb=st.habilitada
@@ -6275,47 +6318,75 @@ function scPintar(){
   if (SCB.org && SCB.ord) ses=SCB.ord.map(function(id){ return ses.find(function(z){return z.id===id}) }).filter(Boolean)
   const vivo=ab.filter(function(a){return !a.abandonada})[0], inc=scIncOrden(ab)
   const nextId = vivo ? vivo.sesion_id : hb ? hb.sesion_id : (px && (st.siguiente_tras_abierta && px.estado==='sin_cerrar' ? st.siguiente_tras_abierta.id : px.id))
-  let h='<div class="tb__bar"><div class="tb__t"><span>SEMANA '+(st.semana||'—')+(st.total_semanas?' DE '+st.total_semanas:'')+'</span><b>'+(st.hechas||0)+'<i>/'+(st.programadas||ses.length)+'</i></b><small>COMPLETADAS'+(inc.length?' · '+inc.length+' POR RESOLVER':'')+'</small></div>'+
+  let h='<div class="tb__bar"><div class="tb__t"><span>SEMANA '+(st.semana||'—')+(st.total_semanas?' DE '+st.total_semanas:'')+'</span><b>'+(st.hechas||0)+'<i>/'+(st.programadas||ses.length)+'</i></b><small>REALIZADAS'+(inc.length?' · '+inc.length+' SIN CERRAR':'')+'</small></div>'+
     '<div class="tb__acc"><span class="tbSave" id="scSave" aria-live="polite"></span>'+(SCB.org
-      ? '<span class="tbOrgL">ORGANIZANDO · arrastra o usa ◀ ▶</span><button type="button" class="tbB" onclick="scOrgSalir()">CANCELAR</button><button type="button" class="tbB tbB--ink" onclick="scOrgAplicar()"'+(scOrgCambio()?'':' disabled')+'>PUBLICAR ORDEN →</button>'
-      : '<button type="button" class="tbB tbB--ink" onclick="scElegir()">⇄ CAMBIAR SESIÓN</button><button type="button" class="tbB" onclick="scOrgEntrar()">⇅ ORGANIZAR</button><button type="button" class="tbB" onclick="verExtra()">+ RUTINA RÁPIDA</button>'+
-        (inc.length?'<button type="button" class="tbB" onclick="scVerTodas()">⚠ RESOLVER ('+inc.length+')</button>':''))+'</div></div>'
-  h+='<div class="tb" style="--n:'+Math.max(ses.length,1)+'" role="list" aria-label="Sesiones de la semana">'
+      ? '<span class="tbOrgL">NUEVO ORDEN · EL SOCIO AÚN NO LO VE</span><button type="button" class="tbB" onclick="scOrgSalir()">DESHACER</button><button type="button" class="tbB tbB--ink" onclick="scOrgAplicar()"'+(scOrgCambio()?'':' disabled')+'>PUBLICAR ORDEN →</button>'
+      : '<button type="button" class="tbB tbB--ink" onclick="scElegir()">⇄ CAMBIAR SESIÓN</button>'+(inc.length?'<button type="button" class="tbB" onclick="scVerTodas()">⚠ RESOLVER ('+inc.length+')</button>':''))+'</div></div>'
+  h+='<div class="tb2" role="list" aria-label="Sesiones de la semana">'
   ses.forEach(function(z,i){
-    const esX=hb&&hb.sesion_id===z.id, esN=z.id===nextId, reg=ab.find(function(a){return a.sesion_id===z.id}), mov=SCB.org && scMovible(z)
-    const u='#/socio/'+F.id+'/plan?w='+st.semana+'&s='+z.id
-    let tag='', acc=''
-    if (z.estado==='completada'){ tag='✓ COMPLETADA'+(z.cuando?' · '+scCuando(z.cuando,false):'')
-      acc='<button type="button" class="tbC__b" onclick="scAccion(\'habilitar\',null,\''+z.id+'\',true)">REPETIR</button>' }
-    else if (z.estado==='en_curso' || (vivo&&vivo.sesion_id===z.id)){ const v=vivo||reg||{}; tag='● EN CURSO · '+(v.ejercicios||0)+'/'+(v.total_ejercicios||'—')+' EJ'
-      acc='<a class="tbC__b tbC__b--on" href="'+urlRutina(F.id)+'" onclick="return rtIr(event,\''+urlRutina(F.id)+'\')">ABRIR</a>' }
-    else if (reg && reg.abandonada){ tag=(reg.parece_completa?'◐ PARECE COMPLETA':'◐ SIN CERRAR')+' · '+reg.ejercicios+'/'+reg.total_ejercicios+' EJ'
-      acc=(reg.parece_completa?'<button type="button" class="tbC__b tbC__b--on" onclick="scFinalizar(\''+reg.id+'\')">FINALIZAR</button>':'<button type="button" class="tbC__b tbC__b--on" onclick="scResolver(\''+reg.id+'\')">RESOLVER</button>')+
-        '<button type="button" class="tbC__b" onclick="scAccion(\'cerrar\',\''+reg.id+'\')">CERRAR</button>' }
-    else if (esX){ tag='HABILITADA ✓'+(hb.permite_hoy?' · HOY':'')
-      acc='<a class="tbC__b tbC__b--on" href="'+urlRutina(F.id)+'" onclick="return rtIr(event,\''+urlRutina(F.id)+'\')">ABRIR</a><button type="button" class="tbC__b" onclick="scAccion(\'quitar_habilitacion\')">QUITAR</button>' }
-    else if (esN){ tag=st.entreno_hoy?'SIGUIENTE · MAÑANA':'DISPONIBLE ✓'
-      acc=(st.entreno_hoy?'<button type="button" class="tbC__b tbC__b--on" onclick="scHabilitarConf(\''+z.id+'\')">HABILITAR HOY</button>':'<a class="tbC__b tbC__b--on" href="'+urlRutina(F.id)+'" onclick="return rtIr(event,\''+urlRutina(F.id)+'\')">ABRIR</a>') }
-    else { tag='PENDIENTE'; acc='<button type="button" class="tbC__b" onclick="scHabilitarConf(\''+z.id+'\')">HABILITAR</button>' }
-    const cls='tbC tbC--'+(esN||esX?'next':z.estado)+(reg&&reg.abandonada?' tbC--inc':'')+(mov?' tbC--mov':'')
-    h+='<div class="'+cls+(SCB.org&&!scMovible(z)?' tbC--fija':'')+'" role="listitem" data-sid="'+z.id+'"'+(mov?' draggable="true" ondragstart="scDragIni(event,\''+z.id+'\')" ondragend="scDragFin()"':'')+' ondragover="scDragSobre(event,\''+z.id+'\')" ondrop="scDrop(event,\''+z.id+'\')">'+
-      '<div class="tbC__top"><span class="tbC__n">'+String(i+1).padStart(2,'0')+'</span>'+(esN||esX?'<span class="tbC__k">'+(vivo&&vivo.sesion_id===z.id?'AHORA':esX?'HABILITADA':'SIGUIENTE')+'</span>':'')+
-      (mov?'<span class="tbC__h" aria-hidden="true" title="Arrastra para mover">⠿</span>':'')+'</div>'+
-      '<b class="tbC__t">'+scNomL(z.nombre)+'</b><div class="tbC__s">'+tag+'</div>'+
-      '<div class="tbC__a">'+acc+
-        (mov?'<button type="button" class="tbC__m" aria-label="Mover antes" onclick="scMover(\''+z.id+'\',-1)">◀</button><button type="button" class="tbC__m" aria-label="Mover después" onclick="scMover(\''+z.id+'\',1)">▶</button>':'')+
-        '<div class="pfMenuW"><button type="button" class="tbC__m" onclick="pfMenu(this)" aria-haspopup="true" aria-label="Más acciones de '+scNomL(z.nombre)+'">···</button><div class="pfMenu pfMenu--r" hidden>'+
-        '<a href="'+u+'" onclick="return rtIr(event,\''+u+'\')">EDITAR EN PLANIFICADOR</a>'+
-        (z.estado!=='completada'&&!esX?'<button onclick="scHabilitarConf(\''+z.id+'\')">HABILITAR AHORA</button>':'')+
-        (z.estado==='completada'?'<button onclick="scAccion(\'habilitar\',null,\''+z.id+'\',true)">REPETIR COMO EXTRA</button>':'')+
-        (reg&&reg.abandonada?'<button onclick="scResolver(\''+reg.id+'\')">RESOLVER…</button>':'')+
-        '</div></div></div></div>' })
-  h+='</div>'
-  // sesiones abiertas de semanas anteriores (no están en estas tarjetas): siguen a un toque
+    const esX=hb&&hb.sesion_id===z.id, esN=z.id===nextId, reg=ab.find(function(a){return a.sesion_id===z.id}), mov=scMovible(z), enV=vivo&&vivo.sesion_id===z.id
+    let est, cls
+    if (z.estado==='completada'){ est='REALIZADA'+(z.cuando?' · '+scFechaC(z.cuando):''); cls='hecha' }
+    else if (enV || z.estado==='en_curso'){ est='EN CURSO'+(vivo?' · '+vivo.ejercicios+'/'+vivo.total_ejercicios+' EJ':''); cls='curso' }
+    else if (reg && reg.abandonada){ est=(reg.parece_completa?'PARECE COMPLETA':'SIN CERRAR')+' · '+scFechaC(reg.iniciada_at||reg.fecha); cls='inc' }
+    else if (esX){ est='HABILITADA'+(hb.permite_hoy?' · HOY':''); cls='next' }
+    else if (esN){ est=st.entreno_hoy?'SIGUIENTE · MAÑANA':'DISPONIBLE'; cls='next' }
+    else { est='PENDIENTE'; cls='pend' }
+    h+='<div class="tc tc--'+cls+(SCD.open===z.id?' is-open':'')+'" role="listitem" data-sid="'+z.id+'">'+
+      '<button type="button" class="tc__body" onclick="scAbrirRes(\''+z.id+'\')" aria-expanded="'+(SCD.open===z.id)+'" aria-controls="tcRes">'+
+        '<span class="tc__k"><em>'+String(i+1).padStart(2,'0')+'</em>'+(esN||esX?'<i>'+(enV?'AHORA':esX?'HABILITADA':'SIGUIENTE')+'</i>':'')+'</span>'+
+        '<b class="tc__n">'+scNomL(z.nombre)+'</b><span class="tc__s">'+est+'</span></button>'+
+      (mov?'<span class="tc__h" role="button" tabindex="0" aria-label="Arrastrar '+scNomL(z.nombre)+' para cambiar su orden" onpointerdown="scPD(event,\''+z.id+'\')" onkeydown="scKeyMove(event,\''+z.id+'\')">⠿</span>':'<span class="tc__lock" title="Realizada o abierta: posición fija" aria-hidden="true">'+(z.estado==='completada'?'✓':'')+'</span>')+'</div>' })
+  h+='</div><div id="tcRes" class="tcRes" '+(SCD.open?'':'hidden')+'></div>'
   const fuera=inc.filter(function(a){ return !ses.some(function(z){return z.id===a.sesion_id}) })
-  if (fuera.length) h+='<button type="button" class="tbOld" onclick="scVerTodas()">+ '+fuera.length+' SESIÓN'+(fuera.length===1?'':'ES')+' SIN CERRAR DE SEMANAS ANTERIORES · '+fuera.map(function(a){return scNomL(a.nombre)}).join(', ')+' →</button>'
+  if (fuera.length) h+='<button type="button" class="tbOld" onclick="scVerTodas()">+ '+fuera.length+' SIN CERRAR DE SEMANAS ANTERIORES · RESOLVER →</button>'
   el.innerHTML=h
+  if (SCD.open) scPintarRes()
 }
+function scAbrirRes(id){ if (SCD.drag) return; SCD.open = SCD.open===id ? null : id; scPintar() }
+async function scPintarRes(){
+  const id=SCD.open, box=document.getElementById('tcRes'); if(!box||!id) return
+  const st=SC.st||{}, z=(st.sesiones||[]).find(function(x){return x.id===id}); if(!z){ box.hidden=true; return }
+  const ab=st.abiertas||[], reg=ab.find(function(a){return a.sesion_id===id}), hb=st.habilitada, esX=hb&&hb.sesion_id===id
+  const u='#/socio/'+F.id+'/plan?w='+st.semana+'&s='+id
+  let acc='<a class="tbB" href="'+u+'" onclick="return rtIr(event,\''+u+'\')">EDITAR</a>'
+  if (z.estado==='completada') acc+='<button type="button" class="tbB" onclick="scAccion(\'habilitar\',null,\''+id+'\',true)">REPETIR COMO EXTRA</button>'
+  else if (reg && reg.abandonada) acc+='<button type="button" class="tbB tbB--ink" onclick="scFinalizar(\''+reg.id+'\')">FINALIZAR SESIÓN</button><button type="button" class="tbB" onclick="scAccion(\'cerrar\',\''+reg.id+'\')">CERRAR INCOMPLETA</button>'
+  else if (esX) acc+='<a class="tbB tbB--ink" href="'+urlRutina(F.id)+'" onclick="return rtIr(event,\''+urlRutina(F.id)+'\')">ABRIR RUTINA</a><button type="button" class="tbB" onclick="scAccion(\'quitar_habilitacion\')">QUITAR HABILITACIÓN</button>'
+  else if (z.estado==='en_curso') acc+='<a class="tbB tbB--ink" href="'+urlRutina(F.id)+'" onclick="return rtIr(event,\''+urlRutina(F.id)+'\')">ABRIR RUTINA</a>'
+  else if (st.proxima && st.proxima.id===id && !hb && !st.entreno_hoy && st.proxima.estado!=='sin_cerrar') acc+='<a class="tbB tbB--ink" href="'+urlRutina(F.id)+'" onclick="return rtIr(event,\''+urlRutina(F.id)+'\')">ABRIR RUTINA</a><span class="tcRes__ok">YA DISPONIBLE PARA EL SOCIO</span>'
+  else acc+='<button type="button" class="tbB tbB--ink" onclick="scHabilitarConf(\''+id+'\')">HABILITAR</button>'
+  const cab='<div class="tcRes__h"><div><small>'+(reg&&reg.abandonada?(reg.ejercicios+'/'+reg.total_ejercicios+' EJ · '+reg.sets+' SETS REGISTRADOS'):'RESUMEN DE LA SESIÓN')+'</small><b>'+scNomL(z.nombre)+'</b></div><div class="tcRes__a">'+acc+
+    '<button type="button" class="tcRes__x" onclick="scAbrirRes(\''+id+'\')" aria-label="Cerrar resumen">✕</button></div></div>'
+  box.hidden=false
+  if (!SCD.det[id]){ box.innerHTML=cab+'<div class="tcRes__c">Cargando…</div>'
+    const r=await sb.from('bloques').select('id,bloque,etiqueta,sets,bloque_ejercicios(orden,reps_txt,reps,duracion_seg,kg_objetivo,ejercicios(nombre))').eq('sesion_id',id).order('bloque')
+    if (r.error){ box.innerHTML=cab+'<div class="tcRes__c">No se pudo cargar el resumen.</div>'; return }
+    SCD.det[id]=r.data||[]; if (SCD.open!==id) return }
+  const bl=SCD.det[id]
+  box.innerHTML=cab+(bl.length?'<div class="tcRes__g">'+bl.map(function(b,bi){
+    const ejs=(b.bloque_ejercicios||[]).slice().sort(function(a,c){return (a.orden||0)-(c.orden||0)})
+    return '<div class="tcB"><div class="tcB__h">'+plEsc(String(b.bloque||('B'+(bi+1))).toUpperCase())+(b.etiqueta?' · '+plEsc(String(b.etiqueta).toUpperCase()):'')+' <span>'+(b.sets||'—')+' SETS</span></div>'+
+      ejs.map(function(e){ const rx=e.reps_txt||(e.reps!=null?e.reps:'')||(e.duracion_seg?e.duracion_seg+'S':'—')
+        return '<div class="tcE"><span>'+plEsc(((e.ejercicios||{}).nombre)||'Ejercicio')+'</span><em>'+(b.sets||'—')+'×'+plEsc(String(rx))+(e.kg_objetivo!=null?' · '+e.kg_objetivo+' KG':'')+'</em></div>' }).join('')+'</div>' }).join('')+'</div>'
+    : '<div class="tcRes__c">Esta sesión todavía no tiene bloques.</div>')
+}
+// ── arrastre por manija (pointer events: mouse + táctil); tocar la tarjeta abre el resumen
+function scPD(ev,id){ ev.preventDefault(); ev.stopPropagation()
+  const card=ev.target.closest('.tc'); SCD.pd={id:id, over:null}; SCD.drag=true; card.classList.add('is-drag')
+  const mv=function(e){ const t=document.elementFromPoint(e.clientX,e.clientY), c=t&&t.closest&&t.closest('.tc'); document.querySelectorAll('.tc').forEach(function(x){ x.classList.remove('is-over') })
+    const base=(SC.st&&SC.st.sesiones)||[], z=c&&base.find(function(x){return x.id===c.dataset.sid})
+    if (c && z && c.dataset.sid!==id && scMovible(z)){ c.classList.add('is-over'); SCD.pd.over=c.dataset.sid } else SCD.pd.over=null }
+  const up=function(){ document.removeEventListener('pointermove',mv); document.removeEventListener('pointerup',up); document.removeEventListener('pointercancel',up)
+    const o=SCD.pd&&SCD.pd.over; SCD.pd=null; setTimeout(function(){ SCD.drag=false },0)
+    document.querySelectorAll('.tc').forEach(function(x){ x.classList.remove('is-drag','is-over') })
+    if (o) scSwap(id,o) }
+  document.addEventListener('pointermove',mv); document.addEventListener('pointerup',up); document.addEventListener('pointercancel',up)
+}
+function scSwap(a,b){ if (!SCB.org) scOrgEntrar(); const ord=SCB.ord.slice(), i=ord.indexOf(a), j=ord.indexOf(b); if(i<0||j<0) return
+  ord[i]=b; ord[j]=a; SCB.ord=ord; scPintar() }
+function scKeyMove(ev,id){ if (ev.key!=='ArrowLeft' && ev.key!=='ArrowRight') return; ev.preventDefault()
+  if (!SCB.org) scOrgEntrar(); scMover(id, ev.key==='ArrowLeft'?-1:1) }
 // ── mover sesiones pendientes dentro de la semana (mismo RPC atómico del planificador: reordenar_sesiones)
 async function scReordenar(nuevoSemana){
   if (SCB.run || !F) return; const a=C.asig[F.id]; if(!a) return
@@ -6578,6 +6649,8 @@ function mhAcciones(){
     const url=x&&x.abrir?urlRutina(id):urlPlan(id)
     el.innerHTML='<a class="pfB pfB--ink" href="'+url+'" onclick="return rtIr(event,\''+url+'\')">'+(x&&x.enCurso?'SESIÓN EN CURSO →':'RUTINA DE HOY →')+'</a>'+
       '<a class="pfB" href="'+urlPlan(id)+'" onclick="return rtIr(event,\''+urlPlan(id)+'\')">PLANIFICADOR</a>'+
+      '<button type="button" class="pfB" onclick="verExtra()" title="Diseñar una sesión extra para este socio">+ EXTRA</button>'+
+      '<button type="button" class="pfB pfB--wa" onclick="wsp()" aria-label="WhatsApp"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M3.5 20.5l1.3-4A8.5 8.5 0 1 1 8 19.6l-4.5.9z"/><path d="M9 8.5c0 3.5 3 6.5 6.5 6.5l1.2-1.6-2-1-1 .8c-1.1-.5-2-1.4-2.5-2.5l.8-1-1-2L9 8.5z"/></svg></button>'+
       '<div class="pfMenuW"><button type="button" class="pfB pfB--ico" onclick="pfMenu(this)" aria-label="Más acciones de '+plEsc(nomDe(id))+'" aria-haspopup="menu" aria-expanded="false">···</button><div class="pfMenu pfMenu--r" role="menu" hidden>'+
       '<button role="menuitem" onclick="verExtra()">DESIGNAR SESIÓN EXTRA ★</button><button role="menuitem" onclick="wsp()">WHATSAPP'+(((C.socios||[]).find(function(s){return s.id===id})||{}).telefono?' · '+plEsc(((C.socios||[]).find(function(s){return s.id===id})||{}).telefono):'')+'</button></div></div>'
   } else {
