@@ -2016,7 +2016,7 @@ html.ks-on #vSala .salaQ input{font:500 17px var(--font-display) !important;lett
   <div id="pBloques"></div>
   <div class="plDock" id="pGuardia">
     <div class="plDock__in">
-      <div id="plSave" class="plSave plSave--ok"><span id="plSaveMsg" class="plDock__st">GUARDADO ✓</span><button id="plSaveBtn" class="plDock__save" onclick="plGuardar()" disabled>GUARDAR</button></div>
+      <div id="plSave" class="plSave plSave--ok"><span id="plSaveMsg" class="plDock__st">EL SOCIO VE ESTA VERSIÓN ✓</span><button id="plSaveBtn" class="plDock__save" onclick="plGuardar()" disabled>GUARDAR</button></div>
       <button class="gb plDock__apl" type="button" onclick="plAplicar()">APLICAR PROGRAMA →</button>
     </div>
     <div class="gt1 plDock__msg" id="pFootMsg"></div>
@@ -2024,10 +2024,10 @@ html.ks-on #vSala .salaQ input{font:500 17px var(--font-display) !important;lett
 </div>
 
 <div id="mSinGuardar" class="mSG" style="display:none" role="dialog" aria-modal="true" aria-labelledby="mSinGuardarT">
-  <div class="mSG__c"><div class="mSG__k">PLANIFICADOR</div><h3 id="mSinGuardarT">Cambios sin guardar</h3><p id="mSinGuardarTxt"></p>
-    <button class="mSG__ok" onclick="plGuardGuardar()">GUARDAR Y CONTINUAR</button>
+  <div class="mSG__c"><div class="mSG__k">PLANIFICADOR</div><h3 id="mSinGuardarT">Borrador sin publicar</h3><p id="mSinGuardarTxt"></p>
+    <button class="mSG__ok" onclick="plGuardGuardar()">PUBLICAR Y CONTINUAR</button>
     <button class="mSG__sec" onclick="plGuardCerrar()">SEGUIR EDITANDO</button>
-    <button class="mSG__del" onclick="plGuardDescartar()">Descartar cambios</button></div>
+    <button class="mSG__del" onclick="plGuardDescartar()">Descartar borrador</button></div>
 </div>
 <div id="mCargas" class="mCg" style="display:none" onclick="if(event.target===this)this.style.display='none'"><div class="mCg__c"><button class="mCg__x" onclick="document.getElementById('mCargas').style.display='none'" aria-label="Cerrar">✕</button><div id="cgBody"></div></div></div>
 <div id="mDash" class="mSG" style="display:none" role="dialog" aria-modal="true" aria-labelledby="mDashT" onclick="if(event.target===this)dashElegir(dashPref()||'auto')">
@@ -3387,14 +3387,14 @@ async function crearBloque(){
   document.getElementById('mBloq').style.display='none'
   const nid=plUuid()
   ses.bloques.push({ id:nid, bId:nid, tag:'B'+n, rol:tp[1], etiqueta:tp[0], sets:MB.sets, desc:MB.desc, items:[] })
-  plDirty(); repintarConservando(); toast('Bloque '+tp[0]+' agregado · recuerda GUARDAR CAMBIOS')
+  plDirty(); repintarConservando(); toast('Bloque '+tp[0]+' agregado · en borrador · PUBLICAR para que el socio lo vea')
 }
 async function elimBloque(bi){
   const ses=P.sesiones[P.tab], b=ses.bloques[bi]; if(!b) return
   if(b.items.length && !await kConfirm('Este bloque tiene '+b.items.length+' ejercicio(s). ¿Eliminarlo igual?')) return
   if(!b.items.length && !await kConfirm('¿Eliminar este bloque?')) return
   ses.bloques.splice(bi,1)
-  plDirty(); repintarConservando(); toast('Bloque quitado · recuerda GUARDAR CAMBIOS')
+  plDirty(); repintarConservando(); toast('Bloque quitado · en borrador · PUBLICAR para que el socio lo vea')
 }
 async function moverSesion(i, d){
   const j = i + d
@@ -3527,7 +3527,7 @@ async function renombrarSesion(){
   if(!nombre){ toast('Escribe el nuevo nombre'); return }
   s.nombre=nombre.toUpperCase(); s._renombrada=true
   document.getElementById('mSes').style.display='none'
-  plDirty(); pintarPlan(); toast('Nombre cambiado · recuerda GUARDAR CAMBIOS')
+  plDirty(); pintarPlan(); toast('Nombre cambiado · en borrador · PUBLICAR para que el socio lo vea')
 }
 async function guardarComoEstandar(){
   const s=P.sesiones[P.tab]; if(!s) return
@@ -3879,7 +3879,7 @@ async function clonarTpl(tplId){
       activo:e.activo, reps:(x.reps_txt||'10') } }) })
   document.getElementById('mBibBloq').style.display='none'
   plDirty(); repintarConservando(); calcDose()
-  toast('Bloque agregado desde prediseñado · recuerda GUARDAR CAMBIOS')
+  toast('Bloque agregado desde prediseñado · en borrador · PUBLICAR para que el socio lo vea')
 }
 async function borrarTpl(tplId){
   if (!await kConfirm('¿Eliminar este bloque prediseñado?\nNo afecta a las rutinas que ya lo usan.')) return
@@ -3995,7 +3995,7 @@ async function guardarOrdenBloques(){
   ses.bloques.sort(function(a,b2){ return OB.orden.indexOf(a.bId)-OB.orden.indexOf(b2.bId) })
   document.getElementById('mOrgB').style.display='none'
   plDirty(); repintarConservando(); calcDose()
-  toast('Bloques actualizados en el borrador · toca GUARDAR CAMBIOS para que el socio los vea')
+  toast('Bloques actualizados en el borrador · toca PUBLICAR AL SOCIO cuando lo decidas')
 }
 document.addEventListener('pointerdown',function(e){
   const hd=e.target.closest('[data-obhdl]'); if(!hd)return
@@ -4279,7 +4279,7 @@ function idlgOk(){
 async function renameRoutine(nombre){
   const ses=P.sesiones[P.tab]; if(!ses)return
   ses.nombre=String(nombre).toUpperCase(); ses._renombrada=true
-  plDirty(); repintarConservando(); toast('Nombre cambiado · recuerda GUARDAR CAMBIOS')
+  plDirty(); repintarConservando(); toast('Nombre cambiado · en borrador · PUBLICAR para que el socio lo vea')
 }
 async function cloneRoutine(nombre){
   if (_busyCmd) return; _busyCmd=true
@@ -4640,7 +4640,7 @@ function plLineaProgresion(it, esBW, esT){
   }
   return '<div class="plProg"><span>'+partes.join(' · ')+'</span>'+prop+'</div>'
 }
-async function plAplicarKg(beId, v){ await editKg(beId, v); repintarConservando(); toast('Carga '+cgKg(v)+' KG aplicada · recuerda GUARDAR CAMBIOS') }
+async function plAplicarKg(beId, v){ await editKg(beId, v); repintarConservando(); toast('Carga '+cgKg(v)+' KG aplicada · en borrador · PUBLICAR para que el socio lo vea') }
 // ─── NAVEGACIÓN ───
 // tras editar, las semanas siguientes se re-derivan en la base → al cambiar de nivel/semana se trae la versión vigente
 async function plIr(n){ if(plEsDirty() && n!=='micro'){ plGuard(function(){ plIr(n) }); return } PL.nivel=n; if(n==='micro'){ pintarPlan() } else if(P&&P._sucio){ P._sucio=false; await plRecargar() } else plRender(); window.scrollTo(0,0) }
@@ -5542,9 +5542,10 @@ function plSaveUI(estado){
   const E = estado || (sucio ? 'dirty' : 'ok')
   bar.className='plSave plSave--'+E
   btn.disabled = (E==='ok' || E==='saving')
-  btn.textContent = {ok:'GUARDAR', dirty:'GUARDAR CAMBIOS', saving:'GUARDANDO…', done:'GUARDAR', err:'REINTENTAR'}[E]
-  document.getElementById('plSaveMsg').textContent = {ok:'GUARDADO ✓', dirty:'CAMBIOS SIN GUARDAR', saving:'GUARDANDO…', done:'GUARDADO ✓', err:'ERROR AL GUARDAR'}[E]
-  if (ind){ ind.textContent = sucio ? 'CAMBIOS SIN GUARDAR' : 'GUARDADO ✓'; ind.className='plInd'+(sucio?' is-dirty':'') }
+  // c52 · el socio solo ve lo que el KOACH publica: mientras editas es un BORRADOR privado
+  btn.textContent = {ok:'PUBLICADO', dirty:'PUBLICAR AL SOCIO →', saving:'PUBLICANDO…', done:'PUBLICADO', err:'REINTENTAR'}[E]
+  document.getElementById('plSaveMsg').textContent = {ok:'EL SOCIO VE ESTA VERSIÓN ✓', dirty:'BORRADOR · EL SOCIO AÚN NO LO VE', saving:'PUBLICANDO…', done:'PUBLICADO AL SOCIO ✓', err:'NO SE PUBLICÓ'}[E]
+  if (ind){ ind.textContent = sucio ? 'BORRADOR · SIN PUBLICAR' : 'PUBLICADO ✓'; ind.className='plInd'+(sucio?' is-dirty':'') }
 }
 async function plReabrir(){
   const nivel=PL.nivel, w=PL.w, sid=plSesActual()&&plSesActual().id, y=window.scrollY
@@ -5583,7 +5584,7 @@ function plGuard(accion){
   if (!plEsDirty()){ accion(); return }
   _plPend=accion
   const s=P.sesiones.find(function(x){return P.dirty[x.id]})
-  document.getElementById('mSinGuardarTxt').textContent='Has realizado cambios en '+String((s&&s.nombre)||'esta sesión').toUpperCase()+' que aún no se guardan.'
+  document.getElementById('mSinGuardarTxt').textContent='Has realizado cambios en '+String((s&&s.nombre)||'esta sesión').toUpperCase()+' que el socio aún no ve (borrador sin publicar).'
   document.getElementById('mSinGuardar').style.display='flex'
 }
 function plGuardCerrar(){ document.getElementById('mSinGuardar').style.display='none'; _plPend=null }
@@ -5645,7 +5646,7 @@ function cgDrawer(ejId, beId){
   document.getElementById('mCargas').style.display='flex'
 }
 function plBuscarItem(beId){ const s=plSesActual(); let r=null; if(s) s.bloques.forEach(function(b){ b.items.forEach(function(it){ if(it.beId===beId) r=it }) }); return r }
-async function cgUsar(beId, kg){ document.getElementById('mCargas').style.display='none'; await editKg(beId, kg); repintarConservando(); toast('Carga '+cgKg(kg)+' KG aplicada · recuerda GUARDAR CAMBIOS') }
+async function cgUsar(beId, kg){ document.getElementById('mCargas').style.display='none'; await editKg(beId, kg); repintarConservando(); toast('Carga '+cgKg(kg)+' KG aplicada · en borrador · PUBLICAR para que el socio lo vea') }
 // Consultor global: buscar cualquier ejercicio antes de insertarlo
 function cgConsultor(){
   document.getElementById('cgBody').innerHTML='<div class="cgK">CONSULTAR CARGAS'+(F?' · '+String(nomDe(F.id)).toUpperCase():'')+'</div>'+
@@ -6276,7 +6277,7 @@ function scPintar(){
   const nextId = vivo ? vivo.sesion_id : hb ? hb.sesion_id : (px && (st.siguiente_tras_abierta && px.estado==='sin_cerrar' ? st.siguiente_tras_abierta.id : px.id))
   let h='<div class="tb__bar"><div class="tb__t"><span>SEMANA '+(st.semana||'—')+(st.total_semanas?' DE '+st.total_semanas:'')+'</span><b>'+(st.hechas||0)+'<i>/'+(st.programadas||ses.length)+'</i></b><small>COMPLETADAS'+(inc.length?' · '+inc.length+' POR RESOLVER':'')+'</small></div>'+
     '<div class="tb__acc"><span class="tbSave" id="scSave" aria-live="polite"></span>'+(SCB.org
-      ? '<span class="tbOrgL">ORGANIZANDO · arrastra o usa ◀ ▶</span><button type="button" class="tbB" onclick="scOrgSalir()">CANCELAR</button><button type="button" class="tbB tbB--ink" onclick="scOrgAplicar()"'+(scOrgCambio()?'':' disabled')+'>APLICAR ORDEN</button>'
+      ? '<span class="tbOrgL">ORGANIZANDO · arrastra o usa ◀ ▶</span><button type="button" class="tbB" onclick="scOrgSalir()">CANCELAR</button><button type="button" class="tbB tbB--ink" onclick="scOrgAplicar()"'+(scOrgCambio()?'':' disabled')+'>PUBLICAR ORDEN →</button>'
       : '<button type="button" class="tbB tbB--ink" onclick="scElegir()">⇄ CAMBIAR SESIÓN</button><button type="button" class="tbB" onclick="scOrgEntrar()">⇅ ORGANIZAR</button><button type="button" class="tbB" onclick="verExtra()">+ RUTINA RÁPIDA</button>'+
         (inc.length?'<button type="button" class="tbB" onclick="scVerTodas()">⚠ RESOLVER ('+inc.length+')</button>':''))+'</div></div>'
   h+='<div class="tb" style="--n:'+Math.max(ses.length,1)+'" role="list" aria-label="Sesiones de la semana">'
@@ -6670,6 +6671,8 @@ function scGuard(e){ const el=document.getElementById('scSave'); if(!el) return
   clearTimeout(scGuard._t); el.className='tbSave tbSave--'+e
   el.textContent = e==='run' ? 'GUARDANDO…' : e==='ok' ? 'GUARDADO ✓' : e==='err' ? 'NO SE GUARDÓ' : ''
   if (e==='ok') scGuard._t=setTimeout(function(){ el.textContent=''; el.className='tbSave' }, 2200) }
+// c52 · no perder un borrador sin publicar al cerrar o recargar la pestaña
+window.addEventListener('beforeunload', function(e){ try{ if (P && P.dirty && Object.keys(P.dirty).some(function(k){return P.dirty[k]})){ e.preventDefault(); e.returnValue='' } }catch(_e){} })
 let MG={primero:null}
 async function aplicarPrograma(){
   // Guardia de prescripción (advertencia, jamás bloqueo) — modal KOACH, no confirm nativo
