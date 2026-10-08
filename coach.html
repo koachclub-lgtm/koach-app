@@ -1573,6 +1573,8 @@ html.selAbierto,html.selAbierto body{overflow:hidden}
 .kHd__brand{display:flex;align-items:center;gap:11px;color:#fff;height:44px;text-decoration:none;flex:none}
 .kHd__brand svg{height:21px;width:auto;fill:currentColor}
 .kHd__brand b{font:700 15px/1 var(--font-display);letter-spacing:.26em}
+.kHd__logo{display:block;height:22px;width:auto}
+@media (max-width:640px){ .kHd__logo{height:18px} }
 .kHd__ttl{display:none}
 .kNav{display:flex;align-items:stretch;height:60px;flex:1;min-width:0}
 .kNav>button{display:flex;align-items:center;gap:8px;padding:0 13px;border:0;background:none;cursor:pointer;font:500 12px/1 var(--font-mono);letter-spacing:.07em;color:#A3A3A0;position:relative;white-space:nowrap}
@@ -6651,7 +6653,7 @@ function kShellPaint(){
   const yo=C.yo||{}, nom=String(yo.nombre||'').trim()||'Equipo', ini=nom[0].toUpperCase()
   const alta=(b.R==='admin'||b.R==='recepcion'||b.R==='coach')
   hd.innerHTML='<div class="kHd__r">'+
-    '<a class="kHd__brand" href="#/" onclick="kAcc(\'sala\');return false" aria-label="KOACH · ir a Sala">'+KS_K+'<b>KOACH</b></a>'+
+    '<a class="kHd__brand" href="#/" onclick="kAcc(\'sala\');return false" aria-label="KOACH · ir a Sala"><img class="kHd__logo" src="/img/brand/logotipo-koach.png" alt="KOACH"></a>'+
     '<span class="kHd__ttl">'+(KS_TIT[KS.v]||'')+'</span>'+
     '<nav class="kNav" aria-label="Principal">'+
       '<button type="button" class="'+c('sala')+'" onclick="kAcc(\'sala\')"'+(act==='sala'?' aria-current="page"':'')+'><i class="kLv" aria-hidden="true"></i>SALA</button>'+
