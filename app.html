@@ -3717,7 +3717,7 @@ function aplicarHabilitada(){
   const h=S.hab; if (!h || !S.programa || !S.sem) return
   const ses=(S.programa.sesiones||[]).find(x=>x.id===h.sesion_protocolo_id); if (!ses) return
   if ((S.registros||[]).some(r=>r.sesion_protocolo_id===ses.id && esHecha(r) && r.fecha>=String(h.fecha))) return
-  S.sem.proxima = { numero:ses.numero, id:ses.id, nombre:ses.nombre||('SESIÓN '+ses.numero), fortaleceria:0, trabaja:0, suma_pct:0, _hab:true }
+  S.sem.proxima = { numero:ses.numero, id:ses.id, nombre:ses.nombre||('SESIÓN '+ses.numero), fortaleceria:0, trabaja:0, suma_pct:0, _hab:true, _extra:!!ses._extra, _desigId:ses._desigId||null, _rec:!!ses._rec }   // c64: extra habilitada → al terminar se consume su designación
   S.sem.completa = false
 }
 function resolverCap(s, ctx){

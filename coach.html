@@ -2919,7 +2919,7 @@ async function verExtra(){
   const sexo=(F&&(F.sex==='hombre'||F.sex==='mujer'))?F.sex:(a&&a.protocolos?a.protocolos.sexo:null)
   try{ const rp = await sb.from('protocolos').select('*').eq('sexo',sexo)
     ;(rp.data||[]).forEach(function(p){ if(!C.protos[p.id]) C.protos[p.id]=p }) }catch(_e){}
-  const protos=Object.values(C.protos).filter(function(p){return ((!sexo||p.sexo===sexo) && !p.socio_id && p.estado!=='biblioteca')})
+  const protos=Object.values(C.protos).filter(function(p){return ((!sexo||p.sexo===sexo) && !p.socio_id && p.estado!=='biblioteca' && p.estado!=='extras_personales')})
   try{ const bp = await bibProto(); if(bp && !protos.some(function(p){return p.id===bp.id})) protos.unshift(bp) }catch(_e){}
   const pids=protos.map(function(p){return p.id})
   const rs = await sb.from('sesiones_protocolo').select('*').in('protocolo_id',pids).order('numero')
@@ -3083,7 +3083,7 @@ async function bibProto(){
 let BIB_ERR = null
 async function verBases(){
   document.getElementById('basesLista').innerHTML='<div class="vacio">Cargando protocolos base…</div>'
-  const rp = await sb.from('protocolos').select('*').is('socio_id',null).neq('estado','biblioteca')
+  const rp = await sb.from('protocolos').select('*').is('socio_id',null).neq('estado','biblioteca').neq('estado','extras_personales')
   if(rp.error){ document.getElementById('basesLista').innerHTML='<div class="vacio">'+koachMsg(rp.error.message)+'</div>'; return }
   const bases=(rp.data||[]).sort(function(a,b){return ((a.programa||'')+(a.nivel||'')+(a.sexo||'')).localeCompare((b.programa||'')+(b.nivel||'')+(b.sexo||''))})
   document.getElementById('basesLista').innerHTML = bases.map(function(p){
@@ -3144,7 +3144,7 @@ async function verBib(){
   vista('vBib'); bxTabs()
   document.getElementById('bibLista').innerHTML='<div class="vacio">Cargando biblioteca…</div>'
   try{
-    const rp=await sb.from('protocolos').select('id,nombre,programa,nivel,sexo,ciclo_semanas').is('socio_id',null).neq('estado','biblioteca')
+    const rp=await sb.from('protocolos').select('id,nombre,programa,nivel,sexo,ciclo_semanas').is('socio_id',null).neq('estado','biblioteca').neq('estado','extras_personales')
     if(rp.error) throw rp.error
     BX_BASES=rp.data||[]
     const ids=BX_BASES.map(function(b){return b.id})
@@ -3291,7 +3291,7 @@ async function verPicker(){
   vista('vPicker')
   const rp = await sb.from('protocolos').select('*').is('socio_id', null)
   if(rp.error){ document.getElementById('pkLista').innerHTML='<div class="vacio">'+koachMsg(rp.error.message)+'</div>'; return }
-  const bases = (rp.data||[]).filter(function(p){return p.estado!=='biblioteca'})
+  const bases = (rp.data||[]).filter(function(p){return p.estado!=='biblioteca' && p.estado!=='extras_personales'})
     .sort(function(a,b){ return ((a.programa||'')+(a.nivel||'')).localeCompare((b.programa||'')+(b.nivel||'')) })
   document.getElementById('pkLista').innerHTML = bases.map(function(p){
     return '<div class="glass pkCard" onclick="asignarBase(\''+p.id+'\')"><div class="pkN">'+(p.programa||p.nombre||'PROTOCOLO')+' · '+(p.nivel||'')+'</div>'+
@@ -6084,7 +6084,7 @@ function gpCerrar(){ document.getElementById('mGP').style.display='none' }
 async function gpAbrir(){
   if (!F) return; const id=F.id
   document.getElementById('mGP').style.display='flex'; document.getElementById('gpBody').innerHTML='<div class="gpCarga">Cargando…</div>'
-  const [re, rb] = await Promise.all([ sb.rpc('koach_programa_estado',{p_socio:id}), sb.from('protocolos').select('id,programa,nivel,sexo').is('socio_id',null).neq('estado','biblioteca') ])
+  const [re, rb] = await Promise.all([ sb.rpc('koach_programa_estado',{p_socio:id}), sb.from('protocolos').select('id,programa,nivel,sexo').is('socio_id',null).neq('estado','biblioteca').neq('estado','extras_personales') ])
   if (!F || F.id!==id) return
   if (re.error){ document.getElementById('gpBody').innerHTML='<div class="gpErr">No se pudo leer el programa: '+plEsc(re.error.message)+'</div>'; return }
   GP.st=re.data||{}; GP.bases=rb.data||[]
@@ -6512,7 +6512,9 @@ function scFechaC(t){ if(!t) return ''; const d=new Date(t); return String(d.get
 // Las extras viven en el mismo tablero (★), no suman a las principales.
 function scEsFija(z){ return !z || z.estado==='completada' || z.estado==='sin_cerrar' || z.estado==='incompleta' }
 function scExtras(){ const st=SC.st||{}, hb=st.habilitada, out=(st.extras||[]).map(function(e){ return Object.assign({ key:'x'+e.id }, e) })
-  if (hb && hb.extra) out.unshift({ key:'h'+hb.id, tipo:'habilitada', id:hb.id, sesion_id:hb.sesion_id, nombre:hb.nombre, estado:'habilitada', permite_hoy:hb.permite_hoy })
+  if (hb && hb.extra){ const d=out.find(function(e){ return e.tipo==='designada' && e.sesion_id===hb.sesion_id && e.estado!=='completada' })
+    if (d){ d.estado='habilitada'; d.permite_hoy=hb.permite_hoy; d.hab=true }
+    else out.unshift({ key:'h'+hb.id, tipo:'habilitada', id:hb.id, sesion_id:hb.sesion_id, nombre:hb.nombre, estado:'habilitada', permite_hoy:hb.permite_hoy }) }
   return out }
 function scExtraKey(k){ return scExtras().find(function(e){ return e.key===k }) || null }
 function scEstadoCard(z, ctx){
@@ -6584,8 +6586,11 @@ async function scPintarRes(){
     acc+='<a class="tbB" href="'+u+'" onclick="return rtIr(event,\''+u+'\')">ABRIR RUTINA</a>'
     if (reg && reg.abandonada) acc+='<button type="button" class="tbB tbB--ink" onclick="scFinalizarConf(\''+reg.id+'\')">FINALIZAR SESIÓN</button>'
     else if (!done && !susp && z.estado!=='en_curso' && z.estado!=='incompleta') acc+='<button type="button" class="tbB'+(esX?'':' tbB--ink')+'" onclick="'+(esX?'scAccion(\'quitar_habilitacion\')':'scHabilitarConf(\''+id+'\')')+'">'+(esX?'QUITAR HABILITACIÓN':'HABILITAR AHORA')+'</button>' }
-  else if (ex.tipo==='designada') acc+='<button type="button" class="tbB" onclick="scRetirarExtra(\''+ex.id+'\')">RETIRAR EXTRA</button>'
-  else if (ex.tipo==='habilitada') acc+='<button type="button" class="tbB" onclick="scAccion(\'quitar_habilitacion\')">QUITAR HABILITACIÓN</button>'
+  else {
+    if (ex.tipo==='designada') acc+='<button type="button" class="tbB" onclick="scEditarExtra(\''+ex.id+'\')">EDITAR</button>'
+    if (ex.estado==='habilitada') acc+='<button type="button" class="tbB" onclick="scAccion(\'quitar_habilitacion\')">QUITAR HABILITACIÓN</button>'
+    else if (ex.estado==='disponible') acc+='<button type="button" class="tbB tbB--ink" onclick="scAccion(\'habilitar\',null,\''+ex.sesion_id+'\',true)">HABILITAR HOY</button>'
+    if (ex.tipo==='designada') acc+='<button type="button" class="tbB" onclick="scRetirarExtra(\''+ex.id+'\')">RETIRAR EXTRA</button>' }
   const cab='<div class="tcRes__h"><div><small>'+(ex?'★ SESIÓN EXTRA · NO SUMA A LAS PRINCIPALES':reg&&reg.abandonada?(reg.ejercicios+'/'+reg.total_ejercicios+' EJ · '+reg.sets+' SETS REGISTRADOS'):'RESUMEN DE LA SESIÓN')+'</small><b>'+scNomL(z.nombre)+'</b>'+(done&&z.cuando?'<small>REALIZADA · '+scDiaC(z.cuando)+'</small>':susp?'<small>SUSPENDIDA ESTA SEMANA</small>':'')+'</div><div class="tcRes__a">'+acc+
     '<button type="button" class="tcRes__x" onclick="scAbrirRes(\''+key+'\')" aria-label="Cerrar resumen">✕</button></div></div>'
   box.hidden=false
@@ -7120,8 +7125,10 @@ function scMenu(ev,key){
   const I=function(t,fn,cls){ it.push('<button type="button" role="menuitem"'+(cls?' class="'+cls+'"':'')+' onclick="scMenuCerrar();'+fn+'">'+t+'</button>') }
   if (ex){
     I('VER RESUMEN','scAbrirRes(\''+key+'\')')
-    if (ex.tipo==='designada') I('RETIRAR EXTRA','scRetirarExtra(\''+ex.id+'\')','pfDanger')
-    if (ex.tipo==='habilitada') I('QUITAR HABILITACIÓN','scAccion(\'quitar_habilitacion\')')
+    if (ex.tipo==='designada') I('ABRIR / EDITAR RUTINA','scEditarExtra(\''+ex.id+'\')')
+    if (ex.estado==='habilitada') I('QUITAR HABILITACIÓN','scAccion(\'quitar_habilitacion\')')
+    else if (ex.tipo==='designada' && ex.estado==='disponible') I('HABILITAR HOY','scAccion(\'habilitar\',null,\''+ex.sesion_id+'\',true)')
+    if (ex.tipo==='designada'){ it.push('<hr>'); I('RETIRAR EXTRA','scRetirarExtra(\''+ex.id+'\')','pfDanger') }
   } else {
     const z=(st.sesiones||[]).find(function(x){return x.id===key}); if(!z) return
     const ab=st.abiertas||[], reg=ab.find(function(a){return a.sesion_id===z.id}), hb=st.habilitada, esX=hb&&!hb.extra&&hb.sesion_id===z.id
@@ -7177,6 +7184,25 @@ async function scDesignarExtra(id){
   scGuard('run'); const r=await sb.from('designaciones_extra').insert({ socio_id:F.id, sesion_protocolo_id:id, motivo:'Criterio del coach', recurrente:false })
   if (r.error){ scGuard('err'); toast('No se pudo designar: '+r.error.message); return }
   scGuard('ok'); toast('★ Extra designada — el socio ya la ve'); scCargar(F.id)
+}
+// c64 · EDITAR UNA EXTRA: la primera vez se crea una copia personal del socio (la base/biblioteca no se toca) y se abre en el planificador
+async function scEditarExtra(desigId){
+  if (!F) return; const fid=F.id; scGuard('run')
+  const r=await sb.rpc('koach_extra_personalizar',{ p_designacion:desigId })
+  if (r.error){ scGuard('err'); toast('No se pudo abrir la extra: '+r.error.message); return }
+  scGuard('ok')
+  const rp=await sb.from('protocolos').select('*').eq('id',r.data.protocolo_id).single()
+  if (rp.error){ toast('No se pudo abrir la extra'); return }
+  await abrirPlan(r.data.protocolo_id, rp.data, { modo:'bib', soloSesion:r.data.sesion_id })
+  if (!F || F.id!==fid) return
+  const hdr=document.querySelector('#vPlan .plHdr'); if (hdr) hdr.classList.remove('plHdr--bib')
+  document.getElementById('pQuienN').textContent=nomDe(fid)
+  document.getElementById('pQuienP').textContent='★ SESIÓN EXTRA · COPIA PERSONAL'
+  document.getElementById('pQuienM').textContent=' · SE GUARDA AL INSTANTE · LA BIBLIOTECA NO CAMBIA'
+  document.getElementById('pEstado').textContent='EXTRA ★'
+  const vs=document.getElementById('pVolverSoc'); if (vs){ vs.style.display=''; vs.setAttribute('href','coach.html#/socio/'+fid) }
+  document.title=rtNombreCorto(fid)+' · Extra | KOACH'
+  if (r.data.copiada) toast('Copia personal creada: los cambios solo afectan a '+nomDe(fid).split(' ')[0])
 }
 async function scRetirarExtra(id){
   if (!await kConfirm('¿Quitar esta extra? El socio deja de verla; lo que ya entrenó se conserva.')) return
