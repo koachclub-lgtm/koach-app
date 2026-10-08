@@ -71,3 +71,21 @@ Tarjeta principal del Home (editorial). Capas: foto de fondo → overlay (horizo
 - **Foto:** identidad del Home, NO representa el ejercicio. Según `profiles.sex` explícito: `male` / `female`; sin dato → `default` (grafito, sin foto). Nunca se infiere. `position` configurable por asset.
 - **Contenido:** kicker (SESIÓN EN CURSO / PRÓXIMA SESIÓN / ENTRENAMIENTO DE HOY / SEMANA COMPLETADA) · título (nombre real) · subtítulo · descripción (regular + grupos en bold). Sin íconos musculares, métricas ni badges.
 - **CTA vidrio:** superficie translúcida con blur, borde 1px blanco 22%, estado → acción, separador tenue y círculo de acción. Toda la superficie es clickeable y ejecuta exactamente la acción del CTA del Home.
+
+## Series · TRAINING PRESCRIPTION INPUT ORDER (c63 · regla global)
+
+Cuando una persona **indica, edita o ejecuta** una serie de fuerza piensa y lee:
+**¿cuántas repeticiones? → ¿con cuánto peso?**
+
+| Tipo | Controles (izquierda → derecha) | Texto |
+|---|---|---|
+| WEIGHT_REPS | REPS → KG | `10 REPS · 12,5 KG` |
+| BODYWEIGHT_REPS | REPS → CARGA: PESO CORPORAL (sin ±) | `40 REPS · PESO CORPORAL` |
+| TIME | TIEMPO · SEG (→ KG si lleva lastre) | `60 SEG` · `60 SEG · 10 KG` |
+
+- Referencia: `REF · 10 REPS · 12,5 KG · 6 OCT`. Prescripción: `PRESCRITO · 10 REPS · 40 KG`. Sugerida (solo carga): `SUGERIDA · 42,5 KG`.
+- `×` queda reservado para **SETS × REPS** (`4×10`). Nunca `12,5 × 10` para reps/peso.
+- **Resultados y PR** (la carga es el logro) conservan la carga como héroe: `45 KG · 6 REPS`.
+- Decimales es-CL en presentación (`12,5`); internamente siempre número (`12.5`).
+- Implementación única: `domain/koach-series.js` (`KSET.txt / ref / pres / resultado / kg`). App del socio: `repsControl` / `weightControl` en la pantalla del bloque; planificador: mismos nombres. Los ids y campos (`peso`, `reps`, `seg`, `kg_objetivo`) no cambian.
+- El número se ajusta al **ancho real de su control** (container query, `--len` = caracteres visibles), entre 20 y 36 px; con menos de 300 px por fila los dos controles se apilan. Botones ± de 44×46 px.

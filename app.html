@@ -149,6 +149,22 @@ html.bk-on{overflow:hidden}
 .bk__cta--sec{background:transparent;color:#111;border:1.5px solid #111}
 .bk__lnk{display:block;width:100%;margin-top:8px;min-height:36px;border:0;background:transparent;font:700 9.5px var(--wxM);letter-spacing:.12em;color:#6B6A65;text-decoration:underline;text-underline-offset:4px;cursor:pointer}
 #oBloque button:focus-visible,#oBloque input:focus-visible{outline:2px solid #111;outline-offset:2px}
+/* c63 · SetControls: REPS → KG. El número se ajusta al ANCHO REAL de su control (container query), no al viewport:
+   antes el input tenía max-width 4.4ch y una clase .l4 que bajaba a 17–20 px; con 122,5 o con @media min-height:900 (34 px) se cortaba. */
+.bk__sb{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px;container-type:inline-size;container-name:sb}
+.bk__sb--1{grid-template-columns:1fr}
+@container sb (max-width:300px){ .bk__sb:not(.bk__sb--1) > .kset{grid-column:1 / -1} }
+.kset{min-width:0;container-type:inline-size;display:flex;flex-direction:column;gap:4px}
+.kset__l{font:700 9.5px var(--wxM);letter-spacing:.14em;color:#4A4945}
+.kset__r{display:grid;grid-template-columns:44px minmax(0,1fr) 44px;align-items:center;gap:2px}
+.kset__r button{height:46px;padding:0;border-radius:12px;border:1.5px solid rgba(17,17,17,.2);background:#F6F5F2;color:#111;font-size:22px;line-height:1;cursor:pointer;-webkit-tap-highlight-color:transparent}
+.kset__r button:active{background:#E3E2DE}
+.kset__r input{width:100%;min-width:0;height:46px;box-sizing:border-box;border:0;border-bottom:1px solid rgba(17,17,17,.2);border-radius:0;background:transparent;text-align:center;padding:0 2px;
+  font-family:var(--wxD);font-weight:900;letter-spacing:-.02em;color:#111;font-variant-numeric:tabular-nums lining-nums;
+  font-size:clamp(22px, calc((100cqi - 100px) / (var(--len,3) * .62)), 36px);line-height:1;-webkit-appearance:none;appearance:none}
+.kset__r input:focus{outline:none;background:rgba(17,17,17,.06);border-radius:8px}
+.kset__r input::placeholder{color:#9A9993}
+.kset__pc{height:46px;display:grid;place-items:center;border-radius:12px;background:#F6F5F2;border:1.5px dashed rgba(17,17,17,.2);font:700 10px/1.25 var(--wxM);letter-spacing:.12em;color:#6B6A65;text-align:center;padding:0 8px}
 @media (max-width:360px){ .bk__st{grid-template-columns:40px minmax(0,1fr) 40px}.bk__st button{height:42px;font-size:18px}.bk__sb{gap:6px}.kLogo--bk{width:96px} }
 @media (min-height:900px){ .bk__v input{font-size:34px} }
 /* ═══ c62 · HOME · fondo fotográfico + paneles de vidrio (titular negro con curva se mantiene) ═══ */
@@ -331,6 +347,7 @@ html.accBloq #pfCard, html.accBloq #vPerfil .kpc__f, html.accBloq #vPerfil [oncl
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="/domain/koach-domain.js"></script>
+<script src="/domain/koach-series.js"></script>
 <script src="/domain/program-catalog.js"></script>
 <script src="/domain/koach-avatar.js"></script>
 <style>
@@ -508,7 +525,7 @@ html[data-tipo="a"] .pvS small{font-size:10px}
 html[data-tipo="a"] .circu .cg{font-size:10px}
 html[data-tipo="a"] .bannerCurso .bc1{font-size:10px;letter-spacing:.06em}
 html[data-tipo="a"] .mrk{font-size:10px}
-html[data-tipo="a"] .ks__row span{font-size:10px;letter-spacing:.06em}
+html[data-tipo="a"] .kset__row span{font-size:10px;letter-spacing:.06em}
 html[data-tipo="a"] .avCp small{font-size:10px}
 html[data-tipo="a"] .avHito span{font-size:10px;letter-spacing:.06em}
 html[data-tipo="a"] .fzS{font-size:10px;letter-spacing:.06em}
@@ -527,7 +544,7 @@ html[data-tipo="a"] .avRes small{font-size:10px;letter-spacing:.06em}
 html[data-tipo="a"] .avPr small{font-size:10px;letter-spacing:.06em}
 html[data-tipo="a"] .avPg small{font-size:10px}
 html[data-tipo="a"] .avCs small{font-size:10px}
-html[data-tipo="a"] .ks__hint{font-size:10px;letter-spacing:.06em}
+html[data-tipo="a"] .kset__hint{font-size:10px;letter-spacing:.06em}
 html[data-tipo="a"] .fk{font-size:10px;letter-spacing:.06em}
 html[data-tipo="a"] #oLoad .lm{font-size:10px;letter-spacing:.06em}
 html[data-tipo="a"] .tb .tl{font-size:10px;letter-spacing:.06em}
@@ -842,24 +859,24 @@ html,button,input,.pvS,.chk,.setChip{touch-action:manipulation}
 .ks{position:fixed;inset:0;z-index:1200;display:none;overflow-y:auto;background:#121212;color:#F4F3F0;padding:calc(18px + env(safe-area-inset-top,0px)) 18px calc(24px + env(safe-area-inset-bottom,0px))}
 .ks.vis{display:block}
 .ks [hidden]{display:none!important}
-.ks__box{max-width:440px;margin:0 auto}
-.ks__top{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px}
-.ks__top b{font-family:var(--font-mono);font-weight:500;font-size:11px;letter-spacing:.16em}
-.ks__x{width:44px;height:44px;border-radius:999px;border:1px solid rgba(255,255,255,.22);background:transparent;color:#F4F3F0;font-size:22px;cursor:pointer}
-.ks__seg{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:14px}
-.ks__seg button,.ks__chip{min-height:40px;border-radius:999px;border:1px solid rgba(255,255,255,.22);background:transparent;color:#A7A9AE;font-family:var(--font-mono);font-weight:500;font-size:10px;letter-spacing:.12em;cursor:pointer;padding:0 14px;display:inline-flex;align-items:center;justify-content:center;position:relative}
-.ks__seg button[aria-pressed="true"],.ks__chip[aria-pressed="true"]{background:#F4F3F0;color:#121212;border-color:#F4F3F0}
-.ks__chip input{position:absolute;inset:0;opacity:0;cursor:pointer}
-.ks__stage{position:relative;width:100%;max-width:300px;margin:0 auto 14px;aspect-ratio:9/16;border-radius:22px;overflow:hidden;border:1px solid rgba(255,255,255,.14);background:#1E1F22}
-.ks__stage.dam{background-color:#fff;background-image:linear-gradient(45deg,#cfcfcd 25%,transparent 25%),linear-gradient(-45deg,#cfcfcd 25%,transparent 25%),linear-gradient(45deg,transparent 75%,#cfcfcd 75%),linear-gradient(-45deg,transparent 75%,#cfcfcd 75%);background-size:20px 20px;background-position:0 0,0 10px,10px -10px,-10px 0}
-.ks__stage canvas{position:absolute;inset:0;width:100%;height:100%}
-.ks__opts{display:flex;flex-direction:column;gap:8px;margin-bottom:12px}
-.ks__row{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
-.ks__row span{font-family:var(--font-mono);font-size:9px;letter-spacing:.14em;color:#8E8D88;min-width:78px}
-.ks__acts{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:6px}
-.ks__cta{grid-column:1/-1;min-height:54px;border:0;border-radius:16px;background:#F4F3F0;color:#121212;font-family:var(--font-mono);font-weight:500;font-size:11px;letter-spacing:.12em;cursor:pointer}
-.ks__sec{min-height:48px;border-radius:16px;border:1px solid rgba(255,255,255,.22);background:transparent;color:#F4F3F0;font-family:var(--font-mono);font-weight:500;font-size:10px;letter-spacing:.12em;cursor:pointer}
-.ks__st{min-height:18px;margin:12px 2px 0;font-size:13px;color:#A7A9AE}
+.kset__box{max-width:440px;margin:0 auto}
+.kset__top{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px}
+.kset__top b{font-family:var(--font-mono);font-weight:500;font-size:11px;letter-spacing:.16em}
+.kset__x{width:44px;height:44px;border-radius:999px;border:1px solid rgba(255,255,255,.22);background:transparent;color:#F4F3F0;font-size:22px;cursor:pointer}
+.kset__seg{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:14px}
+.kset__seg button,.kset__chip{min-height:40px;border-radius:999px;border:1px solid rgba(255,255,255,.22);background:transparent;color:#A7A9AE;font-family:var(--font-mono);font-weight:500;font-size:10px;letter-spacing:.12em;cursor:pointer;padding:0 14px;display:inline-flex;align-items:center;justify-content:center;position:relative}
+.kset__seg button[aria-pressed="true"],.kset__chip[aria-pressed="true"]{background:#F4F3F0;color:#121212;border-color:#F4F3F0}
+.kset__chip input{position:absolute;inset:0;opacity:0;cursor:pointer}
+.kset__stage{position:relative;width:100%;max-width:300px;margin:0 auto 14px;aspect-ratio:9/16;border-radius:22px;overflow:hidden;border:1px solid rgba(255,255,255,.14);background:#1E1F22}
+.kset__stage.dam{background-color:#fff;background-image:linear-gradient(45deg,#cfcfcd 25%,transparent 25%),linear-gradient(-45deg,#cfcfcd 25%,transparent 25%),linear-gradient(45deg,transparent 75%,#cfcfcd 75%),linear-gradient(-45deg,transparent 75%,#cfcfcd 75%);background-size:20px 20px;background-position:0 0,0 10px,10px -10px,-10px 0}
+.kset__stage canvas{position:absolute;inset:0;width:100%;height:100%}
+.kset__opts{display:flex;flex-direction:column;gap:8px;margin-bottom:12px}
+.kset__row{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+.kset__row span{font-family:var(--font-mono);font-size:9px;letter-spacing:.14em;color:#8E8D88;min-width:78px}
+.kset__acts{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:6px}
+.kset__cta{grid-column:1/-1;min-height:54px;border:0;border-radius:16px;background:#F4F3F0;color:#121212;font-family:var(--font-mono);font-weight:500;font-size:11px;letter-spacing:.12em;cursor:pointer}
+.kset__sec{min-height:48px;border-radius:16px;border:1px solid rgba(255,255,255,.22);background:transparent;color:#F4F3F0;font-family:var(--font-mono);font-weight:500;font-size:10px;letter-spacing:.12em;cursor:pointer}
+.kset__st{min-height:18px;margin:12px 2px 0;font-size:13px;color:#A7A9AE}
 .kUpd{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(96px + env(safe-area-inset-bottom,0px));z-index:1500;min-height:48px;padding:0 18px;border:0;border-radius:999px;background:#111;color:#F6F5F2;font:700 11px 'Space Mono','IBM Plex Mono',monospace;letter-spacing:.12em;box-shadow:0 10px 30px rgba(0,0,0,.25);cursor:pointer;white-space:nowrap}
 /* ═══ c30 · RUTINA ACTIVA · HYBRID EDITORIAL (hueso, grises suaves, negro; celeste solo como punto de señal) ═══ */
 #vSesion{--wxBg:#F6F5F2;--wxP:#ECEBE7;--wxP2:#E3E2DE;--wxLn:rgba(17,17,17,.12);--wxInk:#111;--wxG5:#4A4945;--wxG4:#6B6A65;--wxG3:#9A9993;--wxSig:#3FA9B5;
@@ -1054,17 +1071,17 @@ html,button,input,.pvS,.chk,.setChip{touch-action:manipulation}
 @keyframes kwFill{to{transform:scaleX(1)}}
 @media (prefers-reduced-motion:reduce){.kwin *,.kwin{animation:none!important;clip-path:none!important;opacity:1!important}.kwin__sem i.on::after{transform:none}}
 /* Hoja COMPARTE TU LOGRO */
-.ks__top small{display:block;margin-top:6px;font-size:13px;color:#A7A9AE;font-family:var(--font-display,Inter,sans-serif);letter-spacing:0}
-.ks__seg--3{grid-template-columns:repeat(3,1fr)}
-.ks__add{position:absolute;left:50%;bottom:22px;transform:translateX(-50%);width:calc(100% - 36px);min-height:64px;border-radius:18px;background:#F4F3F0;color:#121212;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;font-family:var(--font-mono);font-weight:500;font-size:12px;letter-spacing:.14em;cursor:pointer;box-shadow:0 12px 30px rgba(0,0,0,.35)}
-.ks__add small{font-family:var(--font-display,Inter,sans-serif);font-size:12px;letter-spacing:0;color:#5E5D59}
-.ks__add input{position:absolute;inset:0;opacity:0;cursor:pointer}
-.ks__hint{position:absolute;left:50%;top:12px;transform:translateX(-50%);padding:6px 12px;border-radius:999px;background:rgba(0,0,0,.55);font-family:var(--font-mono);font-size:9px;letter-spacing:.14em;white-space:nowrap;pointer-events:none}
-.ks__stage.apuntar canvas{cursor:crosshair}
-.ks__wide{grid-column:1/-1}
-.ks__sem{margin:14px 2px 0;font-size:13px;color:#A7A9AE}
-.ks__sem:empty{display:none}
-.ks__prog{width:100%;min-height:48px;margin-top:10px;border:0;background:transparent;color:#F4F3F0;font-family:var(--font-mono);font-weight:500;font-size:11px;letter-spacing:.12em;cursor:pointer}
+.kset__top small{display:block;margin-top:6px;font-size:13px;color:#A7A9AE;font-family:var(--font-display,Inter,sans-serif);letter-spacing:0}
+.kset__seg--3{grid-template-columns:repeat(3,1fr)}
+.kset__add{position:absolute;left:50%;bottom:22px;transform:translateX(-50%);width:calc(100% - 36px);min-height:64px;border-radius:18px;background:#F4F3F0;color:#121212;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;font-family:var(--font-mono);font-weight:500;font-size:12px;letter-spacing:.14em;cursor:pointer;box-shadow:0 12px 30px rgba(0,0,0,.35)}
+.kset__add small{font-family:var(--font-display,Inter,sans-serif);font-size:12px;letter-spacing:0;color:#5E5D59}
+.kset__add input{position:absolute;inset:0;opacity:0;cursor:pointer}
+.kset__hint{position:absolute;left:50%;top:12px;transform:translateX(-50%);padding:6px 12px;border-radius:999px;background:rgba(0,0,0,.55);font-family:var(--font-mono);font-size:9px;letter-spacing:.14em;white-space:nowrap;pointer-events:none}
+.kset__stage.apuntar canvas{cursor:crosshair}
+.kset__wide{grid-column:1/-1}
+.kset__sem{margin:14px 2px 0;font-size:13px;color:#A7A9AE}
+.kset__sem:empty{display:none}
+.kset__prog{width:100%;min-height:48px;margin-top:10px;border:0;background:transparent;color:#F4F3F0;font-family:var(--font-mono);font-weight:500;font-size:11px;letter-spacing:.12em;cursor:pointer}
 
 #oRw .rwShare{display:flex;gap:14px;align-items:center;margin-top:22px;padding:12px;border:1px solid rgba(255,255,255,.14);border-radius:18px;cursor:pointer;background:transparent;width:100%;text-align:left;color:inherit}
 #oRw .rwShare img{width:96px;height:171px;border-radius:10px;object-fit:cover;background:#1E1F22;flex-shrink:0}
@@ -2130,7 +2147,7 @@ body.wl-on{overflow:hidden}
         <div class="gl"><b>SESIÓN DESIGNADA</b><span>Diseñada por tu coach para tu semana. Se desbloquean en orden — la secuencia también es dosificación.</span></div>
         <div class="gl"><b>B1 · B2 · B3</b><span>Activación → Fuerza principal → Cierre. La arquitectura de tus 60 minutos.</span></div>
         <div class="gl"><b>ANCLA ◆</b><span>El ejercicio que no cambia en las 6 semanas: ahí se mide tu progresión — mismo movimiento, más carga.</span></div>
-        <div class="gl"><b>PR · RIR 0</b><span>Tu carga máxima por patrón (Upper Push · Pull · Squat · Hinge), al máximo real y con reps declaradas: <em>110 KG × 8</em>.</span></div>
+        <div class="gl"><b>PR · RIR 0</b><span>Tu carga máxima por patrón (Upper Push · Pull · Squat · Hinge), al máximo real y con reps declaradas: <em>110 KG · 8 REPS</em>.</span></div>
         <div class="gl"><b>CICLO</b><span>6 semanas de progresión. Cada lunes la semana parte limpia — <em>más fuerte que la anterior</em>.</span></div>
       </div>
       <div class="fila2" onclick="window.open('https://wa.me/56971333042?text=Hola%20KOACH%2C%20necesito%20ayuda%20con%20la%20app','_blank')"><span class="fn2">Ayuda</span><span class="fs2">›</span></div>
@@ -3872,7 +3889,7 @@ function ultTxt(ej){
   const u=S.ultimos[ej.id]
   if (u){
     if (u.seg!=null) return 'ÚLTIMO · '+u.seg+' SEG'
-    return 'ÚLTIMO · '+(u.peso!=null?u.peso+' KG':'')+(u.reps?(' × '+u.reps):'')
+    return 'ÚLTIMO · '+KSET.txt({reps:u.reps,kg:u.peso,bw:u.peso==null})
   }
   const c=null
   return 'SIN REGISTRO ANTERIOR'
@@ -3996,8 +4013,12 @@ function bkSetsHechos(b){ let c=0; for(let n=1;n<=b.sets;n++) if(bkSetHecho(b,n)
 function bkSetActual(b){ for(let n=1;n<=b.sets;n++) if(!bkSetHecho(b,n)) return n; return null }
 function bkPrimerPendiente(bfs){ for(let i=0;i<bfs.length;i++) if(!bloqueCompleto(bfs[i])) return i; return -1 }
 const bkEsc = t => plEscA(String(t==null?'':t))
-function bkPres(w,ej){ if(w.tipo==='WEIGHT_REPS') return (w.kg!=null?wxKg(w.kg)+' KG × ':'× ')+(w.reps||'—'); if(w.tipo==='TIME') return (ej&&ej.con_carga===true&&w.kg!=null?wxKg(w.kg)+' KG · ':'')+(w.seg||30)+' SEG'; return '× '+(w.reps||'—')+' · PESO CORPORAL' }
-function bkValor(w,ej){ if(w.tipo==='WEIGHT_REPS') return '<b>'+(w.kg!=null?wxKg(w.kg):'—')+'<i>KG</i></b><b class="x">×'+(w.reps||'—')+'</b>'; if(w.tipo==='TIME') return '<b>'+(w.seg||30)+'<i>SEG</i></b>'; return '<b>×'+(w.reps||'—')+'</b><small>PESO CORPORAL</small>' }
+// c63 · gramática única de la serie (domain/koach-series.js): REPS/TIEMPO → CARGA
+function bkSerie(w,ej){ return { tipo:w.tipo, reps:w.reps, kg:(w.tipo==='TIME'&&!(ej&&ej.con_carga===true))?null:w.kg, seg:w.seg||30 } }
+function bkPres(w,ej){ return KSET.txt(bkSerie(w,ej)) }
+function bkValor(w,ej){ if(w.tipo==='WEIGHT_REPS') return '<b>'+KSET.reps(w.reps)+'<i>REPS</i></b><b>'+(w.kg!=null?KSET.kg(w.kg):'—')+'<i>KG</i></b>'
+  if(w.tipo==='TIME') return '<b>'+(w.seg||30)+'<i>SEG</i></b>'+(ej&&ej.con_carga===true&&w.kg!=null?'<b>'+KSET.kg(w.kg)+'<i>KG</i></b>':'')
+  return '<b>'+KSET.reps(w.reps)+'<i>REPS</i></b><small>PESO CORPORAL</small>' }
 
 /* ── PANTALLA 1 · cápsulas ── */
 function bkCapsulas(bfs){
@@ -4034,16 +4055,23 @@ function bkPintar(){
   const tabs = Array.from({length:b.sets},(_,i)=>{ const m=i+1, d=bkSetHecho(b,m)
     return '<button type="button" class="'+(d?'ok':'')+(m===n?' cur':'')+'" aria-pressed="'+(m===n)+'" aria-label="Set '+m+(d?', completado':'')+'" onclick="BK.set='+m+';bkPintar()">'+String(m).padStart(2,'0')+(d?' ✓':'')+'</button>' }).join('')
   const filas = bes.map(be=>{ const ej=be.ejercicios||{}, w=seedWk(be,ej), fila=S.setLog[setKey(be.id,n)], rv=rwGet(be.id,n,w,fila), u=S.ultimos[ej.id]
-    const ref = u ? 'REF '+(u.seg!=null?u.seg+' SEG':(u.peso!=null?wxKg(u.peso)+' KG × ':'× ')+(u.reps||'')) : 'PRIMER REGISTRO'
-    const st=(k,val,unit,paso,id,modo,lbl)=>'<div class="bk__st"><button type="button" onclick="rwStep(\''+be.id+'\','+n+',\''+k+'\','+(-paso)+')" aria-label="Menos '+lbl+' de '+bkEsc(ej.nombre)+'">−</button>'+
-      '<label class="bk__v"><input id="'+id+'" class="'+(val!=null&&String(val).length>=4?'l4':'')+'" value="'+(val==null?'':val)+'" placeholder="'+(k==='kg'?'kg':'')+'" inputmode="'+modo+'" onfocus="this.select()" onchange="rwSet(\''+be.id+'\','+n+',\''+k+'\',this.value)" aria-label="'+lbl+' de '+bkEsc(ej.nombre)+', set '+n+'"><span>'+unit+'</span></label>'+
-      '<button type="button" onclick="rwStep(\''+be.id+'\','+n+',\''+k+'\','+paso+')" aria-label="Más '+lbl+' de '+bkEsc(ej.nombre)+'">+</button></div>'
+    const ref = u ? KSET.ref({ tipo:u.seg!=null?'TIME':(u.peso==null?'BODYWEIGHT_REPS':'WEIGHT_REPS'), reps:u.reps, kg:u.peso, seg:u.seg }) : 'PRIMER REGISTRO'
+    // SetControls: repsControl → weightControl (la posición es presentación; los ids y valores internos no cambian)
+    const N=bkEsc(ej.nombre||'ejercicio')
+    const ctl=(k,lab,val,paso,id,modo,qué)=>'<div class="kset kset--'+k+'"><span class="kset__l">'+lab+'</span><div class="kset__r">'+
+      '<button type="button" onclick="rwStep(\''+be.id+'\','+n+',\''+k+'\','+(-paso)+')" aria-label="Disminuir '+qué+' de '+N+'">−</button>'+
+      '<input id="'+id+'" style="--len:'+KSET.len(val)+'" value="'+(val==null?'':val)+'" placeholder="—" inputmode="'+modo+'" onfocus="this.select()" oninput="this.style.setProperty(\'--len\',KSET.len(this.value))" onchange="rwSet(\''+be.id+'\','+n+',\''+k+'\',this.value)" aria-label="'+qué[0].toUpperCase()+qué.slice(1)+' de '+N+', set '+n+'">'+
+      '<button type="button" onclick="rwStep(\''+be.id+'\','+n+',\''+k+'\','+paso+')" aria-label="Aumentar '+qué+' de '+N+'">+</button></div></div>'
+    const repsControl = () => ctl('reps','REPS',rv.reps,1,'rwR-'+be.id+'-'+n,'numeric','repeticiones')
+    const weightControl = () => ctl('kg','KG',rv.kg==null?null:KSET.kg(rv.kg),2.5,'rwK-'+be.id+'-'+n,'decimal','peso')
+    const timeControl = () => ctl('seg','TIEMPO · SEG',rv.seg||30,5,'rwS-'+be.id+'-'+n,'numeric','segundos')
+    const bodyweight = '<div class="kset kset--bw"><span class="kset__l">CARGA</span><div class="kset__pc">PESO CORPORAL</div></div>'
     let ctr='', uno=false
-    if (w.tipo==='WEIGHT_REPS') ctr=st('kg',rv.kg==null?null:String(rv.kg).replace('.',','),'KG',2.5,'rwK-'+be.id+'-'+n,'decimal','peso')+st('reps',rv.reps,'REPS',1,'rwR-'+be.id+'-'+n,'numeric','repeticiones')
-    else if (w.tipo==='TIME' && ej.con_carga===true) ctr=st('kg',rv.kg==null?null:String(rv.kg).replace('.',','),'KG',2.5,'rwK-'+be.id+'-'+n,'decimal','peso')+st('seg',rv.seg||30,'SEG',5,'rwS-'+be.id+'-'+n,'numeric','segundos')
-    else if (w.tipo==='TIME'){ ctr='<div class="bk__pc"><span>TIEMPO</span></div>'+st('seg',rv.seg||30,'SEG',5,'rwS-'+be.id+'-'+n,'numeric','segundos'); uno=true }
-    else { ctr='<div class="bk__pc"><span>PESO<br>CORPORAL</span></div>'+st('reps',rv.reps,'REPS',1,'rwR-'+be.id+'-'+n,'numeric','repeticiones'); uno=true }
-    return '<article class="bk__ex'+(fila?' bk__ex--ok':'')+'"><div class="bk__eh"><div><b>'+bkEsc(ej.nombre||'—')+'</b><span>'+ref+' · PRESCRITO '+bkPres(w,ej)+'</span></div><em class="bk__pill">'+bkEsc(ej.grupo_muscular||'')+'</em></div><div class="bk__sb'+(uno?' bk__sb--1':'')+'">'+ctr+'</div></article>' }).join('')
+    if (w.tipo==='WEIGHT_REPS') ctr=repsControl()+weightControl()
+    else if (w.tipo==='TIME' && ej.con_carga===true) ctr=timeControl()+weightControl()
+    else if (w.tipo==='TIME'){ ctr=timeControl(); uno=true }
+    else ctr=repsControl()+bodyweight
+    return '<article class="bk__ex'+(fila?' bk__ex--ok':'')+'"><div class="bk__eh"><div><b>'+bkEsc(ej.nombre||'—')+'</b><span>'+ref+' · PRESCRITO · '+bkPres(w,ej)+'</span></div><em class="bk__pill">'+bkEsc(ej.grupo_muscular||'')+'</em></div><div class="bk__sb'+(uno?' bk__sb--1':'')+'">'+ctr+'</div></article>' }).join('')
   let cta, ctaCls=''
   if (hecho){ cta='DESMARCAR SET '+String(n).padStart(2,'0'); ctaCls=' bk__cta--sec' }
   else if (done){ cta='BLOQUE COMPLETADO ✓'; ctaCls=' bk__cta--sec' }
@@ -4178,11 +4206,11 @@ function rwSet(beId,n,k,v){
   const key=beId+'#'+n, rv=S.rw[key]; if(!rv)return
   rv._man=true
   if(k==='kg'){ if(String(v).trim()===''){return} const x=parseFloat(String(v).replace(',','.')); if(isNaN(x))return
-    rv.kg=x; const i=document.getElementById('rwK-'+beId+'-'+n); if(i){i.value=String(x).replace('.',',');i.classList.remove('falta')} }
+    rv.kg=x; const i=document.getElementById('rwK-'+beId+'-'+n); if(i){i.value=KSET.kg(x);i.classList.remove('falta');i.style.setProperty('--len',KSET.len(i.value))} }
   else if(k==='seg'){ const x=parseInt(v); if(isNaN(x))return; rv.seg=Math.max(5,x)
-    const i=document.getElementById('rwS-'+beId+'-'+n); if(i)i.value=rv.seg }
+    const i=document.getElementById('rwS-'+beId+'-'+n); if(i){i.value=rv.seg;i.style.setProperty('--len',KSET.len(i.value))} }
   else { const s=String(v).trim(); if(!s)return; rv.reps=s
-    const i=document.getElementById('rwR-'+beId+'-'+n); if(i)i.value=s }
+    const i=document.getElementById('rwR-'+beId+'-'+n); if(i){i.value=s;i.style.setProperty('--len',KSET.len(i.value))} }
   // Si la serie ya está registrada, la corrección viaja al registro real
   const fila=S.setLog[setKey(beId,n)]
   if(fila && fila.id){
@@ -4987,8 +5015,8 @@ async function verHist(regId){
       pe.sets.push(x) })
     const fmt=v=>(+v)%1===0?String(+v):(+v).toFixed(1)
     const repsN=r=>{ const n=parseFloat(r); return isNaN(n)?null:n }
-    const txtSet=x=> x.seg!=null ? x.seg+' SEG' : ((x.peso!=null?fmt(x.peso)+' KG × ':'')+(x.reps!=null?x.reps:'—'))
-    const txtPre=x=> x.target_seg!=null&&x.seg!=null ? x.target_seg+' SEG' : (x.target_peso!=null||x.target_reps!=null ? ((x.target_peso!=null?fmt(x.target_peso)+' KG × ':'')+(x.target_reps||'—')) : '')
+    const txtSet=x=> x.seg!=null ? KSET.txt({tipo:'TIME',seg:x.seg,kg:x.peso}) : KSET.txt({reps:x.reps,kg:x.peso})
+    const txtPre=x=> x.target_seg!=null&&x.seg!=null ? x.target_seg+' SEG' : (x.target_peso!=null||x.target_reps!=null ? KSET.txt({reps:x.target_reps,kg:x.target_peso}) : '')
     const sobre=x=> (x.peso!=null&&x.target_peso!=null&&+x.peso>+x.target_peso) || (x.seg!=null&&x.target_seg!=null&&+x.seg>+x.target_seg) || (x.peso==null&&x.seg==null&&repsN(x.reps)!=null&&repsN(x.target_reps)!=null&&repsN(x.reps)>repsN(x.target_reps))
     const bajo=x=> (x.peso!=null&&x.target_peso!=null&&+x.peso<+x.target_peso) || (x.seg!=null&&x.target_seg!=null&&+x.seg<+x.target_seg)
     let vol=0, nSets=0
@@ -5116,7 +5144,7 @@ function pintarAvancesV2(){
     (t5.length ? t5.map((x,i)=>'<div class="a2pr"><span class="a2pr__n">0'+(i+1)+'</span><div class="a2pr__b"><span class="a2pr__e">'+plEscA(x.nombre).toUpperCase()+'</span><b class="a2pr__v">'+avKg(x.kg)+'<i>KG</i> × '+x.reps+'</b><span class="a2pr__d">'+(x.delta_kg>0?'<em>+'+avKg(x.delta_kg)+' KG</em> desde tu primera marca':'Más repeticiones que tu primera marca')+'</span></div></div>').join('')
       : '<p class="avV">Tus marcas aparecen cuando repites un ejercicio y superas tu primer registro.</p>')
   document.getElementById('avProg').innerHTML='<div class="a2k">MAYORES PROGRESOS</div>'+
-    (pg.length ? pg.map((x,i)=>'<div class="avPg"><span>'+String(i+1).padStart(2,'0')+'</span><div><b>'+plEscA(x.nombre).toUpperCase()+'</b><small>'+avKg(x.kg0)+' KG × '+x.reps0+' → '+avKg(x.kg)+' KG × '+x.reps+' · '+x.n+' SESIONES</small></div><em>'+(x.delta_kg>0?'+'+avKg(x.delta_kg)+' KG':'+'+x.delta_reps+' REPS')+'</em></div>').join('') : '')+
+    (pg.length ? pg.map((x,i)=>'<div class="avPg"><span>'+String(i+1).padStart(2,'0')+'</span><div><b>'+plEscA(x.nombre).toUpperCase()+'</b><small>'+KSET.resultado({kg:x.kg0,reps:x.reps0})+' → '+KSET.resultado({kg:x.kg,reps:x.reps})+' · '+x.n+' SESIONES</small></div><em>'+(x.delta_kg>0?'+'+avKg(x.delta_kg)+' KG':'+'+x.delta_reps+' REPS')+'</em></div>').join('') : '')+
     (pg.length ? '' : '<p class="a2e"><b>TODAVÍA ESTAMOS MIDIENDO.</b> Un ejercicio entra cuando lo registras en 3 sesiones y mejora.</p>')
   document.getElementById('avTon').innerHTML = tn.length ? '<div class="a2k">MÁS VOLUMEN ACUMULADO</div>'+tn.map((x,i)=>'<div class="avTn"><span><i>'+String(i+1).padStart(2,'0')+'</i>'+plEscA(x.nombre)+'</span><b>'+String(x.ton).replace('.',',')+' T</b></div>').join('') : ''
 }
@@ -5320,7 +5348,7 @@ async function pintarMarcas(){
         '<div class="mk__foot">'+mkProgreso(e)+'</div><span class="mk__go" aria-hidden="true">→</span></button>'
     }).join('') + '<div class="mk__close">SIGUE CONSTRUYENDO TU VERSIÓN MÁS FUERTE.</div>'
     const prog=Object.entries(M.porEj).filter(([id,e])=>M.info[id]&&e.pct!=null&&e.pct>0).sort((a,b)=>b[1].pct-a[1].pct)
-    const fila=([id,e])=>'<div class="mk__row"><div><b>'+M.info[id].nombre+'</b><small>'+mkKg(e.primero.peso)+' → '+mkKg(e.pr.peso)+' KG × '+(e.pr.reps||'—')+'</small></div><span>+'+e.pct+'%</span></div>'
+    const fila=([id,e])=>'<div class="mk__row"><div><b>'+M.info[id].nombre+'</b><small>'+KSET.kg(e.primero.peso)+' → '+KSET.resultado({kg:e.pr.peso,reps:e.pr.reps||'—'})+'</small></div><span>+'+e.pct+'%</span></div>'
     hst.innerHTML = prog.length
       ? prog.slice(0,5).map(fila).join('') + (prog.length>5?'<details class="mk__all"><summary>VER TODO EL HISTORIAL →</summary>'+prog.slice(5).map(fila).join('')+'</details>':'')
       : '<div class="mk__empty">Tus progresos aparecen cuando superes una marca en el mismo ejercicio.</div>'
@@ -5330,9 +5358,9 @@ function mkDetalle(p){
   const M=S._marcas; if(!M) return
   const ls=mkCand(M,p), rep=ls[0]; if(!rep) return
   document.getElementById('mWhBody').innerHTML='<div class="mkd"><small class="mk__pat">'+p+'</small><h3>'+M.info[rep[0]].nombre+'</h3>'+
-    '<div class="mk__kg">'+mkKg(rep[1].pr.peso)+'<small> KG × '+(rep[1].pr.reps||'—')+'</small></div>'+
-    '<div class="mkd__k">EVOLUCIÓN · MEJOR SET POR SESIÓN</div><ol class="mkd__h">'+rep[1].hist.map(h=>'<li><span>'+mkF(h.fecha)+'</span><b>'+mkKg(h.peso)+' KG × '+(h.reps||'—')+'</b>'+(h===rep[1].pr?'<em>PR</em>':'')+'</li>').join('')+'</ol>'+
-    (ls.length>1?'<div class="mkd__k">OTROS EJERCICIOS DE '+p+'</div>'+ls.slice(1).map(([id,e])=>'<div class="mk__row"><div><b>'+M.info[id].nombre+'</b><small>'+e.n+(e.n>1?' SESIONES':' SESIÓN')+'</small></div><span style="color:#121212">'+mkKg(e.pr.peso)+' KG × '+(e.pr.reps||'—')+'</span></div>').join(''):'')+'</div>'
+    '<div class="mk__kg">'+KSET.kg(rep[1].pr.peso)+'<small> KG · '+(rep[1].pr.reps||'—')+' REPS</small></div>'+
+    '<div class="mkd__k">EVOLUCIÓN · MEJOR SET POR SESIÓN</div><ol class="mkd__h">'+rep[1].hist.map(h=>'<li><span>'+mkF(h.fecha)+'</span><b>'+KSET.resultado({kg:h.peso,reps:h.reps||'—'})+'</b>'+(h===rep[1].pr?'<em>PR</em>':'')+'</li>').join('')+'</ol>'+
+    (ls.length>1?'<div class="mkd__k">OTROS EJERCICIOS DE '+p+'</div>'+ls.slice(1).map(([id,e])=>'<div class="mk__row"><div><b>'+M.info[id].nombre+'</b><small>'+e.n+(e.n>1?' SESIONES':' SESIÓN')+'</small></div><span style="color:#121212">'+KSET.resultado({kg:e.pr.peso,reps:e.pr.reps||'—'})+'</span></div>').join(''):'')+'</div>'
   document.getElementById('mWh').classList.add('vis')
 }
 // ═══ v8.0 · MI MEMBRESÍA (solo lectura; nunca muestra observaciones internas) ═══
@@ -5552,29 +5580,29 @@ document.addEventListener('DOMContentLoaded', async ()=>{
   <img class="kLogo kLogo--foot" src="/img/brand/logotipo-koach.png" alt="KOACH">
 </div>
 <div class="ks" id="oShare" role="dialog" aria-modal="true" aria-label="Comparte tu logro">
-  <div class="ks__box">
-    <div class="ks__top"><div><b id="ksTit">COMPARTE TU LOGRO DE HOY</b><small id="ksSub">Te lo mereces. Descarga tu imagen o agrega tu selfie.</small></div><button type="button" class="ks__x" onclick="cerrarCompartir()" aria-label="Cerrar">×</button></div>
-    <div class="ks__seg ks__seg--3" role="group" aria-label="Formato"><button type="button" data-ksf="gris" aria-pressed="false">GRIS</button><button type="button" data-ksf="foto" aria-pressed="true">CON TU FOTO</button><button type="button" data-ksf="transparente" aria-pressed="false">TRANSPARENTE</button></div>
-    <div class="ks__stage" id="ksStage"><canvas id="ksCv" width="1080" height="1920" aria-label="Vista previa"></canvas>
-      <label class="ks__add" id="ksAdd">AGREGA TU SELFIE<small>o elige una foto de tu entrenamiento</small><input type="file" id="ksFoto" accept="image/*"></label>
-      <div class="ks__hint" id="ksHint">TOCA LA FOTO PARA ELEGIR DÓNDE APUNTAR</div>
+  <div class="kset__box">
+    <div class="kset__top"><div><b id="ksTit">COMPARTE TU LOGRO DE HOY</b><small id="ksSub">Te lo mereces. Descarga tu imagen o agrega tu selfie.</small></div><button type="button" class="kset__x" onclick="cerrarCompartir()" aria-label="Cerrar">×</button></div>
+    <div class="kset__seg kset__seg--3" role="group" aria-label="Formato"><button type="button" data-ksf="gris" aria-pressed="false">GRIS</button><button type="button" data-ksf="foto" aria-pressed="true">CON TU FOTO</button><button type="button" data-ksf="transparente" aria-pressed="false">TRANSPARENTE</button></div>
+    <div class="kset__stage" id="ksStage"><canvas id="ksCv" width="1080" height="1920" aria-label="Vista previa"></canvas>
+      <label class="kset__add" id="ksAdd">AGREGA TU SELFIE<small>o elige una foto de tu entrenamiento</small><input type="file" id="ksFoto" accept="image/*"></label>
+      <div class="kset__hint" id="ksHint">TOCA LA FOTO PARA ELEGIR DÓNDE APUNTAR</div>
     </div>
-    <div class="ks__opts" id="ksOFoto" hidden>
-      <div class="ks__row"><span>ESTILO</span><button type="button" class="ks__chip" data-ks="estilo" data-v="tarjeta" aria-pressed="true">TARJETA</button><button type="button" class="ks__chip" data-ks="estilo" data-v="senalador" aria-pressed="false">SEÑALADOR</button><label class="ks__chip">CAMBIAR FOTO<input type="file" id="ksFoto2" accept="image/*"></label></div>
-      <div class="ks__row" data-solo="senalador"><span>RUTA</span><button type="button" class="ks__chip" data-ks="ruta" data-v="auto" aria-pressed="true">AUTO</button><button type="button" class="ks__chip" data-ks="ruta" data-v="DIAG" aria-pressed="false">DIAGONAL</button><button type="button" class="ks__chip" data-ks="ruta" data-v="L" aria-pressed="false">L</button><button type="button" class="ks__chip" data-ks="ruta" data-v="GAMMA" aria-pressed="false">Γ</button><button type="button" class="ks__chip" data-ks="ruta" data-v="ELBOW" aria-pressed="false">CODO</button></div>
-      <div class="ks__row" data-solo="senalador"><span>MARCA</span><button type="button" class="ks__chip" data-ks="mira" data-v="circulo" aria-pressed="true">MIRA</button><button type="button" class="ks__chip" data-ks="mira" data-v="cuadro" aria-pressed="false">MARCO</button></div>
+    <div class="kset__opts" id="ksOFoto" hidden>
+      <div class="kset__row"><span>ESTILO</span><button type="button" class="kset__chip" data-ks="estilo" data-v="tarjeta" aria-pressed="true">TARJETA</button><button type="button" class="kset__chip" data-ks="estilo" data-v="senalador" aria-pressed="false">SEÑALADOR</button><label class="kset__chip">CAMBIAR FOTO<input type="file" id="ksFoto2" accept="image/*"></label></div>
+      <div class="kset__row" data-solo="senalador"><span>RUTA</span><button type="button" class="kset__chip" data-ks="ruta" data-v="auto" aria-pressed="true">AUTO</button><button type="button" class="kset__chip" data-ks="ruta" data-v="DIAG" aria-pressed="false">DIAGONAL</button><button type="button" class="kset__chip" data-ks="ruta" data-v="L" aria-pressed="false">L</button><button type="button" class="kset__chip" data-ks="ruta" data-v="GAMMA" aria-pressed="false">Γ</button><button type="button" class="kset__chip" data-ks="ruta" data-v="ELBOW" aria-pressed="false">CODO</button></div>
+      <div class="kset__row" data-solo="senalador"><span>MARCA</span><button type="button" class="kset__chip" data-ks="mira" data-v="circulo" aria-pressed="true">MIRA</button><button type="button" class="kset__chip" data-ks="mira" data-v="cuadro" aria-pressed="false">MARCO</button></div>
     </div>
-    <div class="ks__opts" id="ksOTr" hidden>
-      <div class="ks__row"><span>DATOS</span><button type="button" class="ks__chip" data-ks="lado" data-v="izq" aria-pressed="true">IZQUIERDA</button><button type="button" class="ks__chip" data-ks="lado" data-v="der" aria-pressed="false">DERECHA</button></div>
-      <div class="ks__row"><span>RUTA</span><button type="button" class="ks__chip" data-ks="rutaT" data-v="DIAG" aria-pressed="false">DIAGONAL</button><button type="button" class="ks__chip" data-ks="rutaT" data-v="L" aria-pressed="false">L</button><button type="button" class="ks__chip" data-ks="rutaT" data-v="ELBOW" aria-pressed="true">CODO</button></div>
-      <div class="ks__row"><span>LARGO</span><button type="button" class="ks__chip" data-ks="largo" data-v="corta" aria-pressed="false">S</button><button type="button" class="ks__chip" data-ks="largo" data-v="media" aria-pressed="true">M</button><button type="button" class="ks__chip" data-ks="largo" data-v="larga" aria-pressed="false">L</button></div>
-      <div class="ks__row"><span>MARCA</span><button type="button" class="ks__chip" data-ks="mira" data-v="circulo" aria-pressed="true">MIRA</button><button type="button" class="ks__chip" data-ks="mira" data-v="cuadro" aria-pressed="false">MARCO</button></div>
-      <div class="ks__row"><span>CAPA</span><button type="button" class="ks__chip" data-ks="tema" data-v="blanco" aria-pressed="true">BLANCA</button><button type="button" class="ks__chip" data-ks="tema" data-v="carbon" aria-pressed="false">CARBÓN</button></div>
+    <div class="kset__opts" id="ksOTr" hidden>
+      <div class="kset__row"><span>DATOS</span><button type="button" class="kset__chip" data-ks="lado" data-v="izq" aria-pressed="true">IZQUIERDA</button><button type="button" class="kset__chip" data-ks="lado" data-v="der" aria-pressed="false">DERECHA</button></div>
+      <div class="kset__row"><span>RUTA</span><button type="button" class="kset__chip" data-ks="rutaT" data-v="DIAG" aria-pressed="false">DIAGONAL</button><button type="button" class="kset__chip" data-ks="rutaT" data-v="L" aria-pressed="false">L</button><button type="button" class="kset__chip" data-ks="rutaT" data-v="ELBOW" aria-pressed="true">CODO</button></div>
+      <div class="kset__row"><span>LARGO</span><button type="button" class="kset__chip" data-ks="largo" data-v="corta" aria-pressed="false">S</button><button type="button" class="kset__chip" data-ks="largo" data-v="media" aria-pressed="true">M</button><button type="button" class="kset__chip" data-ks="largo" data-v="larga" aria-pressed="false">L</button></div>
+      <div class="kset__row"><span>MARCA</span><button type="button" class="kset__chip" data-ks="mira" data-v="circulo" aria-pressed="true">MIRA</button><button type="button" class="kset__chip" data-ks="mira" data-v="cuadro" aria-pressed="false">MARCO</button></div>
+      <div class="kset__row"><span>CAPA</span><button type="button" class="kset__chip" data-ks="tema" data-v="blanco" aria-pressed="true">BLANCA</button><button type="button" class="kset__chip" data-ks="tema" data-v="carbon" aria-pressed="false">CARBÓN</button></div>
     </div>
-    <div class="ks__acts" id="ksActs"></div>
-    <p class="ks__st" id="ksSt" aria-live="polite"></p>
-    <div class="ks__sem" id="ksSem"></div>
-    <button type="button" class="ks__prog" id="ksProg" onclick="ksVerProgreso()">VER MI PROGRESO →</button>
+    <div class="kset__acts" id="ksActs"></div>
+    <p class="kset__st" id="ksSt" aria-live="polite"></p>
+    <div class="kset__sem" id="ksSem"></div>
+    <button type="button" class="kset__prog" id="ksProg" onclick="ksVerProgreso()">VER MI PROGRESO →</button>
   </div>
 </div>
 <script>
@@ -5896,10 +5924,10 @@ function ksPintar() {
 }
 function ksAcciones(sinFoto) {
   const a = ksEl('ksActs');
-  if (sinFoto) { a.innerHTML = '<button type="button" class="ks__sec ks__wide" onclick="ksFormato(\'gris\')">USAR LA VERSIÓN GRIS</button>'; return }
+  if (sinFoto) { a.innerHTML = '<button type="button" class="kset__sec kset__wide" onclick="ksFormato(\'gris\')">USAR LA VERSIÓN GRIS</button>'; return }
   a.innerHTML = KS.formato === 'transparente'
-    ? '<button type="button" class="ks__cta" onclick="ksCopiar()">COPIAR PARA TU HISTORIA</button><button type="button" class="ks__sec" onclick="ksCompartir()">COMPARTIR</button><button type="button" class="ks__sec" onclick="ksGuardarBtn()">GUARDAR</button>'
-    : '<button type="button" class="ks__cta" onclick="ksCompartir()">COMPARTIR</button><button type="button" class="ks__sec ks__wide" onclick="ksGuardarBtn()">GUARDAR IMAGEN</button>';
+    ? '<button type="button" class="kset__cta" onclick="ksCopiar()">COPIAR PARA TU HISTORIA</button><button type="button" class="kset__sec" onclick="ksCompartir()">COMPARTIR</button><button type="button" class="kset__sec" onclick="ksGuardarBtn()">GUARDAR</button>'
+    : '<button type="button" class="kset__cta" onclick="ksCompartir()">COMPARTIR</button><button type="button" class="kset__sec kset__wide" onclick="ksGuardarBtn()">GUARDAR IMAGEN</button>';
 }
 function ksFormato(f) { KS.formato = f; document.querySelectorAll('[data-ksf]').forEach(x => x.setAttribute('aria-pressed', String(x.dataset.ksf === f))); ksSt(''); ksPintar() }
 function ksSemanaLinea() {
@@ -5959,7 +5987,7 @@ function cmMensaje(m, j) {
   if (m && m.ciclo) return ['CICLO COMPLETADO.', '', true];
   if (m && /SEMANA COMPLETADA/.test(String(m.k || ''))) return ['SEMANA COMPLETADA.', '', true];
   if (m && (m.logros || []).some(l => l[0] === 'DE VUELTA')) return ['VOLVISTE.', '', false];
-  if (pr && pr.nueva && pr.kg) return ['NUEVA MARCA.', String(pr.kg).replace('.', ',') + ' KG × ' + (pr.reps || ''), true];
+  if (pr && pr.nueva && pr.kg) return ['NUEVA MARCA.', KSET.resultado({ kg:pr.kg, reps:pr.reps }), true];
   const op = ['LO LOGRASTE.', 'HOY SUMASTE.', 'CUMPLIDO.'];
   let last = null; try { last = localStorage.getItem('k_cm_last') } catch (_) {}
   const pick = op.filter(x => x !== last)[Math.floor(Math.random() * (op.length - 1))];

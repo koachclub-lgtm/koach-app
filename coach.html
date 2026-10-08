@@ -286,6 +286,7 @@ button.bxI:hover,button.bxI:focus-visible{transform:translateY(-2px);box-shadow:
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="/domain/koach-domain.js"></script>
+<script src="/domain/koach-series.js"></script>
 <script src="/domain/program-catalog.js"></script>
 <script src="/domain/koach-avatar.js"></script>
 <style>
@@ -3524,35 +3525,30 @@ function pintarPlan(){ setTimeout(function(){ try{ plSaveUI(); rtSyncPlan() }cat
     b.items.map(function(it){
       const tiempo = esTiempo(it)
       const ult = ULT[it.ejId]
-      const ultTxt = plActivo() ? '' : (ult ? ('ÚLTIMO · '+(ult.peso_kg!=null?cgKg(ult.peso_kg)+' KG':'—')+(ult.reps_realizadas?' × '+ult.reps_realizadas:'')) : 'SIN REGISTRO ANTERIOR')
+      const ultTxt = plActivo() ? '' : (ult ? ('ÚLTIMO · '+KSET.txt({reps:ult.reps_realizadas,kg:ult.peso_kg})) : 'SIN REGISTRO ANTERIOR')
       const esBW = (it.tipoReg==='BODYWEIGHT_REPS') || (it.tipoReg==null && it.conCarga===false && !tiempo)
       const esT = (it.tipoReg==='TIME') || (it.tipoReg==null && tiempo)
+      // c63 · SetControls del planificador: REPS/TIEMPO → CARGA (misma gramática que el socio · domain/koach-series.js)
+      const Nm=String(it.nombre||'ejercicio').replace(/"/g,'')
+      const repsControl='<div><span class="lbl">REPS</span><div class="pv">'+
+          '<button onclick="stepItem(\''+it.beId+'\',\'reps\',-1)" aria-label="Disminuir repeticiones de '+Nm+'">−</button>'+
+          '<input id="pi-r-'+it.beId+'" value="'+String(it.reps).replace(/"/g,'')+'" inputmode="numeric" onfocus="this.select()" onchange="editReps(\''+it.beId+'\',this.value)" aria-label="Repeticiones de '+Nm+'">'+
+          '<button onclick="stepItem(\''+it.beId+'\',\'reps\',1)" aria-label="Aumentar repeticiones de '+Nm+'">+</button></div></div>'
+      const weightControl='<div><span class="lbl">PESO · KG</span><div class="pv">'+
+          '<button onclick="stepItem(\''+it.beId+'\',\'kg\',-2.5)" aria-label="Disminuir peso de '+Nm+'">−</button>'+
+          '<input id="pi-k-'+it.beId+'" class="'+(it.kg==null?'falta':'')+'" value="'+(it.kg==null?'':KSET.kg(it.kg))+'" placeholder="define" inputmode="decimal" onfocus="this.select()" onchange="editKg(\''+it.beId+'\',this.value)" aria-label="Peso en kilos de '+Nm+'">'+
+          '<button onclick="stepItem(\''+it.beId+'\',\'kg\',2.5)" aria-label="Aumentar peso de '+Nm+'">+</button></div></div>'
       let controles = ''
       if (esT){
         const segV = String(it.reps).replace(/[^0-9]/g,'')||'30'
-        const kgCoex = it.conCarga ? ('<div><span class="lbl">PESO · KG</span><div class="pv">'+
-          '<button onclick="stepItem(\''+it.beId+'\',\'kg\',-2.5)">−</button>'+
-          '<input id="pi-k-'+it.beId+'" class="'+(it.kg==null?'falta':'')+'" value="'+(it.kg==null?'':it.kg)+'" placeholder="define" inputmode="decimal" onfocus="this.select()" onchange="editKg(\''+it.beId+'\',this.value)">'+
-          '<button onclick="stepItem(\''+it.beId+'\',\'kg\',2.5)">+</button></div></div>') : ''
-        controles = kgCoex + '<div><span class="lbl">TIEMPO · SEG</span><div class="pv">'+
-          '<button onclick="stepItem(\''+it.beId+'\',\'seg\',-5)">−</button>'+
-          '<input id="pi-s-'+it.beId+'" value="'+segV+'" inputmode="numeric" onfocus="this.select()" onchange="editReps(\''+it.beId+'\',this.value)">'+
-          '<button onclick="stepItem(\''+it.beId+'\',\'seg\',5)">+</button></div></div>'
+        controles = '<div><span class="lbl">TIEMPO · SEG</span><div class="pv">'+
+          '<button onclick="stepItem(\''+it.beId+'\',\'seg\',-5)" aria-label="Disminuir segundos de '+Nm+'">−</button>'+
+          '<input id="pi-s-'+it.beId+'" value="'+segV+'" inputmode="numeric" onfocus="this.select()" onchange="editReps(\''+it.beId+'\',this.value)" aria-label="Segundos de '+Nm+'">'+
+          '<button onclick="stepItem(\''+it.beId+'\',\'seg\',5)" aria-label="Aumentar segundos de '+Nm+'">+</button></div></div>' + (it.conCarga ? weightControl : '')
       } else if (esBW){
-        controles = '<div><span class="lbl">CARGA</span><div class="pv"><span class="pcx">CORPORAL</span></div></div>'+
-          '<div><span class="lbl">REPS</span><div class="pv">'+
-          '<button onclick="stepItem(\''+it.beId+'\',\'reps\',-1)">−</button>'+
-          '<input id="pi-r-'+it.beId+'" value="'+String(it.reps).replace(/"/g,'')+'" inputmode="numeric" onfocus="this.select()" onchange="editReps(\''+it.beId+'\',this.value)">'+
-          '<button onclick="stepItem(\''+it.beId+'\',\'reps\',1)">+</button></div></div>'
+        controles = repsControl + '<div><span class="lbl">CARGA</span><div class="pv"><span class="pcx">PESO CORPORAL</span></div></div>'
       } else {
-        controles = '<div><span class="lbl">PESO · KG</span><div class="pv">'+
-          '<button onclick="stepItem(\''+it.beId+'\',\'kg\',-2.5)">−</button>'+
-          '<input id="pi-k-'+it.beId+'" class="'+(it.kg==null?'falta':'')+'" value="'+(it.kg==null?'':it.kg)+'" placeholder="define" inputmode="decimal" onfocus="this.select()" onchange="editKg(\''+it.beId+'\',this.value)">'+
-          '<button onclick="stepItem(\''+it.beId+'\',\'kg\',2.5)">+</button></div></div>'+
-          '<div><span class="lbl">REPS</span><div class="pv">'+
-          '<button onclick="stepItem(\''+it.beId+'\',\'reps\',-1)">−</button>'+
-          '<input id="pi-r-'+it.beId+'" value="'+String(it.reps).replace(/"/g,'')+'" inputmode="numeric" onfocus="this.select()" onchange="editReps(\''+it.beId+'\',this.value)">'+
-          '<button onclick="stepItem(\''+it.beId+'\',\'reps\',1)">+</button></div></div>'
+        controles = repsControl + weightControl
       }
       const plLinea = plActivo() ? plLineaProgresion(it, esBW, esT) : ''
       return '<div class="lin" id="pl-'+it.beId+'">'+
@@ -3876,7 +3872,7 @@ async function editKg(beId,v){
   if(String(v).trim()===''){ return } // vacío temporal: jamás null a la base
   const n=parseFloat(String(v).replace(',','.')); if(isNaN(n)){pintarPlan();return}
   x.it.kg=n
-  const inp=document.getElementById('pi-k-'+beId); if(inp){ inp.value=n; inp.classList.remove('falta') }
+  const inp=document.getElementById('pi-k-'+beId); if(inp){ inp.value=KSET.kg(n); inp.classList.remove('falta') }
   plDirty()
 }
 async function editReps(beId,v){
@@ -4831,13 +4827,13 @@ function plLineaProgresion(it, esBW, esT){
   const partes=[]
   if (ult && (ult.peso_kg!=null || ult.reps_realizadas!=null)){
     const h=HIST[it.ejId]||{}, sgx=(!esBW&&!esT)?cgSugerida(it.ejId, it.reps):null
-    partes.push('<button class="plUlt" onclick="cgDrawer(\''+it.ejId+'\',\''+it.beId+'\')">↳ <b>REF.</b> '+cgSet(h.ultimo||{peso:ult.peso_kg,reps:ult.reps_realizadas})+(ult.fecha?' · '+cgF(ult.fecha):'')+
-      (h.dias>56?' · <b>ANTIGUA</b>':'')+(sgx!=null?' · SUGERIDA '+cgKg(sgx)+' KG':'')+' →</button>')
+    partes.push('<button class="plUlt" onclick="cgDrawer(\''+it.ejId+'\',\''+it.beId+'\')">↳ <b>REF</b> · '+cgSet(h.ultimo||{peso:ult.peso_kg,reps:ult.reps_realizadas})+(ult.fecha?' · '+cgF(ult.fecha):'')+
+      (h.dias>56?' · <b>ANTIGUA</b>':'')+(sgx!=null?' · SUGERIDA · '+KSET.kg(sgx)+' KG':'')+' →</button>')
   } else partes.push('<button class="plUlt" onclick="cgDrawer(\''+it.ejId+'\',\''+it.beId+'\')">SIN REGISTROS PREVIOS →</button>')
   if (PL.w>1){
     let prev=null
     plSesSem(PL.w-1).some(function(s){ return s.bloques.some(function(b){ return b.items.some(function(x){ if(x.ejId===it.ejId){prev=x;return true} return false }) }) })
-    if (prev) partes.push('S'+(PL.w-1)+' PRESCRITO '+(prev.kg!=null?prev.kg+' KG × ':'')+prev.reps)
+    if (prev) partes.push('S'+(PL.w-1)+' '+KSET.pres({reps:prev.reps,kg:prev.kg}))
   }
   let prop=''
   const _sug = (!esBW && !esT) ? cgSugerida(it.ejId, it.reps) : null
@@ -5846,8 +5842,8 @@ window.addEventListener('beforeunload', function(e){ if (plEsDirty()){ e.prevent
 let HIST={}
 const CG_MES=['ENE','FEB','MAR','ABR','MAY','JUN','JUL','AGO','SEP','OCT','NOV','DIC']
 function cgF(iso){ if(!iso) return ''; const d=new Date(String(iso).slice(0,10)+'T12:00:00'); return d.getDate()+' '+CG_MES[d.getMonth()] }
-function cgKg(v){ return v==null?'—':((+v)%1===0?String(+v):(+v).toFixed(1)) }
-function cgSet(x){ if(!x) return ''; if(x.peso==null && x.seg) return x.seg+' SEG'; return (x.peso!=null?cgKg(x.peso)+' KG × ':'')+(x.reps||'—')+(x.peso==null?' REPS':'') }
+function cgKg(v){ return v==null?'—':KSET.kg(v) }   // c63 · es-CL: 12,5
+function cgSet(x){ if(!x) return ''; if(x.peso==null && x.seg) return x.seg+' SEG'; return KSET.txt({reps:x.reps,kg:x.peso}) }   // c63 · REPS → KG
 async function cargarHistorialCargas(socioId){
   HIST={}; ULT={}
   if (!socioId) return
@@ -6602,7 +6598,7 @@ async function scPintarRes(){
     const ejs=(b.bloque_ejercicios||[]).slice().sort(function(a,c){return (a.orden||0)-(c.orden||0)})
     return '<div class="tcB"><div class="tcB__h">'+plEsc(String(b.bloque||('B'+(bi+1))).toUpperCase())+(b.etiqueta?' · '+plEsc(String(b.etiqueta).toUpperCase()):'')+' <span>'+(b.sets||'—')+' SETS</span></div>'+
       ejs.map(function(e){ const rx=e.reps_txt||(e.reps!=null?e.reps:'')||(e.duracion_seg?e.duracion_seg+'S':'—')
-        return '<div class="tcE"><span>'+plEsc(((e.ejercicios||{}).nombre)||'Ejercicio')+'</span><em>'+(b.sets||'—')+'×'+plEsc(String(rx))+(e.kg_objetivo!=null?' · '+e.kg_objetivo+' KG':'')+'</em></div>' }).join('')+'</div>' }).join('')+'</div>'
+        return '<div class="tcE"><span>'+plEsc(((e.ejercicios||{}).nombre)||'Ejercicio')+'</span><em>'+(b.sets||'—')+'×'+plEsc(String(rx))+(e.kg_objetivo!=null?' · '+KSET.kg(e.kg_objetivo)+' KG':'')+'</em></div>' }).join('')+'</div>' }).join('')+'</div>'
     : '<div class="tcRes__c">Esta sesión todavía no tiene bloques.</div>')
 }
 
@@ -6960,7 +6956,7 @@ function dupModal(e, r){
   const nP=r.programado.length, mismaSes=nP && r.programado.every(function(o){return o.actual})
   const tit = r.realizado.length ? 'EJERCICIO YA REALIZADO ESTA SEMANA' : mismaSes ? 'YA ESTÁ PROGRAMADO EN ESTA SESIÓN' : nP>1 ? 'EJERCICIO YA PROGRAMADO '+nP+' VECES ESTA SEMANA' : 'EJERCICIO YA PROGRAMADO ESTA SEMANA'
   const fila=function(o){ return '<li class="dupR"><b>'+(o.actual?'ESTA SESIÓN':'S'+(o.sesNum||'?')+' · '+plEsc(String(o.sesNombre).toUpperCase()))+'</b><span>B'+(o.bi+1)+(o.bloque?' · '+plEsc(String(o.bloque).toUpperCase()):'')+' · '+(o.sets||'—')+' × '+plEsc(String(o.reps||'—'))+'</span></li>' }
-  const filaH=function(h){ return '<li class="dupR dupR--h"><b>S'+(h.sesNum||'?')+' · '+plEsc(String(h.sesNombre||'').toUpperCase())+'</b><span>'+(h.peso!=null?h.peso+' KG × '+plEsc(String(h.reps||'—')):(h.seg?h.seg+' S':'REALIZADO'))+' · '+(h.estado==='completada'?'COMPLETADA':'REGISTRADO')+(h.fecha?' · '+plEsc(adhF?adhF(h.fecha):h.fecha):'')+'</span></li>' }
+  const filaH=function(h){ return '<li class="dupR dupR--h"><b>S'+(h.sesNum||'?')+' · '+plEsc(String(h.sesNombre||'').toUpperCase())+'</b><span>'+(h.peso!=null?plEsc(KSET.txt({reps:h.reps,kg:h.peso})):(h.seg?h.seg+' SEG':'REALIZADO'))+' · '+(h.estado==='completada'?'COMPLETADA':'REGISTRADO')+(h.fecha?' · '+plEsc(adhF?adhF(h.fecha):h.fecha):'')+'</span></li>' }
   let box=document.getElementById('mDup'); if(!box){ box=document.createElement('div'); box.id='mDup'; box.className='dupBg'; document.body.appendChild(box) }
   box.innerHTML='<div class="dupC" role="dialog" aria-modal="true" aria-labelledby="dupT" aria-describedby="dupD">'+
     '<button type="button" class="dupX" aria-label="Cerrar sin agregar" onclick="dupCerrar()">✕</button>'+
