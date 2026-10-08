@@ -5520,12 +5520,23 @@ document.addEventListener('visibilitychange', refrescoSala)
 setInterval(refrescoSala, 120000)   // respaldo; la vía principal es la señal en vivo (abajo)
 // c11.6 · SALA EN VIVO: cualquier set, sesión o planificación guardada de cualquier socio llega como cambio de su
 // asignación (ejec_revision / plan_revision). La Sala se refresca sola (agrupado cada 3 s), sin esperar 45 s.
-let _salaRT=null, _salaDeb=null
+// c63 · THROTTLE (no debounce): con muchos socios guardando sets, un debounce que se reinicia con cada evento
+// podía no disparar nunca en hora punta. Ahora: agrupa ráfagas (≥400 ms), refresca como máximo cada 3 s,
+// no consulta con la pestaña oculta (visibilitychange ya refresca al volver) y nunca pierde un aviso en curso.
+let _salaRT=null, _salaDeb=null, _salaUlt=0
+function salaRTPedir(){
+  if (_salaDeb) return
+  _salaDeb=setTimeout(function(){
+    _salaDeb=null
+    if (document.visibilityState!=='visible') return
+    if (_presRun){ salaRTPedir(); return }
+    _salaUlt=Date.now(); salaPresenciaCargar(true)
+  }, Math.max(400, 3000-(Date.now()-_salaUlt)))
+}
 function salaRTIniciar(){
   if (_salaRT || !sb.channel) return
   _salaRT = sb.channel('sala:'+Math.random().toString(36).slice(2,8))
-    .on('postgres_changes', { event:'*', schema:'public', table:'asignaciones' }, function(){
-      clearTimeout(_salaDeb); _salaDeb=setTimeout(function(){ salaPresenciaCargar(true) }, 1500) })
+    .on('postgres_changes', { event:'*', schema:'public', table:'asignaciones' }, salaRTPedir)
     .subscribe()
 }
 // ═══════════ c12 · SALA = ACTIVIDAD REAL ═══════════
@@ -6715,13 +6726,24 @@ async function scAccion(acc, rid, sesId, hoy){
 // La pestaña escucha SOLO al socio de su URL. Cualquier cambio confirmado en la base (planificación guardada por otro
 // coach, sets que registra el socio, sesiones cerradas) → se vuelve a consultar la verdad. Si hay cambios sin guardar
 // en esta pestaña, no se pisan: se avisa y se recarga después de guardar.
-let _socRT=null, _socRTid=null, _socDeb=null
+// c63 · Un set del socio mueve solo ejec_revision: el plan no cambió, así que no se vuelve a descargar entero
+// (8 semanas con todos sus ejercicios). Se refrescan las cargas del historial y se repinta. Si en la ventana
+// llegó un cambio de plan (plan_revision, activo, semana, protocolo) o el evento no trae el registro anterior,
+// se recarga completo como antes.
+let _socRT=null, _socRTid=null, _socDeb=null, _socPlanCambio=false
+function socEvPlan(ev){
+  const n=ev&&ev.new, o=ev&&ev.old
+  if (!ev || ev.eventType!=='UPDATE' || !n || !o || o.plan_revision==null) return true
+  return n.plan_revision!==o.plan_revision || n.activo!==o.activo || n.semana_actual!==o.semana_actual || n.protocolo_id!==o.protocolo_id
+}
 function socRTSeguir(id){
   if (_socRTid===id) return
   try{ if (_socRT) sb.removeChannel(_socRT) }catch(_e){}
-  _socRT=null; _socRTid=id; if (!id || !sb.channel) return
+  _socRT=null; _socRTid=id; _socPlanCambio=false; if (!id || !sb.channel) return
   _socRT = sb.channel('coach-socio:'+id+':'+Math.random().toString(36).slice(2,8))
-    .on('postgres_changes', { event:'*', schema:'public', table:'asignaciones', filter:'socio_id=eq.'+id }, function(){ clearTimeout(_socDeb); _socDeb=setTimeout(function(){ socRefrescar('rt') }, 700) })
+    .on('postgres_changes', { event:'*', schema:'public', table:'asignaciones', filter:'socio_id=eq.'+id }, function(ev){
+      if (socEvPlan(ev)) _socPlanCambio=true
+      clearTimeout(_socDeb); _socDeb=setTimeout(function(){ const pc=_socPlanCambio; _socPlanCambio=false; socRefrescar(pc?'rt':'rt-ejec') }, 700) })
     .subscribe()
 }
 async function socRefrescar(origen){
@@ -6730,6 +6752,10 @@ async function socRefrescar(origen){
   if (!enPlan && !enFicha) return
   socSolContar(id)
   await cargarHistorialCargas(id); if (!F || F.id!==id) return
+  if (origen==='rt-ejec' && enPlan && P && !P.bib && !P.base){
+    if ((typeof plEsDirty==='function' && plEsDirty()) || (typeof _pendC!=='undefined' && _pendC>0)) return   // cargas ya quedaron en HIST/ULT; se verán al repintar
+    const y=window.scrollY; pintarPlan(); window.scrollTo(0,y); return
+  }
   if (enPlan && P && !P.bib && !P.base && !P.ro){
     if (typeof plEsDirty==='function' && plEsDirty()){ P._remoto=true; if (origen==='rt') toast('Hay datos nuevos de este socio: se cargarán al guardar tus cambios'); return }
     if (typeof _pendC!=='undefined' && _pendC>0) return
