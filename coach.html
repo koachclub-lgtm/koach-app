@@ -1486,6 +1486,34 @@ html.selAbierto,html.selAbierto body{overflow:hidden}
   .mh__s b{font-size:clamp(32px,3vw,44px)}
   .mh__bar{margin-top:8px}.mh__doors button{min-height:44px}
 }
+/* ═══ c49 · ENTRENAMIENTO V3 ═══ */
+.v3Inc{display:flex;align-items:center;gap:10px;width:100%;min-height:48px;margin:0 0 10px;padding:0 14px;border-radius:14px;border:1.5px dashed rgba(18,18,18,.35);background:#fff;color:#121212;font-family:var(--font-mono);font-size:12px;letter-spacing:.1em;text-align:left;cursor:pointer}
+.v3Inc__n{display:inline-flex;align-items:center;justify-content:center;min-width:28px;height:28px;border-radius:8px;background:#121212;color:#F4F3F0;font-weight:700}
+.v3Inc em{margin-left:auto;font-style:normal;text-decoration:underline;text-underline-offset:3px}
+.v3Next{padding:18px 20px;border-radius:18px;background:#121212;color:#F4F3F0}
+.v3Next__k{font-family:var(--font-mono);font-size:11px;letter-spacing:.16em;color:#A9A8A3}
+.v3Next__r{display:flex;align-items:baseline;gap:14px;margin:6px 0 8px}
+.v3Next__n{font-family:var(--font-mono);font-weight:700;font-size:clamp(40px,4.5vw,60px);line-height:.9;letter-spacing:-.04em}
+.v3Next__r b{font-family:var(--font-display);font-weight:800;font-size:clamp(22px,2.4vw,30px);line-height:1.1}
+.v3Next__p{display:flex;flex-wrap:wrap;align-items:center;gap:10px}.v3Next__p span:last-child{font-size:14px;color:#C9C8C3}
+.v3Btns{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
+.v3B{display:inline-flex;align-items:center;justify-content:center;min-height:46px;padding:0 18px;border-radius:12px;border:1px solid rgba(244,243,240,.35);background:transparent;color:#F4F3F0;text-decoration:none;font-family:var(--font-mono);font-weight:500;font-size:12px;letter-spacing:.1em;cursor:pointer}
+.v3B--on{background:#F4F3F0;color:#121212;border-color:#F4F3F0}
+.v3Wk{margin-top:14px}
+.v3Wk__h{display:flex;justify-content:space-between;align-items:baseline;padding:0 2px 6px;font-family:var(--font-mono);font-size:11.5px;letter-spacing:.14em;color:#5E5D59}.v3Wk__h b{font-size:16px;color:#121212}
+.v3Row{display:flex;align-items:center;gap:12px;min-height:54px;padding:4px 6px 4px 12px;border-top:1px solid rgba(18,18,18,.08)}
+.v3Row i{font-style:normal;width:18px;text-align:center;font-size:16px}
+.v3Row__n{font-family:var(--font-mono);font-size:12px;color:#8E8D88}
+.v3Row b{flex:1;min-width:0;font-family:var(--font-display);font-weight:700;font-size:16px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.v3Row small{font-family:var(--font-mono);font-size:11px;letter-spacing:.1em;color:#5E5D59;white-space:nowrap}
+.v3Row--completada b{color:#5E5D59}
+.v3Row--hab small{color:#13808C}.v3Row--hab{box-shadow:inset 3px 0 0 #2BB8C7}
+.v3Row--en_curso{box-shadow:inset 3px 0 0 #121212}
+.v3Row__q{display:none;min-height:36px;padding:0 10px;border:0;border-radius:10px;background:#121212;color:#F4F3F0;font-family:var(--font-mono);font-size:11px;letter-spacing:.08em;cursor:pointer}
+@media (hover:hover){ .v3Row:hover .v3Row__q{display:inline-flex;align-items:center} .v3Row:hover{background:rgba(18,18,18,.03)} }
+.v3Row__m{width:44px;height:44px;border:0;border-radius:12px;background:none;font-size:16px;cursor:pointer}
+.v3Row .pfMenu a{display:flex;align-items:center;min-height:44px;padding:0 12px;border-radius:10px;color:#121212;text-decoration:none;font-family:var(--font-mono);font-size:12px;letter-spacing:.08em}
+@media (max-width:640px){ .v3Row small{display:none} .v3B{flex:1 1 auto} }
 /* ═══ FIN CAPA 3 ═══ */
 /* ═══ MOTOR DE CONSTRUCCIÓN c8.0 · MACRO → MESO → MICRO ═══ */
 .plNav{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin:0 0 14px}
@@ -6193,45 +6221,66 @@ function scVerTodas(){
   const inc=scIncOrden((SC.st&&SC.st.abiertas)||[])
   scModal('REQUIEREN ATENCIÓN · '+inc.length,'<ul class="ccL">'+inc.map(scIncFila).join('')+'</ul><button type="button" class="mSG__sec" onclick="scCerrar()">CERRAR</button>')
 }
+// c49 · ENTRENAMIENTO V3: jerarquía de la V1 (SIGUIENTE en tarjeta negra → ESTA SEMANA) + todo el control de la V2
+// a un toque (RESOLVER / GESTIONAR / ··· por sesión). Frecuente = visible; excepcional = cajón.
 function scPintar(){
   const st=SC.st||{}, el=document.getElementById('scCard'); if(!el||!st.activo){ if(el) el.innerHTML=''; return }
   const ses=st.sesiones||[], ab=st.abiertas||[], px=st.proxima, hb=st.habilitada, sig=st.siguiente_tras_abierta
-  const vivo=ab.filter(function(a){return !a.abandonada}), inc=scIncOrden(ab)
-  const prog=st.programadas||ses.length, hechas=st.hechas||0, sinC=ses.filter(function(z){return z.estado==='sin_cerrar'}).length
-  let h='<div class="cc__h"><span class="kcK">CONTROL DE SESIONES</span><span class="cc__w">SEMANA '+(st.semana||'—')+(st.total_semanas?' DE '+st.total_semanas:'')+
-    ' · <b>'+hechas+'/'+prog+'</b> COMPLETADAS'+(sinC?' · '+sinC+' SIN CERRAR':'')+'</span></div><div class="cc">'
-  // ── IZQUIERDA: AHORA + SIGUIENTE
-  h+='<div class="cc__l">'
-  vivo.forEach(function(a){ const lab=scIdx(a.sesion_id)
-    h+='<div class="ccLive"><span class="opPill opPill--live">EN CURSO · AHORA</span><b>'+(lab?'<em>'+lab+'</em>':'')+plEsc(String(a.nombre||'').toUpperCase())+'</b>'+
-      '<small>'+a.ejercicios+'/'+a.total_ejercicios+' EJ · '+a.sets+' SETS · DESDE '+scCuando(a.iniciada_at)+'</small></div>' })
+  const vivo=ab.filter(function(a){return !a.abandonada})[0], inc=scIncOrden(ab)
+  const num=function(id){ const k=ses.findIndex(function(z){return z.id===id}); return k<0?'':String(k+1).padStart(2,'0') }
+  const nomL=function(n){ return plEsc(String(n||'').replace(/^S\d+\s*[—-]\s*/,'').toUpperCase()) }
+  let h=''
+  if (inc.length) h+='<button type="button" class="v3Inc" onclick="scVerTodas()"><span class="v3Inc__n">'+inc.length+'</span><span>'+(inc.length===1?'SESIÓN REQUIERE':'SESIONES REQUIEREN')+' ATENCIÓN'+
+    (inc.some(function(a){return a.parece_completa})?' · <b>'+inc.filter(function(a){return a.parece_completa}).length+' PARECE COMPLETA</b>':'')+'</span><em>REVISAR →</em></button>'
+  const abrir=F?'<a class="v3B v3B--on" href="'+urlRutina(F.id)+'" onclick="return rtIr(event,\''+urlRutina(F.id)+'\')">ABRIR RUTINA</a>':''
   const bloqueada = px && !px.habilitada && px.estado==='sin_cerrar'
-  let pill='', sub='', b1='', b2=''
-  const abrir=F?'<a class="ccB ccB--on" href="'+urlRutina(F.id)+'" onclick="return rtIr(event,\''+urlRutina(F.id)+'\')">ABRIR RUTINA</a>':''
-  if (!px){ pill='<span class="opPill opPill--ok">SEMANA COMPLETA</span>'; sub='Puedes darle una sesión extra.' }
-  else if (hb){ pill='<span class="opPill opPill--on">'+(hb.extra?'EXTRA · ':'')+'HABILITADA ✓</span>'; sub='El socio ya puede verla'+(hb.permite_hoy?' · también hoy':'')+'.'
-    b1=abrir; b2='<button type="button" class="ccB ccB--lnk" onclick="scAccion(\'quitar_habilitacion\')">QUITAR HABILITACIÓN</button>' }
-  else if (bloqueada){ pill='<span class="opPill opPill--warn">ESPERA CIERRE</span>'; sub='Hay una sesión sin cerrar: habilítala igual o cierra la anterior.'
-    if (sig) b1='<button type="button" class="ccB ccB--on" onclick="scHabilitarDirecto(\''+sig.id+'\')">HABILITAR AHORA</button>' }
-  else if (st.entreno_hoy){ pill='<span class="opPill opPill--mute">YA ENTRENÓ HOY</span>'; sub='Puedes habilitarla igual para hoy.'
-    b1='<button type="button" class="ccB ccB--on" onclick="scHabilitarDirecto(\''+px.id+'\')">HABILITAR AHORA</button>' }
-  else { pill='<span class="opPill opPill--on">DISPONIBLE</span>'; sub='El socio ya puede iniciarla.'; b1=abrir }
-  const pxS = !px ? null : (bloqueada && sig ? sig : px), pxLab = pxS ? scIdx(pxS.id) : ''
-  h+='<div class="ccNext"><div class="ccNext__n" aria-hidden="true">'+(pxLab?pxLab.replace('S','').padStart(2,'0'):'✓')+'</div><div class="ccNext__c">'+
-    '<small>SIGUIENTE SESIÓN</small><b>'+plEsc(String(pxS?pxS.nombre:'SEMANA COMPLETA').toUpperCase())+'</b><div class="ccNext__p">'+pill+'<span>'+sub+'</span></div>'+
-    '<div class="ccBtns">'+b1+'<button type="button" class="ccB" onclick="scElegir()">ELEGIR OTRA</button>'+b2+'</div></div></div></div>'
-  // ── DERECHA: REQUIEREN ATENCIÓN
-  h+='<div class="cc__r"><div class="ccA__h"><b>'+inc.length+'</b><span>REQUIEREN<br>ATENCIÓN</span></div>'+
-    (inc.length ? '<ul class="ccL">'+inc.slice(0,3).map(scIncFila).join('')+'</ul>'+(inc.length>3?'<button type="button" class="ccB ccB--lnk" onclick="scVerTodas()">VER LAS '+inc.length+' →</button>':'')
-               : '<div class="ccA__ok">Todo cerrado. Sin sesiones pendientes de resolver.</div>')+'</div></div>'
-  // ── SEMANA en una línea
-  if (ses.length) h+='<div class="ccWk" aria-label="Semana">'+ses.map(function(z,i){
-      const u='#/socio/'+F.id+'/plan?w='+st.semana+'&s='+z.id, esX=hb&&hb.sesion_id===z.id, pl=SC_PILL[z.estado]||SC_PILL.pendiente
-      const ic={completada:'✓',en_curso:'●',sin_cerrar:'◐',incompleta:'–',pendiente:'○'}[z.estado]||'○'
-      return '<a class="ccWk__i ccWk__i--'+z.estado+(esX?' ccWk__i--hab':'')+'" href="'+u+'" onclick="return rtIr(event,\''+u+'\')" title="Abrir en el planificador">'+
-        '<i aria-hidden="true">'+ic+'</i><span><em>'+String(i+1).padStart(2,'0')+'</em>'+plEsc(String(z.nombre||'').toUpperCase())+'</span>'+
-        '<small>'+(esX&&z.estado!=='completada'?'HABILITADA':pl[0])+'</small></a>' }).join('')+'</div>'
+  let lab='SIGUIENTE', n='', nom='', pill='', sub='', btns=''
+  if (vivo){ lab='EN CURSO · AHORA'; n=num(vivo.sesion_id); nom=nomL(vivo.nombre); pill='<span class="opPill opPill--live">EN CURSO</span>'
+    sub=vivo.ejercicios+' / '+vivo.total_ejercicios+' ejercicios · '+vivo.sets+' sets · desde '+scCuando(vivo.iniciada_at); btns=abrir }
+  else if (!px){ n='✓'; nom='SEMANA COMPLETA'; pill='<span class="opPill opPill--ok">'+(st.hechas||0)+'/'+(st.programadas||ses.length)+'</span>'; sub='Completó la semana. Puedes darle una sesión extra.'
+    btns='<button type="button" class="v3B v3B--on" onclick="scElegir()">+ SESIÓN EXTRA</button>' }
+  else if (hb){ n=num(hb.sesion_id)||num(px.id); nom=nomL(hb.nombre||px.nombre); pill='<span class="opPill opPill--on">'+(hb.extra?'EXTRA · ':'')+'HABILITADA ✓</span>'; sub='El socio ya puede verla'+(hb.permite_hoy?' · también hoy':'')+'.'
+    btns=abrir+'<button type="button" class="v3B" onclick="scGestionar()">GESTIONAR</button>' }
+  else if (bloqueada){ const t=sig||px; n=num(t.id); nom=nomL(t.nombre); pill='<span class="opPill opPill--warn">LISTA PARA HABILITAR</span>'; sub='Hay una sesión sin cerrar. Puedes habilitarla igual.'
+    btns='<button type="button" class="v3B v3B--on" onclick="scHabilitarConf(\''+t.id+'\')">HABILITAR AHORA</button><button type="button" class="v3B" onclick="scElegir()">ELEGIR OTRA</button>' }
+  else if (st.entreno_hoy){ n=num(px.id); nom=nomL(px.nombre); pill='<span class="opPill opPill--mute">MAÑANA</span>'; sub='Ya entrenó hoy. Puedes habilitarla igual para hoy.'
+    btns='<button type="button" class="v3B v3B--on" onclick="scHabilitarConf(\''+px.id+'\')">HABILITAR AHORA</button><button type="button" class="v3B" onclick="scElegir()">ELEGIR OTRA</button>' }
+  else { n=num(px.id); nom=nomL(px.nombre); pill='<span class="opPill opPill--on">DISPONIBLE ✓</span>'; sub='El socio ya puede iniciarla.'
+    btns=abrir+'<button type="button" class="v3B" onclick="scElegir()">ELEGIR OTRA</button>' }
+  h+='<div class="v3Next"><div class="v3Next__k">'+lab+'</div><div class="v3Next__r"><span class="v3Next__n">'+n+'</span><b>'+nom+'</b></div>'+
+    '<div class="v3Next__p">'+pill+'<span>'+sub+'</span></div><div class="v3Btns">'+btns+'</div></div>'
+  if (ses.length){
+    h+='<div class="v3Wk"><div class="v3Wk__h"><span>ESTA SEMANA</span><b>'+(st.hechas||0)+' / '+(st.programadas||ses.length)+'</b></div>'
+    ses.forEach(function(z,i){ const esX=hb&&hb.sesion_id===z.id, pl=SC_PILL[z.estado]||SC_PILL.pendiente
+      const ic={completada:'✓',en_curso:'●',sin_cerrar:'◐',incompleta:'–',pendiente:'○'}[z.estado]||'○', u='#/socio/'+F.id+'/plan?w='+st.semana+'&s='+z.id
+      const reg=ab.find(function(a){return a.sesion_id===z.id})
+      const ops='<a href="'+u+'" onclick="return rtIr(event,\''+u+'\')">ABRIR EN PLANIFICADOR</a>'+
+        (z.estado==='completada' ? '<button onclick="scAccion(\'habilitar\',null,\''+z.id+'\',true)">REPETIR COMO EXTRA</button>'
+          : esX ? '<button onclick="scAccion(\'quitar_habilitacion\')">QUITAR HABILITACIÓN</button>'
+          : '<button onclick="scHabilitarConf(\''+z.id+'\')">HABILITAR</button>')+
+        (reg&&reg.abandonada?'<button onclick="scResolver(\''+reg.id+'\')">RESOLVER…</button><button onclick="scAccion(\'cerrar\',\''+reg.id+'\')">CERRAR INCOMPLETA</button>':'')
+      h+='<div class="v3Row v3Row--'+z.estado+(esX?' v3Row--hab':'')+'"><i aria-hidden="true">'+ic+'</i><span class="v3Row__n">'+String(i+1).padStart(2,'0')+'</span>'+
+        '<b>'+nomL(z.nombre)+'</b><small>'+(esX&&z.estado!=='completada'?'HABILITADA':pl[0])+(z.estado==='completada'&&z.cuando?' · '+scCuando(z.cuando,false):'')+'</small>'+
+        (z.estado==='pendiente'&&!esX?'<button type="button" class="v3Row__q" onclick="scHabilitarConf(\''+z.id+'\')">HABILITAR →</button>':'')+
+        '<div class="pfMenuW"><button type="button" class="v3Row__m" onclick="pfMenu(this)" aria-haspopup="true" aria-label="Acciones de '+nomL(z.nombre)+'">···</button><div class="pfMenu pfMenu--r" hidden>'+ops+'</div></div></div>' })
+    h+='</div>'
+  }
   el.innerHTML=h
+}
+function scGestionar(){
+  const st=SC.st||{}, hb=st.habilitada
+  scModal('GESTIONAR HABILITACIÓN','<p class="gpTxt"><b>'+plEsc(String((hb&&hb.nombre)||'').replace(/^S\d+\s*[—-]\s*/,'').toUpperCase())+'</b> está habilitada'+(hb&&hb.permite_hoy?' (también para hoy)':'')+'.</p><div class="gpErr" id="scErr" style="display:none"></div>'+
+    '<button type="button" class="mSG__ok" onclick="scElegir()">CAMBIAR POR OTRA SESIÓN</button>'+
+    '<button type="button" class="mSG__sec" onclick="scAccion(\'quitar_habilitacion\')">QUITAR HABILITACIÓN</button>'+
+    '<button type="button" class="mSG__sec" onclick="scElegir()">+ SESIÓN EXTRA</button>'+
+    '<button type="button" class="mSG__sec" onclick="scCerrar()">VOLVER</button>')
+}
+function scHabilitarConf(sesId){
+  const st=SC.st||{}, abierta=(st.abiertas||[]).some(function(a){return a.abandonada}), hoy=st.entreno_hoy
+  if (!abierta && !hoy){ scAccion('habilitar', null, sesId, false); return }
+  const z=(st.sesiones||[]).find(function(x){return x.id===sesId})||{}
+  scModal(abierta?'EXISTE UNA SESIÓN SIN CERRAR':'YA ENTRENÓ HOY','<p class="gpTxt">Puedes habilitar <b>'+plEsc(String(z.nombre||'').replace(/^S\d+\s*[—-]\s*/,'').toUpperCase())+'</b> de todas formas'+(abierta?'; la sesión sin cerrar no se modifica':'')+'.</p><div class="gpErr" id="scErr" style="display:none"></div>'+
+    '<button type="button" class="mSG__ok" onclick="scAccion(\'habilitar\',null,\''+sesId+'\',true)">HABILITAR DE TODAS FORMAS</button><button type="button" class="mSG__sec" onclick="scCerrar()">CANCELAR</button>')
 }
 // FINALIZAR: completa solo si está todo registrado; si falta, se ofrece cerrar como incompleta (no se falsifica adherencia)
 function scFinalizar(rid){
