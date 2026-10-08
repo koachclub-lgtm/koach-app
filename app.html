@@ -4150,7 +4150,7 @@ function bkCapsulas(bfs){
   if (BK.cap==null || BK.cap>=bfs.length) BK.cap = prim>=0 ? prim : null
   return bfs.map((b,bi)=>{
     const bes=bkBes(b), done=bloqueCompleto(b), open=BK.cap===bi, cod=bkCod(b,bi), nom=bkNom(b,bi), hechos=bkSetsHechos(b)
-    const estado = done ? 'COMPLETADO · '+bkKgBloque(b).toLocaleString('es-CL')+' KG' : bi===prim ? (hechos?'EN CURSO · '+hechos+'/'+b.sets+' SETS · '+bkKgBloque(b).toLocaleString('es-CL')+' KG':'SIGUIENTE') : 'BLOQUEADO'
+    const estado = done ? 'COMPLETADO · '+bkKgBloque(b).toLocaleString('es-CL')+' KG' : bi===prim ? (hechos?'EN CURSO · '+hechos+'/'+b.sets+' · '+bkKgBloque(b).toLocaleString('es-CL')+' KG':'SIGUIENTE') : 'BLOQUEADO'
     const lista = open ? '<div class="cp__l">'+bes.map(be=>{ const ej=be.ejercicios||{}, w=seedWk(be,ej)
         return '<div class="cp__e"><div><b>'+bkEsc(ej.nombre||'—')+'</b><span>'+bkEsc(ej.grupo_muscular||'')+'</span></div><em>'+bkValor(w,ej)+'</em></div>' }).join('')+'</div>'+
       (done ? '<button type="button" class="cp__cta cp__cta--sec" onclick="bkAbrir('+bi+')">VER O CORREGIR '+cod+'</button>'
@@ -4341,7 +4341,7 @@ function pintarSesion(){
   S._bfs=bfs
   const NOM={B1:'ACTIVACIÓN',B2:'FUERZA PRINCIPAL',B3:'CIERRE ACCESORIO'}
   const focoId=wxFocoAuto(bfs)
-  const hk=document.getElementById('sKgHoy'); if(hk){ const st=wxSetsHoy(bfs)
+  const hk=document.getElementById('sKgHoy'); if(hk){ let sh=0, stt=0; bfs.forEach(x=>{ sh+=bkSetsHechos(x); stt+=(x.sets||0) }); const st=[sh,stt] // sets de bloque, igual que en las cápsulas
     // c71 · reloj de sesión (siete segmentos): cuenta desde iniciada_at hasta que se cierra la sesión
     // c72 · dos celdas del mismo peso: tiempo de sesión (siete segmentos) y sets hechos; una línea de progreso une las dos.
     const pct=st[1]?Math.round(st[0]/st[1]*100):0
