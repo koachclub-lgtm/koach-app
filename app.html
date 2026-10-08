@@ -2276,7 +2276,7 @@ body.wl-on{overflow:hidden}
   <div class="kFinQ">
     <span class="kLbl kLbl--dk">CERRAR SESIÓN</span><div class="kFinQ__t">¿COMPLETASTE TODAS TUS SERIES?</div>
     <div id="fqSub" style="font-size:10px;color:#7C7B76;line-height:1.6;margin-bottom:18px">Confirma tu sesión para registrar correctamente tu progreso.</div>
-    <button class="btn" onclick="completarTodo()" style="margin-bottom:9px">✓ SÍ, COMPLETÉ TODO</button>
+    <button class="btn" id="fqTodo" onclick="completarTodo()" style="margin-bottom:9px">✓ SÍ, COMPLETÉ TODO</button>
     <button class="btn" style="background:rgba(18,18,16,.08);color:#121210" onclick="abrirFinB()">NO, HICE ALGUNOS CAMBIOS</button>
     <button onclick="document.getElementById('mFinQ').style.display='none'" style="width:100%;border:none;background:none;padding:14px 0 0;font-size:8px;font-weight:900;letter-spacing:.14em;color:#BEBDB8;cursor:pointer">SEGUIR ENTRENANDO</button>
   </div>
@@ -2933,6 +2933,7 @@ function lunes(){ const h=new Date(),d=(h.getDay()+6)%7,l=new Date(h); l.setDate
 
 /* ══ UTILIDADES ══ */
 function vista(id){ document.querySelectorAll('.vista').forEach(v=>v.classList.toggle('on',v.id===id)); window.scrollTo(0,0); if(id==='vLogin') fotoLogin()
+  if (id==='vSesion') navPush('ses'); else if (id!=='vLogin') navPop('ses')
   if (id!=='vSesion' && S && S._planPend) setTimeout(function(){ planActualizado('pendiente') }, 50) }
 /* ═══ c40 · KOACH STATE SYSTEM · P0 ═══
    koachMsg: ningún texto técnico llega al usuario (errores de red, acceso, permisos y datos → voz KOACH; el detalle va a consola con código corto).
@@ -3706,10 +3707,23 @@ async function k2Solicitar(tipo, detalle, btn, okTxt, spId){
     return true
   }catch(e){ console.error(e); toast('No se pudo enviar — intenta de nuevo'); if(btn) btn.disabled=false; return false }
 }
-function volverHome(){
-  if (S._dirty){ S._dirty=false; S._avOk=false; entrar() }
+function volverHome(desdeAtras){
+  if (!desdeAtras) navPop('ses')
+  rwPersistir()
+  // c74 · con una sesión en curso, la portada se relee para ofrecer CONTINUAR (y retomar sets + borrador)
+  if (S._dirty || S.regId){ S._dirty=false; S._avOk=false; entrar() }
   else vista('vHome')
 }
+// c74 · BOTÓN ATRÁS DEL TELÉFONO: cierra el bloque o vuelve a la portada; nunca sale de la app a mitad de sesión
+const NAV={skip:false}
+function navPush(k){ try{ if(history.state && history.state.k===k) return; history.pushState({k:k},'') }catch(_){} }
+function navPop(k){ try{ if(NAV.skip) return; if(history.state && history.state.k===k){ NAV.skip=true; history.back() } }catch(_){} }
+window.addEventListener('popstate', function(){
+  if (NAV.skip){ NAV.skip=false; return }
+  const blk=document.getElementById('oBloque')
+  if (blk && blk.classList.contains('vis')){ bkCerrar(true); return }
+  const on=(document.querySelector('.vista.on')||{}).id
+  if (on==='vSesion') volverHome(true) })
 
 /* ══ SESIÓN ══ */
 function cargando(m){ const o=document.getElementById('oLoad'); if(!o)return
@@ -3739,6 +3753,7 @@ async function reanudar(){
       S.setLog[k]=r
     })
   }catch(_){}
+  rwRestaurar()
   try{
     // c8.1: orden por created_at (el id es UUID aleatorio → "último" salía al azar). Respaldo: cargas por ejercicio,
     // así la semana copiada (bloque_ejercicio nuevo) igual lee lo ejecutado la semana anterior.
@@ -3895,6 +3910,7 @@ async function abrirSesion(num){
       const k = r.bloque_ejercicio_id ? ('be:'+r.bloque_ejercicio_id+'#'+r.set_numero) : ('blk:'+r.bloque_id+'#'+r.set_numero)
       S.setLog[k]=r
     })
+    rwRestaurar()
   }catch(e){ console.error('instancia', e) }
   vista('vSesion')
   document.getElementById('sTit').textContent = ses.nombre
@@ -4177,10 +4193,10 @@ function bkCapsulas(bfs){
 function bkAbrir(bi){ const bfs=S._bfs||[]; if(!bfs[bi]) return
   BK.bi=bi; const b=bfs[bi]; BK.set = bkSetActual(b) || b.sets
   let o=document.getElementById('oBloque'); if(!o){ o=document.createElement('div'); o.id='oBloque'; o.setAttribute('role','dialog'); o.setAttribute('aria-modal','true'); document.body.appendChild(o) }
-  o.classList.add('vis'); document.documentElement.classList.add('bk-on'); bkWake(true); bkRestRestaurar(); bkOverRestaurar(); bkPintar()
+  o.classList.add('vis'); document.documentElement.classList.add('bk-on'); navPush('blk'); bkWake(true); bkRestRestaurar(); bkOverRestaurar(); bkPintar()
   setTimeout(function(){ const f=o.querySelector('.bk__cta'); if(f) f.focus({preventScroll:true}) },50)
 }
-function bkCerrar(){ const o=document.getElementById('oBloque'); if(o) o.classList.remove('vis'); document.documentElement.classList.remove('bk-on'); BK.bi=null; bkWake(false); pintarSesion() }
+function bkCerrar(desdeAtras){ if(!desdeAtras) navPop('blk'); rwPersistir(); const o=document.getElementById('oBloque'); if(o) o.classList.remove('vis'); document.documentElement.classList.remove('bk-on'); BK.bi=null; bkWake(false); pintarSesion() }
 function bkPintar(){
   const o=document.getElementById('oBloque'), bfs=S._bfs||[], b=bfs[BK.bi]; if(!o||!b){ return }
   const bes=bkBes(b), cod=bkCod(b,BK.bi), nom=bkNom(b,BK.bi), done=bloqueCompleto(b), n=BK.set, hecho=bkSetHecho(b,n)
@@ -4193,7 +4209,7 @@ function bkPintar(){
     const N=bkEsc(ej.nombre||'ejercicio')
     const ctl=(k,lab,val,paso,id,modo,qué)=>'<div class="kset kset--'+k+'"><span class="kset__l">'+lab+'</span><div class="kset__r">'+
       '<button type="button" onclick="rwStep(\''+be.id+'\','+n+',\''+k+'\','+(-paso)+')" aria-label="Disminuir '+qué+' de '+N+'">−</button>'+
-      '<input id="'+id+'" style="--len:'+KSET.len(val)+'" value="'+(val==null?'':val)+'" placeholder="—" inputmode="'+modo+'" onfocus="this.select()" oninput="this.style.setProperty(\'--len\',KSET.len(this.value))" onchange="rwSet(\''+be.id+'\','+n+',\''+k+'\',this.value)" aria-label="'+qué[0].toUpperCase()+qué.slice(1)+' de '+N+', set '+n+'">'+
+      '<input id="'+id+'" style="--len:'+KSET.len(val)+'" value="'+(val==null?'':val)+'" placeholder="—" inputmode="'+modo+'" onfocus="this.select()" oninput="this.style.setProperty(\'--len\',KSET.len(this.value));rwDraft(\''+be.id+'\','+n+',\''+k+'\',this.value)" onchange="rwSet(\''+be.id+'\','+n+',\''+k+'\',this.value)" aria-label="'+qué[0].toUpperCase()+qué.slice(1)+' de '+N+', set '+n+'">'+
       '<span class="kset__u" aria-hidden="true">'+lab+'</span>'+
       '<button type="button" onclick="rwStep(\''+be.id+'\','+n+',\''+k+'\','+paso+')" aria-label="Aumentar '+qué+' de '+N+'">+</button></div></div>'
     const repsControl = () => ctl('reps','REPS',rv.reps,1,'rwR-'+be.id+'-'+n,'numeric','repeticiones')
@@ -4424,11 +4440,32 @@ function wkStep(beId,k,d){
 function rwGet(beId,n,w,fila){
   const k=beId+'#'+n
   if(!S.rw[k]){
+    // c74 · sin fila: el set anterior ya registrado manda (mismo arrastre v7.7, también después de volver a la sesión)
+    let prev=null; if(!fila) for(let m=n-1;m>=1;m--){ const f=S.setLog[setKey(beId,m)]; if(f && (f.peso!=null||f.reps||f.seg!=null)){ prev=f; break } }
     S.rw[k] = fila ? {kg:(fila.peso!=null?fila.peso:null), reps:(fila.reps||w.reps), seg:(fila.seg!=null?fila.seg:w.seg)}
+            : prev ? {kg:(prev.peso!=null?prev.peso:(w.kg!=null?w.kg:null)), reps:(prev.reps||w.reps), seg:(prev.seg!=null?prev.seg:w.seg)}
                    : {kg:(w.kg!=null?w.kg:null), reps:w.reps, seg:w.seg}
   }
   return S.rw[k]
 }
+// c74 · BORRADOR DEL SET: lo que el socio escribe y aún no completa se guarda en el teléfono por sesión (registro_id).
+// No es la fuente de verdad (eso es set_registros): solo evita que se pierda al volver atrás, bloquear el teléfono o recargar.
+function rwClave(){ return S.regId ? 'k_rw_'+S.regId : null }
+function rwPersistir(){ const c=rwClave(); if(!c) return
+  try{ const o={}; Object.keys(S.rw||{}).forEach(function(k){ const r=S.rw[k], i=k.lastIndexOf('#')
+      if (r && r._man && !S.setLog[setKey(k.slice(0,i), +k.slice(i+1))]) o[k]={kg:r.kg, reps:r.reps, seg:r.seg} })
+    if (Object.keys(o).length) localStorage.setItem(c, JSON.stringify({t:Date.now(), rw:o})); else localStorage.removeItem(c) }catch(_){} }
+function rwRestaurar(){ const c=rwClave(); if(!c) return
+  try{ const x=JSON.parse(localStorage.getItem(c)||'null'); if(!x || !x.rw || Date.now()-x.t>16*3600e3){ localStorage.removeItem(c); return }
+    Object.keys(x.rw).forEach(function(k){ const i=k.lastIndexOf('#'); if (S.setLog[setKey(k.slice(0,i), +k.slice(i+1))]) return
+      S.rw[k]=Object.assign({}, x.rw[k], {_man:true}) }) }catch(_){} }
+// mientras escribe (antes del blur): el valor queda en el borrador aunque salga sin tocar otra cosa
+function rwLimpiar(id){ try{ localStorage.removeItem('k_rw_'+(id||S.regId)) }catch(_){} }
+function rwDraft(beId,n,k,v){ const rv=S.rw[beId+'#'+n]; if(!rv) return; const t=String(v).trim(); if(!t) return
+  if (k==='kg'){ const x=parseFloat(t.replace(',','.')); if(isNaN(x)) return; rv.kg=x }
+  else if (k==='seg'){ const x=parseInt(t); if(isNaN(x)) return; rv.seg=Math.max(5,x) }
+  else rv.reps=t
+  rv._man=true; rwPersistir() }
 function rwSet(beId,n,k,v){
   const key=beId+'#'+n, rv=S.rw[key]; if(!rv)return
   rv._man=true
@@ -4438,6 +4475,7 @@ function rwSet(beId,n,k,v){
     const i=document.getElementById('rwS-'+beId+'-'+n); if(i){i.value=rv.seg;i.style.setProperty('--len',KSET.len(i.value))} }
   else { const s=String(v).trim(); if(!s)return; rv.reps=s
     const i=document.getElementById('rwR-'+beId+'-'+n); if(i){i.value=s;i.style.setProperty('--len',KSET.len(i.value))} }
+  rwPersistir()
   // Si la serie ya está registrada, la corrección viaja al registro real
   const fila=S.setLog[setKey(beId,n)]
   if(fila && fila.id){
@@ -4481,7 +4519,7 @@ async function tapSetRow(beId,n,bId,ejId){
   syncEnvio()
   sb.from('set_registros').insert(fila).select('id').single().then(r=>{
     if(r.error){ delete S.setLog[k]; pintarSesion(); syncErr(); toast('No se guardó el set — toca de nuevo') }
-    else { S.setLog[k].id=r.data.id; syncOk(); chequearBloque(bId)
+    else { S.setLog[k].id=r.data.id; syncOk(); rwPersistir(); chequearBloque(bId)
       const blk=S._bfs.find(function(x){return x.id===bId})
       if(blk && S.abierto===beId && setsHechosDe(beId,blk.sets)>=blk.sets){ S.abierto=null; pintarSesion() } }
   })
@@ -4745,7 +4783,12 @@ function contarSets(){
 }
 function pedirFinal(){
   const c=contarSets()
-  document.getElementById('fqSub').textContent = (c.hec>0
+  // c74 · sin series registradas y con menos de 10 min, "completé todo" fabricaba la sesión entera con la prescripción
+  const min=S.regInicio ? (Date.now()-S.regInicio)/60000 : 99, corta=(c.hec===0 && min<10)
+  document.getElementById('fqTodo').style.display = corta ? 'none' : ''
+  document.getElementById('fqSub').textContent = corta
+    ? 'Aún no registras series en esta sesión. Completa cada set en su bloque para que tu KOACH vea tu entrenamiento real.'
+    : (c.hec>0
     ? 'Llevas '+c.hec+' de '+c.tot+' series registradas. Lo ya registrado se conserva tal cual.'
     : 'Confirma tu sesión para registrar correctamente tu progreso.')
   document.getElementById('mFinQ').style.display='block'
@@ -4802,6 +4845,7 @@ function abrirFinB(){
   document.getElementById('mFinB').style.display='block'
 }
 async function finalizar(){
+  rwLimpiar()   // c74 · la sesión se cierra: el borrador local ya no aplica
   try{
   cargandoOff()
   document.getElementById('oFin').classList.remove('vis')
