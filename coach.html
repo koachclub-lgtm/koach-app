@@ -1595,6 +1595,18 @@ html.selAbierto,html.selAbierto body{overflow:hidden}
 .mh__code,.mh__prog,.mh__s small,.mh__s em{font-family:'Space Mono',var(--font-mono) !important}
 .pfB--wa{width:44px;padding:0}.pfB--wa svg{width:20px;height:20px}
 @media (min-width:1024px){ html.en-ficha body{max-width:1360px !important;padding-left:28px;padding-right:28px} }
+
+/* ═══ c54 · KOACH DRAG HANDLE ═══ */
+.tc__h{position:absolute;top:8px;right:8px;width:44px;height:44px;display:flex;align-items:center;justify-content:center;border-radius:12px;opacity:1;cursor:grab;touch-action:none;user-select:none;-webkit-user-select:none;transition:transform .15s ease, background .15s ease}
+.tc__h img{width:30px;height:30px;display:block;pointer-events:none;-webkit-user-drag:none}
+.tc__h:hover{transform:translateY(-1px)}.tc__h:hover,.tc__h:focus-visible{background:rgba(128,128,128,.12);outline:none}
+.tc__h:focus-visible{box-shadow:0 0 0 2px #2BB8C7}
+.tc__h:active{cursor:grabbing}
+html.is-grabbing,html.is-grabbing *{cursor:grabbing !important}
+.tc__h--lock{cursor:not-allowed;touch-action:auto}.tc__h--lock img{filter:grayscale(1);opacity:.32}.tc__h--lock:hover{transform:none;background:none}
+.tc{transition:box-shadow .18s ease, transform .18s ease, opacity .18s ease}
+.tc.is-drag{opacity:.55;transform:scale(.985)}.tc.is-over{transform:translateY(-3px);box-shadow:0 0 0 2px #2BB8C7}
+.tc__lock{display:none}
 /* ═══ FIN CAPA 3 ═══ */
 /* ═══ MOTOR DE CONSTRUCCIÓN c8.0 · MACRO → MESO → MICRO ═══ */
 .plNav{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin:0 0 14px}
@@ -6336,7 +6348,9 @@ function scPintar(){
       '<button type="button" class="tc__body" onclick="scAbrirRes(\''+z.id+'\')" aria-expanded="'+(SCD.open===z.id)+'" aria-controls="tcRes">'+
         '<span class="tc__k"><em>'+String(i+1).padStart(2,'0')+'</em>'+(esN||esX?'<i>'+(enV?'AHORA':esX?'HABILITADA':'SIGUIENTE')+'</i>':'')+'</span>'+
         '<b class="tc__n">'+scNomL(z.nombre)+'</b><span class="tc__s">'+est+'</span></button>'+
-      (mov?'<span class="tc__h" role="button" tabindex="0" aria-label="Arrastrar '+scNomL(z.nombre)+' para cambiar su orden" onpointerdown="scPD(event,\''+z.id+'\')" onkeydown="scKeyMove(event,\''+z.id+'\')">⠿</span>':'<span class="tc__lock" title="Realizada o abierta: posición fija" aria-hidden="true">'+(z.estado==='completada'?'✓':'')+'</span>')+'</div>' })
+      // c54 · KOACH Drag Handle (asset oficial). Solo él inicia el arrastre; tocar la tarjeta abre el resumen.
+      (mov?'<span class="tc__h" role="button" tabindex="0" aria-roledescription="controlador de arrastre" aria-label="Mover '+scNomL(z.nombre)+': arrastra, o usa las flechas izquierda y derecha" onpointerdown="scPD(event,\''+z.id+'\')" onkeydown="scKeyMove(event,\''+z.id+'\')"><img src="/img/brand/koach-drag-handle.png" alt="" width="30" height="30" draggable="false"></span>'
+          :'<span class="tc__h tc__h--lock" aria-disabled="true" title="'+(z.estado==='completada'?'Realizada':'Sesión abierta')+': posición fija"><img src="/img/brand/koach-drag-handle.png" alt="" width="30" height="30" draggable="false"></span>')+'</div>' })
   h+='</div><div id="tcRes" class="tcRes" '+(SCD.open?'':'hidden')+'></div>'
   const fuera=inc.filter(function(a){ return !ses.some(function(z){return z.id===a.sesion_id}) })
   if (fuera.length) h+='<button type="button" class="tbOld" onclick="scVerTodas()">+ '+fuera.length+' SIN CERRAR DE SEMANAS ANTERIORES · RESOLVER →</button>'
@@ -6373,12 +6387,14 @@ async function scPintarRes(){
 }
 // ── arrastre por manija (pointer events: mouse + táctil); tocar la tarjeta abre el resumen
 function scPD(ev,id){ ev.preventDefault(); ev.stopPropagation()
-  const card=ev.target.closest('.tc'); SCD.pd={id:id, over:null}; SCD.drag=true; card.classList.add('is-drag')
-  const mv=function(e){ const t=document.elementFromPoint(e.clientX,e.clientY), c=t&&t.closest&&t.closest('.tc'); document.querySelectorAll('.tc').forEach(function(x){ x.classList.remove('is-over') })
+  const card=ev.target.closest('.tc'); SCD.pd={id:id, over:null}; SCD.drag=true; card.classList.add('is-drag'); document.documentElement.classList.add('is-grabbing')
+  const lane=card.closest('.tb2')
+  const mv=function(e){ if (lane){ const r=lane.getBoundingClientRect(); if (e.clientX>r.right-48) lane.scrollLeft+=14; else if (e.clientX<r.left+48) lane.scrollLeft-=14 }
+    const t=document.elementFromPoint(e.clientX,e.clientY), c=t&&t.closest&&t.closest('.tc'); document.querySelectorAll('.tc').forEach(function(x){ x.classList.remove('is-over') })
     const base=(SC.st&&SC.st.sesiones)||[], z=c&&base.find(function(x){return x.id===c.dataset.sid})
     if (c && z && c.dataset.sid!==id && scMovible(z)){ c.classList.add('is-over'); SCD.pd.over=c.dataset.sid } else SCD.pd.over=null }
   const up=function(){ document.removeEventListener('pointermove',mv); document.removeEventListener('pointerup',up); document.removeEventListener('pointercancel',up)
-    const o=SCD.pd&&SCD.pd.over; SCD.pd=null; setTimeout(function(){ SCD.drag=false },0)
+    const o=SCD.pd&&SCD.pd.over; SCD.pd=null; setTimeout(function(){ SCD.drag=false },0); document.documentElement.classList.remove('is-grabbing')
     document.querySelectorAll('.tc').forEach(function(x){ x.classList.remove('is-drag','is-over') })
     if (o) scSwap(id,o) }
   document.addEventListener('pointermove',mv); document.addEventListener('pointerup',up); document.addEventListener('pointercancel',up)
