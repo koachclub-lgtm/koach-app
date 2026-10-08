@@ -1642,6 +1642,22 @@ html.is-grabbing,html.is-grabbing *{cursor:grabbing !important}
 .tc--next .tc__iso,.tc--curso .tc__iso{color:#A9A8A3 !important}                    /* negra → gris claro */
 .tc.is-armed{transform:scale(1.015);box-shadow:0 10px 24px -14px rgba(0,0,0,.45)}
 .tc.is-drag{opacity:.92;box-shadow:0 18px 34px -16px rgba(0,0,0,.5);transition:none}
+/* ═══ c58 · TARJETA OPCIÓN B: isotipo arriba al centro, texto al centro, círculos ‹ › laterales ═══ */
+.tc__h{left:50%;right:auto;top:10px;transform:translateX(-50%);width:28px;height:28px}
+.tc__iso{width:22px;height:22px}
+.tc__body{min-height:168px;padding:44px 16px 16px;align-items:center;text-align:center;justify-content:center;cursor:default}
+.tc--ar .tc__body{padding-left:86px;padding-right:86px}
+.tc__k{justify-content:center}.tc__s{margin-top:2px}
+.tcAr{position:absolute;top:50%;margin-top:14px;transform:translateY(-50%);z-index:2;width:62px;height:62px;border-radius:50%;border:0;display:flex;align-items:center;justify-content:center;cursor:pointer;background:rgba(18,18,18,.10);color:#121212;font-family:'Space Mono',var(--font-mono);font-weight:700;font-size:34px;line-height:1;transition:background .12s ease, color .12s ease, transform .12s ease}
+.tcAr span{display:block;transform:translateY(-2px)}
+.tcAr--l{left:14px}.tcAr--r{right:14px}
+.tc--next .tcAr,.tc--curso .tcAr{background:rgba(255,255,255,.16);color:#F4F3F0}
+.tcAr:hover{background:rgba(18,18,18,.18)}.tc--next .tcAr:hover{background:rgba(255,255,255,.26)}
+.tcAr:active{transform:translateY(-50%) scale(.94);background:#121212;color:#F7F6F3}
+.tc--next .tcAr:active,.tc--curso .tcAr:active{background:#F4F3F0;color:#121212}
+.tcAr:disabled{opacity:.28;cursor:default}.tcAr:disabled:active{transform:translateY(-50%);background:rgba(18,18,18,.10);color:#121212}
+.tcAr:focus-visible{outline:2px solid #2BB8C7;outline-offset:2px}
+@media (max-width:640px){ .tcAr{width:52px;height:52px;font-size:28px} .tc--ar .tc__body{padding-left:72px;padding-right:72px} }
 /* ═══ FIN CAPA 3 ═══ */
 /* ═══ MOTOR DE CONSTRUCCIÓN c8.0 · MACRO → MESO → MICRO ═══ */
 .plNav{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin:0 0 14px}
@@ -6381,8 +6397,12 @@ function scPintar(){
     else if (esX){ est='HABILITADA'+(hb.permite_hoy?' · HOY':''); cls='next' }
     else if (esN){ est=st.entreno_hoy?'SIGUIENTE · MAÑANA':'DISPONIBLE'; cls='next' }
     else { est='PENDIENTE'; cls='pend' }
-    h+='<div class="tc tc--'+cls+(SCD.open===z.id?' is-open':'')+'" role="listitem" data-sid="'+z.id+'">'+
-      '<button type="button" class="tc__body" onpointerdown="scCardDown(event,\''+z.id+'\','+(mov?1:0)+')" onclick="scCardClick(event)" oncontextmenu="return false" ondragstart="return false" onkeydown="scCardKey(event,\''+z.id+'\','+(mov?1:0)+')" title="'+(mov?'Mantén presionado y mueve para reordenar · doble toque para ver el resumen':'Doble toque para ver el resumen')+'" aria-expanded="'+(SCD.open===z.id)+'" aria-controls="tcRes">'+
+    // c58 · OPCIÓN B: círculos laterales ‹ › para reordenar (sin arrastre); deshabilitados si no hay hacia dónde moverse
+    const puedeIzq=mov && ses.slice(0,i).some(scMovible), puedeDer=mov && ses.slice(i+1).some(scMovible)
+    const flechas = mov ? '<button type="button" class="tcAr tcAr--l" '+(puedeIzq?'':'disabled ')+'onclick="scFlecha(event,\''+z.id+'\',-1)" aria-label="Mover '+scNomL(z.nombre)+' una posición antes"><span aria-hidden="true">‹</span></button>'+
+      '<button type="button" class="tcAr tcAr--r" '+(puedeDer?'':'disabled ')+'onclick="scFlecha(event,\''+z.id+'\',1)" aria-label="Mover '+scNomL(z.nombre)+' una posición después"><span aria-hidden="true">›</span></button>' : ''
+    h+='<div class="tc tc--'+cls+(SCD.open===z.id?' is-open':'')+(mov?' tc--ar':'')+'" role="listitem" data-sid="'+z.id+'">'+flechas+
+      '<button type="button" class="tc__body" onpointerdown="scCardDown(event,\''+z.id+'\',0)" onclick="scCardClick(event)" oncontextmenu="return false" ondragstart="return false" onkeydown="scCardKey(event,\''+z.id+'\','+(mov?1:0)+')" title="'+(mov?'Mantén presionado y mueve para reordenar · doble toque para ver el resumen':'Doble toque para ver el resumen')+'" aria-expanded="'+(SCD.open===z.id)+'" aria-controls="tcRes">'+
         '<span class="tc__k"><em>'+String(i+1).padStart(2,'0')+'</em>'+(esN||esX?'<i>'+(enV?'AHORA':esX?'HABILITADA':'SIGUIENTE')+'</i>':'')+'</span>'+
         '<b class="tc__n">'+scNomL(z.nombre)+'</b><span class="tc__s">'+est+'</span></button>'+
       // c54 · KOACH Drag Handle (asset oficial). Solo él inicia el arrastre; tocar la tarjeta abre el resumen.
@@ -6862,6 +6882,8 @@ function scCardDown(ev,id,mov){
     const now=Date.now(); if (now-(SCT.last[id]||0) < 360){ SCT.last[id]=0; scAbrirRes(id) } else SCT.last[id]=now }
   document.addEventListener('pointermove',mv,{passive:false}); document.addEventListener('pointerup',up); document.addEventListener('pointercancel',cancelar)
 }
+// c58 · flechas laterales: mueven una posición (salta las fijas) en el borrador de orden
+function scFlecha(ev,id,dir){ ev.stopPropagation(); if (!SCB.org) scOrgEntrar(); scMover(id,dir) }
 let MG={primero:null}
 async function aplicarPrograma(){
   // Guardia de prescripción (advertencia, jamás bloqueo) — modal KOACH, no confirm nativo
