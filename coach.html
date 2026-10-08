@@ -1547,6 +1547,13 @@ html.selAbierto,html.selAbierto body{overflow:hidden}
 .tbC__m{width:44px;height:44px;border:0;border-radius:12px;background:rgba(128,128,128,.14);color:inherit;font-size:14px;cursor:pointer}
 .tbC .pfMenu a{display:flex;align-items:center;min-height:44px;padding:0 12px;border-radius:10px;color:#121212;text-decoration:none;font-family:var(--font-mono);font-size:12px;letter-spacing:.08em}
 .tbOld{display:block;width:100%;margin-top:10px;min-height:44px;padding:0 14px;border-radius:12px;border:1px dashed rgba(18,18,18,.35);background:#fff;font-family:var(--font-mono);font-size:11.5px;letter-spacing:.08em;text-align:left;cursor:pointer;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+
+/* c51 · guardado discreto + modo organizar */
+.tbSave{font-family:var(--font-mono);font-size:11px;letter-spacing:.12em;color:#5E5D59;align-self:center;min-width:0}
+.tbSave--ok{color:#13808C}.tbSave--err{color:#8A1C1C}
+.tbOrgL{align-self:center;font-family:var(--font-mono);font-size:11.5px;letter-spacing:.1em;color:#13808C}
+.tbB:disabled{opacity:.4;cursor:default}
+.tbC--fija{opacity:.55}
 /* ═══ FIN CAPA 3 ═══ */
 /* ═══ MOTOR DE CONSTRUCCIÓN c8.0 · MACRO → MESO → MICRO ═══ */
 .plNav{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin:0 0 14px}
@@ -6262,15 +6269,19 @@ function scNomL(n){ return plEsc(String(n||'').replace(/^S\d+\s*[—-]\s*/,'').t
 function scMovible(z){ return z && (z.estado==='pendiente') }
 function scPintar(){
   const st=SC.st||{}, el=document.getElementById('scCard'); if(!el||!st.activo){ if(el) el.innerHTML=''; return }
-  const ses=st.sesiones||[], ab=st.abiertas||[], px=st.proxima, hb=st.habilitada
+  const ab=st.abiertas||[], px=st.proxima, hb=st.habilitada
+  let ses=st.sesiones||[]
+  if (SCB.org && SCB.ord) ses=SCB.ord.map(function(id){ return ses.find(function(z){return z.id===id}) }).filter(Boolean)
   const vivo=ab.filter(function(a){return !a.abandonada})[0], inc=scIncOrden(ab)
   const nextId = vivo ? vivo.sesion_id : hb ? hb.sesion_id : (px && (st.siguiente_tras_abierta && px.estado==='sin_cerrar' ? st.siguiente_tras_abierta.id : px.id))
   let h='<div class="tb__bar"><div class="tb__t"><span>SEMANA '+(st.semana||'—')+(st.total_semanas?' DE '+st.total_semanas:'')+'</span><b>'+(st.hechas||0)+'<i>/'+(st.programadas||ses.length)+'</i></b><small>COMPLETADAS'+(inc.length?' · '+inc.length+' POR RESOLVER':'')+'</small></div>'+
-    '<div class="tb__acc"><button type="button" class="tbB tbB--ink" onclick="scElegir()">⇄ CAMBIAR SESIÓN</button><button type="button" class="tbB" onclick="verExtra()">+ RUTINA RÁPIDA</button>'+
-    (inc.length?'<button type="button" class="tbB" onclick="scVerTodas()">⚠ RESOLVER ('+inc.length+')</button>':'')+'</div></div>'
+    '<div class="tb__acc"><span class="tbSave" id="scSave" aria-live="polite"></span>'+(SCB.org
+      ? '<span class="tbOrgL">ORGANIZANDO · arrastra o usa ◀ ▶</span><button type="button" class="tbB" onclick="scOrgSalir()">CANCELAR</button><button type="button" class="tbB tbB--ink" onclick="scOrgAplicar()"'+(scOrgCambio()?'':' disabled')+'>APLICAR ORDEN</button>'
+      : '<button type="button" class="tbB tbB--ink" onclick="scElegir()">⇄ CAMBIAR SESIÓN</button><button type="button" class="tbB" onclick="scOrgEntrar()">⇅ ORGANIZAR</button><button type="button" class="tbB" onclick="verExtra()">+ RUTINA RÁPIDA</button>'+
+        (inc.length?'<button type="button" class="tbB" onclick="scVerTodas()">⚠ RESOLVER ('+inc.length+')</button>':''))+'</div></div>'
   h+='<div class="tb" style="--n:'+Math.max(ses.length,1)+'" role="list" aria-label="Sesiones de la semana">'
   ses.forEach(function(z,i){
-    const esX=hb&&hb.sesion_id===z.id, esN=z.id===nextId, reg=ab.find(function(a){return a.sesion_id===z.id}), mov=scMovible(z)
+    const esX=hb&&hb.sesion_id===z.id, esN=z.id===nextId, reg=ab.find(function(a){return a.sesion_id===z.id}), mov=SCB.org && scMovible(z)
     const u='#/socio/'+F.id+'/plan?w='+st.semana+'&s='+z.id
     let tag='', acc=''
     if (z.estado==='completada'){ tag='✓ COMPLETADA'+(z.cuando?' · '+scCuando(z.cuando,false):'')
@@ -6286,7 +6297,7 @@ function scPintar(){
       acc=(st.entreno_hoy?'<button type="button" class="tbC__b tbC__b--on" onclick="scHabilitarConf(\''+z.id+'\')">HABILITAR HOY</button>':'<a class="tbC__b tbC__b--on" href="'+urlRutina(F.id)+'" onclick="return rtIr(event,\''+urlRutina(F.id)+'\')">ABRIR</a>') }
     else { tag='PENDIENTE'; acc='<button type="button" class="tbC__b" onclick="scHabilitarConf(\''+z.id+'\')">HABILITAR</button>' }
     const cls='tbC tbC--'+(esN||esX?'next':z.estado)+(reg&&reg.abandonada?' tbC--inc':'')+(mov?' tbC--mov':'')
-    h+='<div class="'+cls+'" role="listitem" data-sid="'+z.id+'"'+(mov?' draggable="true" ondragstart="scDragIni(event,\''+z.id+'\')" ondragend="scDragFin()"':'')+' ondragover="scDragSobre(event,\''+z.id+'\')" ondrop="scDrop(event,\''+z.id+'\')">'+
+    h+='<div class="'+cls+(SCB.org&&!scMovible(z)?' tbC--fija':'')+'" role="listitem" data-sid="'+z.id+'"'+(mov?' draggable="true" ondragstart="scDragIni(event,\''+z.id+'\')" ondragend="scDragFin()"':'')+' ondragover="scDragSobre(event,\''+z.id+'\')" ondrop="scDrop(event,\''+z.id+'\')">'+
       '<div class="tbC__top"><span class="tbC__n">'+String(i+1).padStart(2,'0')+'</span>'+(esN||esX?'<span class="tbC__k">'+(vivo&&vivo.sesion_id===z.id?'AHORA':esX?'HABILITADA':'SIGUIENTE')+'</span>':'')+
       (mov?'<span class="tbC__h" aria-hidden="true" title="Arrastra para mover">⠿</span>':'')+'</div>'+
       '<b class="tbC__t">'+scNomL(z.nombre)+'</b><div class="tbC__s">'+tag+'</div>'+
@@ -6307,7 +6318,7 @@ function scPintar(){
 // ── mover sesiones pendientes dentro de la semana (mismo RPC atómico del planificador: reordenar_sesiones)
 async function scReordenar(nuevoSemana){
   if (SCB.run || !F) return; const a=C.asig[F.id]; if(!a) return
-  SCB.run=true
+  SCB.run=true; scGuard('run')
   try{
     const r=await sb.from('sesiones_protocolo').select('id,numero').eq('protocolo_id',a.protocolo_id).order('numero')
     if (r.error) throw r.error
@@ -6315,23 +6326,23 @@ async function scReordenar(nuevoSemana){
     const todos=(r.data||[]).map(function(x){return x.id}); let k=0
     const global=todos.map(function(id){ return set.has(id) ? nuevoSemana[k++] : id })
     const rr=await sb.rpc('reordenar_sesiones',{ p_ids: global }); if (rr.error) throw rr.error
-    toast('Orden de la semana actualizado ✓ — el socio la ve así'); await scCargar(F.id)
-  }catch(e){ toast('No se pudo mover: '+((e&&e.message)||e)) } finally { SCB.run=false }
+    scGuard('ok'); scCargar(F.id)
+  }catch(e){ scGuard('err'); toast('No se pudo guardar el orden: '+((e&&e.message)||e)); scCargar(F.id) } finally { SCB.run=false }
 }
 function scMover(id, dir){
-  const ses=(SC.st&&SC.st.sesiones)||[], ord=ses.map(function(z){return z.id}), i=ord.indexOf(id)
+  const base=(SC.st&&SC.st.sesiones)||[], ord=(SCB.ord||base.map(function(z){return z.id})).slice(), ses=ord.map(function(x){ return base.find(function(z){return z.id===x}) }), i=ord.indexOf(id)
   if (!scMovible(ses[i])){ toast('Solo se mueven sesiones pendientes; las completadas o abiertas quedan fijas.'); return }
   let j=i+dir; while (j>=0 && j<ses.length && !scMovible(ses[j])) j+=dir
   if (i<0||j<0||j>=ses.length){ toast('Solo se mueven sesiones pendientes; las completadas o abiertas quedan fijas.'); return }
-  const t=ord[i]; ord[i]=ord[j]; ord[j]=t; scReordenar(ord)
+  const t=ord[i]; ord[i]=ord[j]; ord[j]=t; SCB.ord=ord; scPintar()
 }
 function scDragIni(ev,id){ SCB.drag=id; ev.dataTransfer.effectAllowed='move'; try{ ev.dataTransfer.setData('text/plain',id) }catch(_e){}; setTimeout(function(){ const c=document.querySelector('.tbC[data-sid="'+id+'"]'); if(c) c.classList.add('is-drag') },0) }
 function scDragFin(){ SCB.drag=null; document.querySelectorAll('.tbC').forEach(function(c){ c.classList.remove('is-drag','is-over') }) }
 function scDragSobre(ev,id){ const ses=(SC.st&&SC.st.sesiones)||[], z=ses.find(function(x){return x.id===id}); if(!SCB.drag||SCB.drag===id||!scMovible(z)) return
   ev.preventDefault(); document.querySelectorAll('.tbC').forEach(function(c){ c.classList.toggle('is-over', c.dataset.sid===id) }) }
-function scDrop(ev,id){ ev.preventDefault(); const de=SCB.drag; scDragFin(); const ses=(SC.st&&SC.st.sesiones)||[], z=ses.find(function(x){return x.id===id})
+function scDrop(ev,id){ ev.preventDefault(); const de=SCB.drag; scDragFin(); const base=(SC.st&&SC.st.sesiones)||[], ses=(SCB.ord||base.map(function(x){return x.id})).map(function(x){ return base.find(function(z){return z.id===x}) }), z=ses.find(function(x){return x.id===id})
   if(!de||de===id||!scMovible(z)) return
-  const ord=ses.map(function(x){return x.id}), i=ord.indexOf(de), j=ord.indexOf(id); ord[i]=id; ord[j]=de; scReordenar(ord) }
+  const ord=ses.map(function(x){return x.id}), i=ord.indexOf(de), j=ord.indexOf(id); ord[i]=id; ord[j]=de; SCB.ord=ord; scPintar() }
 function scGestionar(){
   const st=SC.st||{}, hb=st.habilitada
   scModal('GESTIONAR HABILITACIÓN','<p class="gpTxt"><b>'+plEsc(String((hb&&hb.nombre)||'').replace(/^S\d+\s*[—-]\s*/,'').toUpperCase())+'</b> está habilitada'+(hb&&hb.permite_hoy?' (también para hoy)':'')+'.</p><div class="gpErr" id="scErr" style="display:none"></div>'+
@@ -6398,14 +6409,16 @@ function scHabilitar(sesId){ scAccion('habilitar', null, sesId, !!(document.getE
 async function scAccion(acc, rid, sesId, hoy){
   if (SC.run || !F) return; SC.run=true
   document.querySelectorAll('#scBody button').forEach(function(b){ b.disabled=true })
+  scGuard('run')
   const r=await sb.rpc('koach_sesion_accion',{ p_socio:F.id, p_accion:acc, p_registro:rid||null, p_sesion:sesId||null, p_permite_hoy:!!hoy })
+  if (r.error) scGuard('err')
   SC.run=false
   if (r.error){ const e=document.getElementById('scErr'); const m=String(r.error.message||'')
     if (e){ e.style.display=''; e.textContent = /CON_EJECUCION/.test(m)?'Esta sesión ya tiene entrenamiento registrado: ciérrala como incompleta.' : /SESION_COMPLETADA/.test(m)?'La sesión ya está completada: es historial y no se modifica.' : 'No se pudo: '+m }
     document.querySelectorAll('#scBody button').forEach(function(b){ b.disabled=false }); if(!e) toast('No se pudo: '+m); return }
   SC.st=r.data; scCerrar(); scPintar()
   toast({anular:'Inicio anulado ✓', cerrar:'Sesión cerrada como incompleta ✓ — sus registros se conservan', completar:'Sesión marcada completada ✓', habilitar:'Sesión habilitada ✓ — el socio ya la ve', quitar_habilitacion:'Habilitación retirada'}[acc]||'Listo')
-  loadSala().then(function(){ if (F) fPintarCtx(F.id) })
+  scGuard('ok'); loadSala(true).then(function(){ if (F){ try{ mhPintar(F.id) }catch(_e){} } })   // c51: silencioso, sin pantalla de espera
 }
 // ═══ c11.5 · SOCIO ABIERTO EN VIVO (otro monitor / otra pestaña / el socio entrenando) ═══
 // La pestaña escucha SOLO al socio de su URL. Cualquier cambio confirmado en la base (planificación guardada por otro
@@ -6429,7 +6442,7 @@ async function socRefrescar(origen){
     if (typeof plEsDirty==='function' && plEsDirty()){ P._remoto=true; if (origen==='rt') toast('Hay datos nuevos de este socio: se cargarán al guardar tus cambios'); return }
     if (typeof _pendC!=='undefined' && _pendC>0) return
     const y=window.scrollY; await plRecargar(); window.scrollTo(0,y)
-  } else if (enFicha){ await loadSala(); if (F && F.id===id) fPintarCtx(id) }
+  } else if (enFicha){ if (SCB.org) return; await loadSala(true); if (F && F.id===id){ try{ mhPintar(id) }catch(_e){} scCargar(id) } }   // c51: sin reconstruir ni bloquear
 }
 document.addEventListener('visibilitychange', function(){ if (document.visibilityState==='visible' && F) socRefrescar('foco') })
 // c11.5 · versión de la planificación vista por esta pestaña (asignaciones.plan_revision)
@@ -6646,6 +6659,17 @@ function dupCerrar(seguir){
   const b=document.getElementById('mDup'); if(b) b.style.display='none'
   if (!seguir){ const q=document.getElementById('selBusca'); if(q && document.getElementById('selEj').style.display!=='none') q.focus({preventScroll:true}) }
 }
+// c51 · sin tiempos muertos: modo ORGANIZAR (borrador local, se aplica una vez) + indicador discreto de guardado
+function scOrgEntrar(){ SCB.org=true; SCB.ord=((SC.st&&SC.st.sesiones)||[]).map(function(z){return z.id}); scPintar() }
+function scOrgSalir(){ SCB.org=false; SCB.ord=null; scPintar() }
+function scOrgCambio(){ const b=((SC.st&&SC.st.sesiones)||[]).map(function(z){return z.id}).join(','); return !!SCB.ord && SCB.ord.join(',')!==b }
+function scOrgAplicar(){ if(!scOrgCambio()){ scOrgSalir(); return } const ord=SCB.ord.slice()
+  const base=(SC.st&&SC.st.sesiones)||[]; SC.st.sesiones=ord.map(function(id){ return base.find(function(z){return z.id===id}) })   // se ve al instante
+  SCB.org=false; SCB.ord=null; scPintar(); scReordenar(ord) }
+function scGuard(e){ const el=document.getElementById('scSave'); if(!el) return
+  clearTimeout(scGuard._t); el.className='tbSave tbSave--'+e
+  el.textContent = e==='run' ? 'GUARDANDO…' : e==='ok' ? 'GUARDADO ✓' : e==='err' ? 'NO SE GUARDÓ' : ''
+  if (e==='ok') scGuard._t=setTimeout(function(){ el.textContent=''; el.className='tbSave' }, 2200) }
 let MG={primero:null}
 async function aplicarPrograma(){
   // Guardia de prescripción (advertencia, jamás bloqueo) — modal KOACH, no confirm nativo
