@@ -1658,6 +1658,79 @@ html.is-grabbing,html.is-grabbing *{cursor:grabbing !important}
 .tcAr:disabled{opacity:.28;cursor:default}.tcAr:disabled:active{transform:translateY(-50%);background:rgba(18,18,18,.10);color:#121212}
 .tcAr:focus-visible{outline:2px solid #2BB8C7;outline-offset:2px}
 @media (max-width:640px){ .tcAr{width:52px;height:52px;font-size:28px} .tc--ar .tc__body{padding-left:72px;padding-right:72px} }
+/* c60 · módulo de sesiones V3: estado escrito, ··· por tarjeta, extras ★ en el mismo tablero, ORGANIZAR SEMANA en lista */
+.tc__body{padding:44px 16px 52px !important;cursor:pointer !important;touch-action:manipulation !important;min-height:176px}
+.tc--hecha .tc__body,.tc--inc .tc__body,.tc--curso .tc__body{cursor:pointer !important}
+.tc__k{gap:8px;flex-wrap:wrap}
+.tcP{font-style:normal;display:inline-flex;align-items:center;padding:3px 8px;border-radius:7px;font-family:'Space Mono',var(--font-mono);font-size:10px;font-weight:700;letter-spacing:.1em;white-space:nowrap}
+.tc .tcP,.scO .tcP{font-style:normal}
+.tcP--live,.tc .tc__k .tcP--live{background:#2BB8C7;color:#06272B}
+.tcP--ok,.tc .tc__k .tcP--ok{background:rgba(18,18,18,.08);color:#5E5D59}
+.tcP--line,.tc .tc__k .tcP--line{background:transparent;color:inherit;border:1px solid currentColor;padding:2px 7px;opacity:.8}
+.tcP--mute,.tc .tc__k .tcP--mute{background:rgba(18,18,18,.08);color:#5E5D59}
+.tcP--warn,.tc .tc__k .tcP--warn{background:#121212;color:#F4F3F0}
+.tc--curso .tc__k .tcP--warn{background:#F4F3F0;color:#121212}
+.tc--inc .tcP--warn,.tc .tc__k .tcP--warn{background:#121212;color:#F4F3F0}
+.tc--curso .tc__k .tcP--warn{background:#F4F3F0;color:#121212}
+.tcP--x,.tc .tc__k .tcP--x{border:1px solid #2BB8C7;color:#13808C;padding:2px 7px;background:transparent}
+.tc--next .tc__k .tcP--line,.tc--curso .tc__k .tcP--line{color:#F4F3F0}
+.tc--curso .tc__k .tcP--x,.tc--next .tc__k .tcP--x{color:#2BB8C7}
+@media (min-width:641px){ .tb2{grid-auto-columns:calc((100% - (var(--tcN,3) - 1) * 10px) / var(--tcN,3))} }
+.tc--x{background:#F7F6F3;border:1.5px solid #2BB8C7}
+.tc--x.tc--curso{background:#121212;color:#F4F3F0}
+.tc--x.tc--hecha{background:#E4E3DF;border-color:rgba(43,184,199,.5)}
+.tcM{position:absolute;right:10px;bottom:10px;width:44px;height:44px;border-radius:12px;border:0;background:rgba(18,18,18,.08);color:inherit;font-family:'Space Mono',var(--font-mono);font-weight:700;font-size:16px;letter-spacing:.06em;cursor:pointer;z-index:2}
+.tcM:hover{background:rgba(18,18,18,.16)}
+.tc--next .tcM,.tc--curso .tcM{background:rgba(255,255,255,.14)}.tc--next .tcM:hover,.tc--curso .tcM:hover{background:rgba(255,255,255,.24)}
+.tcM:focus-visible{outline:2px solid #2BB8C7;outline-offset:2px}
+.tb__x{font-style:normal;color:#13808C}
+.scInc{display:flex;align-items:center;gap:12px;width:100%;margin:0 0 10px;min-height:48px;padding:6px 14px;border-radius:12px;border:1px dashed rgba(18,18,18,.45);background:#fff;color:#121212;font-family:'Space Mono',var(--font-mono);font-size:11.5px;letter-spacing:.08em;text-align:left;cursor:pointer}
+.scInc__n{flex:none;min-width:24px;height:24px;padding:0 6px;border-radius:7px;background:#121212;color:#F4F3F0;display:inline-flex;align-items:center;justify-content:center;font-weight:700}
+.scInc__t{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.scInc__go{flex:none;text-decoration:underline;text-underline-offset:3px;font-weight:700}
+.scMenu{position:fixed;z-index:120;min-width:240px;max-width:calc(100vw - 16px)}
+.scMenu a{display:flex;align-items:center;min-height:44px;padding:0 12px;border-radius:10px;color:#121212;text-decoration:none;font-family:var(--font-mono);font-size:12px;letter-spacing:.08em}
+.scMenu a:hover{background:rgba(18,18,18,.06)}
+.scMenu hr{border:0;border-top:1px solid rgba(18,18,18,.1);margin:4px 6px}
+.scMenu button:first-child{background:rgba(18,18,18,.05)}
+.scNom{width:100%;min-height:50px;margin:4px 0 10px;padding:0 14px;border-radius:12px;border:1.5px solid #121212;background:#fff;font-family:var(--font-display);font-weight:700;font-size:18px;text-transform:uppercase;color:#121212}
+.scOrg{border-radius:16px;background:#fff;border:1px solid rgba(18,18,18,.12);padding:14px}
+.scOrg__h{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:10px;font-family:'Space Mono',var(--font-mono);font-size:11.5px;letter-spacing:.14em;color:#5E5D59}
+.scOrg__l{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px}
+.scO{display:flex;align-items:center;gap:10px;min-height:60px;padding:6px 8px 6px 4px;border-radius:12px;background:#F7F6F3;border:1px solid rgba(18,18,18,.12);transition:box-shadow .15s ease, transform .15s ease}
+.scO__g{flex:none;width:44px;height:44px;display:flex;align-items:center;justify-content:center;font-size:22px;color:#5E5D59;cursor:grab;touch-action:none;user-select:none;-webkit-user-select:none;border-radius:10px}
+.scO__g:hover{background:rgba(18,18,18,.06)}
+.scO__g--lock{cursor:default;touch-action:auto;font-size:16px;color:#8E8D88}.scO__g--lock:hover{background:none}
+.scO__n{flex:none;width:24px;font-family:'Space Mono',var(--font-mono);font-size:12px;color:#8E8D88}
+.scO__t{flex:1;min-width:0;font-family:var(--font-display);font-weight:800;font-size:18px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.scO .tcP{flex:none}
+.scO__b{flex:none;width:48px;height:48px;border-radius:12px;border:1px solid rgba(18,18,18,.18);background:#fff;font-size:20px;font-weight:700;color:#121212;cursor:pointer}
+.scO__b:hover{background:#121212;color:#F4F3F0}.scO__b:disabled{opacity:.3;cursor:default;background:#fff;color:#121212}
+.scO__b:focus-visible{outline:2px solid #2BB8C7;outline-offset:2px}
+.scO--fija{background:#EFEEEA;color:#8E8D88;border-color:transparent}.scO--fija .scO__t{color:#8E8D88}
+.scO--x{border-style:dashed;border-color:#2BB8C7}.scO--x .scO__g--lock{color:#13808C}
+.scO.is-foco{box-shadow:0 0 0 2px #2BB8C7}
+.scO.is-drag{position:relative;z-index:5;box-shadow:0 16px 30px -16px rgba(0,0,0,.5);transition:none;background:#fff}
+.scO.is-over{box-shadow:0 0 0 2px #2BB8C7;transform:scale(1.01)}
+.scOrg__f{display:flex;flex-wrap:wrap;align-items:center;justify-content:flex-end;gap:8px;margin-top:12px}
+.scOrg__f small{flex:1 1 260px;font-family:'Space Mono',var(--font-mono);font-size:10.5px;letter-spacing:.06em;color:#5E5D59}
+.pfB--bell{position:relative;width:44px;padding:0}.pfB--bell svg{width:20px;height:20px}
+.pfB--bell.pfB--on{border-color:#121212}
+.pfBadge{position:absolute;top:-6px;right:-6px;min-width:20px;height:20px;padding:0 5px;border-radius:10px;background:#121212;color:#F4F3F0;font-family:'Space Mono',var(--font-mono);font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;border:2px solid #F4F3F0}
+.pfBadge[hidden]{display:none}
+.ssH{display:flex;align-items:baseline;gap:10px;padding-bottom:10px;border-bottom:1px solid rgba(18,18,18,.1);font-family:'Space Mono',var(--font-mono);font-size:11.5px;letter-spacing:.14em;color:#5E5D59}
+.ssH b{font-size:28px;color:#121212}
+.ssL{list-style:none;margin:0;padding:0}
+.ssR{display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid rgba(18,18,18,.08)}
+.ssR__n{flex:none;font-family:'Space Mono',var(--font-mono);font-size:12px;color:#8E8D88}
+.ssR__t{flex:1;min-width:0}.ssR__t small{display:block;font-family:'Space Mono',var(--font-mono);font-size:10.5px;letter-spacing:.1em;color:#5E5D59}
+.ssR__t b{display:block;font-family:var(--font-display);font-weight:800;font-size:17px}.ssR__t em{display:block;font-style:normal;font-size:13px;color:#5E5D59}
+.ssPie{margin:12px 0 0;font-family:'Space Mono',var(--font-mono);font-size:10.5px;letter-spacing:.06em;color:#5E5D59}
+.ssVolver{margin-top:10px;min-height:44px;padding:0 12px;border:0;background:none;font-family:'Space Mono',var(--font-mono);font-size:12px;letter-spacing:.08em;cursor:pointer}
+.pReqC{display:flex;align-items:center;justify-content:space-between;gap:10px;width:100%;min-height:48px;padding:0 14px;border-radius:12px;border:1px solid #121212;background:#fff;font-family:'Space Mono',var(--font-mono);font-size:12px;letter-spacing:.08em;cursor:pointer;color:#121212}
+.pReqC b{text-decoration:underline;text-underline-offset:3px}
+@media (max-width:640px){ .mh__acc{flex-wrap:wrap} .mh__acc > a.pfB--ink{flex:1 1 100%} .mh__acc > .pfB--wa,.mh__acc > .pfB--bell{flex:0 0 44px} .mh__acc > .pfMenuW{flex:0 0 44px} }
+@media (max-width:640px){ .scO{flex-wrap:wrap} .scO .tcP{order:5;margin-left:78px} .scO__t{font-size:16px} .tc__body{min-height:160px} }
 /* ═══ FIN CAPA 3 ═══ */
 /* ═══ MOTOR DE CONSTRUCCIÓN c8.0 · MACRO → MESO → MICRO ═══ */
 .plNav{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin:0 0 14px}
@@ -4429,24 +4502,14 @@ function menuRutina(){
 }
 let _reqFor=null
 async function cargarSolicitudes(socioId){
-  try{
-    const { data } = await sb.from('solicitudes')
-      .select('id, tipo, detalle, estado, created_at, sesion_protocolo_id')
-      .eq('socio_id', socioId).eq('estado','pendiente').order('created_at')
-    const card=document.getElementById('cReqs')
-    if (!card) return
-    if (!data || !data.length){ card.style.display='none'; return }
-    card.style.display='block'
-    document.getElementById('pReqN').textContent = data.length+' PENDIENTE'+(data.length>1?'S':'')
-    const LBL={adelantar:'SOLICITA ADELANTAR',preview:'SOLICITA VISTA PREVIA',extra:'PIDE SESIÓN EXTRA',postergar:'NO PUEDE UNA SESIÓN'}
-    document.getElementById('pReqs').innerHTML = data.map(function(q){
-      return '<div style="display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid rgba(18,18,16,.06)">'+
-        '<div style="flex:1"><div style="font-size:9px;font-weight:900;letter-spacing:.08em">'+(LBL[q.tipo]||q.tipo.toUpperCase())+'</div>'+
-        '<div style="font-size:8px;font-weight:800;color:var(--koach-text-secondary)">'+(q.detalle||'')+'</div></div>'+
-        '<button class="pAct2 ok" onclick="resolverSolicitud(\''+q.id+'\',\'aprobada\')">APROBAR</button>'+
-        '<button class="pAct2" onclick="resolverSolicitud(\''+q.id+'\',\'rechazada\')">RECHAZAR</button></div>'
-    }).join('')
-  }catch(_e){}
+  // c60 · en el planificador solo un aviso compacto; se revisan en el panel 🔔 del socio
+  const card=document.getElementById('cReqs'); if (!card) return
+  if (SOLN[socioId]==null){ socSolContar(socioId); return }
+  const n=SOLN[socioId]||0
+  if (!n){ card.style.display='none'; return }
+  card.style.display='block'
+  document.getElementById('pReqN').textContent=''
+  document.getElementById('pReqs').innerHTML='<button type="button" class="pReqC" onclick="socSolAbrir()"><span>'+n+' SOLICITUD'+(n===1?'':'ES')+' PENDIENTE'+(n===1?'':'S')+'</span><b>REVISAR →</b></button>'
 }
 async function resolverSolicitud(id, estado){
   syncEnvio(); const ac=adActor()
@@ -6369,74 +6432,98 @@ function scVerTodas(){
 }
 const SCB={ drag:null, run:false }
 function scNomL(n){ return plEsc(String(n||'').replace(/^S\d+\s*[—-]\s*/,'').toUpperCase()) }
-function scMovible(z){ return z && (z.estado==='pendiente') }
 // c53 · TABLERO DE LA SEMANA V2 — el nombre manda (el número es secundario); tocar una tarjeta despliega su resumen
 // debajo (bloques · ejercicios · series×reps) con EDITAR / HABILITAR / FINALIZAR; la manija ⠿ la arrastra (mouse y táctil).
 // Arrastrar arma un borrador de orden que se publica con PUBLICAR ORDEN (el socio no ve el pivoteo).
 const SCD={ open:null, det:{}, pd:null }
 function scFechaC(t){ if(!t) return ''; const d=new Date(t); return String(d.getDate()).padStart(2,'0')+'/'+String(d.getMonth()+1).padStart(2,'0') }
+// c60 · MÓDULO DE SESIONES V3 — tres capas separadas:
+//   ORDEN (sesiones_protocolo.numero · reordenar_sesiones) · ACCESO (sesion_habilitada + designaciones_extra) · EJECUCIÓN (sesiones_registro)
+// Mover NUNCA habilita ni deshabilita. Fijas: completada / sin cerrar / incompleta. En curso se mueve con aviso.
+// Las extras viven en el mismo tablero (★), no suman a las principales.
+function scEsFija(z){ return !z || z.estado==='completada' || z.estado==='sin_cerrar' || z.estado==='incompleta' }
+function scExtras(){ const st=SC.st||{}, hb=st.habilitada, out=(st.extras||[]).map(function(e){ return Object.assign({ key:'x'+e.id }, e) })
+  if (hb && hb.extra) out.unshift({ key:'h'+hb.id, tipo:'habilitada', id:hb.id, sesion_id:hb.sesion_id, nombre:hb.nombre, estado:'habilitada', permite_hoy:hb.permite_hoy })
+  return out }
+function scExtraKey(k){ return scExtras().find(function(e){ return e.key===k }) || null }
+function scEstadoCard(z, ctx){
+  const st=SC.st||{}, ab=st.abiertas||[], hb=st.habilitada, vivo=ctx.vivo
+  const esX=hb&&!hb.extra&&hb.sesion_id===z.id, esN=z.id===ctx.nextId, reg=ab.find(function(a){return a.sesion_id===z.id}), enV=vivo&&vivo.sesion_id===z.id
+  if (z.estado==='completada') return { pill:'✓ COMPLETADA', pc:'ok', sub:z.cuando?scDiaC(z.cuando):'REALIZADA', cls:'hecha' }
+  if (z.estado==='suspendida') return { pill:'SUSPENDIDA', pc:'mute', sub:'SOLO ESTA SEMANA', cls:'susp' }
+  if (enV || z.estado==='en_curso'){ const v=enV?vivo:reg; return { pill:'● EN CURSO', pc:'live', sub:v?(v.ejercicios+'/'+v.total_ejercicios+' EJERCICIOS · '+v.sets+' SETS'):'ENTRENANDO AHORA', cls:'curso', tag:'AHORA' } }
+  if (reg && reg.abandonada) return { pill:reg.parece_completa?'PARECE COMPLETA':'SIN CERRAR', pc:'warn', sub:scFechaC(reg.iniciada_at||reg.fecha)+' · '+reg.ejercicios+'/'+reg.total_ejercicios+' EJ', cls:'inc', reg:reg }
+  if (z.estado==='sin_cerrar') return { pill:'SIN CERRAR', pc:'warn', sub:'REQUIERE RESOLVER', cls:'inc' }
+  if (z.estado==='incompleta') return { pill:'INCOMPLETA', pc:'mute', sub:'CERRADA SIN TERMINAR', cls:'hecha' }
+  if (esX) return { pill:'HABILITADA', pc:'live', sub:'LE TOCA AHORA'+(hb.permite_hoy?' · HOY':''), cls:'next', esX:true }
+  if (esN) return { pill:'DISPONIBLE', pc:'live', sub:st.entreno_hoy?'SIGUIENTE · MAÑANA':'LE TOCA AHORA', cls:'next' }
+  return { pill:'PENDIENTE', pc:'line', sub:'SIN HABILITAR', cls:'pend' }
+}
+function scEstadoExtra(e){
+  const st=SC.st||{}, h=st.hechas||0, p=st.programadas||(st.sesiones||[]).length
+  if (e.estado==='completada') return { pill:'★ EXTRA · REALIZADA', sub:e.cuando?scDiaC(e.cuando):'REALIZADA', cls:'x tc--hecha' }
+  if (e.estado==='en_curso') return { pill:'★ EXTRA · EN CURSO', sub:'NO SUMA AL '+h+'/'+p, cls:'x tc--curso' }
+  if (e.estado==='habilitada') return { pill:'★ EXTRA · HABILITADA', sub:'NO SUMA AL '+h+'/'+p+(e.permite_hoy?' · HOY':''), cls:'x' }
+  return { pill:'★ EXTRA · DISPONIBLE', sub:'NO SUMA AL '+h+'/'+p+(e.recurrente?' · RECURRENTE':''), cls:'x' }
+}
+const SC_ISO='<svg class="tc__iso" viewBox="40 180 790 795" aria-hidden="true" focusable="false"><rect x="52" y="190" width="768" height="162" fill="currentColor"/><polygon points="52,757 438,415 818,752 818,950 438,615 52,962" fill="currentColor"/></svg>'
 function scPintar(){
   const st=SC.st||{}, el=document.getElementById('scCard'); if(!el||!st.activo){ if(el) el.innerHTML=''; return }
-  const ab=st.abiertas||[], px=st.proxima, hb=st.habilitada
-  let ses=st.sesiones||[]
-  if (SCB.org && SCB.ord) ses=SCB.ord.map(function(id){ return ses.find(function(z){return z.id===id}) }).filter(Boolean)
+  if (SCB.org){ scPintarOrg(); return }
+  const ab=st.abiertas||[], px=st.proxima, hb=st.habilitada, ses=st.sesiones||[]
   const vivo=ab.filter(function(a){return !a.abandonada})[0], inc=scIncOrden(ab)
-  const nextId = vivo ? vivo.sesion_id : hb ? hb.sesion_id : (px && (st.siguiente_tras_abierta && px.estado==='sin_cerrar' ? st.siguiente_tras_abierta.id : px.id))
-  let h='<div class="tb__bar"><div class="tb__t"><span>SEMANA '+(st.semana||'—')+(st.total_semanas?' DE '+st.total_semanas:'')+'</span><b>'+(st.hechas||0)+'<i>/'+(st.programadas||ses.length)+'</i></b><small>REALIZADAS'+(inc.length?' · '+inc.length+' SIN CERRAR':'')+'</small></div>'+
-    '<div class="tb__acc"><span class="tbSave" id="scSave" aria-live="polite"></span>'+(SCB.org
-      ? '<span class="tbOrgL">NUEVO ORDEN · SIN PUBLICAR</span><button type="button" class="tbB" onclick="scOrgSalir()">DESHACER</button><button type="button" class="tbB tbB--ink" onclick="scOrgAplicar()"'+(scOrgCambio()?'':' disabled')+'>PUBLICAR ORDEN →</button>'
-      : '<button type="button" class="tbB tbB--ink" onclick="scElegir()">⇄ CAMBIAR SESIÓN</button>'+(inc.length?'<button type="button" class="tbB" onclick="scVerTodas()">⚠ RESOLVER ('+inc.length+')</button>':''))+'</div></div>'
-  h+='<div class="tb2" role="list" aria-label="Sesiones de la semana">'
+  const nextId = vivo ? vivo.sesion_id : (hb && !hb.extra) ? hb.sesion_id : (px && (st.siguiente_tras_abierta && px.estado==='sin_cerrar' ? st.siguiente_tras_abierta.id : px.id))
+  const ext=scExtras(), eh=st.extras_hechas||0, ed=ext.filter(function(e){return e.estado!=='completada'}).length
+  let h='<div class="tb__bar"><div class="tb__t"><span>SEMANA '+(st.semana||'—')+(st.total_semanas?' DE '+st.total_semanas:'')+'</span><b>'+(st.hechas||0)+'<i>/'+(st.programadas||ses.length)+'</i></b><small>PRINCIPALES'+
+      (eh?' <em class="tb__x">· +'+eh+' EXTRA</em>':'')+(ed?' <em class="tb__x">· '+ed+' EXTRA'+(ed===1?'':'S')+' DISPONIBLE'+(ed===1?'':'S')+'</em>':'')+'</small></div>'+
+    '<div class="tb__acc"><span class="tbSave" id="scSave" aria-live="polite"></span>'+
+      '<button type="button" class="tbB" onclick="scOrgEntrar()"'+(ses.filter(function(z){return !scEsFija(z)}).length>1?'':' disabled title="No hay dos sesiones movibles esta semana"')+'>↕ ORGANIZAR SEMANA</button>'+
+      '<button type="button" class="tbB tbB--ink" onclick="verExtra()">+ EXTRA</button></div></div>'
+  if (inc.length){ const a=inc[0]
+    h+='<button type="button" class="scInc" onclick="'+(inc.length===1?'scResolver(\''+a.id+'\')':'scVerTodas()')+'"><span class="scInc__n">'+inc.length+'</span><span class="scInc__t">SESI'+(inc.length===1?'ÓN':'ONES')+' SIN CERRAR · '+scNomL(a.nombre)+' · '+scFechaC(a.iniciada_at||a.fecha)+' · '+a.ejercicios+'/'+a.total_ejercicios+' EJ'+(inc.length>1?' · +'+(inc.length-1)+' MÁS':'')+'</span><span class="scInc__go">RESOLVER →</span></button>' }
+  h+='<div class="tb2" role="list" aria-label="Sesiones de la semana" style="--tcN:'+Math.max(3,Math.min(4,ses.length+ext.length))+'">'
   ses.forEach(function(z,i){
-    const esX=hb&&hb.sesion_id===z.id, esN=z.id===nextId, reg=ab.find(function(a){return a.sesion_id===z.id}), mov=scMovible(z), enV=vivo&&vivo.sesion_id===z.id
-    let est, cls
-    if (z.estado==='completada'){ est='REALIZADA'+(z.cuando?' · '+scDiaC(z.cuando):''); cls='hecha' }
-    else if (z.estado==='suspendida'){ est='SUSPENDIDA ESTA SEMANA'; cls='susp' }
-    else if (enV || z.estado==='en_curso'){ est='EN CURSO'+(vivo?' · '+vivo.ejercicios+'/'+vivo.total_ejercicios+' EJ':''); cls='curso' }
-    else if (reg && reg.abandonada){ est=(reg.parece_completa?'PARECE COMPLETA':'SIN CERRAR')+' · '+scFechaC(reg.iniciada_at||reg.fecha); cls='inc' }
-    else if (esX){ est='HABILITADA'+(hb.permite_hoy?' · HOY':''); cls='next' }
-    else if (esN){ est=st.entreno_hoy?'SIGUIENTE · MAÑANA':'DISPONIBLE'; cls='next' }
-    else { est='PENDIENTE'; cls='pend' }
-    // c58 · OPCIÓN B: círculos laterales ‹ › para reordenar (sin arrastre); deshabilitados si no hay hacia dónde moverse
-    const puedeIzq=mov && ses.slice(0,i).some(scMovible), puedeDer=mov && ses.slice(i+1).some(scMovible)
-    const flechas = mov ? '<button type="button" class="tcAr tcAr--l" '+(puedeIzq?'':'disabled ')+'onclick="scFlecha(event,\''+z.id+'\',-1)" aria-label="Mover '+scNomL(z.nombre)+' una posición antes"><span aria-hidden="true">‹</span></button>'+
-      '<button type="button" class="tcAr tcAr--r" '+(puedeDer?'':'disabled ')+'onclick="scFlecha(event,\''+z.id+'\',1)" aria-label="Mover '+scNomL(z.nombre)+' una posición después"><span aria-hidden="true">›</span></button>' : ''
-    h+='<div class="tc tc--'+cls+(SCD.open===z.id?' is-open':'')+(mov?' tc--ar':'')+'" role="listitem" data-sid="'+z.id+'">'+flechas+
-      '<button type="button" class="tc__body" onpointerdown="scCardDown(event,\''+z.id+'\',0)" onclick="scCardClick(event)" oncontextmenu="return false" ondragstart="return false" onkeydown="scCardKey(event,\''+z.id+'\','+(mov?1:0)+')" title="'+(mov?'Mantén presionado y mueve para reordenar · doble toque para ver el resumen':'Doble toque para ver el resumen')+'" aria-expanded="'+(SCD.open===z.id)+'" aria-controls="tcRes">'+
-        '<span class="tc__k"><em>'+String(i+1).padStart(2,'0')+'</em>'+(esN||esX?'<i>'+(enV?'AHORA':esX?'HABILITADA':'SIGUIENTE')+'</i>':'')+'</span>'+
-        '<b class="tc__n">'+scNomL(z.nombre)+'</b><span class="tc__s">'+est+'</span></button>'+
-      // c54 · KOACH Drag Handle (asset oficial). Solo él inicia el arrastre; tocar la tarjeta abre el resumen.
-      (mov?'<span class="tc__h" aria-hidden="true"><svg class="tc__iso" viewBox="40 180 790 795" aria-hidden="true" focusable="false"><rect x="52" y="190" width="768" height="162" fill="currentColor"/><polygon points="52,757 438,415 818,752 818,950 438,615 52,962" fill="currentColor"/></svg></span>'
-          :'<span class="tc__h tc__h--lock" aria-disabled="true" title="'+(z.estado==='completada'?'Realizada':'Sesión abierta')+': posición fija"><svg class="tc__iso" viewBox="40 180 790 795" aria-hidden="true" focusable="false"><rect x="52" y="190" width="768" height="162" fill="currentColor"/><polygon points="52,757 438,415 818,752 818,950 438,615 52,962" fill="currentColor"/></svg></span>')+'</div>' })
-  // c56 · leyenda: qué significa cada tono (el negro = la que le toca ahora, no un día fijo)
-  h+='</div><div class="tcLey" aria-hidden="true"><span><i class="tcLey__d"></i>LE TOCA AHORA</span><span><i class="tcLey__p"></i>PENDIENTE</span><span><i class="tcLey__h"></i>REALIZADA</span><span><i class="tcLey__i"></i>SIN CERRAR</span></div>'
-  h+='<div id="tcRes" class="tcRes" '+(SCD.open?'':'hidden')+'></div>'
-  const fuera=inc.filter(function(a){ return !ses.some(function(z){return z.id===a.sesion_id}) })
-  if (fuera.length) h+='<button type="button" class="tbOld" onclick="scVerTodas()">+ '+fuera.length+' SIN CERRAR DE SEMANAS ANTERIORES · RESOLVER →</button>'
+    const e=scEstadoCard(z,{vivo:vivo,nextId:nextId})
+    h+='<div class="tc tc--'+e.cls+(SCD.open===z.id?' is-open':'')+'" role="listitem" data-sid="'+z.id+'">'+
+      '<span class="tc__h" aria-hidden="true">'+SC_ISO+'</span>'+
+      '<button type="button" class="tc__body" onclick="scAbrirRes(\''+z.id+'\')" aria-expanded="'+(SCD.open===z.id)+'" aria-controls="tcRes" title="Toca para ver el resumen">'+
+        '<span class="tc__k"><em>'+String(i+1).padStart(2,'0')+'</em><i class="tcP tcP--'+e.pc+'">'+e.pill+'</i></span>'+
+        '<b class="tc__n">'+scNomL(z.nombre)+'</b><span class="tc__s">'+e.sub+'</span></button>'+
+      '<button type="button" class="tcM" onclick="scMenu(event,\''+z.id+'\')" aria-haspopup="menu" aria-label="Acciones de '+scNomL(z.nombre)+'">···</button></div>' })
+  ext.forEach(function(x){
+    const e=scEstadoExtra(x)
+    h+='<div class="tc tc--'+e.cls+(SCD.open===x.key?' is-open':'')+'" role="listitem" data-xk="'+x.key+'">'+
+      '<span class="tc__h" aria-hidden="true">'+SC_ISO+'</span>'+
+      '<button type="button" class="tc__body" onclick="scAbrirRes(\''+x.key+'\')" aria-expanded="'+(SCD.open===x.key)+'" aria-controls="tcRes" title="Toca para ver el resumen">'+
+        '<span class="tc__k"><i class="tcP tcP--x">'+e.pill+'</i></span>'+
+        '<b class="tc__n">'+scNomL(x.nombre)+'</b><span class="tc__s">'+e.sub+'</span></button>'+
+      '<button type="button" class="tcM" onclick="scMenu(event,\''+x.key+'\')" aria-haspopup="menu" aria-label="Acciones de la extra '+scNomL(x.nombre)+'">···</button></div>' })
+  h+='</div><div id="tcRes" class="tcRes" '+(SCD.open?'':'hidden')+'></div>'
   el.innerHTML=h
   if (SCD.open) scPintarRes()
 }
-function scAbrirRes(id){ if (SCD.drag) return; SCD.open = SCD.open===id ? null : id; scPintar() }
+function scAbrirRes(id){ scMenuCerrar(); SCD.open = SCD.open===id ? null : id; scPintar() }
 async function scPintarRes(){
-  const id=SCD.open, box=document.getElementById('tcRes'); if(!box||!id) return
-  const st=SC.st||{}, z=(st.sesiones||[]).find(function(x){return x.id===id}); if(!z){ box.hidden=true; return }
-  const ab=st.abiertas||[], reg=ab.find(function(a){return a.sesion_id===id}), hb=st.habilitada, esX=hb&&hb.sesion_id===id
-  const u='#/socio/'+F.id+'/plan?w='+st.semana+'&s='+id
-  // c55 · acciones según estado real: EDITAR siempre; interruptor de habilitación; suspender esta semana; finalizar si quedó abierta
+  const key=SCD.open, box=document.getElementById('tcRes'); if(!box||!key) return
+  const st=SC.st||{}, ex=/^[xh]/.test(key)?scExtraKey(key):null
+  const z = ex ? { id:ex.sesion_id, nombre:ex.nombre, estado:ex.estado, cuando:ex.cuando } : (st.sesiones||[]).find(function(x){return x.id===key})
+  if(!z || !z.id){ box.hidden=true; return }
+  const id=z.id, ab=st.abiertas||[], reg=ex?null:ab.find(function(a){return a.sesion_id===id}), hb=st.habilitada, esX=!ex&&hb&&!hb.extra&&hb.sesion_id===id
   const susp=z.estado==='suspendida', done=z.estado==='completada'
-  let acc='<a class="tbB" href="'+u+'" onclick="return rtIr(event,\''+u+'\')">EDITAR</a>'
-  if (reg && reg.abandonada) acc+='<button type="button" class="tbB tbB--ink" onclick="scFinalizarConf(\''+reg.id+'\')">FINALIZAR SESIÓN</button>'
-  if (!done && !susp && z.estado!=='en_curso' && !(reg&&reg.abandonada))
-    acc+='<label class="tSw" title="Habilitar para que el socio pueda entrenarla"><input type="checkbox" role="switch" '+(esX?'checked ':'')+'onchange="scSwitch(this,\''+id+'\')"><span class="tSw__t" aria-hidden="true"></span><span class="tSw__l">'+(esX?'HABILITADA':'HABILITAR')+'</span></label>'
-  if (!done && z.estado!=='en_curso' && !(reg&&reg.abandonada)) acc+='<button type="button" class="tbB" onclick="scSuspender(\''+id+'\','+(!susp)+')">'+(susp?'REANUDAR ESTA SEMANA':'SUSPENDER ESTA SEMANA')+'</button>'
-  if (done) acc+='<button type="button" class="tbB" onclick="scAccion(\'habilitar\',null,\''+id+'\',true)">REPETIR COMO EXTRA</button>'
-  const cab='<div class="tcRes__h"><div><small>'+(reg&&reg.abandonada?(reg.ejercicios+'/'+reg.total_ejercicios+' EJ · '+reg.sets+' SETS REGISTRADOS'):'RESUMEN DE LA SESIÓN')+'</small><b>'+scNomL(z.nombre)+'</b>'+(done&&z.cuando?'<small>REALIZADA · '+scDiaC(z.cuando)+'</small>':susp?'<small>SUSPENDIDA ESTA SEMANA</small>':'')+'</div><div class="tcRes__a">'+acc+
-    '<button type="button" class="tcRes__x" onclick="scAbrirRes(\''+id+'\')" aria-label="Cerrar resumen">✕</button></div></div>'
+  let acc=''
+  if (!ex){ const u='#/socio/'+F.id+'/plan?w='+st.semana+'&s='+id
+    acc+='<a class="tbB" href="'+u+'" onclick="return rtIr(event,\''+u+'\')">ABRIR RUTINA</a>'
+    if (reg && reg.abandonada) acc+='<button type="button" class="tbB tbB--ink" onclick="scFinalizarConf(\''+reg.id+'\')">FINALIZAR SESIÓN</button>'
+    else if (!done && !susp && z.estado!=='en_curso' && z.estado!=='incompleta') acc+='<button type="button" class="tbB'+(esX?'':' tbB--ink')+'" onclick="'+(esX?'scAccion(\'quitar_habilitacion\')':'scHabilitarConf(\''+id+'\')')+'">'+(esX?'QUITAR HABILITACIÓN':'HABILITAR AHORA')+'</button>' }
+  else if (ex.tipo==='designada') acc+='<button type="button" class="tbB" onclick="scRetirarExtra(\''+ex.id+'\')">RETIRAR EXTRA</button>'
+  else if (ex.tipo==='habilitada') acc+='<button type="button" class="tbB" onclick="scAccion(\'quitar_habilitacion\')">QUITAR HABILITACIÓN</button>'
+  const cab='<div class="tcRes__h"><div><small>'+(ex?'★ SESIÓN EXTRA · NO SUMA A LAS PRINCIPALES':reg&&reg.abandonada?(reg.ejercicios+'/'+reg.total_ejercicios+' EJ · '+reg.sets+' SETS REGISTRADOS'):'RESUMEN DE LA SESIÓN')+'</small><b>'+scNomL(z.nombre)+'</b>'+(done&&z.cuando?'<small>REALIZADA · '+scDiaC(z.cuando)+'</small>':susp?'<small>SUSPENDIDA ESTA SEMANA</small>':'')+'</div><div class="tcRes__a">'+acc+
+    '<button type="button" class="tcRes__x" onclick="scAbrirRes(\''+key+'\')" aria-label="Cerrar resumen">✕</button></div></div>'
   box.hidden=false
   if (!SCD.det[id]){ box.innerHTML=cab+'<div class="tcRes__c">Cargando…</div>'
     const r=await sb.from('bloques').select('id,bloque,etiqueta,sets,bloque_ejercicios(orden,reps_txt,reps,duracion_seg,kg_objetivo,ejercicios(nombre))').eq('sesion_id',id).order('bloque')
     if (r.error){ box.innerHTML=cab+'<div class="tcRes__c">No se pudo cargar el resumen.</div>'; return }
-    SCD.det[id]=r.data||[]; if (SCD.open!==id) return }
+    SCD.det[id]=r.data||[]; if (SCD.open!==key) return }
   const bl=SCD.det[id]
   box.innerHTML=cab+(bl.length?'<div class="tcRes__g">'+bl.map(function(b,bi){
     const ejs=(b.bloque_ejercicios||[]).slice().sort(function(a,c){return (a.orden||0)-(c.orden||0)})
@@ -6445,6 +6532,7 @@ async function scPintarRes(){
         return '<div class="tcE"><span>'+plEsc(((e.ejercicios||{}).nombre)||'Ejercicio')+'</span><em>'+(b.sets||'—')+'×'+plEsc(String(rx))+(e.kg_objetivo!=null?' · '+e.kg_objetivo+' KG':'')+'</em></div>' }).join('')+'</div>' }).join('')+'</div>'
     : '<div class="tcRes__c">Esta sesión todavía no tiene bloques.</div>')
 }
+
 // ── arrastre por manija (pointer events: mouse + táctil); tocar la tarjeta abre el resumen
 function scPD(ev,id){ ev.preventDefault(); ev.stopPropagation()
   const card=ev.target.closest('.tc'); SCD.pd={id:id, over:null}; SCD.drag=true; card.classList.add('is-drag'); document.documentElement.classList.add('is-grabbing')
@@ -6475,14 +6563,7 @@ async function scReordenar(nuevoSemana){
     const global=todos.map(function(id){ return set.has(id) ? nuevoSemana[k++] : id })
     const rr=await sb.rpc('reordenar_sesiones',{ p_ids: global }); if (rr.error) throw rr.error
     scGuard('ok'); scCargar(F.id)
-  }catch(e){ scGuard('err'); toast('No se pudo guardar el orden: '+((e&&e.message)||e)); scCargar(F.id) } finally { SCB.run=false }
-}
-function scMover(id, dir){
-  const base=(SC.st&&SC.st.sesiones)||[], ord=(SCB.ord||base.map(function(z){return z.id})).slice(), ses=ord.map(function(x){ return base.find(function(z){return z.id===x}) }), i=ord.indexOf(id)
-  if (!scMovible(ses[i])){ toast('Solo se mueven sesiones pendientes; las completadas o abiertas quedan fijas.'); return }
-  let j=i+dir; while (j>=0 && j<ses.length && !scMovible(ses[j])) j+=dir
-  if (i<0||j<0||j>=ses.length){ toast('Solo se mueven sesiones pendientes; las completadas o abiertas quedan fijas.'); return }
-  const t=ord[i]; ord[i]=ord[j]; ord[j]=t; SCB.ord=ord; scPintar()
+  }catch(e){ scGuard('err'); const m=String((e&&e.message)||e); toast(/SESION_FIJA/.test(m)?m.replace(/^.*SESION_FIJA:\s*/,'').toUpperCase():'No se pudo guardar el orden: '+m); scCargar(F.id) } finally { SCB.run=false }
 }
 function scDragIni(ev,id){ SCB.drag=id; ev.dataTransfer.effectAllowed='move'; try{ ev.dataTransfer.setData('text/plain',id) }catch(_e){}; setTimeout(function(){ const c=document.querySelector('.tbC[data-sid="'+id+'"]'); if(c) c.classList.add('is-drag') },0) }
 function scDragFin(){ SCB.drag=null; document.querySelectorAll('.tbC').forEach(function(c){ c.classList.remove('is-drag','is-over') }) }
@@ -6585,6 +6666,7 @@ async function socRefrescar(origen){
   if (!F || F.id!==_socRTid) return
   const id=F.id, enPlan=document.getElementById('vPlan').classList.contains('on'), enFicha=document.getElementById('vFicha').classList.contains('on')
   if (!enPlan && !enFicha) return
+  socSolContar(id)
   await cargarHistorialCargas(id); if (!F || F.id!==id) return
   if (enPlan && P && !P.bib && !P.base && !P.ro){
     if (typeof plEsDirty==='function' && plEsDirty()){ P._remoto=true; if (origen==='rt') toast('Hay datos nuevos de este socio: se cargarán al guardar tus cambios'); return }
@@ -6715,7 +6797,7 @@ function mhPintar(id, finAcc, dAcc){
   const pon=function(n){ cod.textContent='KOACH MEMBER'+(n?' · #'+String(n).padStart(5,'0'):'')+(F.created_at?' · DESDE '+['ENE','FEB','MAR','ABR','MAY','JUN','JUL','AGO','SEP','OCT','NOV','DIC'][new Date(F.created_at).getMonth()]+' '+new Date(F.created_at).getFullYear():'') }
   if (so.numero_socio!=null) pon(so.numero_socio)
   else { pon(null); sb.from('profiles').select('numero_socio').eq('id',id).maybeSingle().then(function(r){ if (F && F.id===id && r.data){ so.numero_socio=r.data.numero_socio; pon(r.data.numero_socio) } }) }
-  mhAcciones()
+  mhAcciones(); socSolBadge(id); socSolContar(id)
   // c55 · kilos movidos: Σ peso × reps de sets realmente hechos (misma regla de ejecución real que Avances)
   sb.rpc('koach_kilos_movidos',{p_socio:id}).then(function(r){ if(!F||F.id!==id||r.error||!r.data) return
     const f=function(n){ return n>=10000 ? (Math.round(n/100)/10).toLocaleString('es-CL')+'K' : Number(n||0).toLocaleString('es-CL') }
@@ -6731,6 +6813,7 @@ function mhAcciones(){
       '<a class="pfB" href="'+urlPlan(id)+'" onclick="return rtIr(event,\''+urlPlan(id)+'\')">PLANIFICADOR</a>'+
       '<button type="button" class="pfB" onclick="verExtra()" title="Diseñar una sesión extra para este socio">+ EXTRA</button>'+
       '<button type="button" class="pfB pfB--wa" onclick="wsp()" aria-label="WhatsApp"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M3.5 20.5l1.3-4A8.5 8.5 0 1 1 8 19.6l-4.5.9z"/><path d="M9 8.5c0 3.5 3 6.5 6.5 6.5l1.2-1.6-2-1-1 .8c-1.1-.5-2-1.4-2.5-2.5l.8-1-1-2L9 8.5z"/></svg></button>'+
+      '<button type="button" class="pfB pfB--bell" id="fSolBtn" onclick="socSolAbrir()" aria-label="Solicitudes"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M6 16V11a6 6 0 0 1 12 0v5l1.5 2h-15z"/><path d="M10 20.5a2 2 0 0 0 4 0"/></svg><span class="pfBadge" id="fSolBadge" hidden></span></button>'+
       '<div class="pfMenuW"><button type="button" class="pfB pfB--ico" onclick="pfMenu(this)" aria-label="Más acciones de '+plEsc(nomDe(id))+'" aria-haspopup="menu" aria-expanded="false">···</button><div class="pfMenu pfMenu--r" role="menu" hidden>'+
       '<button role="menuitem" onclick="verExtra()">DESIGNAR SESIÓN EXTRA ★</button><button role="menuitem" onclick="wsp()">WHATSAPP'+(((C.socios||[]).find(function(s){return s.id===id})||{}).telefono?' · '+plEsc(((C.socios||[]).find(function(s){return s.id===id})||{}).telefono):'')+'</button></div></div>'
   } else {
@@ -6814,8 +6897,6 @@ function dupCerrar(seguir){
   if (!seguir){ const q=document.getElementById('selBusca'); if(q && document.getElementById('selEj').style.display!=='none') q.focus({preventScroll:true}) }
 }
 // c51 · sin tiempos muertos: modo ORGANIZAR (borrador local, se aplica una vez) + indicador discreto de guardado
-function scOrgEntrar(){ SCB.org=true; SCB.ord=((SC.st&&SC.st.sesiones)||[]).map(function(z){return z.id}); scPintar() }
-function scOrgSalir(){ SCB.org=false; SCB.ord=null; scPintar() }
 function scOrgCambio(){ const b=((SC.st&&SC.st.sesiones)||[]).map(function(z){return z.id}).join(','); return !!SCB.ord && SCB.ord.join(',')!==b }
 function scOrgAplicar(){ if(!scOrgCambio()){ scOrgSalir(); return } const ord=SCB.ord.slice()
   const base=(SC.st&&SC.st.sesiones)||[]; SC.st.sesiones=ord.map(function(id){ return base.find(function(z){return z.id===id}) })   // se ve al instante
@@ -6884,6 +6965,201 @@ function scCardDown(ev,id,mov){
 }
 // c58 · flechas laterales: mueven una posición (salta las fijas) en el borrador de orden
 function scFlecha(ev,id,dir){ ev.stopPropagation(); if (!SCB.org) scOrgEntrar(); scMover(id,dir) }
+// ── c60 · ORGANIZAR SEMANA: modo propio (lista vertical). ≡ arrastra · ↑↓ mueven una posición (saltan las fijas).
+// Cambiar el orden no toca el acceso: una habilitada sigue habilitada. Nada se publica hasta GUARDAR ORDEN.
+const SC_LOCK='<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>'
+function scPintarOrg(){
+  const st=SC.st||{}, el=document.getElementById('scCard'), base=st.sesiones||[], ab=st.abiertas||[], hb=st.habilitada
+  const vivo=ab.filter(function(a){return !a.abandonada})[0]
+  const ses=(SCB.ord||base.map(function(z){return z.id})).map(function(id){ return base.find(function(z){return z.id===id}) }).filter(Boolean)
+  let h='<div class="scOrg" role="region" aria-label="Organizar sesiones"><div class="scOrg__h"><span>ORGANIZAR SESIONES · SEMANA '+(st.semana||'—')+'</span><span class="tbSave" id="scSave" aria-live="polite"></span></div><ol class="scOrg__l">'
+  ses.forEach(function(z,i){
+    const fija=scEsFija(z), esX=hb&&!hb.extra&&hb.sesion_id===z.id, enC=z.estado==='en_curso'||(vivo&&vivo.sesion_id===z.id)
+    const pill = fija ? (z.estado==='completada'?'COMPLETADA · FIJA':z.estado==='incompleta'?'INCOMPLETA · FIJA':'SIN CERRAR · FIJA') : enC ? 'EN CURSO' : esX ? 'HABILITADA' : z.estado==='suspendida' ? 'SUSPENDIDA' : 'PENDIENTE'
+    const pc = fija ? 'mute' : enC ? 'warn' : esX ? 'live' : 'line'
+    const arriba=!fija && ses.slice(0,i).some(function(x){return !scEsFija(x)}), abajo=!fija && ses.slice(i+1).some(function(x){return !scEsFija(x)})
+    h+='<li class="scO'+(fija?' scO--fija':'')+(SCB.foco===z.id?' is-foco':'')+'" data-sid="'+z.id+'">'+
+      (fija?'<span class="scO__g scO__g--lock" title="Posición fija">'+SC_LOCK+'</span>':'<span class="scO__g" onpointerdown="scOrgDrag(event,\''+z.id+'\')" title="Arrastra para mover" aria-hidden="true">≡</span>')+
+      '<span class="scO__n">'+String(i+1).padStart(2,'0')+'</span><b class="scO__t">'+scNomL(z.nombre)+'</b><i class="tcP tcP--'+pc+'">'+pill+'</i>'+
+      (fija?'':'<button type="button" class="scO__b" '+(arriba?'':'disabled ')+'onclick="scOrgPaso(\''+z.id+'\',-1)" aria-label="Subir '+scNomL(z.nombre)+'">↑</button><button type="button" class="scO__b" '+(abajo?'':'disabled ')+'onclick="scOrgPaso(\''+z.id+'\',1)" aria-label="Bajar '+scNomL(z.nombre)+'">↓</button>')+'</li>' })
+  const xs=scExtras()
+  if (xs.length) h+='<li class="scO scO--x"><span class="scO__g scO__g--lock" aria-hidden="true">★</span><span class="scO__n"></span><b class="scO__t" title="'+xs.map(function(x){return scNomL(x.nombre)}).join(' · ')+'">'+(xs.length===1?scNomL(xs[0].nombre):xs.length+' EXTRAS · '+xs.map(function(x){return scNomL(x.nombre)}).join(' · '))+'</b><i class="tcP tcP--x">FUERA DEL ORDEN</i></li>'
+  const cambio=scOrgCambio(), mueveCurso=cambio && ses.some(function(z,i){ return (z.estado==='en_curso'||(vivo&&vivo.sesion_id===z.id)) && base.indexOf(z)!==i })
+  h+='</ol><div class="scOrg__f"><small>Habilitada se mueve y sigue habilitada · completada y sin cerrar quedan fijas · en curso: se avisa'+(mueveCurso?' · <b>moviste una sesión en curso</b>':'')+'</small>'+
+    '<button type="button" class="tbB" onclick="scOrgSalir()">CANCELAR</button><button type="button" class="tbB tbB--ink" onclick="scOrgGuardar()"'+(cambio?'':' disabled')+'>GUARDAR ORDEN →</button></div></div>'
+  el.innerHTML=h
+  if (SCB.foco){ const f=el.querySelector('.scO[data-sid="'+SCB.foco+'"] .scO__b:not([disabled])'); if (f && scPintarOrg._kb) f.focus(); scPintarOrg._kb=false }
+}
+function scOrgEntrar(foco){ scMenuCerrar(); SCD.open=null; SCB.org=true; SCB.foco=foco||null; SCB.ord=((SC.st&&SC.st.sesiones)||[]).map(function(z){return z.id}); scPintar() }
+function scOrgSalir(){ SCB.org=false; SCB.ord=null; SCB.foco=null; scPintar() }
+function scOrgPaso(id,dir){ SCB.foco=id; scPintarOrg._kb=true; scMover(id,dir) }
+function scMovible(z){ return !!z && !scEsFija(z) }
+function scMover(id, dir){
+  const base=(SC.st&&SC.st.sesiones)||[], ord=(SCB.ord||base.map(function(z){return z.id})).slice(), ses=ord.map(function(x){ return base.find(function(z){return z.id===x}) }), i=ord.indexOf(id)
+  if (!scMovible(ses[i])){ toast('Esa sesión tiene posición fija.'); return }
+  let j=i+dir; while (j>=0 && j<ses.length && !scMovible(ses[j])) j+=dir
+  if (i<0||j<0||j>=ses.length) return
+  const t=ord[i]; ord[i]=ord[j]; ord[j]=t; SCB.ord=ord; scPintar()
+}
+function scOrgDrag(ev,id){
+  if (ev.button>0) return; ev.preventDefault()
+  const row=ev.currentTarget.closest('.scO'), y0=ev.clientY; let over=null
+  row.classList.add('is-drag'); document.documentElement.classList.add('is-grabbing')
+  const mv=function(e){ e.preventDefault(); row.style.transform='translateY('+(e.clientY-y0)+'px)'
+    row.style.pointerEvents='none'; const t=document.elementFromPoint(e.clientX,e.clientY); row.style.pointerEvents=''
+    const c=t&&t.closest&&t.closest('.scO[data-sid]'); document.querySelectorAll('.scO').forEach(function(x){ x.classList.remove('is-over') })
+    over = (c && c.dataset.sid!==id && !c.classList.contains('scO--fija')) ? c.dataset.sid : null; if (over) c.classList.add('is-over') }
+  const up=function(){ document.removeEventListener('pointermove',mv); document.removeEventListener('pointerup',up); document.removeEventListener('pointercancel',up)
+    document.documentElement.classList.remove('is-grabbing'); row.style.transform=''; row.classList.remove('is-drag')
+    if (over){ const ord=SCB.ord.slice(), base=(SC.st&&SC.st.sesiones)||[], i=ord.indexOf(id), j=ord.indexOf(over)
+      // mover a la posición destino corriendo solo las movibles (las fijas no cambian de lugar)
+      const libres=ord.map(function(x,k){ return scMovible(base.find(function(z){return z.id===x}))?k:-1 }).filter(function(k){return k>=0})
+      const seq=libres.map(function(k){return ord[k]}), a=seq.indexOf(id), b=seq.indexOf(over); seq.splice(a,1); seq.splice(b,0,id)
+      libres.forEach(function(k,n){ ord[k]=seq[n] }); SCB.ord=ord; SCB.foco=id }
+    scPintar() }
+  document.addEventListener('pointermove',mv,{passive:false}); document.addEventListener('pointerup',up); document.addEventListener('pointercancel',up)
+}
+async function scOrgGuardar(){
+  if (!scOrgCambio()){ scOrgSalir(); return }
+  const st=SC.st||{}, base=st.sesiones||[], vivo=(st.abiertas||[]).filter(function(a){return !a.abandonada})[0]
+  const mc=SCB.ord.map(function(id){return base.find(function(z){return z.id===id})}).find(function(z,i){ return z && (z.estado==='en_curso'||(vivo&&vivo.sesion_id===z.id)) && base.indexOf(z)!==i })
+  if (mc && !await kConfirm(scNomL(mc.nombre)+' está EN CURSO. Cambia solo su posición: el socio sigue entrenándola y sus sets no se tocan. ¿Guardar el orden?')) return
+  scOrgAplicar()
+}
+
+// ── c60 · MENÚ CONTEXTUAL (···) — una sola capa flotante
+function scMenuCerrar(){ const m=document.getElementById('scMenu'); if (m) m.remove(); document.removeEventListener('pointerdown',scMenuFuera,true) }
+function scMenuFuera(e){ const m=document.getElementById('scMenu'); if (m && !m.contains(e.target) && !e.target.closest('.tcM')) scMenuCerrar() }
+function scMenu(ev,key){
+  ev.stopPropagation(); const prev=document.getElementById('scMenu'), mismo=prev&&prev.dataset.k===key; scMenuCerrar(); if (mismo) return
+  const st=SC.st||{}, ex=/^[xh]/.test(key)?scExtraKey(key):null, it=[]
+  const I=function(t,fn,cls){ it.push('<button type="button" role="menuitem"'+(cls?' class="'+cls+'"':'')+' onclick="scMenuCerrar();'+fn+'">'+t+'</button>') }
+  if (ex){
+    I('VER RESUMEN','scAbrirRes(\''+key+'\')')
+    if (ex.tipo==='designada') I('RETIRAR EXTRA','scRetirarExtra(\''+ex.id+'\')','pfDanger')
+    if (ex.tipo==='habilitada') I('QUITAR HABILITACIÓN','scAccion(\'quitar_habilitacion\')')
+  } else {
+    const z=(st.sesiones||[]).find(function(x){return x.id===key}); if(!z) return
+    const ab=st.abiertas||[], reg=ab.find(function(a){return a.sesion_id===z.id}), hb=st.habilitada, esX=hb&&!hb.extra&&hb.sesion_id===z.id
+    const done=z.estado==='completada', susp=z.estado==='suspendida', curso=z.estado==='en_curso', u='#/socio/'+F.id+'/plan?w='+st.semana+'&s='+z.id
+    I('VER RESUMEN','scAbrirRes(\''+z.id+'\')')
+    it.push('<a role="menuitem" href="'+u+'" onclick="scMenuCerrar();return rtIr(event,\''+u+'\')">ABRIR / EDITAR RUTINA</a>')
+    if (reg && reg.abandonada) I('RESOLVER SESIÓN ABIERTA','scFinalizarConf(\''+reg.id+'\')')
+    else if (!done && !susp && !curso && z.estado!=='incompleta' && z.estado!=='sin_cerrar') I(esX?'QUITAR HABILITACIÓN':'HABILITAR AHORA', esX?'scAccion(\'quitar_habilitacion\')':'scHabilitarConf(\''+z.id+'\')')
+    it.push('<hr>')
+    I('CAMBIAR NOMBRE','scRenombrar(\''+z.id+'\')')
+    if (scMovible(z)) I('MOVER ↕','scOrgEntrar(\''+z.id+'\')')
+    I(done?'REPETIR COMO EXTRA ★':'DESIGNAR COMO EXTRA ★','scDesignarExtra(\''+z.id+'\')')
+    I('DUPLICAR','scDuplicar(\''+z.id+'\')')
+    if (!done && !curso && !(reg&&reg.abandonada) && z.estado!=='incompleta') I(susp?'REANUDAR ESTA SEMANA':'SUSPENDER ESTA SEMANA','scSuspender(\''+z.id+'\','+(!susp)+')')
+  }
+  const m=document.createElement('div'); m.id='scMenu'; m.className='pfMenu scMenu'; m.setAttribute('role','menu'); m.dataset.k=key; m.innerHTML=it.join('')
+  document.body.appendChild(m)
+  const r=ev.currentTarget.getBoundingClientRect(), mw=m.offsetWidth, mh=m.offsetHeight
+  let x=Math.min(window.innerWidth-mw-8, Math.max(8, r.right-mw)), y=r.bottom+6; if (y+mh>window.innerHeight-8) y=Math.max(8, r.top-mh-6)
+  m.style.left=x+'px'; m.style.top=y+'px'
+  setTimeout(function(){ document.addEventListener('pointerdown',scMenuFuera,true) },0)
+  const f=m.querySelector('button,a'); if (f) f.focus()
+  m.addEventListener('keydown',function(e){ if (e.key==='Escape'){ scMenuCerrar(); ev.currentTarget&&ev.currentTarget.focus&&ev.currentTarget.focus() } })
+}
+document.addEventListener('keydown',function(e){ if (e.key==='Escape') scMenuCerrar() })
+window.addEventListener('resize',function(){ scMenuCerrar() })
+
+function scRenombrar(id){
+  const z=((SC.st&&SC.st.sesiones)||[]).find(function(x){return x.id===id}); if(!z) return
+  scModal('CAMBIAR NOMBRE','<p class="gpTxt">Solo cambia esta sesión en el programa de <b>'+plEsc(nomDe(F.id).split(' ')[0])+'</b>. La biblioteca y el historial ya registrado no se tocan.</p>'+
+    '<input class="scNom" id="scNom" maxlength="60" value="'+plEsc(String(z.nombre||'').toUpperCase())+'" aria-label="Nuevo nombre" onkeydown="if(event.key===\'Enter\')scRenombrarOk(\''+id+'\')">'+
+    '<div class="gpErr" id="scErr" style="display:none"></div><button type="button" class="mSG__ok" onclick="scRenombrarOk(\''+id+'\')">GUARDAR NOMBRE</button><button type="button" class="mSG__sec" onclick="scCerrar()">CANCELAR</button>')
+  setTimeout(function(){ const i=document.getElementById('scNom'); if(i){ i.focus(); i.select() } },30)
+}
+async function scRenombrarOk(id){
+  const v=((document.getElementById('scNom')||{}).value||'').trim(), e=document.getElementById('scErr')
+  if (v.length<2){ e.style.display=''; e.textContent='Escribe un nombre de al menos 2 caracteres.'; return }
+  document.querySelectorAll('#scBody button').forEach(function(b){ b.disabled=true }); scGuard('run')
+  const r=await sb.rpc('koach_sesion_renombrar',{ p_sesion:id, p_nombre:v })
+  if (r.error){ scGuard('err'); e.style.display=''; e.textContent=/SOLO_COPIA_SOCIO/.test(r.error.message)?'Esta sesión es de una base o biblioteca: no se renombra desde aquí.':'No se pudo: '+r.error.message; document.querySelectorAll('#scBody button').forEach(function(b){ b.disabled=false }); return }
+  scCerrar(); scGuard('ok'); toast('Nombre actualizado ✓'); delete SCD.det[id]; scCargar(F.id)
+}
+async function scDuplicar(id){
+  const z=((SC.st&&SC.st.sesiones)||[]).find(function(x){return x.id===id}); if(!z) return
+  if (!await kConfirm('¿Duplicar '+scNomL(z.nombre)+'? La copia queda al final de esta semana, pendiente y sin habilitar.')) return
+  scGuard('run'); const r=await sb.rpc('koach_sesion_duplicar',{ p_sesion:id })
+  if (r.error){ scGuard('err'); toast(/CICLO_CERRADO/.test(r.error.message)?'Este ciclo ya no está activo.':'No se pudo duplicar: '+r.error.message); return }
+  scGuard('ok'); toast('Sesión duplicada ✓'); scCargar(F.id)
+}
+async function scDesignarExtra(id){
+  const z=((SC.st&&SC.st.sesiones)||[]).find(function(x){return x.id===id}); if(!z||!F) return
+  if (!await kConfirm('¿Designar '+scNomL(z.nombre)+' como sesión extra ★? '+nomDe(F.id).split(' ')[0]+' la verá como opcional y no suma a sus principales.')) return
+  scGuard('run'); const r=await sb.from('designaciones_extra').insert({ socio_id:F.id, sesion_protocolo_id:id, motivo:'Criterio del coach', recurrente:false })
+  if (r.error){ scGuard('err'); toast('No se pudo designar: '+r.error.message); return }
+  scGuard('ok'); toast('★ Extra designada — el socio ya la ve'); scCargar(F.id)
+}
+async function scRetirarExtra(id){
+  if (!await kConfirm('¿Quitar esta extra? El socio deja de verla; lo que ya entrenó se conserva.')) return
+  scGuard('run'); const r=await sb.from('designaciones_extra').update({ estado:'retirada' }).eq('id',id)
+  if (r.error){ scGuard('err'); toast('No se pudo retirar: '+r.error.message); return }
+  if (SCD.open==='x'+id) SCD.open=null
+  scGuard('ok'); toast('Extra retirada'); scCargar(F.id)
+}
+
+// ── c60 · 🔔 SOLICITUDES DEL SOCIO (cabecera, junto a WhatsApp) — contador + panel con REVISAR → APROBAR / RECHAZAR
+const SOLN={}
+const SOL_LBL={ postergar:'NO PUEDE REALIZAR ESTA SESIÓN', adelantar:'SOLICITA ADELANTAR', preview:'SOLICITA VISTA PREVIA', extra:'PIDE SESIÓN EXTRA' }
+function socSolBadge(id){ const b=document.getElementById('fSolBadge'), bt=document.getElementById('fSolBtn'); if(!b||!F||F.id!==id) return
+  const n=SOLN[id]||0; b.hidden=!n; b.textContent=n>9?'9+':String(n)
+  if (bt){ bt.setAttribute('aria-label','Solicitudes de '+nomDe(id)+(n?' · '+n+' pendiente'+(n===1?'':'s'):' · sin pendientes')); bt.classList.toggle('pfB--on',!!n) } }
+async function socSolContar(id){ if(!id) return
+  const r=await sb.from('solicitudes').select('id',{count:'exact',head:true}).eq('socio_id',id).eq('estado','pendiente')
+  if (r.error) return; SOLN[id]=r.count||0; socSolBadge(id); try{ cargarSolicitudes(id) }catch(_e){}
+  const d=document.getElementById('mAdm'); if (d && d.classList.contains('vis') && d.dataset.sol===id && !socSolAbrir._det) socSolAbrir(true) }
+async function socSolAbrir(silencioso){
+  if (!F) return; const id=F.id; socSolAbrir._det=false
+  if (!silencioso) admAbrir('SOLICITUDES','<div class="vacio">Cargando…</div>')
+  document.getElementById('mAdm').dataset.sol=id
+  const r=await sb.from('solicitudes').select('id,socio_id,tipo,detalle,estado,created_at,sesion_protocolo_id,nota_coach,revisado_at,resuelta_por_nombre').eq('socio_id',id).eq('estado','pendiente').order('created_at')
+  if (!F || F.id!==id) return
+  if (r.error){ admAbrir('SOLICITUDES','<div class="gpErr">No se pudo leer: '+plEsc(r.error.message)+'</div>'); return }
+  const l=r.data||[]; SOLN[id]=l.length; socSolBadge(id)
+  const sids=[...new Set(l.map(function(x){return x.sesion_protocolo_id}).filter(Boolean))], nom={}
+  if (sids.length){ const rs=await sb.from('sesiones_protocolo').select('id,nombre,objetivo,semana').in('id',sids); (rs.data||[]).forEach(function(s){ nom[s.id]=s }) }
+  AD.sols=(AD.sols||[]).filter(function(x){ return !l.some(function(y){return y.id===x.id}) }).concat(l)
+  socSolAbrir._nom=nom
+  const h='<div class="ssH"><span>SOLICITUDES</span><b>'+l.length+'</b><span>PENDIENTE'+(l.length===1?'':'S')+'</span></div>'+
+    (l.length ? '<ol class="ssL">'+l.map(function(x,i){ const s=nom[x.sesion_protocolo_id]
+      return '<li class="ssR"><span class="ssR__n">'+String(i+1).padStart(2,'0')+'</span><div class="ssR__t"><small>'+(SOL_LBL[x.tipo]||String(x.tipo).toUpperCase())+' · '+adHace(x.created_at)+'</small><b>'+(s?scNomL(s.nombre||s.objetivo):plEsc(String(x.detalle||'—').toUpperCase()))+'</b>'+(s&&x.detalle?'<em>'+plEsc(x.detalle)+'</em>':'')+'</div>'+
+        '<button type="button" class="tbB" onclick="socSolRev(\''+x.id+'\')">REVISAR</button></li>' }).join('')+'</ol>'
+      : '<div class="vacio">Sin solicitudes pendientes de '+plEsc(nomDe(id).split(' ')[0])+'.</div>')+
+    '<p class="ssPie">REVISAR → detalle con RECHAZAR / APROBAR · nada se resuelve en un toque</p>'
+  admAbrir('SOLICITUDES DE '+nomDe(id).split(' ')[0].toUpperCase(), h)
+}
+function socSolRev(sid){
+  const x=(AD.sols||[]).find(function(y){return y.id===sid}); if(!x) return; socSolAbrir._det=true
+  const s=(socSolAbrir._nom||{})[x.sesion_protocolo_id]
+  const efecto={postergar:'Al aprobar, la sesión pasa al final de las pendientes de su semana. El socio sigue con la siguiente.',
+    adelantar:'Al aprobar, el socio puede iniciar esta sesión aunque no le toque en orden.',
+    preview:'Al aprobar, el socio puede ver el contenido de la sesión antes de hacerla.',
+    extra:'Se resuelve designando una sesión extra ★ (no suma a sus principales).'}[x.tipo]||''
+  let h='<div class="adCard"><div class="adK"><span>'+(SOL_LBL[x.tipo]||x.tipo)+'</span><span>'+adHace(x.created_at)+'</span></div>'+
+    '<div class="adH">'+(s?scNomL(s.nombre||s.objetivo):plEsc(nomDe(x.socio_id)))+'</div>'+
+    '<div class="adS">'+(s?'SEMANA '+(s.semana||1)+'<br>':'')+(x.detalle?'MENSAJE · '+plEsc(x.detalle)+'<br>':'')+'SOLICITADO · '+adFH(x.created_at)+'</div><div class="adNote">'+efecto+'</div></div>'
+  if (x.tipo==='extra') h+='<div class="adBtns"><button onclick="socSolResolver(\''+x.id+'\',\'rechazada\')">RECHAZAR</button><button class="ink" onclick="admCerrar();atenderExtra(\''+x.id+'\',\''+x.socio_id+'\')">DESIGNAR EXTRA ★</button></div>'
+  else h+='<div class="adF"><label>COMENTARIO PARA EL SOCIO (OPCIONAL)</label><input id="solNota" maxlength="140" placeholder="Ej: completa primero UPPER"></div>'+
+    '<div class="adBtns"><button onclick="socSolResolver(\''+x.id+'\',\'rechazada\')">RECHAZAR</button><button class="ink" onclick="socSolResolver(\''+x.id+'\',\'aprobada\')">APROBAR</button></div>'
+  h+='<button type="button" class="ssVolver" onclick="socSolAbrir(true)">← VOLVER A LA LISTA</button>'
+  admAbrir('REVISAR SOLICITUD', h)
+}
+async function socSolResolver(sid, estado){
+  const nota=(document.getElementById('solNota')||{}).value||'', ac=adActor()
+  document.querySelectorAll('#mAdmBody button').forEach(function(b){ b.disabled=true }); syncEnvio()
+  const r=await sb.rpc('solicitud_resolver',{p_id:sid, p_estado:estado, p_nota:nota, p_actor:ac.id, p_actor_nombre:ac.nombre})
+  if (r.error){ syncErr(r.error.message); toast('No se pudo resolver: '+r.error.message); document.querySelectorAll('#mAdmBody button').forEach(function(b){ b.disabled=false }); return }
+  syncOk(); toast(r.data===estado ? (estado==='aprobada'?'Aprobada — el socio ya lo ve.':'Rechazada — el socio ya lo ve.') : 'Ya estaba resuelta ('+r.data+').')
+  C.sols=(C.sols||[]).filter(function(x){return x.id!==sid}); AD.sols=(AD.sols||[]).filter(function(x){return x.id!==sid})
+  await socSolAbrir(true)
+  if (F){ scCargar(F.id); try{ cargarSolicitudes(F.id) }catch(_e){} }
+  loadSala(true).then(function(){ if (F){ try{ mhPintar(F.id) }catch(_e){} } })
+}
+
 let MG={primero:null}
 async function aplicarPrograma(){
   // Guardia de prescripción (advertencia, jamás bloqueo) — modal KOACH, no confirm nativo
