@@ -957,7 +957,10 @@ html,button,input,.pvS,.chk,.setChip{touch-action:manipulation}
 /* c34 · sin aire entre el titular y el primer bloque */
 #vSesion .kh--ses{padding-bottom:24px!important;margin-bottom:0!important;background:#141415;border-radius:0 0 28px 28px}
 #vSesion .kh--ses .k2h__bg{display:none}
-#vSesion .wx__kg{position:static!important;display:flex;justify-content:flex-end;align-items:baseline;gap:10px;margin-top:14px;text-align:right}
+#vSesion .wx__kg{position:static!important;display:flex;justify-content:space-between;align-items:flex-end;gap:14px;margin-top:14px;text-align:right}
+#vSesion .wx__clk{text-align:left;color:#F4F3F0}#vSesion .wx__clk i{display:block;line-height:0;font-style:normal}#vSesion .wx__clk svg{height:34px;width:auto;display:block}
+#vSesion .wx__clk span{display:block;margin-top:5px;font:700 9px var(--wxM);letter-spacing:.16em;color:#9A9993}
+#vSesion .wx__kgv{display:flex;align-items:baseline;gap:10px;margin-left:auto}
 #vSesion .wx__kg:empty{display:none}
 #vSesion .wx__kg b{display:inline!important}
 #sBloques>.wx__b:first-child,#sBloques>.wx__done:first-child{margin-top:12px!important}
@@ -3181,7 +3184,7 @@ async function entrar(opts){
       sb.from('profiles').select('*').eq('id', uid).single(),
       sb.from('asignaciones').select('*, protocolos(*)').eq('socio_id', uid).eq('activo', true).limit(1).maybeSingle(),
       sb.from('sesiones_registro').select('id, sesion_protocolo_id, estado, fecha, bloques_completados, completada_at').eq('socio_id', uid).gte('fecha', lunesISO),
-      sb.from('sesiones_registro').select('id, sesion_protocolo_id, fecha').eq('socio_id', uid).eq('estado','en_curso'),
+      sb.from('sesiones_registro').select('id, sesion_protocolo_id, fecha, iniciada_at').eq('socio_id', uid).eq('estado','en_curso'),
       sb.from('designaciones_extra').select('id, sesion_protocolo_id, estado, recurrente').eq('socio_id', uid).neq('estado','retirada'),
       sb.from('solicitudes').select('id, tipo, detalle, estado, sesion_protocolo_id, nota_coach, revisado_at').eq('socio_id', uid).in('estado',['pendiente','aprobada','rechazada']).order('created_at'),
       sb.from('coach_config').select('frases').eq('activo',true).limit(1).maybeSingle()
@@ -3711,7 +3714,7 @@ async function reanudar(){
   if(!ses){ toast('No encontramos esa sesión en tu programa actual'); return }
   S.sesionAbierta = ses
   S.pesos={}; S.marcas={}; S.setsHechos={}; S.bloquesListos=0; S._flb={}
-  S.wk={}; S.setLog={}; S.rw={}; S.abierto=null; S.regId=reg.id
+  S.wk={}; S.setLog={}; S.rw={}; S.abierto=null; S.regId=reg.id; S.regInicio=reg.iniciada_at?new Date(reg.iniciada_at).getTime():Date.now()
   S._desigActual = ses._desigId||null; S._desigRec = !!ses._rec
   vista('vSesion')
   document.getElementById('sTit').textContent = ses.nombre
@@ -3859,21 +3862,21 @@ async function abrirSesion(num){
   const ses = sesG
   S.sesionAbierta = ses
   S.pesos={}; S.marcas={}; S.setsHechos={}; S.bloquesListos=0; S._flb={}
-  S.wk={}; S.setLog={}; S.rw={}; S.abierto=null; S.regId=null
+  S.wk={}; S.setLog={}; S.rw={}; S.abierto=null; S.regId=null; S.regInicio=null
   // INSTANCIA: crear o recuperar el registro en curso de hoy (persistencia server-side)
   try{
     const hoyD = fLocal(new Date())
-    const { data: exi } = await sb.from('sesiones_registro').select('id')
+    const { data: exi } = await sb.from('sesiones_registro').select('id, iniciada_at')
       .eq('socio_id',S.perfil.id).eq('sesion_protocolo_id',ses.id).eq('fecha',hoyD).eq('estado','en_curso')
       .limit(1).maybeSingle()
-    if (exi){ S.regId = exi.id }
+    if (exi){ S.regId = exi.id; S.regInicio = exi.iniciada_at?new Date(exi.iniciada_at).getTime():Date.now() }
     else {
       const { data: nr, error: er } = await sb.from('sesiones_registro').insert({
         socio_id:S.perfil.id, asignacion_id:S.asig.id, sesion_protocolo_id:ses.id,
         fecha:hoyD, estado:'en_curso',
-        semana:S.asig.semana_actual, ciclo:S.asig.ciclo_actual }).select('id').single()
+        semana:S.asig.semana_actual, ciclo:S.asig.ciclo_actual }).select('id, iniciada_at').single()
       if (er) throw er
-      S.regId = nr.id
+      S.regId = nr.id; S.regInicio = nr.iniciada_at?new Date(nr.iniciada_at).getTime():Date.now()
     }
     const { data: sl } = await sb.from('set_registros').select('*').eq('registro_id',S.regId)
     ;(sl||[]).forEach(r=>{
@@ -4320,6 +4323,12 @@ document.addEventListener('visibilitychange', function(){ if(document.visibility
 /* ── pantalla encendida mientras se entrena ── */
 async function bkWake(on){ try{ if(on){ if(!BK._wl && navigator.wakeLock){ BK._wl=await navigator.wakeLock.request('screen'); BK._wl.addEventListener('release',function(){ BK._wl=null }) } } else if(BK._wl){ await BK._wl.release(); BK._wl=null } }catch(_){ BK._wl=null } }
 
+/* c71 · tiempo de sesión */
+function sesTxt(){ if(!S.regInicio) return '00:00'; const t=Math.max(0,Math.floor((Date.now()-S.regInicio)/1000)), h=Math.floor(t/3600), m=Math.floor(t%3600/60), ss=t%60
+  return (h?h+':':'')+String(m).padStart(2,'0')+':'+String(ss).padStart(2,'0') }
+function sesTick(){ clearInterval(S._sesT); S._sesT=null; if(!S.regInicio) return
+  S._sesT=setInterval(function(){ const el=document.getElementById('sClk'); if(!el||!S.regInicio){ clearInterval(S._sesT); S._sesT=null; return }
+    const t=sesTxt(); if(el.dataset.t!==t){ el.dataset.t=t; el.innerHTML=bkSeg(t) } },1000) }
 function pintarSesion(){
   cargandoOff()
   if (BK.bi!=null && document.getElementById('oBloque') && document.getElementById('oBloque').classList.contains('vis')) setTimeout(bkPintar,0)
@@ -4329,7 +4338,11 @@ function pintarSesion(){
   S._bfs=bfs
   const NOM={B1:'ACTIVACIÓN',B2:'FUERZA PRINCIPAL',B3:'CIERRE ACCESORIO'}
   const focoId=wxFocoAuto(bfs)
-  const hk=document.getElementById('sKgHoy'); if(hk){ const st=wxSetsHoy(bfs); hk.innerHTML='<b>'+wxKgHoy().toLocaleString('es-CL')+'<small>KG</small></b><span>HOY · '+st[0]+'/'+st[1]+' SETS</span>' }
+  const hk=document.getElementById('sKgHoy'); if(hk){ const st=wxSetsHoy(bfs)
+    // c71 · reloj de sesión (siete segmentos): cuenta desde iniciada_at hasta que se cierra la sesión
+    hk.innerHTML=(S.regInicio?'<div class="wx__clk"><i id="sClk" data-t="'+sesTxt()+'">'+bkSeg(sesTxt())+'</i><span>EN SESIÓN</span></div>':'')+
+      '<div class="wx__kgv"><b>'+wxKgHoy().toLocaleString('es-CL')+'<small>KG</small></b><span>HOY · '+st[0]+'/'+st[1]+' SETS</span></div>'
+    sesTick() }
   document.getElementById('sBloques').classList.remove('cargando')
   document.getElementById('sBloques').innerHTML = bfs.some(esCircuito) ? bfs.map((b,bi)=>{
     const bes=[...(b.bloque_ejercicios||[])].sort((a,x)=>(a.orden||0)-(x.orden||0))
