@@ -167,6 +167,53 @@ html.bk-on{overflow:hidden}
 .kset__pc{height:46px;display:grid;place-items:center;border-radius:12px;background:#F6F5F2;border:1.5px dashed rgba(17,17,17,.2);font:700 10px/1.25 var(--wxM);letter-spacing:.12em;color:#6B6A65;text-align:center;padding:0 8px}
 @media (max-width:360px){ .bk__st{grid-template-columns:40px minmax(0,1fr) 40px}.bk__st button{height:42px;font-size:18px}.bk__sb{gap:6px}.kLogo--bk{width:96px} }
 @media (min-height:900px){ .bk__v input{font-size:34px} }
+/* ═══ c65 · DESCANSO · lenguaje de estados: BLANCO = entrenamiento · NEGRO = descanso · GO = transición ═══
+   La misma pantalla, invertida. Nada se oculta: reps y kg siguen editables, el reloj es el héroe, la línea bajo el titular se vacía con el tiempo. */
+#oBloque,.bk__fix,.bk__foot,.bk__ex,.bk__strip button,.kset__r button,.kset__r input,.kset__pc,.bk__cta,.bk__rb,.bk__sv,.bk__bh,.bk__pill,.kLogo--bk{transition:background-color .45s ease,color .45s ease,border-color .45s ease,box-shadow .45s ease,filter .45s ease}
+.bk__bh{position:relative}
+.bk__bar{position:absolute;left:0;bottom:-2px;height:2px;background:#F4F3F0;transition:width .2s linear;pointer-events:none}
+button.bk__desc{appearance:none;-webkit-appearance:none;border:0;background:transparent;padding:0;color:inherit;font:inherit;text-align:right;-webkit-tap-highlight-color:transparent}
+.bk__t.tick{animation:bkTick .22s ease-out}
+@keyframes bkTick{from{transform:translateY(-3px);opacity:.5}to{transform:none;opacity:1}}
+/* — NEGRO · descanso — */
+#oBloque.rest,#oBloque.rest .bk__fix,#oBloque.rest .bk__foot{background:#111;color:#F4F3F0}
+#oBloque.rest .bk__foot{box-shadow:0 -14px 18px -6px #111}
+#oBloque.rest .kLogo--bk{filter:brightness(0) invert(1)}
+#oBloque.rest .bk__rb{border-color:rgba(244,243,240,.35);color:#F4F3F0}
+#oBloque.rest .bk__sv{color:#B5B4AF;border-color:rgba(244,243,240,.25)}
+#oBloque.rest .bk__bh{border-bottom-color:rgba(244,243,240,.18)}
+#oBloque.rest .bk__k{color:#F4F3F0}
+#oBloque.rest .bk__bn em{display:none}
+#oBloque.rest .bk__desc{max-width:62%}
+#oBloque.rest .bk__desc b{font-size:clamp(46px,14vw,58px);letter-spacing:-.03em}
+#oBloque.rest .bk__desc span{color:#9A9993;margin-top:4px}#oBloque.rest .bk__desc u{color:#F4F3F0}
+#oBloque.rest .bk__strip button{background:#2A2A2A;color:#8A8984}#oBloque.rest .bk__strip .ok{background:#F4F3F0;color:#111}
+#oBloque.rest .bk__strip .cur{background:#111;color:#F4F3F0;box-shadow:inset 0 0 0 2px #F4F3F0}#oBloque.rest .bk__strip .ok.cur{background:#F4F3F0;color:#111;box-shadow:inset 0 0 0 2px #111,0 0 0 2px #F4F3F0}
+#oBloque.rest .bk__ex{background:#1A1A1A;border-color:rgba(244,243,240,.3)}#oBloque.rest .bk__ex--ok{background:#161616;border-color:rgba(244,243,240,.14)}
+#oBloque.rest .bk__eh span,#oBloque.rest .kset__l{color:#A5A49F}#oBloque.rest .bk__pill{color:#B5B4AF;border-color:rgba(244,243,240,.25)}
+#oBloque.rest .kset__r button{background:#222;border-color:rgba(244,243,240,.22);color:#F4F3F0}#oBloque.rest .kset__r button:active{background:#333}
+#oBloque.rest .kset__r input{color:#F4F3F0;border-bottom-color:rgba(244,243,240,.3)}#oBloque.rest .kset__r input:focus{background:rgba(244,243,240,.08)}#oBloque.rest .kset__r input::placeholder{color:#6B6A65}
+#oBloque.rest .kset__pc{background:#222;border-color:rgba(244,243,240,.22);color:#9A9993}
+#oBloque.rest .bk__cta{background:#F4F3F0;color:#111}#oBloque.rest .bk__cta--sec{background:transparent;color:#F4F3F0;border-color:#F4F3F0}
+#oBloque.rest .bk__lnk{color:#9A9993}
+#oBloque.rest button:focus-visible,#oBloque.rest input:focus-visible{outline-color:#F4F3F0}
+/* — últimos 10 s: número grande sobre las tarjetas (siguen visibles y editables) — */
+.bk__cd{position:absolute;inset:0;display:grid;place-items:center;pointer-events:none;opacity:0;transition:opacity .3s ease;z-index:3}
+.bk__cd.on{opacity:1}
+.bk__cd b{font-family:var(--wxD);font-weight:900;font-stretch:112%;font-size:clamp(150px,46vw,210px);line-height:1;letter-spacing:-.04em;color:#F4F3F0;font-variant-numeric:tabular-nums;text-shadow:0 10px 40px rgba(0,0,0,.45);transform:translateY(6vh)}
+.bk__cd b.pop{animation:bkPop .55s cubic-bezier(.2,.9,.25,1)}
+@keyframes bkPop{0%{transform:translateY(6vh) scale(1.28);opacity:.15}45%{opacity:1}100%{transform:translateY(6vh) scale(1);opacity:1}}
+#oBloque.cd .bk__scroll{opacity:.28;transition:opacity .4s ease}
+#oBloque.cd .bk__desc b{opacity:.55}
+/* — GO · vuelve el blanco — */
+#oBloque.go,#oBloque.go .bk__fix,#oBloque.go .bk__foot{background:#F4F3F0;transition-duration:.25s}
+#oBloque.go .bk__scroll{opacity:.18;transition:opacity .2s}
+.bk__cd.go b{color:#111;text-shadow:none;font-size:clamp(130px,40vw,190px);letter-spacing:-.02em}
+.bk__cd.go b.pop{animation:bkGo .95s cubic-bezier(.16,1,.3,1) forwards}
+@keyframes bkGo{0%{transform:translateY(6vh) scale(.55);opacity:0}30%{transform:translateY(6vh) scale(1.06);opacity:1}70%{transform:translateY(6vh) scale(1);opacity:1}100%{transform:translateY(5vh) scale(1);opacity:0}}
+.bk__cta.pulse{animation:bkPulse .9s ease-out}
+@keyframes bkPulse{0%{box-shadow:0 0 0 0 rgba(17,17,17,.45)}100%{box-shadow:0 0 0 14px rgba(17,17,17,0)}}
+@media (prefers-reduced-motion:reduce){ .bk__t.tick,.bk__cd b.pop,.bk__cd.go b.pop,.bk__cta.pulse{animation:none} #oBloque,#oBloque *{transition-duration:.01s!important} }
 /* ═══ c62 · HOME · fondo fotográfico + paneles de vidrio (titular negro con curva se mantiene) ═══ */
 .k2 #vHome{position:relative;isolation:isolate;background:#DADBDC}
 .k2 #k2Home{position:relative;isolation:isolate}
@@ -4001,7 +4048,7 @@ function wxSetsHoy(bfs){ let h=0,t=0; bfs.forEach(b=>{ if(esCircuito(b)){ t+=b.s
 /* ═══ c59 · RUTINA DEL SOCIO · PANTALLA 1 (cápsulas) + PANTALLA 2 (bloque en pantalla completa) ═══
    Misma lógica de registro (rwGet/rwSet/rwStep + tapSetRow). Orden obligatorio de bloques: COMENZAR solo en el primer bloque sin terminar.
    El descanso es un reloj de pared (fin = Date.now()+seg): sigue corriendo aunque la pestaña pase a segundo plano y sobrevive a una recarga. */
-const BK = { bi:null, set:null, cap:null, rest:null, _t:null, _wl:null }
+const BK = { bi:null, set:null, cap:null, rest:null, _t:null, _wl:null, _cdS:null, _go:null }
 const bkMMSS = s => String(Math.floor(s/60)).padStart(2,'0')+':'+String(s%60).padStart(2,'0')
 const bkDesc = b => (b.descanso_seg||b.descanso_segundos||60)
 const bkBes  = b => [...(b.bloque_ejercicios||[])].sort((a,x)=>(a.orden||0)-(x.orden||0))
@@ -4077,14 +4124,21 @@ function bkPintar(){
   else if (done){ cta='BLOQUE COMPLETADO ✓'; ctaCls=' bk__cta--sec' }
   else cta='✓ COMPLETAR SET '+String(n).padStart(2,'0')
   const sig = done ? (BK.bi+1<bfs.length ? '<button type="button" class="bk__cta" onclick="bkSiguiente()">SIGUIENTE · '+bkCod(bfs[BK.bi+1],BK.bi+1)+' '+bkNom(bfs[BK.bi+1],BK.bi+1)+' →</button>' : '<button type="button" class="bk__cta" onclick="bkCerrar();pedirFinal()">FINALIZAR SESIÓN →</button>') : ''
+  // c65 · lenguaje de estados: BLANCO = entrenamiento · NEGRO = descanso · GO = vuelta al entrenamiento
+  const restS = rest ? Math.max(0,Math.ceil((BK.rest.fin-Date.now())/1000)) : 0
   const top = done && !rest ? '<b>'+bkKgBloque(b).toLocaleString('es-CL')+'<i>KG</i></b><span>EN ESTE BLOQUE</span>'
-            : rest ? '<b id="bkT">'+bkMMSS(Math.max(0,Math.ceil((BK.rest.fin-Date.now())/1000)))+'</b><span>DESCANSO · <u onclick="bkRestFin()">TOCA PARA SALTAR</u></span>'
+            : rest ? '<b id="bkT" class="bk__t">'+bkMMSS(restS)+'</b><span>DESCANSO · <u>TOCA PARA SALTAR</u></span>'
             : '<b>'+bkMMSS(bkDesc(b))+'</b><span>DESC</span>'
+  const kLab = rest ? 'SIGUIENTE · SET '+String(n).padStart(2,'0') : 'BLOQUE'
+  o.classList.toggle('rest', !!rest); o.classList.remove('cd','go'); clearTimeout(BK._go)
   o.innerHTML='<div class="bk__fix"><header class="bk__top"><button type="button" class="bk__rb" onclick="bkCerrar()" aria-label="Volver a la sesión">←</button><img class="kLogo kLogo--bk" src="/img/brand/logotipo-koach.png" alt="KOACH"><span class="bk__sv" id="bkSync">'+(((document.getElementById('syncTag')||{}).textContent)||'✓ GUARDADO')+'</span></header>'+
-    '<div class="bk__bh"><div><span class="bk__k">BLOQUE</span><div class="bk__bn"><b>'+cod+'</b><em>'+nom+'</em></div></div><div class="bk__desc'+(rest?' run':'')+'" onclick="'+(rest?'bkRestFin()':'')+'">'+top+'</div></div>'+
+    '<div class="bk__bh"><div><span class="bk__k">'+kLab+'</span><div class="bk__bn"><b>'+cod+'</b><em>'+nom+'</em></div></div>'+
+    (rest ? '<button type="button" class="bk__desc run" onclick="bkRestFin()" aria-label="Descanso, '+restS+' segundos. Toca para saltar">'+top+'</button>' : '<div class="bk__desc">'+top+'</div>')+
+    (rest ? '<u class="bk__bar" id="bkBar" aria-hidden="true" style="width:'+bkRestPct()+'%"></u>' : '')+'</div>'+
     '<div class="bk__strip" role="group" aria-label="Sets del bloque">'+tabs+'</div></div>'+
     '<div class="bk__scroll" id="bkScroll">'+filas+'</div>'+
-    '<div class="bk__foot">'+(done ? sig+'<button type="button" class="bk__lnk" onclick="bkDesmarcar()">DESMARCAR SET '+String(n).padStart(2,'0')+'</button>' : '<button type="button" class="bk__cta'+ctaCls+'" onclick="'+(hecho?'bkDesmarcar()':'bkCompletar()')+'">'+cta+'</button>')+'</div>'
+    '<div class="bk__foot">'+(done ? sig+'<button type="button" class="bk__lnk" onclick="bkDesmarcar()">DESMARCAR SET '+String(n).padStart(2,'0')+'</button>' : '<button type="button" class="bk__cta'+ctaCls+'" onclick="'+(hecho?'bkDesmarcar()':'bkCompletar()')+'">'+cta+'</button>')+'</div>'+
+    '<div class="bk__cd" id="bkCd" aria-live="assertive" aria-atomic="true"><b id="bkCdN"></b></div>'
   bkRestTick()
 }
 async function bkCompletar(){ const b=(S._bfs||[])[BK.bi]; if(!b) return
@@ -4107,12 +4161,36 @@ function bkSiguiente(){ const bfs=S._bfs||[]; const prim=bkPrimerPendiente(bfs);
 /* ── descanso con reloj de pared ── */
 function bkRestIni(b){ BK.rest={ bId:b.id, dur:bkDesc(b), fin:Date.now()+bkDesc(b)*1000, regId:S.regId }
   try{ localStorage.setItem('k_rest', JSON.stringify(BK.rest)) }catch(_){} bkRestTick() }
-function bkRestFin(silencio){ clearInterval(BK._t); BK._t=null; BK.rest=null; try{ localStorage.removeItem('k_rest') }catch(_){} if(!silencio) bkPintar() }
+function bkRestPct(){ if(!BK.rest) return 0; return Math.max(0,Math.min(100,(BK.rest.fin-Date.now())/(BK.rest.dur*1000)*100)) }
+/* Fin del descanso. silencio=true → sin GO (último set del bloque, cierre). Si el socio salta (toca el reloj) o el reloj llega a 0 → GO. */
+function bkRestFin(silencio){ clearInterval(BK._t); BK._t=null; const r=BK.rest; BK.rest=null; BK._cdS=null; try{ localStorage.removeItem('k_rest') }catch(_){}
+  if (silencio || !r) return
+  const o=document.getElementById('oBloque'), visible=o && o.classList.contains('vis') && BK.bi!=null
+  if (!visible){ // el reloj siguió corriendo en otra pantalla: aviso breve, sin animación
+    try{ toast('Descanso terminado · tu siguiente set te espera') }catch(_){}
+    return }
+  bkPintar()
+  if (Date.now()-r.fin>2500) return // expiró mientras la app estaba en segundo plano: vuelve directo al entrenamiento
+  bkGo() }
 function bkRestRestaurar(){ try{ const r=JSON.parse(localStorage.getItem('k_rest')||'null'); if(r && r.fin>Date.now() && r.regId===S.regId) BK.rest=r; else localStorage.removeItem('k_rest') }catch(_){} }
 function bkRestTick(){ clearInterval(BK._t); BK._t=null; if(!BK.rest) return
-  BK._t=setInterval(function(){ const el=document.getElementById('bkT'); const s=Math.max(0,Math.ceil((BK.rest.fin-Date.now())/1000))
-    if (el) el.textContent=bkMMSS(s)
-    if (s<=0){ if(navigator.vibrate) navigator.vibrate([80,60,80]); bkRestFin() } }, 250) }
+  BK._cdS=null
+  const paso=function(){ if(!BK.rest) return
+    const el=document.getElementById('bkT'), bar=document.getElementById('bkBar'), cd=document.getElementById('bkCd'), cdn=document.getElementById('bkCdN'), o=document.getElementById('oBloque')
+    const ms=BK.rest.fin-Date.now(), s=Math.max(0,Math.ceil(ms/1000))
+    if (!o || !o.classList.contains('vis')){ if(s<=0) bkRestFin(); return } // reloj corriendo en otra pantalla: solo el final importa
+    if (el && el.textContent!==bkMMSS(s)){ el.textContent=bkMMSS(s); el.classList.remove('tick'); void el.offsetWidth; el.classList.add('tick') }
+    if (bar) bar.style.width=bkRestPct()+'%'
+    if (s<=0){ if(navigator.vibrate) navigator.vibrate([80,60,80]); bkRestFin(); return }
+    // últimos 10 segundos: cuenta regresiva grande, sincronizada con el segundo real
+    if (s<=10){ if(cd && BK._cdS!==s){ BK._cdS=s; if(o) o.classList.add('cd'); cdn.textContent=s; cd.classList.add('on'); cdn.classList.remove('pop'); void cdn.offsetWidth; cdn.classList.add('pop') } }
+    else if (cd && cd.classList.contains('on')){ cd.classList.remove('on'); if(o) o.classList.remove('cd') } }
+  paso(); BK._t=setInterval(paso, 200) }
+/* GO · el blanco vuelve con la palabra GO; después la pantalla queda en el set que corresponde */
+function bkGo(){ const o=document.getElementById('oBloque'), cd=document.getElementById('bkCd'), cdn=document.getElementById('bkCdN'); if(!o||!cd) return
+  clearTimeout(BK._go); o.classList.remove('rest','cd'); o.classList.add('go'); cdn.textContent='GO'; cd.classList.add('on','go'); cdn.classList.remove('pop'); void cdn.offsetWidth; cdn.classList.add('pop')
+  const sc=document.getElementById('bkScroll'); if(sc) sc.scrollTo({top:0,behavior:'smooth'})
+  BK._go=setTimeout(function(){ cd.classList.remove('on','go'); o.classList.remove('go'); const f=o.querySelector('.bk__cta'); if(f){ f.classList.remove('pulse'); void f.offsetWidth; f.classList.add('pulse') } }, 950) }
 document.addEventListener('visibilitychange', function(){ if(document.visibilityState!=='visible') return
   if (BK.bi!=null){ bkWake(true); bkPintar() } })
 /* ── pantalla encendida mientras se entrena ── */
