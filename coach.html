@@ -1607,6 +1607,27 @@ html.is-grabbing,html.is-grabbing *{cursor:grabbing !important}
 .tc{transition:box-shadow .18s ease, transform .18s ease, opacity .18s ease}
 .tc.is-drag{opacity:.55;transform:scale(.985)}.tc.is-over{transform:translateY(-3px);box-shadow:0 0 0 2px #2BB8C7}
 .tc__lock{display:none}
+
+/* ═══ c55 · HANDLE = ISOTIPO KOACH VECTORIZADO (barra + chevron), color según la tarjeta ═══ */
+.tc__h{top:10px;right:10px;width:44px;height:44px;background:none !important}
+.tc__iso{width:22px;height:22px;display:block;color:#121212;transition:transform .15s ease, opacity .15s ease}
+.tc--next .tc__iso,.tc--curso .tc__iso{color:#F4F3F0}
+.tc__h:hover .tc__iso,.tc__h:focus-visible .tc__iso{transform:translateY(-2px)}
+.tc__h:focus-visible{box-shadow:0 0 0 2px #2BB8C7 !important}
+.tc__h--lock .tc__iso{opacity:.22}
+.tc__h--lock:hover .tc__iso{transform:none}
+/* ═══ c55 · cabecera sin flecha, foto mayor, kilos movidos; interruptor; sesión suspendida ═══ */
+#vFicha .mh__back{display:none}
+@media (min-width:900px){ .mh__av,.mh__av .kav{width:104px !important;height:104px !important;font-size:40px !important} }
+.tSw{position:relative;display:inline-flex;align-items:center;gap:8px;min-height:44px;padding:0 6px;cursor:pointer;user-select:none}
+.tSw input{position:absolute;opacity:0;width:1px;height:1px}
+.tSw__t{position:relative;width:44px;height:26px;border-radius:999px;background:#D9D8D3;border:1px solid rgba(18,18,18,.18);transition:background .18s ease}
+.tSw__t::after{content:"";position:absolute;top:2px;left:2px;width:20px;height:20px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.25);transition:transform .18s ease}
+.tSw input:checked + .tSw__t{background:#121212;border-color:#121212}
+.tSw input:checked + .tSw__t::after{transform:translateX(18px);background:#2BB8C7}
+.tSw input:focus-visible + .tSw__t{box-shadow:0 0 0 2px #2BB8C7}
+.tSw__l{font-family:'Space Mono',var(--font-mono);font-size:11.5px;letter-spacing:.1em}
+.tc--susp{background:repeating-linear-gradient(135deg,#F1F0EC 0 10px,#E9E8E4 10px 20px);color:#8E8D88}
 /* ═══ FIN CAPA 3 ═══ */
 /* ═══ MOTOR DE CONSTRUCCIÓN c8.0 · MACRO → MESO → MICRO ═══ */
 .plNav{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin:0 0 14px}
@@ -1982,6 +2003,7 @@ html.ks-on #vSala .salaQ input{font:500 17px var(--font-display) !important;lett
       <div class="mh__stats">
         <div class="mh__s"><b id="fDias">—</b><small>DÍAS RESTANTES</small><em id="fVence">—</em></div>
         <div class="mh__s"><b id="fSemN">—</b><small>ESTA SEMANA</small><em id="fSemL">—</em></div>
+        <div class="mh__s"><b id="fKg">—</b><small>KILOS MOVIDOS</small><em id="fKgL">ESTE CICLO</em></div>
       </div>
     </div>
     <div class="mh__bar">
@@ -6332,13 +6354,14 @@ function scPintar(){
   const nextId = vivo ? vivo.sesion_id : hb ? hb.sesion_id : (px && (st.siguiente_tras_abierta && px.estado==='sin_cerrar' ? st.siguiente_tras_abierta.id : px.id))
   let h='<div class="tb__bar"><div class="tb__t"><span>SEMANA '+(st.semana||'—')+(st.total_semanas?' DE '+st.total_semanas:'')+'</span><b>'+(st.hechas||0)+'<i>/'+(st.programadas||ses.length)+'</i></b><small>REALIZADAS'+(inc.length?' · '+inc.length+' SIN CERRAR':'')+'</small></div>'+
     '<div class="tb__acc"><span class="tbSave" id="scSave" aria-live="polite"></span>'+(SCB.org
-      ? '<span class="tbOrgL">NUEVO ORDEN · EL SOCIO AÚN NO LO VE</span><button type="button" class="tbB" onclick="scOrgSalir()">DESHACER</button><button type="button" class="tbB tbB--ink" onclick="scOrgAplicar()"'+(scOrgCambio()?'':' disabled')+'>PUBLICAR ORDEN →</button>'
+      ? '<span class="tbOrgL">NUEVO ORDEN · SIN PUBLICAR</span><button type="button" class="tbB" onclick="scOrgSalir()">DESHACER</button><button type="button" class="tbB tbB--ink" onclick="scOrgAplicar()"'+(scOrgCambio()?'':' disabled')+'>PUBLICAR ORDEN →</button>'
       : '<button type="button" class="tbB tbB--ink" onclick="scElegir()">⇄ CAMBIAR SESIÓN</button>'+(inc.length?'<button type="button" class="tbB" onclick="scVerTodas()">⚠ RESOLVER ('+inc.length+')</button>':''))+'</div></div>'
   h+='<div class="tb2" role="list" aria-label="Sesiones de la semana">'
   ses.forEach(function(z,i){
     const esX=hb&&hb.sesion_id===z.id, esN=z.id===nextId, reg=ab.find(function(a){return a.sesion_id===z.id}), mov=scMovible(z), enV=vivo&&vivo.sesion_id===z.id
     let est, cls
-    if (z.estado==='completada'){ est='REALIZADA'+(z.cuando?' · '+scFechaC(z.cuando):''); cls='hecha' }
+    if (z.estado==='completada'){ est='REALIZADA'+(z.cuando?' · '+scDiaC(z.cuando):''); cls='hecha' }
+    else if (z.estado==='suspendida'){ est='SUSPENDIDA ESTA SEMANA'; cls='susp' }
     else if (enV || z.estado==='en_curso'){ est='EN CURSO'+(vivo?' · '+vivo.ejercicios+'/'+vivo.total_ejercicios+' EJ':''); cls='curso' }
     else if (reg && reg.abandonada){ est=(reg.parece_completa?'PARECE COMPLETA':'SIN CERRAR')+' · '+scFechaC(reg.iniciada_at||reg.fecha); cls='inc' }
     else if (esX){ est='HABILITADA'+(hb.permite_hoy?' · HOY':''); cls='next' }
@@ -6349,8 +6372,8 @@ function scPintar(){
         '<span class="tc__k"><em>'+String(i+1).padStart(2,'0')+'</em>'+(esN||esX?'<i>'+(enV?'AHORA':esX?'HABILITADA':'SIGUIENTE')+'</i>':'')+'</span>'+
         '<b class="tc__n">'+scNomL(z.nombre)+'</b><span class="tc__s">'+est+'</span></button>'+
       // c54 · KOACH Drag Handle (asset oficial). Solo él inicia el arrastre; tocar la tarjeta abre el resumen.
-      (mov?'<span class="tc__h" role="button" tabindex="0" aria-roledescription="controlador de arrastre" aria-label="Mover '+scNomL(z.nombre)+': arrastra, o usa las flechas izquierda y derecha" onpointerdown="scPD(event,\''+z.id+'\')" onkeydown="scKeyMove(event,\''+z.id+'\')"><img src="/img/brand/koach-drag-handle.png" alt="" width="30" height="30" draggable="false"></span>'
-          :'<span class="tc__h tc__h--lock" aria-disabled="true" title="'+(z.estado==='completada'?'Realizada':'Sesión abierta')+': posición fija"><img src="/img/brand/koach-drag-handle.png" alt="" width="30" height="30" draggable="false"></span>')+'</div>' })
+      (mov?'<span class="tc__h" role="button" tabindex="0" aria-roledescription="controlador de arrastre" aria-label="Mover '+scNomL(z.nombre)+': arrastra, o usa las flechas izquierda y derecha" onpointerdown="scPD(event,\''+z.id+'\')" onkeydown="scKeyMove(event,\''+z.id+'\')"><svg class="tc__iso" viewBox="40 180 790 795" aria-hidden="true" focusable="false"><rect x="52" y="190" width="768" height="162" fill="currentColor"/><polygon points="52,757 438,415 818,752 818,950 438,615 52,962" fill="currentColor"/></svg></span>'
+          :'<span class="tc__h tc__h--lock" aria-disabled="true" title="'+(z.estado==='completada'?'Realizada':'Sesión abierta')+': posición fija"><svg class="tc__iso" viewBox="40 180 790 795" aria-hidden="true" focusable="false"><rect x="52" y="190" width="768" height="162" fill="currentColor"/><polygon points="52,757 438,415 818,752 818,950 438,615 52,962" fill="currentColor"/></svg></span>')+'</div>' })
   h+='</div><div id="tcRes" class="tcRes" '+(SCD.open?'':'hidden')+'></div>'
   const fuera=inc.filter(function(a){ return !ses.some(function(z){return z.id===a.sesion_id}) })
   if (fuera.length) h+='<button type="button" class="tbOld" onclick="scVerTodas()">+ '+fuera.length+' SIN CERRAR DE SEMANAS ANTERIORES · RESOLVER →</button>'
@@ -6363,14 +6386,15 @@ async function scPintarRes(){
   const st=SC.st||{}, z=(st.sesiones||[]).find(function(x){return x.id===id}); if(!z){ box.hidden=true; return }
   const ab=st.abiertas||[], reg=ab.find(function(a){return a.sesion_id===id}), hb=st.habilitada, esX=hb&&hb.sesion_id===id
   const u='#/socio/'+F.id+'/plan?w='+st.semana+'&s='+id
+  // c55 · acciones según estado real: EDITAR siempre; interruptor de habilitación; suspender esta semana; finalizar si quedó abierta
+  const susp=z.estado==='suspendida', done=z.estado==='completada'
   let acc='<a class="tbB" href="'+u+'" onclick="return rtIr(event,\''+u+'\')">EDITAR</a>'
-  if (z.estado==='completada') acc+='<button type="button" class="tbB" onclick="scAccion(\'habilitar\',null,\''+id+'\',true)">REPETIR COMO EXTRA</button>'
-  else if (reg && reg.abandonada) acc+='<button type="button" class="tbB tbB--ink" onclick="scFinalizar(\''+reg.id+'\')">FINALIZAR SESIÓN</button><button type="button" class="tbB" onclick="scAccion(\'cerrar\',\''+reg.id+'\')">CERRAR INCOMPLETA</button>'
-  else if (esX) acc+='<a class="tbB tbB--ink" href="'+urlRutina(F.id)+'" onclick="return rtIr(event,\''+urlRutina(F.id)+'\')">ABRIR RUTINA</a><button type="button" class="tbB" onclick="scAccion(\'quitar_habilitacion\')">QUITAR HABILITACIÓN</button>'
-  else if (z.estado==='en_curso') acc+='<a class="tbB tbB--ink" href="'+urlRutina(F.id)+'" onclick="return rtIr(event,\''+urlRutina(F.id)+'\')">ABRIR RUTINA</a>'
-  else if (st.proxima && st.proxima.id===id && !hb && !st.entreno_hoy && st.proxima.estado!=='sin_cerrar') acc+='<a class="tbB tbB--ink" href="'+urlRutina(F.id)+'" onclick="return rtIr(event,\''+urlRutina(F.id)+'\')">ABRIR RUTINA</a><span class="tcRes__ok">YA DISPONIBLE PARA EL SOCIO</span>'
-  else acc+='<button type="button" class="tbB tbB--ink" onclick="scHabilitarConf(\''+id+'\')">HABILITAR</button>'
-  const cab='<div class="tcRes__h"><div><small>'+(reg&&reg.abandonada?(reg.ejercicios+'/'+reg.total_ejercicios+' EJ · '+reg.sets+' SETS REGISTRADOS'):'RESUMEN DE LA SESIÓN')+'</small><b>'+scNomL(z.nombre)+'</b></div><div class="tcRes__a">'+acc+
+  if (reg && reg.abandonada) acc+='<button type="button" class="tbB tbB--ink" onclick="scFinalizarConf(\''+reg.id+'\')">FINALIZAR SESIÓN</button>'
+  if (!done && !susp && z.estado!=='en_curso' && !(reg&&reg.abandonada))
+    acc+='<label class="tSw" title="Habilitar para que el socio pueda entrenarla"><input type="checkbox" role="switch" '+(esX?'checked ':'')+'onchange="scSwitch(this,\''+id+'\')"><span class="tSw__t" aria-hidden="true"></span><span class="tSw__l">'+(esX?'HABILITADA':'HABILITAR')+'</span></label>'
+  if (!done && z.estado!=='en_curso' && !(reg&&reg.abandonada)) acc+='<button type="button" class="tbB" onclick="scSuspender(\''+id+'\','+(!susp)+')">'+(susp?'REANUDAR ESTA SEMANA':'SUSPENDER ESTA SEMANA')+'</button>'
+  if (done) acc+='<button type="button" class="tbB" onclick="scAccion(\'habilitar\',null,\''+id+'\',true)">REPETIR COMO EXTRA</button>'
+  const cab='<div class="tcRes__h"><div><small>'+(reg&&reg.abandonada?(reg.ejercicios+'/'+reg.total_ejercicios+' EJ · '+reg.sets+' SETS REGISTRADOS'):'RESUMEN DE LA SESIÓN')+'</small><b>'+scNomL(z.nombre)+'</b>'+(done&&z.cuando?'<small>REALIZADA · '+scDiaC(z.cuando)+'</small>':susp?'<small>SUSPENDIDA ESTA SEMANA</small>':'')+'</div><div class="tcRes__a">'+acc+
     '<button type="button" class="tcRes__x" onclick="scAbrirRes(\''+id+'\')" aria-label="Cerrar resumen">✕</button></div></div>'
   box.hidden=false
   if (!SCD.det[id]){ box.innerHTML=cab+'<div class="tcRes__c">Cargando…</div>'
@@ -6656,6 +6680,10 @@ function mhPintar(id, finAcc, dAcc){
   if (so.numero_socio!=null) pon(so.numero_socio)
   else { pon(null); sb.from('profiles').select('numero_socio').eq('id',id).maybeSingle().then(function(r){ if (F && F.id===id && r.data){ so.numero_socio=r.data.numero_socio; pon(r.data.numero_socio) } }) }
   mhAcciones()
+  // c55 · kilos movidos: Σ peso × reps de sets realmente hechos (misma regla de ejecución real que Avances)
+  sb.rpc('koach_kilos_movidos',{p_socio:id}).then(function(r){ if(!F||F.id!==id||r.error||!r.data) return
+    const f=function(n){ return n>=10000 ? (Math.round(n/100)/10).toLocaleString('es-CL')+'K' : Number(n||0).toLocaleString('es-CL') }
+    document.getElementById('fKg').textContent=f(r.data.ciclo); document.getElementById('fKgL').textContent='ESTE CICLO · TOTAL '+f(r.data.total) })
 }
 // Acciones según la puerta abierta: máximo 3 visibles; el resto en ···
 function mhAcciones(){
@@ -6762,6 +6790,24 @@ function scGuard(e){ const el=document.getElementById('scSave'); if(!el) return
   if (e==='ok') scGuard._t=setTimeout(function(){ el.textContent=''; el.className='tbSave' }, 2200) }
 // c52 · no perder un borrador sin publicar al cerrar o recargar la pestaña
 window.addEventListener('beforeunload', function(e){ try{ if (P && P.dirty && Object.keys(P.dirty).some(function(k){return P.dirty[k]})){ e.preventDefault(); e.returnValue='' } }catch(_e){} })
+// c55 · helpers del panel de sesión
+function scDiaC(t){ const d=new Date(t); return ['DOM','LUN','MAR','MIÉ','JUE','VIE','SÁB'][d.getDay()]+' '+scFechaC(t) }
+function scSwitch(inp,id){ const on=inp.checked; inp.disabled=true
+  if (on) scHabilitarConf(id); else scAccion('quitar_habilitacion')
+  setTimeout(function(){ inp.disabled=false },400) }
+async function scSuspender(id, on){
+  if (!F) return; scGuard('run')
+  const r=await sb.rpc('koach_sesion_suspender',{ p_socio:F.id, p_sesion:id, p_suspender:on })
+  if (r.error){ scGuard('err'); toast(/SESION_COMPLETADA/.test(r.error.message)?'Esa sesión ya se realizó esta semana: no se suspende.':'No se pudo: '+r.error.message); return }
+  SC.st=r.data; scGuard('ok'); scPintar(); toast(on?'Suspendida solo esta semana ✓ — el programa no cambia':'Sesión reanudada esta semana ✓')
+}
+function scFinalizarConf(rid){
+  const a=((SC.st&&SC.st.abiertas)||[]).find(function(x){return x.id===rid}); if(!a) return
+  if (a.parece_completa){ scFinalizar(rid); return }
+  scModal('ESTA SESIÓN SIGUE ABIERTA','<p class="gpTxt"><b>'+scNomL(a.nombre)+'</b> · '+a.ejercicios+' de '+a.total_ejercicios+' ejercicios · '+a.sets+' sets registrados.</p>'+
+    '<p class="gpTxt">¿Quieres cerrarla manualmente? Se conservan solo los sets que el socio registró: no se inventan ejercicios, reps ni cargas. Queda como <b>incompleta</b> y su posición se fija.</p>'+
+    '<div class="gpErr" id="scErr" style="display:none"></div><button type="button" class="mSG__ok" onclick="scAccion(\'cerrar\',\''+rid+'\')">FINALIZAR (QUEDA INCOMPLETA)</button><button type="button" class="mSG__sec" onclick="scCerrar()">CANCELAR</button>')
+}
 let MG={primero:null}
 async function aplicarPrograma(){
   // Guardia de prescripción (advertencia, jamás bloqueo) — modal KOACH, no confirm nativo
