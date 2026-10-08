@@ -2197,7 +2197,8 @@ body.wl-on{overflow:hidden}
         <div class="gl"><b>PR · RIR 0</b><span>Tu carga máxima por patrón (Upper Push · Pull · Squat · Hinge), al máximo real y con reps declaradas: <em>110 KG · 8 REPS</em>.</span></div>
         <div class="gl"><b>CICLO</b><span>6 semanas de progresión. Cada lunes la semana parte limpia — <em>más fuerte que la anterior</em>.</span></div>
       </div>
-      <div class="fila2" onclick="window.open('https://wa.me/56971333042?text=Hola%20KOACH%2C%20necesito%20ayuda%20con%20la%20app','_blank')"><span class="fn2">Ayuda</span><span class="fs2">›</span></div>
+      <div class="fila2" onclick="kSonidoToggle()" role="switch" id="kSonFila" aria-checked="true"><span class="fn2">Sonido al terminar el descanso</span><span class="fs2" id="kSonSt">ACTIVADO</span></div>
+    <div class="fila2" onclick="window.open('https://wa.me/56971333042?text=Hola%20KOACH%2C%20necesito%20ayuda%20con%20la%20app','_blank')"><span class="fn2">Ayuda</span><span class="fs2">›</span></div>
     </div>
     <button class="cerrar2" onclick="salir()">CERRAR SESIÓN</button>
   </div>
@@ -4052,6 +4053,21 @@ const BK = { bi:null, set:null, cap:null, rest:null, _t:null, _wl:null, _cdS:nul
 /* c66 · háptica unificada. Android: navigator.vibrate. iPhone: Safari no expone vibración; el único háptico disponible es el del
    interruptor nativo (<input type="checkbox" switch>, iOS 18+) y solo dentro de un toque del usuario → sirve como confirmación táctil
    en COMPLETAR SET y SALTAR, nunca como alerta desde el reloj. */
+/* c67 · sonido del descanso (Web Audio, sin archivos). Es la única alerta posible en iPhone cuando el socio no mira la pantalla.
+   iOS exige un gesto previo: el contexto se desbloquea en el toque de COMPLETAR SET / SALTAR. Respeta el interruptor de silencio del iPhone
+   (no se fuerza la categoría de reproducción para no interrumpir la música del socio). Ajuste en Perfil: k_sonido ('0' = apagado). */
+const KAU={ ctx:null }
+function kSonidoOn(){ try{ return localStorage.getItem('k_sonido')!=='0' }catch(_){ return true } }
+function kSonidoToggle(){ const on=!kSonidoOn(); try{ localStorage.setItem('k_sonido', on?'1':'0') }catch(_){} kSonidoPintar(); if(on){ kAudioUnlock(); kSonGo() } }
+function kSonidoPintar(){ const st=document.getElementById('kSonSt'), f=document.getElementById('kSonFila'); if(!st) return; const on=kSonidoOn(); st.textContent=on?'ACTIVADO':'APAGADO'; if(f) f.setAttribute('aria-checked',String(on)) }
+function kAudioUnlock(){ if(!kSonidoOn()) return; try{ const AC=window.AudioContext||window.webkitAudioContext; if(!AC) return; if(!KAU.ctx) KAU.ctx=new AC(); if(KAU.ctx.state!=='running') KAU.ctx.resume() }catch(_){} }
+function kBeep(f,dur,gain,at){ const c=KAU.ctx; if(!c||c.state!=='running'||!kSonidoOn()) return
+  try{ const t=c.currentTime+(at||0), o=c.createOscillator(), g=c.createGain(); o.type='sine'; o.frequency.value=f
+    g.gain.setValueAtTime(0,t); g.gain.linearRampToValueAtTime(gain,t+.008); g.gain.exponentialRampToValueAtTime(.0001,t+dur)
+    o.connect(g); g.connect(c.destination); o.start(t); o.stop(t+dur+.02) }catch(_){} }
+function kSonTick(){ kBeep(1100,.07,.16) }            // 3 · 2 · 1
+function kSonGo(){ kBeep(880,.12,.22); kBeep(1320,.28,.28,.11) } // GO: dos notas ascendentes
+kSonidoPintar()
 function kHaptic(p){ try{ if(navigator.vibrate){ navigator.vibrate(p||12); return }
   let l=document.getElementById('kHap'); if(!l){ l=document.createElement('label'); l.id='kHap'; l.setAttribute('aria-hidden','true'); l.style.cssText='position:fixed;left:-9999px;top:-9999px;width:1px;height:1px;overflow:hidden;opacity:0'
     l.innerHTML='<input type="checkbox" switch tabindex="-1">'; document.body.appendChild(l) }
@@ -4140,7 +4156,7 @@ function bkPintar(){
   o.classList.toggle('rest', !!rest); o.classList.remove('cd','go'); clearTimeout(BK._go)
   o.innerHTML='<div class="bk__fix"><header class="bk__top"><button type="button" class="bk__rb" onclick="bkCerrar()" aria-label="Volver a la sesión">←</button><img class="kLogo kLogo--bk" src="/img/brand/logotipo-koach.png" alt="KOACH"><span class="bk__sv" id="bkSync">'+(((document.getElementById('syncTag')||{}).textContent)||'✓ GUARDADO')+'</span></header>'+
     '<div class="bk__bh"><div><span class="bk__k">'+kLab+'</span><div class="bk__bn"><b>'+cod+'</b><em>'+nom+'</em></div></div>'+
-    (rest ? '<button type="button" class="bk__desc run" onclick="kHaptic(12);bkRestFin()" aria-label="Descanso, '+restS+' segundos. Toca para saltar">'+top+'</button>' : '<div class="bk__desc">'+top+'</div>')+
+    (rest ? '<button type="button" class="bk__desc run" onclick="kHaptic(12);kAudioUnlock();bkRestFin()" aria-label="Descanso, '+restS+' segundos. Toca para saltar">'+top+'</button>' : '<div class="bk__desc">'+top+'</div>')+
     (rest ? '<u class="bk__bar" id="bkBar" aria-hidden="true" style="width:'+bkRestPct()+'%"></u>' : '')+'</div>'+
     '<div class="bk__strip" role="group" aria-label="Sets del bloque">'+tabs+'</div></div>'+
     '<div class="bk__scroll" id="bkScroll">'+filas+'</div>'+
@@ -4153,7 +4169,7 @@ async function bkCompletar(){ const b=(S._bfs||[])[BK.bi]; if(!b) return
   for (const be of bes){ const w=S.wk[be.id]||{}, rv=S.rw[be.id+'#'+n]||{}
     if (w.tipo==='WEIGHT_REPS' && rv.kg==null){ toast('Define el peso de '+(be.ejercicios&&be.ejercicios.nombre||'cada ejercicio')+' antes de completar el set.'); return } }
   const cta=document.querySelector('#oBloque .bk__cta'); if(cta) cta.disabled=true
-  kHaptic(12) // dentro del toque: en iPhone es la única ventana para el háptico
+  kHaptic(12); kAudioUnlock() // dentro del toque: en iPhone es la única ventana para el háptico y para desbloquear el audio
   for (const be of bes){ if(!S.setLog[setKey(be.id,n)]) await tapSetRow(be.id,n,b.id,(be.ejercicios||{}).id) }
   const sig=bkSetActual(b)
   if (sig){ BK.set=sig; bkRestIni(b) } else { BK.set=n; bkRestFin(true) }
@@ -4174,7 +4190,7 @@ function bkRestFin(silencio){ clearInterval(BK._t); BK._t=null; const r=BK.rest;
   if (silencio || !r) return
   const o=document.getElementById('oBloque'), visible=o && o.classList.contains('vis') && BK.bi!=null
   if (!visible){ // el reloj siguió corriendo en otra pantalla: aviso breve, sin animación
-    try{ toast('Descanso terminado · tu siguiente set te espera') }catch(_){}
+    kSonGo(); try{ toast('Descanso terminado · tu siguiente set te espera') }catch(_){}
     return }
   bkPintar()
   if (Date.now()-r.fin>2500) return // expiró mientras la app estaba en segundo plano: vuelve directo al entrenamiento
@@ -4188,9 +4204,9 @@ function bkRestTick(){ clearInterval(BK._t); BK._t=null; if(!BK.rest) return
     if (!o || !o.classList.contains('vis')){ if(s<=0) bkRestFin(); return } // reloj corriendo en otra pantalla: solo el final importa
     if (el && el.textContent!==bkMMSS(s)){ el.textContent=bkMMSS(s); el.classList.remove('tick'); void el.offsetWidth; el.classList.add('tick') }
     if (bar) bar.style.width=bkRestPct()+'%'
-    if (s<=0){ if(navigator.vibrate) navigator.vibrate([80,60,80]); bkRestFin(); return }
+    if (s<=0){ if(navigator.vibrate) navigator.vibrate([80,60,80]); kSonGo(); bkRestFin(); return }
     // últimos 10 segundos: cuenta regresiva grande, sincronizada con el segundo real
-    if (s<=10){ if(cd && BK._cdS!==s){ BK._cdS=s; if(o) o.classList.add('cd'); cdn.textContent=s; cd.classList.add('on'); cdn.classList.remove('pop'); void cdn.offsetWidth; cdn.classList.add('pop') } }
+    if (s<=10){ if(cd && BK._cdS!==s){ BK._cdS=s; if(s<=3) kSonTick(); if(o) o.classList.add('cd'); cdn.textContent=s; cd.classList.add('on'); cdn.classList.remove('pop'); void cdn.offsetWidth; cdn.classList.add('pop') } }
     else if (cd && cd.classList.contains('on')){ cd.classList.remove('on'); if(o) o.classList.remove('cd') } }
   paso(); BK._t=setInterval(paso, 200) }
 /* GO · el blanco vuelve con la palabra GO; después la pantalla queda en el set que corresponde */
