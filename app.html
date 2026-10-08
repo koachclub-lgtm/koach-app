@@ -151,6 +151,54 @@ html.bk-on{overflow:hidden}
 #oBloque button:focus-visible,#oBloque input:focus-visible{outline:2px solid #111;outline-offset:2px}
 @media (max-width:360px){ .bk__st{grid-template-columns:40px minmax(0,1fr) 40px}.bk__st button{height:42px;font-size:18px}.bk__sb{gap:6px}.kLogo--bk{width:96px} }
 @media (min-height:900px){ .bk__v input{font-size:34px} }
+/* ═══ c62 · HOME · fondo fotográfico + paneles de vidrio (titular negro con curva se mantiene) ═══ */
+.k2 #vHome{position:relative;isolation:isolate;background:#DADBDC}
+.k2 #k2Home{position:relative;isolation:isolate}
+.hgBg{position:fixed;inset:-24px;z-index:-1;background-position:center 22%;background-size:cover;background-repeat:no-repeat;filter:blur(16px) saturate(.35) brightness(1.12);pointer-events:none}
+@supports not (backdrop-filter:blur(1px)){ .hgBg{filter:blur(16px) saturate(.35) brightness(1.22)} }
+.k2h__date{display:block;margin-bottom:10px;font:700 10px/1.4 var(--font-mono);letter-spacing:.14em;text-transform:uppercase;color:#A7A6A0}
+/* superficie de vidrio */
+.k2 #vHome .hh,.k2 #vHome .k2-m3,.k2 #vHome .hgWheel,.k2 #vHome .k2-ins,.k2 #vHome .sp{
+  background:rgba(255,255,255,.55);-webkit-backdrop-filter:blur(18px) saturate(1.2);backdrop-filter:blur(18px) saturate(1.2);
+  border:1px solid rgba(255,255,255,.55);box-shadow:0 10px 30px rgba(0,0,0,.07);color:#111}
+/* entrenamiento de hoy: panel compacto, texto negro */
+.k2 #vHome .hh{min-height:0;border-radius:22px;margin-bottom:var(--k2-s4,14px)}
+.k2 #vHome .hh__bg,.k2 #vHome .hh__ov{display:none}
+.k2 #vHome .hh__c{padding:16px 18px 16px;justify-content:flex-start}
+.k2 #vHome .hh__k,.k2 #vHome .hh__s{color:#5E6066}.k2 #vHome .hh__t{color:#111;font-size:clamp(34px,11vw,44px);margin-top:6px}
+.k2 #vHome .hh__d{color:#4A4945;font-size:15px;margin-top:12px}.k2 #vHome .hh__d b{color:#111}
+.k2 #vHome .hh__n{color:#111}.k2 #vHome .hh__n b{color:#111}.k2 #vHome .hh__n span{color:#5E6066}
+.k2 #vHome .hh__pill{margin-top:14px;border:1.5px solid #111;background:transparent;color:#111;box-shadow:none}
+.k2 #vHome .hh__pill:disabled{opacity:.7}
+/* sesiones de la semana: la pill entera es vidrio, con su foto */
+.k2 #vHome .sp{--sp-bg:transparent;border-radius:999px;padding:5px 6px 5px 5px;margin:0 0 8px;min-height:72px;color:#111}
+.k2 #vHome .sp__body{background:transparent;box-shadow:none;filter:none}.k2 #vHome .sp__neck{display:none}
+.k2 #vHome .sp__img{background:rgba(255,255,255,.75);box-shadow:0 0 0 1px rgba(255,255,255,.6);padding:3px;--sp-d:62px;flex-basis:62px;height:62px}
+.k2 #vHome .sp__mono{inset:3px;background:#E3E2DE;color:#6B6A65}
+.k2 #vHome .sp__t{background:none;-webkit-text-fill-color:#111;color:#111}
+.k2 #vHome .sp__s{color:#5E6066}.k2 #vHome .sp__dot{background:#111;box-shadow:0 0 0 3px rgba(17,17,17,.14)}
+.k2 #vHome .sp__go{background:rgba(17,17,17,.08);box-shadow:none;color:#111}
+.k2 #vHome .sp__ok{background:#111;color:#F4F3F0}
+.k2 #vHome .sp--active,.k2 #vHome .sp--completed.sp--hoy{background:rgba(11,11,12,.82);border-color:rgba(255,255,255,.14);color:#F4F3F0}
+.k2 #vHome .sp--active .sp__t{-webkit-text-fill-color:#F4F3F0;color:#F4F3F0}.k2 #vHome .sp--active .sp__s{color:#C9C8C2}
+.k2 #vHome .sp--active .sp__go{background:#F4F3F0;color:#111}.k2 #vHome .sp--active .sp__dot{background:#F4F3F0;box-shadow:0 0 0 3px rgba(244,243,240,.2)}
+.k2 #vHome .sp--locked,.k2 #vHome .sp--future{opacity:.62}
+/* mi semana: métricas y rueda en dos paneles */
+.k2 #vHome .k2-m3{border-top:0;border-bottom:0;border-radius:22px;padding:4px 16px;margin:0 0 8px}
+.k2 #vHome .k2-m3>div+div{border-left-color:rgba(17,17,17,.12)}
+.k2 #vHome .hgWheel{border-radius:22px;padding:14px 14px 12px}
+.k2 #vHome .hgWheel .k2-sec__h{margin-bottom:0}
+.k2 #vHome .kw{display:block;margin:0 auto;max-width:100%;height:auto}
+.k2 #vHome .kw-seg>path:first-child{fill:rgba(255,255,255,.62);stroke:rgba(255,255,255,.62)}
+.k2 #vHome .kw-lc{fill:#3A3B3E}.k2 #vHome .kw-cl{fill:#4A4945}.k2 #vHome .kw-lc+circle,.k2 #vHome .kw circle{fill:#6B6A65}
+.k2 #vHome .k2-m3__obj{margin:6px 0 0}
+.k2 #vHome .kwRes{margin-top:10px}
+.k2 #vHome .k2-week__c{margin-top:8px}
+/* nota del día */
+.k2 #vHome .k2-ins{border-radius:22px;padding:14px 16px;border-left:3px solid #111}
+/* navegación más translúcida sobre la foto */
+.k2 .tabbar{background:rgba(255,255,255,.55);border-color:rgba(255,255,255,.55)}
+@media (prefers-reduced-transparency:reduce){ .k2 #vHome .hh,.k2 #vHome .k2-m3,.k2 #vHome .hgWheel,.k2 #vHome .k2-ins,.k2 #vHome .sp{background:rgba(255,255,255,.92)} }
 /* ═══ c41 · CAPA DE MARCA PARA PANTALLAS INTERMEDIAS (un solo sistema: isotipo · label mono · titular · dato · logotipo firma) ═══ */
 .kLogo{display:block;height:auto}
 .kLogo--hdr{width:112px}.kLogo--wel{width:150px}.kLogo--flash{width:120px;margin:0 auto 22px;opacity:.9}
@@ -2465,12 +2513,16 @@ function fraseHoy(c){
   if (g.length>=4) return 'Hoy nos toca un '+b('full body')+': '+listaNatural(g.slice(0,4))+'.'
   return 'Hoy nos toca entrenar '+b(listaNatural(g))+' para seguir construyendo tu versión más fuerte.'
 }
+function k2FechaHoy(){ const D=['DOMINGO','LUNES','MARTES','MIÉRCOLES','JUEVES','VIERNES','SÁBADO'], M=['ENE','FEB','MAR','ABR','MAY','JUN','JUL','AGO','SEP','OCT','NOV','DIC'], d=new Date()
+  const sem=S.asig ? ' · SEMANA '+(S.asig.semana_actual||1)+' DE '+((S.proto&&S.proto.ciclo_semanas)||6)+' · CICLO '+(S.asig.ciclo_actual||1) : ''
+  return D[d.getDay()]+' '+d.getDate()+' '+M[d.getMonth()]+sem }
 function k2HeaderHero(n, ctx){
   const frase=fraseHoy(ctx)
   return '<header class="k2h">'+
     '<svg class="k2h__bg" viewBox="0 0 400 262" preserveAspectRatio="none" aria-hidden="true"><path d="M0 0 H400 V262 C400 246 386 232 362 232 H46 C21 232 0 213 0 188 Z"/></svg>'+
     k2Contour()+
     '<div class="k2h__top"><span class="k2h__brand"><img class="kLogo kLogo--hdr" src="/img/brand/logotipo-koach.png" alt="KOACH Fitness Club"></span><button class="k2h__av" onclick="salir()" aria-label="Salir">'+(n?n[0]:'K')+'</button></div>'+
+    '<span class="k2h__date">'+k2FechaHoy()+'</span>'+
     '<h1 class="k2h__t">Hola, '+(n||'')+'.</h1>'+
     '<div class="k2h__row"><p class="k2h__p">'+frase+'</p><div class="k2h__tag" aria-hidden="true"><i></i>DISCIPLINA<br>PROGRESO<br>RESULTADOS</div></div>'+
   '</header>'
@@ -2526,7 +2578,9 @@ function pintarHomeV2(){
   if (!S.memBloqueo && e.entrenoHoy && e.prox) ins=['HOY DESCANSA.','Tu próxima sesión, '+e.prox.nombre+', estará disponible mañana.']
   else if (!e.completa && e.total && e.hechas>0 && e.hechas>=Math.ceil(e.total/2)) ins=['VAS POR BUEN CAMINO.','Completaste '+e.hechas+' de '+e.total+' sesiones esta semana.']
   const semTxt=(S.asig?'SEMANA '+(S.asig.semana_actual||1)+' DE '+((S.proto&&S.proto.ciclo_semanas)||6)+' · CICLO '+(S.asig.ciclo_actual||1):'')
+  const hga=heroAsset()
   box.innerHTML=
+   (hga.src?'<div class="hgBg" aria-hidden="true" style="background-image:url('+hga.src+')"></div>':'')+
    k2HeaderHero(n,{ses,sesEC,e,obj})+
    document.getElementById('hMemAviso').innerHTML+opAvisoHTML()+
    homeHero({ ses, sesEC, e, m, ctaT, ctaS, disabled:cta.disabled, obj })+
@@ -2537,11 +2591,12 @@ function pintarHomeV2(){
        ' <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><circle cx="12" cy="12" r="10.5" fill="none" stroke="currentColor" stroke-width="1.3"/><path d="M9 15l6-6M10 9h5v5" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg></button></div>'+
      '<div class="k2-m3"><div><small>SESIONES</small><b>'+e.hechas+'<span>/'+e.total+'</span></b><em>COMPLETADAS</em></div>'+
        '<div><small>CARGA SEMANAL</small><b id="k2Carga">—</b><div class="k2-m3__bar"><i id="k2CargaBar"></i></div><em id="k2CargaT">CALCULANDO…</em></div></div>'+
+     '<div class="hgWheel"><div class="k2-sec__h"><span class="k2-label">OBJETIVO SEMANAL</span><span class="k2-label">'+(sem.fortalecidos||0)+' DE '+(sem.exigibles||0)+' METAS</span></div>'+
      stimulusWheel(wd,{variant:'compact',theme:'light',size:300,center:{v:e.pct+'%',l:'OBJETIVO|SEMANAL'},onTap:'wheelDetalle'})+
      '<p class="k2-m3__obj">OBJETIVO SEMANAL <b>'+e.pct+'%</b> · '+(sem.fortalecidos||0)+' DE '+(sem.exigibles||0)+' METAS MUSCULARES</p>'+
      '<div class="kwRes">'+(rs.top.length?'<div><small>MÁS ESTÍMULO ESTA SEMANA</small><b>'+rs.top.join(' · ')+'</b></div>':'')+(rs.falta.length?'<div><small>AÚN POR DESARROLLAR</small><b>'+rs.falta.join(' · ')+'</b></div>':'')+
        (rs.over.length?'<div><small>SOBRE EL LÍMITE</small><b>'+rs.over.join(', ')+'</b></div>':'')+'</div>'+
-     '<div class="k2-week__c" style="text-align:center">'+(PROGRAMA_TXT())+semTxt+' · TOCA UN MÚSCULO PARA VER DETALLE</div></section>' })()+
+     '<div class="k2-week__c" style="text-align:center">'+(PROGRAMA_TXT())+semTxt+' · TOCA UN MÚSCULO PARA VER DETALLE</div></div></section>' })()+
 
    (ins?'<section class="k2-ins"><b>'+ins[0]+'</b><p>'+ins[1]+'</p></section>':'')
   requestAnimationFrame(()=>requestAnimationFrame(()=>box.classList.add('k2-in')))
