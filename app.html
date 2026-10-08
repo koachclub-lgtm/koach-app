@@ -196,6 +196,10 @@ button.bk__desc{appearance:none;-webkit-appearance:none;border:0;background:tran
 #oBloque.rest .kset__pc{background:#222;border-color:rgba(244,243,240,.22);color:#9A9993}
 #oBloque.rest .bk__cta{background:#F4F3F0;color:#111}#oBloque.rest .bk__cta--sec{background:transparent;color:#F4F3F0;border-color:#F4F3F0}
 #oBloque.rest .bk__lnk{color:#9A9993}
+.bk__adj{display:flex;gap:6px;margin-top:8px}
+.bk__adj button{min-width:58px;height:40px;padding:0 10px;border-radius:999px;border:1.5px solid rgba(244,243,240,.4);background:transparent;color:#F4F3F0;font:700 11px var(--wxM);letter-spacing:.06em;cursor:pointer;-webkit-tap-highlight-color:transparent}
+.bk__adj button:active{background:rgba(244,243,240,.14)}
+.bk__over{color:#6B6A65!important}
 #oBloque.rest button:focus-visible,#oBloque.rest input:focus-visible{outline-color:#F4F3F0}
 /* — últimos 10 s: número grande sobre las tarjetas (siguen visibles y editables) — */
 .bk__cd{position:absolute;inset:0;display:grid;place-items:center;pointer-events:none;opacity:0;transition:opacity .3s ease;z-index:3}
@@ -3106,6 +3110,7 @@ async function arrancarAuth(){
 window.addEventListener('online', function(){ const o=document.getElementById('oAuth'); if (o && o.style.display!=='none') arrancarAuth() })
 // Cerrar sesión explícito: solo este dispositivo (scope local) y sin dejar datos del socio en el teléfono
 async function salir(){ window._saliendo=true
+  try{ clearInterval(BK._t); BK._t=null; BK.rest=null; bkOverFin(); localStorage.removeItem('k_rest') }catch(_e){}
   try{ if (S.perfil) localStorage.removeItem('kc_snap_'+S.perfil.id); localStorage.removeItem('koach_rol') }catch(_e){}
   try{ await sb.auth.signOut({ scope:'local' }) }catch(_e){}
   location.reload() }
@@ -4049,7 +4054,7 @@ function wxSetsHoy(bfs){ let h=0,t=0; bfs.forEach(b=>{ if(esCircuito(b)){ t+=b.s
 /* ═══ c59 · RUTINA DEL SOCIO · PANTALLA 1 (cápsulas) + PANTALLA 2 (bloque en pantalla completa) ═══
    Misma lógica de registro (rwGet/rwSet/rwStep + tapSetRow). Orden obligatorio de bloques: COMENZAR solo en el primer bloque sin terminar.
    El descanso es un reloj de pared (fin = Date.now()+seg): sigue corriendo aunque la pestaña pase a segundo plano y sobrevive a una recarga. */
-const BK = { bi:null, set:null, cap:null, rest:null, _t:null, _wl:null, _cdS:null, _go:null }
+const BK = { bi:null, set:null, cap:null, rest:null, over:null, _t:null, _ot:null, _wl:null, _cdS:null, _go:null, _busy:false }
 /* c66 · háptica unificada. Android: navigator.vibrate. iPhone: Safari no expone vibración; el único háptico disponible es el del
    interruptor nativo (<input type="checkbox" switch>, iOS 18+) y solo dentro de un toque del usuario → sirve como confirmación táctil
    en COMPLETAR SET y SALTAR, nunca como alerta desde el reloj. */
@@ -4066,7 +4071,16 @@ function kBeep(f,dur,gain,at){ const c=KAU.ctx; if(!c||c.state!=='running'||!kSo
     g.gain.setValueAtTime(0,t); g.gain.linearRampToValueAtTime(gain,t+.008); g.gain.exponentialRampToValueAtTime(.0001,t+dur)
     o.connect(g); g.connect(c.destination); o.start(t); o.stop(t+dur+.02) }catch(_){} }
 function kSonTick(){ kBeep(1100,.07,.16) }            // 3 · 2 · 1
-function kSonGo(){ kBeep(880,.12,.22); kBeep(1320,.28,.28,.11) } // GO: dos notas ascendentes
+/* GO · pistola de salida (decisión 8-oct): ráfaga de ruido filtrado 140 ms + golpe grave 110→50 Hz */
+function kSonGo(){ const c=KAU.ctx; if(!c||c.state!=='running'||!kSonidoOn()) return
+  try{ const t=c.currentTime+.01
+    const n=Math.ceil(c.sampleRate*.2), buf=c.createBuffer(1,n,c.sampleRate), d=buf.getChannelData(0); for(let i=0;i<n;i++) d[i]=Math.random()*2-1
+    const src=c.createBufferSource(); src.buffer=buf; const bp=c.createBiquadFilter(); bp.type='bandpass'; bp.frequency.value=1800; bp.Q.value=.7
+    const g=c.createGain(); g.gain.setValueAtTime(0,t); g.gain.linearRampToValueAtTime(.9,t+.002); g.gain.exponentialRampToValueAtTime(.0001,t+.14)
+    src.connect(bp); bp.connect(g); g.connect(c.destination); src.start(t)
+    const o=c.createOscillator(); o.type='sine'; o.frequency.setValueAtTime(110,t); o.frequency.exponentialRampToValueAtTime(50,t+.12)
+    const g2=c.createGain(); g2.gain.setValueAtTime(0,t); g2.gain.linearRampToValueAtTime(.9,t+.002); g2.gain.exponentialRampToValueAtTime(.0001,t+.16)
+    o.connect(g2); g2.connect(c.destination); o.start(t); o.stop(t+.2) }catch(_){} }
 kSonidoPintar()
 function kHaptic(p){ try{ if(navigator.vibrate){ navigator.vibrate(p||12); return }
   let l=document.getElementById('kHap'); if(!l){ l=document.createElement('label'); l.id='kHap'; l.setAttribute('aria-hidden','true'); l.style.cssText='position:fixed;left:-9999px;top:-9999px;width:1px;height:1px;overflow:hidden;opacity:0'
@@ -4114,7 +4128,7 @@ function bkCapsulas(bfs){
 function bkAbrir(bi){ const bfs=S._bfs||[]; if(!bfs[bi]) return
   BK.bi=bi; const b=bfs[bi]; BK.set = bkSetActual(b) || b.sets
   let o=document.getElementById('oBloque'); if(!o){ o=document.createElement('div'); o.id='oBloque'; o.setAttribute('role','dialog'); o.setAttribute('aria-modal','true'); document.body.appendChild(o) }
-  o.classList.add('vis'); document.documentElement.classList.add('bk-on'); bkWake(true); bkRestRestaurar(); bkPintar()
+  o.classList.add('vis'); document.documentElement.classList.add('bk-on'); bkWake(true); bkRestRestaurar(); bkOverRestaurar(); bkPintar()
   setTimeout(function(){ const f=o.querySelector('.bk__cta'); if(f) f.focus({preventScroll:true}) },50)
 }
 function bkCerrar(){ const o=document.getElementById('oBloque'); if(o) o.classList.remove('vis'); document.documentElement.classList.remove('bk-on'); BK.bi=null; bkWake(false); pintarSesion() }
@@ -4149,28 +4163,41 @@ function bkPintar(){
   const sig = done ? (BK.bi+1<bfs.length ? '<button type="button" class="bk__cta" onclick="bkSiguiente()">SIGUIENTE · '+bkCod(bfs[BK.bi+1],BK.bi+1)+' '+bkNom(bfs[BK.bi+1],BK.bi+1)+' →</button>' : '<button type="button" class="bk__cta" onclick="bkCerrar();pedirFinal()">FINALIZAR SESIÓN →</button>') : ''
   // c65 · lenguaje de estados: BLANCO = entrenamiento · NEGRO = descanso · GO = vuelta al entrenamiento
   const restS = rest ? Math.max(0,Math.ceil((BK.rest.fin-Date.now())/1000)) : 0
+  const over = !rest && !done && BK.over && BK.over.bId===b.id && BK.over.regId===S.regId
+  if (!over && BK.over && BK.over.bId===b.id) bkOverFin()
   const top = done && !rest ? '<b>'+bkKgBloque(b).toLocaleString('es-CL')+'<i>KG</i></b><span>EN ESTE BLOQUE</span>'
             : rest ? '<b id="bkT" class="bk__t">'+bkMMSS(restS)+'</b><span>DESCANSO · <u>TOCA PARA SALTAR</u></span>'
+            : over ? '<b id="bkOver" class="bk__over">'+bkOverTxt()+'</b><span>DESDE EL GO</span>'
             : '<b>'+bkMMSS(bkDesc(b))+'</b><span>DESC</span>'
-  const kLab = rest ? 'SIGUIENTE · SET '+String(n).padStart(2,'0') : 'BLOQUE'
+  // I1 · la etiqueta nombra el set que de verdad viene (primer set sin completar), no el que se está mirando
+  const sigN = bkSetActual(b)
+  const kLab = rest ? 'SIGUIENTE · SET '+String(sigN||n).padStart(2,'0') : 'BLOQUE'
+  const adj = rest ? '<div class="bk__adj" role="group" aria-label="Ajustar descanso"><button type="button" onclick="bkRestAdj(-15)" aria-label="Quitar 15 segundos">−15</button><button type="button" onclick="bkRestAdj(15)" aria-label="Agregar 15 segundos">+15</button></div>' : ''
   o.classList.toggle('rest', !!rest); o.classList.remove('cd','go'); clearTimeout(BK._go)
   o.innerHTML='<div class="bk__fix"><header class="bk__top"><button type="button" class="bk__rb" onclick="bkCerrar()" aria-label="Volver a la sesión">←</button><img class="kLogo kLogo--bk" src="/img/brand/logotipo-koach.png" alt="KOACH"><span class="bk__sv" id="bkSync">'+(((document.getElementById('syncTag')||{}).textContent)||'✓ GUARDADO')+'</span></header>'+
-    '<div class="bk__bh"><div><span class="bk__k">'+kLab+'</span><div class="bk__bn"><b>'+cod+'</b><em>'+nom+'</em></div></div>'+
+    '<div class="bk__bh"><div><span class="bk__k">'+kLab+'</span><div class="bk__bn"><b>'+cod+'</b><em>'+nom+'</em></div>'+adj+'</div>'+
     (rest ? '<button type="button" class="bk__desc run" onclick="kHaptic(12);kAudioUnlock();bkRestFin()" aria-label="Descanso, '+restS+' segundos. Toca para saltar">'+top+'</button>' : '<div class="bk__desc">'+top+'</div>')+
     (rest ? '<u class="bk__bar" id="bkBar" aria-hidden="true" style="width:'+bkRestPct()+'%"></u>' : '')+'</div>'+
     '<div class="bk__strip" role="group" aria-label="Sets del bloque">'+tabs+'</div></div>'+
     '<div class="bk__scroll" id="bkScroll">'+filas+'</div>'+
     '<div class="bk__foot">'+(done ? sig+'<button type="button" class="bk__lnk" onclick="bkDesmarcar()">DESMARCAR SET '+String(n).padStart(2,'0')+'</button>' : '<button type="button" class="bk__cta'+ctaCls+'" onclick="'+(hecho?'bkDesmarcar()':'bkCompletar()')+'">'+cta+'</button>')+'</div>'+
     '<div class="bk__cd" id="bkCd" aria-live="assertive" aria-atomic="true"><b id="bkCdN"></b></div>'
-  bkRestTick()
+  bkRestTick(); if(over) bkOverTick()
 }
 async function bkCompletar(){ const b=(S._bfs||[])[BK.bi]; if(!b) return
   const n=BK.set, bes=bkBes(b)
   for (const be of bes){ const w=S.wk[be.id]||{}, rv=S.rw[be.id+'#'+n]||{}
     if (w.tipo==='WEIGHT_REPS' && rv.kg==null){ toast('Define el peso de '+(be.ejercicios&&be.ejercicios.nombre||'cada ejercicio')+' antes de completar el set.'); return } }
+  if (BK._busy) return
   const cta=document.querySelector('#oBloque .bk__cta'); if(cta) cta.disabled=true
+  BK._busy=true
   kHaptic(12); kAudioUnlock() // dentro del toque: en iPhone es la única ventana para el háptico y para desbloquear el audio
-  for (const be of bes){ if(!S.setLog[setKey(be.id,n)]) await tapSetRow(be.id,n,b.id,(be.ejercicios||{}).id) }
+  // Descanso previo a este set: prescrito / ajustado / real (incluye salto implícito y exceso). Nunca toca la planificación.
+  const rp = (BK.rest && BK.rest.bId===b.id) ? BK.rest : (BK.over && BK.over.bId===b.id) ? BK.over : null
+  S._restInfo = rp ? { p:rp.dur, a:rp.ajuste||0, r:Math.max(0,Math.round((Date.now()-(rp.inicio||(rp.fin-rp.dur*1000)))/1000)) } : null
+  try{ for (const be of bes){ if(!S.setLog[setKey(be.id,n)]) await tapSetRow(be.id,n,b.id,(be.ejercicios||{}).id) } }
+  finally{ S._restInfo=null; BK._busy=false }
+  bkOverFin()
   const sig=bkSetActual(b)
   if (sig){ BK.set=sig; bkRestIni(b) } else { BK.set=n; bkRestFin(true) }
   bkPintar()
@@ -4182,12 +4209,28 @@ async function bkDesmarcar(){ const b=(S._bfs||[])[BK.bi]; if(!b) return; const 
 }
 function bkSiguiente(){ const bfs=S._bfs||[]; const prim=bkPrimerPendiente(bfs); if(prim<0){ bkCerrar(); return } BK.cap=prim; bkAbrir(prim) }
 /* ── descanso con reloj de pared ── */
-function bkRestIni(b){ BK.rest={ bId:b.id, dur:bkDesc(b), fin:Date.now()+bkDesc(b)*1000, regId:S.regId }
+function bkRestIni(b){ BK.rest={ bId:b.id, dur:bkDesc(b), inicio:Date.now(), ajuste:0, fin:Date.now()+bkDesc(b)*1000, regId:S.regId }
   try{ localStorage.setItem('k_rest', JSON.stringify(BK.rest)) }catch(_){} bkRestTick() }
-function bkRestPct(){ if(!BK.rest) return 0; return Math.max(0,Math.min(100,(BK.rest.fin-Date.now())/(BK.rest.dur*1000)*100)) }
+function bkRestPct(){ if(!BK.rest) return 0; const tot=Math.max(1,BK.rest.dur+(BK.rest.ajuste||0)); return Math.max(0,Math.min(100,(BK.rest.fin-Date.now())/(tot*1000)*100)) }
+/* −15 / +15 · mueve solo el descanso en curso; el siguiente vuelve al prescrito del bloque */
+function bkRestAdj(d){ if(!BK.rest || BK._busy) return
+  kHaptic(8); kAudioUnlock()
+  BK.rest.fin=Math.max(Date.now()+1000, BK.rest.fin+d*1000); BK.rest.ajuste=(BK.rest.ajuste||0)+d
+  try{ localStorage.setItem('k_rest', JSON.stringify(BK.rest)) }catch(_){}
+  const el=document.getElementById('bkT'); if(el){ el.textContent=bkMMSS(Math.max(0,Math.ceil((BK.rest.fin-Date.now())/1000))); el.classList.remove('tick'); void el.offsetWidth; el.classList.add('tick') }
+  bkRestTick() }
+/* Exceso tras el GO: cuánto lleva el socio desde que terminó el descanso. No es un timer: sin barra, sin sonido. Tope 5 min. */
+function bkOverIni(r){ BK.over={ bId:r.bId, dur:r.dur, ajuste:r.ajuste||0, inicio:r.inicio||(r.fin-r.dur*1000), fin:r.fin, regId:r.regId }; try{ localStorage.setItem('k_over', JSON.stringify(BK.over)) }catch(_){} }
+function bkOverFin(){ clearInterval(BK._ot); BK._ot=null; BK.over=null; try{ localStorage.removeItem('k_over') }catch(_){} }
+function bkOverRestaurar(){ try{ const r=JSON.parse(localStorage.getItem('k_over')||'null'); if(r && r.regId===S.regId && Date.now()-r.fin<300000) BK.over=r; else localStorage.removeItem('k_over') }catch(_){} }
+function bkOverTxt(){ if(!BK.over) return ''; const s=Math.min(300,Math.max(0,Math.floor((Date.now()-BK.over.fin)/1000))); return '+'+Math.floor(s/60)+':'+String(s%60).padStart(2,'0') }
+function bkOverTick(){ clearInterval(BK._ot); BK._ot=null; if(!BK.over) return
+  BK._ot=setInterval(function(){ const el=document.getElementById('bkOver'); if(!el||!BK.over){ clearInterval(BK._ot); BK._ot=null; return } el.textContent=bkOverTxt(); if(Date.now()-BK.over.fin>=300000){ clearInterval(BK._ot); BK._ot=null } },1000) }
 /* Fin del descanso. silencio=true → sin GO (último set del bloque, cierre). Si el socio salta (toca el reloj) o el reloj llega a 0 → GO. */
 function bkRestFin(silencio){ clearInterval(BK._t); BK._t=null; const r=BK.rest; BK.rest=null; BK._cdS=null; try{ localStorage.removeItem('k_rest') }catch(_){}
   if (silencio || !r) return
+  if (!S.regId || r.regId!==S.regId) return // I6 · reloj huérfano (sesión cerrada o cambiada): sin aviso
+  bkOverIni(r)
   const o=document.getElementById('oBloque'), visible=o && o.classList.contains('vis') && BK.bi!=null
   if (!visible){ // el reloj siguió corriendo en otra pantalla: aviso breve, sin animación
     kSonGo(); try{ toast('Descanso terminado · tu siguiente set te espera') }catch(_){}
@@ -4215,7 +4258,10 @@ function bkGo(){ const o=document.getElementById('oBloque'), cd=document.getElem
   const sc=document.getElementById('bkScroll'); if(sc) sc.scrollTo({top:0,behavior:'smooth'})
   BK._go=setTimeout(function(){ cd.classList.remove('on','go'); o.classList.remove('go'); const f=o.querySelector('.bk__cta'); if(f){ f.classList.remove('pulse'); void f.offsetWidth; f.classList.add('pulse') } }, 950) }
 document.addEventListener('visibilitychange', function(){ if(document.visibilityState!=='visible') return
-  if (BK.bi!=null){ bkWake(true); bkPintar() } })
+  if (BK.bi==null) return
+  bkWake(true)
+  // I7 · no se repinta todo (se perdería el foco de un input en edición): el reloj se recalcula solo; si expiró, paso() cierra el descanso
+  if (BK.rest) bkRestTick(); else if (BK.over) bkOverTick() })
 /* ── pantalla encendida mientras se entrena ── */
 async function bkWake(on){ try{ if(on){ if(!BK._wl && navigator.wakeLock){ BK._wl=await navigator.wakeLock.request('screen'); BK._wl.addEventListener('release',function(){ BK._wl=null }) } } else if(BK._wl){ await BK._wl.release(); BK._wl=null } }catch(_){ BK._wl=null } }
 
@@ -4343,7 +4389,8 @@ async function tapSetRow(beId,n,bId,ejId){
   const fila={ registro_id:S.regId, socio_id:S.perfil.id, bloque_id:bId, bloque_ejercicio_id:beId,
     ejercicio_id:ejId||null, set_numero:n,
     target_peso:(w.kg!=null?w.kg:null), target_reps:w.reps||null, target_seg:w.seg||null,
-    peso:(rv.kg!=null?rv.kg:null), reps:rv.reps||null, seg:(w.tipo==='TIME'?(rv.seg||null):null), completado:true }
+    peso:(rv.kg!=null?rv.kg:null), reps:rv.reps||null, seg:(w.tipo==='TIME'?(rv.seg||null):null), completado:true,
+    descanso_prescrito_seg:(S._restInfo?S._restInfo.p:null), descanso_ajuste_seg:(S._restInfo?S._restInfo.a:null), descanso_real_seg:(S._restInfo?S._restInfo.r:null) }
   S.setLog[k]={...fila}
   // v7.7: el peso/reps del set marcado pasan como punto de partida a los sets siguientes aún no marcados
   const blkT=S._bfs.find(function(x){return x.id===bId})
