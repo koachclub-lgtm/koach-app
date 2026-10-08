@@ -5095,9 +5095,11 @@ async function verAdmin(){
   admPintar()
 }
 // Fin del ACCESO: períodos encadenados (pago adelantado) cuentan como uno solo
+// c64 · La vigencia parte de un período que cubre HOY (igual que la regla del servidor koach_acceso_socio).
+// Antes una membresía futura sumaba días (ej. 814 días) aunque hoy no hubiera cobertura y la alerta dijera lo contrario.
 function adFinCadena(ms){
   const hoy=hoyISO(), vivos=(ms||[]).filter(function(m){return m.estado!=='cancelada' && m.estado_calc!=='cancelada' && m.fecha_fin>hoy}).sort(function(a,b){return a.fecha_inicio<b.fecha_inicio?-1:1})
-  if (!vivos.length) return null
+  if (!vivos.length || vivos[0].fecha_inicio>hoy) return null
   let fin=vivos[0].fecha_fin; vivos.slice(1).forEach(function(m){ if (m.fecha_inicio<=fin && m.fecha_fin>fin) fin=m.fecha_fin })
   return fin
 }
@@ -5234,7 +5236,7 @@ async function fAdmCargar(){
     (((C.yo&&C.yo.role)==='admin')?'<button onclick="accAbrir().then(accClave)">CAMBIAR CONTRASEÑA</button>':'')+'<button onclick="congelar()">'+(F.estado==='congelado'?'REACTIVAR ACCESO':'SUSPENDER ACCESO')+'</button><button class="pfDanger" onclick="cancelar()">DAR DE BAJA</button></div></div></div>'+
     (accPuede()?'<div class="pfBtns"><button type="button" class="pfB pfB--ink" id="acBtn" onclick="accAbrir()">RECUPERAR ACCESO</button></div>':'')+'</section>'
   h+='</div>'
-  mhPintar(id, finAcc, dAcc)
+  mhPintar(id, finAcc, dAcc); accBan(id)   // c64 · tras pagar, anular, editar o cancelar: estado de acceso fresco
   box.innerHTML=h
   if (accPuede()) accEstado(id)
 }
@@ -5395,7 +5397,8 @@ function vtPintar(p, soloResumen){
     vtEl(p,'Est').style.display = ugc ? 'none' : ''; vtEl(p,'Ugc').style.display = ugc ? '' : 'none'
     const v=vtEl(p,'Vig')
     v.innerHTML = !s.dur ? 'Elige la duración' : !s.vig ? 'Calculando…' : s.vig.err ? 'No se pudo calcular' :
-      '<b>'+(s.dur==='dia:1'?adF(s.vig.inicio):adF(s.vig.inicio)+' → '+adF(s.vig.fin))+'</b>'+(s.vig.encadena?'<small>Se suma desde el término del plan vigente: no pierde días.</small>':'')
+      '<b>'+(s.dur==='dia:1'?adF(s.vig.inicio):adF(s.vig.inicio)+' → '+adF(s.vig.fin))+'</b>'+(s.vig.encadena?'<small>Se suma desde el término del plan vigente: no pierde días.</small>':
+        (s.vig.inicio>hoyISO()?'<small style="color:var(--danger,#b3261e)">⚠ Comienza el '+adF(s.vig.inicio)+': hasta esa fecha el socio NO tendrá acceso a su rutina ni credencial. Si ya pagó y entrena desde hoy, usa la fecha de hoy.</small>':''))
   }
   const monto = vtMontoFinal(p)
   vtEl(p,'VK').textContent = ugc ? '3 · VALOR REFERENCIAL · UGC' : '3 · VALOR COBRADO'
@@ -6381,6 +6384,8 @@ async function accBan(id){
   const el=document.getElementById('fAccBan'); if (!el) return; el.innerHTML=''
   const r=await sb.rpc('admin_acceso_de',{ p_socio:id }); if (!F || F.id!==id || r.error || !r.data) return
   const a=r.data; if (AD.acc) AD.acc[id]=Object.assign({},AD.acc[id]||{},{ estado:a.estado, prorroga_hasta:a.prorroga_hasta })
+  accBan._a=accBan._a||{}; const prev=accBan._a[id]&&accBan._a[id].estado; accBan._a[id]=a
+  if (prev!==a.estado){ try{ mhPintar(id) }catch(_e){} }   // c64 · encabezado alineado con la regla del servidor
   if (a.estado==='ok' || a.estado==='staff') return
   const com=accEsCom(), pr=a.estado==='prorroga'
   const tit = pr ? 'ACCESO CON PRÓRROGA HASTA EL '+adF(a.prorroga_hasta).toUpperCase() : (a.control?'SIN ACCESO A LA APP · ':'SE BLOQUEA EL '+adF(a.control_desde).toUpperCase()+' · ')+(ACC_EST[a.estado]||'SIN PAGO')
@@ -6870,14 +6875,19 @@ function mhPintar(id, finAcc, dAcc){
   if (finAcc===undefined){ const ms=(AD.mem||[]).filter(function(m){return m.socio_id===id && m.estado!=='cancelada'})
     if (!ms.length && !mhPintar._q){ mhPintar._q=1; sb.from('v_membresias').select('*').eq('socio_id',id).then(function(r){ mhPintar._q=0; if (F && F.id===id && r.data && r.data.length){ const v=r.data.filter(function(m){return m.estado!=='cancelada'}), f=adFinCadena(v); mhPintar(id, f, adDias(f)) } }) }
     finAcc=adFinCadena(ms); dAcc=adDias(finAcc) }
+  const hoyH=hoyISO(), futs=(AD.mem||[]).concat(AD.fMem||[]).filter(function(m){ return m.socio_id===id && m.estado!=='cancelada' && m.estado_calc!=='cancelada' && m.fecha_inicio>hoyH }).map(function(m){ return m.fecha_inicio }).sort()
+  const fut = !finAcc && futs.length ? futs[0] : null
   const d=document.getElementById('fDias'), v=document.getElementById('fVence')
   d.textContent = finAcc ? Math.max(0,dAcc) : '—'
-  v.textContent = finAcc ? 'VENCE · '+adF(finAcc) : 'SIN VIGENCIA'
+  v.textContent = finAcc ? 'VENCE · '+adF(finAcc) : fut ? 'INICIA · '+adF(fut) : 'SIN VIGENCIA'
   const st=document.getElementById('fEstado')
   // un solo estado, con la vigencia real de la cadena de períodos
   const mv=admEstadoSocio(id)
-  st.textContent = F.estado==='congelado' ? 'ACCESO SUSPENDIDO' : mv.k==='congelada' ? 'CONGELADA' : !finAcc ? 'SIN MEMBRESÍA' : dAcc<0 ? 'VENCIDA' : (mv.k==='proxima' || dAcc<=7) ? 'POR VENCER' : 'ACTIVA'
-  st.className='mh__st'+(finAcc && dAcc<=7?' mh__st--alert':'')
+  st.textContent = F.estado==='congelado' ? 'ACCESO SUSPENDIDO' : mv.k==='congelada' ? 'CONGELADA' : fut ? 'AÚN NO COMIENZA' : !finAcc ? 'SIN MEMBRESÍA' : dAcc<0 ? 'VENCIDA' : (mv.k==='proxima' || dAcc<=7) ? 'POR VENCER' : 'ACTIVA'
+  st.className='mh__st'+((finAcc && dAcc<=7) || fut ?' mh__st--alert':'')
+  // c64 · el estado de acceso del servidor manda: si el pago no está al día, el encabezado no dice ACTIVA
+  const sa=accBan._a && accBan._a[id], SA={ pago_pendiente:'PAGO PENDIENTE', sin_membresia:'SIN PAGO REGISTRADO', vencida:'VENCIDA', futura:'AÚN NO COMIENZA' }
+  if (F.estado!=='congelado' && sa && SA[sa.estado]){ st.textContent=SA[sa.estado]; st.className='mh__st mh__st--alert' }
   const fm=document.getElementById('fMeta'); fm.textContent=fm.textContent.replace(/ · DESDE .*$/,'')
   const x=ctxEnt(id)
   document.getElementById('fSemN').innerHTML = x ? x.hechas+'<i>/'+x.sesSem+'</i>' : '—'
