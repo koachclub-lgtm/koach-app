@@ -3151,6 +3151,9 @@ async function entrar(opts){
         S._reqs[x.sesion_protocolo_id]=Object.assign({},S._reqs[x.sesion_protocolo_id],{[k]:x.estado.toUpperCase(), [k+'_NOTA']:x.nota_coach||null}) }})
     }catch(_){ S._solExtra=false; S._solPost=[] }
     await memP
+    S._planRev = (asig && asig.plan_revision!=null) ? asig.plan_revision : S._planRev
+    S._ultimoSync = syncSesionAbierta()
+    if (S._ultimoSync) toast('Tu KOACH actualizó esta sesión ✓')
     pintarHome()
     if (opts.silent){ const on=(document.querySelector('.vista.on')||{}).id
       if (on==='vPlan') pintarPlan(); else if (on==='vAvances' && typeof loadAvances==='function') loadAvances() }
@@ -3172,6 +3175,18 @@ function refrescoSocio(){
   entrar({silent:true})
 }
 document.addEventListener('visibilitychange', refrescoSocio)
+// c62 · al volver al primer plano (teléfono bloqueado, PWA en segundo plano, socket caído) se compara la revisión del plan
+// con la que tiene esta pantalla: si el coach guardó algo, se recarga y la sesión abierta se reconcilia. Sin polling.
+async function planRevCheck(origen){
+  if (!S.perfil || !S.asig || document.visibilityState!=='visible') return
+  if (Date.now()-(planRevCheck._t||0) < 4000) return; planRevCheck._t=Date.now()
+  try{ const r=await sb.from('asignaciones').select('plan_revision').eq('socio_id',S.perfil.id).eq('activo',true).maybeSingle()
+    if (r.error || !r.data) return
+    if (S._planRev!=null && r.data.plan_revision!==S._planRev) planActualizado(origen||'foco') }catch(_e){}
+}
+document.addEventListener('visibilitychange', function(){ planRevCheck('foco') })
+window.addEventListener('pageshow', function(e){ if (e.persisted) planRevCheck('foco') })
+window.addEventListener('focus', function(){ planRevCheck('foco') })
 window.addEventListener('online', function(){ S._lastLoad=0; refrescoSocio() })
 setInterval(refrescoSocio, 300000)   // respaldo cada 5 min; la vía principal es Realtime
 // ═══ v11.1 · COACH → SOCIO EN VIVO ═══
@@ -3190,19 +3205,33 @@ function rtPlanSuscribir(uid){
       if (st==='SUBSCRIBED'){ if (_rtCanal && _rtCanal._caido){ _rtCanal._caido=false; planActualizado('reconexion') } }
       else if (st==='CHANNEL_ERROR' || st==='TIMED_OUT' || st==='CLOSED'){ if(_rtCanal) _rtCanal._caido=true } })
 }
+// c62 · POLÍTICA DE SESIÓN ABIERTA (una sola, para Realtime, foreground y carga en curso):
+//  · sets ya ejecutados (set_registros) → intactos: se muestran desde su registro real.
+//  · sets NO ejecutados → toman la prescripción vigente (kg, reps, seg, sets, descanso, orden, nombres, ejercicios nuevos).
+//  · lo que el socio escribió a mano en un set aún no registrado → se respeta.
+//  · ejercicio quitado por el coach que el socio ya empezó → se conserva en su bloque.
 function aplicarEnSesion(nueva){
   const vieja=S.sesionAbierta||{}, conSets=new Set()
   Object.keys(S.setLog||{}).forEach(function(k){ if(k.indexOf('be:')===0) conSets.add(k.slice(3).split('#')[0]) })
-  const viejoBe={}; (vieja.bloquesFull||[]).forEach(function(b){ (b.bloque_ejercicios||[]).forEach(function(be){ viejoBe[be.id]=be }) })
-  // ejercicio con sets ya registrados → se mantiene tal cual (no se reescribe su ejecución)
-  const bf=(nueva.bloquesFull||[]).map(function(b){ return Object.assign({},b,{ bloque_ejercicios:(b.bloque_ejercicios||[]).map(function(be){ return (conSets.has(be.id)&&viejoBe[be.id]) ? viejoBe[be.id] : be }) }) })
-  // si el coach quitó un ejercicio que el socio ya empezó a registrar, se conserva en su bloque
+  const bf=(nueva.bloquesFull||[]).map(function(b){ return Object.assign({},b,{ bloque_ejercicios:(b.bloque_ejercicios||[]).slice() }) })
   ;(vieja.bloquesFull||[]).forEach(function(b){ (b.bloque_ejercicios||[]).forEach(function(be){
     if (conSets.has(be.id) && !bf.some(function(x){ return (x.bloque_ejercicios||[]).some(function(y){ return y.id===be.id }) })){
       const tb=bf.find(function(x){ return x.id===b.id }) || bf.find(function(x){ return x.bloque===b.bloque }); if (tb) tb.bloque_ejercicios.push(be) } }) })
-  Object.keys(S.wk||{}).forEach(function(id){ if(!conSets.has(id)) delete S.wk[id] })   // lo no registrado toma la nueva prescripción
+  S.wk={}   // semilla de prescripción: se recalcula con la versión nueva
+  Object.keys(S.rw||{}).forEach(function(k){ const r=S.rw[k]; if (!S.setLog[setKey(k.split('#')[0], +k.split('#')[1])] && !(r && r._man)) delete S.rw[k] })
   S.sesionAbierta=Object.assign({}, nueva, { bloquesFull:bf })
+  const t=document.getElementById('sTit'); if (t && nueva.nombre) t.textContent=nueva.nombre
   pintarSesion()
+}
+// Reconciliar la sesión abierta con el programa recién cargado. Devuelve true si cambió algo visible.
+function syncSesionAbierta(){
+  const on=(document.querySelector('.vista.on')||{}).id
+  if (on!=='vSesion' || !S.sesionAbierta || !S.programa) return false
+  const sid=S.sesionAbierta.id, nueva=(S.programa.sesiones||[]).find(function(x){ return x.id===sid })
+  if (!nueva){ S._planPend=true; if(!S._avisoPend){ S._avisoPend=true; toast('Tu KOACH actualizó tu plan · lo verás al terminar esta sesión') } return false }
+  const firma=function(o){ try{ return JSON.stringify([o.nombre,(o.bloquesFull||[]).map(function(b){ return [b.id,b.bloque,b.etiqueta,b.sets,b.descanso_seg,b.descanso_segundos,(b.bloque_ejercicios||[]).map(function(be){ return [be.id,be.ejercicio_id,be.orden,be.reps,be.reps_txt,be.kg_objetivo,be.duracion_seg] })] })]) }catch(_e){ return '' } }
+  if (firma(nueva)===firma(S.sesionAbierta)) return false
+  aplicarEnSesion(nueva); return true
 }
 function planFirma(){ try{ return JSON.stringify([S.programa, (S.asig||{}).semana_actual, (S.asig||{}).protocolo_id]) }catch(_e){ return '' } }
 async function planActualizado(origen){
@@ -3214,11 +3243,6 @@ async function planActualizado(origen){
     const sid=S.sesionAbierta && S.sesionAbierta.id
     planActualizado._run=true
     try{ await entrar({ silent:true }) } finally { planActualizado._run=false }
-    const nueva = sid && S.programa && (S.programa.sesiones||[]).find(function(x){ return x.id===sid })
-    if (!nueva){ S._planPend=true; if(!S._avisoPend){ S._avisoPend=true; toast('Tu KOACH actualizó tu plan · lo verás al terminar esta sesión') } return }
-    const antes=JSON.stringify(S.sesionAbierta.bloquesFull||[])
-    aplicarEnSesion(nueva)
-    if (JSON.stringify(S.sesionAbierta.bloquesFull||[])!==antes) toast('Tu KOACH actualizó esta sesión ✓')
     if (planActualizado._otra){ planActualizado._otra=false; planActualizado('rt') }
     return }
   planActualizado._run=true
@@ -4097,6 +4121,7 @@ function rwGet(beId,n,w,fila){
 }
 function rwSet(beId,n,k,v){
   const key=beId+'#'+n, rv=S.rw[key]; if(!rv)return
+  rv._man=true
   if(k==='kg'){ if(String(v).trim()===''){return} const x=parseFloat(String(v).replace(',','.')); if(isNaN(x))return
     rv.kg=x; const i=document.getElementById('rwK-'+beId+'-'+n); if(i){i.value=String(x).replace('.',',');i.classList.remove('falta')} }
   else if(k==='seg'){ const x=parseInt(v); if(isNaN(x))return; rv.seg=Math.max(5,x)
