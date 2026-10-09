@@ -277,6 +277,56 @@ button.bxI:hover,button.bxI:focus-visible{transform:translateY(-2px);box-shadow:
 @keyframes ld3dPiso{0%,100%{transform:scaleX(.82);opacity:.7}50%{transform:scaleX(1.05);opacity:1}}
 @media (prefers-reduced-motion:reduce){ .ld3d__obj,.ld3d__sheen,.ld3d__floor{animation:none} }
 
+
+/* ═══ c76 · PLANIFICADOR ESCRITORIO: tarjeta de perfil arriba · bloque activo que sobresale · tarjetas compactas ═══ */
+#vPlan.plDesk .plHdr{position:relative !important;background:transparent;backdrop-filter:none;-webkit-backdrop-filter:none;border:0;box-shadow:none;padding-top:12px;padding-bottom:4px;display:grid;grid-template-columns:minmax(0,1fr) auto;column-gap:10px;align-items:center}
+#vPlan.plDesk .plPc{grid-column:1/-1}
+#vPlan.plDesk .plHdr .mtabs{grid-column:1;grid-row:2;order:0}
+#vPlan.plDesk .plSesBar{grid-column:2;grid-row:2;order:0;flex-wrap:nowrap}
+#vPlan.plDesk .plHdr__top,#vPlan.plDesk .plHdr__tit,#vPlan.plDesk .plQuien,#vPlan.plDesk #pMeta,#vPlan.plDesk #cReqs,#vPlan.plDesk .plSesBar__n{display:none !important}
+.plPc{display:none}
+#vPlan.plDesk .plPc{display:grid;grid-template-columns:auto minmax(0,1fr) auto auto;align-items:center;gap:18px;background:#FBFAF8;border:1px solid rgba(18,18,18,.1);border-radius:22px;padding:14px 18px;margin-bottom:10px}
+.plPc__av{border:0;padding:0;background:none;cursor:pointer;border-radius:50%;width:64px;height:64px;flex:none}
+.plPc__av .kav{width:64px !important;height:64px !important;font-size:26px !important}
+.plPc__id{min-width:0}
+.plPc__n{display:flex;align-items:center;gap:10px;min-width:0}
+.plPc__n b{font-family:var(--font-display,inherit);font-weight:900;font-size:28px;letter-spacing:-.01em;line-height:1.05;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:#121212}
+.plPc__st{flex:none;font-family:'Space Mono',var(--font-mono);font-size:10.5px;letter-spacing:.14em;border:1.5px solid #121212;border-radius:8px;padding:3px 8px;color:#121212}
+.plPc__p{font-family:'Space Mono',var(--font-mono);font-size:12px;letter-spacing:.12em;font-weight:700;color:#121212;margin-top:6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.plPc__s{display:flex;gap:0}
+.plPc__s div{padding:0 18px;border-left:1px solid rgba(18,18,18,.12);min-width:96px}
+.plPc__s b{display:block;font-family:var(--font-display,inherit);font-weight:900;font-size:30px;line-height:1;color:#121212}
+.plPc__s b i{font-style:normal;font-size:15px;color:#8E8D88}
+.plPc__s small{display:block;font-family:'Space Mono',var(--font-mono);font-size:9.5px;letter-spacing:.12em;color:#5E5D59;margin-top:5px}
+.plPc__a{display:flex;align-items:center;gap:6px}
+.plPc__a a,.plPc__a button{display:inline-flex;align-items:center;min-height:42px;padding:0 14px;border-radius:12px;border:1px solid rgba(18,18,18,.22);background:#fff;font-family:'Space Mono',var(--font-mono);font-size:11.5px;letter-spacing:.1em;color:#121212;text-decoration:none;cursor:pointer}
+.plPc__a .rol{min-height:0;padding:5px 9px;border-radius:7px;background:#121212;color:#F4F3F0;border:0;font-size:10.5px}
+#vPlan.plDesk .plSesBar{margin:0 0 6px;justify-content:flex-end;display:flex;gap:6px}
+#vPlan.plDesk .plSesBar button{min-height:38px;padding:0 12px;font-size:11px}
+#vPlan.plDesk .plHdr .mtabs{margin:0 0 6px;flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;gap:6px}
+#vPlan.plDesk .plHdr .mtabs .mtab{flex:0 0 auto;min-height:44px;padding:6px 14px;border-radius:12px;display:flex;align-items:center;gap:10px;flex-direction:row}
+#vPlan.plDesk .plHdr .mtabs .mtab .sN{font-size:11px;margin:0}
+#vPlan.plDesk .plHdr .mtabs .mtab .sT{font-size:15px;margin:0;white-space:nowrap}
+#vPlan.plDesk .plHdr .mtabs .tabOpc{position:static;margin-left:4px}
+/* tablero: el bloque activo sobresale; los demás quedan atrás */
+.tbBoard{padding:12px 4px 10px;margin:-8px -4px 0}
+.tbCol{background:#E3E2DE;border-color:transparent;transition:transform .28s cubic-bezier(.2,.8,.2,1), box-shadow .28s ease, background .2s ease, opacity .2s ease;opacity:.92}
+.tbCol .tbCard{background:#EFEEEA;border-color:transparent}
+.tbCol.act{background:#F6F5F2;border-color:rgba(18,18,18,.14);transform:translateY(-8px);box-shadow:0 22px 34px -22px rgba(0,0,0,.45);opacity:1;position:relative;z-index:2}
+.tbCol.act .tbCard{background:#fff;border-color:rgba(18,18,18,.1)}
+.tbCol .tbCard.sel{background:#E9E8E4 !important;box-shadow:inset 3px 0 0 #121212, 0 0 0 1.5px #121212}
+@media (prefers-reduced-motion:reduce){ .tbCol{transition:none} .tbCol.act{transform:none} }
+/* tarjeta compacta */
+.tbCard{padding:6px 7px 7px 9px;gap:5px;border-radius:11px}
+.tbN b{font-size:14px}
+.tbIc{width:30px;height:30px;border-radius:8px}.tbIc svg{width:13px;height:13px}
+.tbSt{height:40px;grid-template-columns:30px minmax(0,1fr) 30px;border-radius:9px;background:rgba(255,255,255,.6)}
+.tbSt input{font-size:17px !important;height:19px !important;line-height:19px}
+.tbSt small{font-size:8.5px;margin-top:2px}
+.tbSt button{font-size:16px}
+#vPlan .tbCard .plProg{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:block}
+#vPlan .tbCard .plProg>*{display:inline}
+@media (pointer:coarse){ .tbSt{height:44px;grid-template-columns:38px minmax(0,1fr) 38px} .tbIc{width:36px;height:36px} }
 /* ═══ c75 · CICLO + SEMANA en una pantalla: tira de semanas + sesiones con sus ejercicios ═══ */
 .plWs{display:grid;grid-template-columns:repeat(auto-fit,minmax(118px,1fr));gap:8px;margin:0 0 14px}
 .plWsB{position:relative;text-align:left;border:1px solid rgba(18,18,18,.12);background:#F6F5F2;border-radius:14px;padding:10px 12px 12px;cursor:pointer;display:grid;gap:3px;min-height:92px;color:#121212}
@@ -2301,6 +2351,7 @@ html.ks-on #vSala .salaQ input{font:500 17px var(--font-display) !important;lett
 <!-- PLANIFICADOR -->
 <div class="vista" id="vPlan">
   <div class="plHdr">
+    <div class="plPc" id="plPc" aria-label="Socio"></div>
     <div class="plHdr__top">
       <a class="plHome" href="coach.html#/" onclick="return plHomeClick(event)" title="Volver al dashboard (Ctrl/Cmd+clic: nueva pestaña)">⌂ HOME</a>
       <a class="plVolver" id="pVolverSoc" href="#" onclick="return plSocClick(event)">← PERFIL</a>
@@ -3616,6 +3667,7 @@ function pintarPlan(){ setTimeout(function(){ try{ plSaveUI(); rtSyncPlan() }cat
   // c75 · escritorio: tablero de bloques en columnas
   const _vp=document.getElementById('vPlan')
   document.documentElement.classList.toggle('plTb-on', plTbOn())
+  plPerfilPintar()
   if (plTbOn()){ _vp.classList.add('plTb'); document.getElementById('pBloques').innerHTML=plTbHTML(ses); calcDose(); if (plActivo()) plRender(); plTbWire(); return }
   _vp.classList.remove('plTb')
   const htmlBloques = !ses.bloques.length ? '<div class="glass bq plVacio"><b>'+String(ses.nombre||'SESIÓN').toUpperCase()+'</b><span>Esta sesión todavía no tiene bloques.</span></div>' : ses.bloques.map(function(b,bi){
@@ -3675,10 +3727,26 @@ function pintarPlan(){ setTimeout(function(){ try{ plSaveUI(); rtSyncPlan() }cat
   if (plActivo()) plRender()
 }
 
+
+// ═══════════ c76 · ESCRITORIO: tarjeta de perfil + bloque activo ═══════════
+function plDeskOn(){ return window.innerWidth>=1200 }
+function plPerfilPintar(){ const v=document.getElementById('vPlan'), el=document.getElementById('plPc'); if(!v||!el) return
+  const on = plDeskOn() && !!P && !P.bib && !P.base && typeof F!=='undefined' && !!F
+  v.classList.toggle('plDesk', on); if(!on){ el.innerHTML=''; return } v.classList.remove('plCompacto')
+  const a=(C.asig&&C.asig[F.id])||{}, pr=a.protocolos||P.proto||{}, N=plN(), w=(typeof PL!=='undefined'&&PL.w)||a.semana_actual||1
+  const vig=a.semana_actual||1, sv=plSesSem(vig), hechas=sv.filter(function(x){ return PL.hecho&&PL.hecho[x.id] }).length
+  const est=((document.getElementById('fEstado')||{}).textContent||'').trim() || (P.ro?'CICLO CERRADO':'ACTIVA')
+  const prog=[pr.programa, pr.nivel].filter(Boolean).join(' · ').toUpperCase()
+  el.innerHTML='<button type="button" class="plPc__av" onclick="plSocClick(event)" aria-label="Volver al perfil de '+plEsc(nomDe(F.id))+'">'+(typeof avSocio==='function'?avSocio(F.id):'')+'</button>'+
+    '<div class="plPc__id"><div class="plPc__n"><b>'+plEsc(nomDe(F.id))+'</b><span class="plPc__st">'+plEsc(est.toUpperCase())+'</span></div>'+
+      '<div class="plPc__p">'+plEsc(prog)+(prog?' · ':'')+'SEMANA '+vig+'/'+N+' · CICLO '+(a.ciclo_actual||1)+'</div></div>'+
+    '<div class="plPc__s"><div><b>'+hechas+'<i>/'+sv.length+'</i></b><small>ESTA SEMANA</small></div><div><b>S'+w+'</b><small>EDITANDO</small></div></div>'+
+    '<div class="plPc__a"><span class="rol">'+plEsc(((document.getElementById('pEstado')||{}).textContent||'').trim())+'</span><a href="coach.html#/socio/'+F.id+'" onclick="return plSocClick(event)">← PERFIL</a><button type="button" onclick="menuRutina()" aria-label="Más opciones">•••</button></div>' }
+function plTbAct(bi){ TB.bi=bi; document.querySelectorAll('#tbBoard .tbCol').forEach(function(c){ c.classList.toggle('act', +c.dataset.bi===bi) }) }
 // ═══════════ c75 · TABLERO DE SESIÓN (escritorio) ═══════════
 // Misma fuente y mismas acciones del planificador (stepSets/stepDesc/stepItem/editKg/editReps/elegirEj/quitarEj/plGuardar):
 // solo cambia la disposición. Cada bloque es una columna; la tarjeta trae REPS → KG, ✎ reemplazar en el sitio y ··· acciones.
-const TB={ sel:null, edit:null, act:0 }
+const TB={ sel:null, edit:null, act:0, bi:0 }
 function plTbOn(){ return window.innerWidth>=1200 }
 function plTbTipo(it){ const t=esTiempo(it)
   return { bw:(it.tipoReg==='BODYWEIGHT_REPS') || (it.tipoReg==null && it.conCarga===false && !t), t:(it.tipoReg==='TIME') || (it.tipoReg==null && t) } }
@@ -3708,8 +3776,9 @@ function plTbChips(ses){ const m={}
 function plTbHTML(ses){
   const nb=ses.bloques.length, all=[]; ses.bloques.forEach(function(b){ b.items.forEach(function(it){ all.push(it.beId) }) })
   if (!TB.sel || all.indexOf(TB.sel)<0) TB.sel=all[0]||null
+  { const xs=TB.sel?planItem(TB.sel):null; if (xs) TB.bi=ses.bloques.indexOf(xs.b); if (TB.bi<0||TB.bi>=nb) TB.bi=0 }
   const cols = ses.bloques.map(function(b,bi){ const _be=(OB.estado||{})[b.bId]
-    return '<section class="tbCol'+(_be==='hecho'?' tbCol--hecho':'')+'" data-bi="'+bi+'" aria-label="'+plEsc(bloqueTag(b,bi))+'">'+
+    return '<section class="tbCol'+(_be==='hecho'?' tbCol--hecho':'')+(bi===TB.bi?' act':'')+'" data-bi="'+bi+'" aria-label="'+plEsc(bloqueTag(b,bi))+'">'+
       '<div class="tbColH"><span class="c">'+plEsc(bloqueTag(b,bi))+(_be==='hecho'?'<i>✓ HECHO</i>':_be==='curso'?'<i>● EN CURSO</i>':'')+'</span><span class="n">'+b.items.length+' EJ</span>'+
         '<button type="button" class="tbX" title="Eliminar bloque" aria-label="Eliminar '+plEsc(bloqueTag(b,bi))+'" onclick="elimBloque('+bi+')">✕</button></div>'+
       '<div class="tbColP"><div class="tbMini"><button type="button" onclick="stepSets('+bi+',-1)" aria-label="Menos sets">−</button><b>'+b.sets+' SETS</b><button type="button" onclick="stepSets('+bi+',1)" aria-label="Más sets">+</button></div>'+
@@ -3735,7 +3804,7 @@ function plTbInsp(){
       '<button type="button" onclick="plTbSwAbrir(\''+it.beId+'\','+bi+')">REEMPLAZAR EJERCICIO ✎</button>'+
       '<button type="button" onclick="quitarEj(\''+it.beId+'\')">QUITAR DE B'+(bi+1)+'</button></div>' }
 function plTbSel(ev,beId){ if(ev.target.closest('button,input,a,ul')) return
-  TB.sel=beId; document.querySelectorAll('#tbBoard .tbCard.sel').forEach(function(x){ x.classList.remove('sel') }); ev.currentTarget.classList.add('sel')
+  TB.sel=beId; document.querySelectorAll('#tbBoard .tbCard.sel').forEach(function(x){ x.classList.remove('sel') }); ev.currentTarget.classList.add('sel'); plTbAct(+ev.currentTarget.dataset.bi)
   const i=document.getElementById('tbInsp'); if(i) i.innerHTML=plTbInsp() }
 // ✎ reemplazar en el sitio: buscador sobre el catálogo; elegir = misma ruta del selector (elegirEj, aviso de repetidos incluido)
 function plTbSwAbrir(beId,bi){ if(P&&P.ro) return
@@ -3779,9 +3848,13 @@ function plTbMover(beId,tbi,pos){ plTbMenuCerrar(); const x=planItem(beId); if(!
   if (x.b===dst && pos>from) pos--
   dst.items.splice(Math.max(0,Math.min(pos,dst.items.length)),0,x.it)
   ;[x.b,dst].forEach(function(b){ b.items.forEach(function(it,i){ it.orden=i+1 }) })
-  TB.sel=beId; plDirty(); repintarConservando()
+  TB.sel=beId; TB.bi=tbi; plDirty(); repintarConservando()
   if (x.b!==dst) toast(x.it.nombre+' → B'+(tbi+1)+' · en borrador') }
-function plTbWire(){ const bd=document.getElementById('tbBoard'); if(!bd || (P&&P.ro)) return; let from=null
+function plTbWire(){ const bd=document.getElementById('tbBoard'); if(!bd) return
+  // el bloque tocado pasa al frente (en click, no en pointerdown: moverlo bajo el puntero cortaría el arrastre)
+  bd.addEventListener('click', function(e){ const c=e.target.closest('.tbCol'); if(c && +c.dataset.bi!==TB.bi) plTbAct(+c.dataset.bi) }, true)
+  bd.addEventListener('focusin', function(e){ const c=e.target.closest('.tbCol'); if(c && +c.dataset.bi!==TB.bi) plTbAct(+c.dataset.bi) })
+  if (P&&P.ro) return; let from=null
   bd.querySelectorAll('.tbCard[draggable="true"]').forEach(function(el){
     el.addEventListener('dragstart',function(e){ from=el.dataset.be; el.classList.add('drag'); try{ e.dataTransfer.effectAllowed='move'; e.dataTransfer.setData('text/plain',from) }catch(_){} })
     el.addEventListener('dragend',function(){ el.classList.remove('drag'); bd.querySelectorAll('.over').forEach(function(x){ x.classList.remove('over') }) })
@@ -4935,6 +5008,7 @@ function plRender(){
   show('pNav', true); show('pMacro', niv==='macro'); show('pMeso', niv==='meso')
   show('pTabs', niv==='micro'); show('pBloques', niv==='micro'); show('pOrgRow', false)
   const _vpl=document.getElementById('vPlan'); if (_vpl) _vpl.classList.toggle('plTb', niv==='micro' && plTbOn())
+  plPerfilPintar()
   document.documentElement.classList.toggle('plTb-on', niv==='micro' && plTbOn())
   // Micro: la sesión primero, el dosificador debajo. Meso: dosificador bajo la lista de sesiones.
   const _v=document.getElementById('pVivo'), _anc=document.getElementById(niv==='micro'?'pBloques':'pMeso')
@@ -6685,6 +6759,7 @@ async function admIngresos(){
 // c11.2 · la cabecera del planificador queda fija; al bajar se compacta (sin perder nombre, programa ni navegación)
 ;(function(){ let raf=0; window.addEventListener('scroll', function(){ if(raf) return; raf=requestAnimationFrame(function(){ raf=0
   const v=document.getElementById('vPlan'); if (!v || !v.classList.contains('on')) return
+  if (v.classList.contains('plDesk')){ v.classList.remove('plCompacto'); return }
   const h=v.querySelector('.plHdr'), y=window.scrollY, c=v.classList.contains('plCompacto')
   if (!c){ PLH.exp=h.offsetHeight; if (y > Math.max(40, PLH.exp-PLH.cmp+32)) v.classList.add('plCompacto') }
   else { PLH.cmp=h.offsetHeight; if (y < 8) v.classList.remove('plCompacto') } }) }, {passive:true}) })()
