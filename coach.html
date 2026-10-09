@@ -1483,6 +1483,69 @@ html.selAbierto,html.selAbierto body{overflow:hidden}
 .dsr--0 .dsr__g,.dsr--0 .dsr__v{color:#9A9993}
 .dsSep{margin:12px 0 6px;padding-top:10px;border-top:1px dashed rgba(18,18,16,.15);font-family:var(--font-mono);font-size:11.5px;letter-spacing:.12em;color:#5E5D59}
 .dsr--d .dsr__f{background:linear-gradient(90deg,rgba(150,150,145,.30),rgba(120,120,115,.55));box-shadow:none}
+/* ═══ c88 · INSPECTOR DE DOSIFICACIÓN SEMANAL — panel lateral acoplado (no modal), grafito, mismo #pVivo ═══ */
+#pVivo .dsiTop,#pVivo .dsiSub,#pVivo .dsiMini{display:none}
+.plSesBar .dsBtn{display:inline-flex;align-items:center;gap:8px;border:1.5px solid #121212;background:#FBFAF8}
+.plSesBar .dsBtn svg{width:14px;height:14px;fill:currentColor;flex:none}
+.plSesBar .dsBtn.on{background:#1C1C1A;color:#F2F1EC;border-color:#1C1C1A}
+.dsBtn__s{font-size:11px;opacity:.75;min-width:10px;text-align:center}
+#vPlan.plTb #plWork.dsOn{display:grid;grid-template-columns:minmax(0,1fr) clamp(300px,23vw,340px);gap:12px;align-items:start}
+#vPlan.plTb #plWork.dsOn.dsCompact{grid-template-columns:minmax(0,1fr) 56px}
+#vPlan.plTb #plWork.dsOn>#pBloques{min-width:0}
+#vPlan.plTb #plWork.dsOn #pVivo{display:flex !important;flex-direction:column;min-width:0;margin:0;height:var(--dsH,calc(100vh - 170px));min-height:360px;overflow:hidden;
+  background:#161615;color:#F2F1EC;border:1px solid #2B2B28;border-radius:18px;padding:16px 16px 12px;box-shadow:0 10px 30px rgba(18,18,16,.18);backdrop-filter:none;-webkit-backdrop-filter:none}
+#pVivo.dsInsp>h3{display:none}
+#pVivo.dsInsp .dsiTop{display:flex;align-items:flex-start;gap:6px}
+.dsiTit{flex:1;display:flex;flex-direction:column;gap:2px;font-family:var(--font-display);font-weight:800;font-size:20px;letter-spacing:.06em;line-height:1;color:#F2F1EC}
+#pVivo .dsiIc{width:32px;height:32px;min-height:0;padding:0;border-radius:9px;border:1px solid #35352F;background:transparent;color:#C9C8C2;font-size:16px;line-height:1;cursor:pointer;display:grid;place-items:center}
+#pVivo .dsiIc:hover,#pVivo .dsiIc:focus-visible{background:#262624;color:#fff;outline:none;border-color:#6F6E69}
+#pVivo.dsInsp .dsiSub{display:flex;flex-direction:column;align-items:flex-start;gap:8px;margin:10px 0 14px;font-family:var(--font-mono);font-size:11px;letter-spacing:.12em;color:#A3A29C}
+.dsiEst{font-family:var(--font-mono);font-size:10px;letter-spacing:.12em;line-height:1.3;padding:4px 8px;border-radius:6px;border:1px solid #3A3A36;color:#D8D7D1}
+.dsiEst--ok::before{content:'✓ '}
+.dsiEst--dr{border-color:#E8E7E2;color:#F2F1EC}.dsiEst--dr::before{content:'● '}
+.dsiEst--sv{border-style:dashed;color:#A3A29C}
+.dsiEst--err{background:#F2F1EC;border-color:#F2F1EC;color:#121212;font-weight:700}.dsiEst--err::before{content:'⚠ '}
+.dsiEst--ro{color:#A3A29C}
+#pVivo.dsInsp #pVivoDose{flex:1 1 auto;min-height:0;overflow-y:auto;overscroll-behavior:contain;margin-right:-10px;padding-right:10px;scrollbar-width:thin;scrollbar-color:#3A3A36 transparent}
+#pVivo.dsInsp .dsHead{flex-direction:column;align-items:flex-start;gap:5px;margin:0 0 10px;font-size:10.5px;color:#F2F1EC}
+#pVivo.dsInsp .dsLeg{color:#8E8D87}#pVivo.dsInsp .dsLeg b{color:#F2F1EC;font-weight:600}
+#pVivo.dsInsp .dsx,#pVivo.dsInsp .dsr{grid-template-columns:64px minmax(0,1fr) 40px;gap:10px}
+#pVivo.dsInsp .dsx{position:sticky;top:0;z-index:1;background:#161615;padding:4px 0 6px;margin:0}
+#pVivo.dsInsp .dsx__t i{color:#6F6E69;font-size:10px}#pVivo.dsInsp .dsx__t i.ref{color:#F2F1EC}
+#pVivo.dsInsp .dsr{min-height:30px}
+#pVivo.dsInsp .dsr__g{color:#F2F1EC;font-size:13px;letter-spacing:.05em}
+#pVivo.dsInsp .dsr__v{color:#F2F1EC;font-size:13px;font-variant-numeric:tabular-nums}
+#pVivo.dsInsp .dsr__t{height:7px;border-radius:4px;background:#2A2A27}
+#pVivo.dsInsp .dsr__t:focus-visible{outline:1px solid #A3A29C;outline-offset:4px}
+#pVivo.dsInsp .dsr__t i{top:-3px;bottom:-3px;border-left:1px dashed rgba(255,255,255,.09)}
+#pVivo.dsInsp .dsr__t i.ref{border-left:1px solid rgba(255,255,255,.28)}
+#pVivo.dsInsp .dsr__f{border-radius:4px;background:linear-gradient(90deg,#7F7E79,#DAD9D3);box-shadow:none;transition:width .2s ease}
+#pVivo.dsInsp .dsr__m{top:-4px;bottom:-4px;width:2px;margin-left:-1px;background:#FFFFFF;transition:left .2s ease}
+#pVivo.dsInsp .dsr--0 .dsr__g,#pVivo.dsInsp .dsr--0 .dsr__v{color:#5F5E5A}
+#pVivo.dsInsp .dsr--0 .dsr__m{opacity:0}
+#pVivo.dsInsp .dsr--d .dsr__f{background:#4A4A46}
+#pVivo.dsInsp .dsSep{border-top-color:#2E2E2B;color:#8E8D87;font-size:10px;margin:10px 0 4px}
+#pVivo.dsInsp .dsNota{color:#6F6E69;font-size:10.5px;line-height:1.4}
+.dsr--up .dsr__v,.dsr--dn .dsr__v{animation:dsPulse .6s ease}
+#pVivo.dsInsp .dsr--up .dsr__v::before{content:'▲ ';font-size:8px;color:#A3A29C}
+#pVivo.dsInsp .dsr--dn .dsr__v::before{content:'▼ ';font-size:8px;color:#A3A29C}
+@keyframes dsPulse{0%{opacity:.3}100%{opacity:1}}
+#pVivo.dsInsp--c{padding:12px 0 !important;align-items:stretch}
+#pVivo.dsInsp--c .dsiTop,#pVivo.dsInsp--c .dsiSub,#pVivo.dsInsp--c #pVivoDose{display:none !important}
+#pVivo.dsInsp--c .dsiMini{display:flex;flex:1;flex-direction:column;align-items:center;gap:16px;min-height:0;padding:4px 0;border:0;background:none;color:#F2F1EC;cursor:pointer}
+#pVivo.dsInsp--c .dsiMini:focus-visible{outline:1px solid #A3A29C;outline-offset:-4px;border-radius:12px}
+.dsiMini__t{writing-mode:vertical-rl;transform:rotate(180deg);font-family:var(--font-mono);font-size:10.5px;letter-spacing:.22em}
+.dsiMini__b{display:flex;flex-direction:column;gap:6px;width:34px}
+.dsiMini__b i{display:block;height:4px;border-radius:2px;background:#2A2A27;position:relative;overflow:hidden}
+.dsiMini__b i::after{content:'';position:absolute;left:0;top:0;bottom:0;width:var(--w,0%);background:#DAD9D3;transition:width .2s ease}
+/* columnas angostas con el inspector abierto: la tarjeta pasa a dos filas (nombre arriba, REPS/KG abajo) — nada se aplasta ni se oculta */
+#vPlan.plTb #plWork.dsOn .tbCol{container-type:inline-size}
+@container (max-width:420px){
+  #vPlan.plDesk .tbCard:not(.edit){grid-template-columns:minmax(0,1fr) 28px 28px;grid-template-areas:"n e1 e2" "c c c";row-gap:6px;padding:7px 6px 7px 9px}
+  #vPlan.plDesk .tbCard:not(.edit)>.tbCtl{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+  #vPlan.plDesk .tbCard:not(.edit) .tbSt{width:auto}
+}
+@media (prefers-reduced-motion:reduce){ #pVivo.dsInsp .dsr__f,#pVivo.dsInsp .dsr__m,.dsiMini__b i::after{transition:none} .dsr--up .dsr__v,.dsr--dn .dsr__v{animation:none} }
 
 /* ═══ c11.3 · control de entrenamiento ═══ */
 .scCard{flex:1 1 100%;margin-top:12px;padding:12px 14px;border-radius:14px;border:1px solid rgba(18,18,16,.12);background:rgba(255,255,255,.5)}
@@ -2488,15 +2551,20 @@ html.ks-on #vSala .salaQ input{font:500 17px var(--font-display) !important;lett
     <h3><span>SOLICITUDES DEL SOCIO</span><span id="pReqN">—</span></h3>
     <div id="pReqs"></div>
   </div>
-  <div class="glass viva" id="pVivo" style="display:none">
+  <div class="glass viva" id="pVivo" style="display:none" role="region" aria-label="Dosificación semanal">
     <h3><span>DOSIFICACIÓN SEMANAL</span><span id="pVivoTit">—</span></h3>
+    <div class="dsiTop"><div class="dsiTit"><b>DOSIFICACIÓN</b><b>SEMANAL</b></div>
+      <button type="button" class="dsiIc" onclick="dsModo('compact')" title="Compactar" aria-label="Compactar inspector">⇥</button>
+      <button type="button" class="dsiIc" onclick="dsModo('closed')" title="Cerrar" aria-label="Cerrar inspector">×</button></div>
+    <div class="dsiSub"><span id="pVivoSem">—</span><span id="pVivoEst" class="dsiEst" aria-live="polite"></span></div>
     <div id="pVivoDose"></div>
+    <button type="button" class="dsiMini" id="pVivoMini" onclick="dsModo('open')" aria-label="Abrir dosificación semanal"><span class="dsiMini__t">DOSIFICACIÓN</span><span class="dsiMini__b" id="pVivoMiniB"></span></button>
   </div>
   <div id="pOrgRow" style="display:flex;justify-content:flex-end;margin-bottom:7px">
     <button onclick="abrirOrganizador()" style="border:1.5px solid rgba(18,18,16,.16);background:none;border-radius:10px;padding:8px 12px;font-size:8px;font-weight:900;letter-spacing:.12em;cursor:pointer;color:#121210">⇅ REORGANIZAR SESIONES</button><button class="bqAdd" style="margin-left:8px" onclick="cgConsultor()">CONSULTAR CARGAS</button>
   </div>
   <div class="plIndRow"><span id="plSaveInd" class="plInd">GUARDADO ✓</span></div>
-  <div id="pBloques"></div>
+  <div id="plWork"><div id="pBloques"></div></div>
   <div class="plDock" id="pGuardia">
     <div class="plDock__in">
       <div id="plSave" class="plSave plSave--ok"><span id="plSaveMsg" class="plDock__st">EL SOCIO VE ESTA VERSIÓN ✓</span><button id="plSaveBtn" class="plDock__save" onclick="plGuardar()" disabled>GUARDAR</button></div>
@@ -3791,8 +3859,8 @@ function pintarPlan(){ setTimeout(function(){ try{ plSaveUI(); rtSyncPlan() }cat
   const _vp=document.getElementById('vPlan')
   document.documentElement.classList.toggle('plTb-on', plTbOn())
   plPerfilPintar()
-  if (plTbOn()){ _vp.classList.add('plTb'); document.getElementById('pBloques').innerHTML=plTbHTML(ses); calcDose(); if (plActivo()) plRender(); plTbWire(); plTbAjustar(); return }
-  _vp.classList.remove('plTb')
+  if (plTbOn()){ _vp.classList.add('plTb'); document.getElementById('pBloques').innerHTML=plTbHTML(ses); calcDose(); if (plActivo()) plRender(); plTbWire(); dsAplicar(); plTbAjustar(); return }
+  _vp.classList.remove('plTb'); dsAplicar()
   const htmlBloques = !ses.bloques.length ? '<div class="glass bq plVacio"><b>'+String(ses.nombre||'SESIÓN').toUpperCase()+'</b><span>Esta sesión todavía no tiene bloques.</span></div>' : ses.bloques.map(function(b,bi){
     const _be=(OB.estado||{})[b.bId]
     return '<div class="glass bq bq--t'+(bi%2)+(_be?' bq--'+_be:'')+'" data-bi="'+bi+'"><div class="bqh"><span class="bqt">'+bloqueTag(b,bi)+(_be==='hecho'?' <i class="bqEst">✓ COMPLETADO</i>':_be==='curso'?' <i class="bqEst bqEst--c">● EN CURSO</i>':'')+'</span>'+
@@ -3880,7 +3948,9 @@ function plTbAct(bi){ TB.bi=bi; document.querySelectorAll('#tbBoard .tbCol').for
 function plTbGrid(){ const bd=document.getElementById('tbBoard'); if(!bd) return
   const cols=[...bd.querySelectorAll(':scope > .tbCol')]; if(!cols.length) return
   if (!(document.getElementById('vPlan')||{}).classList || !document.getElementById('vPlan').classList.contains('plDesk')){ bd.style.gridTemplateColumns='repeat('+cols.length+',minmax(258px,1fr)) 44px'; return }
-  bd.style.gridTemplateColumns = 'repeat('+cols.length+',minmax(0,1fr)) 44px' }
+  // c88 · con el inspector abierto, una columna nunca baja de 210 px: si no caben, el tablero se desplaza en horizontal (no se aplasta)
+  const _ds=(document.getElementById('plWork')||{}).classList, _min=(_ds && _ds.contains('dsOn') && (bd.clientWidth-44-10*cols.length)/cols.length<210) ? '210px' : '0'
+  bd.style.gridTemplateColumns = 'repeat('+cols.length+',minmax('+_min+',1fr)) 44px' }
 // ═══════════ c75 · TABLERO DE SESIÓN (escritorio) ═══════════
 // Misma fuente y mismas acciones del planificador (stepSets/stepDesc/stepItem/editKg/editReps/elegirEj/quitarEj/plGuardar):
 // solo cambia la disposición. Cada bloque es una columna; la tarjeta trae REPS → KG, ✎ reemplazar en el sitio y ··· acciones.
@@ -4000,7 +4070,8 @@ function plTbMover(beId,tbi,pos){ plTbMenuCerrar(); const x=planItem(beId); if(!
 function plTbAjustar(){ try{ const v=document.getElementById('vPlan'), w=document.querySelector('#vPlan .tbWrap'); if(!v||!w||!v.classList.contains('plDesk')){ if(w) w.style.removeProperty('--tbH'); return }
   const dock=document.getElementById('pGuardia'), top=w.getBoundingClientRect().top+window.scrollY, dh=dock?dock.getBoundingClientRect().height:80
   let h=Math.max(360, window.innerHeight-top-dh-10); w.style.setProperty('--tbH', h+'px')
-  const over=document.documentElement.scrollHeight-window.innerHeight; if (over>0) w.style.setProperty('--tbH', Math.max(360,h-over)+'px') }catch(_){} }
+  const over=document.documentElement.scrollHeight-window.innerHeight; if (over>0) w.style.setProperty('--tbH', Math.max(360,h-over)+'px')
+  const pv=document.getElementById('pVivo'), pb=document.getElementById('pBloques'); if (pv && pb){ const r=w.getBoundingClientRect(), rb=pb.getBoundingClientRect(); pv.style.setProperty('--dsH', Math.max(360, Math.round(r.bottom-rb.top))+'px') } }catch(_){} }
 window.addEventListener('resize', function(){ clearTimeout(window._tbAjT); window._tbAjT=setTimeout(plTbAjustar,120) })
 function plTbWire(){ const bd=document.getElementById('tbBoard'); if(!bd) return
   plTbGrid()
@@ -4465,8 +4536,9 @@ function calcDose(){
   const f1=function(x){ return (Math.round(x*10)/10).toFixed(1) }
   const ticks=[]; for (let t=10; t<=dom; t+=10) ticks.push(t)
   const REF={10:'MEV',20:'REFERENCIA',30:'TECHO'}
-  const nSes=_pool.length
+  const nSes=_pool.length, _wN=plActivo()?PL.w:_wTab
   document.getElementById('pVivoTit').innerHTML = P.base ? 'BASE · SEMANA '+_wTab+' · '+nSes+' SESION'+(nSes===1?'':'ES') : (plActivo()?'SEMANA '+PL.w+' · ':'')+nSes+' SESION'+(nSes===1?'':'ES')
+  const _semEl=document.getElementById('pVivoSem'); if (_semEl) _semEl.textContent=(P.base?'BASE · ':'')+'SEMANA '+String(_wN).padStart(2,'0')+' · '+String(nSes).padStart(2,'0')+(nSes===1?' SESIÓN':' SESIONES')
   const escala='<div class="dsx"><span class="dsx__g"></span><div class="dsx__t">'+
     ticks.map(function(t){ return '<i class="'+(REF[t]?'ref':'')+'" style="left:'+X(t)+'%">'+t+'</i>' }).join('')+'</div><span class="dsx__v"></span></div>'
   const fila=function(g, v, tipo){ const sig=SIGLA[g]||g
@@ -4477,14 +4549,78 @@ function calcDose(){
       '<span class="dsr__v">'+(tipo==='d'?Math.round(v):f1(v))+'</span></div>' }
   const filas=gs.map(function(g){ return fila(g, acum[g]||0, 'm') }).join('')+
     '<div class="dsSep">CARDIO / GLOBAL · SERIES DESIGNADAS</div>'+KD.DESIGNADOS.map(function(g){ return fila(g, desig[g]||0, 'd') }).join('')
-  document.getElementById('pVivoDose').innerHTML =
-    '<div class="dsHead"><span>MÚSCULOS · SERIES EFECTIVAS PROGRAMADAS</span><span class="dsLeg"><b>10</b> MEV · <b>20</b> REFERENCIA · <b>30</b> TECHO</span></div>'+
-    escala+filas+'<div class="dsNota">Referencias operativas KOACH para auditar la semana; no son reglas universales.</div>'
+  // c88 · INSPECTOR: mismas filas y mismo cálculo; si la semana/socio/escala no cambió, se actualiza en el sitio (las barras se deslizan)
+  const all=gs.map(function(g){ return [g, acum[g]||0, 'm'] }).concat(KD.DESIGNADOS.map(function(g){ return [g, desig[g]||0, 'd'] }))
+  const box=document.getElementById('pVivoDose')
+  const _key=[(typeof F!=='undefined'&&F&&F.id)||'', P.pid||'', P.base?'B':'', _wN, dom, all.map(function(r){return r[0]}).join(',')].join('|')
+  const _rows=box.querySelectorAll('.dsr')
+  if (box.dataset.k===_key && _rows.length===all.length){
+    all.forEach(function(r,i){ const el=_rows[i], v=r[1], tipo=r[2], sig=SIGLA[r[0]]||r[0]
+      const txt=(tipo==='d'?String(Math.round(v)):f1(v)), ve=el.querySelector('.dsr__v'); if (ve.textContent===txt) return
+      const tip=sig+' · '+(tipo==='d' ? Math.round(v)+' SERIES DESIGNADAS' : f1(v)+' SERIES EFECTIVAS PROGRAMADAS')+(plActivo()?' · SEMANA '+PL.w:'')
+      const sube=parseFloat(txt)>parseFloat(ve.textContent)
+      el.querySelector('.dsr__f').style.width=X(v)+'%'; const mk=el.querySelector('.dsr__m'); mk.style.left=X(v)+'%'; mk.setAttribute('aria-label',tip)
+      const tr=el.querySelector('.dsr__t'); tr.title=tip; tr.setAttribute('aria-label',tip)
+      ve.textContent=txt; el.classList.toggle('dsr--0', !(v>0))
+      el.classList.remove('dsr--up','dsr--dn'); void el.offsetWidth; el.classList.add(sube?'dsr--up':'dsr--dn')
+      clearTimeout(el._dsT); el._dsT=setTimeout(function(){ el.classList.remove('dsr--up','dsr--dn') }, 900) })
+  } else {
+    box.innerHTML =
+      '<div class="dsHead"><span>MÚSCULOS · SERIES EFECTIVAS PROGRAMADAS</span><span class="dsLeg"><b>10</b> MEV · <b>20</b> REFERENCIA · <b>30</b> TECHO</span></div>'+
+      escala+filas+'<div class="dsNota">Referencias operativas KOACH para auditar la semana; no son reglas universales.</div>'
+    box.dataset.k=_key }
+  DSI.last={ all:all, dom:dom }
+  dsMiniPintar(); dsEstado()
   const alerta=''
   try{ if (!P.base && typeof F!=='undefined' && F && F.id && _reqFor!==F.id){ _reqFor=F.id; cargarSolicitudes(F.id) } }catch(_e){}
   const fm=document.getElementById('pFootMsg')
   if(fm){ fm.textContent = P.base ? '⚙ EDITAS LA BASE MAESTRA — CLONES EXISTENTES NO CAMBIAN' : ''; fm.style.display = P.base ? '' : 'none' }
 }
+// ═══ c88 · INSPECTOR DE DOSIFICACIÓN SEMANAL (escritorio) ═══
+// Es el mismo #pVivo y el mismo calcDose (KD.distribucionSemana sobre el borrador local de la semana): solo cambia dónde y cómo se ve.
+// 3 modos: closed (solo el botón) · open (panel lateral acoplado, no modal) · compact (franja). El modo es una preferencia visual del
+// navegador; los datos nunca salen de ahí.
+const DSI={ modo:'closed', last:null, save:null, t:null }
+try{ const m=localStorage.getItem('k_ds_modo'); if(m==='open'||m==='compact'||m==='closed') DSI.modo=m }catch(_){}
+function dsDock(){ const v=document.getElementById('vPlan'); return !!(v && v.classList.contains('plTb') && document.getElementById('plWork')) }
+function dsModo(m){
+  if (!dsDock()){ const e=document.getElementById('pVivo'); if (e && e.style.display!=='none') e.scrollIntoView({behavior:'smooth', block:'start'}); return }
+  if (m==='toggle') m = DSI.modo==='closed' ? 'open' : 'closed'
+  DSI.modo=m; try{ localStorage.setItem('k_ds_modo', m) }catch(_){}
+  dsAplicar()
+  if (m==='open'){ const x=document.querySelector('#pVivo .dsiIc'); if (x) try{ x.focus({preventScroll:true}) }catch(_){} }
+  else if (m==='closed'){ const b=document.getElementById('dsBtn'); if (b) try{ b.focus({preventScroll:true}) }catch(_){} }
+}
+function dsAplicar(){
+  const w=document.getElementById('plWork'), v=document.getElementById('pVivo'); if (!w || !v) return
+  const dock=dsDock(), on=dock && DSI.modo!=='closed', cp=on && DSI.modo==='compact'
+  if (dock && v.parentNode!==w) w.appendChild(v)
+  w.classList.toggle('dsOn', on); w.classList.toggle('dsCompact', cp)
+  v.classList.toggle('dsInsp', on); v.classList.toggle('dsInsp--c', cp)
+  const b=document.getElementById('dsBtn')
+  if (b){ b.setAttribute('aria-pressed', on?'true':'false'); b.classList.toggle('on', on)
+    const st=b.querySelector('.dsBtn__s'); if (st) st.textContent = on ? (cp?'▸':'✓') : '→' }
+  if (dock){ try{ plTbGrid(); plTbAjustar() }catch(_){} }
+}
+function dsProg(){ clearTimeout(DSI.t); DSI.t=setTimeout(function(){ try{ calcDose() }catch(_){} }, 0) }
+function dsMiniPintar(){ const e=document.getElementById('pVivoMiniB'); if (!e || !DSI.last) return
+  const d=DSI.last.dom, f1=function(x){ return (Math.round(x*10)/10).toFixed(1) }
+  e.innerHTML=DSI.last.all.filter(function(r){ return r[2]==='m' }).map(function(r){ const sg=SIGLA[r[0]]||r[0]
+    return '<i title="'+sg+' '+f1(r[1])+'" style="--w:'+Math.min(100, r[1]/d*100)+'%"></i>' }).join('') }
+function dsEstado(E){ if (E) DSI.save=E
+  const el=document.getElementById('pVivoEst'); if (!el || !P) return
+  const w=plActivo()?PL.w:(((P.sesiones[P.tab]||{}).semana)||1)
+  const pool=plActivo()?plSesSem(PL.w):P.sesiones.filter(function(x){ return (x.semana||1)===w })
+  const sucio=pool.some(function(x){ return P.dirty && P.dirty[x.id] }), st=DSI.save
+  let t, c
+  if (P.ro){ t='SOLO LECTURA · CICLO CERRADO'; c='ro' }
+  else if (P.base){ t='BASE MAESTRA'; c='ro' }
+  else if (st==='saving'){ t='GUARDANDO…'; c='sv' }
+  else if (st==='err'){ t='ERROR AL GUARDAR · BORRADOR NO CONFIRMADO'; c='err' }
+  else if (sucio){ t='BORRADOR SIN GUARDAR'; c='dr' }
+  else { t='PUBLICADO'; c='ok' }
+  el.textContent=t; el.className='dsiEst dsiEst--'+c
+  el.title = c==='dr' ? 'Las barras incluyen cambios que el socio todavía no ve' : c==='err' ? 'Las barras muestran el borrador; no quedó guardado en la base' : '' }
 // ═══ ORGANIZADOR SEMANAL (playlist) ═══
 const CONT_BLOQUES='7184a0bc-a107-42dc-89b7-951f7cfd2909'
 function abrirBloque(){ document.getElementById('mAddBloque').style.display='block' }
@@ -5167,6 +5303,7 @@ function plRender(){
   if (niv==='macro'){ show('pVivo', false); plPintarMacro() }
   else if (niv==='meso'){ calcDose(); show('pVivo', true); plPintarMeso() }
   plPintarNav()
+  dsAplicar()
 }
 function plPintarNav(){
   const ses = PL.nivel==='micro' ? P.sesiones[P.tab] : null
@@ -6223,7 +6360,7 @@ function beOrd(arr){ return (arr||[]).slice().sort(function(a,x){ return ((a.ord
 function plUuid(){ return (crypto && crypto.randomUUID) ? crypto.randomUUID() : 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g,function(c){const r=Math.random()*16|0;return (c==='x'?r:(r&0x3|0x8)).toString(16)}) }
 function plSesActual(){ return P && P.sesiones && P.sesiones[P.tab] }
 function plEsDirty(){ return !!(P && P.dirty && Object.keys(P.dirty).length) }
-function plDirty(){ const s=plSesActual(); if(!s) return; P.dirty=P.dirty||{}; P.dirty[s.id]=true; plSaveUI() }
+function plDirty(){ const s=plSesActual(); if(!s) return; P.dirty=P.dirty||{}; P.dirty[s.id]=true; plSaveUI(); dsProg() }
 function plFirma(s){ return String(s.nombre||'').toUpperCase()+JSON.stringify((s.bloques||[]).map(function(b){ return [b.id,b.etiqueta||'',b.sets,b.desc,(b.items||[]).map(function(it){ return [it.beId,it.ejId,it.kg==null?null:+it.kg,String(it.reps==null?'':it.reps)] })] })) }
 function plPayload(s){
   return (s.bloques||[]).map(function(b){ return { id:b.id, etiqueta:b.etiqueta||null, rol:b.rol||null, sets:b.sets, desc:b.desc,
@@ -6237,6 +6374,7 @@ function plSaveUI(estado){
   const btn=document.getElementById('plSaveBtn')
   const E = estado || (sucio ? 'dirty' : 'ok')
   bar.className='plSave plSave--'+E
+  try{ dsEstado(E) }catch(_){}
   btn.disabled = (E==='ok' || E==='saving')
   // c52 · el socio solo ve lo que el KOACH publica: mientras editas es un BORRADOR privado
   btn.textContent = {ok:'PUBLICADO', dirty:'PUBLICAR AL SOCIO →', saving:'PUBLICANDO…', done:'PUBLICADO', err:'REINTENTAR'}[E]
@@ -7336,8 +7474,10 @@ function plBarraSesion(ses){
   const ro=P&&P.ro, n=(ses&&ses.bloques||[]).length
   const cx=document.getElementById('plCtx'); if (cx){ const a=F&&C.asig&&C.asig[F.id], N=a&&a.protocolos&&a.protocolos.ciclo_semanas
     cx.textContent = ses ? ((typeof PL!=='undefined'&&PL.w)?'S'+PL.w+(N?'/'+N:'')+' · ':'')+String(ses.nombre||'SESIÓN').toUpperCase() : '' }
-  bar.innerHTML = (!ses||ro) ? '' :
-    '<span class="plSesBar__n">'+String(ses.nombre||'SESIÓN').toUpperCase()+' · '+n+' BLOQUE'+(n===1?'':'S')+'</span>'+
+  const dsB='<button type="button" id="dsBtn" class="dsBtn" aria-pressed="false" aria-controls="pVivo" onclick="dsModo(\'toggle\')" title="Dosificación semanal: series efectivas de toda la semana">'+
+    '<svg viewBox="0 0 16 16" aria-hidden="true"><rect x="1" y="3" width="9" height="2" rx="1"/><rect x="1" y="7" width="13" height="2" rx="1"/><rect x="1" y="11" width="6" height="2" rx="1"/></svg>DOSIFICACIÓN <span class="dsBtn__s">→</span></button>'
+  bar.innerHTML = !ses ? '' : ro ? dsB :
+    '<span class="plSesBar__n">'+String(ses.nombre||'SESIÓN').toUpperCase()+' · '+n+' BLOQUE'+(n===1?'':'S')+'</span>'+dsB+
     (n<6?'<button type="button" onclick="abrirBloque()">+ BLOQUE</button>':'')+
     (n>1?'<button type="button" class="ink" onclick="abrirOrgBloques()">⇅ ORGANIZAR BLOQUES</button>':'')
 }
