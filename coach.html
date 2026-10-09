@@ -3823,10 +3823,9 @@ function plTbSel(ev,beId){ if(ev.target.closest('button,input,a,ul')) return
   TB.sel=beId; document.querySelectorAll('#tbBoard .tbCard.sel').forEach(function(x){ x.classList.remove('sel') }); ev.currentTarget.classList.add('sel'); plTbAct(+ev.currentTarget.dataset.bi)
   const i=document.getElementById('tbInsp'); if(i) i.innerHTML=plTbInsp() }
 // ✎ reemplazar en el sitio: buscador sobre el catálogo; elegir = misma ruta del selector (elegirEj, aviso de repetidos incluido)
+// c79 · ✎ abre el selector completo a pantalla (vista amplia del catálogo), en modo CAMBIAR sobre esa tarjeta
 function plTbSwAbrir(beId,bi){ if(P&&P.ro) return
-  TB.edit = TB.edit===beId ? null : beId; TB.sel=beId
-  repintarConservando()
-  const q=document.getElementById('tbSwQ'); if(q){ q.focus({preventScroll:true}); plTbSwLista() } }
+  TB.edit=null; TB.sel=beId; plTbAct(bi); abrirSelector('cambiar', bi, beId) }
 function plTbSwLista(){ const q=_selNorm((document.getElementById('tbSwQ')||{}).value||''), x=planItem(TB.edit); if(!x) return
   const enSem={}; const ses=P.sesiones[P.tab]; if (ses) plSesSem(ses.semana||1).forEach(function(s2){ s2.bloques.forEach(function(b2){ b2.items.forEach(function(z){ enSem[z.ejId]=1 }) }) })
   const L=(EJCAT||[]).filter(function(e){ return e.activo!==false && String(e.id)!==String(x.it.ejId) && (!q || _selNorm(e.nombre).indexOf(q)>-1 || _selNorm(e.grupo_muscular).indexOf(q)>-1) })
