@@ -279,7 +279,7 @@ button.bxI:hover,button.bxI:focus-visible{transform:translateY(-2px);box-shadow:
 
 
 /* ═══ c76 · PLANIFICADOR ESCRITORIO: tarjeta de perfil arriba · bloque activo que sobresale · tarjetas compactas ═══ */
-#vPlan.plDesk .plHdr{position:relative !important;background:transparent;backdrop-filter:none;-webkit-backdrop-filter:none;border:0;box-shadow:none;padding-top:12px;padding-bottom:4px;display:grid;grid-template-columns:minmax(0,1fr) auto;column-gap:10px;align-items:center}
+#vPlan.plDesk .plHdr{position:relative !important;top:auto !important;z-index:auto;background:transparent;backdrop-filter:none;-webkit-backdrop-filter:none;border:0;box-shadow:none;padding-top:12px;padding-bottom:4px;display:grid;grid-template-columns:minmax(0,1fr) auto;column-gap:10px;align-items:center}
 #vPlan.plDesk .plPc{grid-column:1/-1}
 #vPlan.plDesk .plHdr .mtabs{grid-column:1;grid-row:2;order:0}
 #vPlan.plDesk .plSesBar{grid-column:2;grid-row:2;order:0;flex-wrap:nowrap}
@@ -310,11 +310,12 @@ button.bxI:hover,button.bxI:focus-visible{transform:translateY(-2px);box-shadow:
 #vPlan.plDesk .plHdr .mtabs .tabOpc{position:static;margin-left:4px}
 /* tablero: el bloque activo sobresale; los demás quedan atrás */
 .tbBoard{padding:12px 4px 10px;margin:-8px -4px 0}
-.tbCol{background:#E3E2DE;border-color:transparent;transition:transform .28s cubic-bezier(.2,.8,.2,1), box-shadow .28s ease, background .2s ease, opacity .2s ease;opacity:.92}
-.tbCol .tbCard{background:#EFEEEA;border-color:transparent}
-.tbCol.act{background:#F6F5F2;border-color:rgba(18,18,18,.14);transform:translateY(-8px);box-shadow:0 22px 34px -22px rgba(0,0,0,.45);opacity:1;position:relative;z-index:2}
-.tbCol.act .tbCard{background:#fff;border-color:rgba(18,18,18,.1)}
-.tbCol .tbCard.sel{background:#E9E8E4 !important;box-shadow:inset 3px 0 0 #121212, 0 0 0 1.5px #121212}
+.tbCol{background:#EFEEEA;border:1px solid rgba(18,18,18,.08);transition:transform .28s cubic-bezier(.2,.8,.2,1), box-shadow .28s ease, background .22s ease}
+.tbCol .tbCard{background:#F8F7F4;border-color:rgba(18,18,18,.07);transition:background .18s ease, box-shadow .18s ease}
+.tbCol.act{background:#C6C5BF;border-color:rgba(18,18,18,.18);transform:translateY(-10px);box-shadow:0 26px 36px -22px rgba(0,0,0,.5);position:relative;z-index:2}
+.tbCol.act .tbColH .c{color:#121212}
+.tbCol .tbCard.sel{background:#BCBBB4 !important;border-color:#121212 !important;box-shadow:0 0 0 1.5px #121212}
+.tbCol .tbCard.sel .tbSt{background:rgba(255,255,255,.55)}
 @media (prefers-reduced-motion:reduce){ .tbCol{transition:none} .tbCol.act{transform:none} }
 /* tarjeta compacta */
 .tbCard{padding:6px 7px 7px 9px;gap:5px;border-radius:11px}
@@ -358,6 +359,8 @@ button.bxI:hover,button.bxI:focus-visible{transform:translateY(-2px);box-shadow:
 .tbHead small{font-family:'Space Mono',var(--font-mono);font-size:10px;letter-spacing:.14em;color:#5E5D59;margin-right:4px}
 .tbChip{font-family:'Space Mono',var(--font-mono);font-size:11px;letter-spacing:.06em;padding:4px 8px;border-radius:7px;background:#fff;border:1px solid rgba(18,18,18,.12)}
 .tbChip b{margin-left:4px}
+.tbWrap.sinPanel{grid-template-columns:minmax(0,1fr)}.tbWrap.sinPanel .tbInsp{display:none}
+.tbPanelBtn{margin-left:auto;min-height:32px !important;padding:0 10px !important;border-radius:8px;border:1px solid rgba(18,18,18,.22);background:#fff;font-family:'Space Mono',var(--font-mono);font-size:10.5px;letter-spacing:.1em;cursor:pointer;color:#121212}
 .tbWrap{display:grid;grid-template-columns:minmax(0,1fr) clamp(260px,21vw,320px);gap:12px;align-items:start}
 .tbBoard{display:grid;gap:10px;min-width:0;align-items:start;overflow-x:auto;padding-bottom:4px}
 .tbBoard.many{overflow-x:auto;padding-bottom:6px}
@@ -3799,7 +3802,8 @@ function plTbHTML(ses){
       '<button type="button" class="tbAdd" onclick="abrirSelector(\'agregar\','+bi+',null)">+ EJERCICIO EN B'+(bi+1)+'</button></section>' }).join('')
   const nuevo = nb<6 ? '<button type="button" class="tbNew" onclick="abrirBloque()" aria-label="Agregar bloque">+ BLOQUE</button>' : '<span></span>'
   const vacio = !nb ? '<div class="glass emptySes"><h4>'+plEsc(ses.nombre||'SESIÓN')+' · SESIÓN VACÍA</h4><p>Agrega el primer bloque para construirla.</p></div>' : ''
-  return '<div class="tbHead">'+plTbChips(ses)+'</div><div class="tbWrap"><div><div class="tbBoard'+(nb>3?' many':'')+'" id="tbBoard" style="grid-template-columns:repeat('+nb+',minmax(258px,1fr)) 44px">'+cols+nuevo+'</div>'+vacio+'</div>'+
+  const panel = TB.panel!=null ? TB.panel : nb<4
+  return '<div class="tbHead">'+plTbChips(ses)+'<button type="button" class="tbPanelBtn" onclick="TB.panel=!('+panel+');repintarConservando()" aria-pressed="'+panel+'">'+(panel?'OCULTAR PANEL ›':'‹ PANEL DEL EJERCICIO')+'</button></div><div class="tbWrap'+(panel?'':' sinPanel')+'"><div><div class="tbBoard'+(nb>3?' many':'')+'" id="tbBoard" style="grid-template-columns:repeat('+nb+',minmax(258px,1fr)) 44px">'+cols+nuevo+'</div>'+vacio+'</div>'+
     '<aside class="tbInsp" id="tbInsp" aria-label="Ejercicio seleccionado">'+plTbInsp()+'</aside></div>' }
 function plTbInsp(){
   const x=TB.sel?planItem(TB.sel):null; if(!x) return '<div class="mut">SELECCIONA UN EJERCICIO</div>'
