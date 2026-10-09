@@ -336,6 +336,16 @@ button.bxI:hover,button.bxI:focus-visible{transform:translateY(-2px);box-shadow:
 #vPlan.plDesk .tbCol{min-height:0;overflow-y:auto;overscroll-behavior:contain;scrollbar-width:thin;scrollbar-color:rgba(18,18,18,.2) transparent}
 #vPlan.plDesk .tbInsp{min-height:0;overflow-y:auto;overscroll-behavior:contain}
 #vPlan.plDesk #pGuardia{display:none !important}
+/* c84 · bloque activo al frente: dos columnas de ejercicios; el resto atrás, atenuado */
+#vPlan.plDesk .tbBoard{transition:grid-template-columns .32s cubic-bezier(.2,.8,.2,1)}
+#vPlan.plDesk .tbCol{transition:transform .28s cubic-bezier(.2,.8,.2,1), box-shadow .28s ease, background .22s ease, opacity .22s ease}
+#vPlan.plDesk .tbCol:not(.act){opacity:.72;transform:scale(.985);transform-origin:top center}
+#vPlan.plDesk .tbCol:not(.act):hover{opacity:1}
+#vPlan.plDesk .tbCol.act{display:grid;grid-template-columns:1fr 1fr;gap:8px;align-content:start;opacity:1;transform:translateY(-6px);z-index:3}
+#vPlan.plDesk .tbCol.act>.tbColH,#vPlan.plDesk .tbCol.act>.tbColP,#vPlan.plDesk .tbCol.act>.tbAdd{grid-column:1 / -1}
+#vPlan.plDesk .tbCol.act>.tbCard{align-self:start}
+#vPlan.plDesk .tbCol.act .tbColH .c{font-size:16px}
+@media (prefers-reduced-motion:reduce){ #vPlan.plDesk .tbBoard,#vPlan.plDesk .tbCol{transition:none} #vPlan.plDesk .tbCol:not(.act){transform:none} }
 #vPlan.plDesk .plPc__a{gap:8px}
 #vPlan.plDesk .plPc__pub{font-family:'Space Mono',var(--font-mono);font-size:9.5px;letter-spacing:.12em;color:#5E5D59;padding:0 10px 0 0;white-space:nowrap}
 #vPlan.plDesk .plPc__pub.is-dirty{color:#121212;font-weight:700}
@@ -3830,7 +3840,12 @@ function plPerfilPintar(){ const v=document.getElementById('vPlan'), el=document
 /* c83 · una sola acción en la cabecera: si el programa aún es borrador → PUBLICAR Y APLICAR (guarda y activa); si ya está activo → PUBLICAR AL SOCIO */
 function plProtoActivo(){ return String((P&&P.proto&&P.proto.estado)||'').toLowerCase()==='activo' }
 async function plAccion(){ if (P&&P.ro){ toast('Ciclo cerrado: solo lectura'); return } if (plProtoActivo()) await plGuardar(); else await plAplicar() }
-function plTbAct(bi){ TB.bi=bi; document.querySelectorAll('#tbBoard .tbCol').forEach(function(c){ c.classList.toggle('act', +c.dataset.bi===bi) }) }
+function plTbAct(bi){ TB.bi=bi; document.querySelectorAll('#tbBoard .tbCol').forEach(function(c){ c.classList.toggle('act', +c.dataset.bi===bi) }); plTbGrid() }
+/* c84 · el bloque activo pasa al frente y se ensancha (sus ejercicios en dos columnas, todos a la vista); los demás quedan atrás, más angostos */
+function plTbGrid(){ const bd=document.getElementById('tbBoard'); if(!bd) return
+  const cols=[...bd.querySelectorAll(':scope > .tbCol')]; if(!cols.length) return
+  if (!(document.getElementById('vPlan')||{}).classList || !document.getElementById('vPlan').classList.contains('plDesk')){ bd.style.gridTemplateColumns='repeat('+cols.length+',minmax(258px,1fr)) 44px'; return }
+  bd.style.gridTemplateColumns = cols.map(function(c){ return c.classList.contains('act') ? 'minmax(520px,2.1fr)' : 'minmax(205px,.85fr)' }).join(' ')+' 44px' }
 // ═══════════ c75 · TABLERO DE SESIÓN (escritorio) ═══════════
 // Misma fuente y mismas acciones del planificador (stepSets/stepDesc/stepItem/editKg/editReps/elegirEj/quitarEj/plGuardar):
 // solo cambia la disposición. Cada bloque es una columna; la tarjeta trae REPS → KG, ✎ reemplazar en el sitio y ··· acciones.
@@ -3945,6 +3960,7 @@ function plTbAjustar(){ try{ const v=document.getElementById('vPlan'), w=documen
   const over=document.documentElement.scrollHeight-window.innerHeight; if (over>0) w.style.setProperty('--tbH', Math.max(360,h-over)+'px') }catch(_){} }
 window.addEventListener('resize', function(){ clearTimeout(window._tbAjT); window._tbAjT=setTimeout(plTbAjustar,120) })
 function plTbWire(){ const bd=document.getElementById('tbBoard'); if(!bd) return
+  plTbGrid()
   // el bloque tocado pasa al frente (en click, no en pointerdown: moverlo bajo el puntero cortaría el arrastre)
   bd.addEventListener('click', function(e){ const c=e.target.closest('.tbCol'); if(c && +c.dataset.bi!==TB.bi) plTbAct(+c.dataset.bi) }, true)
   bd.addEventListener('focusin', function(e){ const c=e.target.closest('.tbCol'); if(c && +c.dataset.bi!==TB.bi) plTbAct(+c.dataset.bi) })
