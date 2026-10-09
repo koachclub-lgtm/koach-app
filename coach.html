@@ -1310,7 +1310,7 @@ html.selAbierto,html.selAbierto body{overflow:hidden}
 /* c79 · cápsulas más grandes y escaladas por dispositivo: el espacio vacío se usa para legibilidad y para el dedo */
 #selEj .selPills{gap:12px 12px;padding:12px 0 26px;justify-content:center}
 /* c80 · distribución equilibrada: cada cápsula crece para llenar su fila de borde a borde (con tope) y la última fila queda centrada */
-#selEj .selRow{flex:1 1 auto;max-width:min(100%,520px);justify-content:center;text-align:center}
+#selEj .selRow{flex:1 1 auto;max-width:min(100%,440px);justify-content:center;text-align:center}
 #selEj .selRow .selN{white-space:nowrap}
 #selEj .selRow{min-height:52px;padding:0 20px;gap:10px;box-shadow:0 2px 6px -4px rgba(18,18,16,.35)}
 #selEj .selN{font-size:16px}
@@ -1318,7 +1318,7 @@ html.selAbierto,html.selAbierto body{overflow:hidden}
 #selEj .selGH b{font-size:16px}#selEj .selGH small{font-size:12px}
 #selEj .selM__q{min-height:58px}#selEj .selM__q input{font-size:18px !important}
 #selEj .selChip{min-height:40px;font-size:13px;padding:0 14px}
-@media (min-width:1200px){ #selEj .selPills{gap:14px 14px;padding:14px 0 30px} #selEj .selRow{min-height:58px;padding:0 24px;gap:12px} #selEj .selN{font-size:18px} #selEj .selImp{font-size:11px} #selEj .selGH b{font-size:18px} #selEj .selGH small{font-size:13px} #selEj .selM__q{min-height:62px} #selEj .selM__q input{font-size:19px !important} #selEj .selChip{min-height:42px;font-size:13.5px} }
+@media (min-width:1200px){ #selEj .selPills{gap:12px 12px;padding:14px 0 30px} #selEj .selRow{min-height:56px;padding:0 20px;gap:10px} #selEj .selN{font-size:18px} #selEj .selImp{font-size:11px} #selEj .selGH b{font-size:18px} #selEj .selGH small{font-size:13px} #selEj .selM__q{min-height:62px} #selEj .selM__q input{font-size:19px !important} #selEj .selChip{min-height:42px;font-size:13.5px} }
 @media (min-width:768px) and (max-width:1199px){ #selEj .selRow{min-height:54px;padding:0 20px} #selEj .selN{font-size:17px} }
 @media (max-width:767px){ #selEj .selPills{gap:10px 10px;padding:10px 0 20px} #selEj .selRow{min-height:50px;padding:0 16px} #selEj .selN{font-size:15.5px;white-space:normal;line-height:1.15} #selEj .selImp{font-size:9.5px} }
 #selEj .selAct{font-size:9px;padding:3px 7px;background:#F4F3F0;color:#121212}
@@ -4308,8 +4308,8 @@ function pintarSelector(){
     // c78 · cada ejercicio es una cápsula; las cápsulas fluyen una al lado de la otra, por grupo (orden funcional) y alfabéticas dentro del grupo
     return '<div class="selGH" role="presentation"><b>'+(SIGLA[G.g]||G.g)+'</b><small>'+G.g+' · '+G.items.length+'</small></div><div class="selPills" role="group" aria-label="'+plEsc(G.g)+'">'+
       G.items.map(function(e){ const act = SEL.actual && String(e.id)===String(SEL.actual)
-        return '<button type="button" class="selRow'+(act?' act':'')+'" role="option" tabindex="-1" aria-selected="false" onclick="elegirEj(\''+e.id+'\')"><span class="selN">'+plEsc(e.nombre)+'</span>'+
-          (act?'<span class="selAct">ACTUAL</span>':'')+(e.implemento?'<span class="selImp">'+String(e.implemento).replace('_',' ')+'</span>':'')+'</button>' }).join('')+'</div>'
+        return '<button type="button" class="selRow'+(act?' act':'')+'" role="option" tabindex="-1" aria-selected="false" title="'+plEsc(e.nombre)+(e.implemento?' · '+String(e.implemento).replace('_',' '):'')+'" onclick="elegirEj(\''+e.id+'\')"><span class="selN">'+plEsc(e.nombre)+'</span>'+
+          (act?'<span class="selAct">ACTUAL</span>':'')+'</button>' }).join('')+'</div>'
   }).join('') : '<div class="selVacio"><p>NO ENCONTRAMOS ESE EJERCICIO</p><button type="button" class="eBtn" onclick="document.getElementById(\'selBusca\').value=\'\';setGrupoSel(null)">LIMPIAR BÚSQUEDA</button></div>'
 }
 async function elegirEj(ejId, confirmado){
