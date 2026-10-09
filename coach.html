@@ -6991,8 +6991,8 @@ function scEstadoCard(z, ctx){
   if (z.estado==='completada') return { pill:'✓ COMPLETADA', pc:'ok', sub:z.cuando?scDiaC(z.cuando):'REALIZADA', cls:'hecha' }
   if (z.estado==='suspendida') return { pill:'SUSPENDIDA', pc:'mute', sub:'SOLO ESTA SEMANA', cls:'susp' }
   if (enV || z.estado==='en_curso'){ const v=enV?vivo:reg; return { pill:'● EN CURSO', pc:'live', sub:v?(v.ejercicios+'/'+v.total_ejercicios+' EJERCICIOS · '+v.sets+' SETS'):'ENTRENANDO AHORA', cls:'curso', tag:'AHORA' } }
-  if (reg && reg.abandonada) return { pill:reg.parece_completa?'PARECE COMPLETA':'SIN CERRAR', pc:'warn', sub:scFechaC(reg.iniciada_at||reg.fecha)+' · '+reg.ejercicios+'/'+reg.total_ejercicios+' EJ', cls:'inc', reg:reg }
-  if (z.estado==='sin_cerrar') return { pill:'SIN CERRAR', pc:'warn', sub:'REQUIERE RESOLVER', cls:'inc' }
+  if (reg && reg.abandonada) return { pill:reg.parece_completa?'SIN FINALIZAR · PARECE COMPLETA':'SIN FINALIZAR', pc:'warn', sub:'INICIADA '+scDiaC(reg.iniciada_at||reg.fecha)+' · '+reg.ejercicios+'/'+reg.total_ejercicios+' EJ', cls:'inc', reg:reg }
+  if (z.estado==='sin_cerrar') return { pill:'SIN FINALIZAR', pc:'warn', sub:'TOCA ··· PARA RESOLVER', cls:'inc' }
   if (z.estado==='incompleta') return { pill:'INCOMPLETA', pc:'mute', sub:'CERRADA SIN TERMINAR', cls:'hecha' }
   if (esX) return { pill:'HABILITADA', pc:'live', sub:'LE TOCA AHORA'+(hb.permite_hoy?' · HOY':''), cls:'next', esX:true }
   if (esN) return { pill:'DISPONIBLE', pc:'live', sub:st.entreno_hoy?'SIGUIENTE · MAÑANA':'LE TOCA AHORA', cls:'next' }
@@ -7018,9 +7018,9 @@ function scPintar(){
     '<div class="tb__acc"><span class="tbSave" id="scSave" aria-live="polite"></span>'+
       '<button type="button" class="tbB" onclick="scOrgEntrar()"'+(ses.filter(function(z){return !scEsFija(z)}).length>1?'':' disabled title="No hay dos sesiones movibles esta semana"')+'>↕ ORGANIZAR SEMANA</button>'+
       '<button type="button" class="tbB tbB--ink" onclick="verExtra()">+ EXTRA</button></div></div>'
-  if (inc.length){ const a=inc[0]
-    h+='<button type="button" class="scInc" onclick="'+(inc.length===1?'scResolver(\''+a.id+'\')':'scVerTodas()')+'"><span class="scInc__n">'+inc.length+'</span><span class="scInc__t">SESI'+(inc.length===1?'ÓN':'ONES')+' SIN CERRAR · '+scNomL(a.nombre)+' · '+scFechaC(a.iniciada_at||a.fecha)+' · '+a.ejercicios+'/'+a.total_ejercicios+' EJ'+(inc.length>1?' · +'+(inc.length-1)+' MÁS':'')+'</span><span class="scInc__go">RESOLVER →</span></button>' }
-  h+='<div class="tb2" role="list" aria-label="Sesiones de la semana" style="--tcN:'+Math.max(3,Math.min(4,ses.length+ext.length))+'">'
+  // c80 · las sesiones sin finalizar se avisan en su propia tarjeta (no en una franja aparte); las que no son de esta semana se suman al carrusel
+  const huer=inc.filter(function(a){ return !ses.some(function(z){ return z.id===a.sesion_id }) || ab.find(function(b){ return b.sesion_id===a.sesion_id })!==a })
+  h+='<div class="tb2" role="list" aria-label="Sesiones de la semana" style="--tcN:'+Math.max(3,Math.min(4,ses.length+ext.length+huer.length))+'">'
   ses.forEach(function(z,i){
     const e=scEstadoCard(z,{vivo:vivo,nextId:nextId})
     h+='<div class="tc tc--'+e.cls+(SCD.open===z.id?' is-open':'')+'" role="listitem" data-sid="'+z.id+'">'+
@@ -7029,6 +7029,13 @@ function scPintar(){
         '<span class="tc__k"><em>'+String(i+1).padStart(2,'0')+'</em><i class="tcP tcP--'+e.pc+'">'+e.pill+'</i></span>'+
         '<b class="tc__n">'+scNomL(z.nombre)+'</b><span class="tc__s">'+e.sub+'</span></button>'+
       '<button type="button" class="tcM" onclick="scMenu(event,\''+z.id+'\')" aria-haspopup="menu" aria-label="Acciones de '+scNomL(z.nombre)+'">···</button></div>' })
+  huer.forEach(function(a){
+    h+='<div class="tc tc--inc" role="listitem" data-rk="r'+a.id+'">'+
+      '<span class="tc__h" aria-hidden="true">'+SC_ISO+'</span>'+
+      '<button type="button" class="tc__body" onclick="scResolver(\''+a.id+'\')" title="Toca para resolver">'+
+        '<span class="tc__k"><i class="tcP tcP--warn">SIN FINALIZAR</i></span>'+
+        '<b class="tc__n">'+scNomL(a.nombre)+'</b><span class="tc__s">INICIADA '+scDiaC(a.iniciada_at||a.fecha)+' · '+a.ejercicios+'/'+a.total_ejercicios+' EJ</span></button>'+
+      '<button type="button" class="tcM" onclick="scMenu(event,\'r'+a.id+'\')" aria-haspopup="menu" aria-label="Acciones de '+scNomL(a.nombre)+' sin finalizar">···</button></div>' })
   ext.forEach(function(x){
     const e=scEstadoExtra(x)
     h+='<div class="tc tc--'+e.cls+(SCD.open===x.key?' is-open':'')+'" role="listitem" data-xk="'+x.key+'">'+
@@ -7596,7 +7603,12 @@ function scMenu(ev,key){
   ev.stopPropagation(); const prev=document.getElementById('scMenu'), mismo=prev&&prev.dataset.k===key; scMenuCerrar(); if (mismo) return
   const st=SC.st||{}, ex=/^[xh]/.test(key)?scExtraKey(key):null, it=[]
   const I=function(t,fn,cls){ it.push('<button type="button" role="menuitem"'+(cls?' class="'+cls+'"':'')+' onclick="scMenuCerrar();'+fn+'">'+t+'</button>') }
-  if (ex){
+  const resolver=function(reg){ I('FINALIZAR COMO COMPLETADA','scFinalizarConf(\''+reg.id+'\')'); I('CERRAR INCOMPLETA','scAccion(\'cerrar\',\''+reg.id+'\')')
+    if (!reg.sets) I('ANULAR INICIO (FUE POR ERROR)','scAccion(\'anular\',\''+reg.id+'\')'); I('VER DETALLE','scResolver(\''+reg.id+'\')') }
+  if (/^r/.test(key)){ const reg=(st.abiertas||[]).find(function(a){ return 'r'+a.id===key }); if(!reg) return
+    resolver(reg); it.push('<hr>'); const u='#/socio/'+F.id+'/plan?w='+st.semana+'&s='+reg.sesion_id
+    it.push('<a role="menuitem" href="'+u+'" onclick="scMenuCerrar();return rtIr(event,\''+u+'\')">ABRIR / EDITAR RUTINA</a>') }
+  else if (ex){
     I('VER RESUMEN','scAbrirRes(\''+key+'\')')
     if (ex.tipo==='designada') I('ABRIR / EDITAR RUTINA','scEditarExtra(\''+ex.id+'\')')
     if (ex.estado==='habilitada') I('QUITAR HABILITACIÓN','scAccion(\'quitar_habilitacion\')')
@@ -7608,7 +7620,7 @@ function scMenu(ev,key){
     const done=z.estado==='completada', susp=z.estado==='suspendida', curso=z.estado==='en_curso', u='#/socio/'+F.id+'/plan?w='+st.semana+'&s='+z.id
     I('VER RESUMEN','scAbrirRes(\''+z.id+'\')')
     it.push('<a role="menuitem" href="'+u+'" onclick="scMenuCerrar();return rtIr(event,\''+u+'\')">ABRIR / EDITAR RUTINA</a>')
-    if (reg && reg.abandonada) I('RESOLVER SESIÓN ABIERTA','scFinalizarConf(\''+reg.id+'\')')
+    if (reg && reg.abandonada){ it.push('<hr>'); resolver(reg); it.push('<hr>') }
     else if (!done && !susp && !curso && z.estado!=='incompleta' && z.estado!=='sin_cerrar') I(esX?'QUITAR HABILITACIÓN':'HABILITAR AHORA', esX?'scAccion(\'quitar_habilitacion\')':'scHabilitarConf(\''+z.id+'\')')
     it.push('<hr>')
     I('CAMBIAR NOMBRE','scRenombrar(\''+z.id+'\')')
