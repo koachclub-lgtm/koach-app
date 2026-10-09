@@ -3771,23 +3771,12 @@ async function reanudar(){
     })
   }catch(_){}
   rwRestaurar()
+  // c87 · misma fuente única que abrirSesion (koach_historial_cargas): una RPC en vez de tres consultas (sets + cargas ×2)
+  S.sugeridos={}; S.ultimos={}
   try{
-    // c8.1: orden por created_at (el id es UUID aleatorio → "último" salía al azar). Respaldo: cargas por ejercicio,
-    // así la semana copiada (bloque_ejercicio nuevo) igual lee lo ejecutado la semana anterior.
-    const { data: us } = await sb.from('set_registros').select('ejercicio_id, peso, reps, seg, id, created_at')
-      .eq('socio_id', S.perfil.id).order('created_at',{ascending:false}).limit(400)
-    S.ultimos={}
-    ;(us||[]).forEach(u=>{ if(u.ejercicio_id && (u.peso!=null||u.seg!=null||u.reps!=null) && !(u.ejercicio_id in S.ultimos)) S.ultimos[u.ejercicio_id]=u })
-    const { data: uc } = await sb.from('cargas').select('ejercicio_id, peso_kg, reps_realizadas, created_at')
-      .eq('socio_id', S.perfil.id).order('created_at',{ascending:false}).limit(300)
-    ;(uc||[]).forEach(c=>{ if(c.ejercicio_id && c.peso_kg!=null && !(c.ejercicio_id in S.ultimos)) S.ultimos[c.ejercicio_id]={peso:c.peso_kg, reps:c.reps_realizadas} })
+    const { data: hm } = await sb.rpc('koach_historial_cargas', { p_socio:S.perfil.id })
+    Object.keys(hm||{}).forEach(ej=>{ const u=(hm[ej]||{}).ultimo; if (u && (u.peso!=null||u.seg!=null||u.reps!=null)) S.ultimos[ej]={ peso:u.peso, reps:u.reps, seg:u.seg, fecha:u.fecha } })
   }catch(_){ S.ultimos={} }
-  try{
-    const { data: cs } = await sb.from('cargas').select('bloque_ejercicio_id, peso_kg, id, created_at')
-      .eq('socio_id', S.perfil.id).order('created_at',{ascending:false}).limit(300)
-    S.sugeridos={}
-    ;(cs||[]).forEach(c=>{ if(!(c.bloque_ejercicio_id in S.sugeridos)) S.sugeridos[c.bloque_ejercicio_id]=c.peso_kg })
-  }catch(_){ S.sugeridos={} }
   document.getElementById('sBloques').classList.remove('locked')
   document.getElementById('oAct').classList.remove('vis')
   pintarSesion()
@@ -3946,7 +3935,7 @@ async function abrirSesion(num){
   S.sugeridos={}; S.ultimos={}
   try{
     const { data: hm } = await sb.rpc('koach_historial_cargas', { p_socio:S.perfil.id })
-    Object.keys(hm||{}).forEach(ej=>{ const u=(hm[ej]||{}).ultimo; if (u && (u.peso!=null||u.seg!=null||u.reps!=null)) S.ultimos[ej]={ peso:u.peso, reps:u.reps, seg:u.seg } })
+    Object.keys(hm||{}).forEach(ej=>{ const u=(hm[ej]||{}).ultimo; if (u && (u.peso!=null||u.seg!=null||u.reps!=null)) S.ultimos[ej]={ peso:u.peso, reps:u.reps, seg:u.seg, fecha:u.fecha } })
   }catch(_){ S.ultimos={} }
   pintarSesion()
   // Overlay de activación
@@ -4535,7 +4524,7 @@ async function tapSetRow(beId,n,bId,ejId){
   pintarSesion()
   if(navigator.vibrate)navigator.vibrate(8)
   syncEnvio()
-  sb.from('set_registros').insert(fila).select('id').single().then(r=>{
+  sb.from('set_registros').upsert(fila,{onConflict:'registro_id,bloque_id,bloque_ejercicio_id,set_numero'}).select('id').single().then(r=>{
     if(r.error){ delete S.setLog[k]; pintarSesion(); syncErr(); toast('No se guardó el set — toca de nuevo') }
     else { S.setLog[k].id=r.data.id; syncOk(); rwPersistir(); chequearBloque(bId)
       const blk=S._bfs.find(function(x){return x.id===bId})
@@ -4555,7 +4544,7 @@ async function tapSet(beId,n,bId,ejId){
   pintarSesion()
   if(navigator.vibrate)navigator.vibrate(8)
   syncEnvio()
-  sb.from('set_registros').insert(fila).select('id').single().then(r=>{
+  sb.from('set_registros').upsert(fila,{onConflict:'registro_id,bloque_id,bloque_ejercicio_id,set_numero'}).select('id').single().then(r=>{
     if(r.error){ delete S.setLog[k]; pintarSesion(); syncErr(); toast('No se guardó el set — toca de nuevo') }
     else { S.setLog[k].id=r.data.id; syncOk(); chequearBloque(bId) }
   })
@@ -4576,7 +4565,7 @@ async function tapRonda(bId,n,bi){
   pintarSesion()
   if(navigator.vibrate)navigator.vibrate(8)
   syncEnvio()
-  sb.from('set_registros').insert(fila).select('id').single().then(r=>{
+  sb.from('set_registros').upsert(fila,{onConflict:'registro_id,bloque_id,bloque_ejercicio_id,set_numero'}).select('id').single().then(r=>{
     if(r.error){ delete S.setLog[k]; pintarSesion(); syncErr() }
     else { S.setLog[k].id=r.data.id; syncOk(); chequearBloque(bId) }
   })
@@ -4787,7 +4776,7 @@ async function completarBloque(bi){
   pintarSesion()
   if(navigator.vibrate)navigator.vibrate(10)
   syncEnvio()
-  const r = await sb.from('set_registros').insert(rows).select('id')
+  const r = await sb.from('set_registros').upsert(rows,{onConflict:'registro_id,bloque_id,bloque_ejercicio_id,set_numero'}).select('id')
   if (r.error){ claves.forEach(k=>delete S.setLog[k]); pintarSesion(); syncErr(); toast('No se guardó — reintenta') }
   else { rows.forEach((f,i)=>{ S.setLog[claves[i]].id=(r.data[i]||{}).id }); syncOk(); chequearBloque(b.id) }
 }
@@ -4833,7 +4822,7 @@ async function completarTodo(){
     })
   })
   if (rows.length){
-    const r = await sb.from('set_registros').insert(rows).select('id')
+    const r = await sb.from('set_registros').upsert(rows,{onConflict:'registro_id,bloque_id,bloque_ejercicio_id,set_numero'}).select('id')
     if (r.error){ cargandoOff(); toast('No pudimos registrar: '+r.error.message); return }
     rows.forEach(function(f,i){ f.id=(r.data[i]||{}).id; S.setLog[claves[i]]=f })
   }
@@ -4901,19 +4890,8 @@ async function finalizar(){
     if (error) throw error
     if (!updOk || !updOk.length){ const { data:ya } = await sb.from('sesiones_registro').select('estado').eq('id',rid).maybeSingle()
       if (!(ya && ya.estado==='completada')) throw new Error('El cierre no se aplicó — reintenta') }   // doble toque: ya estaba cerrada
-    // Cargas: derivadas del registro real por set (máximo peso + sets hechos)
-    const inserts=[]
-    bfs.forEach(b=>(b.bloque_ejercicios||[]).forEach(be=>{
-      let maxP=null, hechos=0
-      for(let n2=1;n2<=b.sets;n2++){
-        const f=S.setLog[setKey(be.id,n2)]
-        if(f){ hechos++; if(f.peso!=null && (maxP==null||f.peso>maxP)) maxP=f.peso }
-      }
-      if (maxP!=null && hechos>0) inserts.push({ sesion_registro_id:rid, socio_id:S.perfil.id,
-        bloque_ejercicio_id:be.id, ejercicio_id:be.ejercicio_id||be.ejercicios?.id,
-        peso_kg:maxP, sets_completados:hechos, registrado_por:S.perfil.id })
-    }))
-    if (inserts.length) await sb.from('cargas').insert(inserts)
+    // c87 · `cargas` ya no se escribe: era un resumen redundante de set_registros (2.033 de 2.059 filas duplicaban un set).
+    // Último peso, mejor marca y sugerencias salen de set_registros vía koach_historial_cargas (misma fuente que el coach).
   }catch(e){ console.error(e); toast('No se pudo cerrar la sesión — tus sets YA están guardados. Reintenta.'); return }
   S._dirty = true; S._avOk = false
   S.enCurso = null
