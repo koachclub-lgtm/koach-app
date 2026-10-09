@@ -448,6 +448,7 @@ button.bxI:hover,button.bxI:focus-visible{transform:translateY(-2px);box-shadow:
 .tbColH .n{font-family:'Space Mono',var(--font-mono);font-size:10.5px;color:#5E5D59;letter-spacing:.08em}
 .tbX{min-height:0 !important;padding:0 !important;width:34px;height:34px;border-radius:9px;border:0;background:rgba(18,18,18,.06);cursor:pointer;font-size:13px;color:#121212}
 .tbX:hover{background:#121212;color:#F4F3F0}
+.tbX--tpl{font-size:14px;color:#5E5D59}#vPlan.plDesk .tbX{width:28px;height:28px;border-radius:7px}
 .tbColP{display:grid;grid-template-columns:1fr 1fr;gap:6px}
 .tbMini{display:flex;align-items:center;justify-content:space-between;border:1px solid rgba(18,18,18,.22);border-radius:10px;background:#fff;height:38px;overflow:hidden}
 .tbMini button{width:34px;height:100% !important;min-height:0 !important;padding:0 !important;border:0;background:none;cursor:pointer;font-size:16px;color:#121212}.tbMini button:hover{background:rgba(18,18,18,.07)}
@@ -3680,8 +3681,10 @@ async function abrirPlan(pid, proto, opts){
   document.getElementById('pEstado').textContent = esBib ? 'ESTÁNDAR \u2605' : esBase ? 'BASE ⚙' : ((proto&&proto.estado)||'borrador').toUpperCase()
   vista('vPlan')
   document.getElementById('pBloques').innerHTML = kLd('Cargando…')
-  ULT = {}; HIST = {}
-  if (!esBib && !esBase && F){ try{ await cargarHistorialCargas(F.id) }catch(_e){ console.error('[cargas]', _e) } }
+  // c86 · el historial de cargas del socio no cambia por guardar el plan: al releer tras PUBLICAR se reutiliza (una RPC menos por guardado)
+  const _reusaHist = !!(opts.reusarHist && !esBib && !esBase && F && window._histSocio===F.id)
+  if (!_reusaHist){ ULT = {}; HIST = {}
+    if (!esBib && !esBase && F){ try{ await cargarHistorialCargas(F.id) }catch(_e){ console.error('[cargas]', _e) } } }
   let qq = sb.from('sesiones_protocolo').select('*').eq('protocolo_id',pid).order('numero') // Ajuste F-MULTI: cap de 6 eliminado, numeración es global entre semanas
   if (opts.soloSesion) qq = qq.eq('id', opts.soloSesion)
   const rses = await qq
@@ -3915,6 +3918,7 @@ function plTbHTML(ses){
   const cols = ses.bloques.map(function(b,bi){ const _be=(OB.estado||{})[b.bId]
     return '<section class="tbCol'+(_be==='hecho'?' tbCol--hecho':'')+(bi===TB.bi?' act':'')+'" data-bi="'+bi+'" aria-label="'+plEsc(bloqueTag(b,bi))+'">'+
       '<div class="tbColH"><span class="c">'+plEsc(bloqueTag(b,bi))+(_be==='hecho'?'<i>✓ HECHO</i>':_be==='curso'?'<i>● EN CURSO</i>':'')+'</span><span class="n">'+b.items.length+' EJ</span>'+
+        (!(P&&P.ro)?'<button type="button" class="tbX tbX--tpl" title="Guardar bloque como prediseñado" aria-label="Guardar '+plEsc(bloqueTag(b,bi))+' como prediseñado" onclick="abrirTplSave('+bi+')">★</button>':'')+
         '<button type="button" class="tbX" title="Eliminar bloque" aria-label="Eliminar '+plEsc(bloqueTag(b,bi))+'" onclick="elimBloque('+bi+')">✕</button></div>'+
       '<div class="tbColP"><div class="tbMini"><button type="button" onclick="stepSets('+bi+',-1)" aria-label="Menos sets">−</button><b>'+b.sets+' SETS</b><button type="button" onclick="stepSets('+bi+',1)" aria-label="Más sets">+</button></div>'+
         '<div class="tbMini"><button type="button" onclick="stepDesc('+bi+',-15)" aria-label="Menos descanso">−</button><b>'+b.desc+'s DESC</b><button type="button" onclick="stepDesc('+bi+',15)" aria-label="Más descanso">+</button></div></div>'+
@@ -3922,9 +3926,8 @@ function plTbHTML(ses){
       '<button type="button" class="tbAdd" onclick="abrirSelector(\'agregar\','+bi+',null)">+ EJERCICIO EN B'+(bi+1)+'</button></section>' }).join('')
   const nuevo = nb<6 ? '<button type="button" class="tbNew" onclick="abrirBloque()" aria-label="Agregar bloque">+ BLOQUE</button>' : '<span></span>'
   const vacio = !nb ? '<div class="glass emptySes"><h4>'+plEsc(ses.nombre||'SESIÓN')+' · SESIÓN VACÍA</h4><p>Agrega el primer bloque para construirla.</p></div>' : ''
-  const panel = TB.panel!=null ? TB.panel : nb<4
-  return '<div class="tbHead"><div class="tbChipsW">'+plTbChips(ses)+'</div><div class="tbSelC" id="tbSelC">'+plTbSelCard()+'</div><button type="button" class="tbPanelBtn" onclick="TB.panel=!('+panel+');repintarConservando()" aria-pressed="'+panel+'">'+(panel?'OCULTAR PANEL ›':'‹ PANEL DEL EJERCICIO')+'</button></div><div class="tbWrap'+(panel?'':' sinPanel')+'"><div><div class="tbBoard'+(nb>3?' many':'')+'" id="tbBoard" style="grid-template-columns:repeat('+nb+',minmax(258px,1fr)) 44px">'+cols+nuevo+'</div>'+vacio+'</div>'+
-    '<aside class="tbInsp" id="tbInsp" aria-label="Ejercicio seleccionado">'+plTbInsp()+'</aside></div>' }
+  // c86 · sin panel lateral ni botón de panel (c85): no se renderizan — la ficha negra de arriba es la única vista del ejercicio
+  return '<div class="tbHead"><div class="tbChipsW">'+plTbChips(ses)+'</div><div class="tbSelC" id="tbSelC">'+plTbSelCard()+'</div></div><div class="tbWrap sinPanel"><div><div class="tbBoard'+(nb>3?' many':'')+'" id="tbBoard" style="grid-template-columns:repeat('+nb+',minmax(0,1fr)) 44px">'+cols+nuevo+'</div>'+vacio+'</div></div>' }
 /* c85 · ficha compacta del ejercicio seleccionado: código · último registro · mejor marca · VER MÁS (abre el historial completo) */
 function plTbSelCard(){
   const x=TB.sel?planItem(TB.sel):null; if(!x) return '<div><small>EJERCICIO</small><b>Toca un ejercicio para ver su registro</b></div>'
@@ -3949,7 +3952,6 @@ function plTbInsp(){
       '<button type="button" onclick="quitarEj(\''+it.beId+'\')">QUITAR DE B'+(bi+1)+'</button></div>' }
 function plTbSel(ev,beId){ if(ev.target.closest('button,input,a,ul')) return
   TB.sel=beId; document.querySelectorAll('#tbBoard .tbCard.sel').forEach(function(x){ x.classList.remove('sel') }); ev.currentTarget.classList.add('sel'); plTbAct(+ev.currentTarget.dataset.bi)
-  const i=document.getElementById('tbInsp'); if(i) i.innerHTML=plTbInsp()
   const c=document.getElementById('tbSelC'); if(c){ c.innerHTML=plTbSelCard(); c.classList.toggle('vacia', !TB.sel) } }
 // ✎ reemplazar en el sitio: buscador sobre el catálogo; elegir = misma ruta del selector (elegirEj, aviso de repetidos incluido)
 // c79 · ✎ abre el selector completo a pantalla (vista amplia del catálogo), en modo CAMBIAR sobre esa tarjeta
@@ -4165,17 +4167,14 @@ async function eliminarSesion(){
   if((rr.data||[]).length){ toast('Esta sesión ya tiene registros — el histórico se protege, no se elimina.'); return }
   if(!await kConfirm('¿Eliminar "'+s.nombre+'" de la semana? Sus bloques y líneas se pierden.')) return
   try{
-    const rb = await sb.from('bloques').select('id').eq('sesion_id',s.id)
-    const bids=(rb.data||[]).map(function(b){return b.id})
-    if(bids.length) await sb.from('bloque_ejercicios').delete().in('bloque_id',bids)
-    await sb.from('bloques').delete().eq('sesion_id',s.id)
+    // c86 · un solo DELETE atómico: bloques y líneas caen en cascada (FK ON DELETE CASCADE); antes eran tres borrados sueltos sin verificar
     const rd = await sb.from('sesiones_protocolo').delete().eq('id',s.id)
     if(rd.error) throw rd.error
     toast('Sesión eliminada')
     const proto=P.proto
     await loadSala()
     abrirPlan(P.pid, proto)
-  }catch(e){ toast('Eliminar: '+(e.message||'')) }
+  }catch(e){ toast(/foreign key|violates|23503/i.test(String(e.message||e.code||'')) ? 'Esta sesión tiene historial ligado (extras, saltos o solicitudes): se protege, no se elimina.' : 'Eliminar: '+(e.message||'')) }
 }
 function abrirSesOpc(){
   const s=P.sesiones[P.tab]; if(!s) return
@@ -5406,7 +5405,7 @@ function plRenombrar(id){
     syncEnvio()
     const r=await sb.rpc('koach_renombrar_sesion',{p_sesion:id, p_nombre:nombre})
     if (r.error){ syncErr(r.error.message); toast('No se pudo renombrar: '+r.error.message); return }
-    x.nombre=r.data.nombre; x.objetivo=r.data.nombre; syncOk(); plRender(); toast('Nombre guardado ✓')
+    x.nombre=r.data.nombre; x.objetivo=r.data.nombre; syncOk(); plRender(); toast('Nombre guardado ✓'); try{ plLeerRev() }catch(_){}   // c86 · renombrar bumpea plan_revision
   })
 }
 async function plMover(id, d){
@@ -6245,6 +6244,7 @@ function plSaveUI(estado){
   if (ind){ ind.textContent = sucio ? 'BORRADOR · SIN PUBLICAR' : 'PUBLICADO ✓'; ind.className='plInd'+(sucio?' is-dirty':'') }
   // c83 · cabecera de escritorio: estado + un solo botón
   const hb=document.getElementById('plPcBtn'), hs=document.getElementById('plPcPub')
+  if (hb && hs && P && P.ro){ hb.textContent='CICLO CERRADO'; hb.disabled=true; hs.textContent='SOLO LECTURA'; hs.className='plPc__pub'; return }
   if (hb && hs){ const act=plProtoActivo()
     hb.textContent = !act ? (E==='saving'?'PUBLICANDO…':'PUBLICAR Y APLICAR →') : {ok:'PUBLICADO ✓', dirty:'PUBLICAR AL SOCIO →', saving:'PUBLICANDO…', done:'PUBLICADO ✓', err:'REINTENTAR'}[E]
     hb.disabled = act && (E==='ok' || E==='saving' || E==='done')
@@ -6253,7 +6253,7 @@ function plSaveUI(estado){
 }
 async function plReabrir(){
   const nivel=PL.nivel, w=PL.w, sid=plSesActual()&&plSesActual().id, y=window.scrollY
-  await abrirPlan(P.pid, P.proto, P.bib?{modo:'bib', soloSesion:sid}:(P.base?{modo:'base'}:undefined))
+  await abrirPlan(P.pid, P.proto, P.bib?{modo:'bib', soloSesion:sid}:(P.base?{modo:'base'}:{reusarHist:true}))
   PL.nivel=nivel; PL.w=w
   const i=P.sesiones.findIndex(function(s){return s.id===sid}); if(i>-1) P.tab=i
   pintarPlan(); window.scrollTo(0,y)
@@ -6278,7 +6278,7 @@ async function plGuardar(){
   const s2=plSesActual()
   if (!s2 || plFirma(s2)!==firma){ console.error('[guardar sesión] verificación: la versión releída no coincide'); plSaveUI('err'); toast('Se guardó, pero la verificación no coincide. Revisa la sesión.'); return false }
   plSaveUI('done'); setTimeout(function(){ plSaveUI() }, 1800)
-  plLeerRev()
+  // c86 · plan_revision ya la relee abrirPlan (plReabrir): sin segunda lectura
   if (P && P._remoto){ P._remoto=false; setTimeout(function(){ socRefrescar('tras-guardar') }, 300) }   // c11.5: trae lo que llegó mientras editabas
   return true
 }
@@ -6316,7 +6316,7 @@ async function cargarHistorialCargas(socioId){
   if (!socioId) return
   const r=await sb.rpc('koach_historial_cargas',{p_socio:socioId})
   if (r.error){ console.error('[cargas] historial', r.error); return }
-  HIST=r.data||{}
+  HIST=r.data||{}; window._histSocio=socioId
   Object.keys(HIST).forEach(function(ej){ const u=HIST[ej].ultimo||{}
     ULT[ej]={ peso_kg:u.peso, reps_realizadas:u.reps, fecha:u.fecha, sesion:u.sesion, sets:u.sets, sesiones_registro:null } })
 }
@@ -7816,6 +7816,8 @@ async function aplicarProgramaGo(){
   if(r.error){ toast('Aplicar: '+r.error.message); return }
   document.getElementById('pEstado').textContent='ACTIVO'; if (P&&P.proto) P.proto.estado='activo'; try{ plSaveUI() }catch(_){}
   toast('✓ Programa aplicado — '+nomDe(F.id).split(' ')[0]+' ya entrena esta versión')
+  // c86 · activar bumpea plan_revision (trigger koach_bump_plan): se relee para que el próximo PUBLICAR no acuse un falso conflicto
+  try{ await plLeerRev() }catch(_){}
   await loadSala()
 }
 
