@@ -335,7 +335,12 @@ button.bxI:hover,button.bxI:focus-visible{transform:translateY(-2px);box-shadow:
 #vPlan.plDesk .tbBoard{flex:1 1 auto;min-height:0;align-items:stretch;margin-top:0;padding-top:12px}
 #vPlan.plDesk .tbCol{min-height:0;overflow-y:auto;overscroll-behavior:contain;scrollbar-width:thin;scrollbar-color:rgba(18,18,18,.2) transparent}
 #vPlan.plDesk .tbInsp{min-height:0;overflow-y:auto;overscroll-behavior:contain}
-#vPlan.plDesk .plDock{margin-top:8px}
+#vPlan.plDesk #pGuardia{display:none !important}
+#vPlan.plDesk .plPc__a{gap:8px}
+#vPlan.plDesk .plPc__pub{font-family:'Space Mono',var(--font-mono);font-size:9.5px;letter-spacing:.12em;color:#5E5D59;padding:0 10px 0 0;white-space:nowrap}
+#vPlan.plDesk .plPc__pub.is-dirty{color:#121212;font-weight:700}
+#vPlan.plDesk .plPc__btn{min-height:38px;padding:0 16px;border:0;border-radius:10px;background:#121212;color:#F4F3F0;font-family:'Space Mono',var(--font-mono);font-size:11px;letter-spacing:.12em;cursor:pointer;white-space:nowrap}
+#vPlan.plDesk .plPc__btn:disabled{background:rgba(18,18,18,.08);color:#5E5D59;cursor:default}
 /* tablero: el bloque activo sobresale; los demás quedan atrás */
 .tbBoard{padding:12px 4px 10px;margin:-8px -4px 0}
 .tbCol{background:#EFEEEA;border:1px solid rgba(18,18,18,.08);transition:transform .28s cubic-bezier(.2,.8,.2,1), box-shadow .28s ease, background .22s ease}
@@ -3810,6 +3815,7 @@ function plPerfilPintar(){ const v=document.getElementById('vPlan'), el=document
   try{ const nav=document.getElementById('pNav'), hdr=v.querySelector('.plHdr'), tabs=document.getElementById('pTabs')
     if (nav && hdr){ if (on && nav.parentNode!==hdr) hdr.insertBefore(nav, tabs); else if (!on && nav.parentNode===hdr) hdr.parentNode.insertBefore(nav, hdr.nextSibling) } }catch(_){}
   if(!on){ el.innerHTML=''; return } v.classList.remove('plCompacto')
+  setTimeout(function(){ try{ plSaveUI() }catch(_){} },0)
   const a=(C.asig&&C.asig[F.id])||{}, pr=a.protocolos||P.proto||{}, N=plN(), w=(typeof PL!=='undefined'&&PL.w)||a.semana_actual||1
   const vig=a.semana_actual||1, sv=plSesSem(vig), hechas=sv.filter(function(x){ return PL.hecho&&PL.hecho[x.id] }).length
   const est=((document.getElementById('fEstado')||{}).textContent||'').trim() || (P.ro?'CICLO CERRADO':'ACTIVA')
@@ -3818,7 +3824,12 @@ function plPerfilPintar(){ const v=document.getElementById('vPlan'), el=document
     '<div class="plPc__id"><div class="plPc__n"><b>'+plEsc(nomDe(F.id))+'</b><span class="plPc__st">'+plEsc(est.toUpperCase())+'</span></div>'+
       '<div class="plPc__p">'+plEsc(prog)+(prog?' · ':'')+'CICLO '+(a.ciclo_actual||1)+' · SEMANA '+vig+'/'+N+' · '+hechas+'/'+sv.length+' SESIONES ESTA SEMANA'+(w!==vig?' · EDITANDO S'+w:'')+'</div></div>'+
     '<div class="plPc__s"><div><b>'+hechas+'<i>/'+sv.length+'</i></b><small>ESTA SEMANA</small></div><div><b>S'+w+'</b><small>EDITANDO</small></div></div>'+
-    '<div class="plPc__a"><span class="rol">'+plEsc(((document.getElementById('pEstado')||{}).textContent||'').trim())+'</span><a href="coach.html#/socio/'+F.id+'" onclick="return plSocClick(event)">← PERFIL</a><button type="button" onclick="menuRutina()" aria-label="Más opciones">•••</button></div>' }
+    '<div class="plPc__a"><span class="rol">'+plEsc(((document.getElementById('pEstado')||{}).textContent||'').trim())+'</span>'+
+      '<span class="plPc__pub" id="plPcPub"></span><button type="button" class="plPc__btn" id="plPcBtn" onclick="plAccion()">PUBLICAR</button>'+
+      '<a href="coach.html#/socio/'+F.id+'" onclick="return plSocClick(event)">← PERFIL</a><button type="button" onclick="menuRutina()" aria-label="Más opciones">•••</button></div>' }
+/* c83 · una sola acción en la cabecera: si el programa aún es borrador → PUBLICAR Y APLICAR (guarda y activa); si ya está activo → PUBLICAR AL SOCIO */
+function plProtoActivo(){ return String((P&&P.proto&&P.proto.estado)||'').toLowerCase()==='activo' }
+async function plAccion(){ if (P&&P.ro){ toast('Ciclo cerrado: solo lectura'); return } if (plProtoActivo()) await plGuardar(); else await plAplicar() }
 function plTbAct(bi){ TB.bi=bi; document.querySelectorAll('#tbBoard .tbCol').forEach(function(c){ c.classList.toggle('act', +c.dataset.bi===bi) }) }
 // ═══════════ c75 · TABLERO DE SESIÓN (escritorio) ═══════════
 // Misma fuente y mismas acciones del planificador (stepSets/stepDesc/stepItem/editKg/editReps/elegirEj/quitarEj/plGuardar):
@@ -6175,6 +6186,13 @@ function plSaveUI(estado){
   btn.textContent = {ok:'PUBLICADO', dirty:'PUBLICAR AL SOCIO →', saving:'PUBLICANDO…', done:'PUBLICADO', err:'REINTENTAR'}[E]
   document.getElementById('plSaveMsg').textContent = {ok:'EL SOCIO VE ESTA VERSIÓN ✓', dirty:'BORRADOR · EL SOCIO AÚN NO LO VE', saving:'PUBLICANDO…', done:'PUBLICADO AL SOCIO ✓', err:'NO SE PUBLICÓ'}[E]
   if (ind){ ind.textContent = sucio ? 'BORRADOR · SIN PUBLICAR' : 'PUBLICADO ✓'; ind.className='plInd'+(sucio?' is-dirty':'') }
+  // c83 · cabecera de escritorio: estado + un solo botón
+  const hb=document.getElementById('plPcBtn'), hs=document.getElementById('plPcPub')
+  if (hb && hs){ const act=plProtoActivo()
+    hb.textContent = !act ? (E==='saving'?'PUBLICANDO…':'PUBLICAR Y APLICAR →') : {ok:'PUBLICADO ✓', dirty:'PUBLICAR AL SOCIO →', saving:'PUBLICANDO…', done:'PUBLICADO ✓', err:'REINTENTAR'}[E]
+    hb.disabled = act && (E==='ok' || E==='saving' || E==='done')
+    hs.textContent = !act ? (sucio?'BORRADOR · SIN PUBLICAR':'PROGRAMA EN BORRADOR') : {ok:'EL SOCIO VE ESTA VERSIÓN', dirty:'BORRADOR · EL SOCIO AÚN NO LO VE', saving:'PUBLICANDO…', done:'PUBLICADO AL SOCIO', err:'NO SE PUBLICÓ'}[E]
+    hs.className='plPc__pub'+((sucio||!act||E==='err')?' is-dirty':'') }
 }
 async function plReabrir(){
   const nivel=PL.nivel, w=PL.w, sid=plSesActual()&&plSesActual().id, y=window.scrollY
@@ -7727,7 +7745,7 @@ function mgRevisar(){
 async function aplicarProgramaGo(){
   const r=await sb.from('protocolos').update({estado:'activo'}).eq('id',P.pid)
   if(r.error){ toast('Aplicar: '+r.error.message); return }
-  document.getElementById('pEstado').textContent='ACTIVO'
+  document.getElementById('pEstado').textContent='ACTIVO'; if (P&&P.proto) P.proto.estado='activo'; try{ plSaveUI() }catch(_){}
   toast('✓ Programa aplicado — '+nomDe(F.id).split(' ')[0]+' ya entrena esta versión')
   await loadSala()
 }
