@@ -308,6 +308,34 @@ button.bxI:hover,button.bxI:focus-visible{transform:translateY(-2px);box-shadow:
 #vPlan.plDesk .plHdr .mtabs .mtab .sN{font-size:11px;margin:0}
 #vPlan.plDesk .plHdr .mtabs .mtab .sT{font-size:15px;margin:0;white-space:nowrap}
 #vPlan.plDesk .plHdr .mtabs .tabOpc{position:static;margin-left:4px}
+/* ═══ c82 · ESCRITORIO EN UNA PANTALLA: cabecera de dos filas (perfil · orientación + pestañas + acciones), tablero al alto restante ═══ */
+#vPlan.plDesk .plHdr{grid-template-columns:auto minmax(0,1fr) auto;padding-top:8px;padding-bottom:0;row-gap:6px}
+#vPlan.plDesk .plPc{grid-column:1/-1;grid-row:1;padding:8px 14px;gap:14px;border-radius:16px;margin-bottom:0;grid-template-columns:auto minmax(0,1fr) auto}
+#vPlan.plDesk .plPc__av,#vPlan.plDesk .plPc__av .kav{width:42px !important;height:42px !important;font-size:17px !important}
+#vPlan.plDesk .plPc__n b{font-size:19px}
+#vPlan.plDesk .plPc__st{font-size:9.5px;padding:2px 7px;border-radius:7px}
+#vPlan.plDesk .plPc__p{font-size:10.5px;margin-top:3px}
+#vPlan.plDesk .plPc__s,#vPlan.plDesk .plPc__a .rol{display:none}
+#vPlan.plDesk .plPc__a a,#vPlan.plDesk .plPc__a button{min-height:36px;padding:0 12px;font-size:10.5px;border-radius:10px}
+#vPlan.plDesk #pNav{grid-column:1;grid-row:2;display:flex !important;align-items:stretch;gap:6px;margin:0;flex-wrap:nowrap}
+#vPlan.plDesk #pNav .plCrumb{min-height:40px;padding:4px 12px;border-radius:10px;font-size:13px !important}
+#vPlan.plDesk #pNav .plCrumb small{font-size:9px !important;margin-bottom:1px}
+#vPlan.plDesk #pNav .plCrumb:last-child:not(:first-child){display:none} /* la sesión ya está en la pestaña activa */
+#vPlan.plDesk #pNav .plSep{align-self:center}
+#vPlan.plDesk .plHdr .mtabs{grid-column:2;grid-row:2;margin:0}
+#vPlan.plDesk .plHdr .mtabs .mtab{min-height:40px;padding:4px 12px;border-radius:10px;gap:8px}
+#vPlan.plDesk .plHdr .mtabs .mtab .sT{font-size:14px}
+#vPlan.plDesk .plHdr .mtabs .mtabAdd__t{display:none}
+#vPlan.plDesk .plHdr .mtabs .mtabAdd .sT::after{content:' SESIÓN';font-size:12px}
+#vPlan.plDesk .plSesBar{grid-column:3;grid-row:2;margin:0}
+#vPlan.plDesk .plSesBar button{min-height:40px;padding:0 12px;font-size:10.5px}
+#vPlan.plDesk .tbHead{margin:8px 0 6px}
+#vPlan.plDesk .tbWrap{align-items:stretch;height:var(--tbH,auto);min-height:0}
+#vPlan.plDesk .tbWrap>div:first-child{min-height:0;display:flex;flex-direction:column}
+#vPlan.plDesk .tbBoard{flex:1 1 auto;min-height:0;align-items:stretch;margin-top:0;padding-top:12px}
+#vPlan.plDesk .tbCol{min-height:0;overflow-y:auto;overscroll-behavior:contain;scrollbar-width:thin;scrollbar-color:rgba(18,18,18,.2) transparent}
+#vPlan.plDesk .tbInsp{min-height:0;overflow-y:auto;overscroll-behavior:contain}
+#vPlan.plDesk .plDock{margin-top:8px}
 /* tablero: el bloque activo sobresale; los demás quedan atrás */
 .tbBoard{padding:12px 4px 10px;margin:-8px -4px 0}
 .tbCol{background:#EFEEEA;border:1px solid rgba(18,18,18,.08);transition:transform .28s cubic-bezier(.2,.8,.2,1), box-shadow .28s ease, background .22s ease}
@@ -3713,7 +3741,7 @@ function pintarPlan(){ setTimeout(function(){ try{ plSaveUI(); rtSyncPlan() }cat
   const _vp=document.getElementById('vPlan')
   document.documentElement.classList.toggle('plTb-on', plTbOn())
   plPerfilPintar()
-  if (plTbOn()){ _vp.classList.add('plTb'); document.getElementById('pBloques').innerHTML=plTbHTML(ses); calcDose(); if (plActivo()) plRender(); plTbWire(); return }
+  if (plTbOn()){ _vp.classList.add('plTb'); document.getElementById('pBloques').innerHTML=plTbHTML(ses); calcDose(); if (plActivo()) plRender(); plTbWire(); plTbAjustar(); return }
   _vp.classList.remove('plTb')
   const htmlBloques = !ses.bloques.length ? '<div class="glass bq plVacio"><b>'+String(ses.nombre||'SESIÓN').toUpperCase()+'</b><span>Esta sesión todavía no tiene bloques.</span></div>' : ses.bloques.map(function(b,bi){
     const _be=(OB.estado||{})[b.bId]
@@ -3777,14 +3805,18 @@ function pintarPlan(){ setTimeout(function(){ try{ plSaveUI(); rtSyncPlan() }cat
 function plDeskOn(){ return window.innerWidth>=1200 }
 function plPerfilPintar(){ const v=document.getElementById('vPlan'), el=document.getElementById('plPc'); if(!v||!el) return
   const on = plDeskOn() && !!P && !P.bib && !P.base && typeof F!=='undefined' && !!F
-  v.classList.toggle('plDesk', on); if(!on){ el.innerHTML=''; return } v.classList.remove('plCompacto')
+  v.classList.toggle('plDesk', on)
+  // c82 · la orientación (ciclo › semana) vive dentro de la cabecera en escritorio; vuelve a su sitio bajo la cabecera si no
+  try{ const nav=document.getElementById('pNav'), hdr=v.querySelector('.plHdr'), tabs=document.getElementById('pTabs')
+    if (nav && hdr){ if (on && nav.parentNode!==hdr) hdr.insertBefore(nav, tabs); else if (!on && nav.parentNode===hdr) hdr.parentNode.insertBefore(nav, hdr.nextSibling) } }catch(_){}
+  if(!on){ el.innerHTML=''; return } v.classList.remove('plCompacto')
   const a=(C.asig&&C.asig[F.id])||{}, pr=a.protocolos||P.proto||{}, N=plN(), w=(typeof PL!=='undefined'&&PL.w)||a.semana_actual||1
   const vig=a.semana_actual||1, sv=plSesSem(vig), hechas=sv.filter(function(x){ return PL.hecho&&PL.hecho[x.id] }).length
   const est=((document.getElementById('fEstado')||{}).textContent||'').trim() || (P.ro?'CICLO CERRADO':'ACTIVA')
   const prog=[pr.programa, pr.nivel].filter(Boolean).join(' · ').toUpperCase()
   el.innerHTML='<button type="button" class="plPc__av" onclick="plSocClick(event)" aria-label="Volver al perfil de '+plEsc(nomDe(F.id))+'">'+(typeof avSocio==='function'?avSocio(F.id):'')+'</button>'+
     '<div class="plPc__id"><div class="plPc__n"><b>'+plEsc(nomDe(F.id))+'</b><span class="plPc__st">'+plEsc(est.toUpperCase())+'</span></div>'+
-      '<div class="plPc__p">'+plEsc(prog)+(prog?' · ':'')+'SEMANA '+vig+'/'+N+' · CICLO '+(a.ciclo_actual||1)+'</div></div>'+
+      '<div class="plPc__p">'+plEsc(prog)+(prog?' · ':'')+'CICLO '+(a.ciclo_actual||1)+' · SEMANA '+vig+'/'+N+' · '+hechas+'/'+sv.length+' SESIONES ESTA SEMANA'+(w!==vig?' · EDITANDO S'+w:'')+'</div></div>'+
     '<div class="plPc__s"><div><b>'+hechas+'<i>/'+sv.length+'</i></b><small>ESTA SEMANA</small></div><div><b>S'+w+'</b><small>EDITANDO</small></div></div>'+
     '<div class="plPc__a"><span class="rol">'+plEsc(((document.getElementById('pEstado')||{}).textContent||'').trim())+'</span><a href="coach.html#/socio/'+F.id+'" onclick="return plSocClick(event)">← PERFIL</a><button type="button" onclick="menuRutina()" aria-label="Más opciones">•••</button></div>' }
 function plTbAct(bi){ TB.bi=bi; document.querySelectorAll('#tbBoard .tbCol').forEach(function(c){ c.classList.toggle('act', +c.dataset.bi===bi) }) }
@@ -3895,6 +3927,12 @@ function plTbMover(beId,tbi,pos){ plTbMenuCerrar(); const x=planItem(beId); if(!
   ;[x.b,dst].forEach(function(b){ b.items.forEach(function(it,i){ it.orden=i+1 }) })
   TB.sel=beId; TB.bi=tbi; plDirty(); repintarConservando()
   if (x.b!==dst) toast(x.it.nombre+' → B'+(tbi+1)+' · en borrador') }
+/* c82 · el tablero ocupa exactamente el alto que queda entre la cabecera y la barra inferior; cada columna hace scroll por dentro */
+function plTbAjustar(){ try{ const v=document.getElementById('vPlan'), w=document.querySelector('#vPlan .tbWrap'); if(!v||!w||!v.classList.contains('plDesk')){ if(w) w.style.removeProperty('--tbH'); return }
+  const dock=document.getElementById('pGuardia'), top=w.getBoundingClientRect().top+window.scrollY, dh=dock?dock.getBoundingClientRect().height:80
+  let h=Math.max(360, window.innerHeight-top-dh-10); w.style.setProperty('--tbH', h+'px')
+  const over=document.documentElement.scrollHeight-window.innerHeight; if (over>0) w.style.setProperty('--tbH', Math.max(360,h-over)+'px') }catch(_){} }
+window.addEventListener('resize', function(){ clearTimeout(window._tbAjT); window._tbAjT=setTimeout(plTbAjustar,120) })
 function plTbWire(){ const bd=document.getElementById('tbBoard'); if(!bd) return
   // el bloque tocado pasa al frente (en click, no en pointerdown: moverlo bajo el puntero cortaría el arrastre)
   bd.addEventListener('click', function(e){ const c=e.target.closest('.tbCol'); if(c && +c.dataset.bi!==TB.bi) plTbAct(+c.dataset.bi) }, true)
