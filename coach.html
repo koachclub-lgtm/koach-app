@@ -1293,9 +1293,25 @@ html.selAbierto,html.selAbierto body{overflow:hidden}
 .selAct{font-family:var(--font-mono);font-size:11px;letter-spacing:.1em;padding:4px 8px;border-radius:8px;background:#121212;color:#F4F3F0}
 #selEj .selRow.act{background:rgba(18,18,16,.05)}
 .selVacio{padding:40px 0;text-align:center}.selVacio p{font-family:var(--font-mono);font-size:13px;letter-spacing:.12em;margin:0 0 14px}
+/* c78 · selector de ejercicios en cápsulas: toda la pantalla, pills por grupo y alfabéticas */
+.selM__c{width:min(1480px,calc(100vw - 48px));height:calc(100dvh - 48px)}
+#selEj .selPills{display:flex;flex-wrap:wrap;gap:8px 8px;padding:10px 0 20px}
+#selEj .selRow{display:inline-flex;align-items:center;gap:8px;min-height:40px;padding:0 14px;border:1px solid rgba(18,18,16,.22);border-top:1px solid rgba(18,18,16,.22);border-radius:999px;background:#fff;color:#121212;font:inherit;cursor:pointer;text-align:left;transition:border-color .15s ease,background-color .15s ease}
+#selEj .selRow:hover{border-color:#121212}
+#selEj .selRow:active{background:rgba(18,18,16,.06)}
+#selEj .selRow.kb{box-shadow:0 0 0 2px #121212}
+#selEj .selRow.act{background:#121212;color:#F4F3F0;border-color:#121212}
+#selEj .selN{font-family:var(--font-display);font-size:13px;font-weight:700;letter-spacing:-.01em;white-space:nowrap}
+#selEj .selImp{font-size:9px;letter-spacing:.08em;color:#8E8D88;white-space:nowrap}
+#selEj .selRow.act .selImp{color:rgba(244,243,240,.6)}
+#selEj .selRow.act .selN{color:#F4F3F0}
+#selEj .selRow:hover,#selEj .selRow.kb{background:#fff}#selEj .selRow.act:hover{background:#121212}
+#selEj .selN{flex:none}
+#selEj .selAct{font-size:9px;padding:3px 7px;background:#F4F3F0;color:#121212}
+#selEj .selGH{padding:16px 2px 6px;border-bottom:1.5px solid #121212}
 @media (max-width:1023px){ .selM__c{width:calc(100vw - 32px);height:calc(100dvh - 48px)} }
 @media (max-width:640px){ .selM{align-items:stretch} .selM__c{width:100vw;height:100dvh;border-radius:0;padding-top:env(safe-area-inset-top,0px)}
-  .selM__h{padding:12px 14px 8px} .selM__l{padding:0 14px calc(24px + env(safe-area-inset-bottom,0px))} #selEj .selN{font-size:16px} }
+  .selM__h{padding:12px 14px 8px} .selM__l{padding:0 14px calc(24px + env(safe-area-inset-bottom,0px))} #selEj .selN{font-size:14px} #selEj .selRow{min-height:44px} }
 
 /* ═══ c10.9 · BARRA DE ACCIONES ÚNICA DEL PLANIFICADOR ═══ */
 .plDock{position:sticky;bottom:0;z-index:40;margin:18px -4px 0;padding:10px 4px calc(10px + env(safe-area-inset-bottom,0px));background:linear-gradient(180deg,rgba(243,242,239,0),var(--koach-bg,#F3F2EF) 28%)}
@@ -4275,10 +4291,11 @@ function pintarSelector(){
     return !q || _selNorm(e.nombre).indexOf(q)>-1 })
   const gr=selGrupos(lista)
   document.getElementById('selLista').innerHTML = gr.length ? gr.map(function(G){
-    return '<div class="selGH" role="presentation"><b>'+(SIGLA[G.g]||G.g)+'</b><small>'+G.g+' · '+G.items.length+'</small></div>'+
+    // c78 · cada ejercicio es una cápsula; las cápsulas fluyen una al lado de la otra, por grupo (orden funcional) y alfabéticas dentro del grupo
+    return '<div class="selGH" role="presentation"><b>'+(SIGLA[G.g]||G.g)+'</b><small>'+G.g+' · '+G.items.length+'</small></div><div class="selPills" role="group" aria-label="'+plEsc(G.g)+'">'+
       G.items.map(function(e){ const act = SEL.actual && String(e.id)===String(SEL.actual)
-        return '<div class="selRow'+(act?' act':'')+'" role="option" tabindex="-1" aria-selected="false" onclick="elegirEj(\''+e.id+'\')"><span class="selN">'+plEsc(e.nombre)+'</span>'+
-          (act?'<span class="selAct">ACTUAL</span>':'')+(e.implemento?'<span class="selImp">'+String(e.implemento).replace('_',' ')+'</span>':'')+'</div>' }).join('')
+        return '<button type="button" class="selRow'+(act?' act':'')+'" role="option" tabindex="-1" aria-selected="false" onclick="elegirEj(\''+e.id+'\')"><span class="selN">'+plEsc(e.nombre)+'</span>'+
+          (act?'<span class="selAct">ACTUAL</span>':'')+(e.implemento?'<span class="selImp">'+String(e.implemento).replace('_',' ')+'</span>':'')+'</button>' }).join('')+'</div>'
   }).join('') : '<div class="selVacio"><p>NO ENCONTRAMOS ESE EJERCICIO</p><button type="button" class="eBtn" onclick="document.getElementById(\'selBusca\').value=\'\';setGrupoSel(null)">LIMPIAR BÚSQUEDA</button></div>'
 }
 async function elegirEj(ejId, confirmado){
