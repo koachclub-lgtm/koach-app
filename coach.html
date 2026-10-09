@@ -276,6 +276,103 @@ button.bxI:hover,button.bxI:focus-visible{transform:translateY(-2px);box-shadow:
 @keyframes ld3dBrillo{0%{background-position:120% 0}55%,100%{background-position:-60% 0}}
 @keyframes ld3dPiso{0%,100%{transform:scaleX(.82);opacity:.7}50%{transform:scaleX(1.05);opacity:1}}
 @media (prefers-reduced-motion:reduce){ .ld3d__obj,.ld3d__sheen,.ld3d__floor{animation:none} }
+
+/* ═══ c75 · CICLO + SEMANA en una pantalla: tira de semanas + sesiones con sus ejercicios ═══ */
+.plWs{display:grid;grid-template-columns:repeat(auto-fit,minmax(118px,1fr));gap:8px;margin:0 0 14px}
+.plWsB{position:relative;text-align:left;border:1px solid rgba(18,18,18,.12);background:#F6F5F2;border-radius:14px;padding:10px 12px 12px;cursor:pointer;display:grid;gap:3px;min-height:92px;color:#121212}
+.plWsB:hover{border-color:#121212}
+.plWsB .n{font-family:'Space Mono',var(--font-mono);font-weight:700;font-size:20px;line-height:1;display:flex;justify-content:space-between;align-items:center;gap:6px}
+.plWsB .n i{font-style:normal;font-size:9px;font-weight:700;letter-spacing:.1em;padding:2px 6px;border-radius:5px;border:1px solid currentColor}
+.plWsB .d{font-family:'Space Mono',var(--font-mono);font-size:10.5px;letter-spacing:.04em;color:#5E5D59}
+.plWsB .m{font-family:'Space Mono',var(--font-mono);font-size:10.5px;letter-spacing:.04em}
+.plWsB .bar{height:5px;border-radius:3px;background:#E7E6E2;margin-top:4px;overflow:hidden}.plWsB .bar u{display:block;height:100%;background:rgba(43,184,199,.55)}
+.plWsB.on{background:#121212;color:#F4F3F0;border-color:#121212}.plWsB.on .d{color:#AFAEA9}.plWsB.on .bar{background:#3A3A3A}.plWsB.on .bar u{background:#2BB8C7}
+.plWsB.vig .n i{background:#2BB8C7;color:#05282C;border-color:#2BB8C7}
+.plWsB.vacia{opacity:.6}
+.plSes .plSb{min-width:0}
+.plPrev{display:none}
+@media (min-width:1200px){
+  .plSes{flex-wrap:wrap}
+  .plPrev{display:grid;flex:1 0 100%;grid-template-columns:repeat(3,minmax(0,1fr));gap:2px 16px;padding:6px 6px 8px 40px;cursor:pointer}
+  .plPrev h5{margin:0 0 2px;font-family:'Space Mono',var(--font-mono);font-size:10px;letter-spacing:.12em;color:#5E5D59;font-weight:700}
+  .plPrev p{margin:0;display:flex;justify-content:space-between;gap:8px;font-size:12.5px;line-height:1.55;color:#121212}
+  .plPrev p span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .plPrev p em{font-style:normal;font-family:'Space Mono',var(--font-mono);font-size:11px;color:#5E5D59;white-space:nowrap}
+}
+/* ═══ c75 · PLANIFICADOR · TABLERO DE SESIÓN (escritorio ≥1200): un bloque por columna, tarjetas con REPS → KG, panel del ejercicio ═══ */
+#vPlan.plTb #pVivo,#vPlan.plTb #pOrgRow,#vPlan.plTb .plIndRow{display:none !important}
+#vPlan.plTb{max-width:none}
+@media (min-width:1200px){ html.en-plan.plTb-on body{max-width:1640px !important;padding-left:36px;padding-right:36px} }
+.tbWrap>div{min-width:0}
+.tbHead{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin:2px 0 10px}
+.tbHead small{font-family:'Space Mono',var(--font-mono);font-size:10px;letter-spacing:.14em;color:#5E5D59;margin-right:4px}
+.tbChip{font-family:'Space Mono',var(--font-mono);font-size:11px;letter-spacing:.06em;padding:4px 8px;border-radius:7px;background:#fff;border:1px solid rgba(18,18,18,.12)}
+.tbChip b{margin-left:4px}
+.tbWrap{display:grid;grid-template-columns:minmax(0,1fr) clamp(260px,21vw,320px);gap:12px;align-items:start}
+.tbBoard{display:grid;gap:10px;min-width:0;align-items:start;overflow-x:auto;padding-bottom:4px}
+.tbBoard.many{overflow-x:auto;padding-bottom:6px}
+.tbCol{background:#F6F5F2;border:1px solid rgba(18,18,18,.12);border-radius:16px;padding:8px;display:flex;flex-direction:column;gap:6px;min-width:0;min-height:120px}
+.tbCol.over{box-shadow:0 0 0 2px #2BB8C7}
+.tbCol--hecho{border-color:rgba(43,184,199,.5)}
+.tbColH{display:flex;align-items:center;gap:6px;padding:2px 2px 0;min-height:36px}
+.tbColH .c{flex:1;min-width:0;font-family:var(--font-display,inherit);font-weight:800;font-size:14px;letter-spacing:.04em;text-transform:uppercase;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tbColH .c i{font-style:normal;font-family:'Space Mono',var(--font-mono);font-size:10px;letter-spacing:.08em;color:#13808C;margin-left:6px}
+.tbColH .n{font-family:'Space Mono',var(--font-mono);font-size:10.5px;color:#5E5D59;letter-spacing:.08em}
+.tbX{min-height:0 !important;padding:0 !important;width:34px;height:34px;border-radius:9px;border:0;background:rgba(18,18,18,.06);cursor:pointer;font-size:13px;color:#121212}
+.tbX:hover{background:#121212;color:#F4F3F0}
+.tbColP{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.tbMini{display:flex;align-items:center;justify-content:space-between;border:1px solid rgba(18,18,18,.22);border-radius:10px;background:#fff;height:38px;overflow:hidden}
+.tbMini button{width:34px;height:100% !important;min-height:0 !important;padding:0 !important;border:0;background:none;cursor:pointer;font-size:16px;color:#121212}.tbMini button:hover{background:rgba(18,18,18,.07)}
+.tbMini b{font-family:'Space Mono',var(--font-mono);font-size:12px;white-space:nowrap}
+.tbCard{background:#fff;border:1px solid rgba(18,18,18,.12);border-radius:12px;padding:7px 8px 8px 10px;display:grid;grid-template-columns:minmax(0,1fr);gap:6px;cursor:pointer;min-width:0}
+.tbCard.sel{box-shadow:0 0 0 2px #121212}
+.tbCard.drag{opacity:.4}.tbCard.over{box-shadow:0 -3px 0 0 #2BB8C7}
+.tbCard.edit{box-shadow:0 0 0 2px #2BB8C7;position:relative;z-index:6}
+.tbT{display:flex;align-items:center;gap:4px;min-width:0}
+.tbN{flex:1;min-width:0;display:flex;align-items:baseline;gap:8px}
+.tbN b{font-weight:700;font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:#121212}
+.tbN em{flex:none;font-style:normal;font-family:'Space Mono',var(--font-mono);font-size:9.5px;letter-spacing:.12em;color:#5E5D59}
+.tbIc{min-height:0 !important;padding:0 !important;width:34px;height:34px;flex:none;border-radius:9px;border:1px solid rgba(18,18,18,.22);background:#fff;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;color:#121212;font-family:'Space Mono',var(--font-mono);font-weight:700}
+.tbIc svg{width:15px;height:15px}.tbIc:hover,.tbIc[aria-pressed="true"]{background:#121212;color:#F4F3F0;border-color:#121212}
+.tbIc--d{border:0;background:rgba(18,18,18,.06)}
+.tbCtl{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:6px}
+.tbSt{display:grid;grid-template-columns:34px minmax(0,1fr) 34px;align-items:center;border:1px solid rgba(18,18,18,.22);border-radius:10px;background:#F6F5F2;height:46px;overflow:hidden;min-width:0}
+.tbSt button{height:100% !important;min-height:0 !important;min-width:0 !important;padding:0 !important;margin:0 !important;border:0 !important;background:none;font-size:18px;cursor:pointer;color:#121212;line-height:1}.tbSt button:hover{background:rgba(18,18,18,.07)}
+.tbSt label{display:grid;justify-items:center;align-content:center;line-height:1;min-width:0;height:100%;margin:0 !important;padding:0 !important;font-size:inherit}
+.tbSt input{width:100% !important;min-width:0;height:22px !important;line-height:22px;margin:0 !important;border:0 !important;border-radius:0 !important;box-shadow:none !important;background:transparent !important;text-align:center;font-family:'Space Mono',var(--font-mono);font-weight:700;font-size:19px;color:#121212;padding:0}
+.tbSt input.falta{color:#5E5D59}
+.tbSt small{font-family:'Space Mono',var(--font-mono);font-size:9px;line-height:1;letter-spacing:.12em;color:#5E5D59;margin-top:3px}
+.tbSt--fx{grid-template-columns:1fr;border-style:dashed;background:transparent}
+.tbSt--fx span{font-family:'Space Mono',var(--font-mono);font-size:10.5px;letter-spacing:.1em;color:#5E5D59;text-align:center}
+.tbCard .plProg{margin:0;padding:0;border:0;background:none;font-size:10px;line-height:1.35;display:flex;flex-wrap:wrap;gap:4px 8px;align-items:center}
+#vPlan .tbCard .plProg,#vPlan .tbCard .plProg *{font-size:10px !important;letter-spacing:.05em}
+.tbCard .plProg button{min-height:0 !important;padding:2px 6px !important}
+.tbAdd{min-height:40px;border-radius:10px;border:1.5px dashed rgba(18,18,18,.3);background:transparent;font-family:'Space Mono',var(--font-mono);font-size:11px;letter-spacing:.1em;cursor:pointer;color:#121212}
+.tbAdd:hover{border-color:#121212}
+.tbNew{width:44px;display:flex;align-items:center;justify-content:center;writing-mode:vertical-rl;min-height:200px;border-radius:16px;border:1.5px dashed #121212;background:transparent;font-family:'Space Mono',var(--font-mono);font-size:11.5px;letter-spacing:.16em;cursor:pointer;color:#121212}
+.tbSwap{position:relative;flex:1;min-width:0}
+.tbSwap small{display:block;font-family:'Space Mono',var(--font-mono);font-size:9.5px;letter-spacing:.1em;color:#5E5D59;margin-bottom:3px}
+.tbSwap input{width:100%;height:36px;border-radius:9px;border:1.5px solid #121212;padding:0 10px;font-size:15px;font-weight:600;background:#fff;color:#121212}
+.tbSwL{position:absolute;left:0;right:-80px;top:calc(100% + 4px);z-index:40;list-style:none;margin:0;padding:4px;background:#FBFAF8;border:1px solid rgba(18,18,18,.22);border-radius:12px;box-shadow:0 18px 30px -16px rgba(0,0,0,.4);max-height:300px;overflow:auto}
+.tbSwL button{display:flex;justify-content:space-between;align-items:center;gap:8px;width:100%;min-height:40px;padding:0 10px;border:0;border-radius:8px;background:none;cursor:pointer;text-align:left;font-size:14px;color:#121212}
+.tbSwL button:hover,.tbSwL button.act{background:rgba(18,18,18,.07)}
+.tbSwL small{font-family:'Space Mono',var(--font-mono);font-size:10px;letter-spacing:.1em;color:#5E5D59}
+.tbSwL .none{padding:10px;font-family:'Space Mono',var(--font-mono);font-size:11px;color:#5E5D59}
+.tbInsp{position:sticky;top:12px;background:#fff;border:1px solid rgba(18,18,18,.12);border-radius:16px;padding:14px;max-height:calc(100vh - 120px);overflow:auto}
+.tbInsp .k{font-family:'Space Mono',var(--font-mono);font-size:10.5px;letter-spacing:.14em;color:#5E5D59}
+.tbInsp h3{margin:2px 0 0;font-weight:900;font-size:21px;line-height:1.1;color:#121212}
+.tbInsp .pres{font-family:'Space Mono',var(--font-mono);font-weight:700;font-size:19px;margin:12px 0 2px;color:#121212}
+.tbInsp .lab{font-family:'Space Mono',var(--font-mono);font-size:10px;letter-spacing:.14em;color:#5E5D59;margin-top:14px;padding-top:10px;border-top:1px solid rgba(18,18,18,.12)}
+.tbInsp .mut{font-family:'Space Mono',var(--font-mono);font-size:11.5px;color:#5E5D59;letter-spacing:.06em;margin-top:6px}
+.tbInsp .hist{display:grid;grid-template-columns:auto 1fr;gap:5px 10px;margin-top:6px;font-family:'Space Mono',var(--font-mono);font-size:12px}
+.tbInsp .hist span{color:#5E5D59}
+.tbInsp .acts{display:grid;gap:6px;margin-top:14px}
+.tbInsp .acts button{min-height:40px;border-radius:10px;border:1px solid rgba(18,18,18,.22);background:#F6F5F2;font-family:'Space Mono',var(--font-mono);font-size:11.5px;letter-spacing:.1em;cursor:pointer;text-align:left;padding:0 12px;color:#121212}
+.tbInsp .acts button:hover{background:#121212;color:#F4F3F0}
+.tbMenu{position:fixed;z-index:130;min-width:220px;background:#FBFAF8;border:1px solid rgba(18,18,18,.22);border-radius:14px;box-shadow:0 18px 34px -16px rgba(0,0,0,.35);padding:6px}
+.tbMenu button{display:flex;justify-content:space-between;width:100%;min-height:42px;padding:0 12px;border:0;background:none;border-radius:9px;font-family:'Space Mono',var(--font-mono);font-size:12px;letter-spacing:.08em;cursor:pointer;text-align:left;align-items:center;color:#121212}
+.tbMenu button:hover{background:rgba(18,18,18,.06)}.tbMenu small{color:#8E8D88;font-size:10px}.tbMenu hr{border:0;border-top:1px solid rgba(18,18,18,.1);margin:4px 6px}
+@media (pointer:coarse){ .tbSt{height:50px;grid-template-columns:42px minmax(0,1fr) 42px} .tbIc{width:40px;height:40px} .tbMini{height:42px} }
 </style>
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
@@ -3516,6 +3613,11 @@ function pintarPlan(){ setTimeout(function(){ try{ plSaveUI(); rtSyncPlan() }cat
   if(!ses){ document.getElementById('pBloques').innerHTML='<div class="vacio">Sin sesiones</div>'; calcDose(); return }
   if (!ses.bloques.length && !P.bib){ /* sesión vacía: estado inicial claro */ }
   plBarraSesion(ses)
+  // c75 · escritorio: tablero de bloques en columnas
+  const _vp=document.getElementById('vPlan')
+  document.documentElement.classList.toggle('plTb-on', plTbOn())
+  if (plTbOn()){ _vp.classList.add('plTb'); document.getElementById('pBloques').innerHTML=plTbHTML(ses); calcDose(); if (plActivo()) plRender(); plTbWire(); return }
+  _vp.classList.remove('plTb')
   const htmlBloques = !ses.bloques.length ? '<div class="glass bq plVacio"><b>'+String(ses.nombre||'SESIÓN').toUpperCase()+'</b><span>Esta sesión todavía no tiene bloques.</span></div>' : ses.bloques.map(function(b,bi){
     const _be=(OB.estado||{})[b.bId]
     return '<div class="glass bq bq--t'+(bi%2)+(_be?' bq--'+_be:'')+'" data-bi="'+bi+'"><div class="bqh"><span class="bqt">'+bloqueTag(b,bi)+(_be==='hecho'?' <i class="bqEst">✓ COMPLETADO</i>':_be==='curso'?' <i class="bqEst bqEst--c">● EN CURSO</i>':'')+'</span>'+
@@ -3572,6 +3674,129 @@ function pintarPlan(){ setTimeout(function(){ try{ plSaveUI(); rtSyncPlan() }cat
   calcDose()
   if (plActivo()) plRender()
 }
+
+// ═══════════ c75 · TABLERO DE SESIÓN (escritorio) ═══════════
+// Misma fuente y mismas acciones del planificador (stepSets/stepDesc/stepItem/editKg/editReps/elegirEj/quitarEj/plGuardar):
+// solo cambia la disposición. Cada bloque es una columna; la tarjeta trae REPS → KG, ✎ reemplazar en el sitio y ··· acciones.
+const TB={ sel:null, edit:null, act:0 }
+function plTbOn(){ return window.innerWidth>=1200 }
+function plTbTipo(it){ const t=esTiempo(it)
+  return { bw:(it.tipoReg==='BODYWEIGHT_REPS') || (it.tipoReg==null && it.conCarga===false && !t), t:(it.tipoReg==='TIME') || (it.tipoReg==null && t) } }
+function plTbSt(id,val,unit,beId,k,paso,N,que,fn,modo,cls){
+  return '<div class="tbSt"><button type="button" onclick="stepItem(\''+beId+'\',\''+k+'\','+(-paso)+')" aria-label="Disminuir '+que+' de '+N+'">−</button>'+
+    '<label><input id="'+id+'" class="'+(cls||'')+'" value="'+val+'" placeholder="—" inputmode="'+modo+'" onfocus="this.select()" onchange="'+fn+'(\''+beId+'\',this.value)" aria-label="'+que+' de '+N+'"><small>'+unit+'</small></label>'+
+    '<button type="button" onclick="stepItem(\''+beId+'\',\''+k+'\','+paso+')" aria-label="Aumentar '+que+' de '+N+'">+</button></div>' }
+function plTbCard(it,bi){
+  const N=plEsc(String(it.nombre||'ejercicio')), tp=plTbTipo(it), sel=TB.sel===it.beId, ed=TB.edit===it.beId
+  let ctl
+  if (tp.t){ const sv=String(it.reps).replace(/[^0-9]/g,'')||'30'
+    ctl=plTbSt('pi-s-'+it.beId,sv,'SEG',it.beId,'seg',5,N,'segundos','editReps','numeric')+(it.conCarga?plTbSt('pi-k-'+it.beId,it.kg==null?'':KSET.kg(it.kg),'KG',it.beId,'kg',2.5,N,'peso','editKg','decimal',it.kg==null?'falta':''):'<div class="tbSt tbSt--fx"><span>TIEMPO</span></div>') }
+  else if (tp.bw) ctl=plTbSt('pi-r-'+it.beId,plEsc(String(it.reps)),'REPS',it.beId,'reps',1,N,'repeticiones','editReps','numeric')+'<div class="tbSt tbSt--fx"><span>PESO CORPORAL</span></div>'
+  else ctl=plTbSt('pi-r-'+it.beId,plEsc(String(it.reps)),'REPS',it.beId,'reps',1,N,'repeticiones','editReps','numeric')+plTbSt('pi-k-'+it.beId,it.kg==null?'':KSET.kg(it.kg),'KG',it.beId,'kg',2.5,N,'peso','editKg','decimal',it.kg==null?'falta':'')
+  const top = ed ? '<div class="tbSwap"><small>REEMPLAZAR '+N.toUpperCase()+' · MISMAS SERIES Y REPS</small><input id="tbSwQ" autocomplete="off" placeholder="Buscar ejercicio…" aria-label="Buscar ejercicio para reemplazar '+N+'" oninput="plTbSwLista()" onkeydown="plTbSwTecla(event)"><ul class="tbSwL" id="tbSwL" role="listbox"></ul></div>'
+    : '<div class="tbN"><b title="'+N+'">'+N+'</b><em>'+plEsc(SIGLA[it.grupo]||it.grupo||'')+'</em>'+(it.activo===false?'<em>FUERA DE BIBLIOTECA</em>':'')+'</div>'
+  const linea = plActivo() ? plLineaProgresion(it, tp.bw, tp.t) : ''
+  return '<div class="tbCard'+(sel?' sel':'')+(ed?' edit':'')+'" draggable="'+(!ed&&!(P&&P.ro))+'" data-be="'+it.beId+'" data-bi="'+bi+'" id="pl-'+it.beId+'" onclick="plTbSel(event,\''+it.beId+'\')">'+
+    '<div class="tbT">'+top+
+      '<button type="button" class="tbIc" aria-pressed="'+ed+'" aria-label="Reemplazar '+N+'" title="Reemplazar ejercicio" onclick="plTbSwAbrir(\''+it.beId+'\','+bi+')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20h4L19 9l-4-4L4 16v4z"/><path d="M13.5 6.5l4 4"/></svg></button>'+
+      '<button type="button" class="tbIc tbIc--d" aria-label="Acciones de '+N+'" onclick="plTbMenu(event,\''+it.beId+'\')">···</button></div>'+
+    '<div class="tbCtl">'+ctl+'</div>'+linea+'</div>' }
+function plTbChips(ses){ const m={}
+  ses.bloques.forEach(function(b){ b.items.forEach(function(it){ if(it.cuentaDosis===false) return; const g=SIGLA[it.grupo]||it.grupo; if(g) m[g]=(m[g]||0)+(b.sets||0) }) })
+  const e=Object.keys(m).sort(function(a,b){return m[b]-m[a]})
+  return e.length ? '<small>ESTA SESIÓN</small>'+e.map(function(g){ return '<span class="tbChip">'+plEsc(g)+'<b>'+m[g]+'</b></span>' }).join('') : '' }
+function plTbHTML(ses){
+  const nb=ses.bloques.length, all=[]; ses.bloques.forEach(function(b){ b.items.forEach(function(it){ all.push(it.beId) }) })
+  if (!TB.sel || all.indexOf(TB.sel)<0) TB.sel=all[0]||null
+  const cols = ses.bloques.map(function(b,bi){ const _be=(OB.estado||{})[b.bId]
+    return '<section class="tbCol'+(_be==='hecho'?' tbCol--hecho':'')+'" data-bi="'+bi+'" aria-label="'+plEsc(bloqueTag(b,bi))+'">'+
+      '<div class="tbColH"><span class="c">'+plEsc(bloqueTag(b,bi))+(_be==='hecho'?'<i>✓ HECHO</i>':_be==='curso'?'<i>● EN CURSO</i>':'')+'</span><span class="n">'+b.items.length+' EJ</span>'+
+        '<button type="button" class="tbX" title="Eliminar bloque" aria-label="Eliminar '+plEsc(bloqueTag(b,bi))+'" onclick="elimBloque('+bi+')">✕</button></div>'+
+      '<div class="tbColP"><div class="tbMini"><button type="button" onclick="stepSets('+bi+',-1)" aria-label="Menos sets">−</button><b>'+b.sets+' SETS</b><button type="button" onclick="stepSets('+bi+',1)" aria-label="Más sets">+</button></div>'+
+        '<div class="tbMini"><button type="button" onclick="stepDesc('+bi+',-15)" aria-label="Menos descanso">−</button><b>'+b.desc+'s DESC</b><button type="button" onclick="stepDesc('+bi+',15)" aria-label="Más descanso">+</button></div></div>'+
+      b.items.map(function(it){ return plTbCard(it,bi) }).join('')+
+      '<button type="button" class="tbAdd" onclick="abrirSelector(\'agregar\','+bi+',null)">+ EJERCICIO EN B'+(bi+1)+'</button></section>' }).join('')
+  const nuevo = nb<6 ? '<button type="button" class="tbNew" onclick="abrirBloque()" aria-label="Agregar bloque">+ BLOQUE</button>' : '<span></span>'
+  const vacio = !nb ? '<div class="glass emptySes"><h4>'+plEsc(ses.nombre||'SESIÓN')+' · SESIÓN VACÍA</h4><p>Agrega el primer bloque para construirla.</p></div>' : ''
+  return '<div class="tbHead">'+plTbChips(ses)+'</div><div class="tbWrap"><div><div class="tbBoard'+(nb>3?' many':'')+'" id="tbBoard" style="grid-template-columns:repeat('+nb+',minmax(258px,1fr)) 44px">'+cols+nuevo+'</div>'+vacio+'</div>'+
+    '<aside class="tbInsp" id="tbInsp" aria-label="Ejercicio seleccionado">'+plTbInsp()+'</aside></div>' }
+function plTbInsp(){
+  const x=TB.sel?planItem(TB.sel):null; if(!x) return '<div class="mut">SELECCIONA UN EJERCICIO</div>'
+  const it=x.it, b=x.b, ses=P.sesiones[P.tab], bi=ses?ses.bloques.indexOf(b):0, tp=plTbTipo(it)
+  const pres = tp.t ? b.sets+' × '+(String(it.reps).replace(/[^0-9]/g,'')||'30')+' SEG'+(it.conCarga&&it.kg!=null?' · '+KSET.kg(it.kg)+' KG':'')
+    : b.sets+' × '+KSET.txt({reps:it.reps, kg:tp.bw?null:it.kg, bw:tp.bw})
+  const h=HIST[it.ejId]||{}, u=h.ultimo
+  const hist=(h.historial||h.hist||[]).slice(0,5)
+  let otras=[]; if (ses) plSesSem(ses.semana||1).forEach(function(s2){ s2.bloques.forEach(function(b2,j){ b2.items.forEach(function(z){ if(z.ejId===it.ejId && z.beId!==it.beId) otras.push(String(s2.nombre||'').toUpperCase()+' · B'+(j+1)) }) }) })
+  return '<div class="k">'+plEsc(bloqueTag(b,bi))+' · '+plEsc(it.grupo||'')+'</div><h3>'+plEsc(it.nombre||'')+'</h3><div class="pres">'+plEsc(pres)+'</div><div class="mut">PRESCRITO · DESCANSO '+b.desc+'s</div>'+
+    '<div class="lab">ÚLTIMA CARGA REGISTRADA</div>'+(u?'<div class="hist"><span>'+cgF(u.fecha)+'</span><b>'+plEsc(cgSet(u))+'</b>'+hist.slice(1).map(function(r){ return '<span>'+cgF(r.fecha)+'</span><b>'+plEsc(cgSet(r))+'</b>' }).join('')+'</div>':'<div class="mut">SIN REGISTROS PREVIOS</div>')+
+    '<div class="lab">ESTA SEMANA</div><div class="mut">'+(otras.length?'TAMBIÉN EN '+plEsc(otras.join(' · ')):'SOLO EN ESTA SESIÓN')+'</div>'+
+    '<div class="acts">'+(plActivo()?'<button type="button" onclick="cgDrawer(\''+it.ejId+'\',\''+it.beId+'\')">HISTORIAL DE CARGAS →</button>':'')+
+      '<button type="button" onclick="plTbSwAbrir(\''+it.beId+'\','+bi+')">REEMPLAZAR EJERCICIO ✎</button>'+
+      '<button type="button" onclick="quitarEj(\''+it.beId+'\')">QUITAR DE B'+(bi+1)+'</button></div>' }
+function plTbSel(ev,beId){ if(ev.target.closest('button,input,a,ul')) return
+  TB.sel=beId; document.querySelectorAll('#tbBoard .tbCard.sel').forEach(function(x){ x.classList.remove('sel') }); ev.currentTarget.classList.add('sel')
+  const i=document.getElementById('tbInsp'); if(i) i.innerHTML=plTbInsp() }
+// ✎ reemplazar en el sitio: buscador sobre el catálogo; elegir = misma ruta del selector (elegirEj, aviso de repetidos incluido)
+function plTbSwAbrir(beId,bi){ if(P&&P.ro) return
+  TB.edit = TB.edit===beId ? null : beId; TB.sel=beId
+  repintarConservando()
+  const q=document.getElementById('tbSwQ'); if(q){ q.focus({preventScroll:true}); plTbSwLista() } }
+function plTbSwLista(){ const q=_selNorm((document.getElementById('tbSwQ')||{}).value||''), x=planItem(TB.edit); if(!x) return
+  const enSem={}; const ses=P.sesiones[P.tab]; if (ses) plSesSem(ses.semana||1).forEach(function(s2){ s2.bloques.forEach(function(b2){ b2.items.forEach(function(z){ enSem[z.ejId]=1 }) }) })
+  const L=(EJCAT||[]).filter(function(e){ return e.activo!==false && String(e.id)!==String(x.it.ejId) && (!q || _selNorm(e.nombre).indexOf(q)>-1 || _selNorm(e.grupo_muscular).indexOf(q)>-1) })
+    .sort(function(a,b){ return (q?0:((a.grupo_muscular===x.it.grupo?0:1)-(b.grupo_muscular===x.it.grupo?0:1))) || SEL_COL.compare(a.nombre||'',b.nombre||'') }).slice(0,10)
+  TB.act=0
+  const el=document.getElementById('tbSwL'); if(!el) return
+  el.innerHTML = L.length ? L.map(function(e,i){ return '<li><button type="button" class="'+(i?'':'act')+'" role="option" onmousedown="event.preventDefault()" onclick="plTbSwElegir(\''+e.id+'\')"><span>'+plEsc(e.nombre)+'</span><small>'+(enSem[e.id]?'YA EN LA SEMANA · ':'')+plEsc(SIGLA[e.grupo_muscular]||e.grupo_muscular||'')+'</small></button></li>' }).join('') : '<li class="none">SIN RESULTADOS</li>' }
+function plTbSwTecla(e){ const bs=[].slice.call(document.querySelectorAll('#tbSwL button'))
+  if (e.key==='Escape'){ e.preventDefault(); TB.edit=null; repintarConservando(); return }
+  if ((e.key==='ArrowDown'||e.key==='ArrowUp') && bs.length){ e.preventDefault(); TB.act=(TB.act+(e.key==='ArrowDown'?1:-1)+bs.length)%bs.length; bs.forEach(function(b,i){ b.classList.toggle('act',i===TB.act) }); bs[TB.act].scrollIntoView({block:'nearest'}); return }
+  if (e.key==='Enter' && bs[TB.act]){ e.preventDefault(); bs[TB.act].click() } }
+function plTbSwElegir(ejId){ const x=planItem(TB.edit); if(!x) return; const ses=P.sesiones[P.tab]
+  SEL={ modo:'cambiar', bi:ses?ses.bloques.indexOf(x.b):0, beId:x.it.beId, grupo:null, actual:x.it.ejId, foco:-1 }
+  TB.edit=null; elegirEj(ejId) }
+// ··· acciones de la tarjeta
+function plTbMenu(ev,beId){ ev.stopPropagation(); plTbMenuCerrar(); const x=planItem(beId); if(!x) return
+  const ses=P.sesiones[P.tab], bi=ses.bloques.indexOf(x.b), ii=x.b.items.indexOf(x.it)
+  const m=document.createElement('div'); m.className='tbMenu'; m.id='tbMenu'; m.setAttribute('role','menu')
+  m.innerHTML=(ii>0?'<button role="menuitem" onclick="plTbMover(\''+beId+'\','+bi+','+(ii-1)+')">SUBIR</button>':'')+
+    (ii<x.b.items.length-1?'<button role="menuitem" onclick="plTbMover(\''+beId+'\','+bi+','+(ii+2)+')">BAJAR</button>':'')+
+    ses.bloques.map(function(b2,j){ return j===bi?'':'<button role="menuitem" onclick="plTbMover(\''+beId+'\','+j+','+b2.items.length+')">MOVER A B'+(j+1)+'<small>'+plEsc(String(b2.etiqueta||'').toUpperCase())+'</small></button>' }).join('')+
+    '<hr>'+(plActivo()?'<button role="menuitem" onclick="plTbMenuCerrar();cgDrawer(\''+x.it.ejId+'\',\''+beId+'\')">HISTORIAL DE CARGAS</button>':'')+
+    '<button role="menuitem" onclick="plTbMenuCerrar();abrirSelector(\'cambiar\','+bi+',\''+beId+'\')">CAMBIAR · CATÁLOGO COMPLETO</button>'+
+    '<button role="menuitem" onclick="plTbMenuCerrar();quitarEj(\''+beId+'\')">QUITAR DE B'+(bi+1)+'</button>'
+  document.body.appendChild(m)
+  const r=ev.currentTarget.getBoundingClientRect(), w=m.offsetWidth, h=m.offsetHeight
+  m.style.left=Math.max(8,Math.min(innerWidth-w-8, r.right-w))+'px'; m.style.top=(r.bottom+h+8>innerHeight? Math.max(8,r.top-h-6) : r.bottom+6)+'px'
+  const f=m.querySelector('button'); if(f) f.focus() }
+function plTbMenuCerrar(){ const m=document.getElementById('tbMenu'); if(m) m.remove() }
+document.addEventListener('click', function(e){ const m=document.getElementById('tbMenu'); if(m && !m.contains(e.target)) m.remove() })
+document.addEventListener('keydown', function(e){ if(e.key==='Escape') plTbMenuCerrar() })
+// mover dentro del bloque o a otro bloque (antes de la posición 'pos' del destino)
+function plTbMover(beId,tbi,pos){ plTbMenuCerrar(); const x=planItem(beId); if(!x) return; const ses=P.sesiones[P.tab], dst=ses.bloques[tbi]; if(!dst) return
+  const from=x.b.items.indexOf(x.it); x.b.items.splice(from,1)
+  if (x.b===dst && pos>from) pos--
+  dst.items.splice(Math.max(0,Math.min(pos,dst.items.length)),0,x.it)
+  ;[x.b,dst].forEach(function(b){ b.items.forEach(function(it,i){ it.orden=i+1 }) })
+  TB.sel=beId; plDirty(); repintarConservando()
+  if (x.b!==dst) toast(x.it.nombre+' → B'+(tbi+1)+' · en borrador') }
+function plTbWire(){ const bd=document.getElementById('tbBoard'); if(!bd || (P&&P.ro)) return; let from=null
+  bd.querySelectorAll('.tbCard[draggable="true"]').forEach(function(el){
+    el.addEventListener('dragstart',function(e){ from=el.dataset.be; el.classList.add('drag'); try{ e.dataTransfer.effectAllowed='move'; e.dataTransfer.setData('text/plain',from) }catch(_){} })
+    el.addEventListener('dragend',function(){ el.classList.remove('drag'); bd.querySelectorAll('.over').forEach(function(x){ x.classList.remove('over') }) })
+    el.addEventListener('dragover',function(e){ if(!from) return; e.preventDefault(); e.stopPropagation(); el.classList.add('over') })
+    el.addEventListener('dragleave',function(){ el.classList.remove('over') })
+    el.addEventListener('drop',function(e){ e.preventDefault(); e.stopPropagation(); if(!from || from===el.dataset.be) return
+      const dx=planItem(el.dataset.be); if(!dx) return; const tbi=+el.dataset.bi; const f=from; from=null; plTbMover(f, tbi, dx.b.items.indexOf(dx.it)) }) })
+  bd.querySelectorAll('.tbCol').forEach(function(c){
+    c.addEventListener('dragover',function(e){ if(!from) return; e.preventDefault(); c.classList.add('over') })
+    c.addEventListener('dragleave',function(e){ if(!c.contains(e.relatedTarget)) c.classList.remove('over') })
+    c.addEventListener('drop',function(e){ e.preventDefault(); c.classList.remove('over'); if(!from) return; const tbi=+c.dataset.bi, f=from; from=null; plTbMover(f, tbi, P.sesiones[P.tab].bloques[tbi].items.length) }) }) }
+let _tbRz=null
+window.addEventListener('resize', function(){ clearTimeout(_tbRz); _tbRz=setTimeout(function(){
+  const v=document.getElementById('vPlan'); if(!P || !v || !v.classList.contains('on') || TB.edit) return
+  const micro = !plActivo() || PL.nivel==='micro'; if (micro && (v.classList.contains('plTb')!==plTbOn())) repintarConservando() }, 150) })
 const TIPOS_BLOQUE=[['ACTIVACIÓN','activacion'],['PRINCIPAL','fuerza_principal'],['ACCESORIO','cierre_accesorio'],['CORE','cierre_accesorio'],['FINISHER','cierre_accesorio'],['CARDIO','cierre_accesorio'],['MOVILIDAD','activacion'],['METABÓLICO','fuerza_principal']]
 let MB={tipo:0,sets:3,desc:60}
 function abrirBloqueCero(){
@@ -4656,7 +4881,7 @@ async function plResincronizar(w){
   if (r.error){ syncErr(r.error.message); toast(/SEMANA_CON_EJECUCION/.test(r.error.message)?'Esta semana ya tiene sesiones realizadas: no se puede revertir.':'No se pudo: '+r.error.message); return }
   syncOk(); await plRecargar(); toast('✓ SEM '+w+' vuelve a nacer de SEM '+(w-1))
 }
-function plReset(){ const a=F&&C.asig[F.id]; PL = { nivel:'macro', w:(a&&a.semana_actual)||1, hecho:{}, regPorSes:{} } }
+function plReset(){ const a=F&&C.asig[F.id]; PL = { nivel:'meso', w:(a&&a.semana_actual)||1, hecho:{}, regPorSes:{} } }
 function plActivo(){ return !!(P && !P.bib && !P.base && !P.ro && typeof F!=='undefined' && F && C.asig[F.id] && C.asig[F.id].protocolo_id===P.pid) }
 function plAsig(){ return C.asig[F.id] }
 function plN(){ const a=plAsig(); return (a&&a.protocolos&&a.protocolos.ciclo_semanas)||(P&&P.proto&&P.proto.ciclo_semanas)||6 }
@@ -4709,6 +4934,8 @@ function plRender(){
   const show=function(id,on){ const e=document.getElementById(id); if(e) e.style.display=on?'':'none' }
   show('pNav', true); show('pMacro', niv==='macro'); show('pMeso', niv==='meso')
   show('pTabs', niv==='micro'); show('pBloques', niv==='micro'); show('pOrgRow', false)
+  const _vpl=document.getElementById('vPlan'); if (_vpl) _vpl.classList.toggle('plTb', niv==='micro' && plTbOn())
+  document.documentElement.classList.toggle('plTb-on', niv==='micro' && plTbOn())
   // Micro: la sesión primero, el dosificador debajo. Meso: dosificador bajo la lista de sesiones.
   const _v=document.getElementById('pVivo'), _anc=document.getElementById(niv==='micro'?'pBloques':'pMeso')
   if (_v && _anc && _anc.nextSibling!==_v) _anc.parentNode.insertBefore(_v, _anc.nextSibling)
@@ -4787,13 +5014,15 @@ function plPintarMeso(){
   const ses=plSesSem(w), ev=ses.length?plEvalSem(w):null
   const prevOk = w>1, nextOk = w<Math.max(N, sems.length)
   const tag = w===vig ? 'SEMANA VIGENTE' : (s.estado_temporal==='PASADA'?'HISTORIAL':'PLANIFICACIÓN FUTURA')
-  let h='<div class="plWeekNav">'+
-    (prevOk?'<button class="plArrow" onclick="plIrSem('+(w-1)+')">‹ S'+(w-1)+'</button>':'<span class="plArrow ghost"></span>')+
-    '<div class="plWeekC"><div class="plH" style="font-size:20px">Semana '+w+'</div><div class="plS">'+plFmt(s.desde)+' – '+plFmt(s.hasta)+' · '+tag+'</div></div>'+
-    (nextOk?'<button class="plArrow" onclick="plIrSem('+(w+1)+')">S'+(w+1)+' ›</button>':'<span class="plArrow ghost"></span>')+'</div>'
-  if (ses.length){ const wd=plWheelDatos(w)
-    h+='<div class="plCard plWheel"><div class="plK">BALANCE PROGRAMADO · SEM '+w+'</div>'+stimulusWheel(wd,{variant:'detailed',theme:'light',size:300,center:{v:(ev?ev.metas:0)+'/'+(ev?ev.total:0),l:'METAS PROG.'}})+
-      '<div class="kwLeg"><span><i style="background:#E4E3DF"></i>META</span><span><i style="background:#26272B"></i>PROGRAMADO</span><span><i style="background:#6E7178;height:3px"></i>SOBRE LA META</span><span><i style="background:repeating-linear-gradient(45deg,#6E7178 0 2px,#F4F3F0 2px 4px);height:4px"></i>SOBRE EL TECHO</span></div></div>' }
+  // c75 · CICLO + SEMANA: la tira de semanas reemplaza las flechas; la dosis vive solo en las barras (sin rueda)
+  const serSem=function(n){ return plSesSem(n).reduce(function(a,x){ return a+x.bloques.reduce(function(y,b){ return y+(b.sets||0)*b.items.length },0) },0) }
+  const nW=Math.max(N, sems.length), mxS=Math.max.apply(null,[1].concat(sems.slice(0,nW).map(function(x){ return serSem(x.numero) })))
+  let h='<div class="plWs" role="tablist" aria-label="Semanas del ciclo">'+sems.slice(0,nW).map(function(x){ const n=x.numero, on=n===w, sr=serSem(n), ns=plSesSem(n).length
+      const tg = n===vig ? 'VIGENTE' : (x.estado_temporal==='PASADA'?'PASADA':'FUTURA')
+      return '<button type="button" role="tab" aria-selected="'+on+'" class="plWsB'+(on?' on':'')+(n===vig?' vig':'')+(ns?'':' vacia')+'" onclick="plIrSem('+n+')">'+
+        '<span class="n">S'+n+'<i>'+tg+'</i></span><span class="d">'+plFmt(x.desde)+' – '+plFmt(x.hasta)+'</span>'+
+        '<span class="m">'+(ns?ns+' SES · '+sr+' SERIES'+(x.sesiones_ejecutadas?' · '+x.sesiones_ejecutadas+' ✓':''):'SIN PROGRAMAR')+'</span><span class="bar"><u style="width:'+Math.round(sr/mxS*100)+'%"></u></span></button>' }).join('')+'</div>'+
+    '<div class="plWeekC" style="text-align:left;margin:0 2px 10px"><div class="plH" style="font-size:20px">Semana '+w+'</div><div class="plS">'+plFmt(s.desde)+' – '+plFmt(s.hasta)+' · '+tag+'</div></div>'
   if (ev) h+='<div class="plEvalRow"><span>'+(ev.pct==null?'—':ev.pct+'%')+' DOSIS PROGRAMADA</span><span>'+ev.metas+'/'+ev.total+' METAS</span>'+(ev.sobre?'<span>⚠ '+ev.sobre+' TECHO</span>':'<span>✓ BAJO TECHO</span>')+'</div>'
   h+='<div class="plCard" style="padding:6px 12px">'
   h+= ses.length ? ses.map(function(x,i){
@@ -4807,7 +5036,9 @@ function plPintarMeso(){
       '<button class="plRen" title="Renombrar" aria-label="Renombrar sesión" onclick="plRenombrar(\''+x.id+'\')">✎</button>'+
       '<div class="plUD"><button '+(i>0?'onclick="plMover(\''+x.id+'\',-1)"':'disabled')+'>▲</button>'+
       '<button '+(i<ses.length-1?'onclick="plMover(\''+x.id+'\',1)"':'disabled')+'>▼</button></div>'+
-      '<button class="plGo" onclick="plIrSes(\''+x.id+'\')">›</button></div>'
+      '<button class="plGo" onclick="plIrSes(\''+x.id+'\')">›</button>'+
+      '<div class="plPrev" onclick="plIrSes(\''+x.id+'\')">'+x.bloques.map(function(b,j){ return '<div><h5>'+plEsc(bloqueTag(b,j))+' · '+b.sets+' SETS</h5>'+b.items.map(function(it){ const t=esTiempo(it)
+          return '<p><span>'+plEsc(it.nombre||'—')+'</span><em>'+plEsc(t?(String(it.reps).replace(/[^0-9]/g,'')||'30')+' SEG':KSET.reps(it.reps)+(it.kg!=null?' · '+KSET.kg(it.kg)+' KG':''))+'</em></p>' }).join('')+'</div>' }).join('')+'</div></div>'
   }).join('') : '<div class="vacio">Semana sin programar.</div>'
   h+='</div>'
   const acc=[]
