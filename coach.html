@@ -423,6 +423,14 @@ button.bxI:hover,button.bxI:focus-visible{transform:translateY(-2px);box-shadow:
 .tbMenu button{display:flex;justify-content:space-between;width:100%;min-height:42px;padding:0 12px;border:0;background:none;border-radius:9px;font-family:'Space Mono',var(--font-mono);font-size:12px;letter-spacing:.08em;cursor:pointer;text-align:left;align-items:center;color:#121212}
 .tbMenu button:hover{background:rgba(18,18,18,.06)}.tbMenu small{color:#8E8D88;font-size:10px}.tbMenu hr{border:0;border-top:1px solid rgba(18,18,18,.1);margin:4px 6px}
 @media (pointer:coarse){ .tbSt{height:50px;grid-template-columns:42px minmax(0,1fr) 42px} .tbIc{width:40px;height:40px} .tbMini{height:42px} }
+/* c77 · cargas intermedias del panel: mismo logotipo 3D del arranque, en formato compacto y móvil, dentro del contenido */
+.kld{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;min-height:150px;padding:26px 16px;margin:6px 0;border-radius:16px;background:#121210;color:#F4F3F0}
+.kld .ld3d{perspective:600px}
+.kld .ld3d__obj{width:min(42vw,170px);animation-duration:2.6s}
+.kld .ld3d__logo{filter:drop-shadow(0 10px 18px rgba(0,0,0,.5))}
+.kld .ld3d__sheen{animation-duration:2.6s}
+.kld .ld3d__floor{width:min(32vw,120px);height:9px;margin-top:16px;animation-duration:2.6s}
+.kld__t{font:700 9px var(--font-mono,'Space Mono',monospace);letter-spacing:.2em;text-transform:uppercase;color:rgba(244,243,240,.6)}
 </style>
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
@@ -2802,6 +2810,10 @@ async function entrar(){
 }
 
 // c8.4 · Carga simple y fija: mismo mensaje siempre (sin nombre = sin lógica extra, pantalla instantánea)
+/* c77 · loader intermedio con el logotipo 3D (mismo lenguaje que el arranque del panel) */
+function kLd(t){ const txt=String(t||'Cargando').replace(/…|\.{3}/g,'').trim()
+  return '<div class="kld" role="status" aria-live="polite"><div class="ld3d" aria-hidden="true"><div class="ld3d__obj"><img class="ld3d__logo" src="/img/brand/logotipo-koach.png" alt=""><span class="ld3d__sheen"></span></div><span class="ld3d__floor"></span></div><span class="kld__t">'+txt+'</span></div>' }
+document.addEventListener('DOMContentLoaded', function(){ document.querySelectorAll('.vacio').forEach(function(el){ if(/^Cargando/.test(el.textContent.trim())) el.outerHTML=kLd(el.textContent) }) })
 function cargando(){ const o=document.getElementById('oLoad'); if(o) o.classList.add('vis') }
 function cargandoOff(){ const o=document.getElementById('oLoad'); if(o) o.classList.remove('vis') }
 async function loadSala(silent){
@@ -3230,7 +3242,7 @@ async function bibProto(){
 }
 let BIB_ERR = null
 async function verBases(){
-  document.getElementById('basesLista').innerHTML='<div class="vacio">Cargando protocolos base…</div>'
+  document.getElementById('basesLista').innerHTML=kLd('Cargando protocolos base…')
   const rp = await sb.from('protocolos').select('*').is('socio_id',null).neq('estado','biblioteca').neq('estado','extras_personales')
   if(rp.error){ document.getElementById('basesLista').innerHTML='<div class="vacio">'+koachMsg(rp.error.message)+'</div>'; return }
   const bases=(rp.data||[]).sort(function(a,b){return ((a.programa||'')+(a.nivel||'')+(a.sexo||'')).localeCompare((b.programa||'')+(b.nivel||'')+(b.sexo||''))})
@@ -3290,7 +3302,7 @@ function bxCat(nombre, grupos){ const N=String(nombre||'').toUpperCase()
   for(const c of BX_CAT){ if(c[0].test(N)) return c[1] } return (grupos&&grupos[0])||'EXTRA' }
 async function verBib(){
   vista('vBib'); bxTabs()
-  document.getElementById('bibLista').innerHTML='<div class="vacio">Cargando biblioteca…</div>'
+  document.getElementById('bibLista').innerHTML=kLd('Cargando biblioteca…')
   try{
     const rp=await sb.from('protocolos').select('id,nombre,programa,nivel,sexo,ciclo_semanas').is('socio_id',null).neq('estado','biblioteca').neq('estado','extras_personales')
     if(rp.error) throw rp.error
@@ -3559,7 +3571,7 @@ async function abrirPlan(pid, proto, opts){
     document.getElementById('pQuienM').textContent=proto&&proto.estado==='archivado' ? ' · CICLO CERRADO' : ' · PLAN INDIVIDUAL' }
   document.getElementById('pEstado').textContent = esBib ? 'ESTÁNDAR \u2605' : esBase ? 'BASE ⚙' : ((proto&&proto.estado)||'borrador').toUpperCase()
   vista('vPlan')
-  document.getElementById('pBloques').innerHTML = '<div class="vacio">Cargando…</div>'
+  document.getElementById('pBloques').innerHTML = kLd('Cargando…')
   ULT = {}; HIST = {}
   if (!esBib && !esBase && F){ try{ await cargarHistorialCargas(F.id) }catch(_e){ console.error('[cargas]', _e) } }
   let qq = sb.from('sesiones_protocolo').select('*').eq('protocolo_id',pid).order('numero') // Ajuste F-MULTI: cap de 6 eliminado, numeración es global entre semanas
@@ -3927,7 +3939,7 @@ async function abrirAddSes(){
   document.getElementById('asNombre').value=''
   document.getElementById('asBusca').value=''
   document.getElementById('mAddSes').style.display='block'
-  document.getElementById('asBib').innerHTML='<div class="vacio">Cargando rutinas…</div>'
+  document.getElementById('asBib').innerHTML=kLd('Cargando rutinas…')
   BIB = null; BIB_ERR = null
   const bp = await bibProto()
   if(!bp){
@@ -4340,7 +4352,7 @@ function abrirBloque(){ document.getElementById('mAddBloque').style.display='blo
 async function abrirBibBloq(){
   document.getElementById('mBibBloq').style.display='block'
   document.getElementById('bibBloqPrev').style.display='none'
-  const el=document.getElementById('bibBloqLista'); el.style.display='block'; el.innerHTML='<div class="vacio">Cargando…</div>'
+  const el=document.getElementById('bibBloqLista'); el.style.display='block'; el.innerHTML=kLd('Cargando…')
   try{
     const r=await sb.rpc('koach_bloques_tpl')
     if (r.error){ console.error('[bloques prediseñados] listar', r.error); throw r.error }
@@ -4357,7 +4369,7 @@ async function abrirBibBloq(){
 async function verTpl(tplId){
   const prev=document.getElementById('bibBloqPrev')
   document.getElementById('bibBloqLista').style.display='none'
-  prev.style.display='block'; prev.innerHTML='<div class="vacio">Cargando…</div>'
+  prev.style.display='block'; prev.innerHTML=kLd('Cargando…')
   try{
     const rt=await sb.from('bloques').select('id, etiqueta, rol, sets, descanso_seg, descanso_segundos').eq('id',tplId).single()
     const rb=await sb.from('bloque_ejercicios').select('ejercicio_id, orden, reps_txt, duracion_seg, kg_objetivo, ejercicios(nombre, activo)').eq('bloque_id',tplId).order('orden')
@@ -4716,7 +4728,7 @@ async function guardarOrden(){
 function cerrarOrg(){ document.getElementById('mOrg').style.display='none' }
 async function abrirBibOrg(){
   document.getElementById('mBibOrg').style.display='block'
-  const el=document.getElementById('bibOrgLista'); el.innerHTML='<div class="vacio">Cargando…</div>'
+  const el=document.getElementById('bibOrgLista'); el.innerHTML=kLd('Cargando…')
   try{
     const bp = await bibProto()
     const rs = await sb.from('sesiones_protocolo').select('id, nombre, objetivo').eq('protocolo_id',bp.id).order('numero')
@@ -5329,7 +5341,7 @@ async function verSolicitudes(socioId){
   try{ if(!document.getElementById('bandejas').innerHTML) pintarSala(); salaPresenciaCargar(true) }catch(_e){}
   AD.solSocio = socioId||null
   vista('vSol')
-  document.getElementById('solLista').innerHTML='<div class="vacio">Cargando…</div>'
+  document.getElementById('solLista').innerHTML=kLd('Cargando…')
   let q=sb.from('solicitudes').select('id,socio_id,tipo,detalle,estado,created_at,sesion_protocolo_id,nota_coach,revisado_at,resuelta_por_nombre').neq('estado','duplicada').order('created_at',{ascending:false}).limit(200)
   if (AD.solSocio) q=q.eq('socio_id',AD.solSocio)
   const r=await q
@@ -5395,7 +5407,7 @@ async function solResolver(id, estado){
 // ═══ ADMIN · MEMBRESÍAS ═══
 async function verAdmin(){
   vista('vAdmin')
-  document.getElementById('admLista').innerHTML='<div class="vacio">Cargando…</div>'
+  document.getElementById('admLista').innerHTML=kLd('Cargando…')
   await Promise.all([adCargarResumen(), accCargarTodos()])
   admPintar()
 }
@@ -5473,7 +5485,7 @@ function fTab(t){
 }
 async function fAdmCargar(){
   const id=F.id, box=document.getElementById('fTabAdm')
-  box.innerHTML='<div class="vacio">Cargando…</div>'
+  box.innerHTML=kLd('Cargando…')
   const [rm, rp, rc, re] = await Promise.all([
     sb.from('v_membresias').select('*').eq('socio_id',id).order('fecha_inicio',{ascending:false}),
     sb.from('pagos').select('*').eq('socio_id',id).order('fecha_pago',{ascending:false}),
@@ -6000,7 +6012,7 @@ function adhAlertas(r){
   return a
 }
 async function verAdherencia(){
-  vista('vAdh'); document.getElementById('adhLista').innerHTML='<div class="vacio">Cargando…</div>'
+  vista('vAdh'); document.getElementById('adhLista').innerHTML=kLd('Cargando…')
   const r=await sb.from('v_adherencia').select('*').order('nombre')
   ADH.rows=(r.data||[]).map(x=>Object.assign(x,{_al:adhAlertas(x)}))
   adhPintar()
@@ -6031,7 +6043,7 @@ function adhPintar(){
 // Pestaña ADHERENCIA en la ficha del socio
 function fAdhToggle(b){ const d=document.getElementById('fTabAdh'); if(!d) return; d.hidden=!d.hidden; b.setAttribute('aria-expanded',String(!d.hidden)); b.classList.toggle('on',!d.hidden) }
 async function fAdhCargar(){
-  const box=document.getElementById('fTabAdh'); box.innerHTML='<div class="vacio">Cargando…</div>'
+  const box=document.getElementById('fTabAdh'); box.innerHTML=kLd('Cargando…')
   const [rv, rc] = await Promise.all([
     sb.from('v_adherencia').select('*').eq('socio_id',F.id).maybeSingle(),
     sb.from('check_ins').select('fecha, checked_in_at, source').eq('socio_id',F.id).order('fecha',{ascending:false}).limit(12)
@@ -6351,7 +6363,7 @@ function fPintarCtx(id){
   const url=x&&x.abrir?urlRutina(id):urlPlan(id)
   // v4 · P1 en la cabecera (Rutina · Planificador) · operación al centro · P2 como utilidades compactas · P3 en ···
   el.innerHTML='<div class="kc">'+
-    '<section class="kcOp" id="scCard" aria-label="Semana del socio"><div class="gpCarga">Cargando…</div></section>'+
+    '<section class="kcOp" id="scCard" aria-label="Semana del socio">'+kLd('Cargando')+'</section>'+
     '<div class="kcUt" role="group" aria-label="Utilidades de entrenamiento">'+
       '<button type="button" class="kcU" onclick="fichaCargas()"><b>HISTORIAL DE CARGAS</b><small>último peso por ejercicio</small></button>'+
       '<button type="button" class="kcU" onclick="gpAbrir()"><b>GESTIONAR PROGRAMA</b><small>cambiar · nuevo ciclo</small></button>'+
@@ -6391,7 +6403,7 @@ const GP_NIV={ BASICO:'BÁSICO', INTERMEDIO:'INTERMEDIO', AVANZADO:'AVANZADO', S
 function gpCerrar(){ document.getElementById('mGP').style.display='none' }
 async function gpAbrir(){
   if (!F) return; const id=F.id
-  document.getElementById('mGP').style.display='flex'; document.getElementById('gpBody').innerHTML='<div class="gpCarga">Cargando…</div>'
+  document.getElementById('mGP').style.display='flex'; document.getElementById('gpBody').innerHTML=kLd('Cargando')
   const [re, rb] = await Promise.all([ sb.rpc('koach_programa_estado',{p_socio:id}), sb.from('protocolos').select('id,programa,nivel,sexo').is('socio_id',null).neq('estado','biblioteca').neq('estado','extras_personales') ])
   if (!F || F.id!==id) return
   if (re.error){ document.getElementById('gpBody').innerHTML='<div class="gpErr">No se pudo leer el programa: '+plEsc(re.error.message)+'</div>'; return }
@@ -6557,7 +6569,7 @@ async function accAbrir(){
   const _sid=F&&F.id; if (_sid && _sid!==ACC.sid){ ACC.sid=_sid; ACC.est=null; ACC.espera=0 }
   ACC.url=null; ACC.foco=document.activeElement
   document.getElementById('mAcc').style.display='flex'
-  if (!ACC.est){ document.getElementById('acBody').innerHTML='<div class="acSt">CARGANDO…</div>'; await accEstado(ACC.sid) }
+  if (!ACC.est){ document.getElementById('acBody').innerHTML=kLd('Cargando'); await accEstado(ACC.sid) }
   accMenu()
 }
 function accMenu(msgHtml){
@@ -6905,7 +6917,7 @@ async function scPintarRes(){
   const cab='<div class="tcRes__h"><div><small>'+(ex?'★ SESIÓN EXTRA · NO SUMA A LAS PRINCIPALES':reg&&reg.abandonada?(reg.ejercicios+'/'+reg.total_ejercicios+' EJ · '+reg.sets+' SETS REGISTRADOS'):'RESUMEN DE LA SESIÓN')+'</small><b>'+scNomL(z.nombre)+'</b>'+(done&&z.cuando?'<small>REALIZADA · '+scDiaC(z.cuando)+'</small>':susp?'<small>SUSPENDIDA ESTA SEMANA</small>':'')+'</div><div class="tcRes__a">'+acc+
     '<button type="button" class="tcRes__x" onclick="scAbrirRes(\''+key+'\')" aria-label="Cerrar resumen">✕</button></div></div>'
   box.hidden=false
-  if (!SCD.det[id]){ box.innerHTML=cab+'<div class="tcRes__c">Cargando…</div>'
+  if (!SCD.det[id]){ box.innerHTML=cab+kLd('Cargando')
     const r=await sb.from('bloques').select('id,bloque,etiqueta,sets,bloque_ejercicios(orden,reps_txt,reps,duracion_seg,kg_objetivo,ejercicios(nombre))').eq('sesion_id',id).order('bloque')
     if (r.error){ box.innerHTML=cab+'<div class="tcRes__c">No se pudo cargar el resumen.</div>'; return }
     SCD.det[id]=r.data||[]; if (SCD.open!==key) return }
@@ -7540,7 +7552,7 @@ async function socSolContar(id){ if(!id) return
   const d=document.getElementById('mAdm'); if (d && d.classList.contains('vis') && d.dataset.sol===id && !socSolAbrir._det) socSolAbrir(true) }
 async function socSolAbrir(silencioso){
   if (!F) return; const id=F.id; socSolAbrir._det=false
-  if (!silencioso) admAbrir('SOLICITUDES','<div class="vacio">Cargando…</div>')
+  if (!silencioso) admAbrir('SOLICITUDES',kLd('Cargando…'))
   document.getElementById('mAdm').dataset.sol=id
   const r=await sb.from('solicitudes').select('id,socio_id,tipo,detalle,estado,created_at,sesion_protocolo_id,nota_coach,revisado_at,resuelta_por_nombre').eq('socio_id',id).eq('estado','pendiente').order('created_at')
   if (!F || F.id!==id) return
