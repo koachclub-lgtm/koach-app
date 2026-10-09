@@ -6248,7 +6248,8 @@ function plSaveUI(estado){
   if (hb && hs){ const act=plProtoActivo()
     hb.textContent = !act ? (E==='saving'?'PUBLICANDO…':'PUBLICAR Y APLICAR →') : {ok:'PUBLICADO ✓', dirty:'PUBLICAR AL SOCIO →', saving:'PUBLICANDO…', done:'PUBLICADO ✓', err:'REINTENTAR'}[E]
     hb.disabled = act && (E==='ok' || E==='saving' || E==='done')
-    hs.textContent = !act ? (sucio?'BORRADOR · SIN PUBLICAR':'PROGRAMA EN BORRADOR') : {ok:'EL SOCIO VE ESTA VERSIÓN', dirty:'BORRADOR · EL SOCIO AÚN NO LO VE', saving:'PUBLICANDO…', done:'PUBLICADO AL SOCIO', err:'NO SE PUBLICÓ'}[E]
+    // c86.1 · 'borrador' en protocolos no oculta nada al socio (la asignación activa manda): el texto lo dice tal cual
+    hs.textContent = !act ? (sucio?'BORRADOR · SIN PUBLICAR':'SIN APLICAR · EL SOCIO YA ENTRENA ESTA VERSIÓN') : {ok:'EL SOCIO VE ESTA VERSIÓN', dirty:'BORRADOR · EL SOCIO AÚN NO LO VE', saving:'PUBLICANDO…', done:'PUBLICADO AL SOCIO', err:'NO SE PUBLICÓ'}[E]
     hs.className='plPc__pub'+((sucio||!act||E==='err')?' is-dirty':'') }
 }
 async function plReabrir(){
