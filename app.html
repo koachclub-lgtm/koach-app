@@ -476,6 +476,51 @@ html.en-plan #vPlan.on::before{content:'';position:fixed;inset:0;z-index:-1;poin
 .mtD__tot b{font:900 26px/1 var(--font-display);font-variant-numeric:tabular-nums;letter-spacing:-.01em}.mtD__tot span{font:400 9px/1.35 var(--font-mono);letter-spacing:.16em;color:#6B6A65;text-transform:uppercase}
 @media (max-width:374px){ #vPlan .kh--met{padding-left:22px;padding-right:22px} #vPlan .kh--met::before{left:22px;right:22px} .mtD__h b{font-size:15px} .mtD__lg .mtD__sc i:nth-child(2){font-size:0;letter-spacing:0} .mtD__lg .mtD__sc i:nth-child(2)::after{content:'REF';font-size:7px;letter-spacing:.14em} .mtD{--mtL:86px;--mtR:24px} .mtD__g,.mtD__r{gap:8px} .mtD__gd{left:calc(var(--mtL) + 8px);right:calc(var(--mtR) + 8px)} .mtD__p{font-size:7.5px;padding:5px 7px;letter-spacing:.08em} }
 @media (min-width:420px){ .mtD{--mtL:104px} }
+
+/* ═══ c98 · MÉTODO · segunda pantalla compacta: programa + ciclo + semana + 3–4 sesiones en una vista; tarjetas cristal como el Home ═══ */
+#vPlan .mtProg,#vPlan .mtDose,#vPlan .p2Sem,#vPlan .p2W:not(.vig),#vPlan .sp,#vPlan .opAv{background:rgba(255,255,255,.58);-webkit-backdrop-filter:blur(18px) saturate(1.2);backdrop-filter:blur(18px) saturate(1.2);border:1px solid rgba(255,255,255,.6);box-shadow:0 10px 30px rgba(0,0,0,.07)}
+#vPlan .mtDose{background:rgba(255,255,255,.72)}
+#vPlan .sp--active,#vPlan .sp--completed.sp--hoy{background:rgba(11,11,12,.86);border-color:rgba(255,255,255,.14)}
+@media (prefers-reduced-transparency:reduce){ #vPlan .mtProg,#vPlan .mtDose,#vPlan .p2Sem,#vPlan .p2W:not(.vig),#vPlan .sp,#vPlan .opAv{background:rgba(255,255,255,.94)} }
+/* programa */
+#vPlan .mtProg{padding:14px 16px 14px;border-radius:20px}
+#vPlan .mtProg__t{margin-top:6px;font-size:clamp(34px,10vw,42px)}
+#vPlan .mtProg__l{margin-top:4px;font-size:9.5px}
+#vPlan .mtProg__p{margin-top:8px;font-size:12.5px;line-height:1.4}#vPlan .mtProg__p b{font-size:11px}
+/* etiquetas de sección */
+#vPlan .uK{font:500 9.5px/1 var(--font-mono);letter-spacing:.16em;color:#3F4044}
+#vPlan .uK[style]{margin:16px 2px 8px!important}
+/* semanas del ciclo */
+#vPlan .p2Cyc{gap:6px;margin:0}
+#vPlan .p2W{min-height:40px;border-radius:12px;gap:1px;padding:4px 0}
+#vPlan .p2W b{font-size:12px}#vPlan .p2W small,#vPlan .p2W i{font-size:7.5px;letter-spacing:.06em}
+/* esta semana */
+#vPlan .p2Sem{margin:8px 0 0;padding:10px 12px 10px;border-radius:20px}
+#vPlan .p2Sem>.uK{display:none}
+#vPlan .p2Wk{margin:0 0 8px;gap:2px}
+#vPlan .p2D{min-height:0;padding:5px 0;gap:2px;border-radius:10px}
+#vPlan .p2D small{font-size:8px}#vPlan .p2D b{font-size:13px}#vPlan .p2D span{min-height:5px}#vPlan .p2D span i{width:5px;height:5px}
+#vPlan .p2St{padding-top:8px;align-items:center}
+#vPlan .p2St b{font:700 14px/1 var(--font-mono);letter-spacing:.06em}#vPlan .p2St b small{font:400 8.5px/1 var(--font-mono);letter-spacing:.14em;color:#6B6A65;text-transform:uppercase;margin-left:4px}
+#vPlan .p2St span{font-size:8.5px;letter-spacing:.14em}
+#vPlan .p2Ra{font:400 8.5px/1.4 var(--font-mono);letter-spacing:.12em;text-transform:uppercase;margin-top:6px}
+/* sesiones: pills más bajas */
+#vPlan .sp{--sp-d:52px;min-height:0;padding:4px 5px 4px 4px;margin:0 0 6px}
+#vPlan .sp__img{--sp-d:52px;flex-basis:52px;height:52px;padding:2px}
+#vPlan .sp__body{height:52px;padding-right:52px}
+#vPlan .sp__t{font-size:clamp(15px,4.4vw,17px)}
+#vPlan .sp__s{margin-top:3px;font-size:8.5px;letter-spacing:.14em}
+#vPlan .sp__go{width:36px;height:36px;right:7px}
+#vPlan .spNote{margin:-2px 6px 6px 64px;font-size:8.5px;line-height:1.4}
+#vPlan .spActs{margin:-2px 0 8px 64px;gap:4px 12px}
+#vPlan .spActs .pAct.sec{font-size:8.5px;padding:3px 0}
+#vPlan #pLista>div[style*="text-align:right"]{margin:-2px 6px 6px!important}
+#vPlan #pLista>div[style*="text-align:right"] button{font-family:var(--font-mono)!important;font-weight:400!important;font-size:8px!important;color:#6B6A65!important;letter-spacing:.12em!important}
+#vPlan #pOpAv .opAv{padding:10px 14px 12px;border-radius:18px}
+#vPlan #pOpAv .opAv__k{font-size:8.5px}#vPlan #pOpAv .opAv__t{margin-top:3px;font-size:16px}
+#vPlan #pOpAv .opAv__m{margin-top:3px;font-size:9px}#vPlan #pOpAv .opAv__b{margin-top:4px;font-size:12px;line-height:1.35}
+#vPlan #pOpAv .opAv__x{width:28px;height:28px;top:8px;right:8px;font-size:11px}#vPlan #pOpAv .opAv__cta{min-height:40px;margin-top:8px;font-size:10px}
+#vPlan #pOpAv .opAv{margin:0 0 8px;padding:12px 14px}
 </style>
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
@@ -5243,7 +5288,7 @@ function pintarPlan(){
     const pSub = 'SESIÓN '+_pos+' DE '+_tot+(pLbl?' · '+pLbl:'')+(ctx.hecha?extra:'')
     const accSec = acciones.replace(/<button class="pAct" onclick="event.stopPropagation\(\);(verHist|abrirSesion|verPreview)[^<]*<\/button>/g,'')
     return sessionPill({nombre:s.nombre, sub:pSub, estado:pEst, onClick:pOn}) +
-      ((!ctx.hecha && (grupos||extra))?`<div class="spNote">${grupos}${ctx.hecha?'':extra}</div>`:'') +
+      ((!ctx.hecha && extra)?`<div class="spNote">${extra.replace(/^ · /,'')}</div>`:'')   /* c98 · los grupos ya están en la dosificación */ +
       (accSec.trim()?`<div class="spActs">${accSec}</div>`:'') +
       (prox && !(S._solPost||[]).includes(s.id) && !(S._solPost||[]).includes(s.nombre) ?
       `<div style="text-align:right;margin:-4px 4px 10px"><button onclick="event.stopPropagation();k2Postergar('${(s.nombre||'').replace(/'/g,'')}','${s.id}')"
