@@ -526,6 +526,27 @@ html.en-plan #vPlan.on::before{content:'';position:fixed;inset:0;z-index:-1;poin
 .k2h>.k2h__bg{fill:transparent}.k2h>.k2h__lines{display:none}
 .k2h::before{content:'';position:absolute;inset:0;z-index:-3;pointer-events:none;background:#070707 url('/img/bg/tex-metodo.webp') center 85%/cover no-repeat;
   -webkit-mask:url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%20400%20262%22%20preserveAspectRatio%3D%22none%22%3E%3Cpath%20d%3D%22M0%200%20H400%20V262%20C400%20246%20386%20232%20362%20232%20H46%20C21%20232%200%20213%200%20188%20Z%22/%3E%3C/svg%3E") 0 0/100% 100% no-repeat;mask:url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%20400%20262%22%20preserveAspectRatio%3D%22none%22%3E%3Cpath%20d%3D%22M0%200%20H400%20V262%20C400%20246%20386%20232%20362%20232%20H46%20C21%20232%200%20213%200%20188%20Z%22/%3E%3C/svg%3E") 0 0/100% 100% no-repeat}
+
+/* c100 · Rueda de estímulo protagonista en Home */
+.hgWheel{padding:16px 14px 14px}
+.kwHero{margin:6px -6px 0}
+.kw.kw--hero{width:100%;max-width:420px}
+html .kw.kw--hero .kw-lc{font-size:10px;letter-spacing:.06em;fill:#3A3B3E}
+html .kw.kw--hero .kw-cv{font-size:30px;letter-spacing:-.04em}
+html .kw.kw--hero .kw-cl{font-size:7px;letter-spacing:.16em}
+.kw--hero .kw-fill{animation:none}
+.kw--anim:not(.kw--done) .kw-fill{opacity:0}
+.kw--anim .kw-seg>path:first-child{opacity:0;transition:opacity .45s ease}
+.kw--anim .kw-cr,.kw--anim .kw-lc,.kw--anim line,.kw--anim .kw-seg>circle{opacity:0;transition:opacity .5s ease}
+.kw--anim.kw--on .kw-seg>path:first-child,.kw--anim.kw--on .kw-lc,.kw--anim.kw--on line,.kw--anim.kw--on .kw-seg>circle{opacity:1}
+.kw--anim.kw--on .kw-seg>path:first-child{opacity:1}
+.kw--anim.kw--on:not(.kw--done) .kw-cr{opacity:0}
+.kw--anim.kw--done .kw-cr{opacity:1}
+.kw--anim .kw-seg>path:first-child{fill:rgba(255,255,255,.62)}
+.kw--anim .kw-lc{transition-delay:.15s}
+.hgWheel .kwRes{margin-top:8px}
+.hgWheel .k2-week__c{margin-top:12px}
+@media (prefers-reduced-motion:reduce){.kw--anim *{transition:none!important}}
 </style>
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
@@ -2578,14 +2599,24 @@ function stimulusWheel(datos, opts){
   opts=opts||{}; const V=opts.variant||'compact', TH=opts.theme||'light', S0=opts.size||260
   const ds=WHEEL_ORDEN.map(g=>datos.find(d=>d.grupo===g)).filter(Boolean).concat(datos.filter(d=>WHEEL_ORDEN.indexOf(d.grupo)<0))
   const n=ds.length; if(!n) return ''
-  const cx=150, cy=150, rIn=36, rMeta=V==='detailed'?112:106, rCrown=rMeta+10, pad=0, R=2, GAP=5   // R: redondeo vía stroke · GAP: separación en px
+  const HERO=V==='hero', ANIM=HERO&&opts.anim
+  const cx=150, cy=150, rIn=HERO?34:36, rMeta=V==='detailed'?112:(HERO?124:106), rCrown=rMeta+(HERO?8:10), pad=0, R=2, GAP=5   // R: redondeo vía stroke · GAP: separación en px
   const step=360/n
   const uid='w'+Math.random().toString(36).slice(2,7)
   const trackC = TH==='dark' ? '#2A2B2F' : '#E4E3DF'
   const fillG = TH==='dark' ? ['#FFFFFF','#C7CBD1','#8C9199'] : ['#4A4C51','#26272B','#121212']
   const crownC = TH==='dark' ? '#E9EBEE' : '#6E7178'
   const txt = TH==='dark' ? '#F4F3F0' : '#121212', sub = TH==='dark' ? '#9C9EA3' : '#8E8D88'
-  let svg='<svg class="kw kw--'+V+' kw--'+TH+'" viewBox="'+(V==='compact'?'-26 -18 352 336':'0 0 300 300')+'" width="'+S0+'" role="img" aria-label="Estímulo muscular de la semana">'+
+  // hero: viewBox ajustado a las etiquetas reales (mono ≈ .66em por carácter) → el gráfico ocupa todo el ancho útil
+  let vb=V==='compact'?'-26 -18 352 336':'0 0 300 300'
+  if (HERO){ let x0=cx-rCrown-12, x1=cx+rCrown+12, y0=cy-rCrown-12, y1=cy+rCrown+12
+    ds.forEach((d,i)=>{ const t=((i+.5)*step-90)*Math.PI/180, rl=rCrown+13, x=cx+rl*Math.cos(t), y=cy+rl*Math.sin(t)
+      const w=String(typeof muscleNombre==='function'?muscleNombre(d.grupo):d.grupo).length*6.6
+      const ax=Math.abs(Math.cos(t))<.3?'m':(Math.cos(t)>0?'s':'e')
+      x0=Math.min(x0, ax==='s'?x:ax==='e'?x-w:x-w/2); x1=Math.max(x1, ax==='s'?x+w:ax==='e'?x:x+w/2)
+      y0=Math.min(y0,y-6); y1=Math.max(y1,y+5) })
+    vb=(x0-3).toFixed(1)+' '+(y0-3).toFixed(1)+' '+(x1-x0+6).toFixed(1)+' '+(y1-y0+6).toFixed(1) }
+  let svg='<svg class="kw kw--'+V+' kw--'+TH+(ANIM?' kw--anim':'')+'" viewBox="'+vb+'"'+(HERO?'':' width="'+S0+'"')+' role="img" aria-label="Estímulo muscular de la semana">'+
     '<defs>'+(TH==='dark'
       ? '<radialGradient id="'+uid+'g" cx="50%" cy="50%" r="55%"><stop offset="0" stop-color="'+fillG[2]+'"/><stop offset=".55" stop-color="'+fillG[1]+'"/><stop offset="1" stop-color="'+fillG[0]+'"/></radialGradient>'
       : '<linearGradient id="'+uid+'g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#3A3C41"/><stop offset="1" stop-color="#141415"/></linearGradient>')+
@@ -2600,13 +2631,13 @@ function stimulusWheel(datos, opts){
     svg+='<g class="kw-seg kw-'+est[0]+'" data-g="'+d.grupo+'"'+tap+' tabindex="0" role="button" aria-label="'+(typeof muscleNombre==='function'?muscleNombre(d.grupo):d.grupo)+': '+est[1].toLowerCase()+'">'+
       '<path d="'+_wPetal(cx,cy,rIn+R,rMeta-R,a0,a1,GAP+R*2)+'" fill="'+trackC+'" stroke="'+trackC+'" stroke-width="'+(R*2)+'" stroke-linejoin="round"/>'
     if (ratio>0){ const r1=Math.max(rIn+R+2,rFill-R)
-      svg+='<path class="kw-fill" d="'+_wPetal(cx,cy,rIn+R,r1,a0,a1,GAP+R*2)+'" fill="url(#'+uid+'g)" stroke="url(#'+uid+'g)" stroke-width="'+(R*2)+'" stroke-linejoin="round" style="--d:'+(i*45)+'ms"/>' }
+      svg+='<path class="kw-fill" d="'+_wPetal(cx,cy,rIn+R,ANIM?rIn+R+.5:r1,a0,a1,GAP+R*2)+'" data-p="'+[cx,cy,rIn+R,r1,a0,a1,GAP+R*2].join(',')+'" fill="url(#'+uid+'g)" stroke="url(#'+uid+'g)" stroke-width="'+(R*2)+'" stroke-linejoin="round" style="--d:'+(i*45)+'ms"/>' }
     // corona: trabajo por encima de la meta, crece hacia el techo
     if (d.series>d.objetivo && d.mav!=null && d.mav>d.objetivo){
       const k=Math.min((d.series-d.objetivo)/(d.mav-d.objetivo),1), aw=(a1-a0-2)*k
       const over=d.series>d.mav
-      svg+='<path d="'+_wPetal(cx,cy,rCrown-3,rCrown+3,am-aw/2,am+aw/2,0)+'" fill="'+(over?'url(#'+uid+'h)':crownC)+'" stroke="'+(over?crownC:'none')+'" stroke-width=".6"/>'
-      if (over){ const t=(am-90)*Math.PI/180; svg+='<circle cx="'+(cx+(rCrown+10)*Math.cos(t)).toFixed(1)+'" cy="'+(cy+(rCrown+10)*Math.sin(t)).toFixed(1)+'" r="2.6" fill="'+crownC+'"/>' }
+      svg+='<path class="kw-cr" d="'+_wPetal(cx,cy,rCrown-3,rCrown+3,am-aw/2,am+aw/2,0)+'" fill="'+(over?'url(#'+uid+'h)':crownC)+'" stroke="'+(over?crownC:'none')+'" stroke-width=".6"/>'
+      if (over){ const t=(am-90)*Math.PI/180; svg+='<circle class="kw-cr" cx="'+(cx+(rCrown+10)*Math.cos(t)).toFixed(1)+'" cy="'+(cy+(rCrown+10)*Math.sin(t)).toFixed(1)+'" r="2.6" fill="'+crownC+'"/>' }
     }
     // etiquetas
     const t=(am-90)*Math.PI/180
@@ -2616,17 +2647,17 @@ function stimulusWheel(datos, opts){
       svg+='<text x="'+x.toFixed(1)+'" y="'+(y-2).toFixed(1)+'" text-anchor="middle" class="kw-v" fill="'+c+'">'+(d.series%1===0?d.series:(+d.series).toFixed(1))+'<tspan class="kw-vo" fill-opacity=".6">/'+d.objetivo+'</tspan></text>'+
         '<text x="'+x.toFixed(1)+'" y="'+(y+10).toFixed(1)+'" text-anchor="middle" class="kw-l" fill="'+c+'">'+(typeof muscleNombre==='function'?muscleNombre(d.grupo):d.grupo).toUpperCase()+'</text>'
     } else {
-      const rl=rCrown+26, x=cx+rl*Math.cos(t), y=cy+rl*Math.sin(t)
+      const rl=rCrown+(HERO?13:26), x=cx+rl*Math.cos(t), y=cy+rl*Math.sin(t)
       const anc = Math.abs(Math.cos(t))<.3 ? 'middle' : (Math.cos(t)>0?'start':'end')
-      const r1=rMeta+4, r2=rCrown+17
+      const r1=rMeta+4, r2=rCrown+(HERO?7:17)
       svg+='<line x1="'+(cx+r1*Math.cos(t)).toFixed(1)+'" y1="'+(cy+r1*Math.sin(t)).toFixed(1)+'" x2="'+(cx+r2*Math.cos(t)).toFixed(1)+'" y2="'+(cy+r2*Math.sin(t)).toFixed(1)+'" stroke="'+sub+'" stroke-width=".6" opacity=".7"/>'+
         '<circle cx="'+(cx+r1*Math.cos(t)).toFixed(1)+'" cy="'+(cy+r1*Math.sin(t)).toFixed(1)+'" r="1.3" fill="'+sub+'"/>'
       svg+='<text x="'+x.toFixed(1)+'" y="'+(y+3).toFixed(1)+'" text-anchor="'+anc+'" class="kw-lc" fill="'+sub+'">'+(typeof muscleNombre==='function'?muscleNombre(d.grupo):d.grupo).toUpperCase()+'</text>'
     }
     svg+='</g>'
   })
-  if (opts.center) svg+='<text x="'+cx+'" y="'+(cy+4)+'" text-anchor="middle" class="kw-cv" fill="'+txt+'">'+opts.center.v+'</text>'+
-    String(opts.center.l).split('|').map((l,k)=>'<text x="'+cx+'" y="'+(cy+16+k*8)+'" text-anchor="middle" class="kw-cl" fill="'+sub+'">'+l+'</text>').join('')
+  if (opts.center) svg+='<text x="'+cx+'" y="'+(cy+(HERO?3:4))+'" text-anchor="middle" class="kw-cv" fill="'+txt+'"'+(ANIM?' data-v="'+parseInt(opts.center.v)+'">0%':'>'+opts.center.v)+'</text>'+
+    String(opts.center.l).split('|').map((l,k)=>'<text x="'+cx+'" y="'+(cy+(HERO?14:16)+k*8)+'" text-anchor="middle" class="kw-cl" fill="'+sub+'">'+l+'</text>').join('')
   return svg+'</svg>'
 }
 // Lectura en 2–3 s: más trabajados / aún falta / pasados
@@ -2639,6 +2670,35 @@ function wheelResumen(ds){
   return { top:top.map(d=>nm(d.grupo)), falta:falta.map(d=>nm(d.grupo)), over:over.map(d=>nm(d.grupo)) }
 }
 
+/* c100 · Animación de la rueda: espera a que entre en pantalla, pista aparece, cada pétalo se carga radialmente
+   en sentido horario (110 ms de desfase, 1 s easeOutCubic), luego coronas; el % central sube en sincronía. Una vez por carga. */
+function kwAnimar(svg){
+  if (!svg) return
+  const fills=[...svg.querySelectorAll('.kw-fill')], cv=svg.querySelector('.kw-cv[data-v]')
+  const fin=()=>{ fills.forEach(f=>{ f.style.opacity=''; const p=f.dataset.p.split(',').map(Number); f.setAttribute('d',_wPetal(p[0],p[1],p[2],p[3],p[4],p[5],p[6])) })
+    if (cv) cv.textContent=cv.dataset.v+'%'; svg.classList.add('kw--on','kw--done'); window._kwAnimOk=true }
+  if (window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches) return fin()
+  let go=false
+  const run=()=>{ if (go) return; go=true; window._kwAnimOk=true
+    svg.classList.add('kw--on')
+    const D=1100, ST=120, W=350, ease=t=>1-Math.pow(1-t,3), t0=performance.now()
+    const tot=W+ST*Math.max(fills.length-1,0)+D, meta=cv?+cv.dataset.v:0
+    const tick=now=>{
+      if (!svg.isConnected) return
+      const el=now-t0
+      fills.forEach((f,i)=>{ const k=Math.min(Math.max((el-W-i*ST)/D,0),1), p=f.dataset.p.split(',').map(Number)
+        f.setAttribute('d',_wPetal(p[0],p[1],p[2],p[2]+.5+(p[3]-p[2]-.5)*ease(k),p[4],p[5],p[6])); f.style.opacity=Math.min(k*5,1) })
+      if (cv) cv.textContent=Math.round(meta*ease(Math.min(Math.max((el-W)/(tot-W),0),1)))+'%'
+      if (el<tot) requestAnimationFrame(tick); else { fin() }
+    }
+    requestAnimationFrame(tick)
+  }
+  if ('IntersectionObserver' in window){
+    const io=new IntersectionObserver(es=>{ if (es.some(e=>e.isIntersecting&&e.intersectionRatio>=.35)){ io.disconnect(); run() } },{threshold:[.35]})
+    io.observe(svg)
+    setTimeout(()=>{ if(!svg.isConnected) io.disconnect() },60000)
+  } else run()
+}
 // ── Datos del socio para la rueda: meta · techo · ejecutado (motor) · programado (sesiones de la semana)
 function pintarWheelPlan(){
   const el=document.getElementById('pDetWheel'); if(!el) return
@@ -2875,14 +2935,14 @@ function pintarHomeV2(){
      '<div class="k2-m3"><div><small>SESIONES</small><b>'+e.hechas+'<span>/'+e.total+'</span></b><em>COMPLETADAS</em></div>'+
        '<div><small>CARGA SEMANAL</small><b id="k2Carga">—</b><div class="k2-m3__bar"><i id="k2CargaBar"></i></div><em id="k2CargaT">CALCULANDO…</em></div></div>'+
      '<div class="hgWheel"><div class="k2-sec__h"><span class="k2-label">OBJETIVO SEMANAL</span><span class="k2-label">'+(sem.fortalecidos||0)+' DE '+(sem.exigibles||0)+' METAS</span></div>'+
-     stimulusWheel(wd,{variant:'compact',theme:'light',size:300,center:{v:e.pct+'%',l:'OBJETIVO|SEMANAL'},onTap:'wheelDetalle'})+
-     '<p class="k2-m3__obj">OBJETIVO SEMANAL <b>'+e.pct+'%</b> · '+(sem.fortalecidos||0)+' DE '+(sem.exigibles||0)+' METAS MUSCULARES</p>'+
+     '<div class="kwHero">'+stimulusWheel(wd,{variant:'hero',theme:'light',center:{v:e.pct+'%',l:'LOGRADO'},onTap:'wheelDetalle',anim:!window._kwAnimOk})+'</div>'+
      '<div class="kwRes">'+(rs.top.length?'<div><small>MÁS ESTÍMULO ESTA SEMANA</small><b>'+rs.top.join(' · ')+'</b></div>':'')+(rs.falta.length?'<div><small>AÚN POR DESARROLLAR</small><b>'+rs.falta.join(' · ')+'</b></div>':'')+
        (rs.over.length?'<div><small>SOBRE EL LÍMITE</small><b>'+rs.over.join(', ')+'</b></div>':'')+'</div>'+
      '<div class="k2-week__c" style="text-align:center">'+(PROGRAMA_TXT())+semTxt+' · TOCA UN MÚSCULO PARA VER DETALLE</div></div></section>' })()+
 
    (ins?'<section class="k2-ins"><b>'+ins[0]+'</b><p>'+ins[1]+'</p></section>':'')
   requestAnimationFrame(()=>requestAnimationFrame(()=>box.classList.add('k2-in')))
+  kwAnimar(box.querySelector('.kw--anim'))
   cargaSemanalPintar()
 }
 /* c27 · CARGA SEMANAL = Σ peso × reps de series completadas desde el lunes (misma regla que Avances/credencial).
