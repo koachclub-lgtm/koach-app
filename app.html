@@ -393,6 +393,37 @@ html.accBloq #pfCard, html.accBloq #vPerfil .kpc__f, html.accBloq #vPerfil [oncl
 .opAv__x{position:absolute;top:8px;right:8px;width:36px;height:36px;border:0;border-radius:10px;background:rgba(18,18,18,.06);color:#121212;font-size:13px;cursor:pointer;display:flex;align-items:center;justify-content:center}
 .opAv__x:active{transform:scale(.94)}
 #pOpAv .opAv{margin:0 0 12px}
+
+/* ═══ c92 · MI PLAN · SILVER CLEAN: fondo Silver Texture (imagen original, capa fija solo en esta pestaña) + tarjetas blancas opacas
+   con el mismo lenguaje del Home (radio 22, filo blanco, sombra suave · session pills claras · etiquetas mono · links carbón) ═══ */
+html.en-plan{background:#C9CBCE}
+html.en-plan body{background:transparent}
+html.en-plan #vPlan.on::before{content:'';position:fixed;inset:0;z-index:-1;pointer-events:none;background:#C9CBCE url('/img/bg/silver-plan.jpg') center/cover no-repeat;
+  background-image:image-set(url('/img/bg/silver-plan.webp') type('image/webp'),url('/img/bg/silver-plan.jpg') type('image/jpeg'))}
+#vPlan .opAv,#vPlan .p2Sem{background:#FFFFFF;border:1px solid rgba(255,255,255,.9);border-radius:22px;box-shadow:0 10px 30px rgba(0,0,0,.07)}
+#vPlan .opAv{border-left:3px solid #2BB3C0}
+#vPlan .p2W{background:#FFFFFF;border:1px solid rgba(255,255,255,.9);box-shadow:0 4px 14px rgba(0,0,0,.05)}
+#vPlan .p2W.pas{background:#ECECEB}
+#vPlan .p2W.vig{background:#111;border-color:#111;color:#F4F3F0}
+#vPlan .uK{font-weight:500;font-size:10px;letter-spacing:.16em;color:#3F4044}
+/* session pills = las del Home (claras, texto negro; en curso/hoy en negro) sobre blanco opaco */
+#vPlan .sp{--sp-bg:transparent;background:#FFFFFF;border:1px solid rgba(255,255,255,.9);box-shadow:0 10px 30px rgba(0,0,0,.07);border-radius:999px;padding:5px 6px 5px 5px;margin:0 0 8px;min-height:72px;color:#111}
+#vPlan .sp__body{background:transparent;box-shadow:none;filter:none}#vPlan .sp__neck{display:none}
+#vPlan .sp__img{background:#F1F1F0;box-shadow:0 0 0 1px rgba(17,17,17,.06);padding:3px;--sp-d:62px;flex-basis:62px;height:62px}
+#vPlan .sp__mono{inset:3px;background:#E3E2DE;color:#6B6A65}
+#vPlan .sp__t{background:none;-webkit-text-fill-color:#111;color:#111}
+#vPlan .sp__s{color:#5E6066}#vPlan .sp__dot{background:#111;box-shadow:0 0 0 3px rgba(17,17,17,.14)}
+#vPlan .sp__go{background:rgba(17,17,17,.08);box-shadow:none;color:#111}
+#vPlan .sp__ok{background:#111;color:#F4F3F0}
+#vPlan .sp--active,#vPlan .sp--completed.sp--hoy{background:#111;border-color:#111;color:#F4F3F0}
+#vPlan .sp--active .sp__t,#vPlan .sp--completed.sp--hoy .sp__t{-webkit-text-fill-color:#F4F3F0;color:#F4F3F0}
+#vPlan .sp--active .sp__s,#vPlan .sp--completed.sp--hoy .sp__s{color:#C9C8C2}
+#vPlan .sp--active .sp__go,#vPlan .sp--completed.sp--hoy .sp__go{background:#F4F3F0;color:#111}
+#vPlan .sp--locked,#vPlan .sp--future{opacity:1}#vPlan .sp--locked .sp__t,#vPlan .sp--future .sp__t{-webkit-text-fill-color:#6B6A65;color:#6B6A65}
+#vPlan .spNote{color:#3F4044}
+#vPlan .pAct.sec{background:none;border:0;color:#111;font-family:var(--font-mono);font-weight:500;font-size:10px;letter-spacing:.1em;padding:6px 0}
+#vPlan .pAct:not(.sec){background:#111;border-color:#111;color:#F4F3F0}
+#vPlan .p2Lnk{color:#111}
 </style>
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
@@ -3000,7 +3031,7 @@ function fLocal(d){ const z=new Date(d.getTime()-d.getTimezoneOffset()*60000); r
 function lunes(){ const h=new Date(),d=(h.getDay()+6)%7,l=new Date(h); l.setDate(h.getDate()-d); l.setHours(0,0,0,0); return l }
 
 /* ══ UTILIDADES ══ */
-function vista(id){ document.querySelectorAll('.vista').forEach(v=>v.classList.toggle('on',v.id===id)); window.scrollTo(0,0); if(id==='vLogin') fotoLogin()
+function vista(id){ document.querySelectorAll('.vista').forEach(v=>v.classList.toggle('on',v.id===id)); document.documentElement.classList.toggle('en-plan', id==='vPlan'); window.scrollTo(0,0); if(id==='vLogin') fotoLogin()
   if (id==='vSesion') navPush('ses'); else if (id!=='vLogin') navPop('ses')
   if (id!=='vSesion' && S && S._planPend) setTimeout(function(){ planActualizado('pendiente') }, 50) }
 /* ═══ c40 · KOACH STATE SYSTEM · P0 ═══
