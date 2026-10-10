@@ -377,13 +377,16 @@ html.accBloq #pfCard, html.accBloq #vPerfil .kpc__f, html.accBloq #vPerfil [oncl
 @media (prefers-reduced-motion:reduce){ .kHoja,.kHoja__c{animation:none} }
 
 /* c42 · sesión sin cerrar (HOY) */
-.opAv{margin:12px 16px;padding:18px;border-radius:18px;background:#FBFAF8;border:1px solid rgba(18,18,18,.14);border-left:3px solid #2BB3C0}
+.opAv{position:relative;margin:12px 16px;padding:18px;border-radius:18px;background:#FBFAF8;border:1px solid rgba(18,18,18,.14);border-left:3px solid #2BB3C0}
 .opAv__k{font-family:var(--font-mono,'Space Mono',monospace);font-size:10.5px;letter-spacing:.16em;color:#5E5D59}
 .opAv__t{margin-top:6px;font-family:var(--font-display,'Archivo',sans-serif);font-weight:800;font-size:22px;line-height:1.05;color:#121212}
 .opAv__m{margin-top:6px;font-family:var(--font-mono,'Space Mono',monospace);font-size:12px;letter-spacing:.08em;color:#121212}
 .opAv__b{margin:10px 0 0;font-size:14.5px;line-height:1.45;color:#4A4945}
 .opAv__cta{display:block;width:100%;margin-top:14px;min-height:50px;border:none;border-radius:14px;background:#121212;color:#F4F3F0;font-family:var(--font-mono,'Space Mono',monospace);font-size:12px;letter-spacing:.12em;cursor:pointer}
 .opAv__cta[disabled]{opacity:.5}
+.opAv__x{position:absolute;top:8px;right:8px;width:36px;height:36px;border:0;border-radius:10px;background:rgba(18,18,18,.06);color:#121212;font-size:13px;cursor:pointer;display:flex;align-items:center;justify-content:center}
+.opAv__x:active{transform:scale(.94)}
+#pOpAv .opAv{margin:0 0 12px}
 </style>
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
@@ -2180,6 +2183,7 @@ body.wl-on{overflow:hidden}
   <!-- ══ PLAN ══ -->
   <div class="vista conTab" id="vPlan">
     <header class="kh"><div class="kh__top"><span class="kh__brand">KOACH FITNESS CLUB</span></div><div class="kh__k" style="margin-bottom:4px">TU PLAN</div><h1 class="kh__t" id="pTit">Tu plan</h1><div class="kh__k kh__k--sub" id="pSub">—</div></header>
+    <div id="pOpAv"></div>
     <div id="pCiclo"></div>
     <section class="p2Sem" id="pSemana"></section>
     <div class="uK" id="pEstaSem" style="margin:6px 2px 10px">SESIONES DE LA SEMANA</div>
@@ -2704,7 +2708,7 @@ function pintarHomeV2(){
   box.innerHTML=
    (hga.src?'<div class="hgBg" aria-hidden="true" style="background-image:url('+hga.src+')"></div>':'')+
    k2HeaderHero(n,{ses,sesEC,e,obj})+
-   document.getElementById('hMemAviso').innerHTML+opAvisoHTML()+
+   document.getElementById('hMemAviso').innerHTML+
    homeHero({ ses, sesEC, e, m, ctaT, ctaS, disabled:cta.disabled, obj })+
    '<section class="k2-sec">'+'<div class="k2-sec__h">'+k2Label('TU SEMANA')+'<button class="k2-link" onclick="tab(\'vPlan\')">VER PLAN COMPLETO →</button></div><div class="k2-pills">'+tl+'</div></section>'+
    (()=>{ const wd=wheelDatosSocio(), rs=wheelResumen(wd)
@@ -3838,14 +3842,17 @@ function aplicarOperacion(){
 function opEsc(t){ return String(t==null?'':t).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]}) }
 function opAvisoHTML(){
   const op=S.op, hoy=fLocal(new Date()); if (!op || !op.abiertas) return ''
-  const a=op.abiertas.find(x=>x.fecha<hoy && x.estado==='en_curso'); if (!a) return ''
+  let off={}; try{ off=JSON.parse(localStorage.getItem('k_opav_off')||'{}') }catch(_){}
+  const a=op.abiertas.find(x=>x.fecha<hoy && x.estado==='en_curso' && !off[x.id]); if (!a) return ''
   const n=opEsc(String(a.nombre||'TU SESIÓN').toUpperCase()), cuando=(function(){ const d=new Date(a.fecha+'T12:00:00'), y=new Date(); y.setDate(y.getDate()-1); return fLocal(d)===fLocal(y)?'AYER':_fm(a.fecha).toUpperCase() })()
-  return '<section class="opAv" role="status"><div class="opAv__k">SESIÓN SIN CERRAR · '+cuando+'</div><div class="opAv__t">'+n+'</div>'+
+  return '<section class="opAv" role="status"><button type="button" class="opAv__x" aria-label="Cerrar aviso" onclick="opAvCerrar(\''+a.id+'\',this)">✕</button><div class="opAv__k">SESIÓN SIN CERRAR · '+cuando+'</div><div class="opAv__t">'+n+'</div>'+
     '<div class="opAv__m">'+a.ejercicios+' / '+a.total_ejercicios+' EJERCICIOS · '+a.sets+' SETS</div>'+
     (a.parece_completa
       ? '<p class="opAv__b">Registraste todos los ejercicios, pero no tocaste FINALIZAR. ¿La terminaste?</p><button type="button" class="opAv__cta" onclick="opFinalizarPendiente(\''+a.id+'\',this)">SÍ, LA TERMINÉ · CERRARLA</button>'
       : '<p class="opAv__b">Quedó a medias. Tus sets están guardados; tu coach la revisará.</p>')+'</section>'
 }
+function opAvCerrar(id, b){ try{ const o=JSON.parse(localStorage.getItem('k_opav_off')||'{}'); o[id]=1; localStorage.setItem('k_opav_off',JSON.stringify(o)) }catch(_){}
+  const s=b.closest('.opAv'); if (s) s.remove() }
 async function opFinalizarPendiente(id, b){
   if (b.disabled) return; b.disabled=true; b.textContent='CERRANDO…'
   const r=await sb.rpc('mi_finalizar_pendiente',{ p_registro:id })
@@ -5058,6 +5065,7 @@ function pintarCicloSocio(){
   el.innerHTML='<div class="p2Cyc" role="list" aria-label="Semanas del ciclo">'+h+'</div>'
 }
 function pintarPlan(){
+  { const av=document.getElementById('pOpAv'); if (av) av.innerHTML=opAvisoHTML() }   // c90 · aviso de sesión sin cerrar: en PLAN, descartable
   if (!S.programa){ document.getElementById('pLista').innerHTML='<div class="kSt"><img class="kIso kIso--ink" src="/img/brand/isotipo-blanco.png" alt=""><span class="kLbl kLbl--dk">TU PLAN</span><h2 class="kSt__t">TU KOACH ESTÁ PREPARANDO TU PLAN.</h2><p class="kSt__p">Lo verás aquí apenas esté activo: tus sesiones, tus cargas y tu semana.</p><span class="kSt__ms">● PLAN EN PREPARACIÓN</span></div><div hidden><b>Nos vemos en la sala.</b></div>'; return }
   const ci=cicloInfo(), N=(ci&&ci.semanas)||(S.proto&&S.proto.ciclo_semanas)||6, vig=S.semanaActual||1
   const fmt=d=>{ if(!d) return ''; const x=new Date(String(d).slice(0,10)+'T12:00:00'); return x.getDate()+' '+_MES[x.getMonth()] }
