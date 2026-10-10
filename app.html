@@ -553,6 +553,10 @@ html .kw.kw--hero .kw-cl{font-size:7px;letter-spacing:.16em}
 .k2 #vHome .hh--ed .hh__pills+.hh__code,.k2 #vHome .hh--ed .hh__code{margin-top:18px}
 .k2 #vHome .hh--ed .hh__desc{margin:10px 0 0;max-width:34ch;font:400 13.5px/1.4 var(--font-display);font-stretch:100%;letter-spacing:0;color:#3F3F3C}
 .k2 #vHome .hh--ed .hh__desc b{font-weight:700;color:#121212}
+
+/* c103 · Código de programa = tipografía del manual (mono regular, tracking corto) */
+.mtProg__l,#vPlan .mtProg__l,.k2 #vHome .hh--ed .hh__code{font-weight:400;letter-spacing:.04em}
+.k2 #vHome .hh--ed .hh__code{font-size:12.5px;color:#121212}
 </style>
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
@@ -5395,8 +5399,8 @@ function pintarSemanaPlan(){
 // Cada grupo es una pill (las 4 con más series = prioridad, rellenas) + línea mínima en escala fija 0·10·20·30 (MEV · referencia · techo).
 // Animación: 1 s de espera al abrir, luego cada línea se llena en 1,2 s con 110 ms de desfase. Sin animación con reduced-motion.
 const MT_PROG={ STRONG:{l:'GAIN MUSCLE & STRENGTH', t:p=>'Protocolo de entrenamiento de fuerza con fines de hipertrofia muscular, con prioridad en <b>'+p+'</b>, sin dejar de lado el balance del fortalecimiento muscular de todo tu cuerpo.'},
-  BURN:{l:'FAT BURNER & PERFORMANCE', t:p=>'Protocolo híbrido de fuerza y cardio para aumentar tu gasto energético y reducir tu porcentaje de grasa, con énfasis en <b>'+p+'</b>, mejorando tu rendimiento.'},
-  HEALTHY:{l:'VITALITY & WELLNESS', t:p=>'Protocolo de fuerza de menor intensidad para recuperar tu condición física y reducir molestias, con foco en <b>'+p+'</b>, desarrollando fuerza para el día a día.'} }
+  BURN:{l:'FAT BURNER & PERFORMANCE', t:p=>'Protocolo híbrido que combina fuerza y cardio para aumentar tu gasto energético, reducir tu porcentaje de grasa y mejorar tu rendimiento, con énfasis en <b>'+p+'</b>.'},
+  HEALTHY:{l:'VITALITY & WELLNESS', t:p=>'Protocolo de fuerza de menor intensidad orientado a recuperar tu condición física, reducir molestias y desarrollar fuerza para el día a día, con foco en <b>'+p+'</b>.'} }
 function mtDist(){ const ses=(S.programa && S.programa.sesiones) ? baseSem() : null
   if (!S.programa || !ses || !ses.length) return null
   const d=KD.distribucionSemana(ses.map(kdNormSesion))
