@@ -429,11 +429,12 @@ html.en-plan #vPlan.on::before{content:'';position:fixed;inset:0;z-index:-1;poin
 #vPlan .kh--met .k2h__bg{fill:transparent}#vPlan .kh--met .k2h__lines{display:none}
 #vPlan .kh--met::before{content:'';position:absolute;inset:0;z-index:-3;background:#070707 url('/img/bg/tex-metodo.webp') center 85%/cover no-repeat;
   -webkit-mask:url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%20400%20262%22%20preserveAspectRatio%3D%22none%22%3E%3Cpath%20d%3D%22M0%200%20H400%20V262%20C400%20246%20386%20232%20362%20232%20H46%20C21%20232%200%20213%200%20188%20Z%22/%3E%3C/svg%3E") 0 0/100% 100% no-repeat;mask:url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%20400%20262%22%20preserveAspectRatio%3D%22none%22%3E%3Cpath%20d%3D%22M0%200%20H400%20V262%20C400%20246%20386%20232%20362%20232%20H46%20C21%20232%200%20213%200%20188%20Z%22/%3E%3C/svg%3E") 0 0/100% 100% no-repeat}
+.mtTop{justify-content:flex-start!important}.mtIso{width:30px;height:30px;fill:#F4F3F0;display:block}
 .mtCode{margin-top:6px;font:400 9.5px/1.4 var(--font-mono);letter-spacing:.2em;color:#A9A8A3}
 #vPlan .mtT{margin-top:10px;font-weight:900;font-stretch:112%;font-size:clamp(40px,12vw,50px);line-height:.92;letter-spacing:-.015em;text-transform:uppercase}
 .mtCli{margin-top:16px;padding-top:12px;border-top:1px solid rgba(244,243,240,.14)}
 .mtCli__n{font:400 11px/1.3 var(--font-mono);letter-spacing:.2em;color:#F4F3F0}.mtCli__n span{color:#8A8984}
-.mtCli__g{display:grid;grid-template-columns:1fr 1.25fr .9fr;margin-top:12px;padding-top:10px;border-top:1px dashed rgba(244,243,240,.14)}
+.mtCli__g{display:grid;grid-template-columns:1fr 1fr;row-gap:12px;margin-top:12px;padding-top:10px;border-top:1px dashed rgba(244,243,240,.14)}
 .mtCli__g small{display:block;font:400 7.5px/1 var(--font-mono);letter-spacing:.18em;color:#8A8984}
 .mtCli__g b{display:block;margin-top:6px;font:700 13px/1 var(--font-mono);letter-spacing:.08em;color:#F4F3F0;font-variant-numeric:tabular-nums}
 .mtProg,.mtDose{background:#FFFFFF;border:1px solid rgba(255,255,255,.9);border-radius:22px;box-shadow:0 10px 30px rgba(0,0,0,.07);padding:18px;margin:0 0 12px;color:#111}
@@ -2253,7 +2254,7 @@ body.wl-on{overflow:hidden}
 
   <!-- ══ PLAN ══ -->
   <div class="vista conTab" id="vPlan">
-    <header class="kh kh--met"><div class="kh__top"><span class="kh__brand">KOACH FITNESS CLUB</span></div><div class="mtCode" id="mtCode">MÉTODO KOACH</div><h1 class="kh__t mtT">El método<br>KOACH.</h1>
+    <header class="kh kh--met"><div class="kh__top mtTop"><svg class="mtIso" viewBox="0 0 460 462" role="img" aria-label="KOACH"><rect width="460" height="94"/><polygon points="0,339 231,131 460,336 460,456 231,251 0,462"/></svg></div><div class="mtCode" id="mtCode">MÉTODO KOACH</div><h1 class="kh__t mtT">El método<br>KOACH.</h1>
       <div class="mtCli" id="mtCli"></div><span id="pTit" hidden></span><div id="pSub" hidden></div></header>
     <div id="pOpAv"></div>
     <section class="mtProg" id="mtProg" aria-label="Tu programa"></section>
@@ -5271,7 +5272,10 @@ function pintarMetodoCab(){
   if (code) code.textContent='MÉTODO KOACH'+(n?' · SOCIO #'+n:'')
   const nom=[p.nombre,p.apellido].filter(Boolean).join(' ').toUpperCase()||'—'
   const ses = (S.totalSes!=null) ? S.totalSes : null
-  cli.innerHTML='<div class="mtCli__n"><span>SOCIO</span> '+plEscA(nom)+'</div><div class="mtCli__g"><div><small>PROGRAMA</small><b>'+plEscA(prog)+'</b></div><div><small>KG LEVANTADOS</small><b id="mtKg">—</b></div><div><small>SESIONES</small><b>'+(ses!=null?ses:'—')+'</b></div></div>'
+  // frecuencia = sesiones base programadas por el coach en la semana vigente (sin extras): 3 sesiones → 3 / WEEK
+  let fr=0; try{ fr=baseSem().length }catch(_){}
+  cli.innerHTML='<div class="mtCli__n"><span>PROYECTO</span> '+plEscA(nom)+'</div><div class="mtCli__g"><div><small>PROGRAMA</small><b>'+plEscA(prog)+'</b></div><div><small>FRECUENCIA</small><b>'+(fr?fr+' / WEEK':'—')+'</b></div>'+
+    '<div><small>KG LEVANTADOS</small><b id="mtKg">—</b></div><div><small>SESIONES</small><b>'+(ses!=null?ses:'—')+'</b></div></div>'
   kgTotalCargar().then(function(kg){ const b=document.getElementById('mtKg'); if(b) b.textContent = kg!=null ? kgFmt(kg) : '—' })
 }
 function pintarDistPlan(){
