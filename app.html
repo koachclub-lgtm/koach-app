@@ -549,8 +549,10 @@ html .kw.kw--hero .kw-cl{font-size:7px;letter-spacing:.16em}
 @media (prefers-reduced-motion:reduce){.kw--anim *{transition:none!important}}
 
 /* c101 · Código del programa en la tarjeta hero */
-.k2 #vHome .hh--ed .hh__code{margin-top:22px;font:700 12px/1.55 var(--font-mono);letter-spacing:.18em;color:#1A1A1A;text-transform:uppercase}
-.k2 #vHome .hh--ed .hh__code span{display:block}
+.k2 #vHome .hh--ed .hh__code{margin-top:6px;font:700 11px/1.3 var(--font-mono);letter-spacing:.18em;color:#1A1A1A;text-transform:uppercase}
+.k2 #vHome .hh--ed .hh__pills+.hh__code,.k2 #vHome .hh--ed .hh__code{margin-top:18px}
+.k2 #vHome .hh--ed .hh__desc{margin:10px 0 0;max-width:34ch;font:400 13.5px/1.4 var(--font-display);font-stretch:100%;letter-spacing:0;color:#3F3F3C}
+.k2 #vHome .hh--ed .hh__desc b{font-weight:700;color:#121212}
 </style>
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
@@ -2813,7 +2815,8 @@ function homeHero(o){
     '<div class="hh__c"><div class="hh__hd"><span class="hh__k">'+kicker+'</span>'+cnt+'</div><h2 class="hh__t">'+tit+'</h2>'+pills+
     (()=>{ // c101 · en vez de la frase: el código del programa (misma tipografía que la tarjeta de MÉTODO)
       let cat=null; try{ cat=MT_PROG[String((S.proto&&S.proto.programa)||'').toUpperCase()] }catch(_){}
-      if (cat) return '<div class="hh__code" aria-label="'+cat.l+'">'+cat.l.split(' & ').map((x,k)=>'<span>'+(k?'& ':'')+x+'</span>').join('')+'</div>'
+      if (cat){ let pri=[]; try{ const D=mtDist(); if (D) pri=D.pri.slice(0,3) }catch(_){}
+        return '<div class="hh__code">'+cat.l+'</div>'+(pri.length?'<p class="hh__desc">'+cat.t(plEscA(mtLista(pri)))+'</p>':'') }
       return frase?'<div class="kh__frase hh__f">'+frase+'</div>':'' })()+
     '<div class="hh__ft"><button class="hh__pill" type="button" '+(o.disabled?'disabled':'')+' onclick="document.getElementById(\'hCta\').click()" aria-label="'+cta1+' · '+cta2.replace(/→/g,'')+'">'+
       '<span>'+pillTxt+'</span>'+(o.disabled?'':'<svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M5 12h13M13 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>')+'</button>'+
@@ -5391,9 +5394,9 @@ function pintarSemanaPlan(){
 // c93 · MÉTODO · DOSIFICACIÓN DE TU PROGRAMA: mismo motor que el dosificador del coach (KD.distribucionSemana), semana vigente publicada.
 // Cada grupo es una pill (las 4 con más series = prioridad, rellenas) + línea mínima en escala fija 0·10·20·30 (MEV · referencia · techo).
 // Animación: 1 s de espera al abrir, luego cada línea se llena en 1,2 s con 110 ms de desfase. Sin animación con reduced-motion.
-const MT_PROG={ STRONG:{l:'GAIN MUSCLE & STRENGTH', t:p=>'Protocolo de entrenamiento de fuerza e hipertrofia diseñado especialmente para ti, con prioridad en <b>'+p+'</b>, sin dejar de lado un fortalecimiento balanceado de todo tu cuerpo.'},
-  BURN:{l:'FAT LOSS & PERFORMANCE', t:p=>'Protocolo híbrido de fuerza y estímulo metabólico diseñado especialmente para ti, con énfasis en <b>'+p+'</b>, para acelerar tu gasto energético y favorecer tu recomposición corporal.'},
-  HEALTHY:{l:'VITALITY & WELLNESS', t:p=>'Protocolo de fuerza controlada y progresiva diseñado especialmente para ti, con foco en <b>'+p+'</b>, para construir un cuerpo saludable y sin dolor, a tu propio ritmo.'} }
+const MT_PROG={ STRONG:{l:'GAIN MUSCLE & STRENGTH', t:p=>'Protocolo de entrenamiento de fuerza con fines de hipertrofia muscular, con prioridad en <b>'+p+'</b>, sin dejar de lado el balance del fortalecimiento muscular de todo tu cuerpo.'},
+  BURN:{l:'FAT BURNER & PERFORMANCE', t:p=>'Protocolo híbrido de fuerza y cardio para aumentar tu gasto energético y reducir tu porcentaje de grasa, con énfasis en <b>'+p+'</b>, mejorando tu rendimiento.'},
+  HEALTHY:{l:'VITALITY & WELLNESS', t:p=>'Protocolo de fuerza de menor intensidad para recuperar tu condición física y reducir molestias, con foco en <b>'+p+'</b>, desarrollando fuerza para el día a día.'} }
 function mtDist(){ const ses=(S.programa && S.programa.sesiones) ? baseSem() : null
   if (!S.programa || !ses || !ses.length) return null
   const d=KD.distribucionSemana(ses.map(kdNormSesion))
