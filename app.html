@@ -443,22 +443,34 @@ html.en-plan #vPlan.on::before{content:'';position:fixed;inset:0;z-index:-1;poin
 .mtProg__t{margin-top:8px;font:900 clamp(46px,14vw,56px)/.86 var(--font-display);font-stretch:115%;letter-spacing:-.02em;text-transform:uppercase}
 .mtProg__l{margin-top:6px;font:700 11px/1 var(--font-mono);letter-spacing:.18em}
 .mtProg__p{margin:12px 0 0;font-size:14px;line-height:1.45;color:#3F3F3C}.mtProg__p b{color:#111;font-weight:800;font-size:12.5px;letter-spacing:.02em}
-.mtD__h{display:flex;justify-content:space-between;align-items:baseline;gap:8px;margin-bottom:6px}.mtD__h b{font:800 14px/1.1 var(--font-display);letter-spacing:.02em}
-.mtD__h small{font:400 8.5px/1 var(--font-mono);letter-spacing:.14em;color:#6B6A65;white-space:nowrap}
-.mtD{display:grid;gap:8px}
-.mtD__r,.mtD__s{display:grid;grid-template-columns:100px minmax(0,1fr) 22px;align-items:center;gap:10px}
-.mtD__p{justify-self:start;font:700 8.5px/1 var(--font-mono);letter-spacing:.12em;color:#3F4044;border:1px solid rgba(17,17,17,.28);border-radius:999px;padding:6px 9px;white-space:nowrap}
-.mtD__r.is-pri .mtD__p{background:#111;border-color:#111;color:#F4F3F0}.mtD__r.cero{opacity:.5}
-.mtD__t{position:relative;height:2px;background:rgba(17,17,17,.12);
-  background-image:linear-gradient(rgba(17,17,17,.35),rgba(17,17,17,.35)),linear-gradient(rgba(17,17,17,.35),rgba(17,17,17,.35)),linear-gradient(rgba(17,17,17,.35),rgba(17,17,17,.35));
-  background-size:1px 8px;background-repeat:no-repeat;background-position:33.33% 50%,66.66% 50%,100% 50%}
-.mtD__t i{position:absolute;left:0;top:-1px;height:4px;width:0;border-radius:2px;background:#9C9D99;transition:width 1.2s cubic-bezier(.22,.8,.3,1) var(--d)}
-.mtD__r.is-pri .mtD__t i{background:#111}.mtD.go .mtD__t i{width:var(--v)}.mtD.rm .mtD__t i{transition:none}
-.mtD__r b{font:400 10px/1 var(--font-mono);letter-spacing:.06em;color:#8A8984;text-align:right;font-variant-numeric:tabular-nums}
-.mtD__sc{position:relative;height:10px}.mtD__sc i{position:absolute;transform:translateX(-50%);font:400 8px/1 var(--font-mono);font-style:normal;letter-spacing:.08em;color:#8A8984;white-space:nowrap}
-.mtD__sc i:first-child{transform:none}.mtD__sc i:last-child{transform:translateX(-100%)}.mtD__l .mtD__sc i{font-size:7px;letter-spacing:.12em}.mtD__l .mtD__sc i:first-child{transform:translateX(-50%)}
-.mtD__f{margin-top:12px;font:400 8px/1.5 var(--font-mono);letter-spacing:.12em;color:#8A8984}.mtD__f span{color:#9C9D99}
-@media (max-width:360px){ .mtD__r,.mtD__s{grid-template-columns:90px minmax(0,1fr) 20px;gap:8px} .mtD__p{font-size:8px;padding:5px 7px} }
+.mtD__h{text-align:center}.mtD__h b{display:block;font:900 17px/1.05 var(--font-display);font-stretch:108%;letter-spacing:.01em;text-transform:uppercase}
+.mtD__h small{display:block;margin-top:6px;font:400 8.5px/1 var(--font-mono);letter-spacing:.22em;color:#8A8984}
+.mtD{position:relative;margin-top:16px;--mtL:96px;--mtR:28px}
+.mtD__g,.mtD__r{display:grid;grid-template-columns:var(--mtL) minmax(0,1fr) var(--mtR);gap:10px;align-items:center}
+.mtD__sc{position:relative;height:12px}.mtD__sc i{position:absolute;transform:translateX(-50%);font:400 8.5px/1 var(--font-mono);font-style:normal;color:#8A8984;letter-spacing:.06em;white-space:nowrap}
+.mtD__sc i:first-child{transform:none}.mtD__sc i:last-child{transform:translateX(-100%)}
+.mtD__lg{margin-top:4px}.mtD__lg .mtD__sc i{font-size:7px;letter-spacing:.14em}.mtD__lg .mtD__sc i:first-child{transform:translateX(-50%)}
+.mtD__rows{position:relative;display:grid;gap:9px;padding:6px 0}
+.mtD__gd{position:absolute;top:0;bottom:0;left:calc(var(--mtL) + 10px);right:calc(var(--mtR) + 10px);pointer-events:none}
+.mtD__gd span{position:absolute;top:0;bottom:0;width:0;border-left:1px dashed rgba(17,17,17,.22);transform-origin:top;transform:scaleY(0);transition:transform .7s cubic-bezier(.3,.8,.3,1)}
+.mtD__gd span:nth-child(1){left:33.333%}.mtD__gd span:nth-child(2){left:66.666%;transition-delay:.12s}.mtD__gd span:nth-child(3){left:100%;border-left-style:solid;border-color:rgba(17,17,17,.1)}
+.mtD.go .mtD__gd span{transform:scaleY(1)}
+.mtD__r{opacity:0;transform:translateY(4px);transition:opacity .35s ease calc(var(--d) - 500ms),transform .35s ease calc(var(--d) - 500ms)}
+.mtD.go .mtD__r{opacity:1;transform:none}.mtD.go .mtD__r.cero{opacity:.45}
+.mtD__p{justify-self:start;max-width:100%;overflow:hidden;text-overflow:ellipsis;font:700 8.5px/1 var(--font-mono);letter-spacing:.12em;color:#3F4044;border:1px solid rgba(17,17,17,.26);border-radius:999px;padding:6px 9px;white-space:nowrap}
+.mtD__r.is-pri .mtD__p{background:#111;border-color:#111;color:#F4F3F0}
+.mtD__t{position:relative;height:6px;border-radius:99px;background:rgba(17,17,17,.06)}
+.mtD__t i{position:absolute;left:0;top:0;bottom:0;width:0;border-radius:99px;background:linear-gradient(90deg,#BDBEBA,#9C9D99);transition:width 1.2s cubic-bezier(.22,.8,.25,1) var(--d)}
+.mtD__r.is-pri .mtD__t i{background:linear-gradient(90deg,#3A3A3A,#111)}
+.mtD__t i::after{content:'';position:absolute;right:0;top:50%;width:10px;height:10px;border-radius:50%;transform:translate(50%,-50%) scale(0);background:#fff;border:2px solid #9C9D99;transition:transform .3s ease calc(var(--d) + 1.05s)}
+.mtD__r.is-pri .mtD__t i::after{border-color:#111}.mtD__r.cero .mtD__t i::after{display:none}
+.mtD.go .mtD__t i{width:var(--v)}.mtD.go .mtD__t i::after{transform:translate(50%,-50%) scale(1)}
+.mtD__r b{font:400 10px/1 var(--font-mono);color:#8A8984;text-align:right;font-variant-numeric:tabular-nums;letter-spacing:.04em}.mtD__r.is-pri b{color:#3F4044}
+.mtD.rm .mtD__gd span,.mtD.rm .mtD__r,.mtD.rm .mtD__t i,.mtD.rm .mtD__t i::after{transition:none!important}
+.mtD__tot{margin-top:16px;padding-top:14px;border-top:1px solid rgba(17,17,17,.08);display:flex;align-items:center;justify-content:center;gap:10px}
+.mtD__tot b{font:900 30px/1 var(--font-display);font-variant-numeric:tabular-nums;letter-spacing:-.01em}.mtD__tot span{font:400 9px/1.35 var(--font-mono);letter-spacing:.16em;color:#6B6A65;text-transform:uppercase}
+@media (max-width:374px){ .mtD__h b{font-size:15px} .mtD__lg .mtD__sc i:nth-child(2){font-size:0;letter-spacing:0} .mtD__lg .mtD__sc i:nth-child(2)::after{content:'REF';font-size:7px;letter-spacing:.14em} .mtD{--mtL:86px;--mtR:24px} .mtD__g,.mtD__r{gap:8px} .mtD__gd{left:calc(var(--mtL) + 8px);right:calc(var(--mtR) + 8px)} .mtD__p{font-size:7.5px;padding:5px 7px;letter-spacing:.08em} }
+@media (min-width:420px){ .mtD{--mtL:104px} }
 </style>
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
@@ -5288,21 +5300,36 @@ function pintarDistPlan(){
       '<div class="mtProg__t">'+plEscA(prog||'TU PROGRAMA')+'</div>'+(cat?'<div class="mtProg__l">'+cat.l+'</div>':'')+
       (cat && D.pri.length ? '<p class="mtProg__p">'+cat.t(plEscA(mtLista(D.pri)))+'</p>' : '') }
   const f1=x=>{ const r=Math.round(x*10)/10; return r%1===0?String(r):r.toFixed(1).replace('.',',') }
-  const esc='<div class="mtD__s"><span></span><span class="mtD__sc"><i style="left:0">0</i><i style="left:33.33%">10</i><i style="left:66.66%">20</i><i style="left:100%">30</i></span><span></span></div>'
+  // c95 · total de series diseñadas en la semana = sets del bloque × ejercicios de cada sesión base (lo que programó el KOACH)
+  let tot=0; try{ baseSem().forEach(function(se){ (se.bloques||[]).forEach(function(bq){ tot+=(+bq.sets||0)*((bq.ejercicios||[]).length) }) }) }catch(_){}
+  const SC='<span class="mtD__sc"><i style="left:0">0</i><i style="left:33.333%">10</i><i style="left:66.666%">20</i><i style="left:100%">30</i></span>'
   const rows=D.rows.map(function(r,i){ const pr=D.pri.indexOf(r.g)>-1, pct=Math.min(100, r.v/30*100)
-    return '<div class="mtD__r'+(pr?' is-pri':'')+(r.v>0?'':' cero')+'" style="--v:'+pct.toFixed(1)+'%;--d:'+(i*110)+'ms"><span class="mtD__p">'+plEscA(mtNom(r.g))+'</span>'+
-      '<span class="mtD__t" role="img" aria-label="'+plEscA(mtNom(r.g))+': '+f1(r.v)+' series efectivas programadas"><i></i></span><b>'+f1(r.v)+'</b></div>' }).join('')
-  box.innerHTML='<div class="mtD__h"><b>DOSIFICACIÓN DE TU PROGRAMA</b><small>SERIES · SEMANA '+w+'</small></div><div class="mtD">'+esc+rows+
-    '<div class="mtD__s mtD__l"><span></span><span class="mtD__sc"><i style="left:33.33%">MEV</i><i style="left:66.66%">REFERENCIA</i><i style="left:100%">TECHO</i></span><span></span></div></div>'+
-    '<div class="mtD__f">SERIES EFECTIVAS PROGRAMADAS POR TU KOACH · ■ PRIORIDAD · <span>■</span> BALANCE DE TODO EL CUERPO</div>'
+    return '<div class="mtD__r'+(pr?' is-pri':'')+(r.v>0?'':' cero')+'" style="--v:'+pct.toFixed(2)+'%;--d:'+(900+i*90)+'ms"><span class="mtD__p">'+plEscA(mtNom(r.g))+'</span>'+
+      '<span class="mtD__t" role="img" aria-label="'+plEscA(mtNom(r.g))+': '+f1(r.v)+' series efectivas programadas"><i></i></span><b data-v="'+r.v+'">'+f1(r.v)+'</b></div>' }).join('')
+  box.innerHTML='<div class="mtD__h"><b>Dosificación de tu semana</b><small>SEMANA '+String(w).padStart(2,'0')+'</small></div>'+
+    '<div class="mtD"><div class="mtD__g"><span></span>'+SC+'<span></span></div>'+
+    '<div class="mtD__rows"><div class="mtD__gd" aria-hidden="true"><span></span><span></span><span></span></div>'+rows+'</div>'+
+    '<div class="mtD__g mtD__lg"><span></span><span class="mtD__sc"><i style="left:33.333%">MEV</i><i style="left:66.666%">REFERENCIA</i><i style="left:100%">TECHO</i></span><span></span></div></div>'+
+    (tot?'<div class="mtD__tot"><b id="mtTot" data-v="'+tot+'">'+tot+'</b><span>series diseñadas<br>en tu programa</span></div>':'')
   mtDoseAnim()
 }
 // la carga se dispara cada vez que se entra a MÉTODO (espera 1 s a que la pantalla se asiente)
 function mtDoseAnim(){ const d=document.querySelector('#pDist .mtD'); if(!d) return
-  clearTimeout(window._mtT); d.classList.remove('go')
-  if (window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches){ d.classList.add('go','rm'); return }
-  const v=document.getElementById('vPlan'); if(!v || !v.classList.contains('on')) return
-  void d.offsetWidth; window._mtT=setTimeout(function(){ d.classList.add('go') }, 1000) }
+  clearTimeout(window._mtT); d.classList.remove('go','rm')
+  const nums=[].slice.call(d.querySelectorAll('.mtD__r b[data-v]')), tt=document.getElementById('mtTot')
+  const fmt=function(v,x){ return (v%1? (Math.round(x*10)/10).toFixed(1) : String(Math.round(x))).replace('.',',') }
+  const fin=function(){ nums.forEach(function(b){ b.textContent=fmt(+b.dataset.v,+b.dataset.v) }); if(tt) tt.textContent=tt.dataset.v }
+  if (window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches){ d.classList.add('go','rm'); fin(); return }
+  const v=document.getElementById('vPlan'); if(!v || !v.classList.contains('on')){ fin(); return }
+  nums.forEach(function(b){ b.textContent='0' }); if(tt) tt.textContent='0'
+  void d.offsetWidth
+  // 0,4 s: la pantalla se asienta → bajan las líneas 10/20 → filas en cascada (90 ms) → barras 1,2 s con cifras → total
+  window._mtT=setTimeout(function(){ d.classList.add('go'); const t0=performance.now()
+    const tick=function(t){ let vivo=false
+      nums.forEach(function(b,i){ const vv=+b.dataset.v, k=Math.max(0,Math.min(1,(t-t0-900-i*90)/1200)); b.textContent=fmt(vv, vv*(1-Math.pow(1-k,3))); if(k<1) vivo=true })
+      if (tt){ const k=Math.max(0,Math.min(1,(t-t0-900-nums.length*90-900)/700)); tt.textContent=Math.round(+tt.dataset.v*(1-Math.pow(1-k,3))); if(k<1) vivo=true }
+      if (vivo && d.isConnected) requestAnimationFrame(tick); else fin() }
+    requestAnimationFrame(tick) }, 400) }
 // ── PLAN V2 · EL RESTO DEL CICLO (compacto)
 function pintarRestoCiclo(){
   const el=document.getElementById('pNextSem'); if(!el) return
