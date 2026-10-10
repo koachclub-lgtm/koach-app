@@ -426,18 +426,22 @@ html.en-plan #vPlan.on::before{content:'';position:fixed;inset:0;z-index:-1;poin
 #vPlan .p2Lnk{color:#111}
 
 /* ═══ c93 · MÉTODO KOACH (ex PLAN): titular EL MÉTODO KOACH + data del socio en mono · tarjeta del programa personalizada · dosificación animada ═══ */
-#vPlan .kh--met .k2h__bg{fill:transparent}#vPlan .kh--met .k2h__lines{display:none}
-#vPlan .kh--met::before{content:'';position:absolute;inset:0;z-index:-3;background:#070707 url('/img/bg/tex-metodo.webp') center 85%/cover no-repeat;
-  -webkit-mask:url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%20400%20262%22%20preserveAspectRatio%3D%22none%22%3E%3Cpath%20d%3D%22M0%200%20H400%20V262%20C400%20246%20386%20232%20362%20232%20H46%20C21%20232%200%20213%200%20188%20Z%22/%3E%3C/svg%3E") 0 0/100% 100% no-repeat;mask:url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%20400%20262%22%20preserveAspectRatio%3D%22none%22%3E%3Cpath%20d%3D%22M0%200%20H400%20V262%20C400%20246%20386%20232%20362%20232%20H46%20C21%20232%200%20213%200%20188%20Z%22/%3E%3C/svg%3E") 0 0/100% 100% no-repeat}
-.mtTop{justify-content:flex-start!important}.mtIso{width:30px;height:30px;fill:#F4F3F0;display:block}
-.mtCode{margin-top:6px;font:400 9.5px/1.4 var(--font-mono);letter-spacing:.2em;color:#A9A8A3}
-#vPlan .mtT{margin-top:10px;font-weight:900;font-stretch:112%;font-size:clamp(40px,12vw,50px);line-height:.92;letter-spacing:-.015em;text-transform:uppercase}
-.mtCli{margin-top:16px;padding-top:12px;border-top:1px solid rgba(244,243,240,.14)}
-.mtCli__n{font:400 11px/1.3 var(--font-mono);letter-spacing:.2em;color:#F4F3F0}.mtCli__n span{color:#8A8984}
-.mtCli__g{display:grid;grid-template-columns:1fr 1fr;row-gap:12px;margin-top:12px;padding-top:10px;border-top:1px dashed rgba(244,243,240,.14)}
-.mtCli__g small{display:block;font:400 7.5px/1 var(--font-mono);letter-spacing:.18em;color:#8A8984}
-.mtCli__g b{display:block;margin-top:6px;font:700 13px/1 var(--font-mono);letter-spacing:.08em;color:#F4F3F0;font-variant-numeric:tabular-nums}
+#vPlan .kh--met .k2h__bg,#vPlan .kh--met .k2h__lines{display:none}
+#vPlan .kh--met{position:relative;margin-bottom:14px;padding:calc(18px + env(safe-area-inset-top,0px)) 22px 20px;border-radius:0 0 26px 26px;
+  background:#070707 url('/img/bg/tex-metodo.webp') center 85%/cover no-repeat;overflow:hidden}
+/* cabecera geométrica del reporte: filete superior con dos remates curvos */
+#vPlan .kh--met::before{content:'';position:absolute;left:22px;right:22px;top:calc(10px + env(safe-area-inset-top,0px));height:8px;border:1px solid rgba(244,243,240,.22);border-bottom:0;border-radius:8px 8px 0 0;pointer-events:none}
+.mtIso{position:absolute;right:22px;bottom:20px;width:26px;height:26px;fill:#F4F3F0;opacity:.92}
+.mtCode{margin-top:8px;font:400 9px/1.4 var(--font-mono);letter-spacing:.2em;color:#A9A8A3}
+#vPlan .mtT{margin-top:8px;font-weight:900;font-stretch:112%;font-size:clamp(36px,10.6vw,44px);line-height:.92;letter-spacing:-.015em;text-transform:uppercase}
+.mtCli{margin-top:14px;padding-top:10px;border-top:1px solid rgba(244,243,240,.14);padding-right:40px}
+.mtRep{list-style:none;margin:0;padding:0;display:grid;gap:7px}
+.mtRep li{display:grid;grid-template-columns:12px auto minmax(12px,1fr) auto;align-items:center;gap:8px;font:400 10px/1.2 var(--font-mono);letter-spacing:.14em;color:#8A8984}
+.mtRep svg{width:10px;height:10px;color:#F4F3F0}
+.mtRep i{height:0;border-bottom:1px dotted rgba(244,243,240,.22)}
+.mtRep b{font-weight:700;color:#F4F3F0;letter-spacing:.1em;font-variant-numeric:tabular-nums;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:62vw}
 .mtProg,.mtDose{background:#FFFFFF;border:1px solid rgba(255,255,255,.9);border-radius:22px;box-shadow:0 10px 30px rgba(0,0,0,.07);padding:18px;margin:0 0 12px;color:#111}
+.mtDose{padding:14px 16px 12px}
 .mtProg:empty,.mtDose:empty{display:none}
 .mtProg__k{display:flex;justify-content:space-between;gap:8px;font:400 8.5px/1 var(--font-mono);letter-spacing:.16em;color:#6B6A65}
 .mtProg__t{margin-top:8px;font:900 clamp(46px,14vw,56px)/.86 var(--font-display);font-stretch:115%;letter-spacing:-.02em;text-transform:uppercase}
@@ -445,19 +449,19 @@ html.en-plan #vPlan.on::before{content:'';position:fixed;inset:0;z-index:-1;poin
 .mtProg__p{margin:12px 0 0;font-size:14px;line-height:1.45;color:#3F3F3C}.mtProg__p b{color:#111;font-weight:800;font-size:12.5px;letter-spacing:.02em}
 .mtD__h{text-align:center}.mtD__h b{display:block;font:900 17px/1.05 var(--font-display);font-stretch:108%;letter-spacing:.01em;text-transform:uppercase}
 .mtD__h small{display:block;margin-top:6px;font:400 8.5px/1 var(--font-mono);letter-spacing:.22em;color:#8A8984}
-.mtD{position:relative;margin-top:16px;--mtL:96px;--mtR:28px}
+.mtD{position:relative;margin-top:10px;--mtL:96px;--mtR:28px}
 .mtD__g,.mtD__r{display:grid;grid-template-columns:var(--mtL) minmax(0,1fr) var(--mtR);gap:10px;align-items:center}
 .mtD__sc{position:relative;height:12px}.mtD__sc i{position:absolute;transform:translateX(-50%);font:400 8.5px/1 var(--font-mono);font-style:normal;color:#8A8984;letter-spacing:.06em;white-space:nowrap}
 .mtD__sc i:first-child{transform:none}.mtD__sc i:last-child{transform:translateX(-100%)}
 .mtD__lg{margin-top:4px}.mtD__lg .mtD__sc i{font-size:7px;letter-spacing:.14em}.mtD__lg .mtD__sc i:first-child{transform:translateX(-50%)}
-.mtD__rows{position:relative;display:grid;gap:9px;padding:6px 0}
+.mtD__rows{position:relative;display:grid;gap:6px;padding:5px 0}
 .mtD__gd{position:absolute;top:0;bottom:0;left:calc(var(--mtL) + 10px);right:calc(var(--mtR) + 10px);pointer-events:none}
 .mtD__gd span{position:absolute;top:0;bottom:0;width:0;border-left:1px dashed rgba(17,17,17,.22);transform-origin:top;transform:scaleY(0);transition:transform .7s cubic-bezier(.3,.8,.3,1)}
 .mtD__gd span:nth-child(1){left:33.333%}.mtD__gd span:nth-child(2){left:66.666%;transition-delay:.12s}.mtD__gd span:nth-child(3){left:100%;border-left-style:solid;border-color:rgba(17,17,17,.1)}
 .mtD.go .mtD__gd span{transform:scaleY(1)}
 .mtD__r{opacity:0;transform:translateY(4px);transition:opacity .35s ease calc(var(--d) - 500ms),transform .35s ease calc(var(--d) - 500ms)}
 .mtD.go .mtD__r{opacity:1;transform:none}.mtD.go .mtD__r.cero{opacity:.45}
-.mtD__p{justify-self:start;max-width:100%;overflow:hidden;text-overflow:ellipsis;font:700 8.5px/1 var(--font-mono);letter-spacing:.12em;color:#3F4044;border:1px solid rgba(17,17,17,.26);border-radius:999px;padding:6px 9px;white-space:nowrap}
+.mtD__p{justify-self:start;max-width:100%;overflow:hidden;text-overflow:ellipsis;font:700 8.5px/1 var(--font-mono);letter-spacing:.12em;color:#3F4044;border:1px solid rgba(17,17,17,.26);border-radius:999px;padding:5px 9px;white-space:nowrap}
 .mtD__r.is-pri .mtD__p{background:#111;border-color:#111;color:#F4F3F0}
 .mtD__t{position:relative;height:6px;border-radius:99px;background:rgba(17,17,17,.06)}
 .mtD__t i{position:absolute;left:0;top:0;bottom:0;width:0;border-radius:99px;background:linear-gradient(90deg,#BDBEBA,#9C9D99);transition:width 1.2s cubic-bezier(.22,.8,.25,1) var(--d)}
@@ -467,8 +471,8 @@ html.en-plan #vPlan.on::before{content:'';position:fixed;inset:0;z-index:-1;poin
 .mtD.go .mtD__t i{width:var(--v)}.mtD.go .mtD__t i::after{transform:translate(50%,-50%) scale(1)}
 .mtD__r b{font:400 10px/1 var(--font-mono);color:#8A8984;text-align:right;font-variant-numeric:tabular-nums;letter-spacing:.04em}.mtD__r.is-pri b{color:#3F4044}
 .mtD.rm .mtD__gd span,.mtD.rm .mtD__r,.mtD.rm .mtD__t i,.mtD.rm .mtD__t i::after{transition:none!important}
-.mtD__tot{margin-top:16px;padding-top:14px;border-top:1px solid rgba(17,17,17,.08);display:flex;align-items:center;justify-content:center;gap:10px}
-.mtD__tot b{font:900 30px/1 var(--font-display);font-variant-numeric:tabular-nums;letter-spacing:-.01em}.mtD__tot span{font:400 9px/1.35 var(--font-mono);letter-spacing:.16em;color:#6B6A65;text-transform:uppercase}
+.mtD__tot{margin-top:10px;padding-top:10px;border-top:1px solid rgba(17,17,17,.08);display:flex;align-items:center;justify-content:center;gap:10px}
+.mtD__tot b{font:900 26px/1 var(--font-display);font-variant-numeric:tabular-nums;letter-spacing:-.01em}.mtD__tot span{font:400 9px/1.35 var(--font-mono);letter-spacing:.16em;color:#6B6A65;text-transform:uppercase}
 @media (max-width:374px){ .mtD__h b{font-size:15px} .mtD__lg .mtD__sc i:nth-child(2){font-size:0;letter-spacing:0} .mtD__lg .mtD__sc i:nth-child(2)::after{content:'REF';font-size:7px;letter-spacing:.14em} .mtD{--mtL:86px;--mtR:24px} .mtD__g,.mtD__r{gap:8px} .mtD__gd{left:calc(var(--mtL) + 8px);right:calc(var(--mtR) + 8px)} .mtD__p{font-size:7.5px;padding:5px 7px;letter-spacing:.08em} }
 @media (min-width:420px){ .mtD{--mtL:104px} }
 </style>
@@ -2266,15 +2270,16 @@ body.wl-on{overflow:hidden}
 
   <!-- ══ PLAN ══ -->
   <div class="vista conTab" id="vPlan">
-    <header class="kh kh--met"><div class="kh__top mtTop"><svg class="mtIso" viewBox="0 0 460 462" role="img" aria-label="KOACH"><rect width="460" height="94"/><polygon points="0,339 231,131 460,336 460,456 231,251 0,462"/></svg></div><div class="mtCode" id="mtCode">MÉTODO KOACH</div><h1 class="kh__t mtT">El método<br>KOACH.</h1>
-      <div class="mtCli" id="mtCli"></div><span id="pTit" hidden></span><div id="pSub" hidden></div></header>
-    <div id="pOpAv"></div>
+    <header class="kh kh--met"><div class="mtCode" id="mtCode">MÉTODO KOACH</div><h1 class="kh__t mtT">El método<br>KOACH.</h1>
+      <div class="mtCli" id="mtCli"></div><span id="pTit" hidden></span><div id="pSub" hidden></div>
+      <svg class="mtIso" viewBox="0 0 460 462" role="img" aria-label="KOACH"><rect width="460" height="94"/><polygon points="0,339 231,131 460,336 460,456 231,251 0,462"/></svg></header>
+    <section class="mtDose" id="pDist" aria-label="Dosificación de tu semana"></section>
     <section class="mtProg" id="mtProg" aria-label="Tu programa"></section>
-    <section class="mtDose" id="pDist" aria-label="Dosificación de tu programa"></section>
     <div class="uK" style="margin:22px 2px 10px">ORGANIZACIÓN DE TU CICLO</div>
     <div id="pCiclo"></div>
     <section class="p2Sem" id="pSemana"></section>
     <div class="uK" id="pEstaSem" style="margin:6px 2px 10px">TUS SESIONES</div>
+    <div id="pOpAv"></div>
     <div id="pLista"></div>
     <section id="pNextSem"></section>
     <button type="button" class="p2Lnk" onclick="verHistorial()">VER HISTORIAL DE SESIONES →</button>
@@ -5286,8 +5291,9 @@ function pintarMetodoCab(){
   const ses = (S.totalSes!=null) ? S.totalSes : null
   // frecuencia = sesiones base programadas por el coach en la semana vigente (sin extras): 3 sesiones → 3 / WEEK
   let fr=0; try{ fr=baseSem().length }catch(_){}
-  cli.innerHTML='<div class="mtCli__n"><span>PROYECTO</span> '+plEscA(nom)+'</div><div class="mtCli__g"><div><small>PROGRAMA</small><b>'+plEscA(prog)+'</b></div><div><small>FRECUENCIA</small><b>'+(fr?fr+' / WEEK':'—')+'</b></div>'+
-    '<div><small>KG LEVANTADOS</small><b id="mtKg">—</b></div><div><small>SESIONES</small><b>'+(ses!=null?ses:'—')+'</b></div></div>'
+  const AR='<svg viewBox="0 0 14 14" aria-hidden="true"><path d="M3 11L11 3M5 3h6v6" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="square"/></svg>'
+  const fila=function(k,v,id){ return '<li>'+AR+'<span class="k">'+k+'</span><i></i><b'+(id?' id="'+id+'"':'')+'>'+v+'</b></li>' }
+  cli.innerHTML='<ul class="mtRep">'+fila('PROYECTO',plEscA(nom))+fila('PROGRAMA',plEscA(prog))+fila('FRECUENCIA',fr?fr+' / WEEK':'—')+fila('KG LEVANTADOS','—','mtKg')+fila('SESIONES',ses!=null?ses:'—')+'</ul>'
   kgTotalCargar().then(function(kg){ const b=document.getElementById('mtKg'); if(b) b.textContent = kg!=null ? kgFmt(kg) : '—' })
 }
 function pintarDistPlan(){
@@ -5303,7 +5309,7 @@ function pintarDistPlan(){
   // c95 · total de series diseñadas en la semana = sets del bloque × ejercicios de cada sesión base (lo que programó el KOACH)
   let tot=0; try{ baseSem().forEach(function(se){ (se.bloques||[]).forEach(function(bq){ tot+=(+bq.sets||0)*((bq.ejercicios||[]).length) }) }) }catch(_){}
   const SC='<span class="mtD__sc"><i style="left:0">0</i><i style="left:33.333%">10</i><i style="left:66.666%">20</i><i style="left:100%">30</i></span>'
-  const rows=D.rows.map(function(r,i){ const pr=D.pri.indexOf(r.g)>-1, pct=Math.min(100, r.v/30*100)
+  const rows=D.rows.filter(function(r){ return r.v>0 }).map(function(r,i){ const pr=D.pri.indexOf(r.g)>-1, pct=Math.min(100, r.v/30*100)
     return '<div class="mtD__r'+(pr?' is-pri':'')+(r.v>0?'':' cero')+'" style="--v:'+pct.toFixed(2)+'%;--d:'+(900+i*90)+'ms"><span class="mtD__p">'+plEscA(mtNom(r.g))+'</span>'+
       '<span class="mtD__t" role="img" aria-label="'+plEscA(mtNom(r.g))+': '+f1(r.v)+' series efectivas programadas"><i></i></span><b data-v="'+r.v+'">'+f1(r.v)+'</b></div>' }).join('')
   box.innerHTML='<div class="mtD__h"><b>Dosificación de tu semana</b><small>SEMANA '+String(w).padStart(2,'0')+'</small></div>'+
