@@ -547,6 +547,10 @@ html .kw.kw--hero .kw-cl{font-size:7px;letter-spacing:.16em}
 .hgWheel .kwRes{margin-top:8px}
 .hgWheel .k2-week__c{margin-top:12px}
 @media (prefers-reduced-motion:reduce){.kw--anim *{transition:none!important}}
+
+/* c101 · Código del programa en la tarjeta hero */
+.k2 #vHome .hh--ed .hh__code{margin-top:22px;font:700 12px/1.55 var(--font-mono);letter-spacing:.18em;color:#1A1A1A;text-transform:uppercase}
+.k2 #vHome .hh--ed .hh__code span{display:block}
 </style>
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
@@ -2807,7 +2811,10 @@ function homeHero(o){
   const tit = pal.length===2 ? plEscA(pal[0])+'<br>'+plEscA(pal[1]) : plEscA(nom)
   return '<section class="hh hh--ed'+(a.src?' hh--foto':'')+(pal.length>=3?' hh--largo':'')+'" aria-label="'+plEscA(nom)+'">'+ bg +'<div class="hh__ov" aria-hidden="true"></div>'+
     '<div class="hh__c"><div class="hh__hd"><span class="hh__k">'+kicker+'</span>'+cnt+'</div><h2 class="hh__t">'+tit+'</h2>'+pills+
-    (frase?'<div class="kh__frase hh__f">'+frase+'</div>':'')+
+    (()=>{ // c101 · en vez de la frase: el código del programa (misma tipografía que la tarjeta de MÉTODO)
+      let cat=null; try{ cat=MT_PROG[String((S.proto&&S.proto.programa)||'').toUpperCase()] }catch(_){}
+      if (cat) return '<div class="hh__code" aria-label="'+cat.l+'">'+cat.l.split(' & ').map((x,k)=>'<span>'+(k?'& ':'')+x+'</span>').join('')+'</div>'
+      return frase?'<div class="kh__frase hh__f">'+frase+'</div>':'' })()+
     '<div class="hh__ft"><button class="hh__pill" type="button" '+(o.disabled?'disabled':'')+' onclick="document.getElementById(\'hCta\').click()" aria-label="'+cta1+' · '+cta2.replace(/→/g,'')+'">'+
       '<span>'+pillTxt+'</span>'+(o.disabled?'':'<svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M5 12h13M13 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>')+'</button>'+
       (sn?'<div class="hh__bc" role="img" aria-label="Sesión número '+(+sn)+' en el club">'+barcodeSVG(sn,40)+'<span>SESSION Nº '+sn+'</span></div>':'')+'</div></div></section>'
