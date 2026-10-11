@@ -95,11 +95,41 @@ async function gemini(prompt) {
 }
 
 
+
+// Diccionario de terminología KOACH: reglas deterministas derivadas del nombre (visual_key).
+// Tienen prioridad sobre la descripción porque los modelos tienden a ignorar el agarre.
+function koachRules(key) {
+  const k = '-' + key + '-', has = (re) => re.test(k), R = [];
+  // implemento
+  if (has(/-bb-/) && !has(/ez-bar/)) R.push('Implement: one straight Olympic barbell with plates (not dumbbells, not an EZ-bar).');
+  if (has(/ez-bar/)) R.push('Implement: an EZ curl bar with the zig-zag angled grip section.');
+  if (has(/-db-/)) R.push('Implement: dumbbells (not a barbell).');
+  if (has(/-kb-/)) R.push('Implement: kettlebell.');
+  if (has(/-mb-/)) R.push('Implement: a small loop mini band around the legs.');
+  if (has(/hex-bar/)) R.push('Implement: a hexagonal trap bar with the athlete standing inside it, neutral handles.');
+  if (has(/-cable-/) && !has(/-rope-/)) R.push('Implement: cable machine; the cable runs straight and taut from the handle to the pulley.');
+  if (has(/-rope-/)) R.push('Attachment: a rope attachment with two separate rope ends, one in each hand.');
+  // agarre: en KOACH prone/supine/neutral describen la mano, NUNCA la posición del cuerpo
+  if (has(/-(prone|pronated)-/)) R.push('GRIP = PRONATED (overhand): palms facing down/away from the body, knuckles up. In KOACH names "prone" refers ONLY to the grip, NOT to lying face down; keep the normal body position of the exercise.');
+  if (has(/-(supine|supinated)-/)) R.push('GRIP = SUPINATED (underhand): palms facing up/toward the body. In KOACH names "supine" refers ONLY to the grip, NOT to lying on the back; keep the normal body position of the exercise.');
+  if (has(/-neutral-/)) R.push('GRIP = NEUTRAL: palms facing each other, using parallel handles or a V-handle; never an overhand or underhand bar grip.');
+  if (has(/-close-grip-/)) R.push('GRIP = CLOSE: hands only about shoulder-width apart or narrower, clearly much narrower than a standard grip, with a long section of bar visible between each hand and the plates.');
+  if (has(/-wide-/)) R.push('GRIP = WIDE: hands well outside shoulder width.');
+  if (has(/-(single|single-arm|one-arm)-/)) R.push('ONE ARM ONLY: exactly one hand holds the handle/dumbbell; the other hand rests on the hip, thigh or a support and holds nothing.');
+  if (has(/-alternating-/)) R.push('ALTERNATING: one side at the end of the movement and the other side at the start, clearly asymmetric.');
+  if (has(/-hammer-/)) R.push('GRIP = HAMMER: neutral grip, palms facing each other, thumbs up.');
+  // aditamentos típicos
+  if (has(/seated-row/) && !has(/-(prone|supine|single)-/)) R.push('Attachment: a close-grip V-handle (two parallel handles 15 cm apart), neutral grip.');
+  if (has(/lat-pulldown|pulldown/) && !has(/-(neutral|single)-/)) R.push('Attachment: a straight lat pulldown bar held with both hands.');
+  if (has(/-iso-|-iso$|hold/)) R.push('Static hold: show the held position, no motion.');
+  return R;
+}
+
 // Control anatómico automático: un modelo de visión revisa la foto antes de guardarla.
-async function qa(imgBuf, desc) {
+async function qa(imgBuf, desc, rules = []) {
   const key = process.env.GEMINI_API_KEY;
   const prompt = `You are a quality inspector for exercise photos in a fitness app. Inspect the image carefully and classify each problem by severity.
-Expected exercise: ${desc}
+Expected exercise: ${desc}${rules.length ? `\nMandatory rules (a violation of any of these is CRITICAL): ${rules.join(' ')}` : ''}
 CRITICAL problems (the photo must be redone): more or fewer than one person; an extra, duplicated or merged limb, hand or foot; a limb that should be clearly visible but is missing or detached; a deformed limb, hand or forearm; head or neck bent in a clearly unnatural way; a joint at an impossible angle; floating or physically impossible equipment; a different exercise than expected (wrong body position, e.g. lying instead of standing, wrong implement type such as dumbbells instead of barbell, one hand instead of two hands, or vice versa); visible text.
 MINOR observations (do not redo): camera angle slightly different from requested; joint angles a bit off; grip or handle variant slightly different; small logos on clothing; equipment details or cropping preferences.
 IMPORTANT: a limb hidden behind the torso or the equipment because of the camera angle is NOT missing; only report it if the visible parts look wrong.
@@ -166,11 +196,12 @@ const TOOLS = {
       const desc = descripcion || rec.descripcion;
       if (!desc) throw new Error('Este ejercicio no tiene descripción visual todavía.');
       let extra = correccion ? `\nIMPORTANT CORRECTION: ${correccion}` : '';
+      const rules = koachRules(visual_key);
       let model, data, check, intentos = 0;
       for (intentos = 1; intentos <= 2; intentos++) {
-        ({ model, data } = await gemini(`${MASTER}\n${desc}${extra}`));
+        ({ model, data } = await gemini(`${MASTER}\n${desc}${rules.length ? `\nMANDATORY KOACH RULES (override the description if they conflict):\n- ${rules.join('\n- ')}` : ''}${extra}`));
         const jpg = await sharp(data).resize(768, 768, { fit: 'cover' }).jpeg({ quality: 85 }).toBuffer();
-        check = await qa(jpg, desc);
+        check = await qa(jpg, desc, rules);
         if (check.ok !== false) break;
         extra = `${correccion ? `\nIMPORTANT CORRECTION: ${correccion}` : ''}\nA previous attempt had these defects, avoid them: ${check.issues.join('; ')}.`;
       }
@@ -195,7 +226,7 @@ const TOOLS = {
       const r = await fetch(publicUrl(rec.ruta_full_m || rec.ruta_m));
       if (!r.ok) throw new Error(`No se pudo leer la foto (${r.status})`);
       const jpg = await sharp(Buffer.from(await r.arrayBuffer())).resize(768, 768, { fit: 'cover' }).jpeg({ quality: 85 }).toBuffer();
-      const check = await qa(jpg, rec.descripcion || visual_key);
+      const check = await qa(jpg, rec.descripcion || visual_key, koachRules(visual_key));
       if (check.ok === null) return { visual_key, estado: rec.estado, control: check };
       const estado = check.ok ? (rec.estado === 'corregir' ? 'pendiente' : rec.estado) : 'corregir';
       const nota = check.ok ? (check.minor.length ? `Observaciones: ${check.minor.join('; ')}` : null) : `Control automático: ${check.issues.join('; ')}`;
