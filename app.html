@@ -180,7 +180,7 @@ html.bk-on{overflow:hidden}
 .bk__scroll{flex:1;min-height:0;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:10px 20px 8px;display:flex;flex-direction:column;gap:7px;overscroll-behavior:contain}
 .bk__ex{flex:none;border-radius:20px;padding:10px 14px 11px;scroll-margin:8px}.bk__ex--ok{background:var(--cardOk)}
 .bk__eh{display:flex;justify-content:space-between;align-items:center;gap:8px}
-.exrow{display:flex!important;align-items:center;gap:10px;min-width:0}.exrow__t{display:block;min-width:0}.exf{width:48px;height:48px;flex:none;border-radius:10px;object-fit:cover;background:#C4C4C4;display:block}
+.exrow{display:flex!important;align-items:center;gap:10px;min-width:0}.exrow__t{display:block;min-width:0}.exf{width:56px;height:56px;flex:none;border-radius:10px;object-fit:cover;background:#C4C4C4;display:block}
 .bk__eh b{display:block;font-family:var(--wxD);font-weight:800;font-stretch:104%;font-size:15.5px;line-height:1.1;letter-spacing:-.01em;color:var(--ink)}
 .bk__pill{flex:none;font:700 8px var(--wxM);letter-spacing:.14em;color:var(--ink2);font-style:normal}
 .bk__sb{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:8px;container-type:inline-size;container-name:sb}
@@ -4309,7 +4309,7 @@ function wxResumenHecho(be,b,w){ const fs=[]; for(let n=1;n<=b.sets;n++){ const 
   return fs.length+' SETS' }
 // Foto de ejercicio (biblioteca visual KOACH): 192 px WebP servida desde Supabase Storage
 function exFoto(ej){ const r=ej&&window.EXF&&window.EXF[ej.id]; if(!r) return ''
-  return '<img class="exf" src="'+SB_URL+'/storage/v1/object/public/ejercicios-media/'+r+'" alt="" width="48" height="48" loading="lazy" decoding="async" onerror="this.remove()">' }
+  return '<img class="exf" src="'+SB_URL+'/storage/v1/object/public/ejercicios-media/'+r+'" alt="" width="56" height="56" loading="lazy" decoding="async" onerror="this.remove()">' }
 function wxCerrado(be,b,w,ej){
   const hechos=setsHechosDe(be.id,b.sets), ok=hechos>=b.sets
   let v=''
@@ -4320,7 +4320,7 @@ function wxCerrado(be,b,w,ej){
   else v='<b>×'+(w.reps||'—')+'</b><small>PESO CORPORAL</small>'
   const u=S.ultimos[ej.id], ref = ok ? wxResumenHecho(be,b,w) : (u ? 'REF '+(u.seg!=null?u.seg+' SEG':(u.peso!=null?wxKg(u.peso)+' × ':'')+(u.reps||'')) : 'PRIMER REGISTRO')
   return '<button type="button" class="wx__c'+(ok?' wx__c--ok':'')+'" id="ex-'+be.id+'" onclick="toggleEx(\''+be.id+'\')" aria-label="'+(ej.nombre||'Ejercicio')+', '+hechos+' de '+b.sets+' sets. Abrir">'+
-    '<span class="wx__cn'+(exFoto(ej)?' exrow':'')+'">'+exFoto(ej)+'<span class="exrow__t"><b>'+(ej.nombre||'—')+(be.es_ancla?' ◆':'')+'</b><small>'+(ej.grupo_muscular||'')+' · '+hechos+'/'+b.sets+' SETS'+(ref?' · '+ref:'')+'</small></span></span>'+
+    '<span class="wx__cn"><b>'+(ej.nombre||'—')+(be.es_ancla?' ◆':'')+'</b><small>'+(ej.grupo_muscular||'')+' · '+hechos+'/'+b.sets+' SETS'+(ref?' · '+ref:'')+'</small></span>'+
     '<span class="wx__cv">'+v+'</span><span class="wx__cs" aria-hidden="true">'+(ok?'<i class="wx__ok">✓</i>':'<i class="wx__exp">+</i>')+'</span></button>'
 }
 function wxActivo(be,b,w,ej){

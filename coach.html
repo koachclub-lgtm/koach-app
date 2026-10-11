@@ -1374,6 +1374,8 @@ html.selAbierto,html.selAbierto body{overflow:hidden}
 #selEj .selPills{display:flex;flex-wrap:wrap;gap:8px 8px;padding:10px 0 20px}
 #selEj .selRow{display:inline-flex;align-items:center;gap:8px;min-height:40px;padding:0 14px;border:1px solid rgba(18,18,16,.22);border-top:1px solid rgba(18,18,16,.22);border-radius:999px;background:#fff;color:#121212;font:inherit;cursor:pointer;text-align:left;transition:border-color .15s ease,background-color .15s ease}
 #selEj .selRow:hover{border-color:#121212}
+#selEj .selRow:has(.selF){padding-left:4px;min-height:48px}
+#selEj .selF{width:40px;height:40px;border-radius:999px;object-fit:cover;background:#C4C4C4;flex:none;display:block}
 #selEj .selRow:active{background:rgba(18,18,16,.06)}
 #selEj .selRow.kb{box-shadow:0 0 0 2px #121212}
 #selEj .selRow.act{background:#121212;color:#F4F3F0;border-color:#121212}
@@ -3591,16 +3593,18 @@ async function cargarCatalogo(){
   }
   // caché-primero: catálogo casi estático → instantáneo, revalida en silencio
   // v4 (24-sep-2026): BIBLIOTECA canonical desde el Google Sheet — se descarta cualquier catálogo previo
-  try{ ['kc_ejcat_v1','kc_ejcat_v2','kc_ejcat_v3'].forEach(function(k){ localStorage.removeItem(k) }) }catch(_e){}
-  try{ const c=JSON.parse(localStorage.getItem('kc_ejcat_v4')||'null'); if(c&&c.length) aplicar(c) }catch(_e){}
+  try{ ['kc_ejcat_v1','kc_ejcat_v2','kc_ejcat_v3','kc_ejcat_v4'].forEach(function(k){ localStorage.removeItem(k) }) }catch(_e){}
+  try{ const c=JSON.parse(localStorage.getItem('kc_ejcat_v5')||'null'); if(c&&c.length) aplicar(c) }catch(_e){}
   const r = await sb.from('ejercicios')
-    .select('id,nombre,grupo_muscular,estimulo,sinergistas,tipo_registro,con_carga,implemento,cuenta_dosis')
+    .select('id,nombre,grupo_muscular,estimulo,sinergistas,tipo_registro,con_carga,implemento,cuenta_dosis,visual_key')
     .eq('activo', true)
+  // Biblioteca visual: foto aprobada o provisional por visual_key (solo para el selector)
+  try{ const rf=await sb.from('recursos_visuales').select('visual_key,ruta_m').in('estado',['aprobada','provisional']).not('ruta_m','is',null); const m={}; (rf.data||[]).forEach(function(x){ m[x.visual_key]=x.ruta_m }); window.EXF=m }catch(_e){ window.EXF=window.EXF||{} }
   if (r.data && r.data.length){
     const fresh=JSON.stringify(r.data)
     let mismo=false
-    try{ mismo = fresh===JSON.stringify(JSON.parse(localStorage.getItem('kc_ejcat_v4')||'null')) }catch(_e){}
-    if (!mismo){ aplicar(JSON.parse(fresh)); try{ localStorage.setItem('kc_ejcat_v4', fresh) }catch(_e){} }
+    try{ mismo = fresh===JSON.stringify(JSON.parse(localStorage.getItem('kc_ejcat_v5')||'null')) }catch(_e){}
+    if (!mismo){ aplicar(JSON.parse(fresh)); try{ localStorage.setItem('kc_ejcat_v5', fresh) }catch(_e){} }
     else if (!EJCAT) aplicar(r.data)
   }
 }
@@ -4474,6 +4478,9 @@ function pintarChipsSel(){
 function setGrupoSel(g){ SEL.grupo=g; SEL.foco=-1; pintarChipsSel(); pintarSelector(); selArriba() }
 function cerrarSelector(){ document.getElementById('selEj').style.display='none'; document.documentElement.classList.remove('selAbierto') }
 function _selNorm(t){ return String(t||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'') }
+// Foto del ejercicio en el selector (reconocer > leer). Fuera del selector, la rutina queda solo con nombres.
+function selFoto(e){ const r=e&&e.visual_key&&window.EXF&&window.EXF[e.visual_key]; if(!r) return ''
+  return '<img class="selF" src="'+SB_URL+'/storage/v1/object/public/ejercicios-media/'+r+'" alt="" width="40" height="40" loading="lazy" decoding="async" onerror="this.remove()">' }
 function pintarSelector(){
   const q=_selNorm(document.getElementById('selBusca').value)
   const lista=(EJCAT||[]).filter(function(e){
@@ -4484,7 +4491,7 @@ function pintarSelector(){
     // c78 · cada ejercicio es una cápsula; las cápsulas fluyen una al lado de la otra, por grupo (orden funcional) y alfabéticas dentro del grupo
     return '<div class="selGH" role="presentation"><b>'+(SIGLA[G.g]||G.g)+'</b><small>'+G.g+' · '+G.items.length+'</small></div><div class="selPills" role="group" aria-label="'+plEsc(G.g)+'">'+
       G.items.map(function(e){ const act = SEL.actual && String(e.id)===String(SEL.actual)
-        return '<button type="button" class="selRow'+(act?' act':'')+'" role="option" tabindex="-1" aria-selected="false" title="'+plEsc(e.nombre)+(e.implemento?' · '+String(e.implemento).replace('_',' '):'')+'" onclick="elegirEj(\''+e.id+'\')"><span class="selN">'+plEsc(e.nombre)+'</span>'+
+        return '<button type="button" class="selRow'+(act?' act':'')+'" role="option" tabindex="-1" aria-selected="false" title="'+plEsc(e.nombre)+(e.implemento?' · '+String(e.implemento).replace('_',' '):'')+'" onclick="elegirEj(\''+e.id+'\')">'+selFoto(e)+'<span class="selN">'+plEsc(e.nombre)+'</span>'+
           (act?'<span class="selAct">ACTUAL</span>':'')+'</button>' }).join('')+'</div>'
   }).join('') : '<div class="selVacio"><p>NO ENCONTRAMOS ESE EJERCICIO</p><button type="button" class="eBtn" onclick="document.getElementById(\'selBusca\').value=\'\';setGrupoSel(null)">LIMPIAR BÚSQUEDA</button></div>'
 }
