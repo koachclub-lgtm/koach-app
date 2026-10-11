@@ -235,6 +235,22 @@ const TOOLS = {
       return { ok: true, visual_key, kb: Math.round(jpg.length / 1024) };
     }
   },
+  usar_foto: {
+    description: 'Usa una imagen subida por el revisor como foto definitiva del visual_key (nueva versión, estado pendiente), sin pasar por Gemini.',
+    inputSchema: { type: 'object', properties: { visual_key: { type: 'string' }, imagen_base64: { type: 'string', description: 'Imagen en base64, sin prefijo data:' } }, required: ['visual_key', 'imagen_base64'] },
+    async run({ visual_key, imagen_base64 }) {
+      const [rec] = await rest(`recursos_visuales?visual_key=eq.${encodeURIComponent(visual_key)}&select=version`);
+      if (!rec) throw new Error(`visual_key desconocido: ${visual_key}`);
+      const raw = Buffer.from(String(imagen_base64).replace(/^data:[^,]+,/, ''), 'base64');
+      const v = (rec.version || 0) + 1;
+      const full = await sharp(raw).rotate().resize(1024, 1024, { fit: 'cover', position: 'centre' }).webp({ quality: 82 }).toBuffer();
+      const thumb = await sharp(raw).rotate().resize(192, 192, { fit: 'cover', position: 'centre', kernel: 'lanczos3' }).sharpen({ sigma: 0.5 }).webp({ quality: 80 }).toBuffer();
+      const ruta = `ex/${visual_key}_m_v${v}.webp`, rutaFull = `ex/full/${visual_key}_m_v${v}.webp`;
+      await upload(ruta, thumb); await upload(rutaFull, full);
+      await patchRecurso(visual_key, { version: v, ruta_m: ruta, ruta_full_m: rutaFull, estado: 'pendiente', nota: null, origen: 'subida-manual' });
+      return { visual_key, version: v, estado: 'pendiente', kb: Math.round(thumb.length / 1024), miniatura: 'data:image/webp;base64,' + thumb.toString('base64') };
+    }
+  },
   reevaluar: {
     description: 'Vuelve a pasar el control anatómico sobre la foto ya guardada (sin regenerar ni costo de imagen) y actualiza su estado.',
     inputSchema: { type: 'object', properties: { visual_key: { type: 'string' } }, required: ['visual_key'] },
