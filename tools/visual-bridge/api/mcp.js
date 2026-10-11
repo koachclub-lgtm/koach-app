@@ -8,14 +8,21 @@ const path = require('path');
 const SB = (process.env.SUPABASE_URL || 'https://siecbdatfgmqbpxqtvsl.supabase.co').replace(/\/$/, '');
 const SK = process.env.SUPABASE_SERVICE_ROLE_KEY;
 const BUCKET = 'ejercicios-media';
+const QA_MODELS = [process.env.GEMINI_QA_MODEL, 'gemini-3-flash', 'gemini-2.5-flash', 'gemini-flash-latest'].filter(Boolean);
 const MODELS = [process.env.GEMINI_IMAGE_MODEL, 'gemini-nano-banana-2.1', 'gemini-3.1-flash-image', 'gemini-2.5-flash-image'].filter(Boolean);
 
-const MASTER = `Use the attached image only as the reference for the athlete (same face, hair, body), his outfit, the grey studio backdrop, the lighting and the photographic style. Do not copy its grid layout.
-Create ONE single square photograph (1:1) of ONE exercise, described below.
+const MASTER = `The attached image shows the SAME athlete twice, only as an identity and style reference (face, hair, body, outfit, grey backdrop, lighting). Ignore the poses and the two-panel layout.
+Create ONE single square photograph (1:1) with ONE person performing ONE exercise, described below.
 Hyperrealistic commercial studio sports photography for a premium strength-training app. It will be shown as a tiny 56 px thumbnail, so frame it tightly: the athlete and the equipment he touches fill about 85% of the frame, with a strong, clear silhouette. Never cut off hands, bars, dumbbells, handles or feet. Crop away unnecessary machine structure.
-Same man: early 30s, short dark hair, light stubble, athletic but attainable physique (not a bodybuilder), NO tattoos, fitted black short-sleeve t-shirt, black shorts above the knee, black shoes with grey soles. Calm focused expression, not looking at the camera.
+Athlete: man in his early 30s, short dark hair, light stubble, athletic but attainable physique (not a bodybuilder), NO tattoos, fitted black short-sleeve t-shirt, black shorts above the knee, black shoes with grey soles. Calm focused expression, not looking at the camera.
 Seamless plain light grey backdrop (#C4C4C4), no horizon line. Soft key light from the front-side, subtle rim light separating the black clothes from the background, near-monochrome color.
-Equipment: matte graphite and black with brushed steel, no brands. Anatomically correct joints, five fingers per hand wrapped around handles, cables taut and anchored.
+Equipment: matte graphite and black with brushed steel, no brands, mechanically plausible.
+STRICT ANATOMY (most important):
+- Exactly one person with exactly two arms, two hands, two legs and two feet. No extra, missing, merged or duplicated limbs.
+- Every limb visibly connects to the torso; each foot connects to its own leg; follow each leg from hip to foot without ambiguity.
+- Neck neutral and in line with the spine, head in a natural position (when lying on a bench, the back of the head rests on the bench; never bent sharply backward, forward or sideways).
+- Natural joint angles only: no hyperextended elbows or knees, no twisted wrists, shoulders level and symmetric unless the exercise is single-arm.
+- Five fingers per hand wrapped around handles, thumbs closed around bars. Cables taut and anchored.
 No text, numbers, logos, mirrors or other people.
 EXERCISE:`;
 
@@ -86,6 +93,30 @@ async function gemini(prompt) {
   throw new Error(lastErr || 'Sin modelo de imagen disponible');
 }
 
+
+// Control anatómico automático: un modelo de visión revisa la foto antes de guardarla.
+async function qa(imgBuf, desc) {
+  const key = process.env.GEMINI_API_KEY;
+  const prompt = `You are a strict quality inspector for exercise photos in a fitness app. Inspect the image carefully.
+Expected exercise: ${desc}
+Check, one by one: (1) exactly one person; (2) exactly two arms, two hands, two legs, two feet, all clearly attached to the body, nothing duplicated or merged; (3) neck and head in a natural, neutral position; (4) no impossible joint angles (elbows, knees, wrists, shoulders); (5) hands with correct fingers gripping the equipment; (6) equipment plausible and the exercise, grip, bench angle and phase match the expected description; (7) no text or logos.
+Answer ONLY JSON: {"ok": boolean, "issues": [short English strings, one per concrete problem; empty if ok]}. Mark ok=false for any anatomical defect, even small.`;
+  for (const model of QA_MODELS) {
+    const r = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`, {
+      method: 'POST', headers: { 'Content-Type': 'application/json', 'x-goog-api-key': key },
+      body: JSON.stringify({ contents: [{ role: 'user', parts: [{ text: prompt }, { inline_data: { mime_type: 'image/jpeg', data: imgBuf.toString('base64') } }] }],
+        generationConfig: { responseMimeType: 'application/json', temperature: 0 } })
+    });
+    if (r.status === 404) continue;
+    const j = await r.json().catch(() => ({}));
+    if (!r.ok) return { ok: null, issues: [`QA no disponible (${r.status})`], model };
+    const txt = (j?.candidates?.[0]?.content?.parts || []).map(p => p.text || '').join('');
+    try { const o = JSON.parse(txt.replace(/^```json|```$/g, '').trim()); return { ok: !!o.ok, issues: o.issues || [], model }; }
+    catch { return { ok: null, issues: ['QA sin respuesta legible'], model }; }
+  }
+  return { ok: null, issues: ['QA sin modelo disponible'] };
+}
+
 // ---------- herramientas ----------
 const TOOLS = {
   listar_grupos: {
@@ -121,23 +152,32 @@ const TOOLS = {
     async run({ visual_key, descripcion }) { await patchRecurso(visual_key, { descripcion }); return { ok: true, visual_key }; }
   },
   generar_imagen: {
-    description: 'Genera con Gemini una foto nueva para un visual_key, la guarda como nueva versión en estado pendiente y devuelve su miniatura. Tarda 10-40 segundos.',
+    description: 'Genera con Gemini una foto nueva para un visual_key, pasa un control anatómico automático (reintenta 1 vez si falla), la guarda como nueva versión y devuelve su miniatura y el resultado del control. Tarda 20-90 segundos.',
     inputSchema: { type: 'object', properties: { visual_key: { type: 'string' }, descripcion: { type: 'string', description: 'Descripción del ejercicio; si se omite se usa la guardada' }, correccion: { type: 'string', description: 'Ajuste puntual pedido por el revisor' } }, required: ['visual_key'] },
     async run({ visual_key, descripcion, correccion }) {
       const [rec] = await rest(`recursos_visuales?visual_key=eq.${encodeURIComponent(visual_key)}&select=*`);
       if (!rec) throw new Error(`visual_key desconocido: ${visual_key}`);
       const desc = descripcion || rec.descripcion;
       if (!desc) throw new Error('Este ejercicio no tiene descripción visual todavía.');
-      const prompt = `${MASTER}\n${desc}${correccion ? `\nIMPORTANT CORRECTION: ${correccion}` : ''}`;
-      const { model, data } = await gemini(prompt);
+      let extra = correccion ? `\nIMPORTANT CORRECTION: ${correccion}` : '';
+      let model, data, check, intentos = 0;
+      for (intentos = 1; intentos <= 2; intentos++) {
+        ({ model, data } = await gemini(`${MASTER}\n${desc}${extra}`));
+        const jpg = await sharp(data).resize(768, 768, { fit: 'cover' }).jpeg({ quality: 85 }).toBuffer();
+        check = await qa(jpg, desc);
+        if (check.ok !== false) break;
+        extra = `${correccion ? `\nIMPORTANT CORRECTION: ${correccion}` : ''}\nA previous attempt had these defects, avoid them: ${check.issues.join('; ')}.`;
+      }
       const v = (rec.version || 0) + 1;
       const square = sharp(data).resize(1024, 1024, { fit: 'cover', position: 'centre' });
       const full = await square.clone().webp({ quality: 82 }).toBuffer();
       const thumb = await sharp(data).resize(192, 192, { fit: 'cover', position: 'centre', kernel: 'lanczos3' }).sharpen({ sigma: 0.5 }).webp({ quality: 80 }).toBuffer();
       const ruta = `ex/${visual_key}_m_v${v}.webp`, rutaFull = `ex/full/${visual_key}_m_v${v}.webp`;
       await upload(ruta, thumb); await upload(rutaFull, full);
-      await patchRecurso(visual_key, { version: v, ruta_m: ruta, ruta_full_m: rutaFull, estado: 'pendiente', descripcion: desc, nota: correccion || null, origen: `gemini-api:${model}` });
-      return { visual_key, version: v, estado: 'pendiente', modelo: model, kb: Math.round(thumb.length / 1024), miniatura: 'data:image/webp;base64,' + thumb.toString('base64') };
+      const estado = check.ok === false ? 'corregir' : 'pendiente';
+      const nota = check.ok === false ? `Control automático: ${check.issues.join('; ')}` : (correccion || null);
+      await patchRecurso(visual_key, { version: v, ruta_m: ruta, ruta_full_m: rutaFull, estado, descripcion: desc, nota, origen: `gemini-api:${model}` });
+      return { visual_key, version: v, estado, nota, control: { ok: check.ok, problemas: check.issues, intentos: Math.min(intentos, 2) }, modelo: model, kb: Math.round(thumb.length / 1024), miniatura: 'data:image/webp;base64,' + thumb.toString('base64') };
     }
   },
   revisar: {
