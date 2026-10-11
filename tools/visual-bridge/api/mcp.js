@@ -28,7 +28,7 @@ function refImage() {
 async function sb(pathq, opts = {}) {
   const r = await fetch(`${SB}${pathq}`, {
     ...opts,
-    headers: { apikey: SK, Authorization: `Bearer ${SK}`, ...(opts.headers || {}) }
+    headers: { apikey: SK, ...(SK && SK.startsWith('sb_') ? {} : { Authorization: `Bearer ${SK}` }), ...(opts.headers || {}) }
   });
   const txt = await r.text();
   if (!r.ok) throw new Error(`Supabase ${r.status}: ${txt.slice(0, 300)}`);
