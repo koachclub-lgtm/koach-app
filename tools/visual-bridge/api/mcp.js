@@ -243,8 +243,15 @@ const TOOLS = {
       if (!rec) throw new Error(`visual_key desconocido: ${visual_key}`);
       const raw = Buffer.from(String(imagen_base64).replace(/^data:[^,]+,/, ''), 'base64');
       const v = (rec.version || 0) + 1;
-      const full = await sharp(raw).rotate().resize(1024, 1024, { fit: 'cover', position: 'centre' }).webp({ quality: 82 }).toBuffer();
-      const thumb = await sharp(raw).rotate().resize(192, 192, { fit: 'cover', position: 'centre', kernel: 'lanczos3' }).sharpen({ sigma: 0.5 }).webp({ quality: 80 }).toBuffer();
+      // Fotos no cuadradas: se encajan completas y se rellena con el gris del fondo (muestreado en una esquina)
+      const base = sharp(raw).rotate();
+      const meta = await base.metadata();
+      const { data: px } = await base.clone().extract({ left: 0, top: 0, width: 4, height: 4 }).raw().toBuffer({ resolveWithObject: true });
+      const bg = { r: px[0], g: px[1], b: px[2] };
+      const lado = Math.max(meta.width || 1024, meta.height || 1024);
+      const cuadrada = await base.clone().resize(lado, lado, { fit: 'contain', background: bg }).png().toBuffer();
+      const full = await sharp(cuadrada).resize(1024, 1024, { fit: 'cover' }).webp({ quality: 82 }).toBuffer();
+      const thumb = await sharp(cuadrada).resize(192, 192, { fit: 'cover', kernel: 'lanczos3' }).sharpen({ sigma: 0.5 }).webp({ quality: 80 }).toBuffer();
       const ruta = `ex/${visual_key}_m_v${v}.webp`, rutaFull = `ex/full/${visual_key}_m_v${v}.webp`;
       await upload(ruta, thumb); await upload(rutaFull, full);
       await patchRecurso(visual_key, { version: v, ruta_m: ruta, ruta_full_m: rutaFull, estado: 'pendiente', nota: null, origen: 'subida-manual' });
