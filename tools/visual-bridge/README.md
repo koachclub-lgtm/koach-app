@@ -5,3 +5,5 @@ y registra su estado en `public.recursos_visuales`. Proyecto Vercel separado (ro
 
 Variables: `GEMINI_API_KEY`, `SUPABASE_SERVICE_ROLE_KEY`, `BRIDGE_TOKEN`, `SUPABASE_URL` (opcional `GEMINI_IMAGE_MODEL`).
 Conector: `https://<dominio>/mcp/<BRIDGE_TOKEN>`
+
+Desplegado como proyecto Vercel `koach-visual-bridge`.
