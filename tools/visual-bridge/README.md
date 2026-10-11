@@ -7,3 +7,5 @@ Variables: `GEMINI_API_KEY`, `SUPABASE_SERVICE_ROLE_KEY`, `BRIDGE_TOKEN`, `SUPAB
 Conector: `https://<dominio>/mcp/<BRIDGE_TOKEN>`
 
 Desplegado como proyecto Vercel `koach-visual-bridge`.
+
+Claves cargadas en Vercel el 11-oct-2026.
