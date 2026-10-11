@@ -69,14 +69,14 @@ async function patchRecurso(key, body) {
   });
 }
 
-async function gemini(prompt) {
+async function gemini(prompt, extra = []) {
   const key = process.env.GEMINI_API_KEY;
   if (!key) throw new Error('Falta GEMINI_API_KEY en Vercel.');
   let lastErr;
   for (const model of MODELS) {
     for (const imageConfig of [{ aspectRatio: '1:1', imageSize: '1K' }, { aspectRatio: '1:1' }, null]) {
       const body = {
-        contents: [{ role: 'user', parts: [{ text: prompt }, { inline_data: { mime_type: 'image/jpeg', data: refImage() } }] }],
+        contents: [{ role: 'user', parts: [{ text: prompt }, { inline_data: { mime_type: 'image/jpeg', data: refImage() } }, ...extra.map(d => ({ inline_data: { mime_type: 'image/jpeg', data: d } }))] }],
         generationConfig: { responseModalities: ['IMAGE'], ...(imageConfig ? { imageConfig } : {}) }
       };
       const r = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`, {
@@ -173,11 +173,11 @@ const TOOLS = {
     description: 'Ejercicios de un grupo muscular con su visual_key, estado de foto, descripción visual y miniatura (data URI webp de 192 px) si existe.',
     inputSchema: { type: 'object', properties: { grupo: { type: 'string', description: 'Grupo muscular, ej. PECHO' }, con_miniaturas: { type: 'boolean', default: true } }, required: ['grupo'] },
     async run({ grupo, con_miniaturas = true }) {
-      const ej = await rest(`ejercicios?select=id,nombre,grupo_muscular,implemento,visual_key,recursos_visuales(estado,version,ruta_m,descripcion,nota)&activo=eq.true&grupo_muscular=eq.${encodeURIComponent(grupo)}&order=nombre`);
+      const ej = await rest(`ejercicios?select=id,nombre,grupo_muscular,implemento,visual_key,recursos_visuales(estado,version,ruta_m,descripcion,nota,ref_ruta)&activo=eq.true&grupo_muscular=eq.${encodeURIComponent(grupo)}&order=nombre`);
       return Promise.all(ej.map(async e => ({
         id: e.id, nombre: e.nombre, implemento: e.implemento, visual_key: e.visual_key,
         estado: e.recursos_visuales?.estado || 'sin_foto', version: e.recursos_visuales?.version || 0,
-        descripcion: e.recursos_visuales?.descripcion || null, nota: e.recursos_visuales?.nota || null,
+        referencia: !!e.recursos_visuales?.ref_ruta, descripcion: e.recursos_visuales?.descripcion || null, nota: e.recursos_visuales?.nota || null,
         miniatura: con_miniaturas ? await thumbData(e.recursos_visuales?.ruta_m) : null
       })));
     }
@@ -197,9 +197,15 @@ const TOOLS = {
       if (!desc) throw new Error('Este ejercicio no tiene descripción visual todavía.');
       let extra = correccion ? `\nIMPORTANT CORRECTION: ${correccion}` : '';
       const rules = koachRules(visual_key);
+      let refs = [], refNote = '';
+      if (rec.ref_ruta) {
+        const rr = await fetch(publicUrl(rec.ref_ruta));
+        if (rr.ok) { refs = [Buffer.from(await rr.arrayBuffer()).toString('base64')];
+          refNote = '\nEQUIPMENT REFERENCE: the SECOND attached image shows the exact machine/equipment and body position to use. Reproduce its geometry, handles, pads, seat and the athlete position faithfully, restyled as matte graphite equipment in our photographic studio style. Ignore that image\'s drawing style, colors, muscle highlighting, numbers, text and background.'; }
+      }
       let model, data, check, intentos = 0;
       for (intentos = 1; intentos <= 2; intentos++) {
-        ({ model, data } = await gemini(`${MASTER}\n${desc}${rules.length ? `\nMANDATORY KOACH RULES (override the description if they conflict):\n- ${rules.join('\n- ')}` : ''}${extra}`));
+        ({ model, data } = await gemini(`${MASTER}\n${desc}${refNote}${rules.length ? `\nMANDATORY KOACH RULES (override the description if they conflict):\n- ${rules.join('\n- ')}` : ''}${extra}`, refs));
         const jpg = await sharp(data).resize(768, 768, { fit: 'cover' }).jpeg({ quality: 85 }).toBuffer();
         check = await qa(jpg, desc, rules);
         if (check.ok !== false) break;
@@ -215,6 +221,18 @@ const TOOLS = {
       const nota = check.ok === false ? `Control automático: ${check.issues.join('; ')}` : (check.minor && check.minor.length ? `Observaciones: ${check.minor.join('; ')}` : (correccion || null));
       await patchRecurso(visual_key, { version: v, ruta_m: ruta, ruta_full_m: rutaFull, estado, descripcion: desc, nota, origen: `gemini-api:${model}` });
       return { visual_key, version: v, estado, nota, control: { ok: check.ok, problemas: check.issues, observaciones: check.minor || [], intentos: Math.min(intentos, 2) }, modelo: model, kb: Math.round(thumb.length / 1024), miniatura: 'data:image/webp;base64,' + thumb.toString('base64') };
+    }
+  },
+  guardar_referencia: {
+    description: 'Guarda una imagen de referencia del equipamiento o la postura para un visual_key (base64 JPEG/PNG). Las siguientes generaciones la usan.',
+    inputSchema: { type: 'object', properties: { visual_key: { type: 'string' }, imagen_base64: { type: 'string', description: 'Imagen en base64, sin prefijo data:' } }, required: ['visual_key', 'imagen_base64'] },
+    async run({ visual_key, imagen_base64 }) {
+      const raw = Buffer.from(String(imagen_base64).replace(/^data:[^,]+,/, ''), 'base64');
+      const jpg = await sharp(raw).flatten({ background: '#ffffff' }).resize(1024, 1024, { fit: 'inside', withoutEnlargement: true }).jpeg({ quality: 85 }).toBuffer();
+      const ruta = `ref/${visual_key}.jpg`;
+      await upload(ruta, jpg, 'image/jpeg');
+      await patchRecurso(visual_key, { ref_ruta: ruta });
+      return { ok: true, visual_key, kb: Math.round(jpg.length / 1024) };
     }
   },
   reevaluar: {
