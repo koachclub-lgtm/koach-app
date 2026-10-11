@@ -3580,21 +3580,20 @@ async function cargarCatalogo(){
   if (EJCAT) return
   function aplicar(data){
     EJCAT = data||[]
-    const EQO=['BODYWEIGHT','DUMBBELL','BARBELL','HEX_BAR','KETTLEBELL','MINIBAND','PLATE','BOX','BANCO','CORE_ROLLER','BANDA','CABLE','MACHINE']
     const MORD=['PECHO','ESPALDA','HOMBROS','TRÍCEPS','BÍCEPS','CORE','GLÚTEOS','CUÁDRICEPS','ISQUIOS','GEMELOS','CARDIO','GLOBAL','MOVILIDAD']
     EJCAT.sort(function(a,b){
       const ga=MORD.indexOf(a.grupo_muscular), gb=MORD.indexOf(b.grupo_muscular)
       if(ga!==gb) return (ga<0?99:ga)-(gb<0?99:gb)
-      const ia=EQO.indexOf(a.implemento), ib=EQO.indexOf(b.implemento)
-      if(ia!==ib) return (ia<0?99:ia)-(ib<0?99:ib)
+      const ia=selImpRank(a), ib=selImpRank(b)
+      if(ia!==ib) return ia-ib
       return (a.nombre||'').localeCompare(b.nombre||'')
     })
     EJCAT._mord = MORD
   }
   // caché-primero: catálogo casi estático → instantáneo, revalida en silencio
   // v4 (24-sep-2026): BIBLIOTECA canonical desde el Google Sheet — se descarta cualquier catálogo previo
-  try{ ['kc_ejcat_v1','kc_ejcat_v2','kc_ejcat_v3','kc_ejcat_v4'].forEach(function(k){ localStorage.removeItem(k) }) }catch(_e){}
-  try{ const c=JSON.parse(localStorage.getItem('kc_ejcat_v5')||'null'); if(c&&c.length) aplicar(c) }catch(_e){}
+  try{ ['kc_ejcat_v1','kc_ejcat_v2','kc_ejcat_v3','kc_ejcat_v4','kc_ejcat_v5'].forEach(function(k){ localStorage.removeItem(k) }) }catch(_e){}
+  try{ const c=JSON.parse(localStorage.getItem('kc_ejcat_v6')||'null'); if(c&&c.length) aplicar(c) }catch(_e){}
   const r = await sb.from('ejercicios')
     .select('id,nombre,grupo_muscular,estimulo,sinergistas,tipo_registro,con_carga,implemento,cuenta_dosis,visual_key')
     .eq('activo', true)
@@ -3603,8 +3602,8 @@ async function cargarCatalogo(){
   if (r.data && r.data.length){
     const fresh=JSON.stringify(r.data)
     let mismo=false
-    try{ mismo = fresh===JSON.stringify(JSON.parse(localStorage.getItem('kc_ejcat_v5')||'null')) }catch(_e){}
-    if (!mismo){ aplicar(JSON.parse(fresh)); try{ localStorage.setItem('kc_ejcat_v5', fresh) }catch(_e){} }
+    try{ mismo = fresh===JSON.stringify(JSON.parse(localStorage.getItem('kc_ejcat_v6')||'null')) }catch(_e){}
+    if (!mismo){ aplicar(JSON.parse(fresh)); try{ localStorage.setItem('kc_ejcat_v6', fresh) }catch(_e){} }
     else if (!EJCAT) aplicar(r.data)
   }
 }
@@ -4452,7 +4451,14 @@ function selGrupos(lista){
   const M=(EJCAT&&EJCAT._mord)||[], porG={}, vistos={}
   lista.forEach(function(e){ if(vistos[e.id]) return; vistos[e.id]=1; const g=e.grupo_muscular||'OTROS'; (porG[g]=porG[g]||[]).push(e) })
   return Object.keys(porG).sort(function(a,b){ const ia=M.indexOf(a), ib=M.indexOf(b); return (ia<0?99:ia)-(ib<0?99:ib) || SEL_COL.compare(a,b) })
-    .map(function(g){ return { g:g, items:porG[g].sort(function(a,b){ return SEL_COL.compare(a.nombre||'', b.nombre||'') }) } })
+    .map(function(g){ return { g:g, items:porG[g].sort(function(a,b){ return (selImpRank(a)-selImpRank(b)) || SEL_COL.compare(a.nombre||'', b.nombre||'') }) } })
+}
+// c83 · Orden visual dentro de cada grupo: complejidad del implemento (peso corporal → accesorios → mancuerna → barra → variantes de barra → cable → máquina), y alfabético dentro de cada implemento
+function selImpOrd(){ return ['BODYWEIGHT','BANCO','BOX','MINIBAND','BANDA','CORE_ROLLER','PLATE','KETTLEBELL','DUMBBELL','BARBELL','EZ_BAR','HEX_BAR','SAFETY_BAR','CABLE','MACHINE'] }
+function selImpRank(e){ const SEL_IMP_ORD=selImpOrd()
+  let imp=String(e.implemento||'BODYWEIGHT').toUpperCase(), n=String(e.nombre||'')
+  if (imp==='BARBELL'){ if (/\bEZ\b|EZ-bar/i.test(n)) imp='EZ_BAR'; else if (/safety/i.test(n)) imp='SAFETY_BAR'; else if (/hex bar/i.test(n)) imp='HEX_BAR' }
+  const i=SEL_IMP_ORD.indexOf(imp); return i<0?SEL_IMP_ORD.length:i
 }
 function selTecla(ev){
   const filas=[...document.querySelectorAll('#selLista .selRow')]
@@ -4524,7 +4530,7 @@ function selResaltar(nombre,q){
   const i=norm.indexOf(q); if(i<0) return plEsc(t)
   return plEsc(t.slice(0,i))+'<mark>'+plEsc(t.slice(i,i+q.length))+'</mark>'+plEsc(t.slice(i+q.length))
 }
-function selImp(e){ return e.implemento ? String(e.implemento).replace(/_/g,' ').toUpperCase() : '' }
+function selImp(e){ const k=selImpOrd()[selImpRank(e)]||e.implemento||''; return String(k).replace(/_/g,' ').toUpperCase() }
 function selCapsula(e,q,enS){
   const act = SEL.actual && String(e.id)===String(SEL.actual)
   const enB = !act && enS[e.id]
