@@ -199,6 +199,7 @@ async function handle(msg) {
       const t = TOOLS[params?.name];
       if (!t) return { jsonrpc: '2.0', id, error: { code: -32602, message: `Herramienta desconocida: ${params?.name}` } };
       try {
+        if (!SK) throw new Error('Falta SUPABASE_SERVICE_ROLE_KEY en Vercel (proyecto koach-visual-bridge).');
         const out = await t.run(params.arguments || {});
         return { jsonrpc: '2.0', id, result: { content: [{ type: 'text', text: JSON.stringify(out) }], structuredContent: Array.isArray(out) ? { items: out } : out } };
       } catch (e) {
@@ -217,8 +218,9 @@ module.exports = async (req, res) => {
   if (req.method === 'GET') { res.status(405).setHeader('Allow', 'POST').end(); return; }
   if (req.method === 'DELETE') { res.status(200).end(); return; }
   if (req.method !== 'POST') { res.status(405).end(); return; }
-  if (!SK) { res.status(500).json({ error: 'Falta SUPABASE_SERVICE_ROLE_KEY en Vercel.' }); return; }
-  const body = typeof req.body === 'string' ? JSON.parse(req.body) : req.body;
+  let body = req.body;
+  try { if (typeof body === 'string') body = JSON.parse(body); } catch { res.status(400).json({ jsonrpc: '2.0', id: null, error: { code: -32700, message: 'JSON inválido' } }); return; }
+  if (!body) { res.status(400).json({ jsonrpc: '2.0', id: null, error: { code: -32600, message: 'Solicitud vacía' } }); return; }
   if (Array.isArray(body)) {
     const out = (await Promise.all(body.map(handle))).filter(Boolean);
     if (!out.length) { res.status(202).end(); return; }
