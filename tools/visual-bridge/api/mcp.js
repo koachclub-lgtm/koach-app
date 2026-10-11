@@ -14,7 +14,7 @@ const MODELS = [process.env.GEMINI_IMAGE_MODEL, 'gemini-nano-banana-2.1', 'gemin
 const MASTER = `The attached image shows the SAME athlete twice, only as an identity and style reference (face, hair, body, outfit, grey backdrop, lighting). Ignore the poses and the two-panel layout.
 Create ONE single square photograph (1:1) with ONE person performing ONE exercise, described below.
 Hyperrealistic commercial studio sports photography for a premium strength-training app. It will be shown as a tiny 56 px thumbnail, so frame it tightly: the athlete and the equipment he touches fill about 85% of the frame, with a strong, clear silhouette. Never cut off hands, bars, dumbbells, handles or feet. Crop away unnecessary machine structure.
-Athlete: man in his early 30s, short dark hair, light stubble, athletic but attainable physique (not a bodybuilder), NO tattoos, fitted black short-sleeve t-shirt, black shorts above the knee, black shoes with grey soles. Calm focused expression, not looking at the camera.
+Athlete: man in his early 30s, short dark hair, light stubble, athletic but attainable physique (not a bodybuilder), NO tattoos, fitted plain black short-sleeve t-shirt and plain black shorts above the knee, both with NO logos or text, black shoes with grey soles. Calm focused expression, not looking at the camera.
 Seamless plain light grey backdrop (#C4C4C4), no horizon line. Soft key light from the front-side, subtle rim light separating the black clothes from the background, near-monochrome color.
 Equipment: matte graphite and black with brushed steel, no brands, mechanically plausible.
 STRICT ANATOMY (most important):
@@ -23,6 +23,7 @@ STRICT ANATOMY (most important):
 - Neck neutral and in line with the spine, head in a natural position (when lying on a bench, the back of the head rests on the bench; never bent sharply backward, forward or sideways).
 - Natural joint angles only: no hyperextended elbows or knees, no twisted wrists, shoulders level and symmetric unless the exercise is single-arm.
 - Five fingers per hand wrapped around handles, thumbs closed around bars. Cables taut and anchored.
+- For two-handed exercises both hands must be visibly on the implement; choose a camera angle where both arms are readable instead of hiding one.
 No text, numbers, logos, mirrors or other people.
 EXERCISE:`;
 
@@ -97,10 +98,12 @@ async function gemini(prompt) {
 // Control anatómico automático: un modelo de visión revisa la foto antes de guardarla.
 async function qa(imgBuf, desc) {
   const key = process.env.GEMINI_API_KEY;
-  const prompt = `You are a strict quality inspector for exercise photos in a fitness app. Inspect the image carefully.
+  const prompt = `You are a quality inspector for exercise photos in a fitness app. Inspect the image carefully and classify each problem by severity.
 Expected exercise: ${desc}
-Check, one by one: (1) exactly one person; (2) exactly two arms, two hands, two legs, two feet, all clearly attached to the body, nothing duplicated or merged; (3) neck and head in a natural, neutral position; (4) no impossible joint angles (elbows, knees, wrists, shoulders); (5) hands with correct fingers gripping the equipment; (6) equipment plausible and the exercise, grip, bench angle and phase match the expected description; (7) no text or logos.
-Answer ONLY JSON: {"ok": boolean, "issues": [short English strings, one per concrete problem; empty if ok]}. Mark ok=false for any anatomical defect, even small.`;
+CRITICAL problems (the photo must be redone): more or fewer than one person; an extra, duplicated or merged limb, hand or foot; a limb that should be clearly visible but is missing or detached; a deformed limb, hand or forearm; head or neck bent in a clearly unnatural way; a joint at an impossible angle; floating or physically impossible equipment; a different exercise than expected (wrong body position, e.g. lying instead of standing, wrong implement type such as dumbbells instead of barbell, one hand instead of two hands, or vice versa); visible text.
+MINOR observations (do not redo): camera angle slightly different from requested; joint angles a bit off; grip or handle variant slightly different; small logos on clothing; equipment details or cropping preferences.
+IMPORTANT: a limb hidden behind the torso or the equipment because of the camera angle is NOT missing; only report it if the visible parts look wrong.
+Answer ONLY JSON: {"critical": [short English strings], "minor": [short English strings]}. Empty arrays if none.`;
   for (const model of QA_MODELS) {
     const r = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`, {
       method: 'POST', headers: { 'Content-Type': 'application/json', 'x-goog-api-key': key },
@@ -109,12 +112,15 @@ Answer ONLY JSON: {"ok": boolean, "issues": [short English strings, one per conc
     });
     if (r.status === 404) continue;
     const j = await r.json().catch(() => ({}));
-    if (!r.ok) return { ok: null, issues: [`QA no disponible (${r.status})`], model };
+    if (!r.ok) return { ok: null, issues: [`QA no disponible (${r.status})`], minor: [], model };
     const txt = (j?.candidates?.[0]?.content?.parts || []).map(p => p.text || '').join('');
-    try { const o = JSON.parse(txt.replace(/^```json|```$/g, '').trim()); return { ok: !!o.ok, issues: o.issues || [], model }; }
-    catch { return { ok: null, issues: ['QA sin respuesta legible'], model }; }
+    try {
+      const o = JSON.parse(txt.replace(/^```json|```$/g, '').trim());
+      const crit = Array.isArray(o.critical) ? o.critical : [], minor = Array.isArray(o.minor) ? o.minor : [];
+      return { ok: crit.length === 0, issues: crit, minor, model };
+    } catch { return { ok: null, issues: ['QA sin respuesta legible'], minor: [], model }; }
   }
-  return { ok: null, issues: ['QA sin modelo disponible'] };
+  return { ok: null, issues: ['QA sin modelo disponible'], minor: [] };
 }
 
 // ---------- herramientas ----------
@@ -152,7 +158,7 @@ const TOOLS = {
     async run({ visual_key, descripcion }) { await patchRecurso(visual_key, { descripcion }); return { ok: true, visual_key }; }
   },
   generar_imagen: {
-    description: 'Genera con Gemini una foto nueva para un visual_key, pasa un control anatómico automático (reintenta 1 vez si falla), la guarda como nueva versión y devuelve su miniatura y el resultado del control. Tarda 20-90 segundos.',
+    description: 'Genera con Gemini una foto nueva para un visual_key, pasa un control anatómico automático (reintenta 1 vez solo ante errores críticos), la guarda como nueva versión y devuelve su miniatura y el resultado del control. Tarda 20-90 segundos.',
     inputSchema: { type: 'object', properties: { visual_key: { type: 'string' }, descripcion: { type: 'string', description: 'Descripción del ejercicio; si se omite se usa la guardada' }, correccion: { type: 'string', description: 'Ajuste puntual pedido por el revisor' } }, required: ['visual_key'] },
     async run({ visual_key, descripcion, correccion }) {
       const [rec] = await rest(`recursos_visuales?visual_key=eq.${encodeURIComponent(visual_key)}&select=*`);
@@ -175,9 +181,26 @@ const TOOLS = {
       const ruta = `ex/${visual_key}_m_v${v}.webp`, rutaFull = `ex/full/${visual_key}_m_v${v}.webp`;
       await upload(ruta, thumb); await upload(rutaFull, full);
       const estado = check.ok === false ? 'corregir' : 'pendiente';
-      const nota = check.ok === false ? `Control automático: ${check.issues.join('; ')}` : (correccion || null);
+      const nota = check.ok === false ? `Control automático: ${check.issues.join('; ')}` : (check.minor && check.minor.length ? `Observaciones: ${check.minor.join('; ')}` : (correccion || null));
       await patchRecurso(visual_key, { version: v, ruta_m: ruta, ruta_full_m: rutaFull, estado, descripcion: desc, nota, origen: `gemini-api:${model}` });
-      return { visual_key, version: v, estado, nota, control: { ok: check.ok, problemas: check.issues, intentos: Math.min(intentos, 2) }, modelo: model, kb: Math.round(thumb.length / 1024), miniatura: 'data:image/webp;base64,' + thumb.toString('base64') };
+      return { visual_key, version: v, estado, nota, control: { ok: check.ok, problemas: check.issues, observaciones: check.minor || [], intentos: Math.min(intentos, 2) }, modelo: model, kb: Math.round(thumb.length / 1024), miniatura: 'data:image/webp;base64,' + thumb.toString('base64') };
+    }
+  },
+  reevaluar: {
+    description: 'Vuelve a pasar el control anatómico sobre la foto ya guardada (sin regenerar ni costo de imagen) y actualiza su estado.',
+    inputSchema: { type: 'object', properties: { visual_key: { type: 'string' } }, required: ['visual_key'] },
+    async run({ visual_key }) {
+      const [rec] = await rest(`recursos_visuales?visual_key=eq.${encodeURIComponent(visual_key)}&select=*`);
+      if (!rec || !(rec.ruta_full_m || rec.ruta_m)) throw new Error('Este ejercicio no tiene foto guardada.');
+      const r = await fetch(publicUrl(rec.ruta_full_m || rec.ruta_m));
+      if (!r.ok) throw new Error(`No se pudo leer la foto (${r.status})`);
+      const jpg = await sharp(Buffer.from(await r.arrayBuffer())).resize(768, 768, { fit: 'cover' }).jpeg({ quality: 85 }).toBuffer();
+      const check = await qa(jpg, rec.descripcion || visual_key);
+      if (check.ok === null) return { visual_key, estado: rec.estado, control: check };
+      const estado = check.ok ? (rec.estado === 'corregir' ? 'pendiente' : rec.estado) : 'corregir';
+      const nota = check.ok ? (check.minor.length ? `Observaciones: ${check.minor.join('; ')}` : null) : `Control automático: ${check.issues.join('; ')}`;
+      await patchRecurso(visual_key, { estado, nota });
+      return { visual_key, estado, nota, control: { ok: check.ok, problemas: check.issues, observaciones: check.minor, intentos: 0 } };
     }
   },
   revisar: {
