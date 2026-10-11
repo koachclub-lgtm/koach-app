@@ -189,8 +189,8 @@ const TOOLS = {
   },
   generar_imagen: {
     description: 'Genera con Gemini una foto nueva para un visual_key, pasa un control anatómico automático (reintenta 1 vez solo ante errores críticos), la guarda como nueva versión y devuelve su miniatura y el resultado del control. Tarda 20-90 segundos.',
-    inputSchema: { type: 'object', properties: { visual_key: { type: 'string' }, descripcion: { type: 'string', description: 'Descripción del ejercicio; si se omite se usa la guardada' }, correccion: { type: 'string', description: 'Ajuste puntual pedido por el revisor' } }, required: ['visual_key'] },
-    async run({ visual_key, descripcion, correccion }) {
+    inputSchema: { type: 'object', properties: { visual_key: { type: 'string' }, descripcion: { type: 'string', description: 'Descripción del ejercicio; si se omite se usa la guardada' }, correccion: { type: 'string', description: 'Ajuste puntual pedido por el revisor' }, sin_miniatura: { type: 'boolean', description: 'true en procesos por lote: no devuelve la imagen' } }, required: ['visual_key'] },
+    async run({ visual_key, descripcion, correccion, sin_miniatura }) {
       const [rec] = await rest(`recursos_visuales?visual_key=eq.${encodeURIComponent(visual_key)}&select=*`);
       if (!rec) throw new Error(`visual_key desconocido: ${visual_key}`);
       const desc = descripcion || rec.descripcion;
@@ -220,7 +220,7 @@ const TOOLS = {
       const estado = check.ok === false ? 'corregir' : 'pendiente';
       const nota = check.ok === false ? `Control automático: ${check.issues.join('; ')}` : (check.minor && check.minor.length ? `Observaciones: ${check.minor.join('; ')}` : (correccion || null));
       await patchRecurso(visual_key, { version: v, ruta_m: ruta, ruta_full_m: rutaFull, estado, descripcion: desc, nota, origen: `gemini-api:${model}` });
-      return { visual_key, version: v, estado, nota, control: { ok: check.ok, problemas: check.issues, observaciones: check.minor || [], intentos: Math.min(intentos, 2) }, modelo: model, kb: Math.round(thumb.length / 1024), miniatura: 'data:image/webp;base64,' + thumb.toString('base64') };
+      return { visual_key, version: v, estado, nota, control: { ok: check.ok, problemas: check.issues, observaciones: check.minor || [], intentos: Math.min(intentos, 2) }, modelo: model, kb: Math.round(thumb.length / 1024), miniatura: sin_miniatura ? null : 'data:image/webp;base64,' + thumb.toString('base64') };
     }
   },
   guardar_referencia: {
