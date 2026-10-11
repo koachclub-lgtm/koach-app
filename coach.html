@@ -1340,80 +1340,71 @@ html.en-sala[data-dash="tablet"] .salaQ input{font-size:18px}
 #vPlan.plRO #pBloques{opacity:.9}
 .plROban{margin:0 0 12px;padding:12px 14px;border-radius:12px;background:#121212;color:#F4F3F0;font-family:var(--font-mono);font-size:12px;letter-spacing:.1em}
 
-/* ═══ c10.9 · SELECTOR DE EJERCICIOS ═══ */
+/* ═══ c10.9 · SELECTOR DE EJERCICIOS · c81 Monolito responsive (riel ≥1024 · índice de salto en tablet · hoja inferior en móvil) ═══ */
 html.selAbierto,html.selAbierto body{overflow:hidden}
 .selM{position:fixed;inset:0;z-index:80;background:rgba(18,18,16,.45);backdrop-filter:blur(6px);display:flex;align-items:center;justify-content:center}
-.selM__c{display:flex;flex-direction:column;width:min(1040px,calc(100vw - 64px));height:min(82dvh,900px);background:#F4F3F0;border-radius:18px;overflow:hidden;box-shadow:0 24px 80px rgba(0,0,0,.25)}
-.selM__h{flex:0 0 auto;padding:18px 22px 10px;border-bottom:1px solid rgba(18,18,16,.08);background:#F4F3F0}
-.selM__top{display:flex;align-items:center;gap:12px;margin-bottom:12px}
+.selM__c{position:relative;display:flex;flex-direction:column;width:min(1480px,calc(100vw - 48px));height:calc(100dvh - 48px);background:#F4F3F0;border-radius:18px;overflow:hidden;box-shadow:0 24px 80px rgba(0,0,0,.25)}
+.selM__h{flex:0 0 auto;padding:18px 22px 4px;background:#F4F3F0}
+.selM__top{display:flex;align-items:center;gap:12px;margin-bottom:10px}
 .selM__t{font-family:var(--font-mono);font-weight:500;font-size:13px;letter-spacing:.16em;color:#121212}
 .selM__x{margin-left:auto;width:44px;height:44px;border:none;border-radius:12px;background:rgba(18,18,16,.07);font-size:16px;cursor:pointer}
-.selM__q{display:flex;align-items:center;gap:10px;min-height:54px;padding:0 16px;border-radius:14px;border:1px solid rgba(18,18,16,.18);background:#fff}
+.selCtx{display:flex;align-items:center;gap:10px;margin:0 0 10px;padding:7px 12px 7px 7px;border-radius:999px;background:rgba(18,18,16,.05);font-family:var(--font-mono);font-size:11px;letter-spacing:.08em;color:#5E5D59;min-width:0}
+.selCtx img,.selCtx i{width:30px;height:30px;border-radius:50%;object-fit:cover;flex:none;background:#C4C4C4;filter:grayscale(1);display:block}
+.selCtx b{color:#121212;font-family:var(--font-display);font-weight:800;font-size:13px;letter-spacing:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.selCtx small{white-space:nowrap}
+.selM__q{display:flex;align-items:center;gap:10px;min-height:56px;padding:0 18px;border-radius:999px;border:1px solid transparent;background:#fff;box-shadow:0 1px 0 rgba(18,18,16,.08),0 8px 24px rgba(0,0,0,.05)}
 .selM__q:focus-within{border-color:#121212}
 .selM__q span{font-size:19px;opacity:.5}
-.selM__q input{flex:1;border:none !important;background:transparent !important;margin:0 !important;padding:12px 0 !important;font-size:17px !important;outline:none;box-shadow:none !important}
-.selM__chips{display:flex;gap:6px;overflow-x:auto;padding:10px 0 4px;scrollbar-width:none}
-.selChip{flex:0 0 auto;min-height:36px;padding:0 12px;border:none;border-radius:10px;background:rgba(18,18,16,.07);color:#5E5D59;font-family:var(--font-mono);font-weight:500;font-size:12px;letter-spacing:.08em;cursor:pointer}
-.selChip.on{background:#121212;color:#F4F3F0}
-.selM__l{flex:1 1 auto;overflow-y:auto;overscroll-behavior:contain;padding:0 22px 24px;scrollbar-width:thin;scrollbar-color:rgba(18,18,16,.25) transparent}
+.selM__q input{flex:1;min-width:0;border:none !important;background:transparent !important;margin:0 !important;padding:12px 0 !important;font-size:17px !important;outline:none;box-shadow:none !important}
+.selM__k{display:none;font-family:var(--font-mono);font-size:10px;letter-spacing:.1em;color:#B9B8B2;white-space:nowrap}
+.selM__chips{flex:0 0 auto;display:flex;gap:8px;overflow-x:auto;padding:12px 0 8px;scrollbar-width:none}
+.selM__chips::-webkit-scrollbar{display:none}
+.selChip{flex:0 0 auto;display:inline-flex;align-items:center;gap:6px;min-height:38px;padding:0 14px;border:none;border-radius:999px;background:rgba(18,18,16,.07);color:#121212;font-family:var(--font-mono);font-weight:700;font-size:11px;letter-spacing:.14em;text-transform:uppercase;line-height:1;cursor:pointer}
+.selChip i{font-style:normal;font-weight:400;color:#8E8D88}
+.selChip.on{background:#121212;color:#F4F3F0}.selChip.on i{color:#B9B8B2}
+.selM__b{flex:1 1 auto;min-height:0;display:flex;position:relative}
+.selRail{display:none;flex:0 0 190px;border-right:1px solid rgba(18,18,16,.08);padding:10px 12px 16px;overflow-y:auto;flex-direction:column;gap:3px;scrollbar-width:none}
+.selRail__h{font-family:var(--font-mono);font-size:9.5px;letter-spacing:.2em;text-transform:uppercase;color:#8E8D88;padding:8px 10px 6px}
+.selRail button{display:flex;align-items:center;justify-content:space-between;width:100%;padding:10px;border:none;border-radius:12px;background:transparent;font-family:var(--font-mono);font-weight:700;font-size:11px;letter-spacing:.12em;color:#121212;cursor:pointer;text-align:left}
+.selRail button i{font-style:normal;font-weight:400;color:#8E8D88}
+.selRail button:hover{background:rgba(18,18,16,.06)}
+.selRail button.on{background:#121212;color:#F4F3F0}.selRail button.on i{color:#B9B8B2}
+.selJump{display:none;position:absolute;right:2px;top:8px;bottom:8px;flex-direction:column;justify-content:center;gap:1px;z-index:3}
+.selJump button{border:none;background:transparent;font-family:var(--font-mono);font-weight:700;font-size:8.5px;letter-spacing:.04em;color:#8E8D88;padding:4px 6px;border-radius:6px;cursor:pointer}
+.selJump button.on{background:#121212;color:#F4F3F0}
+.selM__l{flex:1 1 auto;min-width:0;overflow-y:auto;overscroll-behavior:contain;padding:0 22px 24px;scrollbar-width:thin;scrollbar-color:rgba(18,18,16,.25) transparent}
 .selM__l::-webkit-scrollbar{width:8px}.selM__l::-webkit-scrollbar-thumb{background:rgba(18,18,16,.22);border-radius:8px}
-.selGH{position:sticky;top:0;z-index:2;display:flex;align-items:baseline;gap:10px;padding:14px 4px 8px;background:#F4F3F0;border-bottom:1.5px solid #121212}
-.selGH b{font-family:var(--font-display);font-weight:700;font-size:14.5px;letter-spacing:.12em;color:#121212}
-.selGH small{font-family:var(--font-mono);font-size:11.5px;letter-spacing:.06em;color:#5E5D59}
-#selEj .selRow{display:flex;align-items:center;gap:12px;min-height:52px;padding:6px 10px;border-top:1px solid rgba(18,18,16,.07);cursor:pointer;border-radius:10px}
-#selEj .selRow:hover,#selEj .selRow.kb{background:rgba(18,18,16,.06)}
-#selEj .selRow:active{background:rgba(18,18,16,.1)}
-#selEj .selRow:focus-visible,#selEj .selRow.kb{outline:2px solid #121212;outline-offset:-2px}
-#selEj .selN{flex:1;font-family:var(--font-display);font-weight:600;font-size:17px;color:#121212}
-.selImp{font-family:var(--font-mono);font-size:11px;letter-spacing:.06em;color:#5E5D59;text-transform:uppercase}
-.selAct{font-family:var(--font-mono);font-size:11px;letter-spacing:.1em;padding:4px 8px;border-radius:8px;background:#121212;color:#F4F3F0}
-#selEj .selRow.act{background:rgba(18,18,16,.05)}
-.selVacio{padding:40px 0;text-align:center}.selVacio p{font-family:var(--font-mono);font-size:13px;letter-spacing:.12em;margin:0 0 14px}
-/* c78 · selector de ejercicios en cápsulas: toda la pantalla, pills por grupo y alfabéticas */
-.selM__c{width:min(1480px,calc(100vw - 48px));height:calc(100dvh - 48px)}
-#selEj .selPills{display:flex;flex-wrap:wrap;gap:8px 8px;padding:10px 0 20px}
-#selEj .selRow{display:inline-flex;align-items:center;gap:8px;min-height:40px;padding:0 14px;border:1px solid rgba(18,18,16,.22);border-top:1px solid rgba(18,18,16,.22);border-radius:999px;background:#fff;color:#121212;font:inherit;cursor:pointer;text-align:left;transition:border-color .15s ease,background-color .15s ease}
-#selEj .selRow:hover{border-color:#121212}
-/* Cápsula con foto: misma receta que la session-pill (.sp) del Home del socio — perla, borde casi invisible, sombra suave, disco con aro */
-#selEj .selRow{background:#FFFFFF;border:1px solid rgba(255,255,255,.9);box-shadow:0 0 0 1px rgba(17,17,17,.06),0 10px 30px rgba(0,0,0,.07);padding:0 16px 0 12px;min-height:46px;gap:10px}
-#selEj .selRow:hover{border-color:rgba(255,255,255,.9);box-shadow:0 0 0 1px rgba(17,17,17,.22),0 10px 30px rgba(0,0,0,.09)}
-#selEj .selRow:has(.selF){padding:4px 18px 4px 4px;min-height:60px;gap:12px}
-#selEj .selF{width:52px;height:52px;flex:none;display:block;border-radius:999px;object-fit:cover;background:#F1F1F0;padding:2px;box-shadow:0 0 0 1px rgba(17,17,17,.06)}
+.selGH{position:sticky;top:0;z-index:2;display:flex;align-items:baseline;gap:12px;padding:18px 2px 4px;background:#F4F3F0}
+.selGH b{font-family:var(--font-display);font-weight:900;font-size:30px;line-height:1;letter-spacing:-.02em;font-stretch:85%;color:#121212}
+.selGH small{font-family:var(--font-mono);font-size:10.5px;letter-spacing:.16em;text-transform:uppercase;color:#5E5D59}
+.selGH.sm b{font-family:var(--font-mono);font-weight:400;font-size:10.5px;letter-spacing:.2em;text-transform:uppercase;color:#5E5D59}
+#selEj .selPills{display:flex;flex-wrap:wrap;gap:10px;padding:10px 0 22px}
+#selEj .selRow{display:inline-flex;align-items:center;gap:12px;height:60px;padding:0 20px 0 0;border:1px solid rgba(18,18,16,.1);border-radius:999px;background:#fff;color:#121212;font:inherit;cursor:pointer;text-align:left;overflow:hidden;position:relative;max-width:100%;transition:border-color .15s ease,transform .15s ease}
+#selEj .selRow:hover{border-color:#121212;transform:translateY(-1px)}
+#selEj .selRow:focus-visible,#selEj .selRow.kb{outline:none;box-shadow:0 0 0 2px #121212}
+#selEj .selRow:active{transform:none}
+#selEj .selPh{flex:0 0 60px;width:60px;height:60px;position:relative;background:#D9D8D3;display:grid;place-items:center;font-family:var(--font-mono);font-size:8.5px;letter-spacing:.08em;color:#8E8D88;text-align:center;line-height:1.2}
+#selEj .selF{width:100%;height:100%;display:block;object-fit:cover;filter:grayscale(1) contrast(1.08);position:absolute;inset:0}
+#selEj .selPh::after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,transparent 55%,#fff 100%)}
+#selEj .selTx{display:flex;flex-direction:column;min-width:0}
+#selEj .selN{font-family:var(--font-display);font-weight:800;font-size:16px;line-height:1.1;letter-spacing:-.015em;white-space:nowrap;color:#121212}
+#selEj .selN mark{background:none;color:inherit;text-decoration:underline;text-decoration-thickness:2px;text-underline-offset:3px}
+#selEj .selSub{margin-top:3px;font-family:var(--font-mono);font-weight:500;font-size:9px;letter-spacing:.14em;text-transform:uppercase;color:#5E6066;white-space:nowrap}
+#selEj .selAct{display:inline-block;margin-left:8px;vertical-align:middle;font-family:var(--font-mono);font-weight:700;font-size:8.5px;letter-spacing:.14em;padding:3px 7px;border-radius:999px;background:#F4F3F0;color:#121212}
 #selEj .selRow.act{background:#121212;border-color:#121212}
-#selEj .selRow.act .selF{background:#2A2A2A;box-shadow:0 0 0 1px rgba(255,255,255,.18)}
-#selEj .selRow.kb{box-shadow:0 0 0 2px #121212,0 10px 30px rgba(0,0,0,.09)}
-#selEj .selRow:active{background:rgba(18,18,16,.06)}
-#selEj .selRow.kb{box-shadow:0 0 0 2px #121212}
-#selEj .selRow.act{background:#121212;color:#F4F3F0;border-color:#121212}
-#selEj .selN{font-family:var(--font-display);font-size:13px;font-weight:700;letter-spacing:-.01em;white-space:nowrap}
-#selEj .selImp{font-size:9px;letter-spacing:.08em;color:#8E8D88;white-space:nowrap}
-#selEj .selRow.act .selImp{color:rgba(244,243,240,.6)}
-#selEj .selRow.act .selN{color:#F4F3F0}
-#selEj .selRow:hover,#selEj .selRow.kb{background:#fff}#selEj .selRow.act:hover{background:#121212}
-#selEj .selN{flex:none}
-/* c79 · cápsulas más grandes y escaladas por dispositivo: el espacio vacío se usa para legibilidad y para el dedo */
-#selEj .selPills{gap:12px 12px;padding:12px 0 26px;justify-content:center}
-/* c80 · distribución equilibrada: cada cápsula crece para llenar su fila de borde a borde (con tope) y la última fila queda centrada */
-#selEj .selRow{flex:1 1 auto;max-width:min(100%,440px);justify-content:center;text-align:center}
-#selEj .selRow .selN{white-space:nowrap}
-#selEj .selRow{min-height:52px;padding:0 20px;gap:10px;box-shadow:0 2px 6px -4px rgba(18,18,16,.35)}
-#selEj .selN{font-size:16px}
-#selEj .selImp{font-size:10px}
-#selEj .selGH b{font-size:16px}#selEj .selGH small{font-size:12px}
-#selEj .selM__q{min-height:58px}#selEj .selM__q input{font-size:18px !important}
-#selEj .selChip{min-height:40px;font-size:13px;padding:0 14px}
-@media (min-width:1200px){ #selEj .selPills{gap:12px 12px;padding:14px 0 30px} #selEj .selRow{min-height:56px;padding:0 20px;gap:10px} #selEj .selN{font-size:18px} #selEj .selImp{font-size:11px} #selEj .selGH b{font-size:18px} #selEj .selGH small{font-size:13px} #selEj .selM__q{min-height:62px} #selEj .selM__q input{font-size:19px !important} #selEj .selChip{min-height:42px;font-size:13.5px}
-/* Pills de grupo muscular: mismo formato que las del Home del socio (cápsula de contorno, mono, tracking ancho) */
-#selEj .selChip{border-radius:999px;background:transparent;border:1px solid rgba(18,18,16,.3);color:rgba(18,18,16,.9);font-weight:700;font-size:11px;letter-spacing:.16em;text-transform:uppercase;min-height:38px;padding:0 14px;line-height:1;transition:border-color .15s ease,background-color .15s ease}
-#selEj .selChip:hover{border-color:#121212}
-#selEj .selChip.on{background:#121212;border-color:#121212;color:#F4F3F0} }
-@media (min-width:768px) and (max-width:1199px){ #selEj .selRow{min-height:54px;padding:0 20px} #selEj .selN{font-size:17px} }
-@media (max-width:767px){ #selEj .selPills{gap:10px 10px;padding:10px 0 20px} #selEj .selRow{min-height:50px;padding:0 16px} #selEj .selN{font-size:15.5px;white-space:normal;line-height:1.15} #selEj .selImp{font-size:9.5px} }
-#selEj .selAct{font-size:9px;padding:3px 7px;background:#F4F3F0;color:#121212}
-#selEj .selGH{padding:16px 2px 6px;border-bottom:1.5px solid #121212}
-@media (max-width:1023px){ .selM__c{width:calc(100vw - 32px);height:calc(100dvh - 48px)} }
-@media (max-width:640px){ .selM{align-items:stretch} .selM__c{width:100vw;height:100dvh;border-radius:0;padding-top:env(safe-area-inset-top,0px)}
-  .selM__h{padding:12px 14px 8px} .selM__l{padding:0 14px calc(24px + env(safe-area-inset-bottom,0px))} #selEj .selN{font-size:14px} #selEj .selRow{min-height:44px} }
+#selEj .selRow.act .selN{color:#F4F3F0}#selEj .selRow.act .selSub{color:#B9B8B2}
+#selEj .selRow.act .selPh{background:#2A2A2A}
+#selEj .selRow.act .selPh::after{background:linear-gradient(90deg,transparent 55%,#121212 100%)}
+#selEj .selRow.in{border-style:dashed;border-color:rgba(18,18,16,.3)}
+.selVacio{padding:40px 0;text-align:center}.selVacio p{font-family:var(--font-mono);font-size:13px;letter-spacing:.12em;margin:0 0 14px}
+/* ≥1024 · panel ancho: riel lateral con conteo, sin chips, atajos de teclado visibles */
+@media (min-width:1024px){ .selRail{display:flex} #selEj .selM__chips{display:none} .selM__k{display:block;margin-left:auto} .selM__h{padding-bottom:12px} #selEj .selN{font-size:17px} }
+/* 641–1023 · tablet vertical: chips + índice de salto en el borde derecho */
+@media (min-width:641px) and (max-width:1023px){ .selM__c{width:calc(100vw - 32px)} .selJump{display:flex} .selM__l{padding-right:38px} }
+/* ≤640 · teléfono: hoja inferior; buscador y chips al alcance del pulgar */
+@media (max-width:640px){ .selM{align-items:flex-end} .selM__c{width:100vw;height:92dvh;border-radius:22px 22px 0 0} .selM__c::before{content:"";position:absolute;left:50%;top:6px;width:40px;height:4px;margin-left:-20px;border-radius:2px;background:rgba(18,18,16,.2);z-index:4} .selM__h{display:contents}
+  .selM__top{order:1;margin:0;padding:16px 14px 8px} .selCtx{order:2;margin:0 14px 6px} .selM__b{order:3} #selEj .selM__chips{order:4;padding:8px 14px} .selM__q{order:5;margin:0 14px calc(12px + env(safe-area-inset-bottom,0px));box-shadow:0 4px 20px rgba(0,0,0,.12)}
+  .selM__l{padding:0 14px 10px} .selGH b{font-size:26px} #selEj .selPills{flex-direction:column;flex-wrap:nowrap;gap:8px} #selEj .selRow{width:100%;height:56px} #selEj .selPh{flex-basis:56px;width:56px;height:56px} #selEj .selN{font-size:15px;white-space:normal;line-height:1.1} #selEj .selSub{white-space:normal} }
 
 /* ═══ c10.9 · BARRA DE ACCIONES ÚNICA DEL PLANIFICADOR ═══ */
 .plDock{position:sticky;bottom:0;z-index:40;margin:18px -4px 0;padding:10px 4px calc(10px + env(safe-area-inset-bottom,0px));background:linear-gradient(180deg,rgba(243,242,239,0),var(--koach-bg,#F3F2EF) 28%)}
@@ -2805,16 +2796,21 @@ html.ks-on #vSala .salaQ input{font:500 17px var(--font-display) !important;lett
   </div>
 </div>
 
-<!-- SELECTOR DE EJERCICIOS -->
+<!-- SELECTOR DE EJERCICIOS · c81 Monolito responsive -->
 <div id="selEj" class="selM" style="display:none" role="dialog" aria-modal="true" aria-labelledby="selTit" onclick="if(event.target===this)cerrarSelector()">
   <div class="selM__c">
     <div class="selM__h">
       <div class="selM__top"><div class="selM__t" id="selTit">SELECCIONAR EJERCICIO</div>
         <button type="button" class="selM__x" onclick="cerrarSelector()" aria-label="Cerrar">✕</button></div>
-      <label class="selM__q"><span aria-hidden="true">⌕</span><input id="selBusca" type="search" placeholder="Buscar ejercicio…" autocomplete="off" oninput="selBuscar()" onkeydown="selTecla(event)" aria-label="Buscar ejercicio por nombre"></label>
+      <div id="selCtx" class="selCtx" style="display:none"></div>
+      <label class="selM__q"><span aria-hidden="true">⌕</span><input id="selBusca" type="search" placeholder="Buscar ejercicio…" autocomplete="off" oninput="selBuscar()" onkeydown="selTecla(event)" aria-label="Buscar ejercicio por nombre"><kbd class="selM__k" aria-hidden="true">ESC CIERRA · ↑↓ MUEVE · ↵ ELIGE</kbd></label>
       <div id="selChips" class="selM__chips"></div>
     </div>
-    <div class="selM__l" id="selScroll"><div id="selLista" role="listbox" aria-labelledby="selTit"></div></div>
+    <div class="selM__b">
+      <nav id="selRail" class="selRail" aria-label="Grupo muscular"></nav>
+      <div class="selM__l" id="selScroll"><div id="selLista" role="listbox" aria-labelledby="selTit"></div></div>
+      <nav id="selJump" class="selJump" aria-label="Ir al grupo"></nav>
+    </div>
   </div>
 </div>
 
@@ -4445,6 +4441,7 @@ function abrirSelector(modo,bi,beId){
   SEL={modo:modo,bi:bi,beId:beId,grupo:null,actual:actual,foco:-1}
   document.getElementById('selTit').textContent = modo==='agregar'?'AGREGAR EJERCICIO AL BLOQUE':'CAMBIAR EJERCICIO'
   document.getElementById('selBusca').value=''
+  selCtxPintar(modo,beId)
   document.getElementById('selEj').style.display='flex'
   document.documentElement.classList.add('selAbierto')
   pintarChipsSel()
@@ -4473,36 +4470,87 @@ function selTecla(ev){
   if (ev.key==='Enter'){ ev.preventDefault(); const f = filas[SEL.foco>=0?SEL.foco:0]; if (f && (SEL.foco>=0 || filas.length===1)) f.click() }
 }
 document.addEventListener('keydown', function(ev){ if (ev.key==='Escape' && document.getElementById('selEj') && document.getElementById('selEj').style.display!=='none' && document.activeElement && document.activeElement.id!=='selBusca') cerrarSelector() })
-function pintarChipsSel(){
-  const grupos = []
-  ;(EJCAT||[]).forEach(function(e){ const g=e.grupo_muscular||''; if(g && grupos.indexOf(g)===-1) grupos.push(g) })
+// c81 · grupos con conteo: chips (tablet/móvil), riel lateral (≥1024) e índice de salto (tablet). Un solo origen de datos.
+function selGruposCat(){
+  const grupos=[], n={}
+  ;(EJCAT||[]).forEach(function(e){ const g=e.grupo_muscular||''; if(!g) return; if(grupos.indexOf(g)===-1) grupos.push(g); n[g]=(n[g]||0)+1 })
   const _M=(EJCAT&&EJCAT._mord)||[]
   grupos.sort(function(a,b){ const ia=_M.indexOf(a), ib=_M.indexOf(b); return (ia<0?99:ia)-(ib<0?99:ib) })
-  const chip = function(txt, val){
-    const on = SEL.grupo===val
-    const arg = (val===null) ? 'null' : ('\''+val+'\'')
-    return '<button type="button" class="selChip'+(on?' on':'')+'" aria-pressed="'+on+'" onclick="setGrupoSel('+arg+')">'+txt+'</button>'
-  }
-  document.getElementById('selChips').innerHTML = chip('TODOS', null) + grupos.map(function(g){ return chip(SIGLA[g]||g, g) }).join('')
+  return grupos.map(function(g){ return {g:g, n:n[g]} })
+}
+function pintarChipsSel(){
+  const G=selGruposCat(), total=(EJCAT||[]).length
+  const arg=function(val){ return (val===null) ? 'null' : ('\''+String(val).replace(/'/g,"\\'")+'\'') }
+  const chip=function(txt,val,n){ const on=SEL.grupo===val
+    return '<button type="button" class="selChip'+(on?' on':'')+'" aria-pressed="'+on+'" onclick="setGrupoSel('+arg(val)+')">'+txt+'<i>'+n+'</i></button>' }
+  document.getElementById('selChips').innerHTML = chip('TODOS',null,total) + G.map(function(x){ return chip(SIGLA[x.g]||x.g, x.g, x.n) }).join('')
+  const rail=document.getElementById('selRail'); if(rail) rail.innerHTML = '<div class="selRail__h">Grupo</div>' +
+    '<button type="button" class="'+(SEL.grupo===null?'on':'')+'" onclick="setGrupoSel(null)">TODOS<i>'+total+'</i></button>' +
+    G.map(function(x){ return '<button type="button" class="'+(SEL.grupo===x.g?'on':'')+'" onclick="setGrupoSel('+arg(x.g)+')">'+(SIGLA[x.g]||x.g)+'<i>'+x.n+'</i></button>' }).join('')
+  const jump=document.getElementById('selJump'); if(jump) jump.innerHTML = G.map(function(x){ return '<button type="button" class="'+(SEL.grupo===x.g?'on':'')+'" onclick="selSaltar('+arg(x.g)+')" aria-label="Ir a '+plEsc(x.g)+'">'+String(SIGLA[x.g]||x.g).slice(0,3)+'</button>' }).join('')
+}
+// Índice de salto: no filtra, desplaza hasta el encabezado del grupo (si había filtro de otro grupo, lo quita primero)
+function selSaltar(g){
+  if (SEL.grupo && SEL.grupo!==g){ SEL.grupo=null; pintarChipsSel(); pintarSelector() }
+  const h=document.querySelector('#selLista .selGH[data-g="'+String(g).replace(/"/g,'')+'"]'); const sc=document.getElementById('selScroll')
+  if (h && sc){ const pl=h.nextElementSibling; sc.scrollTop = Math.max(0, (pl?pl.offsetTop:h.offsetTop) - h.offsetHeight - (sc.offsetTop||0)) }
+}
+// Contexto: qué ejercicio se está cambiando y en qué bloque
+function selCtxPintar(modo,beId){
+  const el=document.getElementById('selCtx'); if(!el) return
+  const x = (modo==='cambiar' && beId) ? planItem(beId) : null
+  if(!x){ el.style.display='none'; el.innerHTML=''; return }
+  const e=(EJCAT||[]).find(function(c){return String(c.id)===String(x.it.ejId)})
+  const r=e&&e.visual_key&&window.EXF&&window.EXF[e.visual_key]
+  const bl=(function(){ let n=''; try{ (P.sesiones[P.tab].bloques||[]).forEach(function(b,i){ if(b===x.b) n=obNombre(b,i) }) }catch(_){ } return n })()
+  el.innerHTML=(r?'<img src="'+SB_URL+'/storage/v1/object/public/ejercicios-media/'+r+'" alt="" onerror="this.outerHTML=\'<i></i>\'">':'<i></i>')+'<small>Cambiando</small><b>'+plEsc(x.it.nombre||'')+'</b>'+(bl?'<small>· '+plEsc(bl)+'</small>':'')
+  el.style.display='flex'
+}
+// Recientes por coach (localStorage, sin tocar la base): los últimos 8 elegidos
+function selRecientes(){ try{ return JSON.parse(localStorage.getItem('kc_selRec')||'[]') }catch(_){ return [] } }
+function selRecordar(id){ try{ const r=selRecientes().filter(function(x){return String(x)!==String(id)}); r.unshift(String(id)); localStorage.setItem('kc_selRec', JSON.stringify(r.slice(0,8))) }catch(_){ } }
+// Ejercicios ya presentes en la sesión abierta → etiqueta "EN BLOQUE X"
+function selEnSesion(){
+  const m={}; try{ (P.sesiones[P.tab].bloques||[]).forEach(function(b,i){ (b.items||[]).forEach(function(it){ if(it.activo!==false && it.ejId!=null && !m[it.ejId]) m[it.ejId]=obNombre(b,i) }) }) }catch(_){ }
+  return m
 }
 function setGrupoSel(g){ SEL.grupo=g; SEL.foco=-1; pintarChipsSel(); pintarSelector(); selArriba() }
 function cerrarSelector(){ document.getElementById('selEj').style.display='none'; document.documentElement.classList.remove('selAbierto') }
 function _selNorm(t){ return String(t||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'') }
 // Foto del ejercicio en el selector (reconocer > leer). Fuera del selector, la rutina queda solo con nombres.
-function selFoto(e){ const r=e&&e.visual_key&&window.EXF&&window.EXF[e.visual_key]; if(!r) return ''
-  return '<img class="selF" src="'+SB_URL+'/storage/v1/object/public/ejercicios-media/'+r+'" alt="" width="40" height="40" loading="lazy" decoding="async" onerror="this.remove()">' }
+// c81 · la foto es el extremo izquierdo de la cápsula (Monolito); sin foto → placa neutra
+function selFoto(e){ const r=e&&e.visual_key&&window.EXF&&window.EXF[e.visual_key]
+  return '<span class="selPh" aria-hidden="true">'+(r?'<img class="selF" src="'+SB_URL+'/storage/v1/object/public/ejercicios-media/'+r+'" alt="" width="60" height="60" loading="lazy" decoding="async" onerror="this.remove()">':'SIN<br>FOTO')+'</span>' }
+// Subraya la coincidencia de búsqueda sin romper acentos (mapa carácter a carácter)
+function selResaltar(nombre,q){
+  const t=String(nombre||''); if(!q) return plEsc(t)
+  const chars=t.split(''), norm=chars.map(function(c){ return _selNorm(c)||c }).join('')
+  const i=norm.indexOf(q); if(i<0) return plEsc(t)
+  return plEsc(t.slice(0,i))+'<mark>'+plEsc(t.slice(i,i+q.length))+'</mark>'+plEsc(t.slice(i+q.length))
+}
+function selImp(e){ return e.implemento ? String(e.implemento).replace(/_/g,' ').toUpperCase() : '' }
+function selCapsula(e,q,enS){
+  const act = SEL.actual && String(e.id)===String(SEL.actual)
+  const enB = !act && enS[e.id]
+  const sub = [selImp(e), enB?('EN '+enB):''].filter(Boolean).join(' · ')
+  return '<button type="button" class="selRow'+(act?' act':'')+(enB?' in':'')+'" role="option" tabindex="-1" aria-selected="false" title="'+plEsc(e.nombre)+(e.implemento?' · '+String(e.implemento).replace('_',' '):'')+'" onclick="elegirEj(\''+e.id+'\')">'+selFoto(e)+
+    '<span class="selTx"><span class="selN">'+selResaltar(e.nombre,q)+(act?'<span class="selAct">ACTUAL</span>':'')+'</span>'+(sub?'<span class="selSub">'+plEsc(sub)+'</span>':'')+'</span></button>'
+}
 function pintarSelector(){
   const q=_selNorm(document.getElementById('selBusca').value)
   const lista=(EJCAT||[]).filter(function(e){
     if (SEL.grupo && (e.grupo_muscular||'')!==SEL.grupo) return false
-    return !q || _selNorm(e.nombre).indexOf(q)>-1 })
-  const gr=selGrupos(lista)
-  document.getElementById('selLista').innerHTML = gr.length ? gr.map(function(G){
+    return !q || _selNorm(e.nombre).indexOf(q)>-1 || (q.length>=2 && _selNorm(SIGLA[e.grupo_muscular]||'').indexOf(q)===0) })
+  const gr=selGrupos(lista), enS=selEnSesion()
+  // c81 · Recientes del coach antes del primer grupo (solo sin búsqueda y sin filtro)
+  let rec=''
+  if (!q && !SEL.grupo){ const ids=selRecientes(), byId={}; (EJCAT||[]).forEach(function(e){ byId[String(e.id)]=e })
+    const R=ids.map(function(id){return byId[id]}).filter(Boolean)
+    if (R.length) rec='<div class="selGH sm" role="presentation"><b>Recientes</b></div><div class="selPills" role="group" aria-label="Recientes">'+R.map(function(e){ return selCapsula(e,q,enS) }).join('')+'</div>' }
+  document.getElementById('selLista').innerHTML = gr.length ? rec + gr.map(function(G){
     // c78 · cada ejercicio es una cápsula; las cápsulas fluyen una al lado de la otra, por grupo (orden funcional) y alfabéticas dentro del grupo
-    return '<div class="selGH" role="presentation"><b>'+(SIGLA[G.g]||G.g)+'</b><small>'+G.g+' · '+G.items.length+'</small></div><div class="selPills" role="group" aria-label="'+plEsc(G.g)+'">'+
-      G.items.map(function(e){ const act = SEL.actual && String(e.id)===String(SEL.actual)
-        return '<button type="button" class="selRow'+(act?' act':'')+'" role="option" tabindex="-1" aria-selected="false" title="'+plEsc(e.nombre)+(e.implemento?' · '+String(e.implemento).replace('_',' '):'')+'" onclick="elegirEj(\''+e.id+'\')">'+selFoto(e)+'<span class="selN">'+plEsc(e.nombre)+'</span>'+
-          (act?'<span class="selAct">ACTUAL</span>':'')+'</button>' }).join('')+'</div>'
+    return '<div class="selGH" role="presentation" data-g="'+plEsc(G.g)+'"><b>'+(SIGLA[G.g]||G.g)+'</b><small>'+G.g+' · '+G.items.length+'</small></div><div class="selPills" role="group" aria-label="'+plEsc(G.g)+'">'+
+      G.items.map(function(e){ return selCapsula(e,q,enS) }).join('')+'</div>'
   }).join('') : '<div class="selVacio"><p>NO ENCONTRAMOS ESE EJERCICIO</p><button type="button" class="eBtn" onclick="document.getElementById(\'selBusca\').value=\'\';setGrupoSel(null)">LIMPIAR BÚSQUEDA</button></div>'
 }
 async function elegirEj(ejId, confirmado){
@@ -4512,6 +4560,7 @@ async function elegirEj(ejId, confirmado){
     const rep_=await dupDetectar(e.id, SEL.modo==='cambiar'?SEL.beId:null)
     if (rep_.programado.length || rep_.realizado.length){ dupModal(e, rep_); return }
   }
+  selRecordar(e.id)
   cerrarSelector()
   if(SEL.modo==='cambiar'){
     const x=planItem(SEL.beId); if(!x)return
