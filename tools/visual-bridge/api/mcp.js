@@ -320,7 +320,7 @@ async function loteSiguiente() {
     if (r.origen === 'omitido') return false;
     if (r.estado === 'sin_foto') return true;
     // segunda pasada: las que el control dejó en "corregir" por error automático, un reintento más
-    if (r.estado === 'corregir' && (r.lote_intentos || 0) < 2 && /^Control automático/.test(r.nota || '')) return true;
+    if (r.estado === 'corregir' && (r.lote_intentos || 0) < 2 && /^(Control automático|Instrucción corregida por auditoría)/.test(r.nota || '')) return true;
     return false;
   }).sort((a, b) => (a.recursos_visuales.estado === 'sin_foto' ? 0 : 1) - (b.recursos_visuales.estado === 'sin_foto' ? 0 : 1) || prio(a) - prio(b) || a.nombre.localeCompare(b.nombre));
   if (!cand.length) return { listo: true, mensaje: 'No quedan ejercicios pendientes de generar.' };
