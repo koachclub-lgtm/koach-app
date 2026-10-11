@@ -1340,71 +1340,66 @@ html.en-sala[data-dash="tablet"] .salaQ input{font-size:18px}
 #vPlan.plRO #pBloques{opacity:.9}
 .plROban{margin:0 0 12px;padding:12px 14px;border-radius:12px;background:#121212;color:#F4F3F0;font-family:var(--font-mono);font-size:12px;letter-spacing:.1em}
 
-/* ═══ c10.9 · SELECTOR DE EJERCICIOS · c81 Monolito responsive (riel ≥1024 · índice de salto en tablet · hoja inferior en móvil) ═══ */
+/* ═══ c10.9 · SELECTOR DE EJERCICIOS · c82 Monolito a pantalla completa: pills de grupo arriba (formato Home), lupa plegable, cápsulas grandes que llenan el ancho ═══ */
 html.selAbierto,html.selAbierto body{overflow:hidden}
 .selM{position:fixed;inset:0;z-index:80;background:rgba(18,18,16,.45);backdrop-filter:blur(6px);display:flex;align-items:center;justify-content:center}
-.selM__c{position:relative;display:flex;flex-direction:column;width:min(1480px,calc(100vw - 48px));height:calc(100dvh - 48px);background:#F4F3F0;border-radius:18px;overflow:hidden;box-shadow:0 24px 80px rgba(0,0,0,.25)}
-.selM__h{flex:0 0 auto;padding:18px 22px 4px;background:#F4F3F0}
-.selM__top{display:flex;align-items:center;gap:12px;margin-bottom:10px}
-.selM__t{font-family:var(--font-mono);font-weight:500;font-size:13px;letter-spacing:.16em;color:#121212}
-.selM__x{margin-left:auto;width:44px;height:44px;border:none;border-radius:12px;background:rgba(18,18,16,.07);font-size:16px;cursor:pointer}
-.selCtx{display:flex;align-items:center;gap:10px;margin:0 0 10px;padding:7px 12px 7px 7px;border-radius:999px;background:rgba(18,18,16,.05);font-family:var(--font-mono);font-size:11px;letter-spacing:.08em;color:#5E5D59;min-width:0}
-.selCtx img,.selCtx i{width:30px;height:30px;border-radius:50%;object-fit:cover;flex:none;background:#C4C4C4;filter:grayscale(1);display:block}
+.selM__c{position:relative;display:flex;flex-direction:column;width:calc(100vw - 32px);height:calc(100dvh - 32px);background:#F4F3F0;border-radius:18px;overflow:hidden;box-shadow:0 24px 80px rgba(0,0,0,.25)}
+.selM__h{flex:0 0 auto;padding:12px 22px 0;background:#F4F3F0;display:flex;flex-direction:column;gap:8px}
+.selM__top{display:flex;align-items:center;gap:12px;min-width:0}
+.selM__t{font-family:var(--font-mono);font-weight:500;font-size:12px;letter-spacing:.16em;color:#121212;white-space:nowrap}
+.selM__x,.selM__lupa{flex:none;width:44px;height:44px;border:none;border-radius:12px;background:rgba(18,18,16,.07);font-size:16px;cursor:pointer;color:#121212}
+.selM__lupa{margin-left:auto;font-size:20px}
+.selM__lupa.on{background:#121212;color:#F4F3F0}
+.selCtx{display:flex;align-items:center;gap:8px;min-width:0;padding:5px 12px 5px 5px;border-radius:999px;background:rgba(18,18,16,.05);font-family:var(--font-mono);font-size:10px;letter-spacing:.08em;color:#5E5D59}
+.selCtx img,.selCtx i{width:28px;height:28px;border-radius:50%;object-fit:cover;flex:none;background:#C4C4C4;filter:grayscale(1);display:block}
 .selCtx b{color:#121212;font-family:var(--font-display);font-weight:800;font-size:13px;letter-spacing:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .selCtx small{white-space:nowrap}
-.selM__q{display:flex;align-items:center;gap:10px;min-height:56px;padding:0 18px;border-radius:999px;border:1px solid transparent;background:#fff;box-shadow:0 1px 0 rgba(18,18,16,.08),0 8px 24px rgba(0,0,0,.05)}
-.selM__q:focus-within{border-color:#121212}
+.selM__q{display:flex;align-items:center;gap:10px;min-height:52px;padding:0 18px;border-radius:999px;border:1.5px solid #121212;background:#fff}
 .selM__q span{font-size:19px;opacity:.5}
-.selM__q input{flex:1;min-width:0;border:none !important;background:transparent !important;margin:0 !important;padding:12px 0 !important;font-size:17px !important;outline:none;box-shadow:none !important}
+.selM__q input{flex:1;min-width:0;border:none !important;background:transparent !important;margin:0 !important;padding:10px 0 !important;font-size:17px !important;outline:none;box-shadow:none !important}
 .selM__k{display:none;font-family:var(--font-mono);font-size:10px;letter-spacing:.1em;color:#B9B8B2;white-space:nowrap}
-.selM__chips{flex:0 0 auto;display:flex;gap:8px;overflow-x:auto;padding:12px 0 8px;scrollbar-width:none}
+.selM__chips{flex:0 0 auto;display:flex;gap:8px;overflow-x:auto;padding:2px 0 10px;scrollbar-width:none;-webkit-overflow-scrolling:touch}
 .selM__chips::-webkit-scrollbar{display:none}
-.selChip{flex:0 0 auto;display:inline-flex;align-items:center;gap:6px;min-height:38px;padding:0 14px;border:none;border-radius:999px;background:rgba(18,18,16,.07);color:#121212;font-family:var(--font-mono);font-weight:700;font-size:11px;letter-spacing:.14em;text-transform:uppercase;line-height:1;cursor:pointer}
-.selChip i{font-style:normal;font-weight:400;color:#8E8D88}
-.selChip.on{background:#121212;color:#F4F3F0}.selChip.on i{color:#B9B8B2}
+/* Pills de grupo: el mismo identificador que en el Home del socio y el resto de la app (contorno, mono, tracking ancho; negra la activa) */
+.selChip{flex:0 0 auto;display:inline-flex;align-items:center;gap:7px;min-height:40px;padding:0 15px;border-radius:999px;background:transparent;border:1px solid rgba(18,18,16,.3);color:rgba(18,18,16,.9);font-family:var(--font-mono);font-weight:700;font-size:11px;letter-spacing:.16em;text-transform:uppercase;line-height:1;cursor:pointer;transition:border-color .15s ease,background-color .15s ease}
+.selChip i{font-style:normal;font-weight:400;color:#8E8D88;letter-spacing:.04em}
+.selChip:hover{border-color:#121212}
+.selChip.on{background:#121212;border-color:#121212;color:#F4F3F0}.selChip.on i{color:#B9B8B2}
 .selM__b{flex:1 1 auto;min-height:0;display:flex;position:relative}
-.selRail{display:none;flex:0 0 190px;border-right:1px solid rgba(18,18,16,.08);padding:10px 12px 16px;overflow-y:auto;flex-direction:column;gap:3px;scrollbar-width:none}
-.selRail__h{font-family:var(--font-mono);font-size:9.5px;letter-spacing:.2em;text-transform:uppercase;color:#8E8D88;padding:8px 10px 6px}
-.selRail button{display:flex;align-items:center;justify-content:space-between;width:100%;padding:10px;border:none;border-radius:12px;background:transparent;font-family:var(--font-mono);font-weight:700;font-size:11px;letter-spacing:.12em;color:#121212;cursor:pointer;text-align:left}
-.selRail button i{font-style:normal;font-weight:400;color:#8E8D88}
-.selRail button:hover{background:rgba(18,18,16,.06)}
-.selRail button.on{background:#121212;color:#F4F3F0}.selRail button.on i{color:#B9B8B2}
-.selJump{display:none;position:absolute;right:2px;top:8px;bottom:8px;flex-direction:column;justify-content:center;gap:1px;z-index:3}
-.selJump button{border:none;background:transparent;font-family:var(--font-mono);font-weight:700;font-size:8.5px;letter-spacing:.04em;color:#8E8D88;padding:4px 6px;border-radius:6px;cursor:pointer}
-.selJump button.on{background:#121212;color:#F4F3F0}
 .selM__l{flex:1 1 auto;min-width:0;overflow-y:auto;overscroll-behavior:contain;padding:0 22px 24px;scrollbar-width:thin;scrollbar-color:rgba(18,18,16,.25) transparent}
 .selM__l::-webkit-scrollbar{width:8px}.selM__l::-webkit-scrollbar-thumb{background:rgba(18,18,16,.22);border-radius:8px}
-.selGH{position:sticky;top:0;z-index:2;display:flex;align-items:baseline;gap:12px;padding:18px 2px 4px;background:#F4F3F0}
-.selGH b{font-family:var(--font-display);font-weight:900;font-size:30px;line-height:1;letter-spacing:-.02em;font-stretch:85%;color:#121212}
+.selGH{position:sticky;top:0;z-index:2;display:flex;align-items:baseline;gap:12px;padding:14px 2px 2px;background:#F4F3F0}
+.selGH b{font-family:var(--font-display);font-weight:900;font-size:28px;line-height:1;letter-spacing:-.02em;font-stretch:85%;color:#121212}
 .selGH small{font-family:var(--font-mono);font-size:10.5px;letter-spacing:.16em;text-transform:uppercase;color:#5E5D59}
 .selGH.sm b{font-family:var(--font-mono);font-weight:400;font-size:10.5px;letter-spacing:.2em;text-transform:uppercase;color:#5E5D59}
-#selEj .selPills{display:flex;flex-wrap:wrap;gap:10px;padding:10px 0 22px}
-#selEj .selRow{display:inline-flex;align-items:center;gap:12px;height:60px;padding:0 20px 0 0;border:1px solid rgba(18,18,16,.1);border-radius:999px;background:#fff;color:#121212;font:inherit;cursor:pointer;text-align:left;overflow:hidden;position:relative;max-width:100%;transition:border-color .15s ease,transform .15s ease}
+/* c82 · distribución: cada cápsula crece para llenar su fila de borde a borde (con tope); figuras grandes */
+#selEj .selPills{display:flex;flex-wrap:wrap;gap:12px;padding:10px 0 22px}
+#selEj .selRow{flex:1 1 auto;max-width:min(100%,520px);display:inline-flex;align-items:center;gap:16px;height:84px;padding:0 26px 0 0;border:1px solid rgba(18,18,16,.1);border-radius:999px;background:#fff;color:#121212;font:inherit;cursor:pointer;text-align:left;overflow:hidden;position:relative;transition:border-color .15s ease,transform .15s ease}
 #selEj .selRow:hover{border-color:#121212;transform:translateY(-1px)}
 #selEj .selRow:focus-visible,#selEj .selRow.kb{outline:none;box-shadow:0 0 0 2px #121212}
 #selEj .selRow:active{transform:none}
-#selEj .selPh{flex:0 0 60px;width:60px;height:60px;position:relative;background:#D9D8D3;display:grid;place-items:center;font-family:var(--font-mono);font-size:8.5px;letter-spacing:.08em;color:#8E8D88;text-align:center;line-height:1.2}
+#selEj .selPh{flex:0 0 84px;width:84px;height:84px;position:relative;background:#D9D8D3;display:grid;place-items:center;font-family:var(--font-mono);font-size:9px;letter-spacing:.08em;color:#8E8D88;text-align:center;line-height:1.2}
 #selEj .selF{width:100%;height:100%;display:block;object-fit:cover;filter:grayscale(1) contrast(1.08);position:absolute;inset:0}
 #selEj .selPh::after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,transparent 55%,#fff 100%)}
 #selEj .selTx{display:flex;flex-direction:column;min-width:0}
-#selEj .selN{font-family:var(--font-display);font-weight:800;font-size:16px;line-height:1.1;letter-spacing:-.015em;white-space:nowrap;color:#121212}
+#selEj .selN{font-family:var(--font-display);font-weight:800;font-size:20px;line-height:1.08;letter-spacing:-.015em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:#121212}
 #selEj .selN mark{background:none;color:inherit;text-decoration:underline;text-decoration-thickness:2px;text-underline-offset:3px}
-#selEj .selSub{margin-top:3px;font-family:var(--font-mono);font-weight:500;font-size:9px;letter-spacing:.14em;text-transform:uppercase;color:#5E6066;white-space:nowrap}
-#selEj .selAct{display:inline-block;margin-left:8px;vertical-align:middle;font-family:var(--font-mono);font-weight:700;font-size:8.5px;letter-spacing:.14em;padding:3px 7px;border-radius:999px;background:#F4F3F0;color:#121212}
+#selEj .selSub{margin-top:4px;font-family:var(--font-mono);font-weight:500;font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:#5E6066;white-space:nowrap}
+#selEj .selAct{display:inline-block;margin-left:8px;vertical-align:middle;font-family:var(--font-mono);font-weight:700;font-size:9px;letter-spacing:.14em;padding:3px 8px;border-radius:999px;background:#F4F3F0;color:#121212}
 #selEj .selRow.act{background:#121212;border-color:#121212}
 #selEj .selRow.act .selN{color:#F4F3F0}#selEj .selRow.act .selSub{color:#B9B8B2}
 #selEj .selRow.act .selPh{background:#2A2A2A}
 #selEj .selRow.act .selPh::after{background:linear-gradient(90deg,transparent 55%,#121212 100%)}
 #selEj .selRow.in{border-style:dashed;border-color:rgba(18,18,16,.3)}
 .selVacio{padding:40px 0;text-align:center}.selVacio p{font-family:var(--font-mono);font-size:13px;letter-spacing:.12em;margin:0 0 14px}
-/* ≥1024 · panel ancho: riel lateral con conteo, sin chips, atajos de teclado visibles */
-@media (min-width:1024px){ .selRail{display:flex} #selEj .selM__chips{display:none} .selM__k{display:block;margin-left:auto} .selM__h{padding-bottom:12px} #selEj .selN{font-size:17px} }
-/* 641–1023 · tablet vertical: chips + índice de salto en el borde derecho */
-@media (min-width:641px) and (max-width:1023px){ .selM__c{width:calc(100vw - 32px)} .selJump{display:flex} .selM__l{padding-right:38px} }
-/* ≤640 · teléfono: hoja inferior; buscador y chips al alcance del pulgar */
+@media (min-width:1024px){ .selM__k{display:block;margin-left:auto} }
+@media (min-width:1400px){ #selEj .selRow{height:92px} #selEj .selPh{flex-basis:92px;width:92px;height:92px} #selEj .selN{font-size:22px} }
+@media (max-width:1023px){ #selEj .selRow{height:76px;gap:14px;padding-right:22px;max-width:min(100%,480px)} #selEj .selPh{flex-basis:76px;width:76px;height:76px} #selEj .selN{font-size:18px} .selGH b{font-size:26px} .selM__h{padding:12px 16px 0} .selM__l{padding:0 16px 20px} }
+/* ≤640 · teléfono: hoja inferior; pills de grupo y buscador al alcance del pulgar */
 @media (max-width:640px){ .selM{align-items:flex-end} .selM__c{width:100vw;height:92dvh;border-radius:22px 22px 0 0} .selM__c::before{content:"";position:absolute;left:50%;top:6px;width:40px;height:4px;margin-left:-20px;border-radius:2px;background:rgba(18,18,16,.2);z-index:4} .selM__h{display:contents}
-  .selM__top{order:1;margin:0;padding:16px 14px 8px} .selCtx{order:2;margin:0 14px 6px} .selM__b{order:3} #selEj .selM__chips{order:4;padding:8px 14px} .selM__q{order:5;margin:0 14px calc(12px + env(safe-area-inset-bottom,0px));box-shadow:0 4px 20px rgba(0,0,0,.12)}
-  .selM__l{padding:0 14px 10px} .selGH b{font-size:26px} #selEj .selPills{flex-direction:column;flex-wrap:nowrap;gap:8px} #selEj .selRow{width:100%;height:56px} #selEj .selPh{flex-basis:56px;width:56px;height:56px} #selEj .selN{font-size:15px;white-space:normal;line-height:1.1} #selEj .selSub{white-space:normal} }
+  .selM__top{order:1;padding:16px 14px 8px;flex-wrap:wrap} .selM__lupa{display:none} .selCtx{flex-basis:100%;order:3} .selM__x{margin-left:auto}
+  .selM__b{order:3} #selEj .selM__chips{order:4;padding:8px 14px} .selM__q{order:5;display:flex !important;margin:0 14px calc(12px + env(safe-area-inset-bottom,0px));border-color:transparent;box-shadow:0 4px 20px rgba(0,0,0,.12)} .selM__q:focus-within{border-color:#121212}
+  .selM__l{padding:0 14px 10px} .selGH b{font-size:24px} #selEj .selPills{flex-direction:column;flex-wrap:nowrap;gap:8px} #selEj .selRow{width:100%;max-width:none;height:64px;gap:12px;padding-right:16px} #selEj .selPh{flex-basis:64px;width:64px;height:64px} #selEj .selN{font-size:16px;white-space:normal;line-height:1.1} #selEj .selSub{white-space:normal} }
 
 /* ═══ c10.9 · BARRA DE ACCIONES ÚNICA DEL PLANIFICADOR ═══ */
 .plDock{position:sticky;bottom:0;z-index:40;margin:18px -4px 0;padding:10px 4px calc(10px + env(safe-area-inset-bottom,0px));background:linear-gradient(180deg,rgba(243,242,239,0),var(--koach-bg,#F3F2EF) 28%)}
@@ -2796,20 +2791,19 @@ html.ks-on #vSala .salaQ input{font:500 17px var(--font-display) !important;lett
   </div>
 </div>
 
-<!-- SELECTOR DE EJERCICIOS · c81 Monolito responsive -->
+<!-- SELECTOR DE EJERCICIOS · c82 Monolito a pantalla completa -->
 <div id="selEj" class="selM" style="display:none" role="dialog" aria-modal="true" aria-labelledby="selTit" onclick="if(event.target===this)cerrarSelector()">
   <div class="selM__c">
     <div class="selM__h">
       <div class="selM__top"><div class="selM__t" id="selTit">SELECCIONAR EJERCICIO</div>
+        <div id="selCtx" class="selCtx" style="display:none"></div>
+        <button type="button" class="selM__lupa" id="selLupa" onclick="selLupa()" aria-label="Buscar" aria-expanded="false">⌕</button>
         <button type="button" class="selM__x" onclick="cerrarSelector()" aria-label="Cerrar">✕</button></div>
-      <div id="selCtx" class="selCtx" style="display:none"></div>
-      <label class="selM__q"><span aria-hidden="true">⌕</span><input id="selBusca" type="search" placeholder="Buscar ejercicio…" autocomplete="off" oninput="selBuscar()" onkeydown="selTecla(event)" aria-label="Buscar ejercicio por nombre"><kbd class="selM__k" aria-hidden="true">ESC CIERRA · ↑↓ MUEVE · ↵ ELIGE</kbd></label>
       <div id="selChips" class="selM__chips"></div>
+      <label class="selM__q" id="selQ" style="display:none"><span aria-hidden="true">⌕</span><input id="selBusca" type="search" placeholder="Buscar ejercicio…" autocomplete="off" oninput="selBuscar()" onkeydown="selTecla(event)" aria-label="Buscar ejercicio por nombre"><kbd class="selM__k" aria-hidden="true">ESC LIMPIA · ↑↓ MUEVE · ↵ ELIGE</kbd></label>
     </div>
     <div class="selM__b">
-      <nav id="selRail" class="selRail" aria-label="Grupo muscular"></nav>
       <div class="selM__l" id="selScroll"><div id="selLista" role="listbox" aria-labelledby="selTit"></div></div>
-      <nav id="selJump" class="selJump" aria-label="Ir al grupo"></nav>
     </div>
   </div>
 </div>
@@ -4442,12 +4436,12 @@ function abrirSelector(modo,bi,beId){
   document.getElementById('selTit').textContent = modo==='agregar'?'AGREGAR EJERCICIO AL BLOQUE':'CAMBIAR EJERCICIO'
   document.getElementById('selBusca').value=''
   selCtxPintar(modo,beId)
+  selLupa(false)
   document.getElementById('selEj').style.display='flex'
   document.documentElement.classList.add('selAbierto')
   pintarChipsSel()
   pintarSelector()
   selArriba()
-  if (matchMedia('(pointer:fine)').matches) setTimeout(function(){ document.getElementById('selBusca').focus({preventScroll:true}) },30)
   dupEjecutados()   // precarga (1 consulta por semana) de lo ya realizado
 }
 function selArriba(){ const sc=document.getElementById('selScroll'); if(sc) sc.scrollTop=0 }
@@ -4462,14 +4456,17 @@ function selGrupos(lista){
 }
 function selTecla(ev){
   const filas=[...document.querySelectorAll('#selLista .selRow')]
-  if (ev.key==='Escape'){ ev.preventDefault(); cerrarSelector(); return }
+  if (ev.key==='Escape'){ ev.preventDefault(); if (ev.target.value || matchMedia('(min-width:641px)').matches) selLupa(false); else cerrarSelector(); return }
   if (ev.key==='ArrowDown'||ev.key==='ArrowUp'){ ev.preventDefault(); if(!filas.length) return
     SEL.foco = Math.max(0, Math.min(filas.length-1, (SEL.foco<0 && ev.key==='ArrowDown') ? 0 : SEL.foco+(ev.key==='ArrowDown'?1:-1)))
     filas.forEach(function(f,i){ f.classList.toggle('kb',i===SEL.foco); f.setAttribute('aria-selected', i===SEL.foco) })
     filas[SEL.foco].scrollIntoView({block:'nearest'}); return }
   if (ev.key==='Enter'){ ev.preventDefault(); const f = filas[SEL.foco>=0?SEL.foco:0]; if (f && (SEL.foco>=0 || filas.length===1)) f.click() }
 }
-document.addEventListener('keydown', function(ev){ if (ev.key==='Escape' && document.getElementById('selEj') && document.getElementById('selEj').style.display!=='none' && document.activeElement && document.activeElement.id!=='selBusca') cerrarSelector() })
+document.addEventListener('keydown', function(ev){ const m=document.getElementById('selEj'); if(!m || m.style.display==='none' || (document.activeElement && document.activeElement.id==='selBusca')) return
+  if (ev.key==='Escape'){ cerrarSelector(); return }
+  // c82 · escribir con el selector abierto despliega la lupa y empieza a buscar
+  if (ev.key.length===1 && !ev.ctrlKey && !ev.metaKey && !ev.altKey && !/^(INPUT|TEXTAREA|SELECT)$/.test((document.activeElement||{}).tagName||'')){ ev.preventDefault(); const i=document.getElementById('selBusca'); const abierto=document.getElementById('selQ').style.display!=='none'; selLupa(true); i.value=(abierto?i.value:'')+ev.key; selBuscar() } })
 // c81 · grupos con conteo: chips (tablet/móvil), riel lateral (≥1024) e índice de salto (tablet). Un solo origen de datos.
 function selGruposCat(){
   const grupos=[], n={}
@@ -4484,16 +4481,15 @@ function pintarChipsSel(){
   const chip=function(txt,val,n){ const on=SEL.grupo===val
     return '<button type="button" class="selChip'+(on?' on':'')+'" aria-pressed="'+on+'" onclick="setGrupoSel('+arg(val)+')">'+txt+'<i>'+n+'</i></button>' }
   document.getElementById('selChips').innerHTML = chip('TODOS',null,total) + G.map(function(x){ return chip(SIGLA[x.g]||x.g, x.g, x.n) }).join('')
-  const rail=document.getElementById('selRail'); if(rail) rail.innerHTML = '<div class="selRail__h">Grupo</div>' +
-    '<button type="button" class="'+(SEL.grupo===null?'on':'')+'" onclick="setGrupoSel(null)">TODOS<i>'+total+'</i></button>' +
-    G.map(function(x){ return '<button type="button" class="'+(SEL.grupo===x.g?'on':'')+'" onclick="setGrupoSel('+arg(x.g)+')">'+(SIGLA[x.g]||x.g)+'<i>'+x.n+'</i></button>' }).join('')
-  const jump=document.getElementById('selJump'); if(jump) jump.innerHTML = G.map(function(x){ return '<button type="button" class="'+(SEL.grupo===x.g?'on':'')+'" onclick="selSaltar('+arg(x.g)+')" aria-label="Ir a '+plEsc(x.g)+'">'+String(SIGLA[x.g]||x.g).slice(0,3)+'</button>' }).join('')
+  const on=document.querySelector('#selChips .selChip.on'); if(on && on.scrollIntoView) on.scrollIntoView({block:'nearest',inline:'nearest'})
 }
-// Índice de salto: no filtra, desplaza hasta el encabezado del grupo (si había filtro de otro grupo, lo quita primero)
-function selSaltar(g){
-  if (SEL.grupo && SEL.grupo!==g){ SEL.grupo=null; pintarChipsSel(); pintarSelector() }
-  const h=document.querySelector('#selLista .selGH[data-g="'+String(g).replace(/"/g,'')+'"]'); const sc=document.getElementById('selScroll')
-  if (h && sc){ const pl=h.nextElementSibling; sc.scrollTop = Math.max(0, (pl?pl.offsetTop:h.offsetTop) - h.offsetHeight - (sc.offsetTop||0)) }
+// c82 · Lupa plegable: el buscador solo ocupa espacio cuando se usa. Abrir = mostrar + foco; cerrar = limpiar + repintar.
+function selLupa(abrir){
+  const q=document.getElementById('selQ'), b=document.getElementById('selLupa'), inp=document.getElementById('selBusca')
+  if (abrir===undefined) abrir = q.style.display==='none'
+  q.style.display = abrir?'flex':'none'; b.classList.toggle('on',abrir); b.setAttribute('aria-expanded',abrir)
+  if (abrir){ inp.focus({preventScroll:true}) }
+  else if (inp.value){ inp.value=''; SEL.foco=-1; pintarSelector(); selArriba() }
 }
 // Contexto: qué ejercicio se está cambiando y en qué bloque
 function selCtxPintar(modo,beId){
