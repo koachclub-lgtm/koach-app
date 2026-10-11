@@ -311,27 +311,33 @@ Exercise name: "${nombre}". Implement: ${implemento || 'unknown'}. Answer with t
   throw new Error('Sin modelo de texto disponible');
 }
 async function loteSiguiente() {
-  const filas = await rest('ejercicios?select=nombre,implemento,grupo_muscular,visual_key,recursos_visuales(estado,descripcion,origen,updated_at,ref_ruta)&activo=eq.true');
+  const filas = await rest('ejercicios?select=nombre,implemento,grupo_muscular,visual_key,recursos_visuales(estado,descripcion,origen,updated_at,ref_ruta,nota,lote_intentos)&activo=eq.true');
   const ahora = Date.now(), vistos = new Set();
+  const prio = (e) => (ORDEN_GRUPOS.indexOf(e.grupo_muscular) + 99) % 99;
   const cand = filas.filter(e => {
-    const r = e.recursos_visuales; if (!r || r.estado !== 'sin_foto' || vistos.has(e.visual_key)) return false; vistos.add(e.visual_key);
+    const r = e.recursos_visuales; if (!r || vistos.has(e.visual_key)) return false; vistos.add(e.visual_key);
     if (r.origen === 'procesando' && ahora - Date.parse(r.updated_at) < 6 * 60 * 1000) return false;   // otro worker lo tiene
     if (r.origen === 'omitido') return false;
-    return true;
-  }).sort((a, b) => (ORDEN_GRUPOS.indexOf(a.grupo_muscular) + 99) % 99 - (ORDEN_GRUPOS.indexOf(b.grupo_muscular) + 99) % 99 || a.nombre.localeCompare(b.nombre));
-  if (!cand.length) return { listo: true, mensaje: 'No quedan ejercicios sin foto.' };
-  const e = cand[0], key = e.visual_key;
-  // máquinas numeradas o ambiguas sin referencia: no se inventan
-  if (/-machine-\d+$/.test(key) && !e.recursos_visuales.ref_ruta) {
+    if (r.estado === 'sin_foto') return true;
+    // segunda pasada: las que el control dejó en "corregir" por error automático, un reintento más
+    if (r.estado === 'corregir' && (r.lote_intentos || 0) < 2 && /^Control automático/.test(r.nota || '')) return true;
+    return false;
+  }).sort((a, b) => (a.recursos_visuales.estado === 'sin_foto' ? 0 : 1) - (b.recursos_visuales.estado === 'sin_foto' ? 0 : 1) || prio(a) - prio(b) || a.nombre.localeCompare(b.nombre));
+  if (!cand.length) return { listo: true, mensaje: 'No quedan ejercicios pendientes de generar.' };
+  const e = cand[0], key = e.visual_key, r = e.recursos_visuales;
+  if (/-machine-\d+$/.test(key) && !r.ref_ruta) {
     await patchRecurso(key, { origen: 'omitido', nota: 'Necesita foto de referencia de la máquina real del club.' });
     return { visual_key: key, omitido: true };
   }
-  await patchRecurso(key, { origen: 'procesando' });
+  const intento = (r.lote_intentos || 0) + 1;
+  await patchRecurso(key, { origen: 'procesando', lote_intentos: intento });
   try {
-    let desc = e.recursos_visuales.descripcion;
+    let desc = r.descripcion;
     if (!desc) { desc = await redactar(e.nombre, e.implemento, koachRules(key)); await patchRecurso(key, { descripcion: desc }); }
-    const out = await TOOLS.generar_imagen.run({ visual_key: key, descripcion: desc, sin_miniatura: true });
-    return { visual_key: key, grupo: e.grupo_muscular, estado: out.estado, control: out.control };
+    // en el reintento, los problemas detectados pasan como corrección explícita
+    const correccion = (r.estado === 'corregir' && r.nota) ? 'Avoid these defects from the previous attempt: ' + r.nota.replace(/^Control automático:\s*/, '') : undefined;
+    const out = await TOOLS.generar_imagen.run({ visual_key: key, descripcion: desc, correccion, sin_miniatura: true });
+    return { visual_key: key, grupo: e.grupo_muscular, intento, estado: out.estado, control: out.control };
   } catch (err) {
     await patchRecurso(key, { origen: 'error-lote', nota: `Error en lote: ${String(err.message || err).slice(0, 300)}` });
     throw err;
