@@ -180,6 +180,7 @@ html.bk-on{overflow:hidden}
 .bk__scroll{flex:1;min-height:0;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:10px 20px 8px;display:flex;flex-direction:column;gap:7px;overscroll-behavior:contain}
 .bk__ex{flex:none;border-radius:20px;padding:10px 14px 11px;scroll-margin:8px}.bk__ex--ok{background:var(--cardOk)}
 .bk__eh{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.exrow{display:flex!important;align-items:center;gap:10px;min-width:0}.exrow__t{display:block;min-width:0}.exf{width:48px;height:48px;flex:none;border-radius:10px;object-fit:cover;background:#C4C4C4;display:block}
 .bk__eh b{display:block;font-family:var(--wxD);font-weight:800;font-stretch:104%;font-size:15.5px;line-height:1.1;letter-spacing:-.01em;color:var(--ink)}
 .bk__pill{flex:none;font:700 8px var(--wxM);letter-spacing:.14em;color:var(--ink2);font-style:normal}
 .bk__sb{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:8px;container-type:inline-size;container-name:sb}
@@ -3520,13 +3521,17 @@ async function entrar(opts){
     const _rids = regs.filter(r=>r.estado==='completada').map(r=>r.id)
 
     // Oleada 3: bloques del programa + extras + sets de la semana + registros del ciclo
-    const [rBloq, rExSes, rExBlo, rSrs, rRc] = await Promise.all([
+    const [rBloq, rExSes, rExBlo, rSrs, rRc, rFxE, rFxR] = await Promise.all([
       sesIds.length ? sb.from('bloques').select(COLS_BLOQ).in('sesion_id', sesIds).order('bloque') : Promise.resolve({data:[]}),
       exIds.length ? sb.from('sesiones_protocolo').select('*').in('id', exIds) : Promise.resolve({data:[]}),
       exIds.length ? sb.from('bloques').select(COLS_BLOQ).in('sesion_id', exIds).order('bloque') : Promise.resolve({data:[]}),
       _rids.length ? sb.from('set_registros').select('registro_id, bloque_id, bloque_ejercicio_id, completado').in('registro_id', _rids) : Promise.resolve({data:[]}),
-      sesIds.length ? sb.from('sesiones_registro').select('sesion_protocolo_id, estado').eq('socio_id', uid).in('sesion_protocolo_id', sesIds) : Promise.resolve({data:[]})
+      sesIds.length ? sb.from('sesiones_registro').select('sesion_protocolo_id, estado').eq('socio_id', uid).in('sesion_protocolo_id', sesIds) : Promise.resolve({data:[]}),
+      // Fotos de ejercicios (biblioteca visual): si falla, la app sigue sin fotos
+      sb.from('ejercicios').select('id, visual_key').not('visual_key','is',null).then(r=>r, ()=>({data:[]})),
+      sb.from('recursos_visuales').select('visual_key, ruta_m, estado').in('estado',['aprobada','provisional']).not('ruta_m','is',null).then(r=>r, ()=>({data:[]}))
     ])
+    try { const fr={}; (rFxR.data||[]).forEach(x=>fr[x.visual_key]=x.ruta_m); const fx={}; (rFxE.data||[]).forEach(e=>{ if(fr[e.visual_key]) fx[e.id]=fr[e.visual_key] }); window.EXF=fx } catch(_){ window.EXF={} }
     const bloques = rBloq.data || []
     S.programa = { sesiones:sesiones.map(s=>({
       numero:s.numero, id:s.id, semana:(s.semana||1), nombre:nombreEN(s.objetivo)||('SESIÓN '+s.numero),
@@ -4302,6 +4307,9 @@ function wxResumenHecho(be,b,w){ const fs=[]; for(let n=1;n<=b.sets;n++){ const 
   if (!fs.length) return ''
   if (w.tipo==='WEIGHT_REPS'){ const kg=fs.reduce((a,f)=>a+(+f.peso||0)*(parseInt(f.reps)||0),0); return fs.length+' SETS · '+Math.round(kg).toLocaleString('es-CL')+' KG' }
   return fs.length+' SETS' }
+// Foto de ejercicio (biblioteca visual KOACH): 192 px WebP servida desde Supabase Storage
+function exFoto(ej){ const r=ej&&window.EXF&&window.EXF[ej.id]; if(!r) return ''
+  return '<img class="exf" src="'+SB_URL+'/storage/v1/object/public/ejercicios-media/'+r+'" alt="" width="48" height="48" loading="lazy" decoding="async" onerror="this.remove()">' }
 function wxCerrado(be,b,w,ej){
   const hechos=setsHechosDe(be.id,b.sets), ok=hechos>=b.sets
   let v=''
@@ -4312,7 +4320,7 @@ function wxCerrado(be,b,w,ej){
   else v='<b>×'+(w.reps||'—')+'</b><small>PESO CORPORAL</small>'
   const u=S.ultimos[ej.id], ref = ok ? wxResumenHecho(be,b,w) : (u ? 'REF '+(u.seg!=null?u.seg+' SEG':(u.peso!=null?wxKg(u.peso)+' × ':'')+(u.reps||'')) : 'PRIMER REGISTRO')
   return '<button type="button" class="wx__c'+(ok?' wx__c--ok':'')+'" id="ex-'+be.id+'" onclick="toggleEx(\''+be.id+'\')" aria-label="'+(ej.nombre||'Ejercicio')+', '+hechos+' de '+b.sets+' sets. Abrir">'+
-    '<span class="wx__cn"><b>'+(ej.nombre||'—')+(be.es_ancla?' ◆':'')+'</b><small>'+(ej.grupo_muscular||'')+' · '+hechos+'/'+b.sets+' SETS'+(ref?' · '+ref:'')+'</small></span>'+
+    '<span class="wx__cn'+(exFoto(ej)?' exrow':'')+'">'+exFoto(ej)+'<span class="exrow__t"><b>'+(ej.nombre||'—')+(be.es_ancla?' ◆':'')+'</b><small>'+(ej.grupo_muscular||'')+' · '+hechos+'/'+b.sets+' SETS'+(ref?' · '+ref:'')+'</small></span></span>'+
     '<span class="wx__cv">'+v+'</span><span class="wx__cs" aria-hidden="true">'+(ok?'<i class="wx__ok">✓</i>':'<i class="wx__exp">+</i>')+'</span></button>'
 }
 function wxActivo(be,b,w,ej){
@@ -4496,7 +4504,7 @@ function bkPintar(){
     else if (w.tipo==='TIME'){ ctr=timeControl(); uno=true }
     else ctr=repsControl()+bodyweight
     // V3 · la tarjeta es un modificador: nombre, grupo y steppers. La referencia queda en el nombre accesible, no en pantalla.
-    return '<article class="bk__ex'+(fila?' bk__ex--ok':'')+'" aria-label="'+N+' · '+ref+' · prescrito '+bkPres(w,ej)+'"><div class="bk__eh"><b>'+bkEsc(ej.nombre||'—')+'</b><em class="bk__pill">'+bkEsc(ej.grupo_muscular||'')+'</em></div><div class="bk__sb'+(uno?' bk__sb--1':'')+'">'+ctr+'</div></article>' }).join('')
+    return '<article class="bk__ex'+(fila?' bk__ex--ok':'')+'" aria-label="'+N+' · '+ref+' · prescrito '+bkPres(w,ej)+'"><div class="bk__eh"><span class="exrow">'+exFoto(ej)+'<b>'+bkEsc(ej.nombre||'—')+'</b></span><em class="bk__pill">'+bkEsc(ej.grupo_muscular||'')+'</em></div><div class="bk__sb'+(uno?' bk__sb--1':'')+'">'+ctr+'</div></article>' }).join('')
   let cta, ctaCls=''
   if (hecho){ cta='DESMARCAR SET '+String(n).padStart(2,'0'); ctaCls=' bk__cta--sec' }
   else if (done){ cta='BLOQUE COMPLETADO ✓'; ctaCls=' bk__cta--sec' }
