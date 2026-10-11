@@ -290,6 +290,54 @@ const TOOLS = {
   }
 };
 
+
+// ---------- modo lote (cola nocturna disparada por pg_cron + pg_net) ----------
+const ORDEN_GRUPOS = ['CUÁDRICEPS','GLÚTEOS','ESPALDA','ISQUIOS','HOMBROS','BÍCEPS','TRÍCEPS','GEMELOS','CORE','GLOBAL','CARDIO','MOVILIDAD','PECHO'];
+async function redactar(nombre, implemento, rules) {
+  const key = process.env.GEMINI_API_KEY;
+  const prompt = `Write precise image-generation instructions for ONE exercise photo in a strength-training app. Describe the body configuration unambiguously because image models make anatomical mistakes. ONE paragraph in English, 60 to 110 words, in this order: (1) exercise name and exact equipment (implement, how many, bench or machine and its angle); (2) body support: what touches the bench/floor/seat and where each foot is; (3) head and neck neutral, in line with the spine; (4) each arm and hand: grip type, hand width, what each hand holds; (5) the most recognizable movement phase with joint angles (press: elbows at 90 degrees; rows and pulldowns: peak contraction; flys: controlled stretch; squats/lunges/hinges: bottom position; jumps: highest point; isometrics and mobility: held position); (6) camera: one of "pure side view", "three-quarter view from the feet slightly above", "three-quarter front view", "low side view". No style, lighting or clothing words. KOACH conventions: BB = barbell, DB = dumbbells, KB = kettlebell, MB = mini band, CABLE = cable pulley; "prone" = PRONATED overhand grip and "supine" = SUPINATED underhand grip (never a lying position); "neutral" = palms facing each other; "close-grip" = hands shoulder-width or narrower; "single" = one arm or leg works; "alternating" = asymmetric; "ISO" = held position; "pulse" = short range at the bottom; "1 1/2" = show the bottom position.
+${rules.length ? 'Mandatory rules: ' + rules.join(' ') : ''}
+Exercise name: "${nombre}". Implement: ${implemento || 'unknown'}. Answer with the paragraph only.`;
+  for (const model of QA_MODELS) {
+    const r = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`, {
+      method: 'POST', headers: { 'Content-Type': 'application/json', 'x-goog-api-key': key },
+      body: JSON.stringify({ contents: [{ role: 'user', parts: [{ text: prompt }] }], generationConfig: { temperature: 0.2 } }) });
+    if (r.status === 404) continue;
+    const j = await r.json().catch(() => ({}));
+    if (!r.ok) throw new Error(`Gemini texto ${r.status}: ${JSON.stringify(j).slice(0, 200)}`);
+    const txt = (j?.candidates?.[0]?.content?.parts || []).map(p => p.text || '').join('').trim();
+    if (txt) return txt;
+  }
+  throw new Error('Sin modelo de texto disponible');
+}
+async function loteSiguiente() {
+  const filas = await rest('ejercicios?select=nombre,implemento,grupo_muscular,visual_key,recursos_visuales(estado,descripcion,origen,updated_at,ref_ruta)&activo=eq.true');
+  const ahora = Date.now(), vistos = new Set();
+  const cand = filas.filter(e => {
+    const r = e.recursos_visuales; if (!r || r.estado !== 'sin_foto' || vistos.has(e.visual_key)) return false; vistos.add(e.visual_key);
+    if (r.origen === 'procesando' && ahora - Date.parse(r.updated_at) < 6 * 60 * 1000) return false;   // otro worker lo tiene
+    if (r.origen === 'omitido') return false;
+    return true;
+  }).sort((a, b) => (ORDEN_GRUPOS.indexOf(a.grupo_muscular) + 99) % 99 - (ORDEN_GRUPOS.indexOf(b.grupo_muscular) + 99) % 99 || a.nombre.localeCompare(b.nombre));
+  if (!cand.length) return { listo: true, mensaje: 'No quedan ejercicios sin foto.' };
+  const e = cand[0], key = e.visual_key;
+  // máquinas numeradas o ambiguas sin referencia: no se inventan
+  if (/-machine-\d+$/.test(key) && !e.recursos_visuales.ref_ruta) {
+    await patchRecurso(key, { origen: 'omitido', nota: 'Necesita foto de referencia de la máquina real del club.' });
+    return { visual_key: key, omitido: true };
+  }
+  await patchRecurso(key, { origen: 'procesando' });
+  try {
+    let desc = e.recursos_visuales.descripcion;
+    if (!desc) { desc = await redactar(e.nombre, e.implemento, koachRules(key)); await patchRecurso(key, { descripcion: desc }); }
+    const out = await TOOLS.generar_imagen.run({ visual_key: key, descripcion: desc, sin_miniatura: true });
+    return { visual_key: key, grupo: e.grupo_muscular, estado: out.estado, control: out.control };
+  } catch (err) {
+    await patchRecurso(key, { origen: 'error-lote', nota: `Error en lote: ${String(err.message || err).slice(0, 300)}` });
+    throw err;
+  }
+}
+
 // ---------- protocolo MCP (JSON-RPC sobre HTTP, sin estado) ----------
 async function handle(msg) {
   const { id, method, params } = msg;
@@ -327,6 +375,11 @@ async function handle(msg) {
 module.exports = async (req, res) => {
   const token = process.env.BRIDGE_TOKEN;
   if (!token || req.query.t !== token) { res.status(404).end(); return; }
+  if (req.query.lote) {
+    if (!SK) { res.status(500).json({ error: 'Falta SUPABASE_SERVICE_ROLE_KEY' }); return; }
+    try { res.status(200).json(await loteSiguiente()); } catch (e) { res.status(200).json({ error: String(e.message || e) }); }
+    return;
+  }
   if (req.method === 'GET') { res.status(405).setHeader('Allow', 'POST').end(); return; }
   if (req.method === 'DELETE') { res.status(200).end(); return; }
   if (req.method !== 'POST') { res.status(405).end(); return; }
