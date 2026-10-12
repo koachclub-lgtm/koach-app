@@ -558,6 +558,18 @@ html .kw.kw--hero .kw-cl{font-size:7px;letter-spacing:.16em}
 /* c103 · Código de programa = tipografía del manual (mono regular, tracking corto) */
 .mtProg__l,#vPlan .mtProg__l,.k2 #vHome .hh--ed .hh__code{font-weight:400;letter-spacing:.04em}
 .k2 #vHome .hh--ed .hh__code{font-size:12.5px;color:#121212}
+
+/* c104 · Reps/Kg en cajas fijas (lista del bloque) */
+.cp__e>div:first-child{flex:1;min-width:0}
+.cp__e em{display:grid;grid-template-columns:58px 70px;gap:6px;flex:0 0 auto}
+.cp__e em .bx{color:#111;letter-spacing:0;height:52px;border-radius:14px;background:#F2F1EE;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;padding:0 4px}
+.cp__e em .bx b{font-family:var(--wxD);font-weight:900;font-stretch:108%;font-size:21px;line-height:1;letter-spacing:-.01em;font-variant-numeric:tabular-nums;white-space:nowrap;color:#111}
+.cp__e em .bx.bx--l b{font-size:18px}
+.cp__e em .bx.bx--xl b{font-size:15px}
+.cp__e em .bx i{font:700 8.5px var(--wxM);font-style:normal;letter-spacing:.12em;color:#6B6A65;white-space:nowrap}
+.cp__e em .bx--pc{background:transparent;border:1.5px dashed #CFCDC7}
+.cp__e em .bx--pc b{font:700 11px var(--wxM);letter-spacing:.06em}
+.cp__e em .bx--pc i{font-size:7.5px;letter-spacing:.08em}
 </style>
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
@@ -4451,9 +4463,11 @@ function bkKgPrescrito(b){ let k=0; bkBes(b).forEach(be=>{ const ej=be.ejercicio
 // c63 · gramática única de la serie (domain/koach-series.js): REPS/TIEMPO → CARGA
 function bkSerie(w,ej){ return { tipo:w.tipo, reps:w.reps, kg:(w.tipo==='TIME'&&!(ej&&ej.con_carga===true))?null:w.kg, seg:w.seg||30 } }
 function bkPres(w,ej){ return KSET.txt(bkSerie(w,ej)) }
-function bkValor(w,ej){ if(w.tipo==='WEIGHT_REPS') return '<b>'+KSET.reps(w.reps)+'<i>REPS</i></b><b>'+(w.kg!=null?KSET.kg(w.kg):'—')+'<i>KG</i></b>'
-  if(w.tipo==='TIME') return '<b>'+(w.seg||30)+'<i>SEG</i></b>'+(ej&&ej.con_carga===true&&w.kg!=null?'<b>'+KSET.kg(w.kg)+'<i>KG</i></b>':'')
-  return '<b>'+KSET.reps(w.reps)+'<i>REPS</i></b><small>PESO CORPORAL</small>' }
+// c104 · cajas fijas: reps 58 px · carga 70 px, número centrado + unidad debajo; sin carga = caja punteada → la fila no cambia de forma
+function bkBx(v,u,pc){ v=String(v); return '<span class="bx'+(pc?' bx--pc':'')+(v.length>=5?' bx--xl':v.length>=4?' bx--l':'')+'"><b>'+v+'</b><i>'+u+'</i></span>' }
+function bkValor(w,ej){ if(w.tipo==='WEIGHT_REPS') return bkBx(KSET.reps(w.reps),'REPS')+(w.kg!=null?bkBx(KSET.kg(w.kg),'KG'):bkBx('—','KG',1))
+  if(w.tipo==='TIME') return bkBx(w.seg||30,'SEG')+(ej&&ej.con_carga===true&&w.kg!=null?bkBx(KSET.kg(w.kg),'KG'):bkBx('—','SIN CARGA',1))
+  return bkBx(KSET.reps(w.reps),'REPS')+bkBx('PC','CORPORAL',1) }
 
 /* ── PANTALLA 1 · cápsulas ── */
 function bkCapsulas(bfs){
