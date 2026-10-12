@@ -2520,6 +2520,8 @@ body.wl-on{overflow:hidden}
 <div id="mWh" class="whBg" onclick="if(event.target===this)this.classList.remove('vis')"><div class="whSheet"><button class="whX" onclick="document.getElementById('mWh').classList.remove('vis')" aria-label="Cerrar">✕</button><div id="mWhBody"></div></div></div>
 
 <script>
+// c85 · Fotos con avatar femenino: se construyen y aprueban en la galería antes de publicarse. Cambiar a true cuando Matías dé el visto bueno.
+window.FOTOS_F_ACTIVAS=false
 const SB_URL = 'https://siecbdatfgmqbpxqtvsl.supabase.co'
 const SB_KEY = 'sb_publishable_ffGsmagqocuP1n1jvKUVGw_hVzdojas'
 // c15 · SESIÓN PERSISTENTE: el refresh token se refleja en una cookie de 400 días en .koachclub.cl.
@@ -3532,7 +3534,7 @@ async function entrar(opts){
       sb.from('recursos_visuales').select('visual_key, ruta_m, estado, ruta_f, estado_f').or('estado.in.(aprobada,provisional),estado_f.in.(aprobada,provisional)').then(r=>r, ()=>({data:[]}))
     ])
     // c84 · avatar según profiles.sex: socia → foto femenina aprobada si existe, si no la masculina (nunca sin foto por falta de versión)
-    try { const fem=String((S.perfil&&S.perfil.sex)||'').toLowerCase()==='mujer'; const okF=x=>x.ruta_f&&(x.estado_f==='aprobada'||x.estado_f==='provisional'), okM=x=>x.ruta_m&&(x.estado==='aprobada'||x.estado==='provisional')
+    try { const fem=window.FOTOS_F_ACTIVAS===true && String((S.perfil&&S.perfil.sex)||'').toLowerCase()==='mujer'; const okF=x=>x.ruta_f&&(x.estado_f==='aprobada'||x.estado_f==='provisional'), okM=x=>x.ruta_m&&(x.estado==='aprobada'||x.estado==='provisional')
       const fr={}; (rFxR.data||[]).forEach(x=>{ const r=(fem&&okF(x))?x.ruta_f:(okM(x)?x.ruta_m:(okF(x)?x.ruta_f:null)); if(r) fr[x.visual_key]=r }); const fx={}; (rFxE.data||[]).forEach(e=>{ if(fr[e.visual_key]) fx[e.id]=fr[e.visual_key] }); window.EXF=fx } catch(_){ window.EXF={} }
     const bloques = rBloq.data || []
     S.programa = { sesiones:sesiones.map(s=>({
