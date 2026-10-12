@@ -213,10 +213,17 @@ const TOOLS = {
       let extra = correccion ? `\nIMPORTANT CORRECTION: ${correccion}` : '';
       const rules = koachRules(visual_key);
       let refs = [], refNote = '';
+      // c85 · versión femenina = la MISMA foto aprobada del hombre con el avatar reemplazado (image-to-image), no una foto nueva
+      let espejo = false;
+      if (g === 'f' && (rec.estado === 'aprobada' || rec.estado === 'provisional') && (rec.ruta_full_m || rec.ruta_m)) {
+        const rm = await fetch(publicUrl(rec.ruta_full_m || rec.ruta_m));
+        if (rm.ok) { refs.push(Buffer.from(await rm.arrayBuffer()).toString('base64')); espejo = true;
+          refNote += '\nCOMPOSITION REFERENCE (most important): the SECOND attached image is our approved photo of this exact exercise performed by the male athlete. Recreate it as faithfully as possible: identical camera angle, framing and crop, identical equipment and its placement, identical body position, limb angles, grip and movement phase, identical lighting and backdrop. The ONLY change is the person: replace the male athlete with the female athlete from the FIRST image (her face, hair, body, sports bra, biker shorts, shoes and her leg tattoo), adapting proportions naturally. Do not add, remove or move anything else.'; }
+      }
       if (rec.ref_ruta) {
         const rr = await fetch(publicUrl(rec.ref_ruta));
         if (rr.ok) { refs = [Buffer.from(await rr.arrayBuffer()).toString('base64')];
-          refNote = '\nEQUIPMENT REFERENCE: the SECOND attached image shows the exact machine/equipment and body position to use. Reproduce its geometry, handles, pads, seat and the athlete position faithfully, restyled as matte graphite equipment in our photographic studio style. Ignore that image\'s drawing style, colors, muscle highlighting, numbers, text and background.'; }
+          refNote += `\nEQUIPMENT REFERENCE: the ${espejo ? 'THIRD' : 'SECOND'} attached image shows the exact machine/equipment and body position to use. Reproduce its geometry, handles, pads, seat and the athlete position faithfully, restyled as matte graphite equipment in our photographic studio style. Ignore that image\'s drawing style, colors, muscle highlighting, numbers, text and background.`; }
       }
       let model, data, check, intentos = 0;
       for (intentos = 1; intentos <= 2; intentos++) {
@@ -235,7 +242,7 @@ const TOOLS = {
       const estado = check.ok === false ? 'corregir' : 'pendiente';
       const nota = check.ok === false ? `Control automático: ${check.issues.join('; ')}` : (check.minor && check.minor.length ? `Observaciones: ${check.minor.join('; ')}` : (correccion || null));
       await patchRecurso(visual_key, { [C.version]: v, [C.ruta]: ruta, [C.full]: rutaFull, [C.estado]: estado, descripcion: desc, [C.nota]: nota, [C.origen]: `gemini-api:${model}` });
-      return { visual_key, genero: g, version: v, estado, nota, control: { ok: check.ok, problemas: check.issues, observaciones: check.minor || [], intentos: Math.min(intentos, 2) }, modelo: model, kb: Math.round(thumb.length / 1024), miniatura: sin_miniatura ? null : 'data:image/webp;base64,' + thumb.toString('base64') };
+      return { visual_key, genero: g, version: v, estado, nota, espejo, control: { ok: check.ok, problemas: check.issues, observaciones: check.minor || [], intentos: Math.min(intentos, 2) }, modelo: model, kb: Math.round(thumb.length / 1024), miniatura: sin_miniatura ? null : 'data:image/webp;base64,' + thumb.toString('base64') };
     }
   },
   guardar_referencia: {
@@ -355,7 +362,7 @@ async function loteSiguiente(genero) {
   const g = G(genero), C = COLS[g];
   const filas0 = await rest('ejercicios?select=nombre,implemento,grupo_muscular,visual_key,recursos_visuales(*)&activo=eq.true');
   // vista normalizada por género: estado/origen/nota/lote_intentos apuntan a las columnas del género pedido
-  const filas = filas0.map(e => { const r = e.recursos_visuales; return r ? { ...e, recursos_visuales: { ...r, estado: r[C.estado], origen: r[C.origen], nota: r[C.nota], lote_intentos: r[C.lote], updated_at: r.updated_at } } : e; });
+  const filas = filas0.map(e => { const r = e.recursos_visuales; return r ? { ...e, recursos_visuales: { ...r, estado_m: r.estado, estado: r[C.estado], origen: r[C.origen], nota: r[C.nota], lote_intentos: r[C.lote], updated_at: r.updated_at } } : e; });
   const ahora = Date.now(), vistos = new Set();
   const prio = (e) => (ORDEN_GRUPOS.indexOf(e.grupo_muscular) + 99) % 99;
   const cand = filas.filter(e => {
@@ -366,7 +373,10 @@ async function loteSiguiente(genero) {
     // segunda pasada: las que el control dejó en "corregir" por error automático, un reintento más
     if (r.estado === 'corregir' && (r.lote_intentos || 0) < 2 && /^(Control automático|Instrucción corregida por auditoría)/.test(r.nota || '')) return true;
     return false;
-  }).sort((a, b) => (a.recursos_visuales.estado === 'sin_foto' ? 0 : 1) - (b.recursos_visuales.estado === 'sin_foto' ? 0 : 1) || prio(a) - prio(b) || a.nombre.localeCompare(b.nombre));
+  }).sort((a, b) => (a.recursos_visuales.estado === 'sin_foto' ? 0 : 1) - (b.recursos_visuales.estado === 'sin_foto' ? 0 : 1)
+    // versión femenina: primero los que tienen foto masculina aprobada (se generan como espejo de esa foto)
+    || (g === 'f' ? (/^(aprobada|provisional)$/.test(a.recursos_visuales.estado_m) ? 0 : 1) - (/^(aprobada|provisional)$/.test(b.recursos_visuales.estado_m) ? 0 : 1) : 0)
+    || prio(a) - prio(b) || a.nombre.localeCompare(b.nombre));
   if (!cand.length) return { listo: true, mensaje: 'No quedan ejercicios pendientes de generar.' };
   const e = cand[0], key = e.visual_key, r = e.recursos_visuales;
   if (/-machine-\d+$/.test(key) && !r.ref_ruta) {
