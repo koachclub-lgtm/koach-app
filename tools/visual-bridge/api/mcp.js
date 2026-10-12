@@ -11,11 +11,17 @@ const BUCKET = 'ejercicios-media';
 const QA_MODELS = [process.env.GEMINI_QA_MODEL, 'gemini-3-flash', 'gemini-2.5-flash', 'gemini-flash-latest'].filter(Boolean);
 const MODELS = [process.env.GEMINI_IMAGE_MODEL, 'gemini-nano-banana-2.1', 'gemini-3.1-flash-image', 'gemini-2.5-flash-image'].filter(Boolean);
 
-const MASTER = `The attached image shows the SAME athlete twice, only as an identity and style reference (face, hair, body, outfit, grey backdrop, lighting). Ignore the poses and the two-panel layout.
+const ATLETA = {
+  m: { ref: 'ref_atleta_m.jpg', vistas: 'twice', panel: 'two-panel',
+    desc: 'Athlete: man in his early 30s, short dark hair, light stubble, athletic but attainable physique (not a bodybuilder), NO tattoos, fitted plain black short-sleeve t-shirt and plain black shorts above the knee, both with NO logos or text, black shoes with grey soles. Calm focused expression, not looking at the camera.' },
+  f: { ref: 'ref_atleta_f.jpg', vistas: 'four times', panel: 'four-panel',
+    desc: 'Athlete: woman around 30, medium brown hair tied in a low ponytail, warm light-olive skin, slim toned athletic physique (fit but not exaggerated), black racerback sports bra and black fitted biker shorts to mid-thigh, both plain with NO logos or text, black training shoes with grey soles and short black socks. ONE single fine-line floral tattoo on the outer side of the LEFT lower leg (shin/calf), exactly as in the reference; no other tattoos, no jewelry, no accessories. Calm focused expression, not looking at the camera.' }
+};
+const MASTER_FOR = (g) => `The attached image shows the SAME athlete ${ATLETA[g].vistas}, only as an identity and style reference (face, hair, body, outfit, grey backdrop, lighting). Ignore the poses and the ${ATLETA[g].panel} layout.
 Create ONE single square photograph (1:1) with ONE person performing ONE exercise, described below.
-Hyperrealistic commercial studio sports photography for a premium strength-training app. It will be shown as a tiny 56 px thumbnail, so frame it tightly: the athlete and the equipment he touches fill about 85% of the frame, with a strong, clear silhouette. Never cut off hands, bars, dumbbells, handles or feet. Crop away unnecessary machine structure.
-Athlete: man in his early 30s, short dark hair, light stubble, athletic but attainable physique (not a bodybuilder), NO tattoos, fitted plain black short-sleeve t-shirt and plain black shorts above the knee, both with NO logos or text, black shoes with grey soles. Calm focused expression, not looking at the camera.
-Seamless plain light grey backdrop (#C4C4C4), no horizon line. Soft key light from the front-side, subtle rim light separating the black clothes from the background, near-monochrome color.
+Hyperrealistic commercial studio sports photography for a premium strength-training app. It will be shown as a tiny 56 px thumbnail, so frame it tightly: the athlete and the equipment they touch fill about 85% of the frame, with a strong, clear silhouette. Never cut off hands, bars, dumbbells, handles or feet. Crop away unnecessary machine structure.
+${ATLETA[g].desc}
+Seamless plain light grey backdrop (#C4C4C4), no horizon line. Soft key light from the front-side, subtle rim light separating the black clothes from the background. Natural true color: real skin tone, deep blacks, neutral grey; neutral white balance, no color cast, no desaturated or black-and-white look.
 Equipment: matte graphite and black with brushed steel, no brands, mechanically plausible.
 STRICT ANATOMY (most important):
 - Exactly one person with exactly two arms, two hands, two legs and two feet. No extra, missing, merged or duplicated limbs.
@@ -26,11 +32,17 @@ STRICT ANATOMY (most important):
 - For two-handed exercises both hands must be visibly on the implement; choose a camera angle where both arms are readable instead of hiding one.
 No text, numbers, logos, mirrors or other people.
 EXERCISE:`;
+const G = (g) => (g === 'f' ? 'f' : 'm');
+// columnas por género en recursos_visuales
+const COLS = {
+  m: { ruta: 'ruta_m', full: 'ruta_full_m', estado: 'estado', version: 'version', nota: 'nota', origen: 'origen', aprob: 'aprobada_at', lote: 'lote_intentos' },
+  f: { ruta: 'ruta_f', full: 'ruta_full_f', estado: 'estado_f', version: 'version_f', nota: 'nota_f', origen: 'origen_f', aprob: 'aprobada_f_at', lote: 'lote_intentos_f' }
+};
 
-let REF = null;
-function refImage() {
-  if (!REF) REF = fs.readFileSync(path.join(__dirname, '..', 'seed', 'ref_atleta_m.jpg')).toString('base64');
-  return REF;
+const REF = {};
+function refImage(g = 'm') {
+  if (!REF[g]) REF[g] = fs.readFileSync(path.join(__dirname, '..', 'seed', ATLETA[g].ref)).toString('base64');
+  return REF[g];
 }
 
 async function sb(pathq, opts = {}) {
@@ -69,14 +81,14 @@ async function patchRecurso(key, body) {
   });
 }
 
-async function gemini(prompt, extra = []) {
+async function gemini(prompt, extra = [], g = 'm') {
   const key = process.env.GEMINI_API_KEY;
   if (!key) throw new Error('Falta GEMINI_API_KEY en Vercel.');
   let lastErr;
   for (const model of MODELS) {
     for (const imageConfig of [{ aspectRatio: '1:1', imageSize: '1K' }, { aspectRatio: '1:1' }, null]) {
       const body = {
-        contents: [{ role: 'user', parts: [{ text: prompt }, { inline_data: { mime_type: 'image/jpeg', data: refImage() } }, ...extra.map(d => ({ inline_data: { mime_type: 'image/jpeg', data: d } }))] }],
+        contents: [{ role: 'user', parts: [{ text: prompt }, { inline_data: { mime_type: 'image/jpeg', data: refImage(g) } }, ...extra.map(d => ({ inline_data: { mime_type: 'image/jpeg', data: d } }))] }],
         generationConfig: { responseModalities: ['IMAGE'], ...(imageConfig ? { imageConfig } : {}) }
       };
       const r = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`, {
@@ -131,6 +143,7 @@ async function qa(imgBuf, desc, rules = []) {
   const prompt = `You are a quality inspector for exercise photos in a fitness app. Inspect the image carefully and classify each problem by severity.
 Expected exercise: ${desc}${rules.length ? `\nMandatory rules (a violation of any of these is CRITICAL): ${rules.join(' ')}` : ''}
 CRITICAL problems (the photo must be redone): more or fewer than one person; an extra, duplicated or merged limb, hand or foot; a limb that should be clearly visible but is missing or detached; a deformed limb, hand or forearm; head or neck bent in a clearly unnatural way; a joint at an impossible angle; floating or physically impossible equipment; a different exercise than expected (wrong body position, e.g. lying instead of standing, wrong implement type such as dumbbells instead of barbell, one hand instead of two hands, or vice versa); visible text.
+Note: a small fine-line tattoo on the athlete's lower leg is part of the character design, not text.
 MINOR observations (do not redo): camera angle slightly different from requested; joint angles a bit off; grip or handle variant slightly different; small logos on clothing; equipment details or cropping preferences.
 IMPORTANT: a limb hidden behind the torso or the equipment because of the camera angle is NOT missing; only report it if the visible parts look wrong.
 Answer ONLY JSON: {"critical": [short English strings], "minor": [short English strings]}. Empty arrays if none.`;
@@ -156,30 +169,31 @@ Answer ONLY JSON: {"critical": [short English strings], "minor": [short English 
 // ---------- herramientas ----------
 const TOOLS = {
   listar_grupos: {
-    description: 'Resumen de la biblioteca de fotos por grupo muscular: total de ejercicios y cuántos están aprobados, provisionales, pendientes, por corregir o sin foto.',
-    inputSchema: { type: 'object', properties: {} },
-    async run() {
-      const ej = await rest('ejercicios?select=grupo_muscular,visual_key,recursos_visuales(estado)&activo=eq.true');
-      const g = {};
+    description: 'Resumen de la biblioteca de fotos por grupo muscular: total de ejercicios y cuántos están aprobados, provisionales, pendientes, por corregir o sin foto. genero: m (hombre, por defecto) o f (mujer).',
+    inputSchema: { type: 'object', properties: { genero: { type: 'string', enum: ['m', 'f'] } } },
+    async run({ genero } = {}) {
+      const ej = await rest('ejercicios?select=grupo_muscular,visual_key,recursos_visuales(estado,estado_f)&activo=eq.true');
+      const g = {}, C = COLS[G(genero)];
       for (const e of ej) {
         const k = e.grupo_muscular || 'SIN GRUPO';
         g[k] = g[k] || { grupo: k, total: 0, aprobada: 0, provisional: 0, pendiente: 0, corregir: 0, sin_foto: 0 };
-        g[k].total++; g[k][e.recursos_visuales?.estado || 'sin_foto']++;
+        g[k].total++; g[k][e.recursos_visuales?.[C.estado] || 'sin_foto']++;
       }
       return Object.values(g).sort((a, b) => a.grupo.localeCompare(b.grupo));
     }
   },
   listar_ejercicios: {
     description: 'Ejercicios de un grupo muscular con su visual_key, estado de foto, descripción visual y miniatura (data URI webp de 192 px) si existe.',
-    inputSchema: { type: 'object', properties: { grupo: { type: 'string', description: 'Grupo muscular, ej. PECHO' }, con_miniaturas: { type: 'boolean', default: true } }, required: ['grupo'] },
-    async run({ grupo, con_miniaturas = true }) {
-      const ej = await rest(`ejercicios?select=id,nombre,grupo_muscular,implemento,visual_key,recursos_visuales(estado,version,ruta_m,descripcion,nota,ref_ruta)&activo=eq.true&grupo_muscular=eq.${encodeURIComponent(grupo)}&order=nombre`);
-      return Promise.all(ej.map(async e => ({
-        id: e.id, nombre: e.nombre, implemento: e.implemento, visual_key: e.visual_key,
-        estado: e.recursos_visuales?.estado || 'sin_foto', version: e.recursos_visuales?.version || 0,
-        referencia: !!e.recursos_visuales?.ref_ruta, descripcion: e.recursos_visuales?.descripcion || null, nota: e.recursos_visuales?.nota || null,
-        miniatura: con_miniaturas ? await thumbData(e.recursos_visuales?.ruta_m) : null
-      })));
+    inputSchema: { type: 'object', properties: { grupo: { type: 'string', description: 'Grupo muscular, ej. PECHO' }, con_miniaturas: { type: 'boolean', default: true }, genero: { type: 'string', enum: ['m', 'f'] } }, required: ['grupo'] },
+    async run({ grupo, con_miniaturas = true, genero }) {
+      const C = COLS[G(genero)];
+      const ej = await rest(`ejercicios?select=id,nombre,grupo_muscular,implemento,visual_key,recursos_visuales(*)&activo=eq.true&grupo_muscular=eq.${encodeURIComponent(grupo)}&order=nombre`);
+      return Promise.all(ej.map(async e => { const r = e.recursos_visuales || {}; return {
+        id: e.id, nombre: e.nombre, implemento: e.implemento, visual_key: e.visual_key, genero: G(genero),
+        estado: r[C.estado] || 'sin_foto', version: r[C.version] || 0,
+        referencia: !!r.ref_ruta, descripcion: r.descripcion || null, nota: r[C.nota] || null,
+        miniatura: con_miniaturas ? await thumbData(r[C.ruta]) : null
+      }; }));
     }
   },
   guardar_descripcion: {
@@ -189,8 +203,9 @@ const TOOLS = {
   },
   generar_imagen: {
     description: 'Genera con Gemini una foto nueva para un visual_key, pasa un control anatómico automático (reintenta 1 vez solo ante errores críticos), la guarda como nueva versión y devuelve su miniatura y el resultado del control. Tarda 20-90 segundos.',
-    inputSchema: { type: 'object', properties: { visual_key: { type: 'string' }, descripcion: { type: 'string', description: 'Descripción del ejercicio; si se omite se usa la guardada' }, correccion: { type: 'string', description: 'Ajuste puntual pedido por el revisor' }, sin_miniatura: { type: 'boolean', description: 'true en procesos por lote: no devuelve la imagen' } }, required: ['visual_key'] },
-    async run({ visual_key, descripcion, correccion, sin_miniatura }) {
+    inputSchema: { type: 'object', properties: { visual_key: { type: 'string' }, descripcion: { type: 'string', description: 'Descripción del ejercicio; si se omite se usa la guardada' }, correccion: { type: 'string', description: 'Ajuste puntual pedido por el revisor' }, sin_miniatura: { type: 'boolean', description: 'true en procesos por lote: no devuelve la imagen' }, genero: { type: 'string', enum: ['m', 'f'], description: 'm = avatar hombre (defecto), f = avatar mujer' } }, required: ['visual_key'] },
+    async run({ visual_key, descripcion, correccion, sin_miniatura, genero }) {
+      const g = G(genero), C = COLS[g];
       const [rec] = await rest(`recursos_visuales?visual_key=eq.${encodeURIComponent(visual_key)}&select=*`);
       if (!rec) throw new Error(`visual_key desconocido: ${visual_key}`);
       const desc = descripcion || rec.descripcion;
@@ -205,22 +220,22 @@ const TOOLS = {
       }
       let model, data, check, intentos = 0;
       for (intentos = 1; intentos <= 2; intentos++) {
-        ({ model, data } = await gemini(`${MASTER}\n${desc}${refNote}${rules.length ? `\nMANDATORY KOACH RULES (override the description if they conflict):\n- ${rules.join('\n- ')}` : ''}${extra}`, refs));
+        ({ model, data } = await gemini(`${MASTER_FOR(g)}\n${desc}${refNote}${rules.length ? `\nMANDATORY KOACH RULES (override the description if they conflict):\n- ${rules.join('\n- ')}` : ''}${extra}`, refs, g));
         const jpg = await sharp(data).resize(768, 768, { fit: 'cover' }).jpeg({ quality: 85 }).toBuffer();
         check = await qa(jpg, desc, rules);
         if (check.ok !== false) break;
         extra = `${correccion ? `\nIMPORTANT CORRECTION: ${correccion}` : ''}\nA previous attempt had these defects, avoid them: ${check.issues.join('; ')}.`;
       }
-      const v = (rec.version || 0) + 1;
+      const v = (rec[C.version] || 0) + 1;
       const square = sharp(data).resize(1024, 1024, { fit: 'cover', position: 'centre' });
       const full = await square.clone().webp({ quality: 82 }).toBuffer();
       const thumb = await sharp(data).resize(192, 192, { fit: 'cover', position: 'centre', kernel: 'lanczos3' }).sharpen({ sigma: 0.5 }).webp({ quality: 80 }).toBuffer();
-      const ruta = `ex/${visual_key}_m_v${v}.webp`, rutaFull = `ex/full/${visual_key}_m_v${v}.webp`;
+      const ruta = `ex/${visual_key}_${g}_v${v}.webp`, rutaFull = `ex/full/${visual_key}_${g}_v${v}.webp`;
       await upload(ruta, thumb); await upload(rutaFull, full);
       const estado = check.ok === false ? 'corregir' : 'pendiente';
       const nota = check.ok === false ? `Control automático: ${check.issues.join('; ')}` : (check.minor && check.minor.length ? `Observaciones: ${check.minor.join('; ')}` : (correccion || null));
-      await patchRecurso(visual_key, { version: v, ruta_m: ruta, ruta_full_m: rutaFull, estado, descripcion: desc, nota, origen: `gemini-api:${model}` });
-      return { visual_key, version: v, estado, nota, control: { ok: check.ok, problemas: check.issues, observaciones: check.minor || [], intentos: Math.min(intentos, 2) }, modelo: model, kb: Math.round(thumb.length / 1024), miniatura: sin_miniatura ? null : 'data:image/webp;base64,' + thumb.toString('base64') };
+      await patchRecurso(visual_key, { [C.version]: v, [C.ruta]: ruta, [C.full]: rutaFull, [C.estado]: estado, descripcion: desc, [C.nota]: nota, [C.origen]: `gemini-api:${model}` });
+      return { visual_key, genero: g, version: v, estado, nota, control: { ok: check.ok, problemas: check.issues, observaciones: check.minor || [], intentos: Math.min(intentos, 2) }, modelo: model, kb: Math.round(thumb.length / 1024), miniatura: sin_miniatura ? null : 'data:image/webp;base64,' + thumb.toString('base64') };
     }
   },
   guardar_referencia: {
@@ -237,12 +252,13 @@ const TOOLS = {
   },
   usar_foto: {
     description: 'Usa una imagen subida por el revisor como foto definitiva del visual_key (nueva versión, estado pendiente), sin pasar por Gemini.',
-    inputSchema: { type: 'object', properties: { visual_key: { type: 'string' }, imagen_base64: { type: 'string', description: 'Imagen en base64, sin prefijo data:' } }, required: ['visual_key', 'imagen_base64'] },
-    async run({ visual_key, imagen_base64 }) {
-      const [rec] = await rest(`recursos_visuales?visual_key=eq.${encodeURIComponent(visual_key)}&select=version`);
+    inputSchema: { type: 'object', properties: { visual_key: { type: 'string' }, imagen_base64: { type: 'string', description: 'Imagen en base64, sin prefijo data:' }, genero: { type: 'string', enum: ['m', 'f'] } }, required: ['visual_key', 'imagen_base64'] },
+    async run({ visual_key, imagen_base64, genero }) {
+      const g = G(genero), C = COLS[g];
+      const [rec] = await rest(`recursos_visuales?visual_key=eq.${encodeURIComponent(visual_key)}&select=version,version_f`);
       if (!rec) throw new Error(`visual_key desconocido: ${visual_key}`);
       const raw = Buffer.from(String(imagen_base64).replace(/^data:[^,]+,/, ''), 'base64');
-      const v = (rec.version || 0) + 1;
+      const v = (rec[C.version] || 0) + 1;
       // Fotos no cuadradas: se encajan completas y se rellena con el gris del fondo (muestreado en una esquina)
       const base = sharp(raw).rotate();
       const meta = await base.metadata();
@@ -252,37 +268,39 @@ const TOOLS = {
       const cuadrada = await base.clone().resize(lado, lado, { fit: 'contain', background: bg }).png().toBuffer();
       const full = await sharp(cuadrada).resize(1024, 1024, { fit: 'cover' }).webp({ quality: 82 }).toBuffer();
       const thumb = await sharp(cuadrada).resize(192, 192, { fit: 'cover', kernel: 'lanczos3' }).sharpen({ sigma: 0.5 }).webp({ quality: 80 }).toBuffer();
-      const ruta = `ex/${visual_key}_m_v${v}.webp`, rutaFull = `ex/full/${visual_key}_m_v${v}.webp`;
+      const ruta = `ex/${visual_key}_${g}_v${v}.webp`, rutaFull = `ex/full/${visual_key}_${g}_v${v}.webp`;
       await upload(ruta, thumb); await upload(rutaFull, full);
-      await patchRecurso(visual_key, { version: v, ruta_m: ruta, ruta_full_m: rutaFull, estado: 'pendiente', nota: null, origen: 'subida-manual' });
-      return { visual_key, version: v, estado: 'pendiente', kb: Math.round(thumb.length / 1024), miniatura: 'data:image/webp;base64,' + thumb.toString('base64') };
+      await patchRecurso(visual_key, { [C.version]: v, [C.ruta]: ruta, [C.full]: rutaFull, [C.estado]: 'pendiente', [C.nota]: null, [C.origen]: 'subida-manual' });
+      return { visual_key, genero: g, version: v, estado: 'pendiente', kb: Math.round(thumb.length / 1024), miniatura: 'data:image/webp;base64,' + thumb.toString('base64') };
     }
   },
   reevaluar: {
     description: 'Vuelve a pasar el control anatómico sobre la foto ya guardada (sin regenerar ni costo de imagen) y actualiza su estado.',
-    inputSchema: { type: 'object', properties: { visual_key: { type: 'string' } }, required: ['visual_key'] },
-    async run({ visual_key }) {
+    inputSchema: { type: 'object', properties: { visual_key: { type: 'string' }, genero: { type: 'string', enum: ['m', 'f'] } }, required: ['visual_key'] },
+    async run({ visual_key, genero }) {
+      const g = G(genero), C = COLS[g];
       const [rec] = await rest(`recursos_visuales?visual_key=eq.${encodeURIComponent(visual_key)}&select=*`);
-      if (!rec || !(rec.ruta_full_m || rec.ruta_m)) throw new Error('Este ejercicio no tiene foto guardada.');
-      const r = await fetch(publicUrl(rec.ruta_full_m || rec.ruta_m));
+      if (!rec || !(rec[C.full] || rec[C.ruta])) throw new Error('Este ejercicio no tiene foto guardada.');
+      const r = await fetch(publicUrl(rec[C.full] || rec[C.ruta]));
       if (!r.ok) throw new Error(`No se pudo leer la foto (${r.status})`);
       const jpg = await sharp(Buffer.from(await r.arrayBuffer())).resize(768, 768, { fit: 'cover' }).jpeg({ quality: 85 }).toBuffer();
       const check = await qa(jpg, rec.descripcion || visual_key, koachRules(visual_key));
-      if (check.ok === null) return { visual_key, estado: rec.estado, control: check };
-      const estado = check.ok ? (rec.estado === 'corregir' ? 'pendiente' : rec.estado) : 'corregir';
+      if (check.ok === null) return { visual_key, estado: rec[C.estado], control: check };
+      const estado = check.ok ? (rec[C.estado] === 'corregir' ? 'pendiente' : rec[C.estado]) : 'corregir';
       const nota = check.ok ? (check.minor.length ? `Observaciones: ${check.minor.join('; ')}` : null) : `Control automático: ${check.issues.join('; ')}`;
-      await patchRecurso(visual_key, { estado, nota });
-      return { visual_key, estado, nota, control: { ok: check.ok, problemas: check.issues, observaciones: check.minor, intentos: 0 } };
+      await patchRecurso(visual_key, { [C.estado]: estado, [C.nota]: nota });
+      return { visual_key, genero: g, estado, nota, control: { ok: check.ok, problemas: check.issues, observaciones: check.minor, intentos: 0 } };
     }
   },
   revisar: {
     description: 'Marca una foto como aprobada, provisional o para corregir (con nota).',
-    inputSchema: { type: 'object', properties: { visual_key: { type: 'string' }, estado: { type: 'string', enum: ['aprobada', 'provisional', 'corregir'] }, nota: { type: 'string' } }, required: ['visual_key', 'estado'] },
-    async run({ visual_key, estado, nota }) {
-      const body = { estado, nota: nota || null };
-      if (estado === 'aprobada') body.aprobada_at = new Date().toISOString();
+    inputSchema: { type: 'object', properties: { visual_key: { type: 'string' }, estado: { type: 'string', enum: ['aprobada', 'provisional', 'corregir'] }, nota: { type: 'string' }, genero: { type: 'string', enum: ['m', 'f'] } }, required: ['visual_key', 'estado'] },
+    async run({ visual_key, estado, nota, genero }) {
+      const C = COLS[G(genero)];
+      const body = { [C.estado]: estado, [C.nota]: nota || null };
+      if (estado === 'aprobada') body[C.aprob] = new Date().toISOString();
       const r = await patchRecurso(visual_key, body);
-      return { ok: true, visual_key, estado: r?.[0]?.estado };
+      return { ok: true, visual_key, genero: G(genero), estado: r?.[0]?.[C.estado] };
     }
   },
   vincular: {
@@ -333,8 +351,11 @@ Exercise name: "${nombre}". Implement: ${implemento || 'unknown'}. Answer with t
   }
   throw new Error('Sin modelo de texto disponible');
 }
-async function loteSiguiente() {
-  const filas = await rest('ejercicios?select=nombre,implemento,grupo_muscular,visual_key,recursos_visuales(estado,descripcion,origen,updated_at,ref_ruta,nota,lote_intentos)&activo=eq.true');
+async function loteSiguiente(genero) {
+  const g = G(genero), C = COLS[g];
+  const filas0 = await rest('ejercicios?select=nombre,implemento,grupo_muscular,visual_key,recursos_visuales(*)&activo=eq.true');
+  // vista normalizada por género: estado/origen/nota/lote_intentos apuntan a las columnas del género pedido
+  const filas = filas0.map(e => { const r = e.recursos_visuales; return r ? { ...e, recursos_visuales: { ...r, estado: r[C.estado], origen: r[C.origen], nota: r[C.nota], lote_intentos: r[C.lote], updated_at: r.updated_at } } : e; });
   const ahora = Date.now(), vistos = new Set();
   const prio = (e) => (ORDEN_GRUPOS.indexOf(e.grupo_muscular) + 99) % 99;
   const cand = filas.filter(e => {
@@ -349,20 +370,20 @@ async function loteSiguiente() {
   if (!cand.length) return { listo: true, mensaje: 'No quedan ejercicios pendientes de generar.' };
   const e = cand[0], key = e.visual_key, r = e.recursos_visuales;
   if (/-machine-\d+$/.test(key) && !r.ref_ruta) {
-    await patchRecurso(key, { origen: 'omitido', nota: 'Necesita foto de referencia de la máquina real del club.' });
-    return { visual_key: key, omitido: true };
+    await patchRecurso(key, { [C.origen]: 'omitido', [C.nota]: 'Necesita foto de referencia de la máquina real del club.' });
+    return { visual_key: key, genero: g, omitido: true };
   }
   const intento = (r.lote_intentos || 0) + 1;
-  await patchRecurso(key, { origen: 'procesando', lote_intentos: intento });
+  await patchRecurso(key, { [C.origen]: 'procesando', [C.lote]: intento });
   try {
     let desc = r.descripcion;
     if (!desc) { desc = await redactar(e.nombre, e.implemento, koachRules(key)); await patchRecurso(key, { descripcion: desc }); }
     // en el reintento, los problemas detectados pasan como corrección explícita
     const correccion = (r.estado === 'corregir' && r.nota) ? 'Avoid these defects from the previous attempt: ' + r.nota.replace(/^Control automático:\s*/, '') : undefined;
-    const out = await TOOLS.generar_imagen.run({ visual_key: key, descripcion: desc, correccion, sin_miniatura: true });
-    return { visual_key: key, grupo: e.grupo_muscular, intento, estado: out.estado, control: out.control };
+    const out = await TOOLS.generar_imagen.run({ visual_key: key, descripcion: desc, correccion, sin_miniatura: true, genero: g });
+    return { visual_key: key, genero: g, grupo: e.grupo_muscular, intento, estado: out.estado, control: out.control };
   } catch (err) {
-    await patchRecurso(key, { origen: 'error-lote', nota: `Error en lote: ${String(err.message || err).slice(0, 300)}` });
+    await patchRecurso(key, { [C.origen]: 'error-lote', [C.nota]: `Error en lote: ${String(err.message || err).slice(0, 300)}` });
     throw err;
   }
 }
@@ -406,7 +427,7 @@ module.exports = async (req, res) => {
   if (!token || req.query.t !== token) { res.status(404).end(); return; }
   if (req.query.lote) {
     if (!SK) { res.status(500).json({ error: 'Falta SUPABASE_SERVICE_ROLE_KEY' }); return; }
-    try { res.status(200).json(await loteSiguiente()); } catch (e) { res.status(200).json({ error: String(e.message || e) }); }
+    try { res.status(200).json(await loteSiguiente(req.query.g)); } catch (e) { res.status(200).json({ error: String(e.message || e) }); }
     return;
   }
   if (req.method === 'GET') { res.status(405).setHeader('Allow', 'POST').end(); return; }
