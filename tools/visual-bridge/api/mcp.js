@@ -192,7 +192,10 @@ const TOOLS = {
         id: e.id, nombre: e.nombre, implemento: e.implemento, visual_key: e.visual_key, genero: G(genero),
         estado: r[C.estado] || 'sin_foto', version: r[C.version] || 0,
         referencia: !!r.ref_ruta, descripcion: r.descripcion || null, nota: r[C.nota] || null,
-        miniatura: con_miniaturas ? await thumbData(r[C.ruta]) : null
+        miniatura: con_miniaturas ? await thumbData(r[C.ruta]) : null,
+        // versión femenina: indica si existe foto masculina aprobada que servirá de espejo, y su miniatura
+        espejo: G(genero) === 'f' ? /^(aprobada|provisional)$/.test(r.estado || '') : undefined,
+        miniatura_m: (G(genero) === 'f' && con_miniaturas && /^(aprobada|provisional)$/.test(r.estado || '')) ? await thumbData(r.ruta_m) : undefined
       }; }));
     }
   },
