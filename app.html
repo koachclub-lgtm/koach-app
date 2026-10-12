@@ -570,6 +570,19 @@ html .kw.kw--hero .kw-cl{font-size:7px;letter-spacing:.16em}
 .cp__e em .bx--pc{background:transparent;border:1.5px dashed #CFCDC7}
 .cp__e em .bx--pc b{font:700 11px var(--wxM);letter-spacing:.06em}
 .cp__e em .bx--pc i{font-size:7.5px;letter-spacing:.08em}
+
+/* c105 · Título de la tarjeta hero nunca se corta: tope por la palabra más larga (--L) relativo al ancho real de la tarjeta.
+   Sin depender de medir en JS (que falla si el Home se pinta oculto); fitTitulo sigue afinando cuando está visible. */
+.k2 #vHome .hh--ed .hh__c{container-type:inline-size}
+.k2 #vHome .hh--ed .hh__t{font-size:min(clamp(44px,13.5vw,56px),calc(100cqi / (var(--L,6) * .8)))}
+.k2 #vHome .hh--ed.hh--largo .hh__t{font-size:min(clamp(34px,10.5vw,44px),calc(100cqi / (var(--L,6) * .8)))}
+@media (max-width:350px){ .k2 #vHome .hh--ed .hh__t{font-size:min(clamp(38px,12.5vw,44px),calc(100cqi / (var(--L,6) * .8)))} }
+
+/* c105 · Nombres largos en pills de sesión: dos líneas balanceadas en vez de cortar con "…" */
+.sp__t.sp__t--l{white-space:normal;display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:3;text-wrap:balance;font-size:clamp(15px,4.4vw,18px);line-height:1}
+.sp__t.sp__t--xl{font-size:clamp(14px,4vw,16px)}
+@media (max-width:389px){ .sp .sp__body .sp__s{letter-spacing:.08em} }
+.sp .sp__s>.sp__sx{font:inherit;letter-spacing:inherit;color:inherit;text-transform:inherit;min-width:0;overflow:hidden;text-overflow:ellipsis}
 </style>
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
@@ -2785,7 +2798,7 @@ function sessionPill(o){
     '<svg class="sp__neck" viewBox="0 0 70 78" width="70" height="78" aria-hidden="true"><path d="M61.53 7.16 A10 10 0 0 0 67.3 9 L70 9 L70 69 L67.3 69 A10 10 0 0 0 61.53 70.84 A39 39 0 0 0 61.53 7.16 Z"/></svg>'+
     '<span class="sp__img">'+(img?'<img src="'+img+'" alt="" loading="lazy" decoding="async" onerror="this.remove()">':'')+'<i class="sp__mono">'+mono+'</i>'+
       (o.estado==='completed'?'<b class="sp__ok" aria-hidden="true">✓</b>':'')+'</span>'+
-    '<span class="sp__body"><span class="sp__t">'+o.nombre+'</span>'+(o.sub?'<span class="sp__s">'+(o.estado==='active'?'<i class="sp__dot"></i>':'')+o.sub+'</span>':'')+'</span>'+
+    '<span class="sp__body"><span class="sp__t'+((n=>n>20?' sp__t--l sp__t--xl':n>13?' sp__t--l':'')(String(o.nombre).replace(/<[^>]*>/g,'').length))+'">'+o.nombre+'</span>'+(o.sub?'<span class="sp__s">'+(o.estado==='active'?'<i class="sp__dot"></i>':'')+'<span class="sp__sx">'+o.sub+'</span></span>':'')+'</span>'+
     '<span class="sp__go">'+ico+'</span></'+tag+'>'
 }
 
@@ -2831,7 +2844,7 @@ function homeHero(o){
   const nom=String(ses?ses.nombre:o.m.t||''), pal=nom.trim().split(/\s+/)
   const tit = pal.length===2 ? plEscA(pal[0])+'<br>'+plEscA(pal[1]) : plEscA(nom)
   return '<section class="hh hh--ed'+(a.src?' hh--foto':'')+(pal.length>=3?' hh--largo':'')+'" aria-label="'+plEscA(nom)+'">'+ bg +'<div class="hh__ov" aria-hidden="true"></div>'+
-    '<div class="hh__c"><div class="hh__hd"><span class="hh__k">'+kicker+'</span>'+cnt+'</div><h2 class="hh__t">'+tit+'</h2>'+pills+
+    '<div class="hh__c"><div class="hh__hd"><span class="hh__k">'+kicker+'</span>'+cnt+'</div><h2 class="hh__t" style="--L:'+Math.max(5,...pal.map(w=>w.length))+'">'+tit+'</h2>'+pills+
     (()=>{ // c101 · en vez de la frase: el código del programa (misma tipografía que la tarjeta de MÉTODO)
       let cat=null; try{ cat=MT_PROG[String((S.proto&&S.proto.programa)||'').toUpperCase()] }catch(_){}
       if (cat){ let pri=[]; try{ const D=mtDist(); if (D) pri=D.pri.slice(0,3) }catch(_){}
@@ -3846,6 +3859,8 @@ function fitTitulares(){
   document.querySelectorAll('#vSesion .kh__t').forEach(function(el){ fitTitulo(el, 58, 28, 2) })
 }
 ;(function(){ let t; window.addEventListener('resize',function(){ clearTimeout(t); t=setTimeout(fitTitulares,120) })
+  // c105 · si el Home se pintó oculto, reajusta al hacerse visible
+  if ('ResizeObserver' in window){ const ro=new ResizeObserver(()=>{ clearTimeout(t); t=setTimeout(fitTitulares,60) }); const ob=()=>{ const v=document.getElementById('vHome'); if(v) ro.observe(v); const s=document.getElementById('vSesion'); if(s) ro.observe(s) }; document.readyState==='loading'?document.addEventListener('DOMContentLoaded',ob):ob() }
   if (document.fonts && document.fonts.ready) document.fonts.ready.then(fitTitulares) })()
 
 function pintarHome(){
