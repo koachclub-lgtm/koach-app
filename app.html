@@ -3529,9 +3529,11 @@ async function entrar(opts){
       sesIds.length ? sb.from('sesiones_registro').select('sesion_protocolo_id, estado').eq('socio_id', uid).in('sesion_protocolo_id', sesIds) : Promise.resolve({data:[]}),
       // Fotos de ejercicios (biblioteca visual): si falla, la app sigue sin fotos
       sb.from('ejercicios').select('id, visual_key').not('visual_key','is',null).then(r=>r, ()=>({data:[]})),
-      sb.from('recursos_visuales').select('visual_key, ruta_m, estado').in('estado',['aprobada','provisional']).not('ruta_m','is',null).then(r=>r, ()=>({data:[]}))
+      sb.from('recursos_visuales').select('visual_key, ruta_m, estado, ruta_f, estado_f').or('estado.in.(aprobada,provisional),estado_f.in.(aprobada,provisional)').then(r=>r, ()=>({data:[]}))
     ])
-    try { const fr={}; (rFxR.data||[]).forEach(x=>fr[x.visual_key]=x.ruta_m); const fx={}; (rFxE.data||[]).forEach(e=>{ if(fr[e.visual_key]) fx[e.id]=fr[e.visual_key] }); window.EXF=fx } catch(_){ window.EXF={} }
+    // c84 · avatar según profiles.sex: socia → foto femenina aprobada si existe, si no la masculina (nunca sin foto por falta de versión)
+    try { const fem=String((S.perfil&&S.perfil.sex)||'').toLowerCase()==='mujer'; const okF=x=>x.ruta_f&&(x.estado_f==='aprobada'||x.estado_f==='provisional'), okM=x=>x.ruta_m&&(x.estado==='aprobada'||x.estado==='provisional')
+      const fr={}; (rFxR.data||[]).forEach(x=>{ const r=(fem&&okF(x))?x.ruta_f:(okM(x)?x.ruta_m:(okF(x)?x.ruta_f:null)); if(r) fr[x.visual_key]=r }); const fx={}; (rFxE.data||[]).forEach(e=>{ if(fr[e.visual_key]) fx[e.id]=fr[e.visual_key] }); window.EXF=fx } catch(_){ window.EXF={} }
     const bloques = rBloq.data || []
     S.programa = { sesiones:sesiones.map(s=>({
       numero:s.numero, id:s.id, semana:(s.semana||1), nombre:nombreEN(s.objetivo)||('SESIÓN '+s.numero),

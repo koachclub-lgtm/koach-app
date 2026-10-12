@@ -3598,7 +3598,8 @@ async function cargarCatalogo(){
     .select('id,nombre,grupo_muscular,estimulo,sinergistas,tipo_registro,con_carga,implemento,cuenta_dosis,visual_key')
     .eq('activo', true)
   // Biblioteca visual: foto aprobada o provisional por visual_key (solo para el selector)
-  try{ const rf=await sb.from('recursos_visuales').select('visual_key,ruta_m').in('estado',['aprobada','provisional']).not('ruta_m','is',null); const m={}; (rf.data||[]).forEach(function(x){ m[x.visual_key]=x.ruta_m }); window.EXF=m }catch(_e){ window.EXF=window.EXF||{} }
+  // c84 · el selector guarda ambas versiones; selFoto elige según el sexo del socio que se está planificando
+  try{ const rf=await sb.from('recursos_visuales').select('visual_key,ruta_m,estado,ruta_f,estado_f').or('estado.in.(aprobada,provisional),estado_f.in.(aprobada,provisional)'); const m={}, mf={}; (rf.data||[]).forEach(function(x){ if(x.ruta_m&&(x.estado==='aprobada'||x.estado==='provisional')) m[x.visual_key]=x.ruta_m; if(x.ruta_f&&(x.estado_f==='aprobada'||x.estado_f==='provisional')) mf[x.visual_key]=x.ruta_f }); window.EXF=m; window.EXF_F=mf }catch(_e){ window.EXF=window.EXF||{} }
   if (r.data && r.data.length){
     const fresh=JSON.stringify(r.data)
     let mismo=false
@@ -4503,7 +4504,7 @@ function selCtxPintar(modo,beId){
   const x = (modo==='cambiar' && beId) ? planItem(beId) : null
   if(!x){ el.style.display='none'; el.innerHTML=''; return }
   const e=(EJCAT||[]).find(function(c){return String(c.id)===String(x.it.ejId)})
-  const r=e&&e.visual_key&&window.EXF&&window.EXF[e.visual_key]
+  const r=e&&selRutaFoto(e.visual_key)
   const bl=(function(){ let n=''; try{ (P.sesiones[P.tab].bloques||[]).forEach(function(b,i){ if(b===x.b) n=obNombre(b,i) }) }catch(_){ } return n })()
   el.innerHTML=(r?'<img src="'+SB_URL+'/storage/v1/object/public/ejercicios-media/'+r+'" alt="" onerror="this.outerHTML=\'<i></i>\'">':'<i></i>')+'<small>Cambiando</small><b>'+plEsc(x.it.nombre||'')+'</b>'+(bl?'<small>· '+plEsc(bl)+'</small>':'')
   el.style.display='flex'
@@ -4521,7 +4522,8 @@ function cerrarSelector(){ document.getElementById('selEj').style.display='none'
 function _selNorm(t){ return String(t||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'') }
 // Foto del ejercicio en el selector (reconocer > leer). Fuera del selector, la rutina queda solo con nombres.
 // c81 · la foto es el extremo izquierdo de la cápsula (Monolito); sin foto → placa neutra
-function selFoto(e){ const r=e&&e.visual_key&&window.EXF&&window.EXF[e.visual_key]
+function selRutaFoto(k){ if(!k) return null; const fem=(typeof F!=='undefined')&&F&&String(F.sex||'').toLowerCase()==='mujer'; return (fem&&window.EXF_F&&window.EXF_F[k])||(window.EXF&&window.EXF[k])||(window.EXF_F&&window.EXF_F[k])||null }
+function selFoto(e){ const r=e&&selRutaFoto(e.visual_key)
   return '<span class="selPh" aria-hidden="true">'+(r?'<img class="selF" src="'+SB_URL+'/storage/v1/object/public/ejercicios-media/'+r+'" alt="" width="60" height="60" loading="lazy" decoding="async" onerror="this.remove()">':'SIN<br>FOTO')+'</span>' }
 // Subraya la coincidencia de búsqueda sin romper acentos (mapa carácter a carácter)
 function selResaltar(nombre,q){
