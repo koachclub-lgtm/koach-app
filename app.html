@@ -3959,7 +3959,7 @@ function pintarHome(){
     }
   } else if (sem.proxima){ cta.disabled=false
     cta.onclick = ()=>abrirSesion()
-    document.getElementById('hCtaT').textContent='GO TRAIN!'
+    document.getElementById('hCtaT').textContent='START →'
     const _op=objetivosSesion(sesCompleta(sem.proxima)).prim.slice(0,3)
     document.getElementById('hCtaS').textContent=(sem.proxima.nombre+(_op.length?' · OBJETIVO: '+_op.join(', '):'')).toUpperCase()
   }
@@ -4510,7 +4510,7 @@ function bkCapsulas(bfs){
     const lista = open ? '<div class="cp__l">'+bes.map(be=>{ const ej=be.ejercicios||{}, w=seedWk(be,ej)
         return '<div class="cp__e"><div><b>'+bkEsc(ej.nombre||'—')+'</b><span>'+bkEsc(ej.grupo_muscular||'')+'</span></div><em>'+bkValor(w,ej)+'</em></div>' }).join('')+'</div>'+
       (done ? '<button type="button" class="cp__cta cp__cta--sec" onclick="bkAbrir('+bi+')">VER O CORREGIR '+cod+'</button>'
-       : bi===prim ? '<button type="button" class="cp__cta" onclick="bkAbrir('+bi+')">▶ &nbsp;'+(hechos?cod+' · BACK TO WORK':cod+' · GO')+'</button>'
+       : bi===prim ? '<button type="button" class="cp__cta" onclick="bkAbrir('+bi+')">▶ &nbsp;'+(hechos?cod+' · BACK TO WORK':(bfs.every(x=>!bkSetsHechos(x))?'GO TRAIN! · '+cod:cod+' · GO'))+'</button>'
        : '<button type="button" class="cp__cta cp__cta--off" disabled>SE ACTIVA AL TERMINAR '+bkCod(bfs[prim]||{},prim)+'</button><span class="cp__nota">TU COACH PUEDE CAMBIAR EL ORDEN DE LOS BLOQUES</span>') : ''
     return '<section class="cp'+(done?' cp--ok':'')+(open?' cp--open':'')+'" id="blq-'+bi+'">'+
       '<button type="button" class="cp__h" onclick="BK.cap='+(open?'null':bi)+';pintarSesion()" aria-expanded="'+open+'" aria-controls="blq-'+bi+'" aria-label="Bloque '+cod+' '+nom+', '+estado.toLowerCase()+'">'+
