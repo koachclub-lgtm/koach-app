@@ -588,6 +588,11 @@ html .kw.kw--hero .kw-cl{font-size:7px;letter-spacing:.16em}
 .bk__cta,.cp__cta,.wx__cta,#sFin,.wx__bcta{font-family:var(--wxD,var(--font-display))!important;font-weight:900!important;font-stretch:118%;letter-spacing:.06em!important;font-size:15px!important;text-transform:uppercase}
 .bk__cta.bk__cta--best{font-size:18px!important;letter-spacing:.04em!important}
 #sFin{font-size:17px!important}
+
+/* c107 · dos acciones en el bloque: FINISH B1 (todo) + LOG SET 0X (uno a uno) */
+.bk__duo{display:grid;grid-template-columns:minmax(0,.8fr) minmax(0,1.3fr);gap:8px}
+.bk__duo .bk__cta{width:100%;margin:0;padding-left:8px;padding-right:8px;white-space:nowrap}
+.bk__hint{margin:8px 0 0;text-align:center;font:700 8.5px var(--wxM);letter-spacing:.12em;color:var(--ink2)}
 </style>
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
@@ -2484,7 +2489,7 @@ body.wl-on{overflow:hidden}
       <div class="wx__kg" id="sKgHoy" aria-live="polite"></div>
     </header>
     <div id="sBloques" class="cargando">CARGANDO TU SESIÓN…</div>
-    <button class="btn fin" id="sFin" onclick="pedirFinal()" style="display:none">FINISH STRONG ✓</button>
+    <button class="btn fin" id="sFin" onclick="pedirFinal()" style="display:none">SESSION DONE ✓</button>
   </div>
 </div>
 
@@ -3930,7 +3935,7 @@ function pintarHome(){
     document.getElementById('hCtaS').textContent=((_e.hoySes?_e.hoySes.nombre+' COMPLETADA':'SESIÓN COMPLETADA')+((sem.proxima && !sem.proxima._extra)?' · PRÓXIMA: '+sem.proxima.nombre:'')).toUpperCase()
   } else if (sem.completa && sem.proxima && sem.proxima._extra){
     cta.disabled=false; cta.onclick=()=>abrirSesion()
-    document.getElementById('hCtaT').textContent='★ EXTRA ROUND'
+    document.getElementById('hCtaT').textContent='★ BONUS SESSION'
     document.getElementById('hCtaS').textContent=sem.proxima.nombre.replace('★ ','')+' · DESIGNADA POR TU COACH'
   } else if (sem.completa && sem.proxima){
     cta.disabled=false; cta.onclick=()=>abrirSesion()
@@ -3952,7 +3957,7 @@ function pintarHome(){
     }
   } else if (sem.proxima){ cta.disabled=false
     cta.onclick = ()=>abrirSesion()
-    document.getElementById('hCtaT').textContent="LET'S WORK →"
+    document.getElementById('hCtaT').textContent='TRAIN →'
     const _op=objetivosSesion(sesCompleta(sem.proxima)).prim.slice(0,3)
     document.getElementById('hCtaS').textContent=(sem.proxima.nombre+(_op.length?' · OBJETIVO: '+_op.join(', '):'')).toUpperCase()
   }
@@ -4383,7 +4388,7 @@ function wxActivo(be,b,w,ej){
     '<button type="button" class="wx__x" onclick="wxCerrar()" aria-label="Cerrar '+(ej.nombre||'ejercicio')+'">✕</button></div>'+
     '<div class="wx__tabs" role="group" aria-label="Sets">'+tabs+'</div>'+rest+lineas+
     (hecho ? '<button type="button" class="wx__cta wx__cta--sec" onclick="tapSetRow(\''+be.id+'\','+n+',\''+b.id+'\',\''+(ej.id||'')+'\')">DESHACER SET '+wxP2(n)+'</button>'
-           : '<button type="button" class="wx__cta" onclick="wxCompletar(\''+be.id+'\','+n+',\''+b.id+'\',\''+(ej.id||'')+'\','+desc+','+b.sets+')">'+(n>=b.sets?'LAST SET · BEST SET':'SET '+wxP2(n)+' · DONE ✓')+'</button>')+
+           : '<button type="button" class="wx__cta" onclick="wxCompletar(\''+be.id+'\','+n+',\''+b.id+'\',\''+(ej.id||'')+'\','+desc+','+b.sets+')">'+(n>=b.sets?'LAST SET · BEST SET':'LOG SET '+wxP2(n)+' ✓')+'</button>')+
     '<div class="wx__ft"><div><span>'+ref+' · '+pres+'</span>'+(sube?'<span class="wx__up"><i></i>SUGERIDA '+wxKg(sug)+' KG ↑</span>':'')+'</div><div class="wx__ds"><b>'+desc+"''"+'</b><span>DESC</span></div></div>'+
     (ej.cue?'<div class="wx__cue"><b>INDICACIÓN DEL KOACH</b>'+ej.cue+'</div>':'')+'</article>'
 }
@@ -4549,17 +4554,17 @@ function bkPintar(){
     return '<article class="bk__ex'+(fila?' bk__ex--ok':'')+'" aria-label="'+N+' · '+ref+' · prescrito '+bkPres(w,ej)+'"><div class="bk__eh"><span class="exrow">'+exFoto(ej)+'<b>'+bkEsc(ej.nombre||'—')+'</b></span><em class="bk__pill">'+bkEsc(ej.grupo_muscular||'')+'</em></div><div class="bk__sb'+(uno?' bk__sb--1':'')+'">'+ctr+'</div></article>' }).join('')
   let cta, ctaCls=''
   if (hecho){ cta='DESHACER SET '+String(n).padStart(2,'0'); ctaCls=' bk__cta--sec' }
-  else if (done){ cta=cod+' CLEARED ✓'; ctaCls=' bk__cta--sec' }
-  else { const _ult=bkSetsHechos(b)>=b.sets-1; cta=_ult?'LAST SET · BEST SET':'SET '+String(n).padStart(2,'0')+' · DONE ✓'; if(_ult) ctaCls=' bk__cta--best' }
+  else if (done){ cta=cod+' DONE ✓'; ctaCls=' bk__cta--sec' }
+  else { const _ult=bkSetsHechos(b)>=b.sets-1; cta=_ult?'LAST SET · BEST SET':'LOG SET '+String(n).padStart(2,'0')+' ✓'; if(_ult) ctaCls=' bk__cta--best' }
   // c70 · bloque completado: se vuelve a la pantalla de la rutina (los tres bloques); el siguiente se inicia desde ahí
-  const sig = done ? '<button type="button" class="bk__cta" onclick="bkCerrar()">'+(()=>{ const bf=S._bfs||[], pr=bkPrimerPendiente(bf); return pr>=0?'NEXT · '+bkCod(bf[pr],pr)+' →':'FINISH STRONG →' })()+'</button>' : ''
+  const sig = done ? '<button type="button" class="bk__cta" onclick="bkCerrar()">'+(()=>{ const bf=S._bfs||[], pr=bkPrimerPendiente(bf); return pr>=0?'UP NEXT · '+bkCod(bf[pr],pr)+' →':'END SESSION →' })()+'</button>' : ''
   // c65 · lenguaje de estados: BLANCO = entrenamiento · NEGRO = descanso · GO = vuelta al entrenamiento
   const restS = rest ? Math.max(0,Math.ceil((BK.rest.fin-Date.now())/1000)) : 0
   const over = !rest && !done && BK.over && BK.over.bId===b.id && BK.over.regId===S.regId
   if (!over && BK.over && BK.over.bId===b.id) bkOverFin()
   // I1 · la etiqueta nombra el set que de verdad viene (primer set sin completar), no el que se está mirando
   const sigN = bkSetActual(b)
-  const top = rest ? '<b id="bkT" class="bk__t" data-t="'+bkMMSS(restS)+'">'+bkSeg(bkMMSS(restS))+'</b><span>NEXT · SET '+String(sigN||n).padStart(2,'0')+'</span>'
+  const top = rest ? '<b id="bkT" class="bk__t" data-t="'+bkMMSS(restS)+'">'+bkSeg(bkMMSS(restS))+'</b><span>UP NEXT · SET '+String(sigN||n).padStart(2,'0')+'</span>'
             : over ? '<b id="bkOver" class="bk__over">'+bkOverTxt()+'</b><span>DESDE EL GO</span>'
             : done ? '<b class="bk__t">'+bkSeg(bkMMSS(0))+'</b><span>BLOQUE COMPLETADO</span>'
             : '<b class="bk__t">'+bkSeg(bkMMSS(bkDesc(b)))+'</b><span>REST</span>'
@@ -4579,10 +4584,16 @@ function bkPintar(){
     '<div class="bk__ton">'+(rest ? '<u class="bk__bar" id="bkBar" aria-hidden="true" style="width:'+bkRestPct()+'%"></u>' : '')+'<span>'+tonLab+'</span>'+adj+'<b>'+kgP.toLocaleString('es-CL')+'<i>KG</i></b></div></div>'+
     '<div class="bk__strip" role="group" aria-label="Sets del bloque">'+tabs+'</div></div>'+
     '<div class="bk__scroll" id="bkScroll">'+filas+'</div>'+
-    '<div class="bk__foot">'+(done ? sig+'<button type="button" class="bk__lnk" onclick="bkDesmarcar()">DESHACER SET '+String(n).padStart(2,'0')+'</button>' : '<button type="button" class="bk__cta'+ctaCls+'" onclick="'+(hecho?'bkDesmarcar()':'bkCompletar()')+'">'+cta+'</button>')+'</div>'+
+    '<div class="bk__foot">'+(done ? sig+'<button type="button" class="bk__lnk" onclick="bkDesmarcar()">DESHACER SET '+String(n).padStart(2,'0')+'</button>' : (!hecho && ctaCls!==' bk__cta--best' ? '<div class="bk__duo"><button type="button" class="bk__cta bk__cta--sec bk__all" onclick="bkFinishAll()" aria-label="Registrar todos los sets de '+cod+' de una vez">FINISH '+cod+'</button>' : '')+
+      '<button type="button" class="bk__cta'+ctaCls+'" onclick="'+(hecho?'bkDesmarcar()':'bkCompletar()')+'">'+cta+'</button>'+(!hecho && ctaCls!==' bk__cta--best' ? '</div><p class="bk__hint">SET POR SET O TODO EL BLOQUE DE UNA</p>' : ''))+'</div>'+
     '<div class="bk__cd" id="bkCd" aria-live="assertive" aria-atomic="true"><b id="bkCdN"></b></div>'
   bkRestTick(); if(over) bkOverTick()
 }
+/* c107 · FINISH B1: registra de una todos los sets pendientes del bloque con los valores en pantalla (prescritos o ajustados) */
+async function bkFinishAll(){ const b=(S._bfs||[])[BK.bi]; if(!b || bloqueCompleto(b) || BK._busy) return
+  kHaptic(12); kAudioUnlock(); BK._busy=true
+  try{ await completarBloque(BK.bi) } finally{ BK._busy=false }
+  if (bloqueCompleto(b)){ BK.set=b.sets; bkRestFin(true); bkPintar(); bkFinBloque(b) } else bkPintar() }
 async function bkCompletar(){ const b=(S._bfs||[])[BK.bi]; if(!b) return
   const n=BK.set, bes=bkBes(b)
   for (const be of bes){ const w=S.wk[be.id]||{}, rv=S.rw[be.id+'#'+n]||{}
@@ -4605,10 +4616,10 @@ function bkFinBloque(b){ const o=document.getElementById('oBloque'); if(!o||!b) 
   const bfs=S._bfs||[], kg=bkKgBloque(b); let kgHoy=0, sh=0, stt=0; bfs.forEach(x=>{ kgHoy+=bkKgBloque(x); sh+=bkSetsHechos(x); stt+=(x.sets||0) }); const st=[sh,stt]
   const prim=bkPrimerPendiente(bfs), ult=prim<0, nomV=(b.etiqueta?b.etiqueta.toUpperCase():bkNom(b,BK.bi))
   const el=document.createElement('div'); el.className='bk__fin'; el.setAttribute('role','status'); el.setAttribute('aria-live','polite')
-  el.innerHTML='<div class="bk__finIn"><span class="bk__finK">'+(ult?'SESIÓN COMPLETA':'BLOQUE COMPLETADO')+'</span><b class="bk__finB">'+bkCod(b,BK.bi)+'</b><em class="bk__finN">'+bkEsc(nomV)+'</em>'+
+  el.innerHTML='<div class="bk__finIn"><span class="bk__finK">'+(ult?'SESSION DONE.':'DONE.')+'</span><b class="bk__finB">'+bkCod(b,BK.bi)+'</b><em class="bk__finN">'+bkEsc(nomV)+'</em>'+
     '<div class="bk__finKg">'+kg.toLocaleString('es-CL')+'<i>KG</i></div><span class="bk__finS">EN ESTE BLOQUE</span>'+
     '<div class="bk__finHoy">HOY · '+kgHoy.toLocaleString('es-CL')+' KG · '+st[0]+'/'+st[1]+' SETS</div>'+
-    '<span class="bk__finGo">'+(ult?'FINISH STRONG · CIERRA DESDE LA RUTINA':'NEXT · '+bkCod(bfs[prim],prim)+' →')+'</span></div>'
+    '<span class="bk__finGo">'+(ult?'CIERRA TU SESIÓN DESDE LA RUTINA':'UP NEXT · '+bkCod(bfs[prim],prim)+' →')+'</span></div>'
   o.appendChild(el); o.classList.add('fin'); requestAnimationFrame(function(){ el.classList.add('on') })
   const cerrar=function(){ clearTimeout(BK._fin); BK._fin=null; el.remove(); o.classList.remove('fin'); BK.cap = prim>=0 ? prim : null; bkCerrar() }
   el.onclick=cerrar; BK._fin=setTimeout(cerrar, 2600) }
