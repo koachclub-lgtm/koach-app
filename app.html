@@ -3501,7 +3501,7 @@ async function entrar(opts){
     // Oleada 1: todo lo que solo depende del usuario
     const _rOp = sb.rpc('mi_operacion').then(r=>r, ()=>({data:null}))
     const _rCnt = sb.rpc('mi_contador_sesiones').then(r=>r, ()=>({data:null}))   // c91 · SESSION Nº: sesiones completadas en el club   // c42 · resolver único (mismo que ve el coach)
-    const _rHab = sb.from('sesion_habilitada').select('id, sesion_protocolo_id, permite_hoy, fecha, estado').eq('socio_id', uid).eq('estado','activa').maybeSingle().then(r=>r, ()=>({data:null}))
+    const _rHab = sb.from('sesion_habilitada').select('id, sesion_protocolo_id, permite_hoy, fecha, estado').eq('socio_id', uid).eq('estado','activa').gte('fecha', fLocal(new Date())).order('created_at',{ascending:false}).limit(1).maybeSingle().then(r=>r, ()=>({data:null}))   // c108 · una habilitación vale para su día: las de días anteriores no fijan la rutina
     const [rPerfil, rAsig, rRegs, rEc, rDx, rSol, rCfg] = await Promise.all([
       sb.from('profiles').select('*').eq('id', uid).single(),
       sb.from('asignaciones').select('*, protocolos(*)').eq('socio_id', uid).eq('activo', true).limit(1).maybeSingle(),
