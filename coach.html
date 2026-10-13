@@ -872,6 +872,8 @@ html,button,input,.pv,.mtab,.setChip{touch-action:manipulation}
 .pv input{width:100%;max-width:96px;min-width:52px;margin:0;padding:10px 2px;text-align:center;font-size:16px;font-weight:900;border-radius:10px;background:rgba(255,255,255,.75)}
 .pv button{width:38px;height:38px}
 .pv input.falta{border:1.5px solid #5F5F5F;background:rgba(197,161,60,.08)}
+.pcx--btn{cursor:pointer;border:1px dashed rgba(18,18,16,.35)!important;background:transparent!important;font-family:var(--font-mono)}
+.tbSt--btn button{width:100%;height:100%;border:1px dashed rgba(18,18,16,.35);border-radius:8px;background:transparent;font:700 9px var(--font-mono);letter-spacing:.08em;cursor:pointer;color:#121212}
 .pv .pcx{font-size:7px;font-weight:900;letter-spacing:.06em;background:rgba(18,18,16,.07);border-radius:10px;padding:12px 10px;color:var(--koach-text-secondary);white-space:nowrap}
 .lin.foco{outline:2px solid #5F5F5F;outline-offset:3px;border-radius:10px}
 #oLoad{position:fixed;inset:0;z-index:900;background:#121210;display:none;flex-direction:column;justify-content:center;padding:0 max(28px,7vw) env(safe-area-inset-bottom,0px)}
@@ -3882,7 +3884,7 @@ async function abrirPlan(pid, proto, opts){
               grupo:(be.ejercicios&&be.ejercicios.grupo_muscular)||'',
               sinergistas:(be.ejercicios&&be.ejercicios.sinergistas)||{},
               kg:(be.kg_objetivo!=null?be.kg_objetivo:null), orden:(be.orden!=null?be.orden:null),
-              tipoReg:(be.ejercicios&&be.ejercicios.tipo_registro)||null,
+              tipoReg:(be.ejercicios&&be.ejercicios.tipo_registro)||null, modo:be.modo_registro||null,
               conCarga:(be.ejercicios?be.ejercicios.con_carga:null),
               cuentaDosis:(be.ejercicios?be.ejercicios.cuenta_dosis:null), activo:(be.ejercicios?be.ejercicios.activo:null),
               reps:(be.reps_txt!=null&&be.reps_txt!==''?be.reps_txt:(be.reps!=null?String(be.reps):'10')) }
@@ -3901,6 +3903,9 @@ async function abrirPlan(pid, proto, opts){
   pintarPlan()
 }
 function esTiempo(it){
+  // c107 · el coach puede fijar el modo por ejercicio dentro del bloque (REPS o TIME); si no, se infiere
+  if (it && it.modo==='TIME') return true
+  if (it && it.modo==='REPS') return false
   const g = (it.grupo||'').toUpperCase()
   if (g==='CARDIO' || g==='MOVILIDAD' || g==='MOB') return true
   return /SEG|MIN\b/i.test(String(it.reps||''))
@@ -3982,8 +3987,9 @@ function pintarPlan(){ setTimeout(function(){ try{ plSaveUI(); rtSyncPlan() }cat
       const tiempo = esTiempo(it)
       const ult = ULT[it.ejId]
       const ultTxt = plActivo() ? '' : (ult ? ('ÚLTIMO · '+KSET.txt({reps:ult.reps_realizadas,kg:ult.peso_kg})) : 'SIN REGISTRO ANTERIOR')
-      const esBW = (it.tipoReg==='BODYWEIGHT_REPS') || (it.tipoReg==null && it.conCarga===false && !tiempo)
-      const esT = (it.tipoReg==='TIME') || (it.tipoReg==null && tiempo)
+      const tR = it.modo ? null : it.tipoReg
+      const esBW = (tR==='BODYWEIGHT_REPS') || (tR==null && it.conCarga===false && !tiempo)
+      const esT = (tR==='TIME') || (tR==null && tiempo)
       // c63 · SetControls del planificador: REPS/TIEMPO → CARGA (misma gramática que el socio · domain/koach-series.js)
       const Nm=String(it.nombre||'ejercicio').replace(/"/g,'')
       const repsControl='<div><span class="lbl">REPS</span><div class="pv">'+
@@ -4000,9 +4006,9 @@ function pintarPlan(){ setTimeout(function(){ try{ plSaveUI(); rtSyncPlan() }cat
         controles = '<div><span class="lbl">TIEMPO · SEG</span><div class="pv">'+
           '<button onclick="stepItem(\''+it.beId+'\',\'seg\',-5)" aria-label="Disminuir segundos de '+Nm+'">−</button>'+
           '<input id="pi-s-'+it.beId+'" value="'+segV+'" inputmode="numeric" onfocus="this.select()" onchange="editReps(\''+it.beId+'\',this.value)" aria-label="Segundos de '+Nm+'">'+
-          '<button onclick="stepItem(\''+it.beId+'\',\'seg\',5)" aria-label="Aumentar segundos de '+Nm+'">+</button></div></div>' + (it.conCarga ? weightControl : '')
+          '<button onclick="stepItem(\''+it.beId+'\',\'seg\',5)" aria-label="Aumentar segundos de '+Nm+'">+</button></div></div>' + (it.conCarga ? weightControl : '<div><span class="lbl">MODO</span><div class="pv">'+plModoBtn(it,'pcx pcx--btn')+'</div></div>')
       } else if (esBW){
-        controles = repsControl + '<div><span class="lbl">CARGA</span><div class="pv"><span class="pcx">PESO CORPORAL</span></div></div>'
+        controles = repsControl + '<div><span class="lbl">PESO CORPORAL</span><div class="pv">'+plModoBtn(it,'pcx pcx--btn')+'</div></div>'
       } else {
         controles = repsControl + weightControl
       }
@@ -4067,8 +4073,19 @@ function plTbGrid(){ const bd=document.getElementById('tbBoard'); if(!bd) return
 // solo cambia la disposición. Cada bloque es una columna; la tarjeta trae REPS → KG, ✎ reemplazar en el sitio y ··· acciones.
 const TB={ sel:null, edit:null, act:0, bi:0 }
 function plTbOn(){ return window.innerWidth>=1200 }
-function plTbTipo(it){ const t=esTiempo(it)
-  return { bw:(it.tipoReg==='BODYWEIGHT_REPS') || (it.tipoReg==null && it.conCarga===false && !t), t:(it.tipoReg==='TIME') || (it.tipoReg==null && t) } }
+function plTbTipo(it){ const t=esTiempo(it), tR=it.modo?null:it.tipoReg
+  return { bw:(tR==='BODYWEIGHT_REPS') || (tR==null && it.conCarga===false && !t), t:(tR==='TIME') || (tR==null && t) } }
+// c107 · Alternar REPS ⇄ TIEMPO en un ejercicio sin carga (peso corporal, cardio, movilidad). Se guarda con la sesión.
+function plModo(beId){
+  const x=planItem(beId); if(!x || (P&&P.ro)) return
+  const aTiempo = !esTiempo(x.it)
+  x.it.modo = aTiempo ? 'TIME' : 'REPS'
+  const n=parseInt(String(x.it.reps||'').replace(/[^0-9]/g,''),10)
+  x.it.reps = aTiempo ? String(!isNaN(n)&&n>=15?n:30) : String(!isNaN(n)&&n<=30?n:10)
+  plDirty(); repintarConservando()
+}
+function plModoBtn(it,cls){ if (it.conCarga!==false) return ''; const t=esTiempo(it)
+  return '<button type="button" class="'+(cls||'plModo')+'" onclick="plModo(\''+it.beId+'\')" title="'+(t?'Pasar a repeticiones':'Pasar a tiempo')+'">'+(t?'⇄ REPS':'⇄ SEG')+'</button>' }
 function plTbSt(id,val,unit,beId,k,paso,N,que,fn,modo,cls){
   return '<div class="tbSt"><button type="button" onclick="stepItem(\''+beId+'\',\''+k+'\','+(-paso)+')" aria-label="Disminuir '+que+' de '+N+'">−</button>'+
     '<label><input id="'+id+'" class="'+(cls||'')+'" value="'+val+'" placeholder="—" inputmode="'+modo+'" onfocus="this.select()" onchange="'+fn+'(\''+beId+'\',this.value)" aria-label="'+que+' de '+N+'"><small>'+unit+'</small></label>'+
@@ -4077,8 +4094,8 @@ function plTbCard(it,bi){
   const N=plEsc(String(it.nombre||'ejercicio')), tp=plTbTipo(it), sel=TB.sel===it.beId, ed=TB.edit===it.beId
   let ctl
   if (tp.t){ const sv=String(it.reps).replace(/[^0-9]/g,'')||'30'
-    ctl=plTbSt('pi-s-'+it.beId,sv,'SEG',it.beId,'seg',5,N,'segundos','editReps','numeric')+(it.conCarga?plTbSt('pi-k-'+it.beId,it.kg==null?'':KSET.kg(it.kg),'KG',it.beId,'kg',2.5,N,'peso','editKg','decimal',it.kg==null?'falta':''):'<div class="tbSt tbSt--fx"><span>TIEMPO</span></div>') }
-  else if (tp.bw) ctl=plTbSt('pi-r-'+it.beId,plEsc(String(it.reps)),'REPS',it.beId,'reps',1,N,'repeticiones','editReps','numeric')+'<div class="tbSt tbSt--fx"><span>PESO CORPORAL</span></div>'
+    ctl=plTbSt('pi-s-'+it.beId,sv,'SEG',it.beId,'seg',5,N,'segundos','editReps','numeric')+(it.conCarga?plTbSt('pi-k-'+it.beId,it.kg==null?'':KSET.kg(it.kg),'KG',it.beId,'kg',2.5,N,'peso','editKg','decimal',it.kg==null?'falta':''):'<div class="tbSt tbSt--fx tbSt--btn">'+plModoBtn(it,'')+'</div>') }
+  else if (tp.bw) ctl=plTbSt('pi-r-'+it.beId,plEsc(String(it.reps)),'REPS',it.beId,'reps',1,N,'repeticiones','editReps','numeric')+'<div class="tbSt tbSt--fx tbSt--btn">'+plModoBtn(it,'')+'</div>'
   else ctl=plTbSt('pi-r-'+it.beId,plEsc(String(it.reps)),'REPS',it.beId,'reps',1,N,'repeticiones','editReps','numeric')+plTbSt('pi-k-'+it.beId,it.kg==null?'':KSET.kg(it.kg),'KG',it.beId,'kg',2.5,N,'peso','editKg','decimal',it.kg==null?'falta':'')
   const top = ed ? '<div class="tbSwap"><small>REEMPLAZAR '+N.toUpperCase()+' · MISMAS SERIES Y REPS</small><input id="tbSwQ" autocomplete="off" placeholder="Buscar ejercicio…" aria-label="Buscar ejercicio para reemplazar '+N+'" oninput="plTbSwLista()" onkeydown="plTbSwTecla(event)"><ul class="tbSwL" id="tbSwL" role="listbox"></ul></div>'
     : '<div class="tbN"><b title="'+N+'">'+N+'</b><em>'+plEsc(SIGLA[it.grupo]||it.grupo||'')+'</em>'+(it.activo===false?'<em>FUERA DE BIBLIOTECA</em>':'')+'</div>'
@@ -5043,7 +5060,7 @@ async function cargarSesionAP(id, numero, nombre, semana){
     items:beOrd(b.bloque_ejercicios).map(function(be){ return { beId:be.id, ejId:be.ejercicio_id,
       nombre:(be.ejercicios&&be.ejercicios.nombre)||'—', grupo:(be.ejercicios&&be.ejercicios.grupo_muscular)||'',
       sinergistas:(be.ejercicios&&be.ejercicios.sinergistas)||{}, kg:(be.kg_objetivo!=null?be.kg_objetivo:null),
-      orden:(be.orden!=null?be.orden:null), tipoReg:(be.ejercicios&&be.ejercicios.tipo_registro)||null,
+      orden:(be.orden!=null?be.orden:null), tipoReg:(be.ejercicios&&be.ejercicios.tipo_registro)||null, modo:be.modo_registro||null,
       conCarga:(be.ejercicios?be.ejercicios.con_carga:null), cuentaDosis:(be.ejercicios?be.ejercicios.cuenta_dosis:null),
       activo:(be.ejercicios?be.ejercicios.activo:null),
       reps:(be.reps_txt!=null&&be.reps_txt!==''?be.reps_txt:'10') } }) } })
@@ -5208,7 +5225,7 @@ async function orgAgregar(srcId, nombre){
           grupo:(be.ejercicios&&be.ejercicios.grupo_muscular)||'',
           sinergistas:(be.ejercicios&&be.ejercicios.sinergistas)||{},
           kg:(be.kg_objetivo!=null?be.kg_objetivo:null), orden:(be.orden!=null?be.orden:null),
-          tipoReg:(be.ejercicios&&be.ejercicios.tipo_registro)||null,
+          tipoReg:(be.ejercicios&&be.ejercicios.tipo_registro)||null, modo:be.modo_registro||null,
           conCarga:(be.ejercicios?be.ejercicios.con_carga:null),
           cuentaDosis:(be.ejercicios?be.ejercicios.cuenta_dosis:null), activo:(be.ejercicios?be.ejercicios.activo:null),
           reps:(be.reps_txt!=null&&be.reps_txt!==''?be.reps_txt:(be.reps!=null?String(be.reps):'10')) }
@@ -6541,7 +6558,7 @@ function plDirty(){ const s=plSesActual(); if(!s) return; P.dirty=P.dirty||{}; P
 function plFirma(s){ return String(s.nombre||'').toUpperCase()+JSON.stringify((s.bloques||[]).map(function(b){ return [b.id,b.etiqueta||'',b.sets,b.desc,(b.items||[]).map(function(it){ return [it.beId,it.ejId,it.kg==null?null:+it.kg,String(it.reps==null?'':it.reps)] })] })) }
 function plPayload(s){
   return (s.bloques||[]).map(function(b){ return { id:b.id, etiqueta:b.etiqueta||null, rol:b.rol||null, sets:b.sets, desc:b.desc,
-    items:(b.items||[]).map(function(it){ return { id:it.beId, ejercicio_id:it.ejId, kg:(it.kg==null||it.kg===''?null:it.kg), reps:(it.reps==null?null:String(it.reps)) } }) } })
+    items:(b.items||[]).map(function(it){ return { id:it.beId, ejercicio_id:it.ejId, kg:(it.kg==null||it.kg===''?null:it.kg), reps:(it.reps==null?null:String(it.reps)), modo:(it.modo||null) } }) } })
 }
 function plSaveUI(estado){
   const bar=document.getElementById('plSave'), ind=document.getElementById('plSaveInd'); if(!bar) return
@@ -6588,6 +6605,9 @@ async function plGuardar(){
     console.error('[guardar sesión]', {code:r.error.code, message:r.error.message, details:r.error.details, hint:r.error.hint})
     syncErr(r.error.message); plSaveUI('err')
     if (/CICLO_CERRADO|no existe|not found/i.test(r.error.message||'')) gpObsoleto(); else toast('No se pudieron guardar los cambios. Revisa tu conexión y reintenta.'); return false }
+  // c107 · modo REPS/TIME por ejercicio: se persiste aparte del RPC
+  try{ const ids={REPS:[],TIME:[],null:[]}; (s.bloques||[]).forEach(function(b){ (b.items||[]).forEach(function(it){ ids[it.modo==='TIME'?'TIME':it.modo==='REPS'?'REPS':'null'].push(it.beId) }) })
+    for (const m of ['REPS','TIME','null']){ if(ids[m].length){ const u=await sb.from('bloque_ejercicios').update({modo_registro:m==='null'?null:m}).in('id',ids[m]); if(u.error) console.warn('[modo_registro]',u.error.message) } } }catch(_e){}
   delete P.dirty[s.id]; syncOk()
   // la base es la fuente de verdad: releer y verificar que coincide exactamente con lo que se guardó
   await plReabrir()

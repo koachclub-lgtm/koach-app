@@ -4249,6 +4249,10 @@ async function abrirSesion(num){
   document.getElementById('oAct').classList.add('vis')
 }
 function tipoDe(ej, be){
+  // c107 · el coach puede fijar REPS o TIME por ejercicio dentro del bloque; prevalece sobre el catálogo
+  const m=be&&be.modo_registro
+  if(m==='TIME') return 'TIME'
+  if(m==='REPS') return (ej && ej.con_carga===false) ? 'BODYWEIGHT_REPS' : 'WEIGHT_REPS'
   const t=(ej&&ej.tipo_registro)||null
   if(t) return t
   if(ej && ej.con_carga===false) return 'BODYWEIGHT_REPS'
