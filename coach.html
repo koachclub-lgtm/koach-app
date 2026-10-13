@@ -1538,6 +1538,10 @@ html.selAbierto,html.selAbierto body{overflow:hidden}
 .dsiMini__b i::after{content:'';position:absolute;left:0;top:0;bottom:0;width:var(--w,0%);background:#DAD9D3;transition:width .2s ease}
 /* columnas angostas con el inspector abierto: la tarjeta pasa a dos filas (nombre arriba, REPS/KG abajo) — nada se aplasta ni se oculta */
 #vPlan.plTb #plWork.dsOn .tbCol{container-type:inline-size}
+/* c107 · en una columna con alto fijo las tarjetas no se encogen: la columna hace scroll */
+#vPlan.plTb .tbCol>.tbCard,#vPlan.plTb .tbCol>.tbColH,#vPlan.plTb .tbCol>.tbColP,#vPlan.plTb .tbCol>.tbAdd{flex-shrink:0}
+#pVivo.dsInsp .dsr__v{white-space:nowrap}
+#pVivo.dsInsp .dsx,#pVivo.dsInsp .dsr{grid-template-columns:62px minmax(0,1fr) 50px}
 @container (max-width:420px){
   #vPlan.plDesk .tbCard:not(.edit){grid-template-columns:minmax(0,1fr) 28px 28px;grid-template-areas:"n e1 e2" "c c c";row-gap:6px;padding:7px 6px 7px 9px}
   #vPlan.plDesk .tbCard:not(.edit)>.tbCtl{display:grid;grid-template-columns:1fr 1fr;gap:6px}
