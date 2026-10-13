@@ -4625,7 +4625,7 @@ function cerrarSelector(){ document.getElementById('selEj').style.display='none'
 function _selNorm(t){ return String(t||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'') }
 // Foto del ejercicio en el selector (reconocer > leer). Fuera del selector, la rutina queda solo con nombres.
 // c81 · la foto es el extremo izquierdo de la cápsula (Monolito); sin foto → placa neutra
-function selRutaFoto(k){ if(!k) return null; const fem=window.FOTOS_F_ACTIVAS===true && (typeof F!=='undefined')&&F&&String(F.sex||'').toLowerCase()==='mujer'; return (fem&&window.EXF_F&&window.EXF_F[k])||(window.EXF&&window.EXF[k])||(window.EXF_F&&window.EXF_F[k])||null }
+function selRutaFoto(k){ if(!k) return null; const fem=window.FOTOS_F_ACTIVAS===true && (typeof F!=='undefined')&&F&&String(F.sex||'').toLowerCase()==='mujer'; return (fem&&window.EXF_F&&window.EXF_F[k])||(window.EXF&&window.EXF[k])||null }   // nunca foto femenina para un socio hombre (ni como respaldo)
 function selFoto(e){ const r=e&&selRutaFoto(e.visual_key)
   return '<span class="selPh" aria-hidden="true">'+(r?'<img class="selF" src="'+SB_URL+'/storage/v1/object/public/ejercicios-media/'+r+'" alt="" width="60" height="60" loading="lazy" decoding="async" onerror="this.remove()">':'SIN<br>FOTO')+'</span>' }
 // Subraya la coincidencia de búsqueda sin romper acentos (mapa carácter a carácter)
