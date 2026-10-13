@@ -590,7 +590,9 @@ html .kw.kw--hero .kw-cl{font-size:7px;letter-spacing:.16em}
 #sFin{font-size:17px!important}
 
 /* c107 · dos acciones en el bloque: FINISH B1 (todo) + LOG SET 0X (uno a uno) */
-.bk__duo{display:grid;grid-template-columns:minmax(0,.8fr) minmax(0,1.3fr);gap:8px}
+.bk__duo{display:grid;grid-template-columns:minmax(0,.72fr) minmax(0,1.4fr);gap:8px}
+.bk__duo .bk__cta{font-size:14px!important;letter-spacing:.03em!important}
+@media (max-width:340px){ .bk__duo .bk__cta{font-size:12.5px!important;letter-spacing:.02em!important} }
 .bk__duo .bk__cta{width:100%;margin:0;padding-left:8px;padding-right:8px;white-space:nowrap}
 .bk__hint{margin:8px 0 0;text-align:center;font:700 8.5px var(--wxM);letter-spacing:.12em;color:var(--ink2)}
 </style>
@@ -2489,7 +2491,7 @@ body.wl-on{overflow:hidden}
       <div class="wx__kg" id="sKgHoy" aria-live="polite"></div>
     </header>
     <div id="sBloques" class="cargando">CARGANDO TU SESIÓN…</div>
-    <button class="btn fin" id="sFin" onclick="pedirFinal()" style="display:none">SESSION DONE ✓</button>
+    <button class="btn fin" id="sFin" onclick="pedirFinal()" style="display:none">TERMINAR SESIÓN ✓</button>
   </div>
 </div>
 
@@ -2841,7 +2843,7 @@ function homeHero(o){
   const bg = a.src ? '<img class="hh__bg" src="'+a.src+'" alt="" style="object-position:'+a.position+'" decoding="async" fetchpriority="high">' : ''
   let kicker, cta1, cta2, frase=''
   if (!ses){ kicker='TU SEMANA'; cta1=o.ctaT; cta2=o.ctaS }
-  else if (ec){ kicker='SESIÓN EN CURSO'; cta1='TIENES UN ENTRENAMIENTO EN CURSO'; cta2=ses.nombre+' · BACK TO WORK →'; frase=fraseTitular(ses,true) }
+  else if (ec){ kicker='SESIÓN EN CURSO'; cta1='TIENES UN ENTRENAMIENTO EN CURSO'; cta2=ses.nombre+' · CONTINUAR →'; frase=fraseTitular(ses,true) }
   else if (e.entrenoHoy){ kicker='ENTRENAMIENTO DE HOY'; cta1=o.ctaT; cta2=o.ctaS; frase='<span class="kh__f1">Hoy ya sumaste.</span><b class="kh__f2">Ahora recupera</b>' }
   else if (S.memBloqueo || e.completa){ kicker=e.completa?'SEMANA COMPLETADA':'TU PRÓXIMA SESIÓN'; cta1=o.ctaT; cta2=o.ctaS; frase=e.completa&&!S.memBloqueo?'<span class="kh__f1">Semana cumplida.</span><b class="kh__f2">Descansa fuerte</b>':'' }
   else { kicker='TU PRÓXIMA SESIÓN'; cta1='COMENZAR ENTRENAMIENTO'; cta2=ses.nombre+' · SESIÓN '+posSem(ses)+' DE '+e.total+' →'; frase=fraseTitular(ses,false) }
@@ -3927,7 +3929,7 @@ function pintarHome(){
     cta.disabled=false
     cta.onclick=()=>reanudar()
     document.getElementById('hCtaT').textContent='TIENES UN ENTRENAMIENTO EN CURSO'
-    document.getElementById('hCtaS').textContent=((sesEC?sesEC.nombre:'TU SESIÓN')+' · BACK TO WORK →')
+    document.getElementById('hCtaS').textContent=((sesEC?sesEC.nombre:'TU SESIÓN')+' · CONTINUAR →')
   } else if (entrenoHoy){
     cta.disabled=true; cta.onclick=null
     document.getElementById('hCtaT').textContent='ENTRENAMIENTO DE HOY ✓'
@@ -3935,7 +3937,7 @@ function pintarHome(){
     document.getElementById('hCtaS').textContent=((_e.hoySes?_e.hoySes.nombre+' COMPLETADA':'SESIÓN COMPLETADA')+((sem.proxima && !sem.proxima._extra)?' · PRÓXIMA: '+sem.proxima.nombre:'')).toUpperCase()
   } else if (sem.completa && sem.proxima && sem.proxima._extra){
     cta.disabled=false; cta.onclick=()=>abrirSesion()
-    document.getElementById('hCtaT').textContent='★ BONUS SESSION'
+    document.getElementById('hCtaT').textContent='★ SESIÓN EXTRA'
     document.getElementById('hCtaS').textContent=sem.proxima.nombre.replace('★ ','')+' · DESIGNADA POR TU COACH'
   } else if (sem.completa && sem.proxima){
     cta.disabled=false; cta.onclick=()=>abrirSesion()
@@ -3957,7 +3959,7 @@ function pintarHome(){
     }
   } else if (sem.proxima){ cta.disabled=false
     cta.onclick = ()=>abrirSesion()
-    document.getElementById('hCtaT').textContent='TRAIN →'
+    document.getElementById('hCtaT').textContent='ENTRENAR →'
     const _op=objetivosSesion(sesCompleta(sem.proxima)).prim.slice(0,3)
     document.getElementById('hCtaS').textContent=(sem.proxima.nombre+(_op.length?' · OBJETIVO: '+_op.join(', '):'')).toUpperCase()
   }
@@ -4388,7 +4390,7 @@ function wxActivo(be,b,w,ej){
     '<button type="button" class="wx__x" onclick="wxCerrar()" aria-label="Cerrar '+(ej.nombre||'ejercicio')+'">✕</button></div>'+
     '<div class="wx__tabs" role="group" aria-label="Sets">'+tabs+'</div>'+rest+lineas+
     (hecho ? '<button type="button" class="wx__cta wx__cta--sec" onclick="tapSetRow(\''+be.id+'\','+n+',\''+b.id+'\',\''+(ej.id||'')+'\')">DESHACER SET '+wxP2(n)+'</button>'
-           : '<button type="button" class="wx__cta" onclick="wxCompletar(\''+be.id+'\','+n+',\''+b.id+'\',\''+(ej.id||'')+'\','+desc+','+b.sets+')">'+(n>=b.sets?'LAST SET · BEST SET':'LOG SET '+wxP2(n)+' ✓')+'</button>')+
+           : '<button type="button" class="wx__cta" onclick="wxCompletar(\''+be.id+'\','+n+',\''+b.id+'\',\''+(ej.id||'')+'\','+desc+','+b.sets+')">'+(n>=b.sets?'LAST SET · BEST SET':'REGISTRAR SET '+wxP2(n)+' ✓')+'</button>')+
     '<div class="wx__ft"><div><span>'+ref+' · '+pres+'</span>'+(sube?'<span class="wx__up"><i></i>SUGERIDA '+wxKg(sug)+' KG ↑</span>':'')+'</div><div class="wx__ds"><b>'+desc+"''"+'</b><span>DESC</span></div></div>'+
     (ej.cue?'<div class="wx__cue"><b>INDICACIÓN DEL KOACH</b>'+ej.cue+'</div>':'')+'</article>'
 }
@@ -4508,7 +4510,7 @@ function bkCapsulas(bfs){
     const lista = open ? '<div class="cp__l">'+bes.map(be=>{ const ej=be.ejercicios||{}, w=seedWk(be,ej)
         return '<div class="cp__e"><div><b>'+bkEsc(ej.nombre||'—')+'</b><span>'+bkEsc(ej.grupo_muscular||'')+'</span></div><em>'+bkValor(w,ej)+'</em></div>' }).join('')+'</div>'+
       (done ? '<button type="button" class="cp__cta cp__cta--sec" onclick="bkAbrir('+bi+')">VER O CORREGIR '+cod+'</button>'
-       : bi===prim ? '<button type="button" class="cp__cta" onclick="bkAbrir('+bi+')">▶ &nbsp;'+(hechos?cod+' · BACK TO WORK':cod+' · GO')+'</button>'
+       : bi===prim ? '<button type="button" class="cp__cta" onclick="bkAbrir('+bi+')">▶ &nbsp;'+(hechos?'CONTINUAR '+cod:cod+' · GO')+'</button>'
        : '<button type="button" class="cp__cta cp__cta--off" disabled>SE ACTIVA AL TERMINAR '+bkCod(bfs[prim]||{},prim)+'</button><span class="cp__nota">TU COACH PUEDE CAMBIAR EL ORDEN DE LOS BLOQUES</span>') : ''
     return '<section class="cp'+(done?' cp--ok':'')+(open?' cp--open':'')+'" id="blq-'+bi+'">'+
       '<button type="button" class="cp__h" onclick="BK.cap='+(open?'null':bi)+';pintarSesion()" aria-expanded="'+open+'" aria-controls="blq-'+bi+'" aria-label="Bloque '+cod+' '+nom+', '+estado.toLowerCase()+'">'+
@@ -4554,17 +4556,17 @@ function bkPintar(){
     return '<article class="bk__ex'+(fila?' bk__ex--ok':'')+'" aria-label="'+N+' · '+ref+' · prescrito '+bkPres(w,ej)+'"><div class="bk__eh"><span class="exrow">'+exFoto(ej)+'<b>'+bkEsc(ej.nombre||'—')+'</b></span><em class="bk__pill">'+bkEsc(ej.grupo_muscular||'')+'</em></div><div class="bk__sb'+(uno?' bk__sb--1':'')+'">'+ctr+'</div></article>' }).join('')
   let cta, ctaCls=''
   if (hecho){ cta='DESHACER SET '+String(n).padStart(2,'0'); ctaCls=' bk__cta--sec' }
-  else if (done){ cta=cod+' DONE ✓'; ctaCls=' bk__cta--sec' }
-  else { const _ult=bkSetsHechos(b)>=b.sets-1; cta=_ult?'LAST SET · BEST SET':'LOG SET '+String(n).padStart(2,'0')+' ✓'; if(_ult) ctaCls=' bk__cta--best' }
+  else if (done){ cta=cod+' LISTO ✓'; ctaCls=' bk__cta--sec' }
+  else { const _ult=bkSetsHechos(b)>=b.sets-1; cta=_ult?'LAST SET · BEST SET':'REGISTRAR SET '+String(n).padStart(2,'0')+' ✓'; if(_ult) ctaCls=' bk__cta--best' }
   // c70 · bloque completado: se vuelve a la pantalla de la rutina (los tres bloques); el siguiente se inicia desde ahí
-  const sig = done ? '<button type="button" class="bk__cta" onclick="bkCerrar()">'+(()=>{ const bf=S._bfs||[], pr=bkPrimerPendiente(bf); return pr>=0?'UP NEXT · '+bkCod(bf[pr],pr)+' →':'END SESSION →' })()+'</button>' : ''
+  const sig = done ? '<button type="button" class="bk__cta" onclick="bkCerrar()">'+(()=>{ const bf=S._bfs||[], pr=bkPrimerPendiente(bf); return pr>=0?'SIGUIENTE · '+bkCod(bf[pr],pr)+' →':'TERMINAR SESIÓN →' })()+'</button>' : ''
   // c65 · lenguaje de estados: BLANCO = entrenamiento · NEGRO = descanso · GO = vuelta al entrenamiento
   const restS = rest ? Math.max(0,Math.ceil((BK.rest.fin-Date.now())/1000)) : 0
   const over = !rest && !done && BK.over && BK.over.bId===b.id && BK.over.regId===S.regId
   if (!over && BK.over && BK.over.bId===b.id) bkOverFin()
   // I1 · la etiqueta nombra el set que de verdad viene (primer set sin completar), no el que se está mirando
   const sigN = bkSetActual(b)
-  const top = rest ? '<b id="bkT" class="bk__t" data-t="'+bkMMSS(restS)+'">'+bkSeg(bkMMSS(restS))+'</b><span>UP NEXT · SET '+String(sigN||n).padStart(2,'0')+'</span>'
+  const top = rest ? '<b id="bkT" class="bk__t" data-t="'+bkMMSS(restS)+'">'+bkSeg(bkMMSS(restS))+'</b><span>SIGUIENTE · SET '+String(sigN||n).padStart(2,'0')+'</span>'
             : over ? '<b id="bkOver" class="bk__over">'+bkOverTxt()+'</b><span>DESDE EL GO</span>'
             : done ? '<b class="bk__t">'+bkSeg(bkMMSS(0))+'</b><span>BLOQUE COMPLETADO</span>'
             : '<b class="bk__t">'+bkSeg(bkMMSS(bkDesc(b)))+'</b><span>REST</span>'
@@ -4619,7 +4621,7 @@ function bkFinBloque(b){ const o=document.getElementById('oBloque'); if(!o||!b) 
   el.innerHTML='<div class="bk__finIn"><span class="bk__finK">'+(ult?'SESSION DONE.':'DONE.')+'</span><b class="bk__finB">'+bkCod(b,BK.bi)+'</b><em class="bk__finN">'+bkEsc(nomV)+'</em>'+
     '<div class="bk__finKg">'+kg.toLocaleString('es-CL')+'<i>KG</i></div><span class="bk__finS">EN ESTE BLOQUE</span>'+
     '<div class="bk__finHoy">HOY · '+kgHoy.toLocaleString('es-CL')+' KG · '+st[0]+'/'+st[1]+' SETS</div>'+
-    '<span class="bk__finGo">'+(ult?'CIERRA TU SESIÓN DESDE LA RUTINA':'UP NEXT · '+bkCod(bfs[prim],prim)+' →')+'</span></div>'
+    '<span class="bk__finGo">'+(ult?'CIERRA TU SESIÓN DESDE LA RUTINA':'SIGUIENTE · '+bkCod(bfs[prim],prim)+' →')+'</span></div>'
   o.appendChild(el); o.classList.add('fin'); requestAnimationFrame(function(){ el.classList.add('on') })
   const cerrar=function(){ clearTimeout(BK._fin); BK._fin=null; el.remove(); o.classList.remove('fin'); BK.cap = prim>=0 ? prim : null; bkCerrar() }
   el.onclick=cerrar; BK._fin=setTimeout(cerrar, 2600) }
