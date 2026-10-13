@@ -215,6 +215,10 @@ const TOOLS = {
       if (!desc) throw new Error('Este ejercicio no tiene descripción visual todavía.');
       let extra = correccion ? `\nIMPORTANT CORRECTION: ${correccion}` : '';
       const rules = koachRules(visual_key);
+      // c108 · peso corporal: el modelo tiende a "regalar" mancuernas. Regla dura + control de calidad lo rechazan.
+      try { const ej = await rest(`ejercicios?select=implemento,con_carga&visual_key=eq.${encodeURIComponent(visual_key)}&limit=1`);
+        if (ej[0] && (ej[0].implemento === 'BODYWEIGHT' || ej[0].con_carga === false) && !/-(db|bb|kb|mb|cable|plate|box|banda|band)-/.test('-' + visual_key + '-'))
+          rules.push('NO EQUIPMENT AT ALL: this is a bodyweight exercise. The athlete holds NOTHING: no dumbbells, no barbell, no kettlebell, no plate, no band. Hands on hips, crossed on the chest or relaxed at the sides. Any dumbbell or weight in the image is a critical error.'); } catch (_) {}
       let refs = [], refNote = '';
       // c85 · versión femenina = la MISMA foto aprobada del hombre con el avatar reemplazado (image-to-image), no una foto nueva
       let espejo = false;
