@@ -2356,6 +2356,101 @@ html.ks-on #vSala .salaQ input{font:500 17px var(--font-display) !important;lett
   html.ks-on #vSala .qRow__a{width:100%}
   html.ks-on #vSala .qRow__a a{flex:1;justify-content:center}
 }
+/* ═══ c106 · PANEL DEL DUEÑO (CRM) · solo admin · capa de data: gris KOACH + KOACH Display ancho + Space Mono ═══ */
+html.ks-on.en-crm body{max-width:1280px !important;padding-left:32px !important;padding-right:32px !important;padding-bottom:56px}
+@media (max-width:700px){html.ks-on.en-crm body{padding-left:16px !important;padding-right:16px !important}}
+#vCrm{--cr-data:#0E8FA3;--cr-data-bg:rgba(14,143,163,.12);color:var(--koach-ink)}
+#vCrm *{font-family:inherit}
+#vCrm .cr-k{font:500 10.5px/1.3 var(--font-mono);letter-spacing:.12em;text-transform:uppercase;color:var(--koach-text-secondary)}
+#vCrm .cr-hd{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;flex-wrap:wrap;margin:0 0 18px}
+#vCrm .cr-t{margin:6px 0 0;font:800 clamp(30px,4.6vw,52px)/.95 var(--font-display);font-stretch:115%;text-transform:uppercase;letter-spacing:-.01em;text-wrap:balance}
+#vCrm .cr-st{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+#vCrm .cr-btn{min-height:40px;padding:0 16px;border-radius:999px;border:1px solid var(--koach-border-strong);background:var(--koach-control);color:var(--koach-ink);font:500 11px var(--font-mono);letter-spacing:.1em;text-transform:uppercase;cursor:pointer}
+#vCrm .cr-btn.ink{background:var(--koach-ink);color:var(--koach-control);border-color:var(--koach-ink)}
+#vCrm .cr-btn:disabled{opacity:.45;cursor:default}
+#vCrm .cr-btn:focus-visible,#vCrm .cr-tabs button:focus-visible,#vCrm input:focus-visible{outline:2px solid var(--koach-ink);outline-offset:2px}
+#vCrm .cr-tabs{display:flex;gap:2px;overflow-x:auto;scrollbar-width:none;border-bottom:1px solid var(--koach-divider);margin:0 0 22px}
+#vCrm .cr-tabs::-webkit-scrollbar{display:none}
+#vCrm .cr-tabs button{flex:none;border:0;background:none;padding:12px 12px 11px;font:500 11px var(--font-mono);letter-spacing:.1em;text-transform:uppercase;color:var(--koach-text-secondary);border-bottom:2px solid transparent;cursor:pointer;white-space:nowrap}
+#vCrm .cr-tabs button.on{color:var(--koach-ink);border-bottom-color:var(--koach-ink)}
+#vCrm .cr-tabs i{font-style:normal;display:inline-block;margin-left:6px;min-width:20px;padding:1px 6px;border-radius:999px;background:var(--koach-ink);color:var(--koach-control);font-size:10px;text-align:center}
+#vCrm .cr-body{display:grid;gap:26px}
+/* veredicto: momento inmersivo */
+#vCrm .cr-ver{background:#1E1F22;color:#F4F3F0;border-radius:10px;padding:22px 24px;display:grid;gap:10px}
+#vCrm .cr-ver .cr-k{color:rgba(244,243,240,.62)}
+#vCrm .cr-ver p{margin:0;font:700 clamp(18px,2.4vw,24px)/1.22 var(--font-display);letter-spacing:-.01em;max-width:60ch;text-wrap:balance}
+/* KPI */
+#vCrm .cr-g{display:grid;gap:10px;grid-template-columns:repeat(auto-fit,minmax(min(100%,230px),1fr))}
+#vCrm .cr-g3{grid-template-columns:repeat(3,minmax(0,1fr))}
+@media (max-width:900px){#vCrm .cr-g3{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (max-width:560px){#vCrm .cr-g3{grid-template-columns:1fr}}
+#vCrm .cr-c{background:var(--koach-surface);border:1px solid var(--koach-border);border-radius:10px;padding:16px;display:grid;gap:10px;align-content:start;min-width:0}
+#vCrm .cr-v{font:800 clamp(34px,4.4vw,46px)/.95 var(--font-display);font-stretch:112%;letter-spacing:-.02em;font-variant-numeric:tabular-nums}
+#vCrm .cr-s{font:500 11.5px/1.45 var(--font-mono);letter-spacing:.03em;color:var(--koach-text-secondary)}
+#vCrm .cr-m{position:relative;height:8px;border-radius:2px;background:var(--koach-muted)}
+#vCrm .cr-m i{position:absolute;inset:0 auto 0 0;border-radius:2px;background:var(--koach-ink)}
+#vCrm .cr-m b{position:absolute;top:-4px;width:2px;height:16px;background:var(--cr-data)}
+/* estado por forma: lleno = atender · gris = vigilar · contorno = en meta */
+#vCrm .cr-p{justify-self:start;display:inline-flex;align-items:center;gap:6px;border-radius:6px;padding:4px 8px;font:500 10px var(--font-mono);letter-spacing:.08em;text-transform:uppercase;border:1px solid var(--koach-border-strong);white-space:nowrap}
+#vCrm .cr-p::before{content:"";width:6px;height:6px;border-radius:50%;background:currentColor}
+#vCrm .cr-p.bad{background:var(--koach-ink);color:var(--koach-control);border-color:var(--koach-ink)}
+#vCrm .cr-p.warn{background:var(--koach-chip);color:var(--koach-white);border-color:var(--koach-chip)}
+#vCrm .cr-p.ok{background:transparent;color:var(--koach-ink)}
+#vCrm .cr-p.info{background:var(--cr-data-bg);color:var(--cr-data);border-color:transparent}
+/* secciones */
+#vCrm .cr-sh{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;margin:0 0 12px}
+#vCrm .cr-h{margin:0;font:800 clamp(20px,2.6vw,28px)/1 var(--font-display);font-stretch:112%;text-transform:uppercase;letter-spacing:-.005em}
+#vCrm .cr-tree{display:grid;gap:12px}
+#vCrm .cr-ar{text-align:center;font:500 10.5px var(--font-mono);letter-spacing:.14em;color:var(--koach-text-secondary)}
+#vCrm .cr-n{border-left:4px solid var(--koach-ink)}
+#vCrm .cr-n.ok{border-left-color:var(--koach-border-strong)} #vCrm .cr-n.warn{border-left-color:var(--koach-chip)}
+#vCrm .cr-n .cr-row{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap}
+#vCrm .cr-n .cr-v{font-size:30px}
+/* brechas */
+#vCrm .cr-gap{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:16px;align-items:center;background:var(--koach-surface);border:1px solid var(--koach-border);border-radius:10px;padding:16px}
+#vCrm .cr-gap .cr-i{font:700 13px var(--font-mono);color:var(--koach-text-secondary)}
+#vCrm .cr-gap h4{margin:0;font:800 17px/1.15 var(--font-display);font-stretch:106%;text-transform:uppercase}
+#vCrm .cr-gap p{margin:6px 0 0;font:400 14.5px/1.45 var(--font-display);color:var(--koach-text-secondary);max-width:70ch}
+#vCrm .cr-gap p b{color:var(--koach-ink);font-weight:700}
+#vCrm .cr-gap .cr-own{font:500 10.5px var(--font-mono);letter-spacing:.1em;text-transform:uppercase;color:var(--koach-accent)}
+#vCrm .cr-gap .cr-a{display:grid;justify-items:end;gap:6px;text-align:right}
+#vCrm .cr-gap .cr-a .cr-v{font-size:26px}
+@media (max-width:640px){#vCrm .cr-gap{grid-template-columns:1fr}#vCrm .cr-gap .cr-i{display:none}#vCrm .cr-gap .cr-a{justify-items:start;text-align:left}}
+/* listas de personas */
+#vCrm .cr-chips{display:flex;gap:6px;flex-wrap:wrap}
+#vCrm .cr-chips button{min-height:36px;padding:0 12px;border-radius:999px;border:1px solid var(--koach-border-strong);background:var(--koach-control);font:500 10.5px var(--font-mono);letter-spacing:.06em;color:var(--koach-ink);cursor:pointer}
+#vCrm .cr-chips button.on{background:var(--koach-ink);color:var(--koach-control);border-color:var(--koach-ink)}
+#vCrm .cr-l{display:grid;gap:8px}
+#vCrm .cr-it{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:14px;align-items:center;background:var(--koach-surface);border:1px solid var(--koach-border);border-radius:10px;padding:12px 14px}
+#vCrm .cr-it .cr-nm{font:800 17px/1.1 var(--font-display);font-stretch:106%;text-transform:uppercase;overflow-wrap:anywhere;background:none;border:0;padding:0;text-align:left;color:var(--koach-ink);cursor:pointer}
+#vCrm .cr-it .cr-nm:hover{text-decoration:underline}
+#vCrm .cr-it .cr-s{margin-top:4px}
+#vCrm .cr-it .cr-r{display:grid;justify-items:end;gap:6px;text-align:right}
+#vCrm .cr-mon{font:700 14px var(--font-mono);font-variant-numeric:tabular-nums}
+#vCrm .cr-wa{display:inline-flex;align-items:center;min-height:34px;padding:0 12px;border-radius:999px;background:var(--koach-ink);color:var(--koach-control);font:500 10.5px var(--font-mono);letter-spacing:.08em;text-decoration:none}
+#vCrm .cr-tel{font:500 11.5px var(--font-mono);color:var(--koach-text-secondary);user-select:all}
+@media (max-width:640px){#vCrm .cr-it{grid-template-columns:1fr}#vCrm .cr-it .cr-r{justify-items:start;text-align:left}}
+/* nota, tabla, gráfico */
+#vCrm .cr-note{background:var(--koach-surface-raised);border-radius:10px;padding:14px 16px;font:400 14px/1.5 var(--font-display);color:var(--koach-text-secondary)}
+#vCrm .cr-note b{color:var(--koach-ink)}
+#vCrm .cr-tb{overflow-x:auto;background:var(--koach-surface);border:1px solid var(--koach-border);border-radius:10px;padding:4px 12px}
+#vCrm table{width:100%;border-collapse:collapse}
+#vCrm th,#vCrm td{padding:10px 6px;border-bottom:1px solid var(--koach-divider);text-align:left;font:500 13px var(--font-mono);font-variant-numeric:tabular-nums}
+#vCrm tr:last-child td{border-bottom:0}
+#vCrm th{font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--koach-text-secondary);font-weight:500}
+#vCrm td:first-child{font:700 14px var(--font-display);text-transform:uppercase}
+#vCrm .r{text-align:right}
+#vCrm .cr-ch{background:var(--koach-surface);border:1px solid var(--koach-border);border-radius:10px;padding:16px;overflow-x:auto}
+#vCrm .cr-ch svg{display:block;width:100%;min-width:440px;height:auto}
+#vCrm .cr-lg{display:flex;gap:14px;flex-wrap:wrap;margin-top:10px;font:500 10.5px var(--font-mono);letter-spacing:.04em;color:var(--koach-text-secondary)}
+#vCrm .cr-lg span::before{content:"";display:inline-block;width:9px;height:9px;margin-right:6px;vertical-align:-1px;border-radius:2px;background:var(--c)}
+/* metas */
+#vCrm .cr-f{display:grid;gap:10px;grid-template-columns:repeat(auto-fit,minmax(min(100%,260px),1fr))}
+#vCrm .cr-f label{display:grid;gap:8px;background:var(--koach-surface);border:1px solid var(--koach-border);border-radius:10px;padding:14px;margin:0;font:500 10.5px var(--font-mono);letter-spacing:.1em;text-transform:uppercase;color:var(--koach-text-secondary)}
+#vCrm .cr-f input{margin:0;min-height:48px;border-radius:8px;border:1px solid var(--koach-border-strong);background:var(--koach-control);font:700 22px var(--font-mono);color:var(--koach-ink);padding:0 12px;font-variant-numeric:tabular-nums}
+#vCrm .cr-err{border-left:4px solid var(--koach-ink);background:var(--koach-surface);border-radius:10px;padding:16px 18px;display:grid;gap:8px;font:400 15px var(--font-display)}
+#vCrm .cr-err small{font:500 11px var(--font-mono);color:var(--koach-text-secondary);overflow-wrap:anywhere}
+#vCrm .cr-empty{font:400 14px var(--font-display);color:var(--koach-text-secondary);padding:10px 2px}
 </style>
 </head>
 <body>
@@ -2440,6 +2535,12 @@ html.ks-on #vSala .salaQ input{font:500 17px var(--font-display) !important;lett
   <input id="adhBusca" placeholder="Buscar por nombre o correo…" oninput="adhPintar()">
   <div class="adChips" id="adhF"></div>
   <div id="adhLista"><div class="vacio">Cargando…</div></div>
+</div>
+<div class="vista" id="vCrm">
+  <div class="cr-hd"><div><span class="cr-k">Panel del dueño · solo administrador</span><h2 class="cr-t">Centro de mando</h2></div>
+    <div class="cr-st"><span class="cr-k" id="crmSt"></span><button type="button" class="cr-btn" id="crmUpd" onclick="crCargar()">Actualizar</button></div></div>
+  <nav class="cr-tabs" id="crmTabs" role="tablist" aria-label="Secciones del panel"></nav>
+  <div class="cr-body" id="crmBody" aria-live="polite"></div>
 </div>
 <div class="vista" id="vAdmin">
   <div class="stop"><button class="sback" onclick="verSala()">←</button><div class="stit">Membresías</div>
@@ -2908,7 +3009,7 @@ function fLocal(d){ const z=new Date(d.getTime()-d.getTimezoneOffset()*60000); r
 function lunes(){const h=new Date(),d=(h.getDay()+6)%7,l=new Date(h);l.setDate(h.getDate()-d);l.setHours(0,0,0,0);return l}
 function hoyISO(){return fLocal(new Date())}
 function vista(id){document.querySelectorAll('.vista').forEach(function(v){v.classList.toggle('on',v.id===id)});window.scrollTo(0,0)
-  document.documentElement.classList.toggle('en-sala', id==='vSala'); document.documentElement.classList.toggle('en-plan', id==='vPlan'); document.documentElement.classList.toggle('en-ficha', id==='vFicha')
+  document.documentElement.classList.toggle('en-sala', id==='vSala'); document.documentElement.classList.toggle('en-plan', id==='vPlan'); document.documentElement.classList.toggle('en-ficha', id==='vFicha'); document.documentElement.classList.toggle('en-crm', id==='vCrm')
   document.getElementById('xGuardia').classList.toggle('vis', id==='vExtra')
   var pg=document.getElementById('pGuardia'); if(pg) pg.style.display = (id==='vPlan')?'block':'none'
   if (typeof kShellSync==='function') kShellSync(id)}
@@ -8061,14 +8162,231 @@ sb.auth.onAuthStateChange(function(ev){ if (ev==='PASSWORD_RECOVERY'){ setTimeou
   if (ev==='SIGNED_OUT' && !window._saliendo && C.yo){ C.yo=null; authListo(); vista('vLogin'); const e=document.getElementById('lErr'); if(e){ e.textContent='Tu sesión finalizó. Vuelve a ingresar.'; e.style.display='block' } } })
 arrancarAuth()
 
+// ═══════════ c106 · PANEL DEL DUEÑO (CRM) · solo admin ═══════════
+// Fuente única: RPC crm_panel() → crm.cockpit() (solo lectura sobre membresías, pagos, sesiones y check-ins).
+// Metas: RPC crm_metas_guardar(jsonb). El servidor rechaza a cualquier rol que no sea admin.
+const CRM={ d:null, tab:'res', fp:'todos', err:null, cargando:false }
+const CRM_TABS=[['res','Resultados'],['cau','Causa · efecto'],['ren','Renovaciones'],['rie','Riesgo de fuga'],['lea','Leads'],['dat','Calidad de dato'],['met','Metas']]
+try{ const t=localStorage.getItem('k_crm_tab'); if(t && CRM_TABS.some(function(x){return x[0]===t})) CRM.tab=t }catch(e){}
+const crE=function(t){ return plEsc(t) }
+const crClp=function(n){ return n==null||isNaN(n) ? '—' : '$'+Math.round(n).toLocaleString('es-CL') }
+const crMM=function(n){ return n==null||isNaN(n) ? '—' : '$'+(n/1e6).toLocaleString('es-CL',{minimumFractionDigits:2,maximumFractionDigits:2})+'M' }
+const crPc=function(n){ return n==null||isNaN(n) ? '—' : Math.round(n*100)+'%' }
+const crF=function(s){ return s ? adhF(s) : '—' }
+function crWa(tel){ let d=String(tel||'').replace(/\D/g,''); if(!d) return null; if(d.length===9&&d[0]==='9') d='56'+d; if(d.length===8) d='569'+d; return 'https://wa.me/'+d }
+function crEsAdmin(){ return !!(C && C.yo && C.yo.role==='admin') }
+
+async function verPanel(){
+  if (!crEsAdmin()){ verSala(); return }
+  vista('vCrm'); crPintar(); await crCargar()
+}
+async function crCargar(){
+  if (CRM.cargando) return
+  CRM.cargando=true; CRM.err=null; crPintar()
+  try{
+    const r=await sb.rpc('crm_panel')
+    if (r.error) throw r.error
+    if (!r.data || !r.data.resultados) throw {message:'La función crm_panel no devolvió datos.'}
+    CRM.d=r.data
+  }catch(e){ CRM.err=e }
+  CRM.cargando=false; crPintar()
+}
+
+function crModelo(d){
+  const r=d.resultados, M=function(k){ return d.metas&&d.metas[k] ? +d.metas[k].valor : null }
+  const vig=r.vigentes, ticket=r.ticket||0
+  const renov=r.renov_base ? r.renov_ok/r.renov_base : null
+  const act7=vig ? r.activos7/vig : null
+  const mrrMeta=M('socios_meta')*M('ticket_meta')
+  const sem=function(real,meta){ if(real==null||meta==null) return 'info'; const q=real/meta; return q>=1?'ok':q>=.9?'warn':'bad' }
+  const gaps=[]
+  if (renov!=null){
+    const pierde=r.mrr_vence30*(1-renov), pierdeMeta=r.mrr_vence30*(1-M('tasa_renovacion_meta'))
+    gaps.push({t:'Renovaciones de los próximos 30 días', amt:Math.max(0,pierde-pierdeMeta), tab:'ren', o:'Recepción + coach',
+      d:'Vencen '+r.vence30+' socios con '+crMM(r.mrr_vence30)+' al mes. A la tasa actual ('+crPc(renov)+') perderías '+crMM(pierde)+'; a la meta ('+crPc(M('tasa_renovacion_meta'))+'), '+crMM(pierdeMeta)+'.',
+      a:'Trabajar Renovaciones P1 y P2 esta semana.'})
+  }
+  const inact=Math.max(0, Math.round(M('activos7_meta')*vig)-r.activos7)
+  gaps.push({t:'Socios sin entrenar en la última semana', amt:inact*ticket, tab:'rie', o:'Coaches',
+    d:(vig-r.activos7)+' de '+vig+' vigentes no entrenaron en 7 días ('+r.nunca_entreno+' nunca han entrenado). '+(inact?('Para la meta faltan '+inact+' socios activos.'):'Estás en la meta.')+' El socio que no viene es el que no renueva.',
+    a:'Coaches contactan Riesgo de fuga y agendan su próxima sesión.'})
+  if (M('ticket_meta')>ticket) gaps.push({t:'Ticket mensual bajo la meta', amt:(M('ticket_meta')-ticket)*r.pagantes, tab:'res', o:'Dueño',
+    d:'Ticket real '+crClp(ticket)+' contra '+crClp(M('ticket_meta'))+', por '+r.pagantes+' socios pagantes. Es lo que se va en descuentos, promociones y planes largos.',
+    a:'Renovar a precio de lista; promociones solo para captación.'})
+  const v0=d.calidad.memb_normal_valor0
+  if (v0) gaps.push({t:'Membresías normales registradas en $0', amt:v0*ticket, tab:'dat', o:'Recepción',
+    d:v0+' socios vigentes con membresía normal y valor $0. Si pagaron, tu ingreso real es mayor al que ves; si no, es ingreso sin cobrar.',
+    a:'Revisar cada caso en Membresías y registrar el monto real.'})
+  if (r.leads_abiertos) gaps.push({t:'Registrados en la app sin membresía', amt:r.leads_abiertos*M('conversion_lead_meta')*ticket, tab:'lea', o:'Recepción',
+    d:r.leads_abiertos+' personas crearon su cuenta y no han comprado. Con la meta de conversión ('+crPc(M('conversion_lead_meta'))+') son '+Math.round(r.leads_abiertos*M('conversion_lead_meta'))+' socios nuevos.',
+    a:'Contactar cada registro en menos de 24 horas.'})
+  if (d.calidad.pagos_pendientes) gaps.push({t:'Pagos pendientes de cobro', amt:d.calidad.pagos_pendientes_monto, unico:true, tab:'dat', o:'Recepción',
+    d:d.calidad.pagos_pendientes+' pagos en estado pendiente por '+crClp(d.calidad.pagos_pendientes_monto)+'.',
+    a:'Cobrar o anular; un pendiente no pasa de 7 días.'})
+  gaps.sort(function(a,b){ return b.amt-a.amt })
+  return {r:r,M:M,vig:vig,ticket:ticket,renov:renov,act7:act7,mrrMeta:mrrMeta,sem:sem,gaps:gaps}
+}
+
+function crPintar(){
+  const el=document.getElementById('crmBody'), tb=document.getElementById('crmTabs'), st=document.getElementById('crmSt'), bt=document.getElementById('crmUpd')
+  if (!el) return
+  const d=CRM.d
+  if (bt) bt.disabled=CRM.cargando
+  if (st) st.textContent = CRM.cargando ? 'LEYENDO LA BASE…' : (d ? 'DATOS AL '+new Date(d.generado_at).toLocaleString('es-CL',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'}).toUpperCase() : '')
+  const ct = d ? { ren:d.pipeline.filter(function(x){return x.prioridad==='P1'||x.prioridad==='P2'}).length, rie:d.riesgo.length, lea:d.leads.length,
+    dat:[d.calidad.memb_normal_valor0,d.calidad.memb_estado_vigente_vencida,d.calidad.pagos_pendientes,d.calidad.sesiones_en_curso_viejas].filter(Boolean).length } : {}
+  tb.innerHTML=CRM_TABS.map(function(t){ return '<button type="button" role="tab" class="'+(CRM.tab===t[0]?'on':'')+'" aria-selected="'+(CRM.tab===t[0])+'" onclick="crTab(\''+t[0]+'\')">'+t[1]+(ct[t[0]]?'<i>'+ct[t[0]]+'</i>':'')+'</button>' }).join('')
+  let err=''
+  if (CRM.err){
+    const m=String(CRM.err.message||CRM.err||'')
+    const t=/PERMISO_DENEGADO/.test(m) ? 'Este panel es solo para el administrador.' : /JWT|session|token/i.test(m) ? 'Tu sesión expiró. Vuelve a ingresar.' : 'No se pudo leer la base ahora.'
+    err='<div class="cr-err"><b>'+crE(t)+'</b>'+(d?'<span class="cr-s">Se mantienen los últimos datos cargados.</span>':'')+'<small>'+crE(m)+'</small><div><button type="button" class="cr-btn" onclick="crCargar()">Reintentar</button></div></div>'
+  }
+  if (!d){ el.innerHTML = err || kLd('Cargando panel…'); return }
+  const m=crModelo(d)
+  const V={res:crRes,cau:crCau,ren:crRen,rie:crRie,lea:crLea,dat:crDat,met:crMet}
+  el.innerHTML = err + V[CRM.tab](m,d)
+}
+function crTab(k){ CRM.tab=k; try{ localStorage.setItem('k_crm_tab',k) }catch(e){} crPintar(); window.scrollTo(0,0) }
+
+function crMeter(val,max,mark){ const w=function(v){ return Math.max(0,Math.min(100,v/max*100)) }
+  return '<div class="cr-m"><i style="width:'+w(val)+'%"></i>'+(mark!=null?'<b style="left:calc('+w(mark)+'% - 1px)"></b>':'')+'</div>' }
+function crKpi(k,v,meter,sub,pill,cls){ return '<div class="cr-c"><span class="cr-k">'+k+'</span><div class="cr-v">'+v+'</div>'+(meter||'')+'<div class="cr-s">'+sub+'</div><span class="cr-p '+cls+'">'+pill+'</span></div>' }
+
+function crRes(m,d){
+  const r=m.r, M=m.M, cf=M('costos_fijos'), cob=r.mrr/cf, g=m.gaps[0]
+  const ver='Tu ingreso recurrente cubre '+crPc(cob)+' de los costos fijos con '+m.vig+' socios vigentes.'+(g?' La brecha más cara hoy: '+g.t.toLowerCase()+' ('+crMM(g.amt)+(g.unico?'':' al mes')+').':'')
+  const mix=d.mix.map(function(x){ return '<tr><td>'+crE(x.tipo)+'</td><td class="r">'+x.socios+'</td><td class="r">'+(x.sin_costo||'')+'</td><td class="r">'+crClp(x.mrr)+'</td><td class="r">'+crPc(r.mrr?x.mrr/r.mrr:null)+'</td></tr>' }).join('')
+  return '<section class="cr-ver"><span class="cr-k">Veredicto del día</span><p>'+crE(ver)+'</p></section>'+
+  '<section class="cr-g cr-g3">'+
+    crKpi('Socios vigentes', m.vig, crMeter(m.vig,M('socios_meta'),M('socios_breakeven')), 'META '+M('socios_meta')+' · EQUILIBRIO '+M('socios_breakeven')+' · FALTAN '+Math.max(0,M('socios_meta')-m.vig), crPc(m.vig/M('socios_meta'))+' de la meta', m.sem(m.vig,M('socios_meta')))+
+    crKpi('Ingreso recurrente / mes', crMM(r.mrr), crMeter(r.mrr,m.mrrMeta,cf), 'COSTOS FIJOS '+crMM(cf)+' · META '+crMM(m.mrrMeta), 'Cubre '+crPc(cob)+' de costos', cob>=1.15?'ok':cob>=1?'warn':'bad')+
+    crKpi('Ticket mensual', crClp(m.ticket), '', r.pagantes+' PAGANTES · '+r.sin_costo+' SIN COSTO · META '+crClp(M('ticket_meta')), crPc(m.ticket/M('ticket_meta'))+' de la meta', m.sem(m.ticket,M('ticket_meta')))+
+    crKpi('Entrenaron en 7 días', crPc(m.act7), '', r.activos7+' DE '+m.vig+' · '+(r.frecuencia==null?'—':String(r.frecuencia).replace('.',','))+' SESIONES / SEMANA POR ACTIVO', 'Meta '+crPc(M('activos7_meta')), m.sem(m.act7,M('activos7_meta')))+
+    crKpi('Renovación · 60 días', crPc(m.renov), '', r.renov_ok+' RENOVARON DE '+r.renov_base+' QUE VENCIERON', 'Meta '+crPc(M('tasa_renovacion_meta')), m.sem(m.renov,M('tasa_renovacion_meta')))+
+    crKpi('Caja del mes', crMM(r.caja_mes), '', 'MES ANTERIOR '+crMM(r.caja_mes_anterior)+' · PAGOS REGISTRADOS', 'Flujo, no recurrente', 'info')+
+  '</section>'+ crChart(d.semanas)+
+  '<section><div class="cr-sh"><h3 class="cr-h">Mezcla comercial</h3><span class="cr-k">De dónde sale el ingreso recurrente</span></div>'+
+  '<div class="cr-tb"><table><thead><tr><th>Tipo</th><th class="r">Socios</th><th class="r">En $0</th><th class="r">Ingreso / mes</th><th class="r">Peso</th></tr></thead><tbody>'+mix+'</tbody></table></div></section>'+
+  '<div class="cr-note"><b>Cómo se calcula.</b> Ingreso recurrente = valor de cada membresía vigente dividido por sus meses. Vigente = membresía que cubre hoy. Entrenó = sesión completada o check-in. Sin cuentas de prueba.</div>'
+}
+function crChart(ws){
+  if (!ws||!ws.length) return ''
+  const W=760,H=220,pl=40,pr=40,pt=20,pb=34,n=ws.length,bw=(W-pl-pr)/n
+  const mS=Math.max(10,Math.max.apply(null,ws.map(function(w){return w.sesiones}))), mU=Math.max(10,Math.max.apply(null,ws.map(function(w){return w.socios})))
+  const y=function(v){return pt+(H-pt-pb)*(1-v/mS)}, yu=function(v){return pt+(H-pt-pb)*(1-v/mU)}
+  const cx=function(i){return pl+i*bw+bw/2}
+  const grid=[0,.5,1].map(function(f){const t=Math.round(mS*f); return '<line x1="'+pl+'" x2="'+(W-pr)+'" y1="'+y(t)+'" y2="'+y(t)+'" stroke="var(--koach-divider)"/><text x="'+(pl-6)+'" y="'+(y(t)+4)+'" text-anchor="end" font-family="Space Mono,monospace" font-size="10" fill="var(--koach-text-secondary)">'+t+'</text>'}).join('')
+  const bars=ws.map(function(w,i){ return '<rect x="'+(pl+i*bw+bw*.22)+'" y="'+y(w.sesiones)+'" width="'+(bw*.56)+'" height="'+(H-pb-y(w.sesiones))+'" rx="2" fill="var(--koach-ink)" opacity="'+(i===n-1?.35:.85)+'"/>'+
+    '<text x="'+cx(i)+'" y="'+(H-pb+16)+'" text-anchor="middle" font-family="Space Mono,monospace" font-size="10" fill="var(--koach-text-secondary)">'+adhF(w.semana)+'</text>'+
+    (w.sesiones?'<text x="'+cx(i)+'" y="'+(y(w.sesiones)-6)+'" text-anchor="middle" font-family="Space Mono,monospace" font-size="10.5" fill="var(--koach-ink)">'+w.sesiones+'</text>':'') }).join('')
+  const pts=ws.map(function(w,i){return cx(i)+','+yu(w.socios)}).join(' '), L=ws[n-1]
+  return '<section><div class="cr-sh"><h3 class="cr-h">Pulso semanal</h3><span class="cr-k">Sesiones completadas y socios que entrenaron</span></div><div class="cr-ch">'+
+    '<svg viewBox="0 0 '+W+' '+H+'" role="img" aria-label="Sesiones y socios por semana">'+grid+bars+
+    '<polyline points="'+pts+'" fill="none" stroke="var(--cr-data)" stroke-width="2.5" stroke-linejoin="miter"/>'+
+    ws.map(function(w,i){return '<rect x="'+(cx(i)-(i===n-1?5:3.5))+'" y="'+(yu(w.socios)-(i===n-1?5:3.5))+'" width="'+(i===n-1?10:7)+'" height="'+(i===n-1?10:7)+'" fill="var(--cr-data)"/>'}).join('')+
+    '<text x="'+(W-pr+8)+'" y="'+(yu(L.socios)+4)+'" font-family="Space Mono,monospace" font-size="11" fill="var(--cr-data)">'+L.socios+'</text></svg>'+
+    '<div class="cr-lg"><span style="--c:var(--koach-ink)">SESIONES COMPLETADAS</span><span style="--c:var(--cr-data)">SOCIOS QUE ENTRENARON</span><span>SEMANA EN CURSO PARCIAL</span></div></div></section>'
+}
+function crNodo(t,v,sub,meta,cls,mueve){
+  return '<div class="cr-c cr-n '+cls+'"><div class="cr-row"><span class="cr-k">'+t+'</span><span class="cr-p '+cls+'">'+meta+'</span></div><div class="cr-v">'+v+'</div><div class="cr-s">'+sub+'</div>'+(mueve?'<span class="cr-k">Mueve → '+mueve+'</span>':'')+'</div>'
+}
+function crCau(m){
+  const r=m.r, M=m.M, conv=r.registros_30d ? r.registros_30d_convertidos/r.registros_30d : null
+  const gl=m.gaps.map(function(g,i){ return '<div class="cr-gap"><span class="cr-i">'+String(i+1).padStart(2,'0')+'</span><div><h4>'+crE(g.t)+'</h4><p>'+crE(g.d)+'</p><p><b>'+crE(g.a)+'</b> <span class="cr-own">· '+crE(g.o)+'</span></p></div>'+
+    '<div class="cr-a"><div class="cr-v">'+crMM(g.amt)+'</div><span class="cr-k">'+(g.unico?'Único':'Al mes')+'</span><button type="button" class="cr-btn" onclick="crTab(\''+g.tab+'\')">Ver lista</button></div></div>' }).join('')
+  return '<section class="cr-tree"><div class="cr-sh"><h3 class="cr-h">Resultado</h3><span class="cr-k">Lo que mide si el negocio funciona</span></div>'+
+    '<div class="cr-g">'+crNodo('Ingreso recurrente / mes',crMM(r.mrr),'META '+crMM(m.mrrMeta)+' · COSTOS FIJOS '+crMM(M('costos_fijos')),crPc(r.mrr/m.mrrMeta),m.sem(r.mrr,m.mrrMeta),'')+'</div></section>'+
+  '<div class="cr-ar">↑ ES IGUAL A SOCIOS PAGANTES × TICKET ↑</div>'+
+  '<section class="cr-tree"><div class="cr-sh"><h3 class="cr-h">Palancas</h3><span class="cr-k">Las dos variables del ingreso</span></div><div class="cr-g">'+
+    crNodo('Socios vigentes',m.vig,r.pagantes+' PAGANTES · META '+M('socios_meta'),crPc(m.vig/M('socios_meta')),m.sem(m.vig,M('socios_meta')),'Ingreso')+
+    crNodo('Ticket mensual',crClp(m.ticket),'META '+crClp(M('ticket_meta')),crPc(m.ticket/M('ticket_meta')),m.sem(m.ticket,M('ticket_meta')),'Ingreso')+'</div></section>'+
+  '<div class="cr-ar">↑ LAS EXPLICAN ↑</div>'+
+  '<section class="cr-tree"><div class="cr-sh"><h3 class="cr-h">Causas accionables</h3><span class="cr-k">Lo que el equipo mueve esta semana</span></div><div class="cr-g">'+
+    crNodo('Renovación · 60 días',crPc(m.renov),r.renov_ok+' DE '+r.renov_base+' RENOVARON','Meta '+crPc(M('tasa_renovacion_meta')),m.sem(m.renov,M('tasa_renovacion_meta')),'Socios')+
+    crNodo('Entrenaron en 7 días',crPc(m.act7),(m.vig-r.activos7)+' SOCIOS SIN VENIR','Meta '+crPc(M('activos7_meta')),m.sem(m.act7,M('activos7_meta')),'Renovación')+
+    crNodo('Frecuencia semanal',r.frecuencia==null?'—':String(r.frecuencia).replace('.',','),'SESIONES POR SOCIO ACTIVO','Meta '+String(M('frecuencia_meta')).replace('.',','),m.sem(r.frecuencia,M('frecuencia_meta')),'Renovación')+
+    crNodo('Leads sin convertir',r.leads_abiertos,'CONVERSIÓN 30 DÍAS '+crPc(conv),'Meta '+crPc(M('conversion_lead_meta')),r.leads_abiertos>10?'bad':r.leads_abiertos>3?'warn':'ok','Socios')+
+    crNodo('Socios sin costo',r.sin_costo,'CORTESÍAS, UGC Y VALORES EN $0',crPc(r.sin_costo/m.vig)+' de la base',r.sin_costo/m.vig>.1?'bad':r.sin_costo/m.vig>.05?'warn':'ok','Ticket')+'</div></section>'+
+  '<section><div class="cr-sh"><h3 class="cr-h">Brechas por impacto</h3><span class="cr-k">Ordenadas por pesos en juego</span></div><div class="cr-l">'+(gl||'<div class="cr-empty">Sin brechas contra tus metas.</div>')+'</div></section>'+
+  '<div class="cr-note"><b>Lectura.</b> Si el ingreso está bajo la meta, baja por el árbol hasta la causa con más pesos en juego. Cada brecha trae su acción y responsable.</div>'
+}
+function crContacto(t){ const w=crWa(t); return (t?'<span class="cr-tel">'+crE(t)+'</span>':'<span class="cr-tel">SIN TELÉFONO</span>')+(w?'<a class="cr-wa" href="'+w+'" target="_blank" rel="noopener">WHATSAPP</a>':'') }
+function crNom(x){ return '<button type="button" class="cr-nm" onclick="verFicha(\''+x.id+'\')">'+crE(x.nombre||'Sin nombre')+'</button>' }
+const CR_P={P1:['bad','Rescate','Vence en 14 días o menos y no entrena hace 2 semanas. Llama el coach: primero recuperar la rutina.'],
+  P2:['warn','Cierre','Vence en 14 días o menos y entrena. Recepción ofrece la renovación hoy.'],
+  P3:['warn','Reactivar','Vence en 15 a 60 días y no entrena. El coach lo trae de vuelta antes de hablar de pago.'],
+  P4:['ok','Anticipar','Vence en 15 a 60 días y entrena. Renovación anticipada o fidelidad.']}
+function crRen(m,d){
+  const cards=Object.keys(CR_P).map(function(k){ const l=d.pipeline.filter(function(x){return x.prioridad===k}), p=CR_P[k]
+    return '<div class="cr-c"><div class="cr-row" style="display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap"><span class="cr-p '+p[0]+'">'+k+' · '+p[1]+'</span><span class="cr-mon">'+crClp(l.reduce(function(a,x){return a+(+x.mensual||0)},0))+' / MES</span></div><div class="cr-v">'+l.length+'</div><div class="cr-s">'+p[2]+'</div></div>' }).join('')
+  const L=d.pipeline.filter(function(x){ return CRM.fp==='todos'||x.prioridad===CRM.fp })
+  const ult=function(x){ return x.ult ? 'ÚLT. ACTIVIDAD HACE '+x.dias_sin+' D' : 'NUNCA HA ENTRENADO' }
+  const rows=L.map(function(x){ return '<div class="cr-it"><span class="cr-p '+CR_P[x.prioridad][0]+'">'+x.prioridad+'</span><div style="min-width:0">'+crNom(x)+'<div class="cr-s">VENCE '+crF(x.fin)+' · EN '+x.dias_fin+' D · '+x.s14+' SESIONES EN 14 D · '+ult(x)+'</div></div><div class="cr-r"><span class="cr-mon">'+crClp(x.mensual)+' / MES</span>'+crContacto(x.telefono)+'</div></div>' }).join('')
+  const rec=d.recuperacion.map(function(x){ return '<div class="cr-it"><span class="cr-p bad">Vencido</span><div style="min-width:0">'+crNom(x)+'<div class="cr-s">VENCIÓ '+crF(x.fin)+' · HACE '+x.dias_vencido+' D · '+x.s28+' SESIONES EN 28 D</div></div><div class="cr-r">'+crContacto(x.telefono)+'</div></div>' }).join('')
+  return '<section><div class="cr-sh"><h3 class="cr-h">Pipeline de renovación</h3><span class="cr-k">'+d.pipeline.length+' oportunidades en 60 días</span></div><div class="cr-g">'+cards+'</div></section>'+
+    '<div class="cr-chips" role="group" aria-label="Filtrar prioridad">'+['todos','P1','P2','P3','P4'].map(function(k){ return '<button type="button" class="'+(CRM.fp===k?'on':'')+'" aria-pressed="'+(CRM.fp===k)+'" onclick="CRM.fp=\''+k+'\';crPintar()">'+(k==='todos'?'TODAS':k)+' · '+(k==='todos'?d.pipeline.length:d.pipeline.filter(function(x){return x.prioridad===k}).length)+'</button>' }).join('')+'</div>'+
+    '<div class="cr-l">'+(rows||'<div class="cr-empty">No hay vencimientos en esta prioridad.</div>')+'</div>'+
+    (rec?'<section><div class="cr-sh"><h3 class="cr-h">Recuperación</h3><span class="cr-k">Vencieron en 90 días y no renovaron</span></div><div class="cr-l">'+rec+'</div></section>':'')
+}
+function crRie(m,d){
+  const rows=d.riesgo.map(function(x){ return '<div class="cr-it"><span class="cr-p '+(x.ult?'warn':'bad')+'">'+(x.ult?x.dias_sin+' días':'Nunca')+'</span><div style="min-width:0">'+crNom(x)+'<div class="cr-s">'+(x.ult?'ÚLT. ACTIVIDAD '+crF(x.ult):'PAGÓ Y NO HA ENTRENADO')+' · VENCE '+crF(x.fin)+' (EN '+x.dias_fin+' D)</div></div><div class="cr-r"><span class="cr-mon">'+crClp(x.mensual)+' / MES</span>'+crContacto(x.telefono)+'</div></div>' }).join('')
+  return '<section><div class="cr-sh"><h3 class="cr-h">Riesgo de fuga</h3><span class="cr-k">Vigentes sin entrenar 10+ días con vencimiento lejano</span></div>'+
+    '<div class="cr-note" style="margin-bottom:12px"><b>Por qué importa.</b> El socio deja de venir semanas antes de no renovar. Esta lista llega antes que el vencimiento: es trabajo del coach, no de cobranza.</div>'+
+    '<div class="cr-l">'+(rows||'<div class="cr-empty">Todos los socios con vencimiento lejano están entrenando.</div>')+'</div></section>'
+}
+function crLea(m,d){
+  const rows=d.leads.map(function(x){ return '<div class="cr-it"><span class="cr-p '+(x.dias<=2?'ok':x.dias<=7?'warn':'bad')+'">'+x.dias+' días</span><div style="min-width:0">'+crNom(x)+'<div class="cr-s">SE REGISTRÓ '+crF(String(x.created_at).slice(0,10))+(x.email?' · '+crE(x.email):'')+(x.ult?' · YA ENTRENÓ':'')+'</div></div><div class="cr-r">'+crContacto(x.telefono)+'</div></div>' }).join('')
+  return '<section><div class="cr-sh"><h3 class="cr-h">Leads</h3><span class="cr-k">Crearon cuenta y no tienen membresía</span></div>'+
+    '<div class="cr-note" style="margin-bottom:12px"><b>Regla.</b> Un registro se contacta en menos de 24 horas. Contorno: 2 días o menos. Gris: hasta 7. Negro: más de 7, probablemente frío.</div>'+
+    '<div class="cr-l">'+(rows||'<div class="cr-empty">No hay registros pendientes de compra.</div>')+'</div></section>'
+}
+function crDat(m,d){
+  const c=d.calidad, waD=c.whatsapp_ultimo_mensaje ? Math.floor((Date.now()-new Date(c.whatsapp_ultimo_mensaje))/864e5) : null
+  const it=[[c.memb_normal_valor0,'Membresías normales en $0','Subestiman el ingreso y el ticket. Registra el valor real o cámbialas a cortesía.','bad'],
+    [c.memb_estado_vigente_vencida,'Membresías marcadas vigentes con fecha vencida','El panel usa las fechas, pero la app muestra un estado que ya no corresponde.','warn'],
+    [c.pagos_pendientes,'Pagos pendientes ('+crClp(c.pagos_pendientes_monto)+')','Cobrar o anular. Un pendiente antiguo es caja que no entra.','warn'],
+    [c.solicitudes_pendientes,'Solicitudes de socios sin responder','Cada solicitud esperando pesa en la renovación.','warn'],
+    [c.sesiones_en_curso_viejas,'Sesiones abiertas de días anteriores','Nadie las cerró. Distorsionan la adherencia del socio.','warn'],
+    [waD!=null&&waD>7?waD:0,'Bot de WhatsApp sin mensajes en esta base hace '+(waD==null?'—':waD)+' días','El bot probablemente escribe en la base antigua. Sin eso, el panel no ve las conversaciones.','bad'],
+    [c.socios_sin_telefono,'Socios vigentes sin teléfono','No se pueden contactar desde el pipeline.','warn']]
+  const rows=it.map(function(x){ return '<div class="cr-it"><span class="cr-p '+(x[0]?x[3]:'ok')+'">'+(x[0]?'Revisar':'OK')+'</span><div style="min-width:0"><div class="cr-nm" style="cursor:default">'+crE(x[1])+'</div><div class="cr-s">'+crE(x[2])+'</div></div><div class="cr-r"><span class="cr-v" style="font-size:26px">'+(x[0]||0)+'</span></div></div>' }).join('')
+  return '<section><div class="cr-sh"><h3 class="cr-h">Calidad de dato</h3><span class="cr-k">Si el dato está sucio, la decisión también</span></div><div class="cr-l">'+rows+'</div></section>'+
+    '<div class="cr-note"><b>Historial.</b> El registro comercial y la operación en la app parten entre septiembre y octubre de 2026. Altas y tendencias son confiables desde noviembre.</div>'
+}
+const CR_MK=['socios_meta','socios_breakeven','costos_fijos','ticket_meta','tasa_renovacion_meta','activos7_meta','frecuencia_meta','conversion_lead_meta','altas_mes_meta']
+const CR_PCT={tasa_renovacion_meta:1,activos7_meta:1,conversion_lead_meta:1}
+function crMet(m,d){
+  const f=CR_MK.filter(function(k){return d.metas[k]}).map(function(k){ const v=+d.metas[k].valor
+    return '<label for="crm_'+k+'">'+crE(d.metas[k].etiqueta||k)+(CR_PCT[k]?' (%)':'')+'<input id="crm_'+k+'" data-k="'+k+'" inputmode="decimal" value="'+(CR_PCT[k]?Math.round(v*100):String(v).replace('.',','))+'"></label>' }).join('')
+  return '<section><div class="cr-sh"><h3 class="cr-h">Metas</h3><span class="cr-k">Recalculan todas las brechas</span></div>'+
+    '<div class="cr-note" style="margin-bottom:12px"><b>Punto de partida.</b> Socios, equilibrio y costos fijos vienen de tu modelo financiero. El resto son metas propuestas: ajústalas a lo que exiges al equipo.</div>'+
+    '<form class="cr-f" id="crmF" onsubmit="event.preventDefault();crGuardar()">'+f+'</form>'+
+    '<div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin-top:12px"><button type="button" class="cr-btn ink" id="crmSave" onclick="crGuardar()">Guardar metas</button><span class="cr-k" id="crmMsg"></span></div></section>'
+}
+async function crGuardar(){
+  const o={}, msg=document.getElementById('crmMsg'), b=document.getElementById('crmSave')
+  for (const el of document.querySelectorAll('#crmF input')){
+    const k=el.dataset.k; let v=parseFloat(String(el.value).replace(/\./g,'').replace(',','.'))
+    if (k==='frecuencia_meta') v=parseFloat(String(el.value).replace(',','.'))
+    if (!isFinite(v)||v<0){ msg.textContent='REVISA: '+(CRM.d.metas[k].etiqueta||k).toUpperCase(); el.focus(); return }
+    o[k]= CR_PCT[k] ? v/100 : v
+  }
+  b.disabled=true; msg.textContent='GUARDANDO…'
+  const r=await sb.rpc('crm_metas_guardar',{p_metas:o})
+  b.disabled=false
+  if (r.error){ msg.textContent='NO SE GUARDÓ · '+String(r.error.message||'').toUpperCase(); return }
+  msg.textContent='METAS GUARDADAS'; await crCargar()
+}
+
 // ═══════════ c14 · SHELL COACH: marca + navegación arriba (desktop/tablet) · abajo (móvil) ═══════════
 // Solo presentación. Reutiliza verSala/verSolicitudes/verAdmin/verAdherencia/verBib/toggleAlta/dashMenu/cuentaAbrir/salir.
 // Desde el planificador toda navegación pasa por la guardia de cambios sin guardar (plGuard).
 const KS={ v:'vLogin', b:{sol:0,mem:0,memT:'',COM:false,ENT:false,R:'coach'}, menu:null }
 const KS_K='<svg viewBox="0 0 460 462" aria-hidden="true"><rect width="460" height="94"/><polygon points="0,339 231,131 460,336 460,456 231,251 0,462"/></svg>'
 const KS_ROL={admin:'ADMIN', coach:'COACH', recepcion:'RECEPCIÓN', nutricionista:'NUTRICIÓN'}
-const KS_TIT={vSala:'Sala',vSol:'Solicitudes',vAdmin:'Membresías',vAdh:'Adherencia',vBib:'Biblioteca',vFicha:'Socio',vPlan:'Planificador',vExtra:'Rutina extra',vPicker:'Biblioteca'}
-const KS_NAV={vSala:'sala',vSol:'sol',vAdmin:'mem',vAdh:'adh',vBib:'bib'}
+const KS_TIT={vSala:'Sala',vSol:'Solicitudes',vAdmin:'Membresías',vAdh:'Adherencia',vBib:'Biblioteca',vFicha:'Socio',vPlan:'Planificador',vExtra:'Rutina extra',vPicker:'Biblioteca',vCrm:'Panel'}
+const KS_NAV={vSala:'sala',vSol:'sol',vAdmin:'mem',vAdh:'adh',vBib:'bib',vCrm:'crm'}
 const KS_ICO={
   sala:'<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M5.6 5.6a9 9 0 0 0 0 12.8M18.4 5.6a9 9 0 0 1 0 12.8M8.5 8.5a5 5 0 0 0 0 7M15.5 8.5a5 5 0 0 1 0 7"/></svg>',
   soc:'<svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5"/><path d="M16 16l4.5 4.5"/></svg>',
@@ -8082,6 +8400,7 @@ const KS_ACC={
   mem:function(){ kGo(function(){ verAdmin() }) },
   adh:function(){ kGo(function(){ verAdherencia() }) },
   bib:function(){ kGo(function(){ verBib() }) },
+  crm:function(){ kGo(function(){ verPanel() }) },
   alta:function(){ kGo(function(){ if(KS.v!=='vSala') verSala(); const f=document.getElementById('fAlta'); if(f && f.style.display==='none') toggleAlta(); if(f){ f.scrollIntoView({block:'start'}) } }) },
   socios:function(){ kGo(function(){ if(KS.v!=='vSala') verSala(); const q=document.getElementById('salaQ'); if(q){ q.focus(); q.scrollIntoView({block:'center'}) } }) },
   vista:function(){ KS.menu=null; kShellMenu(); dashMenu() },
@@ -8105,6 +8424,7 @@ function kShellPaint(){
     '<a class="kHd__brand" href="#/" onclick="kAcc(\'sala\');return false" aria-label="KOACH · ir a Sala"><img class="kHd__logo" src="/img/brand/logotipo-koach.png" alt="KOACH"></a>'+
     '<span class="kHd__ttl">'+(KS_TIT[KS.v]||'')+'</span>'+
     '<nav class="kNav" aria-label="Principal">'+
+      (b.R==='admin'?'<button type="button" class="'+c('crm','kN-crm')+'" onclick="kAcc(\'crm\')"'+(act==='crm'?' aria-current="page"':'')+'>PANEL</button>':'')+
       '<button type="button" class="'+c('sala')+'" onclick="kAcc(\'sala\')"'+(act==='sala'?' aria-current="page"':'')+'><i class="kLv" aria-hidden="true"></i>SALA</button>'+
       '<button type="button" class="'+c('sol')+'" onclick="kAcc(\'sol\')"'+(act==='sol'?' aria-current="page"':'')+'>SOLICITUDES'+(b.sol?' <span class="kBdg">'+b.sol+'</span>':'')+'</button>'+
       (b.COM?'<button type="button" class="'+c('mem','kN-mem')+'" onclick="kAcc(\'mem\')" title="'+b.memT+'"'+(act==='mem'?' aria-current="page"':'')+'>MEMBRESÍAS'+(b.mem?' <span class="kBdg kBdg--dot" aria-label="con pendientes"></span>':'')+'</button>':'')+
@@ -8131,7 +8451,7 @@ function kShellPaint(){
     '<button type="button" class="'+(act==='sala'?'on':'')+'" onclick="kAcc(\'sala\')">'+KS_ICO.sala+'SALA</button>'+
     '<button type="button" class="'+(KS.v==='vFicha'?'on':'')+'" onclick="kAcc(\'socios\')">'+KS_ICO.soc+'SOCIOS</button>'+
     '<button type="button" class="'+(act==='sol'?'on':'')+'" onclick="kAcc(\'sol\')">'+KS_ICO.sol+(b.sol?'<span class="kBdg">'+b.sol+'</span>':'')+'SOLICITUDES</button>'+
-    '<button type="button" class="'+((act==='mem'||act==='adh'||act==='bib')?'on':'')+'" onclick="kMenuT(\'mas\')" aria-haspopup="menu">'+KS_ICO.mas+'MÁS</button>'
+    '<button type="button" class="'+((act==='mem'||act==='adh'||act==='bib'||act==='crm')?'on':'')+'" onclick="kMenuT(\'mas\')" aria-haspopup="menu">'+KS_ICO.mas+'MÁS</button>'
   bn.style.display = bnOn ? '' : 'none'
   H.classList.toggle('ks-bn', bnOn)
   requestAnimationFrame(function(){ H.style.setProperty('--ks-top', (hd.offsetHeight+(ot.style.display==='none'?0:ot.offsetHeight))+'px') })
@@ -8145,7 +8465,7 @@ function kShellMenu(){
     '<button type="button" onclick="kAcc(\'clave\')">Mi clave</button><hr>'+
     '<button type="button" class="danger" onclick="kAcc(\'salir\')">Cerrar sesión</button>'
   const alta=(b.R==='admin'||b.R==='recepcion'||b.R==='coach')
-  const mas=(b.COM?'<button type="button" class="kM-mem" onclick="kAcc(\'mem\')">Membresías'+(b.mem?'<small>'+b.memT.split(' · ')[0].toUpperCase()+'</small>':'')+'</button>':'')+
+  const mas=(b.R==='admin'?'<button type="button" onclick="kAcc(\'crm\')">Panel del dueño</button>':'')+(b.COM?'<button type="button" class="kM-mem" onclick="kAcc(\'mem\')">Membresías'+(b.mem?'<small>'+b.memT.split(' · ')[0].toUpperCase()+'</small>':'')+'</button>':'')+
     '<button type="button" onclick="kAcc(\'adh\')">Adherencia</button>'+
     (b.ENT?'<button type="button" onclick="kAcc(\'bib\')">Biblioteca</button>':'')+
     (alta?'<button type="button" class="kM-alta" onclick="kAcc(\'alta\')">Nuevo socio<small>+</small></button>':'')+
