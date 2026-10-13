@@ -2843,7 +2843,7 @@ function homeHero(o){
   const bg = a.src ? '<img class="hh__bg" src="'+a.src+'" alt="" style="object-position:'+a.position+'" decoding="async" fetchpriority="high">' : ''
   let kicker, cta1, cta2, frase=''
   if (!ses){ kicker='TU SEMANA'; cta1=o.ctaT; cta2=o.ctaS }
-  else if (ec){ kicker='SESIÓN EN CURSO'; cta1='TIENES UN ENTRENAMIENTO EN CURSO'; cta2=ses.nombre+' · CONTINUAR →'; frase=fraseTitular(ses,true) }
+  else if (ec){ kicker='SESIÓN EN CURSO'; cta1='TIENES UN ENTRENAMIENTO EN CURSO'; cta2=ses.nombre+' · BACK TO WORK →'; frase=fraseTitular(ses,true) }
   else if (e.entrenoHoy){ kicker='ENTRENAMIENTO DE HOY'; cta1=o.ctaT; cta2=o.ctaS; frase='<span class="kh__f1">Hoy ya sumaste.</span><b class="kh__f2">Ahora recupera</b>' }
   else if (S.memBloqueo || e.completa){ kicker=e.completa?'SEMANA COMPLETADA':'TU PRÓXIMA SESIÓN'; cta1=o.ctaT; cta2=o.ctaS; frase=e.completa&&!S.memBloqueo?'<span class="kh__f1">Semana cumplida.</span><b class="kh__f2">Descansa fuerte</b>':'' }
   else { kicker='TU PRÓXIMA SESIÓN'; cta1='COMENZAR ENTRENAMIENTO'; cta2=ses.nombre+' · SESIÓN '+posSem(ses)+' DE '+e.total+' →'; frase=fraseTitular(ses,false) }
@@ -3929,7 +3929,7 @@ function pintarHome(){
     cta.disabled=false
     cta.onclick=()=>reanudar()
     document.getElementById('hCtaT').textContent='TIENES UN ENTRENAMIENTO EN CURSO'
-    document.getElementById('hCtaS').textContent=((sesEC?sesEC.nombre:'TU SESIÓN')+' · CONTINUAR →')
+    document.getElementById('hCtaS').textContent=((sesEC?sesEC.nombre:'TU SESIÓN')+' · BACK TO WORK →')
   } else if (entrenoHoy){
     cta.disabled=true; cta.onclick=null
     document.getElementById('hCtaT').textContent='ENTRENAMIENTO DE HOY ✓'
@@ -3959,7 +3959,7 @@ function pintarHome(){
     }
   } else if (sem.proxima){ cta.disabled=false
     cta.onclick = ()=>abrirSesion()
-    document.getElementById('hCtaT').textContent='ENTRENAR →'
+    document.getElementById('hCtaT').textContent='GO TRAIN!'
     const _op=objetivosSesion(sesCompleta(sem.proxima)).prim.slice(0,3)
     document.getElementById('hCtaS').textContent=(sem.proxima.nombre+(_op.length?' · OBJETIVO: '+_op.join(', '):'')).toUpperCase()
   }
@@ -4510,7 +4510,7 @@ function bkCapsulas(bfs){
     const lista = open ? '<div class="cp__l">'+bes.map(be=>{ const ej=be.ejercicios||{}, w=seedWk(be,ej)
         return '<div class="cp__e"><div><b>'+bkEsc(ej.nombre||'—')+'</b><span>'+bkEsc(ej.grupo_muscular||'')+'</span></div><em>'+bkValor(w,ej)+'</em></div>' }).join('')+'</div>'+
       (done ? '<button type="button" class="cp__cta cp__cta--sec" onclick="bkAbrir('+bi+')">VER O CORREGIR '+cod+'</button>'
-       : bi===prim ? '<button type="button" class="cp__cta" onclick="bkAbrir('+bi+')">▶ &nbsp;'+(hechos?'CONTINUAR '+cod:cod+' · GO')+'</button>'
+       : bi===prim ? '<button type="button" class="cp__cta" onclick="bkAbrir('+bi+')">▶ &nbsp;'+(hechos?cod+' · BACK TO WORK':cod+' · GO')+'</button>'
        : '<button type="button" class="cp__cta cp__cta--off" disabled>SE ACTIVA AL TERMINAR '+bkCod(bfs[prim]||{},prim)+'</button><span class="cp__nota">TU COACH PUEDE CAMBIAR EL ORDEN DE LOS BLOQUES</span>') : ''
     return '<section class="cp'+(done?' cp--ok':'')+(open?' cp--open':'')+'" id="blq-'+bi+'">'+
       '<button type="button" class="cp__h" onclick="BK.cap='+(open?'null':bi)+';pintarSesion()" aria-expanded="'+open+'" aria-controls="blq-'+bi+'" aria-label="Bloque '+cod+' '+nom+', '+estado.toLowerCase()+'">'+
