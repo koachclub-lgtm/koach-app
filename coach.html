@@ -3383,7 +3383,7 @@ async function verExtra(){
   const rs = await sb.from('sesiones_protocolo').select('*').in('protocolo_id',pids).order('numero')
   X.sesiones=(rs.data||[]).filter(function(s){
     const pr=C.protos[s.protocolo_id]||{}
-    return pr.estado==='biblioteca' || s.numero<=3
+    return (pr.estado==='biblioteca' && !esContenedor(s)) || (pr.estado!=='biblioteca' && s.numero<=3)
   }).map(function(s){
     const pr=C.protos[s.protocolo_id]||{}
     const esBib = pr.estado==='biblioteca'
@@ -3621,7 +3621,7 @@ async function verBib(){
     document.getElementById('bibLista').innerHTML='<div class="vacio">No pudimos cargar las rutinas.<br><b>'+bxEsc(rs.error.message)+'</b><br><br><button class="bbtn ink" onclick="verBib()">REINTENTAR</button></div>'
     return
   }
-  const ses = rs.data||[]; BX_EXTRAS=ses.length; bxTabs()
+  const ses = (rs.data||[]).filter(function(s){ return !esContenedor(s) }); BX_EXTRAS=ses.length; bxTabs()
   const sids = ses.map(function(s){return s.id})
   let uso = {}
   try{ const ru = await sb.from('designaciones_extra').select('sesion_protocolo_id').in('sesion_protocolo_id', sids.length?sids:['00000000-0000-0000-0000-000000000000'])
@@ -4299,7 +4299,7 @@ async function abrirAddSes(){
   if(rs.error){
     document.getElementById('asBib').innerHTML='<div class="vacio">No pudimos cargar las rutinas.<br><b>'+rs.error.message+'</b><br><br><button class="bbtn ink" onclick="abrirAddSes()">REINTENTAR</button></div>'
     return }
-  ASB = rs.data||[]
+  ASB = (rs.data||[]).filter(function(s){ return !esContenedor(s) })
   pintarAsBib()
 }
 function pintarAsBib(){
@@ -4826,7 +4826,8 @@ function dsEstado(E){ if (E) DSI.save=E
   el.textContent=t; el.className='dsiEst dsiEst--'+c
   el.title = c==='dr' ? 'Las barras incluyen cambios que el socio todavía no ve' : c==='err' ? 'Las barras muestran el borrador; no quedó guardado en la base' : '' }
 // ═══ ORGANIZADOR SEMANAL (playlist) ═══
-const CONT_BLOQUES='7184a0bc-a107-42dc-89b7-951f7cfd2909'
+// c113 · los bloques prediseñados viven en sesiones 'CONTENEDOR DE BLOQUES' dentro de BIBLIOTECA (el servidor las ubica y protege); nunca se listan como rutinas
+function esContenedor(s){ return /^CONTENEDOR/i.test(String((s&&(s.objetivo||s.nombre))||'')) }
 function abrirBloque(){ document.getElementById('mAddBloque').style.display='block' }
 async function abrirBibBloq(){
   document.getElementById('mBibBloq').style.display='block'
@@ -5007,7 +5008,7 @@ document.addEventListener('pointerdown',function(e){
   try{card.setPointerCapture(DO.pid)}catch(_){ }
 })
 const ORG={orden:[], fijas:{}, dirty:false, sem:1, porSem:{}}
-function orgSesiones(){ return P.sesiones.filter(function(s){return s.nombre!=='CONTENEDOR DE BLOQUES'}) }
+function orgSesiones(){ return P.sesiones.filter(function(s){return !esContenedor(s)}) }
 function orgRebuildSem(){
   ORG.porSem={}
   orgSesiones().slice().sort(function(a,b){return a.numero-b.numero}).forEach(function(s){
@@ -5211,7 +5212,7 @@ async function abrirBibOrg(){
   try{
     const bp = await bibProto()
     const rs = await sb.from('sesiones_protocolo').select('id, nombre, objetivo').eq('protocolo_id',bp.id).order('numero')
-    const ses = (rs.data||[]).filter(function(s){return s.nombre!=='CONTENEDOR DE BLOQUES'})
+    const ses = (rs.data||[]).filter(function(s){return !esContenedor(s)})
     el.innerHTML = ses.length ? ses.map(function(s){
       return '<div style="display:flex;align-items:center;gap:10px;padding:11px 0;border-bottom:1px solid rgba(18,18,16,.06)">'+
         '<div style="flex:1"><div style="font-size:10px;font-weight:900;letter-spacing:.08em">'+(s.nombre||s.objetivo||'SESIÓN')+'</div></div>'+
