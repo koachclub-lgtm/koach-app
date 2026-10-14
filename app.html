@@ -2436,6 +2436,31 @@ body.wl-on{overflow:hidden}
 #oWelcome.kxW .kxW__p em{font-style:normal;opacity:.45}
 #oWelcome.kxW .kxFlash{position:fixed;inset:0;background:#fff;opacity:0;pointer-events:none}
 #oWelcome.kxW.on .kxD__tk{animation:kxPrint .9s .25s cubic-bezier(.2,.8,.2,1) both}
+/* c117 · PREVIEW DEL DÍA */
+#vSesion.pv #sObj{display:none}
+#vSesion.pv .wx__kg{display:block;margin-top:6px}
+#vSesion.pv .pv__st b{display:block!important}
+#vSesion.pv .pv__d b{display:inline!important;font:700 15px/1.5 var(--font-display)!important;font-stretch:100%!important;letter-spacing:0!important;color:#fff}
+.pv__d{margin:14px 0 0;font:400 15px/1.5 var(--font-display);color:rgba(244,243,240,.78);max-width:36ch;text-wrap:pretty}
+.pv__d b{color:#fff;font-weight:700}
+.pv__st{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:18px;padding-top:14px;border-top:1px solid rgba(255,255,255,.14)}
+.pv__st b{display:block;font:800 26px/1 var(--wxD,var(--font-display));font-stretch:106%;color:#fff;letter-spacing:-.01em;font-variant-numeric:tabular-nums}
+.pv__st span{display:block;margin-top:6px;font:700 8.5px var(--wxM,var(--font-mono));letter-spacing:.14em;color:rgba(244,243,240,.55)}
+.pv__f{margin:18px 16px 6px;padding:16px 16px 12px;border-radius:22px;background:#fff}
+.pv__f h3{margin:0 0 12px;font:700 9px var(--wxM,var(--font-mono));letter-spacing:.16em;color:#6B6A65}
+.pv__r{display:grid;grid-template-columns:96px minmax(0,1fr) 38px;align-items:center;gap:10px;padding:6px 0}
+.pv__r b{font:800 12px var(--wxD,var(--font-display));letter-spacing:.02em;color:#111;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pv__r i{position:relative;height:8px;border-radius:99px;background:#ECEBE7;overflow:hidden}
+.pv__r i s{position:absolute;left:0;top:0;bottom:0;width:var(--p);border-radius:99px;background:#A9AAA6;animation:pvBar 1s cubic-bezier(.22,.8,.25,1) both}
+.pv__r--on i s{background:#111}
+.pv__r span{font:700 10px var(--wxM,var(--font-mono));color:#6B6A65;text-align:right;font-variant-numeric:tabular-nums}
+@keyframes pvBar{from{width:0}}
+.cp__e--pv{justify-content:flex-start;gap:12px}
+.pv__fo{position:relative;flex:none;width:48px;height:48px;border-radius:13px;background:#141415;color:#fff;display:grid;place-items:center;overflow:hidden}
+.cp__e .pv__fo{color:#fff}
+.pv__fo svg{width:22px;height:22px}
+.pv__fo img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;background:#C4C4C4}
+@media (prefers-reduced-motion:reduce){.pv__r i s{animation:none}}
 </style>
 </head>
 <body>
@@ -4805,13 +4830,39 @@ function bkFotoVer(beId){ const b=(S._bfs||[])[BK.bi]; if(!b) return
 function bkFotoCerrar(){ const el=document.getElementById('bkSh'); if(el) el.remove() }
 
 /* ── PANTALLA 1 · cápsulas ── */
+/* c117 · PREVIEW DEL DÍA: antes del primer set la sesión responde "qué entreno hoy y por qué" (sin reps, kg ni reloj).
+   Descripción calculada del volumen real (series por músculo), datos de la sesión y enfoque en % del volumen. Al registrar el primer set vuelve la rutina normal. */
+function pvModo(){ const bfs=S._bfs||[]; return bfs.length>0 && !Object.keys(S.setLog||{}).some(k=>S.setLog[k]) }
+const PV_INF=['CUÁDRICEPS','ISQUIOS','GLÚTEOS','GEMELOS','ADUCTORES','ABDUCTORES'], PV_SUP=['PECHO','ESPALDA','HOMBROS','BÍCEPS','TRÍCEPS','DORSALES','TRAPECIO']
+function pvVol(ses){ let ap={}; try{ ap=aporteSesion(ses)||{} }catch(_){}
+  let pr=[]; try{ pr=objetivosSesion(ses).prim.map(g=>String(g).toUpperCase()) }catch(_){}
+  const ix=g=>{ const i=pr.indexOf(g); return i<0?99:i }
+  const L=Object.entries(ap).map(([g,v])=>[String(g).toUpperCase(),+v||0]).filter(x=>x[1]>0).sort((a,b)=>(b[1]-a[1])||(ix(a[0])-ix(b[0]))), tot=L.reduce((a,x)=>a+x[1],0)||1
+  return { L, tot, pct:L.map(([g,v])=>[g,Math.round(v/tot*100)]) } }
+function pvLista(a){ const m=a.map(g=>String(g).toLowerCase()); return m.length>1 ? m.slice(0,-1).join(', ')+' y '+m[m.length-1] : (m[0]||'') }
+function pvDesc(ses,bfs){ const V=pvVol(ses); if(!V.L.length) return 'Tu coach armó esta sesión para hoy. Revisa los bloques y parte cuando estés listo.'
+  const prog=String((S.proto&&S.proto.programa)||'').toUpperCase()
+  const tipo={STRONG:'Sesión de fuerza',BURN:'Sesión metabólica',HEALTHY:'Sesión de vitalidad'}[prog]||(ses._extra?'Sesión extra':'Sesión')
+  let inf=0,sup=0; V.L.forEach(([g,v])=>{ if(PV_INF.includes(g)) inf+=v; else if(PV_SUP.includes(g)) sup+=v })
+  const tren = inf/V.tot>=.65 ? ' del tren inferior' : sup/V.tot>=.65 ? ' del tren superior' : ' de cuerpo completo'
+  const top=V.L.slice(0,V.L.length>2?2:V.L.length).map(x=>x[0]), resto=V.L.slice(top.length,top.length+2).map(x=>x[0])
+  const p=Math.round(top.reduce((a,g)=>a+(V.L.find(x=>x[0]===g)||[0,0])[1],0)/V.tot*100)
+  return tipo+tren+' con prioridad en <b>'+plEscA(pvLista(top))+'</b>'+(resto.length?', que concentra'+(top.length>1?'n':'')+' el '+p+'% del volumen del día, complementada con '+plEscA(pvLista(resto))+'.':'.') }
+function pvDur(bfs){ let s=0; bfs.forEach(b=>{ const n=bkBes(b).length||1; s+=(b.sets||1)*(n*45+(bkDesc(b)||60))+120 }); return Math.max(10,Math.round(s/60/5)*5) }
+function pvHero(ses,bfs){ const ne=bfs.reduce((a,b)=>a+bkBes(b).length,0)
+  return '<p class="pv__d">'+pvDesc(ses,bfs)+'</p><div class="pv__st"><div><b>'+bfs.length+'</b><span>BLOQUES</span></div><div><b>'+ne+'</b><span>EJERCICIOS</span></div><div><b>~'+pvDur(bfs)+"'</b><span>DURACIÓN</span></div></div>" }
+function pvFoco(ses){ const V=pvVol(ses); if(!V.pct.length) return ''
+  return '<section class="pv__f" aria-label="Enfoque de hoy, porcentaje del volumen"><h3>ENFOQUE DE HOY · % DEL VOLUMEN</h3>'+V.pct.slice(0,4).map(([g,p],i)=>
+    '<div class="pv__r'+(i<2?' pv__r--on':'')+'"><b>'+plEscA(g)+'</b><i><s style="--p:'+p+'%"></s></i><span>'+p+'%</span></div>').join('')+'</section>' }
+function pvFila(be){ const ej=be.ejercicios||{}, fu=exFotoUrl(ej)
+  return '<div class="cp__e cp__e--pv"><span class="pv__fo">'+(fu?'<img src="'+fu+'" alt="" width="48" height="48" loading="lazy" decoding="async" onerror="this.remove()">':'')+'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 9v6M6 7v10M18 7v10M21 9v6M6 12h12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></span><div><b>'+bkEsc(ej.nombre||'—')+'</b><span>'+bkEsc(ej.grupo_muscular||'')+'</span></div></div>' }
 function bkCapsulas(bfs){
   const prim=bkPrimerPendiente(bfs)
   if (BK.cap==null || BK.cap>=bfs.length) BK.cap = prim>=0 ? prim : null
   return bfs.map((b,bi)=>{
     const bes=bkBes(b), done=bloqueCompleto(b), open=BK.cap===bi, cod=bkCod(b,bi), nom=bkNom(b,bi), hechos=bkSetsHechos(b)
     const estado = done ? 'COMPLETADO · '+bkKgBloque(b).toLocaleString('es-CL')+' KG' : bi===prim ? (hechos?'EN CURSO · '+hechos+'/'+b.sets+' · '+bkKgBloque(b).toLocaleString('es-CL')+' KG':'SIGUIENTE') : 'BLOQUEADO'
-    const lista = open ? '<div class="cp__l">'+bes.map(be=>{ const ej=be.ejercicios||{}, w=seedWk(be,ej)
+    const pv=pvModo(), lista = open ? '<div class="cp__l">'+bes.map(be=>{ if(pv) return pvFila(be); const ej=be.ejercicios||{}, w=seedWk(be,ej)
         return '<div class="cp__e"><div><b>'+bkEsc(ej.nombre||'—')+'</b><span>'+bkEsc(ej.grupo_muscular||'')+'</span></div><em>'+bkValor(w,ej)+'</em></div>' }).join('')+'</div>'+
       (done ? '<button type="button" class="cp__cta cp__cta--sec" onclick="bkAbrir('+bi+')">VER O CORREGIR '+cod+'</button>'
        : bi===prim ? '<button type="button" class="cp__cta" onclick="bkAbrir('+bi+')">▶ &nbsp;'+(hechos?cod+' · BACK TO WORK':(bfs.every(x=>!bkSetsHechos(x))?'GO TRAIN! · '+cod:cod+' · GO'))+'</button>'
@@ -5022,6 +5073,8 @@ function pintarSesion(){
     hk.innerHTML='<div class="kh__frase">'+(S._fraseTit||'')+'</div>'+
       '<div class="wx__clk">'+(S.regInicio?'<i id="sClk" data-t="'+sesTxt()+'">'+bkSeg(sesTxt())+'</i>':'<i>'+bkSeg('00:00')+'</i>')+'<span>TIEMPO ENTRENANDO</span></div>'
     sesTick() }
+  const _pv=pvModo(); document.getElementById('vSesion').classList.toggle('pv',_pv)
+  if (_pv && hk) hk.innerHTML=pvHero(ses,bfs)
   document.getElementById('sBloques').classList.remove('cargando')
   document.getElementById('sBloques').innerHTML = bfs.some(esCircuito) ? bfs.map((b,bi)=>{
     const bes=[...(b.bloque_ejercicios||[])].sort((a,x)=>(a.orden||0)-(x.orden||0))
@@ -5062,8 +5115,8 @@ function pintarSesion(){
     return '<section class="wx__b'+(done?' wx__b--ok':'')+'" id="blq-'+bi+'"><div class="wx__bh"><span class="wx__bn">'+bn+'</span><div><span>BLOQUE</span><b>'+titulo+'</b></div>'+
       '<div class="wx__bm"><b>'+wxP2(b.sets)+'</b><span>SETS</span></div><div class="wx__bm"><b>'+desc+"''"+'</b><span>DESC</span></div></div>'+cards+
       '<button type="button" class="wx__bcta'+(done?' wx__bcta--ok':'')+'" onclick="completarBloque('+bi+')">'+(done?'✓ BLOQUE '+bn+' COMPLETADO · TOCA PARA CORREGIR':'COMPLETAR BLOQUE '+bn)+'</button></section>'
-  }).join('') : bkCapsulas(bfs)
-  document.getElementById('sFin').style.display='block'
+  }).join('') : (_pv?pvFoco(ses):'')+bkCapsulas(bfs)
+  document.getElementById('sFin').style.display=_pv?'none':'block'
   document.getElementById('syncTag').style.display='block'
   syncOk(); requestAnimationFrame(fitTitulares)
 }
