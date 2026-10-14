@@ -2274,6 +2274,75 @@ body.wl-on{overflow:hidden}
 @media (max-height:700px){ #vLogin .fld{min-height:62px;margin-bottom:14px} #vLogin .fld .inp{height:60px} #vLogin .btn{min-height:68px} #vLogin .sub{margin-bottom:18px} }
 @media (min-width:768px){ #vLogin .lg{justify-content:center} }
 @media (prefers-reduced-motion:reduce){ .lgBg__img,#vLogin .lg{animation:none} }
+
+/* ═══ c112 · INICIO: negro + cromo animado, logo medido arriba, login en cristal, CREAR CUENTA aparte ═══ */
+#vLogin .lgCv{position:absolute;inset:0;width:100%;height:100%;display:block}
+#vLogin .lgBg__img{display:none}
+#vLogin .lgBg__ov{background:radial-gradient(130% 80% at 50% 40%,transparent 40%,rgba(0,0,0,.75)),linear-gradient(0deg,rgba(2,2,3,.92) 0%,rgba(2,2,3,.4) 42%,transparent 62%)!important;opacity:1!important}
+#vLogin .wel{display:none!important}
+#vLogin .lg#lgForms{min-height:100dvh;justify-content:flex-end;padding:calc(env(safe-area-inset-top,0px) + 18px) 0 calc(env(safe-area-inset-bottom,0px) + 16px);position:relative;z-index:1}
+#vLogin .lgTop{position:absolute;top:calc(env(safe-area-inset-top,0px) + 14px);left:0;right:0;z-index:2;display:flex;justify-content:space-between}
+#vLogin .lgTop__k{display:none}
+#vLogin[data-f="fLogin"] .lgBack{visibility:hidden}
+#vLogin .lgBrand{position:absolute;left:50%;top:calc(env(safe-area-inset-top,0px) + 13vh);width:min(56%,260px);transform:translateX(-50%);text-align:center;animation:lgIn 1.2s cubic-bezier(.2,.8,.2,1) both}
+#vLogin .lgBrand img{width:100%;display:block;filter:drop-shadow(0 6px 30px rgba(190,215,240,.18))}
+#vLogin .lgBrand small{display:block;margin-top:12px;font:700 8.5px var(--font-mono);letter-spacing:.18em;white-space:nowrap;color:rgba(255,255,255,.55)}
+#vLogin:not([data-f="fLogin"]) .lgBrand{position:relative;left:auto;top:auto;transform:none;width:min(40%,180px);margin:56px auto 22px}
+#vLogin:not([data-f="fLogin"]) .lg#lgForms{justify-content:flex-start}
+#vLogin .lgCard{border-radius:32px;padding:16px 16px 10px;background:linear-gradient(150deg,rgba(255,255,255,.14),rgba(255,255,255,.04) 45%,rgba(180,205,235,.08));
+  -webkit-backdrop-filter:blur(26px) saturate(1.4);backdrop-filter:blur(26px) saturate(1.4);box-shadow:inset 0 1px 0 rgba(255,255,255,.4),inset 0 0 0 1px rgba(255,255,255,.12),0 24px 50px rgba(0,0,0,.5);animation:lgIn 1.2s .3s cubic-bezier(.2,.8,.2,1) both}
+@keyframes lgIn{from{opacity:0;transform:translateY(10px);filter:blur(6px)}to{opacity:1;filter:none}}
+#vLogin .lgBrand{animation-name:lgInB}
+@keyframes lgInB{from{opacity:0;filter:blur(6px)}to{opacity:1;filter:none}}
+#vLogin .lgTit{font:700 9px var(--font-mono)!important;letter-spacing:.2em!important;color:rgba(255,255,255,.6)!important;margin:4px 6px 12px!important;text-align:left!important}
+#vLogin .lgCard .lbl{font-size:8.5px;letter-spacing:.2em;color:rgba(255,255,255,.55);margin:0 6px 6px}
+#vLogin .lgCard .fld{min-height:56px;margin-bottom:12px;border-radius:18px;background:rgba(255,255,255,.06);border:0;box-shadow:inset 0 0 0 1px rgba(255,255,255,.12)}
+#vLogin .lgCard .fld:focus-within{background:rgba(255,255,255,.1);box-shadow:inset 0 0 0 1px rgba(210,230,255,.6),0 0 0 4px rgba(190,215,245,.12)}
+#vLogin .lgCard .fld__ic,#vLogin .lgCard .fld__sep{display:none}
+#vLogin .lgCard .fld .inp{height:56px;font-size:16px}
+#vLogin .lgCard .lg > div > .inp,#vLogin .lgCard > div > .inp,#vLogin .lgCard > div > .pw > .inp{background:rgba(255,255,255,.06);border:0;box-shadow:inset 0 0 0 1px rgba(255,255,255,.12);padding:16px;border-radius:18px;font-size:16px}
+#vLogin .lgCard .btn{min-height:58px;margin-top:6px;background:linear-gradient(135deg,#F4F6F8,#C9D1DA);font-size:16px;letter-spacing:.1em;font-weight:900;font-stretch:118%;box-shadow:inset 0 1px 0 #fff,0 10px 26px rgba(0,0,0,.35),0 0 30px rgba(190,215,245,.18);overflow:hidden}
+#vLogin .lgCard .btn::after{content:'';position:absolute;top:-50%;bottom:-50%;width:30%;left:-40%;transform:skewX(-20deg);background:linear-gradient(90deg,transparent,rgba(255,255,255,.9),transparent);animation:lgSheen 3.6s ease-in-out infinite;pointer-events:none}
+@keyframes lgSheen{0%,40%{left:-40%}80%,100%{left:130%}}
+#vLogin .lgCard .links{margin-top:8px;justify-content:center;font-size:12px}
+#vLogin .lgCard .links a{font:700 8.5px var(--font-mono);letter-spacing:.16em;text-transform:uppercase;text-decoration:none;color:rgba(255,255,255,.55)}
+#vLogin .lgNew{display:block;width:100%;margin-top:12px;height:54px;border-radius:27px;border:0;cursor:pointer;color:#fff;font:900 14px var(--font-display);font-stretch:118%;letter-spacing:.1em;
+  background:linear-gradient(135deg,rgba(255,255,255,.1),rgba(255,255,255,.02));-webkit-backdrop-filter:blur(18px);backdrop-filter:blur(18px);box-shadow:inset 0 0 0 1px rgba(255,255,255,.22),inset 0 1px 0 rgba(255,255,255,.3);animation:lgIn 1.2s .5s cubic-bezier(.2,.8,.2,1) both}
+#vLogin:not([data-f="fLogin"]) .lgNew{display:none}
+@media (prefers-reduced-motion:reduce){#vLogin .lgBrand,#vLogin .lgCard,#vLogin .lgNew,#vLogin .lgCard .btn::after{animation:none}}
+
+/* ═══ c112 · ENCENDIDO START ═══ */
+#oAct.kxOn{text-align:left;display:none;position:fixed;inset:0;z-index:900;background:#050506;color:#fff;padding:0;flex-direction:column;--y:0px;--c:0;overflow:hidden}
+#oAct.kxOn.vis{display:block}
+#oAct .kxCd{position:absolute;inset:0;width:100%;height:100%;display:block}
+#oAct .kxShade{position:absolute;left:0;right:0;bottom:0;height:52%;background:linear-gradient(0deg,rgba(5,5,6,.92),transparent);pointer-events:none}
+#oAct .kxLite{position:absolute;inset:0;background:#F1F2F4;color:#0E0E0F;clip-path:inset(0 0 calc(100% - var(--y)) 0);pointer-events:none}
+#oAct .kxCl{position:absolute;inset:0;width:100%;height:100%}
+#oAct .kxEdge{position:absolute;left:0;right:0;top:calc(var(--y) - 1px);height:2px;background:linear-gradient(90deg,transparent,#fff,transparent);box-shadow:0 0 24px 6px rgba(200,225,255,.9);opacity:calc(var(--c)*8);pointer-events:none}
+#oAct .kxL{position:absolute;inset:0;pointer-events:none}
+#oAct .kxTop{position:absolute;top:calc(env(safe-area-inset-top,0px) + 22px);left:24px;right:24px;display:flex;justify-content:space-between;align-items:center}
+#oAct .kxTop img{height:16px;width:auto}
+#oAct .kxL--l .kxTop img{filter:invert(1)}
+#oAct .kxK{font:700 9px var(--font-mono);letter-spacing:.16em;opacity:.7}
+#oAct .kxHl{position:absolute;left:24px;right:24px;bottom:calc(env(safe-area-inset-bottom,0px) + 66px);margin:0;font:500 clamp(26px,7.6vw,32px)/1.07 var(--font-display);letter-spacing:-.02em;text-transform:none}
+#oAct .kxHl em{font-style:normal;opacity:.42}
+#oAct .kxHint{position:absolute;left:24px;right:24px;bottom:calc(env(safe-area-inset-bottom,0px) + 32px);font:700 8.5px var(--font-mono);letter-spacing:.18em;opacity:.6}
+#oAct .kxGo{position:absolute;left:18px;right:18px;top:21%;height:84px;border-radius:42px;border:0;cursor:pointer;color:#fff;padding:0 18px 0 26px;display:flex;align-items:center;justify-content:space-between;text-align:left;
+  background:linear-gradient(135deg,rgba(255,255,255,.18),rgba(255,255,255,.04) 50%,rgba(190,215,240,.10));-webkit-backdrop-filter:blur(20px) saturate(1.5);backdrop-filter:blur(20px) saturate(1.5);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.45),inset 0 0 0 1px rgba(255,255,255,.14),0 14px 34px rgba(0,0,0,.35);overflow:hidden;transition:transform .15s,opacity .3s;max-width:520px;margin:0 auto}
+#oAct .kxGo::after{content:'';position:absolute;top:-50%;bottom:-50%;width:30%;left:-40%;transform:skewX(-20deg);background:linear-gradient(90deg,transparent,rgba(255,255,255,.28),transparent);animation:kxSheen 3.4s ease-in-out infinite;pointer-events:none}
+@keyframes kxSheen{0%,35%{left:-40%}75%,100%{left:130%}}
+#oAct .kxGo:active{transform:scale(.98)}
+#oAct .kxGo:focus-visible{outline:2px solid #9CC6FF;outline-offset:4px}
+#oAct .kxGo small{display:block;font:700 8px var(--font-mono);letter-spacing:.18em;opacity:.65;margin-bottom:5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:62vw}
+#oAct .kxGo b{display:block;font:900 22px/1 var(--font-display);font-stretch:118%;letter-spacing:.08em}
+#oAct .kxGo i{position:relative;width:40px;height:40px;border-radius:50%;flex:none;border:1px solid rgba(255,255,255,.28);display:grid;place-items:center}
+#oAct .kxGo i::before{content:'';width:14px;height:14px;border-radius:50%;background:radial-gradient(circle,#fff,#C9DAEC);box-shadow:0 0 14px rgba(220,236,255,.95)}
+#oAct .kxGo i::after{content:'';position:absolute;inset:-1px;border-radius:50%;border:1px solid rgba(255,255,255,.6);animation:kxPing 2s ease-out infinite}
+@keyframes kxPing{from{transform:scale(1);opacity:.8}to{transform:scale(1.6);opacity:0}}
+#oAct.kxGoing .kxGo{opacity:0;pointer-events:none}
+#oAct .kxFlash{position:absolute;inset:0;background:#fff;opacity:0;pointer-events:none}
+@media (prefers-reduced-motion:reduce){#oAct .kxGo::after,#oAct .kxGo i::after{animation:none}}
 </style>
 </head>
 <body>
@@ -2289,7 +2358,7 @@ body.wl-on{overflow:hidden}
 
   <!-- ══ LOGIN ══ -->
   <div class="vista" id="vLogin">
-    <div class="lgBg" aria-hidden="true"><div class="lgBg__img" id="lgBgImg"></div><div class="lgBg__ov"></div></div>
+    <div class="lgBg" aria-hidden="true"><canvas class="lgCv" id="lgCv"></canvas><div class="lgBg__img" id="lgBgImg"></div><div class="lgBg__ov"></div></div>
     <div class="wel" id="lgWel">
       <div class="wel__body">
         <div class="wel__firma"><img class="kLogo kLogo--wel" src="/img/brand/logotipo-koach.png" alt="KOACH Fitness Club"></div>
@@ -2302,7 +2371,8 @@ body.wl-on{overflow:hidden}
     </div>
     <div class="lg" id="lgForms" hidden>
       <div class="lgTop"><button type="button" class="lgBack" onclick="bienvenida()" aria-label="Volver al inicio">← VOLVER</button><img src="/img/brand/isotipo-blanco.png" alt="" width="26" height="27" class="lgTop__k"></div>
-      <h2 class="lgTit" id="lgTit">INICIAR SESIÓN</h2>
+      <div class="lgBrand"><img src="/img/brand/logotipo-koach.png" alt="KOACH"><small>LA EVOLUCIÓN DEL FITNESS</small></div>
+      <div class="lgCard"><h2 class="lgTit" id="lgTit">INICIAR SESIÓN</h2>
       <form id="fLogin" onsubmit="event.preventDefault(); login()" novalidate>
         <label class="lbl" for="lEmail">EMAIL</label>
         <div class="fld"><svg class="fld__ic" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="3" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M4 7l8 6 8-6" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg><span class="fld__sep"></span><input class="inp" type="email" id="lEmail" name="email" placeholder="tu@email.com" autocomplete="email" inputmode="email" autocapitalize="off" spellcheck="false"></div>
@@ -2355,6 +2425,8 @@ body.wl-on{overflow:hidden}
         <button class="btn" onclick="authVista('fRecu')">PEDIR UN NUEVO ENLACE</button>
         <div class="links"><a href="#" role="button" onclick="event.preventDefault();authVista('fLogin')">← Volver a iniciar sesión</a><span></span></div>
       </div>
+      </div>
+      <button type="button" class="lgNew" onclick="authVista('fReg')">CREAR CUENTA</button>
     </div>
   </div>
 
@@ -2503,10 +2575,14 @@ body.wl-on{overflow:hidden}
 </div>
 
 <!-- ══ OVERLAYS ══ -->
-<div class="ovl velo" id="oAct">
-  <div class="otit" id="oActT">SESIÓN</div>
-  <div class="osub" id="oActS"></div>
-  <div class="slide" id="slAct"><span class="stx">DESLIZA PARA COMENZAR</span><div class="th">→</div></div>
+<div class="ovl kxOn" id="oAct">
+  <canvas class="kxCd" id="kxCd" aria-hidden="true"></canvas><div class="kxShade" aria-hidden="true"></div>
+  <div class="kxL kxL--d"><div class="kxTop"><img src="/img/brand/logotipo-koach.png" alt="KOACH"><small class="kxK"></small></div><p class="kxHl"></p><div class="kxHint">TOCA START PARA ENCENDER</div></div>
+  <div class="kxLite" aria-hidden="true"><canvas class="kxCl" id="kxCl"></canvas><div class="kxL kxL--l"><div class="kxTop"><img src="/img/brand/logotipo-koach.png" alt=""><small class="kxK"></small></div><p class="kxHl"></p><div class="kxHint">ENCENDIENDO SESIÓN…</div></div></div>
+  <div class="kxEdge" aria-hidden="true"></div>
+  <button type="button" class="kxGo" id="kxGo"><span><small id="kxGoS">SESSION Nº —</small><b>START</b></span><i aria-hidden="true"></i></button>
+  <div class="kxFlash" aria-hidden="true"></div>
+  <div id="oActT" hidden></div><div id="oActS" hidden></div>
 </div>
 <div class="kbm" id="oBM" role="status" aria-live="polite"></div>
 <div class="ovl oscuro" id="oFlash"><img class="kLogo kLogo--flash" src="/img/brand/logotipo-koach.png" alt="KOACH"><div class="ftx" id="oFT"></div><div class="fsb" id="oFS"></div></div>
@@ -3254,6 +3330,7 @@ function lunes(){ const h=new Date(),d=(h.getDay()+6)%7,l=new Date(h); l.setDate
 /* ══ UTILIDADES ══ */
 function vista(id){ document.querySelectorAll('.vista').forEach(v=>v.classList.toggle('on',v.id===id)); document.documentElement.classList.toggle('en-plan', id==='vPlan'); window.scrollTo(0,0); if(id==='vLogin') fotoLogin()
   if (id==='vSesion') navPush('ses'); else if (id!=='vLogin') navPop('ses')
+  if (id==='vLogin'){ const lf=document.getElementById('lgForms'); if(lf && lf.hidden) authVista('fLogin') }   // c112 · inicio = login directo
   if (id!=='vSesion' && S && S._planPend) setTimeout(function(){ planActualizado('pendiente') }, 50) }
 /* ═══ c40 · KOACH STATE SYSTEM · P0 ═══
    koachMsg: ningún texto técnico llega al usuario (errores de red, acceso, permisos y datos → voz KOACH; el detalle va a consola con código corto).
@@ -3293,7 +3370,7 @@ function toast(m){m=koachMsg(m); let t=document.querySelector('.toast'); if(!t){
 // Fondo del login: foto del KOACH guiando a una clienta. Mientras llega, grafito; luego fade-in (no bloquea el formulario).
 // Foto oficial del acceso: se descarga SOLO cuando se muestra el acceso (quien ya tiene sesión nunca la baja). AVIF → WebP.
 const LOGIN_BG = { avif:'/img/login/login-bg.avif', webp:'/img/login/login-bg.webp' }
-function fotoLogin(){ if (fotoLogin._ok) return; fotoLogin._ok=true
+function fotoLogin(){ return /* c112 · el inicio usa cromo animado, sin foto */; if (fotoLogin._ok) return; fotoLogin._ok=true
   const el=document.getElementById('lgBgImg'); if(!el) return
   const set=u=>{ el.style.backgroundImage='url('+u+')'; el.classList.add('is-loaded') }
   const a=new Image(); a.onload=()=>set(LOGIN_BG.avif); a.onerror=()=>{ const w=new Image(); w.onload=()=>set(LOGIN_BG.webp); w.src=LOGIN_BG.webp }; a.src=LOGIN_BG.avif }
@@ -3301,16 +3378,68 @@ function ojo(id,b){ const i=document.getElementById(id); const v=i.type==='passw
   b.setAttribute('aria-label', v?'Ocultar contraseña':'Mostrar contraseña'); b.setAttribute('aria-pressed', v?'true':'false') }
 const AUTH_TIT={ fLogin:'INICIAR SESIÓN', fReg:'CREAR MI CUENTA', fRecu:'RECUPERAR ACCESO', fNueva:'CREA TU NUEVA CONTRASEÑA', fInval:'ESTE ENLACE YA NO ES VÁLIDO' }
 function authVista(id){ ['fLogin','fReg','fRecu','fNueva','fInval'].forEach(f=>document.getElementById(f).style.display=f===id?'block':'none')
+  document.getElementById('vLogin').dataset.f=id; lgCromo()
   document.getElementById('lgTit').textContent=AUTH_TIT[id]||''
   document.querySelector('#lgForms .lgBack').style.display = id==='fNueva' ? 'none' : ''
   const w=document.getElementById('lgWel'), f=document.getElementById('lgForms'); document.getElementById('vLogin').classList.add('is-form')
   w.setAttribute('aria-hidden','true'); f.hidden=false; requestAnimationFrame(()=>f.classList.add('in'))
   setTimeout(()=>{ const i=f.querySelector('#'+id+' input'); if(i && id!=='fNueva' && matchMedia('(pointer:fine)').matches) i.focus() }, 260) }
-function bienvenida(){ const f=document.getElementById('lgForms'), w=document.getElementById('lgWel'); document.getElementById('vLogin').classList.remove('is-form')
-  f.classList.remove('in'); f.hidden=true; w.removeAttribute('aria-hidden'); const e=document.getElementById('lErr'); if(e) e.style.display='none' }
+function bienvenida(){ /* c112 · inicio = login directo sobre cromo; crear cuenta es el botón de abajo */
+  const e=document.getElementById('lErr'); if(e) e.style.display='none'; authVista('fLogin') }
+/* c112 · fondo del inicio: cromo negro con pliegues lentos y una luz fría que lo recorre. Solo corre con el inicio visible. */
+function lgCromo(){ if(lgCromo._on) return; const cv=document.getElementById('lgCv'); if(!cv||!cv.getContext) return; lgCromo._on=true
+  const c=cv.getContext('2d'), RM=matchMedia('(prefers-reduced-motion: reduce)').matches; let t=0
+  const fit=()=>{ const r=Math.min(1.5,window.devicePixelRatio||1); cv.width=Math.round(innerWidth*r); cv.height=Math.round(innerHeight*r) }; fit(); addEventListener('resize',fit)
+  const draw=()=>{ const v=document.getElementById('vLogin'); if(!v||!v.classList.contains('on')){ setTimeout(()=>requestAnimationFrame(draw),900); return }
+    const w=cv.width,h=cv.height; c.fillStyle='#020203'; c.fillRect(0,0,w,h)
+    for(let i=0;i<18;i++){ const base=h*(.02+i*.058), A=h*.055*(1+i*.05), p=t*.0022+i*.6
+      c.beginPath(); c.moveTo(-10,h); for(let x=-10;x<=w+10;x+=8){ c.lineTo(x,base+Math.sin(x*.0062*(540/w)+p)*A+Math.sin(x*.016*(540/w)-p*1.4)*A*.38) } c.lineTo(w+10,h); c.closePath()
+      const g=c.createLinearGradient(0,base-A,0,base+A*2.4); g.addColorStop(0,'rgba(236,242,250,.7)'); g.addColorStop(.05,'#7D8794'); g.addColorStop(.2,'#262A30'); g.addColorStop(.5,'#060708'); g.addColorStop(1,'#0E1012'); c.fillStyle=g; c.fill() }
+    const lx=((t*1.2)%(w*2.2))-w*.6, r=c.createRadialGradient(lx,h*.32,0,lx,h*.32,w*.7); r.addColorStop(0,'rgba(170,205,240,.22)'); r.addColorStop(1,'rgba(170,205,240,0)')
+    c.globalCompositeOperation='screen'; c.fillStyle=r; c.fillRect(0,0,w,h); c.globalCompositeOperation='source-over'
+    if(!RM){ t++; requestAnimationFrame(draw) } else setTimeout(()=>requestAnimationFrame(draw),900) }
+  requestAnimationFrame(draw) }
 function flash(t,s,cb,ms){ document.getElementById('oFT').textContent=t; document.getElementById('oFS').textContent=s||''
   const f=document.getElementById('oFlash'); f.classList.add('vis')
   setTimeout(()=>{ f.classList.remove('vis'); if(cb)cb() }, ms||1500) }
+/* ═══ c112 · ENCENDIDO START: cromo negro + START de cristal → la luz fría baja, el metal se ordena, flash y entra la rutina ═══ */
+const KX={ v:0, t:0, run:false, busy:false }
+const KX_TAG={ STRONG:'fuerza que se construye set a set.', BURN:'energía que se gana bloque a bloque.', HEALTHY:'fuerza para el día a día, a tu ritmo.' }
+function kxPreparar(ses, prim){
+  const o=document.getElementById('oAct'); if(!o) return
+  const prog=String((S.proto&&S.proto.programa)||'').toUpperCase(), tot=baseSem().length
+  const k=(!ses._extra?('SESIÓN '+posSem(ses)+' DE '+tot):'SESIÓN EXTRA')+(prog?' · '+prog:'')
+  const nm=(n=>n.charAt(0)+n.slice(1).toLowerCase())
+  const foco=(prim||[]).slice(0,2).map(g=>nm(String(g))), em=foco.length?(foco.length>1?foco[0]+' y '+foco[1].toLowerCase():foco[0])+' al frente':'Tu sesión de hoy'
+  const hl='<em>'+plEscA(em)+'</em> — '+(KX_TAG[prog]||'fuerza que se construye set a set.')
+  o.querySelectorAll('.kxK').forEach(e=>e.textContent=k); o.querySelectorAll('.kxHl').forEach(e=>e.innerHTML=hl)
+  const n=String(Math.max(1,(S.totalSes||0)+1)).padStart(5,'0')
+  document.getElementById('kxGoS').textContent=String(ses.nombre||'SESIÓN').toUpperCase().replace('★ ','')+' · SESSION Nº '+n
+  KX.v=0; KX.busy=false; o.classList.remove('kxGoing'); o.style.setProperty('--y','0px'); o.style.setProperty('--c','0') }
+function kxCromo(){ if(KX.run) return; const cd=document.getElementById('kxCd'), cl=document.getElementById('kxCl'); if(!cd||!cd.getContext) return; KX.run=true
+  const c=cd.getContext('2d'), x=cl.getContext('2d'), RM=matchMedia('(prefers-reduced-motion: reduce)').matches
+  const fit=()=>{ const r=Math.min(1.5,window.devicePixelRatio||1); cd.width=Math.round(innerWidth*r); cd.height=Math.round(innerHeight*r); cl.width=Math.round(innerWidth*.6); cl.height=Math.round(innerHeight*.6) }; fit(); addEventListener('resize',fit)
+  const draw=()=>{ const o=document.getElementById('oAct'); if(!o||!o.classList.contains('vis')){ KX.run=false; return }
+    const w=cd.width,h=cd.height,v=KX.v,sc=540/w
+    c.fillStyle='#050506'; c.fillRect(0,0,w,h)
+    for(let i=0;i<16;i++){ const base=h*(.05+i*.065), A=h*.05*(1+i*.06)*(1-v*.9), p=KX.t*.004*(1+v*3)+i*.55
+      c.beginPath(); c.moveTo(-10,h); for(let X=-10;X<=w+10;X+=8){ c.lineTo(X,base+Math.sin(X*.0065*sc+p)*A+Math.sin(X*.017*sc-p*1.3)*A*.35) } c.lineTo(w+10,h); c.closePath()
+      const g=c.createLinearGradient(0,base-A-1,0,base+A*2.2+h*.012+2); g.addColorStop(0,'rgba(232,240,248,.8)'); g.addColorStop(.08,'#8E98A4'); g.addColorStop(.3,'#2A2E34'); g.addColorStop(.62,'#0B0C0E'); g.addColorStop(1,'#16181B'); c.fillStyle=g; c.fill() }
+    if(v>0){ const W=cl.width,H=cl.height; x.clearRect(0,0,W,H); x.filter='blur(18px)'
+      ;[{x:.6,y:.42,r:.7,c:'196,206,220'},{x:.42,y:.5,r:.5,c:'140,178,224'},{x:.72,y:.6,r:.42,c:'78,96,122'},{x:.5,y:.36,r:.24,c:'255,255,255'}].forEach((b,i)=>{
+        const X=W*(b.x+Math.sin(KX.t*.01+i)*.04), Y=H*(b.y+Math.cos(KX.t*.008+i*2)*.03), R=W*b.r, g=x.createRadialGradient(X,Y,0,X,Y,R)
+        g.addColorStop(0,'rgba('+b.c+',.95)'); g.addColorStop(.55,'rgba('+b.c+',.45)'); g.addColorStop(1,'rgba('+b.c+',0)'); x.fillStyle=g; x.beginPath(); x.arc(X,Y,R,0,7); x.fill() }); x.filter='none' }
+    if(!RM) KX.t++; requestAnimationFrame(draw) }
+  requestAnimationFrame(draw) }
+function kxEncender(){ if(KX.busy) return; KX.busy=true
+  const o=document.getElementById('oAct'); try{ kHaptic(12); kAudioUnlock() }catch(_){}
+  o.classList.add('kxGoing'); const H=o.clientHeight, t0=performance.now(), D=matchMedia('(prefers-reduced-motion: reduce)').matches?10:1200
+  const st=n=>{ const k=Math.min(1,(n-t0)/D), e=k<.5?2*k*k:1-Math.pow(-2*k+2,2)/2; KX.v=e; o.style.setProperty('--y',(e*H).toFixed(1)+'px'); o.style.setProperty('--c',e.toFixed(3))
+    if(k<1) return requestAnimationFrame(st)
+    try{ if(navigator.vibrate) navigator.vibrate([20,30,60]) }catch(_){}
+    const f=o.querySelector('.kxFlash'); f.animate([{opacity:0},{opacity:1,offset:.12},{opacity:0}],{duration:600,easing:'ease-out'})
+    setTimeout(()=>{ o.classList.remove('vis'); document.getElementById('sBloques').classList.remove('locked'); KX.v=0 },130) }
+  requestAnimationFrame(st) }
 function initSlide(el,onOk){
   const th=el.querySelector('.th'); let sx=null,done=false
   const maxX=()=>el.clientWidth-th.clientWidth-10
@@ -4255,10 +4384,9 @@ async function abrirSesion(num){
   }catch(_){ S.ultimos={} }
   pintarSesion()
   // Overlay de activación
-  document.getElementById('oActT').innerHTML = '<small class="oH">'+_pre.h+'</small>'+_pre.t
-  document.getElementById('oActS').innerHTML = _pre.b
+  kxPreparar(ses, _op)
   document.getElementById('sBloques').classList.add('locked')
-  document.getElementById('oAct').classList.add('vis')
+  document.getElementById('oAct').classList.add('vis'); kxCromo()
 }
 function tipoDe(ej, be){
   // c107 · el coach puede fijar REPS o TIME por ejercicio dentro del bloque; prevalece sobre el catálogo
@@ -6212,13 +6340,7 @@ function perfilFoto(){
 
 /* ══ ARRANQUE ══ */
 document.addEventListener('DOMContentLoaded', async ()=>{
-  initSlide(document.getElementById('slAct'), ()=>{
-    document.getElementById('oAct').classList.remove('vis')
-    const act=S.frases?.activacion
-    const nom=S.sesionAbierta?.nombre||'SESIÓN'
-    flash(nom+' · EN MARCHA', 'Registra cada set. Al terminar vemos lo que conseguiste.',
-          ()=>document.getElementById('sBloques').classList.remove('locked'))
-  })
+  document.getElementById('kxGo').addEventListener('click', kxEncender)
   initSlide(document.getElementById('slFin'), finalizar)
   document.getElementById('oFin').addEventListener('click', e=>{ if(e.target.id==='oFin') e.target.classList.remove('vis') })
   arrancarAuth()
