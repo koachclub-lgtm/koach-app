@@ -2379,6 +2379,53 @@ body.wl-on{overflow:hidden}
 #oAct.kxGoing .kxGo{opacity:0;pointer-events:none}
 #oAct .kxFlash{position:absolute;inset:0;background:#fff;opacity:0;pointer-events:none}
 @media (prefers-reduced-motion:reduce){#oAct .kxGo::after,#oAct .kxGo i::after{animation:none}}
+
+/* ═══ c112 · LOGROS: luz fría + tarjeta de cristal metalizado ═══ */
+.kxCard{position:relative;overflow:hidden;border-radius:20px;padding:14px 14px 12px;color:#fff;text-shadow:0 1px 6px rgba(20,28,40,.25);
+  background:linear-gradient(140deg,rgba(150,160,174,.72) 0%,rgba(96,106,120,.62) 45%,rgba(70,78,90,.6) 65%,rgba(150,164,180,.66) 100%);-webkit-backdrop-filter:blur(18px) saturate(1.4);backdrop-filter:blur(18px) saturate(1.4);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.65),inset 0 -1px 0 rgba(255,255,255,.15),inset 0 0 0 1px rgba(255,255,255,.22),0 14px 30px rgba(20,28,40,.22)}
+.kxCard::after{content:'';position:absolute;top:-60%;bottom:-60%;width:35%;left:-50%;transform:skewX(-22deg);background:linear-gradient(90deg,transparent,rgba(255,255,255,.35),transparent);animation:kxSheen 4s ease-in-out infinite;pointer-events:none}
+.kxCard__r{display:flex;justify-content:space-between;font:700 8px var(--font-mono);letter-spacing:.14em;opacity:.75}
+.kxCard__t{font:900 22px/.95 var(--font-display);font-stretch:118%;text-transform:uppercase;margin:10px 0 12px}
+.kxCard__g{display:grid;grid-template-columns:1fr 1fr;gap:10px 12px;border-top:1px solid rgba(255,255,255,.3);padding-top:10px}
+.kxCard__g span{display:block;font:700 7.5px var(--font-mono);letter-spacing:.14em;opacity:.7;margin-bottom:3px}
+.kxCard__g b{font:700 16px var(--font-mono);letter-spacing:-.02em}
+.kxCard__bc{margin-top:12px;height:34px;opacity:.85}.kxCard__bc svg{width:100%;height:100%;fill:#fff}
+.kxCard__n{font:700 7.5px var(--font-mono);letter-spacing:.3em;text-align:right;opacity:.7;margin-top:4px}
+.kxSegs{display:flex;gap:5px;margin-top:12px;width:100%;max-width:240px}.kxSegs i{flex:1;height:4px;border-radius:2px;background:rgba(14,14,15,.14)}.kxSegs i.on{background:#0E0E0F}
+.kxDone{position:fixed;inset:0;z-index:1350;display:none;background:#F1F2F4 var(--kx-glow) center/cover;color:#0E0E0F;opacity:0;transition:opacity .38s ease;overflow:auto}
+.kxDone.vis{display:block}.kxDone.on{opacity:1}
+.kxD__in{min-height:100%;display:flex;flex-direction:column;padding:calc(env(safe-area-inset-top,0px) + 22px) 22px calc(env(safe-area-inset-bottom,0px) + 22px);max-width:520px;margin:0 auto}
+.kxD__top{display:flex;justify-content:space-between;align-items:center;margin-bottom:34px}.kxD__top img{height:16px;filter:invert(1)}.kxD__top small{font:700 8.5px var(--font-mono);letter-spacing:.16em;opacity:.7}
+.kxD__k{font:700 9px var(--font-mono);letter-spacing:.18em;opacity:.65}
+.kxD__t{margin:8px 0 0;font:900 clamp(46px,14vw,60px)/.86 var(--font-display);font-stretch:118%;text-transform:uppercase;letter-spacing:-.02em}
+.kxD__t--s{font-size:clamp(30px,9vw,40px)}
+.kxD__big{font:700 clamp(64px,20vw,84px)/1 var(--font-mono);letter-spacing:-.05em;margin-top:10px}.kxD__big i{font-style:normal;font-size:16px;letter-spacing:.06em;margin-left:6px}
+.kxD__tk{margin-top:auto}
+.kxDone.on .kxD__tk{animation:kxPrint .9s .15s cubic-bezier(.2,.8,.2,1) both}
+@keyframes kxPrint{from{clip-path:inset(0 0 100% 0);transform:translateY(-8px)}to{clip-path:inset(0 0 0 0);transform:none}}
+.kxBtn{margin-top:12px;height:56px;border-radius:28px;border:0;cursor:pointer;display:flex;align-items:center;justify-content:space-between;padding:0 12px 0 22px;font:900 15px var(--font-display);font-stretch:118%;letter-spacing:.08em;width:100%}
+.kxBtn i{width:30px;height:30px;border-radius:50%;border:1px solid rgba(255,255,255,.3);display:grid;place-items:center}.kxBtn i::before{content:'';width:10px;height:10px;border-radius:50%;background:radial-gradient(circle,#fff,#C9DAEC);box-shadow:0 0 10px rgba(220,236,255,.95)}
+.kxBtn--dk{background:#0E0E0F;color:#fff;box-shadow:0 12px 26px rgba(20,30,45,.3)}
+.kxBtn--gh{background:none;color:#0E0E0F;box-shadow:inset 0 0 0 1.5px rgba(14,14,15,.22);justify-content:center;height:50px}
+.kxDone .kxFlash{position:fixed;inset:0;background:#fff;opacity:0;pointer-events:none}
+/* bloque completado en luz fría */
+.bk__fin{z-index:30!important;background:#F1F2F4 var(--kx-glow) center/cover!important;color:#0E0E0F!important;place-items:center start!important;text-align:left!important;padding:28px 24px!important}
+.bk__finIn{align-items:flex-start!important;width:100%;max-width:460px;margin:0 auto}
+.bk__finK{color:rgba(14,14,15,.6)!important}
+.bk__finB{font-size:clamp(60px,19vw,84px)!important;text-transform:uppercase}
+.bk__finKg{font-family:var(--font-mono)!important;font-weight:700!important;font-stretch:100%!important;letter-spacing:-.05em!important}
+.bk__finHoy{background:none!important;box-shadow:none!important;padding:0!important;margin-top:18px!important;font:500 20px/1.1 var(--font-display)!important;letter-spacing:-.01em!important;text-transform:none}
+.bk__finHoy em{display:block;font-style:normal;font:700 9px var(--font-mono);letter-spacing:.14em;opacity:.55;margin-bottom:6px}
+/* set completado: barrido de luz fría en la mitad superior */
+.kxSet{position:absolute;left:0;right:0;top:0;height:54%;z-index:7;pointer-events:none;background:#F1F2F4 var(--kx-glow) center/cover;color:#0E0E0F;display:flex;align-items:flex-end;padding:0 24px 26px;
+  clip-path:inset(0 0 100% 0);transition:clip-path .45s cubic-bezier(.2,.8,.2,1);box-shadow:0 2px 24px rgba(200,225,255,.6)}
+.kxSet.on{clip-path:inset(0 0 0 0)}
+.kxSet small{display:block;font:700 9px var(--wxM,var(--font-mono));letter-spacing:.16em;opacity:.6}
+.kxSet b{display:block;font:900 clamp(44px,13vw,56px)/.9 var(--wxD,var(--font-display));font-stretch:118%;text-transform:uppercase;margin-top:6px}
+.kxSet em{display:block;font-style:normal;font:700 28px var(--wxM,var(--font-mono));letter-spacing:-.04em;margin-top:6px}
+.kxSet span{display:block;font:700 9px var(--wxM,var(--font-mono));letter-spacing:.14em;opacity:.6;margin-top:10px}
+@media (prefers-reduced-motion:reduce){.kxCard::after{animation:none}.kxDone.on .kxD__tk{animation:none}.kxSet{transition:none}}
 </style>
 </head>
 <body>
@@ -3476,6 +3523,40 @@ function kxEncender(){ if(KX.busy) return; KX.busy=true
     const f=o.querySelector('.kxFlash'); f.animate([{opacity:0},{opacity:1,offset:.12},{opacity:0}],{duration:600,easing:'ease-out'})
     setTimeout(()=>{ o.classList.remove('vis'); document.getElementById('sBloques').classList.remove('locked'); KX.v=0 },130) }
   requestAnimationFrame(st) }
+/* c112 · luz fría (fondo de logros), contador y micro-momentos de set / récord */
+function kxGlowURL(){ if(kxGlowURL._u) return kxGlowURL._u; try{ const c=document.createElement('canvas'); c.width=300; c.height=640; const x=c.getContext('2d'), w=300,h=640
+  x.fillStyle='#F1F2F4'; x.fillRect(0,0,w,h); x.filter='blur(30px)'
+  ;[{x:.6,y:.42,r:.7,c:'196,206,220'},{x:.42,y:.5,r:.5,c:'140,178,224'},{x:.72,y:.6,r:.42,c:'78,96,122'},{x:.5,y:.36,r:.24,c:'255,255,255'}].forEach(b=>{
+    const X=w*b.x,Y=h*b.y,R=w*b.r,g=x.createRadialGradient(X,Y,0,X,Y,R); g.addColorStop(0,'rgba('+b.c+',.95)'); g.addColorStop(.55,'rgba('+b.c+',.45)'); g.addColorStop(1,'rgba('+b.c+',0)'); x.fillStyle=g; x.beginPath(); x.arc(X,Y,R,0,7); x.fill() })
+  kxGlowURL._u=c.toDataURL('image/jpeg',.85) }catch(_){ kxGlowURL._u='' } return kxGlowURL._u }
+document.addEventListener('DOMContentLoaded',()=>{ const u=kxGlowURL(); if(u) document.documentElement.style.setProperty('--kx-glow','url('+u+')') })
+function kxContar(el){ if(!el) return; const fin=+el.dataset.kx||0; if(matchMedia('(prefers-reduced-motion: reduce)').matches||!fin){ el.textContent=fin.toLocaleString('es-CL'); return }
+  const t0=performance.now(), D=900; const st=n=>{ const k=Math.min(1,(n-t0)/D), e=1-Math.pow(1-k,3); el.textContent=Math.round(fin*e).toLocaleString('es-CL'); if(k<1) requestAnimationFrame(st) }; requestAnimationFrame(st) }
+function kxTrasSet(b,n,bes,blqFin){ const o=document.getElementById('oBloque'); if(!o) return
+  let kg=0, rep='', pr=null
+  bes.forEach(be=>{ const f=S.setLog[setKey(be.id,n)], ej=be.ejercicios||{}; if(!f) return
+    const p=+f.peso||0, r=parseInt(f.reps)||0; kg+=p*r; if(!rep && p) rep=r+' × '+(p%1?String(p).replace('.',','):p)
+    const m=(S.mejores||{})[ej.id]
+    if (p>0 && m && (p>m.peso || (p===m.peso && r>m.reps)) && !pr){ pr={ nom:ej.nombre||'Ejercicio', antes:m, hoy:{peso:p,reps:r}, id:ej.id } } })
+  if (pr){ (S._prHoy=S._prHoy||{})[pr.id]=1; S.mejores[pr.id]={ peso:pr.hoy.peso, reps:pr.hoy.reps }; return kxPR(pr) }
+  if (blqFin) return
+  const el=document.createElement('div'); el.className='kxSet'; el.setAttribute('role','status'); el.setAttribute('aria-live','polite')
+  const segs=Array.from({length:b.sets},(_,i)=>'<i class="'+(bkSetHecho(b,i+1)?'on':'')+'"></i>').join('')
+  el.innerHTML='<div><small>'+bkCod(b,BK.bi)+' · SET '+String(n).padStart(2,'0')+' / '+String(b.sets).padStart(2,'0')+'</small><b>Set '+String(n).padStart(2,'0')+' ✓</b>'+(rep?'<em>'+rep+'</em>':'')+'<div class="kxSegs">'+segs+'</div>'+(kg?'<span>'+Math.round(kg).toLocaleString('es-CL')+' KG EN ESTE SET</span>':'')+'</div>'
+  o.appendChild(el); requestAnimationFrame(()=>el.classList.add('on')); setTimeout(()=>{ el.classList.remove('on'); setTimeout(()=>el.remove(),400) },1300) }
+function kxPR(pr){ const ov=document.getElementById('kxDone'); if(!ov) return
+  const f=x=>(x.peso%1?String(x.peso).replace('.',','):x.peso)+' KG'+(x.reps?' × '+x.reps:''), dif=Math.round((pr.hoy.peso-pr.antes.peso)*10)/10
+  ov.innerHTML='<div class="kxD__in"><div class="kxD__top"><img src="/img/brand/logotipo-koach.png" alt="KOACH"><small>NUEVO RÉCORD</small></div>'+
+    '<span class="kxD__k">NUEVO RÉCORD PERSONAL</span><h2 class="kxD__t kxD__t--s">'+plEscA(pr.nom)+'</h2>'+
+    '<div class="kxD__big">'+(dif>0?'+'+String(dif).replace('.',','):'+'+(pr.hoy.reps-pr.antes.reps))+'<i>'+(dif>0?'KG':'REPS')+'</i></div>'+
+    '<div class="kxCard kxD__tk"><div class="kxCard__r"><span>NEW PR</span><span>'+new Date().toLocaleDateString('es-CL',{day:'2-digit',month:'short'}).toUpperCase()+'</span></div><div class="kxCard__t">'+plEscA(pr.nom)+'</div>'+
+    '<div class="kxCard__g"><div><span>ANTES</span><b>'+f(pr.antes)+'</b></div><div><span>HOY</span><b>'+f(pr.hoy)+'</b></div></div><div class="kxCard__bc">'+barcodeSVG('PR'+String(pr.hoy.peso).replace('.',''),28)+'</div></div>'+
+    '<button type="button" class="kxBtn kxBtn--dk" id="kxPrOk">SEGUIR <i></i></button></div><div class="kxFlash"></div>'
+  ov.classList.add('vis','kxDone--pr'); requestAnimationFrame(()=>requestAnimationFrame(()=>ov.classList.add('on')))
+  ov.querySelector('.kxFlash').animate([{opacity:1},{opacity:0}],{duration:600,easing:'ease-out'})
+  try{ if(navigator.vibrate) navigator.vibrate([25,60,25]) }catch(_){}
+  const cerrar=()=>{ clearTimeout(ov._t); ov.classList.remove('on'); setTimeout(()=>{ ov.classList.remove('vis','kxDone--pr'); ov.innerHTML='' },380) }
+  document.getElementById('kxPrOk').onclick=cerrar; ov._t=setTimeout(cerrar,4200) }
 function initSlide(el,onOk){
   const th=el.querySelector('.th'); let sx=null,done=false
   const maxX=()=>el.clientWidth-th.clientWidth-10
@@ -4253,7 +4334,8 @@ async function reanudar(){
   S.sugeridos={}; S.ultimos={}
   try{
     const { data: hm } = await sb.rpc('koach_historial_cargas', { p_socio:S.perfil.id })
-    Object.keys(hm||{}).forEach(ej=>{ const u=(hm[ej]||{}).ultimo; if (u && (u.peso!=null||u.seg!=null||u.reps!=null)) S.ultimos[ej]={ peso:u.peso, reps:u.reps, seg:u.seg, fecha:u.fecha } })
+    Object.keys(hm||{}).forEach(ej=>{ const u=(hm[ej]||{}).ultimo; if (u && (u.peso!=null||u.seg!=null||u.reps!=null)) S.ultimos[ej]={ peso:u.peso, reps:u.reps, seg:u.seg, fecha:u.fecha }
+      const mj=(hm[ej]||{}).mejor; if (mj && mj.peso!=null) (S.mejores=S.mejores||{})[ej]={ peso:+mj.peso, reps:parseInt(mj.reps)||0 } })
   }catch(_){ S.ultimos={} }
   document.getElementById('sBloques').classList.remove('locked')
   document.getElementById('oAct').classList.remove('vis')
@@ -4416,7 +4498,8 @@ async function abrirSesion(num){
   S.sugeridos={}; S.ultimos={}
   try{
     const { data: hm } = await sb.rpc('koach_historial_cargas', { p_socio:S.perfil.id })
-    Object.keys(hm||{}).forEach(ej=>{ const u=(hm[ej]||{}).ultimo; if (u && (u.peso!=null||u.seg!=null||u.reps!=null)) S.ultimos[ej]={ peso:u.peso, reps:u.reps, seg:u.seg, fecha:u.fecha } })
+    Object.keys(hm||{}).forEach(ej=>{ const u=(hm[ej]||{}).ultimo; if (u && (u.peso!=null||u.seg!=null||u.reps!=null)) S.ultimos[ej]={ peso:u.peso, reps:u.reps, seg:u.seg, fecha:u.fecha }
+      const mj=(hm[ej]||{}).mejor; if (mj && mj.peso!=null) (S.mejores=S.mejores||{})[ej]={ peso:+mj.peso, reps:parseInt(mj.reps)||0 } })
   }catch(_){ S.ultimos={} }
   pintarSesion()
   // Overlay de activación
@@ -4803,19 +4886,22 @@ async function bkCompletar(){ const b=(S._bfs||[])[BK.bi]; if(!b) return
   bkOverFin()
   const sig=bkSetActual(b)
   if (sig){ BK.set=sig; bkRestIni(b); bkPintar() } else { BK.set=n; bkRestFin(true); bkPintar(); bkFinBloque(b) }
+  try{ kxTrasSet(b,n,bes,!sig) }catch(e){ console.error('kxTrasSet',e) }
 }
 /* c70 · cierre del bloque: pantalla breve en gris intermedio con el bloque y los kilos; vuelve sola a la rutina (o al tocar) */
 function bkFinBloque(b){ const o=document.getElementById('oBloque'); if(!o||!b) return
   const bfs=S._bfs||[], kg=bkKgBloque(b); let kgHoy=0, sh=0, stt=0; bfs.forEach(x=>{ kgHoy+=bkKgBloque(x); sh+=bkSetsHechos(x); stt+=(x.sets||0) }); const st=[sh,stt]
   const prim=bkPrimerPendiente(bfs), ult=prim<0, nomV=(b.etiqueta?b.etiqueta.toUpperCase():bkNom(b,BK.bi))
   const el=document.createElement('div'); el.className='bk__fin'; el.setAttribute('role','status'); el.setAttribute('aria-live','polite')
-  el.innerHTML='<div class="bk__finIn"><span class="bk__finK">'+(ult?'SESSION DONE.':'DONE.')+'</span><b class="bk__finB">'+bkCod(b,BK.bi)+'</b><em class="bk__finN">'+bkEsc(nomV)+'</em>'+
-    '<div class="bk__finKg">'+kg.toLocaleString('es-CL')+'<i>KG</i></div><span class="bk__finS">EN ESTE BLOQUE</span>'+
-    '<div class="bk__finHoy">HOY · '+kgHoy.toLocaleString('es-CL')+' KG · '+st[0]+'/'+st[1]+' SETS</div>'+
-    '<span class="bk__finGo">'+(ult?'CIERRA TU SESIÓN DESDE LA RUTINA':'SIGUIENTE · '+bkCod(bfs[prim],prim)+' →')+'</span></div>'
+  const segs=bfs.map(x=>'<i class="'+(bloqueCompleto(x)?'on':'')+'"></i>').join('')
+  el.innerHTML='<div class="bk__finIn"><span class="bk__finK">'+bkCod(b,BK.bi)+' · '+bkEsc(nomV)+'</span><b class="bk__finB">'+bkCod(b,BK.bi)+'<br>done.</b>'+
+    '<div class="bk__finKg"><span data-kx="'+kg+'">0</span><i>KG</i></div><span class="bk__finS">EN ESTE BLOQUE</span><div class="kxSegs">'+segs+'</div>'+
+    '<div class="bk__finHoy"><em>HOY · '+kgHoy.toLocaleString('es-CL')+' KG · '+st[0]+'/'+st[1]+' SETS</em> '+(ult?'Cierra tu sesión.':'Sigue '+bkCod(bfs[prim],prim)+'.')+'</div>'+
+    '<span class="bk__finGo">'+(ult?'TERMINA TU SESIÓN DESDE LA RUTINA':'SIGUIENTE · '+bkCod(bfs[prim],prim)+' →')+'</span></div>'
+  kxContar(el.querySelector('[data-kx]'))
   o.appendChild(el); o.classList.add('fin'); requestAnimationFrame(function(){ el.classList.add('on') })
   const cerrar=function(){ clearTimeout(BK._fin); BK._fin=null; el.remove(); o.classList.remove('fin'); BK.cap = prim>=0 ? prim : null; bkCerrar() }
-  el.onclick=cerrar; BK._fin=setTimeout(cerrar, 2600) }
+  el.onclick=cerrar; BK._fin=setTimeout(cerrar, 3000) }
 async function bkDesmarcar(){ const b=(S._bfs||[])[BK.bi]; if(!b) return; const n=BK.set
   if (!(await kConfirm('¿Desmarcar el set '+String(n).padStart(2,'0')+' en todos los ejercicios del bloque?\nSe borra el registro de ese set.'))) return
   for (const be of bkBes(b)){ if(S.setLog[setKey(be.id,n)]) await tapSetRow(be.id,n,b.id,(be.ejercicios||{}).id) }
@@ -5375,6 +5461,8 @@ function abrirFinB(){
 }
 async function finalizar(){
   rwLimpiar()   // c74 · la sesión se cierra: el borrador local ya no aplica
+  try{ const cs=contarSets(); S._kxCierre={ nombre:(S.sesionAbierta||{}).nombre, kg:wxKgHoy(), dur:sesTxt(), sets:cs.hec, setsTot:cs.tot,
+    prs:Object.keys(S._prHoy||{}).length, num:String(Math.max(1,(S.totalSes||0)+1)).padStart(5,'0') } }catch(_){ S._kxCierre=null }
   try{
   cargandoOff()
   document.getElementById('oFin').classList.remove('vis')
@@ -6409,6 +6497,7 @@ document.addEventListener('DOMContentLoaded', async ()=>{
   arrancarAuth()
 })
 </script>
+<div class="kxDone" id="kxDone" role="dialog" aria-modal="true" aria-label="Sesión completada"></div>
 <div class="kwin" id="oWin" aria-live="assertive" onclick="cmSaltar()">
   <svg class="kwin__k" viewBox="0 0 460 462" aria-hidden="true"><rect class="kwin__bar" x="0" y="0" width="460" height="94"/><polygon class="kwin__chev" points="0,339 231,131 460,336 460,456 231,251 0,462"/></svg>
   <div class="kwin__msg" id="cmMsg">LO LOGRASTE.</div>
@@ -6834,21 +6923,30 @@ function cmMensaje(m, j) {
 }
 function cmSaltar() { if (_cmFin) _cmFin() }
 async function cierreMomento(m) {
+  // c112 · RUTINA TERMINADA: pantalla de luz fría con el ticket de la sesión (kilos, duración, sets, récords). COMPARTIR abre la tarjeta.
   KS.data = null; KS.cierre = m;
-  const ov = ksEl('oWin'), datosP = ksCargar().catch(() => null);
+  const datosP = ksCargar().catch(() => null);
   const j = await Promise.race([datosP, new Promise(r => setTimeout(() => r(null), 700))]);
-  const [msg, dato, hito] = cmMensaje(m, j);
-  let kgT=0; try{ kgT=wxKgHoy() }catch(_){}
-  ksEl('cmMsg').textContent = msg; ksEl('cmDato').textContent = dato || (kgT>0 ? kgT.toLocaleString('es-CL')+' KG LEVANTADOS' : '');
-  const h = j && j.hechas, p = j && j.planif;
-  ksEl('cmSem').innerHTML = p ? Array.from({ length: p }, (_, i) => '<i style="--d:' + (i * 70) + 'ms" class="' + (i < h ? 'on' : '') + '"></i>').join('') : '';
-  ov.classList.remove('vis', 'out'); void ov.offsetWidth; ov.classList.add('vis');
-  try { if (navigator.vibrate) navigator.vibrate(18) } catch (_) {}
-  const dur = matchMedia('(prefers-reduced-motion: reduce)').matches ? 1200 : (hito ? 3400 : 2600);
-  await new Promise(res => { _cmFin = res; _cmT = setTimeout(res, dur) });
-  clearTimeout(_cmT); _cmFin = null;
-  ov.classList.add('out'); abrirCompartir(true);
-  setTimeout(() => ov.classList.remove('vis', 'out'), 420);
+  const [msg] = cmMensaje(m, j);
+  const c=S._kxCierre||{}, ses=S.sesionAbierta||{}, nom=String(c.nombre||ses.nombre||'Sesión').replace('★ ','')
+  const prs=c.prs||0, num=c.num||'00000', d=new Date()
+  const mes=['ENE','FEB','MAR','ABR','MAY','JUN','JUL','AGO','SEP','OCT','NOV','DIC'][d.getMonth()]
+  const ov=document.getElementById('kxDone')
+  ov.innerHTML='<div class="kxD__in"><div class="kxD__top"><img src="/img/brand/logotipo-koach.png" alt="KOACH"><small>SESSION Nº '+num+' · DONE</small></div>'+
+    '<span class="kxD__k">'+plEscA(/LOGRASTE|SUMASTE|CUMPLIDO/.test(msg)?'SESIÓN COMPLETADA':msg.replace(/\.$/,''))+'</span>'+
+    '<h2 class="kxD__t">'+plEscA(nom)+'<br>done.</h2>'+
+    '<div class="kxCard kxD__tk"><div class="kxCard__r"><span>'+String(d.getDate()).padStart(2,'0')+' '+mes+' '+d.getFullYear()+'</span><span>'+plEscA(String((S.proto&&S.proto.programa)||'KOACH').toUpperCase())+'</span></div>'+
+      '<div class="kxCard__t">Session Nº '+num+'</div><div class="kxCard__g"><div><span>KG MOVIDOS</span><b data-kx="'+(c.kg||0)+'">0</b></div><div><span>DURACIÓN</span><b>'+(c.dur||'—')+'</b></div>'+
+      '<div><span>SETS</span><b>'+(c.sets||0)+'/'+(c.setsTot||0)+'</b></div><div><span>RÉCORDS</span><b>'+prs+'</b></div></div>'+
+      '<div class="kxCard__bc">'+barcodeSVG(num,34)+'</div><div class="kxCard__n">'+num+'-'+String(d.getDate()).padStart(2,'0')+String(d.getMonth()+1).padStart(2,'0')+'</div></div>'+
+    '<button type="button" class="kxBtn kxBtn--dk" id="kxDShare">COMPARTIR <i></i></button><button type="button" class="kxBtn kxBtn--gh" id="kxDOk">CONTINUAR</button></div><div class="kxFlash"></div>'
+  ov.classList.add('vis'); requestAnimationFrame(()=>requestAnimationFrame(()=>ov.classList.add('on')))
+  ov.querySelector('.kxFlash').animate([{opacity:1},{opacity:0}],{duration:700,easing:'ease-out'})
+  kxContar(ov.querySelector('[data-kx]'))
+  try { if (navigator.vibrate) navigator.vibrate([20,30,60]) } catch (_) {}
+  const cerrar=()=>{ ov.classList.remove('on'); setTimeout(()=>{ ov.classList.remove('vis'); ov.innerHTML='' },380) }
+  document.getElementById('kxDShare').onclick=()=>{ cerrar(); abrirCompartir(true) }
+  document.getElementById('kxDOk').onclick=()=>{ cerrar(); try{ entrar() }catch(_){} }
 }
 </script>
 </body>
