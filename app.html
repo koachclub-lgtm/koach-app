@@ -2403,7 +2403,7 @@ body.wl-on{overflow:hidden}
 .kxD__big{font:700 clamp(64px,20vw,84px)/1 var(--font-mono);letter-spacing:-.05em;margin-top:10px}.kxD__big i{font-style:normal;font-size:16px;letter-spacing:.06em;margin-left:6px}
 .kxD__tk{margin-top:auto}
 .kxDone.on .kxD__tk{animation:kxPrint .9s .15s cubic-bezier(.2,.8,.2,1) both}
-@keyframes kxPrint{from{clip-path:inset(0 0 100% 0);transform:translateY(-8px)}to{clip-path:inset(0 0 0 0);transform:none}}
+@keyframes kxPrint{from{clip-path:inset(0 0 100% 0 round 20px);transform:translateY(-8px)}to{clip-path:inset(0 0 0 0 round 20px);transform:none}}
 .kxBtn{margin-top:12px;height:56px;border-radius:28px;border:0;cursor:pointer;display:flex;align-items:center;justify-content:space-between;padding:0 12px 0 22px;font:900 15px var(--font-display);font-stretch:118%;letter-spacing:.08em;width:100%}
 .kxBtn i{width:30px;height:30px;border-radius:50%;border:1px solid rgba(255,255,255,.3);display:grid;place-items:center}.kxBtn i::before{content:'';width:10px;height:10px;border-radius:50%;background:radial-gradient(circle,#fff,#C9DAEC);box-shadow:0 0 10px rgba(220,236,255,.95)}
 .kxBtn--dk{background:#0E0E0F;color:#fff;box-shadow:0 12px 26px rgba(20,30,45,.3)}
@@ -2426,6 +2426,13 @@ body.wl-on{overflow:hidden}
 .kxSet em{display:block;font-style:normal;font:700 28px var(--wxM,var(--font-mono));letter-spacing:-.04em;margin-top:6px}
 .kxSet span{display:block;font:700 9px var(--wxM,var(--font-mono));letter-spacing:.14em;opacity:.6;margin-top:10px}
 @media (prefers-reduced-motion:reduce){.kxCard::after{animation:none}.kxDone.on .kxD__tk{animation:none}.kxSet{transition:none}}
+
+#oWelcome.kxW{background:#F1F2F4 var(--kx-glow) center/cover;color:#0E0E0F}
+#oWelcome.kxW .kxD__t--w{font-size:clamp(44px,13vw,58px)}
+#oWelcome.kxW .kxW__p{margin:16px 0 22px;font:500 20px/1.1 var(--font-display);letter-spacing:-.01em}
+#oWelcome.kxW .kxW__p em{font-style:normal;opacity:.45}
+#oWelcome.kxW .kxFlash{position:fixed;inset:0;background:#fff;opacity:0;pointer-events:none}
+#oWelcome.kxW.on .kxD__tk{animation:kxPrint .9s .25s cubic-bezier(.2,.8,.2,1) both}
 </style>
 </head>
 <body>
@@ -4047,24 +4054,24 @@ function welcomeTextos(){
   return { intro:n+', ya eres parte de KOACH.', cierre:n+', todo está listo.' }
 }
 function mostrarWelcome(){
-  const t=welcomeTextos(), a=heroAsset(), foto=a.src||HOME_HERO_ASSETS.male.src
+  // c113 · BIENVENIDO AL CLUB DEL 1%: luz fría + credencial de socio en cristal metalizado (Nº de socio real)
+  const p=S.perfil||{}, n=msgNombre()||'', sx=String(p.sex||'').toLowerCase()
+  const k=sx==='mujer'?'BIENVENIDA AL CLUB DEL 1%':'BIENVENIDO AL CLUB DEL 1%'
+  const num=p.numero_socio?String(p.numero_socio).padStart(4,'0'):'—'
+  const d=p.created_at?new Date(p.created_at):new Date(), mes=['ENE','FEB','MAR','ABR','MAY','JUN','JUL','AGO','SEP','OCT','NOV','DIC'][d.getMonth()]
+  const nomC=((p.nombre||'')+' '+(p.apellido?String(p.apellido).charAt(0)+'.':'')).trim()||'SOCIO KOACH'
+  const prog=String((S.proto&&S.proto.programa)||'KOACH').toUpperCase()
   const el=document.getElementById('oWelcome')
-  el.innerHTML=
-    '<div class="wl__bg" style="background-image:url('+foto+')"></div><div class="wl__ov"></div><div class="wl__grain"></div>'+
-    '<div class="wl__c">'+
-      '<div class="wl__brand"><img class="kLogo kLogo--hdr" src="/img/brand/logotipo-koach.png" alt="KOACH Fitness Club"><i></i></div>'+
-      '<h1 class="wl__h">YA ERES PARTE<br>DEL CLUB<br><em>DEL 1%</em></h1>'+
-      '<p class="wl__intro"><b>'+t.intro+'</b><br>Desde ahora, cada sesión tiene un propósito y cada progreso se mide.</p>'+
-      '<ol class="wl__cards">'+
-        '<li><span class="wl__n">01</span><div><b>TU CUENTA ESTÁ LISTA</b><p>Tus datos ya están registrados. Tu experiencia KOACH comienza aquí.</p></div></li>'+
-        '<li><span class="wl__n">02</span><div><b>ACTIVAMOS TU MEMBRESÍA</b><p>En recepción registramos tu plan y dejamos tu acceso habilitado.</p></div></li>'+
-        '<li><span class="wl__n">03</span><div><b>DISEÑAMOS TU PLAN</b><p>Tu KOACH define tu programa, nivel y planificación según tu objetivo.</p></div></li>'+
-      '</ol>'+
-      '<div class="wl__fin"><h2>'+t.cierre.toUpperCase()+'</h2><p>Ahora vamos a construir tu versión más fuerte.</p><small>TÚ ENTRENAS.<br>NOSOTROS NOS ENCARGAMOS DEL RESTO.</small></div>'+
-      '<button class="wl__cta" type="button" onclick="cerrarWelcome()">CONTINUAR <span aria-hidden="true">→</span></button>'+
-    '</div>'
+  el.classList.add('kxW')
+  el.innerHTML='<div class="kxD__in"><div class="kxD__top"><img src="/img/brand/logotipo-koach.png" alt="KOACH"><small>MEMBER</small></div>'+
+    '<span class="kxD__k">'+k+'</span><h1 class="kxD__t kxD__t--w">'+plEscA(n||'Ya')+',<br>ya eres<br>KOACH.</h1>'+
+    '<p class="kxW__p"><em>Tú entrenas.</em> Nosotros nos encargamos del resto.</p>'+
+    '<div class="kxCard kxD__tk"><div class="kxCard__r"><span>MEMBER · CLUB DEL 1%</span><span>'+plEscA(prog)+'</span></div><div class="kxCard__t">'+plEscA(nomC)+'</div>'+
+      '<div class="kxCard__g"><div><span>MIEMBRO Nº</span><b>'+num+'</b></div><div><span>DESDE</span><b>'+mes+' '+d.getFullYear()+'</b></div></div>'+
+      (p.numero_socio?'<div class="kxCard__bc">'+barcodeSVG('KOACH-'+num,34)+'</div><div class="kxCard__n">KOACH-'+num+'</div>':'')+'</div>'+
+    '<button class="kxBtn kxBtn--dk" type="button" onclick="cerrarWelcome()">ENTRAR AL CLUB <i></i></button></div><div class="kxFlash"></div>'
   el.style.display='block'; document.body.classList.add('wl-on')
-  requestAnimationFrame(()=>el.classList.add('is-in'))
+  requestAnimationFrame(()=>{ el.classList.add('is-in','on'); const f=el.querySelector('.kxFlash'); if(f&&f.animate) f.animate([{opacity:1},{opacity:0}],{duration:800,easing:'ease-out'}) })
 }
 // ═══ v11.8 · FOTO DE PERFIL EN EL PRIMER ACCESO (opcional) ═══
 // Se pide una vez tras la bienvenida (o al primer acceso si ya la vio). OMITIR la descarta; siempre puede
