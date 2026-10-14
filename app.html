@@ -404,6 +404,8 @@ html.accBloq #pfCard, html.accBloq #vPerfil .kpc__f, html.accBloq #vPerfil [oncl
 .lockAcc__cta{background:#F4F3F0;color:#121212;border:none}
 .lockAcc__sec{margin-top:10px;background:none;color:#F4F3F0;border:1px solid rgba(244,243,240,.35)}
 .lockAcc__sec[disabled]{opacity:.5}
+#horAv .horBloq{margin-bottom:6px}
+#horAv .horAv{margin:calc(12px + env(safe-area-inset-top,0px)) 16px 0}
 /* c40 · hoja KOACH de confirmación / aviso */
 .kHoja{position:fixed;inset:0;z-index:2000;background:rgba(12,12,13,.55);display:flex;align-items:center;justify-content:center;padding:20px;animation:kHf .15s ease-out}
 @supports (-webkit-touch-callout:none){ .kHoja{background:rgba(10,10,11,.66)} }
@@ -1715,6 +1717,7 @@ html,button,input,.pvS,.chk,.setChip{touch-action:manipulation}
 }
 #k2Home{display:none}
 .k2 #vHome > *:not(#k2Home){display:none!important}
+.k2 #vHome > #horAv:not(:empty){display:block!important}   /* c116 · aviso / bloqueo de horario del plan, sobre el home */
 .k2 #k2Home{display:block;padding:0 0 var(--k2-s6)}
 .k2 body{background:var(--k2-off)}
 .k2-label{font-family:var(--font-mono);font-weight:500;font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--k2-g4)}
@@ -2522,6 +2525,7 @@ body.wl-on{overflow:hidden}
 
   <!-- ══ HOME ══ -->
   <div class="vista conTab" id="vHome">
+    <div id="horAv" aria-live="polite"></div>
     <div id="k2Home" aria-live="polite"></div>
     <div class="hbar"><span class="hk" title="v10.8">KOACH</span><div class="hav" id="hAv" onclick="salir()">K</div></div>
     <div class="ctx"><div class="fecha" id="hFecha">—</div><div class="prog" id="hProg">—</div></div>
@@ -3766,6 +3770,7 @@ async function entrar(opts){
     // Oleada 1: todo lo que solo depende del usuario
     const _rOp = sb.rpc('mi_operacion').then(r=>r, ()=>({data:null}))
     const _rCnt = sb.rpc('mi_contador_sesiones').then(r=>r, ()=>({data:null}))   // c91 · SESSION Nº: sesiones completadas en el club   // c42 · resolver único (mismo que ve el coach)
+    const _rHor = sb.rpc('mi_horario').then(r=>r, ()=>({data:null}))   // c116 · plan con horario (ej. ESTUDIANTE hasta 16:30)
     const _rHab = sb.from('sesion_habilitada').select('id, sesion_protocolo_id, permite_hoy, fecha, estado').eq('socio_id', uid).eq('estado','activa').gte('fecha', fLocal(new Date())).order('created_at',{ascending:false}).limit(1).maybeSingle().then(r=>r, ()=>({data:null}))   // c108 · una habilitación vale para su día: las de días anteriores no fijan la rutina
     const [rPerfil, rAsig, rRegs, rEc, rDx, rSol, rCfg] = await Promise.all([
       sb.from('profiles').select('*').eq('id', uid).single(),
@@ -3876,6 +3881,7 @@ async function entrar(opts){
     S._rSol = rSol
     S.sem = calcularSemana(S.programa, S.registros, S.objetivos)
     try{ S.hab = (await _rHab).data || null }catch(_e){ S.hab=null }
+    try{ S.horario = (await _rHor).data || null }catch(_e){ S.horario=null }
     aplicarHabilitada()
     try{ S.op = (await _rOp).data || null }catch(_e){ S.op=null }
     try{ const _c=(await _rCnt).data; S.totalSes = (typeof _c==='number') ? _c : null }catch(_e){ S.totalSes=null }
@@ -4128,8 +4134,29 @@ function fitTitulares(){
   if ('ResizeObserver' in window){ const ro=new ResizeObserver(()=>{ clearTimeout(t); t=setTimeout(fitTitulares,60) }); const ob=()=>{ const v=document.getElementById('vHome'); if(v) ro.observe(v); const s=document.getElementById('vSesion'); if(s) ro.observe(s) }; document.readyState==='loading'?document.addEventListener('DOMContentLoaded',ob):ob() }
   if (document.fonts && document.fonts.ready) document.fonts.ready.then(fitTitulares) })()
 
+// ═══ c116 · PLAN CON HORARIO (ej. ESTUDIANTE: iniciar hasta las 16:30). El servidor manda; aquí solo se informa y se evita el intento. ═══
+function horMin(t){ const p=String(t||'').split(':'); return (+p[0])*60+(+p[1]||0) }
+function horAhora(){ const d=new Date(); return d.getHours()*60+d.getMinutes() }
+function horEstado(){ const h=S.horario; if (!h || !h.restringido || !h.aplica_hoy) return null
+  const lim=horMin(h.limite), now=horAhora(); return { plan:String(h.plan||'TU PLAN').toUpperCase(), limite:h.limite, fuera: now>lim, resta: lim-now } }
+function horPintar(){ const el=document.getElementById('horAv'); if(!el) return
+  const e=horEstado(); if (!e){ el.innerHTML=''; return }
+  if (e.fuera){
+    el.innerHTML='<section class="lockAcc horBloq" role="status"><div class="lockAcc__i" aria-hidden="true"><svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></div>'+
+      '<div class="lockAcc__k">FUERA DE HORARIO · '+opEsc(e.plan)+'</div><h2 class="lockAcc__t">INICIO HASTA LAS '+opEsc(e.limite)+'</h2>'+
+      '<p class="lockAcc__b">Tu plan permite iniciar sesiones hasta las '+opEsc(e.limite)+'. Vuelve mañana desde la apertura, o habla con recepción si quieres pasar a un plan de horario libre.</p>'+
+      '<a class="lockAcc__cta" href="https://wa.me/56971333042?text='+encodeURIComponent('Hola KOACH, quiero cambiar mi plan a horario libre')+'" target="_blank" rel="noopener">CAMBIAR A HORARIO LIBRE →</a></section>'
+  } else if (e.resta<=60){
+    el.innerHTML='<div class="memAv horAv"><b>'+opEsc(e.plan)+' · INICIO HASTA LAS '+opEsc(e.limite)+'</b><span>Te quedan '+e.resta+' min para iniciar tu sesión de hoy.</span></div>'
+  } else el.innerHTML='' }
+async function horBloquear(sesId){
+  try{ const r=await sb.rpc('mi_horario_intento',{ p_sesion:sesId||null }); if (r && r.data) S.horario=r.data }catch(_){}
+  horPintar(); const e=horEstado()
+  kHoja({ k:'FUERA DE HORARIO', aviso:true, msg:'Tu plan permite iniciar hasta las '+((e&&e.limite)||(S.horario&&S.horario.limite)||'')+'\nPuedes revisar tu plan y tu progreso. Para entrenar después de esa hora, pide en recepción un plan de horario libre.' })
+}
+setInterval(function(){ try{ if (S && S.horario && S.horario.restringido) horPintar() }catch(_){} }, 60000)
 function pintarHome(){
-  cargandoOff()
+  cargandoOff(); try{ horPintar() }catch(_){}
   document.getElementById('tabbar').classList.add('vis')
   const hoyF = new Date()
   const DIAF = ['DOMINGO','LUNES','MARTES','MIÉRCOLES','JUEVES','VIERNES','SÁBADO']
@@ -4456,6 +4483,7 @@ async function abrirSesion(num){
   const capG = resolverCap(sesG, ctxDe(sesG))
   if (!capG.can_start && !capG.can_continue){
     toast((REASON_TXT[capG.reason_code]||(()=>'Esta sesión aún no está habilitada.'))(null)); return }
+  { const _he=horEstado(); if (_he && _he.fuera && !capG.can_continue){ horBloquear(sesG.id); return } }   // c116 · continuar una ya iniciada sí se permite
   cargando('PREPARANDO TU SESIÓN…')
   const hoyC = fLocal(new Date())
   if (!esPrueba() && !habHoy() && S.registros.some(r=>r.fecha===hoyC && esHecha(r))){
@@ -4478,6 +4506,7 @@ async function abrirSesion(num){
         socio_id:S.perfil.id, asignacion_id:S.asig.id, sesion_protocolo_id:ses.id,
         fecha:hoyD, estado:'en_curso',
         semana:S.asig.semana_actual, ciclo:S.asig.ciclo_actual }).select('id, iniciada_at').single()
+      if (er && /HORARIO_PLAN/.test(er.message||'')){ cargandoOff(); horBloquear(ses.id); S.sesionAbierta=null; return }   // c116 · el servidor manda
       if (er) throw er
       S.regId = nr.id; S.regInicio = nr.iniciada_at?new Date(nr.iniciada_at).getTime():Date.now()
     }

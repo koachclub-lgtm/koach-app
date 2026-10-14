@@ -1085,6 +1085,10 @@ small{color:var(--koach-text-secondary)}
 .adhBar i{display:block;height:100%;background:#1C1C1C;border-radius:4px}
 
 /* c9.5 · la interfaz no ofrece lo que el rol no puede hacer (la base lo impone igual) */
+.mh__st--hor{margin-left:8px}
+.vtPlanR{margin:0 0 12px;grid-column:1/-1}
+.kTray--hor .kTray__h span{color:#121212}
+.kTray--hor{border-color:#121212}
 html:not([data-rol="admin"]) #rCoach, html:not([data-rol="admin"]) #rRecep, html:not([data-rol="admin"]) #rNutri{display:none}
 html[data-rol="coach"] #fTbAdm, html[data-rol="nutricionista"] #fTbAdm{display:none}
 html[data-rol="recepcion"] .fPlanBtn, html[data-rol="nutricionista"] .fPlanBtn{display:none}
@@ -2536,6 +2540,7 @@ html.ks-on.en-crm body{max-width:1280px !important;padding-left:32px !important;
   <div class="adChips" id="solFT"></div>
   <div id="solLista"><div class="vacio">Cargando…</div></div>
   <section class="atn" id="atn" aria-label="Requieren atención" style="margin-top:22px"></section>
+  <div id="horSala"></div>
   <div id="bandejas"></div>
 </div>
 <div class="vista" id="vAdh">
@@ -2575,7 +2580,7 @@ html.ks-on.en-crm body{max-width:1280px !important;padding-left:32px !important;
       <button class="sback mh__back" onclick="verSala()" aria-label="Volver a la Sala">←</button>
       <button type="button" class="mh__av" id="fAvBtn" onclick="fichaFoto()" aria-label="Foto del socio"></button>
       <div class="mh__id">
-        <div class="mh__n"><h1 class="stit" id="fNombre">—</h1><span class="mh__st" id="fEstado">ACTIVA</span></div>
+        <div class="mh__n"><h1 class="stit" id="fNombre">—</h1><span class="mh__st" id="fEstado">ACTIVA</span><span class="mh__st mh__st--hor" id="fHor" hidden></span></div>
         <div class="mh__code" id="fCode">KOACH MEMBER</div>
         <div class="mh__prog" id="fMeta">—</div>
       </div>
@@ -3246,6 +3251,7 @@ function pintarSala(){
     }).join('')+(_ho.length>4&&!window._hoyTodo?'<button type="button" class="kTray__m" onclick="window._hoyTodo=1;pintarSala()">VER TODAS ('+_ho.length+')</button>':'')+'</div></section>'
   }
   document.getElementById('bandejas').innerHTML=b
+  if (!pintarSala._hor || Date.now()-pintarSala._hor>60000){ pintarSala._hor=Date.now(); horSalaCargar().catch(function(){}) } else horSalaPintar()
   const hoySet=new Set(C.hoy.map(function(r){return r.socio_id}))
   const completas=Object.values(C.sems).filter(function(s){return s&&s.completa}).length
   const _modo=dashModo()
@@ -6102,13 +6108,23 @@ let VT_CAT=null
 const VTS={}
 async function vtCatalogo(force){
   if (VT_CAT && !force) return VT_CAT
-  try{ const r=await sb.from('planes').select('id,nombre,precio,duracion_tipo,duracion_valor,orden').eq('activo',true)
+  try{ const r=await sb.from('planes').select('id,nombre,precio,duracion_tipo,duracion_valor,orden,hora_limite').eq('activo',true)
        VT_CAT=(r.data||[]).sort(function(a,b){ return (a.orden==null?99:a.orden)-(b.orden==null?99:b.orden) || vtOrd(a)-vtOrd(b) }) }catch(_e){ VT_CAT=[] }
   return VT_CAT
 }
 function vtOrd(p){ return p.duracion_tipo==='dia'?0:p.duracion_tipo==='semana'?1:1+p.duracion_valor }
 function vtLbl(k){ const d=VT_DUR.find(function(x){return x[0]===k}); return d?d[1]:k }
-function vtPrecio(k){ const t=String(k||'').split(':'), p=(VT_CAT||[]).find(function(x){ return x.duracion_tipo===t[0] && String(x.duracion_valor)===t[1] }); return p?p.precio:null }
+function vtPrecio(k,plan){ const t=String(k||'').split(':')
+  if (plan){ const pp=(VT_CAT||[]).find(function(x){ return x.id===plan }); if (pp && pp.duracion_tipo===t[0] && String(pp.duracion_valor)===t[1]) return pp.precio }
+  const p=(VT_CAT||[]).find(function(x){ return !x.hora_limite && x.duracion_tipo===t[0] && String(x.duracion_valor)===t[1] }); return p?p.precio:null }
+// c116 · planes con horario (ej. ESTUDIANTE): se eligen al vender y copian su hora límite a la membresía
+function vtPlanesHTML(p){ const ls=(VT_CAT||[]).filter(function(x){ return x.hora_limite }); if(!ls.length) return ''
+  return '<div class="vtPlanR"><div class="vtK">PLAN</div><div class="vtCh" id="'+p+'Plan" role="group" aria-label="Plan"><button type="button" data-v="" class="on" onclick="vtPlan(\''+p+'\',\'\')">HORARIO LIBRE</button>'+
+    ls.map(function(x){ return '<button type="button" data-v="'+x.id+'" onclick="vtPlan(\''+p+'\',\''+x.id+'\')">'+plEsc(String(x.nombre).toUpperCase())+' · HASTA '+String(x.hora_limite).slice(0,5)+'</button>' }).join('')+'</div></div>' }
+function vtPlan(p,id){ const s=VTS[p]; s.plan=id||null; const pl=(VT_CAT||[]).find(function(x){ return x.id===id })
+  document.querySelectorAll('#'+p+'Plan button').forEach(function(b){ b.classList.toggle('on', (b.dataset.v||'')===(id||'')) })
+  if (pl){ s.dur=pl.duracion_tipo+':'+pl.duracion_valor; s.monto=pl.precio; s.custom=false; s.tc='normal'; const m=vtEl(p,'M'); if(m) m.value=Number(pl.precio).toLocaleString('es-CL'); vtVig(p) }
+  vtPintar(p) }
 function vtEl(p,id){ return document.getElementById(p+id) }
 // ctx: { socio: uuid|null, fecha: iso, onChange: fn }
 async function vtMontar(p, boxId, ctx){
@@ -6136,7 +6152,7 @@ async function vtMontar(p, boxId, ctx){
        '<div class="vtNote" id="'+p+'Ugc" style="display:none">UGC activa la membresía igual que un pago, pero <b>no suma a caja</b>: el pago queda en $0 y el valor ingresado se registra como referencia.</div></section></div>'+
      '<section class="vtZ vtZ--not"><div class="vtK">6 · NOTA Y REFERENCIA</div><div class="vtR3"><label class="vtL" id="'+p+'ObsL">POR QUÉ UGC, DESCUENTO U OTRA CONDICIÓN<textarea id="'+p+'Obs" rows="2" oninput="this.style.height=\'auto\';this.style.height=Math.min(this.scrollHeight,140)+\'px\'" placeholder="Opcional · ej: canje por contenido de marzo"></textarea></label>'+
        '<label class="vtL">REFERENCIA DEL PAGO<input id="'+p+'Ref" placeholder="Opcional · n.º de transferencia o voucher"></label></div></section>'
-    vtPintar(p); return }
+    box.insertAdjacentHTML('afterbegin', vtPlanesHTML(p)); vtPintar(p); return }
   box.innerHTML=
    '<div class="vtCol"><div class="vtS"><div class="vtK">1 · DURACIÓN</div>'+
      '<div class="vtPs" role="group" aria-label="Duración en meses">'+durB(VT_DUR.filter(function(d){return d[0].indexOf('mes:')===0}))+'</div>'+
@@ -6153,10 +6169,10 @@ async function vtMontar(p, boxId, ctx){
      '<div class="vtNote" id="'+p+'Ugc" style="display:none">UGC activa la membresía igual que un pago, pero <b>no suma a caja</b>: el pago queda en $0 y el valor ingresado se registra como referencia.</div></div>'+
    '<div class="vtS"><div class="vtK">5 · COMENTARIO</div><label class="vtL" id="'+p+'ObsL">POR QUÉ UGC, DESCUENTO U OTRA CONDICIÓN<textarea id="'+p+'Obs" rows="3" placeholder="Ej: canje por contenido de marzo · descuento convenio empresa"></textarea></label>'+
      '<label class="vtL">REFERENCIA DEL PAGO<input id="'+p+'Ref" placeholder="opcional · n.º de transferencia o voucher"></label></div></div>'
-  vtPintar(p)
+  box.insertAdjacentHTML('afterbegin', vtPlanesHTML(p)); vtPintar(p)
 }
 function vtOtra(p){ VTS[p].otra=true; vtMarcar(p); const sel=vtEl(p,'Otra'); if(sel) sel.focus() }
-function vtDur(p,k){ const s=VTS[p]; if(!k) return; s.dur=k; s.otra=false; s.custom=true
+function vtDur(p,k){ const s=VTS[p]; if(!k) return; if (s.plan){ const pl=(VT_CAT||[]).find(function(x){return x.id===s.plan}); if (!pl || (pl.duracion_tipo+':'+pl.duracion_valor)!==k){ s.plan=null; document.querySelectorAll('#'+p+'Plan button').forEach(function(b){ b.classList.toggle('on', !b.dataset.v) }) } } s.dur=k; s.otra=false; s.custom=true
   if (s.monto==null){ const c=vtPrecio(k); if(c!=null){ s.monto=c; const m=vtEl(p,'M'); if(m) m.value=Number(c).toLocaleString('es-CL') } }
   vtVig(p); vtPintar(p); const m=vtEl(p,'M'); if(m && document.activeElement!==m) setTimeout(function(){ m.focus(); m.select() },30) }
 function vtFecha(p,v){ VTS[p].fecha=v||hoyISO(); vtVig(p); vtPintar(p) }
@@ -6177,7 +6193,7 @@ function vtMarcar(p){ const s=VTS[p], sel=vtEl(p,'Otra')
   if (sel){ sel.style.display = s.otra ? '' : 'none'; if (s.otra) sel.value = (s.dur && vtPrecio(s.dur)==null) ? s.dur : '' } }
 function vtPintar(p, soloResumen){
   const s=VTS[p]; if(!s || !vtEl(p,'Big')) return
-  const cat=vtPrecio(s.dur), ugc=s.met==='ugc'
+  const cat=vtPrecio(s.dur,s.plan), ugc=s.met==='ugc'
   if (!soloResumen){
     vtMarcar(p)
     vtEl(p,'TcW').style.display = ugc ? 'none' : ''
@@ -6198,7 +6214,7 @@ function vtPintar(p, soloResumen){
   vtLimpiarErr(p); s.onChange(vtResumen(p))
 }
 function vtLimpiarErr(p){ const e=document.getElementById(p==='ap'?'apErr':'_'); if (e && e.querySelector('.vtErr')) e.innerHTML='' }
-function vtMontoFinal(p){ const s=VTS[p], cat=vtPrecio(s.dur); return (s.custom||s.met==='ugc') ? s.monto : cat }
+function vtMontoFinal(p){ const s=VTS[p], cat=vtPrecio(s.dur,s.plan); return (s.custom||s.met==='ugc') ? s.monto : cat }
 function vtResumen(p){ const s=VTS[p]
   return { dur:s.dur?vtLbl(s.dur):null, monto:vtMontoFinal(p), vig:s.vig&&!s.vig.err?s.vig:null, met:s.met, est:s.est, tc:s.tc, ugc:s.met==='ugc' } }
 // Devuelve { venta } listo para admin_venta_registrar / admin_alta_socio, o { error }
@@ -6206,14 +6222,14 @@ function vtPayload(p){
   const s=VTS[p]; if(!s) return { error:'Formulario de venta no cargado.' }
   if(!s.dur) return { error:'Elige la duración de la membresía.' }
   if(!s.fecha || !/^\d{4}-\d{2}-\d{2}$/.test(s.fecha)) return { error:'Revisa la fecha de inicio.' }
-  const monto=vtMontoFinal(p), cat=vtPrecio(s.dur), ugc=s.met==='ugc'
+  const monto=vtMontoFinal(p), cat=vtPrecio(s.dur,s.plan), ugc=s.met==='ugc'
   if (monto==null || monto<0) return { error: ugc?'Ingresa el valor referencial del UGC.':'Ingresa el valor cobrado.' }
   if (ugc && !(vtEl(p,'Obs').value||'').trim()) return { error:'Escribe en el comentario por qué es UGC.' }
   if (s.tc==='cortesia' && monto!==0) return { error:'Una cortesía se registra con valor $0.' }
   if (!ugc && !s.met && s.est==='pagado' && s.tc!=='cortesia') return { error:'Elige la forma de pago.' }
   return { venta:{ duracion_tipo:s.dur.split(':')[0], duracion_valor:+s.dur.split(':')[1], fecha:s.fecha, monto:monto,
     estado: ugc?'pagado':s.est, metodo:s.met, tipo_comercial: ugc?'ugc':(s.tc||'normal'),
-    referencia:(vtEl(p,'Ref').value||'').trim()||null, observacion:(vtEl(p,'Obs').value||'').trim()||null } }
+    referencia:(vtEl(p,'Ref').value||'').trim()||null, observacion:(vtEl(p,'Obs').value||'').trim()||null, plan_id:s.plan||null } }
 }
 function vtError(m){ const t=String(m||'')
   return /DUPLICADO_RECIENTE/.test(t)?'Ese pago ya se registró hace unos segundos (doble toque): no se duplicó.'
@@ -7534,7 +7550,7 @@ async function scAccion(acc, rid, sesId, hoy){
   if (r.error) scGuard('err')
   SC.run=false
   if (r.error){ const e=document.getElementById('scErr'); const m=String(r.error.message||'')
-    if (e){ e.style.display=''; e.textContent = /CON_EJECUCION/.test(m)?'Esta sesión ya tiene entrenamiento registrado: ciérrala como incompleta.' : /SESION_COMPLETADA/.test(m)?'La sesión ya está completada: es historial y no se modifica.' : 'No se pudo: '+m }
+    if (e){ e.style.display=''; e.textContent = /HORARIO_PLAN/.test(m)? m.replace(/^.*HORARIO_PLAN:\s*/,'Fuera de horario: ').replace(/^./,function(c){return c.toUpperCase()}) : /CON_EJECUCION/.test(m)?'Esta sesión ya tiene entrenamiento registrado: ciérrala como incompleta.' : /SESION_COMPLETADA/.test(m)?'La sesión ya está completada: es historial y no se modifica.' : 'No se pudo: '+m }
     document.querySelectorAll('#scBody button').forEach(function(b){ b.disabled=false }); if(!e) toast('No se pudo: '+m); return }
   SC.st=r.data; scCerrar(); scPintar()
   toast({anular:'Inicio anulado ✓', cerrar:'Sesión cerrada como incompleta ✓ — sus registros se conservan', completar:'Sesión marcada completada ✓', habilitar:'Sesión habilitada ✓ — el socio ya la ve', quitar_habilitacion:'Habilitación retirada'}[acc]||'Listo')
@@ -7683,8 +7699,30 @@ function plBarraSesion(ses){
     (n>1?'<button type="button" class="ink" onclick="abrirOrgBloques()">⇅ ORGANIZAR BLOQUES</button>':'')
 }
 // ═══════════ c22 · CABECERA DEL SOCIO (member header) ═══════════
+// ═══ c116 · PLAN CON HORARIO (ej. ESTUDIANTE: iniciar hasta las 16:30) ═══
+// El coach puede planificar siempre; fuera de horario el servidor no deja iniciar ni habilitar. Aquí: sello en la ficha + alerta en Sala.
+const HOR={ socio:{}, int:[] }
+async function horFicha(id){ const el=document.getElementById('fHor'); if(!el) return
+  const r=await sb.rpc('koach_horario_socio',{p_socio:id}); if (!F || F.id!==id) return
+  const h=(r&&!r.error&&r.data)||null; HOR.socio[id]=h
+  if (!h || !h.restringido){ el.hidden=true; return }
+  el.hidden=false; el.textContent=String(h.plan||'PLAN').toUpperCase()+' · INICIO HASTA '+h.limite+(h.fuera?' · FUERA DE HORARIO':'')
+  el.classList.toggle('mh__st--alert', !!h.fuera)
+  el.title = h.fuera ? 'Fuera de horario: puedes planificar, pero no habilitar ni iniciar sesiones hasta mañana.' : 'Puede iniciar sesiones hasta las '+h.limite }
+async function horSalaCargar(){
+  const desde=new Date(); desde.setHours(0,0,0,0)
+  const r=await sb.from('horario_intentos').select('socio_id, created_at, limite').gte('created_at', desde.toISOString()).order('created_at',{ascending:false}).limit(30)
+  HOR.int=(r&&r.data)||[]; horSalaPintar() }
+function horSalaPintar(){ const el=document.getElementById('horSala'); if(!el) return
+  const vistos={}, l=HOR.int.filter(function(x){ if(vistos[x.socio_id]) return false; vistos[x.socio_id]=1; return true })
+  if (!l.length){ el.innerHTML=''; return }
+  el.innerHTML='<section class="kTray kTray--hor" aria-label="Intentos fuera de horario"><div class="kTray__h"><span>FUERA DE HORARIO · INTENTARON INICIAR</span><b>'+l.length+'</b></div><div class="kTray__l">'+
+    l.map(function(x){ const t=new Date(x.created_at), hh=String(t.getHours()).padStart(2,'0')+':'+String(t.getMinutes()).padStart(2,'0')
+      return '<div class="brow">'+avSocio(x.socio_id)+'<div class="btx"><b>'+plEsc(nomDe(x.socio_id))+'</b><small>INTENTÓ A LAS '+hh+' · SU PLAN PERMITE HASTA LAS '+plEsc(x.limite||'')+'</small></div>'+
+        '<button class="bbtn" onclick="verFicha(\''+x.socio_id+'\')">VER FICHA</button></div>' }).join('')+'</div></section>' }
 function mhPintar(id, finAcc, dAcc){
   if (!F || F.id!==id) return
+  { const _h=mhPintar._hor||{}; if (_h.id!==id || Date.now()-_h.t>60000){ mhPintar._hor={id:id,t:Date.now()}; horFicha(id).catch(function(){}) } }
   if (accBan._sid!==id){ accBan._sid=id; accBan(id) }
   if (finAcc===undefined){ const ms=(AD.mem||[]).filter(function(m){return m.socio_id===id && m.estado!=='cancelada'})
     if (!ms.length && !mhPintar._q){ mhPintar._q=1; sb.from('v_membresias').select('*').eq('socio_id',id).then(function(r){ mhPintar._q=0; if (F && F.id===id && r.data && r.data.length){ const v=r.data.filter(function(m){return m.estado!=='cancelada'}), f=adFinCadena(v); mhPintar(id, f, adDias(f)) } }) }
