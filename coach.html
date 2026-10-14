@@ -5911,7 +5911,7 @@ function admPintar(){
   // POR ACTIVAR = se registró y le falta membresía o planificación (lo resuelve el equipo)
   const porActivar=function(sid){ return est[sid].k==='sin' || !C.asig[sid] }
   const esUgc=function(sid){ const m=adMemVigente(sid); return !!(m && m.tipo_comercial==='ugc') }
-  if (((C.yo&&C.yo.role)||'')==='admin') admIngresos(); else { const _ing=document.getElementById('admIng'); if(_ing) _ing.innerHTML='' }
+  if (CRM_ACTIVO && ((C.yo&&C.yo.role)||'')==='admin') admIngresos(); else { const _ing=document.getElementById('admIng'); if(_ing) _ing.innerHTML='' }
   const F2=[['activar','POR ACTIVAR'],['todos','TODOS'],['activa','ACTIVOS'],['proxima','PRÓXIMOS A VENCER'],['vencida','VENCIDOS'],['congelada','CONGELADOS'],['pago','PAGO PENDIENTE'],['ugc','UGC'],['sin','SIN MEMBRESÍA'],['sinacc','SIN ACCESO A LA APP']]
   const sinAcc=function(sid){ const a=AD.acc&&AD.acc[sid]; return !!a && ['ok','prorroga','staff'].indexOf(a.estado)<0 }
   accCtrlPintar(soc.filter(function(s){ return sinAcc(s.id) }).length)
@@ -8204,8 +8204,11 @@ const crF=function(s){ return s ? adhF(s) : '—' }
 function crWa(tel){ let d=String(tel||'').replace(/\D/g,''); if(!d) return null; if(d.length===9&&d[0]==='9') d='56'+d; if(d.length===8) d='569'+d; return 'https://wa.me/'+d }
 function crEsAdmin(){ return !!(C && C.yo && C.yo.role==='admin') }
 
+// c115 · CAPA COMERCIAL OCULTA: el panel CRM queda guardado pero apagado (se retomará con JAKE como agente comercial aparte).
+// El dashboard queda para control de usuarios y entrenamiento. Para reactivar: CRM_ACTIVO=true.
+var CRM_ACTIVO=false   // var: puede leerse antes de esta línea sin error (falso por defecto)
 async function verPanel(){
-  if (!crEsAdmin()){ verSala(); return }
+  if (!CRM_ACTIVO || !crEsAdmin()){ verSala(); return }
   vista('vCrm'); crPintar(); await crCargar()
 }
 async function crCargar(){
@@ -8452,7 +8455,7 @@ function kShellPaint(){
     '<a class="kHd__brand" href="#/" onclick="kAcc(\'sala\');return false" aria-label="KOACH · ir a Sala"><img class="kHd__logo" src="/img/brand/logotipo-koach.png" alt="KOACH"></a>'+
     '<span class="kHd__ttl">'+(KS_TIT[KS.v]||'')+'</span>'+
     '<nav class="kNav" aria-label="Principal">'+
-      (b.R==='admin'?'<button type="button" class="'+c('crm','kN-crm')+'" onclick="kAcc(\'crm\')"'+(act==='crm'?' aria-current="page"':'')+'>PANEL</button>':'')+
+      (CRM_ACTIVO && b.R==='admin'?'<button type="button" class="'+c('crm','kN-crm')+'" onclick="kAcc(\'crm\')"'+(act==='crm'?' aria-current="page"':'')+'>PANEL</button>':'')+
       '<button type="button" class="'+c('sala')+'" onclick="kAcc(\'sala\')"'+(act==='sala'?' aria-current="page"':'')+'><i class="kLv" aria-hidden="true"></i>SALA</button>'+
       '<button type="button" class="'+c('sol')+'" onclick="kAcc(\'sol\')"'+(act==='sol'?' aria-current="page"':'')+'>SOLICITUDES'+(b.sol?' <span class="kBdg">'+b.sol+'</span>':'')+'</button>'+
       (b.COM?'<button type="button" class="'+c('mem','kN-mem')+'" onclick="kAcc(\'mem\')" title="'+b.memT+'"'+(act==='mem'?' aria-current="page"':'')+'>MEMBRESÍAS'+(b.mem?' <span class="kBdg kBdg--dot" aria-label="con pendientes"></span>':'')+'</button>':'')+
