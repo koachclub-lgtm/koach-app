@@ -3651,10 +3651,12 @@ function flash(t,s,cb,ms){ document.getElementById('oFT').textContent=t; documen
 /* ═══ c112 · ENCENDIDO START: cromo negro + START de cristal → la luz fría baja, el metal se ordena, flash y entra la rutina ═══ */
 const KX={ v:0, t:0, run:false, busy:false }
 const KX_TAG={ STRONG:'fuerza que se construye set a set.', BURN:'energía que se gana bloque a bloque.', HEALTHY:'fuerza para el día a día, a tu ritmo.' }
-function kxPreparar(ses, prim){
+function kxPreparar(ses, prim, ret){
   const o=document.getElementById('oAct'); if(!o) return
   const prog=String((S.proto&&S.proto.programa)||'').toUpperCase(), tot=baseSem().length
-  const k=(!ses._extra?('SESIÓN '+posSem(ses)+' DE '+tot):'SESIÓN EXTRA')+(prog?' · '+prog:'')
+  const k=(!ses._extra?('SESIÓN '+posSem(ses)+' DE '+tot):'SESIÓN EXTRA')+(prog?' · '+prog:'')+(ret?' · EN CURSO':'')
+  o.querySelectorAll('.kxL--d .kxHint').forEach(e=>e.textContent=ret?'TOCA START PARA RETOMAR':'TOCA START PARA ENCENDER')
+  o.querySelectorAll('.kxL--l .kxHint').forEach(e=>e.textContent=ret?'RETOMANDO SESIÓN…':'ENCENDIENDO SESIÓN…')
   const nm=(n=>n.charAt(0)+n.slice(1).toLowerCase())
   const foco=(prim||[]).slice(0,2).map(g=>nm(String(g))), em=foco.length?(foco.length>1?foco[0]+' y '+foco[1].toLowerCase():foco[0])+' al frente':'Tu sesión de hoy'
   const hl='<em>'+plEscA(em)+'</em> — '+(KX_TAG[prog]||'fuerza que se construye set a set.')
@@ -4531,9 +4533,11 @@ async function reanudar(){
     Object.keys(hm||{}).forEach(ej=>{ const u=(hm[ej]||{}).ultimo; if (u && (u.peso!=null||u.seg!=null||u.reps!=null)) S.ultimos[ej]={ peso:u.peso, reps:u.reps, seg:u.seg, fecha:u.fecha }
       const mj=(hm[ej]||{}).mejor; if (mj && mj.peso!=null) (S.mejores=S.mejores||{})[ej]={ peso:+mj.peso, reps:parseInt(mj.reps)||0 } })
   }catch(_){ S.ultimos={} }
-  document.getElementById('sBloques').classList.remove('locked')
-  document.getElementById('oAct').classList.remove('vis')
   pintarSesion()
+  // c132 · retomar desde el home también pasa por el encendido START (antes saltaba directo a la rutina)
+  kxPreparar(ses, objetivosSesion(ses).prim.slice(0,4), true)
+  document.getElementById('sBloques').classList.add('locked')
+  document.getElementById('oAct').classList.add('vis'); kxCromo()
 }
 // ═══ RESOLVER AUTORITATIVO DE CAPACIDADES (arquitectura PLAN) ═══
 // Única fuente de decisión. La UI renderiza; JAMÁS decide elegibilidad por su cuenta.
