@@ -2549,6 +2549,12 @@ html:has(#vSesion.on[data-bg]),body:has(#vSesion.on[data-bg]){background:var(--s
 #vSesion.kdk .pvEnd{color:#F1F2F4}
 .pv__clk{display:inline-flex!important;align-items:center;gap:6px}
 .pv__clk i{display:inline-block;line-height:0;font-style:normal}.pv__clk svg{height:13px;width:auto;display:block}
+.bk__finIn--c{justify-content:center;gap:18px}
+.bk__finIn--c .bk__finB{font-size:clamp(44px,13.5vw,66px)!important;white-space:nowrap;line-height:.86!important;text-transform:uppercase}
+.bk__finP{margin:0;font:400 20px/1.3 var(--wxD,var(--font-display));color:rgba(20,20,20,.7)}
+.bk__finIn--c .kxSegs{max-width:200px}
+#oBloque.fin .bk__foot{visibility:hidden}
+#oBloque.fin{margin:0!important;width:auto!important}
 </style>
 </head>
 <body>
@@ -5154,14 +5160,13 @@ function bkFinBloque(b){ const o=document.getElementById('oBloque'); if(!o||!b) 
   const prim=bkPrimerPendiente(bfs), ult=prim<0, nomV=(b.etiqueta?b.etiqueta.toUpperCase():bkNom(b,BK.bi))
   const el=document.createElement('div'); el.className='bk__fin'; el.setAttribute('role','status'); el.setAttribute('aria-live','polite')
   const segs=bfs.map(x=>'<i class="'+(bloqueCompleto(x)?'on':'')+'"></i>').join('')
-  el.innerHTML='<div class="bk__finIn"><span class="bk__finK">'+bkCod(b,BK.bi)+' · '+bkEsc(nomV)+'</span><b class="bk__finB">'+bkCod(b,BK.bi)+'<br>done.</b>'+
-    '<div class="bk__finKg"><span data-kx="'+kg+'">0</span><i>KG</i></div><span class="bk__finS">EN ESTE BLOQUE</span><div class="kxSegs">'+segs+'</div>'+
-    '<div class="bk__finHoy"><em>HOY · '+kgHoy.toLocaleString('es-CL')+' KG · '+st[0]+'/'+st[1]+' SETS</em> '+(ult?'Cierra tu sesión.':'Sigue '+bkCod(bfs[prim],prim)+'.')+'</div>'+
-    '<span class="bk__finGo">'+(ult?'TERMINA TU SESIÓN DESDE LA RUTINA':'SIGUIENTE · '+bkCod(bfs[prim],prim)+' →')+'</span></div>'
-  kxContar(el.querySelector('[data-kx]'))
+  // c127 · cierre de bloque corto: "BLOQUE 1 LISTO!" + una línea; se va solo a los 3,5 s (o al tocar)
+  const nB=String(bkCod(b,BK.bi)).replace(/^B/,'')
+  el.innerHTML='<div class="bk__finIn bk__finIn--c"><b class="bk__finB">Bloque&nbsp;'+nB+'<br>listo!</b>'+
+    '<p class="bk__finP">'+(ult?'Último bloque hecho. Termina tu sesión.':'Vamos por lo que sigue.')+'</p><div class="kxSegs">'+segs+'</div></div>'
   o.appendChild(el); o.classList.add('fin'); requestAnimationFrame(function(){ el.classList.add('on') })
   const cerrar=function(){ clearTimeout(BK._fin); BK._fin=null; el.remove(); o.classList.remove('fin'); BK.cap = prim>=0 ? prim : null; bkCerrar() }
-  el.onclick=cerrar; BK._fin=setTimeout(cerrar, 3000) }
+  el.onclick=cerrar; BK._fin=setTimeout(cerrar, 3500) }
 async function bkDesmarcar(){ const b=(S._bfs||[])[BK.bi]; if(!b) return; const n=BK.set
   if (!(await kConfirm('¿Desmarcar el set '+String(n).padStart(2,'0')+' en todos los ejercicios del bloque?\nSe borra el registro de ese set.'))) return
   for (const be of bkBes(b)){ if(S.setLog[setKey(be.id,n)]) await tapSetRow(be.id,n,b.id,(be.ejercicios||{}).id) }
