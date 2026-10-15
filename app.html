@@ -7168,6 +7168,30 @@ function ksPintar() {
   document.querySelectorAll('#ksOFoto [data-solo="senalador"]').forEach(r => r.hidden = KS.estilo !== 'senalador');
   ksEl('ksOTr').hidden = KS.formato !== 'transparente';
   ksAcciones(sinFoto);
+  ksPreparar(sinFoto);
+}
+/* c133 · MOTOR DE COMPARTIR: el archivo final se genera en segundo plano apenas cambia la tarjeta, así el toque
+   en COMPARTIR abre el menú del teléfono al instante (iOS rechaza navigator.share si antes hay trabajo asíncrono).
+   JPEG para tarjetas con foto o fondo (liviano), PNG solo para el sticker transparente. */
+const KSF = { ver: 0, file: null, fileVer: -1, t: null, busy: false };
+function ksTipo() { return KS.formato === 'transparente' ? 'image/png' : 'image/jpeg' }
+function ksPreparar(sinFoto) {
+  const v = ++KSF.ver; KSF.file = null; clearTimeout(KSF.t); if (sinFoto) return;
+  KSF.t = setTimeout(() => {
+    const cv = ksEl('ksCv'), tipo = ksTipo();
+    if (tipo === 'image/png' && !KT.alfaOk(cv)) return;
+    cv.toBlob(b => { if (!b || v !== KSF.ver) return; KSF.file = new File([b], ksNombre(), { type: tipo }); KSF.fileVer = v }, tipo, .9);
+  }, 120);
+}
+function ksListo() { return KSF.file && KSF.fileVer === KSF.ver ? KSF.file : null }
+function ksMovil() { try { return matchMedia('(pointer:coarse)').matches } catch (_) { return false } }
+function ksPuedeCompartir(f) { try { return !!(navigator.canShare && navigator.share && navigator.canShare({ files: [f] })) } catch (_) { return false } }
+function ksBloquear(on) { KSF.busy = on; document.querySelectorAll('#ksActs button').forEach(b => b.disabled = on); clearTimeout(KSF.bt); if (on) KSF.bt = setTimeout(() => ksBloquear(false), 6000) }
+// Abre el menú nativo SIN await previo (mantiene el gesto del usuario). Safari a veces no resuelve la promesa tras "Guardar imagen" → se libera solo.
+function ksMenu(f, okMsg) {
+  ksBloquear(true);
+  let p; try { p = navigator.share({ files: [f] }) } catch (e) { ksBloquear(false); ksGuardar(f); ksSt('La imagen se descargó.'); return }
+  p.then(() => ksSt(okMsg || ''), e => { if (!e || e.name !== 'AbortError') { console.error(e); ksSt('No se pudo abrir el menú. Prueba de nuevo.') } }).finally(() => ksBloquear(false));
 }
 function ksAcciones(sinFoto) {
   const a = ksEl('ksActs');
@@ -7192,28 +7216,41 @@ async function abrirCompartir(desdeCierre) {
 }
 function cerrarCompartir() { ksEl('oShare').classList.remove('vis'); if (KS.desdeCierre) { KS.desdeCierre = false; try { entrar() } catch (_) {} } }
 function ksVerProgreso() { ksEl('oShare').classList.remove('vis'); KS.desdeCierre = false; try { entrar().then(() => { try { vista('vAvances'); if (typeof loadAvances === 'function') loadAvances() } catch (_) {} }) } catch (_) {} }
-function ksNombre() { const d = KS.data ? ksDatos(KS.data) : { rut: 'sesion' }; return 'koach-' + d.rut.toLowerCase().replace(/[^a-z0-9]+/g, '-') + '-' + KS.formato + '.png' }
+function ksNombre() { const d = KS.data ? ksDatos(KS.data) : { rut: 'sesion' }; return 'koach-' + d.rut.toLowerCase().replace(/[^a-z0-9]+/g, '-') + '-' + KS.formato + (KS.formato === 'transparente' ? '.png' : '.jpg') }
 async function ksBlob() {
   ksPintar(); const cv = ksEl('ksCv');
   if (KS.formato === 'transparente' && !KT.alfaOk(cv)) throw new Error('sin transparencia');
-  return await new Promise((ok, no) => cv.toBlob(b => b ? ok(b) : no(new Error('png')), 'image/png'));
+  const tipo = ksTipo(); return await new Promise((ok, no) => cv.toBlob(b => b ? ok(b) : no(new Error('img')), tipo, .9));
 }
 function ksGuardar(blob) { const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = ksNombre(); document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 4000) }
 async function ksCompartir() {
-  try {
-    const blob = await ksBlob(), file = new File([blob], ksNombre(), { type: 'image/png' });
-    if (navigator.canShare && navigator.canShare({ files: [file] })) { await navigator.share({ files: [file] }); ksSt('') }
-    else { ksGuardar(blob); ksSt('Tu teléfono no permite compartir directo: la imagen se descargó.') }
-  } catch (e) { if (e && e.name === 'AbortError') return; console.error(e); ksSt('No se pudo compartir. Prueba con GUARDAR.') }
+  if (KSF.busy) return;
+  const f = ksListo();
+  if (f) { if (ksPuedeCompartir(f)) return ksMenu(f); ksGuardar(f); ksSt('Tu navegador no comparte directo: la imagen se descargó.'); return }
+  // aún no estaba listo (raro): se genera y se ofrece; algunos iPhone pedirán tocar otra vez
+  try { ksBloquear(true); const b = await ksBlob(), g = new File([b], ksNombre(), { type: ksTipo() }); KSF.file = g; KSF.fileVer = KSF.ver; ksBloquear(false)
+    if (ksPuedeCompartir(g)) { try { ksMenu(g) } catch (_) { ksSt('Lista. Toca COMPARTIR otra vez.') } } else { ksGuardar(g); ksSt('La imagen se descargó.') } }
+  catch (e) { ksBloquear(false); console.error(e); ksSt('No se pudo generar la imagen.') }
 }
-async function ksGuardarBtn() { try { ksGuardar(await ksBlob()); ksSt('Imagen guardada.') } catch (e) { console.error(e); ksSt('No se pudo generar la imagen.') } }
+// En el teléfono "guardar" pasa por el menú nativo (en iPhone la descarga clásica abre una vista previa y no guarda en Fotos)
+async function ksGuardarBtn() {
+  if (KSF.busy) return;
+  let f = ksListo();
+  if (!f) { try { const b = await ksBlob(); f = new File([b], ksNombre(), { type: ksTipo() }) } catch (e) { console.error(e); ksSt('No se pudo generar la imagen.'); return } }
+  if (ksMovil() && ksPuedeCompartir(f)) { ksSt('Elige "Guardar imagen" para dejarla en tus fotos.'); return ksMenu(f, 'Listo.') }
+  ksGuardar(f); ksSt('Imagen guardada.')
+}
 async function ksCopiar() {
-  try { await navigator.clipboard.write([new ClipboardItem({ 'image/png': ksBlob() })]); ksSt('Copiada. Abre tu historia, elige tu foto y pega.') }
+  const f = ksListo();
+  try { await navigator.clipboard.write([new ClipboardItem({ 'image/png': f && f.type === 'image/png' ? f : ksBlob() })]); ksSt('Copiada. Abre tu historia, elige tu foto y pega.') }
   catch (e) { console.error(e); ksSt('Tu navegador no permite copiar imágenes. Usa COMPARTIR o GUARDAR.') }
 }
 async function ksCargarFoto(f) {
   if (!f) return;
   try { KS.foto = await createImageBitmap(f, { imageOrientation: 'from-image' }) } catch (_) { try { KS.foto = await createImageBitmap(f) } catch (__) { const im = new Image(); im.src = URL.createObjectURL(f); await im.decode(); KS.foto = im } }
+  try { const im = KS.foto, w = im.width, h = im.height, M = 2160, k = M / Math.max(w, h)
+    if (k < 1) { const c = document.createElement('canvas'); c.width = Math.round(w * k); c.height = Math.round(h * k); c.getContext('2d').drawImage(im, 0, 0, c.width, c.height)
+      try { im.close && im.close() } catch (_) {}; KS.foto = typeof createImageBitmap === 'function' ? await createImageBitmap(c) : c } } catch (_) {}
   KT.BG_CACHE.key = null; KT.NIT_CACHE.src = null; KS.target = null; ksFormato('foto');
 }
 document.querySelectorAll('[data-ksf]').forEach(b => b.onclick = () => ksFormato(b.dataset.ksf));
