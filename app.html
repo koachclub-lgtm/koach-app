@@ -2590,6 +2590,12 @@ html:not(:has(#oAct.vis)) #sBloques.locked{filter:none;opacity:1;pointer-events:
 #vSesion.kdk .wx__kg .pvFin__k,#vSesion.kdk .wx__kg .pvFin__s{color:rgba(241,242,244,.6)!important}
 #vSesion.kdk .wx__kg .pvFin__kg span,#vSesion.kdk .wx__kg .pvFin__kg i{color:#F1F2F4!important}
 #vSesion.kdk .wx__kg .pvFin__p .kh__pill{color:rgba(241,242,244,.9)!important;border-color:rgba(241,242,244,.35)!important}
+
+/* c134 · barra de compartir fija abajo en las tres pestañas */
+#oShare .kset__acts{position:sticky;bottom:calc(-24px - env(safe-area-inset-bottom,0px));z-index:5;margin:10px -18px 0;padding:14px 18px calc(16px + env(safe-area-inset-bottom,0px));background:linear-gradient(180deg,rgba(18,18,18,0),#121212 22%)}
+#oShare .kset__pick{display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden}
+#oShare .kset__pick input{position:absolute;inset:0;opacity:0;cursor:pointer}
+#oShare .kset__acts button:disabled{opacity:.5}
 </style>
 </head>
 <body>
@@ -7176,7 +7182,7 @@ function ksPintar() {
 const KSF = { ver: 0, file: null, fileVer: -1, t: null, busy: false };
 function ksTipo() { return KS.formato === 'transparente' ? 'image/png' : 'image/jpeg' }
 function ksPreparar(sinFoto) {
-  const v = ++KSF.ver; KSF.file = null; clearTimeout(KSF.t); if (sinFoto) return;
+  const v = ++KSF.ver; KSF.file = null; clearTimeout(KSF.t);
   KSF.t = setTimeout(() => {
     const cv = ksEl('ksCv'), tipo = ksTipo();
     if (tipo === 'image/png' && !KT.alfaOk(cv)) return;
@@ -7193,12 +7199,14 @@ function ksMenu(f, okMsg) {
   let p; try { p = navigator.share({ files: [f] }) } catch (e) { ksBloquear(false); ksGuardar(f); ksSt('La imagen se descargó.'); return }
   p.then(() => ksSt(okMsg || ''), e => { if (!e || e.name !== 'AbortError') { console.error(e); ksSt('No se pudo abrir el menú. Prueba de nuevo.') } }).finally(() => ksBloquear(false));
 }
+// c134 · las tres pestañas tienen COMPARTIR y GUARDAR siempre a la vista (barra fija abajo)
 function ksAcciones(sinFoto) {
-  const a = ksEl('ksActs');
-  if (sinFoto) { a.innerHTML = '<button type="button" class="kset__sec kset__wide" onclick="ksFormato(\'gris\')">USAR LA VERSIÓN GRIS</button>'; return }
-  a.innerHTML = KS.formato === 'transparente'
-    ? '<button type="button" class="kset__cta" onclick="ksCopiar()">COPIAR PARA TU HISTORIA</button><button type="button" class="kset__sec" onclick="ksCompartir()">COMPARTIR</button><button type="button" class="kset__sec" onclick="ksGuardarBtn()">GUARDAR</button>'
-    : '<button type="button" class="kset__cta" onclick="ksCompartir()">COMPARTIR</button><button type="button" class="kset__sec kset__wide" onclick="ksGuardarBtn()">GUARDAR IMAGEN</button>';
+  const a = ksEl('ksActs'), sh = '<button type="button" class="kset__cta" onclick="ksCompartir()">COMPARTIR</button>', gu = '<button type="button" class="kset__sec" onclick="ksGuardarBtn()">GUARDAR</button>';
+  a.innerHTML = sinFoto
+    ? '<label class="kset__cta kset__pick">+ AGREGAR TU FOTO<input type="file" accept="image/*" onchange="ksCargarFoto(this.files&&this.files[0])"></label><button type="button" class="kset__sec" onclick="ksCompartir()">COMPARTIR SIN FOTO</button>' + gu
+    : KS.formato === 'transparente'
+      ? sh + '<button type="button" class="kset__sec" onclick="ksCopiar()">COPIAR STICKER</button>' + gu
+      : sh + gu.replace('kset__sec"', 'kset__sec kset__wide"');
 }
 function ksFormato(f) { KS.formato = f; document.querySelectorAll('[data-ksf]').forEach(x => x.setAttribute('aria-pressed', String(x.dataset.ksf === f))); ksSt(''); ksPintar() }
 function ksSemanaLinea() {
