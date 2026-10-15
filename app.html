@@ -2567,6 +2567,29 @@ html:has(#oAct.vis) body > .pvGo,html.bk-on body > .pvGo{display:none!important}
 html:has(#vSesion.kdk.on) body > .pvGo{background:#F1F2F4;color:#0B0B0C}
 html:not(:has(#oAct.vis)) #sBloques.locked{filter:none;opacity:1;pointer-events:auto}
 #oBloque .bk__duo .bk__all{white-space:normal;line-height:1.05;padding:0 10px}
+/* c131 · sesión completa en la rutina */
+#vSesion.pvDone #sObj{display:none}
+.pvFin{margin-top:6px}
+.pvFin__k{display:block;font:700 10px var(--wxM,var(--font-mono));letter-spacing:.2em;color:rgba(17,17,17,.55)}
+.pvFin__kg{display:flex;align-items:baseline;gap:6px;margin-top:6px;font:900 clamp(54px,17vw,76px)/.9 var(--wxD,var(--font-display));font-stretch:108%;letter-spacing:-.04em;color:#0B0B0C;font-variant-numeric:tabular-nums}
+.pvFin__kg i{font:700 14px var(--wxM,var(--font-mono));font-style:normal;letter-spacing:.06em}
+.pvFin__s{display:block;margin-top:8px;font:700 10px var(--wxM,var(--font-mono));letter-spacing:.14em;color:rgba(17,17,17,.55)}
+.pvFin__p{margin-top:14px!important}
+.pvFin--in .pvFin__kg{animation:pvFinUp .7s cubic-bezier(.2,.8,.2,1) both}
+.pvFin--in .pvFin__p .kh__pill{opacity:0;animation:pvFinPill .5s cubic-bezier(.2,.8,.2,1) both;animation-delay:calc(.9s + var(--i) * .12s)}
+@keyframes pvFinUp{from{opacity:0;transform:translateY(12px)}}
+@keyframes pvFinPill{from{opacity:0;transform:translateY(8px) scale(.94)}to{opacity:1;transform:none}}
+#vSesion.kdk .pvFin__k,#vSesion.kdk .pvFin__s{color:rgba(241,242,244,.6)}#vSesion.kdk .pvFin__kg{color:#F1F2F4}
+@media (prefers-reduced-motion:reduce){.pvFin--in .pvFin__kg,.pvFin--in .pvFin__p .kh__pill{animation:none;opacity:1}}
+#vSesion .wx__kg .pvFin__k{display:block!important;font:700 10px var(--wxM,var(--font-mono))!important;letter-spacing:.2em!important;color:rgba(17,17,17,.6)!important}
+#vSesion .wx__kg .pvFin__kg{display:flex!important}
+#vSesion .wx__kg .pvFin__kg span{display:inline!important;font:900 clamp(56px,18vw,80px)/.9 var(--wxD,var(--font-display))!important;font-stretch:108%!important;letter-spacing:-.04em!important;color:#0B0B0C!important}
+#vSesion .wx__kg .pvFin__kg i{font:700 14px var(--wxM,var(--font-mono))!important;color:#0B0B0C!important}
+#vSesion .wx__kg .pvFin__s{display:block!important;font:700 10px var(--wxM,var(--font-mono))!important;letter-spacing:.14em!important;color:rgba(17,17,17,.6)!important}
+#vSesion .wx__kg .pvFin__p .kh__pill{display:inline-block!important;font:700 9px var(--font-mono)!important;letter-spacing:.16em!important;padding:8px 12px!important;color:rgba(17,17,17,.85)!important;border-color:rgba(17,17,17,.3)!important}
+#vSesion.kdk .wx__kg .pvFin__k,#vSesion.kdk .wx__kg .pvFin__s{color:rgba(241,242,244,.6)!important}
+#vSesion.kdk .wx__kg .pvFin__kg span,#vSesion.kdk .wx__kg .pvFin__kg i{color:#F1F2F4!important}
+#vSesion.kdk .wx__kg .pvFin__p .kh__pill{color:rgba(241,242,244,.9)!important;border-color:rgba(241,242,244,.35)!important}
 </style>
 </head>
 <body>
@@ -4965,6 +4988,13 @@ function pvDesc(ses,bfs){ const V=pvVol(ses); if(!V.L.length) return 'Tu coach a
   return tipo+tren+' con prioridad en <b>'+plEscA(pvLista(top))+'</b>'+(p<100?', el '+p+'% del volumen del día.':'.') }
 function pvDur(bfs){ let s=0; bfs.forEach(b=>{ const n=bkBes(b).length||1; s+=(b.sets||1)*(n*45+(bkDesc(b)||60))+120 }); return Math.max(10,Math.round(s/60/5)*5) }
 function pvHero(ses,bfs){ const ne=bfs.reduce((a,b)=>a+bkBes(b).length,0)
+  if (pvEmpezada() && bkPrimerPendiente(bfs)<0){ let sh=0,kg=0; bfs.forEach(b=>{ sh+=bkSetsHechos(b); kg+=bkKgBloque(b) })
+    /* c131 · sesión lista: tonelaje que cuenta y pills de los músculos trabajados entrando una a una */
+    const V=pvVol(ses), anim=S._pvFin!==ses.id; S._pvFin=ses.id
+    return '<div class="pvFin'+(anim?' pvFin--in':'')+'"><span class="pvFin__k">SESIÓN COMPLETA</span>'+
+      '<div class="pvFin__kg"><span data-kx="'+kg+'">'+(anim?'0':kg.toLocaleString('es-CL'))+'</span><i>KG</i></div>'+
+      '<span class="pvFin__s">MOVIDOS HOY · '+sh+' SETS'+(S.regInicio?' · '+sesTxt():'')+'</span>'+
+      '<div class="kh__pills pvFin__p">'+V.L.map((x,i)=>'<span class="kh__pill" style="--i:'+i+'">'+plEscA(x[0])+' ✓</span>').join('')+'</div></div>' }
   if (pvEmpezada()){ let sh=0,stt=0,kg=0; bfs.forEach(b=>{ sh+=bkSetsHechos(b); stt+=(b.sets||0); kg+=bkKgBloque(b) })
     return '<p class="pv__d">'+pvDesc(ses,bfs)+'</p><div class="pv__st pv__st--go"><span><b>'+sh+'/'+stt+'</b>SETS</span><span><b>'+kg.toLocaleString('es-CL')+'</b>KG</span>'+
       (S.regInicio?'<span class="pv__clk"><i id="sClk" data-t="'+sesTxt()+'">'+bkSeg(sesTxt())+'</i>TIEMPO</span>':'')+'</div>' }
@@ -4977,7 +5007,7 @@ function pvFoco(ses){ const V=pvVol(ses); if(!V.pct.length) return ''
     '<div class="pv__sb">'+vis.map(([g,p],i)=>'<i style="width:'+p+'%;background:'+C[i]+';animation-delay:'+(i*.12)+'s"></i>').join('')+'</div>'+
     '<div class="pv__lg">'+vis.map(([g,p],i)=>'<span><i style="background:'+C[i]+'"></i>'+plEscA(g)+' <b>'+p+'</b></span>').join('')+'</div></section>' }
 function pvBloques(bfs){ const pp=bkPrimerPendiente(bfs), todo=pp<0, prim=todo?bfs.length-1:pp, emp=pvEmpezada()
-  const ab=(S._pvAb!=null && bfs[S._pvAb]) ? S._pvAb : prim
+  const ab=(S._pvAb!=null && bfs[S._pvAb]) ? S._pvAb : (todo ? -1 : prim)
   const cp=bfs[prim]||{}, hp=bkSetsHechos(cp)
   const go = todo ? '<button type="button" class="pvGo" onclick="pedirFinal()">TERMINAR SESIÓN ✓</button>'
     : '<button type="button" class="pvGo" onclick="bkAbrir('+prim+')">▶ &nbsp;'+(hp?'RETOMAR ':'COMENZAR ')+bkCod(cp,prim)+'</button>'
@@ -5306,8 +5336,10 @@ function pintarSesion(){
     return '<section class="wx__b'+(done?' wx__b--ok':'')+'" id="blq-'+bi+'"><div class="wx__bh"><span class="wx__bn">'+bn+'</span><div><span>BLOQUE</span><b>'+titulo+'</b></div>'+
       '<div class="wx__bm"><b>'+wxP2(b.sets)+'</b><span>SETS</span></div><div class="wx__bm"><b>'+desc+"''"+'</b><span>DESC</span></div></div>'+cards+
       '<button type="button" class="wx__bcta'+(done?' wx__bcta--ok':'')+'" onclick="completarBloque('+bi+')">'+(done?'✓ BLOQUE '+bn+' COMPLETADO · TOCA PARA CORREGIR':'COMPLETAR BLOQUE '+bn)+'</button></section>'
-  }).join('') : (_pv?pvFoco(ses)+pvBloques(bfs):bkCapsulas(bfs))
+  }).join('') : (_pv?((pvEmpezada()&&bkPrimerPendiente(bfs)<0)?'':pvFoco(ses))+pvBloques(bfs):bkCapsulas(bfs))
   document.getElementById('sFin').style.display=_pv?'none':'block'
+  { const v=document.getElementById('vSesion'), fin=_pv && pvEmpezada() && bkPrimerPendiente(bfs)<0; v.classList.toggle('pvDone',fin)
+    const n=fin && document.querySelector('.pvFin--in [data-kx]'); if(n) kxContar(n) }
   /* c130 · el botón fijo vive fuera de la lista (un filtro o bloqueo de la lista lo dejaba sin toque o escondido) y la lista solo se bloquea mientras está la pantalla START */
   { const sb=document.getElementById('sBloques'), oa=document.getElementById('oAct'); if(sb && !(oa && oa.classList.contains('vis'))) sb.classList.remove('locked')
     document.querySelectorAll('body > .pvGo').forEach(x=>x.remove()); const g=sb&&sb.querySelector('.pvGo'); if(g) document.body.appendChild(g) }
