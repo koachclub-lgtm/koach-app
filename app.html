@@ -2463,8 +2463,22 @@ body.wl-on{overflow:hidden}
 @media (prefers-reduced-motion:reduce){.pv__r i s{animation:none}}
 /* c119 · PREVIEW editorial en tonos de gamificación */
 #vSesion.pv{background:#F1F2F4}
-#vSesion.pv::before{content:'';position:fixed;inset:0;z-index:-1;pointer-events:none;background:#F1F2F4 var(--kx-glow) center/cover no-repeat}
-#vSesion.pv .kh--ses{background:linear-gradient(180deg,rgba(5,5,6,.86) 0%,rgba(5,5,6,.62) 50%,rgba(5,5,6,.3) 100%),#050506 var(--kx-cromo) center 75%/cover no-repeat!important}
+#vSesion.pv{background:transparent}
+html:has(#vSesion.pv.on),body:has(#vSesion.pv.on){background:#F1F2F4 var(--kx-glow) center/cover no-repeat fixed}
+/* c120 · hero del preview en luz fría (como las pantallas de logro): sin bloque negro, tinta oscura sobre la misma luz */
+#vSesion.pv .kh--ses{background:transparent!important;border-radius:0!important;padding-bottom:6px!important}
+#vSesion.pv .kh--ses::before,#vSesion.pv .kh--ses::after{display:none!important}
+#vSesion.pv .kh__brand::before{background:#0B0B0C;-webkit-mask:url(/img/brand/logotipo-koach.png) no-repeat center/contain;mask:url(/img/brand/logotipo-koach.png) no-repeat center/contain}
+#vSesion.pv .kh__brand::after{background:rgba(17,17,17,.45)}
+#vSesion.pv .kh__back{border-color:rgba(17,17,17,.16);background:rgba(255,255,255,.45);color:#111}
+#vSesion.pv .kh #syncTag{background:rgba(255,255,255,.45);color:rgba(17,17,17,.7);border-color:rgba(17,17,17,.12)}
+#vSesion.pv .kh__k{color:rgba(17,17,17,.55)}
+#vSesion.pv .kh--ses .kh__t{color:#0B0B0C!important;font-weight:900;font-size:clamp(44px,13.5vw,66px)!important;line-height:.9;letter-spacing:-.03em}
+#vSesion.pv .pv__d{color:rgba(17,17,17,.5);font-size:16px;max-width:34ch}
+#vSesion.pv .pv__d b{color:#0B0B0C!important;font-size:16px!important}
+#vSesion.pv .pv__st{border-top-color:rgba(17,17,17,.14)}
+#vSesion.pv .pv__st b{color:#0B0B0C}
+#vSesion.pv .pv__st span{color:rgba(17,17,17,.5)}
 #vSesion.pv .pv__f{background:rgba(255,255,255,.5);-webkit-backdrop-filter:blur(16px) saturate(1.3);backdrop-filter:blur(16px) saturate(1.3);box-shadow:inset 0 1px 0 rgba(255,255,255,.9),inset 0 0 0 1px rgba(255,255,255,.55),0 10px 26px rgba(40,52,70,.08)}
 #vSesion.pv .pv__r i{background:rgba(20,24,30,.08)}
 .pvB{display:flex;flex-direction:column;gap:12px;margin:12px 16px 28px}
