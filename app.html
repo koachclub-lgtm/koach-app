@@ -2458,7 +2458,13 @@ html:has(#vSesion.on[data-bg]),body:has(#vSesion.on[data-bg]){background:var(--s
 #vSesion[data-bg].kdk .cp{background:rgba(244,244,245,.86)}
 #vSesion[data-bg].kdk #sFin{background:#F1F2F4;color:#0B0B0C}
 /* ── PREVIEW en una pantalla ── */
-#vSesion.pv #sObj{display:none}
+#vSesion.pv #sObj{display:block;margin-top:0}
+#vSesion.pv #sObj .kh__pills{margin-top:10px}
+/* c122 · pills de grupo muscular también junto a cada ejercicio del preview */
+.pvB__l .pvPill{font-size:8px;padding:5px 8px;letter-spacing:.14em;white-space:nowrap;color:#fff;border-color:rgba(255,255,255,.5);opacity:1;text-shadow:none}
+.pvB__l li{align-items:center}
+#vSesion .pvB__l .pvPill{color:#fff!important;border-color:rgba(255,255,255,.55)!important;background:rgba(255,255,255,.08)}
+#vSesion.pv .pv__d{margin-top:10px}
 #vSesion.pv .kh--ses{padding-bottom:0!important}
 #vSesion.pv .kh--ses .kh__t{font-weight:900;font-size:clamp(38px,11.6vw,54px)!important;line-height:.88;letter-spacing:-.03em}
 #vSesion.pv .wx__kg{display:block!important;margin-top:8px}
@@ -2502,7 +2508,7 @@ html:has(#vSesion.on[data-bg]),body:has(#vSesion.on[data-bg]){background:var(--s
 @media (prefers-reduced-motion:reduce){.pv__sb i{animation:none}.pvB__c--on::after{display:none}}
 #vSesion .pv__st span{display:inline!important;position:static!important;font:700 10px var(--wxM,var(--font-mono))!important;letter-spacing:.12em!important;color:rgba(17,17,17,.55)!important}
 #vSesion.kdk .pv__st span{color:rgba(241,242,244,.6)!important}
-@media (max-height:780px){#vSesion.pv .kh--ses .kh__t{font-size:clamp(32px,10vw,44px)!important}#vSesion.pv .kh__k{margin-top:4px}.pv__d{font-size:14px}#vSesion.pv .pv__d b{font-size:14px!important}.pv__st{margin-top:8px}.pv__f{margin-top:10px}.pvB{margin-top:10px;gap:6px}.pvB__c{padding:9px 14px}.pvB__l li{padding:3px 0}.pvB__c--on .pvB__n{font-size:34px}.pvGo{height:52px}#vSesion.pv #sBloques{padding-bottom:calc(84px + env(safe-area-inset-bottom,0px))}}
+@media (max-height:780px){#vSesion.pv #sObj .kh__pills{margin-top:6px;gap:5px}#vSesion.pv #sObj .kh__pill{padding:5px 9px}.pvB__l .pvPill{padding:4px 7px}.pv__lg{margin-top:5px}#vSesion.pv .wx__kg{margin-top:4px}#vSesion.pv .kh--ses .kh__t{font-size:clamp(32px,10vw,44px)!important}#vSesion.pv .kh__k{margin-top:4px}.pv__d{font-size:14px}#vSesion.pv .pv__d b{font-size:14px!important}.pv__st{margin-top:8px}.pv__f{margin-top:10px}.pvB{margin-top:10px;gap:6px}.pvB__c{padding:9px 14px}.pvB__l li{padding:3px 0}.pvB__c--on .pvB__n{font-size:34px}.pvGo{height:52px}#vSesion.pv #sBloques{padding-bottom:calc(84px + env(safe-area-inset-bottom,0px))}}
 </style>
 </head>
 <body>
@@ -4909,7 +4915,7 @@ function pvBloques(bfs){ const prim=Math.max(0,bkPrimerPendiente(bfs))
       '<em>'+String(b.sets).padStart(2,'0')+' SETS<br>'+bkMMSS(bkDesc(b))+' DESC</em></header>'
     if (on) return '<section class="pvB__c pvB__c--on" id="blq-'+bi+'" aria-label="Bloque '+cod+' '+bkEsc(nom)+'">'+h+
       '<ol class="pvB__l">'+bes.map((be,i)=>{ const ej=be.ejercicios||{}
-        return '<li><i>'+String(i+1).padStart(2,'0')+'</i><b>'+bkEsc(ej.nombre||'—')+'</b><span>'+bkEsc(ej.grupo_muscular||'')+'</span></li>' }).join('')+'</ol></section>'
+        return '<li><i>'+String(i+1).padStart(2,'0')+'</i><b>'+bkEsc(ej.nombre||'—')+'</b>'+(ej.grupo_muscular?'<span class="kh__pill pvPill">'+bkEsc(String(ej.grupo_muscular).toUpperCase())+'</span>':'<span></span>')+'</li>' }).join('')+'</ol></section>'
     return '<section class="pvB__c" id="blq-'+bi+'" role="button" tabindex="0" aria-label="Ver bloque '+cod+'" onclick="S._pvAb='+bi+';pintarSesion()">'+h+
       '<div class="pvB__s">'+bes.map(be=>bkEsc((be.ejercicios||{}).nombre||'—')).join(' · ')+'</div></section>' }).join('')+'</div>'+go }
 
