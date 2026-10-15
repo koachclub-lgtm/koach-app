@@ -2539,6 +2539,16 @@ html:has(#vSesion.on[data-bg]),body:has(#vSesion.on[data-bg]){background:var(--s
 #oBloque .kset__r.falta{box-shadow:0 0 0 2px var(--ink),inset 0 0 0 1px var(--ink);animation:ksFalta .45s cubic-bezier(.36,.07,.19,.97) 2}
 @keyframes ksFalta{10%,90%{transform:translateX(-1px)}20%,80%{transform:translateX(2px)}30%,50%,70%{transform:translateX(-4px)}40%,60%{transform:translateX(4px)}}
 @media (prefers-reduced-motion:reduce){#oBloque .kset__r.falta{animation:none}}
+/* c126 · rutina en una pantalla durante la sesión: estado por bloque, sets hechos, reloj y terminar */
+.pvB__sg{position:relative;z-index:1;display:flex;gap:4px;margin-top:9px}.pvB__sg i{flex:1;height:4px;border-radius:4px;background:currentColor;opacity:.22}.pvB__sg i.on{opacity:1}
+.pvB__ok{width:30px;height:30px;border-radius:50%;display:grid;place-items:center;font:900 14px var(--wxD,var(--font-display))!important;opacity:1!important}
+.pvB__ok{background:#111!important;color:#fff!important}.pvB__c--on .pvB__ok{background:#fff!important;color:#111!important;text-shadow:none}#vSesion.kdk .pvB__c:not(.pvB__c--on) .pvB__ok{background:#F1F2F4!important;color:#111!important}
+.pvB__c--ok:not(.pvB__c--on){opacity:.78}
+.pvB__ver{position:relative;z-index:1;width:100%;height:40px;margin-top:8px;border:0;border-radius:99px;background:rgba(255,255,255,.18);color:inherit;box-shadow:inset 0 0 0 1px rgba(255,255,255,.4);font:700 10px var(--wxM,var(--font-mono));letter-spacing:.14em;cursor:pointer}
+.pvEnd{display:block;margin:6px auto 0;padding:10px 16px;border:0;background:none;color:inherit;font:700 10px var(--wxM,var(--font-mono));letter-spacing:.16em;text-decoration:underline;text-underline-offset:4px;opacity:.7;cursor:pointer}
+#vSesion.kdk .pvEnd{color:#F1F2F4}
+.pv__clk{display:inline-flex!important;align-items:center;gap:6px}
+.pv__clk i{display:inline-block;line-height:0;font-style:normal}.pv__clk svg{height:13px;width:auto;display:block}
 </style>
 </head>
 <body>
@@ -4916,7 +4926,9 @@ function bkFotoCerrar(){ const el=document.getElementById('bkSh'); if(el) el.rem
 /* ── PANTALLA 1 · cápsulas ── */
 /* c117/c121 · PREVIEW DEL DÍA en una pantalla: antes del primer set la sesión responde "qué entreno hoy y por qué" (sin reps, kg ni reloj).
    Descripción calculada del volumen real, datos en una fila, enfoque en barra apilada, el bloque que toca abierto en cristal y los demás en una línea. */
-function pvModo(){ const bfs=S._bfs||[]; return bfs.length>0 && !Object.keys(S.setLog||{}).some(k=>S.setLog[k]) }
+/* c126 · la vista de una pantalla ES la rutina: antes de empezar y durante la sesión (antes volvía a la lista antigua al registrar el primer set) */
+function pvEmpezada(){ return Object.keys(S.setLog||{}).some(k=>S.setLog[k]) }
+function pvModo(){ const bfs=S._bfs||[]; return bfs.length>0 && !(bfs.some&&bfs.some(esCircuito)) }
 const PV_INF=['CUÁDRICEPS','ISQUIOS','GLÚTEOS','GEMELOS','ADUCTORES','ABDUCTORES'], PV_SUP=['PECHO','ESPALDA','HOMBROS','BÍCEPS','TRÍCEPS','DORSALES','TRAPECIO']
 function pvVol(ses){ let ap={}; try{ ap=aporteSesion(ses)||{} }catch(_){}
   let pr=[]; try{ pr=objetivosSesion(ses).prim.map(g=>String(g).toUpperCase()) }catch(_){}
@@ -4935,6 +4947,9 @@ function pvDesc(ses,bfs){ const V=pvVol(ses); if(!V.L.length) return 'Tu coach a
   return tipo+tren+' con prioridad en <b>'+plEscA(pvLista(top))+'</b>'+(p<100?', el '+p+'% del volumen del día.':'.') }
 function pvDur(bfs){ let s=0; bfs.forEach(b=>{ const n=bkBes(b).length||1; s+=(b.sets||1)*(n*45+(bkDesc(b)||60))+120 }); return Math.max(10,Math.round(s/60/5)*5) }
 function pvHero(ses,bfs){ const ne=bfs.reduce((a,b)=>a+bkBes(b).length,0)
+  if (pvEmpezada()){ let sh=0,stt=0,kg=0; bfs.forEach(b=>{ sh+=bkSetsHechos(b); stt+=(b.sets||0); kg+=bkKgBloque(b) })
+    return '<p class="pv__d">'+pvDesc(ses,bfs)+'</p><div class="pv__st pv__st--go"><span><b>'+sh+'/'+stt+'</b>SETS</span><span><b>'+kg.toLocaleString('es-CL')+'</b>KG</span>'+
+      (S.regInicio?'<span class="pv__clk"><i id="sClk" data-t="'+sesTxt()+'">'+bkSeg(sesTxt())+'</i>TIEMPO</span>':'')+'</div>' }
   return '<p class="pv__d">'+pvDesc(ses,bfs)+'</p><div class="pv__st"><span><b>'+bfs.length+'</b>BLOQUES</span><span><b>'+ne+'</b>EJERCICIOS</span><span><b>~'+pvDur(bfs)+"'</b>DURACIÓN</span></div>" }
 function pvFoco(ses){ const V=pvVol(ses); if(!V.pct.length) return ''
   const dk=document.getElementById('vSesion').classList.contains('kdk')
@@ -4943,17 +4958,23 @@ function pvFoco(ses){ const V=pvVol(ses); if(!V.pct.length) return ''
   return '<section class="pv__f" aria-label="Enfoque de hoy, porcentaje del volumen"><h3><span>ENFOQUE DE HOY</span><span>% DEL VOLUMEN</span></h3>'+
     '<div class="pv__sb">'+vis.map(([g,p],i)=>'<i style="width:'+p+'%;background:'+C[i]+';animation-delay:'+(i*.12)+'s"></i>').join('')+'</div>'+
     '<div class="pv__lg">'+vis.map(([g,p],i)=>'<span><i style="background:'+C[i]+'"></i>'+plEscA(g)+' <b>'+p+'</b></span>').join('')+'</div></section>' }
-function pvBloques(bfs){ const prim=Math.max(0,bkPrimerPendiente(bfs))
+function pvBloques(bfs){ const pp=bkPrimerPendiente(bfs), todo=pp<0, prim=todo?bfs.length-1:pp, emp=pvEmpezada()
   const ab=(S._pvAb!=null && bfs[S._pvAb]) ? S._pvAb : prim
-  const go='<button type="button" class="pvGo" onclick="bkAbrir('+prim+')">▶ &nbsp;'+(prim===0?'GO TRAIN!':'GO')+' · '+bkCod(bfs[prim]||{},prim)+'</button>'
-  return '<div class="pvB">'+bfs.map((b,bi)=>{ const bes=bkBes(b), cod=bkCod(b,bi), nom=bkNom(b,bi), on=bi===ab
-    const h='<header class="pvB__h"><b class="pvB__n">'+cod+'</b><div><small>'+(bi===prim?'TE TOCA AHORA':bi<prim?'LISTO':'DESPUÉS')+'</small><span>'+bkEsc(nom)+'</span></div>'+
-      '<em>'+String(b.sets).padStart(2,'0')+' SETS<br>'+bkMMSS(bkDesc(b))+' DESC</em></header>'
-    if (on) return '<section class="pvB__c pvB__c--on" id="blq-'+bi+'" aria-label="Bloque '+cod+' '+bkEsc(nom)+'">'+h+
+  const cp=bfs[prim]||{}, hp=bkSetsHechos(cp)
+  const go = todo ? '<button type="button" class="pvGo" onclick="pedirFinal()">TERMINAR SESIÓN ✓</button>'
+    : '<button type="button" class="pvGo" onclick="bkAbrir('+prim+')">▶ &nbsp;'+(hp?bkCod(cp,prim)+' · BACK TO WORK':(!emp?'GO TRAIN! · '+bkCod(cp,prim):bkCod(cp,prim)+' · GO'))+'</button>'
+  return '<div class="pvB">'+bfs.map((b,bi)=>{ const bes=bkBes(b), cod=bkCod(b,bi), nom=bkNom(b,bi), on=bi===ab, done=bloqueCompleto(b), h0=bkSetsHechos(b), kg=bkKgBloque(b)
+    const est = done ? 'LISTO · '+kg.toLocaleString('es-CL')+' KG' : bi===pp ? (h0?'EN CURSO · SET '+h0+'/'+b.sets:'TE TOCA AHORA') : 'DESPUÉS'
+    const segs = (emp||h0) ? '<div class="pvB__sg" aria-hidden="true">'+Array.from({length:b.sets},(_,i)=>'<i class="'+(bkSetHecho(b,i+1)?'on':'')+'"></i>').join('')+'</div>' : ''
+    const h='<header class="pvB__h"><b class="pvB__n">'+cod+'</b><div><small>'+est+'</small><span>'+bkEsc(nom)+'</span></div>'+
+      (done?'<em class="pvB__ok" aria-label="Bloque completado">✓</em>':'<em>'+String(b.sets).padStart(2,'0')+' SETS<br>'+bkMMSS(bkDesc(b))+' DESC</em>')+'</header>'
+    if (on) return '<section class="pvB__c pvB__c--on'+(done?' pvB__c--ok':'')+'" id="blq-'+bi+'" aria-label="Bloque '+cod+' '+bkEsc(nom)+'">'+h+segs+
       '<ol class="pvB__l">'+bes.map((be,i)=>{ const ej=be.ejercicios||{}
-        return '<li><i>'+String(i+1).padStart(2,'0')+'</i><b>'+bkEsc(ej.nombre||'—')+'</b>'+(ej.grupo_muscular?'<span class="kh__pill pvPill">'+bkEsc(String(ej.grupo_muscular).toUpperCase())+'</span>':'<span></span>')+'</li>' }).join('')+'</ol></section>'
-    return '<section class="pvB__c" id="blq-'+bi+'" role="button" tabindex="0" aria-label="Ver bloque '+cod+'" onclick="S._pvAb='+bi+';pintarSesion()">'+h+
-      '<div class="pvB__s">'+bes.map(be=>bkEsc((be.ejercicios||{}).nombre||'—')).join(' · ')+'</div></section>' }).join('')+'</div>'+go }
+        return '<li><i>'+String(i+1).padStart(2,'0')+'</i><b>'+bkEsc(ej.nombre||'—')+'</b>'+(ej.grupo_muscular?'<span class="kh__pill pvPill">'+bkEsc(String(ej.grupo_muscular).toUpperCase())+'</span>':'<span></span>')+'</li>' }).join('')+'</ol>'+
+      ((done||(bi!==prim&&h0))?'<button type="button" class="pvB__ver" onclick="bkAbrir('+bi+')">VER O CORREGIR '+cod+'</button>':'')+'</section>'
+    return '<section class="pvB__c'+(done?' pvB__c--ok':'')+'" id="blq-'+bi+'" role="button" tabindex="0" aria-label="Ver bloque '+cod+'" onclick="S._pvAb='+bi+';pintarSesion()">'+h+
+      '<div class="pvB__s">'+bes.map(be=>bkEsc((be.ejercicios||{}).nombre||'—')).join(' · ')+'</div></section>' }).join('')+
+    ((emp&&!todo)?'<button type="button" class="pvEnd" onclick="pedirFinal()">TERMINAR SESIÓN</button>':'')+'</div>'+go }
 
 /* c121 · FONDOS GRISES METÁLICOS: seis fondos (plata, acero, titanio, grafito, cromo claro, cromo negro) generados en el teléfono.
    Rotan según día de la semana y tipo de rutina; la sesión mantiene su fondo mientras dura. El fondo claro de turno también es el de los logros. */
