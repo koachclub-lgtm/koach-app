@@ -7419,6 +7419,9 @@ async function scPintarRes(){
   if (!ex){ const u='#/socio/'+F.id+'/plan?w='+st.semana+'&s='+id
     acc+='<a class="tbB" href="'+u+'" onclick="return rtIr(event,\''+u+'\')">ABRIR RUTINA</a>'
     if (reg && reg.abandonada) acc+='<button type="button" class="tbB tbB--ink" onclick="scFinalizarConf(\''+reg.id+'\')">FINALIZAR SESIÓN</button>'
+    else if (z.estado==='en_curso'){ const rc=ab.find(function(a){return a.sesion_id===id && !a.abandonada})||reg   // c126
+      if (rc && !rc.sets) acc+='<button type="button" class="tbB tbB--ink" onclick="scAccion(\'anular\',\''+rc.id+'\')">ANULAR INICIO</button>'
+      else if (rc) acc+='<button type="button" class="tbB tbB--ink" onclick="scFinalizarConf(\''+rc.id+'\')">FINALIZAR SESIÓN</button>' }
     else if (!done && !susp && z.estado!=='en_curso' && z.estado!=='incompleta') acc+='<button type="button" class="tbB'+(esX?'':' tbB--ink')+'" onclick="'+(esX?'scAccion(\'quitar_habilitacion\')':'scHabilitarConf(\''+id+'\')')+'">'+(esX?'QUITAR HABILITACIÓN':'HABILITAR AHORA')+'</button>' }
   else {
     if (ex.tipo==='designada') acc+='<button type="button" class="tbB" onclick="scEditarExtra(\''+ex.id+'\')">EDITAR</button>'
@@ -8003,7 +8006,9 @@ function scMenu(ev,key){
     const done=z.estado==='completada', susp=z.estado==='suspendida', curso=z.estado==='en_curso', u='#/socio/'+F.id+'/plan?w='+st.semana+'&s='+z.id
     I('VER RESUMEN','scAbrirRes(\''+z.id+'\')')
     it.push('<a role="menuitem" href="'+u+'" onclick="scMenuCerrar();return rtIr(event,\''+u+'\')">ABRIR / EDITAR RUTINA</a>')
-    if (reg && reg.abandonada){ it.push('<hr>'); resolver(reg); it.push('<hr>') }
+    const regC=curso?(ab.find(function(a){return a.sesion_id===z.id && !a.abandonada})||reg):null   // c126 · EN CURSO ya no deja al coach sin salida
+    if (reg && reg.abandonada && !curso){ it.push('<hr>'); resolver(reg); it.push('<hr>') }
+    else if (regC){ it.push('<hr>'); resolver(regC); it.push('<hr>') }
     else if (!done && !susp && !curso && z.estado!=='incompleta' && z.estado!=='sin_cerrar') I(esX?'QUITAR HABILITACIÓN':'HABILITAR AHORA', esX?'scAccion(\'quitar_habilitacion\')':'scHabilitarConf(\''+z.id+'\')')
     it.push('<hr>')
     I('CAMBIAR NOMBRE','scRenombrar(\''+z.id+'\')')

@@ -3966,7 +3966,7 @@ async function entrar(opts){
     // Entrenamiento en curso: se recupera el de hoy. c42 · las de días anteriores YA NO se cierran en silencio como "omitida"
     // (eso borraba sesiones completas por sets y repetía la secuencia): quedan SIN CERRAR y las resuelve el socio o su coach.
     S.enCurso = null
-    ;(rEc.data||[]).forEach(r=>{ if (r.fecha===hoyD && !S.enCurso) S.enCurso = r })
+    ;(rEc.data||[]).slice().sort((x,y)=>String(y.iniciada_at||'').localeCompare(String(x.iniciada_at||''))).forEach(r=>{ if (r.fecha===hoyD && !S.enCurso) S.enCurso = r })   // c126 · la más reciente (antes: la primera que llegaba)
     // Sets realmente ejecutados de esta semana → la dosis sale de aquí, no de "sesión completa"
     const _setsPorReg = {}
     ;(rSrs.data||[]).forEach(x=>{ if(!x.completado) return; const o=_setsPorReg[x.registro_id]=_setsPorReg[x.registro_id]||{be:{},rondas:{}}
@@ -4456,7 +4456,7 @@ async function reanudar(){
   const reg = S.enCurso; if(!reg) return
   cargando('RECUPERANDO TU ENTRENAMIENTO…')
   const ses = S.programa.sesiones.find(x=>x.id===reg.sesion_protocolo_id)
-  if(!ses){ toast('No encontramos esa sesión en tu programa actual'); return }
+  if(!ses){ cargandoOff(); S.enCurso=null; toast('Esa sesión ya no está en tu programa — elige la de hoy.'); try{ pintarHome&&pintarHome() }catch(_){}; return }   // c126 · antes quedaba pegado en RECUPERANDO
   S.sesionAbierta = ses
   S.pesos={}; S.marcas={}; S.setsHechos={}; S.bloquesListos=0; S._flb={}
   S.wk={}; S.setLog={}; S.rw={}; S.abierto=null; S.regId=reg.id; S.regInicio=reg.iniciada_at?new Date(reg.iniciada_at).getTime():Date.now()
