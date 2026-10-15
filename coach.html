@@ -46,6 +46,11 @@
 .kid__n span{display:block}
 .kid__st{display:flex;align-items:center;gap:6px;padding:6px 12px 10px;font:700 10.5px var(--font-mono);letter-spacing:.04em;text-transform:uppercase}
 .kid__st i{width:7px;height:7px;border-radius:50%;background:#5FD4E0;flex:none;animation:kidPulse 1.6s ease-in-out infinite}
+.kid__tm{display:flex;gap:18px;padding:0 12px 10px;margin-top:-4px;font-family:var(--font-mono);font-variant-numeric:tabular-nums}
+.kid__tm span{display:flex;flex-direction:column;gap:2px;min-width:0}
+.kid__tm small{font:400 8.5px var(--font-mono);letter-spacing:.14em;color:var(--mu)}
+.kid__tm b{font:500 12px var(--font-mono);letter-spacing:.06em;color:var(--fg);white-space:nowrap}
+.kid__tm b.is-x{color:var(--mu);font-size:10px;letter-spacing:.1em;padding-top:2px}
 .kid__f{margin-top:auto;display:grid;grid-template-columns:1fr auto;border-top:1px solid var(--ln)}
 .kid__f small{padding:8px 12px;font:400 10px var(--font-mono);letter-spacing:.04em;color:var(--mu);text-transform:uppercase;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .kid__bc{border-left:1px solid var(--ln);padding:7px 10px;display:flex;align-items:center;color:var(--fg)}
@@ -6413,7 +6418,7 @@ const K39={'0':'000110100','1':'100100001','2':'001100001','3':'101100000','4':'
 function kodeSvg(id){ const t='*'+String(id||'KCH-00000').toUpperCase().replace(/[^0-9CHK-]/g,'')+'*'; let x=0, r=''
   for(const ch of t){ const p=K39[ch]||K39['0']; for(let k=0;k<9;k++){ const w=p[k]==='1'?3:1; if(k%2===0) r+='<rect x="'+x+'" y="0" width="'+w+'" height="10"/>'; x+=w } x+=1 }
   return '<svg viewBox="0 0 '+(x-1)+' 10" preserveAspectRatio="none" role="img" aria-label="Member ID '+(id||'')+'" fill="currentColor">'+r+'</svg>' }
-function kidCard(id, nombre, estado, sub, live){
+function kidCard(id, nombre, estado, sub, live, tm){
   const so=(C.socios||[]).find(function(x){return x.id===id})||(C.pres||[]).find(function(x){return x.socio_id===id})||{}
   const nom=String(nomDe(id)||nombre||so.nombre||'Socio').trim(), w=nom.split(/\s+/)
   const n1=w.length>3?w.slice(0,2).join(' '):w[0], n2=w.length>3?w.slice(2).join(' '):w.slice(1).join(' ')
@@ -6423,8 +6428,15 @@ function kidCard(id, nombre, estado, sub, live){
       '<span class="kid__pr">'+plEsc(T.p)+(cod?'<em>#'+cod+'</em>':'')+'</span><img src="/img/brand/isotipo-blanco.png" alt="" width="14" height="15"></div>'+
     '<div class="kid__n"><span>'+plEsc(n1)+'</span>'+(n2?'<span>'+plEsc(n2)+'</span>':'')+'</div>'+
     '<div class="kid__st">'+(live?'<i aria-hidden="true"></i>':'')+plEsc(estado)+'</div>'+
+    (tm?'<div class="kid__tm"><span><small>INICIO</small><b>'+plEsc(tm.ini)+'</b></span><span><small>DURACIÓN</small><b'+(tm.ok?'':' class="is-x"')+'>'+plEsc(tm.dur)+'</b></span></div>':'')+
     '<div class="kid__f"><small>'+plEsc(sub||'')+'</small><span class="kid__bc" aria-hidden="true">'+kodeSvg(koachId(so))+'</span></div></a>'
 }
+/* c127 · hora de inicio y duración real de la última sesión (miniatura mono bajo el estado) */
+function kidTiempo(r){ if(!r||!r.iniciada_at) return null
+  const i=new Date(r.iniciada_at), ini=i.toLocaleTimeString('es-CL',{hour:'2-digit',minute:'2-digit',hour12:false})
+  let m=r.duracion_minutos!=null?+r.duracion_minutos:(r.completada_at?Math.round((new Date(r.completada_at)-i)/6e4):null)
+  if (m==null||!(m>=0)||m>300) return { ini:ini, dur:r.completada_at?'—':'SIN CERRAR', ok:false }
+  return { ini:ini, dur:kidDur(Math.max(1,m)), ok:true } }
 function kidDur(m){ return m<60 ? m+' MIN' : Math.floor(m/60)+'H '+String(m%60).padStart(2,'0')+'M' }
 let _recAt=0, _recRun=false
 async function salaRecCargar(forzar){
@@ -6438,18 +6450,18 @@ function salaRecPintar(){
   const enSala=new Set(salaPersonas(C.pres||[]).filter(function(p){return p.enSala}).map(function(p){return p.socio_id}))
   const hoy=fLocal(new Date()), dia=function(n){ const d=new Date(); d.setDate(d.getDate()-n); return fLocal(d) }
   const M=new Map()
-  ;(C.rec||[]).forEach(function(r){ if(enSala.has(r.socio_id)) return
+  ;(C.rec||[]).forEach(function(r){ if(enSala.has(r.socio_id) || r.estado==='anulada') return
     const t=new Date(r.completada_at||r.iniciada_at||(r.fecha+'T12:00:00')).getTime(), cur=M.get(r.socio_id)
     if(!cur || t>cur._t) M.set(r.socio_id, Object.assign({_t:t}, r)) })
   const L=Array.from(M.values()).sort(function(a,b){return b._t-a._t}).slice(0,12)
   if(h) h.hidden=!L.length
   g.innerHTML=L.map(function(r){
     let est
-    if (r.fecha===hoy) est = r.completada_at ? 'ENTRENÓ HOY'+(r.duracion_minutos?' · '+kidDur(r.duracion_minutos):'') : 'ESTUVO HOY'
+    if (r.fecha===hoy) est = r.completada_at ? 'ENTRENÓ HOY' : 'ESTUVO HOY'
     else if (r.fecha===dia(1)) est='ESTUVO AYER'
     else if (r.fecha===dia(2)) est='ESTUVO ANTEAYER'
     else est='HACE '+Math.round((new Date(hoy+'T12:00:00')-new Date(r.fecha+'T12:00:00'))/864e5)+' DÍAS'
-    return kidCard(r.socio_id, '', est, r.sesion_nombre||'', false) }).join('')
+    return kidCard(r.socio_id, '', est, r.sesion_nombre||'', false, kidTiempo(r)) }).join('')
 }
 function salaPresenciaPintar(){
   const g=document.getElementById('rostG'); if(!g) return
