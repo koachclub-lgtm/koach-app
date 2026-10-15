@@ -2555,6 +2555,11 @@ html:has(#vSesion.on[data-bg]),body:has(#vSesion.on[data-bg]){background:var(--s
 .bk__finIn--c .kxSegs{max-width:200px}
 #oBloque.fin .bk__foot{visibility:hidden}
 #oBloque.fin{margin:0!important;width:auto!important}
+/* c129 · en la rutina nunca se ve la barra de pestañas (tapaba el botón fijo al volver o al refrescar); TERMINAR SESIÓN como botón visible */
+html:has(#vSesion.on) .tabbar{display:none!important}
+.pvGo{z-index:90}
+.pvEnd{display:flex!important;align-items:center;justify-content:center;width:100%;height:52px;margin:12px 0 0!important;padding:0!important;border-radius:999px!important;background:rgba(255,255,255,.35)!important;box-shadow:inset 0 0 0 2px currentColor;text-decoration:none!important;opacity:1!important;font:900 14px var(--wxD,var(--font-display))!important;font-stretch:108%!important;letter-spacing:.06em!important}
+#vSesion.kdk .pvEnd{background:rgba(255,255,255,.06)!important}
 </style>
 </head>
 <body>
@@ -4980,7 +4985,7 @@ function pvBloques(bfs){ const pp=bkPrimerPendiente(bfs), todo=pp<0, prim=todo?b
       ((done||(bi!==prim&&h0))?'<button type="button" class="pvB__ver" onclick="bkAbrir('+bi+')">VER O CORREGIR '+cod+'</button>':'')+'</section>'
     return '<section class="pvB__c'+(done?' pvB__c--ok':'')+'" id="blq-'+bi+'" role="button" tabindex="0" aria-label="Ver bloque '+cod+'" onclick="S._pvAb='+bi+';pintarSesion()">'+h+
       '<div class="pvB__s">'+bes.map(be=>bkEsc((be.ejercicios||{}).nombre||'—')).join(' · ')+'</div></section>' }).join('')+
-    ((emp&&!todo)?'<button type="button" class="pvEnd" onclick="pedirFinal()">TERMINAR SESIÓN</button>':'')+'</div>'+go }
+    ((emp&&!todo)?'<button type="button" class="pvEnd" onclick="pedirFinal()">TERMINAR SESIÓN ✓</button>':'')+'</div>'+go }
 
 /* c121 · FONDOS GRISES METÁLICOS: seis fondos (plata, acero, titanio, grafito, cromo claro, cromo negro) generados en el teléfono.
    Rotan según día de la semana y tipo de rutina; la sesión mantiene su fondo mientras dura. El fondo claro de turno también es el de los logros. */
