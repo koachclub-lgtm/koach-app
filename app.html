@@ -2560,6 +2560,13 @@ html:has(#vSesion.on) .tabbar{display:none!important}
 .pvGo{z-index:90}
 .pvEnd{display:flex!important;align-items:center;justify-content:center;width:100%;height:52px;margin:12px 0 0!important;padding:0!important;border-radius:999px!important;background:rgba(255,255,255,.35)!important;box-shadow:inset 0 0 0 2px currentColor;text-decoration:none!important;opacity:1!important;font:900 14px var(--wxD,var(--font-display))!important;font-stretch:108%!important;letter-spacing:.06em!important}
 #vSesion.kdk .pvEnd{background:rgba(255,255,255,.06)!important}
+/* c130 · botón fijo de la rutina: solo en la rutina y nunca bajo otra pantalla */
+body > .pvGo{display:none}
+html:has(#vSesion.on.pv) body > .pvGo{display:block}
+html:has(#oAct.vis) body > .pvGo,html.bk-on body > .pvGo{display:none!important}
+html:has(#vSesion.kdk.on) body > .pvGo{background:#F1F2F4;color:#0B0B0C}
+html:not(:has(#oAct.vis)) #sBloques.locked{filter:none;opacity:1;pointer-events:auto}
+#oBloque .bk__duo .bk__all{white-space:normal;line-height:1.05;padding:0 10px}
 </style>
 </head>
 <body>
@@ -4973,7 +4980,7 @@ function pvBloques(bfs){ const pp=bkPrimerPendiente(bfs), todo=pp<0, prim=todo?b
   const ab=(S._pvAb!=null && bfs[S._pvAb]) ? S._pvAb : prim
   const cp=bfs[prim]||{}, hp=bkSetsHechos(cp)
   const go = todo ? '<button type="button" class="pvGo" onclick="pedirFinal()">TERMINAR SESIÓN ✓</button>'
-    : '<button type="button" class="pvGo" onclick="bkAbrir('+prim+')">▶ &nbsp;'+(hp?bkCod(cp,prim)+' · BACK TO WORK':(!emp?'GO TRAIN! · '+bkCod(cp,prim):bkCod(cp,prim)+' · GO'))+'</button>'
+    : '<button type="button" class="pvGo" onclick="bkAbrir('+prim+')">▶ &nbsp;'+(hp?'RETOMAR ':'COMENZAR ')+bkCod(cp,prim)+'</button>'
   return '<div class="pvB">'+bfs.map((b,bi)=>{ const bes=bkBes(b), cod=bkCod(b,bi), nom=bkNom(b,bi), on=bi===ab, done=bloqueCompleto(b), h0=bkSetsHechos(b), kg=bkKgBloque(b)
     const est = done ? 'LISTO · '+kg.toLocaleString('es-CL')+' KG' : bi===pp ? (h0?'EN CURSO · SET '+h0+'/'+b.sets:'TE TOCA AHORA') : 'DESPUÉS'
     const segs = (emp||h0) ? '<div class="pvB__sg" aria-hidden="true">'+Array.from({length:b.sets},(_,i)=>'<i class="'+(bkSetHecho(b,i+1)?'on':'')+'"></i>').join('')+'</div>' : ''
@@ -5085,11 +5092,11 @@ function bkPintar(){
                     : '<span class="bk__fo bk__fo--x" aria-hidden="true"></span>'
     return '<article class="bk__ex'+(fila?' bk__ex--ok':'')+'" aria-label="'+N+' · '+ref+' · prescrito '+bkPres(w,ej)+'">'+foto+'<div class="bk__ec"><div class="bk__eh"><b>'+bkEsc(ej.nombre||'—')+'</b><em class="bk__pill">'+bkEsc(ej.grupo_muscular||'')+'</em></div><div class="bk__sb">'+ctr+'</div></div></article>' }).join('')
   let cta, ctaCls=''
-  if (hecho){ cta='DESHACER SET '+String(n).padStart(2,'0'); ctaCls=' bk__cta--sec' }
-  else if (done){ cta=cod+' LISTO ✓'; ctaCls=' bk__cta--sec' }
-  else { const _ult=bkSetsHechos(b)>=b.sets-1; cta=_ult?'LAST SET · BEST SET':'REGISTRAR SET '+String(n).padStart(2,'0')+' ✓'; if(_ult) ctaCls=' bk__cta--best' }
+  if (hecho){ cta='DESHACER SET '+n; ctaCls=' bk__cta--sec' }
+  else if (done){ cta='BLOQUE '+String(cod).replace(/^B/,'')+' LISTO ✓'; ctaCls=' bk__cta--sec' }
+  else { const _ult=bkSetsHechos(b)>=b.sets-1; cta=_ult?'REGISTRAR ÚLTIMO SET':'REGISTRAR SET '+n; if(_ult) ctaCls=' bk__cta--best' }
   // c70 · bloque completado: se vuelve a la pantalla de la rutina (los tres bloques); el siguiente se inicia desde ahí
-  const sig = done ? '<button type="button" class="bk__cta" onclick="bkCerrar()">'+(()=>{ const bf=S._bfs||[], pr=bkPrimerPendiente(bf); return pr>=0?'SIGUIENTE · '+bkCod(bf[pr],pr)+' →':'TERMINAR SESIÓN →' })()+'</button>' : ''
+  const sig = done ? '<button type="button" class="bk__cta" onclick="bkCerrar()">'+(()=>{ const bf=S._bfs||[], pr=bkPrimerPendiente(bf); return pr>=0?'COMENZAR '+bkCod(bf[pr],pr)+' →':'TERMINAR SESIÓN →' })()+'</button>' : ''
   // c65 · lenguaje de estados: BLANCO = entrenamiento · NEGRO = descanso · GO = vuelta al entrenamiento
   const restS = rest ? Math.max(0,Math.ceil((BK.rest.fin-Date.now())/1000)) : 0
   const over = !rest && !done && BK.over && BK.over.bId===b.id && BK.over.regId===S.regId
@@ -5116,8 +5123,8 @@ function bkPintar(){
     '<div class="bk__ton">'+(rest ? '<u class="bk__bar" id="bkBar" aria-hidden="true" style="width:'+bkRestPct()+'%"></u>' : '')+'<span>'+tonLab+'</span>'+adj+'<b>'+kgP.toLocaleString('es-CL')+(kgReal>0&&kgPres>0?'<i class="bk__tonP">/ '+kgPres.toLocaleString('es-CL')+'</i>':'')+'<i>KG</i></b></div></div>'+
     '<div class="bk__strip" role="group" aria-label="Sets del bloque">'+tabs+'</div></div>'+
     '<div class="bk__scroll" id="bkScroll">'+filas+'</div>'+
-    '<div class="bk__foot">'+(done ? sig+'<button type="button" class="bk__lnk" onclick="bkDesmarcar()">DESHACER SET '+String(n).padStart(2,'0')+'</button>' : (!hecho && ctaCls!==' bk__cta--best' ? '<div class="bk__duo"><button type="button" class="bk__cta bk__cta--sec bk__all" onclick="bkFinishAll()" aria-label="Registrar todos los sets de '+cod+' de una vez">TERMINAR '+cod+'</button>' : '')+
-      '<button type="button" class="bk__cta'+ctaCls+'" onclick="'+(hecho?'bkDesmarcar()':'bkCompletar()')+'">'+cta+'</button>'+(!hecho && ctaCls!==' bk__cta--best' ? '</div><p class="bk__hint">SET POR SET O TODO EL BLOQUE DE UNA</p>' : ''))+'</div>'+
+    '<div class="bk__foot">'+(done ? sig+'<button type="button" class="bk__lnk" onclick="bkDesmarcar()">DESHACER SET '+n+'</button>' : (!hecho && ctaCls!==' bk__cta--best' ? '<div class="bk__duo"><button type="button" class="bk__cta bk__cta--sec bk__all" onclick="bkFinishAll()" aria-label="Registrar todos los sets de '+cod+' de una vez">FINALIZAR BLOQUE '+String(cod).replace(/^B/,'')+'</button>' : '')+
+      '<button type="button" class="bk__cta'+ctaCls+'" onclick="'+(hecho?'bkDesmarcar()':'bkCompletar()')+'">'+cta+'</button>'+(!hecho && ctaCls!==' bk__cta--best' ? '</div><p class="bk__hint">REGISTRA SET POR SET O FINALIZA EL BLOQUE COMPLETO</p>' : ''))+'</div>'+
     '<div class="bk__cd" id="bkCd" aria-live="assertive" aria-atomic="true"><b id="bkCdN"></b></div>'
   bkRestTick(); if(over) bkOverTick()
 }
@@ -5301,6 +5308,9 @@ function pintarSesion(){
       '<button type="button" class="wx__bcta'+(done?' wx__bcta--ok':'')+'" onclick="completarBloque('+bi+')">'+(done?'✓ BLOQUE '+bn+' COMPLETADO · TOCA PARA CORREGIR':'COMPLETAR BLOQUE '+bn)+'</button></section>'
   }).join('') : (_pv?pvFoco(ses)+pvBloques(bfs):bkCapsulas(bfs))
   document.getElementById('sFin').style.display=_pv?'none':'block'
+  /* c130 · el botón fijo vive fuera de la lista (un filtro o bloqueo de la lista lo dejaba sin toque o escondido) y la lista solo se bloquea mientras está la pantalla START */
+  { const sb=document.getElementById('sBloques'), oa=document.getElementById('oAct'); if(sb && !(oa && oa.classList.contains('vis'))) sb.classList.remove('locked')
+    document.querySelectorAll('body > .pvGo').forEach(x=>x.remove()); const g=sb&&sb.querySelector('.pvGo'); if(g) document.body.appendChild(g) }
   document.getElementById('syncTag').style.display='block'
   syncOk(); requestAnimationFrame(fitTitulares)
 }
