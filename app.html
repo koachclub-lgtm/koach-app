@@ -1477,7 +1477,8 @@ html,button,input,.pvS,.chk,.setChip{touch-action:manipulation}
 @keyframes ldr{0%{transform:translateX(-110%)}100%{transform:translateX(290%)}}
 .toast{position:fixed;bottom:26px;left:50%;transform:translateX(-50%) translateY(20px);max-width:86%;
   background:rgba(18,18,16,.94);color:var(--hueso);padding:12px 18px;border-radius:16px;font-size:10.5px;
-  font-weight:700;z-index:999;opacity:0;pointer-events:none;transition:all .25s;text-align:center}
+  font-weight:700;z-index:3000;opacity:0;pointer-events:none;transition:all .25s;text-align:center}
+html.bk-on .toast{bottom:calc(150px + env(safe-area-inset-bottom,0px));font-size:12px;padding:14px 20px;max-width:90%}
 .toast.vis{opacity:1;transform:translateX(-50%) translateY(0)}
 .cargando{text-align:center;padding:60px 20px;font-size:10px;letter-spacing:.2em;color:var(--gris);font-weight:800}
 
@@ -2534,6 +2535,10 @@ html:has(#vSesion.on[data-bg]),body:has(#vSesion.on[data-bg]){background:var(--s
 @keyframes ld3dBrillo{0%{background-position:120% 0}55%,100%{background-position:-60% 0}}
 @keyframes ld3dPiso{0%,100%{transform:scaleX(.82);opacity:.7}50%{transform:scaleX(1.05);opacity:1}}
 @media (prefers-reduced-motion:reduce){.ld3d__obj,.ld3d__sheen,.ld3d__floor{animation:none}}
+/* c125 · campo de peso faltante: se marca y tiembla */
+#oBloque .kset__r.falta{box-shadow:0 0 0 2px var(--ink),inset 0 0 0 1px var(--ink);animation:ksFalta .45s cubic-bezier(.36,.07,.19,.97) 2}
+@keyframes ksFalta{10%,90%{transform:translateX(-1px)}20%,80%{transform:translateX(2px)}30%,50%,70%{transform:translateX(-4px)}40%,60%{transform:translateX(4px)}}
+@media (prefers-reduced-motion:reduce){#oBloque .kset__r.falta{animation:none}}
 </style>
 </head>
 <body>
@@ -5085,14 +5090,29 @@ function bkPintar(){
   bkRestTick(); if(over) bkOverTick()
 }
 /* c107 · FINISH B1: registra de una todos los sets pendientes del bloque con los valores en pantalla (prescritos o ajustados) */
+/* c125 · peso de referencia de un ejercicio en el bloque: lo que el socio escribió en cualquier set (primero el set actual),
+   lo ya registrado o lo prescrito. Así TERMINAR B1 registra los 4 sets con el peso que puso, sin obligar a ir set por set. */
+function bkKgRef(be,b){ const w=S.wk[be.id]||{}, n0=BK.set||1
+  const r0=S.rw[be.id+'#'+n0]; if(r0&&r0.kg!=null) return r0.kg
+  for(let m=1;m<=b.sets;m++){ const r=S.rw[be.id+'#'+m]; if(r&&r.kg!=null) return r.kg }
+  for(let m=b.sets;m>=1;m--){ const f=S.setLog[setKey(be.id,m)]; if(f&&f.peso!=null) return +f.peso }
+  return w.kg!=null?w.kg:null }
+function bkFaltanKg(b,soloSet){ return bkBes(b).filter(be=>{ const w=S.wk[be.id]||seedWk(be,be.ejercicios||{}); if(w.tipo!=='WEIGHT_REPS' && !(w.tipo==='TIME' && (be.ejercicios||{}).con_carga===true)) return false
+  if (soloSet!=null){ if(S.setLog[setKey(be.id,soloSet)]) return false; const rv=S.rw[be.id+'#'+soloSet]||{}; return rv.kg==null }
+  for(let m=1;m<=b.sets;m++){ if(!S.setLog[setKey(be.id,m)]) return bkKgRef(be,b)==null } return false }) }
+function bkAvisarKg(faltan,n){ const nom=faltan.map(be=>(be.ejercicios||{}).nombre||'un ejercicio')
+  toast('Falta el peso en '+(nom.length>1?nom.slice(0,-1).join(', ')+' y '+nom[nom.length-1]:nom[0])+'. Escríbelo en KG para seguir.')
+  try{ kHaptic([20,40,20]) }catch(_){}
+  let pri=null; faltan.forEach(be=>{ const i=document.getElementById('rwK-'+be.id+'-'+(n||BK.set)), r=i&&i.closest('.kset__r'); if(r){ r.classList.remove('falta'); void r.offsetWidth; r.classList.add('falta'); if(!pri) pri=r } })
+  if (pri) pri.scrollIntoView({block:'center',behavior:'smooth'}) }
 async function bkFinishAll(){ const b=(S._bfs||[])[BK.bi]; if(!b || bloqueCompleto(b) || BK._busy) return
+  { const f=bkFaltanKg(b); if(f.length){ bkAvisarKg(f); return } }
   kHaptic(12); kAudioUnlock(); BK._busy=true
   try{ await completarBloque(BK.bi) } finally{ BK._busy=false }
   if (bloqueCompleto(b)){ BK.set=b.sets; bkRestFin(true); bkPintar(); bkFinBloque(b) } else bkPintar() }
 async function bkCompletar(){ const b=(S._bfs||[])[BK.bi]; if(!b) return
   const n=BK.set, bes=bkBes(b)
-  for (const be of bes){ const w=S.wk[be.id]||{}, rv=S.rw[be.id+'#'+n]||{}
-    if (w.tipo==='WEIGHT_REPS' && rv.kg==null){ toast('Define el peso de '+(be.ejercicios&&be.ejercicios.nombre||'cada ejercicio')+' antes de completar el set.'); return } }
+  { const f=bkFaltanKg(b,n); if(f.length){ bkAvisarKg(f,n); return } }
   if (BK._busy) return
   const cta=document.querySelector('#oBloque .bk__cta'); if(cta) cta.disabled=true
   BK._busy=true
@@ -5590,9 +5610,10 @@ async function completarBloque(bi){
     ;(b.bloque_ejercicios||[]).forEach(be=>{
       const ej=be.ejercicios||{}
       const w=S.wk[be.id]||seedWk(be,ej)
-      if (w.tipo==='WEIGHT_REPS' && w.kg==null){ sinCarga=true; return }
+      const kgRef=bkKgRef(be,b)
+      if (w.tipo==='WEIGHT_REPS' && kgRef==null){ sinCarga=true; return }
       for(let n2=1;n2<=b.sets;n2++){ const k=setKey(be.id,n2)
-        if(!S.setLog[k]){ const rv=rwGet(be.id,n2,w,null)
+        if(!S.setLog[k]){ const rv=Object.assign({},rwGet(be.id,n2,w,null)); if(rv.kg==null && kgRef!=null) rv.kg=kgRef
           rows.push({registro_id:S.regId, socio_id:S.perfil.id, bloque_id:b.id,
             bloque_ejercicio_id:be.id, ejercicio_id:ej.id||null, set_numero:n2,
             target_peso:(w.kg!=null?w.kg:null), target_reps:w.reps||null, target_seg:w.seg||null,
