@@ -345,7 +345,11 @@ button.bxI:hover,button.bxI:focus-visible{transform:translateY(-2px);box-shadow:
 #vPlan.plDesk .tbInsp,#vPlan.plDesk .tbPanelBtn{display:none !important}
 #vPlan.plDesk .tbWrap{grid-template-columns:minmax(0,1fr)}
 #vPlan.plDesk .tbCol.act{transform:none;background:#E6E5E0}
-#vPlan.plDesk .tbHead{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:12px;margin:6px 0 6px}
+.tbTiempo{display:flex;flex-direction:column;justify-content:center;gap:2px;min-height:48px;padding:6px 16px;border:1.5px solid #121212;border-radius:14px;background:#F4F3F0;color:#121212;white-space:nowrap}
+.tbTiempo small{font-family:'Space Mono',var(--font-mono);font-size:8px;letter-spacing:.16em;color:#6E6D68}
+.tbTiempo b{font-family:'Space Mono',var(--font-mono);font-size:15px;font-weight:700;letter-spacing:.04em;font-variant-numeric:tabular-nums}
+.tbHead>.tbTiempo{justify-self:end}
+#vPlan.plDesk .tbHead{display:grid;grid-template-columns:minmax(0,1fr) auto auto;align-items:center;gap:12px;margin:6px 0 6px}
 #vPlan.plDesk .tbHead .tbChipsW{display:flex;flex-wrap:wrap;gap:6px;align-items:center;min-width:0}
 #vPlan.plDesk .tbColP{grid-template-columns:1fr 1fr;gap:6px}#vPlan.plDesk .tbMini{height:34px}#vPlan.plDesk .tbMini b{font-size:11px}
 #vPlan.plDesk .tbColH{min-height:30px}
@@ -4124,6 +4128,12 @@ function plTbChips(ses){ const m={}
   ses.bloques.forEach(function(b){ b.items.forEach(function(it){ if(it.cuentaDosis===false) return; const g=SIGLA[it.grupo]||it.grupo; if(g) m[g]=(m[g]||0)+(b.sets||0) }) })
   const e=Object.keys(m).sort(function(a,b){return m[b]-m[a]})
   return e.length ? '<small>ESTA SESIÓN</small>'+e.map(function(g){ return '<span class="tbChip">'+plEsc(g)+'<b>'+m[g]+'</b></span>' }).join('') : '' }
+/* c130 · TIEMPO ESTIMADO de la rutina completa: misma fórmula que el preview del socio (app pvDur) para que ambos vean el mismo número.
+   Por bloque: sets × (45 s por ejercicio + descanso) + 2 min de transición; redondeado a 5 min. */
+function plTbMin(ses){ let s=0; (ses.bloques||[]).forEach(function(b){ const n=(b.items||[]).length||1; s+=(b.sets||1)*(n*45+(b.desc||60))+120 }); return Math.max(10,Math.round(s/60/5)*5) }
+function plTbTiempo(ses){ if(!ses||!(ses.bloques||[]).length) return ''
+  const m=plTbMin(ses), t=m<60?m+' MIN':Math.floor(m/60)+' H '+String(m%60).padStart(2,'0')+' MIN'
+  return '<div class="tbTiempo" title="Sets × (45 s por ejercicio + descanso) + 2 min por bloque"><small>TIEMPO ESTIMADO</small><b>~'+t+'</b></div>' }
 function plTbHTML(ses){
   const nb=ses.bloques.length, all=[]; ses.bloques.forEach(function(b){ b.items.forEach(function(it){ all.push(it.beId) }) })
   if (!TB.sel || all.indexOf(TB.sel)<0) TB.sel=all[0]||null
@@ -4140,7 +4150,7 @@ function plTbHTML(ses){
   const nuevo = nb<6 ? '<button type="button" class="tbNew" onclick="abrirBloque()" aria-label="Agregar bloque">+ BLOQUE</button>' : '<span></span>'
   const vacio = !nb ? '<div class="glass emptySes"><h4>'+plEsc(ses.nombre||'SESIÓN')+' · SESIÓN VACÍA</h4><p>Agrega el primer bloque para construirla.</p></div>' : ''
   // c86 · sin panel lateral ni botón de panel (c85): no se renderizan — la ficha negra de arriba es la única vista del ejercicio
-  return '<div class="tbHead"><div class="tbChipsW">'+plTbChips(ses)+'</div><div class="tbSelC" id="tbSelC">'+plTbSelCard()+'</div></div><div class="tbWrap sinPanel"><div><div class="tbBoard'+(nb>3?' many':'')+'" id="tbBoard" style="grid-template-columns:repeat('+nb+',minmax(0,1fr)) 44px">'+cols+nuevo+'</div>'+vacio+'</div></div>' }
+  return '<div class="tbHead"><div class="tbChipsW">'+plTbChips(ses)+'</div>'+plTbTiempo(ses)+'<div class="tbSelC" id="tbSelC">'+plTbSelCard()+'</div></div><div class="tbWrap sinPanel"><div><div class="tbBoard'+(nb>3?' many':'')+'" id="tbBoard" style="grid-template-columns:repeat('+nb+',minmax(0,1fr)) 44px">'+cols+nuevo+'</div>'+vacio+'</div></div>' }
 /* c85 · ficha compacta del ejercicio seleccionado: código · último registro · mejor marca · VER MÁS (abre el historial completo) */
 function plTbSelCard(){
   const x=TB.sel?planItem(TB.sel):null; if(!x) return '<div><small>EJERCICIO</small><b>Toca un ejercicio para ver su registro</b></div>'
