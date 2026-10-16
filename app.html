@@ -2596,6 +2596,10 @@ html:not(:has(#oAct.vis)) #sBloques.locked{filter:none;opacity:1;pointer-events:
 #oShare .kset__pick{display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden}
 #oShare .kset__pick input{position:absolute;inset:0;opacity:0;cursor:pointer}
 #oShare .kset__acts button:disabled{opacity:.5}
+
+/* c135 · señalador mapa: los puntos se arrastran sobre la vista previa */
+.kset__stage.mapa canvas{touch-action:none;cursor:grab}
+.kset__stage.mapa .kset__hint{top:14%}
 </style>
 </head>
 <body>
@@ -6841,7 +6845,8 @@ document.addEventListener('DOMContentLoaded', async ()=>{
       <div class="kset__hint" id="ksHint">TOCA LA FOTO PARA ELEGIR DÓNDE APUNTAR</div>
     </div>
     <div class="kset__opts" id="ksOFoto" hidden>
-      <div class="kset__row"><span>ESTILO</span><button type="button" class="kset__chip" data-ks="estilo" data-v="tarjeta" aria-pressed="true">TARJETA</button><button type="button" class="kset__chip" data-ks="estilo" data-v="senalador" aria-pressed="false">SEÑALADOR</button><label class="kset__chip">CAMBIAR FOTO<input type="file" id="ksFoto2" accept="image/*"></label></div>
+      <div class="kset__row"><span>ESTILO</span><button type="button" class="kset__chip" data-ks="estilo" data-v="mapa" aria-pressed="true">MAPA</button><button type="button" class="kset__chip" data-ks="estilo" data-v="tarjeta" aria-pressed="false">TARJETA</button><button type="button" class="kset__chip" data-ks="estilo" data-v="senalador" aria-pressed="false">SEÑALADOR</button><label class="kset__chip">CAMBIAR FOTO<input type="file" id="ksFoto2" accept="image/*"></label></div>
+      <div class="kset__row" data-solo="mapa"><span>FILTRO</span><button type="button" class="kset__chip" data-ks="filtro" data-v="plata" aria-pressed="true">PLATA</button><button type="button" class="kset__chip" data-ks="filtro" data-v="cromo" aria-pressed="false">CROMO</button><button type="button" class="kset__chip" data-ks="filtro" data-v="grafito" aria-pressed="false">GRAFITO</button><button type="button" class="kset__chip" data-ks="filtro" data-v="color" aria-pressed="false">COLOR</button></div>
       <div class="kset__row" data-solo="senalador"><span>RUTA</span><button type="button" class="kset__chip" data-ks="ruta" data-v="auto" aria-pressed="true">AUTO</button><button type="button" class="kset__chip" data-ks="ruta" data-v="DIAG" aria-pressed="false">DIAGONAL</button><button type="button" class="kset__chip" data-ks="ruta" data-v="L" aria-pressed="false">L</button><button type="button" class="kset__chip" data-ks="ruta" data-v="GAMMA" aria-pressed="false">Γ</button><button type="button" class="kset__chip" data-ks="ruta" data-v="ELBOW" aria-pressed="false">CODO</button></div>
       <div class="kset__row" data-solo="senalador"><span>MARCA</span><button type="button" class="kset__chip" data-ks="mira" data-v="circulo" aria-pressed="true">MIRA</button><button type="button" class="kset__chip" data-ks="mira" data-v="cuadro" aria-pressed="false">MARCO</button></div>
     </div>
@@ -7132,7 +7137,7 @@ function renderSenalador(ctx, d, tema, lado, tam, largo, mira, o) {
 })();
 
 /* Controlador: MOMENTO DE LOGRO (micro-animación) + COMPARTE TU LOGRO (gris · con tu foto · transparente) */
-const KS = { formato: 'foto', estilo: 'tarjeta', ruta: 'auto', rutaT: 'ELBOW', lado: 'izq', largo: 'media', mira: 'circulo', tema: 'blanco', foto: null, target: null, data: null, desdeCierre: false, cierre: null };
+const KS = { formato: 'foto', estilo: 'mapa', filtro: 'plata', ruta: 'auto', rutaT: 'ELBOW', lado: 'izq', largo: 'media', mira: 'circulo', tema: 'blanco', foto: null, target: null, data: null, desdeCierre: false, cierre: null };
 const ksEl = id => document.getElementById(id);
 function ksSt(t) { ksEl('ksSt').textContent = t || '' }
 async function ksFuentes() { try { await Promise.all(["700 100px 'Inter Display'", "600 100px 'Inter Display'", "700 100px 'Space Mono'"].map(f => document.fonts.load(f))) } catch (_) {} }
@@ -7162,16 +7167,20 @@ function ksPintar() {
   const cv = ksEl('ksCv'), ctx = cv.getContext('2d'), d = ksDatos(KS.data), st = ksEl('ksStage');
   const sinFoto = KS.formato === 'foto' && !KS.foto;
   st.classList.toggle('dam', KS.formato === 'transparente');
+  const mapa = KS.formato === 'foto' && !!KS.foto && KS.estilo === 'mapa';
   st.classList.toggle('apuntar', KS.formato === 'foto' && !!KS.foto && KS.estilo === 'senalador');
+  st.classList.toggle('mapa', mapa);
   ksEl('ksAdd').hidden = !sinFoto;
-  ksEl('ksHint').hidden = !(KS.formato === 'foto' && KS.foto && KS.estilo === 'senalador');
+  ksEl('ksHint').hidden = !(KS.formato === 'foto' && KS.foto && (KS.estilo === 'senalador' || (KS.estilo === 'mapa' && !KM.hintOff)));
+  ksEl('ksHint').textContent = KS.estilo === 'mapa' ? (KM.estado === 'buscando' ? 'UBICANDO TUS MÚSCULOS…' : 'ARRASTRA LOS PUNTOS PARA AJUSTAR') : 'TOCA LA FOTO PARA ELEGIR DÓNDE APUNTAR';
   if (KS.formato === 'gris' || sinFoto) KT.renderImagen(ctx, d, null);
   else if (KS.formato === 'foto') {
-    if (KS.estilo === 'tarjeta') KT.renderImagen(ctx, d, KS.foto, { nitida: true });
+    if (KS.estilo === 'mapa') { kmAsegurar(); kmRender(ctx) }
+    else if (KS.estilo === 'tarjeta') KT.renderImagen(ctx, d, KS.foto, { nitida: true });
     else { if (!KS.target) KS.target = ksTargetSugerido(); KT.renderSenalador(ctx, d, 'auto', 'izq', 1, 'media', KS.mira, { fondo: KT.fotoNitida(KS.foto), target: KS.target, ruta: KS.ruta }) }
   } else KT.renderSenalador(ctx, d, KS.tema, KS.lado, 1, KS.largo, KS.mira, { ruta: KS.rutaT });
   ksEl('ksOFoto').hidden = !(KS.formato === 'foto' && KS.foto);
-  document.querySelectorAll('#ksOFoto [data-solo="senalador"]').forEach(r => r.hidden = KS.estilo !== 'senalador');
+  document.querySelectorAll('#ksOFoto [data-solo]').forEach(r => r.hidden = KS.estilo !== r.dataset.solo);
   ksEl('ksOTr').hidden = KS.formato !== 'transparente';
   ksAcciones(sinFoto);
   ksPreparar(sinFoto);
@@ -7259,7 +7268,7 @@ async function ksCargarFoto(f) {
   try { const im = KS.foto, w = im.width, h = im.height, M = 2160, k = M / Math.max(w, h)
     if (k < 1) { const c = document.createElement('canvas'); c.width = Math.round(w * k); c.height = Math.round(h * k); c.getContext('2d').drawImage(im, 0, 0, c.width, c.height)
       try { im.close && im.close() } catch (_) {}; KS.foto = typeof createImageBitmap === 'function' ? await createImageBitmap(c) : c } } catch (_) {}
-  KT.BG_CACHE.key = null; KT.NIT_CACHE.src = null; KS.target = null; ksFormato('foto');
+  KT.BG_CACHE.key = null; KT.NIT_CACHE.src = null; KS.target = null; kmReset(); ksFormato('foto');
 }
 document.querySelectorAll('[data-ksf]').forEach(b => b.onclick = () => ksFormato(b.dataset.ksf));
 document.querySelectorAll('[data-ks]').forEach(b => b.onclick = () => { KS[b.dataset.ks] = b.dataset.v; document.querySelectorAll('[data-ks="' + b.dataset.ks + '"]').forEach(x => x.setAttribute('aria-pressed', String(x.dataset.v === b.dataset.v))); ksPintar() });
@@ -7271,6 +7280,149 @@ ksEl('ksCv').addEventListener('click', e => {
   const r = ksEl('ksCv').getBoundingClientRect();
   KS.target = { x: (e.clientX - r.left) / r.width * KT.W, y: (e.clientY - r.top) / r.height * KT.H }; ksPintar();
 });
+
+/* ══ c135 · SEÑALADOR MAPA: la app detecta el cuerpo en la foto (MediaPipe Pose, en el teléfono, la foto no sale)
+   y pone una mira en cada grupo muscular trabajado; el socio arrastra cada punto para ajustarlo. ══ */
+const KM_V = '0.10.21', KM_CDN = 'https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@' + KM_V, KM_MODELO = '/models/pose_landmarker_full.task';
+const KM = { pl: null, carga: null, foto: null, estado: '', puntos: null, drag: -1, bn: null, bnKey: '', logo: null };
+const KM_NOM = { 'PECHO': 'PECHO', 'ESPALDA': 'ESPALDA', 'BÍCEPS': 'BÍCEPS', 'TRÍCEPS': 'TRÍCEPS', 'HOMBROS': 'HOMBROS', 'CUÁDRICEPS': 'CUÁDRICEPS', 'GLÚTEOS': 'GLÚTEOS', 'ISQUIOS': 'ISQUIOS', 'GEMELOS': 'GEMELOS', 'CORE': 'CORE' };
+function kmReset() { KM.foto = null; KM.estado = ''; KM.puntos = null; KM.drag = -1; KM.hintOff = false }
+async function kmModelo() {
+  if (KM.pl) return KM.pl; if (KM.carga) return KM.carga;
+  KM.carga = (async () => {
+    const V = await import(KM_CDN + '/vision_bundle.mjs'), fs = await V.FilesetResolver.forVisionTasks(KM_CDN + '/wasm');
+    const mk = dl => V.PoseLandmarker.createFromOptions(fs, { baseOptions: { modelAssetPath: KM_MODELO, delegate: dl }, runningMode: 'IMAGE', numPoses: 1 });
+    try { KM.pl = await mk('GPU') } catch (_) { KM.pl = await mk('CPU') }
+    return KM.pl })();
+  try { return await KM.carga } catch (e) { KM.carga = null; throw e }
+}
+// Grupos de la sesión: tonelaje por grupo (base) o, si no viene, los nombres
+function kmGrupos() {
+  const j = KS.data || {}, g = (j.grupos || []).filter(x => KM_NOM[x.g]);
+  if (g.length) return g.slice(0, 3).map(x => ({ g: x.g, val: x.kg > 0 ? x.kg.toLocaleString('es-CL') + ' KG' : x.sets + ' SETS' }));
+  return (j.musculos || []).slice(0, 3).map(n => { const k = String(n).toUpperCase().replace('PECTORAL', 'PECHO'); return { g: k, val: '' } }).filter(x => KM_NOM[x.g]);
+}
+// Foto (normalizada) → coordenadas de la tarjeta 1080×1920 (recorte cover)
+function kmCover(f) { const W = KT.W, H = KT.H, r = Math.max(W / f.width, H / f.height), w = f.width * r, h = f.height * r; return { r, w, h, ox: (W - w) / 2, oy: (H - h) / 2 } }
+function kmAnclas(L, gs) {
+  const vis = i => L && L[i] && (L[i].visibility == null || L[i].visibility > .35) ? L[i] : null;
+  const lerp = (a, b, t) => a && b ? { x: a.x + (b.x - a.x) * t, y: a.y + (b.y - a.y) * t } : null;
+  const der = L && L[11] && L[12] && L[11].x > L[12].x;   // de frente el hombro izquierdo de la persona queda a la derecha de la foto
+  const frente = !!der, lados = { d: der ? [11, 13, 23, 25, 27] : [12, 14, 24, 26, 28], i: der ? [12, 14, 24, 26, 28] : [11, 13, 23, 25, 27] };
+  const mS = lerp(vis(11), vis(12), .5), mH = lerp(vis(23), vis(24), .5);
+  return gs.map((g, k) => {
+    const lado = k % 2 ? 'i' : 'd', [sh, el, hp, kn, an] = lados[lado].map(vis);
+    let p = null;
+    switch (g.g) {
+      case 'HOMBROS': p = lerp(sh, el, .14); break;
+      case 'PECHO': p = frente ? lerp(lerp(mS, sh, .5), hp, .16) : lerp(sh, hp, .22); break;
+      case 'ESPALDA': p = frente ? lerp(sh, hp, .3) : lerp(lerp(mS, sh, .45), mH, .3); break;
+      case 'BÍCEPS': case 'TRÍCEPS': p = lerp(sh, el, .55); break;
+      case 'CORE': p = lerp(lerp(mS, sh, .25), lerp(mH, hp, .25), .6); break;
+      case 'GLÚTEOS': p = frente ? lerp(hp, kn, .05) : lerp(lerp(mH, hp, .6), kn, .1); break;
+      case 'CUÁDRICEPS': case 'ISQUIOS': p = lerp(hp, kn, .45); break;
+      case 'GEMELOS': p = lerp(kn, an, .35); break;
+    }
+    return { ...g, lado, p };
+  });
+}
+async function kmAsegurar() {
+  if (!KS.foto || KM.foto === KS.foto) return;
+  KM.foto = KS.foto; KM.estado = 'buscando'; const foto = KS.foto, gs = kmGrupos(), W = KT.W, H = KT.H, cv = kmCover(foto);
+  const fallback = () => gs.map((g, k) => ({ ...g, lado: k % 2 ? 'i' : 'd', x: W * (k % 2 ? .4 : .6), y: H * (.3 + k * .14) }));
+  KM.puntos = fallback();
+  let L = null;
+  try { const pl = await kmModelo(); if (KM.foto !== foto) return; const r = pl.detect(foto); L = r && r.landmarks && r.landmarks[0] } catch (e) { console.warn('pose', e) }
+  if (KM.foto !== foto) return;
+  if (L) {
+    const A = kmAnclas(L, gs), base = fallback();
+    KM.puntos = A.map((a, k) => { if (!a.p) return base[k]; const x = cv.ox + a.p.x * cv.w, y = cv.oy + a.p.y * cv.h;
+      return (x > 40 && x < W - 40 && y > 200 && y < H - 420) ? { ...a, x, y } : base[k] });
+    KM.estado = 'ok';
+  } else KM.estado = 'manual';
+  clearTimeout(KM.ht); KM.hintOff = false; KM.ht = setTimeout(() => { KM.hintOff = true; ksPintar() }, 4000);
+  ksPintar();
+}
+// Foto a pantalla completa con filtro B/N (hecho a mano: ctx.filter no existe en todos los Safari)
+function kmFoto() {
+  const f = KS.foto, key = KS.filtro; if (KM.bn && KM.bnSrc === f && KM.bnKey === key) return KM.bn;
+  const W = KT.W, H = KT.H, c = document.createElement('canvas'); c.width = W; c.height = H; const x = c.getContext('2d'), cv = kmCover(f);
+  x.drawImage(f, cv.ox, cv.oy, cv.w, cv.h);
+  const F = { plata: [1.12, 1.04, 0], cromo: [1.45, .78, 0], grafito: [.92, .86, .06] }[key];
+  if (F) { const px = x.getImageData(0, 0, W, H), d = px.data, [ct, br, tn] = F;
+    for (let i = 0; i < d.length; i += 4) { let l = (.2126 * d[i] + .7152 * d[i + 1] + .0722 * d[i + 2]) * br; l = (l - 128) * ct + 128; l = l < 0 ? 0 : l > 255 ? 255 : l; d[i] = l + tn * 20; d[i + 1] = l + tn * 10; d[i + 2] = l }
+    x.putImageData(px, 0, 0) }
+  KM.bn = c; KM.bnSrc = f; KM.bnKey = key; return c;
+}
+function kmLogo() {
+  if (KM.logo) return KM.logo.ok ? KM.logo.c : null;
+  const im = new Image(); KM.logo = { ok: false }; im.onload = () => { const c = document.createElement('canvas'); c.width = im.width; c.height = im.height; const x = c.getContext('2d');
+    x.drawImage(im, 0, 0); x.globalCompositeOperation = 'source-in'; x.fillStyle = '#FFFFFF'; x.fillRect(0, 0, c.width, c.height); KM.logo = { ok: true, c }; ksPintar() };
+  im.src = '/img/brand/logotipo-koach.png'; return null;
+}
+function kmTxt(ctx, s, x, y, w, size, fam, track, color, align) {
+  ctx.font = w + ' ' + size + 'px ' + (fam === 'mono' ? "'IBM Plex Mono', monospace" : "'Inter Display', Inter, Arial, sans-serif");
+  if ('letterSpacing' in ctx) ctx.letterSpacing = (track || 0) + 'px'; ctx.fillStyle = color; ctx.textAlign = align || 'left'; ctx.textBaseline = 'alphabetic'; ctx.fillText(s, x, y);
+  const m = ctx.measureText(s).width; if ('letterSpacing' in ctx) ctx.letterSpacing = '0px'; return m;
+}
+function kmRender(ctx) {
+  const W = KT.W, H = KT.H, j = KS.data || {}, M = 66, B = '#FFFFFF';
+  ctx.clearRect(0, 0, W, H); ctx.fillStyle = '#121212'; ctx.fillRect(0, 0, W, H);
+  ctx.drawImage(kmFoto(), 0, 0);
+  let g = ctx.createLinearGradient(0, 0, 0, H); g.addColorStop(0, 'rgba(18,18,18,.42)'); g.addColorStop(.17, 'rgba(18,18,18,0)'); g.addColorStop(.6, 'rgba(18,18,18,0)'); g.addColorStop(1, 'rgba(18,18,18,.88)');
+  ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
+  ctx.save(); ctx.shadowColor = 'rgba(0,0,0,.4)'; ctx.shadowBlur = 18;
+  const lg = kmLogo(); if (lg) { const h = 36, w = lg.width * h / lg.height; ctx.drawImage(lg, M, M, w, h) }
+  kmTxt(ctx, 'SESIÓN Nº ' + String(j.num_sesion || 0).padStart(5, '0'), W - M, M + 30, 500, 27, 'mono', 5, B, 'right');
+  // Miras y etiquetas por columna (derecha / izquierda), sin choques verticales
+  const P = (KM.puntos || []).map((p, k) => ({ ...p, k }));
+  ['d', 'i'].forEach(lado => {
+    const col = P.filter(p => p.lado === lado).sort((a, b) => a.y - b.y); let ult = -1e9;
+    col.forEach(p => { p.ly = Math.max(p.y, ult + 150); p.ly = Math.min(p.ly, H - 520); ult = p.ly });
+  });
+  ctx.lineWidth = 4.5; ctx.strokeStyle = B; ctx.fillStyle = B; ctx.lineJoin = 'round'; ctx.lineCap = 'round';
+  P.forEach(p => {
+    const dir = p.lado === 'd' ? 1 : -1, cx = dir > 0 ? Math.max(p.x + 90, W - 330) : Math.min(p.x - 90, 330), ly = p.ly;
+    p.cx = cx; ctx.beginPath(); ctx.moveTo(p.x + dir * 28, p.y); ctx.lineTo(cx - dir * 40, ly); ctx.lineTo(cx, ly); ctx.stroke();
+    ctx.beginPath(); ctx.arc(p.x, p.y, 25, 0, Math.PI * 2); ctx.stroke(); ctx.beginPath(); ctx.arc(p.x, p.y, 7.5, 0, Math.PI * 2); ctx.fill();
+    if (KM.drag === p.k) { ctx.save(); ctx.globalAlpha = .35; ctx.beginPath(); ctx.arc(p.x, p.y, 62, 0, Math.PI * 2); ctx.stroke(); ctx.restore() }
+  });
+  ctx.shadowBlur = 10;
+  P.forEach((p, i) => {
+    const dir = p.lado === 'd' ? 1 : -1, nom = KM_NOM[p.g] || p.g, x0 = p.cx + dir * 14, ly = p.ly;
+    ctx.font = "500 25px 'IBM Plex Mono', monospace"; if ('letterSpacing' in ctx) ctx.letterSpacing = '3.5px';
+    const tw = ctx.measureText(nom).width; if ('letterSpacing' in ctx) ctx.letterSpacing = '0px';
+    const pw = tw + 48, ph = 54, px = dir > 0 ? x0 : x0 - pw, py = ly - ph / 2;
+    ctx.save(); ctx.shadowBlur = 0; ctx.beginPath(); ctx.roundRect ? ctx.roundRect(px, py, pw, ph, 27) : ctx.rect(px, py, pw, ph);
+    if (i === 0) { ctx.fillStyle = '#F4F3F0'; ctx.fill(); kmTxt(ctx, nom, px + 24, ly + 9, 500, 25, 'mono', 3.5, '#121212') }
+    else { ctx.lineWidth = 3; ctx.strokeStyle = B; ctx.stroke(); ctx.restore(); ctx.save(); kmTxt(ctx, nom, px + 24, ly + 9, 500, 25, 'mono', 3.5, B) }
+    ctx.restore();
+    if (p.val) kmTxt(ctx, p.val, dir > 0 ? px : px + pw, ly + ph / 2 + 50, 700, 44, 'disp', 0, B, dir > 0 ? 'left' : 'right');
+  });
+  // Pie: total del día
+  ctx.shadowBlur = 14; const y0 = H - 250;
+  ctx.save(); ctx.shadowBlur = 0; ctx.strokeStyle = 'rgba(255,255,255,.4)'; ctx.lineWidth = 3; ctx.beginPath(); ctx.moveTo(M, y0); ctx.lineTo(W - M, y0); ctx.stroke(); ctx.restore();
+  kmTxt(ctx, 'MOVIDOS HOY', M, y0 + 66, 500, 25, 'mono', 5, B);
+  const ton = Math.round(+j.tonelaje || 0).toLocaleString('es-CL'), tw = kmTxt(ctx, ton, M - 4, y0 + 196, 700, 132, 'disp', -6, B);
+  kmTxt(ctx, 'KG', M + tw + 14, y0 + 196, 500, 32, 'mono', 2, B);
+  kmTxt(ctx, String(j.rutina || '').toUpperCase().slice(0, 22), W - M, y0 + 150, 500, 25, 'mono', 4, B, 'right');
+  if (j.duracion_min) kmTxt(ctx, j.duracion_min + ' MIN', W - M, y0 + 192, 500, 25, 'mono', 4, B, 'right');
+  ctx.restore();
+}
+// Arrastrar los puntos
+(() => {
+  const cv = ksEl('ksCv'); if (!cv) return;
+  const pos = e => { const r = cv.getBoundingClientRect(); return { x: (e.clientX - r.left) / r.width * KT.W, y: (e.clientY - r.top) / r.height * KT.H } };
+  const activo = () => KS.formato === 'foto' && KS.foto && KS.estilo === 'mapa' && KM.puntos;
+  cv.addEventListener('pointerdown', e => { if (!activo()) return; const q = pos(e); let best = -1, bd = 150;
+    KM.puntos.forEach((p, k) => { const d = Math.hypot(p.x - q.x, p.y - q.y); if (d < bd) { bd = d; best = k } });
+    if (best < 0) return; KM.drag = best; KM.hintOff = true; try { cv.setPointerCapture(e.pointerId) } catch (_) {} e.preventDefault(); ksPintar() });
+  cv.addEventListener('pointermove', e => { if (KM.drag < 0) return; const q = pos(e), p = KM.puntos[KM.drag];
+    p.x = Math.max(30, Math.min(KT.W - 30, q.x)); p.y = Math.max(160, Math.min(KT.H - 300, q.y)); e.preventDefault();
+    if (!KM.raf) KM.raf = requestAnimationFrame(() => { KM.raf = 0; ksPintar() }) });
+  const fin = () => { if (KM.drag < 0) return; KM.drag = -1; ksPintar() };
+  cv.addEventListener('pointerup', fin); cv.addEventListener('pointercancel', fin);
+})();
 
 /* ── Micro-secuencia de logro: isotipo → mensaje → eslogan + semana → pantalla de compartir (2,6 s; hitos 3,4 s) ── */
 let _cmT = null, _cmFin = null;
