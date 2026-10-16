@@ -2600,6 +2600,54 @@ html:not(:has(#oAct.vis)) #sBloques.locked{filter:none;opacity:1;pointer-events:
 /* c135 · señalador mapa: los puntos se arrastran sobre la vista previa */
 .kset__stage.mapa canvas{touch-action:none;cursor:grab}
 .kset__stage.mapa .kset__hint{top:14%}
+
+/* c136 · RÉCORD PERSONAL ÉPICO (solo cuando hay PR) */
+.kxDone.kxDone--pr{background:#050506;color:#F4F3F0;overflow:hidden}
+.kxPR__bg{position:absolute;inset:0;background:#050506 center/cover no-repeat;opacity:0;transform:scale(1.15)}
+.kxDone--pr.on .kxPR__bg{animation:prBg 1.6s .1s cubic-bezier(.2,.8,.2,1) both}
+@keyframes prBg{to{opacity:.85;transform:scale(1)}}
+.kxPR__rays{position:absolute;left:50%;top:36%;width:180vmax;height:180vmax;margin:-90vmax 0 0 -90vmax;border-radius:50%;pointer-events:none;opacity:0;
+  background:repeating-conic-gradient(from 0deg,rgba(255,255,255,.13) 0deg 4deg,transparent 4deg 18deg);-webkit-mask:radial-gradient(circle,#000 0,rgba(0,0,0,.6) 18%,transparent 52%);mask:radial-gradient(circle,#000 0,rgba(0,0,0,.6) 18%,transparent 52%)}
+.kxDone--pr.on .kxPR__rays{animation:prRaysIn .9s .5s ease-out both,prSpin 26s linear infinite}
+@keyframes prRaysIn{from{opacity:0}to{opacity:1}}@keyframes prSpin{to{transform:rotate(360deg)}}
+.kxPR{position:relative;z-index:1}
+.kxPR .kxD__top img{filter:none!important;opacity:1!important;animation:none!important}
+.kxDone--pr.on .kxPR{animation:prShake .38s .56s linear both}
+@keyframes prShake{0%,100%{transform:none}20%{transform:translate(-5px,3px)}40%{transform:translate(5px,-3px)}60%{transform:translate(-3px,2px)}80%{transform:translate(2px,-1px)}}
+.kxPR__k{font:700 10px var(--font-mono);letter-spacing:.24em;color:#C9CDD3;opacity:0}
+.kxDone--pr.on .kxPR__k{animation:prTrack .9s .15s cubic-bezier(.2,.8,.2,1) both}
+@keyframes prTrack{from{opacity:0;letter-spacing:.9em}to{opacity:1;letter-spacing:.24em}}
+.kxPR__hero{position:relative;margin:6px 0 0}
+.kxPR__big{display:flex;flex-wrap:wrap;align-items:flex-end;gap:4px 8px;line-height:.8}
+.kxPR__n{font:900 min(50vw,calc(118vw / var(--n,2)),230px)/.82 var(--font-display);font-stretch:118%;letter-spacing:-.06em;padding-right:.04em;
+  background:linear-gradient(100deg,#8A8F97 0%,#FFFFFF 30%,#C9CDD3 45%,#FFFFFF 55%,#9EA3AA 75%,#FFFFFF 100%);background-size:260% 100%;background-position:100% 0;-webkit-background-clip:text;background-clip:text;color:transparent;
+  display:inline-block;transform-origin:20% 70%;opacity:0;filter:drop-shadow(0 10px 40px rgba(220,230,245,.25))}
+.kxDone--pr.on .kxPR__n{animation:prSlam .62s .22s cubic-bezier(.2,1.4,.3,1) both,prSheen 2.6s 1.1s ease-in-out infinite}
+@keyframes prSlam{0%{opacity:0;transform:scale(2.8);filter:blur(16px)}55%{opacity:1;transform:scale(.93);filter:blur(0)}78%{transform:scale(1.03)}100%{opacity:1;transform:scale(1)}}
+@keyframes prSheen{0%{background-position:100% 0}60%,100%{background-position:-60% 0}}
+.kxPR__big em{font:700 20px var(--font-mono);font-style:normal;letter-spacing:.08em;padding-bottom:12px;opacity:0}
+.kxDone--pr.on .kxPR__big em{animation:prUp .5s .75s ease-out both}
+.kxPR__ring{position:absolute;left:28%;top:52%;width:40px;height:40px;margin:-20px 0 0 -20px;border-radius:50%;border:2px solid rgba(255,255,255,.9);opacity:0;pointer-events:none}
+.kxDone--pr.on .kxPR__ring{animation:prRing .9s .55s cubic-bezier(.1,.7,.3,1) both}
+@keyframes prRing{0%{opacity:.9;transform:scale(.4)}100%{opacity:0;transform:scale(14);border-width:.5px}}
+.kxPR__t{margin:18px 0 0;font:900 clamp(38px,11.5vw,54px)/.9 var(--font-display);font-stretch:118%;letter-spacing:-.02em;text-transform:uppercase}
+.kxPR__t span{display:inline-block;overflow:hidden;vertical-align:bottom;padding-bottom:2px}
+.kxPR__t--l{font-size:clamp(30px,9vw,42px)}
+.kxPR__t b{display:inline-block;font-weight:inherit;transform:translateY(105%)}
+.kxDone--pr.on .kxPR__t b{animation:prWord .55s calc(.85s + var(--i)*.09s) cubic-bezier(.2,.8,.2,1) both}
+@keyframes prWord{to{transform:none}}
+.kxPR__ah{display:flex;align-items:center;gap:12px;margin-top:22px;padding-top:16px;border-top:1px solid rgba(255,255,255,.22);opacity:0}
+.kxDone--pr.on .kxPR__ah{animation:prUp .6s 1.25s ease-out both}
+.kxPR__ah span{display:block;font:700 8.5px var(--font-mono);letter-spacing:.16em;color:#A7A9AE;margin-bottom:5px}
+.kxPR__ah b{font:700 19px var(--font-mono);letter-spacing:-.02em}
+.kxPR__ah div:last-child b{color:#fff}.kxPR__ah div:first-child b{color:#A7A9AE;text-decoration:line-through;text-decoration-thickness:1px}
+.kxPR__ah i{font-style:normal;font:700 18px var(--font-mono);color:#C9CDD3}
+.kxPR__bc{margin-top:auto;padding-top:22px;opacity:0}.kxPR__bc svg{width:100%;height:30px;fill:#F4F3F0;opacity:.75}
+.kxDone--pr.on .kxPR__bc{animation:prUp .6s 1.45s ease-out both}
+.kxPR__ok{background:#F4F3F0;color:#0E0E0F;opacity:0}.kxPR__ok i{border-color:rgba(14,14,15,.25)}
+.kxDone--pr.on .kxPR__ok{animation:prUp .6s 1.6s ease-out both}
+@keyframes prUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+@media (prefers-reduced-motion:reduce){.kxDone--pr.on *:not(.kxFlash), .kxDone--pr.on .kxPR__rays, .kxDone--pr.on .kxPR__bg{animation:none!important;opacity:1!important;transform:none!important;filter:none!important}.kxDone--pr .kxPR__ring{display:none}}
 </style>
 </head>
 <body>
@@ -3720,18 +3768,25 @@ function kxTrasSet(b,n,bes,blqFin){ const o=document.getElementById('oBloque'); 
   el.innerHTML='<div><small>'+bkCod(b,BK.bi)+' · SET '+String(n).padStart(2,'0')+' / '+String(b.sets).padStart(2,'0')+'</small><b>Set '+String(n).padStart(2,'0')+' ✓</b>'+(rep?'<em>'+rep+'</em>':'')+'<div class="kxSegs">'+segs+'</div>'+(kg?'<span>'+Math.round(kg).toLocaleString('es-CL')+' KG EN ESTE SET</span>':'')+'</div>'
   o.appendChild(el); requestAnimationFrame(()=>el.classList.add('on')); setTimeout(()=>{ el.classList.remove('on'); setTimeout(()=>el.remove(),400) },1300) }
 function kxPR(pr){ const ov=document.getElementById('kxDone'); if(!ov) return
+  // c136 · RÉCORD ÉPICO: cromo negro, rayos, el número entra de golpe (golpe + onda + temblor + flash) y queda con brillo plateado
   const f=x=>(x.peso%1?String(x.peso).replace('.',','):x.peso)+' KG'+(x.reps?' × '+x.reps:''), dif=Math.round((pr.hoy.peso-pr.antes.peso)*10)/10
-  ov.innerHTML='<div class="kxD__in"><div class="kxD__top"><img src="/img/brand/logotipo-koach.png" alt="KOACH"><small>NUEVO RÉCORD</small></div>'+
-    '<span class="kxD__k">NUEVO RÉCORD PERSONAL</span><h2 class="kxD__t kxD__t--s">'+plEscA(pr.nom)+'</h2>'+
-    '<div class="kxD__big">'+(dif>0?'+'+String(dif).replace('.',','):'+'+(pr.hoy.reps-pr.antes.reps))+'<i>'+(dif>0?'KG':'REPS')+'</i></div>'+
-    '<div class="kxCard kxD__tk"><div class="kxCard__r"><span>NEW PR</span><span>'+new Date().toLocaleDateString('es-CL',{day:'2-digit',month:'short'}).toUpperCase()+'</span></div><div class="kxCard__t">'+plEscA(pr.nom)+'</div>'+
-    '<div class="kxCard__g"><div><span>ANTES</span><b>'+f(pr.antes)+'</b></div><div><span>HOY</span><b>'+f(pr.hoy)+'</b></div></div><div class="kxCard__bc">'+barcodeSVG('PR'+String(pr.hoy.peso).replace('.',''),28)+'</div></div>'+
-    '<button type="button" class="kxBtn kxBtn--dk" id="kxPrOk">SEGUIR <i></i></button></div><div class="kxFlash"></div>'
+  const num=dif>0?'+'+String(dif).replace('.',','):'+'+(pr.hoy.reps-pr.antes.reps), uni=dif>0?'KG':'REPS'
+  const pal=String(pr.nom||'').toUpperCase().split(/\s+/).filter(Boolean).map((w,i)=>'<span><b style="--i:'+i+'">'+plEscA(w)+'</b></span>').join(' ')
+  const bg=(typeof kbgURL==='function'&&kbgURL('cromoN'))||''
+  ov.innerHTML='<div class="kxPR__bg"'+(bg?' style="background-image:url('+bg+')"':'')+'></div><div class="kxPR__rays"></div>'+
+    '<div class="kxD__in kxPR"><div class="kxD__top"><img src="/img/brand/logotipo-koach.png" alt="KOACH"><small>'+new Date().toLocaleDateString('es-CL',{day:'2-digit',month:'short'}).toUpperCase()+'</small></div>'+
+    '<span class="kxPR__k">NUEVO RÉCORD PERSONAL</span>'+
+    '<div class="kxPR__hero"><i class="kxPR__ring"></i><div class="kxPR__big" style="--n:'+num.length+'"><span class="kxPR__n">'+num+'</span><em>'+uni+'</em></div></div>'+
+    '<h2 class="kxPR__t'+(String(pr.nom||'').length>18?' kxPR__t--l':'')+'">'+pal+'</h2>'+
+    '<div class="kxPR__ah"><div><span>ANTES</span><b>'+f(pr.antes)+'</b></div><i aria-hidden="true">→</i><div><span>HOY</span><b>'+f(pr.hoy)+'</b></div></div>'+
+    '<div class="kxPR__bc">'+barcodeSVG('PR'+String(pr.hoy.peso).replace('.',''),26)+'</div>'+
+    '<button type="button" class="kxBtn kxPR__ok" id="kxPrOk">SEGUIR <i></i></button></div><div class="kxFlash"></div>'
   ov.classList.add('vis','kxDone--pr'); requestAnimationFrame(()=>requestAnimationFrame(()=>ov.classList.add('on')))
-  ov.querySelector('.kxFlash').animate([{opacity:1},{opacity:0}],{duration:600,easing:'ease-out'})
-  try{ if(navigator.vibrate) navigator.vibrate([25,60,25]) }catch(_){}
-  const cerrar=()=>{ clearTimeout(ov._t); ov.classList.remove('on'); setTimeout(()=>{ ov.classList.remove('vis','kxDone--pr'); ov.innerHTML='' },380) }
-  document.getElementById('kxPrOk').onclick=cerrar; ov._t=setTimeout(cerrar,4200) }
+  const RM=matchMedia('(prefers-reduced-motion: reduce)').matches
+  ov._g=setTimeout(()=>{ try{ ov.querySelector('.kxFlash').animate([{opacity:.9},{opacity:0}],{duration:520,easing:'ease-out'}) }catch(_){}
+    try{ if(navigator.vibrate) navigator.vibrate([35,50,90]) }catch(_){} try{ kHaptic&&kHaptic(30) }catch(_){} }, RM?0:560)
+  const cerrar=()=>{ clearTimeout(ov._t); clearTimeout(ov._g); ov.classList.remove('on'); setTimeout(()=>{ ov.classList.remove('vis','kxDone--pr'); ov.innerHTML='' },380) }
+  document.getElementById('kxPrOk').onclick=cerrar; ov._t=setTimeout(cerrar,7000) }
 function initSlide(el,onOk){
   const th=el.querySelector('.th'); let sx=null,done=false
   const maxX=()=>el.clientWidth-th.clientWidth-10
