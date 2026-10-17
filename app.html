@@ -3789,14 +3789,25 @@ function kxTrasSet(b,n,bes,blqFin){ const o=document.getElementById('oBloque'); 
   let kg=0, rep='', pr=null
   bes.forEach(be=>{ const f=S.setLog[setKey(be.id,n)], ej=be.ejercicios||{}; if(!f) return
     const p=+f.peso||0, r=parseInt(f.reps)||0; kg+=p*r; if(!rep && p) rep=r+' × '+(p%1?String(p).replace('.',','):p)
-    const m=(S.mejores||{})[ej.id]
-    if (p>0 && m && (p>m.peso || (p===m.peso && r>m.reps)) && !pr){ pr={ nom:ej.nombre||'Ejercicio', antes:m, hoy:{peso:p,reps:r}, id:ej.id } } })
-  if (pr){ (S._prHoy=S._prHoy||{})[pr.id]=1; (S._prLista=S._prLista||[]).push(pr); S.mejores[pr.id]={ peso:pr.hoy.peso, reps:pr.hoy.reps }; return kxPR(pr) }
+  })
+  if (S._prPend || Date.now()-(S._prVisto||0)<4000) return   // c163 · el récord ya se está mostrando (kxPrRevisar)
   if (blqFin) return
   const el=document.createElement('div'); el.className='kxSet'; el.setAttribute('role','status'); el.setAttribute('aria-live','polite')
   const segs=Array.from({length:b.sets},(_,i)=>'<i class="'+(bkSetHecho(b,i+1)?'on':'')+'"></i>').join('')
   el.innerHTML='<div><small>'+bkCod(b,BK.bi)+' · SET '+String(n).padStart(2,'0')+' / '+String(b.sets).padStart(2,'0')+'</small><b>Set '+String(n).padStart(2,'0')+' ✓</b>'+(rep?'<em>'+rep+'</em>':'')+'<div class="kxSegs">'+segs+'</div>'+(kg?'<span>'+Math.round(kg).toLocaleString('es-CL')+' KG EN ESTE SET</span>':'')+'</div>'
   o.appendChild(el); requestAnimationFrame(()=>el.classList.add('on')); setTimeout(()=>{ el.classList.remove('on'); setTimeout(()=>el.remove(),400) },1300) }
+/* c163 · RÉCORD AL INSTANTE: cualquier set marcado (set a set, bloque completo o "completé todo") se compara con tu mejor marca.
+   Si la supera (más peso, o mismo peso con más reps) aparece la pantalla épica; si en un mismo toque hay varios, el de mayor subida. */
+function kxPrRevisar(filas){ try{
+  (filas||[]).forEach(f=>{ if(!f||!f.ejercicio_id) return; const p=+f.peso||0, r=parseInt(f.reps)||0, m=(S.mejores||{})[f.ejercicio_id]
+    if (!(p>0 && m && (p>m.peso || (p===m.peso && r>m.reps)))) return
+    let nom='Ejercicio'; (S._bfs||[]).forEach(b=>(b.bloque_ejercicios||[]).forEach(be=>{ if(be.ejercicio_id===f.ejercicio_id||(be.ejercicios||{}).id===f.ejercicio_id) nom=(be.ejercicios||{}).nombre||nom }))
+    const pr={ nom, antes:{ peso:m.peso, reps:m.reps }, hoy:{ peso:p, reps:r }, id:f.ejercicio_id }
+    S.mejores[f.ejercicio_id]={ peso:p, reps:r }; (S._prHoy=S._prHoy||{})[pr.id]=1; (S._prLista=S._prLista||[]).push(pr)
+    const sube=x=>(x.hoy.peso-x.antes.peso)*100+(x.hoy.reps-x.antes.reps)
+    if (!S._prPend || sube(pr)>sube(S._prPend)) S._prPend=pr })
+  if (S._prPend){ clearTimeout(S._prT); S._prT=setTimeout(()=>{ const pr=S._prPend; S._prPend=null; S._prVisto=Date.now(); if(pr) kxPR(pr) },220) }
+}catch(e){ console.error('kxPrRevisar',e) } }
 function kxPR(pr, alFin){ const ov=document.getElementById('kxDone'); if(!ov) return   // c160 · alFin: al cerrar el récord del cierre sigue al resumen
   // c136 · RÉCORD ÉPICO: cromo negro, rayos, el número entra de golpe (golpe + onda + temblor + flash) y queda con brillo plateado
   const f=x=>(x.peso%1?String(x.peso).replace('.',','):x.peso)+' KG'+(x.reps?' × '+x.reps:''), dif=Math.round((pr.hoy.peso-pr.antes.peso)*10)/10
@@ -5540,7 +5551,7 @@ async function tapSetRow(beId,n,bId,ejId){
     target_peso:(w.kg!=null?w.kg:null), target_reps:w.reps||null, target_seg:w.seg||null,
     peso:(rv.kg!=null?rv.kg:null), reps:rv.reps||null, seg:(w.tipo==='TIME'?(rv.seg||null):null), completado:true,
     descanso_prescrito_seg:(S._restInfo?S._restInfo.p:null), descanso_ajuste_seg:(S._restInfo?S._restInfo.a:null), descanso_real_seg:(S._restInfo?S._restInfo.r:null) }
-  S.setLog[k]={...fila}
+  S.setLog[k]={...fila}; kxPrRevisar([fila])
   // v7.7: el peso/reps del set marcado pasan como punto de partida a los sets siguientes aún no marcados
   const blkT=S._bfs.find(function(x){return x.id===bId})
   if (blkT && rv.kg!=null){ for(let m=n+1;m<=blkT.sets;m++){ if(S.setLog[setKey(beId,m)]) continue
@@ -5564,7 +5575,7 @@ async function tapSet(beId,n,bId,ejId){
     ejercicio_id:ejId||null, set_numero:n,
     target_peso:w.kg!=null?w.kg:null, target_reps:w.reps||null, target_seg:w.seg||null,
     peso:w.kg!=null?w.kg:null, reps:w.reps||null, seg:w.seg||null, completado:true }
-  S.setLog[k]={...fila}
+  S.setLog[k]={...fila}; kxPrRevisar([fila])
   pintarSesion()
   if(navigator.vibrate)navigator.vibrate(8)
   syncEnvio()
@@ -5798,7 +5809,7 @@ async function completarBloque(bi){
   }
   if(!rows.length){ pintarSesion(); return }
   rows.forEach((f,i)=>{ S.setLog[claves[i]]={...f} })
-  pintarSesion()
+  pintarSesion(); kxPrRevisar(rows)
   if(navigator.vibrate)navigator.vibrate(10)
   syncEnvio()
   const r = await sb.from('set_registros').upsert(rows,{onConflict:'registro_id,bloque_id,bloque_ejercicio_id,set_numero'}).select('id')
