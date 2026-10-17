@@ -182,7 +182,97 @@ function cambio(evs, clave, mejora){
     fechaAnterior: ant ? ant.fecha : null, fechaInicio: pri !== ult ? pri.fecha : null, serie: conDato.map(e => ({ fecha: e.fecha, v: +e[clave] })) }
 }
 
-const KC = { VERSION, calcular, sugerirPauta, aFila, deFila, cambio, clasGrasa, clasFFMI, _coefsDW: coefsDW }
+// Forma corporal (lógica Muscle-Fat de InBody, como en Nutrición Pro) — lenguaje para el socio, no letras técnicas
+function formaCorporal(pctGrasa, ffmiNorm, sexo){
+  const cg = clasGrasa(pctGrasa, sexo), cf = clasFFMI(ffmiNorm, sexo)
+  if (!cg || !cf) return null
+  const gBaja = ['ESENCIAL','ATLETA','FITNESS'].includes(cg), gAlta = cg === 'ELEVADO'
+  const fAlto = ['SOBRE EL PROMEDIO','EXCELENTE','SUPERIOR','FUERA DE RANGO NATURAL'].includes(cf), fBajo = ['BAJO EL PROMEDIO','PROMEDIO'].includes(cf)
+  if (gBaja && fAlto) return { id:'D', label:'ATLÉTICO', msg:'Músculo alto con grasa baja.' }
+  if (gAlta && fBajo) return { id:'C', label:'POR EQUILIBRAR', msg:'La prioridad es bajar grasa y sumar músculo.' }
+  return { id:'I', label:'EQUILIBRADO', msg:'Peso, músculo y grasa en proporción razonable.' }
+}
+
+// Meta a 6 meses (tasas de Nutrición Pro: Helms 2014 / McDonald / Aragon). nivel es interno: nunca se muestra al socio.
+function metaSeisMeses(peso, programa, nivel, comp){
+  peso = num(peso); if (!peso) return null; comp = comp || {}
+  const P = String(programa || '').toUpperCase(), sem = 26
+  const n = /avanz/i.test(nivel || '') ? 'avanzado' : /b[aá]sic|princip/i.test(nivel || '') ? 'principiante' : 'intermedio'
+  if (P === 'STRONG'){ const mes = peso * ({ principiante:0.0125, intermedio:0.0075, avanzado:0.004 }[n]); const tot = mes * (sem / 4.345)
+    return { tipo:'MÚSCULO', valor: r1(tot), unidad:'kg', texto:'+' + String(r1(tot)).replace('.', ',') + ' kg de masa muscular en 6 meses', hitos:[30,60,90].map(d => ({ dias:d, valor:r1(mes * d / 30.4) })) } }
+  if (P === 'BURN'){
+    // Corrección vs Nutrición Pro: el tope era 20 % del PESO (podía proyectar bajar casi toda la grasa).
+    // Ahora, si hay % grasa medido, nunca se proyecta bajo un piso saludable (hombre 12 %, mujer 20 %) conservando la masa magra.
+    const pg = num(comp.pctGrasa), piso = esH(comp.sexo) ? 12 : 20
+    const maxGrasa = pg != null ? Math.max(0, peso * pg / 100 - (peso * (1 - pg / 100)) / (1 - piso / 100) * piso / 100) : peso * 0.2
+    const s = peso * 0.0075, tot = Math.min(s * sem, maxGrasa)
+    if (tot < 0.5) return { tipo:'MANTENCIÓN', valor:0, unidad:'kg', texto:'Ya estás en un rango de grasa bajo: el foco es mantenerlo y sumar músculo', hitos:[] }
+    return { tipo:'GRASA', valor: -r1(tot), unidad:'kg', texto:'−' + String(r1(tot)).replace('.', ',') + ' kg de grasa en 6 meses', hitos:[30,60,90].map(d => ({ dias:d, valor:-r1(Math.min(s * d / 7, tot)) })) } }
+  return { tipo:'MANTENCIÓN', valor:0, unidad:'kg', texto:'Mantener grasa y músculo estables, con reevaluación mensual', hitos:[] }
+}
+
+// Gasto real entre evaluaciones (principio MacroFactor): cambio de peso real vs calorías prescritas. 7.700 kcal ≈ 1 kg
+function tdeeAdaptativo(ant, act){
+  if (!ant || !act || !num(ant.kcal) || !num(ant.peso) || !num(act.peso) || !ant.fecha || !act.fecha) return null
+  const dias = Math.round((new Date(act.fecha + 'T12:00:00') - new Date(ant.fecha + 'T12:00:00')) / 86400000)
+  if (dias < 14) return null
+  const dPeso = num(act.peso) - num(ant.peso)
+  return { tdeeReal: Math.round(num(ant.kcal) - dPeso * 7700 / dias), kcalPrescritas: Math.round(num(ant.kcal)), dias, deltaPeso: r1(dPeso) }
+}
+
+// Lectura por sector (página "Mediciones" del PDF)
+const SECTORES = [
+  { id:'SUP', nombre:'TREN SUPERIOR', pl:[['biceps_mm','Bíceps'],['triceps_mm','Tríceps'],['subescapular_mm','Subescapular']], pe:[['brazo_cm','Brazo']] },
+  { id:'CORE', nombre:'ZONA MEDIA', pl:[['cresta_iliaca_mm','Cresta ilíaca'],['supraespinal_mm','Supraespinal'],['abdominal_mm','Abdominal']], pe:[['cintura_cm','Cintura'],['cadera_cm','Cadera']] },
+  { id:'INF', nombre:'TREN INFERIOR', pl:[['muslo_mm','Muslo'],['pantorrilla_mm','Pantorrilla']], pe:[['muslo_cm','Muslo'],['pantorrilla_cm','Pantorrilla']] }
+]
+function sectores(ev, ant){
+  return SECTORES.map(s => {
+    const d = (lista) => { let sum = 0, n = 0; lista.forEach(([k]) => { if (ant && ant[k] != null && ev[k] != null){ sum += +ev[k] - +ant[k]; n++ } }); return n ? { suma: r1(sum), prom: r1(sum / n) } : null }
+    const dp = d(s.pl), dq = d(s.pe)
+    let lectura = 'Línea base: primera medición de esta zona.'
+    if (dp || dq){ const ps = dp ? dp.suma : 0, qa = dq ? dq.prom : 0
+      lectura = dp && ps < -1 && qa >= -0.2 ? 'Recomposición: menos grasa manteniendo o ganando volumen.'
+        : dp && ps < -1 ? 'Reducción general de la zona.'
+        : dp && ps > 1 && qa > 0.2 ? 'Aumento de tejido: revisar con nutrición si es grasa o músculo.'
+        : 'Zona estable, sin cambios relevantes.' }
+    return { id:s.id, nombre:s.nombre, lectura, dPliegues: dp, dPerimetros: dq,
+      pliegues: s.pl.map(([k,l]) => ({ k, l, v: ev[k] != null ? +ev[k] : null, d: ant && ant[k] != null && ev[k] != null ? r1(+ev[k] - +ant[k]) : null })),
+      perimetros: s.pe.map(([k,l]) => ({ k, l, v: ev[k] != null ? +ev[k] : null, d: ant && ant[k] != null && ev[k] != null ? r1(+ev[k] - +ant[k]) : null })) }
+  })
+}
+
+// Reparto de macros (página "Gasto energético")
+function reparto(kcal, p, c, g, peso){
+  p = num(p) || 0; c = num(c) || 0; g = num(g) || 0; peso = num(peso)
+  const tot = p*4 + c*4 + g*9; if (!tot) return null
+  const pc = x => Math.round(x / tot * 100)
+  return { kcalMacros: Math.round(tot), kcal: num(kcal) || Math.round(tot),
+    proteina: { g:p, pct:pc(p*4), gkg: peso ? r1(p/peso) : null }, carbohidrato: { g:c, pct:pc(c*4), gkg: peso ? r1(c/peso) : null }, grasa: { g:g, pct:pc(g*9), gkg: peso ? r1(g/peso) : null } }
+}
+
+/** Plan nutricional estructurado: normaliza lo que entrega la IA o el editor. Nunca confía en la forma recibida. */
+function normPlan(x){
+  const t = v => v == null ? '' : String(v).trim()
+  const arr = v => Array.isArray(v) ? v : []
+  x = x && typeof x === 'object' ? x : {}
+  return {
+    resumen: t(x.resumen),
+    comidas: arr(x.comidas).map(c => ({ nombre: t(c && c.nombre).toUpperCase(), hora: t(c && c.hora), aporte: t(c && c.aporte),
+      opciones: arr(c && c.opciones).map((o, i) => ({ etiqueta: t(o && o.etiqueta) || String.fromCharCode(65 + i),
+        alimentos: arr(o && o.alimentos).map(a => ({ alimento: t(a && a.alimento), cantidad: t(a && a.cantidad) })).filter(a => a.alimento),
+        nota: t(o && o.nota) })).filter(o => o.alimentos.length) })).filter(c => c.nombre && c.opciones.length)
+      .map((c, i) => ({ c, i, k: /^\d{1,2}:\d{2}$/.test(c.hora) ? c.hora.padStart(5, '0') : null }))
+      .sort((a, b) => a.k && b.k ? a.k.localeCompare(b.k) || a.i - b.i : a.i - b.i).map(x => x.c),
+    suplementos: arr(x.suplementos).map(s => ({ producto: t(s && s.producto), dosis: t(s && s.dosis), horario: t(s && s.horario) })).filter(s => s.producto),
+    hidratacion: t(x.hidratacion),
+    indicaciones: arr(x.indicaciones).map(t).filter(Boolean),
+    evitar: arr(x.evitar).map(t).filter(Boolean),
+    metas: arr(x.metas).map(m => ({ plazo: t(m && m.plazo), meta: t(m && m.meta) })).filter(m => m.meta)
+  }
+}
+
+const KC = { VERSION, calcular, sugerirPauta, aFila, deFila, cambio, clasGrasa, clasFFMI, formaCorporal, metaSeisMeses, tdeeAdaptativo, sectores, reparto, normPlan, _coefsDW: coefsDW }
 if (typeof module !== 'undefined' && module.exports) module.exports = KC
 else root.KC = KC
 })(typeof self !== 'undefined' ? self : this)

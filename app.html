@@ -700,6 +700,7 @@ html .kw.kw--hero .kw-cl{font-size:7px;letter-spacing:.16em}
 <script src="/domain/koach-series.js"></script>
 <script src="/domain/program-catalog.js"></script>
 <script src="/domain/koach-composicion.js"></script>
+<script src="/domain/koach-nutricion-vista.js"></script>
 <script src="/domain/koach-avatar.js"></script>
 <style>
 /* ═══════════ KOACH DS v1.0 · TOKENS + PRIMITIVES (P0) ═══════════ */
@@ -1485,7 +1486,7 @@ html.bk-on .toast{bottom:calc(150px + env(safe-area-inset-bottom,0px));font-size
 
 /* ── TAB BAR ── */
 .tabbar{position:fixed;bottom:14px;left:50%;transform:translateX(-50%);width:min(92%,480px);z-index:80;
-  display:none;grid-template-columns:repeat(4,1fr);background:rgba(255,255,255,.72);backdrop-filter:blur(24px);
+  display:none;grid-template-columns:repeat(5,1fr);background:rgba(255,255,255,.72);backdrop-filter:blur(24px);
   -webkit-backdrop-filter:blur(24px);border:1px solid rgba(255,255,255,.85);border-radius:24px;
   padding:9px 8px;box-shadow:0 14px 34px rgba(30,30,28,.16)}
 .tabbar.vis{display:grid}
@@ -2656,9 +2657,25 @@ html:not(:has(#oAct.vis)) #sBloques.locked{filter:none;opacity:1;pointer-events:
 .av2 .avSeg button{min-height:42px;border:none;border-radius:999px;background:transparent;font:700 10.5px var(--a2M);letter-spacing:.12em;color:var(--a2G4);cursor:pointer}
 .av2 .avSeg button[aria-pressed="true"]{background:var(--a2Ink);color:#F4F3F0}
 .av2 .avSeg button:focus-visible{outline:2px solid var(--a2Ink);outline-offset:2px}
-.av2[data-pane="cmp"] > section,.av2[data-pane="cmp"] > .avRes{display:none}
-.av2[data-pane="cmp"] > #avCmp{display:block}
-.av2 #avCmp{display:none}
+/* c148 · NUTRICIÓN: misma cabecera de reporte que el MÉTODO, segmentado MI PLAN / MI CUERPO, informe a pantalla completa */
+#vNutri .kh--met{position:relative;margin-bottom:14px;padding:calc(20px + env(safe-area-inset-top,0px)) 30px 24px;border-radius:0 0 26px 26px;background:#070707 url('/img/bg/tex-metodo.webp') center 85%/cover no-repeat;overflow:hidden}
+#vNutri .kh--met::before{content:'';position:absolute;left:30px;right:30px;top:calc(10px + env(safe-area-inset-top,0px));height:8px;border:1px solid rgba(244,243,240,.22);border-bottom:0;border-radius:8px 8px 0 0;pointer-events:none}
+#vNutri .kh--met .k2h__bg,#vNutri .kh--met .k2h__lines{display:none}
+#vNutri .mtT{margin-top:12px;color:#C9C8C2;font-weight:900;font-stretch:112%;font-size:clamp(36px,10.6vw,44px);line-height:.92;letter-spacing:-.015em;text-transform:uppercase}
+@media (max-width:374px){ #vNutri .kh--met{padding-left:22px;padding-right:22px} #vNutri .kh--met::before{left:22px;right:22px} }
+.nuSeg{display:grid;grid-template-columns:1fr 1fr;gap:4px;padding:4px;margin:4px 0 16px;border-radius:999px;background:rgba(11,11,12,.06)}
+.nuSeg button{min-height:44px;border:none;border-radius:999px;background:transparent;font:700 10.5px var(--a2M,'Space Mono',monospace);letter-spacing:.12em;color:#6B6A65;cursor:pointer}
+.nuSeg button[aria-pressed="true"]{background:#0B0B0C;color:#F4F3F0}
+.nuSeg button:focus-visible{outline:2px solid #0B0B0C;outline-offset:2px}
+.nuInf{position:fixed;inset:0;z-index:950;background:#F4F3F0;overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain}
+.nuInf[hidden]{display:none}
+.nuInf__bar{position:sticky;top:0;z-index:2;display:flex;align-items:center;justify-content:space-between;padding:calc(12px + env(safe-area-inset-top,0px)) 18px 12px;background:rgba(244,243,240,.94);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-bottom:1px solid rgba(11,11,12,.08)}
+.nuInf__bar img{filter:brightness(0)}
+.nuInf__bar button{min-height:40px;padding:0 14px;border-radius:999px;border:1px solid rgba(11,11,12,.2);background:transparent;font:700 10px 'Space Mono',monospace;letter-spacing:.12em;color:#0B0B0C;cursor:pointer}
+.nuInf__in{max-width:560px;margin:0 auto;padding:16px 16px calc(40px + env(safe-area-inset-bottom,0px))}
+.av2 .cpInfB{display:flex;justify-content:space-between;align-items:center;gap:10px;width:100%;min-height:56px;padding:0;border:0;border-top:1px solid var(--a2Ln);background:none;cursor:pointer;text-align:left;font:700 11px var(--a2M);letter-spacing:.1em;color:var(--a2Ink)}
+.av2 .cpInfB em{font-style:normal;font-weight:400;color:var(--a2G4)}
+.av2 .cpInfB::after{content:'→';font:400 16px var(--a2M);color:var(--a2G4)}
 .av2 .cpH{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px 10px;margin:16px 0 6px}
 .av2 .cpH .a2n b{font-size:clamp(30px,9vw,40px)}
 .av2 .cpH .a2n small{display:block;margin-top:6px;font:700 9.5px/1.35 var(--a2M);letter-spacing:.1em;color:var(--a2G4)}
@@ -2842,9 +2859,8 @@ html:not(:has(#oAct.vis)) #sBloques.locked{filter:none;opacity:1;pointer-events:
   </div>
 
   <!-- ══ AVANCES ══ -->
-  <div class="vista conTab av2" id="vAvances" data-av="b" data-pane="ent">
+  <div class="vista conTab av2" id="vAvances" data-av="b">
     <header class="kh"><div class="kh__top"><span class="kh__brand">KOACH FITNESS CLUB</span></div><h1 class="kh__t">Tus avances</h1><div class="kh__k kh__k--sub" id="aSub">LO QUE LOS NÚMEROS DEMUESTRAN</div></header>
-    <div class="avSeg" id="avSeg" role="group" aria-label="Tipo de avance"><button type="button" data-p="ent" aria-pressed="true" onclick="avPane('ent')">ENTRENAMIENTO</button><button type="button" data-p="cmp" aria-pressed="false" onclick="avPane('cmp')">COMPOSICIÓN CORPORAL</button></div>
     <div class="avRes" id="avRes"></div>
     <section class="avBox" id="avComp" aria-label="Tu cambio corporal"></section>
     <section class="avTop" id="avTop5" aria-label="Top 5 personal records"></section>
@@ -2852,7 +2868,17 @@ html:not(:has(#oAct.vis)) #sBloques.locked{filter:none;opacity:1;pointer-events:
     <section class="avBox" id="avProg" aria-label="Mayores progresos"></section>
     <section class="avBox" id="avConst" aria-label="Tu constancia"></section>
     <section class="avBox avBox--sec" id="avTon" aria-label="Más volumen acumulado"></section>
-    <div id="avCmp" aria-label="Composición corporal" aria-live="polite"></div>
+  </div>
+
+  <!-- ══ NUTRICIÓN (c148) · plan publicado por nutrición + composición corporal e informes. Reemplaza el PDF. ══ -->
+  <div class="vista conTab av2" id="vNutri">
+    <header class="kh kh--met kh--nu"><div class="mtHd"><div class="mtCode" id="nuCode">NUTRICIÓN KOACH</div>
+      <svg class="mtIso" viewBox="0 0 460 462" role="img" aria-label="KOACH"><rect width="460" height="94"/><polygon points="0,339 231,131 460,336 460,456 231,251 0,462"/></svg></div>
+      <h1 class="kh__t mtT">Tu nutrición<br>KOACH.</h1>
+      <div class="mtCli" id="nuCli"></div></header>
+    <div class="nuSeg" id="nuSeg" role="group" aria-label="Sección de nutrición"><button type="button" data-p="plan" aria-pressed="true" onclick="nuPane('plan')">MI PLAN</button><button type="button" data-p="cuerpo" aria-pressed="false" onclick="nuPane('cuerpo')">MI CUERPO</button></div>
+    <div id="nuPlan" aria-live="polite"></div>
+    <div id="avCmp" hidden aria-label="Composición corporal" aria-live="polite"></div>
   </div>
 
   <!-- ══ PERFIL ══ -->
@@ -2918,6 +2944,7 @@ html:not(:has(#oAct.vis)) #sBloques.locked{filter:none;opacity:1;pointer-events:
 <div class="tabbar" id="tabbar">
   <button class="tb on" id="tb-vHome" onclick="tab('vHome')"><span class="ti">●</span><span class="tl">HOY</span></button>
   <button class="tb" id="tb-vPlan" onclick="tab('vPlan')"><span class="ti">◎</span><span class="tl">MÉTODO</span></button>
+  <button class="tb" id="tb-vNutri" onclick="tab('vNutri')"><span class="ti">◆</span><span class="tl">NUTRICIÓN</span></button>
   <button class="tb" id="tb-vAvances" onclick="tab('vAvances')"><span class="ti">▲</span><span class="tl">AVANCES</span></button>
   <button class="tb" id="tb-vPerfil" onclick="tab('vPerfil')"><span class="ti">■</span><span class="tl">PERFIL</span></button>
 </div>
@@ -2965,6 +2992,10 @@ html:not(:has(#oAct.vis)) #sBloques.locked{filter:none;opacity:1;pointer-events:
     </header>
     <div class="hx__body" id="hsBody"></div>
   </div>
+</div>
+<div class="nuInf" id="oInf" role="dialog" aria-modal="true" aria-label="Informe nutricional" hidden>
+  <div class="nuInf__bar"><img src="/img/brand/logotipo-koach.png" alt="KOACH" height="14"><button type="button" onclick="nuInfCerrar()" aria-label="Cerrar informe">CERRAR ✕</button></div>
+  <div class="nuInf__in" id="oInfBody"></div>
 </div>
 <div class="ovl oscuro" id="oPrev" style="z-index:920">
   <div class="ovlIn" style="max-width:420px;width:92%;max-height:82vh;overflow:auto;background:#171715;border-radius:22px;padding:20px 18px">
@@ -6034,13 +6065,14 @@ function tab(id){
   document.querySelectorAll('.tb').forEach(b=>b.classList.toggle('on', b.id==='tb-'+id))
   if (id==='vPlan'){ pintarPlan(); mtDoseAnim() }
   if (id==='vAvances' && !S._avOk){ S._avOk=true; loadAvances() }
+  if (id==='vNutri') loadNutricion()
   if (id==='vPerfil') pintarPerfil()
 }
 const _vista = vista
 vista = function(id){
   _vista(id)
   const tb = document.getElementById('tabbar')
-  tb.classList.toggle('vis', ['vHome','vPlan','vAvances','vPerfil','vHist'].includes(id) && !!S.perfil)   // v10.4: también sin protocolo (bienvenida)
+  tb.classList.toggle('vis', ['vHome','vPlan','vNutri','vAvances','vPerfil','vHist'].includes(id) && !!S.perfil)   // v10.4: también sin protocolo (bienvenida)
   if (id==='vHome') document.querySelectorAll('.tb').forEach(b=>b.classList.toggle('on', b.id==='tb-vHome'))
 }
 
@@ -6472,16 +6504,55 @@ function avOrdenar(){
 // Jerarquía: resultado → tendencia → vínculo con tu entrenamiento → pauta → informes (detalle a pedido).
 const CPX={ data:null, ok:false }
 const cpF=v=>v==null?'—':avKg(Math.round(+v*10)/10)
-function avPane(p){
-  const v=document.getElementById('vAvances'); if(!v) return
-  v.dataset.pane=p; document.querySelectorAll('#avSeg button').forEach(b=>b.setAttribute('aria-pressed', String(b.dataset.p===p)))
-  if (p==='cmp'){ pintarComposicion(); try{ window.scrollTo({top:0}) }catch(_){} }
+const NU={ pauta:null, ok:false, bloqueado:false, pane:'plan' }
+function nuPane(p){
+  NU.pane=p; document.querySelectorAll('#nuSeg button').forEach(b=>b.setAttribute('aria-pressed', String(b.dataset.p===p)))
+  document.getElementById('nuPlan').hidden = p!=='plan'; document.getElementById('avCmp').hidden = p!=='cuerpo'
+  if (p==='cuerpo') pintarComposicion(); else pintarNuPlan()
 }
+async function loadNutricion(){
+  if (typeof KN!=='undefined') KN.ensureCss()
+  pintarNuCab(); nuPane(NU.pane)
+  try{ const { data, error } = await sb.rpc('koach_pauta'); if (error) throw error
+    NU.bloqueado=!!(data&&data.bloqueado); NU.pauta=(data&&data.vigente)||null; NU.ok=true }
+  catch(e){ console.error('nutricion', e); NU.ok=false }
+  if (CPX.data==null) await loadComposicion()
+  pintarNuCab(); nuPane(NU.pane)
+}
+function pintarNuCab(){
+  const cli=document.getElementById('nuCli'); if(!cli) return
+  const p=S.perfil||{}, n=kodeTxt(p.numero_socio), pa=NU.pauta, ev=CPX.data||[], u=ev[ev.length-1]
+  const code=document.getElementById('nuCode'); if(code) code.textContent='NUTRICIÓN KOACH'+(n?' · SOCIO #'+n:'')
+  const AR='<svg viewBox="0 0 14 14" aria-hidden="true"><path d="M3 11L11 3M5 3h6v6" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="square"/></svg>'
+  const fila=(k,v)=>'<li>'+AR+'<span class="k">'+k+'</span><i></i><b>'+v+'</b></li>'
+  let nCom=0; try{ nCom=KC.normPlan(pa&&pa.contenido).comidas.length }catch(_){}
+  cli.innerHTML='<ul class="mtRep">'+fila('META DIARIA',pa&&pa.kcal?Math.round(pa.kcal).toLocaleString('es-CL')+' KCAL':'—')+fila('PROTEÍNA',pa&&pa.proteina_g!=null?Math.round(pa.proteina_g)+' G':'—')+
+    fila('COMIDAS',nCom?nCom+' / DÍA':'—')+fila('ÚLTIMA EVALUACIÓN',u?fechaCorta(u.fecha):'—')+'</ul>'
+}
+function pintarNuPlan(){
+  const el=document.getElementById('nuPlan'); if(!el) return
+  if (NU.bloqueado){ el.innerHTML='<div class="kn"><div class="knVac">'+plEscA((S.acceso&&accTxt(S.acceso).t)||'Tu membresía no está al día')+'. Tu plan nutricional se habilita con tu membresía pagada; regularízala en recepción.</div></div>'; return }
+  if (!NU.ok && !NU.pauta){ el.innerHTML='<div class="avLoad" aria-busy="true"><i></i><i></i><i></i></div>'; return }
+  const ev=CPX.data||[], u=ev[ev.length-1]
+  el.innerHTML = KN.plan(NU.pauta, { peso: u&&u.peso_kg })
+  if (!NU.pauta) el.querySelector('.knVac').insertAdjacentHTML('beforeend','<br><a class="a2pill" style="margin-top:14px" href="https://wa.me/56971333042?text='+encodeURIComponent('Hola KOACH, quiero agendar mi evaluación nutricional')+'" target="_blank" rel="noopener">AGENDAR EVALUACIÓN →</a>')
+}
+function nuInforme(id){
+  const ev=CPX.data||[], i=ev.findIndex(e=>e.id===id); if(i<0) return
+  const pa = NU.pauta && (!NU.pauta.evaluacion_id || NU.pauta.evaluacion_id===id || i===ev.length-1) ? NU.pauta : null
+  const p=S.perfil||{}
+  document.getElementById('oInfBody').innerHTML = KN.informe(ev[i], i>0?ev[i-1]:null, { nombre:[p.nombre,p.apellido].filter(Boolean).join(' ').toUpperCase(), sexo:p.sex,
+    programa:(S.proto&&S.proto.programa)||'', nivel:(S.proto&&S.proto.nivel)||'', pauta:pa, irPlan:'nuInfCerrar();nuPane(\'plan\')' })
+  const o=document.getElementById('oInf'); o.hidden=false; o.scrollTop=0; document.documentElement.style.overflow='hidden'
+  try{ history.pushState({ inf:1 }, '') }catch(_){}
+}
+function nuInfCerrar(){ const o=document.getElementById('oInf'); if(!o||o.hidden) return; o.hidden=true; document.documentElement.style.overflow='' }
+window.addEventListener('popstate', ()=>nuInfCerrar())
 async function loadComposicion(){
   try{ const { data, error } = await sb.rpc('koach_composicion'); if (error) throw error
-    CPX.data=(data&&data.evaluaciones)||[]; CPX.ok=true }
+    CPX.data=(data&&data.evaluaciones)||[]; CPX.bloqueado=!!(data&&data.bloqueado); CPX.ok=true }
   catch(e){ console.error('composicion', e); CPX.ok=false }
-  pintarCompTeaser(); const v=document.getElementById('vAvances'); if (v && v.dataset.pane==='cmp') pintarComposicion()
+  pintarCompTeaser(); if (NU.pane==='cuerpo' && document.getElementById('avCmp') && !document.getElementById('avCmp').hidden) pintarComposicion(); pintarNuCab()
 }
 // Tarjeta breve dentro de AVANCES (primera en BURN): invita a abrir el apartado
 function pintarCompTeaser(){
@@ -6495,7 +6566,7 @@ function pintarCompTeaser(){
     (g?'<div class="avCp"><small>GRASA</small><b>'+cpF(g.actual)+' %</b>'+d(g,'%')+'</div>':'')+
     (m?'<div class="avCp"><small>MÚSCULO</small><b>'+cpF(m.actual)+' kg</b>'+d(m,'kg')+'</div>':'')+
     '<div class="avCp"><small>EVALUACIONES</small><b>'+ev.length+'</b></div></div>'+
-    '<div class="cpTeaser"><p class="avV">'+(ev.length>1?'Cambio desde tu primera evaluación.':'En tu próxima evaluación verás el cambio.')+'</p><button type="button" class="a2pill" onclick="avPane(\'cmp\')">VER INFORME →</button></div>'
+    '<div class="cpTeaser"><p class="avV">'+(ev.length>1?'Cambio desde tu primera evaluación.':'En tu próxima evaluación verás el cambio.')+'</p><button type="button" class="a2pill" onclick="tab(\'vNutri\');nuPane(\'cuerpo\')">VER MI CUERPO →</button></div>'
 }
 function cpDelta(c,u,lado){
   if(!c) return ''; const v=lado==='ini'?c.vsInicio:c.vsAnterior; if(v==null) return ''
@@ -6515,6 +6586,7 @@ function pintarComposicion(){
   const el=document.getElementById('avCmp'); if(!el) return
   if (!CPX.ok && CPX.data==null){ el.innerHTML='<div class="avLoad" aria-busy="true"><i></i><i></i><i></i></div>'; return }
   const ev=CPX.data||[]
+  if (CPX.bloqueado){ el.innerHTML='<div class="kn"><div class="knVac">Tu composición corporal y tus informes se habilitan con tu membresía al día. Regularízala en recepción.</div></div>'; return }
   if (!CPX.ok){ el.innerHTML='<div class="avErr"><b>NO PUDIMOS CARGAR TU COMPOSICIÓN</b><span>Revisa tu conexión.</span><button type="button" onclick="loadComposicion()">REINTENTAR</button></div>'; return }
   if (!ev.length){ el.innerHTML='<div class="cpBox"><span class="a2k">COMPOSICIÓN CORPORAL</span><h3 class="a2h">Mide tu punto de partida</h3><p class="cpNota">Tu composición corporal se mide en una evaluación con nutrición KOACH: grasa, músculo y medidas. Cuando la tengas, aquí verás tus informes y cómo cambia tu cuerpo mientras entrenas.</p><a class="a2pill" href="https://wa.me/56971333042?text='+encodeURIComponent('Hola KOACH, quiero agendar mi evaluación de composición corporal')+'" target="_blank" rel="noopener">AGENDAR EVALUACIÓN →</a></div>'; return }
   const u=ev[ev.length-1]
@@ -6524,12 +6596,10 @@ function pintarComposicion(){
     (c?'<p class="avV">CINTURA '+cpF(c.actual)+' CM'+(c.vsInicio!=null&&Math.abs(c.vsInicio)>=0.1?' · '+(c.vsInicio>0?'+':'−')+avKg(Math.abs(c.vsInicio))+' CM DESDE TU INICIO':'')+'</p>':'')
   const ses=u.sesiones_periodo, dias=u.dias_periodo
   const link = ses!=null ? '<div class="cpLink"><b>'+ses+'</b><div><span class="a2k a2k--inv">SESIONES ENTRE EVALUACIONES</span><p>'+(ses>0?'Entrenaste '+ses+' '+(ses===1?'vez':'veces')+' en '+dias+' días. Este cambio también es tuyo.':'Sin sesiones registradas en este período. Tu próximo cambio parte por volver a entrenar.')+'</p></div></div>' : ''
-  const pauta = u.kcal_objetivo ? '<div class="cpBox"><span class="a2k">TU PAUTA ACTUAL</span><div class="cpMac"><div><b>'+u.kcal_objetivo+'</b><small>KCAL/DÍA</small></div>'+
-    '<div><b>'+(u.proteina_g!=null?Math.round(u.proteina_g):'—')+'</b><small>PROTEÍNA G</small></div><div><b>'+(u.carbohidrato_g!=null?Math.round(u.carbohidrato_g):'—')+'</b><small>CARBOS G</small></div><div><b>'+(u.grasa_g!=null?Math.round(u.grasa_g):'—')+'</b><small>GRASAS G</small></div></div></div>' : ''
   const nota = u.nota_socio ? '<div class="cpBox"><span class="a2k">MENSAJE DE NUTRICIÓN</span><p class="cpNota">'+plEscA(u.nota_socio)+'</p></div>' : ''
   el.innerHTML='<span class="a2k">COMPOSICIÓN CORPORAL · ÚLTIMA EVALUACIÓN '+fechaCorta(u.fecha)+'</span><h3 class="a2h">'+cpTitulo(ev)+'</h3>'+hero+
-    cpChart(ev)+link+nota+pauta+
-    '<div class="cpBox"><span class="a2k">TUS INFORMES · '+ev.length+'</span>'+ev.slice().reverse().map((e,i)=>cpInforme(e,i===0)).join('')+'</div>'+
+    cpChart(ev)+link+nota+
+    '<div class="cpBox"><span class="a2k">TUS INFORMES · '+ev.length+'</span>'+ev.slice().reverse().map(e=>'<button type="button" class="cpInfB" onclick="nuInforme(\''+e.id+'\')"><span>'+fechaCorta(e.fecha)+' '+String(e.fecha).slice(0,4)+'</span><em>'+(e.porcentaje_grasa!=null?cpF(e.porcentaje_grasa)+'% GRASA · ':'')+cpF(e.peso_kg)+' KG</em></button>').join('')+'</div>'+
     '<details class="fzInfo"><summary>ⓘ ¿CÓMO SE MIDE?</summary><p>Nutrición mide pliegues de piel y perímetros con protocolo ISAK. Con eso calculamos tu porcentaje de grasa y tu masa muscular. El hueso es una referencia, y "otros tejidos" es el resto de tu peso (órganos, agua, piel). Compara siempre contigo: el cambio entre evaluaciones dice más que un número aislado.</p></details>'
 }
 function cpChart(ev){
@@ -6545,18 +6615,6 @@ function cpChart(ev){
   let ax=''; fs.forEach(f=>{ ax+='<text x="'+X(f)+'" y="'+(H-6)+'" text-anchor="middle" class="fzTx">'+fechaCorta(f)+'</text>' })
   return '<div class="cpBox"><span class="a2k">TENDENCIA ENTRE EVALUACIONES</span><svg class="fzC" viewBox="0 0 '+W+' '+H+'" role="img" aria-label="Grasa corporal y masa muscular en cada evaluación"><line class="fzGl" x1="'+L+'" x2="'+(W-R)+'" y1="'+(H-B)+'" y2="'+(H-B)+'"/>'+ax+ln(g,'porcentaje_grasa','cpLnG',' %')+ln(m,'masa_muscular_kg','cpLnM',' kg')+'</svg>'+
     '<div class="cpLg"><span style="color:#0B0B0C">GRASA %</span><span style="color:#2BB3C0">MÚSCULO KG</span></div></div>'
-}
-function cpInforme(e, abierto){
-  const p=+e.peso_kg||0, comp=[['Grasa',e.masa_grasa_kg,'#0B0B0C'],['Músculo',e.masa_muscular_kg,'#2BB3C0'],['Hueso (referencia)',e.masa_osea_kg,'#A3A29C'],['Otros tejidos',e.masa_residual_kg,'#D1D0CB']]
-  const ok4 = p && comp.every(x=>x[1]!=null)
-  const fila=(l,v)=>v==null||v===''?'':'<tr><td>'+l+'</td><td>'+v+'</td></tr>'
-  return '<details class="cpInf"'+(abierto?' open':'')+'><summary><span>'+fechaCorta(e.fecha)+' '+String(e.fecha).slice(0,4)+'</span><em>'+(e.porcentaje_grasa!=null?cpF(e.porcentaje_grasa)+'% GRASA · ':'')+cpF(e.peso_kg)+' KG</em></summary>'+
-    (ok4?'<div class="cpBar" role="img" aria-label="Tu peso dividido en grasa, músculo, hueso y otros tejidos">'+comp.map(x=>'<i style="width:'+(x[1]/p*100)+'%;background:'+x[2]+'"></i>').join('')+'</div>':'')+
-    '<table class="cpTb">'+(ok4?comp.map(x=>'<tr><td><i style="background:'+x[2]+'"></i>'+x[0]+'</td><td>'+cpF(x[1])+' kg · '+Math.round(x[1]/p*100)+'%</td></tr>').join(''):fila('Grasa corporal',e.porcentaje_grasa!=null?cpF(e.porcentaje_grasa)+' %':null)+fila('Masa muscular',e.masa_muscular_kg!=null?cpF(e.masa_muscular_kg)+' kg':null))+
-    fila('Peso',cpF(e.peso_kg)+' kg')+fila('Cintura',e.cintura_cm!=null?cpF(e.cintura_cm)+' cm':null)+fila('Cadera',e.cadera_cm!=null?cpF(e.cadera_cm)+' cm':null)+
-    fila('Brazo',e.brazo_cm!=null?cpF(e.brazo_cm)+' cm':null)+fila('Muslo',e.muslo_cm!=null?cpF(e.muslo_cm)+' cm':null)+fila('Pantorrilla',e.pantorrilla_cm!=null?cpF(e.pantorrilla_cm)+' cm':null)+
-    fila('Suma de 6 pliegues',e.suma6_mm!=null?cpF(e.suma6_mm)+' mm':null)+
-    fila('Edad corporal',e.edad_biologica!=null&&e.edad_eval!=null?Math.round(e.edad_biologica)+' años (edad real '+e.edad_eval+')':null)+'</table></details>'
 }
 async function loadAvances(){
   avOrdenar(); loadComposicion()
