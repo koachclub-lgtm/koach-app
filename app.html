@@ -7708,13 +7708,21 @@ function kaCaptura(ctx) {
     ctx.save(); kaRR(ctx, bx, by, bw, bh, r); ctx.clip(); ctx.strokeStyle = TM.filo; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(bx + r, by + 1); ctx.lineTo(bx + bw - r, by + 1); ctx.stroke(); ctx.restore() };
   const fmt = n => (+n).toLocaleString('es-CL', { maximumFractionDigits: 1 }), px = M + 44, pw = CW - 88;
   // PR: solo si hubo una marca nueva que supera la anterior
-  if (hayPR) { const by = y + GAP; vidrio(M, by, CW, PRH, 46);
-    txt('★ NUEVO PR', px, by + 64, MONO(21), B, 6);
-    ctx.font = DISP(800, 36); txt(kcCorta(ctx, String(pr.ejercicio || '').toUpperCase(), pw), px, by + 118, DISP(800, 36), B, 0);
-    const wK = txt(fmt(kgN), px - 4, by + 228, DISP(900, 112), B, -4);
-    txt('KG' + (pr.reps ? ' × ' + pr.reps : ''), px + wK + 14, by + 226, MONO(28), B, 2);
-    txt('ANTES ' + fmt(kgA) + ' KG', px + pw, by + 190, MONO(20), G, 4, 'right');
-    txt('+' + fmt(Math.round((kgN - kgA) * 10) / 10) + ' KG', px + pw, by + 226, MONO(28), B, 2, 'right');
+  if (hayPR) { const by = y + GAP; vidrio(M, by, CW, PRH, 46);   // c157 · el PR manda: rótulo grande, ejercicio y marca (sin comparación con la anterior)
+    const ej = String(pr.ejercicio || '').toUpperCase(), kgT = fmt(kgN), rp = pr.reps ? ' × ' + pr.reps : '', V = KS.prVar || 'b';
+    if (V === 'b') {
+      const wP = txt('PR', px - 6, by + 196, DISP(900, 190, 'expanded'), B, -6), cx = px + wP + 34, cw = px + pw - cx;
+      txt('PERSONAL RECORD', cx, by + 92, MONO(19), G, 6);
+      ctx.font = DISP(800, 34); txt(kcCorta(ctx, ej, cw), cx, by + 142, DISP(800, 34), B, 0);
+      const wk = txt(kgT, cx - 2, by + 210, DISP(900, 64), B, -2); txt('KG' + rp, cx + wk + 12, by + 208, MONO(24), B, 2);
+    } else {
+      txt(V === 'c' ? 'NUEVO PR' : 'NEW PR', px - 4, by + 110, DISP(900, 84, 'expanded'), B, -2);
+      ctx.font = MONO(20); trk(4); const ec = kcCorta(ctx, ej, pw * .55); trk(0); txt(ec, px, by + 160, MONO(20), G2, 4);
+      txt(V === 'c' ? 'RÉCORD PERSONAL' : 'PERSONAL RECORD', px, by + 228, MONO(17), G, 6);
+      txt('KG' + rp, px + pw, by + 228, MONO(26), B, 2, 'right');
+      ctx.font = MONO(26); trk(2); const wU = ctx.measureText('KG' + rp).width; trk(0);
+      txt(kgT, px + pw - wU - 14, by + 230, DISP(900, 104), B, -3, 'right');
+    }
     y = by + PRH }
   // Credencial del programa (estilo tarjeta código): programa · socio · lema · código de barras
   { const by = y + GAP, prog = String(j.programa || 'KOACH').toUpperCase(); vidrio(M, by, CW, CRH, 40);
