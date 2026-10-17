@@ -7649,15 +7649,31 @@ function kcFit(ctx, txt, font, size, min, maxW, maxL) {
   ctx.font = font(min); return { L: [txt], s: min };
 }
 function kcCorta(ctx, t, maxW) { if (ctx.measureText(t).width <= maxW) return t; while (t.length > 1 && ctx.measureText(t + '…').width > maxW) t = t.slice(0, -1); return t.replace(/[\s·]+$/, '') + '…' }
+const KC_TEMAS = {
+  KOACH:   { bg: '#09090A', ink: '#F4F5F6', mu: '#8E9298', mu2: '#B4B8BE', pill: 'rgba(255,255,255,.34)', linea: 'rgba(255,255,255,.22)', sombra: 'rgba(0,0,0,.3)', brillo: .06,
+             vidrio: ['rgba(255,255,255,.13)', 'rgba(255,255,255,.05)', 'rgba(255,255,255,.09)'], borde: 'rgba(255,255,255,.2)', filo: 'rgba(255,255,255,.36)',
+             luces: [[.58, .27, 620, '214,220,228', .13], [.9, .7, 760, '214,220,228', .07], [.1, .95, 520, '214,220,228', .05]] },
+  BURN:    { bg: '#3B3E41', ink: '#F4F5F6', mu: '#A3A7AC', mu2: '#C9CCD0', pill: 'rgba(255,255,255,.4)', linea: 'rgba(255,255,255,.26)', sombra: 'rgba(0,0,0,.28)', brillo: .08,
+             vidrio: ['rgba(255,255,255,.18)', 'rgba(255,255,255,.07)', 'rgba(255,255,255,.13)'], borde: 'rgba(255,255,255,.28)', filo: 'rgba(255,255,255,.5)',
+             luces: [[.6, .26, 680, '196,202,210', .2], [.92, .72, 780, '20,22,24', .4], [.08, .96, 620, '20,22,24', .45]] },
+  STRONG:  { bg: '#979C9F', ink: '#0B0B0C', mu: '#3F4246', mu2: '#26282B', pill: 'rgba(11,11,12,.42)', linea: 'rgba(11,11,12,.3)', sombra: 'rgba(30,36,44,.18)', brillo: .22,
+             vidrio: ['rgba(255,255,255,.42)', 'rgba(255,255,255,.18)', 'rgba(255,255,255,.32)'], borde: 'rgba(255,255,255,.7)', filo: 'rgba(255,255,255,.95)',
+             luces: [[.6, .25, 700, '238,241,244', .5], [.95, .75, 800, '74,78,82', .32], [.05, .98, 600, '74,78,82', .28]] },
+  HEALTHY: { bg: '#EDEEEF', ink: '#0B0B0C', mu: '#6B6E73', mu2: '#3A3C40', pill: 'rgba(11,11,12,.32)', linea: 'rgba(11,11,12,.22)', sombra: 'rgba(30,36,44,.12)', brillo: .3,
+             vidrio: ['rgba(255,255,255,.7)', 'rgba(255,255,255,.38)', 'rgba(255,255,255,.58)'], borde: 'rgba(255,255,255,.95)', filo: '#FFFFFF',
+             luces: [[.6, .25, 700, '255,255,255', .9], [.95, .75, 820, '160,165,172', .3], [.05, .98, 620, '160,165,172', .26]] }
+};
 function kaCaptura(ctx) {
-  const W = KT.W, H = KT.H, j = KS.data || {}, d = kaDatos(), M = KS_SAFE_X, CW = W - 2 * M, B = '#F4F5F6', G = '#8E9298', G2 = '#B4B8BE';
+  const W = KT.W, H = KT.H, j = KS.data || {}, d = kaDatos(), M = KS_SAFE_X, CW = W - 2 * M;
+  // c156 · tono por programa (línea de credenciales): STRONG gris claro · BURN gris oscuro · HEALTHY blanco; textos con el contraste del fondo
+  const TM = KC_TEMAS[String(j.programa || '').toUpperCase()] || KC_TEMAS.KOACH, B = TM.ink, G = TM.mu, G2 = TM.mu2;
   const DISP = (w, s, st) => w + ' ' + (st || 'semi-expanded') + ' ' + s + "px 'KOACH Display', 'Inter Display', Arial, sans-serif", MONO = s => "700 " + s + "px 'Space Mono', 'KOACH Symbols', 'IBM Plex Mono', monospace";
   const trk = t => { if ('letterSpacing' in ctx) ctx.letterSpacing = t + 'px' };
   const txt = (s, x, y, font, color, t, al) => { ctx.font = font; trk(t || 0); ctx.fillStyle = color; ctx.textAlign = al || 'left'; ctx.textBaseline = 'alphabetic'; ctx.fillText(s, x, y); const m = ctx.measureText(s).width; trk(0); return m };
   // Fondo sólido negro con la luz fría de la app
-  ctx.clearRect(0, 0, W, H); ctx.fillStyle = '#09090A'; ctx.fillRect(0, 0, W, H);
-  const luz = (x, y, r, a) => { const g = ctx.createRadialGradient(x, y, 0, x, y, r); g.addColorStop(0, 'rgba(214,220,228,' + a + ')'); g.addColorStop(1, 'rgba(214,220,228,0)'); ctx.fillStyle = g; ctx.fillRect(0, 0, W, H) };
-  luz(W * .58, H * .27, 620, .13); luz(W * .9, H * .7, 760, .07); luz(W * .1, H * .95, 520, .05);
+  ctx.clearRect(0, 0, W, H); ctx.fillStyle = TM.bg; ctx.fillRect(0, 0, W, H);
+  const luz = (x, y, r, c, a) => { const g = ctx.createRadialGradient(x, y, 0, x, y, r); g.addColorStop(0, 'rgba(' + c + ',' + a + ')'); g.addColorStop(1, 'rgba(' + c + ',0)'); ctx.fillStyle = g; ctx.fillRect(0, 0, W, H) };
+  TM.luces.forEach(([x, y, r, c, a]) => luz(W * x, H * y, r, c, a));
   // Cabecera: logo · Nº y fecha
   let y = KS_SAFE_T;
   const lg = kaLogo(B); if (lg) ctx.drawImage(lg, M, y, lg.width * 34 / lg.height, 34);
@@ -7667,7 +7683,7 @@ function kaCaptura(ctx) {
   const T = kcFit(ctx, rut, s => DISP(900, s), 124, 72, CW, 2), hT = T.s * .92 + (T.L.length - 1) * T.s * .9;
   const gs = []; (j.grupos || []).forEach(x => { const g = String(x.g || '').toUpperCase(); if (g && !gs.includes(g)) gs.push(g) });
   (j.bloques || []).forEach(b => (b.g || []).forEach(x => { const g = String(x).toUpperCase(); if (g && !gs.includes(g)) gs.push(g) }));
-  const PO = { font: MONO(21), size: 21, track: 4, h: 64, gap: 12, px: 26, stroke: 'rgba(255,255,255,.34)', lw: 2.5, color: B };
+  const PO = { font: MONO(21), size: 21, track: 4, h: 64, gap: 12, px: 26, stroke: TM.pill, lw: 2.5, color: B };
   const pH = gs.length ? kaPills(document.createElement('canvas').getContext('2d'), gs.map(g => g + ' ✓'), 0, 0, CW, PO) : 0;
   const pr = j.pr || {}, kgN = +pr.kg || 0, kgA = pr.antes != null ? +pr.antes : null, hayPR = !!(pr.nueva && kgN > 0 && kgA != null && kgN > kgA);
   const PRH = 270, CRH = 230, GAP = 56;
@@ -7684,10 +7700,12 @@ function kaCaptura(ctx) {
   y += 62; txt('MOVIDOS HOY · ' + d.sets + ' SETS', M, y, MONO(22), G2, 5);
   y += 44; if (gs.length) { kaPills(ctx, gs.map(g => g + ' ✓'), M, y, CW, PO); y += pH }
   const vidrio = (bx, by, bw, bh, r) => {
+    ctx.save(); ctx.shadowColor = TM.sombra; ctx.shadowBlur = 50; ctx.shadowOffsetY = 18; kaRR(ctx, bx, by, bw, bh, r); ctx.fillStyle = 'rgba(0,0,0,.01)'; ctx.fill(); ctx.restore();
     ctx.save(); kaRR(ctx, bx, by, bw, bh, r);
-    const gf = ctx.createLinearGradient(bx, by, bx + bw, by + bh); gf.addColorStop(0, 'rgba(255,255,255,.13)'); gf.addColorStop(.5, 'rgba(255,255,255,.05)'); gf.addColorStop(1, 'rgba(255,255,255,.09)');
-    ctx.fillStyle = gf; ctx.fill(); ctx.lineWidth = 2; ctx.strokeStyle = 'rgba(255,255,255,.2)'; ctx.stroke(); ctx.restore();
-    ctx.save(); kaRR(ctx, bx, by, bw, bh, r); ctx.clip(); ctx.strokeStyle = 'rgba(255,255,255,.36)'; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(bx + r, by + 1); ctx.lineTo(bx + bw - r, by + 1); ctx.stroke(); ctx.restore() };
+    const gf = ctx.createLinearGradient(bx, by, bx + bw, by + bh); TM.vidrio.forEach((c, i) => gf.addColorStop(i / (TM.vidrio.length - 1), c));
+    ctx.fillStyle = gf; ctx.fill(); const sh = ctx.createLinearGradient(bx, 0, bx + bw, 0); sh.addColorStop(.15, 'rgba(255,255,255,0)'); sh.addColorStop(.3, 'rgba(255,255,255,' + TM.brillo + ')'); sh.addColorStop(.45, 'rgba(255,255,255,0)'); ctx.fillStyle = sh; ctx.fill();
+    ctx.lineWidth = 2; ctx.strokeStyle = TM.borde; ctx.stroke(); ctx.restore();
+    ctx.save(); kaRR(ctx, bx, by, bw, bh, r); ctx.clip(); ctx.strokeStyle = TM.filo; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(bx + r, by + 1); ctx.lineTo(bx + bw - r, by + 1); ctx.stroke(); ctx.restore() };
   const fmt = n => (+n).toLocaleString('es-CL', { maximumFractionDigits: 1 }), px = M + 44, pw = CW - 88;
   // PR: solo si hubo una marca nueva que supera la anterior
   if (hayPR) { const by = y + GAP; vidrio(M, by, CW, PRH, 46);
@@ -7705,7 +7723,7 @@ function kaCaptura(ctx) {
     txt('Nº ' + d.num, px + pw, by + 70, MONO(19), G, 4, 'right');
     const soc = String(j.socio || (S.perfil && S.perfil.nombre) || '').toUpperCase();
     if (soc) { ctx.font = MONO(22); trk(5); const sc = kcCorta(ctx, soc, pw); trk(0); txt(sc, px, by + 118, MONO(22), G2, 5) }
-    ctx.save(); ctx.setLineDash([8, 8]); ctx.strokeStyle = 'rgba(255,255,255,.22)'; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(px, by + 146); ctx.lineTo(px + pw, by + 146); ctx.stroke(); ctx.restore();
+    ctx.save(); ctx.setLineDash([8, 8]); ctx.strokeStyle = TM.linea; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(px, by + 146); ctx.lineTo(px + pw, by + 146); ctx.stroke(); ctx.restore();
     txt(TAG[0], px, by + 182, MONO(17), G, 4); txt(TAG[1], px, by + 206, MONO(17), G, 4);
     kaBarras(ctx, px + pw - 300, by + 164, 300, 44, B, 'C' + d.num) }
   ctx.restore();
