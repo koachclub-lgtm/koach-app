@@ -7599,20 +7599,31 @@ function kaTicket(ctx) {
   const lg = kaLogo(B); if (lg) ctx.drawImage(lg, ix, KS_SAFE_T, lg.width * 36 / lg.height, 36);
   kmTxt(ctx, d.fecha, ixr, KS_SAFE_T + 33, 500, 26, 'mono', 5, B, 'right');
   kaPills(ctx, ['SESIÓN COMPLETADA'], ix, KS_SAFE_T + 78, fw, { size: 24, track: 4, h: 66, gap: 0, px: 27, fill: 'rgba(244,243,240,.88)', color: INK });
-  // ticket de cristal sobre el pie de la foto, terminando en la zona segura inferior
+  // c143 · ticket de CRISTAL: foto desenfocada debajo + velo gris leve + brillos de borde, texto blanco (como las tarjetas de logro)
   const tx = fx + 30, tw = fw - 60, tp = 48, pillsH = kaPills(document.createElement('canvas').getContext('2d'), d.pills, 0, 0, tw - 2 * tp, { size: 24, track: 3.5, h: 66, gap: 15, px: 27 });
   const th = tp + 78 + 30 + pillsH + 36 + 30 + 66 + 48 + tp, ty = H - KS_SAFE_B - th;
-  ctx.save(); ctx.shadowColor = 'rgba(0,0,0,.25)'; ctx.shadowBlur = 40; ctx.shadowOffsetY = 12; kaRR(ctx, tx, ty, tw, th, 54); ctx.fillStyle = 'rgba(244,243,240,.86)'; ctx.fill(); ctx.restore();
-  ctx.save(); kaRR(ctx, tx, ty, tw, th, 54); ctx.lineWidth = 3; ctx.strokeStyle = 'rgba(255,255,255,.85)'; ctx.stroke(); ctx.restore();
+  const bl = document.createElement('canvas'), sc = 18; bl.width = Math.ceil(tw / sc); bl.height = Math.ceil(th / sc); const bx = bl.getContext('2d');
+  bx.imageSmoothingQuality = 'high'; bx.drawImage(ctx.canvas, tx, ty, tw, th, 0, 0, bl.width, bl.height);
+  for (let n = 0; n < 2; n++) { bx.globalAlpha = .5; [[1, 0], [-1, 0], [0, 1], [0, -1]].forEach(([a, b]) => bx.drawImage(bl, a, b)); bx.globalAlpha = 1 }
+  ctx.save(); ctx.shadowColor = 'rgba(20,28,40,.22)'; ctx.shadowBlur = 60; ctx.shadowOffsetY = 24; kaRR(ctx, tx, ty, tw, th, 60); ctx.fillStyle = 'rgba(0,0,0,.01)'; ctx.fill(); ctx.restore();
+  ctx.save(); kaRR(ctx, tx, ty, tw, th, 60); ctx.clip(); ctx.imageSmoothingQuality = 'high'; ctx.drawImage(bl, tx - 6, ty - 6, tw + 12, th + 12);
+  const gv = ctx.createLinearGradient(tx, ty, tx + tw, ty + th); gv.addColorStop(0, 'rgba(158,160,164,.50)'); gv.addColorStop(.45, 'rgba(104,107,112,.42)'); gv.addColorStop(.65, 'rgba(74,76,80,.40)'); gv.addColorStop(1, 'rgba(150,152,157,.46)');
+  ctx.fillStyle = gv; ctx.fillRect(tx, ty, tw, th);
+  const brillo = ctx.createLinearGradient(tx, 0, tx + tw, 0); brillo.addColorStop(.18, 'rgba(255,255,255,0)'); brillo.addColorStop(.32, 'rgba(255,255,255,.14)'); brillo.addColorStop(.46, 'rgba(255,255,255,0)');
+  ctx.fillStyle = brillo; ctx.fillRect(tx, ty, tw, th); ctx.restore();
+  ctx.save(); kaRR(ctx, tx, ty, tw, th, 60); ctx.lineWidth = 3; ctx.strokeStyle = 'rgba(255,255,255,.5)'; ctx.stroke(); ctx.restore();
+  ctx.save(); kaRR(ctx, tx + 1.5, ty + 1.5, tw - 3, th - 3, 58); ctx.clip(); ctx.strokeStyle = 'rgba(255,255,255,.75)'; ctx.lineWidth = 3; ctx.beginPath(); ctx.moveTo(tx + 50, ty + 1.5); ctx.lineTo(tx + tw - 50, ty + 1.5); ctx.stroke(); ctx.restore();
+  const MU2 = 'rgba(255,255,255,.78)'; ctx.save(); ctx.shadowColor = 'rgba(20,28,40,.3)'; ctx.shadowBlur = 14;
   let y = ty + tp + 64; const x0 = tx + tp, x1 = tx + tw - tp;
-  const T = kaLineas(ctx, d.rut, 78, tw - 2 * tp - 200, 1); kmTxt(ctx, T.L[0], x0, y, 700, T.s, 'disp', -T.s * .03, INK);
-  kmTxt(ctx, 'S' + d.sem + (d.planif ? ' · ' + Math.min(d.hechas || 0, d.planif) + '/' + d.planif : ''), x1, y - 6, 500, 27, 'mono', 4, MU, 'right');
-  y += 30; kaPills(ctx, d.pills, x0, y, tw - 2 * tp, { size: 24, track: 3.5, h: 66, gap: 15, px: 27, stroke: INK, lw: 3, color: INK });
-  y += pillsH + 36; ctx.save(); ctx.setLineDash([9, 9]); ctx.strokeStyle = 'rgba(18,18,18,.35)'; ctx.lineWidth = 3; ctx.beginPath(); ctx.moveTo(x0, y); ctx.lineTo(x1, y); ctx.stroke(); ctx.restore();
-  y += 30 + 60; kmTxt(ctx, d.ton + ' KG', x0, y, 700, 60, 'disp', -1.5, INK);
-  kmTxt(ctx, 'MOVIDOS HOY · ' + (d.sets || 0) + ' SETS', x0, y + 44, 500, 24, 'mono', 5, MU);
-  kaBarras(ctx, x1 - 210, y - 56, 210, 66, INK, 'K' + d.num);
-  kmTxt(ctx, 'SESSION Nº ' + d.num, x1, y + 44, 500, 22, 'mono', 4.5, INK, 'right');
+  const T = kaLineas(ctx, d.rut, 78, tw - 2 * tp - 200, 1); kmTxt(ctx, T.L[0], x0, y, 700, T.s, 'disp', -T.s * .03, B);
+  kmTxt(ctx, 'S' + d.sem + (d.planif ? ' · ' + Math.min(d.hechas || 0, d.planif) + '/' + d.planif : ''), x1, y - 6, 500, 27, 'mono', 4, MU2, 'right');
+  y += 30; kaPills(ctx, d.pills, x0, y, tw - 2 * tp, { size: 24, track: 3.5, h: 66, gap: 15, px: 27, stroke: 'rgba(255,255,255,.85)', lw: 3, color: B });
+  y += pillsH + 36; ctx.save(); ctx.shadowBlur = 0; ctx.setLineDash([9, 9]); ctx.strokeStyle = 'rgba(255,255,255,.4)'; ctx.lineWidth = 3; ctx.beginPath(); ctx.moveTo(x0, y); ctx.lineTo(x1, y); ctx.stroke(); ctx.restore();
+  y += 30 + 60; kmTxt(ctx, d.ton + ' KG', x0, y, 700, 60, 'disp', -1.5, B);
+  kmTxt(ctx, 'MOVIDOS HOY · ' + (d.sets || 0) + ' SETS', x0, y + 44, 500, 24, 'mono', 5, MU2);
+  kaBarras(ctx, x1 - 210, y - 56, 210, 66, B, 'K' + d.num);
+  kmTxt(ctx, 'SESSION Nº ' + d.num, x1, y + 44, 500, 22, 'mono', 4.5, B, 'right');
+  ctx.restore();
 }
 
 /* ── Micro-secuencia de logro: isotipo → mensaje → eslogan + semana → pantalla de compartir (2,6 s; hitos 3,4 s) ── */
