@@ -7661,40 +7661,54 @@ function kaCaptura(ctx) {
   // Cabecera: logo · Nº y fecha
   let y = KS_SAFE_T;
   const lg = kaLogo(B); if (lg) ctx.drawImage(lg, M, y, lg.width * 34 / lg.height, 34);
-  txt('Nº ' + d.num + ' · ' + d.fecha, W - M, y + 26, MONO(19), G, 3, 'right');
-  // Kicker + rutina
+  txt(d.fecha, W - M, y + 26, MONO(19), G, 3, 'right');
+  // c155 · bloque de datos centrado en el alto útil + credencial del programa con el nombre del socio y código de barras
   const rut0 = String(j.rutina || 'Sesión'), extra = /^\s*★/.test(rut0), rut = rut0.replace(/^\s*★\s*/, '').toUpperCase();
-  y += 34 + 92;
-  txt(extra ? '★ SESIÓN EXTRA' : String(j.programa || 'KOACH').toUpperCase() + ' · SEMANA ' + (j.semana || 1), M, y, MONO(21), G, 5);
-  const T = kcFit(ctx, rut, s => DISP(900, s), 124, 72, CW, 2);
-  T.L.forEach((l, i) => { y += i ? T.s * .9 : T.s * .92; txt(l, M - 4, y, DISP(900, T.s), B, -T.s * .02) });
-  y += 62; txt('SESIÓN COMPLETA', M, y, MONO(23), G2, 6);
-  // Kilos
-  const ton = Math.round(+j.tonelaje || 0).toLocaleString('es-CL');
-  y += 22 + 196; const wN = txt(ton, M - 6, y, DISP(900, 228), B, -8);
-  txt('KG', M - 6 + wN + 16, y - 6, MONO(34), B, 2);
-  y += 62; txt('MOVIDOS HOY · ' + d.sets + ' SETS', M, y, MONO(22), G2, 5);   // c154 · sin tiempo
-  // Todo lo que se trabajó en la sesión (grupos musculares + GLOBAL / CARDIO / MOVILIDAD), sin desglose por bloque
+  const T = kcFit(ctx, rut, s => DISP(900, s), 124, 72, CW, 2), hT = T.s * .92 + (T.L.length - 1) * T.s * .9;
   const gs = []; (j.grupos || []).forEach(x => { const g = String(x.g || '').toUpperCase(); if (g && !gs.includes(g)) gs.push(g) });
   (j.bloques || []).forEach(b => (b.g || []).forEach(x => { const g = String(x).toUpperCase(); if (g && !gs.includes(g)) gs.push(g) }));
-  y += 44;
-  if (gs.length) y += kaPills(ctx, gs.map(g => g + ' ✓'), M, y, CW, { font: MONO(21), size: 21, track: 4, h: 64, gap: 12, px: 26, stroke: 'rgba(255,255,255,.34)', lw: 2.5, color: B });
-  // PR: solo si hubo una marca nueva que supera la anterior
-  const pr = j.pr || {}, kgN = +pr.kg || 0, kgA = pr.antes != null ? +pr.antes : null;
-  if (pr.nueva && kgN > 0 && kgA != null && kgN > kgA) {
-    const by = Math.max(y + 64, H - KS_SAFE_B - 300), bh = 300, bx = M, bw = CW, r = 46;
+  const PO = { font: MONO(21), size: 21, track: 4, h: 64, gap: 12, px: 26, stroke: 'rgba(255,255,255,.34)', lw: 2.5, color: B };
+  const pH = gs.length ? kaPills(document.createElement('canvas').getContext('2d'), gs.map(g => g + ' ✓'), 0, 0, CW, PO) : 0;
+  const pr = j.pr || {}, kgN = +pr.kg || 0, kgA = pr.antes != null ? +pr.antes : null, hayPR = !!(pr.nueva && kgN > 0 && kgA != null && kgN > kgA);
+  const PRH = 270, CRH = 230, GAP = 56;
+  const tot = hT + 62 + 218 + 62 + 44 + pH + (hayPR ? GAP + PRH : 0) + GAP + CRH;
+  const top = KS_SAFE_T + 34 + 92, fin = H - KS_SAFE_B, av = fin - top, k = Math.min(1, av / tot);
+  y = top + Math.max(0, (av - tot) / 2);
+  ctx.save(); if (k < 1) { ctx.translate(W / 2, top); ctx.scale(k, k); ctx.translate(-W / 2, -top) }
+  txt(extra ? '★ SESIÓN EXTRA' : String(j.programa || 'KOACH').toUpperCase() + ' · SEMANA ' + (j.semana || 1), M, y, MONO(21), G, 5);
+  T.L.forEach((l, i) => { y += i ? T.s * .9 : T.s * .92; txt(l, M - 4, y, DISP(900, T.s), B, -T.s * .02) });
+  y += 62; txt('SESIÓN COMPLETA', M, y, MONO(23), G2, 6);
+  const ton = Math.round(+j.tonelaje || 0).toLocaleString('es-CL');
+  y += 218; const wN = txt(ton, M - 6, y, DISP(900, 228), B, -8);
+  txt('KG', M - 6 + wN + 16, y - 6, MONO(34), B, 2);
+  y += 62; txt('MOVIDOS HOY · ' + d.sets + ' SETS', M, y, MONO(22), G2, 5);
+  y += 44; if (gs.length) { kaPills(ctx, gs.map(g => g + ' ✓'), M, y, CW, PO); y += pH }
+  const vidrio = (bx, by, bw, bh, r) => {
     ctx.save(); kaRR(ctx, bx, by, bw, bh, r);
     const gf = ctx.createLinearGradient(bx, by, bx + bw, by + bh); gf.addColorStop(0, 'rgba(255,255,255,.13)'); gf.addColorStop(.5, 'rgba(255,255,255,.05)'); gf.addColorStop(1, 'rgba(255,255,255,.09)');
     ctx.fillStyle = gf; ctx.fill(); ctx.lineWidth = 2; ctx.strokeStyle = 'rgba(255,255,255,.2)'; ctx.stroke(); ctx.restore();
-    ctx.save(); kaRR(ctx, bx, by, bw, bh, r); ctx.clip(); ctx.strokeStyle = 'rgba(255,255,255,.36)'; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(bx + r, by + 1); ctx.lineTo(bx + bw - r, by + 1); ctx.stroke(); ctx.restore();
-    const px = bx + 44, pw = bw - 88, fmt = n => (+n).toLocaleString('es-CL', { maximumFractionDigits: 1 });
-    txt('★ NUEVO PR', px, by + 70, MONO(22), B, 6);
-    ctx.font = DISP(800, 38); txt(kcCorta(ctx, String(pr.ejercicio || '').toUpperCase(), pw), px, by + 128, DISP(800, 38), B, 0);
-    const wK = txt(fmt(kgN), px - 4, by + 252, DISP(900, 124), B, -4);
-    txt('KG' + (pr.reps ? ' × ' + pr.reps : ''), px + wK + 14, by + 250, MONO(30), B, 2);
-    txt('ANTES ' + fmt(kgA) + ' KG', px + pw, by + 212, MONO(21), G, 4, 'right');
-    txt('+' + fmt(Math.round((kgN - kgA) * 10) / 10) + ' KG', px + pw, by + 250, MONO(30), B, 2, 'right');
-  }
+    ctx.save(); kaRR(ctx, bx, by, bw, bh, r); ctx.clip(); ctx.strokeStyle = 'rgba(255,255,255,.36)'; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(bx + r, by + 1); ctx.lineTo(bx + bw - r, by + 1); ctx.stroke(); ctx.restore() };
+  const fmt = n => (+n).toLocaleString('es-CL', { maximumFractionDigits: 1 }), px = M + 44, pw = CW - 88;
+  // PR: solo si hubo una marca nueva que supera la anterior
+  if (hayPR) { const by = y + GAP; vidrio(M, by, CW, PRH, 46);
+    txt('★ NUEVO PR', px, by + 64, MONO(21), B, 6);
+    ctx.font = DISP(800, 36); txt(kcCorta(ctx, String(pr.ejercicio || '').toUpperCase(), pw), px, by + 118, DISP(800, 36), B, 0);
+    const wK = txt(fmt(kgN), px - 4, by + 228, DISP(900, 112), B, -4);
+    txt('KG' + (pr.reps ? ' × ' + pr.reps : ''), px + wK + 14, by + 226, MONO(28), B, 2);
+    txt('ANTES ' + fmt(kgA) + ' KG', px + pw, by + 190, MONO(20), G, 4, 'right');
+    txt('+' + fmt(Math.round((kgN - kgA) * 10) / 10) + ' KG', px + pw, by + 226, MONO(28), B, 2, 'right');
+    y = by + PRH }
+  // Credencial del programa (estilo tarjeta código): programa · socio · lema · código de barras
+  { const by = y + GAP, prog = String(j.programa || 'KOACH').toUpperCase(); vidrio(M, by, CW, CRH, 40);
+    const TAG = { STRONG: ['GAIN MUSCLE', '& STRENGTH'], BURN: ['FAT LOSS', '& PERFORMANCE'], HEALTHY: ['VITALITY', '& WELLNESS'] }[prog] || ['1% MEJOR', 'CADA DÍA'];
+    txt(prog, px, by + 76, DISP(900, 50, 'expanded'), B, 0);
+    txt('Nº ' + d.num, px + pw, by + 70, MONO(19), G, 4, 'right');
+    const soc = String(j.socio || (S.perfil && S.perfil.nombre) || '').toUpperCase();
+    if (soc) { ctx.font = MONO(22); trk(5); const sc = kcCorta(ctx, soc, pw); trk(0); txt(sc, px, by + 118, MONO(22), G2, 5) }
+    ctx.save(); ctx.setLineDash([8, 8]); ctx.strokeStyle = 'rgba(255,255,255,.22)'; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(px, by + 146); ctx.lineTo(px + pw, by + 146); ctx.stroke(); ctx.restore();
+    txt(TAG[0], px, by + 182, MONO(17), G, 4); txt(TAG[1], px, by + 206, MONO(17), G, 4);
+    kaBarras(ctx, px + pw - 300, by + 164, 300, 44, B, 'C' + d.num) }
+  ctx.restore();
 }
 
 /* ── Micro-secuencia de logro: isotipo → mensaje → eslogan + semana → pantalla de compartir (2,6 s; hitos 3,4 s) ── */
