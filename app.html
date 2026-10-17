@@ -7673,38 +7673,27 @@ function kaCaptura(ctx) {
   const ton = Math.round(+j.tonelaje || 0).toLocaleString('es-CL');
   y += 22 + 196; const wN = txt(ton, M - 6, y, DISP(900, 228), B, -8);
   txt('KG', M - 6 + wN + 16, y - 6, MONO(34), B, 2);
-  y += 62; txt('MOVIDOS HOY · ' + d.sets + ' SETS' + (d.dur ? ' · ' + d.dur + ' MIN' : ''), M, y, MONO(22), G2, 5);
-  // Grupos trabajados
-  const gs = (j.grupos || []).map(x => String(x.g || '').toUpperCase()).filter(Boolean);
-  y += 40;
-  if (gs.length) y += kaPills(ctx, gs.map(g => g + ' ✓'), M, y, CW, { font: MONO(20), size: 20, track: 4, h: 60, gap: 12, px: 24, stroke: 'rgba(255,255,255,.34)', lw: 2.5, color: B }) + 44;
-  // Bloques
-  const bl = (j.bloques || []).slice(0, 4), fin = H - KS_SAFE_B, gap = 18;
-  if (bl.length) {
-    const bh = Math.max(118, Math.min(176, (fin - y - gap * (bl.length - 1)) / bl.length)), k = bh / 176;
-    bl.forEach((b, i) => {
-      const by = y + i * (bh + gap), bx = M, bw = CW, r = 40 * k + 6;
-      ctx.save(); kaRR(ctx, bx, by, bw, bh, r);
-      const gf = ctx.createLinearGradient(bx, by, bx + bw, by + bh); gf.addColorStop(0, 'rgba(255,255,255,.11)'); gf.addColorStop(.5, 'rgba(255,255,255,.05)'); gf.addColorStop(1, 'rgba(255,255,255,.08)');
-      ctx.fillStyle = gf; ctx.fill(); ctx.lineWidth = 2; ctx.strokeStyle = 'rgba(255,255,255,.17)'; ctx.stroke(); ctx.restore();
-      ctx.save(); kaRR(ctx, bx, by, bw, bh, r); ctx.clip(); ctx.strokeStyle = 'rgba(255,255,255,.32)'; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(bx + r, by + 1); ctx.lineTo(bx + bw - r, by + 1); ctx.stroke(); ctx.restore();
-      const gB = (b.g || []).map(x => String(x).toUpperCase()), hayEj = bh >= 150 && gB.length, px = bx + 36 * k + 8, cy = by + bh / 2, cr = 28 * k + 4, ccx = bx + bw - 34 * k - 8 - cr;
-      txt(String(b.cod || 'B' + (i + 1)), px, (hayEj ? by + 98 * k : cy + 30 * k), DISP(900, Math.round(86 * k)), B, -2);
-      const tx = px + 150 * k + 6, tw = ccx - cr - 24 - tx;
-      const y1 = hayEj ? by + 50 * k : cy - 10 * k, y2 = hayEj ? by + 94 * k : cy + 30 * k;
-      txt('LISTO · ' + Math.round(+b.kg || 0).toLocaleString('es-CL') + ' KG', tx, y1, MONO(Math.round(18 * k + 1)), G, 4);
-      ctx.font = DISP(800, Math.round(34 * k)); txt(kcCorta(ctx, String(b.nom || 'BLOQUE'), tw), tx, y2, DISP(800, Math.round(34 * k)), B, 0);
-      if (hayEj) {   // c153 · qué trabajó el bloque (grupos), no la lista de ejercicios
-        const ph = Math.round(40 * k), pf = MONO(Math.round(15 * k + 1)), pp = 16, lim = ccx + cr; let x = px; ctx.font = pf; trk(3);
-        for (const t of gB) { const w = ctx.measureText(t).width + pp * 2; if (x + w > lim) break;
-          kaRR(ctx, x, by + 118 * k, w, ph, ph / 2); ctx.lineWidth = 2; ctx.strokeStyle = 'rgba(255,255,255,.34)'; ctx.stroke();
-          ctx.fillStyle = G2; ctx.textAlign = 'left'; ctx.textBaseline = 'middle'; ctx.fillText(t, x + pp, by + 118 * k + ph / 2 + 1); x += w + 10 }
-        trk(0); ctx.textBaseline = 'alphabetic' }
-      ctx.beginPath(); ctx.arc(ccx, by + (hayEj ? 62 * k : bh / 2), cr, 0, Math.PI * 2); ctx.fillStyle = B; ctx.fill();
-      const ky = by + (hayEj ? 62 * k : bh / 2), s = cr * .42;
-      ctx.strokeStyle = '#09090A'; ctx.lineWidth = 4.5 * k + 1; ctx.lineCap = 'round'; ctx.lineJoin = 'round';
-      ctx.beginPath(); ctx.moveTo(ccx - s, ky + s * .05); ctx.lineTo(ccx - s * .25, ky + s * .75); ctx.lineTo(ccx + s, ky - s * .6); ctx.stroke();
-    });
+  y += 62; txt('MOVIDOS HOY · ' + d.sets + ' SETS', M, y, MONO(22), G2, 5);   // c154 · sin tiempo
+  // Todo lo que se trabajó en la sesión (grupos musculares + GLOBAL / CARDIO / MOVILIDAD), sin desglose por bloque
+  const gs = []; (j.grupos || []).forEach(x => { const g = String(x.g || '').toUpperCase(); if (g && !gs.includes(g)) gs.push(g) });
+  (j.bloques || []).forEach(b => (b.g || []).forEach(x => { const g = String(x).toUpperCase(); if (g && !gs.includes(g)) gs.push(g) }));
+  y += 44;
+  if (gs.length) y += kaPills(ctx, gs.map(g => g + ' ✓'), M, y, CW, { font: MONO(21), size: 21, track: 4, h: 64, gap: 12, px: 26, stroke: 'rgba(255,255,255,.34)', lw: 2.5, color: B });
+  // PR: solo si hubo una marca nueva que supera la anterior
+  const pr = j.pr || {}, kgN = +pr.kg || 0, kgA = pr.antes != null ? +pr.antes : null;
+  if (pr.nueva && kgN > 0 && kgA != null && kgN > kgA) {
+    const by = Math.max(y + 64, H - KS_SAFE_B - 300), bh = 300, bx = M, bw = CW, r = 46;
+    ctx.save(); kaRR(ctx, bx, by, bw, bh, r);
+    const gf = ctx.createLinearGradient(bx, by, bx + bw, by + bh); gf.addColorStop(0, 'rgba(255,255,255,.13)'); gf.addColorStop(.5, 'rgba(255,255,255,.05)'); gf.addColorStop(1, 'rgba(255,255,255,.09)');
+    ctx.fillStyle = gf; ctx.fill(); ctx.lineWidth = 2; ctx.strokeStyle = 'rgba(255,255,255,.2)'; ctx.stroke(); ctx.restore();
+    ctx.save(); kaRR(ctx, bx, by, bw, bh, r); ctx.clip(); ctx.strokeStyle = 'rgba(255,255,255,.36)'; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(bx + r, by + 1); ctx.lineTo(bx + bw - r, by + 1); ctx.stroke(); ctx.restore();
+    const px = bx + 44, pw = bw - 88, fmt = n => (+n).toLocaleString('es-CL', { maximumFractionDigits: 1 });
+    txt('★ NUEVO PR', px, by + 70, MONO(22), B, 6);
+    ctx.font = DISP(800, 38); txt(kcCorta(ctx, String(pr.ejercicio || '').toUpperCase(), pw), px, by + 128, DISP(800, 38), B, 0);
+    const wK = txt(fmt(kgN), px - 4, by + 252, DISP(900, 124), B, -4);
+    txt('KG' + (pr.reps ? ' × ' + pr.reps : ''), px + wK + 14, by + 250, MONO(30), B, 2);
+    txt('ANTES ' + fmt(kgA) + ' KG', px + pw, by + 212, MONO(21), G, 4, 'right');
+    txt('+' + fmt(Math.round((kgN - kgA) * 10) / 10) + ' KG', px + pw, by + 250, MONO(30), B, 2, 'right');
   }
 }
 
