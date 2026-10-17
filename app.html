@@ -6978,6 +6978,9 @@ document.addEventListener('DOMContentLoaded', async ()=>{
       <div class="kset__row" data-solo="senalador"><span>RUTA</span><button type="button" class="kset__chip" data-ks="ruta" data-v="auto" aria-pressed="true">AUTO</button><button type="button" class="kset__chip" data-ks="ruta" data-v="DIAG" aria-pressed="false">DIAGONAL</button><button type="button" class="kset__chip" data-ks="ruta" data-v="L" aria-pressed="false">L</button><button type="button" class="kset__chip" data-ks="ruta" data-v="GAMMA" aria-pressed="false">Γ</button><button type="button" class="kset__chip" data-ks="ruta" data-v="ELBOW" aria-pressed="false">CODO</button></div>
       <div class="kset__row" data-solo="senalador"><span>MARCA</span><button type="button" class="kset__chip" data-ks="mira" data-v="circulo" aria-pressed="true">MIRA</button><button type="button" class="kset__chip" data-ks="mira" data-v="cuadro" aria-pressed="false">MARCO</button></div>
     </div>
+    <div class="kset__opts" id="ksOSol" hidden>
+      <div class="kset__row"><span>FONDO</span><button type="button" class="kset__chip" data-ks="fondo" data-v="solido" aria-pressed="true">SÓLIDO</button><button type="button" class="kset__chip" data-ks="fondo" data-v="foto" aria-pressed="false">TU FOTO</button><button type="button" class="kset__chip" data-ks="fondo" data-v="blur" aria-pressed="false">FOTO DESENFOCADA</button></div>
+    </div>
     <div class="kset__opts" id="ksOTr" hidden>
       <div class="kset__row"><span>DATOS</span><button type="button" class="kset__chip" data-ks="lado" data-v="izq" aria-pressed="true">IZQUIERDA</button><button type="button" class="kset__chip" data-ks="lado" data-v="der" aria-pressed="false">DERECHA</button></div>
       <div class="kset__row"><span>RUTA</span><button type="button" class="kset__chip" data-ks="rutaT" data-v="DIAG" aria-pressed="false">DIAGONAL</button><button type="button" class="kset__chip" data-ks="rutaT" data-v="L" aria-pressed="false">L</button><button type="button" class="kset__chip" data-ks="rutaT" data-v="ELBOW" aria-pressed="true">CODO</button></div>
@@ -7306,7 +7309,8 @@ function ksPintar() {
   ksEl('ksAdd').hidden = !sinFoto;
   ksEl('ksHint').hidden = !(KS.formato === 'foto' && KS.foto && (KS.estilo === 'senalador' || (KS.estilo === 'mapa' && !KM.hintOff)));
   ksEl('ksHint').textContent = KS.estilo === 'mapa' ? (KM.estado === 'buscando' ? 'UBICANDO TUS MÚSCULOS…' : 'ARRASTRA LOS PUNTOS PARA AJUSTAR') : 'TOCA LA FOTO PARA ELEGIR DÓNDE APUNTAR';
-  if (KS.formato === 'gris' || sinFoto) kaCaptura(ctx);
+  ksEl('ksOSol').hidden = KS.formato !== 'gris' || KS.fin;
+  if (KS.formato === 'gris' || sinFoto) { const fo = KS.formato === 'gris' && KS.foto ? (KS.fondo || 'solido') : 'solido'; if (fo === 'foto') kmAsegurar(); kaCaptura(ctx, false, fo) }
   else if (KS.formato === 'foto') {
     if (KS.estilo === 'mapa') { kmAsegurar(); kmRender(ctx) }
     else if (KS.estilo === 'editorial') { kmAsegurar(); kaEditorial(ctx) }
@@ -7415,10 +7419,11 @@ async function ksCargarFoto(f) {
   try { const im = KS.foto, w = im.width, h = im.height, M = 2160, k = M / Math.max(w, h)
     if (k < 1) { const c = document.createElement('canvas'); c.width = Math.round(w * k); c.height = Math.round(h * k); c.getContext('2d').drawImage(im, 0, 0, c.width, c.height)
       try { im.close && im.close() } catch (_) {}; KS.foto = typeof createImageBitmap === 'function' ? await createImageBitmap(c) : c } } catch (_) {}
-  KT.BG_CACHE.key = null; KT.NIT_CACHE.src = null; KS.target = null; kmReset(); ksFormato('foto');
+  KT.BG_CACHE.key = null; KT.NIT_CACHE.src = null; KS.target = null; kmReset(); const dest = KS._fotoPara || 'foto'; KS._fotoPara = null; ksFormato(dest);
 }
 document.querySelectorAll('[data-ksf]').forEach(b => b.onclick = () => ksFormato(b.dataset.ksf));
-document.querySelectorAll('[data-ks]').forEach(b => b.onclick = () => { KS[b.dataset.ks] = b.dataset.v; document.querySelectorAll('[data-ks="' + b.dataset.ks + '"]').forEach(x => x.setAttribute('aria-pressed', String(x.dataset.v === b.dataset.v))); ksPintar() });
+document.querySelectorAll('[data-ks]').forEach(b => b.onclick = () => { KS[b.dataset.ks] = b.dataset.v; document.querySelectorAll('[data-ks="' + b.dataset.ks + '"]').forEach(x => x.setAttribute('aria-pressed', String(x.dataset.v === b.dataset.v))); ksPintar();
+  if (b.dataset.ks === 'fondo' && b.dataset.v !== 'solido' && !KS.foto) { KS._fotoPara = 'gris'; try { ksEl('ksFoto').click() } catch (_) {} } });
 ksEl('ksFoto').onchange = e => ksCargarFoto(e.target.files && e.target.files[0]);
 ksEl('ksFoto2').onchange = e => ksCargarFoto(e.target.files && e.target.files[0]);
 // Tocar la foto = elegir el target; el sistema traza la ruta y elige el lado del bloque
@@ -7766,15 +7771,24 @@ const KC_TEMAS = {
              vidrio: ['rgba(255,255,255,.7)', 'rgba(255,255,255,.38)', 'rgba(255,255,255,.58)'], borde: 'rgba(255,255,255,.95)', filo: '#FFFFFF',
              luces: [[.6, .25, 700, '255,255,255', .9], [.95, .75, 820, '160,165,172', .3], [.05, .98, 620, '160,165,172', .26]] }
 };
-function kaCaptura(ctx, trans) {
+function kaCaptura(ctx, trans, fondo) {
   const W = KT.W, H = KT.H, j = KS.data || {}, d = kaDatos(), M = KS_SAFE_X, CW = W - 2 * M;
   // c156 · tono por programa (línea de credenciales): STRONG gris claro · BURN gris oscuro · HEALTHY blanco; textos con el contraste del fondo
-  const TM = trans ? KC_TEMAS.TRANSP : (KC_TEMAS[String(j.programa || '').toUpperCase()] || KC_TEMAS.KOACH), B = TM.ink, G = TM.mu, G2 = TM.mu2;
+  const conFoto = !trans && (fondo === 'foto' || fondo === 'blur') && !!KS.foto;
+  const TM = (trans || conFoto) ? KC_TEMAS.TRANSP : (KC_TEMAS[String(j.programa || '').toUpperCase()] || KC_TEMAS.KOACH), B = TM.ink, G = TM.mu, G2 = TM.mu2;
   const DISP = (w, s, st) => w + ' ' + (st || 'semi-expanded') + ' ' + s + "px 'KOACH Display', 'Inter Display', Arial, sans-serif", MONO = s => "700 " + s + "px 'Space Mono', 'KOACH Symbols', 'IBM Plex Mono', monospace";
   const trk = t => { if ('letterSpacing' in ctx) ctx.letterSpacing = t + 'px' };
   const txt = (s, x, y, font, color, t, al) => { ctx.font = font; trk(t || 0); ctx.fillStyle = color; ctx.textAlign = al || 'left'; ctx.textBaseline = 'alphabetic'; ctx.fillText(s, x, y); const m = ctx.measureText(s).width; trk(0); return m };
   // Fondo sólido negro con la luz fría de la app
-  ctx.clearRect(0, 0, W, H); ctx.save(); if (TM.bg) { ctx.fillStyle = TM.bg; ctx.fillRect(0, 0, W, H) } else { ctx.shadowColor = 'rgba(0,0,0,.35)'; ctx.shadowBlur = 16 }   // c162 · TRANSPARENTE: mismo resumen sin fondo, con sombra suave para leerse sobre cualquier foto
+  ctx.clearRect(0, 0, W, H);
+  if (conFoto) {   // c166 · fondo con tu foto (filtrada) o la misma foto con desenfoque fuerte, para quien no quiere aparecer
+    const src = kmFoto();
+    if (fondo === 'blur') { const t = document.createElement('canvas'); t.width = 18; t.height = 32; const tx = t.getContext('2d'); tx.imageSmoothingQuality = 'high'; tx.drawImage(src, 0, 0, 18, 32);
+      ctx.save(); ctx.imageSmoothingEnabled = true; ctx.imageSmoothingQuality = 'high'; ctx.drawImage(t, -40, -60, W + 80, H + 120); ctx.restore();
+      ctx.fillStyle = 'rgba(10,10,12,.34)'; ctx.fillRect(0, 0, W, H) }
+    else { ctx.drawImage(src, 0, 0, W, H); const g = ctx.createLinearGradient(0, 0, 0, H); g.addColorStop(0, 'rgba(10,10,12,.55)'); g.addColorStop(.45, 'rgba(10,10,12,.48)'); g.addColorStop(1, 'rgba(10,10,12,.72)'); ctx.fillStyle = g; ctx.fillRect(0, 0, W, H) }
+  }
+  ctx.save(); if (conFoto) { ctx.shadowColor = 'rgba(0,0,0,.35)'; ctx.shadowBlur = 16 } else if (TM.bg) { ctx.fillStyle = TM.bg; ctx.fillRect(0, 0, W, H) } else { ctx.shadowColor = 'rgba(0,0,0,.35)'; ctx.shadowBlur = 16 }   // c162 · TRANSPARENTE: mismo resumen sin fondo, con sombra suave para leerse sobre cualquier foto
   const luz = (x, y, r, c, a) => { const g = ctx.createRadialGradient(x, y, 0, x, y, r); g.addColorStop(0, 'rgba(' + c + ',' + a + ')'); g.addColorStop(1, 'rgba(' + c + ',0)'); ctx.fillStyle = g; ctx.fillRect(0, 0, W, H) };
   TM.luces.forEach(([x, y, r, c, a]) => luz(W * x, H * y, r, c, a));
   // Cabecera: logo · Nº y fecha
