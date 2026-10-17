@@ -2283,6 +2283,8 @@ body.wl-on{overflow:hidden}
 .kxD__in.kxPR{justify-content:center;align-items:center;text-align:center;padding-top:calc(env(safe-area-inset-top,0px) + 190px);padding-bottom:calc(env(safe-area-inset-bottom,0px) + 190px)}
 .kxPR .kxD__top{position:absolute;top:calc(env(safe-area-inset-top,0px) + 22px);left:22px;right:22px;margin:0}
 .kxPR .kxPR__big{justify-content:center}
+.kxPR__rp{margin-top:10px;font:700 clamp(22px,7vw,30px) var(--font-mono);letter-spacing:.06em;color:#F4F3F0;opacity:0}
+.kxDone--pr.on .kxPR__rp{animation:prUp .5s .8s ease-out both}
 .kxPR .kxPR__ring{left:50%}
 .kxPR .kxPR__n{transform-origin:50% 60%}
 .kxPR .kxPR__t{text-align:center}
@@ -3839,15 +3841,16 @@ function kxPrRevisar(filas){ try{
 function kxPR(pr, alFin){ const ov=document.getElementById('kxDone'); if(!ov) return   // c160 · alFin: al cerrar el récord del cierre sigue al resumen
   // c136 · RÉCORD ÉPICO: cromo negro, rayos, el número entra de golpe (golpe + onda + temblor + flash) y queda con brillo plateado
   const f=x=>(x.peso%1?String(x.peso).replace('.',','):x.peso)+' KG'+(x.reps?' × '+x.reps:''), dif=Math.round((pr.hoy.peso-pr.antes.peso)*10)/10
-  const num=dif>0?'+'+String(dif).replace('.',','):'+'+(pr.hoy.reps-pr.antes.reps), uni=dif>0?'KG':'REPS'
+  // c168 · el número grande es LA MARCA (peso × reps), no la diferencia
+  const num=(pr.hoy.peso%1?String(pr.hoy.peso).replace('.',','):String(pr.hoy.peso)), uni='KG'
   const pal=String(pr.nom||'').toUpperCase().split(/\s+/).filter(Boolean).map((w,i)=>'<span><b style="--i:'+i+'">'+plEscA(w)+'</b></span>').join(' ')
   const bg=(typeof kbgURL==='function'&&kbgURL('cromoN'))||''
   ov.innerHTML='<div class="kxPR__sw"><div class="kxPR__bg"'+(bg?' style="background-image:'+bg+'"':'')+'></div></div><div class="kxPR__rays"></div>'+
     '<div class="kxD__in kxPR"><div class="kxD__top"><img src="/img/brand/logotipo-koach.png" alt="KOACH"><small>'+new Date().toLocaleDateString('es-CL',{day:'2-digit',month:'short'}).toUpperCase()+'</small></div>'+
-    '<span class="kxPR__k">NUEVO RÉCORD PERSONAL</span>'+
-    '<div class="kxPR__hero"><i class="kxPR__ring"></i><div class="kxPR__big" style="--n:'+num.length+'"><span class="kxPR__n">'+num+'</span><em>'+uni+'</em></div></div>'+
+    '<span class="kxPR__k">PR · NUEVO RÉCORD PERSONAL</span>'+
+    '<div class="kxPR__hero"><i class="kxPR__ring"></i><div class="kxPR__big" style="--n:'+num.length+'"><span class="kxPR__n">'+num+'</span><em>'+uni+'</em></div></div>'+(pr.hoy.reps?'<div class="kxPR__rp">× '+pr.hoy.reps+' REPS</div>':'')+
     '<h2 class="kxPR__t'+(String(pr.nom||'').length>18?' kxPR__t--l':'')+'">'+pal+'</h2>'+
-    '<div class="kxPR__ah"><div><span>ANTES</span><b>'+f(pr.antes)+'</b></div><i aria-hidden="true">→</i><div><span>HOY</span><b>'+f(pr.hoy)+'</b></div></div>'+
+    '<div class="kxPR__ah"><div><span>MARCA ANTERIOR</span><b>'+f(pr.antes)+'</b></div></div>'+
     '<div class="kxPR__bc">'+barcodeSVG('PR'+String(pr.hoy.peso).replace('.',''),26)+'</div>'+
     '<button type="button" class="kxBtn kxPR__ok" id="kxPrOk">'+(alFin?'VER MI SESIÓN':'SEGUIR')+' <i></i></button></div><div class="kxFlash"></div>'
   ov.classList.add('vis','kxDone--pr'); requestAnimationFrame(()=>requestAnimationFrame(()=>ov.classList.add('on')))
