@@ -2245,6 +2245,34 @@ body.wl-on{overflow:hidden}
 #vLogin{background:#000}
 /* c158 · cierre de sesión: el resumen SÓLIDO a pantalla completa, sin pestañas; COMPARTIR PROGRESO abre el menú con foto y filtros */
 #oShare.kset--fin .kset__seg,#oShare.kset--fin .kset__prog{display:none}
+/* c165 · EDITOR EN UNA PANTALLA: arriba todas las opciones en filas de un toque (deslizables), al medio la imagen editada que se ajusta al alto, abajo la salida directa */
+#oShare:not(.kset--gal){overflow:hidden;padding-top:calc(12px + env(safe-area-inset-top,0px));padding-bottom:calc(12px + env(safe-area-inset-bottom,0px))}
+#oShare:not(.kset--gal) .kset__box{display:flex;flex-direction:column;height:calc(100dvh - 24px - env(safe-area-inset-top,0px) - env(safe-area-inset-bottom,0px))}
+#oShare:not(.kset--gal) .kset__top{margin-bottom:8px;flex:none}
+#oShare:not(.kset--gal) .kset__top small{display:none}
+#oShare:not(.kset--gal) .kset__x{width:38px;height:38px;font-size:19px}
+#oShare:not(.kset--gal) .kset__seg{margin-bottom:6px;gap:6px;flex:none}
+#oShare:not(.kset--gal) .kset__seg button{min-height:34px;white-space:nowrap;letter-spacing:.08em;padding:0 8px}
+#oShare:not(.kset--gal) .kset__opts{gap:6px;margin:0 -18px 6px;flex:none}
+#oShare:not(.kset--gal) .kset__row{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;padding:0 18px;gap:6px;-webkit-overflow-scrolling:touch}
+#oShare:not(.kset--gal) .kset__row::-webkit-scrollbar{display:none}
+#oShare:not(.kset--gal) .kset__row span{min-width:0;flex:none;padding-right:4px;font-size:8.5px}
+#oShare:not(.kset--gal) .kset__row .kset__chip,#oShare:not(.kset--gal) .kset__row label{min-height:34px;flex:none;white-space:nowrap}
+#oShare:not(.kset--gal) .kset__stage{flex:1 1 auto;min-height:0;height:auto;width:auto;max-width:100%;aspect-ratio:9/16;margin:2px auto 8px;align-self:center}
+#oShare:not(.kset--gal) .kset__acts{position:static;margin:0;padding:0;background:none;flex:none;grid-template-columns:1.7fr 1fr;gap:6px}
+#oShare:not(.kset--gal) .kset__acts button,#oShare:not(.kset--gal) .kset__acts label{white-space:nowrap;letter-spacing:.07em;padding:0 10px}
+#oShare:not(.kset--gal) .kset__hint{max-width:92%;overflow:hidden;text-overflow:ellipsis}
+#oShare:not(.kset--gal) .kset__acts .kset__cta{grid-column:auto;min-height:50px}
+#oShare:not(.kset--gal) .kset__acts .kset__sec{min-height:50px}
+#oShare:not(.kset--gal) .kset__acts .kset__wide{grid-column:1/-1}
+#oShare:not(.kset--gal) .kset__st{min-height:0;margin:4px 2px 0;font-size:11.5px;text-align:center;flex:none}
+#oShare:not(.kset--gal) .kset__st:empty{display:none}
+#oShare:not(.kset--gal) .kset__sem,#oShare:not(.kset--gal) .kset__prog{display:none}
+.kset__minis{grid-column:1/-1;display:flex;justify-content:center;gap:22px}
+.kset__mini{min-height:34px;border:0;background:transparent;color:#A7A9AE;font-family:var(--font-mono);font-weight:500;font-size:9.5px;letter-spacing:.14em;cursor:pointer;text-decoration:underline;text-underline-offset:3px}
+.kset__ig{display:inline-flex;align-items:center;justify-content:center;gap:8px}
+.kset__ig i{width:16px;height:16px;border-radius:5px;border:2px solid currentColor;position:relative;flex:none}
+.kset__ig i::after{content:'';position:absolute;inset:3px;border-radius:50%;border:2px solid currentColor}
 /* c161 · PR: fondo negro de ondas cromadas que explota en remolino y queda girando; el récord al centro de la pantalla */
 .kxPR__sw{position:absolute;left:50%;top:40%;width:175vmax;height:175vmax;margin:-87.5vmax 0 0 -87.5vmax;pointer-events:none}
 .kxDone--pr.on .kxPR__sw{animation:prSpin 40s 1.5s linear infinite}
@@ -6944,10 +6972,6 @@ document.addEventListener('DOMContentLoaded', async ()=>{
       <button type="button" class="kset__gi" onclick="ksElegir('ticket')"><img src="/img/share/plantilla-ticket.webp" alt="Plantilla Ticket" width="720" height="1280" loading="lazy" decoding="async"><b>TICKET</b><small>Foto enmarcada con ticket de cristal</small></button>
       <button type="button" class="kset__gi" onclick="ksElegir('editorial')"><img src="/img/share/plantilla-editorial.webp" alt="Plantilla Editorial" width="720" height="1280" loading="lazy" decoding="async"><b>EDITORIAL</b><small>Tu foto a sangre con los kilos del día</small></button>
     </div>
-    <div class="kset__stage" id="ksStage"><canvas id="ksCv" width="1080" height="1920" aria-label="Vista previa"></canvas>
-      <label class="kset__add" id="ksAdd">AGREGA TU SELFIE<small>o elige una foto de tu entrenamiento</small><input type="file" id="ksFoto" accept="image/*"></label>
-      <div class="kset__hint" id="ksHint">TOCA LA FOTO PARA ELEGIR DÓNDE APUNTAR</div>
-    </div>
     <div class="kset__opts" id="ksOFoto" hidden>
       <div class="kset__row"><span>ESTILO</span><button type="button" class="kset__chip" data-ks="estilo" data-v="editorial" aria-pressed="true">EDITORIAL</button><button type="button" class="kset__chip" data-ks="estilo" data-v="ticket" aria-pressed="false">TICKET</button><button type="button" class="kset__chip" data-ks="estilo" data-v="mapa" aria-pressed="false">MAPA</button><label class="kset__chip">CAMBIAR FOTO<input type="file" id="ksFoto2" accept="image/*"></label></div>
       <div class="kset__row"><span>FILTRO</span><button type="button" class="kset__chip" data-ks="filtro" data-v="frio" aria-pressed="true">DRAMÁTICO FRÍO</button><button type="button" class="kset__chip" data-ks="filtro" data-v="drama" aria-pressed="false">DRAMÁTICO</button><button type="button" class="kset__chip" data-ks="filtro" data-v="plata" aria-pressed="false">PLATA</button></div>
@@ -6960,6 +6984,10 @@ document.addEventListener('DOMContentLoaded', async ()=>{
       <div class="kset__row"><span>LARGO</span><button type="button" class="kset__chip" data-ks="largo" data-v="corta" aria-pressed="false">S</button><button type="button" class="kset__chip" data-ks="largo" data-v="media" aria-pressed="true">M</button><button type="button" class="kset__chip" data-ks="largo" data-v="larga" aria-pressed="false">L</button></div>
       <div class="kset__row"><span>MARCA</span><button type="button" class="kset__chip" data-ks="mira" data-v="circulo" aria-pressed="true">MIRA</button><button type="button" class="kset__chip" data-ks="mira" data-v="cuadro" aria-pressed="false">MARCO</button></div>
       <div class="kset__row"><span>CAPA</span><button type="button" class="kset__chip" data-ks="tema" data-v="blanco" aria-pressed="true">BLANCA</button><button type="button" class="kset__chip" data-ks="tema" data-v="carbon" aria-pressed="false">CARBÓN</button></div>
+    </div>
+    <div class="kset__stage" id="ksStage"><canvas id="ksCv" width="1080" height="1920" aria-label="Vista previa"></canvas>
+      <label class="kset__add" id="ksAdd">AGREGA TU SELFIE<small>o elige una foto de tu entrenamiento</small><input type="file" id="ksFoto" accept="image/*"></label>
+      <div class="kset__hint" id="ksHint">TOCA LA FOTO PARA ELEGIR DÓNDE APUNTAR</div>
     </div>
     <div class="kset__acts" id="ksActs"></div>
     <p class="kset__st" id="ksSt" aria-live="polite"></p>
@@ -7317,16 +7345,14 @@ function ksMenu(f, okMsg) {
 }
 // c134 · las tres pestañas tienen COMPARTIR y GUARDAR siempre a la vista (barra fija abajo)
 function ksAcciones(sinFoto) {
-  const a = ksEl('ksActs'), sh = '<button type="button" class="kset__cta" onclick="ksCompartir()">COMPARTIR</button>', gu = '<button type="button" class="kset__sec" onclick="ksGuardarBtn()">GUARDAR</button>';
-  a.innerHTML = sinFoto
-    ? '<label class="kset__cta kset__pick">+ AGREGAR TU FOTO<input type="file" accept="image/*" onchange="ksCargarFoto(this.files&&this.files[0])"></label><button type="button" class="kset__sec" onclick="ksCompartir()">COMPARTIR SIN FOTO</button>' + gu
-    : KS.formato === 'transparente'
-      ? sh + '<button type="button" class="kset__sec" onclick="ksCopiar()">COPIAR STICKER</button>' + gu
-      : KS.fin
-        ? '<button type="button" class="kset__cta" onclick="ksProgreso()">COMPARTIR PROGRESO →</button><button type="button" class="kset__sec kset__wide" onclick="cerrarCompartir()">LISTO</button>'
-      : KS.formato === 'gris'
-        ? sh + gu + '<button type="button" class="kset__sec kset__next" onclick="ksFormato(\'foto\')">SIGUIENTE →</button>'
-        : sh + gu.replace('kset__sec"', 'kset__sec kset__wide"');
+  // c165 · salida directa: HISTORIA DE INSTAGRAM y WHATSAPP (abren el menú del teléfono con la imagen lista); guardar como acción chica
+  const a = ksEl('ksActs'), ig = '<button type="button" class="kset__cta kset__ig" onclick="ksCompartir(\'ig\')"><i aria-hidden="true"></i>HISTORIA DE INSTAGRAM</button>',
+    wa = '<button type="button" class="kset__sec kset__wa" onclick="ksCompartir(\'wa\')">WHATSAPP</button>', gu = '<button type="button" class="kset__mini" onclick="ksGuardarBtn()">GUARDAR EN FOTOS</button>';
+  a.innerHTML = KS.fin
+    ? '<button type="button" class="kset__cta kset__wide" onclick="ksProgreso()">COMPARTIR PROGRESO →</button><button type="button" class="kset__sec kset__wide" onclick="cerrarCompartir()">LISTO</button>'
+    : sinFoto
+      ? '<label class="kset__cta kset__pick kset__wide">+ AGREGAR TU FOTO<input type="file" accept="image/*" onchange="ksCargarFoto(this.files&&this.files[0])"></label>' + ig.replace('kset__cta ', 'kset__sec ') + wa
+      : ig + wa + '<div class="kset__minis">' + (KS.formato === 'transparente' ? '<button type="button" class="kset__mini" onclick="ksCopiar()">COPIAR STICKER</button>' : '') + gu + '</div>';
 }
 function ksProgreso() {   // c159 · del resumen a la galería de plantillas (Editorial · Mapa · Ticket); al elegir, foto y filtros
   KS.fin = false; const o = ksEl('oShare'); o.classList.remove('kset--fin'); o.classList.add('kset--gal'); ksEl('ksGal').hidden = false;
@@ -7360,8 +7386,9 @@ async function ksBlob() {
   const tipo = ksTipo(); return await new Promise((ok, no) => cv.toBlob(b => b ? ok(b) : no(new Error('img')), tipo, .9));
 }
 function ksGuardar(blob) { const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = ksNombre(); document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 4000) }
-async function ksCompartir() {
+async function ksCompartir(dest) {
   if (KSF.busy) return;
+  if (dest === 'ig') ksSt('En el menú elige Instagram → Historia.'); else if (dest === 'wa') ksSt('En el menú elige WhatsApp.');
   const f = ksListo();
   if (f) { if (ksPuedeCompartir(f)) return ksMenu(f); ksGuardar(f); ksSt('Tu navegador no comparte directo: la imagen se descargó.'); return }
   // aún no estaba listo (raro): se genera y se ofrece; algunos iPhone pedirán tocar otra vez
