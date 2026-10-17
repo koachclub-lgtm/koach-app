@@ -6894,7 +6894,7 @@ document.addEventListener('DOMContentLoaded', async ()=>{
 <div class="ks" id="oShare" role="dialog" aria-modal="true" aria-label="Comparte tu logro">
   <div class="kset__box">
     <div class="kset__top"><div><b id="ksTit">COMPARTE TU LOGRO DE HOY</b><small id="ksSub">Te lo mereces. Descarga tu imagen o agrega tu selfie.</small></div><button type="button" class="kset__x" onclick="cerrarCompartir()" aria-label="Cerrar">×</button></div>
-    <div class="kset__seg kset__seg--3" role="group" aria-label="Formato"><button type="button" data-ksf="gris" aria-pressed="false">GRIS</button><button type="button" data-ksf="foto" aria-pressed="true">CON TU FOTO</button><button type="button" data-ksf="transparente" aria-pressed="false">TRANSPARENTE</button></div>
+    <div class="kset__seg kset__seg--3" role="group" aria-label="Formato"><button type="button" data-ksf="gris" aria-pressed="true">SÓLIDO</button><button type="button" data-ksf="foto" aria-pressed="false">CON TU FOTO</button><button type="button" data-ksf="transparente" aria-pressed="false">TRANSPARENTE</button></div>
     <div class="kset__stage" id="ksStage"><canvas id="ksCv" width="1080" height="1920" aria-label="Vista previa"></canvas>
       <label class="kset__add" id="ksAdd">AGREGA TU SELFIE<small>o elige una foto de tu entrenamiento</small><input type="file" id="ksFoto" accept="image/*"></label>
       <div class="kset__hint" id="ksHint">TOCA LA FOTO PARA ELEGIR DÓNDE APUNTAR</div>
@@ -7193,10 +7193,10 @@ function renderSenalador(ctx, d, tema, lado, tam, largo, mira, o) {
 })();
 
 /* Controlador: MOMENTO DE LOGRO (micro-animación) + COMPARTE TU LOGRO (gris · con tu foto · transparente) */
-const KS = { formato: 'foto', estilo: 'editorial', filtro: 'frio', ruta: 'auto', rutaT: 'ELBOW', lado: 'izq', largo: 'media', mira: 'circulo', tema: 'blanco', foto: null, target: null, data: null, desdeCierre: false, cierre: null };
+const KS = { formato: 'gris', estilo: 'editorial', filtro: 'frio', ruta: 'auto', rutaT: 'ELBOW', lado: 'izq', largo: 'media', mira: 'circulo', tema: 'blanco', foto: null, target: null, data: null, desdeCierre: false, cierre: null };
 const ksEl = id => document.getElementById(id);
 function ksSt(t) { ksEl('ksSt').textContent = t || '' }
-async function ksFuentes() { try { await Promise.all(["700 100px 'Inter Display'", "600 100px 'Inter Display'", "700 100px 'Space Mono'", "500 100px 'IBM Plex Mono'"].map(f => document.fonts.load(f))) } catch (_) {} }
+async function ksFuentes() { try { await Promise.all(["700 100px 'Inter Display'", "600 100px 'Inter Display'", "700 100px 'Space Mono'", "500 100px 'IBM Plex Mono'", "900 100px 'KOACH Display'", "800 100px 'KOACH Display'"].map(f => document.fonts.load(f)).concat(document.fonts.load("700 100px 'KOACH Symbols'", '✓'))) } catch (_) {} }
 async function ksCargar() {
   if (KS.data) return KS.data;
   const { data, error } = await sb.rpc('koach_tarjeta_sesion');
@@ -7229,7 +7229,7 @@ function ksPintar() {
   ksEl('ksAdd').hidden = !sinFoto;
   ksEl('ksHint').hidden = !(KS.formato === 'foto' && KS.foto && (KS.estilo === 'senalador' || (KS.estilo === 'mapa' && !KM.hintOff)));
   ksEl('ksHint').textContent = KS.estilo === 'mapa' ? (KM.estado === 'buscando' ? 'UBICANDO TUS MÚSCULOS…' : 'ARRASTRA LOS PUNTOS PARA AJUSTAR') : 'TOCA LA FOTO PARA ELEGIR DÓNDE APUNTAR';
-  if (KS.formato === 'gris' || sinFoto) KT.renderImagen(ctx, d, null);
+  if (KS.formato === 'gris' || sinFoto) kaCaptura(ctx);
   else if (KS.formato === 'foto') {
     if (KS.estilo === 'mapa') { kmAsegurar(); kmRender(ctx) }
     else if (KS.estilo === 'editorial') { kmAsegurar(); kaEditorial(ctx) }
@@ -7273,7 +7273,9 @@ function ksAcciones(sinFoto) {
     ? '<label class="kset__cta kset__pick">+ AGREGAR TU FOTO<input type="file" accept="image/*" onchange="ksCargarFoto(this.files&&this.files[0])"></label><button type="button" class="kset__sec" onclick="ksCompartir()">COMPARTIR SIN FOTO</button>' + gu
     : KS.formato === 'transparente'
       ? sh + '<button type="button" class="kset__sec" onclick="ksCopiar()">COPIAR STICKER</button>' + gu
-      : sh + gu.replace('kset__sec"', 'kset__sec kset__wide"');
+      : KS.formato === 'gris'
+        ? sh + gu + '<button type="button" class="kset__sec kset__next" onclick="ksFormato(\'foto\')">SIGUIENTE →</button>'
+        : sh + gu.replace('kset__sec"', 'kset__sec kset__wide"');
 }
 function ksFormato(f) { KS.formato = f; document.querySelectorAll('[data-ksf]').forEach(x => x.setAttribute('aria-pressed', String(x.dataset.ksf === f))); ksSt(''); ksPintar() }
 function ksSemanaLinea() {
@@ -7283,7 +7285,7 @@ function ksSemanaLinea() {
 }
 async function abrirCompartir(desdeCierre) {
   KS.desdeCierre = !!desdeCierre;
-  ksEl('ksTit').textContent = 'COMPARTE TU LOGRO DE HOY';
+  ksEl('ksTit').textContent = 'COMPARTE TU LOGRO DE HOY'; KS.formato = 'gris'; document.querySelectorAll('[data-ksf]').forEach(x => x.setAttribute('aria-pressed', String(x.dataset.ksf === 'gris')));   // c152 · parte en SÓLIDO; SIGUIENTE lleva a la foto con filtros
   ksEl('oShare').classList.add('vis'); ksSt('Preparando tu tarjeta…');
   try { const j = await ksCargar(); if (!j) { ksSt('Completa una sesión para generar tu tarjeta.'); return } await ksFuentes(); ksPintar(); ksSt('');
     ksEl('ksSem').textContent = ksSemanaLinea() }
@@ -7545,7 +7547,7 @@ function kaLogo(color) {
 }
 function kaRR(ctx, x, y, w, h, r) { ctx.beginPath(); ctx.roundRect ? ctx.roundRect(x, y, w, h, r) : ctx.rect(x, y, w, h) }
 function kaPills(ctx, list, x, y, maxW, o) {   // devuelve la altura usada
-  ctx.font = "500 " + o.size + "px 'IBM Plex Mono', monospace"; if ('letterSpacing' in ctx) ctx.letterSpacing = o.track + 'px';
+  ctx.font = o.font || ("500 " + o.size + "px 'IBM Plex Mono', monospace"); if ('letterSpacing' in ctx) ctx.letterSpacing = o.track + 'px';
   let cx = x, cy = y; const h = o.h, gap = o.gap;
   list.forEach(t => { const tw = ctx.measureText(t).width, w = tw + o.px * 2; if (cx + w > x + maxW && cx > x) { cx = x; cy += h + gap }
     kaRR(ctx, cx, cy, w, h, h / 2); if (o.fill) { ctx.fillStyle = o.fill; ctx.fill() } if (o.stroke) { ctx.lineWidth = o.lw; ctx.strokeStyle = o.stroke; ctx.stroke() }
@@ -7638,6 +7640,68 @@ function kaTicket(ctx) {
   kaBarras(ctx, x1 - 160, y - 52, 160, 60, B, 'K' + d.num);
   kmTxt(ctx, 'Nº ' + d.num, x1, y + 44, 500, 20, 'mono', 3.5, B, 'right');
   ctx.restore();
+}
+/* c152 · SÓLIDO = la pantalla final de la sesión en negro, con estilo de captura (rutina, kilos, sets, tiempo, grupos y bloques) */
+function kcFit(ctx, txt, font, size, min, maxW, maxL) {
+  for (let s = size; s >= min; s -= 4) { ctx.font = font(s); const L = []; let cur = '';
+    txt.split(/\s+/).forEach(w => { const t = cur ? cur + ' ' + w : w; if (ctx.measureText(t).width > maxW && cur) { L.push(cur); cur = w } else cur = t }); if (cur) L.push(cur);
+    if (L.length <= maxL && L.every(l => ctx.measureText(l).width <= maxW)) return { L, s } }
+  ctx.font = font(min); return { L: [txt], s: min };
+}
+function kcCorta(ctx, t, maxW) { if (ctx.measureText(t).width <= maxW) return t; while (t.length > 1 && ctx.measureText(t + '…').width > maxW) t = t.slice(0, -1); return t.replace(/[\s·]+$/, '') + '…' }
+function kaCaptura(ctx) {
+  const W = KT.W, H = KT.H, j = KS.data || {}, d = kaDatos(), M = KS_SAFE_X, CW = W - 2 * M, B = '#F4F5F6', G = '#8E9298', G2 = '#B4B8BE';
+  const DISP = (w, s, st) => w + ' ' + (st || 'semi-expanded') + ' ' + s + "px 'KOACH Display', 'Inter Display', Arial, sans-serif", MONO = s => "700 " + s + "px 'Space Mono', 'KOACH Symbols', 'IBM Plex Mono', monospace";
+  const trk = t => { if ('letterSpacing' in ctx) ctx.letterSpacing = t + 'px' };
+  const txt = (s, x, y, font, color, t, al) => { ctx.font = font; trk(t || 0); ctx.fillStyle = color; ctx.textAlign = al || 'left'; ctx.textBaseline = 'alphabetic'; ctx.fillText(s, x, y); const m = ctx.measureText(s).width; trk(0); return m };
+  // Fondo sólido negro con la luz fría de la app
+  ctx.clearRect(0, 0, W, H); ctx.fillStyle = '#09090A'; ctx.fillRect(0, 0, W, H);
+  const luz = (x, y, r, a) => { const g = ctx.createRadialGradient(x, y, 0, x, y, r); g.addColorStop(0, 'rgba(214,220,228,' + a + ')'); g.addColorStop(1, 'rgba(214,220,228,0)'); ctx.fillStyle = g; ctx.fillRect(0, 0, W, H) };
+  luz(W * .58, H * .27, 620, .13); luz(W * .9, H * .7, 760, .07); luz(W * .1, H * .95, 520, .05);
+  // Cabecera: logo · Nº y fecha
+  let y = KS_SAFE_T;
+  const lg = kaLogo(B); if (lg) ctx.drawImage(lg, M, y, lg.width * 34 / lg.height, 34);
+  txt('Nº ' + d.num + ' · ' + d.fecha, W - M, y + 26, MONO(19), G, 3, 'right');
+  // Kicker + rutina
+  const rut0 = String(j.rutina || 'Sesión'), extra = /^\s*★/.test(rut0), rut = rut0.replace(/^\s*★\s*/, '').toUpperCase();
+  y += 34 + 92;
+  txt(extra ? '★ SESIÓN EXTRA' : String(j.programa || 'KOACH').toUpperCase() + ' · SEMANA ' + (j.semana || 1), M, y, MONO(21), G, 5);
+  const T = kcFit(ctx, rut, s => DISP(900, s), 124, 72, CW, 2);
+  T.L.forEach((l, i) => { y += i ? T.s * .9 : T.s * .92; txt(l, M - 4, y, DISP(900, T.s), B, -T.s * .02) });
+  y += 62; txt('SESIÓN COMPLETA', M, y, MONO(23), G2, 6);
+  // Kilos
+  const ton = Math.round(+j.tonelaje || 0).toLocaleString('es-CL');
+  y += 22 + 196; const wN = txt(ton, M - 6, y, DISP(900, 228), B, -8);
+  txt('KG', M - 6 + wN + 16, y - 6, MONO(34), B, 2);
+  y += 62; txt('MOVIDOS HOY · ' + d.sets + ' SETS' + (d.dur ? ' · ' + d.dur + ' MIN' : ''), M, y, MONO(22), G2, 5);
+  // Grupos trabajados
+  const gs = (j.grupos || []).map(x => String(x.g || '').toUpperCase()).filter(Boolean);
+  y += 40;
+  if (gs.length) y += kaPills(ctx, gs.map(g => g + ' ✓'), M, y, CW, { font: MONO(20), size: 20, track: 4, h: 60, gap: 12, px: 24, stroke: 'rgba(255,255,255,.34)', lw: 2.5, color: B }) + 44;
+  // Bloques
+  const bl = (j.bloques || []).slice(0, 4), fin = H - KS_SAFE_B, gap = 18;
+  if (bl.length) {
+    const bh = Math.max(118, Math.min(176, (fin - y - gap * (bl.length - 1)) / bl.length)), k = bh / 176;
+    bl.forEach((b, i) => {
+      const by = y + i * (bh + gap), bx = M, bw = CW, r = 40 * k + 6;
+      ctx.save(); kaRR(ctx, bx, by, bw, bh, r);
+      const gf = ctx.createLinearGradient(bx, by, bx + bw, by + bh); gf.addColorStop(0, 'rgba(255,255,255,.11)'); gf.addColorStop(.5, 'rgba(255,255,255,.05)'); gf.addColorStop(1, 'rgba(255,255,255,.08)');
+      ctx.fillStyle = gf; ctx.fill(); ctx.lineWidth = 2; ctx.strokeStyle = 'rgba(255,255,255,.17)'; ctx.stroke(); ctx.restore();
+      ctx.save(); kaRR(ctx, bx, by, bw, bh, r); ctx.clip(); ctx.strokeStyle = 'rgba(255,255,255,.32)'; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(bx + r, by + 1); ctx.lineTo(bx + bw - r, by + 1); ctx.stroke(); ctx.restore();
+      const hayEj = bh >= 150 && (b.ej || []).length, px = bx + 36 * k + 8, cy = by + bh / 2, cr = 28 * k + 4, ccx = bx + bw - 34 * k - 8 - cr;
+      txt(String(b.cod || 'B' + (i + 1)), px, (hayEj ? by + 98 * k : cy + 30 * k), DISP(900, Math.round(86 * k)), B, -2);
+      const tx = px + 150 * k + 6, tw = ccx - cr - 24 - tx;
+      const y1 = hayEj ? by + 50 * k : cy - 10 * k, y2 = hayEj ? by + 94 * k : cy + 30 * k;
+      txt('LISTO · ' + Math.round(+b.kg || 0).toLocaleString('es-CL') + ' KG', tx, y1, MONO(Math.round(18 * k + 1)), G, 4);
+      ctx.font = DISP(800, Math.round(34 * k)); txt(kcCorta(ctx, String(b.nom || 'BLOQUE'), tw), tx, y2, DISP(800, Math.round(34 * k)), B, 0);
+      if (hayEj) { const F = "500 " + Math.round(25 * k) + "px 'Inter Display', Inter, Arial, sans-serif"; ctx.font = F;
+        txt(kcCorta(ctx, b.ej.join(' · '), ccx + cr - px), px, by + 142 * k, F, G2, 0) }
+      ctx.beginPath(); ctx.arc(ccx, by + (hayEj ? 62 * k : bh / 2), cr, 0, Math.PI * 2); ctx.fillStyle = B; ctx.fill();
+      const ky = by + (hayEj ? 62 * k : bh / 2), s = cr * .42;
+      ctx.strokeStyle = '#09090A'; ctx.lineWidth = 4.5 * k + 1; ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+      ctx.beginPath(); ctx.moveTo(ccx - s, ky + s * .05); ctx.lineTo(ccx - s * .25, ky + s * .75); ctx.lineTo(ccx + s, ky - s * .6); ctx.stroke();
+    });
+  }
 }
 
 /* ── Micro-secuencia de logro: isotipo → mensaje → eslogan + semana → pantalla de compartir (2,6 s; hitos 3,4 s) ── */
