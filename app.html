@@ -7591,7 +7591,7 @@ function kaTicket(ctx) {
   const W = KT.W, H = KT.H, d = kaDatos(), P = 54, INK = '#121212', MU = '#5E5D59', B = '#FFFFFF';
   ctx.clearRect(0, 0, W, H); ctx.fillStyle = '#9A9DA2'; ctx.fillRect(0, 0, W, H);
   const fo = kaFondo(); if (fo) ctx.drawImage(fo, 0, 0, W, H);
-  const fx = KS_SAFE_X + 30, fy = 150, fw = W - 2 * fx, fh = H - 300, src = kmFoto(), r = Math.max(fw / W, fh / H), sw = fw / r, sh = fh / r;   // c149 · más margen lateral
+  const fx = KS_SAFE_X + 70, fy = 150, fw = W - 2 * fx, fh = H - 300, src = kmFoto(), r = Math.max(fw / W, fh / H), sw = fw / r, sh = fh / r;   // c150 · margen lateral 180
   let sx = (W - sw) / 2, sy = (H - sh) / 2;
   if (KM.focoSrc === KS.foto && KM.foco) { const cv = kmCover(KS.foto), top = cv.oy + KM.foco.top * cv.h, cx = cv.ox + KM.foco.cx * cv.w;
     sx = Math.max(0, Math.min(W - sw, cx - sw / 2)); sy = Math.max(0, Math.min(H - sh, top - sh * .1)) }
@@ -7634,7 +7634,7 @@ function kaTicket(ctx) {
   y += 30; kaPills(ctx, d.pills, x0, y, tw - 2 * tp, { size: 21, track: 2.5, h: 60, gap: 10, px: 19, stroke: 'rgba(255,255,255,.85)', lw: 3, color: B });
   y += pillsH + 36; ctx.save(); ctx.shadowBlur = 0; ctx.setLineDash([9, 9]); ctx.strokeStyle = 'rgba(255,255,255,.4)'; ctx.lineWidth = 3; ctx.beginPath(); ctx.moveTo(x0, y); ctx.lineTo(x1, y); ctx.stroke(); ctx.restore();
   y += 30 + 60; kmTxt(ctx, d.ton + ' KG', x0, y, 700, 60, 'disp', -1.5, B);
-  kmTxt(ctx, 'MOVIDOS HOY · ' + (d.sets || 0) + ' SETS', x0, y + 44, 500, 24, 'mono', 5, MU2);
+  kmTxt(ctx, 'MOVIDOS · ' + (d.sets || 0) + ' SETS', x0, y + 44, 500, 24, 'mono', 5, MU2);
   kaBarras(ctx, x1 - 190, y - 56, 190, 66, B, 'K' + d.num);
   kmTxt(ctx, 'Nº ' + d.num, x1, y + 44, 500, 22, 'mono', 4.5, B, 'right');
   ctx.restore();
