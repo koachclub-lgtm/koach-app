@@ -6900,8 +6900,8 @@ document.addEventListener('DOMContentLoaded', async ()=>{
       <div class="kset__hint" id="ksHint">TOCA LA FOTO PARA ELEGIR DÓNDE APUNTAR</div>
     </div>
     <div class="kset__opts" id="ksOFoto" hidden>
-      <div class="kset__row"><span>ESTILO</span><button type="button" class="kset__chip" data-ks="estilo" data-v="mapa" aria-pressed="true">MAPA</button><button type="button" class="kset__chip" data-ks="estilo" data-v="tarjeta" aria-pressed="false">TARJETA</button><button type="button" class="kset__chip" data-ks="estilo" data-v="senalador" aria-pressed="false">SEÑALADOR</button><label class="kset__chip">CAMBIAR FOTO<input type="file" id="ksFoto2" accept="image/*"></label></div>
-      <div class="kset__row"><span>FILTRO</span><button type="button" class="kset__chip" data-ks="filtro" data-v="frio" aria-pressed="true">DRAMÁTICO FRÍO</button><button type="button" class="kset__chip" data-ks="filtro" data-v="drama" aria-pressed="false">DRAMÁTICO</button><button type="button" class="kset__chip" data-ks="filtro" data-v="plata" aria-pressed="false">PLATA</button><button type="button" class="kset__chip" data-ks="filtro" data-v="color" aria-pressed="false">COLOR</button></div>
+      <div class="kset__row"><span>ESTILO</span><button type="button" class="kset__chip" data-ks="estilo" data-v="editorial" aria-pressed="true">EDITORIAL</button><button type="button" class="kset__chip" data-ks="estilo" data-v="ticket" aria-pressed="false">TICKET</button><button type="button" class="kset__chip" data-ks="estilo" data-v="mapa" aria-pressed="false">MAPA</button><label class="kset__chip">CAMBIAR FOTO<input type="file" id="ksFoto2" accept="image/*"></label></div>
+      <div class="kset__row"><span>FILTRO</span><button type="button" class="kset__chip" data-ks="filtro" data-v="frio" aria-pressed="true">DRAMÁTICO FRÍO</button><button type="button" class="kset__chip" data-ks="filtro" data-v="drama" aria-pressed="false">DRAMÁTICO</button><button type="button" class="kset__chip" data-ks="filtro" data-v="plata" aria-pressed="false">PLATA</button></div>
       <div class="kset__row" data-solo="senalador"><span>RUTA</span><button type="button" class="kset__chip" data-ks="ruta" data-v="auto" aria-pressed="true">AUTO</button><button type="button" class="kset__chip" data-ks="ruta" data-v="DIAG" aria-pressed="false">DIAGONAL</button><button type="button" class="kset__chip" data-ks="ruta" data-v="L" aria-pressed="false">L</button><button type="button" class="kset__chip" data-ks="ruta" data-v="GAMMA" aria-pressed="false">Γ</button><button type="button" class="kset__chip" data-ks="ruta" data-v="ELBOW" aria-pressed="false">CODO</button></div>
       <div class="kset__row" data-solo="senalador"><span>MARCA</span><button type="button" class="kset__chip" data-ks="mira" data-v="circulo" aria-pressed="true">MIRA</button><button type="button" class="kset__chip" data-ks="mira" data-v="cuadro" aria-pressed="false">MARCO</button></div>
     </div>
@@ -7193,10 +7193,10 @@ function renderSenalador(ctx, d, tema, lado, tam, largo, mira, o) {
 })();
 
 /* Controlador: MOMENTO DE LOGRO (micro-animación) + COMPARTE TU LOGRO (gris · con tu foto · transparente) */
-const KS = { formato: 'foto', estilo: 'mapa', filtro: 'frio', ruta: 'auto', rutaT: 'ELBOW', lado: 'izq', largo: 'media', mira: 'circulo', tema: 'blanco', foto: null, target: null, data: null, desdeCierre: false, cierre: null };
+const KS = { formato: 'foto', estilo: 'editorial', filtro: 'frio', ruta: 'auto', rutaT: 'ELBOW', lado: 'izq', largo: 'media', mira: 'circulo', tema: 'blanco', foto: null, target: null, data: null, desdeCierre: false, cierre: null };
 const ksEl = id => document.getElementById(id);
 function ksSt(t) { ksEl('ksSt').textContent = t || '' }
-async function ksFuentes() { try { await Promise.all(["700 100px 'Inter Display'", "600 100px 'Inter Display'", "700 100px 'Space Mono'"].map(f => document.fonts.load(f))) } catch (_) {} }
+async function ksFuentes() { try { await Promise.all(["700 100px 'Inter Display'", "600 100px 'Inter Display'", "700 100px 'Space Mono'", "500 100px 'IBM Plex Mono'"].map(f => document.fonts.load(f))) } catch (_) {} }
 async function ksCargar() {
   if (KS.data) return KS.data;
   const { data, error } = await sb.rpc('koach_tarjeta_sesion');
@@ -7232,6 +7232,8 @@ function ksPintar() {
   if (KS.formato === 'gris' || sinFoto) KT.renderImagen(ctx, d, null);
   else if (KS.formato === 'foto') {
     if (KS.estilo === 'mapa') { kmAsegurar(); kmRender(ctx) }
+    else if (KS.estilo === 'editorial') kaEditorial(ctx);
+    else if (KS.estilo === 'ticket') kaTicket(ctx);
     else if (KS.estilo === 'tarjeta') KT.renderImagen(ctx, d, kmFoto(), { nitida: true });
     else { if (!KS.target) KS.target = ksTargetSugerido(); KT.renderSenalador(ctx, d, 'auto', 'izq', 1, 'media', KS.mira, { fondo: kmFoto(), target: KS.target, ruta: KS.ruta }) }
   } else KT.renderSenalador(ctx, d, KS.tema, KS.lado, 1, KS.largo, KS.mira, { ruta: KS.rutaT });
@@ -7496,6 +7498,93 @@ function kmRender(ctx) {
   const fin = () => { if (KM.drag < 0) return; KM.drag = -1; ksPintar() };
   cv.addEventListener('pointerup', fin); cv.addEventListener('pointercancel', fin);
 })();
+
+/* ══ c138 · PLANTILLAS ELEGIDAS: EDITORIAL (franja) · TICKET (marco acero) · MAPA (señalador). Todas con la foto ya filtrada. ══ */
+function kaDatos() {
+  const j = KS.data || {}, tit = x => String(x || '').toLowerCase().replace(/(^|\s)\S/g, c => c.toUpperCase());
+  const gs = (j.grupos || []).map(x => x.g).filter(Boolean);
+  const pills = (gs.length ? gs : (j.musculos || []).map(m => String(m).toUpperCase().replace('PECTORAL', 'PECHO'))).slice(0, 4);
+  const sets = j.sets || (j.grupos || []).reduce((a, x) => a + (x.sets || 0), 0);
+  const f = j.fecha ? new Date(String(j.fecha).slice(0, 10) + 'T12:00:00') : new Date();
+  return { rut: tit(j.rutina || 'Sesión'), num: String(j.num_sesion || 0).padStart(5, '0'), sem: j.semana || 1, hechas: j.hechas, planif: j.planif,
+    ton: Math.round(+j.tonelaje || 0).toLocaleString('es-CL'), sets, dur: j.duracion_min || 0, pills,
+    fecha: f.getDate() + ' · ' + f.toLocaleDateString('es-CL', { month: 'short' }).replace('.', '').toUpperCase() + ' · ' + f.getFullYear() };
+}
+function kaLogo(color) {
+  const k = 'logo_' + color; if (KM[k]) return KM[k].ok ? KM[k].c : null;
+  const im = new Image(); KM[k] = { ok: false }; im.onload = () => { const c = document.createElement('canvas'); c.width = im.width; c.height = im.height; const x = c.getContext('2d');
+    x.drawImage(im, 0, 0); x.globalCompositeOperation = 'source-in'; x.fillStyle = color; x.fillRect(0, 0, c.width, c.height); KM[k] = { ok: true, c }; ksPintar() };
+  im.src = '/img/brand/logotipo-koach.png'; return null;
+}
+function kaRR(ctx, x, y, w, h, r) { ctx.beginPath(); ctx.roundRect ? ctx.roundRect(x, y, w, h, r) : ctx.rect(x, y, w, h) }
+function kaPills(ctx, list, x, y, maxW, o) {   // devuelve la altura usada
+  ctx.font = "500 " + o.size + "px 'IBM Plex Mono', monospace"; if ('letterSpacing' in ctx) ctx.letterSpacing = o.track + 'px';
+  let cx = x, cy = y; const h = o.h, gap = o.gap;
+  list.forEach(t => { const tw = ctx.measureText(t).width, w = tw + o.px * 2; if (cx + w > x + maxW && cx > x) { cx = x; cy += h + gap }
+    kaRR(ctx, cx, cy, w, h, h / 2); if (o.fill) { ctx.fillStyle = o.fill; ctx.fill() } if (o.stroke) { ctx.lineWidth = o.lw; ctx.strokeStyle = o.stroke; ctx.stroke() }
+    ctx.fillStyle = o.color; ctx.textAlign = 'left'; ctx.textBaseline = 'middle'; ctx.fillText(t, cx + o.px, cy + h / 2 + 1); cx += w + gap });
+  if ('letterSpacing' in ctx) ctx.letterSpacing = '0px'; ctx.textBaseline = 'alphabetic'; return cy + h - y;
+}
+function kaLineas(ctx, txt, size, maxW, maxL) {   // parte el título en líneas; achica si no cabe
+  let s = size; for (; s > 60; s -= 6) { ctx.font = '700 ' + s + "px 'Inter Display', Inter, Arial, sans-serif"; if ('letterSpacing' in ctx) ctx.letterSpacing = (-s * .04) + 'px';
+    const L = []; let cur = ''; txt.split(/\s+/).forEach(w => { const t = cur ? cur + ' ' + w : w; if (ctx.measureText(t).width > maxW && cur) { L.push(cur); cur = w } else cur = t }); if (cur) L.push(cur);
+    if (L.length <= maxL && L.every(l => ctx.measureText(l).width <= maxW)) return { L, s } }
+  return { L: [txt], s };
+}
+function kaBarras(ctx, x, y, w, h, color, seed) {
+  let hs = 0; for (const c of String(seed)) hs = (hs * 31 + c.charCodeAt(0)) >>> 0; ctx.fillStyle = color; let cx = x;
+  while (cx < x + w) { hs = (hs * 1103515245 + 12345) >>> 0; const bw = 3 + (hs >>> 16) % 3 * 3; if (cx + bw > x + w) break; ctx.fillRect(cx, y, bw, h); hs = (hs * 1103515245 + 12345) >>> 0; cx += bw + 3 + (hs >>> 16) % 2 * 3 }
+}
+function kaEditorial(ctx) {
+  const W = KT.W, H = KT.H, d = kaDatos(), M = 66, B = '#FFFFFF', G = '#C9CDD3';
+  ctx.clearRect(0, 0, W, H); ctx.drawImage(kmFoto(), 0, 0);
+  const g = ctx.createLinearGradient(0, 0, 0, H); g.addColorStop(0, 'rgba(18,18,18,.45)'); g.addColorStop(.22, 'rgba(18,18,18,0)'); g.addColorStop(.46, 'rgba(18,18,18,0)'); g.addColorStop(1, 'rgba(18,18,18,.92)');
+  ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
+  const lg = kaLogo('#FFFFFF'); if (lg) ctx.drawImage(lg, M, M, lg.width * 39 / lg.height, 39);
+  kmTxt(ctx, 'SESIÓN Nº ' + d.num, W - M, M + 31, 500, 27, 'mono', 5, B, 'right');
+  // de abajo hacia arriba
+  let y = H - 72; const cw = (W - 2 * M) / 3;
+  [[d.ton, 'KG MOVIDOS'], [String(d.sets || '—'), 'SETS'], [d.dur ? d.dur + "'" : '—', 'DURACIÓN']].forEach(([v, l], i) => {
+    kmTxt(ctx, l, M + i * cw, y, 500, 24, 'mono', 5, G); kmTxt(ctx, v, M + i * cw, y - 46, 700, 66, 'disp', -1.5, B) });
+  y -= 46 + 66 + 36; ctx.save(); ctx.strokeStyle = 'rgba(255,255,255,.3)'; ctx.lineWidth = 3; ctx.beginPath(); ctx.moveTo(M, y); ctx.lineTo(W - M, y); ctx.stroke(); ctx.restore();
+  // pills (se miden primero para saber su alto)
+  const pl = d.pills.map(p => p + ' ✓'), ph = kaPills(document.createElement('canvas').getContext('2d'), pl, 0, 0, W - 2 * M, { size: 25, track: 3.5, h: 72, gap: 18, px: 30, color: B });
+  y -= 36 + ph; kaPills(ctx, pl, M, y, W - 2 * M, { size: 25, track: 3.5, h: 72, gap: 18, px: 30, stroke: 'rgba(255,255,255,.55)', lw: 3, color: B });
+  const T = kaLineas(ctx, d.rut, 156, W - 2 * M, 2); y -= 40;
+  for (let i = T.L.length - 1; i >= 0; i--) { kmTxt(ctx, T.L[i], M - 4, y, 700, T.s, 'disp', -T.s * .04, B); y -= T.s * .95 }
+  kmTxt(ctx, 'SESIÓN COMPLETADA · SEMANA ' + d.sem + (d.planif ? ' · ' + Math.min(d.hechas || 0, d.planif) + '/' + d.planif : ''), M, y - 6, 500, 27, 'mono', 5, G);
+}
+function kaFondo() {
+  if (KM.fondo) return KM.fondo.ok ? KM.fondo.im : null;
+  const u = typeof kbgURL === 'function' ? kbgURL('acero') : ''; KM.fondo = { ok: false }; if (!u) return null;
+  const im = new Image(); im.onload = () => { KM.fondo = { ok: true, im }; ksPintar() }; im.src = u; return null;
+}
+function kaTicket(ctx) {
+  const W = KT.W, H = KT.H, d = kaDatos(), P = 54, INK = '#121212', MU = '#5E5D59';
+  ctx.clearRect(0, 0, W, H); ctx.fillStyle = '#9A9DA2'; ctx.fillRect(0, 0, W, H);
+  const fo = kaFondo(); if (fo) ctx.drawImage(fo, 0, 0, W, H);
+  const lg = kaLogo(INK); if (lg) ctx.drawImage(lg, P + 12, P + 6, lg.width * 36 / lg.height, 36);
+  kmTxt(ctx, d.fecha, W - P - 12, P + 36, 500, 27, 'mono', 5, INK, 'right');
+  // ticket abajo (se arma primero para conocer su alto)
+  const tw = W - 2 * P, tp = 48, pillsH = kaPills(document.createElement('canvas').getContext('2d'), d.pills, 0, 0, tw - 2 * tp, { size: 24, track: 3.5, h: 66, gap: 15, px: 27 });
+  const th = tp + 78 + 30 + pillsH + 36 + 30 + 66 + 48 + tp, ty = H - P - th;
+  // foto enmarcada
+  const fy = P + 36 + 54, fh = ty - 36 - fy, fx = P, fw = tw, src = kmFoto(), r = Math.max(fw / W, fh / H), sw = fw / r, sh = fh / r, sx = (W - sw) / 2, sy = Math.max(0, (H - sh) * .18);
+  ctx.save(); kaRR(ctx, fx, fy, fw, fh, 78); ctx.clip(); ctx.drawImage(src, sx, sy, sw, sh, fx, fy, fw, fh); ctx.restore();
+  ctx.save(); kaRR(ctx, fx, fy, fw, fh, 78); ctx.lineWidth = 3; ctx.strokeStyle = 'rgba(255,255,255,.6)'; ctx.stroke(); ctx.restore();
+  kaPills(ctx, ['SESIÓN COMPLETADA'], fx + 36, fy + 36, fw, { size: 25, track: 4, h: 72, gap: 0, px: 30, fill: 'rgba(244,243,240,.85)', color: INK });
+  // ticket
+  ctx.save(); kaRR(ctx, P, ty, tw, th, 54); ctx.fillStyle = 'rgba(244,243,240,.74)'; ctx.fill(); ctx.lineWidth = 3; ctx.strokeStyle = 'rgba(255,255,255,.75)'; ctx.stroke(); ctx.restore();
+  let y = ty + tp + 64; const x0 = P + tp, x1 = W - P - tp;
+  const T = kaLineas(ctx, d.rut, 78, tw - 2 * tp - 200, 1); kmTxt(ctx, T.L[0], x0, y, 700, T.s, 'disp', -T.s * .03, INK);
+  kmTxt(ctx, 'S' + d.sem + (d.planif ? ' · ' + Math.min(d.hechas || 0, d.planif) + '/' + d.planif : ''), x1, y - 6, 500, 27, 'mono', 4, MU, 'right');
+  y += 30; kaPills(ctx, d.pills, x0, y, tw - 2 * tp, { size: 24, track: 3.5, h: 66, gap: 15, px: 27, stroke: INK, lw: 3, color: INK });
+  y += pillsH + 36; ctx.save(); ctx.setLineDash([9, 9]); ctx.strokeStyle = 'rgba(18,18,18,.35)'; ctx.lineWidth = 3; ctx.beginPath(); ctx.moveTo(x0, y); ctx.lineTo(x1, y); ctx.stroke(); ctx.restore();
+  y += 30 + 60; kmTxt(ctx, d.ton + ' KG', x0, y, 700, 60, 'disp', -1.5, INK);
+  kmTxt(ctx, 'MOVIDOS HOY · ' + (d.sets || 0) + ' SETS', x0, y + 44, 500, 24, 'mono', 5, MU);
+  kaBarras(ctx, x1 - 210, y - 56, 210, 66, INK, 'K' + d.num);
+  kmTxt(ctx, 'SESSION Nº ' + d.num, x1, y + 44, 500, 22, 'mono', 4.5, INK, 'right');
+}
 
 /* ── Micro-secuencia de logro: isotipo → mensaje → eslogan + semana → pantalla de compartir (2,6 s; hitos 3,4 s) ── */
 let _cmT = null, _cmFin = null;
