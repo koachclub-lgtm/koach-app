@@ -2245,6 +2245,22 @@ body.wl-on{overflow:hidden}
 #vLogin{background:#000}
 /* c158 · cierre de sesión: el resumen SÓLIDO a pantalla completa, sin pestañas; COMPARTIR PROGRESO abre el menú con foto y filtros */
 #oShare.kset--fin .kset__seg,#oShare.kset--fin .kset__prog{display:none}
+/* c161 · PR: fondo negro de ondas cromadas que explota en remolino y queda girando; el récord al centro de la pantalla */
+.kxPR__sw{position:absolute;left:50%;top:40%;width:175vmax;height:175vmax;margin:-87.5vmax 0 0 -87.5vmax;pointer-events:none}
+.kxDone--pr.on .kxPR__sw{animation:prSpin 40s 1.5s linear infinite}
+.kxDone--pr .kxPR__bg{inset:0;background-size:cover;background-position:center;opacity:0;transform:scale(3) rotate(-150deg);filter:blur(18px) brightness(2.6)}
+.kxDone--pr.on .kxPR__bg{animation:prBoom 1.5s .05s cubic-bezier(.12,.85,.2,1) both}
+@keyframes prBoom{0%{opacity:0;transform:scale(3.2) rotate(-150deg);filter:blur(22px) brightness(3)}18%{opacity:1}60%{filter:blur(2px) brightness(1.25)}100%{opacity:.92;transform:scale(1) rotate(0);filter:blur(0) brightness(1)}}
+.kxDone--pr .kxPR__rays{top:40%}
+.kxD__in.kxPR{justify-content:center;align-items:center;text-align:center;padding-top:calc(env(safe-area-inset-top,0px) + 190px);padding-bottom:calc(env(safe-area-inset-bottom,0px) + 190px)}
+.kxPR .kxD__top{position:absolute;top:calc(env(safe-area-inset-top,0px) + 22px);left:22px;right:22px;margin:0}
+.kxPR .kxPR__big{justify-content:center}
+.kxPR .kxPR__ring{left:50%}
+.kxPR .kxPR__n{transform-origin:50% 60%}
+.kxPR .kxPR__t{text-align:center}
+.kxPR .kxPR__ah{justify-content:center;align-self:stretch}
+.kxPR .kxPR__bc{position:absolute;left:22px;right:22px;bottom:calc(env(safe-area-inset-bottom,0px) + 104px);margin:0;padding:0}
+.kxPR .kxPR__ok{position:absolute;left:22px;right:22px;bottom:calc(env(safe-area-inset-bottom,0px) + 22px);margin:0;width:auto}
 #oShare.kset--fin .kset__stage{animation:ksFinIn .6s cubic-bezier(.2,.8,.2,1) both}
 @keyframes ksFinIn{from{opacity:0;transform:translateY(18px) scale(.97)}to{opacity:1;transform:none}}
 @media (prefers-reduced-motion:reduce){#oShare.kset--fin .kset__stage{animation:none}}
@@ -2619,7 +2635,6 @@ html:not(:has(#oAct.vis)) #sBloques.locked{filter:none;opacity:1;pointer-events:
 /* c136 · RÉCORD PERSONAL ÉPICO (solo cuando hay PR) */
 .kxDone.kxDone--pr{background:#050506;color:#F4F3F0;overflow:hidden}
 .kxPR__bg{position:absolute;inset:0;background:#050506 center/cover no-repeat;opacity:0;transform:scale(1.15)}
-.kxDone--pr.on .kxPR__bg{animation:prBg 1.6s .1s cubic-bezier(.2,.8,.2,1) both}
 @keyframes prBg{to{opacity:.85;transform:scale(1)}}
 .kxPR__rays{position:absolute;left:50%;top:36%;width:180vmax;height:180vmax;margin:-90vmax 0 0 -90vmax;border-radius:50%;pointer-events:none;opacity:0;
   background:repeating-conic-gradient(from 0deg,rgba(255,255,255,.13) 0deg 4deg,transparent 4deg 18deg);-webkit-mask:radial-gradient(circle,#000 0,rgba(0,0,0,.6) 18%,transparent 52%);mask:radial-gradient(circle,#000 0,rgba(0,0,0,.6) 18%,transparent 52%)}
@@ -3788,7 +3803,7 @@ function kxPR(pr, alFin){ const ov=document.getElementById('kxDone'); if(!ov) re
   const num=dif>0?'+'+String(dif).replace('.',','):'+'+(pr.hoy.reps-pr.antes.reps), uni=dif>0?'KG':'REPS'
   const pal=String(pr.nom||'').toUpperCase().split(/\s+/).filter(Boolean).map((w,i)=>'<span><b style="--i:'+i+'">'+plEscA(w)+'</b></span>').join(' ')
   const bg=(typeof kbgURL==='function'&&kbgURL('cromoN'))||''
-  ov.innerHTML='<div class="kxPR__bg"'+(bg?' style="background-image:url('+bg+')"':'')+'></div><div class="kxPR__rays"></div>'+
+  ov.innerHTML='<div class="kxPR__sw"><div class="kxPR__bg"'+(bg?' style="background-image:'+bg+'"':'')+'></div></div><div class="kxPR__rays"></div>'+
     '<div class="kxD__in kxPR"><div class="kxD__top"><img src="/img/brand/logotipo-koach.png" alt="KOACH"><small>'+new Date().toLocaleDateString('es-CL',{day:'2-digit',month:'short'}).toUpperCase()+'</small></div>'+
     '<span class="kxPR__k">NUEVO RÉCORD PERSONAL</span>'+
     '<div class="kxPR__hero"><i class="kxPR__ring"></i><div class="kxPR__big" style="--n:'+num.length+'"><span class="kxPR__n">'+num+'</span><em>'+uni+'</em></div></div>'+
