@@ -531,6 +531,7 @@ button.bxI:hover,button.bxI:focus-visible{transform:translateY(-2px);box-shadow:
 <script src="/domain/koach-domain.js"></script>
 <script src="/domain/koach-series.js"></script>
 <script src="/domain/program-catalog.js"></script>
+<script src="/domain/koach-composicion.js"></script>
 <script src="/domain/koach-avatar.js"></script>
 <style>
 /* ═══════════ KOACH DS v1.0 · TOKENS + PRIMITIVES (P0) ═══════════ */
@@ -2475,6 +2476,63 @@ html.ks-on.en-crm body{max-width:1280px !important;padding-left:32px !important;
 #vCrm .cr-err small{font:500 11px var(--font-mono);color:var(--koach-text-secondary);overflow-wrap:anywhere}
 #vCrm .cr-empty{font:400 14px var(--font-display);color:var(--koach-text-secondary);padding:10px 2px}
 </style>
+<style>
+/* ═══ c147 · COMPOSICIÓN CORPORAL (ficha del socio) · estética de data: gris, mono, cero sombras ═══ */
+html[data-rol="recepcion"] #fTbCmp{display:none}
+.cmp{--cI:#121212;--cG:#5E5D59;--cL:rgba(18,18,18,.12);--cBg:#F4F3F0;--cS:#2BB3C0;font-variant-numeric:tabular-nums;padding:6px 0 40px}
+.cmp__hd{display:flex;align-items:flex-end;justify-content:space-between;gap:12px;flex-wrap:wrap;margin:6px 0 14px}
+.cmp__k{display:block;font:500 10.5px/1.4 var(--font-mono);letter-spacing:.14em;text-transform:uppercase;color:var(--cG)}
+.cmp__t{margin:4px 0 0;font:800 26px/1 var(--font-display);text-transform:uppercase;letter-spacing:-.005em;color:var(--cI)}
+.cmp__b{min-height:44px;padding:0 18px;border-radius:999px;border:1px solid var(--cI);background:var(--cI);color:var(--cBg);font:500 11.5px var(--font-mono);letter-spacing:.12em;cursor:pointer}
+.cmp__b--l{background:transparent;color:var(--cI);border-color:var(--cL)}
+.cmp__b:disabled{opacity:.45;cursor:default}
+.cmp__kp{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin-bottom:12px}
+@media (max-width:760px){.cmp__kp{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.cmp__tile{background:#fff;border:1px solid var(--cL);border-radius:10px;padding:14px}
+.cmp__tile b{display:block;font:700 30px/1 var(--font-mono);letter-spacing:-.03em;color:var(--cI);margin:6px 0 8px}
+.cmp__tile b i{font-style:normal;font-size:13px;color:var(--cG);margin-left:3px}
+.cmp__d{display:block;font:500 10.5px/1.5 var(--font-mono);letter-spacing:.06em;color:var(--cG)}
+.cmp__d.mejora{color:#1E7F86}.cmp__d.retroceso{color:#9A4A2E}
+.cmp__ch{background:#fff;border:1px solid var(--cL);border-radius:10px;padding:12px 12px 6px;margin-bottom:12px}
+.cmp__ch svg{width:100%;height:auto;display:block}
+.cmp__ln{fill:none;stroke-width:2;stroke-linejoin:round}.cmp__gl{stroke:var(--cL)}.cmp__tx{font:500 9.5px var(--font-mono);fill:var(--cG)}
+.cmp__lg{display:flex;gap:14px;font:500 10px var(--font-mono);letter-spacing:.1em;color:var(--cG);padding:0 2px 6px}
+.cmp__lg span::before{content:'';display:inline-block;width:14px;height:2px;margin-right:6px;vertical-align:middle;background:currentColor}
+.cmp__row{display:grid;grid-template-columns:110px 92px repeat(3,minmax(0,1fr)) auto;align-items:center;gap:10px;padding:12px 14px;background:#fff;border:1px solid var(--cL);border-radius:10px;margin-bottom:6px;font:500 12px var(--font-mono)}
+@media (max-width:760px){.cmp__row{grid-template-columns:1fr 1fr;row-gap:6px}}
+.cmp__row small{display:block;font-size:9.5px;letter-spacing:.1em;color:var(--cG)}
+.cmp__pill{justify-self:start;padding:4px 10px;border-radius:999px;font:500 9.5px var(--font-mono);letter-spacing:.12em;border:1px solid var(--cL);color:var(--cG)}
+.cmp__pill.pub{background:var(--cI);color:var(--cBg);border-color:var(--cI)}
+.cmp__acts{display:flex;gap:6px;justify-content:flex-end;flex-wrap:wrap}
+.cmp__acts button{min-height:36px;padding:0 12px;border-radius:999px;border:1px solid var(--cL);background:transparent;font:500 10.5px var(--font-mono);letter-spacing:.1em;cursor:pointer;color:var(--cI)}
+.cmp__vac{padding:26px 18px;background:#fff;border:1px dashed var(--cL);border-radius:10px;font:400 14px/1.5 var(--font-display);color:var(--cG)}
+/* formulario */
+.cmpF{display:grid;grid-template-columns:minmax(0,1.25fr) minmax(0,1fr);gap:14px;align-items:start}
+@media (max-width:900px){.cmpF{grid-template-columns:1fr}}
+.cmpF__g{background:#fff;border:1px solid var(--cL);border-radius:10px;padding:14px;margin-bottom:10px}
+.cmpF__g h4{margin:0 0 10px;font:500 10.5px var(--font-mono);letter-spacing:.14em;color:var(--cG)}
+.cmpF__g h4 em{font-style:normal;color:var(--cI)}
+.cmpF__f{display:grid;grid-template-columns:repeat(auto-fill,minmax(118px,1fr));gap:8px}
+.cmpF label{display:flex;flex-direction:column;gap:4px;font:500 9.5px var(--font-mono);letter-spacing:.1em;color:var(--cG);text-transform:uppercase}
+.cmpF label.req::after{content:'';}
+.cmpF input,.cmpF select,.cmpF textarea{width:100%;box-sizing:border-box;min-height:42px;padding:8px 10px;border:1px solid var(--cL);border-radius:8px;background:var(--cBg);font:500 15px var(--font-mono);color:var(--cI)}
+.cmpF textarea{min-height:64px;font:400 14px/1.4 var(--font-display);resize:vertical}
+.cmpF input:focus,.cmpF select:focus,.cmpF textarea:focus{outline:2px solid var(--cI);outline-offset:1px}
+.cmpF label.dw{color:var(--cI)}
+.cmpR{position:sticky;top:80px;background:var(--cI);color:var(--cBg);border-radius:10px;padding:16px}
+.cmpR .cmp__k{color:#A7A6A0}
+.cmpR__big{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:10px 0 12px}
+.cmpR__big b{display:block;font:700 34px/1 var(--font-mono);letter-spacing:-.03em}
+.cmpR__big b i{font-style:normal;font-size:14px;color:#A7A6A0;margin-left:3px}
+.cmpR__big small{display:block;font:500 9.5px var(--font-mono);letter-spacing:.12em;color:#A7A6A0;margin-top:4px}
+.cmpR__bar{display:flex;height:10px;border-radius:2px;overflow:hidden;margin:4px 0 6px;background:rgba(244,243,240,.12)}
+.cmpR__bar i{display:block;height:100%}
+.cmpR__tb{width:100%;border-collapse:collapse;font:500 11.5px var(--font-mono)}
+.cmpR__tb td{padding:6px 0;border-top:1px solid rgba(244,243,240,.12)}.cmpR__tb td:last-child{text-align:right}
+.cmpR__av{margin:10px 0 0;padding:10px;border-radius:8px;background:rgba(244,243,240,.08);font:400 12.5px/1.45 var(--font-display);color:#E0DED8}
+.cmpF__acts{display:flex;gap:8px;justify-content:flex-end;flex-wrap:wrap;margin-top:6px}
+.cmp .avErr{display:flex;flex-direction:column;gap:8px;padding:18px;border:1px solid var(--cL);border-radius:10px;background:#fff;font:500 11px var(--font-mono);letter-spacing:.08em}.cmp .avErr button{align-self:flex-start;min-height:40px;padding:0 16px;border-radius:999px;border:1px solid var(--cI);background:var(--cI);color:var(--cBg);font:500 11px var(--font-mono);cursor:pointer}
+</style>
 </head>
 <body>
 <div id="oAuth" role="status" aria-live="polite" style="position:fixed;inset:0;z-index:9999;background:#000;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:22px;padding:env(safe-area-inset-top,0) 24px env(safe-area-inset-bottom,0);font-family:system-ui,-apple-system,sans-serif;color:#fff;text-align:center">
@@ -2600,12 +2658,13 @@ html.ks-on.en-crm body{max-width:1280px !important;padding-left:32px !important;
       </div>
     </div>
     <div class="mh__bar">
-      <nav class="mh__doors" aria-label="Dominios del socio"><button id="fTbEnt" class="on" onclick="fTab('ent')">ENTRENAMIENTO</button><button id="fTbAdm" onclick="fTab('adm')">PERFIL</button><button id="fTbAdh" hidden></button></nav>
+      <nav class="mh__doors" aria-label="Dominios del socio"><button id="fTbEnt" class="on" onclick="fTab('ent')">ENTRENAMIENTO</button><button id="fTbAdm" onclick="fTab('adm')">PERFIL</button><button id="fTbCmp" onclick="fTab('cmp')">COMPOSICIÓN</button><button id="fTbAdh" hidden></button></nav>
       <div class="mh__acc" id="fAccCtx"></div>
     </div>
   </section>
   <div id="fAccBan" aria-live="polite"></div>
   <div id="fTabAdm" style="display:none"></div>
+  <div id="fTabCmp" style="display:none"></div>
   <div id="fTabEnt">
   <div class="fCtx" id="fCtx"></div>
   <div id="fTabAdh" class="fAdhIn" hidden></div>
@@ -3305,7 +3364,7 @@ function verFicha(id, sinRuta){
   const d=F.created_at?new Date(F.created_at):null
   document.getElementById('fNombre').textContent=nomDe(id)
   fichaAvatar()
-  AD.socioTab='ent'; if(document.getElementById('fTabEnt')){ document.getElementById('fTabEnt').style.display=''; document.getElementById('fTabAdm').style.display='none'; document.getElementById('fTabAdh').style.display=''; document.getElementById('fTbEnt').classList.add('on'); document.getElementById('fTbAdm').classList.remove('on'); document.getElementById('fTbAdh').classList.remove('on') }
+  AD.socioTab='ent'; if(document.getElementById('fTabEnt')){ document.getElementById('fTabEnt').style.display=''; document.getElementById('fTabAdm').style.display='none'; document.getElementById('fTabCmp').style.display='none'; document.getElementById('fTbCmp').classList.remove('on'); document.getElementById('fTabAdh').style.display=''; document.getElementById('fTbEnt').classList.add('on'); document.getElementById('fTbAdm').classList.remove('on'); document.getElementById('fTbAdh').classList.remove('on') }
   mhPintar(id); try{ fAdhCargar() }catch(_e){}
   const _mv=admEstadoSocio(F.id)
   document.getElementById('fEstado').textContent=(F.estado==='congelado')?'ACCESO SUSPENDIDO':(_mv.k==='sin'?'SIN MEMBRESÍA':_mv.t)
@@ -5973,10 +6032,12 @@ function fTab(t){
   AD.socioTab=t
   document.getElementById('fTabEnt').style.display=t==='ent'?'':'none'
   document.getElementById('fTabAdm').style.display=t==='adm'?'':'none'
+  document.getElementById('fTabCmp').style.display=t==='cmp'?'':'none'; document.getElementById('fTbCmp').classList.toggle('on',t==='cmp')
   document.getElementById('fTabAdh').style.display=''
   document.getElementById('fTbEnt').classList.toggle('on',t==='ent'); document.getElementById('fTbAdm').classList.toggle('on',t==='adm'); document.getElementById('fTbAdh').classList.toggle('on',t==='adh')
   if (t==='ent'){ const d=document.getElementById('fTabAdh'); if(d) d.hidden=true; fAdhCargar() }
   if (t==='adm') fAdmCargar()
+  if (t==='cmp') fCmpCargar()
   mhAcciones()
 }
 async function fAdmCargar(){
@@ -8573,6 +8634,136 @@ function kShellMenu(){
 }
 document.addEventListener('keydown', function(e){ if(e.key==='Escape' && KS.menu){ KS.menu=null; kShellMenu() } })
 addEventListener('resize', function(){ if(document.documentElement.classList.contains('ks-on')) kShellPaint() })
+// ═══ c147 · COMPOSICIÓN CORPORAL · nutrición registra la evaluación ISAK en la ficha del socio ═══
+// Motor: domain/koach-composicion.js (KC). Lectura: RPC koach_composicion (borradores solo para nutrición/admin).
+// Escritura: tabla evaluaciones_nutricion (RLS: admin + nutricionista). El socio ve SOLO lo publicado, en AVANCES.
+const CMP={ data:null, socio:null, edit:null, form:null }
+const cmpNum=v=>{ if(v==null||v==='') return null; const n=parseFloat(String(v).replace(',','.')); return Number.isFinite(n)?n:null }
+const cmpF1=v=>v==null?'—':(Math.round(+v*10)/10).toFixed(1).replace('.',',')
+const cmpFecha=iso=>{ const M=['ENE','FEB','MAR','ABR','MAY','JUN','JUL','AGO','SEP','OCT','NOV','DIC']; const d=new Date(String(iso).slice(0,10)+'T12:00:00'); return d.getDate()+' '+M[d.getMonth()]+' '+String(d.getFullYear()).slice(2) }
+function cmpEdad(nac, fecha){ if(!nac) return null; const a=new Date(nac+'T12:00:00'), b=new Date((fecha||new Date().toISOString().slice(0,10))+'T12:00:00')
+  let e=b.getFullYear()-a.getFullYear(); if(b.getMonth()<a.getMonth()||(b.getMonth()===a.getMonth()&&b.getDate()<a.getDate())) e--; return e }
+function cmpProg(){ const a=F&&C.asig&&C.asig[F.id]; return String((a&&a.protocolos&&a.protocolos.programa)||'').toUpperCase() }
+async function fCmpCargar(){
+  const box=document.getElementById('fTabCmp'); if(!box||!F) return
+  CMP.socio=F.id; CMP.edit=null; box.innerHTML=kLd('Cargando composición')
+  try{ const { data, error } = await sb.rpc('koach_composicion', { p_socio: F.id }); if(error) throw error
+    if (CMP.socio!==F.id) return; CMP.data=data||{evaluaciones:[]}; fCmpPintar() }
+  catch(e){ console.error('composicion', e)
+    box.innerHTML='<div class="cmp"><div class="avErr"><b>NO PUDIMOS CARGAR LA COMPOSICIÓN</b><span>'+adEsc((e&&e.message)||'Revisa tu conexión.')+'</span><button type="button" onclick="fCmpCargar()">REINTENTAR</button></div></div>' }
+}
+function cmpDelta(c, lado){ if(!c) return ''
+  const v= lado==='ini'? c.vsInicio : c.vsAnterior, t= lado==='ini'? c.tonoInicio : c.tonoAnterior, f= lado==='ini'? c.fechaInicio : c.fechaAnterior
+  if (v==null) return ''
+  return '<span class="cmp__d '+t+'">'+(v>0?'+':v<0?'−':'±')+cmpF1(Math.abs(v))+' VS '+(lado==='ini'?'INICIO':'ANTERIOR')+' · '+cmpFecha(f)+'</span>' }
+function fCmpPintar(){
+  const box=document.getElementById('fTabCmp'), d=CMP.data||{}, evs=d.evaluaciones||[], ed=!!d.puede_editar
+  const pub=evs.filter(e=>e.estado==='publicada'), base= ed ? evs : pub
+  const hd='<div class="cmp__hd"><div><span class="cmp__k">COMPOSICIÓN CORPORAL · ISAK</span><h2 class="cmp__t">'+(evs.length?evs.length+' evaluaci'+(evs.length===1?'ón':'ones'):'Sin evaluaciones')+'</h2></div>'+
+    (ed?'<button type="button" class="cmp__b" onclick="fCmpNueva()">+ NUEVA EVALUACIÓN</button>':'')+'</div>'
+  if (!evs.length){ box.innerHTML='<div class="cmp">'+hd+'<div class="cmp__vac">'+(ed?'Registra la primera evaluación ISAK. Cuando la publiques, el socio la verá en AVANCES → COMPOSICIÓN CORPORAL junto a su progreso de entrenamiento.':'Aún no hay evaluaciones publicadas por nutrición.')+'</div></div>'; return }
+  const ks=[['PESO','peso_kg','kg',0],['% GRASA','porcentaje_grasa','%',-1],['MASA MUSCULAR','masa_muscular_kg','kg',1],['CINTURA','cintura_cm','cm',-1]]
+  const tiles=ks.map(([l,k,u,m])=>{ const c=KC.cambio(base,k,m); return '<div class="cmp__tile"><span class="cmp__k">'+l+'</span><b>'+(c?cmpF1(c.actual)+'<i>'+u+'</i>':'—')+'</b>'+cmpDelta(c,'ant')+cmpDelta(c,'ini')+'</div>' }).join('')
+  const filas=evs.slice().reverse().map(e=>'<div class="cmp__row"><div><small>FECHA</small>'+cmpFecha(e.fecha)+'</div>'+
+    '<span class="cmp__pill'+(e.estado==='publicada'?' pub':'')+'">'+(e.estado==='publicada'?'PUBLICADA':'BORRADOR')+'</span>'+
+    '<div><small>PESO</small>'+cmpF1(e.peso_kg)+' kg</div><div><small>% GRASA</small>'+(e.porcentaje_grasa!=null?cmpF1(e.porcentaje_grasa)+' %':'—')+'</div>'+
+    '<div><small>MÚSCULO</small>'+(e.masa_muscular_kg!=null?cmpF1(e.masa_muscular_kg)+' kg':'—')+'</div>'+
+    (ed?'<div class="cmp__acts"><button type="button" onclick="fCmpEditar(\''+e.id+'\')">EDITAR</button>'+
+      '<button type="button" onclick="fCmpEstado(\''+e.id+'\',\''+(e.estado==='publicada'?'borrador':'publicada')+'\')">'+(e.estado==='publicada'?'RETIRAR':'PUBLICAR')+'</button></div>':'<div></div>')+'</div>').join('')
+  box.innerHTML='<div class="cmp">'+hd+'<div class="cmp__kp">'+tiles+'</div>'+cmpChart(base)+
+    '<span class="cmp__k" style="margin:16px 0 8px">HISTORIAL'+(ed?' · EL SOCIO VE SOLO LAS PUBLICADAS':'')+'</span>'+filas+'</div>'
+}
+// Tendencia: % grasa y masa muscular normalizados a su propio rango (líneas rectas, sin curvas)
+function cmpChart(evs){
+  const g=evs.filter(e=>e.porcentaje_grasa!=null), m=evs.filter(e=>e.masa_muscular_kg!=null)
+  if (Math.max(g.length,m.length)<2) return ''
+  const fechas=[...new Set(evs.map(e=>e.fecha))].sort(), W=640,H=150,L=12,R=12,T=14,B=22
+  const X=f=>L+(fechas.length<2?0:fechas.indexOf(f)*(W-L-R)/(fechas.length-1))
+  const linea=(arr,k,col)=>{ if(arr.length<2) return ''; const vs=arr.map(e=>+e[k]), mn=Math.min(...vs), mx=Math.max(...vs), rg=Math.max(.5,mx-mn)
+    const Y=v=>T+(H-T-B)*(1-(v-mn+rg*.15)/(rg*1.3))
+    return '<polyline class="cmp__ln" stroke="'+col+'" points="'+arr.map(e=>X(e.fecha)+','+Y(+e[k])).join(' ')+'"/>'+
+      arr.map(e=>'<rect x="'+(X(e.fecha)-3.5)+'" y="'+(Y(+e[k])-3.5)+'" width="7" height="7" fill="'+col+'"/><text class="cmp__tx" x="'+X(e.fecha)+'" y="'+(Y(+e[k])-8)+'" text-anchor="middle">'+cmpF1(e[k])+'</text>').join('') }
+  let ax=''; fechas.forEach(f=>{ ax+='<text class="cmp__tx" x="'+X(f)+'" y="'+(H-6)+'" text-anchor="middle">'+cmpFecha(f)+'</text>' })
+  return '<div class="cmp__ch"><div class="cmp__lg"><span style="color:#121212">% GRASA</span><span style="color:#2BB3C0">MASA MUSCULAR (KG)</span></div>'+
+    '<svg viewBox="0 0 '+W+' '+H+'" role="img" aria-label="Tendencia de grasa y masa muscular entre evaluaciones"><line class="cmp__gl" x1="'+L+'" x2="'+(W-R)+'" y1="'+(H-B)+'" y2="'+(H-B)+'"/>'+ax+linea(g,'porcentaje_grasa','#121212')+linea(m,'masa_muscular_kg','#2BB3C0')+'</svg></div>'
+}
+const CMP_PL=[['triceps','TRÍCEPS',1],['biceps','BÍCEPS',1],['subescapular','SUBESCAPULAR',1],['crestaIliaca','CRESTA ILÍACA',1],['supraespinal','SUPRAESPINAL',0],['abdominal','ABDOMINAL',0],['muslo','MUSLO ANTERIOR',0],['pantorrilla','PANTORRILLA MEDIAL',0]]
+const CMP_PE=[['brazo','BRAZO RELAJADO'],['muslo','MUSLO MEDIO'],['pantorrilla','PANTORRILLA MÁX.'],['cintura','CINTURA'],['cadera','CADERA']]
+function fCmpNueva(){ CMP.edit={ id:null, estado:'borrador' }; fCmpForm({}) }
+function fCmpEditar(id){ const e=(CMP.data.evaluaciones||[]).find(x=>x.id===id); if(!e) return; CMP.edit={ id, estado:e.estado }; fCmpForm(e) }
+function fCmpForm(e){
+  const box=document.getElementById('fTabCmp'), inp=KC.deFila(e||{}), hoy=new Date().toISOString().slice(0,10)
+  const fecha=(e&&e.fecha)||hoy, sexo=(e&&e.sexo_eval)||F.sex||'', edad=(e&&e.edad_eval)||cmpEdad(F.fecha_nacimiento, fecha)
+  const ultima=(CMP.data.evaluaciones||[]).slice(-1)[0], talla=inp.talla||(ultima&&ultima.talla_cm)||''
+  const v=x=>x==null?'':String(x).replace('.',',')
+  const campo=(id,lab,val,cls)=>'<label class="'+(cls||'')+'">'+lab+'<input inputmode="decimal" id="'+id+'" value="'+adEsc(v(val))+'" oninput="fCmpCalc()"></label>'
+  box.innerHTML='<div class="cmp"><div class="cmp__hd"><div><span class="cmp__k">'+(CMP.edit.id?'EDITAR EVALUACIÓN':'NUEVA EVALUACIÓN')+' · PERFIL RESTRINGIDO ISAK</span><h2 class="cmp__t">'+adEsc(nomDe(F.id))+'</h2></div>'+
+    '<button type="button" class="cmp__b cmp__b--l" onclick="fCmpPintar()">← VOLVER</button></div>'+
+    '<div class="cmpF"><div>'+
+    '<div class="cmpF__g"><h4>DATOS BASE</h4><div class="cmpF__f"><label>FECHA<input type="date" id="cmFecha" value="'+fecha+'" onchange="fCmpCalc()"></label>'+
+      campo('cmPeso','PESO (KG)',inp.peso,'dw')+campo('cmTalla','TALLA (CM)',talla,'dw')+campo('cmEdad','EDAD',edad,'dw')+
+      '<label class="dw">SEXO<select id="cmSexo" onchange="fCmpCalc()"><option value="">—</option><option value="hombre"'+(sexo==='hombre'?' selected':'')+'>HOMBRE</option><option value="mujer"'+(sexo==='mujer'?' selected':'')+'>MUJER</option></select></label></div></div>'+
+    '<div class="cmpF__g"><h4>PLIEGUES (MM) · <em>EN NEGRO: OBLIGATORIOS PARA % GRASA</em></h4><div class="cmpF__f">'+CMP_PL.map(([k,l,r])=>campo('cmPl_'+k,l,inp.pliegues[k],r?'dw':'')).join('')+'</div></div>'+
+    '<div class="cmpF__g"><h4>PERÍMETROS (CM) · <em>BRAZO, MUSLO Y PANTORRILLA PARA MASA MUSCULAR</em></h4><div class="cmpF__f">'+CMP_PE.map(([k,l],i)=>campo('cmPe_'+k,l,inp.perimetros[k],i<3?'dw':'')).join('')+'</div></div>'+
+    '<div class="cmpF__g"><h4>PAUTA NUTRICIONAL</h4><div class="cmpF__f">'+campo('cmKcal','KCAL / DÍA',e&&e.kcal_objetivo)+campo('cmProt','PROTEÍNA (G)',e&&e.proteina_g)+campo('cmCho','CARBOHIDRATOS (G)',e&&e.carbohidrato_g)+campo('cmGr','GRASAS (G)',e&&e.grasa_g)+
+      '<label>ACTIVIDAD<select id="cmAct"><option value="ligero">LIGERA</option><option value="moderado" selected>MODERADA</option><option value="activo">ALTA</option><option value="muyActivo">MUY ALTA</option></select></label>'+
+      '<label>&nbsp;<button type="button" class="cmp__b cmp__b--l" onclick="fCmpSugerir()">SUGERIR ('+(cmpProg()||'SIN PROGRAMA')+')</button></label></div></div>'+
+    '<div class="cmpF__g"><h4>MENSAJES</h4><div class="cmpF__f" style="grid-template-columns:1fr">'+
+      '<label>NOTA PARA EL SOCIO (LA VE EN SU APP)<textarea id="cmNotaS" maxlength="400">'+adEsc((e&&e.nota_socio)||'')+'</textarea></label>'+
+      '<label>NOTAS INTERNAS (SOLO NUTRICIÓN Y ADMIN)<textarea id="cmNotas">'+adEsc((e&&e.notas)||'')+'</textarea></label></div></div>'+
+    '<div class="cmpF__acts"><button type="button" class="cmp__b cmp__b--l" id="cmGuardar" onclick="fCmpGuardar(\'borrador\')">GUARDAR BORRADOR</button>'+
+      '<button type="button" class="cmp__b" id="cmPublicar" onclick="fCmpGuardar(\'publicada\')">PUBLICAR AL SOCIO</button></div>'+
+    '</div><aside class="cmpR" id="cmRes" aria-live="polite"></aside></div></div>'
+  fCmpCalc()
+}
+function fCmpLeer(){ const g=id=>{ const el=document.getElementById(id); return el?el.value:'' }
+  const pl={}, pe={}; CMP_PL.forEach(([k])=>pl[k]=g('cmPl_'+k)); CMP_PE.forEach(([k])=>pe[k]=g('cmPe_'+k))
+  return { fecha:g('cmFecha'), peso:g('cmPeso'), talla:g('cmTalla'), edad:g('cmEdad'), sexo:g('cmSexo'), pliegues:pl, perimetros:pe } }
+function fCmpCalc(){
+  const el=document.getElementById('cmRes'); if(!el) return
+  const inp=fCmpLeer(), r=KC.calcular(inp); CMP.form={ inp, r }
+  const p=cmpNum(inp.peso)
+  const bar = r.completo ? '<div class="cmpR__bar" role="img" aria-label="Fraccionamiento en cuatro componentes">'+
+      [[r.grasa.kg,'#F4F3F0'],[r.muscular.kg,'#2BB3C0'],[r.osea.kg,'#8A8984'],[r.residual.kg,'#4A4945']].map(([k,c])=>'<i style="width:'+(k/p*100)+'%;background:'+c+'"></i>').join('')+'</div>' : ''
+  const fila=(l,v)=>'<tr><td>'+l+'</td><td>'+v+'</td></tr>'
+  el.innerHTML='<span class="cmp__k">RESULTADO · '+KC.VERSION.toUpperCase()+'</span>'+
+    '<div class="cmpR__big"><div><b>'+(r.grasa.pct!=null?cmpF1(r.grasa.pct)+'<i>%</i>':'—')+'</b><small>GRASA'+(r.grasa.clase?' · '+r.grasa.clase:'')+'</small></div>'+
+    '<div><b>'+(r.muscular.kg!=null?cmpF1(r.muscular.kg)+'<i>kg</i>':'—')+'</b><small>MASA MUSCULAR'+(r.muscular.pct!=null?' · '+cmpF1(r.muscular.pct)+'%':'')+'</small></div></div>'+bar+
+    '<table class="cmpR__tb">'+fila('Masa grasa',r.grasa.kg!=null?cmpF1(r.grasa.kg)+' kg':'—')+fila('Masa ósea (referencial)',r.osea.kg!=null?cmpF1(r.osea.kg)+' kg':'—')+
+      fila('Masa residual',r.residual.kg!=null?cmpF1(r.residual.kg)+' kg':'—')+fila('Σ4 D&W · Σ6 · Σ8',[r.grasa.sum4,r.suma6,r.suma8].map(cmpF1).join(' · ')+' mm')+
+      fila('FFMI (norm. 1,80 m)',r.ffmiNorm!=null?cmpF1(r.ffmiNorm)+(r.ffmiClase?' · '+r.ffmiClase:''):'—')+
+      fila('Índice cintura/talla',r.ict!=null?String(r.ict).replace('.',','):'—')+fila('Índice cintura/cadera',r.icc!=null?String(r.icc).replace('.',','):'—')+
+      fila('Edad biológica',r.edadBiologica!=null?r.edadBiologica+' años':'—')+'</table>'+
+    (r.avisos.length||r.calidad?'<div class="cmpR__av">'+r.avisos.concat(r.calidad?[r.calidad]:[]).map(adEsc).join('<br>')+'</div>':'')
+  const pubOk = p && cmpNum(inp.talla) && (r.grasa.medida || r.muscular.medida)
+  const b=document.getElementById('cmPublicar'); if(b) b.disabled=!pubOk
+  const g=document.getElementById('cmGuardar'); if(g) g.disabled=!p
+}
+function fCmpSugerir(){ const inp=fCmpLeer(), s=KC.sugerirPauta({ peso:inp.peso, talla:inp.talla, edad:inp.edad, sexo:inp.sexo, actividad:document.getElementById('cmAct').value, programa:cmpProg() })
+  if(!s){ toast('Completa peso, talla y edad para sugerir la pauta'); return }
+  ;[['cmKcal',s.kcal],['cmProt',s.proteina_g],['cmCho',s.carbohidrato_g],['cmGr',s.grasa_g]].forEach(([id,v])=>document.getElementById(id).value=v)
+  toast('Pauta sugerida · TDEE '+s.tdee+' kcal. Ajústala si corresponde.') }
+async function fCmpGuardar(estado){
+  if(!CMP.form) fCmpCalc(); const { inp, r } = CMP.form
+  if(!cmpNum(inp.peso)){ toast('Falta el peso'); return }
+  if(estado==='publicada' && !(await kConfirm('¿Publicar esta evaluación? '+nomDe(F.id).split(' ')[0]+' la verá en su app, en AVANCES → COMPOSICIÓN CORPORAL.'))) return
+  const g=id=>document.getElementById(id).value.trim()
+  const fila=Object.assign(KC.aFila(inp, r), { socio_id:F.id, fecha:inp.fecha||new Date().toISOString().slice(0,10), estado,
+    kcal_objetivo: cmpNum(g('cmKcal'))!=null?Math.round(cmpNum(g('cmKcal'))):null, proteina_g:cmpNum(g('cmProt')), carbohidrato_g:cmpNum(g('cmCho')), grasa_g:cmpNum(g('cmGr')),
+    nota_socio: g('cmNotaS')||null, notas: g('cmNotas')||null })
+  ;['cmGuardar','cmPublicar'].forEach(id=>{ const b=document.getElementById(id); if(b) b.disabled=true })
+  const q = CMP.edit&&CMP.edit.id ? sb.from('evaluaciones_nutricion').update(fila).eq('id',CMP.edit.id) : sb.from('evaluaciones_nutricion').insert(fila)
+  const { error } = await q
+  if(error){ console.error('cmp guardar', error); toast('No se pudo guardar: '+(error.message||'error')); fCmpCalc(); return }
+  toast(estado==='publicada'?'Evaluación publicada al socio':'Borrador guardado'); fCmpCargar()
+}
+async function fCmpEstado(id, estado){
+  if(estado==='borrador' && !(await kConfirm('¿Retirar esta evaluación? El socio dejará de verla en su app.'))) return
+  if(estado==='publicada' && !(await kConfirm('¿Publicar esta evaluación al socio?'))) return
+  const { error } = await sb.from('evaluaciones_nutricion').update({ estado }).eq('id', id)
+  if(error){ toast('No se pudo actualizar: '+(error.message||'error')); return }
+  toast(estado==='publicada'?'Publicada':'Retirada del socio'); fCmpCargar()
+}
 </script>
 </body>
 </html>
