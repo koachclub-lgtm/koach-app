@@ -6901,7 +6901,7 @@ document.addEventListener('DOMContentLoaded', async ()=>{
     </div>
     <div class="kset__opts" id="ksOFoto" hidden>
       <div class="kset__row"><span>ESTILO</span><button type="button" class="kset__chip" data-ks="estilo" data-v="mapa" aria-pressed="true">MAPA</button><button type="button" class="kset__chip" data-ks="estilo" data-v="tarjeta" aria-pressed="false">TARJETA</button><button type="button" class="kset__chip" data-ks="estilo" data-v="senalador" aria-pressed="false">SEÑALADOR</button><label class="kset__chip">CAMBIAR FOTO<input type="file" id="ksFoto2" accept="image/*"></label></div>
-      <div class="kset__row" data-solo="mapa"><span>FILTRO</span><button type="button" class="kset__chip" data-ks="filtro" data-v="plata" aria-pressed="true">PLATA</button><button type="button" class="kset__chip" data-ks="filtro" data-v="cromo" aria-pressed="false">CROMO</button><button type="button" class="kset__chip" data-ks="filtro" data-v="grafito" aria-pressed="false">GRAFITO</button><button type="button" class="kset__chip" data-ks="filtro" data-v="color" aria-pressed="false">COLOR</button></div>
+      <div class="kset__row"><span>FILTRO</span><button type="button" class="kset__chip" data-ks="filtro" data-v="frio" aria-pressed="true">DRAMÁTICO FRÍO</button><button type="button" class="kset__chip" data-ks="filtro" data-v="drama" aria-pressed="false">DRAMÁTICO</button><button type="button" class="kset__chip" data-ks="filtro" data-v="plata" aria-pressed="false">PLATA</button><button type="button" class="kset__chip" data-ks="filtro" data-v="color" aria-pressed="false">COLOR</button></div>
       <div class="kset__row" data-solo="senalador"><span>RUTA</span><button type="button" class="kset__chip" data-ks="ruta" data-v="auto" aria-pressed="true">AUTO</button><button type="button" class="kset__chip" data-ks="ruta" data-v="DIAG" aria-pressed="false">DIAGONAL</button><button type="button" class="kset__chip" data-ks="ruta" data-v="L" aria-pressed="false">L</button><button type="button" class="kset__chip" data-ks="ruta" data-v="GAMMA" aria-pressed="false">Γ</button><button type="button" class="kset__chip" data-ks="ruta" data-v="ELBOW" aria-pressed="false">CODO</button></div>
       <div class="kset__row" data-solo="senalador"><span>MARCA</span><button type="button" class="kset__chip" data-ks="mira" data-v="circulo" aria-pressed="true">MIRA</button><button type="button" class="kset__chip" data-ks="mira" data-v="cuadro" aria-pressed="false">MARCO</button></div>
     </div>
@@ -6972,6 +6972,7 @@ function fondoBN(foto) {
 // Foto nítida casi B/N (saturación 15%) para el modo CON TU FOTO
 const NIT_CACHE = { src: null, canvas: null };
 function fotoNitida(foto) {
+  if (foto && foto._kf) return foto;   // c137 · ya viene con el filtro KOACH aplicado (1080×1920)
   if (NIT_CACHE.src === foto && NIT_CACHE.canvas) return NIT_CACHE.canvas;
   const f = document.createElement('canvas'); f.width = W; f.height = H; const x = f.getContext('2d');
   const r = Math.max(W / foto.width, H / foto.height), w = foto.width * r, h = foto.height * r;
@@ -7192,7 +7193,7 @@ function renderSenalador(ctx, d, tema, lado, tam, largo, mira, o) {
 })();
 
 /* Controlador: MOMENTO DE LOGRO (micro-animación) + COMPARTE TU LOGRO (gris · con tu foto · transparente) */
-const KS = { formato: 'foto', estilo: 'mapa', filtro: 'plata', ruta: 'auto', rutaT: 'ELBOW', lado: 'izq', largo: 'media', mira: 'circulo', tema: 'blanco', foto: null, target: null, data: null, desdeCierre: false, cierre: null };
+const KS = { formato: 'foto', estilo: 'mapa', filtro: 'frio', ruta: 'auto', rutaT: 'ELBOW', lado: 'izq', largo: 'media', mira: 'circulo', tema: 'blanco', foto: null, target: null, data: null, desdeCierre: false, cierre: null };
 const ksEl = id => document.getElementById(id);
 function ksSt(t) { ksEl('ksSt').textContent = t || '' }
 async function ksFuentes() { try { await Promise.all(["700 100px 'Inter Display'", "600 100px 'Inter Display'", "700 100px 'Space Mono'"].map(f => document.fonts.load(f))) } catch (_) {} }
@@ -7231,8 +7232,8 @@ function ksPintar() {
   if (KS.formato === 'gris' || sinFoto) KT.renderImagen(ctx, d, null);
   else if (KS.formato === 'foto') {
     if (KS.estilo === 'mapa') { kmAsegurar(); kmRender(ctx) }
-    else if (KS.estilo === 'tarjeta') KT.renderImagen(ctx, d, KS.foto, { nitida: true });
-    else { if (!KS.target) KS.target = ksTargetSugerido(); KT.renderSenalador(ctx, d, 'auto', 'izq', 1, 'media', KS.mira, { fondo: KT.fotoNitida(KS.foto), target: KS.target, ruta: KS.ruta }) }
+    else if (KS.estilo === 'tarjeta') KT.renderImagen(ctx, d, kmFoto(), { nitida: true });
+    else { if (!KS.target) KS.target = ksTargetSugerido(); KT.renderSenalador(ctx, d, 'auto', 'izq', 1, 'media', KS.mira, { fondo: kmFoto(), target: KS.target, ruta: KS.ruta }) }
   } else KT.renderSenalador(ctx, d, KS.tema, KS.lado, 1, KS.largo, KS.mira, { ruta: KS.rutaT });
   ksEl('ksOFoto').hidden = !(KS.formato === 'foto' && KS.foto);
   document.querySelectorAll('#ksOFoto [data-solo]').forEach(r => r.hidden = KS.estilo !== r.dataset.solo);
@@ -7403,11 +7404,28 @@ function kmFoto() {
   const f = KS.foto, key = KS.filtro; if (KM.bn && KM.bnSrc === f && KM.bnKey === key) return KM.bn;
   const W = KT.W, H = KT.H, c = document.createElement('canvas'); c.width = W; c.height = H; const x = c.getContext('2d'), cv = kmCover(f);
   x.drawImage(f, cv.ox, cv.oy, cv.w, cv.h);
-  const F = { plata: [1.12, 1.04, 0], cromo: [1.45, .78, 0], grafito: [.92, .86, .06] }[key];
-  if (F) { const px = x.getImageData(0, 0, W, H), d = px.data, [ct, br, tn] = F;
-    for (let i = 0; i < d.length; i += 4) { let l = (.2126 * d[i] + .7152 * d[i + 1] + .0722 * d[i + 2]) * br; l = (l - 128) * ct + 128; l = l < 0 ? 0 : l > 255 ? 255 : l; d[i] = l + tn * 20; d[i + 1] = l + tn * 10; d[i + 2] = l }
+  if (key === 'plata') { const px = x.getImageData(0, 0, W, H), d = px.data;
+    for (let i = 0; i < d.length; i += 4) { let l = (.2126 * d[i] + .7152 * d[i + 1] + .0722 * d[i + 2]) * 1.04; l = (l - 128) * 1.12 + 128; d[i] = d[i + 1] = d[i + 2] = l < 0 ? 0 : l > 255 ? 255 : l }
     x.putImageData(px, 0, 0) }
+  else if (key === 'frio' || key === 'drama') kmDramatico(x, W, H, key === 'frio');
+  c._kf = true;
   KM.bn = c; KM.bnSrc = f; KM.bnKey = key; return c;
+}
+/* c137 · tonos tipo iPhone "Dramático" y "Dramático frío": color apagado, curva S fuerte, altas luces contenidas,
+   viñeta suave; el frío enfría el balance y mete azul acero en las sombras. LUT de 256 por canal (rápido en el teléfono). */
+function kmDramatico(x, W, H, frio) {
+  const S = frio ? .56 : .66, curva = new Float32Array(256);
+  for (let v = 0; v < 256; v++) { let t = v / 255; t = t < .5 ? .5 * Math.pow(2 * t, 1.42) : 1 - .5 * Math.pow(2 * (1 - t), 1.42); t -= Math.max(0, t - .72) * .38; curva[v] = t * .97 * 255 }
+  const px = x.getImageData(0, 0, W, H), d = px.data;
+  for (let i = 0; i < d.length; i += 4) {
+    const l = .2126 * d[i] + .7152 * d[i + 1] + .0722 * d[i + 2];
+    let r = curva[Math.max(0, Math.min(255, l + (d[i] - l) * S)) | 0], g = curva[Math.max(0, Math.min(255, l + (d[i + 1] - l) * S)) | 0], b = curva[Math.max(0, Math.min(255, l + (d[i + 2] - l) * S)) | 0];
+    if (frio) { const sh = 1 - l / 255; r = r * .92; g = g * .98 + sh * 3; b = b * 1.03 + sh * 16 }
+    else { r = r * 1.01; b = b * .985 }
+    d[i] = r > 255 ? 255 : r; d[i + 1] = g > 255 ? 255 : g; d[i + 2] = b > 255 ? 255 : b }
+  x.putImageData(px, 0, 0);
+  const v = x.createRadialGradient(W / 2, H * .45, H * .28, W / 2, H * .45, H * .78); v.addColorStop(0, 'rgba(0,0,0,0)'); v.addColorStop(1, frio ? 'rgba(4,10,20,.42)' : 'rgba(0,0,0,.4)');
+  x.fillStyle = v; x.fillRect(0, 0, W, H);
 }
 function kmLogo() {
   if (KM.logo) return KM.logo.ok ? KM.logo.c : null;
