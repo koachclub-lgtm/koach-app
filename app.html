@@ -7688,14 +7688,18 @@ function kaCaptura(ctx) {
       const gf = ctx.createLinearGradient(bx, by, bx + bw, by + bh); gf.addColorStop(0, 'rgba(255,255,255,.11)'); gf.addColorStop(.5, 'rgba(255,255,255,.05)'); gf.addColorStop(1, 'rgba(255,255,255,.08)');
       ctx.fillStyle = gf; ctx.fill(); ctx.lineWidth = 2; ctx.strokeStyle = 'rgba(255,255,255,.17)'; ctx.stroke(); ctx.restore();
       ctx.save(); kaRR(ctx, bx, by, bw, bh, r); ctx.clip(); ctx.strokeStyle = 'rgba(255,255,255,.32)'; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(bx + r, by + 1); ctx.lineTo(bx + bw - r, by + 1); ctx.stroke(); ctx.restore();
-      const hayEj = bh >= 150 && (b.ej || []).length, px = bx + 36 * k + 8, cy = by + bh / 2, cr = 28 * k + 4, ccx = bx + bw - 34 * k - 8 - cr;
+      const gB = (b.g || []).map(x => String(x).toUpperCase()), hayEj = bh >= 150 && gB.length, px = bx + 36 * k + 8, cy = by + bh / 2, cr = 28 * k + 4, ccx = bx + bw - 34 * k - 8 - cr;
       txt(String(b.cod || 'B' + (i + 1)), px, (hayEj ? by + 98 * k : cy + 30 * k), DISP(900, Math.round(86 * k)), B, -2);
       const tx = px + 150 * k + 6, tw = ccx - cr - 24 - tx;
       const y1 = hayEj ? by + 50 * k : cy - 10 * k, y2 = hayEj ? by + 94 * k : cy + 30 * k;
       txt('LISTO · ' + Math.round(+b.kg || 0).toLocaleString('es-CL') + ' KG', tx, y1, MONO(Math.round(18 * k + 1)), G, 4);
       ctx.font = DISP(800, Math.round(34 * k)); txt(kcCorta(ctx, String(b.nom || 'BLOQUE'), tw), tx, y2, DISP(800, Math.round(34 * k)), B, 0);
-      if (hayEj) { const F = "500 " + Math.round(25 * k) + "px 'Inter Display', Inter, Arial, sans-serif"; ctx.font = F;
-        txt(kcCorta(ctx, b.ej.join(' · '), ccx + cr - px), px, by + 142 * k, F, G2, 0) }
+      if (hayEj) {   // c153 · qué trabajó el bloque (grupos), no la lista de ejercicios
+        const ph = Math.round(40 * k), pf = MONO(Math.round(15 * k + 1)), pp = 16, lim = ccx + cr; let x = px; ctx.font = pf; trk(3);
+        for (const t of gB) { const w = ctx.measureText(t).width + pp * 2; if (x + w > lim) break;
+          kaRR(ctx, x, by + 118 * k, w, ph, ph / 2); ctx.lineWidth = 2; ctx.strokeStyle = 'rgba(255,255,255,.34)'; ctx.stroke();
+          ctx.fillStyle = G2; ctx.textAlign = 'left'; ctx.textBaseline = 'middle'; ctx.fillText(t, x + pp, by + 118 * k + ph / 2 + 1); x += w + 10 }
+        trk(0); ctx.textBaseline = 'alphabetic' }
       ctx.beginPath(); ctx.arc(ccx, by + (hayEj ? 62 * k : bh / 2), cr, 0, Math.PI * 2); ctx.fillStyle = B; ctx.fill();
       const ky = by + (hayEj ? 62 * k : bh / 2), s = cr * .42;
       ctx.strokeStyle = '#09090A'; ctx.lineWidth = 4.5 * k + 1; ctx.lineCap = 'round'; ctx.lineJoin = 'round';
