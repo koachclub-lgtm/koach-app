@@ -7411,6 +7411,7 @@ function kmFoto() {
     for (let i = 0; i < d.length; i += 4) { let l = (.2126 * d[i] + .7152 * d[i + 1] + .0722 * d[i + 2]) * 1.04; l = (l - 128) * 1.12 + 128; d[i] = d[i + 1] = d[i + 2] = l < 0 ? 0 : l > 255 ? 255 : l }
     x.putImageData(px, 0, 0) }
   else if (key === 'frio' || key === 'drama') kmDramatico(x, W, H, key === 'frio');
+  kmAjuste(x, W, H, KM_CONTRASTE, KM_BRILLO);   // c140 · +10 contraste y +10 brillo sobre todos los filtros
   c._kf = true;
   KM.bn = c; KM.bnSrc = f; KM.bnKey = key; return c;
 }
@@ -7421,6 +7422,11 @@ const KM_EXPO = -1;
 function kmExposicion(x, W, H, ev) {
   if (!ev) return; const k = Math.pow(2, ev), L = new Uint8ClampedArray(256);
   for (let v = 0; v < 256; v++) { const c = v / 255, lin = c <= .04045 ? c / 12.92 : Math.pow((c + .055) / 1.055, 2.4), o = lin * k; L[v] = Math.round((o <= .0031308 ? o * 12.92 : 1.055 * Math.pow(o, 1 / 2.4) - .055) * 255) }
+  const px = x.getImageData(0, 0, W, H), d = px.data; for (let i = 0; i < d.length; i += 4) { d[i] = L[d[i]]; d[i + 1] = L[d[i + 1]]; d[i + 2] = L[d[i + 2]] } x.putImageData(px, 0, 0);
+}
+const KM_CONTRASTE = 1.10, KM_BRILLO = 10;
+function kmAjuste(x, W, H, c, b) {
+  const L = new Uint8ClampedArray(256); for (let v = 0; v < 256; v++) L[v] = Math.round((v - 128) * c + 128 + b);
   const px = x.getImageData(0, 0, W, H), d = px.data; for (let i = 0; i < d.length; i += 4) { d[i] = L[d[i]]; d[i + 1] = L[d[i + 1]]; d[i + 2] = L[d[i + 2]] } x.putImageData(px, 0, 0);
 }
 function kmDramatico(x, W, H, frio) {
