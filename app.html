@@ -7591,7 +7591,7 @@ function kaTicket(ctx) {
   const W = KT.W, H = KT.H, d = kaDatos(), P = 54, INK = '#121212', MU = '#5E5D59', B = '#FFFFFF';
   ctx.clearRect(0, 0, W, H); ctx.fillStyle = '#9A9DA2'; ctx.fillRect(0, 0, W, H);
   const fo = kaFondo(); if (fo) ctx.drawImage(fo, 0, 0, W, H);
-  const fx = KS_SAFE_X + 70, fy = 150, fw = W - 2 * fx, fh = H - 300, src = kmFoto(), r = Math.max(fw / W, fh / H), sw = fw / r, sh = fh / r;   // c150 · margen lateral 180
+  const fx = KS_SAFE_X + 120, fy = 150, fw = W - 2 * fx, fh = H - 300, src = kmFoto(), r = Math.max(fw / W, fh / H), sw = fw / r, sh = fh / r;   // c151 · margen lateral 230
   let sx = (W - sw) / 2, sy = (H - sh) / 2;
   if (KM.focoSrc === KS.foto && KM.foco) { const cv = kmCover(KS.foto), top = cv.oy + KM.foco.top * cv.h, cx = cv.ox + KM.foco.cx * cv.w;
     sx = Math.max(0, Math.min(W - sw, cx - sw / 2)); sy = Math.max(0, Math.min(H - sh, top - sh * .1)) }
@@ -7614,8 +7614,8 @@ function kaTicket(ctx) {
   ctx.save(); ctx.shadowColor = 'rgba(0,0,0,.35)'; ctx.shadowBlur = 12; ctx.font = "700 14px 'Space Mono', 'IBM Plex Mono', monospace"; if ('letterSpacing' in ctx) ctx.letterSpacing = '3px';
   ctx.fillStyle = B; ctx.textAlign = 'right'; ctx.fillText('SESIÓN COMPLETADA', ixr, yCuello + 18); if ('letterSpacing' in ctx) ctx.letterSpacing = '0px'; ctx.restore();
   // c143 · ticket de CRISTAL: foto desenfocada debajo + velo gris leve + brillos de borde, texto blanco (como las tarjetas de logro)
-  const tx = fx + 44, tw = fw - 88, tp = 48, pillsH = kaPills(document.createElement('canvas').getContext('2d'), d.pills, 0, 0, tw - 2 * tp, { size: 21, track: 2.5, h: 60, gap: 10, px: 19 });
-  const th = tp + 78 + 30 + pillsH + 36 + 30 + 66 + 48 + tp, ty = fy + fh - 44 - th;   // c147 · ticket más abajo, mismo respiro que a los lados
+  const tx = fx + 34, tw = fw - 68, tp = 40, pillsH = kaPills(document.createElement('canvas').getContext('2d'), d.pills, 0, 0, tw - 2 * tp, { size: 18, track: 2, h: 54, gap: 8, px: 15 });
+  const th = tp + 78 + 30 + pillsH + 36 + 30 + 66 + 48 + tp, ty = fy + fh - 34 - th;   // c147 · ticket más abajo, mismo respiro que a los lados
   const bl = document.createElement('canvas'), sc = 18; bl.width = Math.ceil(tw / sc); bl.height = Math.ceil(th / sc); const bx = bl.getContext('2d');
   bx.imageSmoothingQuality = 'high'; bx.drawImage(ctx.canvas, tx, ty, tw, th, 0, 0, bl.width, bl.height);
   for (let n = 0; n < 2; n++) { bx.globalAlpha = .5; [[1, 0], [-1, 0], [0, 1], [0, -1]].forEach(([a, b]) => bx.drawImage(bl, a, b)); bx.globalAlpha = 1 }
@@ -7629,14 +7629,14 @@ function kaTicket(ctx) {
   ctx.save(); kaRR(ctx, tx + 1.5, ty + 1.5, tw - 3, th - 3, 58); ctx.clip(); ctx.strokeStyle = 'rgba(255,255,255,.75)'; ctx.lineWidth = 3; ctx.beginPath(); ctx.moveTo(tx + 50, ty + 1.5); ctx.lineTo(tx + tw - 50, ty + 1.5); ctx.stroke(); ctx.restore();
   const MU2 = 'rgba(255,255,255,.78)'; ctx.save(); ctx.shadowColor = 'rgba(20,28,40,.3)'; ctx.shadowBlur = 14;
   let y = ty + tp + 64; const x0 = tx + tp, x1 = tx + tw - tp;
-  const T = kaLineas(ctx, d.rut, 78, tw - 2 * tp - 200, 1); kmTxt(ctx, T.L[0], x0, y, 700, T.s, 'disp', -T.s * .03, B);
-  kmTxt(ctx, 'S' + d.sem + (d.planif ? ' · ' + Math.min(d.hechas || 0, d.planif) + '/' + d.planif : ''), x1, y - 6, 500, 27, 'mono', 4, MU2, 'right');
-  y += 30; kaPills(ctx, d.pills, x0, y, tw - 2 * tp, { size: 21, track: 2.5, h: 60, gap: 10, px: 19, stroke: 'rgba(255,255,255,.85)', lw: 3, color: B });
+  const T = kaLineas(ctx, d.rut, 70, tw - 2 * tp - 170, 1); kmTxt(ctx, T.L[0], x0, y, 700, T.s, 'disp', -T.s * .03, B);
+  kmTxt(ctx, 'S' + d.sem + (d.planif ? ' · ' + Math.min(d.hechas || 0, d.planif) + '/' + d.planif : ''), x1, y - 6, 500, 23, 'mono', 3, MU2, 'right');
+  y += 30; kaPills(ctx, d.pills, x0, y, tw - 2 * tp, { size: 18, track: 2, h: 54, gap: 8, px: 15, stroke: 'rgba(255,255,255,.85)', lw: 3, color: B });
   y += pillsH + 36; ctx.save(); ctx.shadowBlur = 0; ctx.setLineDash([9, 9]); ctx.strokeStyle = 'rgba(255,255,255,.4)'; ctx.lineWidth = 3; ctx.beginPath(); ctx.moveTo(x0, y); ctx.lineTo(x1, y); ctx.stroke(); ctx.restore();
-  y += 30 + 60; kmTxt(ctx, d.ton + ' KG', x0, y, 700, 60, 'disp', -1.5, B);
-  kmTxt(ctx, 'MOVIDOS · ' + (d.sets || 0) + ' SETS', x0, y + 44, 500, 24, 'mono', 5, MU2);
-  kaBarras(ctx, x1 - 190, y - 56, 190, 66, B, 'K' + d.num);
-  kmTxt(ctx, 'Nº ' + d.num, x1, y + 44, 500, 22, 'mono', 4.5, B, 'right');
+  y += 30 + 60; kmTxt(ctx, d.ton + ' KG', x0, y, 700, 54, 'disp', -1.5, B);
+  kmTxt(ctx, 'MOVIDOS · ' + (d.sets || 0) + ' SETS', x0, y + 44, 500, 20, 'mono', 3.5, MU2);
+  kaBarras(ctx, x1 - 160, y - 52, 160, 60, B, 'K' + d.num);
+  kmTxt(ctx, 'Nº ' + d.num, x1, y + 44, 500, 20, 'mono', 3.5, B, 'right');
   ctx.restore();
 }
 
