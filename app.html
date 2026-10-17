@@ -3776,13 +3776,13 @@ function kxTrasSet(b,n,bes,blqFin){ const o=document.getElementById('oBloque'); 
     const p=+f.peso||0, r=parseInt(f.reps)||0; kg+=p*r; if(!rep && p) rep=r+' × '+(p%1?String(p).replace('.',','):p)
     const m=(S.mejores||{})[ej.id]
     if (p>0 && m && (p>m.peso || (p===m.peso && r>m.reps)) && !pr){ pr={ nom:ej.nombre||'Ejercicio', antes:m, hoy:{peso:p,reps:r}, id:ej.id } } })
-  if (pr){ (S._prHoy=S._prHoy||{})[pr.id]=1; S.mejores[pr.id]={ peso:pr.hoy.peso, reps:pr.hoy.reps }; return kxPR(pr) }
+  if (pr){ (S._prHoy=S._prHoy||{})[pr.id]=1; (S._prLista=S._prLista||[]).push(pr); S.mejores[pr.id]={ peso:pr.hoy.peso, reps:pr.hoy.reps }; return kxPR(pr) }
   if (blqFin) return
   const el=document.createElement('div'); el.className='kxSet'; el.setAttribute('role','status'); el.setAttribute('aria-live','polite')
   const segs=Array.from({length:b.sets},(_,i)=>'<i class="'+(bkSetHecho(b,i+1)?'on':'')+'"></i>').join('')
   el.innerHTML='<div><small>'+bkCod(b,BK.bi)+' · SET '+String(n).padStart(2,'0')+' / '+String(b.sets).padStart(2,'0')+'</small><b>Set '+String(n).padStart(2,'0')+' ✓</b>'+(rep?'<em>'+rep+'</em>':'')+'<div class="kxSegs">'+segs+'</div>'+(kg?'<span>'+Math.round(kg).toLocaleString('es-CL')+' KG EN ESTE SET</span>':'')+'</div>'
   o.appendChild(el); requestAnimationFrame(()=>el.classList.add('on')); setTimeout(()=>{ el.classList.remove('on'); setTimeout(()=>el.remove(),400) },1300) }
-function kxPR(pr){ const ov=document.getElementById('kxDone'); if(!ov) return
+function kxPR(pr, alFin){ const ov=document.getElementById('kxDone'); if(!ov) return   // c160 · alFin: al cerrar el récord del cierre sigue al resumen
   // c136 · RÉCORD ÉPICO: cromo negro, rayos, el número entra de golpe (golpe + onda + temblor + flash) y queda con brillo plateado
   const f=x=>(x.peso%1?String(x.peso).replace('.',','):x.peso)+' KG'+(x.reps?' × '+x.reps:''), dif=Math.round((pr.hoy.peso-pr.antes.peso)*10)/10
   const num=dif>0?'+'+String(dif).replace('.',','):'+'+(pr.hoy.reps-pr.antes.reps), uni=dif>0?'KG':'REPS'
@@ -3795,13 +3795,14 @@ function kxPR(pr){ const ov=document.getElementById('kxDone'); if(!ov) return
     '<h2 class="kxPR__t'+(String(pr.nom||'').length>18?' kxPR__t--l':'')+'">'+pal+'</h2>'+
     '<div class="kxPR__ah"><div><span>ANTES</span><b>'+f(pr.antes)+'</b></div><i aria-hidden="true">→</i><div><span>HOY</span><b>'+f(pr.hoy)+'</b></div></div>'+
     '<div class="kxPR__bc">'+barcodeSVG('PR'+String(pr.hoy.peso).replace('.',''),26)+'</div>'+
-    '<button type="button" class="kxBtn kxPR__ok" id="kxPrOk">SEGUIR <i></i></button></div><div class="kxFlash"></div>'
+    '<button type="button" class="kxBtn kxPR__ok" id="kxPrOk">'+(alFin?'VER MI SESIÓN':'SEGUIR')+' <i></i></button></div><div class="kxFlash"></div>'
   ov.classList.add('vis','kxDone--pr'); requestAnimationFrame(()=>requestAnimationFrame(()=>ov.classList.add('on')))
   const RM=matchMedia('(prefers-reduced-motion: reduce)').matches
   ov._g=setTimeout(()=>{ try{ ov.querySelector('.kxFlash').animate([{opacity:.9},{opacity:0}],{duration:520,easing:'ease-out'}) }catch(_){}
     try{ if(navigator.vibrate) navigator.vibrate([35,50,90]) }catch(_){} try{ kHaptic&&kHaptic(30) }catch(_){} }, RM?0:560)
-  const cerrar=()=>{ clearTimeout(ov._t); clearTimeout(ov._g); ov.classList.remove('on'); setTimeout(()=>{ ov.classList.remove('vis','kxDone--pr'); ov.innerHTML='' },380) }
-  document.getElementById('kxPrOk').onclick=cerrar; ov._t=setTimeout(cerrar,7000) }
+  let hecho=false
+  const cerrar=()=>{ if(hecho) return; hecho=true; clearTimeout(ov._t); clearTimeout(ov._g); ov.classList.remove('on'); setTimeout(()=>{ ov.classList.remove('vis','kxDone--pr'); ov.innerHTML=''; if(alFin) try{ alFin() }catch(_){} },380) }
+  document.getElementById('kxPrOk').onclick=cerrar; ov._t=setTimeout(cerrar,alFin?9000:7000) }
 function initSlide(el,onOk){
   const th=el.querySelector('.th'); let sx=null,done=false
   const maxX=()=>el.clientWidth-th.clientWidth-10
@@ -7791,7 +7792,13 @@ function cmSaltar() { if (_cmFin) _cmFin() }
 async function cierreMomento(m) {
   // c158 · RUTINA TERMINADA: el resumen SÓLIDO (kilos, sets, grupos, PR, credencial) a pantalla completa → COMPARTIR PROGRESO
   KS.data = null; KS.cierre = m;
-  try { const pv = document.getElementById('kxDone'); if (pv) { pv.classList.remove('on', 'vis'); pv.innerHTML = '' } } catch (_) {}
+  const pv = document.getElementById('kxDone'); try { if (pv) { clearTimeout(pv._t); clearTimeout(pv._g); pv.classList.remove('on', 'vis', 'kxDone--pr'); pv.innerHTML = '' } } catch (_) {}
+  // c160 · si hubo récord, primero el momento épico de PR (cromo, golpe, flash) y después el resumen
+  let pr = null; const L = S._prLista || []; S._prLista = [];
+  if (L.length) pr = L.slice().sort((a, b) => (b.hoy.peso - b.antes.peso) - (a.hoy.peso - a.antes.peso))[0];
+  else { try { const j = await Promise.race([ksCargar(), new Promise(r => setTimeout(() => r(null), 2500))]); const q = j && j.pr;
+    if (q && q.nueva && +q.kg > 0 && q.antes != null && +q.kg > +q.antes) pr = { nom: q.ejercicio || 'Ejercicio', antes: { peso: +q.antes, reps: 0 }, hoy: { peso: +q.kg, reps: parseInt(q.reps) || 0 } } } catch (_) {} }
+  if (pr) { kxPR(pr, () => abrirCompartir(true, true)); return }
   try { if (navigator.vibrate) navigator.vibrate([20, 30, 60]) } catch (_) {}
   abrirCompartir(true, true);
 }
