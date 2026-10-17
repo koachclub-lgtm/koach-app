@@ -7311,7 +7311,7 @@ function ksPintar() {
   st.classList.toggle('mapa', mapa);
   ksEl('ksAdd').hidden = !sinFoto;
   ksEl('ksHint').hidden = !(KS.formato === 'foto' && KS.foto && (KS.estilo === 'senalador' || (KS.estilo === 'mapa' && !KM.hintOff)));
-  ksEl('ksHint').textContent = KS.estilo === 'mapa' ? (KM.estado === 'buscando' ? 'UBICANDO TUS MÚSCULOS…' : 'ARRASTRA LOS PUNTOS PARA AJUSTAR') : 'TOCA LA FOTO PARA ELEGIR DÓNDE APUNTAR';
+  ksEl('ksHint').textContent = KS.estilo === 'mapa' ? (KM.estado === 'buscando' ? 'UBICANDO TUS MÚSCULOS…' : 'ARRASTRA LA MIRA O LA ETIQUETA') : 'TOCA LA FOTO PARA ELEGIR DÓNDE APUNTAR';
   ksEl('ksOSol').hidden = KS.formato !== 'gris' || KS.fin;
   if (KS.formato === 'gris' || sinFoto) { const fo = KS.formato === 'gris' && KS.foto ? (KS.fondo || 'solido') : 'solido'; if (fo === 'foto') kmAsegurar(); kaCaptura(ctx, false, fo) }
   else if (KS.formato === 'foto') {
@@ -7575,7 +7575,7 @@ function kmRender(ctx) {
   // Miras y etiquetas por columna (derecha / izquierda), sin choques verticales
   const P = (KM.puntos || []).map((p, k) => ({ ...p, k }));
   ['d', 'i'].forEach(lado => {
-    const col = P.filter(p => p.lado === lado).sort((a, b) => a.y - b.y); let ult = -1e9;
+    const col = P.filter(p => p.lado === lado && !p.lab).sort((a, b) => a.y - b.y); let ult = -1e9;
     col.forEach(p => { p.ly = Math.max(p.y, ult + 150, KS_SAFE_T + 120); p.ly = Math.min(p.ly, H - KS_SAFE_B - 300); ult = p.ly });
   });
   ctx.lineWidth = 4.5; ctx.strokeStyle = B; ctx.fillStyle = B; ctx.lineJoin = 'round'; ctx.lineCap = 'round';
@@ -7584,14 +7584,18 @@ function kmRender(ctx) {
     const a = ctx.measureText(KM_NOM[p.g] || p.g).width + 48; if ('letterSpacing' in ctx) ctx.letterSpacing = '0px';
     ctx.font = "700 44px 'Inter Display', Inter, Arial, sans-serif"; p.bw = Math.max(a, p.val ? ctx.measureText(p.val).width : 0) });
   P.forEach(p => {
-    const dir = p.lado === 'd' ? 1 : -1, ly = p.ly, cx = dir > 0 ? Math.min(Math.max(p.x + 90, W - 380), W - M - p.bw - 14) : Math.max(Math.min(p.x - 90, 380), M + p.bw + 14);
-    p.cx = cx; ctx.beginPath(); ctx.moveTo(p.x + dir * 28, p.y); ctx.lineTo(cx - dir * 40, ly); ctx.lineTo(cx, ly); ctx.stroke();
+    // c169 · mira y etiqueta se mueven por separado: si la etiqueta fue arrastrada (p.lab = su centro), queda donde la dejaste y el lado sale de su posición
+    let dir = p.lado === 'd' ? 1 : -1, ly = p.ly, cx = dir > 0 ? Math.min(Math.max(p.x + 90, W - 380), W - M - p.bw - 14) : Math.max(Math.min(p.x - 90, 380), M + p.bw + 14);
+    if (p.lab) { const lx = Math.max(M + p.bw / 2, Math.min(W - M - p.bw / 2, p.lab.x)); ly = Math.max(KS_SAFE_T + 40, Math.min(H - KS_SAFE_B - 300, p.lab.y));
+      dir = lx >= p.x ? 1 : -1; cx = dir > 0 ? lx - p.bw / 2 - 14 : lx + p.bw / 2 + 14 }
+    p.dirL = dir; p.ly = ly; p.cx = cx;
+    if (KM.puntos[p.k]) KM.puntos[p.k].lc = { x: dir > 0 ? cx + 14 + p.bw / 2 : cx - 14 - p.bw / 2, y: ly }; ctx.beginPath(); ctx.moveTo(p.x + dir * 28, p.y); ctx.lineTo(cx - dir * 40, ly); ctx.lineTo(cx, ly); ctx.stroke();
     ctx.beginPath(); ctx.arc(p.x, p.y, 25, 0, Math.PI * 2); ctx.stroke(); ctx.beginPath(); ctx.arc(p.x, p.y, 7.5, 0, Math.PI * 2); ctx.fill();
-    if (KM.drag === p.k) { ctx.save(); ctx.globalAlpha = .35; ctx.beginPath(); ctx.arc(p.x, p.y, 62, 0, Math.PI * 2); ctx.stroke(); ctx.restore() }
+    if (KM.drag === p.k && KM.parte !== 'label') { ctx.save(); ctx.globalAlpha = .35; ctx.beginPath(); ctx.arc(p.x, p.y, 62, 0, Math.PI * 2); ctx.stroke(); ctx.restore() }
   });
   ctx.shadowBlur = 10;
   P.forEach((p, i) => {
-    const dir = p.lado === 'd' ? 1 : -1, nom = KM_NOM[p.g] || p.g, x0 = p.cx + dir * 14, ly = p.ly;
+    const dir = p.dirL || (p.lado === 'd' ? 1 : -1), nom = KM_NOM[p.g] || p.g, x0 = p.cx + dir * 14, ly = p.ly;
     ctx.font = "500 25px 'IBM Plex Mono', monospace"; if ('letterSpacing' in ctx) ctx.letterSpacing = '3.5px';
     const tw = ctx.measureText(nom).width; if ('letterSpacing' in ctx) ctx.letterSpacing = '0px';
     const pw = tw + 48, ph = 54, px = dir > 0 ? x0 : x0 - pw, py = ly - ph / 2;
@@ -7618,16 +7622,23 @@ function kmRender(ctx) {
   const pos = e => { const r = cv.getBoundingClientRect(); return { x: (e.clientX - r.left) / r.width * KT.W, y: (e.clientY - r.top) / r.height * KT.H } };
   const activo = () => KS.formato === 'foto' && KS.foto && KS.estilo === 'mapa' && KM.puntos;
   // c162 · se toma la mira o la etiqueta (pill + valor) con un área generosa para el dedo; se arrastra con el desfase del toque
-  const tomar = q => { let best = -1, bd = 170;
-    KM.puntos.forEach((p, k) => { const d = Math.hypot(p.x - q.x, p.y - q.y); if (d < bd) { bd = d; best = k } });
-    if (best < 0) KM.puntos.forEach((p, k) => { const b = p.box; if (best < 0 && b && q.x > b.x - 30 && q.x < b.x + b.w + 30 && q.y > b.y - 30 && q.y < b.y + b.h + 30) best = k });
-    return best };
+  // c169 · dos asas por señalador: la MIRA (círculo) y la ETIQUETA (pill + valor). Se toma la más cercana al dedo y se mueve sola.
+  const tomar = q => { let best = -1, bd = 1e9, parte = 'punto';
+    KM.puntos.forEach((p, k) => { const d = Math.hypot(p.x - q.x, p.y - q.y); if (d < 120 && d < bd) { bd = d; best = k; parte = 'punto' }
+      const b = p.box; if (b) { const dx = Math.max(b.x - q.x, 0, q.x - (b.x + b.w)), dy = Math.max(b.y - q.y, 0, q.y - (b.y + b.h)), db = Math.hypot(dx, dy);
+        if (db < 30 && db + 20 < bd) { bd = db + 20; best = k; parte = 'label' } } });
+    if (best < 0) KM.puntos.forEach((p, k) => { const d = Math.hypot(p.x - q.x, p.y - q.y); if (d < 170 && d < bd) { bd = d; best = k; parte = 'punto' } });
+    KM.parte = parte; return best };
   cv.addEventListener('touchstart', e => { if (!activo() || !e.touches[0]) return; if (tomar(pos(e.touches[0])) >= 0) e.preventDefault() }, { passive: false });
   cv.addEventListener('touchmove', e => { if (KM.drag >= 0) e.preventDefault() }, { passive: false });
   cv.addEventListener('pointerdown', e => { if (!activo()) return; const q = pos(e), best = tomar(q);
-    if (best < 0) return; const p = KM.puntos[best]; KM.drag = best; KM.off = { x: p.x - q.x, y: p.y - q.y }; KM.hintOff = true; try { cv.setPointerCapture(e.pointerId) } catch (_) {} e.preventDefault(); ksPintar() });
+    if (best < 0) return; const p = KM.puntos[best]; KM.drag = best;
+    if (KM.parte === 'label') { if (!p.lab) p.lab = { ...(p.lc || { x: p.x, y: p.y }) }; KM.off = { x: p.lab.x - q.x, y: p.lab.y - q.y } } else KM.off = { x: p.x - q.x, y: p.y - q.y }; KM.hintOff = true; try { cv.setPointerCapture(e.pointerId) } catch (_) {} e.preventDefault(); ksPintar() });
   cv.addEventListener('pointermove', e => { if (KM.drag < 0) return; const q = pos(e), p = KM.puntos[KM.drag], o = KM.off || { x: 0, y: 0 };
-    p.x = Math.max(30, Math.min(KT.W - 30, q.x + o.x)); p.y = Math.max(KS_SAFE_T + 60, Math.min(KT.H - KS_SAFE_B - 240, q.y + o.y)); e.preventDefault();
+    if (KM.parte === 'label') p.lab = { x: q.x + o.x, y: q.y + o.y };
+    else { if (!p.lab && p.lc) p.lab = { ...p.lc };   // al mover la mira, la etiqueta se queda donde está
+      p.x = Math.max(30, Math.min(KT.W - 30, q.x + o.x)); p.y = Math.max(KS_SAFE_T + 60, Math.min(KT.H - KS_SAFE_B - 240, q.y + o.y)) }
+    e.preventDefault();
     if (!KM.raf) KM.raf = requestAnimationFrame(() => { KM.raf = 0; ksPintar() }) });
   const fin = () => { if (KM.drag < 0) return; KM.drag = -1; ksPintar() };
   cv.addEventListener('pointerup', fin); cv.addEventListener('pointercancel', fin);
