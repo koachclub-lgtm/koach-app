@@ -2243,6 +2243,11 @@ body.wl-on{overflow:hidden}
 .avErr span{font-size:14.5px;color:#5E5D59}
 .avErr button{align-self:flex-start;min-height:44px;padding:0 16px;margin-top:4px;border-radius:12px;border:1px solid #121212;background:#121212;color:#F4F3F0;font-family:var(--font-mono);font-size:12px;letter-spacing:.12em;cursor:pointer}
 #vLogin{background:#000}
+/* c158 · cierre de sesión: el resumen SÓLIDO a pantalla completa, sin pestañas; COMPARTIR PROGRESO abre el menú con foto y filtros */
+#oShare.kset--fin .kset__seg,#oShare.kset--fin .kset__prog{display:none}
+#oShare.kset--fin .kset__stage{animation:ksFinIn .6s cubic-bezier(.2,.8,.2,1) both}
+@keyframes ksFinIn{from{opacity:0;transform:translateY(18px) scale(.97)}to{opacity:1;transform:none}}
+@media (prefers-reduced-motion:reduce){#oShare.kset--fin .kset__stage{animation:none}}
 .wel{position:relative;z-index:1;max-width:520px;margin:0 auto;min-height:100dvh;box-sizing:border-box;display:flex;flex-direction:column;justify-content:space-between;
   padding:calc(env(safe-area-inset-top,0px) + 26px) 8px calc(env(safe-area-inset-bottom,0px) + 18px);transition:opacity .22s ease, transform .22s ease}
 .wel__logo{width:40px;height:auto;display:block;opacity:.96}
@@ -5195,7 +5200,8 @@ function bkPintar(){
   else if (done){ cta='BLOQUE '+String(cod).replace(/^B/,'')+' LISTO ✓'; ctaCls=' bk__cta--sec' }
   else { const _ult=bkSetsHechos(b)>=b.sets-1; cta=_ult?'REGISTRAR ÚLTIMO SET':'REGISTRAR SET '+n; if(_ult) ctaCls=' bk__cta--best' }
   // c70 · bloque completado: se vuelve a la pantalla de la rutina (los tres bloques); el siguiente se inicia desde ahí
-  const sig = done ? '<button type="button" class="bk__cta" onclick="bkCerrar()">'+(()=>{ const bf=S._bfs||[], pr=bkPrimerPendiente(bf); return pr>=0?'COMENZAR '+bkCod(bf[pr],pr)+' →':'TERMINAR SESIÓN →' })()+'</button>' : ''
+  const _pp = bkPrimerPendiente(S._bfs||[])   // c158 · último bloque listo: TERMINAR SESIÓN cierra de inmediato y lleva al resumen
+  const sig = done ? '<button type="button" class="bk__cta" onclick="bkCerrar()'+(_pp<0?';pedirFinal()':'')+'">'+(_pp>=0?'COMENZAR '+bkCod((S._bfs||[])[_pp],_pp)+' →':'TERMINAR SESIÓN →')+'</button>' : ''
   // c65 · lenguaje de estados: BLANCO = entrenamiento · NEGRO = descanso · GO = vuelta al entrenamiento
   const restS = rest ? Math.max(0,Math.ceil((BK.rest.fin-Date.now())/1000)) : 0
   const over = !rest && !done && BK.over && BK.over.bId===b.id && BK.over.regId===S.regId
@@ -5783,6 +5789,7 @@ function contarSets(){
 }
 function pedirFinal(){
   const c=contarSets()
+  if (c.tot>0 && c.hec>=c.tot){ cargando('CERRANDO TU SESIÓN…'); finalizar(); return }   // c158 · sesión completa: sin confirmación
   // c74 · sin series registradas y con menos de 10 min, "completé todo" fabricaba la sesión entera con la prescripción
   const min=S.regInicio ? (Date.now()-S.regInicio)/60000 : 99, corta=(c.hec===0 && min<10)
   document.getElementById('fqTodo').style.display = corta ? 'none' : ''
@@ -7273,25 +7280,31 @@ function ksAcciones(sinFoto) {
     ? '<label class="kset__cta kset__pick">+ AGREGAR TU FOTO<input type="file" accept="image/*" onchange="ksCargarFoto(this.files&&this.files[0])"></label><button type="button" class="kset__sec" onclick="ksCompartir()">COMPARTIR SIN FOTO</button>' + gu
     : KS.formato === 'transparente'
       ? sh + '<button type="button" class="kset__sec" onclick="ksCopiar()">COPIAR STICKER</button>' + gu
+      : KS.fin
+        ? '<button type="button" class="kset__cta" onclick="ksProgreso()">COMPARTIR PROGRESO →</button><button type="button" class="kset__sec kset__wide" onclick="cerrarCompartir()">LISTO</button>'
       : KS.formato === 'gris'
         ? sh + gu + '<button type="button" class="kset__sec kset__next" onclick="ksFormato(\'foto\')">SIGUIENTE →</button>'
         : sh + gu.replace('kset__sec"', 'kset__sec kset__wide"');
 }
+function ksProgreso() {   // c158 · del resumen al menú de compartir: foto, estilos y filtros
+  KS.fin = false; ksEl('oShare').classList.remove('kset--fin'); ksEl('ksTit').textContent = 'COMPARTIR PROGRESO'; ksEl('ksSub').textContent = 'Carga tu foto y elige estilo y filtro.';
+  try { ksEl('oShare').querySelector('.kset__box').scrollTop = 0 } catch (_) {}
+  ksFormato('foto') }
 function ksFormato(f) { KS.formato = f; document.querySelectorAll('[data-ksf]').forEach(x => x.setAttribute('aria-pressed', String(x.dataset.ksf === f))); ksSt(''); ksPintar() }
 function ksSemanaLinea() {
   const j = KS.data || {}, h = j.hechas, p = j.planif; if (!p) return '';
   const f = Math.max(0, p - h);
   return 'Sesión ' + Math.min(h, p) + ' de ' + p + ' · ' + (f ? 'te ' + (f === 1 ? 'falta 1 sesión' : 'faltan ' + f + ' sesiones') + ' para completar tu semana' : 'semana completada ✓');
 }
-async function abrirCompartir(desdeCierre) {
-  KS.desdeCierre = !!desdeCierre;
-  ksEl('ksTit').textContent = 'COMPARTE TU LOGRO DE HOY'; KS.formato = 'gris'; document.querySelectorAll('[data-ksf]').forEach(x => x.setAttribute('aria-pressed', String(x.dataset.ksf === 'gris')));   // c152 · parte en SÓLIDO; SIGUIENTE lleva a la foto con filtros
+async function abrirCompartir(desdeCierre, fin) {
+  KS.desdeCierre = !!desdeCierre; KS.fin = !!fin; ksEl('oShare').classList.toggle('kset--fin', KS.fin);
+  ksEl('ksTit').textContent = KS.fin ? 'SESIÓN COMPLETADA' : 'COMPARTE TU LOGRO DE HOY'; ksEl('ksSub').textContent = KS.fin ? 'Así quedó tu entrenamiento de hoy.' : 'Te lo mereces. Descarga tu imagen o agrega tu selfie.'; KS.formato = 'gris'; document.querySelectorAll('[data-ksf]').forEach(x => x.setAttribute('aria-pressed', String(x.dataset.ksf === 'gris')));   // c152 · parte en SÓLIDO; SIGUIENTE lleva a la foto con filtros
   ksEl('oShare').classList.add('vis'); ksSt('Preparando tu tarjeta…');
   try { const j = await ksCargar(); if (!j) { ksSt('Completa una sesión para generar tu tarjeta.'); return } await ksFuentes(); ksPintar(); ksSt('');
     ksEl('ksSem').textContent = ksSemanaLinea() }
   catch (e) { console.error(e); ksSt('No pudimos cargar los datos de tu sesión. Revisa tu conexión.') }
 }
-function cerrarCompartir() { ksEl('oShare').classList.remove('vis'); if (KS.desdeCierre) { KS.desdeCierre = false; try { entrar() } catch (_) {} } }
+function cerrarCompartir() { KS.fin = false; ksEl('oShare').classList.remove('vis', 'kset--fin'); if (KS.desdeCierre) { KS.desdeCierre = false; try { entrar() } catch (_) {} } }
 function ksVerProgreso() { ksEl('oShare').classList.remove('vis'); KS.desdeCierre = false; try { entrar().then(() => { try { vista('vAvances'); if (typeof loadAvances === 'function') loadAvances() } catch (_) {} }) } catch (_) {} }
 function ksNombre() { const d = KS.data ? ksDatos(KS.data) : { rut: 'sesion' }; return 'koach-' + d.rut.toLowerCase().replace(/[^a-z0-9]+/g, '-') + '-' + KS.formato + (KS.formato === 'transparente' ? '.png' : '.jpg') }
 async function ksBlob() {
@@ -7753,31 +7766,13 @@ function cmMensaje(m, j) {
 }
 function cmSaltar() { if (_cmFin) _cmFin() }
 async function cierreMomento(m) {
-  // c112 · RUTINA TERMINADA: pantalla de luz fría con el ticket de la sesión (kilos, duración, sets, récords). COMPARTIR abre la tarjeta.
+  // c158 · RUTINA TERMINADA: el resumen SÓLIDO (kilos, sets, grupos, PR, credencial) a pantalla completa → COMPARTIR PROGRESO
   KS.data = null; KS.cierre = m;
-  const datosP = ksCargar().catch(() => null);
-  const j = await Promise.race([datosP, new Promise(r => setTimeout(() => r(null), 700))]);
-  const [msg] = cmMensaje(m, j);
-  const c=S._kxCierre||{}, ses=S.sesionAbierta||{}, nom=String(c.nombre||ses.nombre||'Sesión').replace('★ ','')
-  const prs=c.prs||0, num=c.num||'00000', d=new Date()
-  const mes=['ENE','FEB','MAR','ABR','MAY','JUN','JUL','AGO','SEP','OCT','NOV','DIC'][d.getMonth()]
-  const ov=document.getElementById('kxDone')
-  ov.innerHTML='<div class="kxD__in"><div class="kxD__top"><img src="/img/brand/logotipo-koach.png" alt="KOACH"><small>SESSION Nº '+num+' · DONE</small></div>'+
-    '<span class="kxD__k">'+plEscA(/LOGRASTE|SUMASTE|CUMPLIDO/.test(msg)?'SESIÓN COMPLETADA':msg.replace(/\.$/,''))+'</span>'+
-    '<h2 class="kxD__t">'+plEscA(nom)+'<br>done.</h2>'+
-    '<div class="kxCard kxD__tk"><div class="kxCard__r"><span>'+String(d.getDate()).padStart(2,'0')+' '+mes+' '+d.getFullYear()+'</span><span>'+plEscA(String((S.proto&&S.proto.programa)||'KOACH').toUpperCase())+'</span></div>'+
-      '<div class="kxCard__t">Session Nº '+num+'</div><div class="kxCard__g"><div><span>KG MOVIDOS</span><b data-kx="'+(c.kg||0)+'">0</b></div><div><span>DURACIÓN</span><b>'+(c.dur||'—')+'</b></div>'+
-      '<div><span>SETS</span><b>'+(c.sets||0)+'/'+(c.setsTot||0)+'</b></div><div><span>RÉCORDS</span><b>'+prs+'</b></div></div>'+
-      '<div class="kxCard__bc">'+barcodeSVG(num,34)+'</div><div class="kxCard__n">'+num+'-'+String(d.getDate()).padStart(2,'0')+String(d.getMonth()+1).padStart(2,'0')+'</div></div>'+
-    '<button type="button" class="kxBtn kxBtn--dk" id="kxDShare">COMPARTIR <i></i></button><button type="button" class="kxBtn kxBtn--gh" id="kxDOk">CONTINUAR</button></div><div class="kxFlash"></div>'
-  ov.classList.add('vis'); requestAnimationFrame(()=>requestAnimationFrame(()=>ov.classList.add('on')))
-  ov.querySelector('.kxFlash').animate([{opacity:1},{opacity:0}],{duration:700,easing:'ease-out'})
-  kxContar(ov.querySelector('[data-kx]'))
-  try { if (navigator.vibrate) navigator.vibrate([20,30,60]) } catch (_) {}
-  const cerrar=()=>{ ov.classList.remove('on'); setTimeout(()=>{ ov.classList.remove('vis'); ov.innerHTML='' },380) }
-  document.getElementById('kxDShare').onclick=()=>{ cerrar(); abrirCompartir(true) }
-  document.getElementById('kxDOk').onclick=()=>{ cerrar(); try{ entrar() }catch(_){} }
+  try { const pv = document.getElementById('kxDone'); if (pv) { pv.classList.remove('on', 'vis'); pv.innerHTML = '' } } catch (_) {}
+  try { if (navigator.vibrate) navigator.vibrate([20, 30, 60]) } catch (_) {}
+  abrirCompartir(true, true);
 }
+
 </script>
 </body>
 </html>
