@@ -7598,7 +7598,9 @@ function kaTicket(ctx) {
   const ix = fx + 48, ixr = fx + fw - 48;
   const lg = kaLogo(B); if (lg) ctx.drawImage(lg, ix, KS_SAFE_T, lg.width * 36 / lg.height, 36);
   kmTxt(ctx, d.fecha, ixr, KS_SAFE_T + 33, 500, 26, 'mono', 5, B, 'right');
-  kaPills(ctx, ['SESIÓN COMPLETADA'], ix, KS_SAFE_T + 78, fw, { size: 24, track: 4, h: 66, gap: 0, px: 27, fill: 'rgba(244,243,240,.88)', color: INK });
+  // c144 · 'SESIÓN COMPLETADA' como dato en Space Mono, sin pill
+  ctx.save(); ctx.shadowColor = 'rgba(0,0,0,.35)'; ctx.shadowBlur = 12; ctx.font = "700 26px 'Space Mono', 'IBM Plex Mono', monospace"; if ('letterSpacing' in ctx) ctx.letterSpacing = '6px';
+  ctx.fillStyle = B; ctx.textAlign = 'left'; ctx.fillText('SESIÓN COMPLETADA', ix, KS_SAFE_T + 104); if ('letterSpacing' in ctx) ctx.letterSpacing = '0px'; ctx.restore();
   // c143 · ticket de CRISTAL: foto desenfocada debajo + velo gris leve + brillos de borde, texto blanco (como las tarjetas de logro)
   const tx = fx + 30, tw = fw - 60, tp = 48, pillsH = kaPills(document.createElement('canvas').getContext('2d'), d.pills, 0, 0, tw - 2 * tp, { size: 24, track: 3.5, h: 66, gap: 15, px: 27 });
   const th = tp + 78 + 30 + pillsH + 36 + 30 + 66 + 48 + tp, ty = H - KS_SAFE_B - th;
