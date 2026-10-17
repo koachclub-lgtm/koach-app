@@ -7567,8 +7567,8 @@ function kmRender(ctx) {
   let g = ctx.createLinearGradient(0, 0, 0, H); g.addColorStop(0, 'rgba(18,18,18,.42)'); g.addColorStop(.17, 'rgba(18,18,18,0)'); g.addColorStop(.6, 'rgba(18,18,18,0)'); g.addColorStop(1, 'rgba(18,18,18,.88)');
   ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
   ctx.save(); ctx.shadowColor = 'rgba(0,0,0,.4)'; ctx.shadowBlur = 18;
-  const lg = kmLogo(); if (lg) { const h = 36, w = lg.width * h / lg.height; ctx.drawImage(lg, M, KS_SAFE_T, w, h) }
-  kmTxt(ctx, 'SESIÓN Nº ' + String(j.num_sesion || 0).padStart(5, '0'), W - M, KS_SAFE_T + 30, 500, 27, 'mono', 5, B, 'right');
+  const lg = kmLogo(); if (lg) { const h = 36, w = lg.width * h / lg.height; ctx.drawImage(lg, M, KS_SAFE_T - 60, w, h) }   // c167 · logo más arriba
+  kmTxt(ctx, 'SESIÓN Nº ' + String(j.num_sesion || 0).padStart(5, '0'), W - M, KS_SAFE_T - 30, 500, 27, 'mono', 5, B, 'right');
   // Miras y etiquetas por columna (derecha / izquierda), sin choques verticales
   const P = (KM.puntos || []).map((p, k) => ({ ...p, k }));
   ['d', 'i'].forEach(lado => {
@@ -7671,8 +7671,8 @@ function kaEditorial(ctx) {
   ctx.clearRect(0, 0, W, H); ctx.drawImage(kmFoto(), 0, 0);
   const g = ctx.createLinearGradient(0, 0, 0, H); g.addColorStop(0, 'rgba(18,18,18,.5)'); g.addColorStop(.26, 'rgba(18,18,18,0)'); g.addColorStop(.38, 'rgba(18,18,18,0)'); g.addColorStop(.8, 'rgba(18,18,18,.85)'); g.addColorStop(1, 'rgba(18,18,18,.92)');
   ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
-  const lg = kaLogo('#FFFFFF'); if (lg) ctx.drawImage(lg, M, KS_SAFE_T, lg.width * 39 / lg.height, 39);
-  kmTxt(ctx, 'SESIÓN Nº ' + d.num, W - M, KS_SAFE_T + 31, 500, 27, 'mono', 5, B, 'right');
+  const lg = kaLogo('#FFFFFF'); if (lg) ctx.drawImage(lg, M, KS_SAFE_T - 60, lg.width * 39 / lg.height, 39);   // c167 · logo más arriba
+  kmTxt(ctx, 'SESIÓN Nº ' + d.num, W - M, KS_SAFE_T - 29, 500, 27, 'mono', 5, B, 'right');
   // de abajo hacia arriba, sobre la zona segura inferior
   let y = H - KS_SAFE_B; const cw = (W - 2 * M) / 3;
   [[d.ton, 'KG MOVIDOS'], [String(d.sets || '—'), 'SETS'], [d.dur ? d.dur + "'" : '—', 'DURACIÓN']].forEach(([v, l], i) => {
@@ -7714,7 +7714,7 @@ function kaTicket(ctx) {
     if (ojos.length && hombros.length) yCuello = yOjos + (hombros.reduce((a, b) => a + b) / hombros.length - yOjos) * .6;
     if (yOjos > fy + fh * .32 || yOjos < fy + 60) { yOjos = fy + 96; yCuello = fy + 176 }   // c164 · cara tapada o muy abajo (selfie al espejo): logo arriba, no a media foto
     yCuello = Math.max(yOjos + 50, Math.min(yOjos + 160, yCuello)) }
-  const lg = kaLogo(B); if (lg) ctx.drawImage(lg, ix, yOjos - 18, lg.width * 36 / lg.height, 36);
+  const lg = kaLogo(B); if (lg) ctx.drawImage(lg, ix, Math.max(fy + 36, yOjos - 58), lg.width * 36 / lg.height, 36);   // c167 · logo levemente más arriba
   kmTxt(ctx, d.fecha, ixr, yCuello - 6, 500, 14, 'mono', 3, 'rgba(255,255,255,.9)', 'right');   // dato mínimo al costado
   // c144 · 'SESIÓN COMPLETADA' como dato en Space Mono, sin pill
   ctx.save(); ctx.shadowColor = 'rgba(0,0,0,.35)'; ctx.shadowBlur = 12; ctx.font = "700 14px 'Space Mono', 'IBM Plex Mono', monospace"; if ('letterSpacing' in ctx) ctx.letterSpacing = '3px';
