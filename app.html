@@ -7363,7 +7363,7 @@ function kmGrupos() {
 // Foto (normalizada) → coordenadas de la tarjeta 1080×1920 (recorte cover)
 /* c141 · recorte 9:16 inteligente: si la foto no es 9:16, el recorte se centra en la persona (detección de cuerpo) y no le corta la cabeza.
    Zonas seguras de historias: arriba 250 px y abajo 340 px libres de texto (barra de perfil y de respuesta de Instagram). */
-const KS_SAFE_T = 250, KS_SAFE_B = 250;   // guía de Meta: ~14 % libre arriba y abajo
+const KS_SAFE_T = 250, KS_SAFE_B = 250, KS_SAFE_X = 110;   // c146 · en pantallas más altas que 9:16 Instagram recorta los costados (~100 px)   // guía de Meta: ~14 % libre arriba y abajo
 function kmCover(f) { const W = KT.W, H = KT.H, r = Math.max(W / f.width, H / f.height), w = f.width * r, h = f.height * r, F = KM.focoSrc === f ? KM.foco : null;
   const cl = (v, lo, hi) => Math.max(lo, Math.min(hi, v));
   const ox = F && w > W + 1 ? cl(W / 2 - F.cx * w, W - w, 0) : (W - w) / 2, oy = F && h > H + 1 ? cl(H * .1 - F.top * h, H - h, 0) : (h > H + 1 ? 0 : (H - h) / 2);
@@ -7464,7 +7464,7 @@ function kmTxt(ctx, s, x, y, w, size, fam, track, color, align) {
   const m = ctx.measureText(s).width; if ('letterSpacing' in ctx) ctx.letterSpacing = '0px'; return m;
 }
 function kmRender(ctx) {
-  const W = KT.W, H = KT.H, j = KS.data || {}, M = 66, B = '#FFFFFF';
+  const W = KT.W, H = KT.H, j = KS.data || {}, M = KS_SAFE_X, B = '#FFFFFF';
   ctx.clearRect(0, 0, W, H); ctx.fillStyle = '#121212'; ctx.fillRect(0, 0, W, H);
   ctx.drawImage(kmFoto(), 0, 0);
   let g = ctx.createLinearGradient(0, 0, 0, H); g.addColorStop(0, 'rgba(18,18,18,.42)'); g.addColorStop(.17, 'rgba(18,18,18,0)'); g.addColorStop(.6, 'rgba(18,18,18,0)'); g.addColorStop(1, 'rgba(18,18,18,.88)');
@@ -7479,8 +7479,12 @@ function kmRender(ctx) {
     col.forEach(p => { p.ly = Math.max(p.y, ult + 150, KS_SAFE_T + 120); p.ly = Math.min(p.ly, H - KS_SAFE_B - 300); ult = p.ly });
   });
   ctx.lineWidth = 4.5; ctx.strokeStyle = B; ctx.fillStyle = B; ctx.lineJoin = 'round'; ctx.lineCap = 'round';
+  P.forEach(p => {   // ancho de cada etiqueta (pill y valor) para que nunca pase el margen lateral seguro
+    ctx.font = "500 25px 'IBM Plex Mono', monospace"; if ('letterSpacing' in ctx) ctx.letterSpacing = '3.5px';
+    const a = ctx.measureText(KM_NOM[p.g] || p.g).width + 48; if ('letterSpacing' in ctx) ctx.letterSpacing = '0px';
+    ctx.font = "700 44px 'Inter Display', Inter, Arial, sans-serif"; p.bw = Math.max(a, p.val ? ctx.measureText(p.val).width : 0) });
   P.forEach(p => {
-    const dir = p.lado === 'd' ? 1 : -1, cx = dir > 0 ? Math.max(p.x + 90, W - 330) : Math.min(p.x - 90, 330), ly = p.ly;
+    const dir = p.lado === 'd' ? 1 : -1, ly = p.ly, cx = dir > 0 ? Math.min(Math.max(p.x + 90, W - 380), W - M - p.bw - 14) : Math.max(Math.min(p.x - 90, 380), M + p.bw + 14);
     p.cx = cx; ctx.beginPath(); ctx.moveTo(p.x + dir * 28, p.y); ctx.lineTo(cx - dir * 40, ly); ctx.lineTo(cx, ly); ctx.stroke();
     ctx.beginPath(); ctx.arc(p.x, p.y, 25, 0, Math.PI * 2); ctx.stroke(); ctx.beginPath(); ctx.arc(p.x, p.y, 7.5, 0, Math.PI * 2); ctx.fill();
     if (KM.drag === p.k) { ctx.save(); ctx.globalAlpha = .35; ctx.beginPath(); ctx.arc(p.x, p.y, 62, 0, Math.PI * 2); ctx.stroke(); ctx.restore() }
@@ -7559,7 +7563,7 @@ function kaBarras(ctx, x, y, w, h, color, seed) {
   while (cx < x + w) { hs = (hs * 1103515245 + 12345) >>> 0; const bw = 3 + (hs >>> 16) % 3 * 3; if (cx + bw > x + w) break; ctx.fillRect(cx, y, bw, h); hs = (hs * 1103515245 + 12345) >>> 0; cx += bw + 3 + (hs >>> 16) % 2 * 3 }
 }
 function kaEditorial(ctx) {
-  const W = KT.W, H = KT.H, d = kaDatos(), M = 66, B = '#FFFFFF', G = '#C9CDD3';
+  const W = KT.W, H = KT.H, d = kaDatos(), M = KS_SAFE_X, B = '#FFFFFF', G = '#C9CDD3';
   ctx.clearRect(0, 0, W, H); ctx.drawImage(kmFoto(), 0, 0);
   const g = ctx.createLinearGradient(0, 0, 0, H); g.addColorStop(0, 'rgba(18,18,18,.5)'); g.addColorStop(.26, 'rgba(18,18,18,0)'); g.addColorStop(.38, 'rgba(18,18,18,0)'); g.addColorStop(.8, 'rgba(18,18,18,.85)'); g.addColorStop(1, 'rgba(18,18,18,.92)');
   ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
@@ -7571,8 +7575,8 @@ function kaEditorial(ctx) {
     kmTxt(ctx, l, M + i * cw, y, 500, 24, 'mono', 5, G); kmTxt(ctx, v, M + i * cw, y - 46, 700, 66, 'disp', -1.5, B) });
   y -= 46 + 66 + 36; ctx.save(); ctx.strokeStyle = 'rgba(255,255,255,.3)'; ctx.lineWidth = 3; ctx.beginPath(); ctx.moveTo(M, y); ctx.lineTo(W - M, y); ctx.stroke(); ctx.restore();
   // pills (se miden primero para saber su alto)
-  const pl = d.pills.map(p => p + ' ✓'), ph = kaPills(document.createElement('canvas').getContext('2d'), pl, 0, 0, W - 2 * M, { size: 25, track: 3.5, h: 72, gap: 18, px: 30, color: B });
-  y -= 36 + ph; kaPills(ctx, pl, M, y, W - 2 * M, { size: 25, track: 3.5, h: 72, gap: 18, px: 30, stroke: 'rgba(255,255,255,.55)', lw: 3, color: B });
+  const pl = d.pills.map(p => p + ' ✓'), ph = kaPills(document.createElement('canvas').getContext('2d'), pl, 0, 0, W - 2 * M, { size: 23, track: 2.5, h: 68, gap: 12, px: 22, color: B });
+  y -= 36 + ph; kaPills(ctx, pl, M, y, W - 2 * M, { size: 23, track: 2.5, h: 68, gap: 12, px: 22, stroke: 'rgba(255,255,255,.55)', lw: 3, color: B });
   const T = kaLineas(ctx, d.rut, 156, W - 2 * M, 2); y -= 40;
   for (let i = T.L.length - 1; i >= 0; i--) { kmTxt(ctx, T.L[i], M - 4, y, 700, T.s, 'disp', -T.s * .04, B); y -= T.s * .95 }
   kmTxt(ctx, 'SESIÓN COMPLETADA · SEMANA ' + d.sem + (d.planif ? ' · ' + Math.min(d.hechas || 0, d.planif) + '/' + d.planif : ''), M, y - 6, 500, 27, 'mono', 5, G);
@@ -7587,7 +7591,7 @@ function kaTicket(ctx) {
   const W = KT.W, H = KT.H, d = kaDatos(), P = 54, INK = '#121212', MU = '#5E5D59', B = '#FFFFFF';
   ctx.clearRect(0, 0, W, H); ctx.fillStyle = '#9A9DA2'; ctx.fillRect(0, 0, W, H);
   const fo = kaFondo(); if (fo) ctx.drawImage(fo, 0, 0, W, H);
-  const fx = P, fy = 150, fw = W - 2 * P, fh = H - 300, src = kmFoto(), r = Math.max(fw / W, fh / H), sw = fw / r, sh = fh / r;
+  const fx = KS_SAFE_X - 10, fy = 150, fw = W - 2 * fx, fh = H - 300, src = kmFoto(), r = Math.max(fw / W, fh / H), sw = fw / r, sh = fh / r;
   let sx = (W - sw) / 2, sy = (H - sh) / 2;
   if (KM.focoSrc === KS.foto && KM.foco) { const cv = kmCover(KS.foto), top = cv.oy + KM.foco.top * cv.h, cx = cv.ox + KM.foco.cx * cv.w;
     sx = Math.max(0, Math.min(W - sw, cx - sw / 2)); sy = Math.max(0, Math.min(H - sh, top - sh * .1)) }
@@ -7595,14 +7599,14 @@ function kaTicket(ctx) {
   const g = ctx.createLinearGradient(0, fy, 0, fy + 420); g.addColorStop(0, 'rgba(18,18,18,.55)'); g.addColorStop(1, 'rgba(18,18,18,0)'); ctx.fillStyle = g; ctx.fillRect(fx, fy, fw, 420);
   ctx.restore();
   ctx.save(); kaRR(ctx, fx, fy, fw, fh, 78); ctx.lineWidth = 3; ctx.strokeStyle = 'rgba(255,255,255,.6)'; ctx.stroke(); ctx.restore();
-  const ix = fx + 48, ixr = fx + fw - 48;
+  const ix = fx + 40, ixr = fx + fw - 40;
   const lg = kaLogo(B); if (lg) ctx.drawImage(lg, ix, KS_SAFE_T, lg.width * 36 / lg.height, 36);
   kmTxt(ctx, d.fecha, ixr, KS_SAFE_T + 33, 500, 26, 'mono', 5, B, 'right');
   // c144 · 'SESIÓN COMPLETADA' como dato en Space Mono, sin pill
   ctx.save(); ctx.shadowColor = 'rgba(0,0,0,.35)'; ctx.shadowBlur = 12; ctx.font = "700 26px 'Space Mono', 'IBM Plex Mono', monospace"; if ('letterSpacing' in ctx) ctx.letterSpacing = '6px';
   ctx.fillStyle = B; ctx.textAlign = 'right'; ctx.fillText('SESIÓN COMPLETADA', ixr, KS_SAFE_T + 78); if ('letterSpacing' in ctx) ctx.letterSpacing = '0px'; ctx.restore();
   // c143 · ticket de CRISTAL: foto desenfocada debajo + velo gris leve + brillos de borde, texto blanco (como las tarjetas de logro)
-  const tx = fx + 30, tw = fw - 60, tp = 48, pillsH = kaPills(document.createElement('canvas').getContext('2d'), d.pills, 0, 0, tw - 2 * tp, { size: 24, track: 3.5, h: 66, gap: 15, px: 27 });
+  const tx = fx + 22, tw = fw - 44, tp = 48, pillsH = kaPills(document.createElement('canvas').getContext('2d'), d.pills, 0, 0, tw - 2 * tp, { size: 24, track: 3.5, h: 66, gap: 15, px: 27 });
   const th = tp + 78 + 30 + pillsH + 36 + 30 + 66 + 48 + tp, ty = H - KS_SAFE_B - th;
   const bl = document.createElement('canvas'), sc = 18; bl.width = Math.ceil(tw / sc); bl.height = Math.ceil(th / sc); const bx = bl.getContext('2d');
   bx.imageSmoothingQuality = 'high'; bx.drawImage(ctx.canvas, tx, ty, tw, th, 0, 0, bl.width, bl.height);
