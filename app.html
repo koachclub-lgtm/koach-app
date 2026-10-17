@@ -7363,7 +7363,7 @@ function kmGrupos() {
 // Foto (normalizada) → coordenadas de la tarjeta 1080×1920 (recorte cover)
 /* c141 · recorte 9:16 inteligente: si la foto no es 9:16, el recorte se centra en la persona (detección de cuerpo) y no le corta la cabeza.
    Zonas seguras de historias: arriba 250 px y abajo 340 px libres de texto (barra de perfil y de respuesta de Instagram). */
-const KS_SAFE_T = 250, KS_SAFE_B = 340;
+const KS_SAFE_T = 250, KS_SAFE_B = 250;   // guía de Meta: ~14 % libre arriba y abajo
 function kmCover(f) { const W = KT.W, H = KT.H, r = Math.max(W / f.width, H / f.height), w = f.width * r, h = f.height * r, F = KM.focoSrc === f ? KM.foco : null;
   const cl = (v, lo, hi) => Math.max(lo, Math.min(hi, v));
   const ox = F && w > W + 1 ? cl(W / 2 - F.cx * w, W - w, 0) : (W - w) / 2, oy = F && h > H + 1 ? cl(H * .1 - F.top * h, H - h, 0) : (h > H + 1 ? 0 : (H - h) / 2);
