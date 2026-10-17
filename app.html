@@ -2248,6 +2248,16 @@ body.wl-on{overflow:hidden}
 #oShare.kset--fin .kset__stage{animation:ksFinIn .6s cubic-bezier(.2,.8,.2,1) both}
 @keyframes ksFinIn{from{opacity:0;transform:translateY(18px) scale(.97)}to{opacity:1;transform:none}}
 @media (prefers-reduced-motion:reduce){#oShare.kset--fin .kset__stage{animation:none}}
+/* c159 · galería de plantillas */
+#oShare.kset--gal .kset__seg,#oShare.kset--gal .kset__stage,#oShare.kset--gal .kset__opts,#oShare.kset--gal .kset__acts,#oShare.kset--gal .kset__st,#oShare.kset--gal .kset__sem,#oShare.kset--gal .kset__prog{display:none!important}
+.kset__gal{display:flex;gap:14px;overflow-x:auto;scroll-snap-type:x mandatory;margin:14px -18px 0;padding:4px 18px 18px;scrollbar-width:none;-webkit-overflow-scrolling:touch}
+.kset__gal::-webkit-scrollbar{display:none}
+.kset__gi{flex:0 0 72%;max-width:330px;scroll-snap-align:center;border:0;padding:0;background:none;color:#F4F3F0;text-align:left;cursor:pointer;animation:ksFinIn .5s cubic-bezier(.2,.8,.2,1) both}
+.kset__gi:nth-child(2){animation-delay:.08s}.kset__gi:nth-child(3){animation-delay:.16s}
+.kset__gi img{display:block;width:100%;height:auto;aspect-ratio:9/16;object-fit:cover;border-radius:22px;box-shadow:0 0 0 1px rgba(255,255,255,.14),0 18px 40px rgba(0,0,0,.45);transition:transform .2s ease}
+.kset__gi:active img{transform:scale(.97)}
+.kset__gi b{display:block;margin-top:12px;font-family:var(--font-mono);font-weight:500;font-size:12px;letter-spacing:.16em}
+.kset__gi small{display:block;margin-top:4px;font-size:13px;line-height:1.35;color:rgba(244,243,240,.62)}
 .wel{position:relative;z-index:1;max-width:520px;margin:0 auto;min-height:100dvh;box-sizing:border-box;display:flex;flex-direction:column;justify-content:space-between;
   padding:calc(env(safe-area-inset-top,0px) + 26px) 8px calc(env(safe-area-inset-bottom,0px) + 18px);transition:opacity .22s ease, transform .22s ease}
 .wel__logo{width:40px;height:auto;display:block;opacity:.96}
@@ -6902,6 +6912,11 @@ document.addEventListener('DOMContentLoaded', async ()=>{
   <div class="kset__box">
     <div class="kset__top"><div><b id="ksTit">COMPARTE TU LOGRO DE HOY</b><small id="ksSub">Te lo mereces. Descarga tu imagen o agrega tu selfie.</small></div><button type="button" class="kset__x" onclick="cerrarCompartir()" aria-label="Cerrar">×</button></div>
     <div class="kset__seg kset__seg--3" role="group" aria-label="Formato"><button type="button" data-ksf="gris" aria-pressed="true">SÓLIDO</button><button type="button" data-ksf="foto" aria-pressed="false">CON TU FOTO</button><button type="button" data-ksf="transparente" aria-pressed="false">TRANSPARENTE</button></div>
+    <div class="kset__gal" id="ksGal" hidden>
+      <button type="button" class="kset__gi" onclick="ksElegir('editorial')"><img src="/img/share/plantilla-editorial.webp" alt="Plantilla Editorial" width="720" height="1280" loading="lazy" decoding="async"><b>EDITORIAL</b><small>Tu foto a sangre con los kilos del día</small></button>
+      <button type="button" class="kset__gi" onclick="ksElegir('mapa')"><img src="/img/share/plantilla-mapa.webp" alt="Plantilla Mapa" width="720" height="1280" loading="lazy" decoding="async"><b>MAPA</b><small>Señaladores en los músculos que trabajaste</small></button>
+      <button type="button" class="kset__gi" onclick="ksElegir('ticket')"><img src="/img/share/plantilla-ticket.webp" alt="Plantilla Ticket" width="720" height="1280" loading="lazy" decoding="async"><b>TICKET</b><small>Foto enmarcada con ticket de cristal</small></button>
+    </div>
     <div class="kset__stage" id="ksStage"><canvas id="ksCv" width="1080" height="1920" aria-label="Vista previa"></canvas>
       <label class="kset__add" id="ksAdd">AGREGA TU SELFIE<small>o elige una foto de tu entrenamiento</small><input type="file" id="ksFoto" accept="image/*"></label>
       <div class="kset__hint" id="ksHint">TOCA LA FOTO PARA ELEGIR DÓNDE APUNTAR</div>
@@ -7286,10 +7301,15 @@ function ksAcciones(sinFoto) {
         ? sh + gu + '<button type="button" class="kset__sec kset__next" onclick="ksFormato(\'foto\')">SIGUIENTE →</button>'
         : sh + gu.replace('kset__sec"', 'kset__sec kset__wide"');
 }
-function ksProgreso() {   // c158 · del resumen al menú de compartir: foto, estilos y filtros
-  KS.fin = false; ksEl('oShare').classList.remove('kset--fin'); ksEl('ksTit').textContent = 'COMPARTIR PROGRESO'; ksEl('ksSub').textContent = 'Carga tu foto y elige estilo y filtro.';
-  try { ksEl('oShare').querySelector('.kset__box').scrollTop = 0 } catch (_) {}
-  ksFormato('foto') }
+function ksProgreso() {   // c159 · del resumen a la galería de plantillas (Editorial · Mapa · Ticket); al elegir, foto y filtros
+  KS.fin = false; const o = ksEl('oShare'); o.classList.remove('kset--fin'); o.classList.add('kset--gal'); ksEl('ksGal').hidden = false;
+  ksEl('ksTit').textContent = 'COMPARTIR PROGRESO'; ksEl('ksSub').textContent = 'Elige tu plantilla. Después cargas tu foto y el filtro.';
+  try { o.querySelector('.kset__box').scrollTop = 0 } catch (_) {} }
+function ksElegir(est) {
+  KS.estilo = est; document.querySelectorAll('[data-ks="estilo"]').forEach(x => x.setAttribute('aria-pressed', String(x.dataset.v === est)));
+  ksEl('oShare').classList.remove('kset--gal'); ksEl('ksGal').hidden = true; ksEl('ksSub').textContent = 'Carga tu foto y elige el filtro.';
+  ksFormato('foto');
+  if (!KS.foto) try { ksEl('ksFoto').click() } catch (_) {} }
 function ksFormato(f) { KS.formato = f; document.querySelectorAll('[data-ksf]').forEach(x => x.setAttribute('aria-pressed', String(x.dataset.ksf === f))); ksSt(''); ksPintar() }
 function ksSemanaLinea() {
   const j = KS.data || {}, h = j.hechas, p = j.planif; if (!p) return '';
@@ -7304,7 +7324,7 @@ async function abrirCompartir(desdeCierre, fin) {
     ksEl('ksSem').textContent = ksSemanaLinea() }
   catch (e) { console.error(e); ksSt('No pudimos cargar los datos de tu sesión. Revisa tu conexión.') }
 }
-function cerrarCompartir() { KS.fin = false; ksEl('oShare').classList.remove('vis', 'kset--fin'); if (KS.desdeCierre) { KS.desdeCierre = false; try { entrar() } catch (_) {} } }
+function cerrarCompartir() { KS.fin = false; ksEl('ksGal').hidden = true; ksEl('oShare').classList.remove('vis', 'kset--fin', 'kset--gal'); if (KS.desdeCierre) { KS.desdeCierre = false; try { entrar() } catch (_) {} } }
 function ksVerProgreso() { ksEl('oShare').classList.remove('vis'); KS.desdeCierre = false; try { entrar().then(() => { try { vista('vAvances'); if (typeof loadAvances === 'function') loadAvances() } catch (_) {} }) } catch (_) {} }
 function ksNombre() { const d = KS.data ? ksDatos(KS.data) : { rut: 'sesion' }; return 'koach-' + d.rut.toLowerCase().replace(/[^a-z0-9]+/g, '-') + '-' + KS.formato + (KS.formato === 'transparente' ? '.png' : '.jpg') }
 async function ksBlob() {
@@ -7389,8 +7409,8 @@ function kmAnclas(L, gs) {
   const der = L && L[11] && L[12] && L[11].x > L[12].x;   // de frente el hombro izquierdo de la persona queda a la derecha de la foto
   const frente = !!der, lados = { d: der ? [11, 13, 23, 25, 27] : [12, 14, 24, 26, 28], i: der ? [12, 14, 24, 26, 28] : [11, 13, 23, 25, 27] };
   const mS = lerp(vis(11), vis(12), .5), mH = lerp(vis(23), vis(24), .5);
-  return gs.map((g, k) => {
-    const lado = k % 2 ? 'i' : 'd', [sh, el, hp, kn, an] = lados[lado].map(vis);
+  const punto = (g, lado) => {
+    const [sh, el, hp, kn, an] = lados[lado].map(vis);
     let p = null;
     switch (g.g) {
       case 'HOMBROS': p = lerp(sh, el, .14); break;
@@ -7402,8 +7422,11 @@ function kmAnclas(L, gs) {
       case 'CUÁDRICEPS': case 'ISQUIOS': p = lerp(hp, kn, .45); break;
       case 'GEMELOS': p = lerp(kn, an, .35); break;
     }
-    return { ...g, lado, p };
-  });
+    return p };
+  // c159 · si el lado preferido no se ve (vista de espalda o perfil), se usa el otro lado antes de caer al punto genérico
+  return gs.map((g, k) => { let lado = k % 2 ? 'i' : 'd', p = punto(g, lado);
+    if (!p) { const o = lado === 'd' ? 'i' : 'd', q = punto(g, o); if (q) { p = q; lado = o } }
+    return { ...g, lado, p } });
 }
 async function kmAsegurar() {
   if (!KS.foto || KM.foto === KS.foto) return;
