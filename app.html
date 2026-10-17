@@ -6929,9 +6929,9 @@ document.addEventListener('DOMContentLoaded', async ()=>{
     <div class="kset__top"><div><b id="ksTit">COMPARTE TU LOGRO DE HOY</b><small id="ksSub">Te lo mereces. Descarga tu imagen o agrega tu selfie.</small></div><button type="button" class="kset__x" onclick="cerrarCompartir()" aria-label="Cerrar">×</button></div>
     <div class="kset__seg kset__seg--3" role="group" aria-label="Formato"><button type="button" data-ksf="gris" aria-pressed="true">SÓLIDO</button><button type="button" data-ksf="foto" aria-pressed="false">CON TU FOTO</button><button type="button" data-ksf="transparente" aria-pressed="false">TRANSPARENTE</button></div>
     <div class="kset__gal" id="ksGal" hidden>
-      <button type="button" class="kset__gi" onclick="ksElegir('editorial')"><img src="/img/share/plantilla-editorial.webp" alt="Plantilla Editorial" width="720" height="1280" loading="lazy" decoding="async"><b>EDITORIAL</b><small>Tu foto a sangre con los kilos del día</small></button>
       <button type="button" class="kset__gi" onclick="ksElegir('mapa')"><img src="/img/share/plantilla-mapa.webp" alt="Plantilla Mapa" width="720" height="1280" loading="lazy" decoding="async"><b>MAPA</b><small>Señaladores en los músculos que trabajaste</small></button>
       <button type="button" class="kset__gi" onclick="ksElegir('ticket')"><img src="/img/share/plantilla-ticket.webp" alt="Plantilla Ticket" width="720" height="1280" loading="lazy" decoding="async"><b>TICKET</b><small>Foto enmarcada con ticket de cristal</small></button>
+      <button type="button" class="kset__gi" onclick="ksElegir('editorial')"><img src="/img/share/plantilla-editorial.webp" alt="Plantilla Editorial" width="720" height="1280" loading="lazy" decoding="async"><b>EDITORIAL</b><small>Tu foto a sangre con los kilos del día</small></button>
     </div>
     <div class="kset__stage" id="ksStage"><canvas id="ksCv" width="1080" height="1920" aria-label="Vista previa"></canvas>
       <label class="kset__add" id="ksAdd">AGREGA TU SELFIE<small>o elige una foto de tu entrenamiento</small><input type="file" id="ksFoto" accept="image/*"></label>
@@ -7274,10 +7274,10 @@ function ksPintar() {
     else if (KS.estilo === 'ticket') { kmAsegurar(); kaTicket(ctx) }
     else if (KS.estilo === 'tarjeta') KT.renderImagen(ctx, d, kmFoto(), { nitida: true });
     else { if (!KS.target) KS.target = ksTargetSugerido(); KT.renderSenalador(ctx, d, 'auto', 'izq', 1, 'media', KS.mira, { fondo: kmFoto(), target: KS.target, ruta: KS.ruta }) }
-  } else KT.renderSenalador(ctx, d, KS.tema, KS.lado, 1, KS.largo, KS.mira, { ruta: KS.rutaT });
+  } else kaCaptura(ctx, true);
   ksEl('ksOFoto').hidden = !(KS.formato === 'foto' && KS.foto);
   document.querySelectorAll('#ksOFoto [data-solo]').forEach(r => r.hidden = KS.estilo !== r.dataset.solo);
-  ksEl('ksOTr').hidden = KS.formato !== 'transparente';
+  ksEl('ksOTr').hidden = true;
   ksAcciones(sinFoto);
   ksPreparar(sinFoto);
 }
@@ -7554,6 +7554,7 @@ function kmRender(ctx) {
     else { ctx.lineWidth = 3; ctx.strokeStyle = B; ctx.stroke(); ctx.restore(); ctx.save(); kmTxt(ctx, nom, px + 24, ly + 9, 500, 25, 'mono', 3.5, B) }
     ctx.restore();
     if (p.val) kmTxt(ctx, p.val, dir > 0 ? px : px + pw, ly + ph / 2 + 50, 700, 44, 'disp', 0, B, dir > 0 ? 'left' : 'right');
+    const bw = Math.max(pw, p.bw || 0); if (KM.puntos[p.k]) KM.puntos[p.k].box = { x: dir > 0 ? px : px + pw - bw, y: py, w: bw, h: ph + 74 };   // c162 · la etiqueta también se arrastra
   });
   // Pie: total del día
   ctx.shadowBlur = 14; const y0 = H - KS_SAFE_B - 210;
@@ -7570,11 +7571,17 @@ function kmRender(ctx) {
   const cv = ksEl('ksCv'); if (!cv) return;
   const pos = e => { const r = cv.getBoundingClientRect(); return { x: (e.clientX - r.left) / r.width * KT.W, y: (e.clientY - r.top) / r.height * KT.H } };
   const activo = () => KS.formato === 'foto' && KS.foto && KS.estilo === 'mapa' && KM.puntos;
-  cv.addEventListener('pointerdown', e => { if (!activo()) return; const q = pos(e); let best = -1, bd = 150;
+  // c162 · se toma la mira o la etiqueta (pill + valor) con un área generosa para el dedo; se arrastra con el desfase del toque
+  const tomar = q => { let best = -1, bd = 170;
     KM.puntos.forEach((p, k) => { const d = Math.hypot(p.x - q.x, p.y - q.y); if (d < bd) { bd = d; best = k } });
-    if (best < 0) return; KM.drag = best; KM.hintOff = true; try { cv.setPointerCapture(e.pointerId) } catch (_) {} e.preventDefault(); ksPintar() });
-  cv.addEventListener('pointermove', e => { if (KM.drag < 0) return; const q = pos(e), p = KM.puntos[KM.drag];
-    p.x = Math.max(30, Math.min(KT.W - 30, q.x)); p.y = Math.max(KS_SAFE_T + 60, Math.min(KT.H - KS_SAFE_B - 240, q.y)); e.preventDefault();
+    if (best < 0) KM.puntos.forEach((p, k) => { const b = p.box; if (best < 0 && b && q.x > b.x - 30 && q.x < b.x + b.w + 30 && q.y > b.y - 30 && q.y < b.y + b.h + 30) best = k });
+    return best };
+  cv.addEventListener('touchstart', e => { if (!activo() || !e.touches[0]) return; if (tomar(pos(e.touches[0])) >= 0) e.preventDefault() }, { passive: false });
+  cv.addEventListener('touchmove', e => { if (KM.drag >= 0) e.preventDefault() }, { passive: false });
+  cv.addEventListener('pointerdown', e => { if (!activo()) return; const q = pos(e), best = tomar(q);
+    if (best < 0) return; const p = KM.puntos[best]; KM.drag = best; KM.off = { x: p.x - q.x, y: p.y - q.y }; KM.hintOff = true; try { cv.setPointerCapture(e.pointerId) } catch (_) {} e.preventDefault(); ksPintar() });
+  cv.addEventListener('pointermove', e => { if (KM.drag < 0) return; const q = pos(e), p = KM.puntos[KM.drag], o = KM.off || { x: 0, y: 0 };
+    p.x = Math.max(30, Math.min(KT.W - 30, q.x + o.x)); p.y = Math.max(KS_SAFE_T + 60, Math.min(KT.H - KS_SAFE_B - 240, q.y + o.y)); e.preventDefault();
     if (!KM.raf) KM.raf = requestAnimationFrame(() => { KM.raf = 0; ksPintar() }) });
   const fin = () => { if (KM.drag < 0) return; KM.drag = -1; ksPintar() };
   cv.addEventListener('pointerup', fin); cv.addEventListener('pointercancel', fin);
@@ -7711,19 +7718,21 @@ const KC_TEMAS = {
   STRONG:  { bg: '#979C9F', ink: '#0B0B0C', mu: '#3F4246', mu2: '#26282B', pill: 'rgba(11,11,12,.42)', linea: 'rgba(11,11,12,.3)', sombra: 'rgba(30,36,44,.18)', brillo: .22,
              vidrio: ['rgba(255,255,255,.42)', 'rgba(255,255,255,.18)', 'rgba(255,255,255,.32)'], borde: 'rgba(255,255,255,.7)', filo: 'rgba(255,255,255,.95)',
              luces: [[.6, .25, 700, '238,241,244', .5], [.95, .75, 800, '74,78,82', .32], [.05, .98, 600, '74,78,82', .28]] },
+  TRANSP:  { bg: null, ink: '#FFFFFF', mu: 'rgba(255,255,255,.8)', mu2: 'rgba(255,255,255,.92)', pill: 'rgba(255,255,255,.75)', linea: 'rgba(255,255,255,.5)', sombra: 'rgba(0,0,0,.18)', brillo: .12,
+             vidrio: ['rgba(255,255,255,.24)', 'rgba(255,255,255,.1)', 'rgba(255,255,255,.18)'], borde: 'rgba(255,255,255,.6)', filo: 'rgba(255,255,255,.85)', luces: [] },
   HEALTHY: { bg: '#EDEEEF', ink: '#0B0B0C', mu: '#6B6E73', mu2: '#3A3C40', pill: 'rgba(11,11,12,.32)', linea: 'rgba(11,11,12,.22)', sombra: 'rgba(30,36,44,.12)', brillo: .3,
              vidrio: ['rgba(255,255,255,.7)', 'rgba(255,255,255,.38)', 'rgba(255,255,255,.58)'], borde: 'rgba(255,255,255,.95)', filo: '#FFFFFF',
              luces: [[.6, .25, 700, '255,255,255', .9], [.95, .75, 820, '160,165,172', .3], [.05, .98, 620, '160,165,172', .26]] }
 };
-function kaCaptura(ctx) {
+function kaCaptura(ctx, trans) {
   const W = KT.W, H = KT.H, j = KS.data || {}, d = kaDatos(), M = KS_SAFE_X, CW = W - 2 * M;
   // c156 · tono por programa (línea de credenciales): STRONG gris claro · BURN gris oscuro · HEALTHY blanco; textos con el contraste del fondo
-  const TM = KC_TEMAS[String(j.programa || '').toUpperCase()] || KC_TEMAS.KOACH, B = TM.ink, G = TM.mu, G2 = TM.mu2;
+  const TM = trans ? KC_TEMAS.TRANSP : (KC_TEMAS[String(j.programa || '').toUpperCase()] || KC_TEMAS.KOACH), B = TM.ink, G = TM.mu, G2 = TM.mu2;
   const DISP = (w, s, st) => w + ' ' + (st || 'semi-expanded') + ' ' + s + "px 'KOACH Display', 'Inter Display', Arial, sans-serif", MONO = s => "700 " + s + "px 'Space Mono', 'KOACH Symbols', 'IBM Plex Mono', monospace";
   const trk = t => { if ('letterSpacing' in ctx) ctx.letterSpacing = t + 'px' };
   const txt = (s, x, y, font, color, t, al) => { ctx.font = font; trk(t || 0); ctx.fillStyle = color; ctx.textAlign = al || 'left'; ctx.textBaseline = 'alphabetic'; ctx.fillText(s, x, y); const m = ctx.measureText(s).width; trk(0); return m };
   // Fondo sólido negro con la luz fría de la app
-  ctx.clearRect(0, 0, W, H); ctx.fillStyle = TM.bg; ctx.fillRect(0, 0, W, H);
+  ctx.clearRect(0, 0, W, H); ctx.save(); if (TM.bg) { ctx.fillStyle = TM.bg; ctx.fillRect(0, 0, W, H) } else { ctx.shadowColor = 'rgba(0,0,0,.35)'; ctx.shadowBlur = 16 }   // c162 · TRANSPARENTE: mismo resumen sin fondo, con sombra suave para leerse sobre cualquier foto
   const luz = (x, y, r, c, a) => { const g = ctx.createRadialGradient(x, y, 0, x, y, r); g.addColorStop(0, 'rgba(' + c + ',' + a + ')'); g.addColorStop(1, 'rgba(' + c + ',0)'); ctx.fillStyle = g; ctx.fillRect(0, 0, W, H) };
   TM.luces.forEach(([x, y, r, c, a]) => luz(W * x, H * y, r, c, a));
   // Cabecera: logo · Nº y fecha
@@ -7786,6 +7795,7 @@ function kaCaptura(ctx) {
     ctx.save(); ctx.setLineDash([8, 8]); ctx.strokeStyle = TM.linea; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(px, by + 146); ctx.lineTo(px + pw, by + 146); ctx.stroke(); ctx.restore();
     txt(TAG[0], px, by + 182, MONO(17), G, 4); txt(TAG[1], px, by + 206, MONO(17), G, 4);
     kaBarras(ctx, px + pw - 300, by + 164, 300, 44, B, 'C' + d.num) }
+  ctx.restore();
   ctx.restore();
 }
 
