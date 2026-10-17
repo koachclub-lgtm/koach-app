@@ -7232,8 +7232,8 @@ function ksPintar() {
   if (KS.formato === 'gris' || sinFoto) KT.renderImagen(ctx, d, null);
   else if (KS.formato === 'foto') {
     if (KS.estilo === 'mapa') { kmAsegurar(); kmRender(ctx) }
-    else if (KS.estilo === 'editorial') kaEditorial(ctx);
-    else if (KS.estilo === 'ticket') kaTicket(ctx);
+    else if (KS.estilo === 'editorial') { kmAsegurar(); kaEditorial(ctx) }
+    else if (KS.estilo === 'ticket') { kmAsegurar(); kaTicket(ctx) }
     else if (KS.estilo === 'tarjeta') KT.renderImagen(ctx, d, kmFoto(), { nitida: true });
     else { if (!KS.target) KS.target = ksTargetSugerido(); KT.renderSenalador(ctx, d, 'auto', 'izq', 1, 'media', KS.mira, { fondo: kmFoto(), target: KS.target, ruta: KS.ruta }) }
   } else KT.renderSenalador(ctx, d, KS.tema, KS.lado, 1, KS.largo, KS.mira, { ruta: KS.rutaT });
@@ -7361,7 +7361,13 @@ function kmGrupos() {
   return (j.musculos || []).slice(0, 3).map(n => { const k = String(n).toUpperCase().replace('PECTORAL', 'PECHO'); return { g: k, val: '' } }).filter(x => KM_NOM[x.g]);
 }
 // Foto (normalizada) → coordenadas de la tarjeta 1080×1920 (recorte cover)
-function kmCover(f) { const W = KT.W, H = KT.H, r = Math.max(W / f.width, H / f.height), w = f.width * r, h = f.height * r; return { r, w, h, ox: (W - w) / 2, oy: (H - h) / 2 } }
+/* c141 · recorte 9:16 inteligente: si la foto no es 9:16, el recorte se centra en la persona (detección de cuerpo) y no le corta la cabeza.
+   Zonas seguras de historias: arriba 250 px y abajo 340 px libres de texto (barra de perfil y de respuesta de Instagram). */
+const KS_SAFE_T = 250, KS_SAFE_B = 340;
+function kmCover(f) { const W = KT.W, H = KT.H, r = Math.max(W / f.width, H / f.height), w = f.width * r, h = f.height * r, F = KM.focoSrc === f ? KM.foco : null;
+  const cl = (v, lo, hi) => Math.max(lo, Math.min(hi, v));
+  const ox = F && w > W + 1 ? cl(W / 2 - F.cx * w, W - w, 0) : (W - w) / 2, oy = F && h > H + 1 ? cl(H * .1 - F.top * h, H - h, 0) : (h > H + 1 ? 0 : (H - h) / 2);
+  return { r, w, h, ox, oy } }
 function kmAnclas(L, gs) {
   const vis = i => L && L[i] && (L[i].visibility == null || L[i].visibility > .35) ? L[i] : null;
   const lerp = (a, b, t) => a && b ? { x: a.x + (b.x - a.x) * t, y: a.y + (b.y - a.y) * t } : null;
@@ -7386,16 +7392,19 @@ function kmAnclas(L, gs) {
 }
 async function kmAsegurar() {
   if (!KS.foto || KM.foto === KS.foto) return;
-  KM.foto = KS.foto; KM.estado = 'buscando'; const foto = KS.foto, gs = kmGrupos(), W = KT.W, H = KT.H, cv = kmCover(foto);
-  const fallback = () => gs.map((g, k) => ({ ...g, lado: k % 2 ? 'i' : 'd', x: W * (k % 2 ? .4 : .6), y: H * (.3 + k * .14) }));
+  KM.foto = KS.foto; KM.estado = 'buscando'; const foto = KS.foto, gs = kmGrupos(), W = KT.W, H = KT.H;
+  const fallback = () => gs.map((g, k) => ({ ...g, lado: k % 2 ? 'i' : 'd', x: W * (k % 2 ? .4 : .6), y: H * (.27 + k * .13) }));
   KM.puntos = fallback();
   let L = null;
   try { const pl = await kmModelo(); if (KM.foto !== foto) return; const r = pl.detect(foto); L = r && r.landmarks && r.landmarks[0] } catch (e) { console.warn('pose', e) }
   if (KM.foto !== foto) return;
   if (L) {
-    const A = kmAnclas(L, gs), base = fallback();
+    const V = L.filter(p => p && (p.visibility == null || p.visibility > .3) && p.x > -.05 && p.x < 1.05 && p.y > -.05 && p.y < 1.05);
+    if (V.length > 6) { const xs = V.map(p => p.x), ys = V.map(p => p.y);
+      KM.foco = { cx: (Math.min(...xs) + Math.max(...xs)) / 2, top: Math.max(0, Math.min(...ys) - .07), bot: Math.min(1, Math.max(...ys) + .02) }; KM.focoSrc = foto; KM.bn = null }
+    const cv = kmCover(foto), A = kmAnclas(L, gs), base = fallback();
     KM.puntos = A.map((a, k) => { if (!a.p) return base[k]; const x = cv.ox + a.p.x * cv.w, y = cv.oy + a.p.y * cv.h;
-      return (x > 40 && x < W - 40 && y > 200 && y < H - 420) ? { ...a, x, y } : base[k] });
+      return (x > 40 && x < W - 40 && y > KS_SAFE_T + 80 && y < H - KS_SAFE_B - 220) ? { ...a, x, y } : base[k] });
     KM.estado = 'ok';
   } else KM.estado = 'manual';
   clearTimeout(KM.ht); KM.hintOff = false; KM.ht = setTimeout(() => { KM.hintOff = true; ksPintar() }, 4000);
@@ -7461,13 +7470,13 @@ function kmRender(ctx) {
   let g = ctx.createLinearGradient(0, 0, 0, H); g.addColorStop(0, 'rgba(18,18,18,.42)'); g.addColorStop(.17, 'rgba(18,18,18,0)'); g.addColorStop(.6, 'rgba(18,18,18,0)'); g.addColorStop(1, 'rgba(18,18,18,.88)');
   ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
   ctx.save(); ctx.shadowColor = 'rgba(0,0,0,.4)'; ctx.shadowBlur = 18;
-  const lg = kmLogo(); if (lg) { const h = 36, w = lg.width * h / lg.height; ctx.drawImage(lg, M, M, w, h) }
-  kmTxt(ctx, 'SESIÓN Nº ' + String(j.num_sesion || 0).padStart(5, '0'), W - M, M + 30, 500, 27, 'mono', 5, B, 'right');
+  const lg = kmLogo(); if (lg) { const h = 36, w = lg.width * h / lg.height; ctx.drawImage(lg, M, KS_SAFE_T, w, h) }
+  kmTxt(ctx, 'SESIÓN Nº ' + String(j.num_sesion || 0).padStart(5, '0'), W - M, KS_SAFE_T + 30, 500, 27, 'mono', 5, B, 'right');
   // Miras y etiquetas por columna (derecha / izquierda), sin choques verticales
   const P = (KM.puntos || []).map((p, k) => ({ ...p, k }));
   ['d', 'i'].forEach(lado => {
     const col = P.filter(p => p.lado === lado).sort((a, b) => a.y - b.y); let ult = -1e9;
-    col.forEach(p => { p.ly = Math.max(p.y, ult + 150); p.ly = Math.min(p.ly, H - 520); ult = p.ly });
+    col.forEach(p => { p.ly = Math.max(p.y, ult + 150, KS_SAFE_T + 120); p.ly = Math.min(p.ly, H - KS_SAFE_B - 300); ult = p.ly });
   });
   ctx.lineWidth = 4.5; ctx.strokeStyle = B; ctx.fillStyle = B; ctx.lineJoin = 'round'; ctx.lineCap = 'round';
   P.forEach(p => {
@@ -7489,7 +7498,7 @@ function kmRender(ctx) {
     if (p.val) kmTxt(ctx, p.val, dir > 0 ? px : px + pw, ly + ph / 2 + 50, 700, 44, 'disp', 0, B, dir > 0 ? 'left' : 'right');
   });
   // Pie: total del día
-  ctx.shadowBlur = 14; const y0 = H - 250;
+  ctx.shadowBlur = 14; const y0 = H - KS_SAFE_B - 210;
   ctx.save(); ctx.shadowBlur = 0; ctx.strokeStyle = 'rgba(255,255,255,.4)'; ctx.lineWidth = 3; ctx.beginPath(); ctx.moveTo(M, y0); ctx.lineTo(W - M, y0); ctx.stroke(); ctx.restore();
   kmTxt(ctx, 'MOVIDOS HOY', M, y0 + 66, 500, 25, 'mono', 5, B);
   const ton = Math.round(+j.tonelaje || 0).toLocaleString('es-CL'), tw = kmTxt(ctx, ton, M - 4, y0 + 196, 700, 132, 'disp', -6, B);
@@ -7507,7 +7516,7 @@ function kmRender(ctx) {
     KM.puntos.forEach((p, k) => { const d = Math.hypot(p.x - q.x, p.y - q.y); if (d < bd) { bd = d; best = k } });
     if (best < 0) return; KM.drag = best; KM.hintOff = true; try { cv.setPointerCapture(e.pointerId) } catch (_) {} e.preventDefault(); ksPintar() });
   cv.addEventListener('pointermove', e => { if (KM.drag < 0) return; const q = pos(e), p = KM.puntos[KM.drag];
-    p.x = Math.max(30, Math.min(KT.W - 30, q.x)); p.y = Math.max(160, Math.min(KT.H - 300, q.y)); e.preventDefault();
+    p.x = Math.max(30, Math.min(KT.W - 30, q.x)); p.y = Math.max(KS_SAFE_T + 60, Math.min(KT.H - KS_SAFE_B - 240, q.y)); e.preventDefault();
     if (!KM.raf) KM.raf = requestAnimationFrame(() => { KM.raf = 0; ksPintar() }) });
   const fin = () => { if (KM.drag < 0) return; KM.drag = -1; ksPintar() };
   cv.addEventListener('pointerup', fin); cv.addEventListener('pointercancel', fin);
@@ -7552,12 +7561,12 @@ function kaBarras(ctx, x, y, w, h, color, seed) {
 function kaEditorial(ctx) {
   const W = KT.W, H = KT.H, d = kaDatos(), M = 66, B = '#FFFFFF', G = '#C9CDD3';
   ctx.clearRect(0, 0, W, H); ctx.drawImage(kmFoto(), 0, 0);
-  const g = ctx.createLinearGradient(0, 0, 0, H); g.addColorStop(0, 'rgba(18,18,18,.45)'); g.addColorStop(.22, 'rgba(18,18,18,0)'); g.addColorStop(.46, 'rgba(18,18,18,0)'); g.addColorStop(1, 'rgba(18,18,18,.92)');
+  const g = ctx.createLinearGradient(0, 0, 0, H); g.addColorStop(0, 'rgba(18,18,18,.5)'); g.addColorStop(.26, 'rgba(18,18,18,0)'); g.addColorStop(.38, 'rgba(18,18,18,0)'); g.addColorStop(.8, 'rgba(18,18,18,.85)'); g.addColorStop(1, 'rgba(18,18,18,.92)');
   ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
-  const lg = kaLogo('#FFFFFF'); if (lg) ctx.drawImage(lg, M, M, lg.width * 39 / lg.height, 39);
-  kmTxt(ctx, 'SESIÓN Nº ' + d.num, W - M, M + 31, 500, 27, 'mono', 5, B, 'right');
-  // de abajo hacia arriba
-  let y = H - 72; const cw = (W - 2 * M) / 3;
+  const lg = kaLogo('#FFFFFF'); if (lg) ctx.drawImage(lg, M, KS_SAFE_T, lg.width * 39 / lg.height, 39);
+  kmTxt(ctx, 'SESIÓN Nº ' + d.num, W - M, KS_SAFE_T + 31, 500, 27, 'mono', 5, B, 'right');
+  // de abajo hacia arriba, sobre la zona segura inferior
+  let y = H - KS_SAFE_B; const cw = (W - 2 * M) / 3;
   [[d.ton, 'KG MOVIDOS'], [String(d.sets || '—'), 'SETS'], [d.dur ? d.dur + "'" : '—', 'DURACIÓN']].forEach(([v, l], i) => {
     kmTxt(ctx, l, M + i * cw, y, 500, 24, 'mono', 5, G); kmTxt(ctx, v, M + i * cw, y - 46, 700, 66, 'disp', -1.5, B) });
   y -= 46 + 66 + 36; ctx.save(); ctx.strokeStyle = 'rgba(255,255,255,.3)'; ctx.lineWidth = 3; ctx.beginPath(); ctx.moveTo(M, y); ctx.lineTo(W - M, y); ctx.stroke(); ctx.restore();
@@ -7574,22 +7583,28 @@ function kaFondo() {
   const im = new Image(); im.onload = () => { KM.fondo = { ok: true, im }; ksPintar() }; im.src = u; return null;
 }
 function kaTicket(ctx) {
-  const W = KT.W, H = KT.H, d = kaDatos(), P = 54, INK = '#121212', MU = '#5E5D59';
+  // c141 · foto enmarcada grande (casi 9:16) + logo/fecha sobre la foto dentro de la zona segura + ticket de cristal montado al pie de la foto
+  const W = KT.W, H = KT.H, d = kaDatos(), P = 54, INK = '#121212', MU = '#5E5D59', B = '#FFFFFF';
   ctx.clearRect(0, 0, W, H); ctx.fillStyle = '#9A9DA2'; ctx.fillRect(0, 0, W, H);
   const fo = kaFondo(); if (fo) ctx.drawImage(fo, 0, 0, W, H);
-  const lg = kaLogo(INK); if (lg) ctx.drawImage(lg, P + 12, P + 6, lg.width * 36 / lg.height, 36);
-  kmTxt(ctx, d.fecha, W - P - 12, P + 36, 500, 27, 'mono', 5, INK, 'right');
-  // ticket abajo (se arma primero para conocer su alto)
-  const tw = W - 2 * P, tp = 48, pillsH = kaPills(document.createElement('canvas').getContext('2d'), d.pills, 0, 0, tw - 2 * tp, { size: 24, track: 3.5, h: 66, gap: 15, px: 27 });
-  const th = tp + 78 + 30 + pillsH + 36 + 30 + 66 + 48 + tp, ty = H - P - th;
-  // foto enmarcada
-  const fy = P + 36 + 54, fh = ty - 36 - fy, fx = P, fw = tw, src = kmFoto(), r = Math.max(fw / W, fh / H), sw = fw / r, sh = fh / r, sx = (W - sw) / 2, sy = Math.max(0, (H - sh) * .18);
-  ctx.save(); kaRR(ctx, fx, fy, fw, fh, 78); ctx.clip(); ctx.drawImage(src, sx, sy, sw, sh, fx, fy, fw, fh); ctx.restore();
+  const fx = P, fy = 150, fw = W - 2 * P, fh = H - 300, src = kmFoto(), r = Math.max(fw / W, fh / H), sw = fw / r, sh = fh / r;
+  let sx = (W - sw) / 2, sy = (H - sh) / 2;
+  if (KM.focoSrc === KS.foto && KM.foco) { const cv = kmCover(KS.foto), top = cv.oy + KM.foco.top * cv.h, cx = cv.ox + KM.foco.cx * cv.w;
+    sx = Math.max(0, Math.min(W - sw, cx - sw / 2)); sy = Math.max(0, Math.min(H - sh, top - sh * .1)) }
+  ctx.save(); kaRR(ctx, fx, fy, fw, fh, 78); ctx.clip(); ctx.drawImage(src, sx, sy, sw, sh, fx, fy, fw, fh);
+  const g = ctx.createLinearGradient(0, fy, 0, fy + 420); g.addColorStop(0, 'rgba(18,18,18,.55)'); g.addColorStop(1, 'rgba(18,18,18,0)'); ctx.fillStyle = g; ctx.fillRect(fx, fy, fw, 420);
+  ctx.restore();
   ctx.save(); kaRR(ctx, fx, fy, fw, fh, 78); ctx.lineWidth = 3; ctx.strokeStyle = 'rgba(255,255,255,.6)'; ctx.stroke(); ctx.restore();
-  kaPills(ctx, ['SESIÓN COMPLETADA'], fx + 36, fy + 36, fw, { size: 25, track: 4, h: 72, gap: 0, px: 30, fill: 'rgba(244,243,240,.85)', color: INK });
-  // ticket
-  ctx.save(); kaRR(ctx, P, ty, tw, th, 54); ctx.fillStyle = 'rgba(244,243,240,.74)'; ctx.fill(); ctx.lineWidth = 3; ctx.strokeStyle = 'rgba(255,255,255,.75)'; ctx.stroke(); ctx.restore();
-  let y = ty + tp + 64; const x0 = P + tp, x1 = W - P - tp;
+  const ix = fx + 48, ixr = fx + fw - 48;
+  const lg = kaLogo(B); if (lg) ctx.drawImage(lg, ix, KS_SAFE_T, lg.width * 36 / lg.height, 36);
+  kmTxt(ctx, d.fecha, ixr, KS_SAFE_T + 33, 500, 26, 'mono', 5, B, 'right');
+  kaPills(ctx, ['SESIÓN COMPLETADA'], ix, KS_SAFE_T + 78, fw, { size: 24, track: 4, h: 66, gap: 0, px: 27, fill: 'rgba(244,243,240,.88)', color: INK });
+  // ticket de cristal sobre el pie de la foto, terminando en la zona segura inferior
+  const tx = fx + 30, tw = fw - 60, tp = 48, pillsH = kaPills(document.createElement('canvas').getContext('2d'), d.pills, 0, 0, tw - 2 * tp, { size: 24, track: 3.5, h: 66, gap: 15, px: 27 });
+  const th = tp + 78 + 30 + pillsH + 36 + 30 + 66 + 48 + tp, ty = H - KS_SAFE_B - th;
+  ctx.save(); ctx.shadowColor = 'rgba(0,0,0,.25)'; ctx.shadowBlur = 40; ctx.shadowOffsetY = 12; kaRR(ctx, tx, ty, tw, th, 54); ctx.fillStyle = 'rgba(244,243,240,.86)'; ctx.fill(); ctx.restore();
+  ctx.save(); kaRR(ctx, tx, ty, tw, th, 54); ctx.lineWidth = 3; ctx.strokeStyle = 'rgba(255,255,255,.85)'; ctx.stroke(); ctx.restore();
+  let y = ty + tp + 64; const x0 = tx + tp, x1 = tx + tw - tp;
   const T = kaLineas(ctx, d.rut, 78, tw - 2 * tp - 200, 1); kmTxt(ctx, T.L[0], x0, y, 700, T.s, 'disp', -T.s * .03, INK);
   kmTxt(ctx, 'S' + d.sem + (d.planif ? ' · ' + Math.min(d.hechas || 0, d.planif) + '/' + d.planif : ''), x1, y - 6, 500, 27, 'mono', 4, MU, 'right');
   y += 30; kaPills(ctx, d.pills, x0, y, tw - 2 * tp, { size: 24, track: 3.5, h: 66, gap: 15, px: 27, stroke: INK, lw: 3, color: INK });
