@@ -213,15 +213,10 @@ function informe(ev, ant, ctx){
   if (forma) idx.push('<div><small>FORMA CORPORAL</small><b style="font-size:20px;line-height:1.2">'+forma.label+'</b><small style="font-weight:400;letter-spacing:.02em">'+forma.msg+'</small></div>')
   if (ev.ict != null) idx.push('<div><small>CINTURA / ESTATURA</small><b>'+String(Math.round(ev.ict * 100) / 100).replace('.', ',')+'</b><small>'+(ev.ict > .6 ? 'RIESGO MUY ALTO' : ev.ict > .5 ? 'RIESGO AUMENTADO' : 'SALUDABLE · BAJO 0,5')+'</small></div>')
   if (ev.icc != null) idx.push('<div><small>CINTURA / CADERA</small><b>'+String(Math.round(ev.icc * 100) / 100).replace('.', ',')+'</b><small>'+(ev.icc > (H ? .95 : .85) ? 'SOBRE LO RECOMENDADO' : 'DENTRO DE LO RECOMENDADO')+'</small></div>')
-  if (idx.length || ev.edad_biologica != null){
-    h += '<div class="knSec"><b>03</b><h3>Índices y edad</h3></div>'
-    if (idx.length) h += '<div class="knI" style="margin-bottom:12px">'+idx.join('')+'</div>'
-    if (ev.edad_biologica != null && ev.edad_eval != null){
-      const d = Math.round(ev.edad_biologica - ev.edad_eval)
-      h += '<div class="knBox"><span class="knK">EDAD CORPORAL</span><div class="knEd"><div><small class="knK">REAL</small><s>'+ev.edad_eval+'</s></div><div><small class="knK">CORPORAL</small><b>'+Math.round(ev.edad_biologica)+'</b></div></div>'+
-        '<p class="knP">'+(d <= -4 ? 'Tu cuerpo funciona como el de alguien '+Math.abs(d)+' años menor.' : d <= 0 ? 'Tu cuerpo está a la par o mejor que tu edad.' : 'Tu cuerpo muestra '+d+' años más que tu edad real: es lo que vamos a mover juntos.')+
-        ' Se estima con tu grasa, tu masa magra y tus medidas de cintura.</p></div>'
-    }
+  if (idx.length){
+    h += '<div class="knSec"><b>03</b><h3>Índices</h3></div><div class="knI" style="margin-bottom:12px">'+idx.join('')+'</div>'
+    // c149 · la "edad corporal" antropométrica salió: no tiene validación publicada. La edad biológica real (PhenoAge) se calcula con sangre en MI SALUD.
+    if (ctx.irSalud) h += '<p class="knNo" style="margin:0 4px 4px">Tu edad biológica se estima con 9 marcadores de tu examen de sangre. <a href="#" onclick="'+esc(ctx.irSalud)+';return false" style="color:inherit;font-weight:700">Ver en MI SALUD →</a></p>'
   }
   // 04 Energía y macros (pauta vinculada a la evaluación o la vigente)
   const p = ctx.pauta

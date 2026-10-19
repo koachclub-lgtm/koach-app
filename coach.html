@@ -533,6 +533,8 @@ button.bxI:hover,button.bxI:focus-visible{transform:translateY(-2px);box-shadow:
 <script src="/domain/program-catalog.js"></script>
 <script src="/domain/koach-composicion.js"></script>
 <script src="/domain/koach-nutricion-vista.js"></script>
+<script src="/domain/koach-biomarcadores.js"></script>
+<script src="/domain/koach-salud-vista.js"></script>
 <script src="/domain/koach-avatar.js"></script>
 <style>
 /* ═══════════ KOACH DS v1.0 · TOKENS + PRIMITIVES (P0) ═══════════ */
@@ -2532,7 +2534,7 @@ html[data-rol="recepcion"] #fTbCmp{display:none}
 .cmpR__tb td{padding:6px 0;border-top:1px solid rgba(244,243,240,.12)}.cmpR__tb td:last-child{text-align:right}
 .cmpR__av{margin:10px 0 0;padding:10px;border-radius:8px;background:rgba(244,243,240,.08);font:400 12.5px/1.45 var(--font-display);color:#E0DED8}
 .cmpF__acts{display:flex;gap:8px;justify-content:flex-end;flex-wrap:wrap;margin-top:6px}
-.nuSegC{display:inline-grid;grid-template-columns:1fr 1fr;gap:4px;padding:4px;margin:4px 0 14px;border-radius:999px;background:rgba(18,18,18,.06)}
+.nuSegC{display:inline-grid;grid-template-columns:repeat(3,auto);gap:4px;padding:4px;margin:4px 0 14px;border-radius:999px;background:rgba(18,18,18,.06)}
 .nuSegC button{min-height:40px;padding:0 18px;border:0;border-radius:999px;background:transparent;font:500 11px var(--font-mono);letter-spacing:.12em;color:#5E5D59;cursor:pointer}
 .nuSegC button[aria-pressed="true"]{background:#121212;color:#F4F3F0}
 .plF{display:grid;grid-template-columns:minmax(0,1fr) 400px;gap:16px;align-items:start}
@@ -8742,7 +8744,7 @@ function fCmpCalc(){
       fila('Masa residual',r.residual.kg!=null?cmpF1(r.residual.kg)+' kg':'—')+fila('Σ4 D&W · Σ6 · Σ8',[r.grasa.sum4,r.suma6,r.suma8].map(cmpF1).join(' · ')+' mm')+
       fila('FFMI (norm. 1,80 m)',r.ffmiNorm!=null?cmpF1(r.ffmiNorm)+(r.ffmiClase?' · '+r.ffmiClase:''):'—')+
       fila('Índice cintura/talla',r.ict!=null?String(r.ict).replace('.',','):'—')+fila('Índice cintura/cadera',r.icc!=null?String(r.icc).replace('.',','):'—')+
-      fila('Edad biológica',r.edadBiologica!=null?r.edadBiologica+' años':'—')+'</table>'+
+      fila('Edad corporal (estimación no validada · no se muestra al socio)',r.edadBiologica!=null?r.edadBiologica+' años':'—')+'</table>'+
     (r.avisos.length||r.calidad?'<div class="cmpR__av">'+r.avisos.concat(r.calidad?[r.calidad]:[]).map(adEsc).join('<br>')+'</div>':'')
   const pubOk = p && cmpNum(inp.talla) && (r.grasa.medida || r.muscular.medida)
   const b=document.getElementById('cmPublicar'); if(b) b.disabled=!pubOk
@@ -8771,7 +8773,7 @@ async function fCmpEstado(id, estado){
 // ═══ c148 · PLAN NUTRICIONAL · nutrición arma el plan (con o sin IA) y lo publica a la app del socio. Reemplaza el PDF.
 // Vista previa = KN.plan (el mismo renderizador de la app del socio). Números: motor/nutrición. IA: solo redacción (/api/pauta-ia).
 const NPL={ data:null, edit:null, cont:null, gen:false }
-function nuSegHtml(on){ return '<div class="nuSegC" role="group" aria-label="Nutrición del socio"><button type="button" aria-pressed="'+(on==='cmp')+'" onclick="fCmpPintar()">COMPOSICIÓN</button><button type="button" aria-pressed="'+(on==='plan')+'" onclick="fPlanCargar()">PLAN NUTRICIONAL</button></div>' }
+function nuSegHtml(on){ return '<div class="nuSegC" role="group" aria-label="Nutrición del socio"><button type="button" aria-pressed="'+(on==='cmp')+'" onclick="fCmpPintar()">COMPOSICIÓN</button><button type="button" aria-pressed="'+(on==='plan')+'" onclick="fPlanCargar()">PLAN NUTRICIONAL</button><button type="button" aria-pressed="'+(on==='salud')+'" onclick="fSalCargar()">SALUD</button></div>' }
 function plUltEval(){ const e=(CMP.data&&CMP.data.evaluaciones)||[]; return e.filter(x=>x.estado==='publicada').slice(-1)[0] || e.slice(-1)[0] || null }
 async function fPlanCargar(){
   const box=document.getElementById('fTabCmp'); if(!box||!F) return
@@ -8911,6 +8913,56 @@ async function fPlanPublicar(id){
   const { error } = await sb.from('pautas_nutricion').update({ estado:'publicada' }).eq('id', id)
   if (error){ toast('No se pudo publicar: '+(error.message||'error')); return }
   toast('Plan publicado al socio'); fPlanCargar()
+}
+
+// ═══ c149 · SALUD (capa clínica) · solo nutrición/admin. Exámenes leídos con IA, confirmados por el socio o por nutrición, validados aquí.
+const SALD={ data:null }
+async function fSalCargar(){
+  const box=document.getElementById('fTabCmp'); if(!box||!F) return
+  KSAL.ensureCss(); box.innerHTML='<div class="cmp">'+nuSegHtml('salud')+kLd('Cargando salud')+'</div>'
+  try{ const { data, error } = await sb.rpc('koach_salud', { p_socio:F.id }); if(error) throw error; SALD.data=data||{}; fSalPintar() }
+  catch(e){ console.error('salud', e); box.innerHTML='<div class="cmp">'+nuSegHtml('salud')+'<div class="avErr"><b>NO PUDIMOS CARGAR SALUD</b><span>'+adEsc((e&&e.message)||'Revisa tu conexión.')+'</span><button type="button" onclick="fSalCargar()">REINTENTAR</button></div></div>' }
+}
+function fSalPintar(){
+  const box=document.getElementById('fTabCmp'), d=SALD.data||{}, ex=d.examenes||[]
+  const R = ex.length ? KB.resumen(ex.map(e=>({ id:e.id, fecha:e.fecha, valores:e.valores||[] })), { sexo:F.sex, fechaNac:F.fecha_nacimiento }) : null
+  window.KSAL_R=R
+  const pend=ex.filter(e=>e.estado!=='validado').length
+  const hd='<div class="cmp__hd"><div><span class="cmp__k">SALUD · CAPA CLÍNICA · '+(d.consiente?'CONSENTIMIENTO VIGENTE':'SIN CONSENTIMIENTO DEL SOCIO')+(d.menor?' · MENOR DE EDAD':'')+'</span>'+
+    '<h2 class="cmp__t">'+(ex.length?ex.length+(ex.length===1?' examen':' exámenes')+(pend?' · '+pend+' por validar':''):'Sin exámenes')+'</h2></div>'+
+    '<button type="button" class="cmp__b" onclick="fSalSubir()">+ SUBIR EXAMEN</button></div>'
+  const filas=ex.slice().reverse().map(e=>'<div class="cmp__row" style="grid-template-columns:110px 110px minmax(0,1fr) auto"><div><small>FECHA</small>'+cmpFecha(e.fecha)+'</div>'+
+    '<span class="cmp__pill'+(e.estado==='validado'?' pub':'')+'">'+(e.estado==='validado'?'VALIDADO':'POR VALIDAR')+'</span>'+
+    '<div><small>'+adEsc(e.laboratorio||'LABORATORIO NO INDICADO')+' · SUBIDO POR '+(e.origen==='socio'?'EL SOCIO':'NUTRICIÓN')+'</small>'+(e.valores||[]).length+' valores'+((e.valores||[]).some(v=>v.editado)?' · con correcciones manuales':'')+'</div>'+
+    '<div class="cmp__acts">'+((e.archivos||[]).length?'<button type="button" onclick="fSalOriginal(\''+e.id+'\')">VER ORIGINAL</button>':'')+
+      (e.estado!=='validado'?'<button type="button" onclick="fSalValidar(\''+e.id+'\')">VALIDAR</button>':'')+'</div>'+
+    (e.nota_nutricion?'<div style="grid-column:1/-1"><small>NOTA AL SOCIO</small>'+adEsc(e.nota_nutricion)+'</div>':'')+'</div>').join('')
+  box.innerHTML='<div class="cmp">'+nuSegHtml('salud')+hd+
+    (filas?'<span class="cmp__k" style="margin:4px 0 8px">EXÁMENES · REVISA CONTRA EL ORIGINAL ANTES DE VALIDAR</span>'+filas:'')+
+    '<div class="plPrevWrap" style="margin-top:18px"><span class="cmp__k" style="margin-bottom:8px">LO QUE VE EL SOCIO EN NUTRICIÓN → MI SALUD</span><div class="plPhone">'+
+    KSAL.vista(R,{ onDetalle:'fSalDet', onSubir:'fSalSubir()', entre: ex.length>1 ? { desde:ex[0].fecha, hasta:ex[ex.length-1].fecha,
+      sesiones:ex.slice(1).reduce((a,e)=>a+((e.entreno&&e.entreno.sesiones)||0),0), kg:ex.slice(1).reduce((a,e)=>a+((e.entreno&&+e.entreno.kg)||0),0) } : null })+'</div></div></div>'
+}
+function fSalDet(c){ const m=window.KSAL_R&&window.KSAL_R.marcadores.find(x=>x.codigo===c); if(m) KSAL.ov(String(m.cat), KSAL.detalle(m)) }
+function fSalSubir(){ KSAL.subir({ sb, socioId:F.id, sexo:F.sex, propio:false, onListo:()=>{ toast('Examen guardado'); fSalCargar() } }) }
+async function fSalOriginal(id){
+  const e=((SALD.data&&SALD.data.examenes)||[]).find(x=>x.id===id); if(!e) return
+  for (const p of (e.archivos||[])){ const { data, error } = await sb.storage.from('examenes').createSignedUrl(p, 600)
+    if (error||!data){ toast('No se pudo abrir el archivo'); continue } window.open(data.signedUrl, '_blank', 'noopener') }
+}
+async function fSalValidar(id){
+  const e=((SALD.data&&SALD.data.examenes)||[]).find(x=>x.id===id); if(!e) return
+  KSAL.ov('VALIDAR EXAMEN', '<div class="ksal"><span class="sK">'+cmpFecha(e.fecha)+' · '+adEsc(e.laboratorio||'')+'</span><h3 class="sH">Validar valores</h3>'+
+    '<p class="sP">Confirmas que revisaste los valores contra el examen original. Después de validar, el socio ya no puede editarlos.</p>'+
+    '<div class="sBox" style="padding:4px 16px">'+(e.valores||[]).map(v=>{ const m=KB.porCodigo(v.codigo); return '<div class="sV" style="grid-template-columns:minmax(0,1fr) auto"><div><b>'+adEsc(m?m.n:v.codigo)+'</b><small>'+(v.nombre_original?'Leído: '+adEsc(v.nombre_original)+' '+adEsc(v.valor_texto||'')+' '+adEsc(v.unidad_original||''):'Ingresado a mano')+(v.editado?' · corregido':'')+'</small></div><b>'+String(v.valor).replace('.',',')+' '+adEsc(v.unidad)+'</b></div>' }).join('')+'</div>'+
+    '<div class="sF"><label>NOTA PARA EL SOCIO (OPCIONAL, LA VE EN MI SALUD)<input type="text" id="fSalNota" maxlength="300" value="'+adEsc(e.nota_nutricion||'')+'"></label></div>'+
+    '<div style="display:grid;gap:8px;margin-top:14px"><button type="button" class="sBtn sBtn--w" onclick="fSalValidarOk(\''+id+'\')">VALIDAR</button>'+((e.archivos||[]).length?'<button type="button" class="sBtn sBtn--l sBtn--w" onclick="fSalOriginal(\''+id+'\')">VER ORIGINAL</button>':'')+'</div></div>')
+}
+async function fSalValidarOk(id){
+  const nota=(document.getElementById('fSalNota').value||'').trim()
+  const { error } = await sb.from('examenes').update({ estado:'validado', nota_nutricion:nota||null }).eq('id', id)
+  if (error){ toast('No se pudo validar: '+(error.message||'error')); return }
+  KSAL.cerrar(); toast('Examen validado'); fSalCargar()
 }
 </script>
 </body>

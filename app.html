@@ -701,6 +701,8 @@ html .kw.kw--hero .kw-cl{font-size:7px;letter-spacing:.16em}
 <script src="/domain/program-catalog.js"></script>
 <script src="/domain/koach-composicion.js"></script>
 <script src="/domain/koach-nutricion-vista.js"></script>
+<script src="/domain/koach-biomarcadores.js"></script>
+<script src="/domain/koach-salud-vista.js"></script>
 <script src="/domain/koach-avatar.js"></script>
 <style>
 /* ═══════════ KOACH DS v1.0 · TOKENS + PRIMITIVES (P0) ═══════════ */
@@ -2663,8 +2665,8 @@ html:not(:has(#oAct.vis)) #sBloques.locked{filter:none;opacity:1;pointer-events:
 #vNutri .kh--met .k2h__bg,#vNutri .kh--met .k2h__lines{display:none}
 #vNutri .mtT{margin-top:12px;color:#C9C8C2;font-weight:900;font-stretch:112%;font-size:clamp(36px,10.6vw,44px);line-height:.92;letter-spacing:-.015em;text-transform:uppercase}
 @media (max-width:374px){ #vNutri .kh--met{padding-left:22px;padding-right:22px} #vNutri .kh--met::before{left:22px;right:22px} }
-.nuSeg{display:grid;grid-template-columns:1fr 1fr;gap:4px;padding:4px;margin:4px 0 16px;border-radius:999px;background:rgba(11,11,12,.06)}
-.nuSeg button{min-height:44px;border:none;border-radius:999px;background:transparent;font:700 10.5px var(--a2M,'Space Mono',monospace);letter-spacing:.12em;color:#6B6A65;cursor:pointer}
+.nuSeg{display:grid;grid-template-columns:repeat(3,1fr);gap:4px;padding:4px;margin:4px 0 16px;border-radius:999px;background:rgba(11,11,12,.06)}
+.nuSeg button{min-height:44px;padding:0 4px;border:none;border-radius:999px;background:transparent;font:700 10.5px var(--a2M,'Space Mono',monospace);letter-spacing:.12em;color:#6B6A65;cursor:pointer}
 .nuSeg button[aria-pressed="true"]{background:#0B0B0C;color:#F4F3F0}
 .nuSeg button:focus-visible{outline:2px solid #0B0B0C;outline-offset:2px}
 .nuInf{position:fixed;inset:0;z-index:950;background:#F4F3F0;overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain}
@@ -2876,9 +2878,10 @@ html:not(:has(#oAct.vis)) #sBloques.locked{filter:none;opacity:1;pointer-events:
       <svg class="mtIso" viewBox="0 0 460 462" role="img" aria-label="KOACH"><rect width="460" height="94"/><polygon points="0,339 231,131 460,336 460,456 231,251 0,462"/></svg></div>
       <h1 class="kh__t mtT">Tu nutrición<br>KOACH.</h1>
       <div class="mtCli" id="nuCli"></div></header>
-    <div class="nuSeg" id="nuSeg" role="group" aria-label="Sección de nutrición"><button type="button" data-p="plan" aria-pressed="true" onclick="nuPane('plan')">MI PLAN</button><button type="button" data-p="cuerpo" aria-pressed="false" onclick="nuPane('cuerpo')">MI CUERPO</button></div>
+    <div class="nuSeg" id="nuSeg" role="group" aria-label="Sección de nutrición"><button type="button" data-p="plan" aria-pressed="true" onclick="nuPane('plan')">MI PLAN</button><button type="button" data-p="cuerpo" aria-pressed="false" onclick="nuPane('cuerpo')">MI CUERPO</button><button type="button" data-p="salud" aria-pressed="false" onclick="nuPane('salud')">MI SALUD</button></div>
     <div id="nuPlan" aria-live="polite"></div>
     <div id="avCmp" hidden aria-label="Composición corporal" aria-live="polite"></div>
+    <div id="nuSalud" hidden aria-label="Tu salud" aria-live="polite"></div>
   </div>
 
   <!-- ══ PERFIL ══ -->
@@ -6507,8 +6510,8 @@ const cpF=v=>v==null?'—':avKg(Math.round(+v*10)/10)
 const NU={ pauta:null, ok:false, bloqueado:false, pane:'plan' }
 function nuPane(p){
   NU.pane=p; document.querySelectorAll('#nuSeg button').forEach(b=>b.setAttribute('aria-pressed', String(b.dataset.p===p)))
-  document.getElementById('nuPlan').hidden = p!=='plan'; document.getElementById('avCmp').hidden = p!=='cuerpo'
-  if (p==='cuerpo') pintarComposicion(); else pintarNuPlan()
+  document.getElementById('nuPlan').hidden = p!=='plan'; document.getElementById('avCmp').hidden = p!=='cuerpo'; document.getElementById('nuSalud').hidden = p!=='salud'
+  if (p==='cuerpo') pintarComposicion(); else if (p==='salud') loadSalud(); else pintarNuPlan()
 }
 async function loadNutricion(){
   if (typeof KN!=='undefined') KN.ensureCss()
@@ -6537,12 +6540,51 @@ function pintarNuPlan(){
   el.innerHTML = KN.plan(NU.pauta, { peso: u&&u.peso_kg })
   if (!NU.pauta) el.querySelector('.knVac').insertAdjacentHTML('beforeend','<br><a class="a2pill" style="margin-top:14px" href="https://wa.me/56971333042?text='+encodeURIComponent('Hola KOACH, quiero agendar mi evaluación nutricional')+'" target="_blank" rel="noopener">AGENDAR EVALUACIÓN →</a>')
 }
+// ═══ c149 · MI SALUD · capa clínica: exámenes de sangre leídos con IA, comparados contra tu punto de partida y unidos a tu entrenamiento
+const SAL={ data:null, ok:false, cargando:false }
+async function loadSalud(forzar){
+  const el=document.getElementById('nuSalud'); if(!el) return
+  if (typeof KSAL!=='undefined') KSAL.ensureCss()
+  if (SAL.data && !forzar){ pintarSalud(); return }
+  if (SAL.cargando) return; SAL.cargando=true
+  el.innerHTML='<div class="avLoad" aria-busy="true"><i></i><i></i><i></i></div>'
+  try{ const { data, error } = await sb.rpc('koach_salud'); if (error) throw error; SAL.data=data||{}; SAL.ok=true }
+  catch(e){ console.error('salud', e); SAL.ok=false; el.innerHTML='<div class="avErr"><b>NO PUDIMOS CARGAR TU SALUD</b><span>Revisa tu conexión.</span><button type="button" onclick="loadSalud(true)">REINTENTAR</button></div>'; SAL.cargando=false; return }
+  SAL.cargando=false
+  if (CPX.data==null) { try{ await loadComposicion() }catch(_){} }
+  pintarSalud()
+}
+function saludEntre(R){
+  const ex=(SAL.data&&SAL.data.examenes)||[]; if (ex.length<2) return null
+  const tras=ex.slice(1), ini=ex[0].fecha, fin=ex[ex.length-1].fecha
+  const out={ desde:ini, hasta:fin, sesiones:tras.reduce((a,e)=>a+((e.entreno&&e.entreno.sesiones)||0),0), kg:tras.reduce((a,e)=>a+((e.entreno&&+e.entreno.kg)||0),0) }
+  // composición más cercana a cada examen (±60 días)
+  const ev=(CPX.data||[]).filter(x=>x.fecha), cerca=f=>{ let b=null,d=1e9; ev.forEach(x=>{ const k=Math.abs(new Date(x.fecha)-new Date(f))/864e5; if(k<d&&k<=60){ d=k; b=x } }); return b }
+  const a=cerca(ini), b=cerca(fin)
+  if (a&&b&&a!==b){ if(a.masa_muscular_kg!=null&&b.masa_muscular_kg!=null) out.musculo=Math.round((b.masa_muscular_kg-a.masa_muscular_kg)*10)/10
+    if(a.porcentaje_grasa!=null&&b.porcentaje_grasa!=null) out.grasa=Math.round((b.porcentaje_grasa-a.porcentaje_grasa)*10)/10 }
+  return out
+}
+function pintarSalud(){
+  const el=document.getElementById('nuSalud'); if(!el) return
+  const d=SAL.data||{}
+  if (d.bloqueado){ el.innerHTML='<div class="kn"><div class="knVac">'+plEscA((S.acceso&&accTxt(S.acceso).t)||'Tu membresía no está al día')+'. Tu información de salud se habilita con tu membresía pagada; regularízala en recepción.</div></div>'; return }
+  const ex=(d.examenes||[]).map(e=>({ id:e.id, fecha:e.fecha, valores:e.valores||[] }))
+  const R = ex.length ? KB.resumen(ex, { sexo:(S.perfil||{}).sex, fechaNac:(S.perfil||{}).fecha_nacimiento }) : null
+  window.KSAL_R=R
+  el.innerHTML=KSAL.vista(R, { entre: R?saludEntre(R):null, puedeSubir: !d.menor,
+    aviso: d.menor ? 'Los exámenes de menores de edad los registra nutrición con autorización de tu apoderado.' : '' })
+  const ult=(d.examenes||[]).slice(-1)[0]
+  if (ult && ult.nota_nutricion) el.querySelector('.ksal').insertAdjacentHTML('afterbegin','<div class="sBox"><span class="sK">MENSAJE DE NUTRICIÓN · '+fechaCorta(ult.fecha)+'</span><p class="sP" style="color:var(--sI)">'+plEscA(ult.nota_nutricion)+'</p></div>')
+}
+KSAL.subirDesdeApp=function(){ const d=SAL.data||{}
+  KSAL.subir({ sb, socioId:S.perfil.id, sexo:S.perfil.sex, propio:true, consiente:!!d.consiente, menor:!!d.menor, onListo:()=>{ toast('Examen guardado ✓'); loadSalud(true) } }) }
 function nuInforme(id){
   const ev=CPX.data||[], i=ev.findIndex(e=>e.id===id); if(i<0) return
   const pa = NU.pauta && (!NU.pauta.evaluacion_id || NU.pauta.evaluacion_id===id || i===ev.length-1) ? NU.pauta : null
   const p=S.perfil||{}
   document.getElementById('oInfBody').innerHTML = KN.informe(ev[i], i>0?ev[i-1]:null, { nombre:[p.nombre,p.apellido].filter(Boolean).join(' ').toUpperCase(), sexo:p.sex,
-    programa:(S.proto&&S.proto.programa)||'', nivel:(S.proto&&S.proto.nivel)||'', pauta:pa, irPlan:'nuInfCerrar();nuPane(\'plan\')' })
+    programa:(S.proto&&S.proto.programa)||'', nivel:(S.proto&&S.proto.nivel)||'', pauta:pa, irPlan:'nuInfCerrar();nuPane(\'plan\')', irSalud:'nuInfCerrar();nuPane(\'salud\')' })
   const o=document.getElementById('oInf'); o.hidden=false; o.scrollTop=0; document.documentElement.style.overflow='hidden'
   try{ history.pushState({ inf:1 }, '') }catch(_){}
 }
