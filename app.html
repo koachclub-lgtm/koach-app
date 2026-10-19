@@ -420,13 +420,7 @@ html.accBloq #pfCard, html.accBloq #vPerfil .kpc__f, html.accBloq #vPerfil [oncl
 .bnX{position:fixed;inset:0;z-index:1950;overflow:hidden;color:#101012;--ink:#101012;--mu:rgba(16,16,18,.55);--ln:rgba(16,16,18,.22);--lv:.5;display:flex;flex-direction:column;padding:calc(env(safe-area-inset-top,0px) + 18px) 22px calc(env(safe-area-inset-bottom,0px) + 14px);outline:none;touch-action:none;user-select:none;-webkit-user-select:none;background:#D9DADC}
 .bnX--dk{color:#F3F3F4;--ink:#F3F3F4;--mu:rgba(243,243,244,.6);--ln:rgba(243,243,244,.25)}
 .bnX__bg{position:absolute;inset:0;background-size:cover;background-position:center;opacity:0;transition:opacity .45s ease}.bnX__bg.on{opacity:1}
-.bnX__glow{position:absolute;left:50%;top:44%;width:120vw;height:120vw;max-width:760px;max-height:760px;transform:translate(-50%,-50%) scale(calc(.7 + var(--lv)*.45));border-radius:50%;background:radial-gradient(closest-side,rgba(255,255,255,calc(.18 + var(--lv)*.5)),rgba(255,255,255,0));filter:blur(18px);transition:transform .35s ease;pointer-events:none}
-.bnX--dk .bnX__glow{background:radial-gradient(closest-side,rgba(190,200,214,calc(.12 + var(--lv)*.3)),rgba(190,200,214,0))}
-.bnX__net{position:absolute;inset:0;background-size:cover;background-position:center;opacity:.9;transition:opacity .45s;pointer-events:none}
-.bnX__brain{position:absolute;left:58%;top:40%;width:88%;max-width:440px;transform:translate(-50%,-50%) scale(calc(.92 + var(--lv)*.12));opacity:calc(.2 + var(--lv)*.25);pointer-events:none;transition:transform .35s ease,opacity .35s;--kbr1:#18181A;--kbr2:#9A9BA0}
-.bnX--dk .bnX__brain{--kbr1:#FFFFFF;--kbr2:#7D8087;filter:drop-shadow(0 0 10px rgba(255,255,255,.18))}
-.bnX__brain svg{width:100%;height:auto;display:block}
-.bnX>*:not(.bnX__bg):not(.bnX__glow):not(.bnX__brain):not(.bnX__net){position:relative;z-index:1}
+.bnX>*:not(.bnX__bg){position:relative;z-index:1}
 .bnX__top{display:flex;justify-content:space-between;align-items:center}.bnX__top img{height:15px;width:auto;filter:invert(1)}.bnX--dk .bnX__top img{filter:none}
 .bnX__st{font:700 10px var(--font-mono);letter-spacing:.16em;font-variant-numeric:tabular-nums}
 .bnX__k{margin-top:18px;display:flex;justify-content:space-between;align-items:center;font:700 9px var(--font-mono);letter-spacing:.16em;color:var(--mu)}
@@ -461,7 +455,7 @@ html.accBloq #pfCard, html.accBloq #vPerfil .kpc__f, html.accBloq #vPerfil [oncl
 .bnX__msg{margin:0;font:400 15px/1.45 var(--font-display);color:var(--ink)}
 .bnX__coach{margin:0;font:400 9px var(--font-mono);letter-spacing:.16em;color:var(--mu)}
 .bnX__go--fin{flex:none}
-@media (prefers-reduced-motion:reduce){ .bnX__n,.bnX__bg,.bnX__glow{transition:none} .bnX--in .bnX__stage,.bnX--in .bnX__q,.bnX__res{animation:none} }
+@media (prefers-reduced-motion:reduce){ .bnX__n,.bnX__bg{transition:none} .bnX--in .bnX__stage,.bnX--in .bnX__q,.bnX__res{animation:none} }
 .kHoja{position:fixed;inset:0;z-index:2000;background:rgba(12,12,13,.55);display:flex;align-items:center;justify-content:center;padding:20px;animation:kHf .15s ease-out}
 @supports (-webkit-touch-callout:none){ .kHoja{background:rgba(10,10,11,.66)} }
 .kHoja__c{width:100%;max-width:440px;background:#F6F5F2;color:#111;border-radius:22px;padding:22px 20px 18px;box-shadow:0 30px 80px rgba(0,0,0,.35);animation:kHu .22s cubic-bezier(.2,.8,.2,1)}
@@ -3869,39 +3863,38 @@ const BN_BG=['cromoN','grafito','acero','titanio','cromo'], BN_NIVBG={BAJO:'crom
 const BN_AJ={ OPTIMO:'Día para empujar: si la técnica acompaña, puedes subir la carga.', BUENO:'Entrena tal como está planificado.',
   MODERADO:'Mantén las cargas, cuida la técnica y respeta los descansos completos.', BAJO:'Tu coach puede ajustar cargas o volumen hoy. Avísale cómo te sientes.' }
 const BN_ALT={DOMS:'DOLOR MUSCULAR',SUENO:'SUEÑO',FATIGA:'FATIGA',ESTRES:'ESTRÉS',ANIMO:'MOTIVACIÓN',BAJO_SU_NORMAL:'BAJO TU NORMAL'}
-/* c173 · ARTE EPIGENÉTICO KOACH (grises): red molecular desenfocada en profundidad (fondo) + cerebro abstracto de líneas de contorno (ícono).
-   Reemplaza el cerebro anterior. Todo se genera en el teléfono; tinta clara sobre fondos oscuros y tinta grafito sobre fondos claros. */
-const KART={}
+/* c174 · FONDO MOLECULAR KOACH: red orgánica tipo enlace molecular (uniones gruesas y fusionadas, hebras que se afinan) con
+   profundidad de campo: una franja diagonal nítida y el resto desenfocado. Tono de base por nivel (1 negro → 5 blanco), tinta invertida. */
+const KART={}, KMOL_BASE={cromoN:['#0B0B0C',1],grafito:['#2A2B2E',1],acero:['#B9BBBE',0],titanio:['#DCDDDF',0],cromo:['#F6F6F7',0]}
 function kRnd(seed){ let s=seed>>>0||1; return ()=>{ s^=s<<13; s^=s>>>17; s^=s<<5; return ((s>>>0)%100000)/100000 } }
-function kartRed(dark, seed){ const key='red'+(dark?1:0)+'_'+(seed||7); if(KART[key]) return KART[key]
-  try{ const W=420,H=900,c=document.createElement('canvas'); c.width=W; c.height=H; let x=c.getContext('2d'); const R=kRnd(seed||7), ink=dark?'236,238,242':'14,14,16'
-    // hebra molecular: gruesa en los nodos, delgada al centro, dibujada como cinta continua
-    const hebra=(a,b,m,w,al)=>{ x.fillStyle='rgba('+ink+','+al+')'; for(let i=0;i<=48;i++){ const t=i/48, u=1-t
-        const X=u*u*a[0]+2*u*t*m[0]+t*t*b[0], Y=u*u*a[1]+2*u*t*m[1]+t*t*b[1], r=w*(.22+.78*Math.pow(Math.abs(2*t-1),2.2))
-        x.beginPath(); x.arc(X,Y,r,0,7); x.fill() } }
-    const capa=(n,blur,al,w)=>{ const L=document.createElement('canvas'); L.width=W; L.height=H; const y=L.getContext('2d'), x0=x; x=y   // una capa nítida y un solo blur al componer (rápido)
-      const P=[]; for(let i=0;i<n;i++) P.push([W*(-.1+R()*1.2),H*(-.02+R()*1.04)])
-      P.forEach((p,i)=>{ const q=P[(i+1)%P.length], m=[(p[0]+q[0])/2+(R()-.5)*W*.7,(p[1]+q[1])/2+(R()-.5)*H*.3]; hebra(p,q,m,w*(.7+R()*.6),al)
-        x.fillStyle='rgba('+ink+','+al+')'; x.beginPath(); x.arc(p[0],p[1],w*1.15,0,7); x.fill() }); x=x0; x.filter='blur('+blur+'px)'; x.drawImage(L,0,0); x.filter='none' }
-    capa(4,30,.22,46)   // lejos
-    capa(4,12,.30,22)   // medio
-    capa(2,3,.42,9)     // cerca
-    x.filter='none'; KART[key]='url('+c.toDataURL('image/png')+')' }catch(_){ KART[key]='' } return KART[key] }
-function kartCerebro(n){ // cerebro abstracto de líneas de contorno: silueta lateral (frontal, parietal, occipital, temporal) + surcos en S, repetidos en capas
-  n=n||14; const sil=(sc,dx,dy)=>{ const P=[[34,104],[30,70],[52,40],[90,24],[132,28],[166,50],[178,84],[170,112],[150,126],[134,124],[128,146],[112,158],[96,146],[90,128],[64,132],[42,124]]
-      const q=P.map(p=>[100+(p[0]-100)*sc+dx, 92+(p[1]-92)*sc+dy]); let d='M'+((q[0][0]+q[1][0])/2).toFixed(1)+' '+((q[0][1]+q[1][1])/2).toFixed(1)
-      for(let i=1;i<=q.length;i++){ const a=q[i%q.length], b=q[(i+1)%q.length]; d+='Q'+a[0].toFixed(1)+' '+a[1].toFixed(1)+' '+((a[0]+b[0])/2).toFixed(1)+' '+((a[1]+b[1])/2).toFixed(1) } return d+'Z' }
-  const surco=(k,dx,dy)=>{ const S=[['M58 64C74 48 98 52 100 70S84 96 104 104 140 96 146 76'],['M70 112C82 100 100 104 104 116'],['M118 44C126 58 146 60 156 52']][k][0]
-      return S.replace(/(-?\d+\.?\d*) (-?\d+\.?\d*)/g,(m0,a,b)=>(+a+dx).toFixed(1)+' '+(+b+dy).toFixed(1)) }
-  let g=''; for(let i=0;i<n;i++){ const t=i/(n-1), sc=1-t*.26, dx=t*13, dy=t*12, op=(.12+.88*Math.pow(1-t,1.3)).toFixed(3), sw=(i===0?2:.9)
-    g+='<path d="'+sil(sc,dx,dy)+'" stroke-opacity="'+op+'" stroke-width="'+sw+'"/>'
-    g+='<path d="'+surco(0,dx*.8,dy*.8)+'" stroke-opacity="'+(op*.95).toFixed(3)+'" stroke-width="'+sw+'"/>'
-    if(i%2===0) g+='<path d="'+surco(1,dx*.7,dy*.7)+'" stroke-opacity="'+(op*.8).toFixed(3)+'" stroke-width="'+sw+'"/><path d="'+surco(2,dx*.6,dy*.6)+'" stroke-opacity="'+(op*.7).toFixed(3)+'" stroke-width="'+sw+'"/>' }
-  return '<svg viewBox="0 0 200 184" fill="none" stroke="url(#kbrG)" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><defs><linearGradient id="kbrG" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="var(--kbr1)"/><stop offset="1" stop-color="var(--kbr2)"/></linearGradient></defs>'+g+'</svg>' }
+function kartMol(k, seed){ const key='mol_'+k+'_'+(seed||7); if(KART[key]) return KART[key]
+  try{ const b=KMOL_BASE[k]||KMOL_BASE.cromo, dark=!!b[1], W=420,H=900, R=kRnd(seed||7), ink=dark?[236,238,242]:[12,12,14]
+    // 1) forma "gooey": nodos + hebras, desenfoque y umbral de alfa → uniones fusionadas y bordes limpios
+    const g=document.createElement('canvas'); g.width=W; g.height=H; const gx=g.getContext('2d')
+    const N=[]; for(let i=0;i<6;i++) N.push([W*(-.15+R()*1.3),H*(.02+R()*.96),20+R()*22])
+    gx.fillStyle=gx.strokeStyle='#000'; gx.lineCap='round'
+    const E=[]; N.forEach((p,i)=>{ const d=N.map((q,j)=>[j,Math.hypot(q[0]-p[0],q[1]-p[1])]).filter(z=>z[0]!==i).sort((a,b)=>a[1]-b[1]); E.push([i,d[0][0]]); if(R()<.7) E.push([i,d[1][0]]) })
+    const blur=document.createElement('canvas'); blur.width=W; blur.height=H; const bx=blur.getContext('2d')
+    E.forEach(e=>{ const a=N[e[0]], c=N[e[1]], m=[(a[0]+c[0])/2+(R()-.5)*200,(a[1]+c[1])/2+(R()-.5)*160]
+      for(let i=0;i<=40;i++){ const t=i/40,u=1-t, X=u*u*a[0]+2*u*t*m[0]+t*t*c[0], Y=u*u*a[1]+2*u*t*m[1]+t*t*c[1], r=7+16*Math.pow(Math.abs(2*t-1),2.2)
+        gx.beginPath(); gx.arc(X,Y,r,0,7); gx.fill() } })
+    N.forEach(p=>{ gx.beginPath(); gx.arc(p[0],p[1],p[2],0,7); gx.fill() })
+    bx.filter='blur(14px)'; bx.drawImage(g,0,0); bx.filter='none'
+    const im=bx.getImageData(0,0,W,H), d=im.data; for(let i=3;i<d.length;i+=4){ const a=d[i]/255, t=Math.min(1,Math.max(0,(a-.32)/.16)); d[i]=255*t*t*(3-2*t); d[i-3]=ink[0]; d[i-2]=ink[1]; d[i-1]=ink[2] }
+    bx.putImageData(im,0,0)
+    // 2) composición con profundidad de campo
+    const c=document.createElement('canvas'); c.width=W; c.height=H; const x=c.getContext('2d'); x.fillStyle=b[0]; x.fillRect(0,0,W,H)
+    x.globalAlpha=.55; x.filter='blur(34px)'; x.drawImage(blur,-W*.18,-H*.1,W*1.4,H*1.25)   // capa lejana, más grande
+    x.globalAlpha=.85; x.filter='blur(9px)'; x.drawImage(blur,0,0)
+    const f=document.createElement('canvas'); f.width=W; f.height=H; const fx=f.getContext('2d'); fx.filter='blur(1.6px)'; fx.drawImage(blur,0,0); fx.filter='none'
+    fx.globalCompositeOperation='destination-in'; const gm=fx.createLinearGradient(W*.15,H*.95,W*.95,H*.2); gm.addColorStop(0,'rgba(0,0,0,0)'); gm.addColorStop(.22,'rgba(0,0,0,0)'); gm.addColorStop(.42,'rgba(0,0,0,1)'); gm.addColorStop(.6,'rgba(0,0,0,1)'); gm.addColorStop(.8,'rgba(0,0,0,0)'); gm.addColorStop(1,'rgba(0,0,0,0)'); fx.fillStyle=gm; fx.fillRect(0,0,W,H)
+    x.globalAlpha=1; x.filter='none'; x.drawImage(f,0,0)
+    x.globalAlpha=(seed===101?.5:.22); x.fillStyle=b[0]; x.fillRect(0,0,W,H); x.globalAlpha=1   // velo: el texto siempre se lee (más fuerte en el resultado)
+    KART[key]='url('+c.toDataURL('image/jpeg',.9)+')' }catch(_){ KART[key]='' } return KART[key] }
 function bnMostrar(rid){ document.getElementById('bnT')&&document.getElementById('bnT').remove()
   const Z={i:0, v:{}, cur:3, touched:false, rid:rid}
   const o=document.createElement('div'); o.id='bnT'; o.className='bnX'; o.setAttribute('role','dialog'); o.setAttribute('aria-modal','true'); o.setAttribute('aria-label','Check-in de bienestar')
-  o.innerHTML='<div class="bnX__bg"></div><div class="bnX__bg bnX__bg--b"></div><div class="bnX__net"></div><div class="bnX__glow"></div><div class="bnX__brain">'+kartCerebro(16)+'</div>'+
+  o.innerHTML='<div class="bnX__bg"></div><div class="bnX__bg bnX__bg--b"></div>'+
     '<header class="bnX__top"><img src="/img/brand/logotipo-koach.png" alt="KOACH"><span class="bnX__st"></span></header>'+
     '<div class="bnX__k"></div><div class="bnX__stage"><svg class="bnX__arc" aria-hidden="true"><circle/></svg><div class="bnX__ns"></div><span class="bnX__dot"></span>'+
       '<div class="bnX__sel"><b class="bnX__big">03</b><div class="bnX__lab"><strong></strong><span></span></div></div></div>'+
@@ -3916,8 +3909,8 @@ function bnMostrar(rid){ document.getElementById('bnT')&&document.getElementById
     const c=$('.bnX__arc circle'); $('.bnX__arc').setAttribute('width',r.width); $('.bnX__arc').setAttribute('height',H); c.setAttribute('cx',cx); c.setAttribute('cy',cy); c.setAttribute('r',R)
     $('.bnX__dot').style.left=(cx+R-4)+'px'; $('.bnX__dot').style.top=(cy-4)+'px'; $('.bnX__sel').style.left=(cx+R+26)+'px' }
   let bgOn=0, bgK=''
-  function fondo(k){ if(k===bgK) return; bgK=k; const L=o.querySelectorAll('.bnX__bg'), nx=L[1-bgOn]; nx.style.backgroundImage=kbgURL(k)||''; nx.classList.add('on'); L[bgOn].classList.remove('on'); bgOn=1-bgOn
-    const dk=!!(KBG[k]&&KBG[k].dk); o.classList.toggle('bnX--dk',dk); const nt=o.querySelector('.bnX__net'); if(nt) nt.style.backgroundImage=kartRed(dk,7+Z.i*13) }
+  function fondo(k){ const sd=7+Z.i*13; if(k+sd===bgK) return; bgK=k+sd; const L=o.querySelectorAll('.bnX__bg'), nx=L[1-bgOn]; nx.style.backgroundImage=kartMol(k,sd)||kbgURL(k)||''; nx.classList.add('on'); L[bgOn].classList.remove('on'); bgOn=1-bgOn
+    o.classList.toggle('bnX--dk',!!(KMOL_BASE[k]||[])[1]) }
   function pinta(f){ const q=BN_Q[Z.i], v=Math.max(1,Math.min(5,f)), r=Math.round(v)
     ns.querySelectorAll('.bnX__n').forEach(b=>{ const n=+b.dataset.n, a=(n-v)*18*Math.PI/180, x=G.cx+(G.R+46)*Math.cos(a), y=G.cy+(G.R+46)*Math.sin(a)
       b.style.transform='translate('+(x-24).toFixed(1)+'px,'+(y-20).toFixed(1)+'px) rotate('+(a*180/Math.PI).toFixed(1)+'deg)'; b.classList.toggle('on',n===r); b.style.opacity=Math.max(0,1-Math.abs(n-v)*.28).toFixed(2) })
@@ -3945,7 +3938,7 @@ function bnMostrar(rid){ document.getElementById('bnT')&&document.getElementById
   window.addEventListener('resize',()=>{ if(document.body.contains(o)&&!o.classList.contains('bnX--res')){ geo(); pinta(Z.cur) } })
   requestAnimationFrame(()=>{ geo(); paso(); o.classList.add('bnX--in'); o.tabIndex=-1; o.focus() }) }
 function bnResultado(o, d, v){ const t=BN_TXT[d.nivel]||BN_TXT.BUENO, al=d.alertas||[], k=BN_NIVBG[d.nivel]||'acero'
-  o.classList.add('bnX--res'); const L=o.querySelectorAll('.bnX__bg'); L.forEach(x=>x.classList.remove('on')); L[0].style.backgroundImage=kbgURL(k)||''; L[0].classList.add('on'); o.classList.toggle('bnX--dk',!!(KBG[k]&&KBG[k].dk)); { const nt=o.querySelector('.bnX__net'); if(nt) nt.style.backgroundImage=kartRed(!!(KBG[k]&&KBG[k].dk),101) }
+  o.classList.add('bnX--res'); const L=o.querySelectorAll('.bnX__bg'); L.forEach(x=>x.classList.remove('on')); L[0].style.backgroundImage=kartMol(k,101)||kbgURL(k)||''; L[0].classList.add('on'); o.classList.toggle('bnX--dk',!!(KMOL_BASE[k]||[])[1])
   o.style.setProperty('--lv',(((d.total||15)-5)/20).toFixed(3))
   o.querySelectorAll('.bnX__k,.bnX__stage,.bnX__q,.bnX__hint,.bnX__act').forEach(x=>x.remove())
   o.querySelector('.bnX__st').textContent='CHECK-IN · LISTO'
