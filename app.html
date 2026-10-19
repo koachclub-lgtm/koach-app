@@ -3885,19 +3885,23 @@ const BN_EJ={ sueno:['Casi no dormí o me desperté muchas veces.','Dormí pocas
   animo:['Hoy no tengo motivación para entrenar.','Me cuesta motivarme.','Vengo con la motivación de siempre.','Estoy motivado y con ganas de entrenar.','Estoy muy motivado y con ganas de superar mis marcas.'] }
 const BN_LOW={ sueno:'tu descanso', energia:'tu energía', doms:'tu recuperación muscular', estres:'tu nivel de estrés', animo:'tu motivación' }
 // c176 · cierre siempre motivador (voz KOACH · el club del 1%), con lectura personalizada de lo que contó
-const BN_HYPE={ OPTIMO:['LISTO PARA RENDIR AL MÁXIMO EN {S}.','Llegas bien recuperado. Es un buen día para buscar una nueva marca, siempre con técnica impecable.','1% MÁS FUERTE CADA DÍA.'],
-  BUENO:['BUENA DISPOSICIÓN PARA {S}.','Llegas en buen estado. Ejecuta tu sesión tal como está planificada y sigue construyendo tu versión más fuerte.','1% MÁS FUERTE CADA DÍA.'],
-  MODERADO:['HOY PRIORIZAMOS LA TÉCNICA EN {S}.','','EL 1% NO TIENE DÍAS MALOS.'],
-  BAJO:['EL 1% NO TIENE DÍAS MALOS.','','1% MÁS FUERTE CADA DÍA.'] }
+// c180 · titular personalizado: nombre del socio + sesión del día; mensaje en voz KOACH (los del 1% no tenemos días malos)
+const BN_HYPE={ OPTIMO:['{N}HOY ESTAMOS LISTOS PARA DARLO TODO{EN}.','Llegas bien recuperado. Es un buen día para buscar una nueva marca, siempre con técnica impecable.','1% MÁS FUERTE CADA DÍA.'],
+  BUENO:['{N}HOY SERÁ UN BUEN ENTRENAMIENTO{EN}.','Llegas en buen estado. Ejecuta tu sesión tal como está planificada y sigue construyendo tu versión más fuerte.','1% MÁS FUERTE CADA DÍA.'],
+  MODERADO:['{N}HOY IGUAL VAMOS CON TODO{EN}.','','1% MÁS FUERTE CADA DÍA.'],
+  BAJO:['{N}LOS DEL 1% NO TENEMOS DÍAS MALOS.','','1% MÁS FUERTE CADA DÍA.'] }
 function bnLista(a){ return a.length<2?(a[0]||''):a.slice(0,-1).join(', ')+' y '+a[a.length-1] }
 function bnMensaje(d,v){ const n=d.nivel||'BUENO', H=BN_HYPE[n]||BN_HYPE.BUENO, bajos=BN_Q.filter(q=>v[q[0]]<=2).map(q=>BN_LOW[q[0]]), medios=BN_Q.filter(q=>v[q[0]]===3).map(q=>BN_LOW[q[0]])
   let t=H[1]
-  if(n==='MODERADO'){ const l=bajos.length?bajos:medios.slice(0,2); t='Por lo que nos cuentas, '+(l.length?bnLista(l):'tu estado')+' hoy no '+(l.length>1?'están':'está')+' al 100%. Cuida las cargas, controla cada repetición y coméntalo con tu koach. Igual lo vamos a dar todo.' }
-  if(n==='BAJO'){ t='Hoy '+(bajos.length?bnLista(bajos.slice(0,2)):'tu cuerpo')+' te '+((bajos.length>1)?'están':'está')+' pasando la cuenta. Tu koach ya lo sabe: ajustaremos las cargas si es necesario, cuidando la técnica en cada serie. Seguimos construyendo ese cuerpo fuerte.' }
+  if(n==='MODERADO'){ const l=bajos.length?bajos:medios.slice(0,2)
+    t='Por lo que evaluamos en tu test, '+(l.length?bnLista(l)+' hoy no '+(l.length>1?'están':'está')+' al 100%':'hoy no llegaste al 100%')+', pero los del 1% no tenemos días malos: igual vamos a entrenar con todo. Con tu koach nos aseguraremos de que tengas un entrenamiento seguro, cuidando la técnica y las cargas.' }
+  if(n==='BAJO'){ t='Por lo que evaluamos en tu test, no llegaste con la recuperación ideal'+(bajos.length?' ('+bnLista(bajos.slice(0,3))+')':'')+'. Pero sabemos que los del 1% no tenemos días malos, así que igual vamos a entrenar con todo. Con tu koach nos aseguraremos de que tengas un entrenamiento seguro para rendir al máximo sin poner en riesgo tu bienestar.' }
   if((n==='OPTIMO'||n==='BUENO') && bajos.length) t+=' Ojo con '+bnLista(bajos)+': coméntalo con tu koach.'
   if(v.doms<=2) t+=' Haz un calentamiento específico de la zona con dolor antes de cargar.'
   const sn=String((S.sesionAbierta&&S.sesionAbierta.nombre)||'').replace(/^★\s*/,'').replace(/^S\d+\s*[—-]\s*/,'').trim().toUpperCase()
-  const tit=H[0].replace(' EN {S}',sn?' EN '+sn:'').replace(' PARA {S}',sn?' PARA '+sn:' PARA ENTRENAR')
+  const nom=String((S.perfil&&S.perfil.nombre)||'').trim().split(/\s+/)[0].toUpperCase()
+  let tit=H[0].replace('{EN}',sn?(n==='BUENO'?' DE ':' EN ')+sn:'').replace('{N}',nom?nom+', ':'')
+  if(!nom) tit=tit.charAt(0)+tit.slice(1)
   return { tit:tit, txt:t, cierre:H[2] } }
 /* c176 · ARTE DE PUNTOS (holográfico, puntos blancos sobre negro): esfera, terreno, cinta y montaña en 3D con profundidad de campo
    simulada por tamaño y opacidad de cada punto — sin filtros de canvas (Safari no los soporta y quedaba pixelado). Nítido en pantallas retina. */
