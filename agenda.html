@@ -1,0 +1,452 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Calendar · KOACH Club</title>
+<meta name="theme-color" content="#D0D0CE">
+<link rel="icon" href="/favicon-32.png">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+@font-face{font-family:'Inter Display';src:url('/fonts/InterDisplay-Regular.woff2') format('woff2');font-weight:400;font-display:swap}
+@font-face{font-family:'Inter Display';src:url('/fonts/InterDisplay-SemiBold.woff2') format('woff2');font-weight:600;font-display:swap}
+@font-face{font-family:'Inter Display';src:url('/fonts/InterDisplay-Bold.woff2') format('woff2');font-weight:700;font-display:swap}
+@font-face{font-family:'IBM Plex Mono';src:url('/fonts/IBMPlexMono-Medium.woff2') format('woff2');font-weight:500;font-display:swap}
+@font-face{font-family:'KOACH Display';src:url('/fonts/Archivo-Var.woff2') format('woff2');font-weight:400 900;font-stretch:100% 115%;font-display:swap}
+:root{
+  --bg:#D0D0CE; --surface:#BEBEBC; --raised:#C8C8C6; --control:#F4F4F2; --white:#FFFFFF;
+  --ink:#111111; --t2:#555553; --t3:#777774; --line:rgba(17,17,17,.16); --line2:rgba(17,17,17,.28);
+  --accent:#515449; --ok:#2F7D4F;
+  --c-prueba:#111111; --c-intro:#515449; --c-nutri:#8E8D88;
+  --display:'KOACH Display','Inter Display',Arial,sans-serif;
+  --sans:'Inter Display','Inter',Arial,sans-serif;
+  --mono:'IBM Plex Mono','Roboto Mono',monospace;
+  --r-xs:4px; --r-sm:8px; --r-md:10px; --r-pill:999px;
+  --hora:72px;
+}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);-webkit-font-smoothing:antialiased}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer}
+.lbl{font-family:var(--mono);font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--t2)}
+.hide{display:none!important}
+
+/* Cabecera */
+.hd{position:sticky;top:0;z-index:20;background:var(--bg);border-bottom:1px solid var(--line);padding:12px 20px calc(10px);display:flex;flex-direction:column;gap:10px}
+.hd__row{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.hd__brand{display:flex;align-items:center;gap:12px;margin-right:auto;text-decoration:none;color:inherit}
+.hd__logo{height:16px;width:auto;filter:brightness(0)}
+.hd__t{font-family:var(--display);font-weight:800;font-stretch:112%;font-size:13px;letter-spacing:.08em;text-transform:uppercase;border-left:1px solid var(--line2);padding-left:12px}
+.who{font-family:var(--mono);font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--t2);background:none;border:0;padding:6px 0}
+.nav{display:flex;align-items:center;gap:6px}
+.btn{border:1px solid var(--line2);background:var(--control);border-radius:var(--r-pill);padding:8px 14px;font-size:13px;font-weight:600;line-height:1}
+.btn:hover{background:var(--white)}
+.btn--ink{background:var(--ink);color:var(--white);border-color:var(--ink)}
+.btn--ink:hover{background:#2a2a2a}
+.btn--ic{width:34px;height:34px;padding:0;display:grid;place-items:center;font-size:15px}
+.rango{font-family:var(--display);font-weight:800;font-stretch:108%;font-size:20px;letter-spacing:-.01em;min-width:0}
+.seg{display:inline-flex;background:var(--surface);border-radius:var(--r-pill);padding:3px}
+.seg button{border:0;background:none;border-radius:var(--r-pill);padding:6px 12px;font-family:var(--mono);font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--t2)}
+.seg button[aria-pressed=true]{background:var(--ink);color:var(--white)}
+.pills{display:flex;gap:6px;flex-wrap:wrap}
+.pill{display:inline-flex;align-items:center;gap:7px;border:1px solid var(--line2);background:transparent;border-radius:var(--r-pill);padding:6px 12px;font-family:var(--mono);font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--t2)}
+.pill[aria-pressed=true]{background:var(--control);color:var(--ink);border-color:var(--ink)}
+.dot{width:9px;height:9px;border-radius:50%;flex:none}
+.dot--prueba{background:var(--c-prueba)} .dot--intro{background:var(--white);border:2px solid var(--c-intro)} .dot--nutri{background:var(--c-nutri)}
+
+/* Resumen */
+.kpis{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:1px;background:var(--line);border-radius:var(--r-md);overflow:hidden;margin:16px 20px 0}
+.kpi{background:var(--raised);padding:12px 14px;display:flex;flex-direction:column;gap:4px}
+.kpi b{font-family:var(--display);font-weight:800;font-stretch:108%;font-size:24px;line-height:1;font-variant-numeric:tabular-nums}
+
+/* Calendario */
+.cal{margin:16px 20px 32px;background:var(--raised);border-radius:var(--r-md);border:1px solid var(--line)}
+.cal__head{display:grid;border-bottom:1px solid var(--line2);background:var(--raised);position:sticky;top:var(--hd-h,120px);z-index:10;border-radius:var(--r-md) var(--r-md) 0 0}
+.cal__dh{padding:10px 8px;border-left:1px solid var(--line);display:flex;align-items:baseline;gap:6px;cursor:pointer;background:none;border-top:0;border-right:0;border-bottom:0;text-align:left}
+.cal__dh:first-child{border-left:0}
+.cal__dh .n{font-family:var(--display);font-weight:800;font-size:22px;line-height:1}
+.cal__dh.hoy .n{background:var(--ink);color:var(--white);border-radius:var(--r-xs);padding:2px 5px}
+.cal__body{display:grid;position:relative}
+.cal__horas{position:relative}
+.cal__h{height:var(--hora);font-family:var(--mono);font-size:10px;color:var(--t3);text-align:right;padding:4px 8px 0 0;border-top:1px solid var(--line)}
+.cal__h:first-child{border-top:0}
+.col{position:relative;border-left:1px solid var(--line)}
+.col.hoy{background:rgba(255,255,255,.22)}
+.slot{height:var(--hora);border-top:1px solid var(--line);position:relative}
+.slot:first-child{border-top:0}
+.slot.cerrado{background:repeating-linear-gradient(135deg,transparent 0 6px,rgba(17,17,17,.045) 6px 7px)}
+.cupo{position:absolute;right:4px;top:3px;font-family:var(--mono);font-size:9px;letter-spacing:.08em;color:var(--t3)}
+.cupo.lleno{color:var(--ink);font-weight:500}
+.ahora{position:absolute;left:0;right:0;height:0;border-top:2px solid var(--ink);z-index:4;pointer-events:none}
+.ahora::before{content:'';position:absolute;left:-4px;top:-5px;width:8px;height:8px;border-radius:50%;background:var(--ink)}
+
+.ev{position:absolute;z-index:3;border-radius:var(--r-sm);padding:5px 7px;overflow:hidden;text-align:left;border:0;display:flex;flex-direction:column;gap:2px;line-height:1.15;transition:transform .12s cubic-bezier(.2,.7,.2,1)}
+.ev--corta{flex-direction:row;align-items:center;gap:7px;padding:3px 8px}
+.ev--corta .s{display:none}
+.ev:hover{transform:translateY(-1px)}
+.ev .h{font-family:var(--mono);font-size:9.5px;letter-spacing:.06em;opacity:.8}
+.ev .n{font-weight:600;font-size:12.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ev .s{font-family:var(--mono);font-size:9px;letter-spacing:.1em;text-transform:uppercase;opacity:.75;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ev--clase_prueba{background:var(--c-prueba);color:var(--white)}
+.ev--introductoria{background:var(--white);color:var(--ink);box-shadow:inset 0 0 0 2px var(--c-intro)}
+.ev--nutricion{background:var(--c-nutri);color:var(--white)}
+.ev--retenida{opacity:.55;outline:1px dashed var(--ink);outline-offset:-1px}
+.ev--asistio::after{content:'✓';position:absolute;right:6px;top:4px;font-size:12px;font-weight:700}
+.ev--no_asistio{opacity:.45}
+.ev--no_asistio .n{text-decoration:line-through}
+
+.vacio{padding:40px 20px;text-align:center;color:var(--t2);font-size:14px}
+
+/* Hojas */
+.velo{position:fixed;inset:0;background:rgba(17,17,17,.38);z-index:50;display:flex;justify-content:flex-end}
+.hoja{width:min(420px,100%);height:100%;background:var(--bg);padding:22px 22px 28px;overflow:auto;display:flex;flex-direction:column;gap:16px;animation:entra .22s cubic-bezier(.2,.7,.2,1)}
+@keyframes entra{from{transform:translateX(24px);opacity:0}to{transform:none;opacity:1}}
+@media (prefers-reduced-motion:reduce){.hoja{animation:none}.ev{transition:none}}
+.hoja__top{display:flex;align-items:center;justify-content:space-between}
+.hoja h2{font-family:var(--display);font-weight:800;font-stretch:108%;font-size:26px;line-height:1.05;margin:0;letter-spacing:-.01em}
+.dato{display:flex;flex-direction:column;gap:4px;padding:12px 0;border-top:1px solid var(--line)}
+.dato v{font-size:15px}
+.dato a{color:var(--ink)}
+.estado{display:inline-flex;align-self:flex-start;font-family:var(--mono);font-size:10px;letter-spacing:.14em;text-transform:uppercase;border-radius:var(--r-pill);padding:5px 10px;background:var(--surface)}
+.estado--asistio{background:var(--ok);color:var(--white)}
+.acciones{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:4px}
+.acciones .full{grid-column:1/-1}
+.btn--peligro{background:transparent;border-color:var(--line2);color:var(--t2)}
+.campo{display:flex;flex-direction:column;gap:6px}
+.campo input,.campo select,.campo textarea{background:var(--control);border:1px solid var(--line2);border-radius:var(--r-sm);padding:11px 12px;font-size:15px;width:100%}
+.campo textarea{min-height:64px;resize:vertical}
+.sug{display:flex;flex-direction:column;border:1px solid var(--line2);border-radius:var(--r-sm);overflow:hidden;background:var(--control)}
+.sug button{border:0;border-top:1px solid var(--line);background:none;text-align:left;padding:10px 12px;font-size:14px}
+.sug button:first-child{border-top:0}
+.sug button:hover{background:var(--white)}
+.err{color:#7a1f1f;font-size:13px;min-height:16px}
+.toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%) translateY(20px);background:var(--ink);color:var(--white);padding:11px 16px;border-radius:var(--r-pill);font-size:14px;opacity:0;transition:.2s;z-index:80;pointer-events:none}
+.toast.vis{opacity:1;transform:translateX(-50%)}
+
+/* Login */
+.login{min-height:100vh;display:grid;place-items:center;padding:24px}
+.login__box{width:min(360px,100%);display:flex;flex-direction:column;gap:14px}
+.login__box img{width:150px;filter:brightness(0);margin-bottom:8px}
+.login__box h1{font-family:var(--display);font-weight:800;font-stretch:110%;font-size:28px;margin:0 0 6px;letter-spacing:-.01em}
+
+@media (max-width:760px){
+  .hd{padding:10px 16px}
+  .kpis{grid-template-columns:repeat(2,minmax(0,1fr));margin:12px 16px 0}
+  .cal{margin:12px 16px 24px}
+  .rango{font-size:17px}
+  .hd__t{display:none}
+}
+</style>
+</head>
+<body>
+
+<div id="vLogin" class="login hide">
+  <form class="login__box" onsubmit="event.preventDefault();login()">
+    <img src="/img/brand/logotipo-koach.png" alt="KOACH">
+    <h1>Calendar KOACH Club</h1>
+    <div class="campo"><span class="lbl">Email</span><input id="lEmail" type="email" autocomplete="username" required></div>
+    <div class="campo"><span class="lbl">Contraseña</span><input id="lPass" type="password" autocomplete="current-password" required></div>
+    <div class="err" id="lErr"></div>
+    <button class="btn btn--ink" id="lBtn" style="padding:13px">ENTRAR →</button>
+  </form>
+</div>
+
+<div id="vCal" class="hide">
+  <header class="hd" id="hd">
+    <div class="hd__row">
+      <a class="hd__brand" href="/coach.html" aria-label="KOACH · volver a la Sala"><img class="hd__logo" src="/img/brand/logotipo-koach.png" alt="KOACH"><span class="hd__t">Calendar</span></a>
+      <button class="who" id="who" onclick="salir()"></button>
+    </div>
+    <div class="hd__row">
+      <div class="nav">
+        <button class="btn btn--ic" onclick="mover(-1)" aria-label="Anterior">←</button>
+        <button class="btn" onclick="irHoy()">Hoy</button>
+        <button class="btn btn--ic" onclick="mover(1)" aria-label="Siguiente">→</button>
+      </div>
+      <div class="rango" id="rango"></div>
+      <div style="margin-left:auto;display:flex;gap:8px;align-items:center">
+        <div class="seg" role="group" aria-label="Vista">
+          <button id="vSem" onclick="setVista('semana')">Semana</button>
+          <button id="vDia" onclick="setVista('dia')">Día</button>
+        </div>
+        <button class="btn btn--ink" onclick="nuevaCita()">+ Nueva cita</button>
+      </div>
+    </div>
+    <div class="pills" id="filtros"></div>
+  </header>
+  <section class="kpis" id="kpis"></section>
+  <section class="cal" id="cal"></section>
+</div>
+
+<div id="velo" class="velo hide" onclick="if(event.target===this)cerrarHoja()"><aside class="hoja" id="hoja" role="dialog" aria-modal="true"></aside></div>
+<div class="toast" id="toast"></div>
+
+<script>
+const SB_URL='https://siecbdatfgmqbpxqtvsl.supabase.co'
+const SB_KEY='sb_publishable_ffGsmagqocuP1n1jvKUVGw_hVzdojas'
+const API='https://koach-jake.vercel.app/api/agenda'
+const sb=supabase.createClient(SB_URL,SB_KEY)
+const ZONA='America/Santiago'
+const STAFF=['admin','recepcion','coach','nutricionista']
+const SERV={
+  clase_prueba:{t:'Clase de prueba',c:'prueba',corto:'Prueba'},
+  introductoria:{t:'Clase introductoria',c:'intro',corto:'Introductoria'},
+  nutricion:{t:'Evaluación nutricional',c:'nutri',corto:'Nutrición'}
+}
+const ESTADOS={retenida:'Esperando datos',agendada:'Agendada',confirmada:'Confirmada',asistio:'Asistió',no_asistio:'No asistió',cancelada:'Cancelada'}
+const H0=6, H1=22
+const S={yo:null,vista:innerWidth<760?'dia':'semana',fecha:hoyCL(),filtro:'todas',citas:[],reglas:[]}
+
+// ---------- Fechas en hora de Chile ----------
+function partesCL(d){const p=new Intl.DateTimeFormat('en-CA',{timeZone:ZONA,year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',hourCycle:'h23',weekday:'short'}).formatToParts(d).reduce((a,x)=>(a[x.type]=x.value,a),{})
+  return {f:`${p.year}-${p.month}-${p.day}`,h:+p.hour,mi:+p.minute}}
+function hoyCL(){return partesCL(new Date()).f}
+function sumarDias(f,n){const d=new Date(f+'T12:00:00Z');d.setUTCDate(d.getUTCDate()+n);return d.toISOString().slice(0,10)}
+function dow(f){return new Date(f+'T12:00:00Z').getUTCDay()}
+function lunesDe(f){const w=dow(f);return sumarDias(f,w===0?-6:1-w)}
+function fmt(f,o){return new Intl.DateTimeFormat('es-CL',{timeZone:'UTC',...o}).format(new Date(f+'T12:00:00Z'))}
+function cap(s){return s.charAt(0).toUpperCase()+s.slice(1)}
+function horaTxt(d){return new Intl.DateTimeFormat('es-CL',{timeZone:ZONA,hour:'2-digit',minute:'2-digit',hourCycle:'h23'}).format(d)}
+function esc(s){return String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+function toast(m){const t=document.getElementById('toast');t.textContent=m;t.classList.add('vis');clearTimeout(t._x);t._x=setTimeout(()=>t.classList.remove('vis'),2800)}
+
+// ---------- Sesión ----------
+async function login(){
+  const b=document.getElementById('lBtn'),e=document.getElementById('lErr')
+  e.textContent='';b.disabled=true;b.textContent='VERIFICANDO…'
+  const r=await sb.auth.signInWithPassword({email:document.getElementById('lEmail').value.trim(),password:document.getElementById('lPass').value})
+  b.disabled=false;b.textContent='ENTRAR →'
+  if(r.error){e.textContent=/credential/i.test(r.error.message)?'Email o contraseña incorrectos':r.error.message;return}
+  entrar()
+}
+async function salir(){await sb.auth.signOut({scope:'local'});location.reload()}
+async function entrar(){
+  const {data}=await sb.auth.getSession()
+  const user=data?.session?.user
+  if(!user){mostrar('vLogin');return}
+  const {data:p}=await sb.from('profiles').select('id,nombre,role,activo').eq('id',user.id).maybeSingle()
+  if(!p||p.activo===false||!STAFF.includes(p.role)){
+    document.getElementById('lErr').textContent='Esta cuenta no tiene acceso al calendario del equipo.'
+    await sb.auth.signOut({scope:'local'});mostrar('vLogin');return
+  }
+  S.yo=p
+  document.getElementById('who').textContent=`${({admin:'Admin',recepcion:'Recepción',coach:'Coach',nutricionista:'Nutrición'})[p.role]} · ${p.nombre||''} · Salir`
+  if(p.role==='nutricionista')S.filtro='nutricion'
+  mostrar('vCal');pintarFiltros();await cargar(true)
+  setInterval(()=>{if(!document.hidden&&document.getElementById('velo').classList.contains('hide'))cargar()},60000)
+  document.addEventListener('visibilitychange',()=>{if(!document.hidden)cargar()})
+}
+function mostrar(id){for(const v of ['vLogin','vCal'])document.getElementById(v).classList.toggle('hide',v!==id)}
+
+// ---------- Datos ----------
+function diasVisibles(){
+  if(S.vista==='dia')return [S.fecha]
+  const l=lunesDe(S.fecha);const d=[0,1,2,3,4].map(i=>sumarDias(l,i))
+  const sab=sumarDias(l,5)
+  if(S.citas.some(c=>partesCL(new Date(c.inicio)).f===sab))d.push(sab)
+  return d
+}
+async function cargar(scroll){
+  if(scroll)S._scroll=true
+  const l=S.vista==='dia'?S.fecha:lunesDe(S.fecha)
+  const desde=new Date(sumarDias(l,-1)+'T00:00:00Z').toISOString()
+  const hasta=new Date(sumarDias(l,8)+'T00:00:00Z').toISOString()
+  const [c,r]=await Promise.all([
+    sb.from('agenda_citas').select('*').gte('inicio',desde).lt('inicio',hasta).neq('estado','cancelada').order('inicio'),
+    S.reglas.length?{data:S.reglas}:sb.from('agenda_reglas').select('*').eq('activo',true)
+  ])
+  if(c.error){toast('No pude cargar la agenda: '+c.error.message);return}
+  S.citas=(c.data||[]).filter(x=>x.estado!=='retenida'||new Date(x.retenida_hasta)>new Date())
+  S.reglas=r.data||[]
+  pintar()
+}
+
+// ---------- Pintar ----------
+function pintarFiltros(){
+  const ops=[['todas','Todas',''],['clase_prueba','Prueba','prueba'],['introductoria','Introductoria','intro'],['nutricion','Nutrición','nutri']]
+  document.getElementById('filtros').innerHTML=ops.map(([k,t,c])=>`<button class="pill" aria-pressed="${S.filtro===k}" onclick="setFiltro('${k}')">${c?`<span class="dot dot--${c}"></span>`:''}${t}</button>`).join('')
+}
+function setFiltro(k){S.filtro=k;pintarFiltros();pintar()}
+function setVista(v){S.vista=v;cargar(true)}
+function mover(n){S.fecha=sumarDias(S.fecha,S.vista==='dia'?n:7*n);if(S.vista==='dia'&&dow(S.fecha)===0)S.fecha=sumarDias(S.fecha,n);cargar(true)}
+function irHoy(){S.fecha=hoyCL();cargar(true)}
+function verDia(f){S.fecha=f;S.vista='dia';cargar(true)}
+
+function citasDe(f){return S.citas.filter(c=>partesCL(new Date(c.inicio)).f===f&&(S.filtro==='todas'||c.servicio===S.filtro))}
+
+function pintar(){
+  document.getElementById('vSem').setAttribute('aria-pressed',S.vista==='semana')
+  document.getElementById('vDia').setAttribute('aria-pressed',S.vista==='dia')
+  const dias=diasVisibles()
+  document.getElementById('rango').textContent=S.vista==='dia'
+    ?cap(fmt(S.fecha,{weekday:'long',day:'numeric',month:'long'}).replace(',',''))
+    :`${fmt(dias[0],{day:'numeric',month:'short'})} – ${fmt(dias.at(-1),{day:'numeric',month:'short',year:'numeric'})}`.replace(/\./g,'')
+  // Resumen del rango visible
+  const vis=S.citas.filter(c=>dias.includes(partesCL(new Date(c.inicio)).f))
+  const n=s=>vis.filter(c=>c.servicio===s&&c.estado!=='retenida').length
+  const cerr=vis.filter(c=>['asistio','no_asistio'].includes(c.estado)),asis=cerr.filter(c=>c.estado==='asistio').length
+  document.getElementById('kpis').innerHTML=[
+    [n('clase_prueba'),'Clases de prueba'],[n('introductoria'),'Introductorias'],[n('nutricion'),'Nutrición'],
+    [cerr.length?Math.round(asis/cerr.length*100)+'%':'—','Asistencia marcada']
+  ].map(([v,l])=>`<div class="kpi"><b>${v}</b><span class="lbl">${l}</span></div>`).join('')
+
+  const hoy=hoyCL(),cols=`52px repeat(${dias.length},minmax(0,1fr))`
+  let h=`<div class="cal__head" style="grid-template-columns:${cols}"><div></div>`
+  for(const f of dias)h+=`<button class="cal__dh ${f===hoy?'hoy':''}" onclick="verDia('${f}')"><span class="lbl">${fmt(f,{weekday:'short'}).replace('.','')}</span><span class="n">${fmt(f,{day:'numeric'})}</span></button>`
+  h+=`</div><div class="cal__body" style="grid-template-columns:${cols}"><div class="cal__horas">`
+  for(let x=H0;x<H1;x++)h+=`<div class="cal__h">${String(x).padStart(2,'0')}:00</div>`
+  h+='</div>'
+  const ahora=partesCL(new Date())
+  for(const f of dias){
+    const abierto=hr=>S.reglas.some(r=>r.dia_semana===dow(f)&&+r.desde.slice(0,2)<=hr&&+r.hasta.slice(0,2)>hr)
+    const nuevos=S.citas.filter(c=>c.grupo==='nuevos'&&partesCL(new Date(c.inicio)).f===f&&c.estado!=='no_asistio')
+    h+=`<div class="col ${f===hoy?'hoy':''}" data-f="${f}">`
+    for(let x=H0;x<H1;x++){
+      const usados=nuevos.filter(c=>partesCL(new Date(c.inicio)).h===x).length
+      const muestraCupo=(S.filtro==='todas'||S.filtro!=='nutricion')&&abierto(x)&&dow(f)>=1&&dow(f)<=5
+      h+=`<div class="slot ${abierto(x)?'':'cerrado'}">${muestraCupo&&usados?`<span class="cupo ${usados>=2?'lleno':''}">${usados>=2?'LLENO':usados+'/2'}</span>`:''}</div>`
+    }
+    if(f===hoy&&ahora.h>=H0&&ahora.h<H1)h+=`<div class="ahora" style="top:${(ahora.h-H0+ahora.mi/60)*parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--hora'))}px"></div>`
+    h+=eventos(citasDe(f))+'</div>'
+  }
+  h+='</div>'
+  const total=dias.reduce((a,f)=>a+citasDe(f).length,0)
+  if(!total)h+=`<div class="vacio">Sin citas ${S.vista==='dia'?'este día':'esta semana'}${S.filtro!=='todas'?' para este filtro':''}.</div>`
+  document.getElementById('cal').innerHTML=h
+  document.documentElement.style.setProperty('--hd-h',document.getElementById('hd').offsetHeight+'px')
+  if(S._scroll){S._scroll=false;const ev=document.querySelector('.ev'),ah=document.querySelector('.ahora'),obj=ev||ah
+    if(obj){const y=obj.getBoundingClientRect().top+scrollY-document.getElementById('hd').offsetHeight-90;scrollTo({top:Math.max(0,y)})}}
+}
+
+// Ubica cada cita en su hora; las que se cruzan se reparten en carriles.
+function eventos(lista){
+  const H=parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--hora'))
+  const items=lista.map(c=>{const a=partesCL(new Date(c.inicio));const ini=a.h+a.mi/60;const dur=(new Date(c.fin)-new Date(c.inicio))/3600000;return {c,ini,fin:ini+dur}}).sort((a,b)=>a.ini-b.ini)
+  const grupos=[];let g=null
+  for(const it of items){if(!g||it.ini>=g.fin){g={items:[],fin:it.fin};grupos.push(g)}g.items.push(it);g.fin=Math.max(g.fin,it.fin)}
+  let out=''
+  for(const gr of grupos){
+    const carriles=[]
+    for(const it of gr.items){let k=carriles.findIndex(f=>f<=it.ini);if(k<0){k=carriles.length;carriles.push(0)}carriles[k]=it.fin;it.k=k}
+    const n=carriles.length
+    for(const it of gr.items){
+      const c=it.c,s=SERV[c.servicio]
+      const top=(it.ini-H0)*H+2,alto=Math.max((it.fin-it.ini)*H-4,22)
+      out+=`<button class="ev ev--${c.servicio} ev--${c.estado} ${alto<40?'ev--corta':''}" style="top:${top}px;height:${alto}px;left:calc(${it.k*100/n}% + 3px);width:calc(${100/n}% - 6px)" onclick="verCita('${c.id}')" title="${esc(s.t)} · ${esc(c.nombre||'')}">
+        <span class="h">${horaTxt(new Date(c.inicio))}</span><span class="n">${esc(c.nombre||'Sin nombre')}</span>${alto>44?`<span class="s">${s.corto}${c.formato?' · '+esc(c.formato):''}</span>`:''}</button>`
+    }
+  }
+  return out
+}
+
+// ---------- Hojas ----------
+function abrirHoja(html){document.getElementById('hoja').innerHTML=html;document.getElementById('velo').classList.remove('hide')}
+function cerrarHoja(){document.getElementById('velo').classList.add('hide')}
+document.addEventListener('keydown',e=>{if(e.key==='Escape')cerrarHoja()})
+
+function verCita(id){
+  const c=S.citas.find(x=>x.id===id);if(!c)return
+  const s=SERV[c.servicio],ini=new Date(c.inicio),f=partesCL(ini).f
+  const tel=String(c.telefono||'').replace(/\D/g,'')
+  const pasada=new Date(c.fin)<new Date()
+  abrirHoja(`
+    <div class="hoja__top"><span class="lbl"><span class="dot dot--${s.c}" style="display:inline-block;margin-right:7px;vertical-align:-1px"></span>${s.t}</span><button class="btn btn--ic" onclick="cerrarHoja()" aria-label="Cerrar">✕</button></div>
+    <h2>${esc(c.nombre||'Sin nombre')}</h2>
+    <span class="estado estado--${c.estado}">${ESTADOS[c.estado]||c.estado}</span>
+    <div>
+      <div class="dato"><span class="lbl">Cuándo</span><v>${cap(fmt(f,{weekday:'long',day:'numeric',month:'long'}).replace(',',''))} · ${horaTxt(ini)} a ${horaTxt(new Date(c.fin))}</v></div>
+      ${tel?`<div class="dato"><span class="lbl">WhatsApp</span><v><a href="https://wa.me/${tel}" target="_blank" rel="noopener">${esc(c.telefono)}</a></v></div>`:''}
+      ${c.email?`<div class="dato"><span class="lbl">Mail</span><v><a href="mailto:${esc(c.email)}">${esc(c.email)}</a></v></div>`:''}
+      ${c.formato?`<div class="dato"><span class="lbl">Programa de la demo</span><v>${esc(c.formato)}</v></div>`:''}
+      <div class="dato"><span class="lbl">Origen</span><v>${c.origen==='panel'?'Panel del equipo':'Jake · WhatsApp'}${c.socio_id?' · socio':''}</v></div>
+      ${c.notas?`<div class="dato"><span class="lbl">Notas</span><v>${esc(c.notas)}</v></div>`:''}
+    </div>
+    <div class="acciones">
+      <button class="btn ${c.estado==='asistio'?'btn--ink':''}" onclick="marcar('${c.id}','asistio')">✓ Asistió</button>
+      <button class="btn ${c.estado==='no_asistio'?'btn--ink':''}" onclick="marcar('${c.id}','no_asistio')">No asistió</button>
+      ${!pasada?`<button class="btn btn--peligro full" onclick="cancelarCita('${c.id}')">Cancelar cita</button>`:''}
+    </div>`)
+}
+async function marcar(id,estado){
+  const c=S.citas.find(x=>x.id===id);const nuevo=c.estado===estado?'agendada':estado
+  const {error}=await sb.from('agenda_citas').update({estado:nuevo}).eq('id',id)
+  if(error){toast('No se pudo guardar: '+error.message);return}
+  c.estado=nuevo;pintar();verCita(id);toast(ESTADOS[nuevo])
+}
+async function api(body){
+  const {data}=await sb.auth.getSession()
+  const r=await fetch(API,{method:'POST',headers:{'content-type':'application/json',authorization:'Bearer '+data.session.access_token},body:JSON.stringify(body)})
+  return r.json().catch(()=>({ok:false,error:'Respuesta inválida'}))
+}
+async function cancelarCita(id){
+  const c=S.citas.find(x=>x.id===id)
+  if(!confirm(`¿Cancelar la cita de ${c.nombre||'este cliente'}? Se libera el cupo y se borra del Google Calendar.`))return
+  const r=await api({accion:'cancelar',id})
+  if(!r.ok){toast('No se pudo cancelar: '+(r.error||r.motivo));return}
+  cerrarHoja();toast('Cita cancelada');cargar()
+}
+
+// ---------- Nueva cita ----------
+let NC={socio:null,t:null}
+function nuevaCita(){
+  NC={socio:null,t:null}
+  const serv=S.filtro!=='todas'?S.filtro:'clase_prueba'
+  abrirHoja(`
+    <div class="hoja__top"><span class="lbl">Nueva cita</span><button class="btn btn--ic" onclick="cerrarHoja()" aria-label="Cerrar">✕</button></div>
+    <h2>Agendar</h2>
+    <div class="campo"><span class="lbl">Servicio</span><select id="nServ" onchange="cargarHoras()">${Object.entries(SERV).map(([k,s])=>`<option value="${k}" ${k===serv?'selected':''}>${s.t}</option>`).join('')}</select></div>
+    <div class="campo"><span class="lbl">Día</span><input id="nFecha" type="date" value="${S.fecha<hoyCL()?hoyCL():S.fecha}" min="${hoyCL()}" onchange="cargarHoras()"></div>
+    <div class="campo"><span class="lbl">Hora</span><select id="nHora"><option>Cargando…</option></select></div>
+    <div class="campo"><span class="lbl">Buscar socio (opcional)</span><input id="nBuscar" placeholder="Nombre o apellido" oninput="buscarSocio(this.value)"><div id="nSug"></div></div>
+    <div class="campo"><span class="lbl">Nombre y apellido</span><input id="nNombre"></div>
+    <div class="campo"><span class="lbl">WhatsApp</span><input id="nTel" inputmode="tel" placeholder="+569…"></div>
+    <div class="campo"><span class="lbl">Mail</span><input id="nMail" type="email"></div>
+    <div class="campo"><span class="lbl">Notas</span><textarea id="nNotas"></textarea></div>
+    <div class="err" id="nErr"></div>
+    <button class="btn btn--ink" style="padding:13px" id="nBtn" onclick="guardarCita()">AGENDAR →</button>`)
+  cargarHoras()
+}
+async function cargarHoras(){
+  const serv=document.getElementById('nServ').value,f=document.getElementById('nFecha').value,sel=document.getElementById('nHora')
+  sel.innerHTML='<option>Cargando…</option>'
+  const {data,error}=await sb.rpc('agenda_disponibilidad',{p_servicio:serv,p_dias:60,p_anticipacion_min:0})
+  if(error){sel.innerHTML='<option value="">Error al cargar</option>';return}
+  const libres=(data||[]).filter(s=>partesCL(new Date(s.inicio)).f===f)
+  sel.innerHTML=libres.length?libres.map(s=>`<option value="${s.inicio}">${horaTxt(new Date(s.inicio))} · ${s.cupos_libres} ${s.cupos_libres===1?'cupo':'cupos'}</option>`).join(''):'<option value="">Sin horarios ese día</option>'
+}
+let _bq
+function buscarSocio(q){
+  clearTimeout(_bq);const box=document.getElementById('nSug')
+  if(q.trim().length<2){box.innerHTML='';return}
+  _bq=setTimeout(async()=>{
+    const t=q.trim().replace(/[%,()]/g,'')
+    const {data}=await sb.from('profiles').select('id,nombre,apellido,telefono_wa,telefono,email').eq('role','socio').or(`nombre.ilike.%${t}%,apellido.ilike.%${t}%`).limit(6)
+    box.innerHTML=(data||[]).length?`<div class="sug">${data.map(p=>`<button onclick='elegirSocio(${JSON.stringify(p).replace(/'/g,"&#39;")})'>${esc((p.nombre||'')+' '+(p.apellido||''))} <span class="lbl" style="margin-left:6px">${esc(p.telefono_wa||p.telefono||'')}</span></button>`).join('')}</div>`:''
+  },250)
+}
+function elegirSocio(p){
+  NC.socio=p
+  document.getElementById('nNombre').value=`${p.nombre||''} ${p.apellido||''}`.trim()
+  document.getElementById('nTel').value=p.telefono_wa||p.telefono||''
+  document.getElementById('nMail').value=p.email||''
+  document.getElementById('nSug').innerHTML='';document.getElementById('nBuscar').value=''
+}
+async function guardarCita(){
+  const e=document.getElementById('nErr'),b=document.getElementById('nBtn')
+  const inicio=document.getElementById('nHora').value,tel=document.getElementById('nTel').value.trim(),nombre=document.getElementById('nNombre').value.trim()
+  e.textContent=''
+  if(!inicio){e.textContent='Elige una hora con cupo.';return}
+  if(!nombre||!tel){e.textContent='Falta el nombre o el WhatsApp.';return}
+  b.disabled=true;b.textContent='AGENDANDO…'
+  const r=await api({accion:'crear',servicio:document.getElementById('nServ').value,inicio,nombre,telefono:tel,email:document.getElementById('nMail').value.trim()||null,notas:document.getElementById('nNotas').value.trim()||null,socio_id:NC.socio?.id||null})
+  b.disabled=false;b.textContent='AGENDAR →'
+  if(!r.ok){e.textContent=r.motivo==='ya_tiene'?'Esa persona ya tiene una cita de este servicio.':r.motivo==='cupo_mensual_usado'?'Ya usó su evaluación nutricional de este mes.':r.motivo==='sin_cupo'?'Ese horario se acaba de llenar.':(r.error||'No se pudo agendar.');return}
+  cerrarHoja();toast('Cita agendada');S.fecha=partesCL(new Date(inicio)).f;cargar()
+}
+
+addEventListener('resize',()=>{clearTimeout(window._rz);window._rz=setTimeout(()=>{if(S.yo)pintar()},150)})
+entrar()
+</script>
+</body>
+</html>
