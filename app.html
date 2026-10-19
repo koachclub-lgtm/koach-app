@@ -7792,7 +7792,7 @@ function kmRender(ctx) {
   ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
   ctx.save(); ctx.shadowColor = 'rgba(0,0,0,.4)'; ctx.shadowBlur = 18;
   const lg = kmLogo(); if (lg) { const h = 36, w = lg.width * h / lg.height; ctx.drawImage(lg, M, KS_SAFE_T - 60, w, h) }   // c167 · logo más arriba
-  kmTxt(ctx, 'SESIÓN Nº ' + String(j.num_sesion || 0).padStart(5, '0'), W - M, KS_SAFE_T - 30, 500, 27, 'mono', 5, B, 'right');
+  kmTxt(ctx, ksSesTxt(j) || 'SESIÓN Nº ' + String(j.num_sesion || 0).padStart(5, '0'), W - M, KS_SAFE_T - 30, 500, 27, 'mono', 5, B, 'right');
   // Miras y etiquetas por columna (derecha / izquierda), sin choques verticales
   const P = (KM.puntos || []).map((p, k) => ({ ...p, k }));
   ['d', 'i'].forEach(lado => {
@@ -7866,6 +7866,8 @@ function kmRender(ctx) {
 })();
 
 /* ══ c138 · PLANTILLAS ELEGIDAS: EDITORIAL (franja) · TICKET (marco acero) · MAPA (señalador). Todas con la foto ya filtrada. ══ */
+// c181 · dato fijo en TODAS las tarjetas: en qué sesión de la semana va el socio ("SESIÓN 1/3", "SESIÓN 2/4"…)
+function ksSesTxt(j) { const p = +j.planif || 0, h = +j.hechas || 0; return p ? 'SESIÓN ' + Math.max(1, Math.min(h || 1, p)) + '/' + p : (h ? 'SESIÓN ' + h : '') }
 function kaDatos() {
   const j = KS.data || {}, tit = x => String(x || '').toLowerCase().replace(/(^|\s)\S/g, c => c.toUpperCase());
   const gs = (j.grupos || []).map(x => x.g).filter(Boolean);
@@ -7907,7 +7909,7 @@ function kaEditorial(ctx) {
   const g = ctx.createLinearGradient(0, 0, 0, H); g.addColorStop(0, 'rgba(18,18,18,.5)'); g.addColorStop(.26, 'rgba(18,18,18,0)'); g.addColorStop(.38, 'rgba(18,18,18,0)'); g.addColorStop(.8, 'rgba(18,18,18,.85)'); g.addColorStop(1, 'rgba(18,18,18,.92)');
   ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
   const lg = kaLogo('#FFFFFF'); if (lg) ctx.drawImage(lg, M, KS_SAFE_T - 60, lg.width * 39 / lg.height, 39);   // c167 · logo más arriba
-  kmTxt(ctx, 'SESIÓN Nº ' + d.num, W - M, KS_SAFE_T - 29, 500, 27, 'mono', 5, B, 'right');
+  kmTxt(ctx, ksSesTxt(KS.data || {}) || 'SESIÓN Nº ' + d.num, W - M, KS_SAFE_T - 29, 500, 27, 'mono', 5, B, 'right');
   // de abajo hacia arriba, sobre la zona segura inferior
   let y = H - KS_SAFE_B; const cw = (W - 2 * M) / 3;
   [[d.ton, 'KG MOVIDOS'], [String(d.sets || '—'), 'SETS'], [d.dur ? d.dur + "'" : '—', 'DURACIÓN']].forEach(([v, l], i) => {
@@ -7918,7 +7920,7 @@ function kaEditorial(ctx) {
   y -= 36 + ph; kaPills(ctx, pl, M, y, W - 2 * M, { size: 23, track: 2.5, h: 68, gap: 12, px: 22, stroke: 'rgba(255,255,255,.55)', lw: 3, color: B });
   const T = kaLineas(ctx, d.rut, 156, W - 2 * M, 2); y -= 40;
   for (let i = T.L.length - 1; i >= 0; i--) { kmTxt(ctx, T.L[i], M - 4, y, 700, T.s, 'disp', -T.s * .04, B); y -= T.s * .95 }
-  kmTxt(ctx, 'SESIÓN COMPLETADA · SEMANA ' + d.sem + (d.planif ? ' · ' + Math.min(d.hechas || 0, d.planif) + '/' + d.planif : ''), M, y - 6, 500, 27, 'mono', 5, G);
+  kmTxt(ctx, 'SESIÓN COMPLETADA · SEMANA ' + d.sem, M, y - 6, 500, 27, 'mono', 5, G);
 }
 function kaFondo() {
   if (KM.fondo) return KM.fondo.ok ? KM.fondo.im : null;
@@ -7959,7 +7961,7 @@ function kaTicket(ctx) {
   const MU2 = 'rgba(255,255,255,.78)'; ctx.save(); ctx.shadowColor = 'rgba(20,28,40,.3)'; ctx.shadowBlur = 14;
   let y = ty + tp + 24; const x0 = tx + tp, x1 = tx + tw - tp;
   // c164 · semana arriba como dato; el nombre de la rutina con todo el ancho (hasta 2 líneas), nunca encima del dato
-  kmTxt(ctx, 'SEMANA ' + d.sem + (d.planif ? ' · SESIÓN ' + Math.min(d.hechas || 0, d.planif) + '/' + d.planif : ''), x0, y, 500, 21, 'mono', 4, MU2);
+  kmTxt(ctx, 'SEMANA ' + d.sem + (ksSesTxt(KS.data || {}) ? ' · ' + ksSesTxt(KS.data || {}) : ''), x0, y, 500, 21, 'mono', 4, MU2);
   y += 22; T.L.forEach((l, i) => { y += i ? T.s * .95 : T.s * .92; kmTxt(ctx, l, x0, y, 700, T.s, 'disp', -T.s * .03, B) });
   y += 30; kaPills(ctx, d.pills, x0, y, tw - 2 * tp, { ...PO, stroke: 'rgba(255,255,255,.85)', lw: 3, color: B });
   y += pillsH + 36; ctx.save(); ctx.shadowBlur = 0; ctx.setLineDash([9, 9]); ctx.strokeStyle = 'rgba(255,255,255,.4)'; ctx.lineWidth = 3; ctx.beginPath(); ctx.moveTo(x0, y); ctx.lineTo(x1, y); ctx.stroke(); ctx.restore();
@@ -8030,7 +8032,7 @@ function kaCaptura(ctx, trans, fondo) {
   const top = KS_SAFE_T + 34 + 92, fin = H - KS_SAFE_B, av = fin - top, k = Math.min(1, av / tot);
   y = top + Math.max(0, (av - tot) / 2);
   ctx.save(); if (k < 1) { ctx.translate(W / 2, top); ctx.scale(k, k); ctx.translate(-W / 2, -top) }
-  txt(extra ? '★ SESIÓN EXTRA' : String(j.programa || 'KOACH').toUpperCase() + ' · SEMANA ' + (j.semana || 1), M, y, MONO(21), G, 5);
+  txt((extra ? '★ EXTRA' : String(j.programa || 'KOACH').toUpperCase()) + ' · SEMANA ' + (j.semana || 1) + (ksSesTxt(j) ? ' · ' + ksSesTxt(j) : ''), M, y, MONO(21), G, 5);
   T.L.forEach((l, i) => { y += i ? T.s * .9 : T.s * .92; txt(l, M - 4, y, DISP(900, T.s), B, -T.s * .02) });
   y += 62; txt('SESIÓN COMPLETA', M, y, MONO(23), G2, 6);
   const ton = Math.round(+j.tonelaje || 0).toLocaleString('es-CL');
