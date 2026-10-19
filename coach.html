@@ -2506,7 +2506,7 @@ html.ks-on.en-crm body{max-width:1280px !important;padding-left:32px !important;
 <div id="kMenu"></div>
 <div class="vista" id="vLogin"><div class="lwrap">
   <div class="lk"><img src="/img/brand/logotipo-koach.png" alt="KOACH" style="display:block;width:150px;height:auto;filter:brightness(0)"></div>
-  <div class="ls">SALA · PANEL DEL COACH</div>
+  <div class="ls">SALA · PANEL DEL KOACH</div>
   <label>EMAIL</label><input id="lEmail" type="email" autocomplete="email">
   <label>CONTRASEÑA</label><input id="lPass" type="password" autocomplete="current-password">
   <button class="btn" id="lBtn" onclick="login()">ENTRAR A LA SALA →</button>
@@ -2517,7 +2517,7 @@ html.ks-on.en-crm body{max-width:1280px !important;padding-left:32px !important;
 </div></div>
 
 <div class="vista" id="vSala">
-  <div class="hbar"><span class="hk" title="c12">KOACH</span><span class="hbar__r"><button class="dashBtn" onclick="dashMenu()" aria-label="Vista del dashboard">VISTA</button><button class="dashBtn" onclick="cuentaAbrir()" aria-label="Mi cuenta: cambiar contraseña">MI CLAVE</button><span class="rol" id="rolBadge" onclick="salir()">COACH</span></span></div>
+  <div class="hbar"><span class="hk" title="c12">KOACH</span><span class="hbar__r"><button class="dashBtn" onclick="dashMenu()" aria-label="Vista del dashboard">VISTA</button><button class="dashBtn" onclick="cuentaAbrir()" aria-label="Mi cuenta: cambiar contraseña">MI CLAVE</button><span class="rol" id="rolBadge" onclick="salir()">KOACH</span></span></div>
   <div class="nu" id="fAlta" style="display:none" aria-labelledby="nuTit">
     <div class="nu__h"><div><div class="vtK">DASHBOARD · ALTA</div><h3 id="nuTit">NUEVO SOCIO</h3></div><button type="button" class="nu__x" onclick="toggleAlta()" aria-label="Cerrar alta">✕</button></div>
     <section class="nu__s"><div class="nu__n">01</div><div class="nu__b"><div class="vtK">IDENTIDAD</div>
@@ -2531,7 +2531,7 @@ html.ks-on.en-crm body{max-width:1280px !important;padding-left:32px !important;
       <div id="nuDatosSocio"><div class="vtL">SEXO · DEFINE SU PLANIFICACIÓN</div><div class="vtCh"><button type="button" id="nuSexH" onclick="setSexo('hombre')">HOMBRE</button><button type="button" id="nuSexM" onclick="setSexo('mujer')">MUJER</button></div></div>
     </div></section>
     <section class="nu__s"><div class="nu__n">02</div><div class="nu__b"><div class="vtK">ACCESO</div>
-      <div class="vtCh" id="nuRoles" role="group" aria-label="Rol"><button type="button" class="on" id="rSocio" onclick="setRol('socio')">SOCIO</button><button type="button" id="rCoach" onclick="setRol('coach')">COACH</button><button type="button" id="rRecep" onclick="setRol('recepcion')">RECEPCIÓN</button><button type="button" id="rNutri" onclick="setRol('nutricionista')">NUTRICIÓN</button></div>
+      <div class="vtCh" id="nuRoles" role="group" aria-label="Rol"><button type="button" class="on" id="rSocio" onclick="setRol('socio')">SOCIO</button><button type="button" id="rCoach" onclick="setRol('coach')">KOACH</button><button type="button" id="rRecep" onclick="setRol('recepcion')">RECEPCIÓN</button><button type="button" id="rNutri" onclick="setRol('nutricionista')">NUTRICIÓN</button></div>
       <label class="vtL nu__half">CLAVE INICIAL<input id="nuPass" type="text" autocomplete="off" placeholder="Mínimo 8 caracteres"></label>
       <div class="vtNote">Entra con su correo y esta clave. Puede cambiarla después desde su perfil.</div>
     </div></section>
@@ -3118,7 +3118,7 @@ async function entrar(){
     if(perfil.role==='socio'){ window.location.href = PUERTA.socio; return }   // c11.6: el socio vive en app.koachclub.cl
     C.yo = perfil
     document.documentElement.setAttribute('data-rol', perfil.role)
-    const ROLN={admin:'ADMIN ⚙', coach:'COACH', recepcion:'RECEPCIÓN', nutricionista:'NUTRICIÓN'}
+    const ROLN={admin:'ADMIN ⚙', coach:'KOACH', recepcion:'RECEPCIÓN', nutricionista:'NUTRICIÓN'}
     document.getElementById('rolBadge').textContent = (ROLN[perfil.role]||'EQUIPO')+' · '+(perfil.nombre||'').toUpperCase()+' · SALIR'
     await loadSala()
     document.documentElement.setAttribute('data-dash', dashModo())
@@ -3475,7 +3475,7 @@ async function designar(){
   try{
     const rec = !!(document.getElementById('xRec')&&document.getElementById('xRec').checked)
     const r = await sb.from('designaciones_extra').insert({ socio_id:F.id, sesion_protocolo_id:X.cand.id,
-      motivo:(X.sol?'Solicitud del socio':'Criterio del coach')+(rec?' · recurrente':''), recurrente:rec })
+      motivo:(X.sol?'Solicitud del socio':'Criterio del koach')+(rec?' · recurrente':''), recurrente:rec })
     if(r.error) throw r.error
     if(X.sol){ try{ await sb.from('solicitudes').update({estado:'atendida',atendida_at:new Date().toISOString()}).eq('id',X.sol) }catch(_e){} }
     window._solPend=null
@@ -3513,7 +3513,7 @@ function nuResumen(){
   const box=document.getElementById('nuRes'); if(!box) return
   const _m=document.getElementById('nuMsg'); if (_m && _m.querySelector('.vtErr') && !crearUsuario._run) _m.innerHTML=''
   const v=id=>(document.getElementById(id)||{}).value||''
-  const nom=(v('nuNombre')+' '+v('nuApellido')).trim().toUpperCase()||'—', rol={socio:'SOCIO',coach:'COACH',recepcion:'RECEPCIÓN',nutricionista:'NUTRICIÓN'}[window._nuRol]
+  const nom=(v('nuNombre')+' '+v('nuApellido')).trim().toUpperCase()||'—', rol={socio:'SOCIO',coach:'KOACH',recepcion:'RECEPCIÓN',nutricionista:'NUTRICIÓN'}[window._nuRol]
   let h='<div class="nuR__n">'+adEsc(nom)+'</div><div class="nuR__r">'+rol+(v('nuEmail')?' · '+adEsc(v('nuEmail').trim().toLowerCase()):'')+'</div>'
   if (window._nuRol==='socio'){
     if (window._nuModo==='ahora' && VTS.nu){ const r=vtResumen('nu')
@@ -3551,7 +3551,7 @@ async function crearUsuario(){
     if (r.error){ const m=String(r.error.message||'')
       return err(/ya tiene una cuenta/i.test(m) ? 'Ese correo ya tiene cuenta. Búscalo en Membresías.' : vtError(m)+' · No se creó nada: puedes corregir y reintentar.') }
     const fin=r.data&&r.data.venta&&r.data.venta.fin
-    msg.innerHTML='<div class="vtOk">✓ <b>'+adEsc(nombre)+'</b> creado como <b>'+({socio:'SOCIO',coach:'COACH',recepcion:'RECEPCIÓN',nutricionista:'NUTRICIÓN'}[rol])+'</b>'+
+    msg.innerHTML='<div class="vtOk">✓ <b>'+adEsc(nombre)+'</b> creado como <b>'+({socio:'SOCIO',coach:'KOACH',recepcion:'RECEPCIÓN',nutricionista:'NUTRICIÓN'}[rol])+'</b>'+
       (rol==='socio' ? (fin?' · membresía hasta <b>'+adF(fin)+'</b>.':' · queda POR ACTIVAR.')+' Entra en app.koachclub.cl.' : ' · entra en dashboard.koachclub.cl.')+'</div>'
     ;['nuNombre','nuApellido','nuEmail','nuTel','nuPass','nuNac'].forEach(function(x){ document.getElementById(x).value='' }); setSexo(null)
     delete VTS.nu; await vtMontar('nu','nuVenta',{ socio:null, onChange:nuResumen }); nuResumen()
@@ -3949,7 +3949,7 @@ async function abrirPlan(pid, proto, opts){
   pintarPlan()
 }
 function esTiempo(it){
-  // c107 · el coach puede fijar el modo por ejercicio dentro del bloque (REPS o TIME); si no, se infiere
+  // c107 · el koach puede fijar el modo por ejercicio dentro del bloque (REPS o TIME); si no, se infiere
   if (it && it.modo==='TIME') return true
   if (it && it.modo==='REPS') return false
   const g = (it.grupo||'').toUpperCase()
@@ -4735,7 +4735,7 @@ function pintarSelector(){
 }
 async function elegirEj(ejId, confirmado){
   const e=(EJCAT||[]).find(function(x){return String(x.id)===String(ejId)}); if(!e)return
-  // c23 · ejercicio repetido en la semana: se avisa ANTES de insertar; el coach decide
+  // c23 · ejercicio repetido en la semana: se avisa ANTES de insertar; el koach decide
   if (!confirmado && !(SEL.modo==='cambiar' && String(SEL.actual)===String(e.id))){
     const rep_=await dupDetectar(e.id, SEL.modo==='cambiar'?SEL.beId:null)
     if (rep_.programado.length || rep_.realizado.length){ dupModal(e, rep_); return }
@@ -5652,7 +5652,7 @@ function plPintarMeso(){
   h+='</div>'
   const acc=[]
   const ejec=ses.some(function(x){return !!PL.regPorSes[x.id]}), edit=ses.some(function(x){return x.editada})
-  if (ses.length) h=h.replace('<div class="plCard" style="padding:6px 12px">','<div class="plSemEst">'+(ejec?'EN EJECUCIÓN · YA NO SE RE-DERIVA':edit?'AJUSTADA POR EL COACH · LAS SIGUIENTES NACEN DE ESTA':(w>1?'PROYECTADA · SE ACTUALIZA SOLA DESDE SEM '+(w-1):'SEMANA BASE'))+'</div><div class="plCard" style="padding:6px 12px">')
+  if (ses.length) h=h.replace('<div class="plCard" style="padding:6px 12px">','<div class="plSemEst">'+(ejec?'EN EJECUCIÓN · YA NO SE RE-DERIVA':edit?'AJUSTADA POR EL KOACH · LAS SIGUIENTES NACEN DE ESTA':(w>1?'PROYECTADA · SE ACTUALIZA SOLA DESDE SEM '+(w-1):'SEMANA BASE'))+'</div><div class="plCard" style="padding:6px 12px">')
   if (edit && !ejec && w>1) acc.push('<button class="plBtn" onclick="plResincronizar('+w+')">↺ VOLVER A DERIVAR DE SEM '+(w-1)+'</button>')
   if (ses.length<6) acc.push('<button class="plBtn" onclick="abrirAddSes()">+ AGREGAR SESIÓN</button>')
   const prevSes = w>1 ? plSesSem(w-1) : []
@@ -5768,7 +5768,7 @@ async function plCopiarSemana(desde, hacia){
   syncOk(); PL.w=hacia; PL.nivel='meso'
   await plRecargar(); toast('✓ SEM '+hacia+' creada desde SEM '+desde+' — ajusta la progresión')
 }
-// c14 · La semana del ciclo es AUTOMÁTICA (fecha de inicio + pausas reales). El coach no mueve el reloj:
+// c14 · La semana del ciclo es AUTOMÁTICA (fecha de inicio + pausas reales). El koach no mueve el reloj:
 // solo corrige una fecha mal ingresada (excepcional, queda en admin_eventos).
 async function plAjustarInicio(){
   const a=plAsig(); if(!a) return
@@ -7073,7 +7073,7 @@ async function cuentaGuardar(){
   cuentaCerrar(); toast('Contraseña actualizada ✓ — tu sesión sigue abierta')
 }
 // ═══ c30 · RECUPERACIÓN DE ACCESO DE SOCIOS ═══
-// El coach nunca ve ni maneja contraseñas. Todo pasa por la Edge Function koach-acceso (service role solo en servidor):
+// El koach nunca ve ni maneja contraseñas. Todo pasa por la Edge Function koach-acceso (service role solo en servidor):
 // valida sesión + rol + socio objetivo, usa el recovery oficial de Supabase Auth y deja registro en admin_eventos.
 const ACC={ run:false, est:null, sid:null, url:null, espera:0, tm:null, foco:null }
 const ACC_LBL={ recovery_email_sent:'RECUPERACIÓN ENVIADA POR CORREO', recovery_link_generated:'ENLACE DE ACCESO GENERADO', email_updated:'CORREO DE ACCESO CORREGIDO', access_restored:'ACCESO RESTABLECIDO POR EL SOCIO' }
@@ -7755,7 +7755,7 @@ function plBarraSesion(ses){
 }
 // ═══════════ c22 · CABECERA DEL SOCIO (member header) ═══════════
 // ═══ c116 · PLAN CON HORARIO (ej. ESTUDIANTE: iniciar hasta las 16:30) ═══
-// El coach puede planificar siempre; fuera de horario el servidor no deja iniciar ni habilitar. Aquí: sello en la ficha + alerta en Sala.
+// El koach puede planificar siempre; fuera de horario el servidor no deja iniciar ni habilitar. Aquí: sello en la ficha + alerta en Sala.
 const HOR={ socio:{}, int:[] }
 /* c171 · BIENESTAR (check-in del socio al encender la sesión · McLean 2010, 1–5 por ítem, total 5–25) */
 const BN={hoy:{}, socio:{}}
@@ -8136,7 +8136,7 @@ async function scDuplicar(id){
 async function scDesignarExtra(id){
   const z=((SC.st&&SC.st.sesiones)||[]).find(function(x){return x.id===id}); if(!z||!F) return
   if (!await kConfirm('¿Designar '+scNomL(z.nombre)+' como sesión extra ★? '+nomDe(F.id).split(' ')[0]+' la verá como opcional y no suma a sus principales.')) return
-  scGuard('run'); const r=await sb.from('designaciones_extra').insert({ socio_id:F.id, sesion_protocolo_id:id, motivo:'Criterio del coach', recurrente:false })
+  scGuard('run'); const r=await sb.from('designaciones_extra').insert({ socio_id:F.id, sesion_protocolo_id:id, motivo:'Criterio del koach', recurrente:false })
   if (r.error){ scGuard('err'); toast('No se pudo designar: '+r.error.message); return }
   scGuard('ok'); toast('★ Extra designada — el socio ya la ve'); scCargar(F.id)
 }
@@ -8359,7 +8359,7 @@ function crModelo(d){
   const gaps=[]
   if (renov!=null){
     const pierde=r.mrr_vence30*(1-renov), pierdeMeta=r.mrr_vence30*(1-M('tasa_renovacion_meta'))
-    gaps.push({t:'Renovaciones de los próximos 30 días', amt:Math.max(0,pierde-pierdeMeta), tab:'ren', o:'Recepción + coach',
+    gaps.push({t:'Renovaciones de los próximos 30 días', amt:Math.max(0,pierde-pierdeMeta), tab:'ren', o:'Recepción + koach',
       d:'Vencen '+r.vence30+' socios con '+crMM(r.mrr_vence30)+' al mes. A la tasa actual ('+crPc(renov)+') perderías '+crMM(pierde)+'; a la meta ('+crPc(M('tasa_renovacion_meta'))+'), '+crMM(pierdeMeta)+'.',
       a:'Trabajar Renovaciones P1 y P2 esta semana.'})
   }
@@ -8470,9 +8470,9 @@ function crCau(m){
 }
 function crContacto(t){ const w=crWa(t); return (t?'<span class="cr-tel">'+crE(t)+'</span>':'<span class="cr-tel">SIN TELÉFONO</span>')+(w?'<a class="cr-wa" href="'+w+'" target="_blank" rel="noopener">WHATSAPP</a>':'') }
 function crNom(x){ return '<button type="button" class="cr-nm" onclick="verFicha(\''+x.id+'\')">'+crE(x.nombre||'Sin nombre')+'</button>' }
-const CR_P={P1:['bad','Rescate','Vence en 14 días o menos y no entrena hace 2 semanas. Llama el coach: primero recuperar la rutina.'],
+const CR_P={P1:['bad','Rescate','Vence en 14 días o menos y no entrena hace 2 semanas. Llama el koach: primero recuperar la rutina.'],
   P2:['warn','Cierre','Vence en 14 días o menos y entrena. Recepción ofrece la renovación hoy.'],
-  P3:['warn','Reactivar','Vence en 15 a 60 días y no entrena. El coach lo trae de vuelta antes de hablar de pago.'],
+  P3:['warn','Reactivar','Vence en 15 a 60 días y no entrena. El koach lo trae de vuelta antes de hablar de pago.'],
   P4:['ok','Anticipar','Vence en 15 a 60 días y entrena. Renovación anticipada o fidelidad.']}
 function crRen(m,d){
   const cards=Object.keys(CR_P).map(function(k){ const l=d.pipeline.filter(function(x){return x.prioridad===k}), p=CR_P[k]
@@ -8541,7 +8541,7 @@ async function crGuardar(){
 // Desde el planificador toda navegación pasa por la guardia de cambios sin guardar (plGuard).
 const KS={ v:'vLogin', b:{sol:0,mem:0,memT:'',COM:false,ENT:false,R:'coach'}, menu:null }
 const KS_K='<svg viewBox="0 0 460 462" aria-hidden="true"><rect width="460" height="94"/><polygon points="0,339 231,131 460,336 460,456 231,251 0,462"/></svg>'
-const KS_ROL={admin:'ADMIN', coach:'COACH', recepcion:'RECEPCIÓN', nutricionista:'NUTRICIÓN'}
+const KS_ROL={admin:'ADMIN', coach:'KOACH', recepcion:'RECEPCIÓN', nutricionista:'NUTRICIÓN'}
 const KS_TIT={vAgenda:'Agenda',vSala:'Sala',vSol:'Solicitudes',vAdmin:'Membresías',vAdh:'Adherencia',vBib:'Biblioteca',vFicha:'Socio',vPlan:'Planificador',vExtra:'Rutina extra',vPicker:'Biblioteca',vCrm:'Panel'}
 const KS_NAV={vAgenda:'agenda',vSala:'sala',vSol:'sol',vAdmin:'mem',vAdh:'adh',vBib:'bib',vCrm:'crm'}
 const KS_ICO={

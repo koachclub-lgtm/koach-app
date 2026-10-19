@@ -2883,7 +2883,7 @@ html:not(:has(#oAct.vis)) #sBloques.locked{filter:none;opacity:1;pointer-events:
     <div id="pLista"></div>
     <section id="pNextSem"></section>
     <button type="button" class="p2Lnk" onclick="verHistorial()">VER HISTORIAL DE SESIONES →</button>
-    <div class="nota">LAS SESIONES SE DESBLOQUEAN EN ORDEN · TU COACH AJUSTA EL PROGRAMA</div>
+    <div class="nota">LAS SESIONES SE DESBLOQUEAN EN ORDEN · TU KOACH AJUSTA EL PROGRAMA</div>
   </div>
 
   <!-- ══ HISTORIAL (secundaria de Plan) ══ -->
@@ -2939,7 +2939,7 @@ html:not(:has(#oAct.vis)) #sBloques.locked{filter:none;opacity:1;pointer-events:
         <div class="gl"><b>DOSIS</b><span>Tu cantidad ideal de trabajo semanal por músculo — la que promueve adaptaciones y el <em>equilibrio de todo tu cuerpo</em>.</span></div>
         <div class="gl"><b>MÍNIMO Y TECHO</b><span>Los rangos que validan el trabajo suficiente: bajo el mínimo no hay estímulo; sobre el techo solo hay fatiga. Tu barra: <em>8/12</em> = llevas 8 de 12.</span></div>
         <div class="gl"><b>TU OBJETIVO SEMANAL (EL %)</b><span>Promedio de avance de <em>todos</em> tus músculos hacia su dosis. Solo el equilibrio llena el círculo. Estados: sin empezar · en progreso · objetivo cumplido · cerca del límite · sobre el objetivo.</span></div>
-        <div class="gl"><b>SESIÓN DESIGNADA</b><span>Diseñada por tu coach para tu semana. Se desbloquean en orden — la secuencia también es dosificación.</span></div>
+        <div class="gl"><b>SESIÓN DESIGNADA</b><span>Diseñada por tu koach para tu semana. Se desbloquean en orden — la secuencia también es dosificación.</span></div>
         <div class="gl"><b>B1 · B2 · B3</b><span>Activación → Fuerza principal → Cierre. La arquitectura de tus 60 minutos.</span></div>
         <div class="gl"><b>ANCLA ◆</b><span>El ejercicio que no cambia en las 6 semanas: ahí se mide tu progresión — mismo movimiento, más carga.</span></div>
         <div class="gl"><b>PR · RIR 0</b><span>Tu carga máxima por patrón (Upper Push · Pull · Squat · Hinge), al máximo real y con reps declaradas: <em>110 KG · 8 REPS</em>.</span></div>
@@ -3575,7 +3575,7 @@ function mensajeHome(){
   if (S.memBloqueo) return { t:'TU MEMBRESÍA NO ESTÁ VIGENTE', b:'Tu historial y tu progreso siguen aquí. Consulta tu renovación con KOACH.' }
   if (S.enCurso){ const s=S.programa.sesiones.find(x=>x.id===S.enCurso.sesion_protocolo_id)
     return { t:`TIENES UNA SESIÓN EN CURSO, ${n}.`, b:`Retoma <b>${s?s.nombre:'tu sesión'}</b> donde quedaste.`+ctxSem } }
-  if (e.completa && e.prox && e.prox._extra) return { t:'SEMANA COMPLETADA.', b:`Cumpliste el trabajo planificado. Tu coach te designó <b>${e.prox.nombre.replace('★ ','')}</b> como trabajo adicional.`+ctxSem }
+  if (e.completa && e.prox && e.prox._extra) return { t:'SEMANA COMPLETADA.', b:`Cumpliste el trabajo planificado. Tu koach te designó <b>${e.prox.nombre.replace('★ ','')}</b> como trabajo adicional.`+ctxSem }
   if (e.completa && e.hechas>=e.total) return { t:'SEMANA COMPLETADA.',
     b:`Cumpliste el trabajo planificado: <b>${e.hechas} de ${e.total} sesiones</b> · <b>${e.sem.fortalecidos} de ${e.sem.exigibles} objetivos</b>. ${t.cierre}` }
   if (e.completa) return { t:'OBJETIVO SEMANAL COMPLETADO.', b:`Cumpliste tus <b>${e.sem.exigibles} objetivos</b> de la semana.`+(e.prox?` Te queda <b>${e.prox.nombre}</b> en lo planificado.`:'') }
@@ -3883,9 +3883,9 @@ const BN_HYPE={ OPTIMO:['LISTO PARA RENDIR AL MÁXIMO.','Llegas bien recuperado.
 function bnLista(a){ return a.length<2?(a[0]||''):a.slice(0,-1).join(', ')+' y '+a[a.length-1] }
 function bnMensaje(d,v){ const n=d.nivel||'BUENO', H=BN_HYPE[n]||BN_HYPE.BUENO, bajos=BN_Q.filter(q=>v[q[0]]<=2).map(q=>BN_LOW[q[0]]), medios=BN_Q.filter(q=>v[q[0]]===3).map(q=>BN_LOW[q[0]])
   let t=H[1]
-  if(n==='MODERADO'){ const l=bajos.length?bajos:medios.slice(0,2); t='Por lo que nos cuentas, '+(l.length?bnLista(l):'tu estado')+' hoy no '+(l.length>1?'están':'está')+' al 100%. Cuida las cargas, controla cada repetición y coméntalo con tu coach. Igual lo vamos a dar todo.' }
-  if(n==='BAJO'){ t='Hoy '+(bajos.length?bnLista(bajos.slice(0,2)):'tu cuerpo')+' te '+((bajos.length>1)?'están':'está')+' pasando la cuenta. Tu coach ya lo sabe: ajustaremos las cargas si es necesario, cuidando la técnica en cada serie. Seguimos construyendo ese cuerpo fuerte.' }
-  if((n==='OPTIMO'||n==='BUENO') && bajos.length) t+=' Ojo con '+bnLista(bajos)+': coméntalo con tu coach.'
+  if(n==='MODERADO'){ const l=bajos.length?bajos:medios.slice(0,2); t='Por lo que nos cuentas, '+(l.length?bnLista(l):'tu estado')+' hoy no '+(l.length>1?'están':'está')+' al 100%. Cuida las cargas, controla cada repetición y coméntalo con tu koach. Igual lo vamos a dar todo.' }
+  if(n==='BAJO'){ t='Hoy '+(bajos.length?bnLista(bajos.slice(0,2)):'tu cuerpo')+' te '+((bajos.length>1)?'están':'está')+' pasando la cuenta. Tu koach ya lo sabe: ajustaremos las cargas si es necesario, cuidando la técnica en cada serie. Seguimos construyendo ese cuerpo fuerte.' }
+  if((n==='OPTIMO'||n==='BUENO') && bajos.length) t+=' Ojo con '+bnLista(bajos)+': coméntalo con tu koach.'
   if(v.doms<=2) t+=' Haz un calentamiento específico de la zona con dolor antes de cargar.'
   return { tit:H[0], txt:t, cierre:H[2] } }
 /* c176 · ARTE DE PUNTOS (holográfico, puntos blancos sobre negro): esfera, terreno, cinta y montaña en 3D con profundidad de campo
@@ -3975,7 +3975,7 @@ function bnResultado(o, d, v, fondo){ const al=d.alertas||[], m=bnMensaje(d,v)
   box.innerHTML='<div class="bnX__tot"><b>'+(d.total||'—')+'</b><i>/25</i></div><div class="bnX__niv">'+m.tit+'</div>'+
     '<div class="bnX__its">'+BN_Q.map(q=>'<div><small>'+q[1]+'</small><span class="bnX__pp">'+[1,2,3,4,5].map(n=>'<i class="'+(n<=v[q[0]]?'on':'')+'"></i>').join('')+'</span><b>'+v[q[0]]+'</b></div>').join('')+'</div>'+
     ((cuida.length||al.indexOf('BAJO_SU_NORMAL')>=0)?'<div class="bnX__al"><small>HOY CUIDAMOS</small>'+cuida.map(a=>'<em>'+a+'</em>').join('')+(al.indexOf('BAJO_SU_NORMAL')>=0?'<em>BAJO TU PROMEDIO</em>':'')+'</div>':'')+
-    '<p class="bnX__msg">'+m.txt+'</p><p class="bnX__hype">'+m.cierre+'</p><p class="bnX__coach">RESULTADO SINCRONIZADO CON TU COACH</p>'+
+    '<p class="bnX__msg">'+m.txt+'</p><p class="bnX__hype">'+m.cierre+'</p><p class="bnX__coach">RESULTADO SINCRONIZADO CON TU KOACH</p>'+
     '<button type="button" class="bnX__go bnX__go--fin">A ENTRENAR →</button>'
   o.insertBefore(box, o.querySelector('.bnX__ev'))
   box.querySelector('.bnX__go').onclick=()=>{ o.classList.add('bnX--out'); setTimeout(()=>o.remove(),260) } }
@@ -4360,7 +4360,7 @@ async function entrar(opts){
       fecha:r.fecha, bloques_completados:r.bloques_completados??null })).filter(r=>r.sesion_numero)
     // META = lo que el KOACH programó en la semana efectiva (misma fuente que el coach)
     S.objetivos = objProgramados(S.programa, S.semanaProg||S.semanaActual)
-    if (!Object.keys(S.objetivos).length){ await memP; sinPrograma('Tu programa aún no tiene objetivos — avisa a tu coach.'); return }
+    if (!Object.keys(S.objetivos).length){ await memP; sinPrograma('Tu programa aún no tiene objetivos — avisa a tu koach.'); return }
     S._rSol = rSol
     S.sem = calcularSemana(S.programa, S.registros, S.objetivos)
     try{ S.hab = (await _rHab).data || null }catch(_e){ S.hab=null }
@@ -4491,7 +4491,7 @@ function sinPrograma(msg){
   const _hD=document.getElementById('hD'); if(_hD) _hD.textContent='—'
   document.getElementById('hCta').disabled = true
   document.getElementById('hCtaT').textContent='PROGRAMA EN CAMINO'
-  document.getElementById('hCtaS').textContent='TU COACH LO ACTIVA'
+  document.getElementById('hCtaS').textContent='TU KOACH LO ACTIVA'
   document.getElementById('hDias').innerHTML=''
   document.getElementById('hRows').innerHTML=''
   document.getElementById('hCount').textContent='';
@@ -4513,19 +4513,19 @@ function pintarBienvenida(msg){
   if (!box || !K2.on){   // Home clásico: mismo mensaje en sus elementos
     document.getElementById('hSaludo').textContent='Hola, '+(n||'socio')+'.'
     document.getElementById('hVoz').innerHTML = msg || 'Tu cuenta está lista. <b>El equipo KOACH activa tu membresía y tu protocolo</b> en tu primera visita.'
-    document.getElementById('hCta').disabled=true; document.getElementById('hCtaT').textContent='PROTOCOLO EN CAMINO'; document.getElementById('hCtaS').textContent='LO ACTIVA TU COACH'
+    document.getElementById('hCta').disabled=true; document.getElementById('hCtaT').textContent='PROTOCOLO EN CAMINO'; document.getElementById('hCtaS').textContent='LO ACTIVA TU KOACH'
     return
   }
   const wd=['PECHO','HOMBROS','BÍCEPS','TRÍCEPS','CORE','CUÁDRICEPS','ISQUIOS','GLÚTEOS','ESPALDA'].map(g=>({grupo:g, series:0, objetivo:8, mav:null}))
   box.innerHTML = k2HeaderHero(n) +
     '<section class="hh bv__hero"><div class="hh__c">'+
       '<div class="hh__k">TU CUENTA ESTÁ LISTA</div><h2 class="hh__t">'+(fem?'BIEN-<br>VENIDA':'BIEN-<br>VENIDO')+'</h2>'+
-      '<p class="hh__d">'+(msg || ('Ya eres parte de KOACH. En tu primera visita <b>activamos tu membresía y tu coach diseña tu protocolo individual.</b>'))+'</p>'+
+      '<p class="hh__d">'+(msg || ('Ya eres parte de KOACH. En tu primera visita <b>activamos tu membresía y tu koach diseña tu protocolo individual.</b>'))+'</p>'+
     '</div></section>'+
     '<section class="k2-sec"><div class="k2-sec__h">'+k2Label('TU ACTIVACIÓN')+'</div><ol class="bv__ps">'+
       paso(true,'Cuenta creada','Tus datos quedaron registrados.')+
       paso(memOk,'Membresía','Se activa en recepción con tu primer pago.')+
-      paso(false,'Tu protocolo','Tu coach elige programa, nivel y semanas según tu evaluación.')+
+      paso(false,'Tu protocolo','Tu koach elige programa, nivel y semanas según tu evaluación.')+
       paso(false,'A entrenar','Tus sesiones, cargas y progreso aparecen aquí.')+
     '</ol></section>'+
 
@@ -4657,8 +4657,8 @@ function pintarHome(){
   document.getElementById('hSaludo').textContent = _m.t
   const hechasSes = S.registros.filter(esHecha).length
   let voz
-  if (sem.completa && sem.proxima && sem.proxima._extra) voz = `<b>Base completa</b> — 100%. Tu coach te designó <b>${sem.proxima.nombre}</b>: volumen específico sobre tu base. <b>Está lista cuando tú lo estés.</b>`
-  else if (sem.completa) voz = `<b>Base completa</b> — 100%, tus <b>${den}/${den} estímulos</b> cumplidos. Las extras suman <b>volumen específico sobre tu base</b>. Solicítala y tu coach la designa.`
+  if (sem.completa && sem.proxima && sem.proxima._extra) voz = `<b>Base completa</b> — 100%. Tu koach te designó <b>${sem.proxima.nombre}</b>: volumen específico sobre tu base. <b>Está lista cuando tú lo estés.</b>`
+  else if (sem.completa) voz = `<b>Base completa</b> — 100%, tus <b>${den}/${den} estímulos</b> cumplidos. Las extras suman <b>volumen específico sobre tu base</b>. Solicítala y tu koach la designa.`
   else if (sem.proxima){
     const sp=sem.proxima.suma_pct
     voz = `Es <b>${DIA[dowL]}</b> y llevas el <b>${dosis}%</b> de tu dosis semanal. Tu próxima sesión suma <b>+${sp}%</b>`+
@@ -4701,22 +4701,22 @@ function pintarHome(){
   } else if (sem.completa && sem.proxima && sem.proxima._extra){
     cta.disabled=false; cta.onclick=()=>abrirSesion()
     document.getElementById('hCtaT').textContent='★ SESIÓN EXTRA'
-    document.getElementById('hCtaS').textContent=sem.proxima.nombre.replace('★ ','')+' · DESIGNADA POR TU COACH'
+    document.getElementById('hCtaS').textContent=sem.proxima.nombre.replace('★ ','')+' · DESIGNADA POR TU KOACH'
   } else if (sem.completa && sem.proxima){
     cta.disabled=false; cta.onclick=()=>abrirSesion()
     document.getElementById('hCtaT').textContent='COMENZAR '+sem.proxima.nombre
-    document.getElementById('hCtaS').textContent='SESIÓN DE TU SEMANA · PROGRAMADA POR TU COACH'
+    document.getElementById('hCtaS').textContent='SESIÓN DE TU SEMANA · PROGRAMADA POR TU KOACH'
   } else if (sem.completa || estadoSemana().completa){ cta.disabled=false
     if (S._solExtra){
       document.getElementById('hCtaT').textContent='SOLICITUD ENVIADA ✓'
-      document.getElementById('hCtaS').textContent='TU COACH ORGANIZA TU SESIÓN EXTRA'
+      document.getElementById('hCtaS').textContent='TU KOACH ORGANIZA TU SESIÓN EXTRA'
       cta.onclick = null
     } else {
       document.getElementById('hCtaT').textContent=sem.completa?'SOLICITAR SESIÓN EXTRA ★':'SEMANA COMPLETADA ✓ · PEDIR EXTRA ★'
-      document.getElementById('hCtaS').textContent='TRABAJO ADICIONAL DISEÑADO POR TU COACH →'
+      document.getElementById('hCtaS').textContent='TRABAJO ADICIONAL DISEÑADO POR TU KOACH →'
       cta.onclick = async () => {
         const ok = await k2Solicitar('extra', `Semana 100% · ${hechasSes} sesiones`, cta,
-          'Solicitud enviada — tu coach organiza tu sesión extra')
+          'Solicitud enviada — tu koach organiza tu sesión extra')
         if (ok){ S._solExtra=true; cta.disabled=false; pintarHome() }
       }
     }
@@ -4788,15 +4788,15 @@ function pintarFilasMusc(elId){
 }
 async function k2Postergar(nombre, spId){
   const ok = await k2Solicitar('postergar', nombre, null,
-    'Avisado — tu coach reorganiza tu semana', spId)
+    'Avisado — tu koach reorganiza tu semana', spId)
   if (ok){ (S._solPost = S._solPost||[]).push(spId||nombre); pintarPlan() }
 }
 async function k2Solicitar(tipo, detalle, btn, okTxt, spId){
   if (btn){ btn.disabled=true }
   try{
     const { error } = await sb.from('solicitudes').insert({ socio_id:S.perfil.id, tipo, detalle:detalle||null, sesion_protocolo_id:spId||null })
-    if (error){ if(String(error.code)==='23505'||/duplicate/i.test(error.message)){ toast('Ya está enviada — tu coach la tiene en su panel.'); return true } throw error }
-    toast(okTxt||'Solicitud enviada — tu coach la verá en su panel')
+    if (error){ if(String(error.code)==='23505'||/duplicate/i.test(error.message)){ toast('Ya está enviada — tu koach la tiene en su panel.'); return true } throw error }
+    toast(okTxt||'Solicitud enviada — tu koach la verá en su panel')
     return true
   }catch(e){ console.error(e); toast('No se pudo enviar — intenta de nuevo'); if(btn) btn.disabled=false; return false }
 }
@@ -4871,8 +4871,8 @@ async function reanudar(){
 // Única fuente de decisión. La UI renderiza; JAMÁS decide elegibilidad por su cuenta.
 const REASON_TXT = {
   PREVIOUS_SESSION_REQUIRED: p => 'DISPONIBLE DESPUÉS DE COMPLETAR '+(p||'TU SESIÓN ANTERIOR'),
-  ADVANCE_APPROVAL_REQUIRED: () => 'SOLICITUD ENVIADA — TU COACH LA REVISA',
-  ADVANCE_APPROVED: () => 'ADELANTO APROBADO POR TU COACH',
+  ADVANCE_APPROVAL_REQUIRED: () => 'SOLICITUD ENVIADA — TU KOACH LA REVISA',
+  ADVANCE_APPROVED: () => 'ADELANTO APROBADO POR TU KOACH',
   SESSION_COMPLETED: () => 'SESIÓN COMPLETADA',
   SESSION_IN_PROGRESS: () => 'SESIÓN EN CURSO',
   WEEK_COMPLETE: () => 'TU SEMANA BASE ESTÁ COMPLETA'
@@ -4903,7 +4903,7 @@ function opAvisoHTML(){
     '<div class="opAv__m">'+a.ejercicios+' / '+a.total_ejercicios+' EJERCICIOS · '+a.sets+' SETS</div>'+
     (a.parece_completa
       ? '<p class="opAv__b">Registraste todos los ejercicios, pero no tocaste FINALIZAR. ¿La terminaste?</p><button type="button" class="opAv__cta" onclick="opFinalizarPendiente(\''+a.id+'\',this)">SÍ, LA TERMINÉ · CERRARLA</button>'
-      : '<p class="opAv__b">Quedó a medias. Tus sets están guardados; tu coach la revisará.</p>')+'</section>'
+      : '<p class="opAv__b">Quedó a medias. Tus sets están guardados; tu koach la revisará.</p>')+'</section>'
 }
 function opAvCerrar(id, b){ try{ const o=JSON.parse(localStorage.getItem('k_opav_off')||'{}'); o[id]=1; localStorage.setItem('k_opav_off',JSON.stringify(o)) }catch(_){}
   const s=b.closest('.opAv'); if (s) s.remove() }
@@ -4961,7 +4961,7 @@ async function solicitar(tipo, sesId, nombre){
       socio_id:S.perfil.id, tipo:String(tipo).toLowerCase(), sesion_protocolo_id:sesId, detalle:nombre||null })
     S._reqEnvio=false
     if (error){ if(String(error.code)==='23505'||/duplicate/i.test(error.message)){ toast('Ya tienes una solicitud enviada para esta sesión.') } else throw error }
-    else toast(tipo==='ADELANTAR' ? 'Solicitud enviada — tu coach la revisará.' : 'Solicitud de vista previa enviada.')
+    else toast(tipo==='ADELANTAR' ? 'Solicitud enviada — tu koach la revisará.' : 'Solicitud de vista previa enviada.')
     S._reqs = S._reqs||{}; S._reqs[sesId]=Object.assign({},S._reqs[sesId],{[tipo]:'PENDIENTE'})
     pintarPlan()
   }catch(e){ S._reqEnvio=false; toast('No se pudo enviar — intenta de nuevo.') }
@@ -5015,7 +5015,7 @@ async function abrirSesion(num){
   const principales = Object.entries(ap0).sort((a,b)=>b[1]-a[1]).slice(0,3).map(([g])=>g).join(' · ')
   const _tot=baseSem().length
   document.getElementById('sSub').textContent =
-    (!ses._extra?('SESIÓN '+posSem(ses)+' DE '+_tot+' · '):'SESIÓN EXTRA · ')+`${(S.proto.programa||'').toUpperCase()||'PROGRAMADA POR TU COACH'}`
+    (!ses._extra?('SESIÓN '+posSem(ses)+' DE '+_tot+' · '):'SESIÓN EXTRA · ')+`${(S.proto.programa||'').toUpperCase()||'PROGRAMADA POR TU KOACH'}`
   const _pre = mensajePreSesion(ses)
   const _op = objetivosSesion(ses).prim.slice(0,4)
   document.getElementById('sObj').innerHTML = pillsSesion(ses); S._fraseTit=fraseTitular(ses,false)
@@ -5310,7 +5310,7 @@ function pvVol(ses){ let ap={}; try{ ap=aporteSesion(ses)||{} }catch(_){}
   return { L, tot, pct:L.map(([g,v])=>[g,Math.round(v/tot*100)]) } }
 function pvLista(a){ const m=a.map(g=>String(g).toLowerCase()); if(m.length<2) return m[0]||''
   const ult=m[m.length-1], y=/^(i|hi)(?!e)/.test(ult)?' e ':' y '; return m.slice(0,-1).join(', ')+y+ult }
-function pvDesc(ses,bfs){ const V=pvVol(ses); if(!V.L.length) return 'Tu coach armó esta sesión para hoy.'
+function pvDesc(ses,bfs){ const V=pvVol(ses); if(!V.L.length) return 'Tu koach armó esta sesión para hoy.'
   const prog=String((S.proto&&S.proto.programa)||'').toUpperCase(), nom=String(ses.nombre||'').toUpperCase()
   const tipo={STRONG:'Fuerza',BURN:'Trabajo metabólico',HEALTHY:'Vitalidad'}[prog]||'Sesión'
   let inf=0,sup=0; V.L.forEach(([g,v])=>{ if(PV_INF.includes(g)) inf+=v; else if(PV_SUP.includes(g)) sup+=v })
@@ -5394,7 +5394,7 @@ function bkCapsulas(bfs){
         return '<div class="cp__e"><div><b>'+bkEsc(ej.nombre||'—')+'</b><span>'+bkEsc(ej.grupo_muscular||'')+'</span></div><em>'+bkValor(w,ej)+'</em></div>' }).join('')+'</div>'+
       (done ? '<button type="button" class="cp__cta cp__cta--sec" onclick="bkAbrir('+bi+')">VER O CORREGIR '+cod+'</button>'
        : bi===prim ? '<button type="button" class="cp__cta" onclick="bkAbrir('+bi+')">▶ &nbsp;'+(hechos?cod+' · BACK TO WORK':(bfs.every(x=>!bkSetsHechos(x))?'GO TRAIN! · '+cod:cod+' · GO'))+'</button>'
-       : '<button type="button" class="cp__cta cp__cta--off" disabled>SE ACTIVA AL TERMINAR '+bkCod(bfs[prim]||{},prim)+'</button><span class="cp__nota">TU COACH PUEDE CAMBIAR EL ORDEN DE LOS BLOQUES</span>') : ''
+       : '<button type="button" class="cp__cta cp__cta--off" disabled>SE ACTIVA AL TERMINAR '+bkCod(bfs[prim]||{},prim)+'</button><span class="cp__nota">TU KOACH PUEDE CAMBIAR EL ORDEN DE LOS BLOQUES</span>') : ''
     return '<section class="cp'+(done?' cp--ok':'')+(open?' cp--open':'')+'" id="blq-'+bi+'">'+
       '<button type="button" class="cp__h" onclick="BK.cap='+(open?'null':bi)+';pintarSesion()" aria-expanded="'+open+'" aria-controls="blq-'+bi+'" aria-label="Bloque '+cod+' '+nom+', '+estado.toLowerCase()+'">'+
       '<b class="cp__n">'+cod+'</b><span class="cp__t"><small>'+estado+'</small><b>'+nom+'</b></span>'+
@@ -6245,7 +6245,7 @@ function aplicarGamifCierre(m, g, sig){
     m.t='TERMINASTE TU CICLO, '+msgNombre().toUpperCase()+'.'
     m.b='Completaste '+cumpl+' de '+N+' semanas y '+g.sesiones_ciclo+' sesiones de '+String(g.programa||'').toUpperCase()+'.'
     m.stats=[[cumpl+' DE '+N,'SEMANAS COMPLETADAS'],[String(g.sesiones_ciclo),'SESIONES']]
-    m.cierre='TU COACH PREPARA TU PRÓXIMO CICLO.'
+    m.cierre='TU KOACH PREPARA TU PRÓXIMO CICLO.'
     m.ciclo=true
   }
 }
@@ -6295,7 +6295,7 @@ function pintarPlan(){
   const ci=cicloInfo(), N=(ci&&ci.semanas)||(S.proto&&S.proto.ciclo_semanas)||6, vig=S.semanaActual||1
   const fmt=d=>{ if(!d) return ''; const x=new Date(String(d).slice(0,10)+'T12:00:00'); return x.getDate()+' '+_MES[x.getMonth()] }
   document.getElementById('pTit').textContent=String((S.proto&&S.proto.programa)||'Tu plan').toUpperCase()
-  document.getElementById('pSub').textContent = (ci&&ci.estado==='completado') ? 'CICLO '+(S.asig.ciclo_actual||1)+' COMPLETADO · TU COACH PREPARA EL SIGUIENTE'
+  document.getElementById('pSub').textContent = (ci&&ci.estado==='completado') ? 'CICLO '+(S.asig.ciclo_actual||1)+' COMPLETADO · TU KOACH PREPARA EL SIGUIENTE'
     : (ci&&ci.estado==='futuro') ? 'PRÓXIMO CICLO · COMIENZA EL '+fmt(ci.inicio).toUpperCase()
     : 'SEMANA '+vig+' DE '+N+' · CICLO '+(S.asig.ciclo_actual||1)+(ci&&ci.inicio?' · '+fmt(ci.inicio).toUpperCase()+' — '+fmt(ci.fin).toUpperCase():'')
   { const ps=document.getElementById('pSub'), _ce=ci&&ci.estado; if(ps){ ps.hidden=!(_ce==='completado'||_ce==='futuro'); ps.className='mtCode mtCode--est' } }   // c93 · solo informa cuando el ciclo no está activo
@@ -6328,7 +6328,7 @@ function pintarPlan(){
       const post = (S._solPost||[]).includes(s.id) || (S._solPost||[]).includes(s.nombre)
       est = post ? 'COORDINANDO' : 'PRÓXIMA →'; cls='prox'; icon=posSem(s)
       if (!post) extra=(estadoSemana().entrenoHoy?' · DISPONIBLE MAÑANA':'')
-      if (post) extra=' · TU COACH REORGANIZA TU SEMANA' }
+      if (post) extra=' · TU KOACH REORGANIZA TU SEMANA' }
     else if (cap.can_start){ est='ADELANTO APROBADO'; cls='prox'; icon='★'
       acciones=`<button class="pAct" onclick="event.stopPropagation();abrirSesion(${s.numero})">EMPEZAR →</button>` }
     else {
@@ -6364,7 +6364,7 @@ function pintarPlan(){
       (prox && !(S._solPost||[]).includes(s.id) && !(S._solPost||[]).includes(s.nombre) ?
       `<div style="text-align:right;margin:-4px 4px 10px"><button onclick="event.stopPropagation();k2Postergar('${(s.nombre||'').replace(/'/g,'')}','${s.id}')"
         style="background:none;border:none;font-size:8px;letter-spacing:.1em;color:var(--suave);font-weight:900;
-        text-decoration:underline;cursor:pointer">NO PUEDO ESTA SESIÓN — AVISAR A MI COACH</button></div>` : '')
+        text-decoration:underline;cursor:pointer">NO PUEDO ESTA SESIÓN — AVISAR A MI KOACH</button></div>` : '')
   }).join('')
   pintarRestoCiclo()
 }
@@ -6639,7 +6639,7 @@ async function verHist(regId){
 function verPreview(num){
   const s=S.programa.sesiones.find(x=>x.numero===num); if(!s) return
   const cap=resolverCap(s, ctxDe(s))
-  if(!cap.can_open_preview){ toast('La vista previa requiere aprobación de tu coach.'); return }
+  if(!cap.can_open_preview){ toast('La vista previa requiere aprobación de tu koach.'); return }
   document.getElementById('pvTit').textContent = s.nombre
   document.getElementById('pvBody').innerHTML = (s.bloques||[]).map((b,i)=>{
     const ejs=(b.ejercicios||[]).map(e=>{
@@ -6994,7 +6994,7 @@ function accTxt(a){
     : e==='vencida' ? { t:'TU MEMBRESÍA VENCIÓ'+(v?' EL '+v:''), b:'Renueva en recepción para volver a ver tu rutina y tu credencial. Tu historial y tu progreso siguen guardados.' }
     : e==='congelada' ? { t:'TU MEMBRESÍA ESTÁ EN PAUSA', b:'Tu rutina vuelve a estar disponible cuando termine la pausa.' }
     : e==='futura' ? { t:'TU MEMBRESÍA COMIENZA EL '+(a.inicia?_fm(a.inicia).toUpperCase():'PRÓXIMO PERÍODO'), b:'Desde ese día verás tu rutina y tu credencial.' }
-    : { t:'TU PAGO NO ESTÁ REGISTRADO', b:'Para ver tu rutina y tu credencial, tu membresía debe estar pagada. Acércate a recepción o habla con tu coach para regularizarla.' }
+    : { t:'TU PAGO NO ESTÁ REGISTRADO', b:'Para ver tu rutina y tu credencial, tu membresía debe estar pagada. Acércate a recepción o habla con tu koach para regularizarla.' }
 }
 // Bloqueo: los menús siguen visibles, pero HOY · PLAN · AVANCES y la credencial muestran solo el candado
 function aplicarBloqueo(){
