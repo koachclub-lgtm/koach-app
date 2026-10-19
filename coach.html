@@ -46,6 +46,21 @@
 .kid__n span{display:block}
 .kid__st{display:flex;align-items:center;gap:6px;padding:6px 12px 10px;font:700 10.5px var(--font-mono);letter-spacing:.04em;text-transform:uppercase}
 .kid__st i{width:7px;height:7px;border-radius:50%;background:#5FD4E0;flex:none;animation:kidPulse 1.6s ease-in-out infinite}
+.mh__st--bn{margin-left:8px;cursor:pointer;font:inherit;font-family:var(--font-mono);font-size:11.5px;letter-spacing:.12em}
+.kid__bn{display:flex;flex-wrap:wrap;align-items:baseline;gap:2px 8px;padding:0 12px 10px;margin-top:-4px;font-family:var(--font-mono);font-variant-numeric:tabular-nums}
+.kid__bn small{font:400 8.5px var(--font-mono);letter-spacing:.14em;color:var(--mu)}
+.kid__bn b{font:500 12px var(--font-mono);letter-spacing:.06em;color:var(--fg);white-space:nowrap}.kid__bn b i{font-style:normal;color:var(--mu)}
+.kid__bn em{flex-basis:100%;font:700 9px var(--font-mono);font-style:normal;letter-spacing:.1em;color:var(--fg)}
+.kid__bn.is-al b::before{content:'';display:inline-block;width:7px;height:7px;border-radius:50%;background:#E5484D;margin-right:6px;vertical-align:1px}
+.bnF{display:grid;gap:14px;margin-bottom:14px}
+.bnF__h{display:flex;align-items:center;gap:14px}.bnF__h>b{font:800 48px/1 var(--font-display);letter-spacing:-.02em}.bnF__h>b i{font-style:normal;font-size:16px;color:#8E8D88}
+.bnF__h span{display:block;font:700 13px var(--font-mono);letter-spacing:.12em}.bnF__h small{display:block;margin-top:3px;font:400 10px var(--font-mono);letter-spacing:.08em;color:#6E6D68}
+.bnF__al{margin:0;padding:8px 10px;border-radius:10px;background:#121212;color:#F4F3F0!important;font:700 10px var(--font-mono);letter-spacing:.1em}
+.bnF__it{display:grid;gap:7px}.bnF__it>div{display:grid;grid-template-columns:70px 1fr 18px;align-items:center;gap:10px}
+.bnF__it small{font:400 9.5px var(--font-mono);letter-spacing:.12em;color:#6E6D68}.bnF__it b{font:700 13px var(--font-mono);text-align:right}
+.bnB{height:8px;border-radius:4px;background:#E2E1DC;overflow:hidden}.bnB i{display:block;height:100%;background:#121212;border-radius:4px}
+.bnF__tr small{display:block;font:400 9.5px var(--font-mono);letter-spacing:.12em;color:#6E6D68;margin-bottom:6px}.bnSp{display:block;width:100%;height:56px;color:#121212;overflow:visible}
+.bnF__n{margin:0;font-size:11.5px;line-height:1.45;color:#6E6D68}
 .kid__tm{display:flex;gap:18px;padding:0 12px 10px;margin-top:-4px;font-family:var(--font-mono);font-variant-numeric:tabular-nums}
 .kid__tm span{display:flex;flex-direction:column;gap:2px;min-width:0}
 .kid__tm small{font:400 8.5px var(--font-mono);letter-spacing:.14em;color:var(--mu)}
@@ -2589,7 +2604,7 @@ html.ks-on.en-crm body{max-width:1280px !important;padding-left:32px !important;
       <button class="sback mh__back" onclick="verSala()" aria-label="Volver a la Sala">←</button>
       <button type="button" class="mh__av" id="fAvBtn" onclick="fichaFoto()" aria-label="Foto del socio"></button>
       <div class="mh__id">
-        <div class="mh__n"><h1 class="stit" id="fNombre">—</h1><span class="mh__st" id="fEstado">ACTIVA</span><span class="mh__st mh__st--hor" id="fHor" hidden></span></div>
+        <div class="mh__n"><h1 class="stit" id="fNombre">—</h1><span class="mh__st" id="fEstado">ACTIVA</span><span class="mh__st mh__st--hor" id="fHor" hidden></span><button type="button" class="mh__st mh__st--bn" id="fBn" hidden onclick="bnFichaVer()"></button></div>
         <div class="mh__code" id="fCode">KOACH MEMBER</div>
         <div class="mh__prog" id="fMeta">—</div>
       </div>
@@ -3260,7 +3275,7 @@ function pintarSala(){
     }).join('')+(_ho.length>4&&!window._hoyTodo?'<button type="button" class="kTray__m" onclick="window._hoyTodo=1;pintarSala()">VER TODAS ('+_ho.length+')</button>':'')+'</div></section>'
   }
   document.getElementById('bandejas').innerHTML=b
-  if (!pintarSala._hor || Date.now()-pintarSala._hor>60000){ pintarSala._hor=Date.now(); horSalaCargar().catch(function(){}) } else horSalaPintar()
+  if (!pintarSala._hor || Date.now()-pintarSala._hor>60000){ pintarSala._hor=Date.now(); horSalaCargar().catch(function(){}); bnSalaCargar().catch(function(){}) } else horSalaPintar()
   const hoySet=new Set(C.hoy.map(function(r){return r.socio_id}))
   const completas=Object.values(C.sems).filter(function(s){return s&&s.completa}).length
   const _modo=dashModo()
@@ -6428,7 +6443,7 @@ const K39={'0':'000110100','1':'100100001','2':'001100001','3':'101100000','4':'
 function kodeSvg(id){ const t='*'+String(id||'KCH-00000').toUpperCase().replace(/[^0-9CHK-]/g,'')+'*'; let x=0, r=''
   for(const ch of t){ const p=K39[ch]||K39['0']; for(let k=0;k<9;k++){ const w=p[k]==='1'?3:1; if(k%2===0) r+='<rect x="'+x+'" y="0" width="'+w+'" height="10"/>'; x+=w } x+=1 }
   return '<svg viewBox="0 0 '+(x-1)+' 10" preserveAspectRatio="none" role="img" aria-label="Member ID '+(id||'')+'" fill="currentColor">'+r+'</svg>' }
-function kidCard(id, nombre, estado, sub, live, tm){
+function kidCard(id, nombre, estado, sub, live, tm, bn){
   const so=(C.socios||[]).find(function(x){return x.id===id})||(C.pres||[]).find(function(x){return x.socio_id===id})||{}
   const nom=String(nomDe(id)||nombre||so.nombre||'Socio').trim(), w=nom.split(/\s+/)
   const n1=w.length>3?w.slice(0,2).join(' '):w[0], n2=w.length>3?w.slice(2).join(' '):w.slice(1).join(' ')
@@ -6438,6 +6453,7 @@ function kidCard(id, nombre, estado, sub, live, tm){
       '<span class="kid__pr">'+plEsc(T.p)+(cod?'<em>#'+cod+'</em>':'')+'</span><img src="/img/brand/isotipo-blanco.png" alt="" width="14" height="15"></div>'+
     '<div class="kid__n"><span>'+plEsc(n1)+'</span>'+(n2?'<span>'+plEsc(n2)+'</span>':'')+'</div>'+
     '<div class="kid__st">'+(live?'<i aria-hidden="true"></i>':'')+plEsc(estado)+'</div>'+
+    (bn?bnMini(bn):'')+
     (tm?'<div class="kid__tm"><span><small>INICIO</small><b>'+plEsc(tm.ini)+'</b></span><span><small>DURACIÓN</small><b'+(tm.ok?'':' class="is-x"')+'>'+plEsc(tm.dur)+'</b></span></div>':'')+
     '<div class="kid__f"><small>'+plEsc(sub||'')+'</small><span class="kid__bc" aria-hidden="true">'+kodeSvg(koachId(so))+'</span></div></a>'
 }
@@ -6480,7 +6496,7 @@ function salaPresenciaPintar(){
   const en=per.filter(function(p){ return p.enSala }).sort(function(a,b){ return new Date(a.principal.inicio)-new Date(b.principal.inicio) })
   document.getElementById('rostN').innerHTML = '<i class="kLv" aria-hidden="true"></i>'+en.length+' ENTRENANDO AHORA'
   g.innerHTML = en.length ? en.map(function(p){ const x=p.principal, m=presMin(x.inicio), mas=p.sesiones.length-1
-    return kidCard(p.socio_id, p.nombre, (m<2?'RECIÉN LLEGA':kidDur(m)+' EN SALA'), String(x.sesion||'SESIÓN')+(mas>0?' · +'+mas:''), true) }).join('')
+    return kidCard(p.socio_id, p.nombre, (m<2?'RECIÉN LLEGA':kidDur(m)+' EN SALA'), String(x.sesion||'SESIÓN')+(mas>0?' · +'+mas:''), true, null, BN.hoy[p.socio_id]||null) }).join('')
     : '<div class="kidV">Nadie entrenando en este momento.</div>'
   salaRecPintar(); salaRecCargar()
   const at=per.filter(function(p){ return p.atencion.length }).sort(function(a,b){
@@ -7728,6 +7744,37 @@ function plBarraSesion(ses){
 // ═══ c116 · PLAN CON HORARIO (ej. ESTUDIANTE: iniciar hasta las 16:30) ═══
 // El coach puede planificar siempre; fuera de horario el servidor no deja iniciar ni habilitar. Aquí: sello en la ficha + alerta en Sala.
 const HOR={ socio:{}, int:[] }
+/* c171 · BIENESTAR (check-in del socio al encender la sesión · McLean 2010, 1–5 por ítem, total 5–25) */
+const BN={hoy:{}, socio:{}}
+const BN_NIV={OPTIMO:'ÓPTIMO',BUENO:'BUENO',MODERADO:'MODERADO',BAJO:'BAJO'}
+const BN_AL={DOMS:'DOLOR MUSCULAR',SUENO:'SUEÑO',FATIGA:'FATIGA',ESTRES:'ESTRÉS',ANIMO:'MOTIVACIÓN',BAJO_SU_NORMAL:'BAJO SU NORMAL'}
+const BN_IT=[['sueno','SUEÑO'],['energia','ENERGÍA'],['doms','DOLOR'],['estres','ESTRÉS'],['animo','MOTIV.']]
+function bnAlerta(b){ return b && (b.nivel==='BAJO'||b.nivel==='MODERADO'||(b.alertas||[]).length>0) }
+function bnMini(b){ const al=(b.alertas||[]).map(function(a){return BN_AL[a]||a})
+  return '<div class="kid__bn'+(bnAlerta(b)?' is-al':'')+'" title="Sueño '+b.sueno+' · Energía '+b.energia+' · Dolor '+b.doms+' · Estrés '+b.estres+' · Motivación '+b.animo+' (1–5, 5 = mejor)"><small>BIENESTAR</small><b>'+b.total+'<i>/25</i> · '+(BN_NIV[b.nivel]||b.nivel)+'</b>'+(al.length?'<em>'+plEsc(al.join(' · '))+'</em>':'')+'</div>' }
+async function bnSalaCargar(){ const r=await sb.rpc('koach_bienestar',{p_socio:null}); if(r.error) return
+  const m={}; (r.data||[]).forEach(function(b){ if(!m[b.socio_id]) m[b.socio_id]=b }); BN.hoy=m; try{ salaPresenciaPintar() }catch(_){} }
+async function bnFicha(id){ const el=document.getElementById('fBn'); if(!el) return
+  const r=await sb.rpc('koach_bienestar',{p_socio:id, p_dias:42}); if (!F || F.id!==id) return
+  const L=(r&&!r.error&&r.data)||[]; BN.socio[id]=L
+  if(!L.length){ el.hidden=true; return }
+  const u=L[0], hoy=u.fecha===fLocal(new Date())
+  el.hidden=false; el.classList.toggle('mh__st--alert', hoy && bnAlerta(u))
+  el.textContent='BIENESTAR '+(hoy?'HOY':adhF(u.fecha))+' · '+u.total+'/25 · '+(BN_NIV[u.nivel]||u.nivel)
+  el.title='Ver historial de bienestar' }
+function bnFichaVer(){ const L=(F&&BN.socio[F.id])||[]; if(!L.length) return
+  const u=L[0], al=(u.alertas||[]).map(function(a){return BN_AL[a]||a})
+  const prom=Math.round(L.slice(0,12).reduce(function(a,b){return a+b.total},0)/Math.min(12,L.length)*10)/10
+  const bar=function(v){ return '<span class="bnB"><i style="width:'+(v*20)+'%"></i></span>' }
+  const tend=L.slice(0,10).slice().reverse(), mx=25
+  const spark='<svg class="bnSp" viewBox="0 0 200 48" preserveAspectRatio="none" aria-label="Tendencia de bienestar">'+(tend.length>1?'<polyline fill="none" stroke="currentColor" stroke-width="2" vector-effect="non-scaling-stroke" stroke-linejoin="round" points="'+tend.map(function(b,i){ return (i*200/(tend.length-1)).toFixed(1)+','+(46-(b.total-5)/(mx-5)*44).toFixed(1) }).join(' ')+'"/>':'')+'</svg>'
+  scModal('BIENESTAR · '+String(nomDe(F.id)).split(' ')[0].toUpperCase(),
+    '<div class="bnF"><div class="bnF__h"><b>'+u.total+'<i>/25</i></b><div><span>'+(BN_NIV[u.nivel]||u.nivel)+'</span><small>'+(u.fecha===fLocal(new Date())?'HOY':adhF(u.fecha))+' · '+new Date(u.hora).toLocaleTimeString('es-CL',{hour:'2-digit',minute:'2-digit',hour12:false})+(u.sesion?' · '+plEsc(String(u.sesion).toUpperCase()):'')+'</small></div></div>'+
+    (al.length?'<p class="bnF__al">ATENCIÓN · '+plEsc(al.join(' · '))+'</p>':'')+
+    '<div class="bnF__it">'+BN_IT.map(function(q){ return '<div><small>'+q[1]+'</small>'+bar(u[q[0]])+'<b>'+u[q[0]]+'</b></div>' }).join('')+'</div>'+
+    '<div class="bnF__tr"><small>ÚLTIMOS '+tend.length+' CHECK-IN · PROMEDIO '+String(prom).replace('.',',')+'</small>'+spark+'</div>'+
+    '<p class="bnF__n">Escala 1–5 por ítem (5 = mejor). Óptimo 21–25 · Bueno 16–20 · Moderado 11–15 · Bajo 5–10. Alerta si un ítem es ≤2 o si llega 3+ puntos bajo su promedio.</p></div>'+
+    '<button type="button" class="mSG__sec" onclick="scCerrar()">CERRAR</button>') }
 async function horFicha(id){ const el=document.getElementById('fHor'); if(!el) return
   const r=await sb.rpc('koach_horario_socio',{p_socio:id}); if (!F || F.id!==id) return
   const h=(r&&!r.error&&r.data)||null; HOR.socio[id]=h
@@ -7748,7 +7795,7 @@ function horSalaPintar(){ const el=document.getElementById('horSala'); if(!el) r
         '<button class="bbtn" onclick="verFicha(\''+x.socio_id+'\')">VER FICHA</button></div>' }).join('')+'</div></section>' }
 function mhPintar(id, finAcc, dAcc){
   if (!F || F.id!==id) return
-  { const _h=mhPintar._hor||{}; if (_h.id!==id || Date.now()-_h.t>60000){ mhPintar._hor={id:id,t:Date.now()}; horFicha(id).catch(function(){}) } }
+  { const _h=mhPintar._hor||{}; if (_h.id!==id || Date.now()-_h.t>60000){ mhPintar._hor={id:id,t:Date.now()}; horFicha(id).catch(function(){}); bnFicha(id).catch(function(){}) } }
   if (accBan._sid!==id){ accBan._sid=id; accBan(id) }
   if (finAcc===undefined){ const ms=(AD.mem||[]).filter(function(m){return m.socio_id===id && m.estado!=='cancelada'})
     if (!ms.length && !mhPintar._q){ mhPintar._q=1; sb.from('v_membresias').select('*').eq('socio_id',id).then(function(r){ mhPintar._q=0; if (F && F.id===id && r.data && r.data.length){ const v=r.data.filter(function(m){return m.estado!=='cancelada'}), f=adFinCadena(v); mhPintar(id, f, adDias(f)) } }) }

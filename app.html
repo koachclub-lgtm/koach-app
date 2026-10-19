@@ -417,6 +417,24 @@ html.accBloq #pfCard, html.accBloq #vPerfil .kpc__f, html.accBloq #vPerfil [oncl
 #horAv .horBloq{margin-bottom:6px}
 #horAv .horAv{margin:calc(12px + env(safe-area-inset-top,0px)) 16px 0}
 /* c40 · hoja KOACH de confirmación / aviso */
+.bnT{position:fixed;inset:0;z-index:1950;background:rgba(12,12,13,.6);display:flex;align-items:flex-end;justify-content:center;padding:12px;animation:kHf .15s ease-out}
+.bnT__c{width:100%;max-width:460px;max-height:calc(100dvh - 24px);overflow:auto;background:#F6F5F2;color:#111;border-radius:24px;padding:20px 18px calc(16px + env(safe-area-inset-bottom,0px));box-shadow:0 30px 80px rgba(0,0,0,.35);animation:kHu .22s cubic-bezier(.2,.8,.2,1)}
+.bnT__k{display:block;font:700 9.5px/1.3 'Space Mono','IBM Plex Mono',monospace;letter-spacing:.16em;color:#6B6A65}
+.bnT__t{margin:6px 0 0;font-family:'KOACH Display','Inter Display',Inter,Arial,sans-serif;font-weight:800;font-size:24px;line-height:1.1;letter-spacing:-.01em}
+.bnT__p{margin:6px 0 10px;font-size:13.5px;line-height:1.45;color:#4A4945}
+.bnQ{padding:10px 0;border-top:1px solid #E2E1DC}
+.bnQ__h{display:flex;align-items:baseline;gap:8px;margin-bottom:7px}.bnQ__h b{font:700 10px 'Space Mono','IBM Plex Mono',monospace;letter-spacing:.14em}.bnQ__h span{font-size:13px;color:#4A4945}
+.bnQ__o{display:grid;grid-template-columns:repeat(5,1fr);gap:6px}
+.bnQ__o button{min-height:44px;border-radius:12px;border:1.5px solid #D3D2CC;background:#fff;color:#111;font:700 15px 'Space Mono','IBM Plex Mono',monospace;cursor:pointer;-webkit-tap-highlight-color:transparent}
+.bnQ__o button.on{background:#111;border-color:#111;color:#F6F5F2}
+.bnQ__o button:focus-visible{outline:2px solid #111;outline-offset:2px}
+.bnQ__a{display:flex;justify-content:space-between;margin-top:4px;font:400 8.5px 'Space Mono','IBM Plex Mono',monospace;letter-spacing:.1em;color:#8A8984}
+.bnT__go{width:100%;min-height:54px;margin-top:12px;border:0;border-radius:15px;background:#111;color:#F6F5F2;font:700 11px 'Space Mono','IBM Plex Mono',monospace;letter-spacing:.14em;cursor:pointer}
+.bnT__go:disabled{background:#CFCEC8;color:#6B6A65;cursor:default}
+.bnR{display:flex;align-items:baseline;gap:12px;margin:12px 0 4px}.bnR b{font:800 54px/1 'KOACH Display','Inter Display',Inter,Arial,sans-serif;letter-spacing:-.02em}.bnR b i{font-style:normal;font-size:18px;color:#8A8984;margin-left:2px}
+.bnR span{font:700 12px 'Space Mono','IBM Plex Mono',monospace;letter-spacing:.12em}
+.bnR--bajo span,.bnR--moderado span{border-bottom:2px solid #111;padding-bottom:2px}
+@media (prefers-reduced-motion:reduce){ .bnT,.bnT__c{animation:none} }
 .kHoja{position:fixed;inset:0;z-index:2000;background:rgba(12,12,13,.55);display:flex;align-items:center;justify-content:center;padding:20px;animation:kHf .15s ease-out}
 @supports (-webkit-touch-callout:none){ .kHoja{background:rgba(10,10,11,.66)} }
 .kHoja__c{width:100%;max-width:440px;background:#F6F5F2;color:#111;border-radius:22px;padding:22px 20px 18px;box-shadow:0 30px 80px rgba(0,0,0,.35);animation:kHu .22s cubic-bezier(.2,.8,.2,1)}
@@ -3797,6 +3815,42 @@ function kxCromo(){ if(KX.run) return; const cd=document.getElementById('kxCd'),
         g.addColorStop(0,'rgba('+b.c+',.95)'); g.addColorStop(.55,'rgba('+b.c+',.45)'); g.addColorStop(1,'rgba('+b.c+',0)'); x.fillStyle=g; x.beginPath(); x.arc(X,Y,R,0,7); x.fill() }); x.filter='none' }
     if(!RM) KX.t++; requestAnimationFrame(draw) }
   requestAnimationFrame(draw) }
+/* c171 · CHECK-IN DE BIENESTAR antes de entrenar (cuestionario de bienestar de McLean et al. 2010, escala 1–5, 5 = mejor).
+   Aparece al encender la sesión, una vez por sesión y antes del primer set. El servidor calcula total (5–25), nivel y alertas
+   (ítem ≤2 o 3+ puntos bajo su promedio de 4 semanas) y el coach lo ve en Sala y en la ficha. */
+const BN_Q=[['sueno','SUEÑO','¿Cómo dormiste anoche?','MUY MAL','EXCELENTE'],
+  ['energia','ENERGÍA','¿Qué tan fresco llegas?','AGOTADO','MUY FRESCO'],
+  ['doms','DOLOR MUSCULAR','¿Cómo están tus músculos?','MUCHO DOLOR','SIN DOLOR'],
+  ['estres','ESTRÉS','¿Cómo está tu cabeza hoy?','MUY ESTRESADO','RELAJADO'],
+  ['animo','MOTIVACIÓN','¿Con qué ganas vienes?','SIN GANAS','CON TODO']]
+const BN_TXT={ OPTIMO:['LLEGAS ÓPTIMO','Estás en un gran día: empuja tus cargas cuidando la técnica.'],
+  BUENO:['LLEGAS BIEN','Buen estado para entrenar tal como está planificado.'],
+  MODERADO:['LLEGAS A MEDIA MÁQUINA','Escucha a tu cuerpo: prioriza la técnica y avísale a tu coach si algo molesta.'],
+  BAJO:['HOY LLEGAS CANSADO','Tu coach ya lo sabe. Hoy la calidad le gana a la carga.'] }
+async function bnPedir(){ try{
+  const rid=S.regId; if(!rid || pvEmpezada() || document.getElementById('bnT')) return
+  S._bn=S._bn||{}; if(S._bn[rid]) return
+  const r=await sb.from('bienestar_checkins').select('id').eq('registro_id',rid).maybeSingle()
+  if(r.data){ S._bn[rid]=true; return } if(r.error) return
+  bnMostrar(rid) }catch(_){} }
+function bnMostrar(rid){ const v={}, bg=document.createElement('div'); bg.className='bnT'; bg.id='bnT'; bg.setAttribute('role','dialog'); bg.setAttribute('aria-modal','true'); bg.setAttribute('aria-label','Check-in de bienestar')
+  bg.innerHTML='<div class="bnT__c"><span class="bnT__k">CHECK-IN · ANTES DE ENTRENAR</span><h3 class="bnT__t">¿Cómo llegas hoy?</h3><p class="bnT__p">5 toques. Tu coach ajusta tu sesión con esto.</p>'+
+    BN_Q.map(q=>'<div class="bnQ" data-k="'+q[0]+'"><div class="bnQ__h"><b>'+q[1]+'</b><span>'+q[2]+'</span></div><div class="bnQ__o" role="radiogroup" aria-label="'+q[1]+'">'+
+      [1,2,3,4,5].map(n=>'<button type="button" role="radio" aria-checked="false" data-n="'+n+'">'+n+'</button>').join('')+'</div><div class="bnQ__a"><span>'+q[3]+'</span><span>'+q[4]+'</span></div></div>').join('')+
+    '<button type="button" class="bnT__go" disabled>RESPONDE LAS 5</button></div>'
+  const go=bg.querySelector('.bnT__go')
+  bg.querySelectorAll('.bnQ').forEach(row=>{ row.querySelectorAll('button').forEach(b=>b.onclick=()=>{ v[row.dataset.k]=+b.dataset.n
+    row.querySelectorAll('button').forEach(x=>{ const on=x===b; x.classList.toggle('on',on); x.setAttribute('aria-checked',on) }); row.classList.add('ok'); try{ kHaptic&&kHaptic(6) }catch(_){}
+    const n=Object.keys(v).length; go.disabled=n<5; go.textContent=n<5?('FALTAN '+(5-n)):'LISTO · VER MI ESTADO' }) })
+  go.onclick=async()=>{ go.disabled=true; go.textContent='GUARDANDO…'
+    const r=await sb.rpc('mi_bienestar_registrar',{ p_registro:rid, p_sueno:v.sueno, p_energia:v.energia, p_doms:v.doms, p_estres:v.estres, p_animo:v.animo })
+    if(r.error){ go.disabled=false; go.textContent='REINTENTAR'; toast('No se guardó — revisa tu conexión'); return }
+    S._bn=S._bn||{}; S._bn[rid]=true
+    const d=r.data||{}, t=BN_TXT[d.nivel]||BN_TXT.BUENO, al=d.alertas||[]
+    const extra=(al.indexOf('DOMS')>=0?' Calienta bien la zona con dolor.':'')+(al.indexOf('BAJO_SU_NORMAL')>=0?' Estás bajo tu promedio de las últimas semanas.':'')
+    bg.querySelector('.bnT__c').innerHTML='<span class="bnT__k">CHECK-IN · LISTO</span><div class="bnR bnR--'+String(d.nivel||'').toLowerCase()+'"><b>'+(d.total||'—')+'<i>/25</i></b><span>'+t[0]+'</span></div><p class="bnT__p">'+t[1]+extra+'</p><button type="button" class="bnT__go">VAMOS</button>'
+    bg.querySelector('.bnT__go').onclick=()=>bg.remove() }
+  document.body.appendChild(bg) }
 function kxEncender(){ if(KX.busy) return; KX.busy=true
   const o=document.getElementById('oAct'); try{ kHaptic(12); kAudioUnlock() }catch(_){}
   o.classList.add('kxGoing'); const H=o.clientHeight, t0=performance.now(), D=matchMedia('(prefers-reduced-motion: reduce)').matches?10:1200
@@ -3804,7 +3858,7 @@ function kxEncender(){ if(KX.busy) return; KX.busy=true
     if(k<1) return requestAnimationFrame(st)
     try{ if(navigator.vibrate) navigator.vibrate([20,30,60]) }catch(_){}
     const f=o.querySelector('.kxFlash'); f.animate([{opacity:0},{opacity:1,offset:.12},{opacity:0}],{duration:600,easing:'ease-out'})
-    setTimeout(()=>{ o.classList.remove('vis'); document.getElementById('sBloques').classList.remove('locked'); KX.v=0 },130) }
+    setTimeout(()=>{ o.classList.remove('vis'); document.getElementById('sBloques').classList.remove('locked'); KX.v=0; bnPedir() },130) }
   requestAnimationFrame(st) }
 /* c112 · luz fría (fondo de logros), contador y micro-momentos de set / récord */
 function kxGlowURL(){ if(kxGlowURL._u) return kxGlowURL._u; try{ const c=document.createElement('canvas'); c.width=300; c.height=640; const x=c.getContext('2d'), w=300,h=640
