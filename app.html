@@ -419,7 +419,7 @@ html.accBloq #pfCard, html.accBloq #vPerfil .kpc__f, html.accBloq #vPerfil [oncl
 /* c40 · hoja KOACH de confirmación / aviso */
 .bnX{position:fixed;inset:0;z-index:1950;overflow:hidden;color:#101012;--ink:#101012;--mu:rgba(16,16,18,.55);--ln:rgba(16,16,18,.22);--lv:.5;display:flex;flex-direction:column;padding:calc(env(safe-area-inset-top,0px) + 18px) 22px calc(env(safe-area-inset-bottom,0px) + 14px);outline:none;touch-action:none;user-select:none;-webkit-user-select:none;background:#D9DADC}
 .bnX--dk{color:#F3F3F4;--ink:#F3F3F4;--mu:rgba(243,243,244,.6);--ln:rgba(243,243,244,.25)}
-.bnX__bg{position:absolute;inset:0;background-size:cover;background-position:center;opacity:0;transition:opacity .45s ease}.bnX__bg.on{opacity:1}
+.bnX__bg{position:absolute;inset:0;width:100%;height:100%;display:block;opacity:0;transition:opacity .6s ease}.bnX__bg.on{opacity:1}
 .bnX>*:not(.bnX__bg){position:relative;z-index:1}
 .bnX__top{display:flex;justify-content:space-between;align-items:center}.bnX__top img{height:15px;width:auto;filter:invert(1)}.bnX--dk .bnX__top img{filter:none}
 .bnX__st{font:700 10px var(--font-mono);letter-spacing:.16em;font-variant-numeric:tabular-nums}
@@ -433,7 +433,9 @@ html.accBloq #pfCard, html.accBloq #vPerfil .kpc__f, html.accBloq #vPerfil [oncl
 .bnX__dot{position:absolute;width:8px;height:8px;border-radius:50%;background:var(--ink)}
 .bnX__sel{position:absolute;top:50%;transform:translateY(-50%);display:flex;align-items:center;gap:16px;right:0;pointer-events:none}
 .bnX__big{font:700 clamp(68px,22vw,104px)/.9 var(--font-mono);letter-spacing:-.05em;font-variant-numeric:tabular-nums}
-.bnX__lab{display:flex;flex-direction:column;gap:4px;min-width:0;max-width:150px}.bnX__lab strong{font:700 11px var(--font-mono);letter-spacing:.14em}.bnX__lab span{font:500 17px/1.2 var(--font-display);color:var(--mu)}
+.bnX__lab{display:flex;flex-direction:column;gap:4px;min-width:0;max-width:190px}.bnX__lab strong{font:700 11px var(--font-mono);letter-spacing:.14em}.bnX__lab span{font:500 17px/1.2 var(--font-display);color:var(--mu)}
+.bnX__ej{margin:6px 0 0;font:400 14px/1.4 var(--font-display);color:var(--mu);min-height:2.8em}
+.bnX__hype{margin:0;font:800 clamp(17px,4.8vw,20px)/1.15 var(--font-display);letter-spacing:.01em;text-transform:uppercase}
 .bnX__q{font:600 clamp(22px,6.4vw,28px)/1.12 var(--font-display);letter-spacing:-.01em;text-wrap:balance}
 .bnX__hint{margin-top:6px;font:400 9px var(--font-mono);letter-spacing:.16em;color:var(--mu)}
 .bnX__act{display:flex;gap:10px;margin-top:16px}
@@ -3820,7 +3822,7 @@ function kxPreparar(ses, prim, ret){
   o.querySelectorAll('.kxK').forEach(e=>e.textContent=k); o.querySelectorAll('.kxHl').forEach(e=>e.innerHTML=hl)
   const n=String(Math.max(1,(S.totalSes||0)+1)).padStart(5,'0')
   document.getElementById('kxGoS').textContent=String(ses.nombre||'SESIÓN').toUpperCase().replace('★ ','')+' · SESSION Nº '+n
-  KX.v=0; KX.busy=false; o.classList.remove('kxGoing'); o.style.setProperty('--y','0px'); o.style.setProperty('--c','0') }
+  KX.v=0; KX.busy=false; o.classList.remove('kxGoing'); o.style.setProperty('--y','0px'); o.style.setProperty('--c','0'); kxWellness(ret) }
 function kxCromo(){ if(KX.run) return; const cd=document.getElementById('kxCd'), cl=document.getElementById('kxCl'); if(!cd||!cd.getContext) return; KX.run=true
   const c=cd.getContext('2d'), x=cl.getContext('2d'), RM=matchMedia('(prefers-reduced-motion: reduce)').matches
   const fit=()=>{ const r=Math.min(1.5,window.devicePixelRatio||1); cd.width=Math.round(innerWidth*r); cd.height=Math.round(innerHeight*r); cl.width=Math.round(innerWidth*.6); cl.height=Math.round(innerHeight*.6) }; fit(); addEventListener('resize',fit)
@@ -3840,11 +3842,11 @@ function kxCromo(){ if(KX.run) return; const cd=document.getElementById('kxCd'),
    Aparece al encender la sesión, una vez por sesión y antes del primer set. El servidor calcula total (5–25), nivel y alertas
    (ítem ≤2 o 3+ puntos bajo su promedio de 4 semanas) y el coach lo ve en Sala y en la ficha. */
 // c175 · vocabulario técnico (anclas del cuestionario de McLean et al. 2010 adaptadas al español)
-const BN_Q=[['sueno','CALIDAD DE SUEÑO','Calidad de sueño percibida en la última noche','INSOMNIO','MUY REPARADOR'],
-  ['energia','FATIGA GENERAL','Nivel de fatiga general al llegar a la sesión','FATIGA EXTREMA','MUY FRESCO'],
-  ['doms','DOLOR MUSCULAR · DOMS','Dolor muscular de aparición tardía (24–72 h post-entreno)','DOMS SEVERO','SIN DOMS'],
-  ['estres','ESTRÉS PERCIBIDO','Carga de estrés psicológico de las últimas 24 h','ESTRÉS MUY ALTO','MUY RELAJADO'],
-  ['animo','ÁNIMO Y DISPOSICIÓN','Estado de ánimo y disposición para entrenar hoy','MUY BAJO','MUY POSITIVO']]
+const BN_Q=[['sueno','CALIDAD DE SUEÑO','¿Cómo dormiste anoche?','INSOMNIO','MUY REPARADOR'],
+  ['energia','NIVEL DE ENERGÍA','¿Con cuánta energía llegas hoy?','SIN ENERGÍA','A TOPE'],
+  ['doms','DOLOR MUSCULAR · DOMS','¿Cómo están tus músculos del entreno anterior?','DOMS SEVERO','SIN DOMS'],
+  ['estres','ESTRÉS PERCIBIDO','¿Cómo está tu cabeza hoy?','ESTRÉS MUY ALTO','MUY RELAJADO'],
+  ['animo','MOTIVACIÓN','¿Con qué ganas vienes a entrenar?','SIN GANAS','VOY CON TODO']]
 const BN_TXT={ OPTIMO:['ESTADO ÓPTIMO','Recuperación completa.'],
   BUENO:['ESTADO ADECUADO','Recuperación suficiente.'],
   MODERADO:['RECUPERACIÓN INCOMPLETA','Recuperación parcial.'],
@@ -3857,77 +3859,94 @@ async function bnPedir(){ try{
   bnMostrar(rid) }catch(_){} }
 /* c172 · CHECK-IN en pantallas: un ítem por pantalla con dial en arco (1–5) que se desliza; el fondo pasa de cromo negro (1) a cromo claro (5)
    con los mismos fondos metálicos de la sesión, y un cerebro abstracto desenfocado detrás que se enciende con el nivel. */
-const BN_DESC={ sueno:['Insomnio','Sueño interrumpido','Conciliación difícil','Sueño adecuado','Muy reparador'],
-  energia:['Fatiga extrema','Más fatigado de lo normal','Normal','Fresco','Muy fresco'],
-  doms:['DOMS severo','DOMS moderado','DOMS leve','Mínimo','Sin DOMS'],
-  estres:['Estrés muy alto','Estrés elevado','Normal','Relajado','Muy relajado'],
-  animo:['Muy bajo · irritable','Bajo','Normal','Positivo','Muy positivo'] }
-const BN_BG=['cromoN','grafito','acero','titanio','cromo'], BN_NIVBG={BAJO:'cromoN',MODERADO:'grafito',BUENO:'acero',OPTIMO:'cromo'}
-const BN_AJ={ OPTIMO:'Condiciones para progresar carga o volumen según la planificación, sin comprometer la técnica.',
-  BUENO:'Estado compatible con la carga planificada: ejecuta la sesión según lo programado.',
-  MODERADO:'Mantén la intensidad prescrita, prioriza la calidad técnica y respeta los tiempos de recuperación entre series.',
-  BAJO:'Tu coach evaluará reducir intensidad o volumen de la sesión de hoy.' }
-const BN_ALT={DOMS:'DOMS ELEVADO',SUENO:'SUEÑO DEFICIENTE',FATIGA:'FATIGA ELEVADA',ESTRES:'ESTRÉS ELEVADO',ANIMO:'ÁNIMO BAJO',BAJO_SU_NORMAL:'BAJO TU LÍNEA BASE'}
-const BN_ALX={DOMS:'Realiza un calentamiento específico de la musculatura con DOMS.',SUENO:'Un sueño deficiente reduce la tolerancia a cargas altas.',BAJO_SU_NORMAL:'Tu puntaje está 3 o más puntos bajo tu promedio de las últimas 4 semanas.'}
-/* c174 · FONDO MOLECULAR KOACH: red orgánica tipo enlace molecular (uniones gruesas y fusionadas, hebras que se afinan) con
-   profundidad de campo: una franja diagonal nítida y el resto desenfocado. Tono de base por nivel (1 negro → 5 blanco), tinta invertida. */
-const KART={}, KMOL_BASE={cromoN:['#0B0B0C',1],grafito:['#2A2B2E',1],acero:['#B9BBBE',0],titanio:['#DCDDDF',0],cromo:['#F6F6F7',0]}
+const BN_DESC={ sueno:['Casi no dormí','Dormí poco','Sueño irregular','Dormí bien','Dormí increíble'],
+  energia:['Sin energía','Cansado','Normal','Con pilas','A tope'],
+  doms:['Mucho dolor','Bastante dolor','Algo de dolor','Casi nada','Sin dolor'],
+  estres:['Muy estresado','Estresado','Normal','Tranquilo','Relajado'],
+  animo:['Sin ganas','Poca motivación','Vengo a cumplir','Motivado','Voy con todo'] }
+// c176 · frase de referencia en primera persona para cada valor: ayuda a ubicarse en la escala
+const BN_EJ={ sueno:['Casi no dormí o me desperté muchas veces.','Dormí pocas horas y me levanté cansado.','Dormí, pero me costó quedarme dormido o desperté a ratos.','Dormí bien, mis horas de siempre.','Dormí de corrido y desperté renovado.'],
+  energia:['Llego sin energía, me cuesta moverme.','Estoy más cansado de lo normal.','Tengo mi energía de siempre.','Me siento fresco y con pilas.','Energía a tope: listo para levantar pesado.'],
+  doms:['Me duele mucho el entreno anterior, me cuesta moverme.','Siento bastante dolor muscular.','Algo de dolor, nada que me frene.','Apenas lo siento.','Cero dolor: músculos como nuevos.'],
+  estres:['Estoy muy estresado: trabajo, estudios o temas personales.','Ando estresado y con la cabeza en otra parte.','Un día normal, nada fuera de lo común.','Tranquilo y enfocado.','Relajado y con la cabeza despejada.'],
+  animo:['Hoy no tengo ganas de entrenar.','Me cuesta motivarme.','Vengo a cumplir con mi sesión.','Motivado, con ganas de entrenar.','Voy con todo: hoy quiero levantar mucho peso.'] }
+const BN_LOW={ sueno:'tu descanso', energia:'tu energía', doms:'tu recuperación muscular', estres:'tu nivel de estrés', animo:'tu motivación' }
+// c176 · cierre siempre motivador (voz KOACH · el club del 1%), con lectura personalizada de lo que contó
+const BN_HYPE={ OPTIMO:['HOY ESTAMOS A TOPE.','Llegas recuperado y con todo. Hoy vamos por esa nueva marca: entrena como nunca, con técnica de élite.','VAMOS POR MÁS · EL CLUB DEL 1%'],
+  BUENO:['BUENA BASE PARA CONSTRUIR.','Llegas en buen estado para tu sesión. Ejecútala tal como está planificada y suma otro paso hacia tu versión más fuerte.','CADA SET CUENTA · EL CLUB DEL 1%'],
+  MODERADO:['HOY SE ENTRENA CON CABEZA.','','EL 1% NO TIENE DÍAS MALOS.'],
+  BAJO:['EL 1% NO TIENE DÍAS MALOS.','','SEGUIMOS CONSTRUYENDO · EL CLUB DEL 1%'] }
+function bnLista(a){ return a.length<2?(a[0]||''):a.slice(0,-1).join(', ')+' y '+a[a.length-1] }
+function bnMensaje(d,v){ const n=d.nivel||'BUENO', H=BN_HYPE[n]||BN_HYPE.BUENO, bajos=BN_Q.filter(q=>v[q[0]]<=2).map(q=>BN_LOW[q[0]]), medios=BN_Q.filter(q=>v[q[0]]===3).map(q=>BN_LOW[q[0]])
+  let t=H[1]
+  if(n==='MODERADO'){ const l=bajos.length?bajos:medios.slice(0,2); t='Por lo que nos cuentas, '+(l.length?bnLista(l):'tu estado')+' hoy no '+(l.length>1?'están':'está')+' al 100%. Vamos con cuidado: técnica primero, cargas controladas y coméntalo con tu coach. Igual lo vamos a dar todo.' }
+  if(n==='BAJO'){ t='Hoy '+(bajos.length?bnLista(bajos.slice(0,2)):'tu cuerpo')+' te '+((bajos.length>1)?'están':'está')+' pasando la cuenta. Cuidaremos las cargas —si es necesario las bajamos— y tu coach ya lo sabe. Pero vamos a entrenar: cada sesión construye ese cuerpo fuerte.' }
+  if((n==='OPTIMO'||n==='BUENO') && bajos.length) t+=' Ojo con '+bnLista(bajos)+': coméntalo con tu coach.'
+  if(v.doms<=2) t+=' Calienta bien la zona con dolor antes de cargar.'
+  return { tit:H[0], txt:t, cierre:H[2] } }
+/* c176 · ARTE DE PUNTOS (holográfico, puntos blancos sobre negro): esfera, terreno, cinta y montaña en 3D con profundidad de campo
+   simulada por tamaño y opacidad de cada punto — sin filtros de canvas (Safari no los soporta y quedaba pixelado). Nítido en pantallas retina. */
+const BN_TONO=['#050506','#08090B','#0B0C0E','#070809','#0A0A0C'], BN_ARTE=['esfera','terreno','cinta','montana','esfera2']
 function kRnd(seed){ let s=seed>>>0||1; return ()=>{ s^=s<<13; s^=s>>>17; s^=s<<5; return ((s>>>0)%100000)/100000 } }
-function kartMol(k, seed){ const key='mol_'+k+'_'+(seed||7); if(KART[key]) return KART[key]
-  try{ const b=KMOL_BASE[k]||KMOL_BASE.cromo, dark=!!b[1], W=420,H=900, R=kRnd(seed||7), ink=dark?[236,238,242]:[12,12,14]
-    // 1) forma "gooey": nodos + hebras, desenfoque y umbral de alfa → uniones fusionadas y bordes limpios
-    const g=document.createElement('canvas'); g.width=W; g.height=H; const gx=g.getContext('2d')
-    const N=[]; for(let i=0;i<6;i++) N.push([W*(-.15+R()*1.3),H*(.02+R()*.96),20+R()*22])
-    gx.fillStyle=gx.strokeStyle='#000'; gx.lineCap='round'
-    const E=[]; N.forEach((p,i)=>{ const d=N.map((q,j)=>[j,Math.hypot(q[0]-p[0],q[1]-p[1])]).filter(z=>z[0]!==i).sort((a,b)=>a[1]-b[1]); E.push([i,d[0][0]]); if(R()<.7) E.push([i,d[1][0]]) })
-    const blur=document.createElement('canvas'); blur.width=W; blur.height=H; const bx=blur.getContext('2d')
-    E.forEach(e=>{ const a=N[e[0]], c=N[e[1]], m=[(a[0]+c[0])/2+(R()-.5)*200,(a[1]+c[1])/2+(R()-.5)*160]
-      for(let i=0;i<=40;i++){ const t=i/40,u=1-t, X=u*u*a[0]+2*u*t*m[0]+t*t*c[0], Y=u*u*a[1]+2*u*t*m[1]+t*t*c[1], r=7+16*Math.pow(Math.abs(2*t-1),2.2)
-        gx.beginPath(); gx.arc(X,Y,r,0,7); gx.fill() } })
-    N.forEach(p=>{ gx.beginPath(); gx.arc(p[0],p[1],p[2],0,7); gx.fill() })
-    bx.filter='blur(14px)'; bx.drawImage(g,0,0); bx.filter='none'
-    const im=bx.getImageData(0,0,W,H), d=im.data; for(let i=3;i<d.length;i+=4){ const a=d[i]/255, t=Math.min(1,Math.max(0,(a-.32)/.16)); d[i]=255*t*t*(3-2*t); d[i-3]=ink[0]; d[i-2]=ink[1]; d[i-1]=ink[2] }
-    bx.putImageData(im,0,0)
-    // 2) composición con profundidad de campo
-    const c=document.createElement('canvas'); c.width=W; c.height=H; const x=c.getContext('2d'); x.fillStyle=b[0]; x.fillRect(0,0,W,H)
-    x.globalAlpha=.55; x.filter='blur(34px)'; x.drawImage(blur,-W*.18,-H*.1,W*1.4,H*1.25)   // capa lejana, más grande
-    x.globalAlpha=.85; x.filter='blur(9px)'; x.drawImage(blur,0,0)
-    const f=document.createElement('canvas'); f.width=W; f.height=H; const fx=f.getContext('2d'); fx.filter='blur(1.6px)'; fx.drawImage(blur,0,0); fx.filter='none'
-    fx.globalCompositeOperation='destination-in'; const gm=fx.createLinearGradient(W*.15,H*.95,W*.95,H*.2); gm.addColorStop(0,'rgba(0,0,0,0)'); gm.addColorStop(.22,'rgba(0,0,0,0)'); gm.addColorStop(.42,'rgba(0,0,0,1)'); gm.addColorStop(.6,'rgba(0,0,0,1)'); gm.addColorStop(.8,'rgba(0,0,0,0)'); gm.addColorStop(1,'rgba(0,0,0,0)'); fx.fillStyle=gm; fx.fillRect(0,0,W,H)
-    x.globalAlpha=1; x.filter='none'; x.drawImage(f,0,0)
-    x.globalAlpha=(seed===101?.5:.22); x.fillStyle=b[0]; x.fillRect(0,0,W,H); x.globalAlpha=1   // velo: el texto siempre se lee (más fuerte en el resultado)
-    KART[key]='url('+c.toDataURL('image/jpeg',.9)+')' }catch(_){ KART[key]='' } return KART[key] }
+function bnArte(cv, tipo, base, ka){ ka=ka||1; try{
+  const dpr=Math.min(2,window.devicePixelRatio||1), W=cv.clientWidth||innerWidth, H=cv.clientHeight||innerHeight
+  cv.width=Math.round(W*dpr); cv.height=Math.round(H*dpr); const x=cv.getContext('2d'); x.setTransform(dpr,0,0,dpr,0,0)
+  x.fillStyle=base; x.fillRect(0,0,W,H)
+  const R=kRnd(tipo.length*97+13), P=[]   // [x,y,radio,alfa]
+  const dof=(foc)=>Math.min(1,Math.abs(foc))
+  if(tipo==='esfera'||tipo==='esfera2'){ const big=tipo==='esfera', cx=big?W*.9:W*.12, cy=big?H*.28:H*.78, r=Math.min(W,H)*(big?.46:.42), N=big?1700:1300, ga=Math.PI*(3-Math.sqrt(5)), rot=.5
+    for(let i=0;i<N;i++){ const y=1-2*(i+.5)/N, rr=Math.sqrt(1-y*y), th=i*ga+rot, X=Math.cos(th)*rr, Z=Math.sin(th)*rr
+      const front=(Z+1)/2, rim=Math.pow(1-Math.abs(Z),3), px=cx+X*r, py=cy+y*r*0.98
+      P.push([px,py,.55+1.25*front, Math.min(.85,.10+.38*front+.45*rim)]) } }
+  else if(tipo==='terreno'||tipo==='montana'){ const rows=tipo==='montana'?70:60, cols=tipo==='montana'?90:80, hz=H*(tipo==='montana'?.30:.44), f=W*.9
+    for(let i=0;i<rows;i++){ const z=1+i*.09
+      for(let j=0;j<cols;j++){ const u=(j/(cols-1)-.5)*3.2
+        let h=tipo==='montana' ? 1.9*Math.exp(-((u-.35)*(u-.35)*2.4+(z-3.4)*(z-3.4)*.45)) + .25*Math.sin(u*3+z*1.4)
+                               : .42*Math.sin(u*2.2+z*1.1)+.25*Math.sin(u*4.1-z*.7)
+        const X=W*.5+u*f/z, Y=hz+(1.2-h)*f*.32/z; if(X<-20||X>W+20||Y<-20||Y>H+20) continue
+        const near=1/z, foc=dof((z-2.2)*.55)
+        P.push([X,Y,(.5+1.9*near)+foc*2.4,(.12+.62*near)*(1-foc*.7)+.06]) } } }
+  else if(tipo==='cinta'){ const L=95, Wd=15
+    for(let i=0;i<L;i++){ const t=i/(L-1), cxp=-W*.15+t*W*1.3, cyp=H*(.62-.28*t)+Math.sin(t*5.2)*H*.06, tw=t*Math.PI*1.6
+      for(let k=0;k<Wd;k++){ const s=(k/(Wd-1)-.5), z=Math.sin(tw)*s, X=cxp+Math.cos(tw)*s*W*.05, Y=cyp+s*H*.16*Math.cos(tw*.5)
+        const foc=dof((t-.55)*2.2), fr=(z+.5)
+        P.push([X,Y,(.6+1.2*fr)+foc*3,(.12+.42*fr)*(1-foc*.75)+.04]) } } }
+  P.forEach(p=>{ const g=Math.min(1,p[3])*ka; x.fillStyle='rgba(240,242,246,'+g.toFixed(3)+')'; x.beginPath(); x.arc(p[0],p[1],p[2],0,6.2832); x.fill() })
+  if(tipo==='esfera'||tipo==='esfera2'){ const big=tipo==='esfera', cx=big?W*.9:W*.12, cy=big?H*.28:H*.78, r=Math.min(W,H)*(big?.46:.42)
+    const g=x.createRadialGradient(cx,cy,r*.82,cx,cy,r*1.18); g.addColorStop(0,'rgba(220,226,236,0)'); g.addColorStop(.35,'rgba(220,226,236,.10)'); g.addColorStop(1,'rgba(220,226,236,0)'); x.fillStyle=g; x.fillRect(0,0,W,H) }
+  // velo inferior: la zona de texto y botones siempre domina
+  const v=x.createLinearGradient(0,H*.55,0,H); v.addColorStop(0,base+'00'); v.addColorStop(.45,base+'B3'); v.addColorStop(1,base+'F2'); x.fillStyle=v; x.fillRect(0,H*.55,W,H*.45)
+}catch(_){} }
 function bnMostrar(rid){ document.getElementById('bnT')&&document.getElementById('bnT').remove()
   const Z={i:0, v:{}, cur:3, touched:false, rid:rid}
-  const o=document.createElement('div'); o.id='bnT'; o.className='bnX'; o.setAttribute('role','dialog'); o.setAttribute('aria-modal','true'); o.setAttribute('aria-label','Check-in de bienestar')
-  o.innerHTML='<div class="bnX__bg"></div><div class="bnX__bg bnX__bg--b"></div>'+
+  const o=document.createElement('div'); o.id='bnT'; o.className='bnX bnX--dk'; o.setAttribute('role','dialog'); o.setAttribute('aria-modal','true'); o.setAttribute('aria-label','Test wellness')
+  o.innerHTML='<canvas class="bnX__bg"></canvas><canvas class="bnX__bg"></canvas>'+
     '<header class="bnX__top"><img src="/img/brand/logotipo-koach.png" alt="KOACH"><span class="bnX__st"></span></header>'+
     '<div class="bnX__k"></div><div class="bnX__stage"><svg class="bnX__arc" aria-hidden="true"><circle/></svg><div class="bnX__ns"></div><span class="bnX__dot"></span>'+
       '<div class="bnX__sel"><b class="bnX__big">03</b><div class="bnX__lab"><strong></strong><span></span></div></div></div>'+
-    '<div class="bnX__q"></div><div class="bnX__hint">DESLIZA ↕ · ESCALA LIKERT 1–5 · 5 = ÓPTIMO</div>'+
+    '<div class="bnX__q"></div><p class="bnX__ej"></p><div class="bnX__hint">DESLIZA ↕ · ESCALA 1–5 · 5 = ÓPTIMO</div>'+
     '<div class="bnX__act"><button type="button" class="bnX__back" aria-label="Pregunta anterior">←</button><button type="button" class="bnX__go" disabled>DESLIZA PARA ELEGIR</button></div>'+
     '<div class="bnX__ev">CUESTIONARIO DE BIENESTAR PERCIBIDO · McLEAN BD et al. (2010) · INT J SPORTS PHYSIOL PERFORM 5(3):367–383</div>'
   document.body.appendChild(o)
   const $=s=>o.querySelector(s), ns=$('.bnX__ns'), stage=$('.bnX__stage')
   ns.innerHTML=[1,2,3,4,5].map(n=>'<button type="button" class="bnX__n" data-n="'+n+'" aria-label="'+n+'">0'+n+'</button>').join('')
   let G={}
-  function geo(){ const r=stage.getBoundingClientRect(), H=r.height, R=Math.max(H*.62, 260), cx=-R*.62, cy=H/2; G={R,cx,cy,W:r.width,H}
+  function geo(){ const r=stage.getBoundingClientRect(), H=r.height, R=Math.max(H*.62, 260), cx=-R*.84, cy=H/2; G={R,cx,cy,W:r.width,H}
     const c=$('.bnX__arc circle'); $('.bnX__arc').setAttribute('width',r.width); $('.bnX__arc').setAttribute('height',H); c.setAttribute('cx',cx); c.setAttribute('cy',cy); c.setAttribute('r',R)
-    $('.bnX__dot').style.left=(cx+R-4)+'px'; $('.bnX__dot').style.top=(cy-4)+'px'; $('.bnX__sel').style.left=(cx+R+26)+'px' }
-  let bgOn=0, bgK=''
-  function fondo(k){ const sd=7+Z.i*13; if(k+sd===bgK) return; bgK=k+sd; const L=o.querySelectorAll('.bnX__bg'), nx=L[1-bgOn]; nx.style.backgroundImage=kartMol(k,sd)||kbgURL(k)||''; nx.classList.add('on'); L[bgOn].classList.remove('on'); bgOn=1-bgOn
-    o.classList.toggle('bnX--dk',!!(KMOL_BASE[k]||[])[1]) }
+    $('.bnX__dot').style.left=(cx+R-4)+'px'; $('.bnX__dot').style.top=(cy-4)+'px'; $('.bnX__sel').style.left=(cx+R+20)+'px' }
+  let bgOn=0, bgI=-1
+  function fondo(i, tipo, base, ka){ if(i===bgI) return; bgI=i; const L=o.querySelectorAll('.bnX__bg'), nx=L[1-bgOn]; bnArte(nx, tipo, base, ka); nx.classList.add('on'); L[bgOn].classList.remove('on'); bgOn=1-bgOn }
+  Z.fondo=fondo
   function pinta(f){ const q=BN_Q[Z.i], v=Math.max(1,Math.min(5,f)), r=Math.round(v)
-    ns.querySelectorAll('.bnX__n').forEach(b=>{ const n=+b.dataset.n, a=(n-v)*18*Math.PI/180, x=G.cx+(G.R+46)*Math.cos(a), y=G.cy+(G.R+46)*Math.sin(a)
-      b.style.transform='translate('+(x-24).toFixed(1)+'px,'+(y-20).toFixed(1)+'px) rotate('+(a*180/Math.PI).toFixed(1)+'deg)'; b.classList.toggle('on',n===r); b.style.opacity=Math.max(0,1-Math.abs(n-v)*.28).toFixed(2) })
+    ns.querySelectorAll('.bnX__n').forEach(b=>{ const n=+b.dataset.n, a=(n-v)*17*Math.PI/180, x=G.cx+(G.R+40)*Math.cos(a), y=G.cy+(G.R+40)*Math.sin(a)
+      b.style.transform='translate('+(x-24).toFixed(1)+'px,'+(y-20).toFixed(1)+'px) rotate('+(a*180/Math.PI).toFixed(1)+'deg)'; b.classList.toggle('on',n===r); b.style.opacity=Math.max(0,1-Math.abs(n-v)*.3).toFixed(2) })
     $('.bnX__big').textContent='0'+r; $('.bnX__lab strong').textContent=q[1]; $('.bnX__lab span').textContent=BN_DESC[q[0]][r-1]
-    o.style.setProperty('--lv',((v-1)/4).toFixed(3)); fondo(BN_BG[r-1]) }
+    $('.bnX__ej').textContent=Z.touched||Z.v[q[0]]?'«'+BN_EJ[q[0]][r-1]+'»':'Ej.: «'+BN_EJ[q[0]][r-1]+'»' }
   function paso(){ const q=BN_Q[Z.i]; Z.cur=Z.v[q[0]]||3; Z.touched=!!Z.v[q[0]]
-    $('.bnX__st').textContent='0'+(Z.i+1)+' / 05'; $('.bnX__k').innerHTML='WELLNESS · EVALUACIÓN PRE-SESIÓN'+'<i>'+BN_Q.map((x,i)=>'<em class="'+(i<Z.i?'ok':i===Z.i?'on':'')+'"></em>').join('')+'</i>'
-    $('.bnX__q').textContent=q[2]; $('.bnX__back').style.visibility=Z.i?'visible':'hidden'; listo(); pinta(Z.cur) }
-  function listo(){ const g=$('.bnX__go'); g.disabled=!Z.touched; g.textContent=!Z.touched?'DESLIZA PARA ELEGIR':(Z.i<4?'SIGUIENTE →':'CALCULAR WELLNESS SCORE →') }
+    $('.bnX__st').textContent='0'+(Z.i+1)+' / 05'; $('.bnX__k').innerHTML='TEST WELLNESS · PRE-SESIÓN'+'<i>'+BN_Q.map((x,i)=>'<em class="'+(i<Z.i?'ok':i===Z.i?'on':'')+'"></em>').join('')+'</i>'
+    $('.bnX__q').textContent=q[2]; $('.bnX__back').style.visibility=Z.i?'visible':'hidden'; fondo(Z.i, BN_ARTE[Z.i], BN_TONO[Z.i]); listo(); pinta(Z.cur) }
+  function listo(){ const g=$('.bnX__go'); g.disabled=!Z.touched; g.textContent=!Z.touched?'DESLIZA PARA ELEGIR':(Z.i<4?'SIGUIENTE →':'VER MI WELLNESS SCORE →') }
   function fija(n){ Z.cur=n; Z.touched=true; Z.v[BN_Q[Z.i][0]]=n; pinta(n); listo(); try{ kHaptic(6) }catch(_){} }
-  // arrastre vertical en toda la escena: hacia arriba sube el nivel
   let dr=null
   stage.addEventListener('pointerdown',e=>{ if(e.target.closest('.bnX__n')) return; dr={y:e.clientY,v:Z.cur,last:Math.round(Z.cur)}; stage.setPointerCapture(e.pointerId) })
   stage.addEventListener('pointermove',e=>{ if(!dr) return; const v=Math.max(1,Math.min(5,dr.v+(dr.y-e.clientY)/70)); Z.cur=v; pinta(v); const r=Math.round(v); if(r!==dr.last){ dr.last=r; try{ kHaptic(5) }catch(_){} } })
@@ -3940,22 +3959,31 @@ function bnMostrar(rid){ document.getElementById('bnT')&&document.getElementById
     const g=$('.bnX__go'); g.disabled=true; g.textContent='CALCULANDO…'
     const v=Z.v, r=await sb.rpc('mi_bienestar_registrar',{ p_registro:rid, p_sueno:v.sueno, p_energia:v.energia, p_doms:v.doms, p_estres:v.estres, p_animo:v.animo })
     if(r.error){ g.disabled=false; g.textContent='REINTENTAR'; toast('No se guardó — revisa tu conexión'); return }
-    S._bn=S._bn||{}; S._bn[rid]=true; bnResultado(o, r.data||{}, v) }
+    S._bn=S._bn||{}; S._bn[rid]=true; bnResultado(o, r.data||{}, v, fondo) }
   window.addEventListener('resize',()=>{ if(document.body.contains(o)&&!o.classList.contains('bnX--res')){ geo(); pinta(Z.cur) } })
   requestAnimationFrame(()=>{ geo(); paso(); o.classList.add('bnX--in'); o.tabIndex=-1; o.focus() }) }
-function bnResultado(o, d, v){ const t=BN_TXT[d.nivel]||BN_TXT.BUENO, al=d.alertas||[], k=BN_NIVBG[d.nivel]||'acero'
-  o.classList.add('bnX--res'); const L=o.querySelectorAll('.bnX__bg'); L.forEach(x=>x.classList.remove('on')); L[0].style.backgroundImage=kartMol(k,101)||kbgURL(k)||''; L[0].classList.add('on'); o.classList.toggle('bnX--dk',!!(KMOL_BASE[k]||[])[1])
-  o.style.setProperty('--lv',(((d.total||15)-5)/20).toFixed(3))
-  o.querySelectorAll('.bnX__k,.bnX__stage,.bnX__q,.bnX__hint,.bnX__act').forEach(x=>x.remove())
+function bnResultado(o, d, v, fondo){ const al=d.alertas||[], m=bnMensaje(d,v)
+  o.classList.add('bnX--res'); if(fondo) fondo(9,'esfera','#060607',.5)
+  o.querySelectorAll('.bnX__k,.bnX__stage,.bnX__q,.bnX__ej,.bnX__hint,.bnX__act').forEach(x=>x.remove())
   o.querySelector('.bnX__st').textContent='WELLNESS SCORE'
+  const cuida=BN_Q.filter(q=>v[q[0]]<=2).map(q=>q[1])
   const box=document.createElement('div'); box.className='bnX__res'
-  box.innerHTML='<div class="bnX__tot"><b>'+(d.total||'—')+'</b><i>/25</i></div><div class="bnX__niv">'+t[0]+'</div>'+
+  box.innerHTML='<div class="bnX__tot"><b>'+(d.total||'—')+'</b><i>/25</i></div><div class="bnX__niv">'+m.tit+'</div>'+
     '<div class="bnX__its">'+BN_Q.map(q=>'<div><small>'+q[1]+'</small><span class="bnX__pp">'+[1,2,3,4,5].map(n=>'<i class="'+(n<=v[q[0]]?'on':'')+'"></i>').join('')+'</span><b>'+v[q[0]]+'</b></div>').join('')+'</div>'+
-    (al.length?'<div class="bnX__al"><small>ALERTAS</small>'+al.map(a=>'<em>'+(BN_ALT[a]||a)+'</em>').join('')+'</div>':'')+
-    '<p class="bnX__msg">'+t[1]+' '+(BN_AJ[d.nivel]||'')+al.map(a=>BN_ALX[a]?' '+BN_ALX[a]:'').join('')+'</p><p class="bnX__coach">RESULTADO SINCRONIZADO CON TU COACH'+(d.base!=null?' · LÍNEA BASE '+String(d.base).replace('.',','):'')+'</p>'+
-    '<button type="button" class="bnX__go bnX__go--fin">ENTRENAR →</button>'
+    ((cuida.length||al.indexOf('BAJO_SU_NORMAL')>=0)?'<div class="bnX__al"><small>HOY CUIDAMOS</small>'+cuida.map(a=>'<em>'+a+'</em>').join('')+(al.indexOf('BAJO_SU_NORMAL')>=0?'<em>BAJO TU PROMEDIO</em>':'')+'</div>':'')+
+    '<p class="bnX__msg">'+m.txt+'</p><p class="bnX__hype">'+m.cierre+'</p><p class="bnX__coach">RESULTADO SINCRONIZADO CON TU COACH</p>'+
+    '<button type="button" class="bnX__go bnX__go--fin">A ENTRENAR →</button>'
   o.insertBefore(box, o.querySelector('.bnX__ev'))
   box.querySelector('.bnX__go').onclick=()=>{ o.classList.add('bnX--out'); setTimeout(()=>o.remove(),260) } }
+/* c176 · la pantalla de encendido anuncia el test cuando falta (en vez de START) */
+async function kxWellness(ret){ try{
+  const o=document.getElementById('oAct'), b=o&&o.querySelector('#kxGo b'); if(!b) return
+  b.textContent='START'; if(ret || !S.regId || pvEmpezada()) return
+  const r=await sb.from('bienestar_checkins').select('id').eq('registro_id',S.regId).maybeSingle(); if(r.error||r.data) return
+  b.textContent='TEST WELLNESS'
+  o.querySelectorAll('.kxHl').forEach(e=>e.innerHTML='<em>Queremos saber cómo llegas hoy</em> — para lo que te tenemos preparado.')
+  o.querySelectorAll('.kxL--d .kxHint').forEach(e=>e.textContent='TOCA PARA COMENZAR TU TEST WELLNESS')
+  o.querySelectorAll('.kxL--l .kxHint').forEach(e=>e.textContent='PREPARANDO TU TEST WELLNESS…') }catch(_){} }
 function kxEncender(){ if(KX.busy) return; KX.busy=true
   const o=document.getElementById('oAct'); try{ kHaptic(12); kAudioUnlock() }catch(_){}
   o.classList.add('kxGoing'); const H=o.clientHeight, t0=performance.now(), D=matchMedia('(prefers-reduced-motion: reduce)').matches?10:1200

@@ -7760,10 +7760,10 @@ const HOR={ socio:{}, int:[] }
 const BN={hoy:{}, socio:{}}
 const BN_NIV={OPTIMO:'ÓPTIMO',BUENO:'ADECUADO',MODERADO:'RECUP. INCOMPLETA',BAJO:'FATIGA ACUMULADA'}
 const BN_AL={DOMS:'DOMS ELEVADO',SUENO:'SUEÑO DEFICIENTE',FATIGA:'FATIGA ELEVADA',ESTRES:'ESTRÉS ELEVADO',ANIMO:'ÁNIMO BAJO',BAJO_SU_NORMAL:'BAJO SU LÍNEA BASE'}
-const BN_IT=[['sueno','SUEÑO'],['energia','FATIGA'],['doms','DOMS'],['estres','ESTRÉS'],['animo','ÁNIMO']]
+const BN_IT=[['sueno','SUEÑO'],['energia','ENERGÍA'],['doms','DOMS'],['estres','ESTRÉS'],['animo','MOTIVAC.']]
 function bnAlerta(b){ return b && (b.nivel==='BAJO'||b.nivel==='MODERADO'||(b.alertas||[]).length>0) }
 function bnMini(b){ const al=(b.alertas||[]).map(function(a){return BN_AL[a]||a})
-  return '<div class="kid__bn'+(bnAlerta(b)?' is-al':'')+'" title="Sueño '+b.sueno+' · Fatiga '+b.energia+' · DOMS '+b.doms+' · Estrés '+b.estres+' · Ánimo '+b.animo+' (Likert 1–5, 5 = óptimo)"><small>WELLNESS</small><b>'+b.total+'<i>/25</i> · '+(BN_NIV[b.nivel]||b.nivel)+'</b>'+(al.length?'<em>'+plEsc(al.join(' · '))+'</em>':'')+'</div>' }
+  return '<div class="kid__bn'+(bnAlerta(b)?' is-al':'')+'" title="Sueño '+b.sueno+' · Energía '+b.energia+' · DOMS '+b.doms+' · Estrés '+b.estres+' · Motivación '+b.animo+' (Likert 1–5, 5 = óptimo)"><small>WELLNESS</small><b>'+b.total+'<i>/25</i> · '+(BN_NIV[b.nivel]||b.nivel)+'</b>'+(al.length?'<em>'+plEsc(al.join(' · '))+'</em>':'')+'</div>' }
 async function bnSalaCargar(){ const r=await sb.rpc('koach_bienestar',{p_socio:null}); if(r.error) return
   const m={}; (r.data||[]).forEach(function(b){ if(!m[b.socio_id]) m[b.socio_id]=b }); BN.hoy=m; try{ salaPresenciaPintar() }catch(_){} }
 async function bnFicha(id){ const el=document.getElementById('fBn'); if(!el) return
