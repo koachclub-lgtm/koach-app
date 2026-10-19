@@ -3345,7 +3345,7 @@ function homeHero(o){
   else { kicker='TU PRÓXIMA SESIÓN'; cta1='COMENZAR ENTRENAMIENTO'; cta2=ses.nombre+' · SESIÓN '+posSem(ses)+' DE '+e.total+' →'; frase=fraseTitular(ses,false) }
   const pills = ses ? pillsSesion(ses,{max:3, mas:true}) : ''
   const sn = sesionNumeroCard(o)
-  const pillTxt = !ses ? (o.disabled?o.ctaT:'START') : ec ? 'START' : e.entrenoHoy ? 'HOY COMPLETADA ✓' : S.memBloqueo ? 'VER MI MEMBRESÍA'
+  const pillTxt = !ses ? (o.disabled?o.ctaT:'START') : ec ? 'START' : e.entrenoHoy ? 'COMPARTIR PROGRESO' : S.memBloqueo ? 'VER MI MEMBRESÍA'
     : e.completa ? (o.disabled?'SEMANA COMPLETADA ✓':'PEDIR SESIÓN EXTRA') : 'START'
   const cnt = ses && !ses._extra ? '<span class="hh__n"><b>'+String(posSem(ses)).padStart(2,'0')+'</b> / '+String(e.total).padStart(2,'0')+'</span>' : ''
   // título: una palabra → una línea; dos palabras → dos líneas; tres o más → balance con un escalón menos
@@ -4731,10 +4731,11 @@ function pintarHome(){
     document.getElementById('hCtaT').textContent='TIENES UN ENTRENAMIENTO EN CURSO'
     document.getElementById('hCtaS').textContent=((sesEC?sesEC.nombre:'TU SESIÓN')+' · BACK TO WORK →')
   } else if (entrenoHoy){
-    cta.disabled=true; cta.onclick=null
-    document.getElementById('hCtaT').textContent='ENTRENAMIENTO DE HOY ✓'
+    // c184 · hasta las 00:00 del mismo día se puede volver al menú de compartir (si no se alcanzó a subir la foto)
+    cta.disabled=false; cta.onclick=()=>ksDeHoy()
+    document.getElementById('hCtaT').textContent='COMPARTIR PROGRESO DE HOY'
     const _e=estadoSemana()
-    document.getElementById('hCtaS').textContent=((_e.hoySes?_e.hoySes.nombre+' COMPLETADA':'SESIÓN COMPLETADA')+((sem.proxima && !sem.proxima._extra)?' · PRÓXIMA: '+sem.proxima.nombre:'')).toUpperCase()
+    document.getElementById('hCtaS').textContent=((_e.hoySes?_e.hoySes.nombre+' COMPLETADA':'SESIÓN COMPLETADA')+' · DISPONIBLE HASTA LAS 00:00').toUpperCase()
   } else if (sem.completa && sem.proxima && sem.proxima._extra){
     cta.disabled=false; cta.onclick=()=>abrirSesion()
     document.getElementById('hCtaT').textContent='★ SESIÓN EXTRA'
@@ -7510,7 +7511,7 @@ function ksSt(t) { ksEl('ksSt').textContent = t || '' }
 async function ksFuentes() { try { await Promise.all(["700 100px 'Inter Display'", "600 100px 'Inter Display'", "700 100px 'Space Mono'", "500 100px 'IBM Plex Mono'", "900 100px 'KOACH Display'", "800 100px 'KOACH Display'"].map(f => document.fonts.load(f)).concat(document.fonts.load("700 100px 'KOACH Symbols'", '✓'))) } catch (_) {} }
 async function ksCargar() {
   if (KS.data) return KS.data;
-  const { data, error } = await sb.rpc('koach_tarjeta_sesion');
+  const { data, error } = await sb.rpc('koach_tarjeta_sesion', KS.reg ? { p_registro: KS.reg } : {});
   if (error) throw error;
   KS.data = data; return data;
 }
@@ -7603,6 +7604,12 @@ function ksSemanaLinea() {
   const j = KS.data || {}, h = j.hechas, p = j.planif; if (!p) return '';
   const f = Math.max(0, p - h);
   return 'Sesión ' + Math.min(h, p) + ' de ' + p + ' · ' + (f ? 'te ' + (f === 1 ? 'falta 1 sesión' : 'faltan ' + f + ' sesiones') + ' para completar tu semana' : 'semana completada ✓');
+}
+// c184 · reabrir el resumen + COMPARTIR PROGRESO de la sesión de hoy (solo el mismo día; a las 00:00 deja de estar disponible)
+function ksDeHoy() {
+  const hoy = fLocal(new Date()), r = (S.registros || []).filter(x => x.fecha === hoy && esHecha(x)).sort((a, b) => String(b.completada_at || '').localeCompare(String(a.completada_at || '')))[0];
+  if (!r) { toast('Compartir tu progreso está disponible hasta las 00:00 del día de la sesión.'); try { pintarHome() } catch (_) {} return }
+  KS.data = null; KS.reg = r.id || null; abrirCompartir(false, true);
 }
 async function abrirCompartir(desdeCierre, fin) {
   KS.desdeCierre = !!desdeCierre; KS.fin = !!fin; ksEl('oShare').classList.toggle('kset--fin', KS.fin);
@@ -8100,7 +8107,7 @@ function cmMensaje(m, j) {
 function cmSaltar() { if (_cmFin) _cmFin() }
 async function cierreMomento(m) {
   // c158 · RUTINA TERMINADA: el resumen SÓLIDO (kilos, sets, grupos, PR, credencial) a pantalla completa → COMPARTIR PROGRESO
-  KS.data = null; KS.cierre = m;
+  KS.data = null; KS.reg = null; KS.cierre = m;
   const pv = document.getElementById('kxDone'); try { if (pv) { clearTimeout(pv._t); clearTimeout(pv._g); pv.classList.remove('on', 'vis', 'kxDone--pr'); pv.innerHTML = '' } } catch (_) {}
   // c160 · si hubo récord, primero el momento épico de PR (cromo, golpe, flash) y después el resumen
   let pr = null; const L = S._prLista || []; S._prLista = [];
