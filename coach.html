@@ -3122,7 +3122,8 @@ async function entrar(){
     document.getElementById('rolBadge').textContent = (ROLN[perfil.role]||'EQUIPO')+' · '+(perfil.nombre||'').toUpperCase()+' · SALIR'
     await loadSala()
     document.documentElement.setAttribute('data-dash', dashModo())
-    vista('vSala'); document.title='Sala | KOACH'; dashSelectorInicial(); salaRTIniciar()
+    if (perfil.role==='nutricionista' && !/^#\/(socio|base)/.test(location.hash)){ verAgenda(); salaRTIniciar() }
+    else { vista('vSala'); document.title='Sala | KOACH'; dashSelectorInicial(); salaRTIniciar() }
     if (location.hash && location.hash!=='#/' && location.hash!=='#') await rtAplicar()   // pestaña nueva / recarga / enlace copiado
   }catch(e){
     console.error(e)
@@ -8551,7 +8552,7 @@ const KS_ICO={
 function kGo(fn){ KS.menu=null; kShellMenu()
   if (KS.v==='vPlan' && typeof plEsDirty==='function' && plEsDirty()){ plGuard(fn); return } fn() }
 const KS_ACC={
-  sala:function(){ kGo(function(){ verSala() }) },
+  sala:function(){ kGo(function(){ if(KS.b && KS.b.R==='nutricionista') verAgenda(); else verSala() }) },
   sol:function(){ kGo(function(){ verSolicitudes() }) },
   agenda:function(){ kGo(function(){ verAgenda() }) },
   mem:function(){ kGo(function(){ verAdmin() }) },
@@ -8576,19 +8577,22 @@ function kShellPaint(){
   if (!on){ hd.style.display=ot.style.display=bn.style.display='none'; return }
   const b=KS.b, act=KS_NAV[KS.v]||'', c=function(k,x){ return (act===k?'on':'')+(x?' '+x:'') }
   const yo=C.yo||{}, nom=String(yo.nombre||'').trim()||'Equipo', ini=nom[0].toUpperCase()
-  const alta=(b.R==='admin'||b.R==='recepcion'||b.R==='coach')
+  const alta=(b.R==='admin'||b.R==='recepcion'||b.R==='coach'), NUT=(b.R==='nutricionista')
   hd.innerHTML='<div class="kHd__r">'+
     '<a class="kHd__brand" href="#/" onclick="kAcc(\'sala\');return false" aria-label="KOACH · ir a Sala"><img class="kHd__logo" src="/img/brand/logotipo-koach.png" alt="KOACH"></a>'+
     '<span class="kHd__ttl">'+(KS_TIT[KS.v]||'')+'</span>'+
     '<nav class="kNav" aria-label="Principal">'+
-      (CRM_ACTIVO && b.R==='admin'?'<button type="button" class="'+c('crm','kN-crm')+'" onclick="kAcc(\'crm\')"'+(act==='crm'?' aria-current="page"':'')+'>PANEL</button>':'')+
+      (NUT
+        ? '<button type="button" class="'+c('agenda')+'" onclick="kAcc(\'agenda\')"'+(act==='agenda'?' aria-current="page"':'')+'>AGENDA</button>'+
+          '<button type="button" class="'+(KS.v==='vFicha'||act==='sala'?'on':'')+'" onclick="kAcc(\'socios\')">SOCIOS</button>'
+        : (CRM_ACTIVO && b.R==='admin'?'<button type="button" class="'+c('crm','kN-crm')+'" onclick="kAcc(\'crm\')"'+(act==='crm'?' aria-current="page"':'')+'>PANEL</button>':'')+
       '<button type="button" class="'+c('sala')+'" onclick="kAcc(\'sala\')"'+(act==='sala'?' aria-current="page"':'')+'><i class="kLv" aria-hidden="true"></i>SALA</button>'+
       '<button type="button" class="'+c('agenda')+'" onclick="kAcc(\'agenda\')"'+(act==='agenda'?' aria-current="page"':'')+'>AGENDA</button>'+
       '<button type="button" class="'+c('sol')+'" onclick="kAcc(\'sol\')"'+(act==='sol'?' aria-current="page"':'')+'>SOLICITUDES'+(b.sol?' <span class="kBdg">'+b.sol+'</span>':'')+'</button>'+
       (b.COM?'<button type="button" class="'+c('mem','kN-mem')+'" onclick="kAcc(\'mem\')" title="'+b.memT+'"'+(act==='mem'?' aria-current="page"':'')+'>MEMBRESÍAS'+(b.mem?' <span class="kBdg kBdg--dot" aria-label="con pendientes"></span>':'')+'</button>':'')+
       '<button type="button" class="'+c('adh','kN-adh')+'" onclick="kAcc(\'adh\')"'+(act==='adh'?' aria-current="page"':'')+'>ADHERENCIA</button>'+
       (b.ENT?'<button type="button" class="'+c('bib','kN-bib')+'" onclick="kAcc(\'bib\')"'+(act==='bib'?' aria-current="page"':'')+'>BIBLIOTECA</button>':'')+
-      '<button type="button" class="kN-mas'+((act==='adh'||act==='bib')?' on':'')+'" onclick="kMenuT(\'mas\')" aria-haspopup="menu" aria-expanded="'+(KS.menu==='mas')+'">MÁS ▾</button>'+
+      '<button type="button" class="kN-mas'+((act==='adh'||act==='bib')?' on':'')+'" onclick="kMenuT(\'mas\')" aria-haspopup="menu" aria-expanded="'+(KS.menu==='mas')+'">MÁS ▾</button>')+
     '</nav>'+
     '<div class="kHd__x">'+
       (alta?'<button type="button" class="kNew" onclick="kAcc(\'alta\')" aria-label="Nuevo socio"><i aria-hidden="true">+</i><span>NUEVO SOCIO</span></button>':'')+
@@ -8605,8 +8609,11 @@ function kShellPaint(){
   } else { ot.innerHTML=''; ot.style.display='none' }
   // móvil: navegación inferior (no en planner/extra: allí manda la barra de guardar)
   const bnOn = !(KS.v==='vPlan'||KS.v==='vExtra'||KS.v==='vPicker')
-  bn.innerHTML=
-    '<button type="button" class="'+(act==='sala'?'on':'')+'" onclick="kAcc(\'sala\')">'+KS_ICO.sala+'SALA</button>'+
+  bn.innerHTML= NUT
+    ? '<button type="button" class="'+(act==='agenda'?'on':'')+'" onclick="kAcc(\'agenda\')">'+KS_ICO.sol+'AGENDA</button>'+
+      '<button type="button" class="'+(KS.v==='vFicha'||act==='sala'?'on':'')+'" onclick="kAcc(\'socios\')">'+KS_ICO.soc+'SOCIOS</button>'+
+      '<button type="button" onclick="kMenuT(\'me\')" aria-haspopup="menu">'+KS_ICO.mas+'CUENTA</button>'
+    : '<button type="button" class="'+(act==='sala'?'on':'')+'" onclick="kAcc(\'sala\')">'+KS_ICO.sala+'SALA</button>'+
     '<button type="button" class="'+(KS.v==='vFicha'?'on':'')+'" onclick="kAcc(\'socios\')">'+KS_ICO.soc+'SOCIOS</button>'+
     '<button type="button" class="'+(act==='sol'?'on':'')+'" onclick="kAcc(\'sol\')">'+KS_ICO.sol+(b.sol?'<span class="kBdg">'+b.sol+'</span>':'')+'SOLICITUDES</button>'+
     '<button type="button" class="'+((act==='mem'||act==='adh'||act==='bib'||act==='crm'||act==='agenda')?'on':'')+'" onclick="kMenuT(\'mas\')" aria-haspopup="menu">'+KS_ICO.mas+'MÁS</button>'
@@ -8622,7 +8629,7 @@ function kShellMenu(){
     '<button type="button" onclick="kAcc(\'vista\')">Vista del dashboard</button>'+
     '<button type="button" onclick="kAcc(\'clave\')">Mi clave</button><hr>'+
     '<button type="button" class="danger" onclick="kAcc(\'salir\')">Cerrar sesión</button>'
-  const alta=(b.R==='admin'||b.R==='recepcion'||b.R==='coach')
+  const alta=(b.R==='admin'||b.R==='recepcion'||b.R==='coach'), NUT=(b.R==='nutricionista')
   const mas='<button type="button" onclick="kAcc(\'agenda\')">Agenda</button>'+(b.R==='admin'?'<button type="button" onclick="kAcc(\'crm\')">Panel del dueño</button>':'')+(b.COM?'<button type="button" class="kM-mem" onclick="kAcc(\'mem\')">Membresías'+(b.mem?'<small>'+b.memT.split(' · ')[0].toUpperCase()+'</small>':'')+'</button>':'')+
     '<button type="button" onclick="kAcc(\'adh\')">Adherencia</button>'+
     (b.ENT?'<button type="button" onclick="kAcc(\'bib\')">Biblioteca</button>':'')+
