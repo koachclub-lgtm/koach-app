@@ -54,8 +54,8 @@ module.exports = async (req, res) => {
   let sexo = p.sex
   if (socio !== u.d.id){ const s = await rest('/rest/v1/profiles?select=sex&id=eq.' + encodeURIComponent(socio), token); sexo = s.ok && s.d && s.d[0] ? s.d[0].sex : null }
   else {
-    const c = await rest('/rest/v1/rpc/koach_consiente', token, { p_socio:socio, p_tipo:'examenes_ia' })
-    if (!c.ok || c.d !== true) return res.status(403).json({ error:'Falta tu autorización para leer exámenes con IA', codigo:'consentimiento' })
+    const c = await rest('/rest/v1/rpc/koach_consiente', token, { p_socio:socio, p_tipo:'salud_ia' })
+    if (!c.ok || c.d !== true) return res.status(403).json({ error:'Falta tu autorización para leer exámenes con IA (MI SALUD → Privacidad)', codigo:'consentimiento' })
     const m = await rest('/rest/v1/rpc/koach_es_menor', token, { p_socio:socio })
     if (m.ok && m.d === true) return res.status(403).json({ error:'Los exámenes de menores de edad los registra nutrición con autorización de su apoderado', codigo:'menor' })
   }

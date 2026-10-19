@@ -6572,13 +6572,17 @@ function pintarSalud(){
   const ex=(d.examenes||[]).map(e=>({ id:e.id, fecha:e.fecha, valores:e.valores||[] }))
   const R = ex.length ? KB.resumen(ex, { sexo:(S.perfil||{}).sex, fechaNac:(S.perfil||{}).fecha_nacimiento }) : null
   window.KSAL_R=R
-  el.innerHTML=KSAL.vista(R, { entre: R?saludEntre(R):null, puedeSubir: !d.menor,
+  el.innerHTML=KSAL.vista(R, { entre: R?saludEntre(R):null, puedeSubir: !d.menor, onPrivacidad: (d.consentimiento&&d.consentimiento.disponible)?'KSAL.privacidadDesdeApp()':'',
     aviso: d.menor ? 'Los exámenes de menores de edad los registra nutrición con autorización de tu apoderado.' : '' })
   const ult=(d.examenes||[]).slice(-1)[0]
   if (ult && ult.nota_nutricion) el.querySelector('.ksal').insertAdjacentHTML('afterbegin','<div class="sBox"><span class="sK">MENSAJE DE NUTRICIÓN · '+fechaCorta(ult.fecha)+'</span><p class="sP" style="color:var(--sI)">'+plEscA(ult.nota_nutricion)+'</p></div>')
 }
 KSAL.subirDesdeApp=function(){ const d=SAL.data||{}
-  KSAL.subir({ sb, socioId:S.perfil.id, sexo:S.perfil.sex, propio:true, consiente:!!d.consiente, menor:!!d.menor, onListo:()=>{ toast('Examen guardado ✓'); loadSalud(true) } }) }
+  KSAL.subir({ sb, socioId:S.perfil.id, sexo:S.perfil.sex, propio:true, consiente:!!d.consiente, consienteIa:!!d.consiente_ia, menor:!!d.menor,
+    onCambio:c=>{ if(SAL.data){ SAL.data.consentimiento=c; SAL.data.consiente=!!(c&&c.vigentes&&c.vigentes.salud_datos); SAL.data.consiente_ia=!!(c&&c.vigentes&&c.vigentes.salud_ia) } },
+    onListo:()=>{ toast('Examen guardado ✓'); loadSalud(true) } }) }
+KSAL.privacidadDesdeApp=function(){ const d=SAL.data||{}
+  KSAL.privacidad({ sb, socioId:S.perfil.id, consentimiento:d.consentimiento||{}, onCambio:()=>loadSalud(true) }) }
 function nuInforme(id){
   const ev=CPX.data||[], i=ev.findIndex(e=>e.id===id); if(i<0) return
   const pa = NU.pauta && (!NU.pauta.evaluacion_id || NU.pauta.evaluacion_id===id || i===ev.length-1) ? NU.pauta : null

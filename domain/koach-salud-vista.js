@@ -16,8 +16,8 @@ const fmt = (v, u) => { if (v == null) return '—'; const a = Math.abs(v), d = 
   let s = (Math.round(v * Math.pow(10, d)) / Math.pow(10, d)).toFixed(d); if (d) s = s.replace(/0+$/, '').replace(/\.$/, ''); return s.replace('.', ',') }
 const sg = v => v == null ? '' : (v > 0 ? '+' : v < 0 ? '−' : '±') + fmt(Math.abs(v))
 const TEND = { mejora:'MEJORA', empeora:'EN OTRA DIRECCIÓN', estable:'ESTABLE' }
-const CONSENT_V = 'examenes-ia-v1-2026-10'
-const CONSENT_TXT = 'Autorizo a KOACH Club a guardar los exámenes de laboratorio que suba y a leerlos con inteligencia artificial (Anthropic, proveedor externo) para ordenar sus valores en mi app. Entiendo que: (1) son datos de salud sensibles y solo los verán la nutricionista, administración y yo; nunca los coaches; (2) KOACH no diagnostica: lo que esté fuera de rango debo conversarlo con mi médico; (3) puedo revocar esta autorización cuando quiera desde mi perfil o pidiéndolo en recepción.'
+// Consentimiento v2: el texto vive versionado en la base (consentimiento_textos) y se acepta con koach_consentir
+const CASILLAS_RETIRABLES = { salud_contrato:'Contrato del servicio de salud', salud_datos:'Guardar mis exámenes', salud_ia:'Lectura por foto con IA', salud_contexto:'Relacionar con mi entrenamiento', salud_estadistica:'Estadística anonimizada' }
 
 const CSS = `
 .ksal{--sI:#0B0B0C;--sB:#F4F3F0;--sG5:#4A4945;--sG4:#6B6A65;--sG3:#A3A29C;--sL:rgba(11,11,12,.12);--sS:#2BB3C0;--sA:#B4442C;
@@ -84,6 +84,10 @@ const CSS = `
 .ksal .sF label{display:flex;flex-direction:column;gap:6px;font:700 9.5px var(--sM);letter-spacing:.12em;color:var(--sG4)}
 .ksal .sF input,.ksal .sF select{min-height:46px;padding:0 12px;border:1px solid var(--sL);border-radius:12px;background:#fff;font:500 16px var(--sD);color:var(--sI)}
 .ksal .sCk{display:flex;gap:12px;align-items:flex-start;padding:14px;border-radius:14px;background:#fff;border:1px solid var(--sL);font:400 14px/1.5 var(--sD);cursor:pointer}
+.ksal .sDoc{max-height:46vh;overflow:auto;margin:14px 0;padding:16px 18px;border:1px solid var(--sL);border-radius:14px;background:#fff;font:400 13.5px/1.55 var(--sD);color:var(--sI)}
+.ksal .sDoc h4{margin:16px 0 6px;font:700 11px var(--sM);letter-spacing:.12em}.ksal .sDoc h4:first-child{margin-top:0}.ksal .sDoc p{margin:0 0 10px}.ksal .sDoc ul{margin:0 0 10px;padding-left:18px}
+.ksal .sCk small{display:block;margin-top:4px;font:700 9.5px var(--sM);letter-spacing:.12em;color:var(--sG4)}
+.ksal .sPriv{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(--sL);font:400 14px/1.4 var(--sD)}
 .ksal .sCk input{width:22px;height:22px;flex:none;margin:1px 0 0;accent-color:#0B0B0C}
 .ksal .sV:first-child{border-top:0}.ksal .sV{display:grid;grid-template-columns:24px minmax(0,1fr) 110px;gap:10px;align-items:center;padding:12px 0;border-top:1px solid var(--sL)}
 .ksal .sV input[type=checkbox]{width:20px;height:20px;accent-color:#0B0B0C}
@@ -129,12 +133,13 @@ function fila(m, onclick){
 function vista(R, ctx){
   ctx = ctx || {}; const det = c => (ctx.onDetalle || 'KSAL.abrirDetalle') + "('" + c + "')"
   let h = '<div class="ksal">'
+  const priv = ctx.onPrivacidad ? '<button type="button" class="sBtn sBtn--l sBtn--w" style="margin-top:12px;border-color:transparent" onclick="' + ctx.onPrivacidad + '">PRIVACIDAD Y AUTORIZACIONES</button>' : ''
   const subir = ctx.puedeSubir !== false ? '<button type="button" class="sBtn sBtn--w" onclick="' + (ctx.onSubir || 'KSAL.subirDesdeApp()') + '">SUBIR EXAMEN · FOTO O PDF</button>' : ''
   if (!R || !R.examenes){
     return h + '<div class="sBox"><span class="sK">TU SALUD · CAPA CLÍNICA</span><h3 class="sH">Tu punto de partida en sangre</h3>' +
       '<p class="sP">Sube una foto o el PDF de tus exámenes de sangre (cualquier laboratorio). Ordenamos tus valores, los comparamos con el rango de tu laboratorio y, en cada examen nuevo, contra ti mismo: así ves cómo tu entrenamiento cambia también por dentro.</p>' +
       '<p class="sP" style="font-size:13px">Te sirve un perfil básico: glicemia e insulina en ayunas, perfil lipídico, hemograma, PCR, perfil hepático, creatinina y albúmina.</p><div style="margin-top:16px">' + subir + '</div></div>' +
-      (ctx.aviso ? '<p class="sPie">' + esc(ctx.aviso) + '</p>' : '') + '</div>'
+      (ctx.aviso ? '<p class="sPie">' + esc(ctx.aviso) + '</p>' : '') + priv + '</div>'
   }
   if (R.criticos.length) h += '<div class="sAlert" role="alert"><i></i><div><b>CONVERSAR PRONTO CON TU MÉDICO</b><p>' + R.criticos.map(m => esc(m.nombre)).join(', ') + (R.criticos.length > 1 ? ' están' : ' está') + ' en un nivel que conviene revisar con un médico en los próximos días. No es un diagnóstico: es una señal para no esperar.</p></div></div>'
   // resultado
@@ -172,8 +177,8 @@ function vista(R, ctx){
   h += '<div class="sSec"><h3>Todos tus marcadores</h3><span>POR SISTEMA</span></div>'
   R.porCategoria.filter(g => g.cat !== 'EDAD BIOLÓGICA').forEach(g => {
     h += '<span class="sK" style="margin:14px 4px 6px">' + g.cat + '</span><div class="sBox" style="padding:4px 18px">' + g.items.map(m => fila(m, det(m.codigo))).join('') + '</div>' })
-  h += '<div style="margin:18px 0 0">' + subir + '</div>'
-  h += '<p class="sPie">KOACH NO DIAGNOSTICA. COMPARAMOS TUS VALORES CON EL RANGO IMPRESO POR TU LABORATORIO Y CON GUÍAS CLÍNICAS PUBLICADAS (ADA PARA GLUCOSA). UN CAMBIO CUENTA SOLO SI SUPERA LA VARIACIÓN NORMAL DEL MARCADOR. LO QUE ESTÉ FUERA DE RANGO, CONVERSALO CON TU MÉDICO.</p>'
+  h += '<div style="margin:18px 0 0">' + subir + priv + '</div>'
+  h += '<p class="sPie">ESTE SERVICIO NO DIAGNOSTICA. COMPARAMOS TUS VALORES CON EL RANGO IMPRESO POR TU LABORATORIO Y CON GUÍAS CLÍNICAS PUBLICADAS (ADA PARA GLUCOSA). UN CAMBIO CUENTA SOLO SI SUPERA LA VARIACIÓN NORMAL DEL MARCADOR. LO QUE ESTÉ FUERA DE RANGO, CONVERSALO CON TU MÉDICO.</p>'
   return h + '</div>'
 }
 
@@ -238,22 +243,87 @@ const leer = b => new Promise((ok, ko) => { const r = new FileReader(); r.onload
 function subir(o){
   Object.assign(F, o, { archivos:[], res:null })
   if (o.menor && o.propio) return ov('SUBIR EXAMEN', '<div class="ksal"><div class="sBox"><h3 class="sH">Lo registra nutrición</h3><p class="sP">Los exámenes de menores de edad los registra la nutricionista con autorización de tu apoderado. Pídelo en recepción.</p></div></div>')
-  if (o.propio && !o.consiente) return pasoConsent()
+  if (o.propio && !o.consiente) return pasoConsent(pasoElegir)
   pasoElegir()
 }
-function pasoConsent(){
-  ov('AUTORIZACIÓN', '<div class="ksal"><span class="sK">ANTES DE SUBIR TU PRIMER EXAMEN</span><h3 class="sH">Tus datos de salud son tuyos</h3>' +
-    '<label class="sCk" style="margin-top:14px"><input type="checkbox" id="ksalCk" onchange="document.getElementById(\'ksalCkB\').disabled=!this.checked"><span>' + esc(CONSENT_TXT) + '</span></label>' +
-    '<div style="margin-top:16px;display:grid;gap:8px"><button type="button" class="sBtn sBtn--w" id="ksalCkB" disabled onclick="KSAL._aceptar()">AUTORIZO Y CONTINÚO</button><button type="button" class="sBtn sBtn--l sBtn--w" onclick="KSAL.cerrar()">AHORA NO</button></div>' +
-    '<p class="sPie">VERSIÓN ' + CONSENT_V.toUpperCase() + ' · QUEDA REGISTRADA CON FECHA Y HORA (LEY 21.719)</p></div>')
+// markdown mínimo del contrato: ## títulos, **negrita**, listas "- ", párrafos
+function md(t){
+  const inl = x => esc(x).replace(/\*\*(.+?)\*\*/g, '<b>$1</b>')
+  let h = '', ul = false
+  String(t || '').split('\n').forEach(l => {
+    if (/^- /.test(l)){ if (!ul){ h += '<ul>'; ul = true } h += '<li>' + inl(l.slice(2)) + '</li>'; return }
+    if (ul){ h += '</ul>'; ul = false }
+    if (/^## /.test(l)) h += '<h4>' + inl(l.slice(3)).toUpperCase() + '</h4>'
+    else if (l.trim()) h += '<p>' + inl(l) + '</p>'
+  })
+  return h + (ul ? '</ul>' : '')
+}
+const dispositivo = () => { try { return (navigator.userAgent || '').slice(0, 300) } catch (_) { return null } }
+/** Contrato + casillas por finalidad. sigue = qué hacer después de aceptar. */
+async function pasoConsent(sigue){
+  F.sigue = sigue || null
+  ov('CONTRATO DE SALUD', '<div class="ksal"><div class="sLoad"><i></i><span class="sK">CARGANDO CONTRATO</span></div></div>')
+  const { data, error } = await F.sb.rpc('koach_consentimiento_texto')
+  if (error) return ov('CONTRATO DE SALUD', '<div class="ksal"><div class="sBox"><h3 class="sH">No pudimos cargar el contrato</h3><p class="sP">' + esc(error.message || 'Revisa tu conexión.') + '</p></div></div>')
+  if (!data) return ov('CONTRATO DE SALUD', '<div class="ksal"><div class="sBox"><span class="sK">EN PREPARACIÓN</span><h3 class="sH">Muy pronto</h3><p class="sP">El servicio de salud se está habilitando con nuestro prestador de salud. Te avisaremos cuando puedas cargar tus exámenes.</p></div></div>')
+  F.txt = data; F.leido = false
+  const ck = (data.casillas || []).map(c => '<label class="sCk" style="margin-top:8px"><input type="checkbox" data-c="' + esc(c.codigo) + '"' + (c.obligatoria ? ' data-o="1"' : '') + ' onchange="KSAL._ckEstado()"><span>' + esc(c.texto) +
+    '<small>' + (c.obligatoria ? 'NECESARIA PARA EL SERVICIO' : 'OPCIONAL') + '</small></span></label>').join('')
+  ov('CONTRATO DE SALUD', '<div class="ksal"><span class="sK">SERVICIO DE SALUD · ' + esc(String(data.responsable || '').toUpperCase()) + '</span><h3 class="sH">Tus datos de salud son tuyos</h3>' +
+    '<p class="sP" style="font-size:13.5px">Este servicio es distinto de tu membresía: no aceptarlo no cambia nada de tu entrenamiento. Lee el contrato hasta el final y marca lo que autorizas.</p>' +
+    '<div class="sDoc" id="ksalDoc" tabindex="0" onscroll="KSAL._ckEstado()">' + md(data.documento) + '</div>' +
+    ck + '<p class="sP" style="font-size:13px;margin-top:14px">' + esc(data.declaracion) + '</p>' +
+    '<p class="sFalta" id="ksalCkF">Desliza el contrato hasta el final para firmar.</p>' +
+    '<div style="margin-top:14px;display:grid;gap:8px"><button type="button" class="sBtn sBtn--w" id="ksalCkB" disabled onclick="KSAL._aceptar()">ACEPTO Y FIRMO</button><button type="button" class="sBtn sBtn--l sBtn--w" onclick="KSAL.cerrar()">AHORA NO</button></div>' +
+    '<p class="sPie">VERSIÓN ' + esc(String(data.version).toUpperCase()) + ' · HUELLA ' + esc(String(data.sha256 || '').slice(0, 12).toUpperCase()) + ' · RESPONSABLE ' + esc(data.rut || '') + '. CADA AUTORIZACIÓN QUEDA REGISTRADA CON FECHA, HORA Y ESTA HUELLA DEL TEXTO (LEY 21.719). PUEDES RETIRARLAS CUANDO QUIERAS EN MI SALUD → PRIVACIDAD.</p></div>')
+  _ckEstado()
+}
+function _ckEstado(){
+  const d = document.getElementById('ksalDoc'), b = document.getElementById('ksalCkB'); if (!d || !b) return
+  if (!F.leido && d.scrollTop + d.clientHeight >= d.scrollHeight - 24) F.leido = true
+  const obl = Array.from(document.querySelectorAll('#ksalOvB input[data-o]')), ok = obl.every(x => x.checked)
+  b.disabled = !(F.leido && ok)
+  const f = document.getElementById('ksalCkF'); if (f) f.textContent = !F.leido ? 'Desliza el contrato hasta el final para firmar.' : (!ok ? 'Marca las autorizaciones necesarias para el servicio.' : '')
 }
 async function _aceptar(){
-  const b = document.getElementById('ksalCkB'); b.disabled = true; b.textContent = 'GUARDANDO…'
-  const { error } = await F.sb.from('consentimientos').insert([{ socio_id:F.socioId, tipo:'examenes_ia', version:CONSENT_V, otorgado:true, texto:CONSENT_TXT },
-    { socio_id:F.socioId, tipo:'almacenamiento_salud', version:CONSENT_V, otorgado:true, texto:CONSENT_TXT }])
-  if (error){ b.disabled = false; b.textContent = 'AUTORIZO Y CONTINÚO'; alert('No se pudo guardar tu autorización: ' + (error.message || 'error')); return }
-  F.consiente = true; pasoElegir()
+  const b = document.getElementById('ksalCkB'); b.disabled = true; b.textContent = 'FIRMANDO…'
+  const otorgar = Array.from(document.querySelectorAll('#ksalOvB input[data-c]')).filter(x => x.checked).map(x => x.dataset.c)
+  const { data, error } = await F.sb.rpc('koach_consentir', { p_version:F.txt.version, p_sha:F.txt.sha256, p_otorgar:otorgar, p_retirar:[], p_dispositivo:dispositivo() })
+  if (error){ b.disabled = false; b.textContent = 'ACEPTO Y FIRMO'; alert('No se pudo registrar tu firma: ' + (error.message || 'error')); return }
+  const v = (data && data.vigentes) || {}; F.consiente = !!v.salud_datos; F.consienteIa = !!v.salud_ia
+  if (typeof F.onCambio === 'function') F.onCambio(data)
+  if (typeof F.sigue === 'function') F.sigue(); else cerrar()
 }
+/** Panel de privacidad: estado de cada autorización, retirar u otorgar. o = { sb, consentimiento:{vigentes, version, aceptado_at}, onCambio } */
+function privacidad(o){
+  if (o) Object.assign(F, o)
+  const c = F.consentimiento || {}, v = c.vigentes || {}
+  if (!c.disponible) return ov('PRIVACIDAD', '<div class="ksal"><div class="sBox"><h3 class="sH">Servicio en preparación</h3><p class="sP">Aún no hay contrato de salud vigente. No guardamos exámenes hasta que lo firmes.</p></div></div>')
+  if (!v.salud_contrato) return ov('PRIVACIDAD', '<div class="ksal"><div class="sBox"><h3 class="sH">Sin contrato de salud</h3><p class="sP">No tienes autorizaciones vigentes. Tus exámenes anteriores, si los hay, siguen siendo tuyos y puedes verlos; no se cargan nuevos sin tu firma.</p>' +
+    '<button type="button" class="sBtn sBtn--w" style="margin-top:14px" onclick="KSAL._firmar()">LEER Y FIRMAR CONTRATO</button></div></div>')
+  const filas = Object.keys(CASILLAS_RETIRABLES).map(k => '<div class="sPriv"><span>' + esc(CASILLAS_RETIRABLES[k]) + '<br><small class="sFalta">' + (v[k] ? 'AUTORIZADO' : 'NO AUTORIZADO') + '</small></span>' +
+    (v[k] ? '<button type="button" class="sBtn sBtn--l" style="min-height:38px" onclick="KSAL._retirar(\'' + k + '\')">RETIRAR</button>'
+          : '<button type="button" class="sBtn" style="min-height:38px" onclick="KSAL._otorgar(\'' + k + '\')">AUTORIZAR</button>') + '</div>').join('')
+  ov('PRIVACIDAD', '<div class="ksal"><span class="sK">TUS AUTORIZACIONES · VERSIÓN ' + esc(String(c.version || '').toUpperCase()) + '</span><h3 class="sH">Tú decides</h3>' +
+    '<p class="sP" style="font-size:13.5px">Retirar es gratis, inmediato y no afecta tu membresía. Retirar el contrato o el guardado de exámenes termina el servicio: dejas de cargar exámenes, pero sigues viendo los que ya tienes.</p>' +
+    '<div class="sBox" style="padding:4px 16px">' + filas + '</div>' +
+    '<button type="button" class="sBtn sBtn--l sBtn--w" style="margin-top:14px" onclick="KSAL._firmar(true)">VER CONTRATO COMPLETO</button>' +
+    '<p class="sPie">PARA ACCEDER, CORREGIR, EXPORTAR O SUPRIMIR TUS DATOS ESCRIBE AL CONTACTO INDICADO EN EL CONTRATO. LA FICHA CLÍNICA VALIDADA SE CONSERVA 15 AÑOS POR LEY (20.584); SI PIDES SUPRIMIRLA, SE BLOQUEA.</p></div>')
+}
+async function _cambiar(otorgar, retirar){
+  let ver = null, sha = null
+  if (otorgar.length){ const t = await F.sb.rpc('koach_consentimiento_texto'); if (t.error || !t.data){ alert('No se pudo cargar el contrato'); return } ver = t.data.version; sha = t.data.sha256 }
+  const { data, error } = await F.sb.rpc('koach_consentir', { p_version:ver, p_sha:sha, p_otorgar:otorgar, p_retirar:retirar, p_dispositivo:dispositivo() })
+  if (error){ alert('No se pudo registrar: ' + (error.message || 'error')); return }
+  F.consentimiento = data; if (typeof F.onCambio === 'function') F.onCambio(data); privacidad()
+}
+function _retirar(k){
+  const fin = k === 'salud_contrato' || k === 'salud_datos'
+  if (!confirm(fin ? 'Esto termina el servicio de salud y retira todas tus autorizaciones. ¿Continuar?' : '¿Retirar "' + CASILLAS_RETIRABLES[k] + '"?')) return
+  _cambiar([], [k])
+}
+function _otorgar(k){ _cambiar([k], []) }
+function _firmar(solo){ pasoConsent(solo ? null : () => privacidad()) }
 function pasoElegir(){
   const th = F.archivos.map((a, i) => '<span' + (a.url ? ' style="background-image:url(' + a.url + ')"' : '') + '>' + (a.tipo === 'application/pdf' ? 'PDF' : '') + '</span>').join('')
   ov('SUBIR EXAMEN', '<div class="ksal"><span class="sK">PASO 1 DE 2</span><h3 class="sH">Foto o PDF de tu examen</h3>' +
@@ -261,8 +331,9 @@ function pasoElegir(){
     '<div class="sThumbs" style="margin:14px 0">' + th + '</div>' +
     '<div style="display:grid;gap:8px"><label class="sBtn sBtn--l sBtn--w" style="cursor:pointer">TOMAR FOTO<input type="file" accept="image/*" capture="environment" hidden onchange="KSAL._agregar(this.files)"></label>' +
     '<label class="sBtn sBtn--l sBtn--w" style="cursor:pointer">ELEGIR FOTOS O PDF<input type="file" accept="image/*,application/pdf" multiple hidden onchange="KSAL._agregar(this.files)"></label>' +
-    '<button type="button" class="sBtn sBtn--w" ' + (F.archivos.length ? '' : 'disabled ') + 'onclick="KSAL._leer()">LEER EXAMEN →</button>' +
-    '<button type="button" class="sBtn sBtn--l sBtn--w" style="border-color:transparent" onclick="KSAL._confirmar(null)">INGRESAR VALORES A MANO</button></div></div>')
+    (F.propio && F.consienteIa === false ? '' : '<button type="button" class="sBtn sBtn--w" ' + (F.archivos.length ? '' : 'disabled ') + 'onclick="KSAL._leer()">LEER EXAMEN →</button>') +
+    '<button type="button" class="sBtn sBtn--l sBtn--w" style="border-color:transparent" onclick="KSAL._confirmar(null)">INGRESAR VALORES A MANO</button></div>' +
+    (F.propio && F.consienteIa === false ? '<p class="sPie">LA LECTURA POR FOTO CON IA ESTÁ DESACTIVADA. LAS FOTOS QUEDAN PARA QUE TU PROFESIONAL LAS REVISE; INGRESA LOS VALORES A MANO O ACTIVA LA LECTURA EN MI SALUD → PRIVACIDAD.</p>' : '') + '</div>')
 }
 async function _agregar(fl){
   const lista = Array.from(fl || [])
@@ -347,8 +418,8 @@ async function _guardar(){
   cerrar(); if (typeof F.onListo === 'function') F.onListo(id)
 }
 
-const KSAL = { VERSION:'koach-salud-vista@1.0.0', CSS, ensureCss, vista, detalle, historia, ov, cerrar, subir, CONSENT_V,
-  _aceptar, _agregar, _leer, _confirmar, _fila, _agregarFila, _guardar, _f:F,
+const KSAL = { VERSION:'koach-salud-vista@1.1.0', CSS, ensureCss, vista, detalle, historia, ov, cerrar, subir, privacidad, md,
+  _aceptar, _ckEstado, _retirar, _otorgar, _firmar, _agregar, _leer, _confirmar, _fila, _agregarFila, _guardar, _f:F,
   abrirDetalle: c => { const m = root.KSAL_R && root.KSAL_R.marcadores.find(x => x.codigo === c); if (m) ov(String(m.cat), detalle(m)) },
   subirDesdeApp: () => {} }
 if (typeof module !== 'undefined' && module.exports) module.exports = KSAL
