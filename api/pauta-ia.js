@@ -21,7 +21,7 @@ const ESQUEMA = {
         nombre: { type: 'string', description: 'DESAYUNO, COLACIÓN, ALMUERZO, PRE ENTRENO, POST ENTRENO, CENA…' },
         hora: { type: 'string', description: 'HH:MM' },
         aporte: { type: 'string', description: 'Una frase: qué aporta esta comida al objetivo del día' },
-        opciones: { type: 'array', minItems: 1, maxItems: 2, items: { type: 'object', additionalProperties: false, required: ['etiqueta', 'alimentos'],
+        opciones: { type: 'array', items: { type: 'object', additionalProperties: false, required: ['etiqueta', 'alimentos'],
           properties: { etiqueta: { type: 'string', enum: ['A', 'B'] }, nota: { type: 'string' },
             alimentos: { type: 'array', items: { type: 'object', additionalProperties: false, required: ['alimento', 'cantidad'],
               properties: { alimento: { type: 'string' }, cantidad: { type: 'string', description: 'gramos o medida casera exacta, ej. "150 g", "1 cda", "2 unidades"' } } } } } } }
@@ -78,11 +78,14 @@ Metas 30/60/90 días coherentes con la meta a 6 meses (no inventes otras tasas).
   const r = await json('https://api.anthropic.com/v1/messages', {
     method: 'POST',
     headers: { 'content-type': 'application/json', 'x-api-key': process.env.ANTHROPIC_API_KEY, 'anthropic-version': '2023-06-01' },
-    body: JSON.stringify({ model: MODELO, max_tokens: 6000, tools: [{ name: 'plan_nutricional', description: 'Entrega el plan nutricional estructurado', input_schema: ESQUEMA }],
-      tool_choice: { type: 'tool', name: 'plan_nutricional' }, messages: [{ role: 'user', content: prompt }] })
+    // Salida estructurada con output_config.format: en Sonnet/Opus 5.5 el tool_choice forzado devuelve 400
+    body: JSON.stringify({ model: MODELO, max_tokens: 8000, output_config: { format: { type: 'json_schema', schema: ESQUEMA } }, messages: [{ role: 'user', content: prompt }] })
   })
   if (!r.ok) return res.status(502).json({ error: 'La IA no respondió (' + r.status + ')', detalle: r.d && r.d.error && r.d.error.message })
-  const blk = (r.d.content || []).find(x => x.type === 'tool_use')
-  if (!blk) return res.status(502).json({ error: 'La IA no entregó un plan estructurado' })
-  return res.status(200).json({ plan: blk.input, modelo: MODELO })
+  if (r.d.stop_reason === 'refusal') return res.status(422).json({ error: 'La IA no pudo redactar este plan. Escríbelo a mano.' })
+  if (r.d.stop_reason === 'max_tokens') return res.status(422).json({ error: 'El plan quedó incompleto: reduce comidas u opciones y vuelve a intentar.' })
+  const txt = (r.d.content || []).filter(c => c.type === 'text').map(c => c.text).join('')
+  let plan = null; try { plan = JSON.parse(txt) } catch (_) {}
+  if (!plan) return res.status(502).json({ error: 'La IA no entregó un plan estructurado' })
+  return res.status(200).json({ plan, modelo: MODELO })
 }

@@ -72,13 +72,16 @@ module.exports = async (req, res) => {
   content.push({ type:'text', text:'Transcribe los resultados de este examen.' })
   const r = await json('https://api.anthropic.com/v1/messages', {
     method:'POST', headers:{ 'content-type':'application/json', 'x-api-key':process.env.ANTHROPIC_API_KEY, 'anthropic-version':'2023-06-01' },
-    body: JSON.stringify({ model:MODELO, max_tokens:8000, system:PROMPT, tools:[{ name:'resultado_examen', description:'Resultados transcritos del examen', input_schema:ESQUEMA }],
-      tool_choice:{ type:'tool', name:'resultado_examen' }, messages:[{ role:'user', content }] })
+    // Salida estructurada con output_config.format: en Sonnet/Opus 5.5 el tool_choice forzado devuelve 400
+    body: JSON.stringify({ model:MODELO, max_tokens:8000, system:PROMPT, output_config:{ format:{ type:'json_schema', schema:ESQUEMA } }, messages:[{ role:'user', content }] })
   })
   if (!r.ok) return res.status(502).json({ error:'No se pudo leer el examen (' + r.status + ')', detalle: r.d && r.d.error && r.d.error.message })
-  const blk = (r.d.content || []).find(x => x.type === 'tool_use')
-  if (!blk || !blk.input) return res.status(502).json({ error:'La lectura no devolvió resultados' })
-  const x = blk.input, analitos = Array.isArray(x.analitos) ? x.analitos : []
+  if (r.d.stop_reason === 'refusal') return res.status(422).json({ error:'El documento no pudo procesarse. Ingresa los valores a mano.' })
+  if (r.d.stop_reason === 'max_tokens') return res.status(422).json({ error:'El examen es muy extenso: súbelo en partes (una hoja por vez).' })
+  const txt = (r.d.content || []).filter(c => c.type === 'text').map(c => c.text).join('')
+  let x = null; try { x = JSON.parse(txt) } catch (_) {}
+  if (!x) return res.status(502).json({ error:'La lectura no devolvió resultados' })
+  const analitos = Array.isArray(x.analitos) ? x.analitos : []
   const norm = analitos.map(a => KB.normalizar(a, sexo))
   // un código por examen: si se repite, gana el que tiene valor válido y rango del laboratorio
   const vistos = {}, reconocidos = []
