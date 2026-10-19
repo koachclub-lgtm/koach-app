@@ -2472,11 +2472,12 @@ body.wl-on{overflow:hidden}
 #oAct .kxCl{position:absolute;inset:0;width:100%;height:100%}
 #oAct .kxEdge{position:absolute;left:0;right:0;top:calc(var(--y) - 1px);height:2px;background:linear-gradient(90deg,transparent,#fff,transparent);box-shadow:0 0 24px 6px rgba(200,225,255,.9);opacity:calc(var(--c)*8);pointer-events:none}
 #oAct .kxL{position:absolute;inset:0;pointer-events:none}
-#oAct .kxTop{position:absolute;top:calc(env(safe-area-inset-top,0px) + 22px);left:24px;right:24px;display:flex;justify-content:space-between;align-items:center}
-#oAct .kxTop img{height:16px;width:auto}
+#oAct .kxTop{position:absolute;top:calc(env(safe-area-inset-top,0px) + 30px);left:24px;right:24px;display:flex;flex-direction:column;align-items:center;gap:12px;text-align:center}
+#oAct .kxTop img{height:30px;width:auto}
 #oAct .kxL--l .kxTop img{filter:invert(1)}
 #oAct .kxK{font:700 9px var(--font-mono);letter-spacing:.16em;opacity:.7}
-#oAct .kxHl{position:absolute;left:24px;right:24px;bottom:calc(env(safe-area-inset-bottom,0px) + 66px);margin:0;font:500 clamp(26px,7.6vw,32px)/1.07 var(--font-display);letter-spacing:-.02em;text-transform:none}
+#oAct .kxHl{position:absolute;left:24px;right:24px;bottom:calc(env(safe-area-inset-bottom,0px) + 66px);margin:0;font:500 clamp(24px,6.8vw,30px)/1.1 var(--font-display);letter-spacing:-.02em;text-transform:none}
+#oAct .kxHl .kxSub{display:block;margin-top:12px;font:400 15px/1.4 var(--font-display);letter-spacing:0;opacity:.72}
 #oAct .kxHl em{font-style:normal;opacity:.42}
 #oAct .kxHint{position:absolute;left:24px;right:24px;bottom:calc(env(safe-area-inset-bottom,0px) + 32px);font:700 8.5px var(--font-mono);letter-spacing:.18em;opacity:.6}
 #oAct .kxGo{position:absolute;left:18px;right:18px;top:21%;height:84px;border-radius:42px;border:0;cursor:pointer;color:#fff;padding:0 18px 0 26px;display:flex;align-items:center;justify-content:space-between;text-align:left;
@@ -3817,8 +3818,11 @@ function kxPreparar(ses, prim, ret){
   o.querySelectorAll('.kxL--d .kxHint').forEach(e=>e.textContent=ret?'TOCA START PARA RETOMAR':'TOCA START PARA ENCENDER')
   o.querySelectorAll('.kxL--l .kxHint').forEach(e=>e.textContent=ret?'RETOMANDO SESIÓN…':'ENCENDIENDO SESIÓN…')
   const nm=(n=>n.charAt(0)+n.slice(1).toLowerCase())
-  const foco=(prim||[]).slice(0,2).map(g=>nm(String(g))), em=foco.length?(foco.length>1?foco[0]+' y '+foco[1].toLowerCase():foco[0])+' al frente':'Tu sesión de hoy'
-  const hl='<em>'+plEscA(em)+'</em> — '+(KX_TAG[prog]||'fuerza que se construye set a set.')
+  // c177 · descripción del día: tipo de sesión + foco muscular + cierre de marca
+  const foco=(prim||[]).slice(0,2).map(g=>String(g).toLowerCase()), fz=foco.length>1?foco[0]+' y '+foco[1]:(foco[0]||'')
+  const TIPO={lower:'piernas',upper:'tren superior',total:'cuerpo completo',metabolic:'acondicionamiento metabólico'}, tp=TIPO[sessionTipo(ses.nombre)]
+  const hl=(ret?'<em>Retomamos tu sesión'+(tp?' de '+tp:'')+'</em>':'<em>Hoy toca '+(tp||'entrenar')+'</em>')+(fz?' con foco en '+plEscA(fz):'')+'.'+
+    '<span class="kxSub">'+(ret?'Continúa donde quedaste: cada serie suma a tu versión más fuerte.':'Prepárate para una sesión que va a construir tu versión más fuerte.')+'</span>'
   o.querySelectorAll('.kxK').forEach(e=>e.textContent=k); o.querySelectorAll('.kxHl').forEach(e=>e.innerHTML=hl)
   const n=String(Math.max(1,(S.totalSes||0)+1)).padStart(5,'0')
   document.getElementById('kxGoS').textContent=String(ses.nombre||'SESIÓN').toUpperCase().replace('★ ','')+' · SESSION Nº '+n
@@ -3843,10 +3847,10 @@ function kxCromo(){ if(KX.run) return; const cd=document.getElementById('kxCd'),
    (ítem ≤2 o 3+ puntos bajo su promedio de 4 semanas) y el coach lo ve en Sala y en la ficha. */
 // c175 · vocabulario técnico (anclas del cuestionario de McLean et al. 2010 adaptadas al español)
 const BN_Q=[['sueno','CALIDAD DE SUEÑO','¿Cómo dormiste anoche?','INSOMNIO','MUY REPARADOR'],
-  ['energia','NIVEL DE ENERGÍA','¿Con cuánta energía llegas hoy?','SIN ENERGÍA','A TOPE'],
+  ['energia','NIVEL DE ENERGÍA','¿Con cuánta energía llegas hoy?','AGOTADO','MUY DESCANSADO'],
   ['doms','DOLOR MUSCULAR · DOMS','¿Cómo están tus músculos del entreno anterior?','DOMS SEVERO','SIN DOMS'],
   ['estres','ESTRÉS PERCIBIDO','¿Cómo está tu cabeza hoy?','ESTRÉS MUY ALTO','MUY RELAJADO'],
-  ['animo','MOTIVACIÓN','¿Con qué ganas vienes a entrenar?','SIN GANAS','VOY CON TODO']]
+  ['animo','MOTIVACIÓN','¿Qué tan motivado llegas a entrenar?','SIN MOTIVACIÓN','MUY MOTIVADO']]
 const BN_TXT={ OPTIMO:['ESTADO ÓPTIMO','Recuperación completa.'],
   BUENO:['ESTADO ADECUADO','Recuperación suficiente.'],
   MODERADO:['RECUPERACIÓN INCOMPLETA','Recuperación parcial.'],
@@ -3859,30 +3863,30 @@ async function bnPedir(){ try{
   bnMostrar(rid) }catch(_){} }
 /* c172 · CHECK-IN en pantallas: un ítem por pantalla con dial en arco (1–5) que se desliza; el fondo pasa de cromo negro (1) a cromo claro (5)
    con los mismos fondos metálicos de la sesión, y un cerebro abstracto desenfocado detrás que se enciende con el nivel. */
-const BN_DESC={ sueno:['Casi no dormí','Dormí poco','Sueño irregular','Dormí bien','Dormí increíble'],
-  energia:['Sin energía','Cansado','Normal','Con pilas','A tope'],
-  doms:['Mucho dolor','Bastante dolor','Algo de dolor','Casi nada','Sin dolor'],
-  estres:['Muy estresado','Estresado','Normal','Tranquilo','Relajado'],
-  animo:['Sin ganas','Poca motivación','Vengo a cumplir','Motivado','Voy con todo'] }
-// c176 · frase de referencia en primera persona para cada valor: ayuda a ubicarse en la escala
-const BN_EJ={ sueno:['Casi no dormí o me desperté muchas veces.','Dormí pocas horas y me levanté cansado.','Dormí, pero me costó quedarme dormido o desperté a ratos.','Dormí bien, mis horas de siempre.','Dormí de corrido y desperté renovado.'],
-  energia:['Llego sin energía, me cuesta moverme.','Estoy más cansado de lo normal.','Tengo mi energía de siempre.','Me siento fresco y con pilas.','Energía a tope: listo para levantar pesado.'],
-  doms:['Me duele mucho el entreno anterior, me cuesta moverme.','Siento bastante dolor muscular.','Algo de dolor, nada que me frene.','Apenas lo siento.','Cero dolor: músculos como nuevos.'],
-  estres:['Estoy muy estresado: trabajo, estudios o temas personales.','Ando estresado y con la cabeza en otra parte.','Un día normal, nada fuera de lo común.','Tranquilo y enfocado.','Relajado y con la cabeza despejada.'],
-  animo:['Hoy no tengo ganas de entrenar.','Me cuesta motivarme.','Vengo a cumplir con mi sesión.','Motivado, con ganas de entrenar.','Voy con todo: hoy quiero levantar mucho peso.'] }
+const BN_DESC={ sueno:['Muy mal','Mal','Regular','Bien','Muy bien'],
+  energia:['Agotado','Cansado','Normal','Descansado','Muy descansado'],
+  doms:['Dolor severo','Dolor moderado','Dolor leve','Mínimo','Sin dolor'],
+  estres:['Muy alto','Alto','Normal','Bajo','Muy bajo'],
+  animo:['Sin motivación','Motivación baja','Motivación normal','Motivado','Muy motivado'] }
+// c177 · frase de referencia en primera persona para cada valor (vocabulario de coach)
+const BN_EJ={ sueno:['Casi no dormí o me desperté muchas veces.','Dormí pocas horas y desperté cansado.','Dormí, pero me costó conciliar el sueño o desperté a ratos.','Dormí bien, mis horas habituales.','Dormí profundo y desperté recuperado.'],
+  energia:['Llego agotado, me cuesta moverme.','Estoy más cansado de lo habitual.','Tengo mi nivel de energía habitual.','Me siento descansado y con energía para entrenar.','Me siento muy descansado y con energía para cargas altas.'],
+  doms:['Tengo mucho dolor del entrenamiento anterior y me cuesta moverme.','Siento dolor muscular moderado.','Algo de dolor, nada que limite el movimiento.','Apenas siento molestias.','Sin dolor: músculos recuperados.'],
+  estres:['Estoy muy estresado por trabajo, estudios o temas personales.','Estoy estresado y me cuesta concentrarme.','Un día normal, sin estrés fuera de lo habitual.','Estoy tranquilo y concentrado.','Estoy relajado y con la mente despejada.'],
+  animo:['Hoy no tengo motivación para entrenar.','Me cuesta motivarme.','Vengo con la motivación de siempre.','Estoy motivado y con ganas de entrenar.','Estoy muy motivado y con ganas de superar mis marcas.'] }
 const BN_LOW={ sueno:'tu descanso', energia:'tu energía', doms:'tu recuperación muscular', estres:'tu nivel de estrés', animo:'tu motivación' }
 // c176 · cierre siempre motivador (voz KOACH · el club del 1%), con lectura personalizada de lo que contó
-const BN_HYPE={ OPTIMO:['HOY ESTAMOS A TOPE.','Llegas recuperado y con todo. Hoy vamos por esa nueva marca: entrena como nunca, con técnica de élite.','VAMOS POR MÁS · EL CLUB DEL 1%'],
-  BUENO:['BUENA BASE PARA CONSTRUIR.','Llegas en buen estado para tu sesión. Ejecútala tal como está planificada y suma otro paso hacia tu versión más fuerte.','CADA SET CUENTA · EL CLUB DEL 1%'],
-  MODERADO:['HOY SE ENTRENA CON CABEZA.','','EL 1% NO TIENE DÍAS MALOS.'],
+const BN_HYPE={ OPTIMO:['LISTO PARA RENDIR AL MÁXIMO.','Llegas bien recuperado. Es un buen día para buscar una nueva marca, siempre con técnica impecable.','VAMOS POR MÁS · EL CLUB DEL 1%'],
+  BUENO:['BUENA DISPOSICIÓN PARA ENTRENAR.','Llegas en buen estado. Ejecuta tu sesión tal como está planificada y sigue construyendo tu versión más fuerte.','CADA SERIE CUENTA · EL CLUB DEL 1%'],
+  MODERADO:['HOY PRIORIZAMOS LA TÉCNICA.','','EL 1% NO TIENE DÍAS MALOS.'],
   BAJO:['EL 1% NO TIENE DÍAS MALOS.','','SEGUIMOS CONSTRUYENDO · EL CLUB DEL 1%'] }
 function bnLista(a){ return a.length<2?(a[0]||''):a.slice(0,-1).join(', ')+' y '+a[a.length-1] }
 function bnMensaje(d,v){ const n=d.nivel||'BUENO', H=BN_HYPE[n]||BN_HYPE.BUENO, bajos=BN_Q.filter(q=>v[q[0]]<=2).map(q=>BN_LOW[q[0]]), medios=BN_Q.filter(q=>v[q[0]]===3).map(q=>BN_LOW[q[0]])
   let t=H[1]
-  if(n==='MODERADO'){ const l=bajos.length?bajos:medios.slice(0,2); t='Por lo que nos cuentas, '+(l.length?bnLista(l):'tu estado')+' hoy no '+(l.length>1?'están':'está')+' al 100%. Vamos con cuidado: técnica primero, cargas controladas y coméntalo con tu coach. Igual lo vamos a dar todo.' }
-  if(n==='BAJO'){ t='Hoy '+(bajos.length?bnLista(bajos.slice(0,2)):'tu cuerpo')+' te '+((bajos.length>1)?'están':'está')+' pasando la cuenta. Cuidaremos las cargas —si es necesario las bajamos— y tu coach ya lo sabe. Pero vamos a entrenar: cada sesión construye ese cuerpo fuerte.' }
+  if(n==='MODERADO'){ const l=bajos.length?bajos:medios.slice(0,2); t='Por lo que nos cuentas, '+(l.length?bnLista(l):'tu estado')+' hoy no '+(l.length>1?'están':'está')+' al 100%. Cuida las cargas, controla cada repetición y coméntalo con tu coach. Igual lo vamos a dar todo.' }
+  if(n==='BAJO'){ t='Hoy '+(bajos.length?bnLista(bajos.slice(0,2)):'tu cuerpo')+' te '+((bajos.length>1)?'están':'está')+' pasando la cuenta. Tu coach ya lo sabe: ajustaremos las cargas si es necesario, cuidando la técnica en cada serie. Seguimos construyendo ese cuerpo fuerte.' }
   if((n==='OPTIMO'||n==='BUENO') && bajos.length) t+=' Ojo con '+bnLista(bajos)+': coméntalo con tu coach.'
-  if(v.doms<=2) t+=' Calienta bien la zona con dolor antes de cargar.'
+  if(v.doms<=2) t+=' Haz un calentamiento específico de la zona con dolor antes de cargar.'
   return { tit:H[0], txt:t, cierre:H[2] } }
 /* c176 · ARTE DE PUNTOS (holográfico, puntos blancos sobre negro): esfera, terreno, cinta y montaña en 3D con profundidad de campo
    simulada por tamaño y opacidad de cada punto — sin filtros de canvas (Safari no los soporta y quedaba pixelado). Nítido en pantallas retina. */
@@ -3980,8 +3984,7 @@ async function kxWellness(ret){ try{
   const o=document.getElementById('oAct'), b=o&&o.querySelector('#kxGo b'); if(!b) return
   b.textContent='START'; if(ret || !S.regId || pvEmpezada()) return
   const r=await sb.from('bienestar_checkins').select('id').eq('registro_id',S.regId).maybeSingle(); if(r.error||r.data) return
-  b.textContent='TEST WELLNESS'
-  o.querySelectorAll('.kxHl').forEach(e=>e.innerHTML='<em>Queremos saber cómo llegas hoy</em> — para lo que te tenemos preparado.')
+  b.textContent='TEST WELLNESS'; const sm=o.querySelector('#kxGoS'); if(sm) sm.textContent='ANTES DE ENTRENAR · COMENZAR'
   o.querySelectorAll('.kxL--d .kxHint').forEach(e=>e.textContent='TOCA PARA COMENZAR TU TEST WELLNESS')
   o.querySelectorAll('.kxL--l .kxHint').forEach(e=>e.textContent='PREPARANDO TU TEST WELLNESS…') }catch(_){} }
 function kxEncender(){ if(KX.busy) return; KX.busy=true
