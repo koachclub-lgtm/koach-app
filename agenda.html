@@ -130,6 +130,9 @@ button{cursor:pointer}
 .login__box img{width:150px;filter:brightness(0);margin-bottom:8px}
 .login__box h1{font-family:var(--display);font-weight:800;font-stretch:110%;font-size:28px;margin:0 0 6px;letter-spacing:-.01em}
 
+/* Dentro del panel del coach: sin la fila de marca (la pone el shell) */
+html.embed .hd__row:first-child{display:none}
+html.embed .hd{padding-top:12px}
 @media (max-width:760px){
   .hd{padding:10px 16px}
   .kpis{grid-template-columns:repeat(2,minmax(0,1fr));margin:12px 16px 0}
@@ -196,6 +199,8 @@ const SERV={
 }
 const ESTADOS={retenida:'Esperando datos',agendada:'Agendada',confirmada:'Confirmada',asistio:'Asistió',no_asistio:'No asistió',cancelada:'Cancelada'}
 const H0=6, H1=22
+const EMBED=new URLSearchParams(location.search).has('embed')
+if(EMBED)document.documentElement.classList.add('embed')
 const S={yo:null,vista:innerWidth<760?'dia':'semana',fecha:hoyCL(),filtro:'todas',citas:[],reglas:[]}
 
 // ---------- Fechas en hora de Chile ----------
