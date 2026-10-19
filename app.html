@@ -440,7 +440,7 @@ html.accBloq #pfCard, html.accBloq #vPerfil .kpc__f, html.accBloq #vPerfil [oncl
 .bnX__hint{margin-top:6px;font:400 9px var(--font-mono);letter-spacing:.16em;color:var(--mu)}
 .bnX__act{display:flex;gap:10px;margin-top:16px}
 .bnX__back{width:56px;min-height:56px;flex:none;border-radius:50%;border:1.5px solid var(--ln);background:rgba(255,255,255,.08);color:var(--ink);font:400 20px var(--font-mono);cursor:pointer}
-.bnX__go{flex:1;min-height:56px;border:0;border-radius:28px;background:var(--ink);color:#D9DADC;font:700 11px var(--font-mono);letter-spacing:.16em;cursor:pointer}.bnX--dk .bnX__go{color:#101012}
+.bnX__go{flex:1;min-height:56px;border:0;border-radius:28px;background:var(--ink);color:#D9DADC;font:800 14px var(--font-display);letter-spacing:.08em;text-transform:uppercase;cursor:pointer}.bnX--dk .bnX__go{color:#101012}
 .bnX__go:disabled{background:var(--ln);color:var(--mu);cursor:default}
 .bnX__ev{margin-top:10px;font:400 7.5px/1.4 var(--font-mono);letter-spacing:.12em;color:var(--mu);text-align:center}
 .bnX--in .bnX__stage,.bnX--in .bnX__q{animation:bnIn .32s cubic-bezier(.2,.8,.2,1)}
@@ -448,6 +448,15 @@ html.accBloq #pfCard, html.accBloq #vPerfil .kpc__f, html.accBloq #vPerfil [oncl
 .bnX--out{transition:opacity .25s;opacity:0}
 .bnX__res{flex:1;display:flex;flex-direction:column;justify-content:flex-end;gap:14px;animation:bnIn .4s cubic-bezier(.2,.8,.2,1)}
 .bnX__tot{display:flex;align-items:baseline;gap:4px}.bnX__tot b{font:700 clamp(96px,30vw,140px)/.85 var(--font-mono);letter-spacing:-.06em}.bnX__tot i{font:700 22px var(--font-mono);font-style:normal;color:var(--mu)}
+.bnX--anim .bnA{opacity:0;transform:translateY(14px);transition:opacity .45s ease,transform .55s cubic-bezier(.2,.8,.2,1);transition-delay:var(--d,0ms)}
+.bnX--anim .bnA.in{opacity:1;transform:none}
+.bnX__pp i{transition:background .18s}.bnX__pp i.pop{animation:bnPop .32s cubic-bezier(.2,.9,.3,1.4)}
+@keyframes bnPop{0%{transform:scaleX(.2)}100%{transform:none}}
+.bnX--hit .bnX__tot b{animation:bnHit .6s cubic-bezier(.2,.9,.3,1.3)}
+@keyframes bnHit{0%{transform:scale(1)}35%{transform:scale(1.12);text-shadow:0 0 34px rgba(255,255,255,.55)}100%{transform:none;text-shadow:none}}
+.bnX--hit::after{content:'';position:absolute;inset:0;background:radial-gradient(circle at 30% 30%,rgba(255,255,255,.28),transparent 60%);animation:bnFl .7s ease-out forwards;pointer-events:none;z-index:2}
+@keyframes bnFl{from{opacity:1}to{opacity:0}}
+.bnX__tot b{display:inline-block;transform-origin:left bottom;font-variant-numeric:tabular-nums}
 .bnX__niv{font:800 clamp(24px,7vw,30px)/1.05 var(--font-display);letter-spacing:-.01em}
 .bnX__its{display:grid;gap:8px;padding:12px 0;border-top:1px solid var(--ln);border-bottom:1px solid var(--ln)}
 .bnX__its>div{display:grid;grid-template-columns:1fr auto 16px;align-items:center;gap:12px}.bnX__its small{font:700 9.5px var(--font-mono);letter-spacing:.14em}.bnX__its b{font:700 13px var(--font-mono);text-align:right}
@@ -3876,10 +3885,10 @@ const BN_EJ={ sueno:['Casi no dormí o me desperté muchas veces.','Dormí pocas
   animo:['Hoy no tengo motivación para entrenar.','Me cuesta motivarme.','Vengo con la motivación de siempre.','Estoy motivado y con ganas de entrenar.','Estoy muy motivado y con ganas de superar mis marcas.'] }
 const BN_LOW={ sueno:'tu descanso', energia:'tu energía', doms:'tu recuperación muscular', estres:'tu nivel de estrés', animo:'tu motivación' }
 // c176 · cierre siempre motivador (voz KOACH · el club del 1%), con lectura personalizada de lo que contó
-const BN_HYPE={ OPTIMO:['LISTO PARA RENDIR AL MÁXIMO.','Llegas bien recuperado. Es un buen día para buscar una nueva marca, siempre con técnica impecable.','VAMOS POR MÁS · EL CLUB DEL 1%'],
-  BUENO:['BUENA DISPOSICIÓN PARA ENTRENAR.','Llegas en buen estado. Ejecuta tu sesión tal como está planificada y sigue construyendo tu versión más fuerte.','CADA SERIE CUENTA · EL CLUB DEL 1%'],
-  MODERADO:['HOY PRIORIZAMOS LA TÉCNICA.','','EL 1% NO TIENE DÍAS MALOS.'],
-  BAJO:['EL 1% NO TIENE DÍAS MALOS.','','SEGUIMOS CONSTRUYENDO · EL CLUB DEL 1%'] }
+const BN_HYPE={ OPTIMO:['LISTO PARA RENDIR AL MÁXIMO EN {S}.','Llegas bien recuperado. Es un buen día para buscar una nueva marca, siempre con técnica impecable.','1% MÁS FUERTE CADA DÍA.'],
+  BUENO:['BUENA DISPOSICIÓN PARA {S}.','Llegas en buen estado. Ejecuta tu sesión tal como está planificada y sigue construyendo tu versión más fuerte.','1% MÁS FUERTE CADA DÍA.'],
+  MODERADO:['HOY PRIORIZAMOS LA TÉCNICA EN {S}.','','EL 1% NO TIENE DÍAS MALOS.'],
+  BAJO:['EL 1% NO TIENE DÍAS MALOS.','','1% MÁS FUERTE CADA DÍA.'] }
 function bnLista(a){ return a.length<2?(a[0]||''):a.slice(0,-1).join(', ')+' y '+a[a.length-1] }
 function bnMensaje(d,v){ const n=d.nivel||'BUENO', H=BN_HYPE[n]||BN_HYPE.BUENO, bajos=BN_Q.filter(q=>v[q[0]]<=2).map(q=>BN_LOW[q[0]]), medios=BN_Q.filter(q=>v[q[0]]===3).map(q=>BN_LOW[q[0]])
   let t=H[1]
@@ -3887,18 +3896,20 @@ function bnMensaje(d,v){ const n=d.nivel||'BUENO', H=BN_HYPE[n]||BN_HYPE.BUENO, 
   if(n==='BAJO'){ t='Hoy '+(bajos.length?bnLista(bajos.slice(0,2)):'tu cuerpo')+' te '+((bajos.length>1)?'están':'está')+' pasando la cuenta. Tu koach ya lo sabe: ajustaremos las cargas si es necesario, cuidando la técnica en cada serie. Seguimos construyendo ese cuerpo fuerte.' }
   if((n==='OPTIMO'||n==='BUENO') && bajos.length) t+=' Ojo con '+bnLista(bajos)+': coméntalo con tu koach.'
   if(v.doms<=2) t+=' Haz un calentamiento específico de la zona con dolor antes de cargar.'
-  return { tit:H[0], txt:t, cierre:H[2] } }
+  const sn=String((S.sesionAbierta&&S.sesionAbierta.nombre)||'').replace(/^★\s*/,'').replace(/^S\d+\s*[—-]\s*/,'').trim().toUpperCase()
+  const tit=H[0].replace(' EN {S}',sn?' EN '+sn:'').replace(' PARA {S}',sn?' PARA '+sn:' PARA ENTRENAR')
+  return { tit:tit, txt:t, cierre:H[2] } }
 /* c176 · ARTE DE PUNTOS (holográfico, puntos blancos sobre negro): esfera, terreno, cinta y montaña en 3D con profundidad de campo
    simulada por tamaño y opacidad de cada punto — sin filtros de canvas (Safari no los soporta y quedaba pixelado). Nítido en pantallas retina. */
 const BN_TONO=['#050506','#08090B','#0B0C0E','#070809','#0A0A0C'], BN_ARTE=['esfera','terreno','cinta','montana','esfera2']
 function kRnd(seed){ let s=seed>>>0||1; return ()=>{ s^=s<<13; s^=s>>>17; s^=s<<5; return ((s>>>0)%100000)/100000 } }
-function bnArte(cv, tipo, base, ka){ ka=ka||1; try{
+function bnArte(cv, tipo, base, ka, op){ ka=ka||1; op=op||{}; try{
   const dpr=Math.min(2,window.devicePixelRatio||1), W=cv.clientWidth||innerWidth, H=cv.clientHeight||innerHeight
-  cv.width=Math.round(W*dpr); cv.height=Math.round(H*dpr); const x=cv.getContext('2d'); x.setTransform(dpr,0,0,dpr,0,0)
+  if(cv.width!==Math.round(W*dpr)) cv.width=Math.round(W*dpr); if(cv.height!==Math.round(H*dpr)) cv.height=Math.round(H*dpr); const x=cv.getContext('2d'); x.setTransform(dpr,0,0,dpr,0,0)
   x.fillStyle=base; x.fillRect(0,0,W,H)
   const R=kRnd(tipo.length*97+13), P=[]   // [x,y,radio,alfa]
   const dof=(foc)=>Math.min(1,Math.abs(foc))
-  if(tipo==='esfera'||tipo==='esfera2'){ const big=tipo==='esfera', cx=big?W*.9:W*.12, cy=big?H*.28:H*.78, r=Math.min(W,H)*(big?.46:.42), N=big?1700:1300, ga=Math.PI*(3-Math.sqrt(5)), rot=.5
+  if(tipo==='esfera'||tipo==='esfera2'){ const big=tipo==='esfera', cx=big?W*.9:W*.12, cy=big?H*.28:H*.78, r=Math.min(W,H)*(big?.46:.42)*(op.sc||1), N=big?1700:1300, ga=Math.PI*(3-Math.sqrt(5)), rot=op.rot!=null?op.rot:.5
     for(let i=0;i<N;i++){ const y=1-2*(i+.5)/N, rr=Math.sqrt(1-y*y), th=i*ga+rot, X=Math.cos(th)*rr, Z=Math.sin(th)*rr
       const front=(Z+1)/2, rim=Math.pow(1-Math.abs(Z),3), px=cx+X*r, py=cy+y*r*0.98
       P.push([px,py,.55+1.25*front, Math.min(.85,.10+.38*front+.45*rim)]) } }
@@ -3917,7 +3928,7 @@ function bnArte(cv, tipo, base, ka){ ka=ka||1; try{
         P.push([X,Y,(.6+1.2*fr)+foc*3,(.12+.42*fr)*(1-foc*.75)+.04]) } } }
   P.forEach(p=>{ const g=Math.min(1,p[3])*ka; x.fillStyle='rgba(240,242,246,'+g.toFixed(3)+')'; x.beginPath(); x.arc(p[0],p[1],p[2],0,6.2832); x.fill() })
   if(tipo==='esfera'||tipo==='esfera2'){ const big=tipo==='esfera', cx=big?W*.9:W*.12, cy=big?H*.28:H*.78, r=Math.min(W,H)*(big?.46:.42)
-    const g=x.createRadialGradient(cx,cy,r*.82,cx,cy,r*1.18); g.addColorStop(0,'rgba(220,226,236,0)'); g.addColorStop(.35,'rgba(220,226,236,.10)'); g.addColorStop(1,'rgba(220,226,236,0)'); x.fillStyle=g; x.fillRect(0,0,W,H) }
+    const rr=r*(op.sc||1), g=x.createRadialGradient(cx,cy,rr*.82,cx,cy,rr*1.18); g.addColorStop(0,'rgba(220,226,236,0)'); g.addColorStop(.35,'rgba(220,226,236,.10)'); g.addColorStop(1,'rgba(220,226,236,0)'); x.fillStyle=g; x.fillRect(0,0,W,H) }
   // velo inferior: la zona de texto y botones siempre domina
   const v=x.createLinearGradient(0,H*.55,0,H); v.addColorStop(0,base+'00'); v.addColorStop(.45,base+'B3'); v.addColorStop(1,base+'F2'); x.fillStyle=v; x.fillRect(0,H*.55,W,H*.45)
 }catch(_){} }
@@ -3966,19 +3977,35 @@ function bnMostrar(rid){ document.getElementById('bnT')&&document.getElementById
     S._bn=S._bn||{}; S._bn[rid]=true; bnResultado(o, r.data||{}, v, fondo) }
   window.addEventListener('resize',()=>{ if(document.body.contains(o)&&!o.classList.contains('bnX--res')){ geo(); pinta(Z.cur) } })
   requestAnimationFrame(()=>{ geo(); paso(); o.classList.add('bnX--in'); o.tabIndex=-1; o.focus() }) }
-function bnResultado(o, d, v, fondo){ const al=d.alertas||[], m=bnMensaje(d,v)
-  o.classList.add('bnX--res'); if(fondo) fondo(9,'esfera','#060607',.5)
+function bnResultado(o, d, v, fondo){ const al=d.alertas||[], m=bnMensaje(d,v), RM=matchMedia('(prefers-reduced-motion: reduce)').matches, tot=+d.total||0
+  o.classList.add('bnX--res','bnX--anim'); if(fondo) fondo(9,'esfera','#060607',.5)
   o.querySelectorAll('.bnX__k,.bnX__stage,.bnX__q,.bnX__ej,.bnX__hint,.bnX__act').forEach(x=>x.remove())
   o.querySelector('.bnX__st').textContent='WELLNESS SCORE'
   const cuida=BN_Q.filter(q=>v[q[0]]<=2).map(q=>q[1])
   const box=document.createElement('div'); box.className='bnX__res'
-  box.innerHTML='<div class="bnX__tot"><b>'+(d.total||'—')+'</b><i>/25</i></div><div class="bnX__niv">'+m.tit+'</div>'+
-    '<div class="bnX__its">'+BN_Q.map(q=>'<div><small>'+q[1]+'</small><span class="bnX__pp">'+[1,2,3,4,5].map(n=>'<i class="'+(n<=v[q[0]]?'on':'')+'"></i>').join('')+'</span><b>'+v[q[0]]+'</b></div>').join('')+'</div>'+
-    ((cuida.length||al.indexOf('BAJO_SU_NORMAL')>=0)?'<div class="bnX__al"><small>HOY CUIDAMOS</small>'+cuida.map(a=>'<em>'+a+'</em>').join('')+(al.indexOf('BAJO_SU_NORMAL')>=0?'<em>BAJO TU PROMEDIO</em>':'')+'</div>':'')+
-    '<p class="bnX__msg">'+m.txt+'</p><p class="bnX__hype">'+m.cierre+'</p><p class="bnX__coach">RESULTADO SINCRONIZADO CON TU KOACH</p>'+
-    '<button type="button" class="bnX__go bnX__go--fin">A ENTRENAR →</button>'
+  box.innerHTML='<div class="bnX__tot"><b>0</b><i>/25</i></div><div class="bnX__niv bnA">'+m.tit+'</div>'+
+    '<div class="bnX__its">'+BN_Q.map((q,i)=>'<div class="bnA" style="--d:'+(i*90)+'ms"><small>'+q[1]+'</small><span class="bnX__pp">'+[1,2,3,4,5].map(n=>'<i></i>').join('')+'</span><b>0</b></div>').join('')+'</div>'+
+    ((cuida.length||al.indexOf('BAJO_SU_NORMAL')>=0)?'<div class="bnX__al bnA">'+'<small>HOY CUIDAMOS</small>'+cuida.map(a=>'<em>'+a+'</em>').join('')+(al.indexOf('BAJO_SU_NORMAL')>=0?'<em>BAJO TU PROMEDIO</em>':'')+'</div>':'')+
+    '<p class="bnX__msg bnA">'+m.txt+'</p><p class="bnX__hype bnA">'+m.cierre+'</p><p class="bnX__coach bnA">RESULTADO SINCRONIZADO CON TU KOACH</p>'+
+    '<button type="button" class="bnX__go bnX__go--fin bnA">A ENTRENAR →</button>'
   o.insertBefore(box, o.querySelector('.bnX__ev'))
-  box.querySelector('.bnX__go').onclick=()=>{ o.classList.add('bnX--out'); setTimeout(()=>o.remove(),260) } }
+  box.querySelector('.bnX__go').onclick=()=>{ o.classList.add('bnX--out'); setTimeout(()=>o.remove(),260) }
+  // c179 · ANIMACIÓN DEL RESULTADO: la esfera de puntos se arma girando, el puntaje sube de 0 al total, cada ítem enciende sus barras
+  // en secuencia, golpe (vibración + destello + rebote del número) y entran título, mensaje y botón.
+  const nb=box.querySelector('.bnX__tot b'), filas=[...box.querySelectorAll('.bnX__its>div')], cv=o.querySelector('.bnX__bg.on')
+  const ver=(el)=>el&&el.classList.add('in')
+  const fin=()=>{ nb.textContent=tot; filas.forEach((f,i)=>{ const n=v[BN_Q[i][0]]; f.querySelectorAll('.bnX__pp i').forEach((p,k)=>p.classList.toggle('on',k<n)); f.querySelector('b').textContent=n }); box.querySelectorAll('.bnA').forEach(ver) }
+  if (RM){ fin(); return }
+  const t0=performance.now(), D=1500, ease=t=>1-Math.pow(1-t,3)
+  setTimeout(()=>{ filas.forEach(ver) },120)
+  filas.forEach((f,i)=>{ const n=v[BN_Q[i][0]], pp=f.querySelectorAll('.bnX__pp i'), b=f.querySelector('b')
+    for(let k=0;k<n;k++) setTimeout(()=>{ pp[k].classList.add('on','pop'); b.textContent=k+1; try{ if(navigator.vibrate&&k===n-1) navigator.vibrate(4) }catch(_){} }, 300+i*170+k*85) })
+  const st=now=>{ const k=Math.min(1,(now-t0)/D), e=ease(k); nb.textContent=Math.round(tot*e)
+    if(cv) bnArte(cv,'esfera','#060607',.5*(.35+.65*e),{rot:.5+(1-e)*2.4, sc:.72+.28*e})
+    if(k<1) return requestAnimationFrame(st)
+    o.classList.add('bnX--hit'); try{ navigator.vibrate&&navigator.vibrate([25,40,70]) }catch(_){}
+    ;[['.bnX__niv',0],['.bnX__al',140],['.bnX__msg',260],['.bnX__hype',400],['.bnX__coach',520],['.bnX__go',600]].forEach(z=>setTimeout(()=>ver(box.querySelector(z[0])),z[1])) }
+  requestAnimationFrame(st) }
 /* c176 · la pantalla de encendido anuncia el test cuando falta (en vez de START) */
 async function kxWellness(ret){ try{
   const o=document.getElementById('oAct'), b=o&&o.querySelector('#kxGo b'); if(!b) return
