@@ -2293,6 +2293,11 @@ body.wl-on{overflow:hidden}
 .avErr span{font-size:14.5px;color:#5E5D59}
 .avErr button{align-self:flex-start;min-height:44px;padding:0 16px;margin-top:4px;border-radius:12px;border:1px solid #121212;background:#121212;color:#F4F3F0;font-family:var(--font-mono);font-size:12px;letter-spacing:.12em;cursor:pointer}
 #vLogin{background:#000}
+/* c185 · historial de la sesión de hoy: subir foto y compartir */
+.hx__share{width:100%;display:flex;align-items:center;justify-content:space-between;gap:12px;margin:0 0 16px;padding:16px 18px;border:0;border-radius:18px;background:#121212;color:#F4F3F0;cursor:pointer;text-align:left}
+.hx__share b{display:block;font-family:var(--font-mono);font-weight:500;font-size:12px;letter-spacing:.14em}
+.hx__share small{display:block;margin-top:4px;font-family:var(--font-mono);font-size:9.5px;letter-spacing:.12em;opacity:.65}
+.hx__share i{font-style:normal;font-size:18px}
 /* c158 · cierre de sesión: el resumen SÓLIDO a pantalla completa, sin pestañas; COMPARTIR PROGRESO abre el menú con foto y filtros */
 #oShare.kset--fin .kset__seg,#oShare.kset--fin .kset__prog{display:none}
 /* c165 · EDITOR EN UNA PANTALLA: arriba todas las opciones en filas de un toque (deslizables), al medio la imagen editada que se ajusta al alto, abajo la salida directa */
@@ -6669,7 +6674,9 @@ async function verHist(regId){
     document.getElementById('hsStats').innerHTML = st.map(x=>'<div><b>'+x[0]+'</b><small>'+x[1]+'</small></div>').join('')
     const gr=[...grupos].sort(ordMusc)
     const trab = gr.length ? '<section class="hx__tr"><div class="hx__bh">TRABAJASTE</div><div class="hx__grs">'+gr.map(g=>'<div class="hx__g">'+muscleIcon(g,'compact')+'<span>'+muscleNombre(g)+'</span></div>').join('')+'</div></section>' : ''
-    body.innerHTML = html ? trab+html : '<div class="vacio">Esta sesión no tiene sets registrados.</div>'
+    // c185 · la sesión de HOY ya completada: botón para subir la foto y compartir (hasta las 00:00)
+    const shr = (reg.estado==='completada' && reg.fecha===fLocal(new Date())) ? '<button type="button" class="hx__share" onclick="ksSubirFoto(\''+reg.id+'\')"><span><b>SUBIR FOTO Y COMPARTIR</b><small>DISPONIBLE HASTA LAS 00:00</small></span><i aria-hidden="true">→</i></button>' : ''
+    body.innerHTML = shr + (html ? trab+html : '<div class="vacio">Esta sesión no tiene sets registrados.</div>')
   }catch(e){ console.error('historial', e)
     body.innerHTML='<div class="vacio">No encontramos el registro de esta sesión.</div>' }
 }
@@ -7606,6 +7613,11 @@ function ksSemanaLinea() {
   return 'Sesión ' + Math.min(h, p) + ' de ' + p + ' · ' + (f ? 'te ' + (f === 1 ? 'falta 1 sesión' : 'faltan ' + f + ' sesiones') + ' para completar tu semana' : 'semana completada ✓');
 }
 // c184 · reabrir el resumen + COMPARTIR PROGRESO de la sesión de hoy (solo el mismo día; a las 00:00 deja de estar disponible)
+async function ksSubirFoto(regId) {
+  if (!(S.registros || []).some(x => x.id === regId && x.fecha === fLocal(new Date()))) { toast('Compartir tu progreso está disponible hasta las 00:00 del día de la sesión.'); return }
+  try { document.getElementById('oHist').style.display = 'none' } catch (_) {}
+  KS.data = null; KS.reg = regId; await abrirCompartir(false, true); if (KS.data) ksProgreso();
+}
 function ksDeHoy() {
   const hoy = fLocal(new Date()), r = (S.registros || []).filter(x => x.fecha === hoy && esHecha(x)).sort((a, b) => String(b.completada_at || '').localeCompare(String(a.completada_at || '')))[0];
   if (!r) { toast('Compartir tu progreso está disponible hasta las 00:00 del día de la sesión.'); try { pintarHome() } catch (_) {} return }
