@@ -3839,15 +3839,16 @@ function kxCromo(){ if(KX.run) return; const cd=document.getElementById('kxCd'),
 /* c171 · CHECK-IN DE BIENESTAR antes de entrenar (cuestionario de bienestar de McLean et al. 2010, escala 1–5, 5 = mejor).
    Aparece al encender la sesión, una vez por sesión y antes del primer set. El servidor calcula total (5–25), nivel y alertas
    (ítem ≤2 o 3+ puntos bajo su promedio de 4 semanas) y el coach lo ve en Sala y en la ficha. */
-const BN_Q=[['sueno','SUEÑO','¿Cómo dormiste anoche?','MUY MAL','EXCELENTE'],
-  ['energia','ENERGÍA','¿Qué tan fresco llegas?','AGOTADO','MUY FRESCO'],
-  ['doms','DOLOR MUSCULAR','¿Cómo están tus músculos?','MUCHO DOLOR','SIN DOLOR'],
-  ['estres','ESTRÉS','¿Cómo está tu cabeza hoy?','MUY ESTRESADO','RELAJADO'],
-  ['animo','MOTIVACIÓN','¿Con qué ganas vienes?','SIN GANAS','CON TODO']]
-const BN_TXT={ OPTIMO:['LLEGAS ÓPTIMO','Estás en un gran día: empuja tus cargas cuidando la técnica.'],
-  BUENO:['LLEGAS BIEN','Buen estado para entrenar tal como está planificado.'],
-  MODERADO:['LLEGAS A MEDIA MÁQUINA','Escucha a tu cuerpo: prioriza la técnica y avísale a tu coach si algo molesta.'],
-  BAJO:['HOY LLEGAS CANSADO','Tu coach ya lo sabe. Hoy la calidad le gana a la carga.'] }
+// c175 · vocabulario técnico (anclas del cuestionario de McLean et al. 2010 adaptadas al español)
+const BN_Q=[['sueno','CALIDAD DE SUEÑO','Calidad de sueño percibida en la última noche','INSOMNIO','MUY REPARADOR'],
+  ['energia','FATIGA GENERAL','Nivel de fatiga general al llegar a la sesión','FATIGA EXTREMA','MUY FRESCO'],
+  ['doms','DOLOR MUSCULAR · DOMS','Dolor muscular de aparición tardía (24–72 h post-entreno)','DOMS SEVERO','SIN DOMS'],
+  ['estres','ESTRÉS PERCIBIDO','Carga de estrés psicológico de las últimas 24 h','ESTRÉS MUY ALTO','MUY RELAJADO'],
+  ['animo','ÁNIMO Y DISPOSICIÓN','Estado de ánimo y disposición para entrenar hoy','MUY BAJO','MUY POSITIVO']]
+const BN_TXT={ OPTIMO:['ESTADO ÓPTIMO','Recuperación completa.'],
+  BUENO:['ESTADO ADECUADO','Recuperación suficiente.'],
+  MODERADO:['RECUPERACIÓN INCOMPLETA','Recuperación parcial.'],
+  BAJO:['FATIGA ACUMULADA','Recuperación insuficiente.'] }
 async function bnPedir(){ try{
   const rid=S.regId; if(!rid || pvEmpezada() || document.getElementById('bnT')) return
   S._bn=S._bn||{}; if(S._bn[rid]) return
@@ -3856,13 +3857,18 @@ async function bnPedir(){ try{
   bnMostrar(rid) }catch(_){} }
 /* c172 · CHECK-IN en pantallas: un ítem por pantalla con dial en arco (1–5) que se desliza; el fondo pasa de cromo negro (1) a cromo claro (5)
    con los mismos fondos metálicos de la sesión, y un cerebro abstracto desenfocado detrás que se enciende con el nivel. */
-const BN_DESC={ sueno:['Casi no dormí','Dormí mal','Regular','Dormí bien','Excelente'], energia:['Agotado','Cansado','Normal','Fresco','Muy fresco'],
-  doms:['Mucho dolor','Bastante dolor','Algo de dolor','Leve','Sin dolor'], estres:['Muy estresado','Estresado','Normal','Tranquilo','Muy relajado'],
-  animo:['Sin ganas','Pocas ganas','Normal','Motivado','Con todo'] }
+const BN_DESC={ sueno:['Insomnio','Sueño interrumpido','Conciliación difícil','Sueño adecuado','Muy reparador'],
+  energia:['Fatiga extrema','Más fatigado de lo normal','Normal','Fresco','Muy fresco'],
+  doms:['DOMS severo','DOMS moderado','DOMS leve','Mínimo','Sin DOMS'],
+  estres:['Estrés muy alto','Estrés elevado','Normal','Relajado','Muy relajado'],
+  animo:['Muy bajo · irritable','Bajo','Normal','Positivo','Muy positivo'] }
 const BN_BG=['cromoN','grafito','acero','titanio','cromo'], BN_NIVBG={BAJO:'cromoN',MODERADO:'grafito',BUENO:'acero',OPTIMO:'cromo'}
-const BN_AJ={ OPTIMO:'Día para empujar: si la técnica acompaña, puedes subir la carga.', BUENO:'Entrena tal como está planificado.',
-  MODERADO:'Mantén las cargas, cuida la técnica y respeta los descansos completos.', BAJO:'Tu coach puede ajustar cargas o volumen hoy. Avísale cómo te sientes.' }
-const BN_ALT={DOMS:'DOLOR MUSCULAR',SUENO:'SUEÑO',FATIGA:'FATIGA',ESTRES:'ESTRÉS',ANIMO:'MOTIVACIÓN',BAJO_SU_NORMAL:'BAJO TU NORMAL'}
+const BN_AJ={ OPTIMO:'Condiciones para progresar carga o volumen según la planificación, sin comprometer la técnica.',
+  BUENO:'Estado compatible con la carga planificada: ejecuta la sesión según lo programado.',
+  MODERADO:'Mantén la intensidad prescrita, prioriza la calidad técnica y respeta los tiempos de recuperación entre series.',
+  BAJO:'Tu coach evaluará reducir intensidad o volumen de la sesión de hoy.' }
+const BN_ALT={DOMS:'DOMS ELEVADO',SUENO:'SUEÑO DEFICIENTE',FATIGA:'FATIGA ELEVADA',ESTRES:'ESTRÉS ELEVADO',ANIMO:'ÁNIMO BAJO',BAJO_SU_NORMAL:'BAJO TU LÍNEA BASE'}
+const BN_ALX={DOMS:'Realiza un calentamiento específico de la musculatura con DOMS.',SUENO:'Un sueño deficiente reduce la tolerancia a cargas altas.',BAJO_SU_NORMAL:'Tu puntaje está 3 o más puntos bajo tu promedio de las últimas 4 semanas.'}
 /* c174 · FONDO MOLECULAR KOACH: red orgánica tipo enlace molecular (uniones gruesas y fusionadas, hebras que se afinan) con
    profundidad de campo: una franja diagonal nítida y el resto desenfocado. Tono de base por nivel (1 negro → 5 blanco), tinta invertida. */
 const KART={}, KMOL_BASE={cromoN:['#0B0B0C',1],grafito:['#2A2B2E',1],acero:['#B9BBBE',0],titanio:['#DCDDDF',0],cromo:['#F6F6F7',0]}
@@ -3898,9 +3904,9 @@ function bnMostrar(rid){ document.getElementById('bnT')&&document.getElementById
     '<header class="bnX__top"><img src="/img/brand/logotipo-koach.png" alt="KOACH"><span class="bnX__st"></span></header>'+
     '<div class="bnX__k"></div><div class="bnX__stage"><svg class="bnX__arc" aria-hidden="true"><circle/></svg><div class="bnX__ns"></div><span class="bnX__dot"></span>'+
       '<div class="bnX__sel"><b class="bnX__big">03</b><div class="bnX__lab"><strong></strong><span></span></div></div></div>'+
-    '<div class="bnX__q"></div><div class="bnX__hint">DESLIZA ↕ PARA ELEGIR DEL 1 AL 5</div>'+
+    '<div class="bnX__q"></div><div class="bnX__hint">DESLIZA ↕ · ESCALA LIKERT 1–5 · 5 = ÓPTIMO</div>'+
     '<div class="bnX__act"><button type="button" class="bnX__back" aria-label="Pregunta anterior">←</button><button type="button" class="bnX__go" disabled>DESLIZA PARA ELEGIR</button></div>'+
-    '<div class="bnX__ev">CUESTIONARIO DE BIENESTAR · McLEAN et al. 2010 · INT J SPORTS PHYSIOL PERFORM 5(3):367–383</div>'
+    '<div class="bnX__ev">CUESTIONARIO DE BIENESTAR PERCIBIDO · McLEAN BD et al. (2010) · INT J SPORTS PHYSIOL PERFORM 5(3):367–383</div>'
   document.body.appendChild(o)
   const $=s=>o.querySelector(s), ns=$('.bnX__ns'), stage=$('.bnX__stage')
   ns.innerHTML=[1,2,3,4,5].map(n=>'<button type="button" class="bnX__n" data-n="'+n+'" aria-label="'+n+'">0'+n+'</button>').join('')
@@ -3917,9 +3923,9 @@ function bnMostrar(rid){ document.getElementById('bnT')&&document.getElementById
     $('.bnX__big').textContent='0'+r; $('.bnX__lab strong').textContent=q[1]; $('.bnX__lab span').textContent=BN_DESC[q[0]][r-1]
     o.style.setProperty('--lv',((v-1)/4).toFixed(3)); fondo(BN_BG[r-1]) }
   function paso(){ const q=BN_Q[Z.i]; Z.cur=Z.v[q[0]]||3; Z.touched=!!Z.v[q[0]]
-    $('.bnX__st').textContent='0'+(Z.i+1)+' / 05'; $('.bnX__k').innerHTML='CHECK-IN · ANTES DE ENTRENAR'+'<i>'+BN_Q.map((x,i)=>'<em class="'+(i<Z.i?'ok':i===Z.i?'on':'')+'"></em>').join('')+'</i>'
+    $('.bnX__st').textContent='0'+(Z.i+1)+' / 05'; $('.bnX__k').innerHTML='WELLNESS · EVALUACIÓN PRE-SESIÓN'+'<i>'+BN_Q.map((x,i)=>'<em class="'+(i<Z.i?'ok':i===Z.i?'on':'')+'"></em>').join('')+'</i>'
     $('.bnX__q').textContent=q[2]; $('.bnX__back').style.visibility=Z.i?'visible':'hidden'; listo(); pinta(Z.cur) }
-  function listo(){ const g=$('.bnX__go'); g.disabled=!Z.touched; g.textContent=!Z.touched?'DESLIZA PARA ELEGIR':(Z.i<4?'SIGUIENTE →':'VER MI ESTADO →') }
+  function listo(){ const g=$('.bnX__go'); g.disabled=!Z.touched; g.textContent=!Z.touched?'DESLIZA PARA ELEGIR':(Z.i<4?'SIGUIENTE →':'CALCULAR WELLNESS SCORE →') }
   function fija(n){ Z.cur=n; Z.touched=true; Z.v[BN_Q[Z.i][0]]=n; pinta(n); listo(); try{ kHaptic(6) }catch(_){} }
   // arrastre vertical en toda la escena: hacia arriba sube el nivel
   let dr=null
@@ -3941,12 +3947,12 @@ function bnResultado(o, d, v){ const t=BN_TXT[d.nivel]||BN_TXT.BUENO, al=d.alert
   o.classList.add('bnX--res'); const L=o.querySelectorAll('.bnX__bg'); L.forEach(x=>x.classList.remove('on')); L[0].style.backgroundImage=kartMol(k,101)||kbgURL(k)||''; L[0].classList.add('on'); o.classList.toggle('bnX--dk',!!(KMOL_BASE[k]||[])[1])
   o.style.setProperty('--lv',(((d.total||15)-5)/20).toFixed(3))
   o.querySelectorAll('.bnX__k,.bnX__stage,.bnX__q,.bnX__hint,.bnX__act').forEach(x=>x.remove())
-  o.querySelector('.bnX__st').textContent='CHECK-IN · LISTO'
+  o.querySelector('.bnX__st').textContent='WELLNESS SCORE'
   const box=document.createElement('div'); box.className='bnX__res'
   box.innerHTML='<div class="bnX__tot"><b>'+(d.total||'—')+'</b><i>/25</i></div><div class="bnX__niv">'+t[0]+'</div>'+
     '<div class="bnX__its">'+BN_Q.map(q=>'<div><small>'+q[1]+'</small><span class="bnX__pp">'+[1,2,3,4,5].map(n=>'<i class="'+(n<=v[q[0]]?'on':'')+'"></i>').join('')+'</span><b>'+v[q[0]]+'</b></div>').join('')+'</div>'+
     (al.length?'<div class="bnX__al"><small>ALERTAS</small>'+al.map(a=>'<em>'+(BN_ALT[a]||a)+'</em>').join('')+'</div>':'')+
-    '<p class="bnX__msg">'+t[1]+' '+(BN_AJ[d.nivel]||'')+'</p><p class="bnX__coach">TU COACH YA VE ESTE RESULTADO</p>'+
+    '<p class="bnX__msg">'+t[1]+' '+(BN_AJ[d.nivel]||'')+al.map(a=>BN_ALX[a]?' '+BN_ALX[a]:'').join('')+'</p><p class="bnX__coach">RESULTADO SINCRONIZADO CON TU COACH'+(d.base!=null?' · LÍNEA BASE '+String(d.base).replace('.',','):'')+'</p>'+
     '<button type="button" class="bnX__go bnX__go--fin">ENTRENAR →</button>'
   o.insertBefore(box, o.querySelector('.bnX__ev'))
   box.querySelector('.bnX__go').onclick=()=>{ o.classList.add('bnX--out'); setTimeout(()=>o.remove(),260) } }
