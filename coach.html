@@ -4128,7 +4128,7 @@ function plTbGrid(){ const bd=document.getElementById('tbBoard'); if(!bd) return
   const _ds=(document.getElementById('plWork')||{}).classList, _min=(_ds && _ds.contains('dsOn') && (bd.clientWidth-44-10*cols.length)/cols.length<210) ? '210px' : '0'
   // c197 · nunca se comprime: máximo 3 columnas por pantalla y cada una con ancho mínimo para que se lea el nombre del ejercicio (fila única);
   // si no caben, el tablero se desliza en horizontal (carrusel) y la columna «+ BLOQUE» queda al final
-  { const disp=bd.clientWidth-44-10*Math.min(cols.length,3), w=Math.max(Math.floor(disp/Math.min(cols.length,3)), 400)
+  { const disp=bd.clientWidth-44-10*Math.min(cols.length,3), w=Math.max(Math.floor(disp/Math.min(cols.length,3)), 340)
     if (cols.length>3 || w*cols.length>disp+1){ bd.style.gridTemplateColumns='repeat('+cols.length+','+w+'px) 44px'; bd.classList.add('tbCarr'); return } }
   bd.classList.remove('tbCarr')
   bd.style.gridTemplateColumns = 'repeat('+cols.length+',minmax('+_min+',1fr)) 44px' }
