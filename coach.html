@@ -390,6 +390,13 @@ button.bxI:hover,button.bxI:focus-visible{transform:translateY(-2px);box-shadow:
 #vPlan.plDesk .tbCard.edit>.tbSwap{grid-area:n}
 #vPlan.plDesk .tbBoard.tbCarr{overflow-x:auto;scroll-snap-type:x mandatory;scroll-padding-left:4px;-webkit-overflow-scrolling:touch;scrollbar-width:thin}
 #vPlan.plDesk .tbBoard.tbCarr>.tbCol,#vPlan.plDesk .tbBoard.tbCarr>.tbNew{scroll-snap-align:start}
+/* c200 · el scroll vertical de cada columna retenía también el gesto horizontal (overscroll-behavior:contain): solo contiene en vertical, en horizontal pasa al carrusel */
+#vPlan.plDesk .tbBoard.tbCarr>.tbCol{overscroll-behavior-x:auto;overscroll-behavior-y:contain;touch-action:pan-x pan-y}
+#vPlan.plDesk .tbBoard.tbCarr{touch-action:pan-x pan-y;overscroll-behavior-x:contain}
+#vPlan.plDesk .tbBoard.tbCarr .tbCard{touch-action:pan-x pan-y}
+.tbCarrNav{position:absolute;inset:0;pointer-events:none;z-index:5}
+.tbCarrB{pointer-events:auto;position:absolute;top:50%;transform:translateY(-50%);width:38px;height:58px;border:0;border-radius:12px;background:#121212;color:#F4F3F0;font-size:30px;line-height:1;cursor:pointer;box-shadow:0 6px 18px rgba(0,0,0,.22);opacity:.88}
+.tbCarrB--i{left:4px}.tbCarrB--d{right:52px}.tbCarrB[hidden]{display:none}
 /* ficha negra del ejercicio seleccionado */
 .tbSelC{display:none}
 #vPlan.plDesk .tbSelC{display:grid;grid-template-columns:minmax(160px,1.2fr) auto auto auto;align-items:center;gap:0;min-height:48px;padding:6px 6px 6px 14px;border-radius:14px;background:#121212;color:#F4F3F0;min-width:0;max-width:640px}
@@ -4122,6 +4129,7 @@ async function plAccion(){ if (P&&P.ro){ toast('Ciclo cerrado: solo lectura'); r
 function plTbAct(bi){ TB.bi=bi; document.querySelectorAll('#tbBoard .tbCol').forEach(function(c){ c.classList.toggle('act', +c.dataset.bi===bi) }); plTbGrid() }
 /* c84 · el bloque activo pasa al frente y se ensancha (sus ejercicios en dos columnas, todos a la vista); los demás quedan atrás, más angostos */
 function plTbGrid(){ const bd=document.getElementById('tbBoard'); if(!bd) return
+  setTimeout(function(){ try{ plTbCarrFlechas(bd) }catch(_){} },0)
   const cols=[...bd.querySelectorAll(':scope > .tbCol')]; if(!cols.length) return
   if (!(document.getElementById('vPlan')||{}).classList || !document.getElementById('vPlan').classList.contains('plDesk')){ bd.style.gridTemplateColumns='repeat('+cols.length+',minmax(258px,1fr)) 44px'; return }
   // c88 · con el inspector abierto, una columna nunca baja de 210 px: si no caben, el tablero se desplaza en horizontal (no se aplasta)
@@ -4271,8 +4279,34 @@ function plTbAjustar(){ try{ const v=document.getElementById('vPlan'), w=documen
   const over=document.documentElement.scrollHeight-window.innerHeight; if (over>0) w.style.setProperty('--tbH', Math.max(360,h-over)+'px')
   const pv=document.getElementById('pVivo'), pb=document.getElementById('pBloques'); if (pv && pb){ const r=w.getBoundingClientRect(), rb=pb.getBoundingClientRect(); pv.style.setProperty('--dsH', Math.max(360, Math.round(r.bottom-rb.top))+'px') } }catch(_){} }
 window.addEventListener('resize', function(){ clearTimeout(window._tbAjT); window._tbAjT=setTimeout(plTbAjustar,120) })
+/* c200 · carrusel de bloques (4+): deslizar con el dedo aunque el navegador no tome el gesto (tarjetas arrastrables), flechas ‹ › y ajuste al bloque */
+function plTbCarrPaso(bd,dir){ const c=bd.querySelector(':scope > .tbCol'); if(!c) return; const w=c.getBoundingClientRect().width+10
+  bd.scrollTo({ left: Math.round((bd.scrollLeft+dir*w)/w)*w, behavior:'smooth' }) }
+function plTbCarrFlechas(bd){ const h=bd.parentElement; if(!h) return
+  let nav=h.querySelector(':scope > .tbCarrNav')
+  if (!bd.classList.contains('tbCarr')){ if(nav) nav.remove(); return }
+  if (!nav){ nav=document.createElement('div'); nav.className='tbCarrNav'
+    nav.innerHTML='<button type="button" class="tbCarrB tbCarrB--i" aria-label="Bloques anteriores">‹</button><button type="button" class="tbCarrB tbCarrB--d" aria-label="Más bloques">›</button>'
+    nav.children[0].onclick=function(){ plTbCarrPaso(bd,-1) }; nav.children[1].onclick=function(){ plTbCarrPaso(bd,1) }
+    h.style.position='relative'; h.appendChild(nav) }
+  const max=bd.scrollWidth-bd.clientWidth-2
+  nav.children[0].hidden = bd.scrollLeft<=2; nav.children[1].hidden = bd.scrollLeft>=max }
+function plTbCarr(bd){ plTbCarrFlechas(bd); if (bd._carr) return; bd._carr=true
+  let x0=0,y0=0,sl=0,pid=null,mov=false
+  bd.addEventListener('scroll',function(){ plTbCarrFlechas(bd) },{passive:true})
+  bd.addEventListener('pointerdown',function(e){ if(e.pointerType==='mouse' || !bd.classList.contains('tbCarr')) return
+    if (e.target.closest('input,textarea,select,.tbSwap')) return
+    pid=e.pointerId; x0=e.clientX; y0=e.clientY; sl=bd.scrollLeft; mov=false },{passive:true})
+  bd.addEventListener('pointermove',function(e){ if(e.pointerId!==pid) return; const dx=e.clientX-x0, dy=e.clientY-y0
+    if (!mov && Math.abs(dx)>12 && Math.abs(dx)>Math.abs(dy)*1.2){ mov=true; bd.style.scrollSnapType='none' }
+    if (mov) bd.scrollLeft=sl-dx },{passive:true})
+  const fin=function(e){ if(e.pointerId!==pid) return; pid=null; if(!mov) return
+    bd.style.scrollSnapType=''; const dx=e.clientX-x0; plTbCarrPaso(bd, dx<-40?1:dx>40?-1:0); window._tbSwipe=Date.now() }
+  bd.addEventListener('pointerup',fin); bd.addEventListener('pointercancel',function(e){ if(e.pointerId===pid){ pid=null; bd.style.scrollSnapType='' } })
+  bd.addEventListener('click',function(e){ if(window._tbSwipe && Date.now()-window._tbSwipe<350){ e.stopPropagation(); e.preventDefault() } },true)
+  bd.addEventListener('dragstart',function(e){ if(mov) e.preventDefault() },true) }
 function plTbWire(){ const bd=document.getElementById('tbBoard'); if(!bd) return
-  plTbGrid()
+  plTbGrid(); plTbCarr(bd)
   // el bloque tocado pasa al frente (en click, no en pointerdown: moverlo bajo el puntero cortaría el arrastre)
   bd.addEventListener('click', function(e){ const c=e.target.closest('.tbCol'); if(c && +c.dataset.bi!==TB.bi) plTbAct(+c.dataset.bi) }, true)
   bd.addEventListener('focusin', function(e){ const c=e.target.closest('.tbCol'); if(c && +c.dataset.bi!==TB.bi) plTbAct(+c.dataset.bi) })
