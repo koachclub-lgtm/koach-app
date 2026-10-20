@@ -388,6 +388,13 @@ button.bxI:hover,button.bxI:focus-visible{transform:translateY(-2px);box-shadow:
 #vPlan.plDesk .tbCard .plProg,#vPlan.plDesk .tbCard .plUlt{display:none !important}
 #vPlan.plDesk .tbCard.edit{grid-template-columns:minmax(0,1fr);grid-template-areas:"n"}
 #vPlan.plDesk .tbCard.edit>.tbSwap{grid-area:n}
+/* c194 · columna angosta (4+ bloques en tablet): la fila única dejaba el nombre en ancho cero → nombre arriba con ✎ ···, controles abajo */
+#vPlan.plDesk .tbCol{container-type:inline-size;container-name:tbcol}
+@container tbcol (max-width:440px){
+  #vPlan.plDesk .tbCard{grid-template-columns:minmax(0,1fr) 28px 28px;grid-template-areas:"n e1 e2" "c c c";row-gap:4px;padding:6px 5px 6px 9px}
+  #vPlan.plDesk .tbCard>.tbCtl{min-width:0}
+  #vPlan.plDesk .tbCard>.tbCtl>.tbSt{flex:1 1 0;width:auto;min-width:0}
+}
 /* ficha negra del ejercicio seleccionado */
 .tbSelC{display:none}
 #vPlan.plDesk .tbSelC{display:grid;grid-template-columns:minmax(160px,1.2fr) auto auto auto;align-items:center;gap:0;min-height:48px;padding:6px 6px 6px 14px;border-radius:14px;background:#121212;color:#F4F3F0;min-width:0;max-width:640px}
