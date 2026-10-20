@@ -477,6 +477,7 @@ button.bxI:hover,button.bxI:focus-visible{transform:translateY(-2px);box-shadow:
 .tbMini{display:flex;align-items:center;justify-content:space-between;border:1px solid rgba(18,18,18,.22);border-radius:10px;background:#fff;height:38px;overflow:hidden}
 .tbMini button{width:34px;height:100% !important;min-height:0 !important;padding:0 !important;border:0;background:none;cursor:pointer;font-size:16px;color:#121212}.tbMini button:hover{background:rgba(18,18,18,.07)}
 .tbMini b{font-family:'Space Mono',var(--font-mono);font-size:12px;white-space:nowrap}
+.tbMini--tmr{justify-content:flex-start;gap:7px;padding:0 10px;background:#121210;border-color:#121210;color:#F3F2EF;cursor:pointer;min-width:0;width:100%}.tbMini--tmr i{font-style:normal;font-size:13px;flex:none}.tbMini--tmr b{overflow:hidden;text-overflow:ellipsis;font-size:11px;letter-spacing:.04em}.tbMini--tmr:hover{background:#2A2A27}
 .tbCard{background:#fff;border:1px solid rgba(18,18,18,.12);border-radius:12px;padding:7px 8px 8px 10px;display:grid;grid-template-columns:minmax(0,1fr);gap:6px;cursor:pointer;min-width:0}
 .tbCard.sel{box-shadow:0 0 0 2px #121212}
 .tbCard.drag{opacity:.4}.tbCard.over{box-shadow:0 -3px 0 0 #2BB8C7}
@@ -4180,8 +4181,7 @@ function plTbHTML(ses){
       '<div class="tbColH"><span class="c">'+plEsc(bloqueTag(b,bi))+(_be==='hecho'?'<i>✓ HECHO</i>':_be==='curso'?'<i>● EN CURSO</i>':'')+'</span><span class="n">'+b.items.length+' EJ</span>'+
         (!(P&&P.ro)?'<button type="button" class="tbX tbX--mas" title="Opciones del bloque" aria-haspopup="menu" aria-label="Opciones de '+plEsc(bloqueTag(b,bi))+'" onclick="plBqMenu(event,'+bi+')">···</button>':'')+'</div>'+
       '<div class="tbColP"><div class="tbMini"><button type="button" onclick="stepSets('+bi+',-1)" aria-label="Menos sets">−</button><b>'+b.sets+' SETS</b><button type="button" onclick="stepSets('+bi+',1)" aria-label="Más sets">+</button></div>'+
-        (b.timer ? '' : '<div class="tbMini"><button type="button" onclick="stepDesc('+bi+',-15)" aria-label="Menos descanso">−</button><b>'+b.desc+'s DESC</b><button type="button" onclick="stepDesc('+bi+',15)" aria-label="Más descanso">+</button></div>')+'</div>'+
-        (b.timer ? '<button type="button" class="ktChip ktChip--w on" onclick="plTimer('+bi+')" title="Editar temporizador">⏱ '+plEsc(KTIMER.resumen(b.timer))+'</button>' : '')+
+        (b.timer ? '<button type="button" class="tbMini tbMini--tmr" onclick="plTimer('+bi+')" title="Editar temporizador" aria-label="Editar temporizador '+plEsc(KTIMER.resumen(b.timer))+'"><i>⏱</i><b>'+plEsc(plTmrCorto(b.timer))+'</b></button>' : '<div class="tbMini"><button type="button" onclick="stepDesc('+bi+',-15)" aria-label="Menos descanso">−</button><b>'+b.desc+'s DESC</b><button type="button" onclick="stepDesc('+bi+',15)" aria-label="Más descanso">+</button></div>')+'</div>'+
       b.items.map(function(it){ return plTbCard(it,bi) }).join('')+
       '<button type="button" class="tbAdd" onclick="abrirSelector(\'agregar\','+bi+',null)">+ EJERCICIO EN B'+(bi+1)+'</button></section>' }).join('')
   const nuevo = nb<6 ? '<button type="button" class="tbNew" onclick="abrirBloque()" aria-label="Agregar bloque">+ BLOQUE</button>' : '<span></span>'
@@ -4573,6 +4573,8 @@ async function stepDesc(bi,d){
 }
 /* c188 · BLOQUE TEMPORIZADOR: Tabata / EMOM. Vive en bloques.timer (jsonb).
    SETS del bloque = series del timer (el socio registra un set por serie); DESC = pausa entre series. Queda en borrador hasta PUBLICAR. */
+function plTmrCorto(t){ const c=KTIMER.norm(t), sx=c.series>1?c.series+'×':'', m=function(v){ return v%60===0?(v/60)+'′':v>60?Math.floor(v/60)+'′'+(v%60):String(v) }
+  return c.modo==='emom' ? 'EMOM '+sx+m(c.trabajo)+(c.trabajo%60===0?'':'″')+' × '+c.rondas : 'TABATA '+sx+m(c.trabajo)+'/'+m(c.descanso)+' × '+c.rondas }
 function plTimer(bi, modo){
   const ses=P.sesiones[P.tab], b=ses&&ses.bloques[bi]; if(!b || !window.KTIMER) return
   const ro=!!(P&&P.ro)
