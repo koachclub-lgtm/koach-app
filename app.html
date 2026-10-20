@@ -4320,6 +4320,14 @@ async function entrar(opts){
       window.location.href = (/(^|\.)koachclub\.cl$/i.test(location.hostname) ? 'https://dashboard.koachclub.cl/coach.html' : '/coach.html')   // c11.6: el equipo vive en dashboard.koachclub.cl
       return
     }
+    // c195 · cuenta duplicada ya unificada en otra: cerrar esta sesión y pedir ingreso de nuevo (con el mismo correo y clave entra a la cuenta correcta)
+    if (perfil && perfil.estado==='fusionado'){
+      klog('ACCOUNT_MERGED_SIGNOUT', {})
+      try{ localStorage.removeItem('kc_snap_'+uid) }catch(_e){}
+      window._saliendo=true; try{ await sb.auth.signOut({ scope:'local' }) }catch(_e){} window._saliendo=false
+      S.perfil=null; cargandoOff&&cargandoOff(); authListo(); vista('vLogin'); authVista('fLogin')
+      toast('Actualizamos tu cuenta. Ingresa de nuevo con tu correo y clave.')
+      return }
     S.perfil = perfil
     document.getElementById('hAv').textContent = (perfil.nombre||'K')[0].toUpperCase()
     S.frases = (rCfg && rCfg.data && rCfg.data.frases) || null
