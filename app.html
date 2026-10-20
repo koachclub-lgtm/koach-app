@@ -752,7 +752,7 @@ html .kw.kw--hero .kw-cl{font-size:7px;letter-spacing:.16em}
 <script src="/domain/koach-series.js"></script>
 <script src="/domain/program-catalog.js"></script>
 <script src="/domain/koach-avatar.js"></script>
-<script src="/domain/koach-timer.js?v=5"></script>
+<script src="/domain/koach-timer.js?v=6"></script>
 <style>
 /* ═══════════ KOACH DS v1.0 · TOKENS + PRIMITIVES (P0) ═══════════ */
 @font-face{font-family:'Inter Display';src:url('/fonts/InterDisplay-Regular.woff2') format('woff2');font-weight:400;font-display:swap}
@@ -5453,7 +5453,7 @@ function bkCapsulas(bfs){
     return '<section class="cp'+(done?' cp--ok':'')+(open?' cp--open':'')+'" id="blq-'+bi+'">'+
       '<button type="button" class="cp__h" onclick="BK.cap='+(open?'null':bi)+';pintarSesion()" aria-expanded="'+open+'" aria-controls="blq-'+bi+'" aria-label="Bloque '+cod+' '+nom+', '+estado.toLowerCase()+'">'+
       '<b class="cp__n">'+cod+'</b><span class="cp__t"><small>'+estado+'</small><b>'+nom+'</b></span>'+
-      (done ? '<i class="cp__ok" aria-hidden="true">✓</i>' : '<span class="cp__m"><b>'+String(b.sets).padStart(2,'0')+'</b><small>SETS</small></span>'+(b.timer&&window.KTIMER ? '<span class="cp__m"><b>'+KTIMER.mmss(KTIMER.total(b.timer))+'</b><small>⏱ '+KTIMER.MODOS[KTIMER.norm(b.timer).modo].lab+'</small></span>' : '<span class="cp__m"><b>'+bkMMSS(bkDesc(b))+'</b><small>DESC</small></span>'))+
+      (done ? '<i class="cp__ok" aria-hidden="true">✓</i>' : '<span class="cp__m"><b>'+String((b.timer&&window.KTIMER&&KTIMER.norm(b.timer).modo==='tabata')?KTIMER.norm(b.timer).series:b.sets).padStart(2,'0')+'</b><small>'+((b.timer&&window.KTIMER&&KTIMER.norm(b.timer).modo==='tabata')?'VUELTAS':'SETS')+'</small></span>'+(b.timer&&window.KTIMER ? '<span class="cp__m"><b>'+KTIMER.mmss(KTIMER.total(b.timer))+'</b><small>⏱ '+KTIMER.MODOS[KTIMER.norm(b.timer).modo].lab+'</small></span>' : '<span class="cp__m"><b>'+bkMMSS(bkDesc(b))+'</b><small>DESC</small></span>'))+
       '<i class="cp__arr" aria-hidden="true">'+(open?'▴':'▾')+'</i></button>'+lista+'</section>'
   }).join('')
 }

@@ -35,6 +35,7 @@ function norm(c){ c=c||{}; const modo = MODOS[c.modo] ? c.modo : 'tabata'
     pausa: clamp(c.pausa,0,600,60),
     prep: clamp(c.prep,0,60,10) }
   if (modo==='emom') o.descanso=0
+  if (c.vt && modo==='tabata') o.vt=1   // v1.5: formato ya expresado en vueltas (rondas = ejercicios)
   return o }
 function timeline(c){ c=norm(c); const out=[]; let ex=0
   if (c.prep) out.push({k:'prep', d:c.prep})
@@ -46,11 +47,20 @@ function timeline(c){ c=norm(c); const out=[]; let ex=0
     if (s<c.series && c.pausa) out.push({k:'pause', d:c.pausa, s, S:c.series, ex})
   }
   return out }
+/* v1.5 · TABATA POR VUELTAS: una ronda = un ejercicio; las rondas por vuelta son automáticas = n.º de ejercicios del bloque.
+   series = VUELTAS (1 vuelta = pasar una vez por todos los ejercicios); la pausa larga va entre vueltas.
+   porVueltas(c,n,legacy): legacy=true convierte un formato en rondas totales (p. ej. 8 rondas con 4 ejercicios → 2 vueltas);
+   legacy=false solo ajusta las rondas a n y conserva las vueltas (al agregar/quitar ejercicios). */
+function porVueltas(c,n,legacy){ c=norm(c); n=parseInt(n,10)||0; if(c.modo!=='tabata' || n<1) return c
+  if (c.rondas===n){ c.vt=1; return c }
+  if (legacy==null) legacy=!c.vt
+  const v = legacy ? Math.max(1,Math.min(10,Math.round(c.rondas*c.series/n))) : c.series
+  return norm(Object.assign({}, c, { rondas:n, series:v, vt:1 })) }
 const total = c => timeline(c).reduce((a,x)=>a+(x.k==='prep'?0:x.d),0)
 const mmss = s => { s=Math.max(0,Math.round(s)); return String(Math.floor(s/60)).padStart(2,'0')+':'+String(s%60).padStart(2,'0') }
 const corto = s => s%60===0 && s>=60 ? (s/60)+'′' : s>=60 ? Math.floor(s/60)+'′'+String(s%60).padStart(2,'0')+'″' : s+'″'
 function resumen(c){ if(!c) return ''; c=norm(c); const L=MODOS[c.modo].lab, sx=c.series>1?c.series+' × ':''
-  if (c.modo==='tabata') return L+' · '+sx+corto(c.trabajo)+'/'+corto(c.descanso)+' × '+c.rondas
+  if (c.modo==='tabata') return L+' · '+corto(c.trabajo)+'/'+corto(c.descanso)+' · '+c.series+(c.series>1?' VUELTAS':' VUELTA')+' × '+c.rondas+' EJ'
   if (c.modo==='emom') return (c.trabajo===60?'EMOM':c.trabajo===120?'E2MOM':'EMOM '+corto(c.trabajo))+' · '+sx+c.rondas+' RONDAS'
   return '' }
 
@@ -176,6 +186,26 @@ function css(){ if (document.getElementById('ktCss')) return
 .kte__btns button{flex:1;min-width:120px;height:48px;border-radius:10px;border:1.5px solid rgba(18,18,16,.16);background:none;font:700 10px var(--M);letter-spacing:.12em;cursor:pointer;color:#121210}
 .kte__btns .ink{background:#121210;color:#F3F2EF;border-color:#121210}
 .kte__btns .dng{color:#9A2A1F}
+.kte__auto{display:flex;align-items:center;gap:12px;border:1.5px dashed rgba(18,18,16,.25);border-radius:10px;padding:8px 12px;margin-bottom:6px}
+.kte__auto b{font:700 26px var(--M)}
+.kte__auto span{font:700 8.5px var(--M);letter-spacing:.14em;color:#3A3936;line-height:1.5}
+.kte__auto i{font-style:normal;letter-spacing:.06em;color:#6B6A66}
+.kte__tl{display:flex;flex-direction:column;gap:4px;max-height:34vh;overflow:auto}
+.kte__v{border:1.5px solid rgba(18,18,16,.12);background:#fff;border-radius:10px;padding:7px 9px}
+.kte__v small{font:700 8px var(--M);letter-spacing:.16em;color:#6B6A66}
+.kte__v div{display:flex;align-items:stretch;gap:3px;margin-top:5px}
+.kte__v span{flex:1 1 0;min-width:0;background:#121210;color:#F3F2EF;border-radius:6px;padding:5px 6px;font-size:10.5px;font-weight:700;line-height:1.15;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.kte__v span i{display:block;font:700 9px var(--M);font-style:normal;opacity:.65;margin-top:2px}
+.kte__v u{flex:none;align-self:center;text-decoration:none;font:700 8.5px var(--M);color:#6B6A66;min-width:14px;text-align:center}
+.kte__pz{margin:0;text-align:center;font:700 8.5px var(--M);letter-spacing:.16em;color:#121210;padding:3px 0;border-top:1.5px dashed rgba(18,18,16,.3);border-bottom:1.5px dashed rgba(18,18,16,.3)}
+/* tablet / escritorio horizontal: usa los costados — ajustes a la izquierda, resumen y acciones a la derecha, sin cortar */
+@media (min-width:900px){
+  .kte__in{max-width:1080px;width:calc(100% - 48px);max-height:calc(100vh - 32px);display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,1fr);gap:22px;align-items:start;padding:20px 22px}
+  .kte__R{position:sticky;top:0}
+  .kte__R .kte__tot{margin-top:0}
+  .kte__ps{grid-template-columns:repeat(auto-fill,minmax(140px,1fr))}
+  .kte__st button{width:34px;height:34px}
+}
 `; document.head.appendChild(s) }
 
 /* ══════════ REPRODUCTOR ══════════ */
@@ -196,7 +226,7 @@ function play(cfg, opts){
   const restante=()=>{ const s=segs[T.i]; return s ? s.d - (ahora()-T.t0)/1000 : 0 }
   const exDe = s => exs.length ? exs[(s.ex||0)%exs.length] : null
   const quedaTotal=()=>{ let q=Math.max(0,restante()); for(let j=T.i+1;j<segs.length;j++) q+=segs[j].d; return q }
-  function etiqueta(s){ return s.k==='prep'?'PREPÁRATE':s.k==='rest'?'DESCANSO':s.k==='pause'?'PAUSA':
+  function etiqueta(s){ return s.k==='prep'?'PREPÁRATE':s.k==='rest'?'DESCANSO':s.k==='pause'?(c.modo==='tabata'?'PAUSA ENTRE VUELTAS':'PAUSA'):
     c.modo==='emom'?'MINUTO '+s.r:'TRABAJO' }
   function pintar(){
     const s=segs[T.i]; if(!s){ return fin() }
@@ -212,8 +242,8 @@ function play(cfg, opts){
         (exA.reps&&s.k==='work'?'<em>'+esc(exA.reps)+'</em>':'')+(exN&&exN!==exA?'<em>DESPUÉS · '+esc(exN.nombre)+'</em>':'')+'</div></div>'
     }
     const rd = s.k==='prep' ? '<span>EMPIEZA EN</span>' :
-      (c.rondas>1&&s.r?'<span>RONDA <b>'+String(s.r).padStart(2,'0')+'</b>/'+String(c.rondas).padStart(2,'0')+'</span>':'')+
-      (c.series>1&&s.s?'<span>SERIE <b>'+s.s+'</b>/'+c.series+'</span>':'')
+      (c.rondas>1&&s.r?'<span>'+(c.modo==='tabata'?'EJERCICIO':'RONDA')+' <b>'+String(s.r).padStart(2,'0')+'</b>/'+String(c.rondas).padStart(2,'0')+'</span>':'')+
+      (c.series>1&&s.s?'<span>'+(c.modo==='tabata'?'VUELTA':'SERIE')+' <b>'+s.s+'</b>/'+c.series+'</span>':'')
     const ctl = ''
     el.innerHTML='<div class="kt__top"><button class="kt__x'+(T.cerrar?' arm':'')+'" data-a="x" aria-label="Salir del temporizador">'+(T.cerrar?'TOCA PARA SALIR':'✕')+'</button>'+
       '<div class="kt__md"><b>'+esc(opts.titulo||MODOS[c.modo].lab)+'</b>'+esc(resumen(c))+'</div></div>'+
@@ -279,30 +309,38 @@ function play(cfg, opts){
 function editor(cfg, opts){
   opts=opts||{}; css()
   const p0=PRESETS.find(x=>x.modo===(opts.modo||'tabata'))||PRESETS[0]
-  let c=norm(cfg||Object.assign({modo:p0.modo},p0.c)), pre=cfg?null:p0.id
+  const nEj=(opts.ejercicios||[]).length
+  let c=(cfg ? porVueltas(cfg, nEj) : porVueltas(Object.assign({modo:p0.modo},p0.c), nEj, true)), pre=cfg?null:p0.id
   const ov=document.createElement('div'); ov.className='kte'; ov.setAttribute('role','dialog'); ov.setAttribute('aria-modal','true')
   document.body.appendChild(ov)
   const fmt = (k,v) => (k==='rondas'||k==='series') ? String(v) : (v>=60? mmss(v) : v+'″')
   const pasos = { trabajo:v=>v>=120?30:v>=60?15:5, descanso:v=>v>=60?15:5, pausa:v=>15, prep:v=>5, rondas:()=>1, series:()=>1 }
   const lim = { trabajo:[5,3600], descanso:[0,600], rondas:[1,99], series:[1,10], pausa:[0,600], prep:[0,60] }
   function pintar(){
-    const usa = { trabajo:true, descanso:c.modo==='tabata', rondas:true, series:true, pausa:c.series>1, prep:true }
-    const lab = { trabajo:c.modo==='emom'?'CADA':'TRABAJO', descanso:'DESCANSO', rondas:'RONDAS', series:'SERIES', pausa:'PAUSA ENTRE SERIES', prep:'CUENTA PREVIA' }
-    const nEx=(opts.ejercicios||[]).length
-    ov.innerHTML='<div class="kte__in"><h3>Bloque temporizador</h3><p class="kte__d">'+esc(opts.bloque||'')+(nEx?' · '+nEx+' ejercicio'+(nEx>1?'s':'')+' rotan por ronda':'')+'</p>'+
+    const vt = c.modo==='tabata' && nEj>0   // tabata por vueltas: rondas automáticas = ejercicios
+    const usa = { trabajo:true, descanso:c.modo==='tabata', rondas:!vt, series:true, pausa:c.series>1, prep:true }
+    const lab = { trabajo:c.modo==='emom'?'CADA':'TRABAJO', descanso:vt?'DESCANSO ENTRE EJERCICIOS':'DESCANSO', rondas:'RONDAS', series:vt?'VUELTAS':'SERIES', pausa:vt?'PAUSA ENTRE VUELTAS':'PAUSA ENTRE SERIES', prep:'CUENTA PREVIA' }
+    const campos = vt ? ['trabajo','descanso','series','pausa','prep'] : ['trabajo','descanso','rondas','series','pausa','prep']
+    const sub = p => { if (p.modo!=='tabata' || !nEj) return p.s; const q=porVueltas(Object.assign({modo:'tabata'},p.c), nEj, true); return corto(q.trabajo)+' / '+corto(q.descanso)+' · '+q.series+(q.series>1?' vueltas':' vuelta') }
+    const ej=(opts.ejercicios||[]).map(x=>x&&x.nombre||'Ejercicio')
+    // línea de tiempo: una fila por vuelta, un tramo por ejercicio, y la pausa entre vueltas
+    const tl = vt ? '<div class="kte__k">CÓMO CORRE EL BLOQUE</div><div class="kte__tl">'+Array.from({length:c.series},(_,v)=>
+        '<div class="kte__v"><small>VUELTA '+(v+1)+'</small><div>'+ej.map(n=>'<span title="'+esc(n)+'">'+esc(n)+'<i>'+corto(c.trabajo)+'</i></span>').join('<u>'+(c.descanso?corto(c.descanso):'')+'</u>')+'</div></div>'+
+        (v<c.series-1 && c.pausa ? '<p class="kte__pz">PAUSA '+corto(c.pausa)+'</p>' : '')).join('')+'</div>' : ''
+    const info = vt ? '<div class="kte__auto"><b>'+nEj+'</b><span>RONDAS POR VUELTA · AUTOMÁTICO<br><i>1 ronda por ejercicio del bloque</i></span></div>' : ''
+    ov.innerHTML='<div class="kte__in"><div class="kte__L"><h3>Bloque temporizador</h3><p class="kte__d">'+esc(opts.bloque||'')+(nEj?' · '+nEj+' ejercicio'+(nEj>1?'s':'')+(vt?' · 1 vuelta = todos los ejercicios una vez':' rotan por ronda'):'')+'</p>'+
       '<div class="kte__k">FORMATO</div><div class="kte__md">'+Object.keys(MODOS).map(m=>'<button data-m="'+m+'" class="'+(c.modo===m?'on':'')+'">'+MODOS[m].lab+'</button>').join('')+'</div>'+
-      '<p class="kte__d">'+MODOS[c.modo].d+'</p>'+
-      '<div class="kte__k">PROPUESTAS</div><div class="kte__ps">'+PRESETS.filter(p=>p.modo===c.modo).map(p=>'<button data-p="'+p.id+'" class="'+(pre===p.id?'on':'')+'"><b>'+p.n+'</b><span>'+p.s+'</span></button>').join('')+'</div>'+
-      '<div class="kte__k">AJUSTE FINO</div><div class="kte__g">'+['trabajo','descanso','rondas','series','pausa','prep'].map(k=>
-        '<div class="kte__st'+(usa[k]?'':' off')+'"><small>'+lab[k]+'</small><div><button data-s="'+k+'" data-d="-1" aria-label="Menos '+lab[k]+'">−</button><b>'+fmt(k,c[k])+'</b><button data-s="'+k+'" data-d="1" aria-label="Más '+lab[k]+'">+</button></div></div>').join('')+'</div>'+
-      '<div class="kte__tot"><div><small>DURACIÓN TOTAL</small><br><b>'+mmss(total(c))+'</b></div><div style="text-align:right"><small>RESUMEN</small><br><span style="font:700 11px var(--M)">'+esc(resumen(c))+'</span></div></div>'+
+      '<div class="kte__k">PROPUESTAS</div><div class="kte__ps">'+PRESETS.filter(p=>p.modo===c.modo).map(p=>'<button data-p="'+p.id+'" class="'+(pre===p.id?'on':'')+'"><b>'+p.n+'</b><span>'+esc(sub(p))+'</span></button>').join('')+'</div>'+
+      '<div class="kte__k">AJUSTE FINO</div>'+info+'<div class="kte__g">'+campos.map(k=>
+        '<div class="kte__st'+(usa[k]?'':' off')+'"><small>'+lab[k]+'</small><div><button data-s="'+k+'" data-d="-1" aria-label="Menos '+lab[k]+'">−</button><b>'+fmt(k,c[k])+'</b><button data-s="'+k+'" data-d="1" aria-label="Más '+lab[k]+'">+</button></div></div>').join('')+'</div></div>'+
+      '<div class="kte__R"><div class="kte__tot"><div><small>DURACIÓN TOTAL</small><br><b>'+mmss(total(c))+'</b></div><div style="text-align:right"><small>RESUMEN</small><br><span style="font:700 11px var(--M)">'+esc(resumen(c))+'</span></div></div>'+tl+
       '<div class="kte__btns"><button data-a="probar">▶ PROBAR</button>'+(opts.onRemove&&cfg?'<button class="dng" data-a="quitar">QUITAR TIMER</button>':'')+'</div>'+
-      '<div class="kte__btns"><button data-a="cancelar">CANCELAR</button><button class="ink" data-a="ok">APLICAR AL BLOQUE</button></div></div>' }
+      '<div class="kte__btns"><button data-a="cancelar">CANCELAR</button><button class="ink" data-a="ok">APLICAR AL BLOQUE</button></div></div></div>' }
   function cerrar(){ ov.remove() }
   ov.addEventListener('click', e=>{ if(e.target===ov){ cerrar(); return }
     const b=e.target.closest('button'); if(!b) return
-    if (b.dataset.m){ const p=PRESETS.find(x=>x.modo===b.dataset.m); c=norm(Object.assign({modo:b.dataset.m, prep:c.prep}, p?p.c:{})); pre=p?p.id:null; pintar(); return }
-    if (b.dataset.p){ const p=PRESETS.find(x=>x.id===b.dataset.p); c=norm(Object.assign({modo:p.modo, prep:c.prep}, p.c)); pre=p.id; pintar(); return }
+    if (b.dataset.m){ const p=PRESETS.find(x=>x.modo===b.dataset.m); c=porVueltas(Object.assign({modo:b.dataset.m, prep:c.prep}, p?p.c:{}), nEj, true); pre=p?p.id:null; pintar(); return }
+    if (b.dataset.p){ const p=PRESETS.find(x=>x.id===b.dataset.p); c=porVueltas(Object.assign({modo:p.modo, prep:c.prep}, p.c), nEj, true); pre=p.id; pintar(); return }
     if (b.dataset.s){ const k=b.dataset.s, d=+b.dataset.d, st=pasos[k](d<0?c[k]-1:c[k]); c[k]=Math.max(lim[k][0],Math.min(lim[k][1],c[k]+d*st)); c=norm(c); pre=null; pintar(); return }
     const a=b.dataset.a
     if (a==='cancelar') cerrar()
@@ -312,5 +350,5 @@ function editor(cfg, opts){
   pintar()
   return { close:cerrar } }
 
-root.KTIMER = { MODOS, PRESETS, norm, timeline, total, resumen, mmss, play, editor, seg7, VERSION:'koach-timer@1.4.0' }
+root.KTIMER = { MODOS, PRESETS, norm, porVueltas, timeline, total, resumen, mmss, play, editor, seg7, VERSION:'koach-timer@1.5.0' }
 })(typeof window!=='undefined'?window:globalThis);

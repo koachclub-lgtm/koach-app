@@ -558,7 +558,7 @@ button.bxI:hover,button.bxI:focus-visible{transform:translateY(-2px);box-shadow:
 <script src="/domain/koach-series.js"></script>
 <script src="/domain/program-catalog.js"></script>
 <script src="/domain/koach-avatar.js"></script>
-<script src="/domain/koach-timer.js?v=5"></script>
+<script src="/domain/koach-timer.js?v=6"></script>
 <style>
 /* c188 · chip del bloque temporizador */
 .ktChip{border:1.5px dashed rgba(18,18,16,.28);background:none;color:inherit;border-radius:999px;padding:6px 10px;font:700 8.5px 'Space Mono',monospace;letter-spacing:.1em;cursor:pointer;white-space:nowrap}
@@ -4192,11 +4192,11 @@ function plTbHTML(ses){
   const nb=ses.bloques.length, all=[]; ses.bloques.forEach(function(b){ b.items.forEach(function(it){ all.push(it.beId) }) })
   if (!TB.sel || all.indexOf(TB.sel)<0) TB.sel=all[0]||null
   { const xs=TB.sel?planItem(TB.sel):null; if (xs) TB.bi=ses.bloques.indexOf(xs.b); if (TB.bi<0||TB.bi>=nb) TB.bi=0 }
-  const cols = ses.bloques.map(function(b,bi){ const _be=(OB.estado||{})[b.bId]
+  const cols = ses.bloques.map(function(b,bi){ const _be=(OB.estado||{})[b.bId]; plTmrVueltas(b)
     return '<section class="tbCol'+(_be==='hecho'?' tbCol--hecho':'')+(bi===TB.bi?' act':'')+'" data-bi="'+bi+'" aria-label="'+plEsc(bloqueTag(b,bi))+'">'+
       '<div class="tbColH"><span class="c">'+plEsc(bloqueTag(b,bi))+(_be==='hecho'?'<i>✓ HECHO</i>':_be==='curso'?'<i>● EN CURSO</i>':'')+'</span><span class="n">'+b.items.length+' EJ</span>'+
         (!(P&&P.ro)?'<button type="button" class="tbX tbX--mas" title="Opciones del bloque" aria-haspopup="menu" aria-label="Opciones de '+plEsc(bloqueTag(b,bi))+'" onclick="plBqMenu(event,'+bi+')">···</button>':'')+'</div>'+
-      '<div class="tbColP"><div class="tbMini"><button type="button" onclick="stepSets('+bi+',-1)" aria-label="Menos sets">−</button><b>'+b.sets+' SETS</b><button type="button" onclick="stepSets('+bi+',1)" aria-label="Más sets">+</button></div>'+
+      '<div class="tbColP"><div class="tbMini"><button type="button" onclick="stepSets('+bi+',-1)" aria-label="Menos sets">−</button><b>'+(plEsVueltas(b)? KTIMER.norm(b.timer).series+(KTIMER.norm(b.timer).series>1?' VUELTAS':' VUELTA') : b.sets+' SETS')+'</b><button type="button" onclick="stepSets('+bi+',1)" aria-label="Más sets">+</button></div>'+
         (b.timer ? '<button type="button" class="tbMini tbMini--tmr" onclick="plTimer('+bi+')" title="Editar temporizador" aria-label="Editar temporizador '+plEsc(KTIMER.resumen(b.timer))+'"><i>⏱</i><b>'+plEsc(plTmrCorto(b.timer))+'</b></button>' : '<div class="tbMini"><button type="button" onclick="stepDesc('+bi+',-15)" aria-label="Menos descanso">−</button><b>'+b.desc+'s DESC</b><button type="button" onclick="stepDesc('+bi+',15)" aria-label="Más descanso">+</button></div>')+'</div>'+
       b.items.map(function(it){ return plTbCard(it,bi) }).join('')+
       '<button type="button" class="tbAdd" onclick="abrirSelector(\'agregar\','+bi+',null)">+ EJERCICIO EN B'+(bi+1)+'</button></section>' }).join('')
@@ -4608,7 +4608,9 @@ function planItem(beId){
   return r
 }
 async function stepSets(bi,d){
-  const b=P.sesiones[P.tab].bloques[bi]; b.sets=Math.max(1,Math.min(8,(b.sets||3)+d)); plDirty(); repintarConservando()
+  const b=P.sesiones[P.tab].bloques[bi]
+  if (plEsVueltas(b)){ b.timer=KTIMER.norm(Object.assign({}, b.timer, { series:Math.max(1,Math.min(10,(KTIMER.norm(b.timer).series||1)+d)) })); b.sets=b.timer.series; plDirty(); repintarConservando(); return }
+  b.sets=Math.max(1,Math.min(8,(b.sets||3)+d)); plDirty(); repintarConservando()
 }
 async function stepDesc(bi,d){
   const b=P.sesiones[P.tab].bloques[bi]; b.desc=Math.max(15,Math.min(240,(b.desc||60)+d)); plDirty(); repintarConservando()
@@ -4616,12 +4618,16 @@ async function stepDesc(bi,d){
 /* c188 · BLOQUE TEMPORIZADOR: Tabata / EMOM. Vive en bloques.timer (jsonb).
    SETS del bloque = series del timer (el socio registra un set por serie); DESC = pausa entre series. Queda en borrador hasta PUBLICAR. */
 function plTmrCorto(t){ const c=KTIMER.norm(t), sx=c.series>1?c.series+'×':'', m=function(v){ return v%60===0?(v/60)+'′':v>60?Math.floor(v/60)+'′'+(v%60):String(v) }
-  return c.modo==='emom' ? 'EMOM '+sx+m(c.trabajo)+(c.trabajo%60===0?'':'″')+' × '+c.rondas : 'TABATA '+sx+m(c.trabajo)+'/'+m(c.descanso)+' × '+c.rondas }
+  return c.modo==='emom' ? 'EMOM '+sx+m(c.trabajo)+(c.trabajo%60===0?'':'″')+' × '+c.rondas : 'TABATA '+m(c.trabajo)+'/'+m(c.descanso)+' · '+c.series+(c.series>1?' VUELTAS':' VUELTA') }
+/* c201 · tabata por vueltas: rondas = ejercicios del bloque (automático). Al agregar/quitar ejercicios se ajustan las rondas y se conservan las vueltas */
+function plTmrVueltas(b){ if(!b||!b.timer||!window.KTIMER||!KTIMER.porVueltas) return; const n=(b.items||[]).length
+  if (KTIMER.norm(b.timer).modo==='tabata' && n && (b.timer.rondas!==n || !b.timer.vt)){ b.timer=KTIMER.porVueltas(b.timer,n); b.sets=b.timer.series } }
+function plEsVueltas(b){ return !!(b&&b.timer&&window.KTIMER&&KTIMER.norm(b.timer).modo==='tabata'&&(b.items||[]).length) }
 function plTimer(bi, modo){
   const ses=P.sesiones[P.tab], b=ses&&ses.bloques[bi]; if(!b || !window.KTIMER) return
   const ro=!!(P&&P.ro)
   KTIMER.editor(b.timer, { modo:modo, bloque:bloqueTag(b,bi), ejercicios:(b.items||[]).map(function(it){ return { nombre:it.nombre, reps:(it.reps?String(it.reps)+' REPS':'') } }),
-    onSave: ro ? null : function(cfg){ b.timer=cfg; b.sets=Math.max(1,Math.min(8,cfg.series)); if(cfg.series>1) b.desc=Math.max(15,Math.min(240,cfg.pausa||60)); plDirty(); repintarConservando(); toast('Timer '+KTIMER.resumen(cfg)+' · en borrador · PUBLICAR para que el socio lo vea') },
+    onSave: ro ? null : function(cfg){ b.timer=cfg; b.sets=Math.max(1,Math.min(10,cfg.series)); if(cfg.series>1) b.desc=Math.max(15,Math.min(240,cfg.pausa||60)); plDirty(); repintarConservando(); toast('Timer '+KTIMER.resumen(cfg)+' · en borrador · PUBLICAR para que el socio lo vea') },
     onRemove: ro ? null : function(){ b.timer=null; plDirty(); repintarConservando(); toast('Timer quitado · en borrador') } })
 }
 /* c191 · MENÚ DEL BLOQUE (···): timer, prediseñados, duplicar, eliminar — todo en borrador hasta PUBLICAR */
