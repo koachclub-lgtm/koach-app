@@ -524,7 +524,8 @@ button.bxI:hover,button.bxI:focus-visible{transform:translateY(-2px);box-shadow:
 .tbInsp .acts button:hover{background:#121212;color:#F4F3F0}
 .tbMenu{position:fixed;z-index:130;min-width:220px;background:#FBFAF8;border:1px solid rgba(18,18,18,.22);border-radius:14px;box-shadow:0 18px 34px -16px rgba(0,0,0,.35);padding:6px}
 .tbMenu button{display:flex;justify-content:space-between;width:100%;min-height:42px;padding:0 12px;border:0;background:none;border-radius:9px;font-family:'Space Mono',var(--font-mono);font-size:12px;letter-spacing:.08em;cursor:pointer;text-align:left;align-items:center;color:#121212}
-.tbMenu button:hover{background:rgba(18,18,18,.06)}.tbMenu small{color:#8E8D88;font-size:10px}.tbMenu hr{border:0;border-top:1px solid rgba(18,18,18,.1);margin:4px 6px}
+.tbMenu button:hover{background:rgba(18,18,18,.06)}
+.tbMenu--bq{min-width:270px}.tbMenu--bq button{flex-direction:column;align-items:flex-start;justify-content:center;gap:3px;padding:9px 12px}.tbMenu--bq small{font-size:9.5px;letter-spacing:.06em}.tbMenu small{color:#8E8D88;font-size:10px}.tbMenu hr{border:0;border-top:1px solid rgba(18,18,18,.1);margin:4px 6px}
 @media (pointer:coarse){ .tbSt{height:50px;grid-template-columns:42px minmax(0,1fr) 42px} .tbIc{width:40px;height:40px} .tbMini{height:42px} }
 /* c77 · cargas intermedias del panel: mismo logotipo 3D del arranque, en formato compacto y móvil, dentro del contenido */
 .kld{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;min-height:150px;padding:26px 16px;margin:6px 0;border-radius:16px;background:#121210;color:#F4F3F0}
@@ -547,7 +548,7 @@ button.bxI:hover,button.bxI:focus-visible{transform:translateY(-2px);box-shadow:
 <script src="/domain/koach-series.js"></script>
 <script src="/domain/program-catalog.js"></script>
 <script src="/domain/koach-avatar.js"></script>
-<script src="/domain/koach-timer.js?v=3"></script>
+<script src="/domain/koach-timer.js?v=4"></script>
 <style>
 /* c188 · chip del bloque temporizador */
 .ktChip{border:1.5px dashed rgba(18,18,16,.28);background:none;color:inherit;border-radius:999px;padding:6px 10px;font:700 8.5px 'Space Mono',monospace;letter-spacing:.1em;cursor:pointer;white-space:nowrap}
@@ -4033,11 +4034,11 @@ function pintarPlan(){ setTimeout(function(){ try{ plSaveUI(); rtSyncPlan() }cat
   const htmlBloques = !ses.bloques.length ? '<div class="glass bq plVacio"><b>'+String(ses.nombre||'SESIÓN').toUpperCase()+'</b><span>Esta sesión todavía no tiene bloques.</span></div>' : ses.bloques.map(function(b,bi){
     const _be=(OB.estado||{})[b.bId]
     return '<div class="glass bq bq--t'+(bi%2)+(_be?' bq--'+_be:'')+'" data-bi="'+bi+'"><div class="bqh"><span class="bqt">'+bloqueTag(b,bi)+(_be==='hecho'?' <i class="bqEst">✓ COMPLETADO</i>':_be==='curso'?' <i class="bqEst bqEst--c">● EN CURSO</i>':'')+'</span>'+
-      '<button class="bqx" onclick="elimBloque('+bi+')" title="Eliminar bloque">✕</button>'+
+      (!(P&&P.ro)?'<button class="bqx" onclick="plBqMenu(event,'+bi+')" title="Opciones del bloque" aria-haspopup="menu" aria-label="Opciones de '+plEsc(bloqueTag(b,bi))+'">···</button>':'')+
       '<div class="stp"><span>SETS</span><button onclick="stepSets('+bi+',-1)">−</button><b>'+b.sets+'</b><button onclick="stepSets('+bi+',1)">+</button></div>'+
       (b.timer ? '<button class="ktChip on" onclick="plTimer('+bi+')" title="Editar temporizador">⏱ '+plEsc(KTIMER.resumen(b.timer))+'</button>'
                : '<div class="stp"><span>DESC</span><button onclick="stepDesc('+bi+',-15)">−</button><b>'+b.desc+'s</b><button onclick="stepDesc('+bi+',15)">+</button></div>'+
-                 (!(P&&P.ro)?'<button class="ktChip" onclick="plTimer('+bi+')" title="Convertir en bloque temporizador (Tabata, EMOM)">⏱ TIMER</button>':''))+'</div>'+
+                 '')+'</div>'+
     b.items.map(function(it){
       const tiempo = esTiempo(it)
       const ult = ULT[it.ejId]
@@ -4177,11 +4178,10 @@ function plTbHTML(ses){
   const cols = ses.bloques.map(function(b,bi){ const _be=(OB.estado||{})[b.bId]
     return '<section class="tbCol'+(_be==='hecho'?' tbCol--hecho':'')+(bi===TB.bi?' act':'')+'" data-bi="'+bi+'" aria-label="'+plEsc(bloqueTag(b,bi))+'">'+
       '<div class="tbColH"><span class="c">'+plEsc(bloqueTag(b,bi))+(_be==='hecho'?'<i>✓ HECHO</i>':_be==='curso'?'<i>● EN CURSO</i>':'')+'</span><span class="n">'+b.items.length+' EJ</span>'+
-        (!(P&&P.ro)?'<button type="button" class="tbX tbX--tpl" title="Guardar bloque como prediseñado" aria-label="Guardar '+plEsc(bloqueTag(b,bi))+' como prediseñado" onclick="abrirTplSave('+bi+')">★</button>':'')+
-        '<button type="button" class="tbX" title="Eliminar bloque" aria-label="Eliminar '+plEsc(bloqueTag(b,bi))+'" onclick="elimBloque('+bi+')">✕</button></div>'+
+        (!(P&&P.ro)?'<button type="button" class="tbX tbX--mas" title="Opciones del bloque" aria-haspopup="menu" aria-label="Opciones de '+plEsc(bloqueTag(b,bi))+'" onclick="plBqMenu(event,'+bi+')">···</button>':'')+'</div>'+
       '<div class="tbColP"><div class="tbMini"><button type="button" onclick="stepSets('+bi+',-1)" aria-label="Menos sets">−</button><b>'+b.sets+' SETS</b><button type="button" onclick="stepSets('+bi+',1)" aria-label="Más sets">+</button></div>'+
         (b.timer ? '' : '<div class="tbMini"><button type="button" onclick="stepDesc('+bi+',-15)" aria-label="Menos descanso">−</button><b>'+b.desc+'s DESC</b><button type="button" onclick="stepDesc('+bi+',15)" aria-label="Más descanso">+</button></div>')+'</div>'+
-        (!(P&&P.ro)||b.timer ? '<button type="button" class="ktChip ktChip--w'+(b.timer?' on':'')+'" onclick="plTimer('+bi+')" title="Bloque temporizador">⏱ '+(b.timer?plEsc(KTIMER.resumen(b.timer)):'CONVERTIR EN TIMER · TABATA / EMOM')+'</button>' : '')+
+        (b.timer ? '<button type="button" class="ktChip ktChip--w on" onclick="plTimer('+bi+')" title="Editar temporizador">⏱ '+plEsc(KTIMER.resumen(b.timer))+'</button>' : '')+
       b.items.map(function(it){ return plTbCard(it,bi) }).join('')+
       '<button type="button" class="tbAdd" onclick="abrirSelector(\'agregar\','+bi+',null)">+ EJERCICIO EN B'+(bi+1)+'</button></section>' }).join('')
   const nuevo = nb<6 ? '<button type="button" class="tbNew" onclick="abrirBloque()" aria-label="Agregar bloque">+ BLOQUE</button>' : '<span></span>'
@@ -4573,13 +4573,35 @@ async function stepDesc(bi,d){
 }
 /* c188 · BLOQUE TEMPORIZADOR: Tabata / EMOM. Vive en bloques.timer (jsonb).
    SETS del bloque = series del timer (el socio registra un set por serie); DESC = pausa entre series. Queda en borrador hasta PUBLICAR. */
-function plTimer(bi){
+function plTimer(bi, modo){
   const ses=P.sesiones[P.tab], b=ses&&ses.bloques[bi]; if(!b || !window.KTIMER) return
   const ro=!!(P&&P.ro)
-  KTIMER.editor(b.timer, { bloque:bloqueTag(b,bi), ejercicios:(b.items||[]).map(function(it){ return { nombre:it.nombre, reps:(it.reps?String(it.reps)+' REPS':'') } }),
+  KTIMER.editor(b.timer, { modo:modo, bloque:bloqueTag(b,bi), ejercicios:(b.items||[]).map(function(it){ return { nombre:it.nombre, reps:(it.reps?String(it.reps)+' REPS':'') } }),
     onSave: ro ? null : function(cfg){ b.timer=cfg; b.sets=Math.max(1,Math.min(8,cfg.series)); if(cfg.series>1) b.desc=Math.max(15,Math.min(240,cfg.pausa||60)); plDirty(); repintarConservando(); toast('Timer '+KTIMER.resumen(cfg)+' · en borrador · PUBLICAR para que el socio lo vea') },
     onRemove: ro ? null : function(){ b.timer=null; plDirty(); repintarConservando(); toast('Timer quitado · en borrador') } })
 }
+/* c191 · MENÚ DEL BLOQUE (···): timer, prediseñados, duplicar, eliminar — todo en borrador hasta PUBLICAR */
+function plBqMenu(ev,bi){ ev.stopPropagation(); const prev=document.getElementById('tbMenu'), mismo=prev&&prev.dataset.bi===String(bi); plTbMenuCerrar(); if(mismo) return
+  const ses=P.sesiones[P.tab], b=ses&&ses.bloques[bi]; if(!b) return
+  const cod='B'+(bi+1), B=function(t,fn,st){ return '<button role="menuitem" onclick="plTbMenuCerrar();'+fn+'"'+(st?' style="'+st+'"':'')+'>'+t+'</button>' }
+  const m=document.createElement('div'); m.className='tbMenu tbMenu--bq'; m.id='tbMenu'; m.dataset.bi=String(bi); m.setAttribute('role','menu')
+  m.innerHTML=(b.timer
+      ? B('⏱ EDITAR TIMER<small>'+plEsc(KTIMER.resumen(b.timer))+'</small>','plTimer('+bi+')')+B('QUITAR TIMER','plBqSinTimer('+bi+')')
+      : B('⏱ CONVERTIR A TABATA<small>20″ / 10″ × 8 Y VARIANTES</small>','plTimer('+bi+',\'tabata\')')+B('⏱ CONVERTIR A EMOM<small>CADA MINUTO / CADA 2′ / CADA 30″</small>','plTimer('+bi+',\'emom\')'))+
+    '<hr>'+B('REEMPLAZAR POR PREDISEÑADO','plBqReemplazar('+bi+')')+B('GUARDAR COMO PREDISEÑADO','abrirTplSave('+bi+')')+
+    (ses.bloques.length<6?B('DUPLICAR '+cod,'plBqDuplicar('+bi+')'):'')+
+    '<hr>'+B('ELIMINAR '+cod,'elimBloque('+bi+')','color:#9A2A1F')
+  document.body.appendChild(m)
+  const r=ev.currentTarget.getBoundingClientRect(), w=m.offsetWidth, h=m.offsetHeight
+  m.style.left=Math.max(8,Math.min(innerWidth-w-8, r.right-w))+'px'; m.style.top=(r.bottom+h+8>innerHeight? Math.max(8,r.top-h-6) : r.bottom+6)+'px'
+  const f=m.querySelector('button'); if(f) f.focus() }
+function plBqSinTimer(bi){ const b=P.sesiones[P.tab].bloques[bi]; if(!b) return; b.timer=null; plDirty(); repintarConservando(); toast('Timer quitado de B'+(bi+1)+' · en borrador') }
+function plBqDuplicar(bi){ const ses=P.sesiones[P.tab], b=ses.bloques[bi]; if(!b) return
+  if (ses.bloques.length>=6){ toast('Máximo 6 bloques por sesión.'); return }
+  const nid=plUuid(), c=JSON.parse(JSON.stringify(b)); c.id=nid; c.bId=nid
+  c.items=(c.items||[]).map(function(it){ it.beId=plUuid(); return it })
+  ses.bloques.splice(bi+1,0,c); plDirty(); repintarConservando(); calcDose(); toast('B'+(bi+1)+' duplicado como B'+(bi+2)+' · en borrador') }
+function plBqReemplazar(bi){ TPL.reemplazar=bi; abrirBibBloq() }
 let _pendC=0
 function syncEnvio(){ _pendC++; const t=document.getElementById('syncTag'); t.style.display='block'; t.className='envio'; t.textContent='GUARDANDO…' }
 function syncOk(){ try{ plMarcarSucio() }catch(_e){} if(_pendC>0)_pendC--; if(_pendC>0)return; const t=document.getElementById('syncTag'); t.className=''; t.textContent='✓ GUARDADO'
@@ -4889,7 +4911,7 @@ function dsEstado(E){ if (E) DSI.save=E
 // ═══ ORGANIZADOR SEMANAL (playlist) ═══
 // c113 · los bloques prediseñados viven en sesiones 'CONTENEDOR DE BLOQUES' dentro de BIBLIOTECA (el servidor las ubica y protege); nunca se listan como rutinas
 function esContenedor(s){ return /^CONTENEDOR/i.test(String((s&&(s.objetivo||s.nombre))||'')) }
-function abrirBloque(){ document.getElementById('mAddBloque').style.display='block' }
+function abrirBloque(){ TPL.reemplazar=null; document.getElementById('mAddBloque').style.display='block' }
 async function abrirBibBloq(){
   document.getElementById('mBibBloq').style.display='block'
   document.getElementById('bibBloqPrev').style.display='none'
@@ -4923,27 +4945,31 @@ async function verTpl(tplId){
       }).join('') : '<div class="vacio">Plantilla vacía — pendiente de contenido.</div>')+
       '<div style="display:flex;gap:10px;margin-top:14px">'+
       '<button class="bbtn" onclick="abrirBibBloq()" style="flex:1">← VOLVER</button>'+
-      (bes.length? '<button class="bbtn ink" style="flex:1.4" onclick="clonarTpl(\''+tplId+'\')">AGREGAR A SESIÓN</button>' : '')+'</div>'+
+      (bes.length? '<button class="bbtn ink" style="flex:1.4" onclick="clonarTpl(\''+tplId+'\')">'+(TPL.reemplazar!=null?'REEMPLAZAR B'+(TPL.reemplazar+1):'AGREGAR A SESIÓN')+'</button>' : '')+'</div>'+
       '<button class="bbtn" style="width:100%;margin-top:10px;opacity:.75" onclick="borrarTpl(\''+tplId+'\')">ELIMINAR PREDISEÑADO</button>'
   }catch(e){ prev.innerHTML='<div class="vacio">Error al cargar la plantilla.</div>' }
 }
 async function clonarTpl(tplId){
   const ses=P.sesiones[P.tab]
   if (!ses){ toast('Abre una sesión primero.'); return }
-  if (ses.bloques.length>=6){ toast('Máximo 6 bloques por sesión.'); return }
+  const rbi=(TPL.reemplazar!=null && ses.bloques[TPL.reemplazar]) ? TPL.reemplazar : null
+  if (rbi==null && ses.bloques.length>=6){ toast('Máximo 6 bloques por sesión.'); return }
+  if (rbi!=null && ses.bloques[rbi].items.length && !await kConfirm('¿Reemplazar B'+(rbi+1)+' ('+ses.bloques[rbi].items.length+' ejercicio(s)) por este prediseñado?\nQueda en borrador hasta PUBLICAR.')) return
   const [rt, rb] = await Promise.all([
-    sb.from('bloques').select('etiqueta, rol, sets, descanso_seg, descanso_segundos').eq('id',tplId).single(),
+    sb.from('bloques').select('etiqueta, rol, sets, descanso_seg, descanso_segundos, timer').eq('id',tplId).single(),
     sb.from('bloque_ejercicios').select('ejercicio_id, orden, reps_txt, kg_objetivo, ejercicios(id,nombre,grupo_muscular,sinergistas,tipo_registro,con_carga,cuenta_dosis,activo)').eq('bloque_id',tplId).order('orden') ])
   if (rt.error||rb.error){ console.error('[bloques prediseñados] usar', rt.error||rb.error); toast('No pudimos agregar el bloque. Intenta nuevamente.'); return }
-  const t=rt.data, nid=plUuid()
-  ses.bloques.push({ id:nid, bId:nid, tag:'B'+(ses.bloques.length+1), rol:t.rol, etiqueta:t.etiqueta, sets:t.sets,
-    desc:(t.descanso_seg!=null?t.descanso_seg:t.descanso_segundos)||60,
+  const t=rt.data, nid=(rbi!=null?ses.bloques[rbi].id:plUuid())
+  const nb={ id:nid, bId:nid, tag:'B'+(rbi!=null?rbi+1:ses.bloques.length+1), rol:t.rol, etiqueta:t.etiqueta, sets:t.sets,
+    desc:(t.descanso_seg!=null?t.descanso_seg:t.descanso_segundos)||60, timer:(t.timer||null),
     items:(rb.data||[]).map(function(x,ix){ const e=x.ejercicios||{}; return { beId:plUuid(), ejId:x.ejercicio_id, nombre:e.nombre||'—', grupo:e.grupo_muscular||'',
       sinergistas:e.sinergistas||{}, kg:(x.kg_objetivo!=null?x.kg_objetivo:null), orden:ix+1, tipoReg:e.tipo_registro||null, conCarga:e.con_carga, cuentaDosis:e.cuenta_dosis,
-      activo:e.activo, reps:(x.reps_txt||'10') } }) })
+      activo:e.activo, reps:(x.reps_txt||'10') } }) }
+  if (rbi!=null) ses.bloques.splice(rbi,1,nb); else ses.bloques.push(nb)
+  TPL.reemplazar=null
   document.getElementById('mBibBloq').style.display='none'
   plDirty(); repintarConservando(); calcDose()
-  toast('Bloque agregado desde prediseñado · en borrador · PUBLICAR para que el socio lo vea')
+  toast((rbi!=null?'B'+(rbi+1)+' reemplazado por prediseñado':'Bloque agregado desde prediseñado')+' · en borrador · PUBLICAR para que el socio lo vea')
 }
 async function borrarTpl(tplId){
   if (!await kConfirm('¿Eliminar este bloque prediseñado?\nNo afecta a las rutinas que ya lo usan.')) return
@@ -4951,7 +4977,7 @@ async function borrarTpl(tplId){
   if (r.error){ console.error('[bloques prediseñados] borrar', r.error); toast('No pudimos eliminarlo. Intenta nuevamente.'); return }
   toast('Prediseñado eliminado.'); abrirBibBloq()
 }
-let TPL={bi:null}
+let TPL={bi:null, reemplazar:null}
 function abrirTplSave(bi){ TPL.bi=bi; document.getElementById('tplNom').value=''; document.getElementById('mTplSave').style.display='block' }
 async function confirmarTpl(){
   const nom=(document.getElementById('tplNom').value||'').trim()

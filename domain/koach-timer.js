@@ -262,7 +262,8 @@ function play(cfg, opts){
 /* ══════════ EDITOR (planificador del coach) ══════════ */
 function editor(cfg, opts){
   opts=opts||{}; css()
-  let c=norm(cfg||PRESETS[0].c&&Object.assign({modo:'tabata'},PRESETS[0].c)), pre=cfg?null:'tab20'
+  const p0=PRESETS.find(x=>x.modo===(opts.modo||'tabata'))||PRESETS[0]
+  let c=norm(cfg||Object.assign({modo:p0.modo},p0.c)), pre=cfg?null:p0.id
   const ov=document.createElement('div'); ov.className='kte'; ov.setAttribute('role','dialog'); ov.setAttribute('aria-modal','true')
   document.body.appendChild(ov)
   const fmt = (k,v) => (k==='rondas'||k==='series') ? String(v) : (v>=60? mmss(v) : v+'″')
@@ -295,5 +296,5 @@ function editor(cfg, opts){
   pintar()
   return { close:cerrar } }
 
-root.KTIMER = { MODOS, PRESETS, norm, timeline, total, resumen, mmss, play, editor, seg7, VERSION:'koach-timer@1.2.0' }
+root.KTIMER = { MODOS, PRESETS, norm, timeline, total, resumen, mmss, play, editor, seg7, VERSION:'koach-timer@1.3.0' }
 })(typeof window!=='undefined'?window:globalThis);
