@@ -388,13 +388,8 @@ button.bxI:hover,button.bxI:focus-visible{transform:translateY(-2px);box-shadow:
 #vPlan.plDesk .tbCard .plProg,#vPlan.plDesk .tbCard .plUlt{display:none !important}
 #vPlan.plDesk .tbCard.edit{grid-template-columns:minmax(0,1fr);grid-template-areas:"n"}
 #vPlan.plDesk .tbCard.edit>.tbSwap{grid-area:n}
-/* c194 · columna angosta (4+ bloques en tablet): la fila única dejaba el nombre en ancho cero → nombre arriba con ✎ ···, controles abajo */
-#vPlan.plDesk .tbCol{container-type:inline-size;container-name:tbcol}
-@container tbcol (max-width:440px){
-  #vPlan.plDesk .tbCard{grid-template-columns:minmax(0,1fr) 28px 28px;grid-template-areas:"n e1 e2" "c c c";row-gap:4px;padding:6px 5px 6px 9px}
-  #vPlan.plDesk .tbCard>.tbCtl{min-width:0}
-  #vPlan.plDesk .tbCard>.tbCtl>.tbSt{flex:1 1 0;width:auto;min-width:0}
-}
+#vPlan.plDesk .tbBoard.tbCarr{overflow-x:auto;scroll-snap-type:x mandatory;scroll-padding-left:4px;-webkit-overflow-scrolling:touch;scrollbar-width:thin}
+#vPlan.plDesk .tbBoard.tbCarr>.tbCol,#vPlan.plDesk .tbBoard.tbCarr>.tbNew{scroll-snap-align:start}
 /* ficha negra del ejercicio seleccionado */
 .tbSelC{display:none}
 #vPlan.plDesk .tbSelC{display:grid;grid-template-columns:minmax(160px,1.2fr) auto auto auto;align-items:center;gap:0;min-height:48px;padding:6px 6px 6px 14px;border-radius:14px;background:#121212;color:#F4F3F0;min-width:0;max-width:640px}
@@ -4131,6 +4126,11 @@ function plTbGrid(){ const bd=document.getElementById('tbBoard'); if(!bd) return
   if (!(document.getElementById('vPlan')||{}).classList || !document.getElementById('vPlan').classList.contains('plDesk')){ bd.style.gridTemplateColumns='repeat('+cols.length+',minmax(258px,1fr)) 44px'; return }
   // c88 · con el inspector abierto, una columna nunca baja de 210 px: si no caben, el tablero se desplaza en horizontal (no se aplasta)
   const _ds=(document.getElementById('plWork')||{}).classList, _min=(_ds && _ds.contains('dsOn') && (bd.clientWidth-44-10*cols.length)/cols.length<210) ? '210px' : '0'
+  // c197 · nunca se comprime: máximo 3 columnas por pantalla y cada una con ancho mínimo para que se lea el nombre del ejercicio (fila única);
+  // si no caben, el tablero se desliza en horizontal (carrusel) y la columna «+ BLOQUE» queda al final
+  { const disp=bd.clientWidth-44-10*Math.min(cols.length,3), w=Math.max(Math.floor(disp/Math.min(cols.length,3)), 400)
+    if (cols.length>3 || w*cols.length>disp+1){ bd.style.gridTemplateColumns='repeat('+cols.length+','+w+'px) 44px'; bd.classList.add('tbCarr'); return } }
+  bd.classList.remove('tbCarr')
   bd.style.gridTemplateColumns = 'repeat('+cols.length+',minmax('+_min+',1fr)) 44px' }
 // ═══════════ c75 · TABLERO DE SESIÓN (escritorio) ═══════════
 // Misma fuente y mismas acciones del planificador (stepSets/stepDesc/stepItem/editKg/editReps/elegirEj/quitarEj/plGuardar):
