@@ -547,7 +547,7 @@ button.bxI:hover,button.bxI:focus-visible{transform:translateY(-2px);box-shadow:
 <script src="/domain/koach-series.js"></script>
 <script src="/domain/program-catalog.js"></script>
 <script src="/domain/koach-avatar.js"></script>
-<script src="/domain/koach-timer.js?v=2"></script>
+<script src="/domain/koach-timer.js?v=3"></script>
 <style>
 /* c188 · chip del bloque temporizador */
 .ktChip{border:1.5px dashed rgba(18,18,16,.28);background:none;color:inherit;border-radius:999px;padding:6px 10px;font:700 8.5px 'Space Mono',monospace;letter-spacing:.1em;cursor:pointer;white-space:nowrap}
@@ -4037,7 +4037,7 @@ function pintarPlan(){ setTimeout(function(){ try{ plSaveUI(); rtSyncPlan() }cat
       '<div class="stp"><span>SETS</span><button onclick="stepSets('+bi+',-1)">−</button><b>'+b.sets+'</b><button onclick="stepSets('+bi+',1)">+</button></div>'+
       (b.timer ? '<button class="ktChip on" onclick="plTimer('+bi+')" title="Editar temporizador">⏱ '+plEsc(KTIMER.resumen(b.timer))+'</button>'
                : '<div class="stp"><span>DESC</span><button onclick="stepDesc('+bi+',-15)">−</button><b>'+b.desc+'s</b><button onclick="stepDesc('+bi+',15)">+</button></div>'+
-                 (!(P&&P.ro)?'<button class="ktChip" onclick="plTimer('+bi+')" title="Convertir en bloque temporizador (Tabata, EMOM, For Time)">⏱ TIMER</button>':''))+'</div>'+
+                 (!(P&&P.ro)?'<button class="ktChip" onclick="plTimer('+bi+')" title="Convertir en bloque temporizador (Tabata, EMOM)">⏱ TIMER</button>':''))+'</div>'+
     b.items.map(function(it){
       const tiempo = esTiempo(it)
       const ult = ULT[it.ejId]
@@ -4181,7 +4181,7 @@ function plTbHTML(ses){
         '<button type="button" class="tbX" title="Eliminar bloque" aria-label="Eliminar '+plEsc(bloqueTag(b,bi))+'" onclick="elimBloque('+bi+')">✕</button></div>'+
       '<div class="tbColP"><div class="tbMini"><button type="button" onclick="stepSets('+bi+',-1)" aria-label="Menos sets">−</button><b>'+b.sets+' SETS</b><button type="button" onclick="stepSets('+bi+',1)" aria-label="Más sets">+</button></div>'+
         (b.timer ? '' : '<div class="tbMini"><button type="button" onclick="stepDesc('+bi+',-15)" aria-label="Menos descanso">−</button><b>'+b.desc+'s DESC</b><button type="button" onclick="stepDesc('+bi+',15)" aria-label="Más descanso">+</button></div>')+'</div>'+
-        (!(P&&P.ro)||b.timer ? '<button type="button" class="ktChip ktChip--w'+(b.timer?' on':'')+'" onclick="plTimer('+bi+')" title="Bloque temporizador">⏱ '+(b.timer?plEsc(KTIMER.resumen(b.timer)):'CONVERTIR EN TIMER · TABATA / EMOM / FOR TIME')+'</button>' : '')+
+        (!(P&&P.ro)||b.timer ? '<button type="button" class="ktChip ktChip--w'+(b.timer?' on':'')+'" onclick="plTimer('+bi+')" title="Bloque temporizador">⏱ '+(b.timer?plEsc(KTIMER.resumen(b.timer)):'CONVERTIR EN TIMER · TABATA / EMOM')+'</button>' : '')+
       b.items.map(function(it){ return plTbCard(it,bi) }).join('')+
       '<button type="button" class="tbAdd" onclick="abrirSelector(\'agregar\','+bi+',null)">+ EJERCICIO EN B'+(bi+1)+'</button></section>' }).join('')
   const nuevo = nb<6 ? '<button type="button" class="tbNew" onclick="abrirBloque()" aria-label="Agregar bloque">+ BLOQUE</button>' : '<span></span>'
@@ -4571,7 +4571,7 @@ async function stepSets(bi,d){
 async function stepDesc(bi,d){
   const b=P.sesiones[P.tab].bloques[bi]; b.desc=Math.max(15,Math.min(240,(b.desc||60)+d)); plDirty(); repintarConservando()
 }
-/* c188 · BLOQUE TEMPORIZADOR: Tabata / EMOM / FOR TIME. Vive en bloques.timer (jsonb).
+/* c188 · BLOQUE TEMPORIZADOR: Tabata / EMOM. Vive en bloques.timer (jsonb).
    SETS del bloque = series del timer (el socio registra un set por serie); DESC = pausa entre series. Queda en borrador hasta PUBLICAR. */
 function plTimer(bi){
   const ses=P.sesiones[P.tab], b=ses&&ses.bloques[bi]; if(!b || !window.KTIMER) return
