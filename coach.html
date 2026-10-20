@@ -8696,6 +8696,26 @@ function kShellMenu(){
 }
 document.addEventListener('keydown', function(e){ if(e.key==='Escape' && KS.menu){ KS.menu=null; kShellMenu() } })
 addEventListener('resize', function(){ if(document.documentElement.classList.contains('ks-on')) kShellPaint() })
+
+/* c198 · ACTUALIZACIÓN AUTOMÁTICA del dashboard (como la app del socio, c31): cada deploy cambia el ETag del HTML.
+   Al volver a la pestaña (o cada 5 min) se compara; si cambió y no hay cambios sin guardar en el planner, recarga sola.
+   Con cambios sin guardar no interrumpe: muestra un botón para actualizar cuando quieras. */
+;(function(){
+  let base=null, avisado=false
+  async function etag(){ try{ const r=await fetch(location.pathname+'?v='+Date.now(),{method:'HEAD',cache:'no-store'}); return r.headers.get('etag')||r.headers.get('last-modified') }catch(_){ return null } }
+  function sucio(){ try{ return typeof plEsDirty==='function' && plEsDirty() }catch(_){ return false } }
+  function aviso(){ if(avisado) return; avisado=true
+    const b=document.createElement('button'); b.type='button'; b.textContent='NUEVA VERSIÓN · GUARDA Y TOCA PARA ACTUALIZAR'
+    b.style.cssText='position:fixed;left:50%;bottom:18px;transform:translateX(-50%);z-index:9999;padding:12px 18px;border:0;border-radius:12px;background:#121212;color:#F4F3F0;font:700 11px/1 "Space Mono",monospace;letter-spacing:.12em;cursor:pointer;box-shadow:0 6px 20px rgba(0,0,0,.25)'
+    b.onclick=function(){ location.reload() }; document.body.appendChild(b) }
+  async function revisar(){ const e=await etag(); if(!e) return
+    if(base==null){ base=e; return }
+    if(e!==base){ if(sucio()) aviso(); else location.reload() } }
+  setTimeout(revisar,4000)
+  document.addEventListener('visibilitychange',function(){ if(document.visibilityState==='visible') revisar() })
+  window.addEventListener('pageshow',function(ev){ if(ev.persisted) revisar() })
+  setInterval(revisar,5*60*1000)
+})()
 </script>
 </body>
 </html>
