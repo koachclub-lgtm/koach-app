@@ -41,7 +41,7 @@ function timeline(c){ c=norm(c); const out=[]; let ex=0
   for (let s=1;s<=c.series;s++){
     for (let r=1;r<=c.rondas;r++){
       out.push({k:'work', d:c.trabajo, r, R:c.rondas, s, S:c.series, ex:ex++})
-      if (c.descanso && (r<c.rondas || (c.modo==='tabata' && s===c.series))) out.push({k:'rest', d:c.descanso, r, R:c.rondas, s, S:c.series, ex})
+      if (c.descanso && r<c.rondas) out.push({k:'rest', d:c.descanso, r, R:c.rondas, s, S:c.series, ex})
     }
     if (s<c.series && c.pausa) out.push({k:'pause', d:c.pausa, s, S:c.series, ex})
   }
@@ -54,19 +54,29 @@ function resumen(c){ if(!c) return ''; c=norm(c); const L=MODOS[c.modo].lab, sx=
   if (c.modo==='emom') return (c.trabajo===60?'EMOM':c.trabajo===120?'E2MOM':'EMOM '+corto(c.trabajo))+' · '+sx+c.rondas+' RONDAS'
   return '' }
 
-/* ── sonido (Web Audio, sin archivos) ── */
-const AU={ ctx:null }
+/* ── sonido (Web Audio, sin archivos) · patrón SmartWOD ──
+   · 3 · 2 · 1  → tres pitidos cortos iguales en los 3 últimos segundos de CADA intervalo (prep, trabajo, descanso, pausa)
+   · INICIO de trabajo (cada ejercicio / ronda) → pitido largo agudo
+   · FIN de trabajo (entra descanso o pausa)     → pitido largo grave
+   · FIN del timer                                → bocina: 3 largos + uno final
+   Los pitidos se programan en el reloj de audio (hora exacta), no con setInterval: suenan a tiempo aunque
+   el teléfono frene el JavaScript (pestaña en segundo plano, ahorro de batería). Pausa/saltar los cancelan. */
+const AU={ ctx:null, nodes:[] }
 function unlock(){ try{ const AC=root.AudioContext||root.webkitAudioContext; if(!AC) return; if(!AU.ctx) AU.ctx=new AC(); if(AU.ctx.state!=='running') AU.ctx.resume() }catch(_){} }
-function beep(f,dur,gain,at,type){ const c=AU.ctx; if(!c||c.state!=='running'||!P.sonido()) return
-  try{ const t=c.currentTime+(at||0), o=c.createOscillator(), g=c.createGain(); o.type=type||'sine'; o.frequency.value=f
-    g.gain.setValueAtTime(0,t); g.gain.linearRampToValueAtTime(gain,t+.008); g.gain.exponentialRampToValueAtTime(.0001,t+dur)
-    o.connect(g); g.connect(c.destination); o.start(t); o.stop(t+dur+.03) }catch(_){} }
+function beep(f,dur,gain,at,type){ const c=AU.ctx; if(!c||c.state==='closed'||!P.sonido()) return
+  try{ const t=c.currentTime+Math.max(0,at||0), o=c.createOscillator(), lp=c.createBiquadFilter(), g=c.createGain()
+    o.type=type||'square'; o.frequency.value=f; lp.type='lowpass'; lp.frequency.value=f*3.2   // cuadrada suavizada: penetra el ruido de la sala sin ser estridente
+    g.gain.setValueAtTime(0,t); g.gain.linearRampToValueAtTime(gain,t+.006); g.gain.setValueAtTime(gain,t+Math.max(.01,dur-.04)); g.gain.linearRampToValueAtTime(0,t+dur)
+    o.connect(lp); lp.connect(g); g.connect(c.destination); o.start(t); o.stop(t+dur+.02)
+    const n={o, t}; AU.nodes.push(n); o.onended=()=>{ const i=AU.nodes.indexOf(n); if(i>=0) AU.nodes.splice(i,1) } }catch(_){} }
+// todo=false: corta solo lo programado a futuro (deja sonar el pitido que ya empezó) · todo=true: silencio total
+function hush(todo, margen){ const c=AU.ctx; const now=c?c.currentTime:0, lim=now+(margen||.005)
+  AU.nodes=AU.nodes.filter(n=>{ if(todo || n.t>lim){ try{ n.o.onended=null; n.o.stop() }catch(_){} return false } return true }) }
 const SND = {
-  tick(){ beep(1100,.08,.2) },                                             // 3 · 2 · 1
-  go(){ beep(1760,.32,.32,0,'square'); beep(880,.32,.18,0) },                // inicio de TRABAJO (largo y agudo)
-  rest(){ beep(660,.18,.22); beep(440,.3,.22,.2) },                          // inicio de DESCANSO (dos tonos bajando)
-  half(){ beep(990,.1,.14); beep(990,.1,.14,.16) },                          // mitad del intervalo largo
-  fin(){ [0,.3,.6].forEach(a=>beep(1320,.22,.3,a,'square')); beep(660,.9,.25,.9) } // final
+  tick(at){ beep(880,.15,.42,at) },                                                    // 3 · 2 · 1
+  go(at){ beep(1320,.7,.48,at) },                                                       // comienza ejercicio / ronda
+  rest(at){ beep(660,.7,.46,at) },                                                      // termina el trabajo → descanso
+  fin(at){ at=at||0; [0,.55,1.1].forEach(d=>beep(1320,.4,.5,at+d)); beep(1320,1.3,.5,at+1.65) } // termina el timer
 }
 
 /* ── reloj de siete segmentos (mismo dibujo que la app) ── */
@@ -175,12 +185,12 @@ function play(cfg, opts){
   if (opts.sonido) P.sonido=opts.sonido
   unlock()
   const c=norm(cfg), segs=timeline(c), exs=(opts.ejercicios||[]).filter(Boolean)
-  const T={ i:0, t0:Date.now(), pausa:null, cerrar:false, last:null, half:false, done:false, wl:null }
+  const T={ i:0, t0:Date.now(), pausa:null, cerrar:false, last:null, done:false, wl:null }
   const el=document.createElement('div'); el.className='kt'; el.setAttribute('role','dialog'); el.setAttribute('aria-modal','true'); el.setAttribute('aria-label','Temporizador '+MODOS[c.modo].lab)
   document.body.appendChild(el); document.documentElement.style.overflow='hidden'
   const wake=async on=>{ try{ if(on && !T.wl && navigator.wakeLock){ T.wl=await navigator.wakeLock.request('screen') } else if(!on && T.wl){ await T.wl.release(); T.wl=null } }catch(_){ T.wl=null } }
   wake(true)
-  const onVis=()=>{ if(document.visibilityState==='visible' && !T.done) wake(true) }
+  const onVis=()=>{ if(document.visibilityState==='visible' && !T.done){ wake(true); if(AU.ctx&&AU.ctx.state!=='running'){ unlock(); setTimeout(programar,120) } } }
   document.addEventListener('visibilitychange', onVis)
   const ahora=()=> T.pausa!=null ? T.pausa : Date.now()
   const restante=()=>{ const s=segs[T.i]; return s ? s.d - (ahora()-T.t0)/1000 : 0 }
@@ -214,25 +224,31 @@ function play(cfg, opts){
       '<div class="kt__ctl"><button data-a="prev" aria-label="Intervalo anterior">◀ ATRÁS</button><button class="pri" data-a="pp">'+(T.pausa!=null?'▶ REANUDAR':'❚❚ PAUSA')+'</button><button data-a="next" aria-label="Saltar intervalo">SALTAR ▶</button></div>'+
       '<div class="kt__pz">EN PAUSA</div>'
     T.last=null }
-  function irA(i){ T.i=Math.max(0,Math.min(segs.length,i)); T.t0=Date.now(); if(T.pausa!=null) T.pausa=T.t0; T.half=false; T._cd=null
-    const s=segs[T.i]; if(!s){ fin(); return }
-    if (s.k==='work') SND.go(); else if (s.k==='rest'||s.k==='pause') SND.rest()
+  // agenda en el reloj de audio el 3·2·1 del intervalo en curso y el sonido de la transición siguiente
+  function programar(auto){ hush(false, auto?.45:0); if(T.done || T.pausa!=null) return
+    const s=segs[T.i]; if(!s) return; const r=restante(), nx=segs[T.i+1]
+    const desde=auto?.45:-.05
+    ;[3,2,1].forEach(k=>{ if(r-k>desde && s.d>k) SND.tick(r-k) })
+    if (!nx) SND.fin(r); else if (nx.k==='work') SND.go(r); else if (s.k==='work') SND.rest(r) }
+  // auto=true: el intervalo terminó solo (su sonido ya estaba agendado) · false: el socio saltó/retrocedió → sonido inmediato
+  function irA(i, auto){ const prev=segs[T.i]
+    // auto: el nuevo intervalo parte EXACTO donde terminó el anterior (sin el retraso del tick) → cero desfase acumulado
+    T.t0 = (auto && prev) ? T.t0+prev.d*1000 : Date.now(); T.i=Math.max(0,Math.min(segs.length,i)); if(T.pausa!=null) T.pausa=T.t0
+    const s=segs[T.i]; if(!s){ fin(auto); return }
+    if (!auto){ hush(); if (s.k==='work') SND.go(); else if (s.k==='rest'||s.k==='pause') SND.rest() }
+    programar(auto)
     try{ if(navigator.vibrate) navigator.vibrate(s.k==='work'?[60,40,60]:40) }catch(_){}
     pintar() }
   function tick(){ if(T.done) return
     const s=segs[T.i]; if(!s) return fin()
     const r=restante()
-    if (r<=0){ irA(T.i+1); return }
+    if (r<=0){ irA(T.i+1, true); return }
     const shown = Math.ceil(r-1e-6)
-    if (T.pausa==null){
-      const ent=Math.ceil(r-1e-6)
-      if (ent<=3 && ent>=1 && T._cd!==ent){ T._cd=ent; SND.tick() }
-      if (s.k==='work' && s.d>=60 && !T.half && r<=s.d/2){ T.half=true; SND.half() } }
     const k=document.getElementById('ktClk'), t=mmss(shown)
     if (k && k.dataset.t!==t){ k.dataset.t=t; k.innerHTML=seg7(t); k.classList.remove('tk'); void k.offsetWidth; k.classList.add('tk')
       const q=document.getElementById('ktRest'); if(q) q.textContent=mmss(quedaTotal())
       const u=el.querySelector('.kt__bar u'); if(u) u.style.width=Math.min(100,(1-Math.max(0,r)/s.d)*100)+'%' } }
-  function fin(){ if(T.done) return; T.done=true; clearInterval(T.iv); SND.fin(); wake(false)
+  function fin(auto){ if(T.done) return; T.done=true; clearInterval(T.iv); if(!auto){ hush(); SND.fin() } wake(false)
     try{ if(navigator.vibrate) navigator.vibrate([200,80,200,80,400]) }catch(_){}
     el.dataset.k='fin'; el.classList.remove('paused')
     const tot=total(c), st=[['TIEMPO', mmss(tot)], ['RONDAS', String(c.rondas*c.series)]]
@@ -242,12 +258,12 @@ function play(cfg, opts){
       (opts.onFinish?'<button class="kt__big" data-a="reg">'+esc(opts.finLabel||'REGISTRAR BLOQUE')+'<small>'+esc(opts.finSub||'SE GUARDA CON LO PRESCRITO · PUEDES AJUSTAR DESPUÉS')+'</small></button>':'')+
       '<div class="kt__ctl" style="grid-template-columns:1fr 1fr"><button data-a="again">REPETIR</button><button data-a="cerrar">CERRAR</button></div>'
     T.res=res; if (opts.onEnd) try{ opts.onEnd(res) }catch(_){} }
-  function close(silencio){ clearInterval(T.iv); T.done=true; wake(false); document.removeEventListener('visibilitychange', onVis)
+  function close(silencio){ clearInterval(T.iv); T.done=true; hush(true); wake(false); document.removeEventListener('visibilitychange', onVis)
     el.remove(); document.documentElement.style.overflow=''; if(ACT.cur===api) ACT.cur=null; if(!silencio && opts.onClose) opts.onClose(T.res||null) }
   el.addEventListener('click', e=>{ const b=e.target.closest('[data-a]'); if(!b) return; unlock(); const a=b.dataset.a, s=segs[T.i]
     if (a!=='x' && T.cerrar){ T.cerrar=false; clearTimeout(T._x) }
     if (a==='x'){ if(T.cerrar){ close(); return } T.cerrar=true; clearTimeout(T._x); T._x=setTimeout(()=>{ T.cerrar=false; if(!T.done) pintar() },2600); pintar(); return }
-    if (a==='pp'){ if(T.pausa!=null){ T.t0+=Date.now()-T.pausa; T.pausa=null } else T.pausa=Date.now(); pintar(); return }
+    if (a==='pp'){ if(T.pausa!=null){ T.t0+=Date.now()-T.pausa; T.pausa=null; programar() } else { T.pausa=Date.now(); hush() } pintar(); return }
     if (a==='next'){ irA(T.i+1); return }
     if (a==='prev'){ const el2=(ahora()-T.t0)/1000; irA(el2>3||T.i===0?T.i:T.i-1); return }
     if (a==='reg'){ const r=T.res; close(true); opts.onFinish(r); return }
@@ -256,7 +272,7 @@ function play(cfg, opts){
   const api={ close, el }
   ACT.cur=api
   T.iv=setInterval(tick, 200)
-  if (segs[0] && segs[0].k==='prep'){ T.t0=Date.now(); pintar() } else irA(0)
+  if (segs[0] && segs[0].k==='prep'){ T.t0=Date.now(); programar(); pintar() } else irA(0)
   return api }
 
 /* ══════════ EDITOR (planificador del coach) ══════════ */
@@ -296,5 +312,5 @@ function editor(cfg, opts){
   pintar()
   return { close:cerrar } }
 
-root.KTIMER = { MODOS, PRESETS, norm, timeline, total, resumen, mmss, play, editor, seg7, VERSION:'koach-timer@1.3.0' }
+root.KTIMER = { MODOS, PRESETS, norm, timeline, total, resumen, mmss, play, editor, seg7, VERSION:'koach-timer@1.4.0' }
 })(typeof window!=='undefined'?window:globalThis);
