@@ -1,5 +1,5 @@
 /* ════════════════════════════════════════════════════════════════════
-   KOACH TIMER · bloque temporizador (Tabata · EMOM · AMRAP · FOR TIME · Intervalos)
+   KOACH TIMER · bloque temporizador (Tabata · EMOM · FOR TIME)
    Inspirado en la lógica de SmartWOD Timer: cuenta previa, intervalos programados,
    cuenta 3·2·1 con tono, GO de salida, descanso, pausa entre series y cierre.
    · Configuración (bloques.timer jsonb):
@@ -14,9 +14,7 @@
 const MODOS = {
   tabata:     { lab:'TABATA',     d:'Trabajo / descanso fijos por rondas. El clásico: 20″ / 10″ × 8.' },
   emom:       { lab:'EMOM',       d:'Cada minuto (o intervalo) arranca una ronda; lo que sobra es descanso.' },
-  amrap:      { lab:'AMRAP',      d:'Máximas rondas posibles en el tiempo. El socio cuenta sus rondas.' },
-  fortime:    { lab:'FOR TIME',   d:'Completar el trabajo lo más rápido posible, con tiempo tope.' },
-  intervalos: { lab:'INTERVALOS', d:'Trabajo / descanso libres (HIIT), por rondas y series.' }
+  fortime:    { lab:'FOR TIME',   d:'Completar el trabajo lo más rápido posible, con tiempo tope.' }
 }
 // Formatos propuestos (presets): un toque y queda programado; luego se ajusta fino.
 const PRESETS = [
@@ -27,25 +25,19 @@ const PRESETS = [
   { id:'emom10', modo:'emom',   n:'EMOM 10′',        s:'cada 1′ × 10',             c:{trabajo:60, descanso:0,  rondas:10, series:1, pausa:60} },
   { id:'e2mom',  modo:'emom',   n:'E2MOM 12′',       s:'cada 2′ × 6',              c:{trabajo:120,descanso:0,  rondas:6,  series:1, pausa:60} },
   { id:'emom30', modo:'emom',   n:'EMOM 30″',        s:'cada 30″ × 12',            c:{trabajo:30, descanso:0,  rondas:12, series:1, pausa:60} },
-  { id:'amr8',   modo:'amrap',  n:'AMRAP 8′',        s:'8 minutos',                c:{trabajo:480,descanso:0,  rondas:1,  series:1, pausa:60} },
-  { id:'amr12',  modo:'amrap',  n:'AMRAP 12′',       s:'12 minutos',               c:{trabajo:720,descanso:0,  rondas:1,  series:1, pausa:60} },
-  { id:'amr3x4', modo:'amrap',  n:'3 × AMRAP 4′',    s:'4′ con 1′ de pausa',       c:{trabajo:240,descanso:0,  rondas:1,  series:3, pausa:60} },
   { id:'ft10',   modo:'fortime',n:'FOR TIME',        s:'tope 10′',                 c:{trabajo:600,descanso:0,  rondas:1,  series:1, pausa:60} },
-  { id:'ft15',   modo:'fortime',n:'FOR TIME',        s:'tope 15′',                 c:{trabajo:900,descanso:0,  rondas:1,  series:1, pausa:60} },
-  { id:'hi4515', modo:'intervalos', n:'HIIT 45/15',  s:'45″ / 15″ × 10',           c:{trabajo:45, descanso:15, rondas:10, series:1, pausa:60} },
-  { id:'hi3030', modo:'intervalos', n:'HIIT 30/30',  s:'30″ / 30″ × 10',           c:{trabajo:30, descanso:30, rondas:10, series:1, pausa:60} },
-  { id:'hi6030', modo:'intervalos', n:'HIIT 60/30',  s:'60″ / 30″ × 8',            c:{trabajo:60, descanso:30, rondas:8,  series:1, pausa:60} }
+  { id:'ft15',   modo:'fortime',n:'FOR TIME',        s:'tope 15′',                 c:{trabajo:900,descanso:0,  rondas:1,  series:1, pausa:60} }
 ]
 const clamp=(v,a,b,d)=>{ v=parseInt(v,10); if(!isFinite(v)) v=d; return Math.max(a,Math.min(b,v)) }
 function norm(c){ c=c||{}; const modo = MODOS[c.modo] ? c.modo : 'tabata'
   const o = { modo,
-    trabajo: clamp(c.trabajo,5,3600, modo==='emom'?60:modo==='amrap'?480:modo==='fortime'?600:20),
-    descanso: clamp(c.descanso,0,600, modo==='tabata'?10:modo==='intervalos'?15:0),
+    trabajo: clamp(c.trabajo,5,3600, modo==='emom'?60:modo==='fortime'?600:20),
+    descanso: clamp(c.descanso,0,600, modo==='tabata'?10:0),
     rondas: clamp(c.rondas,1,99, modo==='tabata'?8:modo==='emom'?10:1),
     series: clamp(c.series,1,10,1),
     pausa: clamp(c.pausa,0,600,60),
     prep: clamp(c.prep,0,60,10) }
-  if (modo==='amrap'||modo==='fortime'){ o.rondas=1; o.descanso=0 }
+  if (modo==='fortime'){ o.rondas=1; o.descanso=0 }
   if (modo==='emom') o.descanso=0
   return o }
 function timeline(c){ c=norm(c); const out=[]; let ex=0
@@ -62,9 +54,8 @@ const total = c => timeline(c).reduce((a,x)=>a+(x.k==='prep'?0:x.d),0)
 const mmss = s => { s=Math.max(0,Math.round(s)); return String(Math.floor(s/60)).padStart(2,'0')+':'+String(s%60).padStart(2,'0') }
 const corto = s => s%60===0 && s>=60 ? (s/60)+'′' : s>=60 ? Math.floor(s/60)+'′'+String(s%60).padStart(2,'0')+'″' : s+'″'
 function resumen(c){ if(!c) return ''; c=norm(c); const L=MODOS[c.modo].lab, sx=c.series>1?c.series+' × ':''
-  if (c.modo==='tabata'||c.modo==='intervalos') return L+' · '+sx+corto(c.trabajo)+'/'+corto(c.descanso)+' × '+c.rondas
+  if (c.modo==='tabata') return L+' · '+sx+corto(c.trabajo)+'/'+corto(c.descanso)+' × '+c.rondas
   if (c.modo==='emom') return (c.trabajo===60?'EMOM':c.trabajo===120?'E2MOM':'EMOM '+corto(c.trabajo))+' · '+sx+c.rondas+' RONDAS'
-  if (c.modo==='amrap') return 'AMRAP · '+sx+corto(c.trabajo)
   return 'FOR TIME · '+sx+'TOPE '+corto(c.trabajo) }
 
 /* ── sonido (Web Audio, sin archivos) ── */
@@ -188,7 +179,7 @@ function play(cfg, opts){
   if (opts.sonido) P.sonido=opts.sonido
   unlock()
   const c=norm(cfg), segs=timeline(c), exs=(opts.ejercicios||[]).filter(Boolean)
-  const T={ i:0, t0:Date.now(), pausa:null, amrap:{}, ft:[], cerrar:false, last:null, half:false, done:false, wl:null }
+  const T={ i:0, t0:Date.now(), pausa:null, ft:[], cerrar:false, last:null, half:false, done:false, wl:null }
   const el=document.createElement('div'); el.className='kt'; el.setAttribute('role','dialog'); el.setAttribute('aria-modal','true'); el.setAttribute('aria-label','Temporizador '+MODOS[c.modo].lab)
   document.body.appendChild(el); document.documentElement.style.overflow='hidden'
   const wake=async on=>{ try{ if(on && !T.wl && navigator.wakeLock){ T.wl=await navigator.wakeLock.request('screen') } else if(!on && T.wl){ await T.wl.release(); T.wl=null } }catch(_){ T.wl=null } }
@@ -199,9 +190,8 @@ function play(cfg, opts){
   const restante=()=>{ const s=segs[T.i]; return s ? s.d - (ahora()-T.t0)/1000 : 0 }
   const exDe = s => exs.length ? exs[(s.ex||0)%exs.length] : null
   const quedaTotal=()=>{ let q=Math.max(0,restante()); for(let j=T.i+1;j<segs.length;j++) q+=segs[j].d; return q }
-  const roundsAmrap = () => Object.values(T.amrap).reduce((a,b)=>a+b,0)
   function etiqueta(s){ return s.k==='prep'?'PREPÁRATE':s.k==='rest'?'DESCANSO':s.k==='pause'?'PAUSA':
-    c.modo==='emom'?'MINUTO '+s.r:c.modo==='amrap'?'AMRAP':c.modo==='fortime'?'FOR TIME':'TRABAJO' }
+    c.modo==='emom'?'MINUTO '+s.r:c.modo==='fortime'?'FOR TIME':'TRABAJO' }
   function pintar(){
     const s=segs[T.i]; if(!s){ return fin() }
     el.dataset.k=s.k; el.classList.toggle('paused', T.pausa!=null)
@@ -211,8 +201,8 @@ function play(cfg, opts){
       return '<i class="'+(j<doneW?'on':'')+'">'+(cur?'<u style="width:'+pct+'%"></u>':'')+'</i>' }).join('')
     const exA = s.k==='work' ? exDe(s) : exDe({ex:(s.ex||0)}), exN = s.k==='work' && c.rondas>1 ? exDe({ex:(s.ex||0)+1}) : null
     let cuerpo=''
-    if ((c.modo==='amrap'||c.modo==='fortime') && exs.length>1){
-      cuerpo='<div class="kt__ex"><div class="kt__ls"><small style="font:700 8.5px var(--M);letter-spacing:.16em;color:var(--ink2)">'+(c.modo==='amrap'?'CADA RONDA':'EL TRABAJO')+'</small>'+
+    if (c.modo==='fortime' && exs.length>1){
+      cuerpo='<div class="kt__ex"><div class="kt__ls"><small style="font:700 8.5px var(--M);letter-spacing:.16em;color:var(--ink2)">'+'EL TRABAJO'+'</small>'+
         exs.slice(0,6).map(e=>'<span>'+(e.reps?'<i>'+esc(e.reps)+'</i>':'')+esc(e.nombre)+'</span>').join('')+'</div></div>'
     } else if (exA){
       cuerpo='<div class="kt__ex">'+(exA.foto?'<img src="'+esc(exA.foto)+'" alt="" onerror="this.remove()">':'')+'<div style="min-width:0"><small>'+(s.k==='work'?'AHORA':'SIGUE')+'</small><b>'+esc(exA.nombre)+'</b>'+
@@ -220,10 +210,8 @@ function play(cfg, opts){
     }
     const rd = s.k==='prep' ? '<span>EMPIEZA EN</span>' :
       (c.rondas>1&&s.r?'<span>RONDA <b>'+String(s.r).padStart(2,'0')+'</b>/'+String(c.rondas).padStart(2,'0')+'</span>':'')+
-      (c.series>1&&s.s?'<span>SERIE <b>'+s.s+'</b>/'+c.series+'</span>':'')+
-      (c.modo==='amrap'&&s.k==='work'?'<span>RONDAS <b>'+(T.amrap[s.s]||0)+'</b></span>':'')
-    const ctl = s.k==='work'&&c.modo==='amrap' ? '<button class="kt__big" data-a="ronda">+1 RONDA<small>TOCA AL TERMINAR CADA RONDA</small></button>'
-             : s.k==='work'&&c.modo==='fortime' ? '<button class="kt__big" data-a="termine">TERMINÉ<small>REGISTRA TU TIEMPO</small></button>' : ''
+      (c.series>1&&s.s?'<span>SERIE <b>'+s.s+'</b>/'+c.series+'</span>':'')
+    const ctl = s.k==='work'&&c.modo==='fortime' ? '<button class="kt__big" data-a="termine">TERMINÉ<small>REGISTRA TU TIEMPO</small></button>' : ''
     el.innerHTML='<div class="kt__top"><button class="kt__x'+(T.cerrar?' arm':'')+'" data-a="x" aria-label="Salir del temporizador">'+(T.cerrar?'TOCA PARA SALIR':'✕')+'</button>'+
       '<div class="kt__md"><b>'+esc(opts.titulo||MODOS[c.modo].lab)+'</b>'+esc(resumen(c))+'</div></div>'+
       '<div class="kt__ph">'+etiqueta(s)+'</div><div class="kt__rd">'+rd+'</div>'+
@@ -254,9 +242,9 @@ function play(cfg, opts){
   function fin(){ if(T.done) return; T.done=true; clearInterval(T.iv); SND.fin(); wake(false)
     try{ if(navigator.vibrate) navigator.vibrate([200,80,200,80,400]) }catch(_){}
     el.dataset.k='fin'; el.classList.remove('paused')
-    const tot=total(c), st=[['TIEMPO', mmss(c.modo==='fortime'&&T.ft.length?T.ft.reduce((a,b)=>a+b,0):tot)], [c.modo==='amrap'?'RONDAS':'RONDAS', c.modo==='amrap'?String(roundsAmrap()):String(c.rondas*c.series)]]
-    if (c.modo==='fortime' && T.ft.length) st[1]=['MEJOR', mmss(Math.min.apply(null,T.ft))]
-    const res={ modo:c.modo, rondas:c.modo==='amrap'?roundsAmrap():c.rondas*c.series, porSerie:c.modo==='amrap'?T.amrap:null, tiempos:T.ft, total:tot }
+    const tot=total(c), st=[['TIEMPO', mmss(c.modo==='fortime'&&T.ft.length?T.ft.reduce((a,b)=>a+b,0):tot)], ['RONDAS', String(c.rondas*c.series)]]
+    if (c.modo==='fortime' && T.ft.length) st[1]= T.ft.length>1 ? ['MEJOR', mmss(Math.min.apply(null,T.ft))] : ['TOPE', mmss(c.trabajo)]
+    const res={ modo:c.modo, rondas:c.rondas*c.series, tiempos:T.ft, total:tot }
     el.innerHTML='<div class="kt__top"><span></span><div class="kt__md"><b>'+esc(opts.titulo||MODOS[c.modo].lab)+'</b>'+esc(resumen(c))+'</div></div>'+
       '<div class="kt__fin"><p>'+esc(MODOS[c.modo].lab)+' COMPLETADO</p><h2>Trabajo<br>hecho.</h2><div class="kt__stats">'+st.map(x=>'<div><small>'+x[0]+'</small><b>'+x[1]+'</b></div>').join('')+'</div></div>'+
       (opts.onFinish?'<button class="kt__big" data-a="reg">'+esc(opts.finLabel||'REGISTRAR BLOQUE')+'<small>'+esc(opts.finSub||'SE GUARDA CON LO PRESCRITO · PUEDES AJUSTAR DESPUÉS')+'</small></button>':'')+
@@ -270,7 +258,6 @@ function play(cfg, opts){
     if (a==='pp'){ if(T.pausa!=null){ T.t0+=Date.now()-T.pausa; T.pausa=null } else T.pausa=Date.now(); pintar(); return }
     if (a==='next'){ irA(T.i+1); return }
     if (a==='prev'){ const el2=(ahora()-T.t0)/1000; irA(el2>3||T.i===0?T.i:T.i-1); return }
-    if (a==='ronda' && s){ T.amrap[s.s]=(T.amrap[s.s]||0)+1; beep(1320,.06,.16); try{ navigator.vibrate&&navigator.vibrate(20) }catch(_){} pintar(); return }
     if (a==='termine' && s){ T.ft.push(Math.round((ahora()-T.t0)/1000)); irA(T.i+1); return }
     if (a==='reg'){ const r=T.res; close(true); opts.onFinish(r); return }
     if (a==='again'){ close(true); play(cfg, opts); return }
@@ -291,8 +278,8 @@ function editor(cfg, opts){
   const pasos = { trabajo:v=>v>=120?30:v>=60?15:5, descanso:v=>v>=60?15:5, pausa:v=>15, prep:v=>5, rondas:()=>1, series:()=>1 }
   const lim = { trabajo:[5,3600], descanso:[0,600], rondas:[1,99], series:[1,10], pausa:[0,600], prep:[0,60] }
   function pintar(){
-    const usa = { trabajo:true, descanso:c.modo==='tabata'||c.modo==='intervalos', rondas:c.modo!=='amrap'&&c.modo!=='fortime', series:true, pausa:c.series>1, prep:true }
-    const lab = { trabajo:c.modo==='emom'?'CADA':c.modo==='amrap'?'DURACIÓN':c.modo==='fortime'?'TIEMPO TOPE':'TRABAJO', descanso:'DESCANSO', rondas:'RONDAS', series:'SERIES', pausa:'PAUSA ENTRE SERIES', prep:'CUENTA PREVIA' }
+    const usa = { trabajo:true, descanso:c.modo==='tabata', rondas:c.modo!=='fortime', series:true, pausa:c.series>1, prep:true }
+    const lab = { trabajo:c.modo==='emom'?'CADA':c.modo==='fortime'?'TIEMPO TOPE':'TRABAJO', descanso:'DESCANSO', rondas:'RONDAS', series:'SERIES', pausa:'PAUSA ENTRE SERIES', prep:'CUENTA PREVIA' }
     const nEx=(opts.ejercicios||[]).length
     ov.innerHTML='<div class="kte__in"><h3>Bloque temporizador</h3><p class="kte__d">'+esc(opts.bloque||'')+(nEx?' · '+nEx+' ejercicio'+(nEx>1?'s':'')+' rotan por ronda':'')+'</p>'+
       '<div class="kte__k">FORMATO</div><div class="kte__md">'+Object.keys(MODOS).map(m=>'<button data-m="'+m+'" class="'+(c.modo===m?'on':'')+'">'+MODOS[m].lab+'</button>').join('')+'</div>'+
@@ -317,5 +304,5 @@ function editor(cfg, opts){
   pintar()
   return { close:cerrar } }
 
-root.KTIMER = { MODOS, PRESETS, norm, timeline, total, resumen, mmss, play, editor, seg7, VERSION:'koach-timer@1.0.0' }
+root.KTIMER = { MODOS, PRESETS, norm, timeline, total, resumen, mmss, play, editor, seg7, VERSION:'koach-timer@1.1.0' }
 })(typeof window!=='undefined'?window:globalThis);
