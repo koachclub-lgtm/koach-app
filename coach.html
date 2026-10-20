@@ -4173,12 +4173,13 @@ function plTbChips(ses){ const m={}
   ses.bloques.forEach(function(b){ b.items.forEach(function(it){ if(it.cuentaDosis===false) return; const g=SIGLA[it.grupo]||it.grupo; if(g) m[g]=(m[g]||0)+(b.sets||0) }) })
   const e=Object.keys(m).sort(function(a,b){return m[b]-m[a]})
   return e.length ? '<small>ESTA SESIÓN</small>'+e.map(function(g){ return '<span class="tbChip">'+plEsc(g)+'<b>'+m[g]+'</b></span>' }).join('') : '' }
-/* c130 · TIEMPO ESTIMADO de la rutina completa: misma fórmula que el preview del socio (app pvDur) para que ambos vean el mismo número.
-   Por bloque: sets × (45 s por ejercicio + descanso) + 2 min de transición; redondeado a 5 min. */
-function plTbMin(ses){ let s=0; (ses.bloques||[]).forEach(function(b){ if (b.timer && window.KTIMER){ s+=KTIMER.total(b.timer)+120; return } const n=(b.items||[]).length||1; s+=(b.sets||1)*(n*45+(b.desc||60))+120 }); return Math.max(10,Math.round(s/60/5)*5) }
+/* c196 · TIEMPO ESTIMADO calibrado con 606 sesiones reales (sep-oct 2026): misma fórmula que el preview del socio (app pvDur).
+   12 min de entrada + por bloque: 10 min de cambio/montaje + 60 s por set de cada ejercicio + 25% del descanso prescrito entre rondas. Redondeado a 5 min.
+   Antes (c130): sets × (45 s + descanso) + 2 min por bloque → subestimaba ~25 min. */
+function plTbMin(ses){ let s=720; (ses.bloques||[]).forEach(function(b){ if (b.timer && window.KTIMER){ s+=KTIMER.total(b.timer)+600; return } const n=(b.items||[]).length||1, k=b.sets||1; s+=600+k*n*60+0.25*(k-1)*(b.desc||60) }); return Math.max(10,Math.round(s/60/5)*5) }
 function plTbTiempo(ses){ if(!ses||!(ses.bloques||[]).length) return ''
   const m=plTbMin(ses), t=m<60?m+' MIN':Math.floor(m/60)+' H '+String(m%60).padStart(2,'0')+' MIN'
-  return '<div class="tbTiempo" title="Sets × (45 s por ejercicio + descanso) + 2 min por bloque"><small>TIEMPO ESTIMADO</small><b>~'+t+'</b></div>' }
+  return '<div class="tbTiempo" title="Calibrado con sesiones reales: 12 min de entrada + por bloque 10 min de cambio, 1 min por set y parte del descanso"><small>TIEMPO ESTIMADO</small><b>~'+t+'</b></div>' }
 function plTbHTML(ses){
   const nb=ses.bloques.length, all=[]; ses.bloques.forEach(function(b){ b.items.forEach(function(it){ all.push(it.beId) }) })
   if (!TB.sel || all.indexOf(TB.sel)<0) TB.sel=all[0]||null
