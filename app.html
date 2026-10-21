@@ -2722,6 +2722,7 @@ html:not(:has(#oAct.vis)) #sBloques.locked{filter:none;opacity:1;pointer-events:
 
 /* c135 · señalador mapa: los puntos se arrastran sobre la vista previa */
 .kset__stage.mapa canvas{touch-action:none;cursor:grab}
+.kset__stage.ficha canvas{touch-action:none;cursor:grab}
 .kset__stage.mapa .kset__hint{top:14%}
 
 /* c136 · RÉCORD PERSONAL ÉPICO (solo cuando hay PR) */
@@ -7568,9 +7569,10 @@ function ksPintar() {
   const mapa = KS.formato === 'foto' && !!KS.foto && KS.estilo === 'mapa';
   st.classList.toggle('apuntar', KS.formato === 'foto' && !!KS.foto && KS.estilo === 'senalador');
   st.classList.toggle('mapa', mapa);
+  st.classList.toggle('ficha', KS.formato === 'foto' && !!KS.foto && KS.estilo === 'scan');
   ksEl('ksAdd').hidden = !sinFoto;
-  ksEl('ksHint').hidden = !(KS.formato === 'foto' && KS.foto && (KS.estilo === 'senalador' || (KS.estilo === 'mapa' && !KM.hintOff)));
-  ksEl('ksHint').textContent = KS.estilo === 'mapa' ? (KM.estado === 'buscando' ? 'UBICANDO TUS MÚSCULOS…' : 'ARRASTRA LA MIRA O LA ETIQUETA') : 'TOCA LA FOTO PARA ELEGIR DÓNDE APUNTAR';
+  ksEl('ksHint').hidden = !(KS.formato === 'foto' && KS.foto && (KS.estilo === 'senalador' || ((KS.estilo === 'mapa' || KS.estilo === 'scan') && !KM.hintOff)));
+  ksEl('ksHint').textContent = KS.estilo === 'scan' ? 'ARRASTRA LA FICHA PARA UBICARLA' : KS.estilo === 'mapa' ? (KM.estado === 'buscando' ? 'UBICANDO TUS MÚSCULOS…' : 'ARRASTRA LA MIRA O LA ETIQUETA') : 'TOCA LA FOTO PARA ELEGIR DÓNDE APUNTAR';
   ksEl('ksOSol').hidden = KS.formato !== 'gris' || KS.fin;
   if (KS.formato === 'gris' || sinFoto) { const fo = KS.formato === 'gris' && KS.foto ? (KS.fondo || 'solido') : 'solido'; if (fo === 'foto') kmAsegurar(); kaCaptura(ctx, false, fo) }
   else if (KS.formato === 'foto') {
@@ -7716,7 +7718,7 @@ ksEl('ksCv').addEventListener('click', e => {
 const KM_V = '0.10.21', KM_CDN = 'https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@' + KM_V, KM_MODELO = '/models/pose_landmarker_full.task';
 const KM = { pl: null, carga: null, foto: null, estado: '', puntos: null, drag: -1, bn: null, bnKey: '', logo: null };
 const KM_NOM = { 'PECHO': 'PECHO', 'ESPALDA': 'ESPALDA', 'BÍCEPS': 'BÍCEPS', 'TRÍCEPS': 'TRÍCEPS', 'HOMBROS': 'HOMBROS', 'CUÁDRICEPS': 'CUÁDRICEPS', 'GLÚTEOS': 'GLÚTEOS', 'ISQUIOS': 'ISQUIOS', 'GEMELOS': 'GEMELOS', 'CORE': 'CORE' };
-function kmReset() { KM.foto = null; KM.estado = ''; KM.puntos = null; KM.drag = -1; KM.hintOff = false }
+function kmReset() { KM.ficha = null; KM.foto = null; KM.estado = ''; KM.puntos = null; KM.drag = -1; KM.hintOff = false }
 async function kmModelo() {
   if (KM.pl) return KM.pl; if (KM.carga) return KM.carga;
   KM.carga = (async () => {
@@ -7922,6 +7924,17 @@ function kmRender(ctx) {
 /* ══ c138 · PLANTILLAS ELEGIDAS: EDITORIAL (franja) · TICKET (marco acero) · MAPA (señalador). Todas con la foto ya filtrada. ══ */
 // c181 · dato fijo en TODAS las tarjetas: en qué sesión de la semana va el socio ("SESIÓN 1/3", "SESIÓN 2/4"…)
 function ksSesTxt(j) { const p = +j.planif || 0, h = +j.hechas || 0; return p ? 'SESIÓN ' + Math.max(1, Math.min(h || 1, p)) + '/' + p : (h ? 'SESIÓN ' + h : '') }
+// c190 · ESCÁNER: la ficha de datos se toma y se arrastra (la línea al cuerpo se recalcula sola)
+(() => {
+  const cv = ksEl('ksCv'); if (!cv) return; let dr = null;
+  const pos = e => { const r = cv.getBoundingClientRect(); return { x: (e.clientX - r.left) / r.width * KT.W, y: (e.clientY - r.top) / r.height * KT.H } };
+  const dentro = q => { const b = KM.fichaBox; return KS.formato === 'foto' && KS.foto && KS.estilo === 'scan' && b && q.x > b.x - 30 && q.x < b.x + b.w + 30 && q.y > b.y - 30 && q.y < b.y + b.h + 30 };
+  cv.addEventListener('touchstart', e => { if (e.touches[0] && dentro(pos(e.touches[0]))) e.preventDefault() }, { passive: false });
+  cv.addEventListener('touchmove', e => { if (dr) e.preventDefault() }, { passive: false });
+  cv.addEventListener('pointerdown', e => { const q = pos(e); if (!dentro(q)) return; const b = KM.fichaBox; dr = { x: b.x - q.x, y: b.y - q.y }; try { cv.setPointerCapture(e.pointerId) } catch (_) {} e.preventDefault() });
+  cv.addEventListener('pointermove', e => { if (!dr) return; const q = pos(e); KM.ficha = { x: q.x + dr.x, y: q.y + dr.y }; e.preventDefault(); if (!KM.rafF) KM.rafF = requestAnimationFrame(() => { KM.rafF = 0; ksPintar() }) });
+  const fin = () => { if (!dr) return; dr = null; ksPintar() }; cv.addEventListener('pointerup', fin); cv.addEventListener('pointercancel', fin);
+})();
 function kaDatos() {
   const j = KS.data || {}, tit = x => String(x || '').toLowerCase().replace(/(^|\s)\S/g, c => c.toUpperCase());
   const gs = (j.grupos || []).map(x => x.g).filter(Boolean);
@@ -8109,8 +8122,17 @@ function kaScan(ctx) {
   ctx.restore();
   kxTxtM(ctx, 'SOCIO KOACH · ' + (ksSesTxt(j) || 'SESIÓN'), bx.x, bx.y + bx.h + 34, 19, G);
   // ficha lateral en el lado con más espacio
-  const izq = bx.x + bx.w / 2 > W / 2, fw = 360, fx = izq ? M - 30 : W - M + 30 - fw, fy = Math.max(KS_SAFE_T + 120, bx.y + 40);
-  const gs = (j.grupos || []).map(x => String(x.g || '').toUpperCase()).filter(Boolean).slice(0, 4), fh = 470 + gs.length * 40;
+  const fw = 360, gs = (j.grupos || []).map(x => String(x.g || '').toUpperCase()).filter(Boolean).slice(0, 4), fh = 470 + gs.length * 40;
+  // c190 · la ficha se arrastra libre (KM.ficha = esquina sup. izq.); por defecto, en el lado con más espacio
+  let izq = bx.x + bx.w / 2 > W / 2, fx = izq ? M - 30 : W - M + 30 - fw, fy = Math.max(KS_SAFE_T + 120, bx.y + 40);
+  if (KM.ficha) { fx = Math.max(20, Math.min(W - fw - 20, KM.ficha.x)); fy = Math.max(KS_SAFE_T - 20, Math.min(H - KS_SAFE_B - fh + 120, KM.ficha.y)) }
+  izq = fx + fw / 2 < bx.x + bx.w / 2; KM.fichaBox = { x: fx, y: fy, w: fw, h: fh };
+  { // línea guía ficha → articulación más cercana (hombros/caderas), dibujada debajo de la ficha
+    const cx = fx + fw / 2, cy = fy + fh / 2, J = [11, 12, 23, 24, 13, 14].map(kxPt).filter(p => p && !(p.x > fx - 50 && p.x < fx + fw + 50 && p.y > fy - 50 && p.y < fy + fh + 50) && Math.min(Math.abs(p.x - fx), Math.abs(p.x - fx - fw)) > 90);   // solo articulaciones que la ficha no tapa
+    let t = J.sort((a, b) => Math.hypot(a.x - cx, a.y - cy) - Math.hypot(b.x - cx, b.y - cy))[0] || { x: izq ? bx.x : bx.x + bx.w, y: bx.y + 120 };
+    const der = t.x > cx, ax = der ? fx + fw : fx, ay = t.y < fy ? fy + 40 : t.y > fy + fh ? fy + fh - 40 : fy + 130;
+    ctx.save(); ctx.strokeStyle = 'rgba(255,255,255,.75)'; ctx.lineWidth = 2.5; ctx.beginPath(); ctx.moveTo(ax, ay); ctx.lineTo(t.x, t.y); ctx.stroke();
+    ctx.fillStyle = '#FFFFFF'; ctx.beginPath(); ctx.arc(ax, ay, 6, 0, 7); ctx.fill(); ctx.lineWidth = 3.5; ctx.beginPath(); ctx.arc(t.x, t.y, 24, 0, 7); ctx.stroke(); ctx.beginPath(); ctx.arc(t.x, t.y, 8, 0, 7); ctx.fill(); ctx.restore() }   // mira en la articulación, como en Mapa
   ctx.save(); ctx.fillStyle = 'rgba(14,15,17,.5)'; ctx.fillRect(fx, fy, fw, fh); ctx.strokeStyle = 'rgba(255,255,255,.6)'; ctx.lineWidth = 2; ctx.strokeRect(fx, fy, fw, fh);
   ctx.fillStyle = 'rgba(255,255,255,.92)'; ctx.fillRect(fx, fy, fw, 54); ctx.restore();
   kxTxtM(ctx, 'PERFIL DE SESIÓN', fx + 22, fy + 36, 20, '#121212', 'left', 700);
@@ -8120,8 +8142,6 @@ function kaScan(ctx) {
   y += 56; kxTxtM(ctx, 'SETS: ' + (d.sets || 0), fx + 22, y, 22, B);
   y += 30; ctx.save(); ctx.strokeStyle = 'rgba(255,255,255,.3)'; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(fx + 22, y); ctx.lineTo(fx + fw - 22, y); ctx.stroke(); ctx.restore();
   gs.forEach(g => { y += 40; kxTxtM(ctx, '▪ ' + g, fx + 22, y, 21, B) });
-  // línea guía ficha → cuerpo
-  ctx.save(); ctx.strokeStyle = 'rgba(255,255,255,.7)'; ctx.lineWidth = 2; ctx.beginPath(); const ax = izq ? fx + fw : fx, tx = izq ? bx.x : bx.x + bx.w; ctx.moveTo(ax, fy + 140); ctx.lineTo(tx, bx.y + 120); ctx.stroke(); ctx.restore();
   kxLogo(ctx, M, KS_SAFE_T - 60, 39);
 }
 
