@@ -7228,13 +7228,14 @@ document.addEventListener('DOMContentLoaded', async ()=>{
     <div class="kset__seg kset__seg--3" role="group" aria-label="Formato"><button type="button" data-ksf="gris" aria-pressed="true">SÓLIDO</button><button type="button" data-ksf="foto" aria-pressed="false">CON TU FOTO</button><button type="button" data-ksf="transparente" aria-pressed="false">TRANSPARENTE</button></div>
     <div class="kset__gal" id="ksGal" hidden>
       <button type="button" class="kset__gi" onclick="ksElegir('mapa')"><img src="/img/share/plantilla-mapa.webp" alt="Plantilla Mapa" width="720" height="1280" loading="lazy" decoding="async"><b>MAPA</b><small>Señaladores en los músculos que trabajaste</small></button>
+      <button type="button" class="kset__gi" onclick="ksElegir('dia')"><img src="/img/share/plantilla-dia.webp" alt="Plantilla Día" width="720" height="1280" loading="lazy" decoding="async"><b>DÍA</b><small>El día, tus kilos y tu sesión. Nada más</small></button>
       <button type="button" class="kset__gi" onclick="ksElegir('ticket')"><img src="/img/share/plantilla-ticket.webp" alt="Plantilla Ticket" width="720" height="1280" loading="lazy" decoding="async"><b>TICKET</b><small>Foto enmarcada con ticket de cristal</small></button>
       <button type="button" class="kset__gi" onclick="ksElegir('editorial')"><img src="/img/share/plantilla-editorial.webp" alt="Plantilla Editorial" width="720" height="1280" loading="lazy" decoding="async"><b>EDITORIAL</b><small>Tu foto a sangre con los kilos del día</small></button>
       <button type="button" class="kset__gi" onclick="ksElegir('scan')"><img src="/img/share/plantilla-scan.webp" alt="Plantilla Escáner" width="720" height="1280" loading="lazy" decoding="async"><b>ESCÁNER</b><small>Tu cuerpo detectado y una ficha con tus datos</small></button>
       <button type="button" class="kset__gi" onclick="ksElegir('mov')"><img src="/img/share/plantilla-mov.webp" alt="Plantilla Movimiento" width="720" height="1280" loading="lazy" decoding="async"><b>MOVIMIENTO</b><small>Foto en barrido: se ve la energía, no la cara</small></button>
     </div>
     <div class="kset__opts" id="ksOFoto" hidden>
-      <div class="kset__row"><span>ESTILO</span><button type="button" class="kset__chip" data-ks="estilo" data-v="editorial" aria-pressed="true">EDITORIAL</button><button type="button" class="kset__chip" data-ks="estilo" data-v="ticket" aria-pressed="false">TICKET</button><button type="button" class="kset__chip" data-ks="estilo" data-v="mapa" aria-pressed="false">MAPA</button><button type="button" class="kset__chip" data-ks="estilo" data-v="scan" aria-pressed="false">ESCÁNER</button><button type="button" class="kset__chip" data-ks="estilo" data-v="mov" aria-pressed="false">MOVIMIENTO</button><label class="kset__chip">CAMBIAR FOTO<input type="file" id="ksFoto2" accept="image/*"></label></div>
+      <div class="kset__row"><span>ESTILO</span><button type="button" class="kset__chip" data-ks="estilo" data-v="editorial" aria-pressed="true">EDITORIAL</button><button type="button" class="kset__chip" data-ks="estilo" data-v="ticket" aria-pressed="false">TICKET</button><button type="button" class="kset__chip" data-ks="estilo" data-v="mapa" aria-pressed="false">MAPA</button><button type="button" class="kset__chip" data-ks="estilo" data-v="dia" aria-pressed="false">DÍA</button><button type="button" class="kset__chip" data-ks="estilo" data-v="scan" aria-pressed="false">ESCÁNER</button><button type="button" class="kset__chip" data-ks="estilo" data-v="mov" aria-pressed="false">MOVIMIENTO</button><label class="kset__chip">CAMBIAR FOTO<input type="file" id="ksFoto2" accept="image/*"></label></div>
       <div class="kset__row"><span>FILTRO</span><button type="button" class="kset__chip" data-ks="filtro" data-v="frio" aria-pressed="true">DRAMÁTICO FRÍO</button><button type="button" class="kset__chip" data-ks="filtro" data-v="drama" aria-pressed="false">DRAMÁTICO</button><button type="button" class="kset__chip" data-ks="filtro" data-v="plata" aria-pressed="false">PLATA</button></div>
       <div class="kset__row" data-solo="senalador"><span>RUTA</span><button type="button" class="kset__chip" data-ks="ruta" data-v="auto" aria-pressed="true">AUTO</button><button type="button" class="kset__chip" data-ks="ruta" data-v="DIAG" aria-pressed="false">DIAGONAL</button><button type="button" class="kset__chip" data-ks="ruta" data-v="L" aria-pressed="false">L</button><button type="button" class="kset__chip" data-ks="ruta" data-v="GAMMA" aria-pressed="false">Γ</button><button type="button" class="kset__chip" data-ks="ruta" data-v="ELBOW" aria-pressed="false">CODO</button></div>
       <div class="kset__row" data-solo="senalador"><span>MARCA</span><button type="button" class="kset__chip" data-ks="mira" data-v="circulo" aria-pressed="true">MIRA</button><button type="button" class="kset__chip" data-ks="mira" data-v="cuadro" aria-pressed="false">MARCO</button></div>
@@ -7576,6 +7577,7 @@ function ksPintar() {
     if (KS.estilo === 'mapa') { kmAsegurar(); kmRender(ctx) }
     else if (KS.estilo === 'editorial') { kmAsegurar(); kaEditorial(ctx) }
     else if (KS.estilo === 'ticket') { kmAsegurar(); kaTicket(ctx) }
+    else if (KS.estilo === 'dia') { kmAsegurar(); kaDia(ctx) }
     else if (KS.estilo === 'scan') { kmAsegurar(); kaScan(ctx) }
     else if (KS.estilo === 'mov') { kmAsegurar(); kaMov(ctx) }
     else if (KS.estilo === 'cara') { kmAsegurar(); kaCara(ctx) }
@@ -8067,6 +8069,31 @@ function kxTxtM(ctx, s, x, y, size, color, al, w) { kmTxt(ctx, s, x, y, w || 500
 function kxLogo(ctx, x, y, h, color) { const lg = kaLogo(color || '#FFFFFF'); if (lg) ctx.drawImage(lg, x, y, lg.width * h / lg.height, h) }
 
 // 1 · ESCÁNER: el cuerpo detectado con esquinas y articulaciones + ficha lateral de datos (sin foto de perfil)
+// c188 · DÍA: bloque central mínimo — día de la semana, kilos totales y debajo SESIÓN n/N + rutina (cortada si no cabe)
+function kaDia(ctx) {
+  const W = KT.W, H = KT.H, j = KS.data || {}, d = kaDatos(), B = '#FFFFFF';
+  ctx.clearRect(0, 0, W, H); ctx.drawImage(kmFoto(), 0, 0, W, H);
+  const g = ctx.createLinearGradient(0, 0, 0, H); g.addColorStop(0, 'rgba(18,18,18,.4)'); g.addColorStop(.2, 'rgba(18,18,18,0)'); g.addColorStop(.42, 'rgba(18,18,18,.12)'); g.addColorStop(.6, 'rgba(18,18,18,.12)'); g.addColorStop(.85, 'rgba(18,18,18,0)'); ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
+  const F = (w, s) => w + " semi-expanded " + s + "px 'KOACH Display', 'Inter Display', Arial, sans-serif", M = s => "700 " + s + "px 'Space Mono', 'IBM Plex Mono', monospace";
+  const f = j.fecha ? new Date(String(j.fecha).slice(0, 10) + 'T12:00:00') : new Date();
+  const dia = ['DOMINGO', 'LUNES', 'MARTES', 'MIÉRCOLES', 'JUEVES', 'VIERNES', 'SÁBADO'][f.getDay()];
+  const kg = Math.round(+j.tonelaje || 0).toLocaleString('es-CL') + ' KG';
+  let s = 150; ctx.font = F(900, s); if ('letterSpacing' in ctx) ctx.letterSpacing = '-4px';
+  while (ctx.measureText(kg).width > W - 2 * KS_SAFE_X && s > 80) { s -= 4; ctx.font = F(900, s) }
+  const bw = ctx.measureText(kg).width; if ('letterSpacing' in ctx) ctx.letterSpacing = '0px';
+  const x0 = (W - bw) / 2, yc = H * .53;
+  ctx.save(); ctx.shadowColor = 'rgba(0,0,0,.35)'; ctx.shadowBlur = 18; ctx.fillStyle = B; ctx.textAlign = 'left'; ctx.textBaseline = 'alphabetic';
+  ctx.font = F(800, Math.round(s * .58)); ctx.fillText(dia, x0 + 4, yc - s * .82);
+  ctx.font = F(900, s); if ('letterSpacing' in ctx) ctx.letterSpacing = '-4px'; ctx.fillText(kg, x0, yc); if ('letterSpacing' in ctx) ctx.letterSpacing = '0px';
+  // fila inferior: SESIÓN n/N a la izquierda, rutina a la derecha (se corta seca si no cabe)
+  const fs = Math.max(22, Math.round(s * .2)), y2 = yc + fs * 1.9; ctx.font = M(fs); if ('letterSpacing' in ctx) ctx.letterSpacing = '3px';
+  const ses = ksSesTxt(j) || 'SESIÓN', wS = ctx.measureText(ses).width; ctx.fillText(ses, x0 + 4, y2);
+  let rut = String(j.rutina || '').replace(/^\s*★\s*/, '').toUpperCase(); const max = bw - wS - 40;
+  while (rut && ctx.measureText(rut).width > max) rut = rut.slice(0, -1); rut = rut.trimEnd();
+  ctx.textAlign = 'right'; ctx.fillText(rut, x0 + bw - 4, y2); if ('letterSpacing' in ctx) ctx.letterSpacing = '0px';
+  ctx.restore();
+  ctx.save(); ctx.shadowColor = 'rgba(0,0,0,.35)'; ctx.shadowBlur = 14; const lg = kaLogo(B); if (lg) ctx.drawImage(lg, KS_SAFE_X, KS_SAFE_T - 60, lg.width * 39 / lg.height, 39); ctx.restore();
+}
 function kaScan(ctx) {
   const W = KT.W, H = KT.H, j = KS.data || {}, d = kaDatos(), M = KS_SAFE_X, B = '#FFFFFF', G = 'rgba(255,255,255,.7)';
   ctx.clearRect(0, 0, W, H); ctx.drawImage(kmFoto(), 0, 0, W, H); ctx.fillStyle = 'rgba(12,13,15,.28)'; ctx.fillRect(0, 0, W, H);
