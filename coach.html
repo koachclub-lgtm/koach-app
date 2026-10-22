@@ -3264,9 +3264,10 @@ function pintarSala(){
   let b=''
   const nSol=(AD.nPend!=null?AD.nPend:C.sols.length)
   const nVen=(AD.mem||[]).filter(function(m){return m.estado_calc==='proxima' && m.dias_restantes<=7}).length
-  const nVcd=C.socios.filter(function(s){ const e=admEstadoSocio(s.id); return e.k==='vencida' }).length
+  const SOC=C.socios.filter(function(s){return !esCP(s)}), CPS=C.socios.filter(esCP)   // clases de prueba: aparte, no son socios
+  const nVcd=SOC.filter(function(s){ const e=admEstadoSocio(s.id); return e.k==='vencida' }).length
   const R=(C.yo&&C.yo.role)||'coach', COM=(R==='admin'||R==='recepcion'), ENT=(R==='admin'||R==='coach')
-  const nAct=C.socios.filter(function(s){ return s.activo!==false && (!C.asig[s.id] || !adMemVigente(s.id)) }).length
+  const nAct=SOC.filter(function(s){ return s.activo!==false && (!C.asig[s.id] || !adMemVigente(s.id)) }).length
   document.getElementById('accesos').innerHTML=
     '<button class="'+(nSol?'hot':'')+'" onclick="verSolicitudes()"><span>SOLICITUDES</span><b>'+nSol+'</b></button>'+
     (COM?'<button class="'+((nVen||nVcd||nAct)?'hot':'')+'" onclick="verAdmin()"><span>MEMBRESÍAS'+(nAct?'<br>'+nAct+' POR ACTIVAR':'')+(nVen?'<br>'+nVen+' VENCE ≤7 D':'')+(nVcd?'<br>'+nVcd+' VENCIDA'+(nVcd>1?'S':''):'')+'</span><b>›</b></button>':'')+
@@ -3300,19 +3301,19 @@ function pintarSala(){
   const completas=Object.values(C.sems).filter(function(s){return s&&s.completa}).length
   const _modo=dashModo()
   document.getElementById('pulso').innerHTML=
-    '<div class="glass st3"><b>'+C.socios.length+'</b><span>SOCIOS ACTIVOS</span></div>'+
+    '<div class="glass st3"><b>'+SOC.length+'</b><span>SOCIOS ACTIVOS</span></div>'+
     '<div class="glass st3"><b>'+hoySet.size+'</b><span>ENTRENARON HOY</span></div>'+
     (_modo==='desktop'?'<div class="glass st3"><b>'+completas+'</b><span>SEMANAS COMPLETAS</span></div>'+
       '<div class="glass st3"><b>'+nSol+'</b><span>SOLICITUDES</span></div>':'')
-  document.getElementById('nSoc').textContent=C.socios.length+' EN EL CLUB'
-  document.getElementById('lista').innerHTML = C.socios.map(function(s){
+  document.getElementById('nSoc').textContent=SOC.length+' EN EL CLUB'+(CPS.length?' · '+CPS.length+' CLASE'+(CPS.length>1?'S':'')+' DE PRUEBA':'')
+  document.getElementById('lista').innerHTML = SOC.map(function(s){
     const a=C.asig[s.id], x=ctxEnt(s.id), ex=(C.extras[s.id]||[]).filter(function(e){return e.estado==='disponible'}).length
     const meta=a?(((a.protocolos&&a.protocolos.programa)||'')+' · SEMANA '+(a.semana_actual||1)).toUpperCase():'SIN PLANIFICACIÓN ACTIVA'
     return '<div class="qRow" data-id="'+s.id+'" data-nom="'+_nomQ(s)+'">'+avSocio(s.id)+
       '<a class="qRow__t" href="#/socio/'+s.id+'" onclick="return rtClick(event,\''+s.id+'\')"><b>'+nomDe(s.id)+(ex?' ★'+ex:'')+'</b><small>'+meta+(x&&x.etiqueta?' · '+x.etiqueta:'')+'</small></a>'+
       '<div class="qRow__a">'+(a?'<a class="ink" href="'+urlRutina(s.id)+'" onclick="return rtIr(event,\''+urlRutina(s.id)+'\')">ENTRENAMIENTO</a>':'')+
       '<a href="#/socio/'+s.id+'" onclick="return rtClick(event,\''+s.id+'\')">PERFIL</a></div></div>'
-  }).join('')
+  }).join('') + cpLista(CPS)
   salaVisibilidadLista()
   salaPresenciaPintar()
   salaFotos()
@@ -3337,6 +3338,49 @@ function verAgenda(){ vista('vAgenda'); const f=document.getElementById('agFrame
   if (!f.getAttribute('src')) f.setAttribute('src','/agenda.html?embed=1')
   rtSet('#/agenda','Agenda | KOACH'); requestAnimationFrame(agAjustar) }
 addEventListener('resize',function(){ if(document.getElementById('vAgenda')?.classList.contains('on')) agAjustar() })
+// ── Clases de prueba (estado 'clase_prueba') ──────────────────────────────────────────────
+// Personas que agendaron su clase de prueba (Jake crea el perfil). No son socios: van aparte en la Sala y no
+// cuentan en socios activos ni membresías. Acceso a la app solo el día de la clase, con QR de un solo uso.
+// Si compran, se registra la venta en su ficha y pasan solas a socio activo.
+function esCP(s){ return !!s && s.estado==='clase_prueba' }
+function cpLista(cps){
+  if (!cps || !cps.length) return ''
+  return '<div class="kTray__h" style="margin-top:18px"><span>CLASES DE PRUEBA</span><b>'+cps.length+'</b></div>'+cps.map(function(s){
+    const a=C.asig[s.id]
+    const meta='CLASE DE PRUEBA'+(a&&a.protocolos&&a.protocolos.programa?' · '+String(a.protocolos.programa).toUpperCase():' · SIN PROGRAMA ASIGNADO')
+    return '<div class="qRow" data-id="'+s.id+'" data-nom="'+_nomQ(s)+'">'+avSocio(s.id)+
+      '<a class="qRow__t" href="#/socio/'+s.id+'" onclick="return rtClick(event,\''+s.id+'\')"><b>'+nomDe(s.id)+'</b><small>'+meta+'</small></a>'+
+      '<div class="qRow__a"><a class="ink" href="#" onclick="cpQR(\''+s.id+'\');return false">ACCESO QR</a>'+
+      '<a href="#/socio/'+s.id+'" onclick="return rtClick(event,\''+s.id+'\')">PERFIL</a></div></div>'
+  }).join('')
+}
+function cpBanner(id){
+  return '<div class="acBan acBan--pr" role="status"><div class="acBan__t"><span class="acBan__d" aria-hidden="true"></span><div><b>CLASE DE PRUEBA</b>'+
+    '<small>Acceso a la app solo el día de su clase. Muéstrale el QR al llegar. Si contrata, registra la venta aquí y pasa a socio activo.</small></div></div>'+
+    '<div class="acBan__b"><button type="button" class="ink" onclick="cpQR(\''+id+'\')">ACCESO QR</button>'+
+    (accEsCom()?'<button type="button" onclick="fTab(\'adm\');setTimeout(admFormPago,60)">REGISTRAR VENTA</button>':'')+'</div></div>'
+}
+function cpQRLib(){ return window.qrcode ? Promise.resolve() : new Promise(function(ok,no){ const sc=document.createElement('script')
+  sc.src='https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js'; sc.onload=ok; sc.onerror=no; document.head.appendChild(sc) }) }
+async function cpQR(id){
+  try{
+    const ses=(await sb.auth.getSession()).data.session; if(!ses){ toast('Sesión vencida: vuelve a entrar'); return }
+    const [r]=await Promise.all([ fetch('https://koach-jake.vercel.app/api/agenda',{ method:'POST', headers:{ 'content-type':'application/json', authorization:'Bearer '+ses.access_token },
+      body:JSON.stringify({ accion:'acceso_prueba', socio_id:id }) }).then(function(x){return x.json()}), cpQRLib() ])
+    if(!r || !r.ok || !r.url){ toast('No se pudo generar el acceso'+(r&&r.error?': '+r.error:'')); return }
+    const q=window.qrcode(0,'M'); q.addData(r.url); q.make()
+    const ov=document.createElement('div'); ov.className='cpQR'
+    ov.setAttribute('style','position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,.82);display:flex;align-items:center;justify-content:center;padding:16px')
+    ov.innerHTML='<div style="background:#fff;color:#111;border-radius:16px;padding:22px;max-width:360px;width:100%;text-align:center;font-family:inherit">'+
+      '<div style="font-weight:900;letter-spacing:.08em;font-size:13px">ACCESO CLASE DE PRUEBA</div>'+
+      '<div style="font-size:15px;margin:4px 0 14px"><b>'+nomDe(id)+'</b></div>'+
+      '<div style="display:flex;justify-content:center">'+q.createSvgTag({ cellSize:6, margin:2, scalable:true }).replace('<svg ','<svg style="width:100%;max-width:280px;height:auto" ')+'</div>'+
+      '<div style="font-size:12px;color:#555;margin:12px 0 16px">Que lo escanee con la cámara de su celular: entra directo a su app. El código sirve una sola vez.</div>'+
+      '<button type="button" style="width:100%;padding:12px;border-radius:10px;border:0;background:#111;color:#fff;font-weight:800" onclick="this.closest(\'.cpQR\').remove()">LISTO</button></div>'
+    ov.addEventListener('click',function(e){ if(e.target===ov) ov.remove() })
+    document.body.appendChild(ov)
+  }catch(e){ toast('No se pudo generar el acceso') }
+}
 function verSala(){ vista('vSala'); pintarSala(); rtSet('#/', 'Sala | KOACH'); socRTSeguir(null) }
 
 function verFicha(id, sinRuta){
@@ -3353,7 +3397,7 @@ function verFicha(id, sinRuta){
   AD.socioTab='ent'; if(document.getElementById('fTabEnt')){ document.getElementById('fTabEnt').style.display=''; document.getElementById('fTabAdm').style.display='none'; document.getElementById('fTabAdh').style.display=''; document.getElementById('fTbEnt').classList.add('on'); document.getElementById('fTbAdm').classList.remove('on'); document.getElementById('fTbAdh').classList.remove('on') }
   mhPintar(id); try{ fAdhCargar() }catch(_e){}
   const _mv=admEstadoSocio(F.id)
-  document.getElementById('fEstado').textContent=(F.estado==='congelado')?'ACCESO SUSPENDIDO':(_mv.k==='sin'?'SIN MEMBRESÍA':_mv.t)
+  document.getElementById('fEstado').textContent=esCP(F)?'CLASE DE PRUEBA':(F.estado==='congelado')?'ACCESO SUSPENDIDO':(_mv.k==='sin'?'SIN MEMBRESÍA':_mv.t)
   document.getElementById('btnFrio').textContent=(F.estado==='congelado')?'REACTIVAR':'CONGELAR'
   document.getElementById('fMeta').textContent=((a?(((a.protocolos&&a.protocolos.programa)||'')+' · '+((a.protocolos&&a.protocolos.nivel)||'')+' · SEMANA '+(a.semana_actual||1)+'/'+((a.protocolos&&a.protocolos.ciclo_semanas)||6)+' · CICLO '+(a.ciclo_actual||1)):'SIN PROGRAMA')+
     (d?(' · DESDE '+MES3[d.getMonth()]+' '+d.getFullYear()):'')).toUpperCase()
@@ -6402,6 +6446,8 @@ async function admGuardarPago(forzar){
     if (r.error){ syncErr(r.error.message); eb.innerHTML='<div class="vtErr" role="alert">'+adEsc(vtError(r.error.message))+'</div>'; return }
     syncOk(); admCerrar()
     toast(v.tipo_comercial==='ugc' ? 'UGC registrado ✓ · vigencia hasta '+adF(r.data.fin)+' · sin ingreso monetario' : 'Venta registrada ✓ · vigencia hasta '+adF(r.data.fin))
+    // Clase de prueba que contrata: pasa a socio activo en el mismo momento (Jake también lo concilia cada 5 min)
+    if (esCP(F)){ try{ await sb.from('profiles').update({estado:'activo'}).eq('id',F.id).eq('estado','clase_prueba'); F.estado='activo'; mhPintar(F.id) }catch(_e){} }
     await adCargarResumen(); fAdmCargar(); accBan(F.id)
   } finally { admGuardarPago._run=false; if(b && b.isConnected){ b.disabled=false; b.textContent=(b.classList.contains('vtGo')?'REGISTRAR VENTA →':'REGISTRAR') } }
 }
@@ -7349,6 +7395,7 @@ async function accCtrlFecha(dias){
 }
 async function accBan(id){
   const el=document.getElementById('fAccBan'); if (!el) return; el.innerHTML=''
+  if (F && F.id===id && esCP(F)){ el.innerHTML=cpBanner(id); return }
   const r=await sb.rpc('admin_acceso_de',{ p_socio:id }); if (!F || F.id!==id || r.error || !r.data) return
   const a=r.data; if (AD.acc) AD.acc[id]=Object.assign({},AD.acc[id]||{},{ estado:a.estado, prorroga_hasta:a.prorroga_hasta })
   accBan._a=accBan._a||{}; const prev=accBan._a[id]&&accBan._a[id].estado; accBan._a[id]=a
@@ -7916,7 +7963,7 @@ function mhPintar(id, finAcc, dAcc){
   const st=document.getElementById('fEstado')
   // un solo estado, con la vigencia real de la cadena de períodos
   const mv=admEstadoSocio(id)
-  st.textContent = F.estado==='congelado' ? 'ACCESO SUSPENDIDO' : mv.k==='congelada' ? 'CONGELADA' : fut ? 'AÚN NO COMIENZA' : !finAcc ? 'SIN MEMBRESÍA' : dAcc<0 ? 'VENCIDA' : (mv.k==='proxima' || dAcc<=7) ? 'POR VENCER' : 'ACTIVA'
+  st.textContent = esCP(F) ? 'CLASE DE PRUEBA' : F.estado==='congelado' ? 'ACCESO SUSPENDIDO' : mv.k==='congelada' ? 'CONGELADA' : fut ? 'AÚN NO COMIENZA' : !finAcc ? 'SIN MEMBRESÍA' : dAcc<0 ? 'VENCIDA' : (mv.k==='proxima' || dAcc<=7) ? 'POR VENCER' : 'ACTIVA'
   st.className='mh__st'+((finAcc && dAcc<=7) || fut ?' mh__st--alert':'')
   // c64 · el estado de acceso del servidor manda: si el pago no está al día, el encabezado no dice ACTIVA
   const sa=accBan._a && accBan._a[id], SA={ pago_pendiente:'PAGO PENDIENTE', sin_membresia:'SIN PAGO REGISTRADO', vencida:'VENCIDA', futura:'AÚN NO COMIENZA' }
