@@ -7923,7 +7923,7 @@ function kmRender(ctx) {
 
 /* ══ c138 · PLANTILLAS ELEGIDAS: EDITORIAL (franja) · TICKET (marco acero) · MAPA (señalador). Todas con la foto ya filtrada. ══ */
 // c181 · dato fijo en TODAS las tarjetas: en qué sesión de la semana va el socio ("SESIÓN 1/3", "SESIÓN 2/4"…)
-function ksSesTxt(j) { const p = +j.planif || 0, h = +j.hechas || 0; return p ? 'SESIÓN ' + Math.max(1, Math.min(h || 1, p)) + '/' + p : (h ? 'SESIÓN ' + h : '') }
+function ksSesTxt(j) { const p = +j.planif || 0, h = +j.hechas || 0; return p ? 'SESSION ' + Math.max(1, Math.min(h || 1, p)) + '/' + p : (h ? 'SESSION ' + h : '') }
 // c190 · ESCÁNER: la ficha de datos se toma y se arrastra (la línea al cuerpo se recalcula sola)
 (() => {
   const cv = ksEl('ksCv'); if (!cv) return; let dr = null;
@@ -7979,7 +7979,7 @@ function kaEditorial(ctx) {
   // c182 · arriba solo el logo
   // de abajo hacia arriba, sobre la zona segura inferior
   let y = H - KS_SAFE_B; const cw = (W - 2 * M) / 3;
-  [[d.ton, 'KG LEVANTADOS'], [String(d.sets || '—'), 'SETS'], [ksSesTxt(KS.data || {}).replace('SESIÓN ', '') || '—', 'SESIÓN']].forEach(([v, l], i) => {
+  [[d.ton, 'KG LEVANTADOS'], [String(d.sets || '—'), 'SETS'], [ksSesTxt(KS.data || {}).replace('SESSION ', '') || '—', 'SESSION']].forEach(([v, l], i) => {
     const xc = M + [0, cw * 1.22, cw * 2.12][i]; kmTxt(ctx, l, xc, y, 500, 24, 'mono', 5, G); kmTxt(ctx, v, xc, y - 46, 700, 66, 'disp', -1.5, B) });   // c183 · primera columna más ancha para 'KG LEVANTADOS'
   y -= 46 + 66 + 36; ctx.save(); ctx.strokeStyle = 'rgba(255,255,255,.3)'; ctx.lineWidth = 3; ctx.beginPath(); ctx.moveTo(M, y); ctx.lineTo(W - M, y); ctx.stroke(); ctx.restore();
   // pills (se miden primero para saber su alto)
@@ -7987,7 +7987,7 @@ function kaEditorial(ctx) {
   y -= 36 + ph; kaPills(ctx, pl, M, y, W - 2 * M, { size: 23, track: 2.5, h: 68, gap: 12, px: 22, stroke: 'rgba(255,255,255,.55)', lw: 3, color: B });
   const T = kaLineas(ctx, d.rut, 156, W - 2 * M, 2); y -= 40;
   for (let i = T.L.length - 1; i >= 0; i--) { kmTxt(ctx, T.L[i], M - 4, y, 700, T.s, 'disp', -T.s * .04, B); y -= T.s * .95 }
-  kmTxt(ctx, (ksSesTxt(KS.data || {}) || 'SESIÓN') + ' · COMPLETADA', M, y - 6, 500, 27, 'mono', 5, G);
+  kmTxt(ctx, (ksSesTxt(KS.data || {}) || 'SESSION') + ' · COMPLETADA', M, y - 6, 500, 27, 'mono', 5, G);
 }
 function kaFondo() {
   if (KM.fondo) return KM.fondo.ok ? KM.fondo.im : null;
@@ -8026,7 +8026,7 @@ function kaTicket(ctx) {
   const MU2 = 'rgba(255,255,255,.78)'; ctx.save(); ctx.shadowColor = 'rgba(20,28,40,.3)'; ctx.shadowBlur = 14;
   let y = ty + tp + 24; const x0 = tx + tp, x1 = tx + tw - tp;
   // c164 · semana arriba como dato; el nombre de la rutina con todo el ancho (hasta 2 líneas), nunca encima del dato
-  kmTxt(ctx, (ksSesTxt(KS.data || {}) || 'SESIÓN') + ' · COMPLETADA', x0, y, 500, 21, 'mono', 4, MU2);
+  kmTxt(ctx, (ksSesTxt(KS.data || {}) || 'SESSION') + ' · COMPLETADA', x0, y, 500, 21, 'mono', 4, MU2);
   y += 22; T.L.forEach((l, i) => { y += i ? T.s * .95 : T.s * .92; kmTxt(ctx, l, x0, y, 700, T.s, 'disp', -T.s * .03, B) });
   y += 30; kaPills(ctx, d.pills, x0, y, tw - 2 * tp, { ...PO, stroke: 'rgba(255,255,255,.85)', lw: 3, color: B });
   y += pillsH + 36; ctx.save(); ctx.shadowBlur = 0; ctx.setLineDash([9, 9]); ctx.strokeStyle = 'rgba(255,255,255,.4)'; ctx.lineWidth = 3; ctx.beginPath(); ctx.moveTo(x0, y); ctx.lineTo(x1, y); ctx.stroke(); ctx.restore();
@@ -8100,7 +8100,7 @@ function kaDia(ctx) {
   ctx.font = F(900, s); if ('letterSpacing' in ctx) ctx.letterSpacing = '-4px'; ctx.fillText(kg, x0, yc); if ('letterSpacing' in ctx) ctx.letterSpacing = '0px';
   // fila inferior: SESIÓN n/N a la izquierda, rutina a la derecha (se corta seca si no cabe)
   const fs = Math.max(22, Math.round(s * .2)), y2 = yc + fs * 1.9; ctx.font = M(fs); if ('letterSpacing' in ctx) ctx.letterSpacing = '3px';
-  const ses = ksSesTxt(j) || 'SESIÓN', wS = ctx.measureText(ses).width; ctx.fillText(ses, x0 + 4, y2);
+  const ses = ksSesTxt(j) || 'SESSION', wS = ctx.measureText(ses).width; ctx.fillText(ses, x0 + 4, y2);
   let rut = String(j.rutina || '').replace(/^\s*★\s*/, '').toUpperCase(); const max = bw - wS - 40;
   while (rut && ctx.measureText(rut).width > max) rut = rut.slice(0, -1); rut = rut.trimEnd();
   ctx.textAlign = 'right'; ctx.fillText(rut, x0 + bw - 4, y2); if ('letterSpacing' in ctx) ctx.letterSpacing = '0px';
@@ -8120,7 +8120,7 @@ function kaScan(ctx) {
   ctx.strokeStyle = 'rgba(255,255,255,.55)'; ctx.lineWidth = 2.5; pares.forEach(([a, b]) => { const A = kxPt(a), Bp = kxPt(b); if (A && Bp) { ctx.beginPath(); ctx.moveTo(A.x, A.y); ctx.lineTo(Bp.x, Bp.y); ctx.stroke() } });
   [11, 12, 13, 14, 15, 16, 23, 24, 25, 26, 27, 28].forEach(i => { const p = kxPt(i); if (!p) return; ctx.fillStyle = B; ctx.beginPath(); ctx.arc(p.x, p.y, 8, 0, 7); ctx.fill(); ctx.strokeStyle = 'rgba(255,255,255,.6)'; ctx.lineWidth = 2; ctx.beginPath(); ctx.arc(p.x, p.y, 17, 0, 7); ctx.stroke() });
   ctx.restore();
-  kxTxtM(ctx, 'SOCIO KOACH · ' + (ksSesTxt(j) || 'SESIÓN'), bx.x, bx.y + bx.h + 34, 19, G);
+  kxTxtM(ctx, 'SOCIO KOACH · ' + (ksSesTxt(j) || 'SESSION'), bx.x, bx.y + bx.h + 34, 19, G);
   // ficha lateral en el lado con más espacio
   const fw = 360, gs = (j.grupos || []).map(x => String(x.g || '').toUpperCase()).filter(Boolean).slice(0, 4), fh = 470 + gs.length * 40;
   // c190 · la ficha se arrastra libre (KM.ficha = esquina sup. izq.); por defecto, en el lado con más espacio
@@ -8136,7 +8136,7 @@ function kaScan(ctx) {
   ctx.save(); ctx.fillStyle = 'rgba(14,15,17,.5)'; ctx.fillRect(fx, fy, fw, fh); ctx.strokeStyle = 'rgba(255,255,255,.6)'; ctx.lineWidth = 2; ctx.strokeRect(fx, fy, fw, fh);
   ctx.fillStyle = 'rgba(255,255,255,.92)'; ctx.fillRect(fx, fy, fw, 54); ctx.restore();
   kxTxtM(ctx, 'PERFIL DE SESIÓN', fx + 22, fy + 36, 20, '#121212', 'left', 700);
-  let y = fy + 104; kxTxtM(ctx, String(j.programa || 'KOACH').toUpperCase() + ' · ' + (ksSesTxt(j) || 'SESIÓN'), fx + 22, y, 19, G);
+  let y = fy + 104; kxTxtM(ctx, String(j.programa || 'KOACH').toUpperCase() + ' · ' + (ksSesTxt(j) || 'SESSION'), fx + 22, y, 19, G);
   const T = kaLineas(ctx, d.rut, 50, fw - 44, 2); T.L.forEach((l, i) => { y += i ? T.s * .98 : T.s * 1.05; kmTxt(ctx, l, fx + 22, y, 700, T.s, 'disp', -T.s * .02, B) });
   y += 70; kxTxtM(ctx, 'KG LEVANTADOS', fx + 22, y, 19, G); y += 84; kmTxt(ctx, d.ton, fx + 20, y, 700, 86, 'disp', -2, B);
   y += 56; kxTxtM(ctx, 'SETS: ' + (d.sets || 0), fx + 22, y, 22, B);
@@ -8148,17 +8148,18 @@ function kaScan(ctx) {
 // 2 · MOVIMIENTO: toda la foto en barrido + grano (no se reconoce a nadie) y la tipografía manda
 function kaMov(ctx) {
   const W = KT.W, H = KT.H, j = KS.data || {}, d = kaDatos(), B = '#FFFFFF';
-  ctx.clearRect(0, 0, W, H); const NV = { a: [2.6, 1.8, 6, 7], b: [3.6, 2.3, 7, 8], c: [5, 3.2, 9, 11], x: [9, 5, 12, 16] }[KS.movNivel || 'b'], g = kxGris(kmFoto()), base = kxDesenfoque(g, NV[0]), mid = kxDesenfoque(g, NV[1]);   // c191 · desenfoque más suave (nivel elegido)
+  ctx.clearRect(0, 0, W, H); const NV = { a: [2.6, 1.8, 6, 7], b: [3.6, 2.3, 7, 8], c: [5, 3.2, 9, 11], x: [9, 5, 12, 16] }[KS.movNivel || 'c'], g = kxGris(kmFoto()), base = kxDesenfoque(g, NV[0]), mid = kxDesenfoque(g, NV[1]);   // c191 · desenfoque más suave (nivel elegido)
   ctx.drawImage(base, 0, 0); ctx.save(); for (let i = -NV[2]; i <= NV[2]; i++) { ctx.globalAlpha = 1 / (2 * NV[2] + 1) * 2.1; ctx.drawImage(mid, i * NV[3], 0) } ctx.restore();   // barrido horizontal (movimiento)
   ctx.fillStyle = 'rgba(20,20,22,.2)'; ctx.fillRect(0, 0, W, H); kxGrano(ctx, .16);
   ctx.save(); ctx.shadowColor = 'rgba(0,0,0,.35)'; ctx.shadowBlur = 14;
-  kxLogo(ctx, KS_SAFE_X, KS_SAFE_T - 60, 39);
-  kxTxtM(ctx, (ksSesTxt(j) || 'SESIÓN') + ' · COMPLETADA', W / 2, 640, 24, B, 'center');
-  const T = kaLineas(ctx, d.rut.toUpperCase(), 64, W - 2 * KS_SAFE_X, 2); let y = 640 + 30; T.L.forEach(l => { y += T.s; kmTxt(ctx, l, W / 2, y, 700, T.s, 'disp', -1, B, 'center') });
-  ctx.restore(); ctx.save(); ctx.strokeStyle = 'rgba(255,255,255,.75)'; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(W / 2, y + 50); ctx.lineTo(W / 2, 1230); ctx.stroke(); ctx.restore();
+  // c192 · bloque central más arriba; arriba solo SESSION n/N; logo al pie, centrado
+  kxTxtM(ctx, ksSesTxt(j) || 'SESSION', W / 2, 540, 24, B, 'center');
+  const T = kaLineas(ctx, d.rut.toUpperCase(), 64, W - 2 * KS_SAFE_X, 2); let y = 540 + 30; T.L.forEach(l => { y += T.s; kmTxt(ctx, l, W / 2, y, 700, T.s, 'disp', -1, B, 'center') });
+  ctx.restore(); ctx.save(); ctx.strokeStyle = 'rgba(255,255,255,.75)'; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(W / 2, y + 50); ctx.lineTo(W / 2, 1110); ctx.stroke(); ctx.restore();
   ctx.save(); ctx.shadowColor = 'rgba(0,0,0,.35)'; ctx.shadowBlur = 14;
-  kmTxt(ctx, d.ton, W / 2, 1400, 700, 170, 'disp', -5, B, 'center'); kxTxtM(ctx, 'KG LEVANTADOS · ' + (d.sets || 0) + ' SETS', W / 2, 1462, 24, B, 'center');
-  kxTxtM(ctx, (j.grupos || []).map(x => String(x.g || '').toUpperCase()).filter(Boolean).slice(0, 4).join(' · '), W / 2, 1512, 21, 'rgba(255,255,255,.82)', 'center');
+  kmTxt(ctx, d.ton, W / 2, 1280, 700, 170, 'disp', -5, B, 'center'); kxTxtM(ctx, 'KG LEVANTADOS · ' + (d.sets || 0) + ' SETS', W / 2, 1342, 24, B, 'center');
+  kxTxtM(ctx, (j.grupos || []).map(x => String(x.g || '').toUpperCase()).filter(Boolean).slice(0, 4).join(' · '), W / 2, 1392, 21, 'rgba(255,255,255,.82)', 'center');
+  { const lg = kaLogo(B); if (lg) { const h = 39, w = lg.width * h / lg.height; ctx.drawImage(lg, (W - w) / 2, H - KS_SAFE_B - 20, w, h) } }
   ctx.restore();
 }
 
@@ -8175,12 +8176,12 @@ function kaCara(ctx) {
   const g = ctx.createLinearGradient(0, 0, 0, H); g.addColorStop(0, 'rgba(18,18,18,.45)'); g.addColorStop(.22, 'rgba(18,18,18,0)'); g.addColorStop(.55, 'rgba(18,18,18,0)'); g.addColorStop(1, 'rgba(18,18,18,.9)'); ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
   ctx.save(); ctx.shadowColor = 'rgba(0,0,0,.35)'; ctx.shadowBlur = 14; kxLogo(ctx, M, KS_SAFE_T - 60, 39);
   let y = H - KS_SAFE_B; const cw = (W - 2 * M) / 3;
-  [[d.ton, 'KG LEVANTADOS'], [String(d.sets || '—'), 'SETS'], [ksSesTxt(j).replace('SESIÓN ', '') || '—', 'SESIÓN']].forEach(([v, l], i) => { const xc = M + [0, cw * 1.22, cw * 2.12][i]; kmTxt(ctx, l, xc, y, 500, 24, 'mono', 5, G); kmTxt(ctx, v, xc, y - 46, 700, 66, 'disp', -1.5, B) });
+  [[d.ton, 'KG LEVANTADOS'], [String(d.sets || '—'), 'SETS'], [ksSesTxt(j).replace('SESSION ', '') || '—', 'SESSION']].forEach(([v, l], i) => { const xc = M + [0, cw * 1.22, cw * 2.12][i]; kmTxt(ctx, l, xc, y, 500, 24, 'mono', 5, G); kmTxt(ctx, v, xc, y - 46, 700, 66, 'disp', -1.5, B) });
   y -= 46 + 66 + 36; ctx.save(); ctx.shadowBlur = 0; ctx.strokeStyle = 'rgba(255,255,255,.3)'; ctx.lineWidth = 3; ctx.beginPath(); ctx.moveTo(M, y); ctx.lineTo(W - M, y); ctx.stroke(); ctx.restore();
   y -= 36; const ph = kaPills(document.createElement('canvas').getContext('2d'), d.pills, 0, 0, W - 2 * M, { size: 23, track: 3, h: 64, gap: 12, px: 22 }); y -= ph;
   kaPills(ctx, d.pills, M, y, W - 2 * M, { size: 23, track: 3, h: 64, gap: 12, px: 22, stroke: 'rgba(255,255,255,.85)', lw: 3, color: B });
   y -= 40; const T = kaLineas(ctx, d.rut, 120, W - 2 * M, 2); for (let i = T.L.length - 1; i >= 0; i--) { kmTxt(ctx, T.L[i], M - 4, y, 700, T.s, 'disp', -T.s * .04, B); y -= T.s * .95 }
-  kmTxt(ctx, (ksSesTxt(j) || 'SESIÓN') + ' · COMPLETADA', M, y - 6, 500, 27, 'mono', 5, G); ctx.restore();
+  kmTxt(ctx, (ksSesTxt(j) || 'SESSION') + ' · COMPLETADA', M, y - 6, 500, 27, 'mono', 5, G); ctx.restore();
 }
 
 // 4 · VISOR: fuera del cuadro la foto en gris y oscura; dentro, a color y nítida; datos al centro sobre el borde inferior del cuadro
@@ -8193,13 +8194,13 @@ function kaVisor(ctx) {
   [[fx, fy], [fx + fw, fy], [fx, fy + fh], [fx + fw, fy + fh]].forEach(([x, y]) => { ctx.beginPath(); ctx.moveTo(x - 22, y); ctx.lineTo(x + 22, y); ctx.moveTo(x, y - 22); ctx.lineTo(x, y + 22); ctx.stroke() }); ctx.restore();
   ctx.save(); ctx.shadowColor = 'rgba(0,0,0,.4)'; ctx.shadowBlur = 14;
   kxLogo(ctx, M, KS_SAFE_T - 60, 39);
-  kxTxtM(ctx, (ksSesTxt(j) || 'SESIÓN') + ' · COMPLETADA', W / 2, fy - 86, 22, 'rgba(255,255,255,.85)', 'center');
+  kxTxtM(ctx, (ksSesTxt(j) || 'SESSION') + ' · COMPLETADA', W / 2, fy - 86, 22, 'rgba(255,255,255,.85)', 'center');
   const T = kaLineas(ctx, d.rut, 78, fw, 1); kmTxt(ctx, T.L[0], W / 2, fy - 26, 700, T.s, 'disp', -T.s * .03, B, 'center');
   ctx.restore();
   // banda de datos al centro, montada sobre el borde inferior del cuadro
   const bw = fw - 80, bh = 180, bxx = (W - bw) / 2, byy = fy + fh - bh / 2;
   ctx.save(); kaRR(ctx, bxx, byy, bw, bh, 30); ctx.fillStyle = 'rgba(16,17,19,.72)'; ctx.fill(); ctx.strokeStyle = 'rgba(255,255,255,.55)'; ctx.lineWidth = 2; ctx.stroke(); ctx.restore();
-  const cols = [[d.ton, 'KG LEVANTADOS'], [String(d.sets || '—'), 'SETS'], [ksSesTxt(j).replace('SESIÓN ', '') || '—', 'SESIÓN']], cw = bw / 3;
+  const cols = [[d.ton, 'KG LEVANTADOS'], [String(d.sets || '—'), 'SETS'], [ksSesTxt(j).replace('SESSION ', '') || '—', 'SESSION']], cw = bw / 3;
   cols.forEach(([v, l], i) => { const cx = bxx + cw * i + cw / 2; kmTxt(ctx, v, cx, byy + 98, 700, 62, 'disp', -1.5, B, 'center'); kxTxtM(ctx, l, cx, byy + 142, 18, 'rgba(255,255,255,.7)', 'center');
     if (i) { ctx.save(); ctx.strokeStyle = 'rgba(255,255,255,.2)'; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(bxx + cw * i, byy + 34); ctx.lineTo(bxx + cw * i, byy + bh - 34); ctx.stroke(); ctx.restore() } });
   const ph = kaPills(document.createElement('canvas').getContext('2d'), d.pills, 0, 0, W - 2 * M, { size: 22, track: 3, h: 60, gap: 12, px: 22 }), pw = (() => { const c = document.createElement('canvas').getContext('2d'); c.font = "500 22px 'IBM Plex Mono', monospace"; if ('letterSpacing' in c) c.letterSpacing = '3px'; return d.pills.reduce((a, t) => a + c.measureText(t).width + 44 + 12, -12) })();
@@ -8260,7 +8261,7 @@ function kaCaptura(ctx, trans, fondo) {
   ctx.save(); if (k < 1) { ctx.translate(W / 2, top); ctx.scale(k, k); ctx.translate(-W / 2, -top) }
   txt(extra ? '★ SESIÓN EXTRA' : String(j.programa || 'KOACH').toUpperCase(), M, y, MONO(21), G, 5);
   T.L.forEach((l, i) => { y += i ? T.s * .9 : T.s * .92; txt(l, M - 4, y, DISP(900, T.s), B, -T.s * .02) });
-  y += 62; txt((ksSesTxt(j) || 'SESIÓN') + ' · COMPLETADA', M, y, MONO(23), G2, 6);
+  y += 62; txt((ksSesTxt(j) || 'SESSION') + ' · COMPLETADA', M, y, MONO(23), G2, 6);
   const ton = Math.round(+j.tonelaje || 0).toLocaleString('es-CL');
   y += 218; const wN = txt(ton, M - 6, y, DISP(900, 228), B, -8);
   txt('KG', M - 6 + wN + 16, y - 6, MONO(34), B, 2);
