@@ -3305,7 +3305,7 @@ function pintarSala(){
     '<div class="glass st3"><b>'+hoySet.size+'</b><span>ENTRENARON HOY</span></div>'+
     (_modo==='desktop'?'<div class="glass st3"><b>'+completas+'</b><span>SEMANAS COMPLETAS</span></div>'+
       '<div class="glass st3"><b>'+nSol+'</b><span>SOLICITUDES</span></div>':'')
-  document.getElementById('nSoc').textContent=SOC.length+' EN EL CLUB'+(CPS.length?' · '+CPS.length+' CLASE'+(CPS.length>1?'S':'')+' DE PRUEBA':'')
+  document.getElementById('nSoc').textContent=SOC.length+' EN EL CLUB'
   document.getElementById('lista').innerHTML = SOC.map(function(s){
     const a=C.asig[s.id], x=ctxEnt(s.id), ex=(C.extras[s.id]||[]).filter(function(e){return e.estado==='disponible'}).length
     const meta=a?(((a.protocolos&&a.protocolos.programa)||'')+' · SEMANA '+(a.semana_actual||1)).toUpperCase():'SIN PLANIFICACIÓN ACTIVA'
@@ -3313,7 +3313,7 @@ function pintarSala(){
       '<a class="qRow__t" href="#/socio/'+s.id+'" onclick="return rtClick(event,\''+s.id+'\')"><b>'+nomDe(s.id)+(ex?' ★'+ex:'')+'</b><small>'+meta+(x&&x.etiqueta?' · '+x.etiqueta:'')+'</small></a>'+
       '<div class="qRow__a">'+(a?'<a class="ink" href="'+urlRutina(s.id)+'" onclick="return rtIr(event,\''+urlRutina(s.id)+'\')">ENTRENAMIENTO</a>':'')+
       '<a href="#/socio/'+s.id+'" onclick="return rtClick(event,\''+s.id+'\')">PERFIL</a></div></div>'
-  }).join('') + cpLista(CPS)
+  }).join('')
   salaVisibilidadLista()
   salaPresenciaPintar()
   salaFotos()
@@ -3339,21 +3339,10 @@ function verAgenda(){ vista('vAgenda'); const f=document.getElementById('agFrame
   rtSet('#/agenda','Agenda | KOACH'); requestAnimationFrame(agAjustar) }
 addEventListener('resize',function(){ if(document.getElementById('vAgenda')?.classList.contains('on')) agAjustar() })
 // ── Clases de prueba (estado 'clase_prueba') ──────────────────────────────────────────────
-// Personas que agendaron su clase de prueba (Jake crea el perfil). No son socios: van aparte en la Sala y no
-// cuentan en socios activos ni membresías. Acceso a la app solo el día de la clase, con QR de un solo uso.
+// Personas que agendaron su clase de prueba (Jake crea el perfil). No son socios: no aparecen en la Sala ni en
+// los filtros de socios; se ven solo en Membresías › CLASES DE PRUEBA. Acceso a la app solo el día de la clase, con QR de un solo uso.
 // Si compran, se registra la venta en su ficha y pasan solas a socio activo.
 function esCP(s){ return !!s && s.estado==='clase_prueba' }
-function cpLista(cps){
-  if (!cps || !cps.length) return ''
-  return '<div class="kTray__h" style="margin-top:18px"><span>CLASES DE PRUEBA</span><b>'+cps.length+'</b></div>'+cps.map(function(s){
-    const a=C.asig[s.id]
-    const meta='CLASE DE PRUEBA'+(a&&a.protocolos&&a.protocolos.programa?' · '+String(a.protocolos.programa).toUpperCase():' · SIN PROGRAMA ASIGNADO')
-    return '<div class="qRow" data-id="'+s.id+'" data-nom="'+_nomQ(s)+'">'+avSocio(s.id)+
-      '<a class="qRow__t" href="#/socio/'+s.id+'" onclick="return rtClick(event,\''+s.id+'\')"><b>'+nomDe(s.id)+'</b><small>'+meta+'</small></a>'+
-      '<div class="qRow__a"><a class="ink" href="#" onclick="cpQR(\''+s.id+'\');return false">ACCESO QR</a>'+
-      '<a href="#/socio/'+s.id+'" onclick="return rtClick(event,\''+s.id+'\')">PERFIL</a></div></div>'
-  }).join('')
-}
 function cpBanner(id){
   return '<div class="acBan acBan--pr" role="status"><div class="acBan__t"><span class="acBan__d" aria-hidden="true"></span><div><b>CLASE DE PRUEBA</b>'+
     '<small>Acceso a la app solo el día de su clase. Muéstrale el QR al llegar. Si contrata, registra la venta aquí y pasa a socio activo.</small></div></div>'+
@@ -6092,7 +6081,7 @@ function admEstadoSocio(id){
   return {k:k, t:MEM_EST[k]||k, m:Object.assign({},m,{fin_acceso:fin, dias_acceso:d})}
 }
 function admPintar(){
-  const soc=C.socios.slice()
+  const CPS=C.socios.filter(esCP), soc=C.socios.filter(function(s){return !esCP(s)})   // clases de prueba: filtro propio, nunca mezcladas con socios
   if (!AD.admF) AD.admF = soc.some(function(s){ return !C.asig[s.id] || !adMemVigente(s.id) }) ? 'activar' : 'todos'
   const est={}; soc.forEach(function(s){ est[s.id]=admEstadoSocio(s.id) })
   const pend=new Set(AD.mem.filter(function(m){return m.pago_pendiente}).map(function(m){return m.socio_id}))
@@ -6100,11 +6089,11 @@ function admPintar(){
   const porActivar=function(sid){ return est[sid].k==='sin' || !C.asig[sid] }
   const esUgc=function(sid){ const m=adMemVigente(sid); return !!(m && m.tipo_comercial==='ugc') }
   if (CRM_ACTIVO && ((C.yo&&C.yo.role)||'')==='admin') admIngresos(); else { const _ing=document.getElementById('admIng'); if(_ing) _ing.innerHTML='' }
-  const F2=[['activar','POR ACTIVAR'],['todos','TODOS'],['activa','ACTIVOS'],['proxima','PRÓXIMOS A VENCER'],['vencida','VENCIDOS'],['congelada','CONGELADOS'],['pago','PAGO PENDIENTE'],['ugc','UGC'],['sin','SIN MEMBRESÍA'],['sinacc','SIN ACCESO A LA APP']]
+  const F2=[['activar','POR ACTIVAR'],['todos','TODOS'],['activa','ACTIVOS'],['proxima','PRÓXIMOS A VENCER'],['vencida','VENCIDOS'],['congelada','CONGELADOS'],['pago','PAGO PENDIENTE'],['ugc','UGC'],['sin','SIN MEMBRESÍA'],['sinacc','SIN ACCESO A LA APP'],['prueba','CLASES DE PRUEBA']]
   const sinAcc=function(sid){ const a=AD.acc&&AD.acc[sid]; return !!a && ['ok','prorroga','staff'].indexOf(a.estado)<0 }
   accCtrlPintar(soc.filter(function(s){ return sinAcc(s.id) }).length)
   const cuenta=function(k){ return soc.filter(function(s){ return k==='todos'||(k==='sinacc'?sinAcc(s.id):k==='activar'?porActivar(s.id):k==='pago'?pend.has(s.id):k==='ugc'?esUgc(s.id):(k==='activa'?['activa','futura'].indexOf(est[s.id].k)>-1:est[s.id].k===k)) }).length }
-  document.getElementById('admF').innerHTML=F2.map(function(f){ return '<button class="'+(AD.admF===f[0]?'on':'')+'" onclick="AD.admF=\''+f[0]+'\';admPintar()">'+f[1]+' · '+cuenta(f[0])+'</button>' }).join('')
+  document.getElementById('admF').innerHTML=F2.map(function(f){ return '<button class="'+(AD.admF===f[0]?'on':'')+'" onclick="AD.admF=\''+f[0]+'\';admPintar()">'+f[1]+' · '+(f[0]==='prueba'?CPS.length:cuenta(f[0]))+'</button>' }).join('')
   // PRÓXIMOS VENCIMIENTOS 30/14/7
   const pv=soc.map(function(s){ return [s, est[s.id].m] }).filter(function(p){ return p[1] && p[1].dias_acceso!=null && p[1].dias_acceso>=0 && p[1].dias_acceso<=30 })
     .map(function(p){ return [p[0], Object.assign({},p[1],{dias_restantes:p[1].dias_acceso, fecha_fin:p[1].fin_acceso})] })
@@ -6114,6 +6103,7 @@ function admPintar(){
   document.getElementById('admVenc').innerHTML = pv.length ? '<details class="adCard adVenc"'+(_abierto?' open':'')+'><summary class="adK"><span>PRÓXIMOS VENCIMIENTOS · 30 DÍAS</span><span>'+pv.length+' ▾</span></summary>'+
     pv.map(function(p){ return '<div class="adLi" onclick="verFicha(\''+p[0].id+'\');fTab(\'adm\')" style="cursor:pointer"><span>'+adEsc(nomDe(p[0].id))+'<small>VENCE '+adF(p[1].fecha_fin)+'</small></span><span>'+p[1].dias_restantes+' D<small>'+tramo(p[1].dias_restantes)+'</small></span></div>' }).join('')+'</details>' : ''
   const b=(document.getElementById('admBusca').value||'').trim().toLowerCase()
+  if (AD.admF==='prueba'){ admPintarPruebas(CPS, b); return }
   const l=soc.filter(function(s){ const k=AD.admF
       return (k==='todos'||(k==='sinacc'?sinAcc(s.id):k==='activar'?porActivar(s.id):k==='pago'?pend.has(s.id):k==='ugc'?esUgc(s.id):(k==='activa'?['activa','futura'].indexOf(est[s.id].k)>-1:est[s.id].k===k))) && (!b || bpScore(b, nomDe(s.id), [s.email,s.telefono].filter(Boolean).join(' '))>0) })
   document.getElementById('admCnt').textContent=soc.length+' SOCIOS'
@@ -6123,6 +6113,22 @@ function admPintar(){
       (s.registro_origen==='app'?'<span class="adTag">SE REGISTRÓ EN LA APP</span>':'')+
       (m?('<br>'+adF(m.fecha_inicio)+' — '+adF(m.fecha_fin)+' · '+m.dias_restantes+' D'):'')+'</div></div>'+
       '<button class="adGo" onclick="verFicha(\''+s.id+'\');fTab(\'adm\')">ABRIR →</button></div>' }).join('') : '<div class="vacio">Nadie en este filtro.</div>'
+}
+
+// Membresías › CLASES DE PRUEBA: personas que agendaron su clase de prueba y aún no contratan.
+// Desde aquí: abrir su perfil y asignarle la sesión, darle el QR de acceso o registrar la venta (pasa a socio activo).
+function admPintarPruebas(cps, b){
+  const l=cps.filter(function(s){ return !b || bpScore(b, _nomQ(s))>0 || String(s.telefono||'').indexOf(b)>-1 })
+  document.getElementById('admCnt').textContent=cps.length+' CLASE'+(cps.length===1?'':'S')+' DE PRUEBA'
+  const com=accEsCom()
+  document.getElementById('admLista').innerHTML = l.length ? l.map(function(s){ const a=C.asig[s.id]
+    return '<div class="adRow"><div class="adB"><div class="adN">'+adEsc(nomDe(s.id))+'</div><div class="adM">'+
+      '<span class="adTag ink">CLASE DE PRUEBA</span>'+(a&&a.protocolos&&a.protocolos.programa?'<span class="adTag">'+adEsc(String(a.protocolos.programa).toUpperCase())+'</span>':'<span class="adTag">SIN SESIÓN ASIGNADA</span>')+
+      (s.telefono?'<br>'+adEsc(s.telefono):'')+(s.created_at?' · AGENDÓ '+adF(String(s.created_at).slice(0,10)):'')+'</div></div>'+
+      '<button class="adGo" onclick="cpQR(\''+s.id+'\')">ACCESO QR</button>'+
+      (com?'<button class="adGo" onclick="verFicha(\''+s.id+'\');fTab(\'adm\');setTimeout(admFormPago,60)">VENDER PLAN</button>':'')+
+      '<button class="adGo" onclick="verFicha(\''+s.id+'\')">ABRIR →</button></div>' }).join('')
+    : '<div class="vacio">No hay clases de prueba pendientes. Aparecen aquí cuando alguien agenda su clase con Jake.</div>'
 }
 
 // ═══ FICHA · pestañas ENTRENAMIENTO | ADMIN ═══
