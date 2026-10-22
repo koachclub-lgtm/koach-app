@@ -2305,6 +2305,8 @@ body.wl-on{overflow:hidden}
 .pwG__t img,.pwG__t i{display:block;width:100%;aspect-ratio:1;object-fit:cover;background:#E4E5E7}
 .pwG__t figcaption{padding:4px 5px 5px;font:700 6.5px/1.25 var(--font-mono);letter-spacing:.03em;min-height:23px;color:#0B0B0C;overflow-wrap:anywhere}
 .pv__d--pw{margin-bottom:10px}
+.pwOn .pv__f{margin-left:10px;margin-right:10px}
+.pwOn .pwG .pwG__c{margin-left:-6px;margin-right:-6px}
 .pv__st--pw{margin-bottom:12px}
 /* c195 · preview del día */
 .pw{position:fixed;inset:0;z-index:1250;display:none;overflow-y:auto;background:linear-gradient(160deg,#E9EAEC,#C7C9CD 55%,#B4B7BB) fixed;color:#111}
@@ -5451,7 +5453,7 @@ function pvGrupos(bfs){ const G={}, ord=[]
     return '<div class="pwG__g" style="grid-column:span '+n+';--n:'+n+'"><span class="kh__pill pwG__p">'+bkEsc(g)+'</span><div class="pwG__t">'+
       G[g].map(ej=>{ const u=exFotoUrl(ej); return '<figure>'+(u?'<img src="'+u+'" alt="" loading="lazy" decoding="async">':'<i aria-hidden="true"></i>')+'<figcaption>'+bkEsc(String(ej.nombre).toUpperCase())+'</figcaption></figure>' }).join('')+'</div></div>' }).join('')+'</section>'+
     '</div><button type="button" class="pvGo" onclick="toast(\'Pronto: escanea el QR en sala para empezar.\')">START &nbsp;→</button>' }
-function pvBloques(bfs){ const st=document.getElementById('syncTag'); if(st) st.style.visibility=S._preview?'hidden':''; if (S._preview) return pvGrupos(bfs); const pp=bkPrimerPendiente(bfs), todo=pp<0, prim=todo?bfs.length-1:pp, emp=pvEmpezada()
+function pvBloques(bfs){ const st=document.getElementById('syncTag'); if(st) st.style.visibility=S._preview?'hidden':''; const vs=document.getElementById('vSesion'); if(vs) vs.classList.toggle('pwOn',!!S._preview); if (S._preview) return pvGrupos(bfs); const pp=bkPrimerPendiente(bfs), todo=pp<0, prim=todo?bfs.length-1:pp, emp=pvEmpezada()
   const ab=(S._pvAb!=null && bfs[S._pvAb]) ? S._pvAb : (todo ? -1 : prim)
   const cp=bfs[prim]||{}, hp=bkSetsHechos(cp)
   const go = todo ? '<button type="button" class="pvGo" onclick="pedirFinal()">TERMINAR SESIÓN ✓</button>'
