@@ -2296,6 +2296,27 @@ body.wl-on{overflow:hidden}
 .avErr span{font-size:14.5px;color:#5E5D59}
 .avErr button{align-self:flex-start;min-height:44px;padding:0 16px;margin-top:4px;border-radius:12px;border:1px solid #121212;background:#121212;color:#F4F3F0;font-family:var(--font-mono);font-size:12px;letter-spacing:.12em;cursor:pointer}
 #vLogin{background:#000}
+/* c195 · preview del día */
+.pw{position:fixed;inset:0;z-index:1250;display:none;overflow-y:auto;background:linear-gradient(160deg,#E9EAEC,#C7C9CD 55%,#B4B7BB) fixed;color:#111}
+.pw.vis{display:block}
+.pw__in{max-width:520px;margin:0 auto;padding:calc(env(safe-area-inset-top,0px) + 16px) 18px 150px}
+.pw__top{display:flex;justify-content:space-between;align-items:center}
+.pw__x{width:42px;height:42px;border-radius:50%;border:0;background:rgba(255,255,255,.55);font-size:20px;cursor:pointer}
+.pw__tag{padding:6px 12px;border-radius:999px;background:#111;color:#F4F3F0;font:700 9px var(--font-mono);letter-spacing:.16em}
+.pw__h{margin:20px 0 14px;font:600 25px/1.15 var(--wxD,'Inter Display',sans-serif);font-family:'Inter Display',Inter,Arial,sans-serif}
+.pw__n{margin:0;font-family:'KOACH Display',Arial,sans-serif;font-weight:900;font-stretch:115%;font-size:clamp(42px,13vw,58px);line-height:.88;letter-spacing:-.02em}
+.pw__k{margin:12px 0 24px;font:700 10px var(--font-mono);letter-spacing:.16em;color:#55575B}
+.pw__g{margin-bottom:22px}
+.pw__gh{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
+.pw__pill{display:inline-flex;align-items:center;height:32px;padding:0 15px;border-radius:999px;background:#111;color:#F4F3F0;font:700 11px var(--font-mono);letter-spacing:.14em}
+.pw__gh small{font:700 9px var(--font-mono);letter-spacing:.14em;color:#55575B}
+.pw__t{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.pw__t figure{margin:0;border-radius:16px;overflow:hidden;background:rgba(255,255,255,.6)}
+.pw__t img,.pw__t i{display:block;width:100%;aspect-ratio:1;object-fit:cover;background:#E6E7E9}
+.pw__t figcaption{padding:7px 8px 9px;font:700 8.5px/1.3 var(--font-mono);letter-spacing:.05em;min-height:38px}
+.pw__ft{position:fixed;left:0;right:0;bottom:0;z-index:2;padding:16px 18px calc(env(safe-area-inset-bottom,0px) + 18px);background:linear-gradient(180deg,rgba(193,195,199,0),#C1C3C7 32%);text-align:center}
+.pw__go{width:100%;max-width:484px;height:56px;border:0;border-radius:999px;background:#111;color:#F4F3F0;font:700 12px var(--font-mono);letter-spacing:.16em;cursor:pointer}
+.pw__ft small{display:block;margin-top:9px;font:700 9px var(--font-mono);letter-spacing:.12em;color:#55575B}
 /* c194 · ajustar foto */
 .ksAj{position:fixed;inset:0;z-index:1300;display:none;flex-direction:column;align-items:center;gap:12px;background:#0B0B0C;color:#F4F3F0;padding:calc(14px + env(safe-area-inset-top,0px)) 18px calc(16px + env(safe-area-inset-bottom,0px))}
 .ksAj.vis{display:flex}
@@ -4704,6 +4725,7 @@ async function horBloquear(sesId){
 }
 setInterval(function(){ try{ if (S && S.horario && S.horario.restringido) horPintar() }catch(_){} }, 60000)
 function pintarHome(){
+  if (location.hash==='#preview' && !S._pwHash){ S._pwHash=1; setTimeout(()=>{ try{ pwAbrir() }catch(e){ console.error(e) } },300) }   // c195 · preview por enlace
   cargandoOff(); try{ horPintar() }catch(_){}
   document.getElementById('tabbar').classList.add('vis')
   const hoyF = new Date()
@@ -6713,6 +6735,30 @@ async function verHist(regId){
     body.innerHTML='<div class="vacio">No encontramos el registro de esta sesión.</div>' }
 }
 
+/* c195 · PREVIEW DEL DÍA (prototipo, aún sin botón en el inicio): lo que viene hoy agrupado por músculo, con la foto de cada ejercicio.
+   Sin series, reps, cargas ni orden. START queda para el QR de sala (pendiente). Se abre con app.html#preview */
+const PW_EN = { 'CUÁDRICEPS':'QUADS', 'GLÚTEOS':'GLUTES', 'ISQUIOS':'HAMSTRINGS', 'PECHO':'CHEST', 'ESPALDA':'BACK', 'DORSALES':'LATS', 'HOMBROS':'SHOULDERS', 'BÍCEPS':'BICEPS', 'TRÍCEPS':'TRICEPS', 'CORE':'CORE', 'GEMELOS':'CALVES', 'ADUCTORES':'ADDUCTORS', 'ABDUCTORES':'ABDUCTORS', 'TRAPECIO':'TRAPS', 'LUMBARES':'LOWER BACK', 'ANTEBRAZOS':'FOREARMS', 'GLOBAL':'FULL BODY', 'CARDIO':'CARDIO', 'MOVILIDAD':'MOBILITY' };
+function pwAbrir(ses) {
+  try { if (!ses) { const e = estadoSemana(); ses = sesCompleta(e.prox) || e.hoySes || (S.programa && S.programa.sesiones[0]) } } catch (_) {}
+  if (!ses) { toast('No encontramos tu sesión de hoy.'); return }
+  const grupos = {}, orden = [];
+  (ses.bloquesFull || []).slice().sort((a, b) => String(a.bloque).localeCompare(String(b.bloque))).forEach(b => (b.bloque_ejercicios || []).slice().sort((a, c) => (a.orden || 0) - (c.orden || 0)).forEach(be => {
+    const ej = be.ejercicios || {}; if (!ej.nombre) return; const g = String(ej.grupo_muscular || 'GLOBAL').toUpperCase();
+    if (!grupos[g]) { grupos[g] = []; orden.push(g) } if (!grupos[g].some(x => x.id === ej.id)) grupos[g].push(ej) }));
+  orden.sort((a, b) => grupos[b].length - grupos[a].length || ['GLOBAL', 'CARDIO', 'MOVILIDAD'].includes(a) - ['GLOBAL', 'CARDIO', 'MOVILIDAD'].includes(b));
+  const n = msgNombre ? msgNombre() : '', e = estadoSemana(), pos = (() => { try { return posSem(ses) || 1 } catch (_) { return 1 } })();
+  const nom = String(ses.nombre || 'SESIÓN').replace(/^★\s*/, '').toUpperCase();
+  const html = orden.map(g => '<section class="pw__g"><div class="pw__gh"><span class="pw__pill">' + plEscA(PW_EN[g] || g) + '</span><small>' + grupos[g].length + ' EJERCICIO' + (grupos[g].length > 1 ? 'S' : '') + '</small></div><div class="pw__t">' +
+    grupos[g].map(ej => { const u = exFotoUrl(ej); return '<figure>' + (u ? '<img src="' + u + '" alt="" loading="lazy" decoding="async">' : '<i aria-hidden="true"></i>') + '<figcaption>' + plEscA(String(ej.nombre).toUpperCase()) + '</figcaption></figure>' }).join('') + '</div></section>').join('');
+  let o = document.getElementById('oPw'); if (!o) { o = document.createElement('div'); o.id = 'oPw'; o.className = 'pw'; o.setAttribute('role', 'dialog'); document.body.appendChild(o) }
+  o.innerHTML = '<div class="pw__in"><div class="pw__top"><button type="button" class="pw__x" onclick="pwCerrar()" aria-label="Volver">←</button><span class="pw__tag">PREVIEW</span></div>' +
+    '<h1 class="pw__h">Prepárate para lo que viene hoy' + (n ? ', ' + plEscA(n) : '') + '.</h1><h2 class="pw__n">' + plEscA(nom) + '</h2>' +
+    '<div class="pw__k">' + (ses._extra ? '★ SESIÓN EXTRA' : 'SESSION ' + pos + '/' + (e.total || '—')) + ' · ESTÁ POR COMENZAR</div>' + html + '</div>' +
+    '<div class="pw__ft"><button type="button" class="pw__go" onclick="toast(\'Pronto: escanea el QR en sala para empezar.\')">START →</button><small>AL LLEGAR A SALA: ESCANEA EL QR Y EMPIEZA</small></div>';
+  o.classList.add('vis'); o.scrollTop = 0;
+}
+function pwCerrar() { const o = document.getElementById('oPw'); if (o) o.classList.remove('vis'); if (location.hash === '#preview') history.replaceState(null, '', location.pathname) }
+window.addEventListener('hashchange', () => { if (location.hash === '#preview') pwAbrir() });
 function verPreview(num){
   const s=S.programa.sesiones.find(x=>x.numero===num); if(!s) return
   const cap=resolverCap(s, ctxDe(s))
