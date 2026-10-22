@@ -2296,6 +2296,15 @@ body.wl-on{overflow:hidden}
 .avErr span{font-size:14.5px;color:#5E5D59}
 .avErr button{align-self:flex-start;min-height:44px;padding:0 16px;margin-top:4px;border-radius:12px;border:1px solid #121212;background:#121212;color:#F4F3F0;font-family:var(--font-mono);font-size:12px;letter-spacing:.12em;cursor:pointer}
 #vLogin{background:#000}
+/* c194 · ajustar foto */
+.ksAj{position:fixed;inset:0;z-index:1300;display:none;flex-direction:column;align-items:center;gap:12px;background:#0B0B0C;color:#F4F3F0;padding:calc(14px + env(safe-area-inset-top,0px)) 18px calc(16px + env(safe-area-inset-bottom,0px))}
+.ksAj.vis{display:flex}
+.ksAj__top{width:100%;max-width:440px}.ksAj__top b{display:block;font-family:var(--font-mono);font-weight:500;font-size:11px;letter-spacing:.16em}.ksAj__top small{display:block;margin-top:4px;font-size:13px;color:#A7A9AE}
+.ksAj__st{flex:1 1 auto;min-height:0;aspect-ratio:9/16;max-width:100%;border-radius:20px;overflow:hidden;border:1px solid rgba(255,255,255,.18)}
+.ksAj__st canvas{display:block;width:100%;height:100%;touch-action:none;cursor:grab}
+.ksAj__z{width:100%;max-width:440px;accent-color:#F4F3F0}
+.ksAj__acts{width:100%;max-width:440px;display:grid;grid-template-columns:1fr 1.3fr;gap:8px}
+.ksAj__acts button{min-height:50px}
 /* c185 · historial de la sesión de hoy: subir foto y compartir */
 .hx__share{width:100%;display:flex;align-items:center;justify-content:space-between;gap:12px;margin:0 0 16px;padding:16px 18px;border:0;border-radius:18px;background:#121212;color:#F4F3F0;cursor:pointer;text-align:left}
 .hx__share b{display:block;font-family:var(--font-mono);font-weight:500;font-size:12px;letter-spacing:.14em}
@@ -7225,6 +7234,12 @@ document.addEventListener('DOMContentLoaded', async ()=>{
   <div class="kwin__slo">1% MEJOR CADA DÍA</div>
   <img class="kLogo kLogo--foot" src="/img/brand/logotipo-koach.png" alt="KOACH">
 </div>
+<div class="ksAj" id="ksAj" role="dialog" aria-modal="true" aria-label="Ajustar foto">
+  <div class="ksAj__top"><b>AJUSTA TU FOTO</b><small>Arrastra para mover · pellizca para agrandar</small></div>
+  <div class="ksAj__st"><canvas id="ksAjCv" width="1080" height="1920"></canvas></div>
+  <input type="range" id="ksAjZ" class="ksAj__z" min="100" max="500" value="100" aria-label="Zoom">
+  <div class="ksAj__acts"><button type="button" class="kset__sec" onclick="kajListo(false)">USAR SIN AJUSTAR</button><button type="button" class="kset__cta" onclick="kajListo(true)">LISTO</button></div>
+</div>
 <div class="ks" id="oShare" role="dialog" aria-modal="true" aria-label="Comparte tu logro">
   <div class="kset__box">
     <div class="kset__top"><div><b id="ksTit">COMPARTE TU LOGRO DE HOY</b><small id="ksSub">Te lo mereces. Descarga tu imagen o agrega tu selfie.</small></div><button type="button" class="kset__x" onclick="cerrarCompartir()" aria-label="Cerrar">×</button></div>
@@ -7238,7 +7253,7 @@ document.addEventListener('DOMContentLoaded', async ()=>{
       <button type="button" class="kset__gi" onclick="ksElegir('mov')"><img src="/img/share/plantilla-mov.webp" alt="Plantilla Movimiento" width="720" height="1280" loading="lazy" decoding="async"><b>MOVIMIENTO</b><small>Foto en barrido: se ve la energía, no la cara</small></button>
     </div>
     <div class="kset__opts" id="ksOFoto" hidden>
-      <div class="kset__row"><span>ESTILO</span><button type="button" class="kset__chip" data-ks="estilo" data-v="editorial" aria-pressed="true">EDITORIAL</button><button type="button" class="kset__chip" data-ks="estilo" data-v="ticket" aria-pressed="false">TICKET</button><button type="button" class="kset__chip" data-ks="estilo" data-v="mapa" aria-pressed="false">MAPA</button><button type="button" class="kset__chip" data-ks="estilo" data-v="dia" aria-pressed="false">DÍA</button><button type="button" class="kset__chip" data-ks="estilo" data-v="scan" aria-pressed="false">ESCÁNER</button><button type="button" class="kset__chip" data-ks="estilo" data-v="mov" aria-pressed="false">MOVIMIENTO</button><label class="kset__chip">CAMBIAR FOTO<input type="file" id="ksFoto2" accept="image/*"></label></div>
+      <div class="kset__row"><span>ESTILO</span><button type="button" class="kset__chip" data-ks="estilo" data-v="editorial" aria-pressed="true">EDITORIAL</button><button type="button" class="kset__chip" data-ks="estilo" data-v="ticket" aria-pressed="false">TICKET</button><button type="button" class="kset__chip" data-ks="estilo" data-v="mapa" aria-pressed="false">MAPA</button><button type="button" class="kset__chip" data-ks="estilo" data-v="dia" aria-pressed="false">DÍA</button><button type="button" class="kset__chip" data-ks="estilo" data-v="scan" aria-pressed="false">ESCÁNER</button><button type="button" class="kset__chip" data-ks="estilo" data-v="mov" aria-pressed="false">MOVIMIENTO</button><button type="button" class="kset__chip" onclick="ksAjustarActual()">AJUSTAR FOTO</button><label class="kset__chip">CAMBIAR FOTO<input type="file" id="ksFoto2" accept="image/*"></label></div>
       <div class="kset__row"><span>FILTRO</span><button type="button" class="kset__chip" data-ks="filtro" data-v="frio" aria-pressed="true">DRAMÁTICO FRÍO</button><button type="button" class="kset__chip" data-ks="filtro" data-v="drama" aria-pressed="false">DRAMÁTICO</button><button type="button" class="kset__chip" data-ks="filtro" data-v="plata" aria-pressed="false">PLATA</button></div>
       <div class="kset__row" data-solo="senalador"><span>RUTA</span><button type="button" class="kset__chip" data-ks="ruta" data-v="auto" aria-pressed="true">AUTO</button><button type="button" class="kset__chip" data-ks="ruta" data-v="DIAG" aria-pressed="false">DIAGONAL</button><button type="button" class="kset__chip" data-ks="ruta" data-v="L" aria-pressed="false">L</button><button type="button" class="kset__chip" data-ks="ruta" data-v="GAMMA" aria-pressed="false">Γ</button><button type="button" class="kset__chip" data-ks="ruta" data-v="ELBOW" aria-pressed="false">CODO</button></div>
       <div class="kset__row" data-solo="senalador"><span>MARCA</span><button type="button" class="kset__chip" data-ks="mira" data-v="circulo" aria-pressed="true">MIRA</button><button type="button" class="kset__chip" data-ks="mira" data-v="cuadro" aria-pressed="false">MARCO</button></div>
@@ -7701,8 +7716,58 @@ async function ksCargarFoto(f) {
   try { const im = KS.foto, w = im.width, h = im.height, M = 2160, k = M / Math.max(w, h)
     if (k < 1) { const c = document.createElement('canvas'); c.width = Math.round(w * k); c.height = Math.round(h * k); c.getContext('2d').drawImage(im, 0, 0, c.width, c.height)
       try { im.close && im.close() } catch (_) {}; KS.foto = typeof createImageBitmap === 'function' ? await createImageBitmap(c) : c } } catch (_) {}
+  KS.fotoOrig = KS.foto; { const c = await ksAjustar(KS.foto); if (c) KS.foto = c }   // c194 · encuadre manual antes de aplicar
   KT.BG_CACHE.key = null; KT.NIT_CACHE.src = null; KS.target = null; kmReset(); const dest = KS._fotoPara || 'foto'; KS._fotoPara = null; ksFormato(dest);
 }
+/* c194 · AJUSTAR FOTO: al cargar la foto se abre un encuadre 9:16 — se arrastra para mover y se pellizca (o se usa la barra) para agrandar/achicar.
+   El resultado queda como la foto de fondo de todas las plantillas (1080×1920 exacto). */
+const KAJ = { src: null, s: 1, min: 1, x: 0, y: 0, res: null, ptr: new Map(), pinch: null };
+function ksAjustar(src) {
+  return new Promise(res => {
+    const o = ksEl('ksAj'), cv = ksEl('ksAjCv'), W = 1080, H = 1920;
+    KAJ.src = src; KAJ.res = res; KAJ.min = Math.max(W / src.width, H / src.height); KAJ.s = KAJ.min;
+    KAJ.x = (W - src.width * KAJ.s) / 2; KAJ.y = (H - src.height * KAJ.s) / 2;
+    ksEl('ksAjZ').value = 100; o.classList.add('vis'); kajPintar();
+  });
+}
+function kajLimitar() {
+  const W = 1080, H = 1920, w = KAJ.src.width * KAJ.s, h = KAJ.src.height * KAJ.s;
+  KAJ.x = Math.min(0, Math.max(W - w, KAJ.x)); KAJ.y = Math.min(0, Math.max(H - h, KAJ.y));
+}
+function kajZoom(s, cx, cy) {   // zoom alrededor de un punto (coordenadas del encuadre 1080×1920)
+  const ns = Math.max(KAJ.min, Math.min(KAJ.min * 5, s)), k = ns / KAJ.s;
+  KAJ.x = cx - (cx - KAJ.x) * k; KAJ.y = cy - (cy - KAJ.y) * k; KAJ.s = ns; kajLimitar();
+  ksEl('ksAjZ').value = Math.round(KAJ.s / KAJ.min * 100); kajPintar();
+}
+function kajPintar() {
+  const cv = ksEl('ksAjCv'), x = cv.getContext('2d'); x.fillStyle = '#111'; x.fillRect(0, 0, 1080, 1920);
+  x.imageSmoothingQuality = 'high'; x.drawImage(KAJ.src, KAJ.x, KAJ.y, KAJ.src.width * KAJ.s, KAJ.src.height * KAJ.s);
+  // guías: tercios y zonas que tapa Instagram (arriba y abajo)
+  x.save(); x.strokeStyle = 'rgba(255,255,255,.28)'; x.lineWidth = 2; [360, 720].forEach(v => { x.beginPath(); x.moveTo(v, 0); x.lineTo(v, 1920); x.stroke() }); [640, 1280].forEach(v => { x.beginPath(); x.moveTo(0, v); x.lineTo(1080, v); x.stroke() });
+  x.fillStyle = 'rgba(0,0,0,.28)'; x.fillRect(0, 0, 1080, KS_SAFE_T - 80); x.fillRect(0, 1920 - KS_SAFE_B + 80, 1080, KS_SAFE_B - 80); x.restore();
+}
+function kajListo(usar) {
+  const o = ksEl('ksAj'); o.classList.remove('vis'); const r = KAJ.res; KAJ.res = null; if (!r) return;
+  if (!usar) { r(null); return }
+  const c = document.createElement('canvas'); c.width = 1080; c.height = 1920; const x = c.getContext('2d'); x.fillStyle = '#111'; x.fillRect(0, 0, 1080, 1920);
+  x.imageSmoothingQuality = 'high'; x.drawImage(KAJ.src, KAJ.x, KAJ.y, KAJ.src.width * KAJ.s, KAJ.src.height * KAJ.s); r(c);
+}
+async function ksAjustarActual() { if (!KS.fotoOrig) return; const c = await ksAjustar(KS.fotoOrig); if (!c) return;
+  KS.foto = c; KT.BG_CACHE.key = null; KT.NIT_CACHE.src = null; KS.target = null; kmReset(); ksPintar() }
+(() => {
+  const cv = ksEl('ksAjCv'); if (!cv) return;
+  const pos = e => { const r = cv.getBoundingClientRect(); return { x: (e.clientX - r.left) / r.width * 1080, y: (e.clientY - r.top) / r.height * 1920, k: 1080 / r.width } };
+  cv.addEventListener('pointerdown', e => { cv.setPointerCapture(e.pointerId); KAJ.ptr.set(e.pointerId, pos(e)); KAJ.pinch = null; e.preventDefault() });
+  cv.addEventListener('pointermove', e => { if (!KAJ.ptr.has(e.pointerId)) return; const p = pos(e), prev = KAJ.ptr.get(e.pointerId); KAJ.ptr.set(e.pointerId, p);
+    if (KAJ.ptr.size === 1) { KAJ.x += p.x - prev.x; KAJ.y += p.y - prev.y; kajLimitar(); kajPintar() }
+    else if (KAJ.ptr.size === 2) { const [a, b] = [...KAJ.ptr.values()], d = Math.hypot(a.x - b.x, a.y - b.y), m = { x: (a.x + b.x) / 2, y: (a.y + b.y) / 2 };
+      if (KAJ.pinch) { KAJ.x += m.x - KAJ.pinch.m.x; KAJ.y += m.y - KAJ.pinch.m.y; kajZoom(KAJ.s * d / KAJ.pinch.d, m.x, m.y) } KAJ.pinch = { d, m } }
+    e.preventDefault() });
+  const fin = e => { KAJ.ptr.delete(e.pointerId); KAJ.pinch = null }; cv.addEventListener('pointerup', fin); cv.addEventListener('pointercancel', fin);
+  cv.addEventListener('wheel', e => { const p = pos(e); kajZoom(KAJ.s * (e.deltaY < 0 ? 1.08 : 1 / 1.08), p.x, p.y); e.preventDefault() }, { passive: false });
+  ksEl('ksAjZ').addEventListener('input', e => kajZoom(KAJ.min * (+e.target.value) / 100, 540, 960));
+})();
+
 document.querySelectorAll('[data-ksf]').forEach(b => b.onclick = () => ksFormato(b.dataset.ksf));
 document.querySelectorAll('[data-ks]').forEach(b => b.onclick = () => { KS[b.dataset.ks] = b.dataset.v; document.querySelectorAll('[data-ks="' + b.dataset.ks + '"]').forEach(x => x.setAttribute('aria-pressed', String(x.dataset.v === b.dataset.v))); ksPintar();
   if (b.dataset.ks === 'fondo' && b.dataset.v !== 'solido' && !KS.foto) { KS._fotoPara = 'gris'; try { ksEl('ksFoto').click() } catch (_) {} } });
