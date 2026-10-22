@@ -8148,8 +8148,8 @@ function kaScan(ctx) {
 // 2 · MOVIMIENTO: toda la foto en barrido + grano (no se reconoce a nadie) y la tipografía manda
 function kaMov(ctx) {
   const W = KT.W, H = KT.H, j = KS.data || {}, d = kaDatos(), B = '#FFFFFF';
-  ctx.clearRect(0, 0, W, H); const g = kxGris(kmFoto()), base = kxDesenfoque(g, 9), mid = kxDesenfoque(g, 5);
-  ctx.drawImage(base, 0, 0); ctx.save(); for (let i = -12; i <= 12; i++) { ctx.globalAlpha = .085; ctx.drawImage(mid, i * 16, 0) } ctx.restore();   // barrido horizontal (movimiento)
+  ctx.clearRect(0, 0, W, H); const NV = { a: [2.6, 1.8, 6, 7], b: [3.6, 2.3, 7, 8], c: [5, 3.2, 9, 11], x: [9, 5, 12, 16] }[KS.movNivel || 'b'], g = kxGris(kmFoto()), base = kxDesenfoque(g, NV[0]), mid = kxDesenfoque(g, NV[1]);   // c191 · desenfoque más suave (nivel elegido)
+  ctx.drawImage(base, 0, 0); ctx.save(); for (let i = -NV[2]; i <= NV[2]; i++) { ctx.globalAlpha = 1 / (2 * NV[2] + 1) * 2.1; ctx.drawImage(mid, i * NV[3], 0) } ctx.restore();   // barrido horizontal (movimiento)
   ctx.fillStyle = 'rgba(20,20,22,.2)'; ctx.fillRect(0, 0, W, H); kxGrano(ctx, .16);
   ctx.save(); ctx.shadowColor = 'rgba(0,0,0,.35)'; ctx.shadowBlur = 14;
   kxLogo(ctx, KS_SAFE_X, KS_SAFE_T - 60, 39);
