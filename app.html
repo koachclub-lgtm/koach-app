@@ -324,6 +324,10 @@ html.bk-on{overflow:hidden}
 .k2 #vHome .hh--ed .hh__pill{margin-top:24px;min-height:48px;padding:0 18px 0 22px;background:#111;color:#F4F3F0;border:1.5px solid #111;font-weight:700;font-size:11px;box-shadow:0 8px 22px rgba(0,0,0,.18);backdrop-filter:none;-webkit-backdrop-filter:none}
 .k2 #vHome .hh--ed .hh__ft{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;margin-top:24px}
 .k2 #vHome .hh--ed .hh__ft .hh__pill{margin-top:0;flex:0 0 auto}
+.sWell{display:inline-flex;align-items:center;gap:8px;margin:2px 0 14px;padding:9px 14px;border-radius:999px;border:1px solid rgba(11,11,12,.85);background:#0B0B0C;color:#F4F3F0;font:700 10px var(--font-mono);letter-spacing:.16em;cursor:pointer}
+.sWell[hidden]{display:none}
+.sWell small{font:inherit;opacity:.6}
+.sWell i{width:7px;height:7px;border-radius:50%;background:#F4F3F0;box-shadow:0 0 0 3px rgba(244,243,240,.18)}
 .hh__acts{display:flex;flex-direction:column;align-items:flex-start;gap:12px;flex:0 0 auto}
 .hh__pv{background:none;border:0;padding:2px 4px;font:700 10px var(--font-mono);letter-spacing:.16em;color:#111;opacity:.8;cursor:pointer;text-decoration:underline;text-underline-offset:4px}
 .k2 #vHome .hh--ed .hh__bc{display:flex;flex-direction:column;align-items:flex-end;gap:6px;min-width:0;color:#111;opacity:.86}
@@ -2689,7 +2693,7 @@ html:has(#vSesion.on[data-bg]),body:has(#vSesion.on[data-bg]){background:var(--s
 #vSesion.kdk .pv__st span{color:rgba(241,242,244,.6)!important}
 @media (max-height:780px){#vSesion.pv #sObj .kh__pills{margin-top:6px;gap:5px}#vSesion.pv #sObj .kh__pill{padding:5px 9px}.pvB__l .pvPill{padding:4px 7px}.pv__lg{margin-top:5px}#vSesion.pv .wx__kg{margin-top:4px}#vSesion.pv .kh--ses .kh__t{font-size:clamp(32px,10vw,44px)!important}#vSesion.pv .kh__k{margin-top:4px}.pv__d{font-size:14px}#vSesion.pv .pv__d b{font-size:14px!important}.pv__st{margin-top:8px}.pv__f{margin-top:10px}.pvB{margin-top:10px;gap:6px}.pvB__c{padding:9px 14px}.pvB__l li{padding:3px 0}.pvB__c--on .pvB__n{font-size:34px}.pvGo{height:52px}#vSesion.pv #sBloques{padding-bottom:calc(84px + env(safe-area-inset-bottom,0px))}}
 /* c124 · CARGA: negro + logotipo KOACH en 3D (mismo del panel) */
-#oLoad{background:#000!important;gap:0!important}
+#oLoad{background:#000!important;gap:0!important;z-index:1000!important}
 #oLoad.vis{align-items:center;justify-content:center;opacity:1;transition:opacity .3s ease}
 #oLoad.ldOut{opacity:0}
 #oAuth .kLogo--foot{display:none}
@@ -3031,6 +3035,7 @@ html:not(:has(#oAct.vis)) #sBloques.locked{filter:none;opacity:1;pointer-events:
 <div class="vista" id="vSesion">
     <header class="kh kh--ses">
       <div class="kh__top"><button class="kh__back" onclick="volverHome()" aria-label="Volver">←</button><span class="kh__brand">KOACH FITNESS CLUB</span><span class="kh__slot" id="khSync"></span></div>
+      <button type="button" class="sWell" id="sWell" hidden onclick="wellAbrir()"><i aria-hidden="true"></i>TEST WELLNESS <small>· 1 MIN</small> <span aria-hidden="true">→</span></button>
       <div class="kh__k" id="sSub">—</div>
       <h1 class="kh__t" id="sTit">SESIÓN</h1>
       <p class="kh__d" id="sObj"></p>
@@ -3929,6 +3934,14 @@ const BN_TXT={ OPTIMO:['ESTADO ÓPTIMO','Recuperación completa.'],
   BUENO:['ESTADO ADECUADO','Recuperación suficiente.'],
   MODERADO:['RECUPERACIÓN INCOMPLETA','Recuperación parcial.'],
   BAJO:['FATIGA ACUMULADA','Recuperación insuficiente.'] }
+/* c201 · TEST WELLNESS opcional: un solo botón arriba en la rutina, visible hasta el primer set y solo si aún no lo responde */
+async function wellPintar(){ const b=document.getElementById('sWell'); if(!b) return
+  const rid=S.regId, ver=!!rid && !S._preview && !pvEmpezada() && !(S._bn&&S._bn[rid]) && !(S._bnSkip&&S._bnSkip[rid])
+  b.hidden=!ver; if(!ver) return
+  S._bnQ=S._bnQ||{}; if(S._bnQ[rid]) return; S._bnQ[rid]=1
+  try{ const r=await sb.from('bienestar_checkins').select('id').eq('registro_id',rid).maybeSingle(); if(r.data){ S._bn=S._bn||{}; S._bn[rid]=true; b.hidden=true } }catch(_){} }
+function wellAbrir(){ if(!S.regId) return; bnMostrar(S.regId)
+  const t=document.getElementById('bnT'); if(t && window.MutationObserver){ const mo=new MutationObserver(()=>{ if(!document.body.contains(t)){ mo.disconnect(); wellPintar() } }); mo.observe(document.body,{childList:true}) } }
 async function bnPedir(){ try{
   const rid=S.regId; if(!rid || pvEmpezada() || document.getElementById('bnT') || (S._bnSkip&&S._bnSkip[rid])) return
   S._bn=S._bn||{}; if(S._bn[rid]) return
@@ -4079,8 +4092,7 @@ function bnResultado(o, d, v, fondo){ const al=d.alertas||[], m=bnMensaje(d,v), 
 async function kxWellness(ret){ try{
   const o=document.getElementById('oAct'), b=o&&o.querySelector('#kxGo b'); if(!b) return
   b.textContent='START'; const wm=o.querySelector('#kxWm'), om=o.querySelector('#kxOm'); if(wm) wm.hidden=true; if(om) om.hidden=true
-  if(ret || !S.regId || pvEmpezada() || (S._bnSkip&&S._bnSkip[S.regId])) return
-  const r=await sb.from('bienestar_checkins').select('id').eq('registro_id',S.regId).maybeSingle(); if(r.error||r.data) return
+  return   /* c201 · el test wellness ya no se pide al encender: queda como botón arriba en la rutina (wellPintar) */
   b.textContent='TEST WELLNESS'; if(wm) wm.hidden=false; if(om) om.hidden=false; const sm=o.querySelector('#kxGoS'); if(sm) sm.textContent='ANTES DE ENTRENAR · COMENZAR'
   o.querySelectorAll('.kxL--d .kxHint').forEach(e=>e.textContent='TOCA PARA COMENZAR TU TEST WELLNESS')
   o.querySelectorAll('.kxL--l .kxHint').forEach(e=>e.textContent='PREPARANDO TU TEST WELLNESS…') }catch(_){} }
@@ -4091,7 +4103,7 @@ function kxEncender(){ if(KX.busy) return; KX.busy=true
     if(k<1) return requestAnimationFrame(st)
     try{ if(navigator.vibrate) navigator.vibrate([20,30,60]) }catch(_){}
     const f=o.querySelector('.kxFlash'); f.animate([{opacity:0},{opacity:1,offset:.12},{opacity:0}],{duration:600,easing:'ease-out'})
-    setTimeout(()=>{ o.classList.remove('vis'); document.getElementById('sBloques').classList.remove('locked'); KX.v=0; bnPedir() },130) }
+    setTimeout(()=>{ o.classList.remove('vis'); document.getElementById('sBloques').classList.remove('locked'); KX.v=0; wellPintar() },130) }
   requestAnimationFrame(st) }
 /* c112 · luz fría (fondo de logros), contador y micro-momentos de set / récord */
 function kxGlowURL(){ if(kxGlowURL._u) return kxGlowURL._u; try{ const c=document.createElement('canvas'); c.width=300; c.height=640; const x=c.getContext('2d'), w=300,h=640
@@ -4931,7 +4943,10 @@ window.addEventListener('popstate', function(){
 function cargando(m){ const o=document.getElementById('oLoad'); if(!o)return
   const MSG={'RECUPERANDO TU ENTRENAMIENTO…':['RETOMANDO TU SESIÓN','Tus sets marcados ya están guardados.'],
     'PREPARANDO TU SESIÓN…':['PREPARANDO TU SESIÓN','Cargas, series y descansos de hoy.'],
-    'REGISTRANDO TU SESIÓN…':['GUARDANDO TU SESIÓN','Sumando tu trabajo a la semana.']}
+    'REGISTRANDO TU SESIÓN…':['GUARDANDO TU SESIÓN','Sumando tu trabajo a la semana.'],
+    'CARGANDO TU HISTORIAL…':['CARGANDO TU SESIÓN','Tus sets y cargas de ese día.'],
+    'PREPARANDO TU TARJETA…':['PREPARANDO TU TARJETA','Tu resumen de hoy.'],
+    'CARGANDO TUS AVANCES…':['CARGANDO TUS AVANCES','Récords, constancia y tonelaje.']}
   const x=MSG[m]||['CARGANDO TU SEMANA','Plan, sesiones y progreso.']
   document.getElementById('oLoadM').textContent=x[0]; document.getElementById('oLoadS').textContent=x[1]
   o.style.display=''; o.classList.remove('ldOut'); if(!o.classList.contains('vis')) window._ldT0=Date.now(); window._ldTok=(window._ldTok||0)+1; o.classList.add('vis') }
@@ -5780,7 +5795,7 @@ function pintarSesion(){
   try{ kbgAplicar(ses) }catch(_){}
   const _pv=pvModo(); document.getElementById('vSesion').classList.toggle('pv',_pv)
   if (_pv && hk) hk.innerHTML=pvHero(ses,bfs)
-  document.getElementById('sBloques').classList.remove('cargando')
+  document.getElementById('sBloques').classList.remove('cargando'); try{ wellPintar() }catch(_){}
   document.getElementById('sBloques').innerHTML = bfs.some(esCircuito) ? bfs.map((b,bi)=>{
     const bes=[...(b.bloque_ejercicios||[])].sort((a,x)=>(a.orden||0)-(x.orden||0))
     const titulo = (b.etiqueta? b.etiqueta.toUpperCase() : (NOM[b.bloque]||''))
@@ -6704,7 +6719,8 @@ async function verSemanaAnterior(){
     document.getElementById('pPrevBtn').textContent='VER OTRA SEMANA MÁS →'
   }catch(e){ toast('No pudimos cargar esa semana.') }
 }
-async function verHist(regId){
+async function verHist(regId){ cargando('CARGANDO TU HISTORIAL…'); try{ return await verHist0(regId) } finally{ cargandoOff() } }
+async function verHist0(regId){
   // v9.0 · Historial como la rutina: bloque → ejercicio (mejor set + total de sets) → desplegable set a set.
   const o=document.getElementById('oHist'); o.style.display='flex'
   const body=document.getElementById('hsBody')
@@ -6883,7 +6899,8 @@ async function loadComposicion(){
       '<p class="avV">'+(dos?'Desde tu evaluación del '+fechaCorta(a.fecha)+' · última el '+fechaCorta(b.fecha):'Primera evaluación: '+fechaCorta(b.fecha)+'. En la próxima verás el cambio.')+'</p>'
   }catch(e){ console.error('composicion', e); el.innerHTML='' }
 }
-async function loadAvances(){
+async function loadAvances(){ const pr=!S.av; if(pr) cargando('CARGANDO TUS AVANCES…'); try{ return await loadAvances0() } finally{ if(pr) cargandoOff() } }
+async function loadAvances0(){
   avOrdenar(); loadComposicion()
   cargarGamif().then(()=>{ pintarConstanciaAv(); loadFuerza() })
   // v11.9 · tres estados reales: CARGANDO · DATOS (o vacío legítimo) · ERROR con reintento (no se confunde con "sin progreso")
@@ -7771,7 +7788,8 @@ function ksDeHoy() {
   if (!r) { toast('Compartir tu progreso está disponible hasta las 00:00 del día de la sesión.'); try { pintarHome() } catch (_) {} return }
   KS.data = null; KS.reg = r.id || null; abrirCompartir(false, true);
 }
-async function abrirCompartir(desdeCierre, fin) {
+async function abrirCompartir(desdeCierre, fin) { cargando('PREPARANDO TU TARJETA…'); try { return await abrirCompartir0(desdeCierre, fin) } finally { cargandoOff() } }
+async function abrirCompartir0(desdeCierre, fin) {
   KS.desdeCierre = !!desdeCierre; KS.fin = !!fin; ksEl('oShare').classList.toggle('kset--fin', KS.fin);
   ksEl('ksTit').textContent = KS.fin ? 'SESIÓN COMPLETADA' : 'COMPARTE TU LOGRO DE HOY'; ksEl('ksSub').textContent = KS.fin ? 'Así quedó tu entrenamiento de hoy.' : 'Te lo mereces. Descarga tu imagen o agrega tu selfie.'; KS.formato = 'gris'; document.querySelectorAll('[data-ksf]').forEach(x => x.setAttribute('aria-pressed', String(x.dataset.ksf === 'gris')));   // c152 · parte en SÓLIDO; SIGUIENTE lleva a la foto con filtros
   ksEl('oShare').classList.add('vis'); ksSt('Preparando tu tarjeta…');
