@@ -7980,10 +7980,11 @@ function kaEditorial(ctx) {
   // de abajo hacia arriba, sobre la zona segura inferior
   let y = H - KS_SAFE_B; const cw = (W - 2 * M) / 3;
   [[d.ton, 'KG LEVANTADOS'], [String(d.sets || '—'), 'SETS'], [ksSesTxt(KS.data || {}).replace('SESSION ', '') || '—', 'SESSION']].forEach(([v, l], i) => {
-    const xc = M + [0, cw * 1.22, cw * 2.12][i]; kmTxt(ctx, l, xc, y, 500, 24, 'mono', 5, G); kmTxt(ctx, v, xc, y - 46, 700, 66, 'disp', -1.5, B) });   // c183 · primera columna más ancha para 'KG LEVANTADOS'
+    const xc = M + cw * i + cw / 2; kmTxt(ctx, l, xc, y, 500, 24, 'mono', 4, G, 'center'); kmTxt(ctx, v, xc, y - 46, 700, 66, 'disp', -1.5, B, 'center');   // c193 · tres datos centrados en columnas iguales bajo la línea
+    if (i) { ctx.save(); ctx.strokeStyle = 'rgba(255,255,255,.18)'; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(M + cw * i, y - 100); ctx.lineTo(M + cw * i, y + 8); ctx.stroke(); ctx.restore() } });   // c183 · primera columna más ancha para 'KG LEVANTADOS'
   y -= 46 + 66 + 36; ctx.save(); ctx.strokeStyle = 'rgba(255,255,255,.3)'; ctx.lineWidth = 3; ctx.beginPath(); ctx.moveTo(M, y); ctx.lineTo(W - M, y); ctx.stroke(); ctx.restore();
   // pills (se miden primero para saber su alto)
-  const pl = d.pills.map(p => p + ' ✓'), ph = kaPills(document.createElement('canvas').getContext('2d'), pl, 0, 0, W - 2 * M, { size: 23, track: 2.5, h: 68, gap: 12, px: 22, color: B });
+  const pl = d.pills, ph = kaPills(document.createElement('canvas').getContext('2d'), pl, 0, 0, W - 2 * M, { size: 23, track: 2.5, h: 68, gap: 12, px: 22, color: B });
   y -= 36 + ph; kaPills(ctx, pl, M, y, W - 2 * M, { size: 23, track: 2.5, h: 68, gap: 12, px: 22, stroke: 'rgba(255,255,255,.55)', lw: 3, color: B });
   const T = kaLineas(ctx, d.rut, 156, W - 2 * M, 2); y -= 40;
   for (let i = T.L.length - 1; i >= 0; i--) { kmTxt(ctx, T.L[i], M - 4, y, 700, T.s, 'disp', -T.s * .04, B); y -= T.s * .95 }
@@ -8096,7 +8097,7 @@ function kaDia(ctx) {
   const bw = ctx.measureText(kg).width; if ('letterSpacing' in ctx) ctx.letterSpacing = '0px';
   const x0 = (W - bw) / 2, yc = H * .53;
   ctx.save(); ctx.shadowColor = 'rgba(0,0,0,.35)'; ctx.shadowBlur = 18; ctx.fillStyle = B; ctx.textAlign = 'left'; ctx.textBaseline = 'alphabetic';
-  ctx.font = F(800, Math.round(s * .58)); ctx.fillText(dia, x0 + 4, yc - s * .82);
+  ctx.font = F(800, Math.round(s * .58)); ctx.textAlign = 'center'; ctx.fillText(dia, W / 2, yc - s * .82); ctx.textAlign = 'left';   // c193 · día y kilos centrados
   ctx.font = F(900, s); if ('letterSpacing' in ctx) ctx.letterSpacing = '-4px'; ctx.fillText(kg, x0, yc); if ('letterSpacing' in ctx) ctx.letterSpacing = '0px';
   // fila inferior: SESIÓN n/N a la izquierda, rutina a la derecha (se corta seca si no cabe)
   const fs = Math.max(22, Math.round(s * .2)), y2 = yc + fs * 1.9; ctx.font = M(fs); if ('letterSpacing' in ctx) ctx.letterSpacing = '3px';
@@ -8105,7 +8106,7 @@ function kaDia(ctx) {
   while (rut && ctx.measureText(rut).width > max) rut = rut.slice(0, -1); rut = rut.trimEnd();
   ctx.textAlign = 'right'; ctx.fillText(rut, x0 + bw - 4, y2); if ('letterSpacing' in ctx) ctx.letterSpacing = '0px';
   ctx.restore();
-  ctx.save(); ctx.shadowColor = 'rgba(0,0,0,.35)'; ctx.shadowBlur = 14; const lg = kaLogo(B); if (lg) ctx.drawImage(lg, KS_SAFE_X, KS_SAFE_T - 60, lg.width * 39 / lg.height, 39); ctx.restore();
+  ctx.save(); ctx.shadowColor = 'rgba(0,0,0,.35)'; ctx.shadowBlur = 14; const lg = kaLogo(B); if (lg) { const w = lg.width * 39 / lg.height; ctx.drawImage(lg, (W - w) / 2, H - KS_SAFE_B - 10, w, 39) }   // logo al pie, centrado ctx.restore();
 }
 function kaScan(ctx) {
   const W = KT.W, H = KT.H, j = KS.data || {}, d = kaDatos(), M = KS_SAFE_X, B = '#FFFFFF', G = 'rgba(255,255,255,.7)';
@@ -8245,18 +8246,18 @@ function kaCaptura(ctx, trans, fondo) {
   TM.luces.forEach(([x, y, r, c, a]) => luz(W * x, H * y, r, c, a));
   // Cabecera: logo · Nº y fecha
   let y = KS_SAFE_T;
-  const lg = kaLogo(B); if (lg) ctx.drawImage(lg, M, y, lg.width * 34 / lg.height, 34);
+  { const lg = kaLogo(B); if (lg) { const h = 36, w = lg.width * h / lg.height; ctx.drawImage(lg, (W - w) / 2, H - KS_SAFE_B - 10, w, h) } }   // c193 · logo al pie, centrado
   // c155 · bloque de datos centrado en el alto útil + credencial del programa con el nombre del socio y código de barras
   const rut0 = String(j.rutina || 'Sesión'), extra = /^\s*★/.test(rut0), rut = rut0.replace(/^\s*★\s*/, '').toUpperCase();
   const T = kcFit(ctx, rut, s => DISP(900, s), 124, 72, CW, 2), hT = T.s * .92 + (T.L.length - 1) * T.s * .9;
   const gs = []; (j.grupos || []).forEach(x => { const g = String(x.g || '').toUpperCase(); if (g && !gs.includes(g)) gs.push(g) });
   (j.bloques || []).forEach(b => (b.g || []).forEach(x => { const g = String(x).toUpperCase(); if (g && !gs.includes(g)) gs.push(g) }));
   const PO = { font: MONO(21), size: 21, track: 4, h: 64, gap: 12, px: 26, stroke: TM.pill, lw: 2.5, color: B };
-  const pH = gs.length ? kaPills(document.createElement('canvas').getContext('2d'), gs.map(g => g + ' ✓'), 0, 0, CW, PO) : 0;
+  const pH = gs.length ? kaPills(document.createElement('canvas').getContext('2d'), gs, 0, 0, CW, PO) : 0;
   const pr = j.pr || {}, kgN = +pr.kg || 0, kgA = pr.antes != null ? +pr.antes : null, hayPR = !!(pr.nueva && kgN > 0 && kgA != null && kgN > kgA);
   const PRH = 270, CRH = 230, GAP = 56;
   const tot = hT + 62 + 218 + 62 + 44 + pH + (hayPR ? GAP + PRH : 0) + GAP + CRH;
-  const top = KS_SAFE_T + 34 + 92, fin = H - KS_SAFE_B, av = fin - top, k = Math.min(1, av / tot);
+  const top = KS_SAFE_T - 20, fin = H - KS_SAFE_B - 70, av = fin - top, k = Math.min(1, av / tot);
   y = top + Math.max(0, (av - tot) / 2);
   ctx.save(); if (k < 1) { ctx.translate(W / 2, top); ctx.scale(k, k); ctx.translate(-W / 2, -top) }
   txt(extra ? '★ SESIÓN EXTRA' : String(j.programa || 'KOACH').toUpperCase(), M, y, MONO(21), G, 5);
@@ -8266,7 +8267,7 @@ function kaCaptura(ctx, trans, fondo) {
   y += 218; const wN = txt(ton, M - 6, y, DISP(900, 228), B, -8);
   txt('KG', M - 6 + wN + 16, y - 6, MONO(34), B, 2);
   y += 62; txt('KG LEVANTADOS · ' + d.sets + ' SETS', M, y, MONO(22), G2, 5);
-  y += 44; if (gs.length) { kaPills(ctx, gs.map(g => g + ' ✓'), M, y, CW, PO); y += pH }
+  y += 44; if (gs.length) { kaPills(ctx, gs, M, y, CW, PO); y += pH }
   const vidrio = (bx, by, bw, bh, r) => {
     ctx.save(); ctx.shadowColor = TM.sombra; ctx.shadowBlur = 50; ctx.shadowOffsetY = 18; kaRR(ctx, bx, by, bw, bh, r); ctx.fillStyle = 'rgba(0,0,0,.01)'; ctx.fill(); ctx.restore();
     ctx.save(); kaRR(ctx, bx, by, bw, bh, r);
