@@ -330,10 +330,12 @@ html.bk-on{overflow:hidden}
 .sWell i{width:7px;height:7px;border-radius:50%;background:#F4F3F0;box-shadow:0 0 0 3px rgba(244,243,240,.18)}
 .hh__acts{display:flex;flex-direction:column;align-items:flex-start;gap:12px;flex:0 0 auto}
 .hh__pv{background:none;border:0;padding:2px 4px;font:700 10px var(--font-mono);letter-spacing:.16em;color:#111;opacity:.8;cursor:pointer;text-decoration:underline;text-underline-offset:4px}
-.k2 #vHome .hh--ed .hh__bc{display:flex;flex-direction:column;align-items:flex-end;gap:6px;min-width:0;color:#111;opacity:.86}
+.k2 #vHome .hh--ed .hh__bc{display:flex;flex-direction:column;align-items:flex-end;gap:6px;min-width:0;flex:0 1 auto;color:#111;opacity:.86}
+.k2h__av--x{visibility:hidden;pointer-events:none}
 .k2 #vHome .hh--ed .hh__bc-svg{display:block;width:clamp(92px,28vw,124px);height:30px;fill:currentColor}
 .k2 #vHome .hh--ed .hh__bc span{font:400 8.5px/1 var(--font-mono);letter-spacing:.22em;color:#3F3F3C;white-space:nowrap}
 @media (max-width:350px){ .k2 #vHome .hh--ed .hh__bc-svg{width:84px;height:26px} .k2 #vHome .hh--ed .hh__bc span{font-size:7.5px;letter-spacing:.16em} }
+@media (max-width:380px){ .k2 #vHome .hh--ed .hh__ft{gap:10px} .k2 #vHome .hh--ed .hh__bc-svg{width:76px;height:26px} .k2 #vHome .hh--ed .hh__bc span{font-size:7px;letter-spacing:.08em} }
 .k2 #vHome .hh--ed .hh__pill:disabled{background:rgba(17,17,17,.08);color:#5E6066;border-color:transparent;box-shadow:none;opacity:1}
 @media (hover:hover){.k2 #vHome .hh--ed .hh__pill:hover{background:#2A2B2E;border-color:#2A2B2E}}
 @media (max-width:350px){ .k2 #vHome .hh--ed .hh__c{padding:20px 18px 18px} .k2 #vHome .hh--ed .hh__t{font-size:clamp(38px,12.5vw,44px)} }
@@ -2910,7 +2912,7 @@ html:not(:has(#oAct.vis)) #sBloques.locked{filter:none;opacity:1;pointer-events:
   <div class="vista conTab" id="vHome">
     <div id="horAv" aria-live="polite"></div>
     <div id="k2Home" aria-live="polite"></div>
-    <div class="hbar"><span class="hk" title="v10.8">KOACH</span><div class="hav" id="hAv" onclick="salir()">K</div></div>
+    <div class="hbar"><span class="hk" title="v10.8">KOACH</span><div class="hav" id="hAv" aria-hidden="true" style="visibility:hidden">K</div></div>
     <div class="ctx"><div class="fecha" id="hFecha">—</div><div class="prog" id="hProg">—</div></div>
     <div class="anillo">
       <svg width="180" height="180" viewBox="0 0 180 180">
@@ -3407,7 +3409,7 @@ function homeHero(o){
   if (pvL){ kicker='TU PRÓXIMA SESIÓN'; cta1='COMENZAR ENTRENAMIENTO'; cta2=ses.nombre+' · SESIÓN '+posSem(ses)+' DE '+e.total+' →'; frase=fraseTitular(ses,false) }
   const pills = ses ? pillsSesion(ses,{max:3, mas:true}) : ''
   const sn = sesionNumeroCard(o)
-  const pillTxt = !ses ? (o.disabled?o.ctaT:'START') : ec ? 'START' : e.entrenoHoy ? 'COMPARTIR PROGRESO' : S.memBloqueo ? 'VER MI MEMBRESÍA'
+  const pillTxt = !ses ? (o.disabled?o.ctaT:'START') : ec ? 'START' : e.entrenoHoy ? 'VER RESUMEN' : S.memBloqueo ? 'VER MI MEMBRESÍA'
     : e.completa ? (o.disabled?'SEMANA COMPLETADA ✓':'PEDIR SESIÓN EXTRA') : 'START'
   const cnt = ses && !ses._extra ? '<span class="hh__n"><b>'+String(posSem(ses)).padStart(2,'0')+'</b> / '+String(e.total).padStart(2,'0')+'</span>' : ''
   // título: una palabra → una línea; dos palabras → dos líneas; tres o más → balance con un escalón menos
@@ -3477,7 +3479,7 @@ function k2HeaderHero(n, ctx){
   return '<header class="k2h">'+
     '<svg class="k2h__bg" viewBox="0 0 400 262" preserveAspectRatio="none" aria-hidden="true"><path d="M0 0 H400 V262 C400 246 386 232 362 232 H46 C21 232 0 213 0 188 Z"/></svg>'+
     k2Contour()+
-    '<div class="k2h__top"><span class="k2h__brand"><img class="kLogo kLogo--hdr" src="/img/brand/logotipo-koach.png" alt="KOACH Fitness Club"></span><button class="k2h__av" onclick="salir()" aria-label="Salir">'+(n?n[0]:'K')+'</button></div>'+
+    '<div class="k2h__top"><span class="k2h__brand"><img class="kLogo kLogo--hdr" src="/img/brand/logotipo-koach.png" alt="KOACH Fitness Club"></span><span class="k2h__av k2h__av--x" aria-hidden="true"></span></div>'+
     '<span class="k2h__date">'+k2FechaHoy()+'</span>'+
     '<h1 class="k2h__t">Hola, '+(n||'')+'.</h1>'+
     '<div class="k2h__row"><p class="k2h__p">'+frase+'</p><div class="k2h__tag" aria-hidden="true"><i></i>EL CLUB<br>DEL 1%</div></div>'+
@@ -4814,7 +4816,7 @@ function pintarHome(){
   } else if (entrenoHoy){
     // c184 · hasta las 00:00 del mismo día se puede volver al menú de compartir (si no se alcanzó a subir la foto)
     cta.disabled=false; cta.onclick=()=>ksDeHoy()
-    document.getElementById('hCtaT').textContent='COMPARTIR PROGRESO DE HOY'
+    document.getElementById('hCtaT').textContent='VER RESUMEN DE HOY'
     const _e=estadoSemana()
     document.getElementById('hCtaS').textContent=((_e.hoySes?_e.hoySes.nombre+' COMPLETADA':'SESIÓN COMPLETADA')+' · DISPONIBLE HASTA LAS 00:00').toUpperCase()
   } else if (sem.completa && sem.proxima && sem.proxima._extra){
