@@ -324,6 +324,8 @@ html.bk-on{overflow:hidden}
 .k2 #vHome .hh--ed .hh__pill{margin-top:24px;min-height:48px;padding:0 18px 0 22px;background:#111;color:#F4F3F0;border:1.5px solid #111;font-weight:700;font-size:11px;box-shadow:0 8px 22px rgba(0,0,0,.18);backdrop-filter:none;-webkit-backdrop-filter:none}
 .k2 #vHome .hh--ed .hh__ft{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;margin-top:24px}
 .k2 #vHome .hh--ed .hh__ft .hh__pill{margin-top:0;flex:0 0 auto}
+.hh__acts{display:flex;flex-direction:column;align-items:flex-start;gap:12px;flex:0 0 auto}
+.hh__pv{background:none;border:0;padding:2px 4px;font:700 10px var(--font-mono);letter-spacing:.16em;color:#111;opacity:.8;cursor:pointer;text-decoration:underline;text-underline-offset:4px}
 .k2 #vHome .hh--ed .hh__bc{display:flex;flex-direction:column;align-items:flex-end;gap:6px;min-width:0;color:#111;opacity:.86}
 .k2 #vHome .hh--ed .hh__bc-svg{display:block;width:clamp(92px,28vw,124px);height:30px;fill:currentColor}
 .k2 #vHome .hh--ed .hh__bc span{font:400 8.5px/1 var(--font-mono);letter-spacing:.22em;color:#3F3F3C;white-space:nowrap}
@@ -1121,6 +1123,7 @@ html,body{background:linear-gradient(170deg,#F3F2EF 0%,#E7E6E2 55%,#DAD9D4 100%)
 .dia .dm{font-size:9px;margin-top:3px;color:var(--suave);font-weight:900;min-height:11px}
 .dia.hecho .dm{color:var(--ok)}
 .dia.hoy{background:var(--tinta)}.dia.hoy .dl{color:#8B8A85}.dia.hoy .dm{color:var(--hueso)}
+.hPv{display:flex;justify-content:center;gap:8px;width:100%;margin:-2px 0 12px;padding:11px 16px;border-radius:999px;border:1px solid rgba(11,11,12,.18);background:rgba(255,255,255,.45);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);font:800 10.5px var(--font-mono);letter-spacing:.16em;color:#0B0B0C;cursor:pointer}
 .cta{display:flex;justify-content:space-between;align-items:center;width:100%;padding:16px 20px;margin-bottom:10px;
   background:var(--tinta);border:none;border-radius:22px;cursor:pointer;color:var(--hueso);box-shadow:0 12px 28px rgba(18,18,16,.26)}
 .cta .t{font-size:12px;font-weight:900;letter-spacing:.12em;display:block;text-align:left}
@@ -2921,6 +2924,7 @@ html:not(:has(#oAct.vis)) #sBloques.locked{filter:none;opacity:1;pointer-events:
       <span><span class="t" id="hCtaT">COMENZAR SESIÓN</span><span class="s" id="hCtaS">—</span></span>
       <span style="font-size:17px">→</span>
     </button>
+    <button type="button" class="hPv" id="hPv" style="display:none" onclick="pvAbrir()">VER PREVIEW DE HOY <span>→</span></button>
     <div class="dias" id="hDias"></div>
     <div class="sesline" id="hSes"></div>
     <div class="glass panel">
@@ -3393,7 +3397,9 @@ function homeHero(o){
   else if (ec){ kicker='SESIÓN EN CURSO'; cta1='TIENES UN ENTRENAMIENTO EN CURSO'; cta2=ses.nombre+' · BACK TO WORK →'; frase=fraseTitular(ses,true) }
   else if (e.entrenoHoy){ kicker='ENTRENAMIENTO DE HOY'; cta1=o.ctaT; cta2=o.ctaS; frase='<span class="kh__f1">Hoy ya sumaste.</span><b class="kh__f2">Ahora recupera</b>' }
   else if (S.memBloqueo || e.completa){ kicker=e.completa?'SEMANA COMPLETADA':'TU PRÓXIMA SESIÓN'; cta1=o.ctaT; cta2=o.ctaS; frase=e.completa&&!S.memBloqueo?'<span class="kh__f1">Semana cumplida.</span><b class="kh__f2">Descansa fuerte</b>':'' }
-  else { kicker='TU PRÓXIMA SESIÓN'; cta1='COMENZAR ENTRENAMIENTO'; cta2=ses.nombre+' · SESIÓN '+posSem(ses)+' DE '+e.total+' →'; frase=fraseTitular(ses,false) }
+  let pvL=false
+  if (ses && !ec && !e.entrenoHoy && !S.memBloqueo && !e.completa) pvL=true
+  if (pvL){ kicker='TU PRÓXIMA SESIÓN'; cta1='COMENZAR ENTRENAMIENTO'; cta2=ses.nombre+' · SESIÓN '+posSem(ses)+' DE '+e.total+' →'; frase=fraseTitular(ses,false) }
   const pills = ses ? pillsSesion(ses,{max:3, mas:true}) : ''
   const sn = sesionNumeroCard(o)
   const pillTxt = !ses ? (o.disabled?o.ctaT:'START') : ec ? 'START' : e.entrenoHoy ? 'COMPARTIR PROGRESO' : S.memBloqueo ? 'VER MI MEMBRESÍA'
@@ -3409,8 +3415,9 @@ function homeHero(o){
       if (cat){ let pri=[]; try{ const D=mtDist(); if (D) pri=D.pri.slice(0,3) }catch(_){}
         return '<div class="hh__code">'+cat.l+'</div>'+(pri.length?'<p class="hh__desc">'+cat.t(plEscA(mtLista(pri)))+'</p>':'') }
       return frase?'<div class="kh__frase hh__f">'+frase+'</div>':'' })()+
-    '<div class="hh__ft"><button class="hh__pill" type="button" '+(o.disabled?'disabled':'')+' onclick="document.getElementById(\'hCta\').click()" aria-label="'+cta1+' · '+cta2.replace(/→/g,'')+'">'+
+    '<div class="hh__ft"><div class="hh__acts"><button class="hh__pill" type="button" '+(o.disabled?'disabled':'')+' onclick="document.getElementById(\'hCta\').click()" aria-label="'+cta1+' · '+cta2.replace(/→/g,'')+'">'+
       '<span>'+pillTxt+'</span>'+(o.disabled?'':'<svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M5 12h13M13 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>')+'</button>'+
+      (pvL&&!o.disabled?'<button type="button" class="hh__pv" onclick="pvAbrir()">VER PREVIEW →</button>':'')+'</div>'+
       (sn?'<div class="hh__bc" role="img" aria-label="Sesión número '+(+sn)+' en el club">'+barcodeSVG(sn,40)+'<span>SESSION Nº '+sn+'</span></div>':'')+'</div></div></section>'
 }
 // ═══════════ HOME SOCIO V2 · KOACH DESIGN SYSTEM V2 (piloto) ═══════════
@@ -4737,7 +4744,7 @@ async function horBloquear(sesId){
 }
 setInterval(function(){ try{ if (S && S.horario && S.horario.restringido) horPintar() }catch(_){} }, 60000)
 function pintarHome(){
-  if (location.hash==='#preview' && !S._pwHash){ S._pwHash=1; setTimeout(()=>{ try{ pwAbrir() }catch(e){ console.error(e) } },300) }   // c195 · preview por enlace
+  if (location.hash==='#preview' && !S._pwHash){ S._pwHash=1; history.replaceState(null,'',location.pathname); setTimeout(()=>{ try{ pvAbrir() }catch(e){ console.error(e) } },300) }   // c195 · preview por enlace
   cargandoOff(); try{ horPintar() }catch(_){}
   document.getElementById('tabbar').classList.add('vis')
   const hoyF = new Date()
@@ -4779,7 +4786,7 @@ function pintarHome(){
     `SESIONES <b>${hechasSes} / ${_bs.length}</b>`+
     (ultima ? ` · ÚLTIMA <b>${ultima.nombre} ✓</b>` : '')+
     (sem.completa ? ' · SEMANA COMPLETA' : (_prox ? ` · PRÓXIMA <b>${_prox.nombre}</b>` : '') + (_desp ? ` · DESPUÉS ${_desp.nombre}` : ''))
-  const cta=document.getElementById('hCta')
+  const cta=document.getElementById('hCta'), _hPv=document.getElementById('hPv'); if(_hPv) _hPv.style.display='none'
   const hoyISO2 = fLocal(new Date())
   const entrenoHoy = !esPrueba() && !habHoy() && S.registros.some(r=>r.fecha===hoyISO2 && esHecha(r))
   if (S.memBloqueo){
@@ -4803,7 +4810,7 @@ function pintarHome(){
     document.getElementById('hCtaT').textContent='★ SESIÓN EXTRA'
     document.getElementById('hCtaS').textContent=sem.proxima.nombre.replace('★ ','')+' · DESIGNADA POR TU KOACH'
   } else if (sem.completa && sem.proxima){
-    cta.disabled=false; cta.onclick=()=>abrirSesion()
+    cta.disabled=false; cta.onclick=()=>abrirSesion(); if(_hPv) _hPv.style.display=''
     document.getElementById('hCtaT').textContent='COMENZAR '+sem.proxima.nombre
     document.getElementById('hCtaS').textContent='SESIÓN DE TU SEMANA · PROGRAMADA POR TU KOACH'
   } else if (sem.completa || estadoSemana().completa){ cta.disabled=false
@@ -4822,6 +4829,7 @@ function pintarHome(){
     }
   } else if (sem.proxima){ cta.disabled=false
     cta.onclick = ()=>abrirSesion()
+    if(_hPv) _hPv.style.display=''   // c200 · preview del día
     document.getElementById('hCtaT').textContent='START →'
     const _op=objetivosSesion(sesCompleta(sem.proxima)).prim.slice(0,3)
     document.getElementById('hCtaS').textContent=(sem.proxima.nombre+(_op.length?' · OBJETIVO: '+_op.join(', '):'')).toUpperCase()
@@ -4901,6 +4909,7 @@ async function k2Solicitar(tipo, detalle, btn, okTxt, spId){
   }catch(e){ console.error(e); toast('No se pudo enviar — intenta de nuevo'); if(btn) btn.disabled=false; return false }
 }
 function volverHome(desdeAtras){
+  if (S._preview){ S._preview=false; S._dirty=false; S.sesionAbierta=null; if (!desdeAtras) navPop('ses'); vista('vHome'); return }
   if (!desdeAtras) navPop('ses')
   rwPersistir()
   // c74 · con una sesión en curso, la portada se relee para ofrecer CONTINUAR (y retomar sets + borrador)
@@ -5067,6 +5076,7 @@ async function solicitar(tipo, sesId, nombre){
   }catch(e){ S._reqEnvio=false; toast('No se pudo enviar — intenta de nuevo.') }
 }
 async function abrirSesion(num){
+  S._preview=false
   if (S.memBloqueo){ toast(S.memBloqueo); return }
   let sesG = null
   if (num!=null){ sesG = S.programa.sesiones.find(x=>x.numero===num) }
@@ -5452,7 +5462,25 @@ function pvGrupos(bfs){ const G={}, ord=[]
   return '<div class="pvB pwG"><section class="pvB__c pwG__c">'+ord.map(g=>{ const n=Math.min(G[g].length,4)
     return '<div class="pwG__g" style="grid-column:span '+n+';--n:'+n+'"><span class="kh__pill pwG__p">'+bkEsc(g)+'</span><div class="pwG__t">'+
       G[g].map(ej=>{ const u=exFotoUrl(ej); return '<figure>'+(u?'<img src="'+u+'" alt="" loading="lazy" decoding="async">':'<i aria-hidden="true"></i>')+'<figcaption>'+bkEsc(String(ej.nombre).toUpperCase())+'</figcaption></figure>' }).join('')+'</div></div>' }).join('')+'</section>'+
-    '</div><button type="button" class="pvGo" onclick="toast(\'Pronto: escanea el QR en sala para empezar.\')">START &nbsp;→</button>' }
+    '</div><button type="button" class="pvGo" onclick="pvStart()">START &nbsp;→</button>' }
+/* c200 · abre el PREVIEW sin crear registro: solo mirar. START entra a la sesión normal (el QR de sala llegará después). */
+function pvAbrir(num){
+  if (S.memBloqueo){ toast(S.memBloqueo); return }
+  if (S.enCurso){ reanudar(); return }
+  const p = num!=null ? S.programa.sesiones.find(x=>x.numero===num) : (S.sem&&S.sem.proxima ? sesCompleta(S.sem.proxima) : null)
+  if (!p || !p.bloquesFull){ toast('No encontramos tu sesión de hoy.'); return }
+  S._preview=true; S._pvNum=(num==null?null:num); S.sesionAbierta=p
+  S.pesos={}; S.marcas={}; S.setsHechos={}; S.bloquesListos=0; S._flb={}; S.wk={}; S.setLog={}; S.rw={}; S.abierto=null; S.regId=null; S.regInicio=null
+  vista('vSesion')
+  document.getElementById('sTit').textContent=p.nombre
+  let pos=1, tot=1; try{ pos=posSem(p)||1; tot=baseSem().length||1 }catch(_){}
+  document.getElementById('sSub').textContent=(p._extra?'SESIÓN EXTRA':'SESSION '+pos+'/'+tot)+' · PREVIEW'
+  try{ document.getElementById('sObj').innerHTML=pillsSesion(p) }catch(_){}
+  document.getElementById('sFin').style.display='none'
+  const kg=document.getElementById('sKgHoy'); if(kg) kg.innerHTML=''
+  pintarSesion()
+}
+function pvStart(){ const n=S._pvNum; S._preview=false; abrirSesion(n==null?undefined:n) }
 function pvBloques(bfs){ const st=document.getElementById('syncTag'); if(st) st.style.visibility=S._preview?'hidden':''; const vs=document.getElementById('vSesion'); if(vs) vs.classList.toggle('pwOn',!!S._preview); if (S._preview) return pvGrupos(bfs); const pp=bkPrimerPendiente(bfs), todo=pp<0, prim=todo?bfs.length-1:pp, emp=pvEmpezada()
   const ab=(S._pvAb!=null && bfs[S._pvAb]) ? S._pvAb : (todo ? -1 : prim)
   const cp=bfs[prim]||{}, hp=bkSetsHechos(cp)
@@ -6784,8 +6812,9 @@ function pwAbrir(ses) {
   o.classList.add('vis'); o.scrollTop = 0;
 }
 function pwCerrar() { const o = document.getElementById('oPw'); if (o) o.classList.remove('vis'); if (location.hash === '#preview') history.replaceState(null, '', location.pathname) }
-window.addEventListener('hashchange', () => { if (location.hash === '#preview') pwAbrir() });
+
 function verPreview(num){
+  { const s0=S.programa.sesiones.find(x=>x.numero===num); if(s0 && s0.bloquesFull){ const c0=resolverCap(s0, ctxDe(s0)); if(!c0.can_open_preview){ toast('La vista previa requiere aprobación de tu koach.'); return } return pvAbrir(num) } }
   const s=S.programa.sesiones.find(x=>x.numero===num); if(!s) return
   const cap=resolverCap(s, ctxDe(s))
   if(!cap.can_open_preview){ toast('La vista previa requiere aprobación de tu koach.'); return }
