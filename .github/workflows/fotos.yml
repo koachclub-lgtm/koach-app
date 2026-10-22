@@ -1,0 +1,16 @@
+name: fotos
+on:
+  push:
+    branches: [tmp-fotos]
+permissions:
+  contents: write
+jobs:
+  f:
+    if: "!contains(github.event.head_commit.message, 'fotos listas')"
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: |
+          mkdir -p ex && cd ex
+          for f in bb-back-squat_m_v1 leg-press-45_m_v2 db-bulgarian-squat_m_v1 bb-hip-thrust_m_v1 cable-kickback_m_v2 bb-rdl_m_v1 seated-leg-curl-machine_m_v1 standing-calf-raise_m_v1 dead-bug_m_v1; do curl -sf -o $f.webp https://siecbdatfgmqbpxqtvsl.supabase.co/storage/v1/object/public/ejercicios-media/ex/$f.webp; done
+          cd .. && git config user.name bot && git config user.email bot@users.noreply.github.com && git add ex && git commit -m "fotos listas" && git push
