@@ -5432,8 +5432,7 @@ function pvHero(ses,bfs){ const ne=bfs.reduce((a,b)=>a+bkBes(b).length,0)
       (S.regInicio?'<span class="pv__clk"><i id="sClk" data-t="'+sesTxt()+'">'+bkSeg(sesTxt())+'</i>TIEMPO</span>':'')+'</div>' }
   if (S._preview){ const g=new Set(); bfs.forEach(b=>bkBes(b).forEach(be=>{ const x=(be.ejercicios||{}).grupo_muscular; if(x) g.add(x) }))
     const nm=String(ses.nombre||'tu sesión').toLowerCase().replace(/^./,c=>c.toUpperCase()), F=PV_FRASES, f=F[(String(ses.id||'').length+ne)%F.length]
-    return '<p class="pv__d pv__d--pw">Esto es lo que en KOACH tenemos preparado para tu sesión de hoy'+(msgNombre()?', <b>'+plEscA(msgNombre())+'</b>':'')+'. <b>'+plEscA(nm)+'</b> '+f+'</p>'+
-      '<div class="pv__st pv__st--pw"><span><b>'+ne+'</b>EJERCICIOS</span><span><b>'+g.size+'</b>GRUPOS</span><span><b>~'+pvDur(bfs)+"'</b>DURACIÓN</span></div>" }
+    return '<p class="pv__d pv__d--pw">Esto es lo que en KOACH tenemos preparado para tu sesión de hoy'+(msgNombre()?', <b>'+plEscA(msgNombre())+'</b>':'')+'. <b>'+plEscA(nm)+'</b> '+f+'</p>' }
   return '<p class="pv__d">'+pvDesc(ses,bfs)+'</p><div class="pv__st"><span><b>'+bfs.length+'</b>BLOQUES</span><span><b>'+ne+'</b>EJERCICIOS</span><span><b>~'+pvDur(bfs)+"'</b>DURACIÓN</span></div>" }
 function pvFoco(ses){ const V=pvVol(ses); if(!V.pct.length) return ''
   const dk=document.getElementById('vSesion').classList.contains('kdk')
@@ -5791,7 +5790,7 @@ function pintarSesion(){
     return '<section class="wx__b'+(done?' wx__b--ok':'')+'" id="blq-'+bi+'"><div class="wx__bh"><span class="wx__bn">'+bn+'</span><div><span>BLOQUE</span><b>'+titulo+'</b></div>'+
       '<div class="wx__bm"><b>'+wxP2(b.sets)+'</b><span>SETS</span></div><div class="wx__bm"><b>'+desc+"''"+'</b><span>DESC</span></div></div>'+cards+
       '<button type="button" class="wx__bcta'+(done?' wx__bcta--ok':'')+'" onclick="completarBloque('+bi+')">'+(done?'✓ BLOQUE '+bn+' COMPLETADO · TOCA PARA CORREGIR':'COMPLETAR BLOQUE '+bn)+'</button></section>'
-  }).join('') : (_pv?((S._preview||(pvEmpezada()&&bkPrimerPendiente(bfs)<0))?'':pvFoco(ses))+pvBloques(bfs):bkCapsulas(bfs))
+  }).join('') : (_pv?((!S._preview&&pvEmpezada()&&bkPrimerPendiente(bfs)<0)?'':pvFoco(ses))+pvBloques(bfs):bkCapsulas(bfs))
   document.getElementById('sFin').style.display=_pv?'none':'block'
   { const v=document.getElementById('vSesion'), fin=_pv && pvEmpezada() && bkPrimerPendiente(bfs)<0; v.classList.toggle('pvDone',fin)
     const n=fin && document.querySelector('.pvFin--in [data-kx]'); if(n) kxContar(n) }
