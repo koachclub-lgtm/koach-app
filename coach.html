@@ -3475,7 +3475,7 @@ async function verExtra(){
     const pr=C.protos[s.protocolo_id]||{}
     const esBib = pr.estado==='biblioteca'
     return Object.assign({}, s, { nombreEN:(esBib?'\u2605 ':'')+(nombreEN(s.objetivo)||('SESION '+s.numero)),
-      protoTag:esBib?'RUTINA ESTÁNDAR · BIBLIOTECA':((pr.programa||'')+' · '+(pr.nivel||'')).toUpperCase(),
+      protoTag:esBib?'RUTINA ESTÁNDAR · BIBLIOTECA':((pr.programa||'')+' · '+(pr.nivel||'')+varTag(pr)).toUpperCase(),
       _bib:esBib }) })
   X.sesiones.sort(function(a,b){ return (b._bib?1:0)-(a._bib?1:0) })
   document.getElementById('xLista').innerHTML = X.sesiones.length ? X.sesiones.map(function(s,i){
@@ -3630,9 +3630,9 @@ async function verBases(){
   document.getElementById('basesLista').innerHTML=kLd('Cargando protocolos base…')
   const rp = await sb.from('protocolos').select('*').is('socio_id',null).neq('estado','biblioteca').neq('estado','extras_personales')
   if(rp.error){ document.getElementById('basesLista').innerHTML='<div class="vacio">'+koachMsg(rp.error.message)+'</div>'; return }
-  const bases=(rp.data||[]).sort(function(a,b){return ((a.programa||'')+(a.nivel||'')+(a.sexo||'')).localeCompare((b.programa||'')+(b.nivel||'')+(b.sexo||''))})
+  const bases=(rp.data||[]).sort(function(a,b){return ((a.programa||'')+(a.nivel||'')+(a.sexo||'')).localeCompare((b.programa||'')+(b.nivel||'')+(b.sexo||'')) || ((+a.variante||1)-(+b.variante||1))})
   document.getElementById('basesLista').innerHTML = bases.map(function(p){
-    return '<div class="glass pkCard" onclick="editarBase(\''+p.id+'\')"><div class="pkN">'+(p.programa||p.nombre||'')+' · '+(p.nivel||'')+' · '+(p.sexo||'')+'</div>'+
+    return '<div class="glass pkCard" onclick="editarBase(\''+p.id+'\')"><div class="pkN">'+(p.programa||p.nombre||'')+' · '+(p.nivel||'')+' · '+(p.sexo||'')+varTag(p)+'</div>'+
     '<div class="pkM" style="color:#1C1C1C">⚠ BASE MAESTRA — EDITARLA AFECTA A TODO CLON FUTURO · TOCA PARA ABRIR</div></div>'
   }).join('') || '<div class="vacio">Sin bases</div>'
 }
@@ -3669,11 +3669,11 @@ function bxProgramas(){
   const progs=(BX_TAB==='TODOS'?['STRONG','BURN','HEALTHY']:[BX_TAB])
   el.innerHTML=progs.map(function(p){ const P=BX_PROG[p]
     const bases=BX_BASES.filter(function(b){return (b.programa||'').toUpperCase()===p})
-      .sort(function(a,b){ return ((BX_NIV[a.nivel]||[0,9])[1]-(BX_NIV[b.nivel]||[0,9])[1]) || String(a.sexo).localeCompare(String(b.sexo)) })
+      .sort(function(a,b){ return ((BX_NIV[a.nivel]||[0,9])[1]-(BX_NIV[b.nivel]||[0,9])[1]) || String(a.sexo).localeCompare(String(b.sexo)) || ((+a.variante||1)-(+b.variante||1)) })
     return '<div class="bxSec"><b>'+p+'</b><span>'+P.d+'</span></div><div class="bxG">'+(bases.map(function(b){
       const nv=BX_NIV[b.nivel]||[b.nivel||'—',0,''], sx=String(b.sexo||'').toLowerCase()==='mujer'?'MUJER':'HOMBRE'
       return '<button type="button" class="bxI t-'+P.t+'" onclick="editarBase(\''+b.id+'\')" aria-label="Editar base '+bxEsc(b.nombre)+'">'+
-        '<div class="bxI__h"><div><div class="bxI__n">'+p+'</div><div class="bxI__s">'+sx+' · '+nv[0]+'</div>'+
+        '<div class="bxI__h"><div><div class="bxI__n">'+p+'</div><div class="bxI__s">'+sx+' · '+nv[0]+varTag(b)+'</div>'+
           '<div class="bxI__lv" aria-label="Nivel '+nv[1]+' de 3">'+[1,2,3].map(function(k){return '<i class="'+(k<=nv[1]?'on':'')+'"></i>'}).join('')+'</div></div>'+
           '<img src="/img/brand/isotipo-blanco.png" alt="" width="22" height="23"></div>'+
         '<div class="bxI__sp">'+bxSp('FRECUENCIA',(b._ses||0)+'×/SEM')+bxSp('DURACIÓN',BX_DUR)+bxSp('INTENSIDAD',P.int)+bxSp('FOCO',nv[2])+'</div>'+
@@ -3689,7 +3689,7 @@ async function verBib(){
   vista('vBib'); bxTabs()
   document.getElementById('bibLista').innerHTML=kLd('Cargando biblioteca…')
   try{
-    const rp=await sb.from('protocolos').select('id,nombre,programa,nivel,sexo,ciclo_semanas').is('socio_id',null).neq('estado','biblioteca').neq('estado','extras_personales')
+    const rp=await sb.from('protocolos').select('id,nombre,programa,nivel,sexo,ciclo_semanas,variante').is('socio_id',null).neq('estado','biblioteca').neq('estado','extras_personales')
     if(rp.error) throw rp.error
     BX_BASES=rp.data||[]
     const ids=BX_BASES.map(function(b){return b.id})
@@ -3839,9 +3839,9 @@ async function verPicker(){
   const rp = await sb.from('protocolos').select('*').is('socio_id', null)
   if(rp.error){ document.getElementById('pkLista').innerHTML='<div class="vacio">'+koachMsg(rp.error.message)+'</div>'; return }
   const bases = (rp.data||[]).filter(function(p){return p.estado!=='biblioteca' && p.estado!=='extras_personales'})
-    .sort(function(a,b){ return ((a.programa||'')+(a.nivel||'')).localeCompare((b.programa||'')+(b.nivel||'')) })
+    .sort(function(a,b){ return ((a.programa||'')+(a.nivel||'')).localeCompare((b.programa||'')+(b.nivel||'')) || ((+a.variante||1)-(+b.variante||1)) })
   document.getElementById('pkLista').innerHTML = bases.map(function(p){
-    return '<div class="glass pkCard" onclick="asignarBase(\''+p.id+'\')"><div class="pkN">'+(p.programa||p.nombre||'PROTOCOLO')+' · '+(p.nivel||'')+'</div>'+
+    return '<div class="glass pkCard" onclick="asignarBase(\''+p.id+'\')"><div class="pkN">'+(p.programa||p.nombre||'PROTOCOLO')+' · '+(p.nivel||'')+varTag(p)+'</div>'+
     '<div class="pkM">'+(p.sexo||'')+' · SE CLONA COMO SU PROGRAMA INDIVIDUAL</div></div>'
   }).join('') || '<div class="vacio">Sin plantillas base</div>'
 }
@@ -7106,15 +7106,18 @@ function gpCerrar(){ document.getElementById('mGP').style.display='none' }
 async function gpAbrir(){
   if (!F) return; const id=F.id
   document.getElementById('mGP').style.display='flex'; document.getElementById('gpBody').innerHTML=kLd('Cargando')
-  const [re, rb] = await Promise.all([ sb.rpc('koach_programa_estado',{p_socio:id}), sb.from('protocolos').select('id,programa,nivel,sexo').is('socio_id',null).neq('estado','biblioteca').neq('estado','extras_personales') ])
+  const [re, rb] = await Promise.all([ sb.rpc('koach_programa_estado',{p_socio:id}), sb.from('protocolos').select('id,programa,nivel,sexo,variante').is('socio_id',null).neq('estado','biblioteca').neq('estado','extras_personales') ])
   if (!F || F.id!==id) return
   if (re.error){ document.getElementById('gpBody').innerHTML='<div class="gpErr">No se pudo leer el programa: '+plEsc(re.error.message)+'</div>'; return }
   GP.st=re.data||{}; GP.bases=rb.data||[]
   const sexo = GP.st.sexo || (F.sexo) || (F.sex) || null
-  GP.sexo = sexo; GP.prog = GP.st.programa || 'STRONG'; GP.niv = GP.st.nivel || 'BASICO'
+  GP.sexo = sexo; GP.prog = GP.st.programa || 'STRONG'; GP.niv = GP.st.nivel || 'BASICO'; GP.var = 1
   gpPintar()
 }
-function gpBase(){ return GP.bases.find(function(b){ return b.programa===GP.prog && b.nivel===GP.niv && (!GP.sexo || b.sexo===GP.sexo) }) }
+/* c203 · variantes de base: varias plantillas por programa+nivel+sexo (variante 1, 2, …) */
+function varTag(p){ return (p&&+p.variante>1)?' · V'+p.variante:'' }
+function gpVariantes(){ return GP.bases.filter(function(b){ return b.programa===GP.prog && b.nivel===GP.niv && (!GP.sexo || b.sexo===GP.sexo) }).sort(function(a,b){ return (+a.variante||1)-(+b.variante||1) }) }
+function gpBase(){ const vs=gpVariantes(); return vs.find(function(b){ return (+b.variante||1)===(+GP.var||1) }) || vs[0] }
 function gpPintar(){
   const st=GP.st||{}, b=document.getElementById('gpBody')
   const progs=(window.PROGRAM_ORDER||['STRONG','BURN','HEALTHY']).filter(function(p){ return GP.bases.some(function(x){ return x.programa===p && (!GP.sexo||x.sexo===GP.sexo) }) })
@@ -7128,8 +7131,10 @@ function gpPintar(){
                                   : 'Sin entrenamientos registrados en este ciclo')+'</em></div>'
   } else h+='<div class="gpAct"><small>PROGRAMA ACTUAL</small><b>SIN PROGRAMA ACTIVO</b></div>'
   h+='<div class="gpLbl">'+(st.activo?'NUEVO PROGRAMA':'PROGRAMA')+'</div><div class="gpChips">'+progs.map(function(p){ const d=window.programaDef?programaDef(p):null
-      return '<button type="button" class="gpChip'+(p===GP.prog?' on':'')+'" aria-pressed="'+(p===GP.prog)+'" onclick="GP.prog=\''+p+'\';gpPintar()"><b>'+p+'</b>'+(d?'<small>'+d.tagline+'</small>':'')+'</button>' }).join('')+'</div>'
-  h+='<div class="gpLbl">NIVEL</div><div class="gpChips gpChips--n">'+nivs.map(function(n){ return '<button type="button" class="gpChip'+(n===GP.niv?' on':'')+'" aria-pressed="'+(n===GP.niv)+'" onclick="GP.niv=\''+n+'\';gpPintar()"><b>'+(GP_NIV[n]||n)+'</b></button>' }).join('')+'</div>'
+      return '<button type="button" class="gpChip'+(p===GP.prog?' on':'')+'" aria-pressed="'+(p===GP.prog)+'" onclick="GP.prog=\''+p+'\';GP.var=1;gpPintar()"><b>'+p+'</b>'+(d?'<small>'+d.tagline+'</small>':'')+'</button>' }).join('')+'</div>'
+  h+='<div class="gpLbl">NIVEL</div><div class="gpChips gpChips--n">'+nivs.map(function(n){ return '<button type="button" class="gpChip'+(n===GP.niv?' on':'')+'" aria-pressed="'+(n===GP.niv)+'" onclick="GP.niv=\''+n+'\';GP.var=1;gpPintar()"><b>'+(GP_NIV[n]||n)+'</b></button>' }).join('')+'</div>'
+  const vars=gpVariantes()
+  if (vars.length>1) h+='<div class="gpLbl">VARIANTE</div><div class="gpChips gpChips--n">'+vars.map(function(x){ const v=+x.variante||1; return '<button type="button" class="gpChip'+(v===(+GP.var||1)?' on':'')+'" aria-pressed="'+(v===(+GP.var||1))+'" onclick="GP.var='+v+';gpPintar()"><b>V'+v+'</b>'+(v===1?'<small>ORIGINAL</small>':'')+'</button>' }).join('')+'</div>'
   if (!GP.sexo) h+='<div class="gpErr">Este socio no tiene sexo registrado: se muestran todas las variantes.</div>'
   let pri
   if (!st.activo) pri='ASIGNAR PROGRAMA'
@@ -7148,7 +7153,7 @@ function fCorta(d){ if(!d) return '—'; const p=String(d).slice(0,10).split('-'
 function gpConfirmar(quitar){
   const st=GP.st||{}, base=gpBase(); if(!quitar && !base) return
   const act = st.activo ? st.programa+' · '+(GP_NIV[st.nivel]||st.nivel) : ''
-  const nue = base ? GP.prog+' · '+(GP_NIV[GP.niv]||GP.niv) : ''
+  const nue = base ? GP.prog+' · '+(GP_NIV[GP.niv]||GP.niv)+varTag(base) : ''
   let tit, txt, btn
   if (quitar){ tit='QUITAR PROGRAMA'; txt='Vas a quitar <b>'+act+'</b>. No hay entrenamientos registrados, así que la planificación se elimina y el socio queda <b>SIN PROGRAMA ACTIVO</b> hasta que le asignes otro.'; btn='QUITAR' }
   else if (!st.activo){ tit='ASIGNAR PROGRAMA'; txt='Se asignará <b>'+nue+'</b> desde la <b>SEMANA 1</b>.'; btn='ASIGNAR' }
