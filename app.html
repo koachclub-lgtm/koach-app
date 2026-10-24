@@ -289,7 +289,7 @@ html.bk-on{overflow:hidden}
 /* c206 · PANTALLAS ANCHAS Y BAJAS (iPhone Duo abierto en horizontal 890×626; tablets en horizontal). Mezcla A+C elegida por Matías:
    panel negro dominante a la izquierda (bloque gigante + cronómetro) y ejercicios a la derecha llenando todo el alto, sin aire,
    foto SIEMPRE cuadrada, controles grandes. una columna; 5+ ejercicios hacen scroll. */
-@media (orientation:landscape) and (min-width:740px) and (max-height:820px){
+@media (orientation:landscape) and (min-width:740px) and (min-height:520px) and (max-height:820px){
   #oBloque.vis{display:grid;grid-template-columns:minmax(330px,40%) 1fr;grid-template-rows:minmax(0,1fr) auto;grid-template-areas:"fix scroll" "foot scroll";padding:0;
     --pnl:#111113}
   #oBloque.vis .bk__fix,#oBloque.vis .bk__foot{background:var(--pnl)!important;color:#F4F3F0;--ink:#F4F3F0;--ink2:rgba(244,243,240,.62);--ink3:rgba(244,243,240,.28);--card:rgba(255,255,255,.08);--edge:rgba(255,255,255,.16);--rail:rgba(255,255,255,.06);--railEdge:rgba(255,255,255,.1);--cta:#F4F3F0;--ctaFg:#111113}
@@ -4377,16 +4377,28 @@ function klog(ev, extra){ if (!KDBG) return; try{ console.info('[KOACH]', ev, Ob
 function esPWA(){ try{ return !!(window.navigator.standalone || matchMedia('(display-mode: standalone)').matches) }catch(_e){ return false } }
 klog('APP_START')
 
-/* ═══ c204 · RECONOCIMIENTO DE DISPOSITIVO (iPhone Duo plegable: interior 626×890 · exterior 466×678 @3x) ═══
-   Marca <html data-dev data-pantalla> para ajustar diseño, y registra (una vez por día y pantalla) qué socio lo usa. */
-function kDispositivo(){ const sw=Math.min(screen.width,screen.height), sh=Math.max(screen.width,screen.height), dpr=window.devicePixelRatio||1
-  const ios=/iphone|ipad|ipod/i.test(navigator.userAgent||'') || (navigator.platform==='MacIntel' && navigator.maxTouchPoints>1)
-  const cerca=(a,b)=>Math.abs(a-b)<=6
-  let modelo=ios?'iphone':(/android/i.test(navigator.userAgent||'')?'android':'otro'), pantalla='unica'
-  if (ios && cerca(sw,626) && cerca(sh,890)){ modelo='iphone-duo'; pantalla='interior' }
-  else if (ios && cerca(sw,466) && cerca(sh,678)){ modelo='iphone-duo'; pantalla='exterior' }
-  const h=document.documentElement; h.dataset.dev=modelo; h.dataset.pantalla=pantalla
-  return { modelo, pantalla, w:Math.round(innerWidth), h:Math.round(innerHeight), dpr, pwa:esPWA(), ua:navigator.userAgent }
+/* ═══ c207 · RECONOCIMIENTO DE DISPOSITIVO: iPhone Duo y plegables similares ═══
+   Marca <html data-dev data-pantalla data-plegable> y registra (una vez por día y pantalla) qué socio lo usa.
+   · iPhone Duo: interior 626×890 · exterior 466×678 (CSS px @3x)
+   · Android plegables por modelo (Galaxy Z Fold/Flip, Pixel Fold, OnePlus Open, Honor Magic V, Huawei Mate X, Vivo X Fold, Xiaomi Mix Fold, Oppo Find N, Moto Razr)
+   · Cualquier otro plegable: API de segmentos de pantalla o proporción casi cuadrada en un teléfono.
+   Pantalla interior = proporción ≥ 0,68 (casi cuadrada); exterior = proporción de teléfono (el Duo se reconoce por sus medidas exactas). */
+const K_PLEG=[[/SM-F9\d\d/i,'galaxy-z-fold'],[/SM-F7\d\d/i,'galaxy-z-flip'],[/Pixel (9 Pro )?Fold/i,'pixel-fold'],[/CPH2551|OnePlus Open/i,'oneplus-open'],
+  [/Magic ?V\d?|VER-AN|FRI-AN|PGT-AN|MGI-AN/i,'honor-magic-v'],[/Mate ?X|TET-AN|ALT-AL|PAL-AL/i,'huawei-mate-x'],[/V2229A|V2303A|V2337A|X ?Fold/i,'vivo-x-fold'],
+  [/22061218C|2308CPXD0C|MIX ?Fold/i,'xiaomi-mix-fold'],[/PEUM00|PHN110|PHT110|Find ?N/i,'oppo-find-n'],[/razr/i,'moto-razr']]
+function kDispositivo(){ const ua=navigator.userAgent||'', sw=Math.min(screen.width,screen.height), sh=Math.max(screen.width,screen.height), dpr=window.devicePixelRatio||1
+  const ios=/iphone|ipad|ipod/i.test(ua) || (navigator.platform==='MacIntel' && navigator.maxTouchPoints>1), andr=/android/i.test(ua), movil=ios||andr||/mobile/i.test(ua)
+  const cerca=(a,b)=>Math.abs(a-b)<=6, prop=sw/sh
+  let modelo=ios?'iphone':(andr?'android':'otro'), pantalla='unica', pleg=false
+  if (ios && ((cerca(sw,626) && cerca(sh,890)) || (cerca(sw,466) && cerca(sh,678)))){ modelo='iphone-duo'; pleg=true }
+  if (!pleg) for (const [re,n] of K_PLEG) if (re.test(ua)){ modelo=n; pleg=true; break }
+  let seg=0; try{ seg=(window.viewport&&window.viewport.segments&&window.viewport.segments.length)||0 }catch(_e){}
+  try{ if (!seg && (matchMedia('(horizontal-viewport-segments: 2)').matches || matchMedia('(vertical-viewport-segments: 2)').matches)) seg=2 }catch(_e){}
+  if (!pleg && (seg>1 || (movil && !/ipad|tablet/i.test(ua) && prop>=0.68 && sh<=1100 && !(ios && navigator.maxTouchPoints>1 && navigator.platform==='MacIntel')))){ modelo=(andr?'android':'otro')+'-plegable'; pleg=true }
+  if (modelo==='iphone-duo') pantalla = cerca(sw,626) ? 'interior' : 'exterior'
+  else if (pleg) pantalla = modelo==='galaxy-z-flip'||modelo==='moto-razr' ? (prop>=0.68?'exterior':'interior') : (prop>=0.68?'interior':'exterior')
+  const h=document.documentElement; h.dataset.dev=modelo; h.dataset.pantalla=pantalla; h.dataset.plegable=pleg?'1':'0'
+  return { modelo, pantalla, w:Math.round(innerWidth), h:Math.round(innerHeight), dpr, pwa:esPWA(), ua:ua.slice(0,300) }
 }
 function kDispositivoRegistrar(){ try{ const d=kDispositivo(); if(!S.perfil||!S.perfil.id) return
   const k='kc_disp_'+S.perfil.id+'_'+d.modelo+'_'+d.pantalla, hoy=fLocal(new Date())
