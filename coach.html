@@ -2786,7 +2786,9 @@ html.ks-on.en-crm body{max-width:1280px !important;padding-left:32px !important;
     <div class="stit">Biblioteca</div></div>
   <div class="bxBar"><div class="bxTabs" id="bxTabs" role="group" aria-label="Filtrar"></div>
     <p class="bxWarn">⚠ BASE MAESTRA: editarla cambia los clones que se asignen desde ahora.</p></div>
-  <div class="bxSec"><b>Rutinas extras ★</b><span>Sesiones prediseñadas para sumar a la semana de un socio, fuera de su protocolo.</span></div>
+  <div class="bxSec" id="bxSecDemo"><b>Clases de prueba</b><span>Sesión DEMO estándar por programa y sexo: la que se le asigna a quien viene a su clase de prueba.</span></div>
+  <div id="bibDemo"><div class="vacio">Cargando clases de prueba…</div></div>
+  <div class="bxSec" id="bxSecExtra"><b>Rutinas extras ★</b><span>Sesiones prediseñadas para sumar a la semana de un socio, fuera de su protocolo.</span></div>
   <div id="bibLista"><div class="vacio">Cargando biblioteca…</div></div>
   <div id="bibProg"><div class="vacio">Cargando programas…</div></div>
 </div>
@@ -3470,7 +3472,7 @@ async function verExtra(){
   const rs = await sb.from('sesiones_protocolo').select('*').in('protocolo_id',pids).order('numero')
   X.sesiones=(rs.data||[]).filter(function(s){
     const pr=C.protos[s.protocolo_id]||{}
-    return (pr.estado==='biblioteca' && !esContenedor(s)) || (pr.estado!=='biblioteca' && s.numero<=3)
+    return (pr.estado==='biblioteca' && !esContenedor(s) && !esDemo(s)) || (pr.estado!=='biblioteca' && s.numero<=3)
   }).map(function(s){
     const pr=C.protos[s.protocolo_id]||{}
     const esBib = pr.estado==='biblioteca'
@@ -3649,7 +3651,7 @@ const BX_PROG={
 }
 const BX_DUR='60 MIN'
 const BX_NIV={BASICO:['BÁSICO',1,'TÉCNICA Y BASE'],INTERMEDIO:['INTERMEDIO',2,'PROGRESIÓN DE CARGA'],AVANZADO:['AVANZADO',3,'MÁXIMA EXIGENCIA']}
-let BX_TAB='TODOS', BX_BASES=[], BX_EXTRAS=null
+let BX_TAB='TODOS', BX_BASES=[], BX_EXTRAS=null, BX_DEMOS=null
 function bxBarcode(seed){ let h=0; for(const c of String(seed)) h=(h*31+c.charCodeAt(0))>>>0
   let o=''; for(let k=0;k<20;k++){ h=(h*1103515245+12345)>>>0; o+='<i style="width:'+(1+(h>>>16)%3)+'px"></i>' } return o }
 function bxEsc(t){ return String(t==null?'':t).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]}) }
@@ -3657,15 +3659,15 @@ function bxSp(k,v){ return '<div><small>'+k+'</small><b>'+v+'</b></div>' }
 function bxTabs(){
   const el=document.getElementById('bxTabs'); if(!el) return
   const cnt=function(p){return BX_BASES.filter(function(b){return (b.programa||'').toUpperCase()===p}).length}
-  el.innerHTML=[['TODOS','TODOS'],['EXTRAS','EXTRAS ★'+(BX_EXTRAS?' · '+BX_EXTRAS:'')],['STRONG','STRONG · '+cnt('STRONG')],['BURN','BURN · '+cnt('BURN')],['HEALTHY','HEALTHY · '+cnt('HEALTHY')]]
+  el.innerHTML=[['TODOS','TODOS'],['PRUEBA','CLASES DE PRUEBA'+(BX_DEMOS!=null?' · '+BX_DEMOS+'/6':'')],['EXTRAS','EXTRAS ★'+(BX_EXTRAS?' · '+BX_EXTRAS:'')],['STRONG','STRONG · '+cnt('STRONG')],['BURN','BURN · '+cnt('BURN')],['HEALTHY','HEALTHY · '+cnt('HEALTHY')]]
     .map(function(x){return '<button type="button" aria-pressed="'+(x[0]===BX_TAB)+'" onclick="bxFiltro(\''+x[0]+'\')">'+x[1]+'</button>'}).join('')
 }
 function bxFiltro(t){ BX_TAB=t; bxTabs(); bxProgramas()
-  const ex=document.getElementById('bibLista'), sec=ex&&ex.previousElementSibling
-  const ver=(t==='TODOS'||t==='EXTRAS'); if(ex) ex.style.display=ver?'':'none'; if(sec) sec.style.display=ver?'':'none' }
+  const vis=function(ids,ver){ ids.forEach(function(i){ const e=document.getElementById(i); if(e) e.style.display=ver?'':'none' }) }
+  vis(['bibLista','bxSecExtra'], t==='TODOS'||t==='EXTRAS'); vis(['bibDemo','bxSecDemo'], t==='TODOS'||t==='PRUEBA') }
 function bxProgramas(){
   const el=document.getElementById('bibProg'); if(!el) return
-  if(BX_TAB==='EXTRAS'){ el.innerHTML=''; return }
+  if(BX_TAB==='EXTRAS'||BX_TAB==='PRUEBA'){ el.innerHTML=''; return }
   const progs=(BX_TAB==='TODOS'?['STRONG','BURN','HEALTHY']:[BX_TAB])
   el.innerHTML=progs.map(function(p){ const P=BX_PROG[p]
     const bases=BX_BASES.filter(function(b){return (b.programa||'').toUpperCase()===p})
@@ -3708,7 +3710,9 @@ async function verBib(){
     document.getElementById('bibLista').innerHTML='<div class="vacio">No pudimos cargar las rutinas.<br><b>'+bxEsc(rs.error.message)+'</b><br><br><button class="bbtn ink" onclick="verBib()">REINTENTAR</button></div>'
     return
   }
-  const ses = (rs.data||[]).filter(function(s){ return !esContenedor(s) }); BX_EXTRAS=ses.length; bxTabs()
+  const _todas = (rs.data||[]).filter(function(s){ return !esContenedor(s) })
+  bxDemos(_todas.filter(esDemo))
+  const ses = _todas.filter(function(s){ return !esDemo(s) }); BX_EXTRAS=ses.length; bxTabs()
   const sids = ses.map(function(s){return s.id})
   let uso = {}
   try{ const ru = await sb.from('designaciones_extra').select('sesion_protocolo_id').in('sesion_protocolo_id', sids.length?sids:['00000000-0000-0000-0000-000000000000'])
@@ -3727,6 +3731,47 @@ async function verBib(){
       '<div class="bxI__f"><div class="bxI__a"><button type="button" class="ink" onclick="editarRutinaStd(\''+s.id+'\')">EDITAR →</button><button type="button" onclick="borrarRutinaStd(\''+s.id+'\')">ARCHIVAR</button></div>'+
       '<div class="bxI__bc" aria-hidden="true">'+bxBarcode(nom)+'</div></div></article>'
   }).join('')+'</div>'
+}
+/* ══ CLASES DE PRUEBA · 6 sesiones DEMO (3 programas × 2 sexos) en la biblioteca ══ */
+const BX_DEMO_FOCO={MUJER:'GLÚTEO · PIERNA · CORE',HOMBRE:'PECHO · ESPALDA · BRAZOS'}
+function bxDemoNombre(p,sx){ return 'DEMO '+p+' · '+sx }
+function bxDemoClave(s){ const m=String((s&&(s.objetivo||s.nombre))||'').toUpperCase().match(/^DEMO\s+(STRONG|BURN|HEALTHY)\s*·\s*(MUJER|HOMBRE)/); return m?(m[1]+'|'+m[2]):null }
+function bxDemos(lista){
+  const el=document.getElementById('bibDemo'); if(!el) return
+  const por={}; (lista||[]).forEach(function(s){ const k=bxDemoClave(s); if(k && !por[k]) por[k]=s })
+  BX_DEMOS=Object.keys(por).length; bxTabs()
+  const cards=[]
+  ;['STRONG','BURN','HEALTHY'].forEach(function(p){ ['MUJER','HOMBRE'].forEach(function(sx){
+    const s=por[p+'|'+sx], P=BX_PROG[p]
+    if(!s){ cards.push('<button type="button" class="bxNew" onclick="crearDemo(\''+p+'\',\''+sx+'\')"><i>+</i><b>Demo '+p+' · '+sx+'</b><span>AÚN NO DISEÑADA · TOCA PARA CREARLA</span></button>'); return }
+    let nEj=0; const cnt={}
+    ;(s.bloques||[]).forEach(function(b){ (b.bloque_ejercicios||[]).forEach(function(be){ nEj++; const g=String((be.ejercicios||{}).grupo_muscular||'').toUpperCase(); if(g&&g!=='MOVILIDAD') cnt[g]=(cnt[g]||0)+1 }) })
+    const grupos=Object.keys(cnt).sort(function(a,b){return cnt[b]-cnt[a]}).slice(0,3)
+    cards.push('<article class="bxI t-'+P.t+'"><div class="bxI__h"><div><div class="bxI__n">'+p+'</div><div class="bxI__s">CLASE DE PRUEBA · '+sx+'</div></div>'+
+      '<img src="/img/brand/isotipo-blanco.png" alt="" width="22" height="23"></div>'+
+      '<div class="bxI__sp"><div style="grid-column:1/-1"><small>FOCO</small><b>'+(grupos.length?grupos.join(' · '):BX_DEMO_FOCO[sx])+'</b></div>'+
+        bxSp('EJERCICIOS', nEj?String(nEj):'SIN ARMAR')+bxSp('DURACIÓN','40 MIN')+'</div>'+
+      '<div class="bxI__f"><div class="bxI__a"><button type="button" class="ink" onclick="editarRutinaStd(\''+s.id+'\')">EDITAR →</button></div>'+
+      '<div class="bxI__bc" aria-hidden="true">'+bxBarcode(bxDemoNombre(p,sx))+'</div></div></article>')
+  }) })
+  el.innerHTML='<div class="bxG">'+cards.join('')+'</div>'
+}
+async function crearDemo(p,sx){
+  if(crearDemo._run) return; crearDemo._run=true
+  try{
+    const bp = await bibProto(); if(!bp){ toast('Biblioteca: '+(BIB_ERR||'error')); return }
+    const nombre=bxDemoNombre(p,sx)
+    const ya = await sb.from('sesiones_protocolo').select('id').eq('protocolo_id',bp.id).eq('nombre',nombre).limit(1)
+    if(ya.data && ya.data[0]){ editarRutinaStd(ya.data[0].id); return }
+    const rn = await sb.from('sesiones_protocolo').select('numero').eq('protocolo_id',bp.id).order('numero',{ascending:false}).limit(1)
+    const num = ((rn.data&&rn.data[0]&&rn.data[0].numero)||0)+1
+    const rs = await sb.from('sesiones_protocolo').insert({protocolo_id:bp.id, numero:num, nombre:nombre, objetivo:nombre}).select().single()
+    if(rs.error){ toast('Crear: '+rs.error.message); return }
+    const defs=[['B1','ACTIVACIÓN','activacion'],['B2','PRINCIPAL','fuerza_principal'],['B3','ACCESORIO','cierre_accesorio']]
+    for (let i=0;i<3;i++){ const rb = await insertarBloque(rs.data.id, defs[i][0], defs[i][1], defs[i][2], 3, 60); if(rb.error){ toast('Bloques: '+rb.error.message); break } }
+    toast('✓ Demo '+p+' · '+sx+' creada — arma sus ejercicios')
+    editarRutinaStd(rs.data.id)
+  } finally { crearDemo._run=false }
 }
 const TIPOS_RUT = ['CORE','GLÚTEOS','BRAZOS','UPPER','LOWER','TOTAL BODY','HÍBRIDO','CARDIO','MOVILIDAD','RECOVERY']
 let mrTipo = null
@@ -4426,7 +4471,7 @@ async function abrirAddSes(){
   if(rs.error){
     document.getElementById('asBib').innerHTML='<div class="vacio">No pudimos cargar las rutinas.<br><b>'+rs.error.message+'</b><br><br><button class="bbtn ink" onclick="abrirAddSes()">REINTENTAR</button></div>'
     return }
-  ASB = (rs.data||[]).filter(function(s){ return !esContenedor(s) })
+  ASB = (rs.data||[]).filter(function(s){ return !esContenedor(s) && !esDemo(s) })
   pintarAsBib()
 }
 function pintarAsBib(){
@@ -4994,6 +5039,8 @@ function dsEstado(E){ if (E) DSI.save=E
 // ═══ ORGANIZADOR SEMANAL (playlist) ═══
 // c113 · los bloques prediseñados viven en sesiones 'CONTENEDOR DE BLOQUES' dentro de BIBLIOTECA (el servidor las ubica y protege); nunca se listan como rutinas
 function esContenedor(s){ return /^CONTENEDOR/i.test(String((s&&(s.objetivo||s.nombre))||'')) }
+// Clases de prueba: sesiones DEMO de la biblioteca ("DEMO STRONG · MUJER"). No son extras: nunca se ofrecen como rutina extra a un socio.
+function esDemo(s){ return /^DEMO\s/i.test(String((s&&(s.objetivo||s.nombre))||'')) }
 function abrirBloque(){ TPL.reemplazar=null; document.getElementById('mAddBloque').style.display='block' }
 async function abrirBibBloq(){
   document.getElementById('mBibBloq').style.display='block'
@@ -5382,7 +5429,7 @@ async function abrirBibOrg(){
   try{
     const bp = await bibProto()
     const rs = await sb.from('sesiones_protocolo').select('id, nombre, objetivo').eq('protocolo_id',bp.id).order('numero')
-    const ses = (rs.data||[]).filter(function(s){return !esContenedor(s)})
+    const ses = (rs.data||[]).filter(function(s){return !esContenedor(s) && !esDemo(s)})
     el.innerHTML = ses.length ? ses.map(function(s){
       return '<div style="display:flex;align-items:center;gap:10px;padding:11px 0;border-bottom:1px solid rgba(18,18,16,.06)">'+
         '<div style="flex:1"><div style="font-size:10px;font-weight:900;letter-spacing:.08em">'+(s.nombre||s.objetivo||'SESIÓN')+'</div></div>'+
