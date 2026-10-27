@@ -1826,6 +1826,17 @@ html.bk-on .toast{bottom:calc(150px + env(safe-area-inset-bottom,0px));font-size
 .memCard .mBtns button{font-family:var(--font-mono);font-weight:500;font-size:9.5px;letter-spacing:.05em;border:1px solid rgba(17,17,17,.2);background:transparent;border-radius:10px;padding:11px 6px;cursor:pointer;color:var(--koach-ink)}
 .memCard .mLi{display:flex;justify-content:space-between;font-family:var(--font-mono);font-weight:500;font-size:10px;color:var(--koach-ink);padding:7px 0;border-top:1px solid rgba(17,17,17,.08)}
 .memCard .mCta{display:block;text-align:center;margin-top:12px;font-family:var(--font-mono);font-weight:500;font-size:10px;letter-spacing:.06em;color:var(--koach-ink);text-decoration:none;border:1px solid var(--koach-ink);border-radius:10px;padding:11px}
+.avRenov{position:fixed;left:10px;right:10px;top:calc(env(safe-area-inset-top,0px) + 10px);z-index:9999;max-width:560px;margin:0 auto;display:flex;align-items:flex-start;gap:12px;
+  background:#121212;color:#F3F2EF;border:1px solid rgba(243,242,239,.14);border-radius:14px;padding:14px 10px 14px 16px;box-shadow:0 10px 30px rgba(0,0,0,.28);animation:avRenovIn .32s cubic-bezier(.2,.8,.2,1) both}
+.avRenov.out{animation:avRenovOut .22s ease forwards}
+.avRenov__tx{flex:1;min-width:0;display:flex;flex-direction:column;gap:4px}
+.avRenov__tx b{font-family:var(--font-display);font-weight:700;font-size:15px;line-height:1.3}
+.avRenov__tx span{font-family:var(--font-mono);font-size:11px;letter-spacing:.03em;line-height:1.45;color:rgba(243,242,239,.72)}
+.avRenov__x{flex:none;width:36px;height:36px;margin:-6px 0 -6px 0;display:grid;place-items:center;background:transparent;border:0;color:#F3F2EF;border-radius:50%;cursor:pointer}
+.avRenov__x:active{background:rgba(243,242,239,.12)}
+@keyframes avRenovIn{from{opacity:0;transform:translateY(-12px)}to{opacity:1;transform:none}}
+@keyframes avRenovOut{to{opacity:0;transform:translateY(-12px)}}
+@media (prefers-reduced-motion:reduce){.avRenov,.avRenov.out{animation:none}}
 .memAv{background:#1C1C1C;color:#F3F2EF;border-radius:14px;padding:14px 16px;margin-bottom:12px;display:flex;flex-direction:column;gap:4px}
 .memAv b{font-family:var(--font-mono);font-weight:500;font-size:10px;letter-spacing:.08em}
 .memAv span{font-family:var(--font-display);font-size:15px;line-height:1.35}
@@ -7358,7 +7369,7 @@ async function cargarMembresia(){
   S.mem=[]; S.pagos=[]; S.memBloqueo=null
   try{
     const [rm, rp] = await Promise.all([
-      sb.from('v_membresias').select('id, fecha_inicio, fecha_fin, meses, estado, estado_calc, dias_restantes, duracion_tipo, duracion_label').eq('socio_id', S.perfil.id).order('fecha_inicio',{ascending:false}),
+      sb.from('v_membresias').select('id, fecha_inicio, fecha_fin, meses, estado, estado_calc, dias_restantes, duracion_tipo, duracion_label, tipo_comercial').eq('socio_id', S.perfil.id).order('fecha_inicio',{ascending:false}),
       sb.from('pagos').select('fecha_pago, monto_final, estado, metodo, anulado, membresia_id').eq('socio_id', S.perfil.id).eq('anulado',false).order('fecha_pago',{ascending:false})
     ])
     S.mem=rm.data||[]; S.pagos=rp.data||[]
@@ -7384,7 +7395,9 @@ async function cargarMembresia(){
   const av=document.getElementById('hMemAviso'); if (av) av.innerHTML=''
   if (av && S.acceso && S.acceso.estado==='prorroga') av.innerHTML='<div class="memAv"><b>ACCESO CON PRÓRROGA HASTA EL '+_fm(S.acceso.prorroga_hasta).toUpperCase()+'</b><span>KOACH te dio unos días para regularizar tu pago. Acércate a recepción antes de esa fecha para no perder el acceso a tu rutina.</span><button onclick="this.parentNode.remove()">ENTENDIDO</button></div>'
   else if (av && S.acceso && S.acceso.aviso) av.innerHTML='<div class="memAv"><b>'+accTxt(S.acceso).t+'</b><span>Desde el '+_fm(S.acceso.control_desde)+' necesitarás tu membresía pagada para ver tu rutina y tu credencial. Regularízala en recepción.</span><button onclick="this.parentNode.remove()">ENTENDIDO</button></div>'
-  if (vig && vig.estado_calc!=='congelada' && S.memDiasAcceso!=null && S.memDiasAcceso<=30 && S.memDiasAcceso>=0){
+  // c212 · Última semana: aviso arriba en cada apertura de la app (se cierra con X; vuelve al abrirla de nuevo)
+  avisoRenovacion(vig)
+  if (vig && vig.estado_calc!=='congelada' && S.memDiasAcceso!=null && S.memDiasAcceso<=30 && S.memDiasAcceso>7){
     const umbral = S.memDiasAcceso<=7 ? 7 : S.memDiasAcceso<=14 ? 14 : 30
     try{
       const { error } = await sb.from('membresia_alertas').insert({ membresia_id:vig.id, umbral_dias:umbral })
@@ -7392,6 +7405,23 @@ async function cargarMembresia(){
         '<button onclick="this.parentNode.remove()">ENTENDIDO</button></div>'
     }catch(_){}
   }
+}
+// fecha_fin es el primer día sin acceso: con 1 día restante, hoy es el último día de membresía.
+function textoRenovacion(dias){
+  if (dias==null || dias<1 || dias>7) return null
+  return dias===1 ? 'Recuerda que es tu último día de membresía.'
+    : 'Recuerda que tu membresía en el club está a '+dias+' días por vencer.'
+}
+function avisoRenovacion(vig){
+  const prev=document.getElementById('avRenov'); if (prev) prev.remove()
+  if (!vig || vig.estado_calc==='congelada' || S.memBloqueo) return
+  if (['ugc','canje','cortesia'].includes(vig.tipo_comercial)) return   // beneficio sin cobro: no se le pide pago
+  const t=textoRenovacion(S.memDiasAcceso); if (!t) return
+  const d=document.createElement('div'); d.id='avRenov'; d.className='avRenov'; d.setAttribute('role','status')
+  d.innerHTML='<div class="avRenov__tx"><b>'+t+'</b><span>Acércate a recepción para poder actualizar tu pago.</span></div>'+
+    '<button type="button" class="avRenov__x" aria-label="Cerrar aviso" onclick="var a=document.getElementById(\'avRenov\'); if(a){a.classList.add(\'out\'); setTimeout(function(){a.remove()},220)}">'+
+    '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button>'
+  document.body.appendChild(d)
 }
 function accTxt(a){
   const e=a&&a.estado, v=a&&a.vence?_fm(a.vence).toUpperCase():''
