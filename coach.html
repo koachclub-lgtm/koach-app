@@ -2507,6 +2507,63 @@ html.ks-on.en-crm body{max-width:1280px !important;padding-left:32px !important;
 #vCrm .cr-err{border-left:4px solid var(--koach-ink);background:var(--koach-surface);border-radius:10px;padding:16px 18px;display:grid;gap:8px;font:400 15px var(--font-display)}
 #vCrm .cr-err small{font:500 11px var(--font-mono);color:var(--koach-text-secondary);overflow-wrap:anywhere}
 #vCrm .cr-empty{font:400 14px var(--font-display);color:var(--koach-text-secondary);padding:10px 2px}
+/* ═══ c209 · PLANIFICADOR EN MÓVIL: compacto y estable (nada se corre ni se parte en dos líneas) ═══ */
+@media (max-width:640px){
+  #vPlan:not(.plDesk) .plHdr{margin-bottom:10px;padding-bottom:8px}
+  #vPlan:not(.plDesk) .plHdr__top{gap:6px;margin-bottom:6px}
+  #vPlan:not(.plDesk) .plHdr__top>a,#vPlan:not(.plDesk) .plHdr__top>button{min-height:34px !important;min-width:34px;padding:0 10px;font-size:10px !important;border-radius:10px;white-space:nowrap}
+  #vPlan:not(.plDesk) .plHdr__top .rol{font-size:10px !important;padding:5px 9px}
+  #vPlan:not(.plDesk) .plHdr__tit{font-size:22px !important}
+  #vPlan:not(.plDesk) .plQuien__n{font-size:16px !important}
+  /* sesiones: una fila deslizable */
+  #vPlan:not(.plDesk) .plHdr .mtabs{display:flex;flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;gap:6px;margin-top:8px;scroll-snap-type:x proximity;-webkit-overflow-scrolling:touch}
+  #vPlan:not(.plDesk) .plHdr .mtabs::-webkit-scrollbar{display:none}
+  #vPlan:not(.plDesk) .plHdr .mtabs .mtab{flex:0 0 auto;min-width:0;width:auto;min-height:40px;height:40px;padding:0 12px;border-radius:11px;display:flex;flex-direction:row;align-items:center;gap:7px;scroll-snap-align:start}
+  #vPlan:not(.plDesk) .plHdr .mtabs .mtab .sN{font-size:10px;margin:0}
+  #vPlan:not(.plDesk) .plHdr .mtabs .mtab .sT{font-size:13px;margin:0;white-space:nowrap;max-width:46vw;overflow:hidden;text-overflow:ellipsis}
+  #vPlan:not(.plDesk) .plHdr .mtabs .tabOpc{position:static;width:24px;height:20px;margin-left:2px;font-size:10px;line-height:1}
+  #vPlan:not(.plDesk) .plHdr .mtabs .mtabAdd{padding:0 14px}
+  /* acciones de la sesión: una fila, botones chicos, sin cortes */
+  #vPlan:not(.plDesk) .plSesBar{display:flex;flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;gap:6px;margin-top:8px;flex-basis:100%}
+  #vPlan:not(.plDesk) .plSesBar::-webkit-scrollbar{display:none}
+  #vPlan:not(.plDesk) .plSesBar__n{display:none !important}
+  #vPlan:not(.plDesk) .plSesBar button{flex:0 0 auto !important;min-height:34px !important;height:34px;padding:0 11px !important;font-size:10px !important;letter-spacing:.1em;border-radius:10px;white-space:nowrap}
+  /* cabecera condensada al hacer scroll: nombre + sesiones + acciones, en tres filas finas */
+  #vPlan.plCompacto:not(.plDesk) .plHdr{row-gap:4px;padding-top:6px;padding-bottom:6px}
+  #vPlan.plCompacto:not(.plDesk) .plQuien{order:1;flex:1 1 0;min-width:0}
+  #vPlan.plCompacto:not(.plDesk) .plHdr__top{order:2;margin:0 !important}
+  #vPlan.plCompacto:not(.plDesk) .plHdr .mtabs{order:3;flex:1 1 100%;margin:0}
+  #vPlan.plCompacto:not(.plDesk) .plSesBar{order:4;flex:1 1 100%;margin:0}
+  #vPlan.plCompacto:not(.plDesk) .plHdr .mtabs .mtab{min-height:34px;height:34px}
+  #vPlan.plCompacto:not(.plDesk) .plSesBar button{flex:0 0 auto !important;min-height:32px !important;height:32px}
+  /* migas ciclo › semana › sesión */
+  #vPlan:not(.plDesk) .plNav{gap:4px}
+  #vPlan:not(.plDesk) .plCrumb{min-height:40px;padding:4px 10px}
+  #vPlan:not(.plDesk) .plCrumb small{font-size:8.5px}
+  #vPlan:not(.plDesk) .plCrumb .v{font-size:12.5px}
+  /* bloque: SETS y DESC en una sola fila */
+  #vPlan:not(.plDesk) .bqh{display:flex;flex-wrap:wrap;align-items:center;gap:8px 10px}
+  #vPlan:not(.plDesk) .bqh .bqt{flex:1 1 100%}
+  #vPlan:not(.plDesk) .bqh .stp{position:static;margin:0;display:flex;align-items:center;gap:4px}
+  #vPlan:not(.plDesk) .bqh .stp span{font-size:9.5px}
+  #vPlan:not(.plDesk) .bqh .stp button{width:32px;height:32px;min-height:32px;min-width:32px;border-radius:9px;font-size:15px}
+  #vPlan:not(.plDesk) .bqh .stp b{min-width:26px;font-size:15px;text-align:center}
+  #vPlan:not(.plDesk) .bqh .bqt{flex:1 1 calc(100% - 46px) !important}
+  #vPlan:not(.plDesk) .bqh .bqx{margin:0;padding:4px 6px}
+  #vPlan:not(.plDesk) .bqh .stp + .stp{margin-left:auto}
+  #vPlan:not(.plDesk) .mOcul{display:none}
+  #vPlan:not(.plDesk) .bqh .stp button{width:30px;height:30px;min-height:30px;min-width:30px}
+  /* ejercicio: controles más bajos */
+  #vPlan:not(.plDesk) .lin .pv button{min-height:38px;height:38px}
+  #vPlan:not(.plDesk) .lin .pv input,#vPlan:not(.plDesk) .lin .pv b{min-height:38px;height:38px}
+  #vPlan:not(.plDesk) .addEj{min-height:38px !important;padding:0 10px;font-size:9.5px !important;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  /* barra inferior: estado + aplicar en una sola fila, sin texto cortado */
+  .plDock{padding:6px 2px calc(6px + env(safe-area-inset-bottom,0px))}
+  .plDock__in{flex-wrap:nowrap !important;gap:8px;padding:8px;border-radius:14px}
+  #pGuardia .plSave{flex:1 1 0 !important;min-width:0}
+  #pGuardia .plDock__save{min-width:0 !important;width:100%;min-height:42px !important;padding:0 8px !important;font-size:10px !important;letter-spacing:.08em !important;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  #pGuardia .plDock__apl{flex:1.4 1 0 !important;min-width:0 !important;min-height:42px !important;padding:0 10px !important;font-size:11px !important;letter-spacing:.08em !important;white-space:nowrap}
+}
 </style>
 </head>
 <body>
@@ -4167,7 +4224,7 @@ function pintarPlan(){ setTimeout(function(){ try{ plSaveUI(); rtSyncPlan() }cat
         '<div class="linRx">'+controles+'</div>'+plLinea+
       '</div>'
     }).join('')+
-    '<button class="addEj" onclick="abrirSelector(\'agregar\','+bi+',null)">+ EJERCICIO</button>'+'<button class="addEj" style="opacity:.7" onclick="abrirTplSave('+bi+')">★ GUARDAR COMO PREDISEÑADO</button></div>'
+    '<button class="addEj" onclick="abrirSelector(\'agregar\','+bi+',null)">+ EJERCICIO</button>'+'<button class="addEj" style="opacity:.7" onclick="abrirTplSave('+bi+')">★ <span class="mOcul">GUARDAR COMO </span>PREDISEÑADO</button></div>'
   }).join('')
   document.getElementById('pBloques').innerHTML =
     (ses.bloques.length ? htmlBloques
@@ -7947,11 +8004,11 @@ function plBarraSesion(ses){
   const cx=document.getElementById('plCtx'); if (cx){ const a=F&&C.asig&&C.asig[F.id], N=a&&a.protocolos&&a.protocolos.ciclo_semanas
     cx.textContent = ses ? ((typeof PL!=='undefined'&&PL.w)?'S'+PL.w+(N?'/'+N:'')+' · ':'')+String(ses.nombre||'SESIÓN').toUpperCase() : '' }
   const dsB='<button type="button" id="dsBtn" class="dsBtn" aria-pressed="false" aria-controls="pVivo" onclick="dsModo(\'toggle\')" title="Dosificación semanal: series efectivas de toda la semana">'+
-    '<svg viewBox="0 0 16 16" aria-hidden="true"><rect x="1" y="3" width="9" height="2" rx="1"/><rect x="1" y="7" width="13" height="2" rx="1"/><rect x="1" y="11" width="6" height="2" rx="1"/></svg>DOSIFICACIÓN <span class="dsBtn__s">→</span></button>'
+    '<svg viewBox="0 0 16 16" aria-hidden="true"><rect x="1" y="3" width="9" height="2" rx="1"/><rect x="1" y="7" width="13" height="2" rx="1"/><rect x="1" y="11" width="6" height="2" rx="1"/></svg>DOSIFICACIÓN<span class="dsBtn__s mOcul"> →</span></button>'
   bar.innerHTML = !ses ? '' : ro ? dsB :
     '<span class="plSesBar__n">'+String(ses.nombre||'SESIÓN').toUpperCase()+' · '+n+' BLOQUE'+(n===1?'':'S')+'</span>'+dsB+
     (n<6?'<button type="button" onclick="abrirBloque()">+ BLOQUE</button>':'')+
-    (n>1?'<button type="button" class="ink" onclick="abrirOrgBloques()">⇅ ORGANIZAR BLOQUES</button>':'')
+    (n>1?'<button type="button" class="ink" onclick="abrirOrgBloques()">⇅ ORGANIZAR<span class="mOcul"> BLOQUES</span></button>':'')
 }
 // ═══════════ c22 · CABECERA DEL SOCIO (member header) ═══════════
 // ═══ c116 · PLAN CON HORARIO (ej. ESTUDIANTE: iniciar hasta las 16:30) ═══
