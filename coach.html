@@ -4959,6 +4959,15 @@ function pintarSelector(){
       G.items.map(function(e){ return selCapsula(e,q,enS) }).join('')+'</div>'
   }).join('') : '<div class="selVacio"><p>NO ENCONTRAMOS ESE EJERCICIO</p><button type="button" class="eBtn" onclick="document.getElementById(\'selBusca\').value=\'\';setGrupoSel(null)">LIMPIAR BÚSQUEDA</button></div>'
 }
+/* c211 · al elegir un ejercicio en el planificador de un socio, su carga parte con la última mejor carga registrada
+   (set más pesado de la última sesión en que lo hizo · koach_historial_cargas). El koach la puede cambiar a mano. */
+function plCargaBase(it, e){ try{
+  if (!plActivo() || !F || window._histSocio!==F.id) return
+  if (e && e.con_carga===false) return
+  const u=((HIST[e.id]||{}).ultimo)||null; if(!u || u.peso==null || !(+u.peso>0)){ it.kg=null; return }
+  it.kg=+u.peso
+  toast('Carga base '+KSET.kg(+u.peso)+' kg · última mejor'+(u.reps?' ('+u.reps+' reps':'')+(u.fecha?(u.reps?' · ':' (')+adhF(u.fecha)+')':(u.reps?')':'')))
+}catch(_){} }
 async function elegirEj(ejId, confirmado){
   const e=(EJCAT||[]).find(function(x){return String(x.id)===String(ejId)}); if(!e)return
   // c23 · ejercicio repetido en la semana: se avisa ANTES de insertar; el koach decide
@@ -4972,6 +4981,7 @@ async function elegirEj(ejId, confirmado){
     const x=planItem(SEL.beId); if(!x)return
     x.it.ejId=e.id; x.it.nombre=e.nombre; x.it.grupo=e.grupo_muscular; x.it.sinergistas=e.sinergistas||{}
     x.it.tipoReg=e.tipo_registro||null; x.it.conCarga=(e.con_carga===true); x.it.cuentaDosis=(e.cuenta_dosis!==false); x.it.activo=true
+    plCargaBase(x.it, e)
     plDirty(); repintarConservando()
   } else {
     const b=P.sesiones[P.tab].bloques[SEL.bi]
@@ -4979,7 +4989,8 @@ async function elegirEj(ejId, confirmado){
     b.items.forEach(function(i2){ const o=parseInt(i2.orden); if(!isNaN(o)&&o>maxOrd) maxOrd=o })
     const nuevoOrd = maxOrd + 1
     const r={data:{id:plUuid()}}   // se crea en la base al GUARDAR CAMBIOS
-    b.items.push({beId:r.data.id,ejId:e.id,nombre:e.nombre,grupo:e.grupo_muscular,sinergistas:e.sinergistas||{},kg:null,reps:'10',orden:nuevoOrd,tipoReg:e.tipo_registro||null,conCarga:(e.con_carga===true),cuentaDosis:(e.cuenta_dosis!==false),activo:true})
+    const nIt={beId:r.data.id,ejId:e.id,nombre:e.nombre,grupo:e.grupo_muscular,sinergistas:e.sinergistas||{},kg:null,reps:'10',orden:nuevoOrd,tipoReg:e.tipo_registro||null,conCarga:(e.con_carga===true),cuentaDosis:(e.cuenta_dosis!==false),activo:true}
+    b.items.push(nIt); plCargaBase(nIt, e)
     plDirty(); repintarConservando()
   }
 }
