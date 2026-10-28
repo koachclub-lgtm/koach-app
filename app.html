@@ -4339,8 +4339,13 @@ async function login(){
   const err=document.getElementById('lErr'); err.style.display='none'
   const b=document.getElementById('bLogin'); if (b.disabled) return   // sin doble envío
   b.disabled=true; b.classList.add('is-loading'); b.innerHTML='<i class="btn__spin" aria-hidden="true"></i>ENTRANDO…'
-  const { error } = await sb.auth.signInWithPassword({ email, password:pass })
-  if (error){ 
+  let { error } = await sb.auth.signInWithPassword({ email, password:pass })
+  // Clave = RUT: el dígito verificador K se escribe indistinto (k/K). Si falla, reintenta con el otro caso.
+  if (error && /credential|invalid/i.test(String(error.message||'')) && /^[\d.]+-?[kK]$/.test(pass)){
+    const alt = pass.slice(0,-1) + (pass.slice(-1)==='k' ? 'K' : 'k')
+    const r2 = await sb.auth.signInWithPassword({ email, password:alt }); error = r2.error
+  }
+  if (error){
     const _m=String(error.message||'')
     err.textContent = /credential|invalid/i.test(_m) ? 'No pudimos iniciar sesión. Revisa tu correo y contraseña.'
       : /not confirmed/i.test(_m) ? 'Tu cuenta aún no está activada. Avisa en recepción y lo resolvemos al tiro.'
