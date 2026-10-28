@@ -821,6 +821,34 @@ html .kw.kw--hero .kw-cl{font-size:7px;letter-spacing:.16em}
 .onb__ben li{display:flex;gap:12px;align-items:flex-start;font-size:15px;line-height:1.4;color:#C9CDD2}
 .onb__ben li::before{content:"";flex:0 0 8px;height:8px;margin-top:7px;border-radius:50%;background:#F4F3F0}
 @media (prefers-reduced-motion:reduce){ .onb{transition:none} .onb__hit::after,.onb__home .onb__app::after{animation:none} }
+
+/* c208 · sesión en una sola pantalla: INICIAR ENTRENAMIENTO + TEST WELLNESS arriba; bloques como tarjetas que se despliegan */
+.pvAct{display:flex;flex-direction:column;gap:10px;margin-top:16px}
+.pvIni,.pvWell{display:flex;align-items:center;gap:14px;width:100%;border:0;border-radius:22px;cursor:pointer;text-align:left;-webkit-tap-highlight-color:transparent}
+.pvIni{min-height:74px;padding:14px 20px;background:#0B0B0C;color:#F4F3F0;box-shadow:0 18px 34px -16px rgba(0,0,0,.55)}
+#vSesion.kdk .pvIni{background:#F4F3F0;color:#0B0B0C}
+.pvIni span,.pvWell span{flex:1;display:flex;flex-direction:column;gap:4px;font:800 18px/1 var(--font-display);letter-spacing:.02em}
+.pvIni small,.pvWell small{font:700 9.5px var(--font-mono);letter-spacing:.16em;opacity:.6}
+.pvIni b,.pvWell b{font-size:22px;font-weight:400}
+.pvAct .pvIni span,.pvAct .pvWell span{font:800 17px/1.05 var(--font-display)!important;white-space:nowrap;letter-spacing:.02em!important;text-transform:uppercase;color:inherit!important;opacity:1!important}
+.pvAct .pvWell span{font-size:15.5px!important}
+.pvAct .pvIni small,.pvAct .pvWell small{display:block;font:700 9.5px var(--font-mono)!important;letter-spacing:.16em!important;opacity:.62!important;color:inherit!important}
+.pvAct .pvWell{color:#0B0B0C!important}
+#vSesion.kdk .pvAct .pvWell{color:#F4F3F0!important}
+.pvIni i{width:14px;height:14px;border-radius:50%;background:currentColor;box-shadow:0 0 0 5px rgba(127,127,127,.25);animation:pvPulse 1.6s ease-in-out infinite}
+.pvIni--load{opacity:.6;pointer-events:none}
+.pvWell{min-height:58px;padding:10px 20px;background:transparent;color:inherit;box-shadow:inset 0 0 0 1.5px currentColor}
+.pvWell span{font-size:15px}
+@keyframes pvPulse{0%,100%{transform:scale(1);opacity:1}50%{transform:scale(.7);opacity:.55}}
+.pvB__tg{position:relative;z-index:1;cursor:pointer}
+.pvB__go{position:relative;z-index:1;display:flex;align-items:center;justify-content:space-between;width:100%;height:52px;margin-top:10px;padding:0 20px;border:0;border-radius:999px;background:#F4F3F0;color:#0B0B0C;font:800 13px var(--font-display);letter-spacing:.14em;cursor:pointer;text-shadow:none}
+.pvB__go b{font-size:20px;font-weight:400}
+/* al iniciar: la pantalla cambia de tono y destella */
+#vSesion.pvLive .kh__k{color:inherit;opacity:1}
+#vSesion.pvLive .kh__k::before{content:"";display:inline-block;width:8px;height:8px;margin-right:8px;border-radius:50%;background:#FF3B30;vertical-align:1px;animation:pvPulse 1.4s ease-in-out infinite}
+#vSesion.pvLiveIn::after{content:"";position:fixed;inset:0;z-index:95;pointer-events:none;background:#fff;animation:pvFlash .7s ease-out forwards}
+@keyframes pvFlash{0%{opacity:.85}100%{opacity:0}}
+@media (prefers-reduced-motion:reduce){.pvIni i,#vSesion.pvLive .kh__k::before{animation:none}#vSesion.pvLiveIn::after{display:none}}
 </style>
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
@@ -4069,12 +4097,12 @@ const BN_TXT={ OPTIMO:['ESTADO ÓPTIMO','Recuperación completa.'],
   BAJO:['FATIGA ACUMULADA','Recuperación insuficiente.'] }
 /* c201 · TEST WELLNESS opcional: un solo botón arriba en la rutina, visible hasta el primer set y solo si aún no lo responde */
 async function wellPintar(){ const b=document.getElementById('sWell'); if(!b) return
-  const rid=S.regId, ver=!!rid && !S._preview && !pvEmpezada() && !(S._bn&&S._bn[rid]) && !(S._bnSkip&&S._bnSkip[rid])
+  const rid=S.regId, ver=!!rid && !!S.regInicio && !S._preview && !pvEmpezada() && !(S._bn&&S._bn[rid]) && !(S._bnSkip&&S._bnSkip[rid])
   b.hidden=!ver; if(!ver) return
   S._bnQ=S._bnQ||{}; if(S._bnQ[rid]) return; S._bnQ[rid]=1
   try{ const r=await sb.from('bienestar_checkins').select('id').eq('registro_id',rid).maybeSingle(); if(r.data){ S._bn=S._bn||{}; S._bn[rid]=true; b.hidden=true } }catch(_){} }
-function wellAbrir(){ if(!S.regId) return; bnMostrar(S.regId)
-  const t=document.getElementById('bnT'); if(t && window.MutationObserver){ const mo=new MutationObserver(()=>{ if(!document.body.contains(t)){ mo.disconnect(); wellPintar() } }); mo.observe(document.body,{childList:true}) } }
+async function wellAbrir(){ if(!S.regId && !(await pvRegistro())) return; bnMostrar(S.regId)
+  const t=document.getElementById('bnT'); if(t && window.MutationObserver){ const mo=new MutationObserver(()=>{ if(!document.body.contains(t)){ mo.disconnect(); wellPintar(); try{ pintarSesion() }catch(_){} } }); mo.observe(document.body,{childList:true}) } }
 async function bnPedir(){ try{
   const rid=S.regId; if(!rid || pvEmpezada() || document.getElementById('bnT') || (S._bnSkip&&S._bnSkip[rid])) return
   S._bn=S._bn||{}; if(S._bn[rid]) return
@@ -5206,11 +5234,7 @@ async function reanudar(){
     Object.keys(hm||{}).forEach(ej=>{ const u=(hm[ej]||{}).ultimo; if (u && (u.peso!=null||u.seg!=null||u.reps!=null)) S.ultimos[ej]={ peso:u.peso, reps:u.reps, seg:u.seg, fecha:u.fecha }
       const mj=(hm[ej]||{}).mejor; if (mj && mj.peso!=null) (S.mejores=S.mejores||{})[ej]={ peso:+mj.peso, reps:parseInt(mj.reps)||0 } })
   }catch(_){ S.ultimos={} }
-  pintarSesion()
-  // c132 · retomar desde el home también pasa por el encendido START (antes saltaba directo a la rutina)
-  kxPreparar(ses, objetivosSesion(ses).prim.slice(0,4), true)
-  document.getElementById('sBloques').classList.add('locked')
-  document.getElementById('oAct').classList.add('vis'); kxCromo()
+  pintarSesion()   // c208 · retomar entra directo: el tiempo sigue corriendo desde que la inició
 }
 // ═══ RESOLVER AUTORITATIVO DE CAPACIDADES (arquitectura PLAN) ═══
 // Única fuente de decisión. La UI renderiza; JAMÁS decide elegibilidad por su cuenta.
@@ -5338,22 +5362,14 @@ async function abrirSesion(num){
     const { data: exi } = await sb.from('sesiones_registro').select('id, iniciada_at')
       .eq('socio_id',S.perfil.id).eq('sesion_protocolo_id',ses.id).eq('fecha',hoyD).eq('estado','en_curso')
       .limit(1).maybeSingle()
-    if (exi){ S.regId = exi.id; S.regInicio = exi.iniciada_at?new Date(exi.iniciada_at).getTime():Date.now() }
-    else {
-      const { data: nr, error: er } = await sb.from('sesiones_registro').insert({
-        socio_id:S.perfil.id, asignacion_id:S.asig.id, sesion_protocolo_id:ses.id,
-        fecha:hoyD, estado:'en_curso',
-        semana:S.asig.semana_actual, ciclo:S.asig.ciclo_actual }).select('id, iniciada_at').single()
-      if (er && /HORARIO_PLAN/.test(er.message||'')){ cargandoOff(); horBloquear(ses.id); S.sesionAbierta=null; return }   // c116 · el servidor manda
-      if (er) throw er
-      S.regId = nr.id; S.regInicio = nr.iniciada_at?new Date(nr.iniciada_at).getTime():Date.now()
-    }
-    const { data: sl } = await sb.from('set_registros').select('*').eq('registro_id',S.regId)
-    ;(sl||[]).forEach(r=>{
-      const k = r.bloque_ejercicio_id ? ('be:'+r.bloque_ejercicio_id+'#'+r.set_numero) : ('blk:'+r.bloque_id+'#'+r.set_numero)
-      S.setLog[k]=r
-    })
-    rwRestaurar()
+    /* c208 · abrir la sesión ya NO la inicia: solo se mira. El registro y el tiempo nacen en INICIAR ENTRENAMIENTO (pvIniciar). */
+    if (exi){ S.regId = exi.id; S.regInicio = exi.iniciada_at?new Date(exi.iniciada_at).getTime():Date.now()
+      const { data: sl } = await sb.from('set_registros').select('*').eq('registro_id',S.regId)
+      ;(sl||[]).forEach(r=>{
+        const k = r.bloque_ejercicio_id ? ('be:'+r.bloque_ejercicio_id+'#'+r.set_numero) : ('blk:'+r.bloque_id+'#'+r.set_numero)
+        S.setLog[k]=r
+      })
+      rwRestaurar() }
   }catch(e){ console.error('instancia', e) }
   vista('vSesion')
   document.getElementById('sTit').textContent = ses.nombre
@@ -5375,11 +5391,7 @@ async function abrirSesion(num){
     Object.keys(hm||{}).forEach(ej=>{ const u=(hm[ej]||{}).ultimo; if (u && (u.peso!=null||u.seg!=null||u.reps!=null)) S.ultimos[ej]={ peso:u.peso, reps:u.reps, seg:u.seg, fecha:u.fecha }
       const mj=(hm[ej]||{}).mejor; if (mj && mj.peso!=null) (S.mejores=S.mejores||{})[ej]={ peso:+mj.peso, reps:parseInt(mj.reps)||0 } })
   }catch(_){ S.ultimos={} }
-  pintarSesion()
-  // Overlay de activación
-  kxPreparar(ses, _op)
-  document.getElementById('sBloques').classList.add('locked')
-  document.getElementById('oAct').classList.add('vis'); kxCromo()
+  pintarSesion()   // c208 · sin pantalla intermedia de encendido: la sesión se ve de inmediato con INICIAR ENTRENAMIENTO arriba
 }
 function tipoDe(ej, be){
   // c107 · el coach puede fijar REPS o TIME por ejercicio dentro del bloque; prevalece sobre el catálogo
@@ -5675,9 +5687,12 @@ function pvHero(ses,bfs){ const ne=bfs.reduce((a,b)=>a+bkBes(b).length,0)
       '<div class="pvFin__kg"><span data-kx="'+kg+'">'+(anim?'0':kg.toLocaleString('es-CL'))+'</span><i>KG</i></div>'+
       '<span class="pvFin__s">KG LEVANTADOS · '+sh+' SETS'+(S.regInicio?' · '+sesTxt():'')+'</span>'+
       '<div class="kh__pills pvFin__p">'+V.L.map((x,i)=>'<span class="kh__pill" style="--i:'+i+'">'+plEscA(x[0])+' ✓</span>').join('')+'</div></div>' }
-  if (pvEmpezada()){ let sh=0,stt=0,kg=0; bfs.forEach(b=>{ sh+=bkSetsHechos(b); stt+=(b.sets||0); kg+=bkKgBloque(b) })
+  if (pvEmpezada() || (S.regInicio && !S._preview)){ let sh=0,stt=0,kg=0; bfs.forEach(b=>{ sh+=bkSetsHechos(b); stt+=(b.sets||0); kg+=bkKgBloque(b) })
     return '<p class="pv__d">'+pvDesc(ses,bfs)+'</p><div class="pv__st pv__st--go"><span><b>'+sh+'/'+stt+'</b>SETS</span><span><b>'+kg.toLocaleString('es-CL')+'</b>KG</span>'+
       (S.regInicio?'<span class="pv__clk"><i id="sClk" data-t="'+sesTxt()+'">'+bkSeg(sesTxt())+'</i>TIEMPO</span>':'')+'</div>' }
+  if (!S._preview && !S.regInicio){ const wOk=!(S.regId && S._bn && S._bn[S.regId])
+    return '<p class="pv__d">'+pvDesc(ses,bfs)+'</p><div class="pvAct"><button type="button" class="pvIni" id="pvIni" onclick="pvIniciar()"><i aria-hidden="true"></i><span><small>'+bfs.length+' BLOQUES · '+ne+' EJERCICIOS · ~'+pvDur(bfs)+"'</small>INICIAR ENTRENAMIENTO</span><b aria-hidden=\"true\">→</b></button>"+
+      (wOk?'<button type="button" class="pvWell" onclick="wellAbrir()"><span><small>ANTES DE ENTRENAR · 1 MIN</small>TEST WELLNESS</span><b aria-hidden="true">→</b></button>':'')+'</div>' }
   if (S._preview){ const g=new Set(); bfs.forEach(b=>bkBes(b).forEach(be=>{ const x=(be.ejercicios||{}).grupo_muscular; if(x) g.add(x) }))
     const nm=String(ses.nombre||'tu sesión').toLowerCase().replace(/^./,c=>c.toUpperCase()), F=PV_FRASES, f=F[(String(ses.id||'').length+ne)%F.length]
     return '<p class="pv__d pv__d--pw">Esto es lo que en KOACH tenemos preparado para tu sesión de hoy'+(msgNombre()?', <b>'+plEscA(msgNombre())+'</b>':'')+'. <b>'+plEscA(nm)+'</b> '+f+'</p>' }
@@ -5717,20 +5732,41 @@ function pvAbrir(num){
   pintarSesion()
 }
 function pvStart(){ const n=S._pvNum; S._preview=false; abrirSesion(n==null?undefined:n) }
-function pvBloques(bfs){ const st=document.getElementById('syncTag'); if(st) st.style.visibility=S._preview?'hidden':''; const vs=document.getElementById('vSesion'); if(vs) vs.classList.toggle('pwOn',!!S._preview); if (S._preview) return pvGrupos(bfs); const pp=bkPrimerPendiente(bfs), todo=pp<0, prim=todo?bfs.length-1:pp, emp=pvEmpezada()
-  const ab=(S._pvAb!=null && bfs[S._pvAb]) ? S._pvAb : (todo ? -1 : prim)
+/* c208 · INICIAR ENTRENAMIENTO: crea el registro (el servidor valida horario) y desde ese instante corre el tiempo. */
+async function pvRegistro(){ if (S.regId) return true; const ses=S.sesionAbierta; if(!ses) return false
+  try{ const { data: nr, error: er } = await sb.from('sesiones_registro').insert({
+      socio_id:S.perfil.id, asignacion_id:S.asig.id, sesion_protocolo_id:ses.id, fecha:fLocal(new Date()), estado:'en_curso',
+      semana:S.asig.semana_actual, ciclo:S.asig.ciclo_actual }).select('id, iniciada_at').single()
+    if (er && /HORARIO_PLAN/.test(er.message||'')){ horBloquear(ses.id); return false }
+    if (er) throw er
+    S.regId=nr.id; S._regIni=nr.iniciada_at; return true
+  }catch(e){ console.error('iniciar', e); toast('No pudimos iniciar tu sesión. Revisa tu conexión e intenta de nuevo.'); return false } }
+async function pvIniciar(){ if (S.regInicio) return true; if (S._iniOcupado) return false; S._iniOcupado=true
+  const bt=document.getElementById('pvIni'); if(bt){ bt.disabled=true; bt.classList.add('pvIni--load') }
+  try{ const previo=!!S.regId; if(!await pvRegistro()) return false
+    let t=S._regIni?new Date(S._regIni).getTime():Date.now()
+    if (previo){ t=Date.now(); try{ await sb.from('sesiones_registro').update({ iniciada_at:new Date(t).toISOString() }).eq('id',S.regId) }catch(_){} }
+    S.regInicio=t; S._pvAb=null
+    try{ kHaptic&&kHaptic(14) }catch(_){} try{ if(navigator.vibrate) navigator.vibrate([20,30,60]) }catch(_){}
+    const ses=S.sesionAbierta, sub=document.getElementById('sSub'); if(sub&&ses) sub.textContent=(!ses._extra?('SESIÓN '+posSem(ses)+' DE '+baseSem().length+' · '):'SESIÓN EXTRA · ')+'EN CURSO'
+    const v=document.getElementById('vSesion'); if(v){ v.classList.remove('pvLiveIn'); void v.offsetWidth; v.classList.add('pvLive','pvLiveIn') }
+    pintarSesion(); return true
+  } finally { S._iniOcupado=false; const b2=document.getElementById('pvIni'); if(b2){ b2.disabled=false; b2.classList.remove('pvIni--load') } } }
+function pvEntrar(bi){ if (S.regInicio) return bkAbrir(bi); pvIniciar().then(ok=>{ if(ok) bkAbrir(bi) }) }
+function pvBloques(bfs){ const st=document.getElementById('syncTag'); if(st) st.style.visibility=S._preview?'hidden':''; const vs=document.getElementById('vSesion'); if(vs) vs.classList.toggle('pwOn',!!S._preview); if(vs) vs.classList.toggle('pvLive',!!S.regInicio && !S._preview); if (S._preview) return pvGrupos(bfs); const pp=bkPrimerPendiente(bfs), todo=pp<0, prim=todo?bfs.length-1:pp, emp=pvEmpezada()
+  const ab=(S._pvAb!=null) ? S._pvAb : ((todo || !S.regInicio) ? -1 : prim)
   const cp=bfs[prim]||{}, hp=bkSetsHechos(cp)
-  const go = todo ? '<button type="button" class="pvGo" onclick="pedirFinal()">TERMINAR SESIÓN ✓</button>'
-    : '<button type="button" class="pvGo" onclick="bkAbrir('+prim+')">▶ &nbsp;'+(hp?'RETOMAR ':'COMENZAR ')+bkCod(cp,prim)+'</button>'
+  const go = todo ? '<button type="button" class="pvGo" onclick="pedirFinal()">TERMINAR SESIÓN ✓</button>' : ''
   return '<div class="pvB">'+bfs.map((b,bi)=>{ const bes=bkBes(b), cod=bkCod(b,bi), nom=bkNom(b,bi), on=bi===ab, done=bloqueCompleto(b), h0=bkSetsHechos(b), kg=bkKgBloque(b)
     const est = done ? 'LISTO · '+kg.toLocaleString('es-CL')+' KG' : bi===pp ? (h0?'EN CURSO · SET '+h0+'/'+b.sets:'TE TOCA AHORA') : 'DESPUÉS'
     const segs = (emp||h0) ? '<div class="pvB__sg" aria-hidden="true">'+Array.from({length:b.sets},(_,i)=>'<i class="'+(bkSetHecho(b,i+1)?'on':'')+'"></i>').join('')+'</div>' : ''
     const h='<header class="pvB__h"><b class="pvB__n">'+cod+'</b><div><small>'+est+'</small><span>'+bkEsc(nom)+'</span></div>'+
       (done?'<em class="pvB__ok" aria-label="Bloque completado">✓</em>':'<em>'+String(b.sets).padStart(2,'0')+' SETS<br>'+bkMMSS(bkDesc(b))+' DESC</em>')+'</header>'
-    if (on) return '<section class="pvB__c pvB__c--on'+(done?' pvB__c--ok':'')+'" id="blq-'+bi+'" aria-label="Bloque '+cod+' '+bkEsc(nom)+'">'+h+segs+
+    if (on) return '<section class="pvB__c pvB__c--on'+(done?' pvB__c--ok':'')+'" id="blq-'+bi+'" aria-label="Bloque '+cod+' '+bkEsc(nom)+'"><div class="pvB__tg" role="button" tabindex="0" aria-label="Cerrar bloque '+cod+'" onclick="S._pvAb=-1;pintarSesion()">'+h+'</div>'+segs+
       '<ol class="pvB__l">'+bes.map((be,i)=>{ const ej=be.ejercicios||{}
         return '<li><i>'+String(i+1).padStart(2,'0')+'</i><b>'+bkEsc(ej.nombre||'—')+'</b>'+(ej.grupo_muscular?'<span class="kh__pill pvPill">'+bkEsc(String(ej.grupo_muscular).toUpperCase())+'</span>':'<span></span>')+'</li>' }).join('')+'</ol>'+
-      ((done||(bi!==prim&&h0))?'<button type="button" class="pvB__ver" onclick="bkAbrir('+bi+')">VER O CORREGIR '+cod+'</button>':'')+'</section>'
+      (done||(bi!==prim&&h0) ? '<button type="button" class="pvB__ver" onclick="pvEntrar('+bi+')">VER O CORREGIR '+cod+'</button>'
+        : '<button type="button" class="pvB__go" onclick="pvEntrar('+bi+')"><span>'+(!S.regInicio?'INICIAR Y COMENZAR ':(h0?'RETOMAR ':'COMENZAR '))+cod+'</span><b aria-hidden="true">→</b></button>')+'</section>'
     return '<section class="pvB__c'+(done?' pvB__c--ok':'')+'" id="blq-'+bi+'" role="button" tabindex="0" aria-label="Ver bloque '+cod+'" onclick="S._pvAb='+bi+';pintarSesion()">'+h+
       '<div class="pvB__s">'+bes.map(be=>bkEsc((be.ejercicios||{}).nombre||'—')).join(' · ')+'</div></section>' }).join('')+
     ((emp&&!todo)?'<button type="button" class="pvEnd" onclick="pedirFinal()">TERMINAR SESIÓN ✓</button>':'')+'</div>'+go }
