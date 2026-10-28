@@ -5781,7 +5781,8 @@ const KBG={
   cromo:  { base:'#ECEDEE', dk:0, o:{stops:[[0,'#FFFFFF'],[.07,'#D4D6D9'],[.28,'#A9ACB1'],[.6,'#E6E7E9'],[1,'#F3F3F4']],veil:'rgba(240,241,242,.45)'} },
   cromoN: { base:'#060607', dk:1, o:{stops:[[0,'rgba(232,236,240,.75)'],[.08,'#7E838A'],[.3,'#2A2C30'],[.62,'#0E0F11'],[1,'#17181B']],veil:'rgba(6,6,7,.55)'} }
 }
-const KBG_ORDEN=['acero','cromoN','plata','grafito','titanio','cromo']
+/* c209 · la sesión y el bloque usan solo grises claros; los fondos negros (grafito, cromoN) quedan para pantallas editoriales de mensajes */
+const KBG_ORDEN=['acero','plata','titanio','cromo']
 function kbgURL(k){ const t=KBG[k]; if(!t) return ''; if(t._u) return t._u
   try{ const W=420,H=900,c=document.createElement('canvas'); c.width=W; c.height=H; const x=c.getContext('2d'); x.fillStyle=t.base; x.fillRect(0,0,W,H)
     if (t.g){ x.filter='blur(42px)'; t.g.blobs.forEach(b=>{ const X=W*b[0],Y=H*b[1],R=W*b[2],al=b[4]||.95,g=x.createRadialGradient(X,Y,0,X,Y,R)
