@@ -2129,6 +2129,7 @@ html.is-grabbing,html.is-grabbing *{cursor:grabbing !important}
 .scO__b:hover{background:#121212;color:#F4F3F0}.scO__b:disabled{opacity:.3;cursor:default;background:#fff;color:#121212}
 .scO__b:focus-visible{outline:2px solid #2BB8C7;outline-offset:2px}
 .scO--fija{background:#EFEEEA;color:#8E8D88;border-color:transparent}.scO--fija .scO__t{color:#8E8D88}
+.scO__fix{margin-left:10px;min-height:40px;white-space:nowrap}
 .scO--x{border-style:dashed;border-color:#2BB8C7}.scO--x .scO__g--lock{color:#13808C}
 .scO.is-foco{box-shadow:0 0 0 2px #2BB8C7}
 .scO.is-drag{position:relative;z-index:5;box-shadow:0 16px 30px -16px rgba(0,0,0,.5);transition:none;background:#fff}
@@ -8288,7 +8289,10 @@ function scPintarOrg(){
       '<span class="scO__n">'+String(i+1).padStart(2,'0')+'</span><b class="scO__t">'+scNomL(z.nombre)+'</b><i class="tcP tcP--'+pc+'">'+pill+'</i>'+
       (fija?'':'<button type="button" class="scO__b" '+(arriba?'':'disabled ')+'onclick="scOrgPaso(\''+z.id+'\',-1)" aria-label="Subir '+scNomL(z.nombre)+'">↑</button><button type="button" class="scO__b" '+(abajo?'':'disabled ')+'onclick="scOrgPaso(\''+z.id+'\',1)" aria-label="Bajar '+scNomL(z.nombre)+'">↓</button>')+'</li>' })
   const xs=scExtras()
-  if (xs.length) h+='<li class="scO scO--x"><span class="scO__g scO__g--lock" aria-hidden="true">★</span><span class="scO__n"></span><b class="scO__t" title="'+xs.map(function(x){return scNomL(x.nombre)}).join(' · ')+'">'+(xs.length===1?scNomL(xs[0].nombre):xs.length+' EXTRAS · '+xs.map(function(x){return scNomL(x.nombre)}).join(' · '))+'</b><i class="tcP tcP--x">FUERA DEL ORDEN</i></li>'
+  // c213 · cada extra: queda como ALTERNATIVA (fuera del orden) o se FIJA EN LA SEMANA como sesión principal (ej. socio de 4 días)
+  xs.forEach(function(x){ const fijable=x.tipo==='designada' && x.estado!=='completada'
+    h+='<li class="scO scO--x"><span class="scO__g scO__g--lock" aria-hidden="true">★</span><span class="scO__n"></span><b class="scO__t">'+scNomL(x.nombre)+'</b><i class="tcP tcP--x">ALTERNATIVA · FUERA DEL ORDEN</i>'+
+      (fijable?'<button type="button" class="tbB scO__fix" onclick="scFijarExtra(\''+x.id+'\')" title="Pasa a ser una sesión principal de la semana y del resto del ciclo">FIJAR EN LA SEMANA</button>':'')+'</li>' })
   const cambio=scOrgCambio(), mueveCurso=cambio && ses.some(function(z,i){ return (z.estado==='en_curso'||(vivo&&vivo.sesion_id===z.id)) && base.indexOf(z)!==i })
   h+='</ol><div class="scOrg__f"><small>Habilitada se mueve y sigue habilitada · completada y sin cerrar quedan fijas · en curso: se avisa'+(mueveCurso?' · <b>moviste una sesión en curso</b>':'')+'</small>'+
     '<button type="button" class="tbB" onclick="scOrgSalir()">CANCELAR</button><button type="button" class="tbB tbB--ink" onclick="scOrgGuardar()"'+(cambio?'':' disabled')+'>GUARDAR ORDEN →</button></div></div>'
@@ -8347,6 +8351,7 @@ function scMenu(ev,key){
   else if (ex){
     I('VER RESUMEN','scAbrirRes(\''+key+'\')')
     if (ex.tipo==='designada') I('ABRIR / EDITAR RUTINA','scEditarExtra(\''+ex.id+'\')')
+    if (ex.tipo==='designada' && ex.estado!=='completada') I('FIJAR EN LA SEMANA (SESIÓN PRINCIPAL)','scFijarExtra(\''+ex.id+'\')')
     if (ex.estado==='habilitada') I('QUITAR HABILITACIÓN','scAccion(\'quitar_habilitacion\')')
     else if (ex.tipo==='designada' && ex.estado==='disponible') I('HABILITAR HOY','scAccion(\'habilitar\',null,\''+ex.sesion_id+'\',true)')
     if (ex.tipo==='designada'){ it.push('<hr>'); I('RETIRAR EXTRA','scRetirarExtra(\''+ex.id+'\')','pfDanger') }
@@ -8426,6 +8431,15 @@ async function scEditarExtra(desigId){
   const vs=document.getElementById('pVolverSoc'); if (vs){ vs.style.display=''; vs.setAttribute('href','coach.html#/socio/'+fid) }
   document.title=rtNombreCorto(fid)+' · Extra | KOACH'
   if (r.data.copiada) toast('Copia personal creada: los cambios solo afectan a '+nomDe(fid).split(' ')[0])
+}
+async function scFijarExtra(id){
+  const x=scExtras().find(function(e){ return e.tipo==='designada' && e.id===id }); if(!x||!F) return
+  const st=SC.st||{}, n=(st.programadas||(st.sesiones||[]).length)+1
+  if (!await kConfirm('¿Fijar '+scNomL(x.nombre)+' en la semana?\nPasa a ser una sesión principal: '+nomDe(F.id).split(' ')[0]+' quedará con '+n+' sesiones por semana desde la semana '+(st.semana||'actual')+' hasta el final del ciclo. Deja de ser extra; lo ya entrenado se conserva.')) return
+  scGuard('run'); const r=await sb.rpc('koach_extra_fijar',{ p_designacion:id })
+  if (r.error){ scGuard('err'); toast(/CICLO_CERRADO/.test(r.error.message)?'Este ciclo ya no está activo.':'No se pudo fijar: '+r.error.message); return }
+  if (SCD.open==='x'+id) SCD.open=null
+  scGuard('ok'); toast('Fijada en la semana ✓ · '+n+' sesiones por semana'); SCB.org=false; SCB.ord=null; scCargar(F.id)
 }
 async function scRetirarExtra(id){
   if (!await kConfirm('¿Quitar esta extra? El socio deja de verla; lo que ya entrenó se conserva.')) return
