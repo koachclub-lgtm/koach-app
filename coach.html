@@ -1060,6 +1060,8 @@ small{color:var(--koach-text-secondary)}
 .adTag{display:inline-block;font-family:var(--font-mono);font-weight:500;font-size:9px;letter-spacing:.05em;border:1px solid var(--koach-border-strong);border-radius:6px;padding:3px 6px;margin-right:4px}
 .adTag.ink{background:var(--koach-ink);color:var(--koach-control);border-color:var(--koach-ink)}
 .adGo{border:none;background:var(--koach-ink);color:var(--koach-control);border-radius:10px;padding:10px 12px;font-family:var(--font-mono);font-weight:500;font-size:9.5px;letter-spacing:.05em;cursor:pointer;flex-shrink:0}
+.prfTop{background:var(--koach-ink);color:var(--koach-control)}.prfTop .adTag{border-color:rgba(255,255,255,.35)}.prfTop .adM{color:rgba(255,255,255,.75)}.prfTop .adN{color:var(--koach-control)}.prfTop .adGo{background:var(--koach-control);color:var(--koach-ink)}
+.prfOff{opacity:.55}
 .adCard{background:var(--koach-surface);border:1px solid var(--koach-border);border-radius:10px;padding:14px;margin-bottom:10px}
 .adK{font-family:var(--font-mono);font-weight:500;font-size:9.5px;letter-spacing:.06em;color:var(--koach-text-secondary);text-transform:uppercase;margin-bottom:6px;display:flex;justify-content:space-between}
 .adH{font-family:var(--font-display);font-weight:700;font-size:22px;letter-spacing:-0.02em;color:var(--koach-ink)}
@@ -6469,11 +6471,11 @@ function admPintar(){
   const porActivar=function(sid){ return est[sid].k==='sin' || !C.asig[sid] }
   const esUgc=function(sid){ const m=adMemVigente(sid); return !!(m && m.tipo_comercial==='ugc') }
   if (CRM_ACTIVO && ((C.yo&&C.yo.role)||'')==='admin') admIngresos(); else { const _ing=document.getElementById('admIng'); if(_ing) _ing.innerHTML='' }
-  const F2=[['activar','POR ACTIVAR'],['todos','TODOS'],['activa','ACTIVOS'],['proxima','PRÓXIMOS A VENCER'],['vencida','VENCIDOS'],['congelada','CONGELADOS'],['pago','PAGO PENDIENTE'],['ugc','UGC'],['sin','SIN MEMBRESÍA'],['sinacc','SIN ACCESO A LA APP'],['prueba','CLASES DE PRUEBA']]
+  const F2=[['activar','POR ACTIVAR'],['todos','TODOS'],['activa','ACTIVOS'],['proxima','PRÓXIMOS A VENCER'],['vencida','VENCIDOS'],['congelada','CONGELADOS'],['pago','PAGO PENDIENTE'],['ugc','UGC'],['sin','SIN MEMBRESÍA'],['sinacc','SIN ACCESO A LA APP'],['prueba','CLASES DE PRUEBA'],['prof','PROFESIONALES']]
   const sinAcc=function(sid){ const a=AD.acc&&AD.acc[sid]; return !!a && ['ok','prorroga','staff'].indexOf(a.estado)<0 }
   accCtrlPintar(soc.filter(function(s){ return sinAcc(s.id) }).length)
   const cuenta=function(k){ return soc.filter(function(s){ return k==='todos'||(k==='sinacc'?sinAcc(s.id):k==='activar'?porActivar(s.id):k==='pago'?pend.has(s.id):k==='ugc'?esUgc(s.id):(k==='activa'?['activa','futura'].indexOf(est[s.id].k)>-1:est[s.id].k===k)) }).length }
-  document.getElementById('admF').innerHTML=F2.map(function(f){ return '<button class="'+(AD.admF===f[0]?'on':'')+'" onclick="AD.admF=\''+f[0]+'\';admPintar()">'+f[1]+' · '+(f[0]==='prueba'?CPS.length:cuenta(f[0]))+'</button>' }).join('')
+  document.getElementById('admF').innerHTML=F2.map(function(f){ return '<button class="'+(AD.admF===f[0]?'on':'')+'" onclick="AD.admF=\''+f[0]+'\';admPintar()">'+f[1]+' · '+(f[0]==='prueba'?CPS.length:f[0]==='prof'?(AD.prof?AD.prof.length:'·'):cuenta(f[0]))+'</button>' }).join('')
   // PRÓXIMOS VENCIMIENTOS 30/14/7
   const pv=soc.map(function(s){ return [s, est[s.id].m] }).filter(function(p){ return p[1] && p[1].dias_acceso!=null && p[1].dias_acceso>=0 && p[1].dias_acceso<=30 })
     .map(function(p){ return [p[0], Object.assign({},p[1],{dias_restantes:p[1].dias_acceso, fecha_fin:p[1].fin_acceso})] })
@@ -6484,6 +6486,7 @@ function admPintar(){
     pv.map(function(p){ return '<div class="adLi" onclick="verFicha(\''+p[0].id+'\');fTab(\'adm\')" style="cursor:pointer"><span>'+adEsc(nomDe(p[0].id))+'<small>VENCE '+adF(p[1].fecha_fin)+'</small></span><span>'+p[1].dias_restantes+' D<small>'+tramo(p[1].dias_restantes)+'</small></span></div>' }).join('')+'</details>' : ''
   const b=(document.getElementById('admBusca').value||'').trim().toLowerCase()
   if (AD.admF==='prueba'){ admPintarPruebas(CPS, b); return }
+  if (AD.admF==='prof'){ admPintarProf(b); return }
   const l=soc.filter(function(s){ const k=AD.admF
       return (k==='todos'||(k==='sinacc'?sinAcc(s.id):k==='activar'?porActivar(s.id):k==='pago'?pend.has(s.id):k==='ugc'?esUgc(s.id):(k==='activa'?['activa','futura'].indexOf(est[s.id].k)>-1:est[s.id].k===k))) && (!b || bpScore(b, nomDe(s.id), [s.email,s.telefono].filter(Boolean).join(' '))>0) })
   document.getElementById('admCnt').textContent=soc.length+' SOCIOS'
@@ -6494,6 +6497,82 @@ function admPintar(){
       (m?('<br>'+adF(m.fecha_inicio)+' — '+adF(m.fecha_fin)+' · '+m.dias_restantes+' D'):'')+'</div></div>'+
       '<button class="adGo" onclick="verFicha(\''+s.id+'\');fTab(\'adm\')">ABRIR →</button></div>' }).join('') : '<div class="vacio">Nadie en este filtro.</div>'
 }
+
+// ═══ c223 · Membresías › PROFESIONALES: cuentas del equipo (koach, recepción, nutrición, admin) ═══
+// Todo por RPC/RLS existentes: admin_acceso_estado (último acceso), admin_acceso_clave (solo admin), recuperación por correo de Supabase Auth.
+// El rol y el estado de una cuenta solo los cambia un administrador (trigger koach_trg_proteger_perfil).
+const PROF_ROL={ admin:'ADMIN', coach:'KOACH', recepcion:'RECEPCIÓN', nutricionista:'NUTRICIÓN' }
+const PROF_ORD={ admin:0, coach:1, nutricionista:2, recepcion:3 }
+const PROF_PANEL={ admin:'Dashboard completo', coach:'Dashboard · sala, planificador y socios', recepcion:'Dashboard · membresías, pagos y agenda', nutricionista:'Panel de nutrición · dashboard.koachclub.cl/nutricion' }
+async function profCargar(forzar){
+  if (AD.prof && !forzar) return
+  const r=await sb.from('profiles').select('id,nombre,apellido,role,activo,email,telefono,created_at').in('role',Object.keys(PROF_ROL))
+  if (r.error){ toast('No se pudo cargar el equipo'); AD.prof=[]; return }
+  AD.prof=(r.data||[]).sort(function(a,b){ return (PROF_ORD[a.role]-PROF_ORD[b.role]) || (a.activo===false)-(b.activo===false) || String(a.nombre||'').localeCompare(String(b.nombre||'')) })
+  AD.profAcc=AD.profAcc||{}
+  if (nuEsAdm()) await Promise.all(AD.prof.filter(function(p){ return p.id!==(C.yo&&C.yo.id) }).map(function(p){
+    return sb.rpc('admin_acceso_estado',{ p_socio:p.id }).then(function(x){ if(!x.error&&x.data) AD.profAcc[p.id]=x.data }, function(){}) }))
+}
+function profNom(p){ return [p.nombre,p.apellido].filter(Boolean).join(' ').trim()||'Sin nombre' }
+async function admPintarProf(b){
+  const box=document.getElementById('admLista')
+  if (!AD.prof){ box.innerHTML=kLd('Cargando equipo'); await profCargar(); if (AD.admF!=='prof') return; admPintar(); return }
+  const adm=nuEsAdm(), yo=(C.yo&&C.yo.id)
+  const l=AD.prof.filter(function(p){ return !b || bpScore(b, profNom(p), [p.email,p.telefono,PROF_ROL[p.role]].filter(Boolean).join(' '))>0 })
+  const act=AD.prof.filter(function(p){ return p.activo!==false })
+  document.getElementById('admCnt').textContent=act.length+' PROFESIONAL'+(act.length===1?'':'ES')
+  const res=Object.keys(PROF_ROL).map(function(r){ const n=act.filter(function(p){return p.role===r}).length; return n?'<span class="adTag">'+PROF_ROL[r]+' · '+n+'</span>':'' }).join('')
+  box.innerHTML='<div class="adRow prfTop"><div class="adB"><div class="adN">Equipo KOACH</div><div class="adM">'+res+'<br>Las cuentas del equipo entran al dashboard; nutrición entra a su panel.</div></div>'+
+      (adm?'<button class="adGo" onclick="profNueva()">+ NUEVA CUENTA</button>':'')+'</div>'+
+    (l.length ? l.map(function(p){ const a=AD.profAcc&&AD.profAcc[p.id], esYo=p.id===yo
+      const acc=esYo?'<span class="adTag">TU CUENTA</span>':!a?'':a.existe===false?'<span class="adTag ink">SIN CUENTA DE ACCESO</span>':a.nunca_ingreso?'<span class="adTag ink">NUNCA HA INGRESADO</span>':'<span class="adTag">ÚLTIMO ACCESO '+adF(a.ultimo_acceso).toUpperCase()+'</span>'
+      return '<div class="adRow'+(p.activo===false?' prfOff':'')+'"><div class="adB"><div class="adN">'+adEsc(profNom(p))+'</div><div class="adM">'+
+        '<span class="adTag ink">'+PROF_ROL[p.role]+'</span>'+(p.activo===false?'<span class="adTag ink">DESACTIVADA</span>':'')+acc+
+        '<br>'+adEsc(p.email||(a&&a.email)||'Sin correo')+(p.telefono?' · '+adEsc(p.telefono):'')+'</div></div>'+
+        (adm&&!esYo?'<button class="adGo" onclick="profAbrir(\''+p.id+'\')">GESTIONAR →</button>':'')+'</div>' }).join('') : '<div class="vacio">Nadie coincide con la búsqueda.</div>')
+}
+function profAbrir(id){
+  const p=(AD.prof||[]).find(function(x){return x.id===id}); if(!p) return
+  const a=(AD.profAcc&&AD.profAcc[id])||{}, em=p.email||a.email||''
+  admAbrir(profNom(p).toUpperCase()+' · '+PROF_ROL[p.role],
+    '<div class="adF">'+
+      '<div class="adNote"><b>CORREO DE ACCESO</b><br>'+adEsc(em||'Sin correo registrado')+'<br>'+(a.existe===false?'Sin cuenta de acceso creada.':a.nunca_ingreso?'Nunca ha iniciado sesión.':a.ultimo_acceso?'Último acceso: '+adF(a.ultimo_acceso)+'.':'')+'<br>Entra a: '+adEsc(PROF_PANEL[p.role]||'Dashboard')+'</div>'+
+      '<label>NUEVA CONTRASEÑA · MÍNIMO 8 CARACTERES</label><input id="prfPw" type="text" autocomplete="new-password" placeholder="Escríbela y entrégala en persona">'+
+      '<div class="adBtns"><button class="ink" onclick="profClave(\''+id+'\')">ESTABLECER CONTRASEÑA</button><button onclick="profCorreo(\''+id+'\')"'+(em?'':' disabled')+'>ENVIAR RECUPERACIÓN POR CORREO</button></div>'+
+      '<label style="margin-top:16px">ROL</label><select id="prfRol">'+Object.keys(PROF_ROL).map(function(r){ return '<option value="'+r+'"'+(r===p.role?' selected':'')+'>'+PROF_ROL[r]+'</option>' }).join('')+'</select>'+
+      '<div class="adBtns"><button onclick="profRol(\''+id+'\')">GUARDAR ROL</button><button onclick="profActivo(\''+id+'\','+(p.activo===false)+')">'+(p.activo===false?'REACTIVAR CUENTA':'DESACTIVAR CUENTA')+'</button></div>'+
+      '<div class="adNote">La contraseña nunca queda guardada ni visible: entrégala tú y pide que la cambie en MI CLAVE. Desactivar bloquea el ingreso sin borrar su historial.</div>'+
+    '</div>')
+}
+async function profClave(id){
+  const pw=(document.getElementById('prfPw').value||'').trim(); if (pw.length<8){ toast('La contraseña debe tener al menos 8 caracteres'); return }
+  const r=await sb.rpc('admin_acceso_clave',{ p_socio:id, p_password:pw })
+  if (r.error){ toast(accRpcErr(r.error).msg); return }
+  document.getElementById('prfPw').value=''; toast('Contraseña establecida ✓ · entrégala en persona'); admCerrar()
+}
+async function profCorreo(id){
+  const p=(AD.prof||[]).find(function(x){return x.id===id}), a=(AD.profAcc&&AD.profAcc[id])||{}, em=(p&&p.email)||a.email; if(!em) return
+  const dest=p.role==='nutricionista'?'https://dashboard.koachclub.cl/nutricion.html':location.origin+'/coach.html'
+  const r=await sb.auth.resetPasswordForEmail(em, { redirectTo:dest })
+  if (r.error){ toast(/rate|seconds|limit/i.test(r.error.message||'')?'Demasiados intentos. Prueba en unos minutos.':'No pudimos enviar el correo.'); return }
+  try{ await sb.rpc('admin_acceso_registrar',{ p_socio:id, p_accion:'recovery_email_sent' }) }catch(_e){}
+  toast('Correo de recuperación enviado a '+em); admCerrar()
+}
+async function profRol(id){
+  const r=document.getElementById('prfRol').value, p=(AD.prof||[]).find(function(x){return x.id===id}); if(!p||r===p.role){ admCerrar(); return }
+  if (!(await kConfirm('¿Cambiar el rol de '+profNom(p)+' de '+PROF_ROL[p.role]+' a '+PROF_ROL[r]+'? Cambia a qué paneles puede entrar.'))) return
+  const x=await sb.from('profiles').update({ role:r }).eq('id',id)
+  if (x.error){ toast('No se pudo cambiar el rol: '+(x.error.message||'error')); return }
+  toast('Rol actualizado ✓'); admCerrar(); await profCargar(true); admPintar()
+}
+async function profActivo(id, activar){
+  const p=(AD.prof||[]).find(function(x){return x.id===id}); if(!p) return
+  if (!activar && !(await kConfirm('¿Desactivar la cuenta de '+profNom(p)+'? Dejará de poder ingresar. Su historial se conserva.'))) return
+  const x=await sb.from('profiles').update({ activo:activar }).eq('id',id)
+  if (x.error){ toast('No se pudo actualizar: '+(x.error.message||'error')); return }
+  toast(activar?'Cuenta reactivada ✓':'Cuenta desactivada'); admCerrar(); await profCargar(true); admPintar()
+}
+function profNueva(){ verSala(); setTimeout(function(){ const f=document.getElementById('fAlta'); if(f&&f.style.display==='none') toggleAlta().then(function(){ setRol('coach') }); else setRol('coach'); if(f) f.scrollIntoView({behavior:'smooth',block:'start'}) },60) }
 
 // Membresías › CLASES DE PRUEBA: personas que agendaron su clase de prueba y aún no contratan.
 // Desde aquí: abrir su perfil y asignarle la sesión, darle el QR de acceso o registrar la venta (pasa a socio activo).
