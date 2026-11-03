@@ -2231,6 +2231,7 @@ html.is-grabbing,html.is-grabbing *{cursor:grabbing !important}
 .plProg b{color:var(--koach-ink);font-weight:500}
 .plProg span{flex:1;min-width:0}
 .plProp{font-family:var(--font-mono);font-weight:500;font-size:9.5px;letter-spacing:.03em;border:1px solid var(--koach-accent);color:var(--koach-accent);background:var(--koach-control);border-radius:var(--radius-pill);padding:6px 10px;cursor:pointer}
+.plProp--na{border-style:dashed;color:#8E8D88;border-color:#C9C7C1;background:transparent;cursor:default}
 
 /* ═══ c12 · SALA EN VIVO (roster por actividad real) ═══ */
 .rost{margin:6px 0 18px}
@@ -4268,7 +4269,7 @@ function pintarPlan(){ setTimeout(function(){ try{ plSaveUI(); rtSyncPlan() }cat
       } else {
         controles = repsControl + weightControl
       }
-      const plLinea = plActivo() ? plLineaProgresion(it, esBW, esT) : ''
+      const plLinea = plLineaOk() ? plLineaProgresion(it, esBW, esT) : ''
       return '<div class="lin" id="pl-'+it.beId+'">'+
         '<div class="linTop">'+
           '<div class="chipG">'+(it.grupo||'—')+'</div>'+(plTestOk()?'<button class="linTest'+(plEsTest(it)?' on':'')+'" aria-pressed="'+plEsTest(it)+'" aria-label="Test de fuerza en '+Nm+'" onclick="plTestMovil(\''+it.beId+'\')">TEST</button>':'')+
@@ -4361,7 +4362,7 @@ function plTbCard(it,bi){
   else ctl=plTbSt('pi-r-'+it.beId,plEsc(String(it.reps)),'REPS',it.beId,'reps',1,N,'repeticiones','editReps','numeric')+plTbSt('pi-k-'+it.beId,it.kg==null?'':KSET.kg(it.kg),'KG',it.beId,'kg',2.5,N,'peso','editKg','decimal',it.kg==null?'falta':'')
   const top = ed ? '<div class="tbSwap"><small>REEMPLAZAR '+N.toUpperCase()+' · MISMAS SERIES Y REPS</small><input id="tbSwQ" autocomplete="off" placeholder="Buscar ejercicio…" aria-label="Buscar ejercicio para reemplazar '+N+'" oninput="plTbSwLista()" onkeydown="plTbSwTecla(event)"><ul class="tbSwL" id="tbSwL" role="listbox"></ul></div>'
     : '<div class="tbN"><b title="'+N+'">'+N+'</b><em>'+plEsc(SIGLA[it.grupo]||it.grupo||'')+'</em>'+(plEsTest(it)?'<em class="tbTest">TEST</em>':'')+(it.activo===false?'<em>FUERA DE BIBLIOTECA</em>':'')+'</div>'
-  const linea = plActivo() ? plLineaProgresion(it, tp.bw, tp.t) : ''
+  const linea = plLineaOk() ? plLineaProgresion(it, tp.bw, tp.t) : ''
   return '<div class="tbCard'+(sel?' sel':'')+(ed?' edit':'')+'" draggable="'+(!ed&&!(P&&P.ro))+'" data-be="'+it.beId+'" data-bi="'+bi+'" id="pl-'+it.beId+'" onclick="plTbSel(event,\''+it.beId+'\')">'+
     '<div class="tbT">'+top+
       '<button type="button" class="tbIc" aria-pressed="'+ed+'" aria-label="Reemplazar '+N+'" title="Reemplazar ejercicio" onclick="plTbSwAbrir(\''+it.beId+'\','+bi+')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20h4L19 9l-4-4L4 16v4z"/><path d="M13.5 6.5l4 4"/></svg></button>'+
@@ -6158,6 +6159,8 @@ function plPintarMeso(){
   document.getElementById('pMeso').innerHTML=h
 }
 // Línea de progresión (MICRO): lo último ejecutado + lo prescrito la semana anterior + propuesta
+// c220 · también en un plan SIN APLICAR del socio (es cuando el koach arma el ciclo nuevo)
+function plLineaOk(){ return !!(P && !P.bib && !P.base && typeof F!=='undefined' && F) }
 function plLineaProgresion(it, esBW, esT){
   const ult=ULT[it.ejId]
   const partes=[]
@@ -6173,12 +6176,21 @@ function plLineaProgresion(it, esBW, esT){
   }
   let prop=''
   const _sug = (!esBW && !esT) ? cgSugerida(it.ejId, it.reps) : null
-  if (_sug!=null && ult && ult.peso_kg!=null && +_sug>+ult.peso_kg && (it.kg==null || +it.kg<+_sug)){
-    const sug=_sug
-    prop='<button class="plProp" onclick="plAplicarKg(\''+it.beId+'\','+sug+')">USAR SUGERIDA '+cgKg(sug)+' KG</button>'
-  }
+  if (_sug!=null && ult && ult.peso_kg!=null && (it.kg==null || (+_sug>+ult.peso_kg && +it.kg<+_sug))){
+    const sug=_sug, ro=cgSugerida.r||cgRepsObj(it.reps)
+    prop='<button class="plProp" onclick="plAplicarKg(\''+it.beId+'\','+sug+')">USAR '+cgKg(sug)+' KG'+(ro?' · OBJETIVO '+ro+' REPS':'')+'</button>'
+  } else if (it.kg==null && !esBW && !esT && !(ult && ult.peso_kg!=null)) prop='<span class="plProp plProp--na">SIN REGISTROS: DEFINE LA CARGA EN LA APROXIMACIÓN</span>'
   return '<div class="plProg"><span>'+partes.join(' · ')+'</span>'+prop+'</div>'
 }
+// c220 · completa en borrador las cargas vacías de la sesión con la sugerida del historial (objetivo = tope del rango de reps)
+async function plSugerirSesion(){ const s=plSesActual(); if(!s||P.ro) return; let n=0, sin=0
+  for (const b of (s.bloques||[])) for (const it of (b.items||[])){
+    if (it.kg!=null && it.kg!=='') continue
+    const tp=plTbTipo(it); if (tp.bw||tp.t) continue
+    const v=cgSugerida(it.ejId, it.reps); if (v==null){ sin++; continue }
+    await editKg(it.beId, v); n++ }
+  repintarConservando()
+  toast(n?(n+' carga'+(n>1?'s':'')+' sugerida'+(n>1?'s':'')+' · en borrador · PUBLICAR para que el socio lo vea'+(sin?' · '+sin+' sin historial':'')):(sin?sin+' ejercicio'+(sin>1?'s':'')+' sin historial: define la carga en la aproximación':'No hay cargas vacías')) }
 async function plAplicarKg(beId, v){ await editKg(beId, v); repintarConservando(); toast('Carga '+cgKg(v)+' KG aplicada · en borrador · PUBLICAR para que el socio lo vea') }
 // ─── NAVEGACIÓN ───
 // tras editar, las semanas siguientes se re-derivan en la base → al cambiar de nivel/semana se trae la versión vigente
@@ -7252,10 +7264,16 @@ async function cargarHistorialCargas(socioId){
 // Sugerida: solo si el rango de reps objetivo es comparable al último (±2); si no, no se inventa
 // Sugerencia = motor de la base (koach_historial_cargas): mismas reps → carga_sugerida_siguiente; otras (±6) → Epley;
 // referencia de 8+ semanas → conservadora (−10 %); 6+ meses o reps muy distintas → sin sugerencia.
+// c220 · objetivo concreto: con rango (ej. "6-8") la carga se calcula para el TOPE del rango (doble progresión:
+// llegar a 8 reps con esa carga; al lograrlo en todos los sets, sube). Antes "6-8" se leía como 68 y no había sugerencia.
+function cgRepsObj(r){ const n=String(r==null?'':r).match(/\d+/g); if(!n) return null; return parseInt(n[n.length-1],10) }
 function cgSugerida(ej, repsObjetivo){
   const h=HIST[ej]; if(!h || !h.sug_por_reps) return null
-  const ro=parseInt(String(repsObjetivo||'').replace(/[^0-9]/g,''),10)
-  const v = !isNaN(ro) ? h.sug_por_reps[String(ro)] : h.sugerida
+  const n=String(repsObjetivo==null?'':repsObjetivo).match(/\d+/g)
+  let v=null
+  cgSugerida.r=null
+  if (n){ for (const k of [n[n.length-1], n[0]]){ const x=h.sug_por_reps[String(parseInt(k,10))]; if(x!=null){ v=x; cgSugerida.r=parseInt(k,10); break } } }
+  else v=h.sugerida
   return (v==null || +v<=0) ? null : +v
 }
 function cgAntig(h){ if(!h || h.dias==null || h.dias<=56) return ''
@@ -8279,6 +8297,7 @@ function plBarraSesion(ses){
   const evB=(P&&!P.bib)?'<button type="button" class="ink" onclick="kevAbrir()" title="Mastermind Hypertrophy: evalúa la semana con el Método KOACH">◎ EVALUAR<span class="mOcul"> SEMANA</span></button>':''
   bar.innerHTML = !ses ? '' : ro ? dsB+evB :
     '<span class="plSesBar__n">'+String(ses.nombre||'SESIÓN').toUpperCase()+' · '+n+' BLOQUE'+(n===1?'':'S')+'</span>'+dsB+evB+
+    (plLineaOk()?'<button type="button" onclick="plSugerirSesion()" title="Completa las cargas vacías con la sugerida por el historial del socio">KG SUGERIDOS</button>':'')+
     (n<6?'<button type="button" onclick="abrirBloque()">+ BLOQUE</button>':'')+
     (n>1?'<button type="button" class="ink" onclick="abrirOrgBloques()">⇅ ORGANIZAR<span class="mOcul"> BLOQUES</span></button>':'')
 }
