@@ -67,6 +67,12 @@ const CSS = `
 .kn .knMt div{padding:12px 10px;border-radius:14px;background:var(--knB)}
 .kn .knMt b{display:block;font:700 10px var(--knM);letter-spacing:.12em;color:var(--knG4)}
 .kn .knMt p{margin:6px 0 0;font:500 13px/1.35 var(--knD)}
+.kn .knPer{display:grid;grid-template-columns:auto 1fr;gap:4px 14px;align-items:center}
+.kn .knPer__n{grid-row:span 2;font:800 44px/1 var(--knD);letter-spacing:-.03em}.kn .knPer__n small{font:700 15px var(--knD);color:var(--knG4)}
+.kn .knPer__t{font:700 15px/1.25 var(--knD)}.kn .knPer__s{font:400 10.5px/1.4 var(--knM);letter-spacing:.08em;color:var(--knG4)}
+.kn .knPerBar{display:grid;gap:3px;margin-top:14px}.kn .knPerBar i{height:8px;border-radius:2px;background:var(--knB)}.kn .knPerBar i.on{background:var(--knI)}.kn .knPerBar i.hoy{background:#2BB3C0}
+.kn .knPerF{display:flex;justify-content:space-between;margin-top:6px;font:400 10px var(--knM);letter-spacing:.08em;color:var(--knG4)}
+.kn .knPer--fin{border-color:var(--knI)}
 .kn .knPie{margin:14px 2px 0;font:400 10px/1.5 var(--knM);letter-spacing:.08em;color:var(--knG3)}
 /* informe */
 .kn .knCov{background:var(--knI);color:var(--knB);border-radius:22px;padding:22px 20px;margin-bottom:12px}
@@ -132,13 +138,37 @@ function macros(p, peso){
     '<div class="knMac">'+it.map(([l, m, c]) => '<div style="--c:'+c+'"><b>'+Math.round(m.g)+'<small>g</small></b><span>'+l+'<br>'+m.pct+'%'+(m.gkg != null ? ' · '+f1(m.gkg)+' G/KG' : '')+'</span></div>').join('')+'</div>'
 }
 
-/** Plan nutricional (página del socio). p = fila de pautas_nutricion · o = { peso, nota } */
+/** Período del plan: semana en curso, fecha de término y reevaluación. p = { inicio, semanas } · hoy = 'YYYY-MM-DD' opcional */
+function periodo(p, hoy){
+  if (!p || !p.inicio || !p.semanas) return null
+  const D = x => new Date(String(x).slice(0, 10) + 'T12:00:00'), ini = D(p.inicio), N = Math.max(1, Math.round(+p.semanas))
+  const fin = new Date(ini); fin.setDate(fin.getDate() + N * 7 - 1)
+  const h = hoy ? D(hoy) : D(new Date(Date.now() - 3 * 3600e3).toISOString())
+  const dias = Math.floor((h - ini) / 864e5), sem = dias < 0 ? 0 : Math.floor(dias / 7) + 1
+  const iso = d => d.toISOString().slice(0, 10)
+  return { semanas:N, semana:Math.min(sem, N), antes:dias < 0, terminado:sem > N, inicio:iso(ini), fin:iso(fin),
+    restan:Math.max(0, Math.ceil((fin - h) / 864e5)), iniTxt:fecha(iso(ini)), finTxt:fecha(iso(fin), true) }
+}
+function bloquePeriodo(p, o){
+  const pe = periodo(p, o.hoy); if (!pe) return ''
+  const bar = '<div class="knPerBar" style="grid-template-columns:repeat('+pe.semanas+',1fr)">'+Array.from({ length:pe.semanas }, (_, i) => '<i class="'+(i + 1 < pe.semana || pe.terminado ? 'on' : i + 1 === pe.semana ? 'hoy' : '')+'"></i>').join('')+'</div>'
+  const pie = '<div class="knPerF"><span>INICIO '+pe.iniTxt+'</span><span>REEVALUACIÓN '+pe.finTxt+'</span></div>'
+  if (pe.terminado) return '<div class="knBox knPer--fin"><span class="knK">PERÍODO DEL PLAN · CUMPLIDO</span><div class="knPer"><div class="knPer__n">'+pe.semanas+'<small>/'+pe.semanas+'</small></div>'+
+    '<div class="knPer__t">Completaste las '+pe.semanas+' semanas de este plan</div><div class="knPer__s">TOCA REEVALUAR TU COMPOSICIÓN CORPORAL PARA AJUSTAR EL SIGUIENTE</div></div>'+bar+pie+(o.agendar ? '<div style="margin-top:14px">'+o.agendar+'</div>' : '')+'</div>'
+  if (pe.antes) return '<div class="knBox"><span class="knK">PERÍODO DEL PLAN · '+pe.semanas+' SEMANAS</span><div class="knPer"><div class="knPer__n">0<small>/'+pe.semanas+'</small></div>'+
+    '<div class="knPer__t">Tu plan parte el '+pe.iniTxt+'</div><div class="knPer__s">'+pe.semanas+' SEMANAS DE APLICACIÓN</div></div>'+bar+pie+'</div>'
+  return '<div class="knBox"><span class="knK">PERÍODO DEL PLAN · '+pe.semanas+' SEMANAS</span><div class="knPer"><div class="knPer__n">'+pe.semana+'<small>/'+pe.semanas+'</small></div>'+
+    '<div class="knPer__t">Semana '+pe.semana+' de tu plan</div><div class="knPer__s">'+(pe.restan === 0 ? 'HOY TERMINA TU PLAN' : pe.restan === 1 ? 'QUEDA 1 DÍA PARA TU REEVALUACIÓN' : 'QUEDAN '+pe.restan+' DÍAS PARA TU REEVALUACIÓN')+'</div></div>'+bar+pie+'</div>'
+}
+
+/** Plan nutricional (página del socio). p = fila de pautas_nutricion · o = { peso, nota, hoy, agendar } */
 function plan(p, o){
   o = o || {}; if (!p) return '<div class="kn"><div class="knVac">Tu plan nutricional aparece aquí cuando nutrición KOACH lo publique después de tu evaluación.</div></div>'
   const K = KCx(), c = K.normPlan(p.contenido)
   let h = '<div class="kn">'
   h += '<div class="knBox knDark"><span class="knK">TU DÍA EN NÚMEROS'+(p.programa ? ' · '+esc(String(p.programa).toUpperCase()) : '')+'</span>'+
     '<div class="knBig"><b>'+(p.kcal != null ? Math.round(p.kcal).toLocaleString('es-CL') : '—')+'</b><i>KCAL / DÍA</i></div>'+macros(p, o.peso)+'</div>'
+  h += bloquePeriodo(p, o)
   if (c.resumen) h += '<p class="knP" style="margin:4px 4px 16px">'+esc(c.resumen)+'</p>'
   if (o.nota) h += '<div class="knBox"><span class="knK">MENSAJE DE NUTRICIÓN</span><p class="knP" style="color:var(--knI)">'+esc(o.nota)+'</p></div>'
   if (c.comidas.length){
@@ -244,7 +274,7 @@ function informe(ev, ant, ctx){
   return h + '</div>'
 }
 
-const KN = { VERSION:'koach-nutricion-vista@1.0.0', CSS, ensureCss, plan, informe, op, _esc: esc, _fecha: fecha }
+const KN = { VERSION:'koach-nutricion-vista@1.1.0', CSS, ensureCss, plan, periodo, informe, op, _esc: esc, _fecha: fecha }
 if (typeof module !== 'undefined' && module.exports) module.exports = KN
 else root.KN = KN
 })(typeof self !== 'undefined' ? self : this)

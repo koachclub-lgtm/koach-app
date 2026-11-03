@@ -1107,6 +1107,7 @@ html[data-tipo="a"] .kset__hint{font-size:10px;letter-spacing:.06em}
 html[data-tipo="a"] .fk{font-size:10px;letter-spacing:.06em}
 html[data-tipo="a"] #oLoad .lm{font-size:10px;letter-spacing:.06em}
 html[data-tipo="a"] .tb .tl{font-size:10px;letter-spacing:.06em}
+html[data-tipo="a"] #tb-vNutri .tl{letter-spacing:0}
 html[data-tipo="a"] .ps{font-size:10px;letter-spacing:.06em}
 html[data-tipo="a"] .pm2{font-size:10px}
 html[data-tipo="a"] .pest{font-size:10px}
@@ -3016,6 +3017,11 @@ html:not(:has(#oAct.vis)) #sBloques.locked{filter:none;opacity:1;pointer-events:
 .av2 .cpD.mejora{color:var(--a2Ink)}.av2 .cpD.mejora::before{content:'';display:inline-block;width:6px;height:6px;margin-right:5px;background:var(--a2Sig);vertical-align:1px}
 .av2 .cpRef{display:block;margin-top:2px;font:400 9.5px/1.35 var(--a2M);letter-spacing:.04em;color:var(--a2G3)}
 .av2 .cpBox{background:#fff;border:1px solid var(--a2Ln);border-radius:20px;padding:18px;margin:0 0 14px}
+.av2 .cpPw{margin-top:12px}.av2 .cpPw__h{display:flex;justify-content:space-between;font:700 10px var(--a2M);letter-spacing:.1em;color:var(--a2G4)}.av2 .cpPw__h b{color:var(--a2Ink)}
+.av2 .cpPw__b{display:flex;gap:2px;height:14px;margin-top:6px}.av2 .cpPw__b i{display:block;height:100%;border-radius:2px}.av2 .cpPw__b .g{background:var(--a2Ink)}.av2 .cpPw__b .m{background:var(--a2Sig)}.av2 .cpPw__b .r{background:#D1D0CB}
+.av2 .cpPw__n{display:flex;gap:12px;margin-top:5px;font:400 9.5px var(--a2M);letter-spacing:.06em;color:var(--a2G4)}
+.av2 .cpMd{list-style:none;margin:8px 0 0;padding:0}.av2 .cpMd li{display:flex;align-items:baseline;gap:8px;padding:9px 0;border-bottom:1px solid rgba(11,11,12,.08)}.av2 .cpMd li:last-child{border:0}
+.av2 .cpMd span{font:700 10px var(--a2M);letter-spacing:.12em}.av2 .cpMd i{flex:1}.av2 .cpMd b{font:700 15px var(--a2D,inherit)}.av2 .cpMd em{min-width:46px;text-align:right;font:700 11px var(--a2M);font-style:normal;color:var(--a2G4)}.av2 .cpMd em.mejora{color:#1F8F99}
 .av2 .cpLg{display:flex;gap:16px;margin-top:10px;font:700 9.5px var(--a2M);letter-spacing:.12em;color:var(--a2G4)}
 .av2 .cpLg span::before{content:'';display:inline-block;width:14px;height:2.5px;margin-right:6px;vertical-align:middle;background:currentColor}
 .av2 .cpLnG{fill:none;stroke:var(--a2Ink);stroke-width:2.4;stroke-linejoin:round}.av2 .cpLnM{fill:none;stroke:var(--a2Sig);stroke-width:2.4;stroke-linejoin:round}
@@ -7249,14 +7255,16 @@ function pintarNuCab(){
   const fila=(k,v)=>'<li>'+AR+'<span class="k">'+k+'</span><i></i><b>'+v+'</b></li>'
   let nCom=0; try{ nCom=KC.normPlan(pa&&pa.contenido).comidas.length }catch(_){}
   cli.innerHTML='<ul class="mtRep">'+fila('META DIARIA',pa&&pa.kcal?Math.round(pa.kcal).toLocaleString('es-CL')+' KCAL':'—')+fila('PROTEÍNA',pa&&pa.proteina_g!=null?Math.round(pa.proteina_g)+' G':'—')+
-    fila('COMIDAS',nCom?nCom+' / DÍA':'—')+fila('ÚLTIMA EVALUACIÓN',u?fechaCorta(u.fecha):'—')+'</ul>'
+    fila('COMIDAS',nCom?nCom+' / DÍA':'—')+fila('PERÍODO',(()=>{ const pe=pa&&KN.periodo(pa); return !pe?'—':pe.terminado?'CUMPLIDO':pe.antes?'PARTE '+pe.iniTxt:'SEMANA '+pe.semana+'/'+pe.semanas })())+
+    fila('ÚLTIMA EVALUACIÓN',u?fechaCorta(u.fecha):'—')+'</ul>'
 }
 function pintarNuPlan(){
   const el=document.getElementById('nuPlan'); if(!el) return
   if (NU.bloqueado){ el.innerHTML='<div class="kn"><div class="knVac">'+plEscA((S.acceso&&accTxt(S.acceso).t)||'Tu membresía no está al día')+'. Tu plan nutricional se habilita con tu membresía pagada; regularízala en recepción.</div></div>'; return }
   if (!NU.ok && !NU.pauta){ el.innerHTML='<div class="avLoad" aria-busy="true"><i></i><i></i><i></i></div>'; return }
   const ev=CPX.data||[], u=ev[ev.length-1]
-  el.innerHTML = KN.plan(NU.pauta, { peso: u&&u.peso_kg })
+  const agendar='<a class="a2pill" href="https://wa.me/56971333042?text='+encodeURIComponent('Hola KOACH, terminé mi plan nutricional y quiero agendar mi reevaluación')+'" target="_blank" rel="noopener">AGENDAR REEVALUACIÓN →</a>'
+  el.innerHTML = KN.plan(NU.pauta, { peso: u&&u.peso_kg, agendar })
   if (!NU.pauta) el.querySelector('.knVac').insertAdjacentHTML('beforeend','<br><a class="a2pill" style="margin-top:14px" href="https://wa.me/56971333042?text='+encodeURIComponent('Hola KOACH, quiero agendar mi evaluación nutricional')+'" target="_blank" rel="noopener">AGENDAR EVALUACIÓN →</a>')
 }
 function nuInforme(id){
@@ -7320,9 +7328,29 @@ function pintarComposicion(){
   const link = ses!=null ? '<div class="cpLink"><b>'+ses+'</b><div><span class="a2k a2k--inv">SESIONES ENTRE EVALUACIONES</span><p>'+(ses>0?'Entrenaste '+ses+' '+(ses===1?'vez':'veces')+' en '+dias+' días. Este cambio también es tuyo.':'Sin sesiones registradas en este período. Tu próximo cambio parte por volver a entrenar.')+'</p></div></div>' : ''
   const nota = u.nota_socio ? '<div class="cpBox"><span class="a2k">MENSAJE DE NUTRICIÓN</span><p class="cpNota">'+plEscA(u.nota_socio)+'</p></div>' : ''
   el.innerHTML='<span class="a2k">COMPOSICIÓN CORPORAL · ÚLTIMA EVALUACIÓN '+fechaCorta(u.fecha)+'</span><h3 class="a2h">'+cpTitulo(ev)+'</h3>'+hero+
-    cpChart(ev)+link+nota+
+    cpChart(ev)+cpPeso(ev)+cpMedidas(ev)+link+nota+
     '<div class="cpBox"><span class="a2k">TUS INFORMES · '+ev.length+'</span>'+ev.slice().reverse().map(e=>'<button type="button" class="cpInfB" onclick="nuInforme(\''+e.id+'\')"><span>'+fechaCorta(e.fecha)+' '+String(e.fecha).slice(0,4)+'</span><em>'+(e.porcentaje_grasa!=null?cpF(e.porcentaje_grasa)+'% GRASA · ':'')+cpF(e.peso_kg)+' KG</em></button>').join('')+'</div>'+
     '<details class="fzInfo"><summary>ⓘ ¿CÓMO SE MIDE?</summary><p>Nutrición mide pliegues de piel y perímetros con protocolo ISAK. Con eso calculamos tu porcentaje de grasa y tu masa muscular. El hueso es una referencia, y "otros tejidos" es el resto de tu peso (órganos, agua, piel). Compara siempre contigo: el cambio entre evaluaciones dice más que un número aislado.</p></details>'
+}
+// c221 · de qué está hecho tu peso en cada evaluación (kg): grasa · músculo · resto (hueso y otros tejidos)
+function cpPeso(ev){
+  const ok=ev.filter(e=>e.peso_kg!=null&&e.masa_grasa_kg!=null&&e.masa_muscular_kg!=null).slice(-4); if(!ok.length) return ''
+  const mx=Math.max(...ok.map(e=>+e.peso_kg))
+  const fila=e=>{ const P=+e.peso_kg, g=+e.masa_grasa_kg, m=+e.masa_muscular_kg, r=Math.max(0,P-g-m), w=v=>(v/mx*100).toFixed(2)+'%'
+    return '<div class="cpPw"><div class="cpPw__h"><span>'+fechaCorta(e.fecha)+' '+String(e.fecha).slice(2,4)+'</span><b>'+cpF(P)+' kg</b></div>'+
+      '<div class="cpPw__b" role="img" aria-label="'+cpF(g)+' kg de grasa, '+cpF(m)+' kg de músculo y '+cpF(r)+' kg de hueso y otros tejidos"><i class="g" style="width:'+w(g)+'"></i><i class="m" style="width:'+w(m)+'"></i><i class="r" style="width:'+w(r)+'"></i></div>'+
+      '<div class="cpPw__n"><span>GRASA '+cpF(g)+'</span><span>MÚSCULO '+cpF(m)+'</span><span>RESTO '+cpF(r)+'</span></div></div>' }
+  const a=ok[0], z=ok[ok.length-1], dg=z.masa_grasa_kg-a.masa_grasa_kg, dm=z.masa_muscular_kg-a.masa_muscular_kg
+  const lec = ok.length>1 ? '<p class="avV" style="margin-top:10px">'+(dg<=-0.1?'Bajaste '+cpF(-dg)+' kg de grasa':dg>=0.1?'Subiste '+cpF(dg)+' kg de grasa':'Grasa estable')+' y '+(dm>=0.1?'ganaste '+cpF(dm)+' kg de músculo':dm<=-0.1?'perdiste '+cpF(-dm)+' kg de músculo':'mantuviste tu músculo')+' desde '+fechaCorta(a.fecha)+'.</p>' : ''
+  return '<div class="cpBox"><span class="a2k">DE QUÉ ESTÁ HECHO TU PESO · KG</span>'+ok.map(fila).join('')+lec+'</div>'
+}
+// c221 · medidas: primera vs última evaluación
+function cpMedidas(ev){
+  if(ev.length<2) return ''
+  const M=[['cintura_cm','CINTURA',-1],['cadera_cm','CADERA',0],['brazo_cm','BRAZO',1],['muslo_cm','MUSLO',0],['suma6_mm','SUMA DE PLIEGUES',-1,'mm']]
+  const filas=M.map(([k,l,sg,un])=>{ const c=ev.filter(e=>e[k]!=null); if(c.length<2) return ''; const a=+c[0][k], z=+c[c.length-1][k], d=z-a
+    const t=Math.abs(d)<0.1?'':(sg===0?'':(d*sg>0?'mejora':'')); return '<li><span>'+l+'</span><i></i><b>'+cpF(z)+' '+(un||'cm')+'</b><em class="'+t+'">'+(Math.abs(d)<0.1?'=':(d>0?'+':'−')+cpF(Math.abs(d)))+'</em></li>' }).join('')
+  return filas ? '<div class="cpBox"><span class="a2k">TUS MEDIDAS · DESDE '+fechaCorta(ev[0].fecha)+'</span><ul class="cpMd">'+filas+'</ul></div>' : ''
 }
 function cpChart(ev){
   const g=ev.filter(e=>e.porcentaje_grasa!=null), m=ev.filter(e=>e.masa_muscular_kg!=null)
