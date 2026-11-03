@@ -2912,6 +2912,7 @@ html.ks-on.en-crm body{max-width:1280px !important;padding-left:32px !important;
       <input id="msNombre" placeholder="Nuevo nombre…" style="margin:0">
       <button class="btn" style="width:auto;padding:13px 16px" onclick="renombrarSesion()">RENOMBRAR</button></div>
     <button class="opRow" onclick="document.getElementById('mSes').style.display='none';document.getElementById('mAddSes').style.display='block';setTimeout(function(){agregarSesion('duplicar')},50)">DUPLICAR SESIÓN</button>
+    <button class="opRow" id="msCiclo" onclick="plAplicarCiclo()">↻ APLICAR AL RESTO DEL CICLO</button>
     <button class="opRow" onclick="guardarComoEstandar()">★ GUARDAR COMO RUTINA ESTÁNDAR</button>
     <button class="opRow rojo" onclick="document.getElementById('mSes').style.display='none';eliminarSesion()">✕ ELIMINAR SESIÓN DE LA SEMANA</button>
   </div>
@@ -3161,6 +3162,33 @@ function kHoja(o){ return new Promise(function(res){
   const si=bg.querySelector('.kHoja__si'), no=bg.querySelector('.kHoja__no'); si.onclick=function(){ fin(true) }; if(no) no.onclick=function(){ fin(false) }
   document.addEventListener('keydown',kd,true); document.body.appendChild(bg); setTimeout(function(){ (pel&&no?no:si).focus() },30)
 }) }
+// c214 · ALCANCE DEL CAMBIO: al publicar una sesión con semanas siguientes, el koach decide si vale solo esta semana o todo el ciclo
+function kAlcance(s){ return new Promise(function(res){
+  const prev=document.activeElement, bg=document.createElement('div'); bg.className='kHoja'; bg.setAttribute('role','dialog'); bg.setAttribute('aria-modal','true')
+  const rest=P.sesiones.filter(function(x){ return x.semana>s.semana }).map(function(x){ return x.semana }), hasta=Math.max.apply(null,rest)
+  bg.innerHTML='<div class="kHoja__c"><span class="kHoja__k">ALCANCE DEL CAMBIO</span><h3 class="kHoja__t"></h3><p class="kHoja__p"></p>'+
+    '<div class="kHoja__b"><button type="button" class="kHoja__no" data-v="semana">SOLO ESTA SEMANA</button><button type="button" class="kHoja__si" data-v="ciclo">TODO EL CICLO</button></div>'+
+    '<button type="button" class="kAlc__x" data-v="" style="display:block;margin:12px auto 0;border:none;background:none;font:inherit;font-size:10px;font-weight:800;letter-spacing:.14em;color:var(--koach-text-secondary);cursor:pointer">VOLVER SIN PUBLICAR</button></div>'
+  bg.querySelector('.kHoja__t').textContent='¿'+String(s.nombre||'Esta sesión').toUpperCase()+': cambio temporal o definitivo?'
+  bg.querySelector('.kHoja__p').textContent='Solo esta semana: la semana '+s.semana+' cambia y las siguientes mantienen su diseño. Todo el ciclo: se aplica a la misma sesión de '+(hasta>s.semana+1?'las semanas '+(s.semana+1)+'–'+hasta:'la semana '+hasta)+', aunque ya las hayas editado (no se tocan las que el socio ya inició o completó).'
+  function fin(v){ document.removeEventListener('keydown',kd,true); bg.remove(); try{prev&&prev.focus()}catch(_){}; res(v) }
+  function kd(e){ if(e.key==='Escape'){ e.preventDefault(); fin(null) } }
+  bg.addEventListener('click',function(e){ if(e.target===bg) fin(null); const v=e.target.closest&&e.target.closest('[data-v]'); if(v) fin(v.getAttribute('data-v')||null) })
+  document.addEventListener('keydown',kd,true); document.body.appendChild(bg); setTimeout(function(){ bg.querySelector('.kHoja__si').focus() },30)
+}) }
+function plHaySiguientes(s){ return !!(s && P && !P.bib && !P.base && P.sesiones.some(function(x){ return x.semana>s.semana })) }
+function plAlcanceToast(r){ const d=(r&&r.data)||{}, sk=d.saltadas||[]
+  toast('Aplicado al resto del ciclo ✓'+(sk.length?' · semana'+(sk.length>1?'s ':' ')+sk.join(', ')+' sin cambio (el socio ya la inició)':'')) }
+async function plAplicarCiclo(){
+  const s=plSesActual(); if(!s) return; document.getElementById('mSes').style.display='none'
+  if (P.ro){ toast('Ciclo cerrado: solo lectura'); return }
+  if (!plHaySiguientes(s)){ toast('No hay semanas siguientes en este ciclo'); return }
+  if (P.dirty[s.id]){ toast('Primero PUBLICA los cambios de esta sesión'); return }
+  if (!await kConfirm('¿Aplicar '+String(s.nombre||'esta sesión').toUpperCase()+' al resto del ciclo?\nReemplaza la misma sesión en las semanas siguientes, aunque estén editadas. Las que el socio ya inició o completó no se tocan.')) return
+  syncEnvio(); const r=await sb.rpc('koach_propagar_sesion',{ p_sesion:s.id })
+  if (r.error){ syncErr(r.error.message); toast('No se pudo aplicar: '+r.error.message); return }
+  syncOk(); plAlcanceToast(r); await plReabrir()
+}
 function kConfirm(msg){ const t=String(msg||''); return kHoja({ msg:t, peligro:/eliminar|cancelar|quitar|archivar|descarta|pierde|congelar|dejarán de ver|desmarcar/i.test(t) }) }
 function kAviso(msg,k){ return kHoja({ msg:koachMsg(msg), aviso:true, k:k||'AVISO' }) }
 
@@ -4619,6 +4647,7 @@ function abrirSesOpc(){
   const s=P.sesiones[P.tab]; if(!s) return
   document.getElementById('msTit').textContent=((P.tab+1)+' · '+(s.nombre||'SESIÓN')).toUpperCase()
   document.getElementById('msNombre').value=s.nombre||''
+  document.getElementById('msCiclo').style.display=plHaySiguientes(s)?'':'none'
   document.getElementById('mSes').style.display='block'
 }
 async function renombrarSesion(){
@@ -6932,6 +6961,10 @@ async function plGuardar(){
     if (!ra.error && (!ra.data || ra.data.protocolo_id!==P.pid)){ plSaveUI('err'); gpObsoleto(); return false }
     // c11.5 · otro coach/dispositivo guardó esta planificación después de que la abriste: no se pisa sin preguntar
     if (!ra.error && ra.data && P._rev!=null && ra.data.plan_revision!==P._rev && !P._forzar){ plConflicto(); return false } }
+  let alc=null
+  if (plHaySiguientes(s)){ alc=await kAlcance(s); if(!alc){ plSaveUI(); return false }
+    const ra2=await sb.rpc('koach_sesion_alcance',{ p_sesion:s.id, p_temporal:alc==='semana' })
+    if (ra2.error){ plSaveUI('err'); toast('No se pudo publicar: '+ra2.error.message); return false } }
   const firma=plFirma(s)
   plSaveUI('saving'); syncEnvio()
   const r=await sb.rpc('koach_guardar_sesion',{p_sesion:s.id, p_bloques:plPayload(s), p_nombre:(s._renombrada?s.nombre:null)})
@@ -6942,6 +6975,9 @@ async function plGuardar(){
   // c107 · modo REPS/TIME por ejercicio: se persiste aparte del RPC
   try{ const ids={REPS:[],TIME:[],null:[]}; (s.bloques||[]).forEach(function(b){ (b.items||[]).forEach(function(it){ ids[it.modo==='TIME'?'TIME':it.modo==='REPS'?'REPS':'null'].push(it.beId) }) })
     for (const m of ['REPS','TIME','null']){ if(ids[m].length){ const u=await sb.from('bloque_ejercicios').update({modo_registro:m==='null'?null:m}).in('id',ids[m]); if(u.error) console.warn('[modo_registro]',u.error.message) } } }catch(_e){}
+  if (alc==='ciclo'){ const rp=await sb.rpc('koach_propagar_sesion',{ p_sesion:s.id })
+    if (rp.error){ console.error('[propagar]', rp.error.message); toast('Se publicó en esta semana, pero no se pudo aplicar al resto del ciclo: '+rp.error.message) } else plAlcanceToast(rp) }
+  else if (alc==='semana') toast('Cambio solo para la semana '+s.semana+' ✓')
   delete P.dirty[s.id]; syncOk()
   // la base es la fuente de verdad: releer y verificar que coincide exactamente con lo que se guardó
   await plReabrir()
