@@ -28,7 +28,7 @@ function fCmpPintar(){
   const box=document.getElementById('fTabCmp'), d=CMP.data||{}, evs=d.evaluaciones||[], ed=!!d.puede_editar
   const pub=evs.filter(e=>e.estado==='publicada'), base= ed ? evs : pub
   const hd=nuSegHtml('cmp')+'<div class="cmp__hd"><div><span class="cmp__k">COMPOSICIÓN CORPORAL · ISAK</span><h2 class="cmp__t">'+(evs.length?evs.length+' evaluaci'+(evs.length===1?'ón':'ones'):'Sin evaluaciones')+'</h2></div>'+
-    (ed?'<button type="button" class="cmp__b" onclick="fCmpNueva()">+ NUEVA EVALUACIÓN</button>':'')+'</div>'
+    '<div class="cmpF__acts" style="margin:0">'+(evs.length?'<button type="button" class="cmp__b cmp__b--l" onclick="fCmpDiag()">PRESENTAR DIAGNÓSTICO ⤢</button>':'')+(ed?'<button type="button" class="cmp__b" onclick="fCmpNueva()">+ NUEVA EVALUACIÓN</button>':'')+'</div></div>'
   if (!evs.length){ box.innerHTML='<div class="cmp">'+hd+'<div class="cmp__vac">'+(ed?'Registra la primera evaluación ISAK. Cuando la publiques, el socio la verá en AVANCES → COMPOSICIÓN CORPORAL junto a su progreso de entrenamiento.':'Aún no hay evaluaciones publicadas por nutrición.')+'</div></div>'; return }
   const ks=[['PESO','peso_kg','kg',0],['% GRASA','porcentaje_grasa','%',-1],['MASA MUSCULAR','masa_muscular_kg','kg',1],['CINTURA','cintura_cm','cm',-1]]
   const tiles=ks.map(([l,k,u,m])=>{ const c=KC.cambio(base,k,m); return '<div class="cmp__tile"><span class="cmp__k">'+l+'</span><b>'+(c?cmpF1(c.actual)+'<i>'+u+'</i>':'—')+'</b>'+cmpDelta(c,'ant')+cmpDelta(c,'ini')+'</div>' }).join('')
@@ -36,7 +36,7 @@ function fCmpPintar(){
     '<span class="cmp__pill'+(e.estado==='publicada'?' pub':'')+'">'+(e.estado==='publicada'?'PUBLICADA':'BORRADOR')+'</span>'+
     '<div><small>PESO</small>'+cmpF1(e.peso_kg)+' kg</div><div><small>% GRASA</small>'+(e.porcentaje_grasa!=null?cmpF1(e.porcentaje_grasa)+' %':'—')+'</div>'+
     '<div><small>MÚSCULO</small>'+(e.masa_muscular_kg!=null?cmpF1(e.masa_muscular_kg)+' kg':'—')+'</div>'+
-    (ed?'<div class="cmp__acts"><button type="button" onclick="fCmpEditar(\''+e.id+'\')">EDITAR</button>'+
+    (ed?'<div class="cmp__acts"><button type="button" onclick="fCmpDiag(\''+e.id+'\')">DIAGNÓSTICO</button><button type="button" onclick="fCmpEditar(\''+e.id+'\')">EDITAR</button>'+
       '<button type="button" onclick="fCmpEstado(\''+e.id+'\',\''+(e.estado==='publicada'?'borrador':'publicada')+'\')">'+(e.estado==='publicada'?'RETIRAR':'PUBLICAR')+'</button></div>':'<div></div>')+'</div>').join('')
   box.innerHTML='<div class="cmp">'+hd+'<div class="cmp__kp">'+tiles+'</div>'+cmpChart(base)+
     '<span class="cmp__k" style="margin:16px 0 8px">HISTORIAL'+(ed?' · EL SOCIO VE SOLO LAS PUBLICADAS':'')+'</span>'+filas+'</div>'
@@ -146,7 +146,7 @@ function fPlanPintar(){
     '<div><small>KCAL</small>'+(p.kcal||'—')+'</div><div><small>PROTEÍNA</small>'+(p.proteina_g!=null?Math.round(p.proteina_g)+' g':'—')+'</div><div><small>ORIGEN</small>'+(p.generado_ia?'IA + NUTRICIÓN':'NUTRICIÓN')+'</div>'+
     (ed?'<div class="cmp__acts"><button type="button" onclick="fPlanEditar(\''+p.id+'\')">'+(p.estado==='borrador'?'EDITAR':'NUEVA VERSIÓN')+'</button>'+(p.estado==='borrador'?'<button type="button" onclick="fPlanPublicar(\''+p.id+'\')">PUBLICAR</button>':'')+'</div>':'<div></div>')+'</div>').join('')
   box.innerHTML='<div class="cmp">'+nuSegHtml('plan')+hd+
-    (vig?'<div class="plPrevWrap"><div class="plPhone">'+KN.plan(vig,{ peso: ev&&ev.peso_kg })+'</div></div>':'<div class="cmp__vac">'+(ed?'Arma el primer plan: fija los números (o usa los sugeridos por el motor), completa preferencias y redáctalo con IA o a mano. El socio lo verá en NUTRICIÓN → MI PLAN apenas lo publiques.':'Nutrición aún no publica un plan para este socio.')+'</div>')+
+    (vig?'<div class="plWBar"><span class="cmp__k">ASÍ LO VE '+adEsc(nomDe(F.id).split(' ')[0].toUpperCase())+' · ESCRITORIO</span><button type="button" class="cmp__b cmp__b--l" onclick="plVista(\'cel\',false)">VISTA CELULAR</button><button type="button" class="cmp__b cmp__b--l" onclick="plVista(\'ancho\',false)">PANTALLA COMPLETA ⤢</button></div>'+plAncho(vig,{ peso: ev&&ev.peso_kg, nombre: nomDe(F.id) }):'<div class="cmp__vac">'+(ed?'Arma el primer plan: fija los números (o usa los sugeridos por el motor), completa preferencias y redáctalo con IA o a mano. El socio lo verá en NUTRICIÓN → MI PLAN apenas lo publiques.':'Nutrición aún no publica un plan para este socio.')+'</div>')+
     (filas?'<span class="cmp__k" style="margin:18px 0 8px">VERSIONES · NADA SE BORRA</span>'+filas:'')+'</div>'
 }
 function fPlanNuevo(){ const vig=NPL.data&&NPL.data.vigente; NPL.edit={ id:null }; fPlanForm(vig?Object.assign({},vig,{ id:null, estado:'borrador', inicio:null }):null) }
@@ -161,12 +161,9 @@ function fPlanForm(p){
   const ta=(id,l,val,rows)=>'<label>'+l+'<textarea id="'+id+'" rows="'+(rows||2)+'" oninput="fPlanSync()">'+v(val)+'</textarea></label>'
   const metas=['30 DÍAS','60 DÍAS','90 DÍAS'].map((pl,i)=>{ const m=c.metas.find(x=>x.plazo===pl); return ta('plMeta'+i,'META '+pl,m&&m.meta,2) }).join('')
   box.innerHTML='<div class="cmp">'+nuSegHtml('plan')+'<div class="cmp__hd"><div><span class="cmp__k">'+(NPL.edit.id?'EDITAR BORRADOR':'NUEVO PLAN')+' · '+adEsc(nomDe(F.id))+'</span><h2 class="cmp__t">Plan nutricional</h2></div>'+
-    '<button type="button" class="cmp__b cmp__b--l" onclick="fPlanPintar()">← VOLVER</button></div>'+
+    '<div class="cmpF__acts" style="margin:0"><button type="button" class="cmp__b cmp__b--l" onclick="fPlanPintar()">← VOLVER</button><button type="button" class="cmp__b cmp__b--l" onclick="plVista(\'ancho\',true)">VISTA PREVIA ⤢</button></div></div>'+
     '<div class="plF"><div class="cmpF">'+
-    '<div class="cmpF__g"><h4>NÚMEROS DEL DÍA · <em>LOS FIJA NUTRICIÓN, LA IA NO LOS CAMBIA</em></h4><div class="cmpF__f">'+
-      '<label>ACTIVIDAD<select id="plAct" onchange="fPlanSync()">'+PL_ACT.map(([k,l])=>'<option value="'+k+'"'+(((p&&p.actividad)||'moderado')===k?' selected':'')+'>'+l+'</option>').join('')+'</select></label>'+
-      inp('plKcal','KCAL / DÍA',p&&p.kcal)+inp('plP','PROTEÍNA (G)',p&&p.proteina_g)+inp('plC','CARBOHIDRATOS (G)',p&&p.carbohidrato_g)+inp('plG','GRASAS (G)',p&&p.grasa_g)+
-      '<label>&nbsp;<button type="button" class="cmp__b cmp__b--l" onclick="fPlanSugerir()">SUGERIR DEL MOTOR</button></label></div><div class="plRep" id="plRep"></div></div>'+
+    plCalHtml(p)+
     '<div class="cmpF__g"><h4>PERÍODO DEL PLAN · <em>AL TERMINAR TOCA REEVALUAR</em></h4><div class="cmpF__f">'+
       '<label>DURACIÓN<select id="plSem" onchange="fPlanSync()">'+[4,5,6,8,10,12].map(n=>'<option value="'+n+'"'+((+((p&&p.semanas)||6))===n?' selected':'')+'>'+n+' SEMANAS</option>').join('')+'</select></label>'+
       '<label>INICIO<input type="date" id="plIni" value="'+v((p&&p.estado==='borrador'&&p.inicio)||new Date().toISOString().slice(0,10))+'" onchange="fPlanSync()"></label>'+
@@ -184,10 +181,10 @@ function fPlanForm(p){
       ta('plSup','SUPLEMENTACIÓN · PRODUCTO | DOSIS | HORARIO',c.suplementos.map(x=>[x.producto,x.dosis,x.horario].join(' | ')).join('\n'),4)+ta('plHid','HIDRATACIÓN',c.hidratacion,4)+
       ta('plInd','INDICACIONES · UNA POR LÍNEA',c.indicaciones.join('\n'),4)+ta('plEv','EVITAR · UNO POR LÍNEA',c.evitar.join('\n'),4)+'</div>'+
       '<div class="cmpF__f" style="grid-template-columns:repeat(3,1fr);margin-top:8px">'+metas+'</div></div>'+
-    '<div class="cmpF__acts"><button type="button" class="cmp__b cmp__b--l" id="plGuardar" onclick="fPlanGuardar(\'borrador\')">GUARDAR BORRADOR</button><button type="button" class="cmp__b" id="plPublicar" onclick="fPlanGuardar(\'publicada\')">PUBLICAR AL SOCIO</button></div>'+
+    '<div class="cmpF__acts"><button type="button" class="cmp__b cmp__b--l" onclick="plVista(\'ancho\',true)">VISTA PREVIA ⤢</button><button type="button" class="cmp__b cmp__b--l" id="plGuardar" onclick="fPlanGuardar(\'borrador\')">GUARDAR BORRADOR</button><button type="button" class="cmp__b" id="plPublicar" onclick="fPlanGuardar(\'publicada\')">PUBLICAR AL SOCIO</button></div>'+
     '</div><aside class="plPrevWrap plPrevWrap--st"><span class="cmp__k" style="margin-bottom:8px">VISTA DEL SOCIO · EN VIVO</span><div class="plPhone" id="plPrev"></div></aside></div></div>'
-  NPL.ia = !!(p&&p.generado_ia); NPL.modelo=(p&&p.modelo)||null
-  fPlanComidasPintar(); fPlanSync()
+  NPL.ia = !!(p&&p.generado_ia); NPL.modelo=(p&&p.modelo)||null; NPL.tdee=(p&&p.tdee)||null; NPL.tmb=(p&&p.tmb)||null
+  plCalBase(); fPlanComidasPintar(); fPlanSync()
 }
 function fPlanComidasPintar(){
   const el=document.getElementById('plComidas'); if(!el) return
@@ -207,12 +204,11 @@ function fPlanLeer(){
     suplementos:lines(g('plSup')).map(l=>{ const [a,b,c]=l.split('|'); return { producto:(a||'').trim(), dosis:(b||'').trim(), horario:(c||'').trim() } }),
     metas:['30 DÍAS','60 DÍAS','90 DÍAS'].map((pl,i)=>({ plazo:pl, meta:g('plMeta'+i) })) })
   return { semanas:+(g('plSem')||6), inicio:g('plIni')||null, actividad:g('plAct'), kcal:cmpNum(g('plKcal')), proteina_g:cmpNum(g('plP')), carbohidrato_g:cmpNum(g('plC')), grasa_g:cmpNum(g('plG')),
-    intake:{ comidas_dia:g('plComD'), horario_entreno:g('plHor'), restricciones:g('plRes'), no_consume:g('plNoC'), preferencias:g('plPref'), suplementos:g('plSupA'), contexto:g('plCtx') }, contenido:cont }
+    intake:{ objetivo:plObjDe(cmpNum(g('plKcal'))), comidas_dia:g('plComD'), horario_entreno:g('plHor'), restricciones:g('plRes'), no_consume:g('plNoC'), preferencias:g('plPref'), suplementos:g('plSupA'), contexto:g('plCtx') }, contenido:cont }
 }
 function fPlanSync(){
   const f=fPlanLeer(), ev=plUltEval(), r=KC.reparto(f.kcal,f.proteina_g,f.carbohidrato_g,f.grasa_g,ev&&ev.peso_kg)
-  const rep=document.getElementById('plRep')
-  if(rep) rep.innerHTML = r ? 'MACROS SUMAN '+r.kcalMacros.toLocaleString('es-CL')+' KCAL'+(f.kcal?' · '+(Math.abs(r.kcalMacros-f.kcal)<=f.kcal*.05?'✓ CUADRA CON LA META':'⚠ NO CUADRA CON '+Math.round(f.kcal)+' KCAL'):'')+' · P '+r.proteina.pct+'% · C '+r.carbohidrato.pct+'% · G '+r.grasa.pct+'%'+(r.proteina.gkg!=null?' · '+String(r.proteina.gkg).replace('.',',')+' G/KG PROTEÍNA':'') : ''
+  plCalPintar(f, r, ev)
   const fin=document.getElementById('plFin'); if(fin){ const pe=KN.periodo(f); fin.value=pe?pe.finTxt:'' }
   const pv=document.getElementById('plPrev'); if(pv) pv.innerHTML=KN.plan(Object.assign({ programa:cmpProg(), estado:'borrador', fecha:new Date().toISOString().slice(0,10) }, f), { peso: ev&&ev.peso_kg })
   const pub=document.getElementById('plPublicar'); if(pub) pub.disabled=!(f.kcal && f.proteina_g && f.contenido.comidas.length)
@@ -229,8 +225,7 @@ function fPlanSugerir(){
   const s=KC.sugerirPauta({ peso:ev.peso_kg, talla:ev.talla_cm, edad:ev.edad_eval||cmpEdad(F.fecha_nacimiento), sexo:ev.sexo_eval||F.sex, actividad:document.getElementById('plAct').value, programa:cmpProg() })
   if(!s){ toast('Faltan peso, talla o edad para sugerir'); return }
   NPL.tdee=s.tdee; NPL.tmb=s.tmb
-  ;[['plKcal',s.kcal],['plP',s.proteina_g],['plC',s.carbohidrato_g],['plG',s.grasa_g]].forEach(([id,v])=>document.getElementById(id).value=v)
-  fPlanSync(); toast('Sugerido por el motor · gasto estimado '+s.tdee.toLocaleString('es-CL')+' kcal. Ajusta si corresponde.')
+  plPut(s.proteina_g, s.carbohidrato_g, s.grasa_g); toast('Sugerido por el motor · gasto estimado '+s.tdee.toLocaleString('es-CL')+' kcal. Ajusta si corresponde.')
 }
 async function fPlanIA(){
   if (NPL.gen) return
@@ -251,12 +246,12 @@ async function fPlanIA(){
     document.getElementById('plInd').value=NPL.cont.indicaciones.join('\n'); document.getElementById('plEv').value=NPL.cont.evitar.join('\n')
     document.getElementById('plSup').value=NPL.cont.suplementos.map(x=>[x.producto,x.dosis,x.horario].join(' | ')).join('\n')
     ;['30 DÍAS','60 DÍAS','90 DÍAS'].forEach((pl,i)=>{ const m=NPL.cont.metas.find(x=>x.plazo===pl); document.getElementById('plMeta'+i).value=m?m.meta:'' })
-    fPlanComidasPintar(); fPlanSync(); st.textContent='LISTO · REVISA Y AJUSTA ANTES DE PUBLICAR'
+    fPlanComidasPintar(); fPlanSync(); st.textContent='LISTO · REVISA Y AJUSTA ANTES DE PUBLICAR'; plVista('ancho',true)
   }catch(e){ console.error('pauta ia', e); st.textContent=''; toast('No se pudo redactar: '+((e&&e.message)||'error')) }
   finally{ NPL.gen=false; b.disabled=false }
 }
 async function fPlanGuardar(estado){
-  fPlanCapturar(); const f=fPlanLeer()
+  fPlanCapturar(); const f=fPlanLeer(); plVistaCerrar()
   if (estado==='publicada' && !(await kConfirm('¿Publicar este plan? Reemplaza al vigente y '+nomDe(F.id).split(' ')[0]+' lo verá en NUTRICIÓN → MI PLAN.'))) return
   const ev=plUltEval()
   const fila={ socio_id:F.id, estado, semanas:f.semanas, inicio:f.inicio, programa:cmpProg()||null, actividad:f.actividad, kcal:f.kcal!=null?Math.round(f.kcal):null, proteina_g:f.proteina_g, carbohidrato_g:f.carbohidrato_g, grasa_g:f.grasa_g,
@@ -273,4 +268,130 @@ async function fPlanPublicar(id){
   const { error } = await sb.from('pautas_nutricion').update({ estado:'publicada' }).eq('id', id)
   if (error){ toast('No se pudo publicar: '+(error.message||'error')); return }
   toast('Plan publicado al socio'); fPlanCargar()
+}
+
+// ═══ c222 · CALIBRADOR DE ENERGÍA · nutrición fija déficit / mantención / superávit y ajusta cada macro con flechas ═══
+// Regla: al mover las calorías, los carbohidratos compensan; al mover un macro, las calorías se recalculan. Siempre cuadra.
+const PL_OBJ=[['deficit','DÉFICIT',-0.15],['mant','MANTENCIÓN',0],['super','SUPERÁVIT',0.10]]
+const plR25=x=>Math.round(x/25)*25
+const plMil=x=>x==null?'—':Math.round(x).toLocaleString('es-CL')
+function plObjDe(k){ const t=NPL.tdee; if(!k||!t) return null; const o=(k-t)/t; return o<-0.03?'deficit':o>0.03?'super':'mant' }
+function plCalHtml(p){
+  const st=(m,d,l)=>'<button type="button" class="plStp" onclick="'+m+'" aria-label="'+l+'">'+d+'</button>'
+  const mac=(id,l,paso)=>'<div class="plMac__r"><div class="plMac__l"><b>'+l+'</b><small id="'+id+'x">—</small></div>'+
+    st("plMacPaso('"+id+"',-"+paso+")",'−',l+' menos '+paso+' g')+'<div class="plMac__v"><input id="'+id+'" inputmode="numeric" value="'+(p&&p[{plP:'proteina_g',plC:'carbohidrato_g',plG:'grasa_g'}[id]]!=null?Math.round(p[{plP:'proteina_g',plC:'carbohidrato_g',plG:'grasa_g'}[id]]):'')+'" onchange="plMacSet()" oninput="fPlanSync()"><span>G</span></div>'+
+    st("plMacPaso('"+id+"',"+paso+")",'+',l+' más '+paso+' g')+'<div class="plMac__bar"><i id="'+id+'b"></i></div></div>'
+  return '<div class="cmpF__g plCal"><h4>ENERGÍA Y MACROS · <em>LOS FIJA NUTRICIÓN, LA IA NO LOS CAMBIA</em></h4>'+
+    '<div class="plCal__top"><label class="plCal__act">ACTIVIDAD<select id="plAct" onchange="plCalBase();fPlanSync()">'+PL_ACT.map(([k,l])=>'<option value="'+k+'"'+(((p&&p.actividad)||'moderado')===k?' selected':'')+'>'+l+'</option>').join('')+'</select></label>'+
+      '<div class="plRef"><span>METABOLISMO BASAL</span><b id="plTmb">—</b></div><div class="plRef plRef--k"><span>MANTENCIÓN · GASTO DIARIO</span><b id="plTdee">—</b></div>'+
+      '<div class="plObj" role="group" aria-label="Objetivo energético">'+PL_OBJ.map(([k,l,f])=>'<button type="button" data-o="'+k+'" onclick="plObj(\''+k+'\')">'+l+'<small>'+(f?(f>0?'+':'−')+Math.abs(f*100)+' %':'± 0')+'</small></button>').join('')+'</div></div>'+
+    '<div class="plCal__body"><div class="plKc"><span class="cmp__k">CALORÍAS DEL DÍA</span>'+
+      '<div class="plKc__row">'+st('plKcalPaso(-100)','−100','Menos 100 kcal')+st('plKcalPaso(-25)','−25','Menos 25 kcal')+
+        '<div class="plKc__v"><input id="plKcal" inputmode="numeric" value="'+(p&&p.kcal!=null?Math.round(p.kcal):'')+'" onchange="plKcalSet(this.value)" oninput="fPlanSync()" aria-label="Calorías por día"><span>KCAL / DÍA</span></div>'+
+        st('plKcalPaso(25)','+25','Más 25 kcal')+st('plKcalPaso(100)','+100','Más 100 kcal')+'</div>'+
+      '<input type="range" id="plKcalR" class="plKc__r" step="25" oninput="plKcalSet(this.value)" aria-label="Deslizar calorías">'+
+      '<div class="plGa" id="plGauge"></div><div class="plKc__d" id="plKcD"></div><div class="plKc__p" id="plProy"></div></div>'+
+      '<div class="plMac">'+mac('plP','PROTEÍNA',5)+mac('plC','CARBOHIDRATOS',10)+mac('plG','GRASAS',5)+
+        '<div class="plMac__st" id="plSt"></div><div class="plRep" id="plRep"></div></div></div>'+
+    '<div class="plCal__ft"><button type="button" class="cmp__b cmp__b--l" onclick="fPlanSugerir()">SUGERIR DEL MOTOR</button><span class="cmp__k">Al mover las calorías compensan los carbohidratos · al mover un macro se recalculan las calorías</span></div></div>'
+}
+function plCalBase(){
+  const ev=plUltEval(), act=document.getElementById('plAct'); if(!ev) return
+  const s=KC.sugerirPauta({ peso:ev.peso_kg, talla:ev.talla_cm, edad:ev.edad_eval||cmpEdad(F.fecha_nacimiento), sexo:ev.sexo_eval||F.sex, actividad:act?act.value:'moderado', programa:cmpProg() })
+  if(s){ NPL.tdee=s.tdee; NPL.tmb=s.tmb }
+}
+function plVal(id){ const e=document.getElementById(id); return e?cmpNum(e.value):null }
+function plPut(P,C,G){
+  P=Math.max(0,Math.round(P||0)); C=Math.max(0,Math.round(C||0)); G=Math.max(0,Math.round(G||0))
+  ;[['plP',P],['plC',C],['plG',G],['plKcal',P*4+C*4+G*9]].forEach(([id,v])=>{ const e=document.getElementById(id); if(e) e.value=v })
+  fPlanSync()
+}
+function plDefecto(){ const ev=plUltEval(), w=(ev&&ev.peso_kg)||70, o=plObjDe(plVal('plKcal'))
+  return { P: plVal('plP') || Math.round(w*(o==='deficit'?2.2:o==='super'?2.0:1.8)), G: plVal('plG') || Math.round(w*0.9) } }
+function plKcalSet(v){ const k=cmpNum(v); if(!k) return; const d=plDefecto(); plPut(d.P, (k-d.P*4-d.G*9)/4, d.G) }
+function plKcalPaso(n){ plKcalSet((plVal('plKcal')||NPL.tdee||2000)+n) }
+function plMacPaso(id,n){ const d=plDefecto(); const v={ plP:plVal('plP')||d.P, plC:plVal('plC')||0, plG:plVal('plG')||d.G }; v[id]=Math.max(0,v[id]+n); plPut(v.plP,v.plC,v.plG) }
+function plMacSet(){ plPut(plVal('plP'),plVal('plC'),plVal('plG')) }
+function plObj(o){
+  if(!NPL.tdee){ plCalBase() } if(!NPL.tdee){ toast('Registra primero una evaluación con peso, talla y edad'); return }
+  const f=PL_OBJ.find(x=>x[0]===o)[2], ev=plUltEval(), w=(ev&&ev.peso_kg)||70
+  const P=plVal('plP')||Math.round(w*(o==='deficit'?2.2:o==='super'?2.0:1.8)), G=plVal('plG')||Math.round(w*0.9), k=plR25(NPL.tdee*(1+f))
+  plPut(P,(k-P*4-G*9)/4,G)
+}
+function plCalPintar(f, r, ev){
+  const t=NPL.tdee, tmb=NPL.tmb, k=f.kcal, w=ev&&ev.peso_kg, $=id=>document.getElementById(id)
+  if(!$('plTdee')) return
+  $('plTmb').textContent=tmb?plMil(tmb)+' kcal':'—'; $('plTdee').textContent=t?plMil(t)+' kcal':'Falta evaluación'
+  const o=plObjDe(k); document.querySelectorAll('.plObj button').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.o===o)))
+  const lo=t?plR25(t*0.6):1200, hi=t?plR25(t*1.4):4200, R=$('plKcalR'); R.min=lo; R.max=hi; if(k) R.value=k
+  // barra de zonas: déficit agresivo · déficit · mantención · superávit · superávit alto
+  if(t){ const X=v=>Math.max(0,Math.min(100,(v-lo)/(hi-lo)*100))
+    const z=[[lo,t*0.75,'plZ--a','AGRESIVO'],[t*0.75,t*0.97,'plZ--d','DÉFICIT'],[t*0.97,t*1.03,'plZ--m','MANT.'],[t*1.03,t*1.15,'plZ--s','SUPERÁVIT'],[t*1.15,hi,'plZ--a','ALTO']]
+    $('plGauge').innerHTML='<div class="plGa__z">'+z.map(([a,b,c,l])=>'<i class="'+c+'" style="left:'+X(a)+'%;width:'+(X(b)-X(a))+'%"><span>'+l+'</span></i>').join('')+'</div>'+
+      (tmb?'<em class="plGa__t" style="left:'+X(tmb)+'%" title="Metabolismo basal">TMB</em>':'')+(k?'<b class="plGa__k" style="left:'+X(k)+'%"></b>':'') }
+  else $('plGauge').innerHTML=''
+  const d=k&&t?k-t:null
+  $('plKcD').innerHTML=d==null?'':'<b class="pl'+(o||'')+'">'+(d>0?'+':d<0?'−':'±')+plMil(Math.abs(d))+' KCAL · '+(d>0?'+':d<0?'−':'')+Math.abs(Math.round(d/t*100))+' %</b> VS MANTENCIÓN'
+  const sem=f.semanas||6, kgs=d!=null?d*7/7700:null
+  $('plProy').innerHTML=kgs==null?'':'PROYECCIÓN · <b>'+(kgs>0?'+':kgs<0?'−':'±')+cmpF1(Math.abs(kgs))+' KG / SEMANA</b> · '+(kgs>0?'+':kgs<0?'−':'±')+cmpF1(Math.abs(kgs*sem))+' kg en '+sem+' semanas <small>(balance energético, orientativo)</small>'
+  const M=[['plP','proteina','#2BB3C0'],['plC','carbohidrato','#121212'],['plG','grasa','#A3A29C']]
+  M.forEach(([id,key,c])=>{ const x=r&&r[key]; $(id+'x').textContent=x?(x.gkg!=null?String(x.gkg).replace('.',',')+' G/KG · ':'')+x.pct+' % · '+plMil(x.g*(key==='grasa'?9:4))+' KCAL':'—'; const b=$(id+'b'); b.style.width=(x?x.pct:0)+'%'; b.style.background=c })
+  $('plSt').innerHTML=r?M.map(([,key,c])=>'<i style="flex:'+r[key].pct+';background:'+c+'"></i>').join(''):''
+  const al=[]
+  if(r&&k&&Math.abs(r.kcalMacros-k)>k*.05) al.push('⚠ Los macros suman '+plMil(r.kcalMacros)+' kcal: no cuadran con '+plMil(k)+'.')
+  if(r&&r.proteina.gkg!=null&&r.proteina.gkg<1.6) al.push('⚠ Proteína bajo 1,6 g/kg: riesgo de perder masa muscular.')
+  if(r&&r.grasa.gkg!=null&&r.grasa.gkg<0.6) al.push('⚠ Grasas bajo 0,6 g/kg: mínimo recomendado para salud hormonal.')
+  if(k&&tmb&&k<tmb) al.push('⚠ Bajo el metabolismo basal ('+plMil(tmb)+' kcal).')
+  if(d!=null&&d<-t*0.25) al.push('⚠ Déficit sobre 25 %: difícil de sostener en '+sem+' semanas.')
+  $('plRep').innerHTML=al.length?al.join('<br>'):(r?'✓ MACROS CUADRAN · '+plMil(r.kcalMacros)+' KCAL':'')
+}
+
+// ═══ c222 · PLAN EN FORMATO ESCRITORIO (horizontal) + vista previa a pantalla completa ═══
+function plAncho(p, o){
+  o=o||{}; const c=KC.normPlan(p&&p.contenido), r=KC.reparto(p.kcal,p.proteina_g,p.carbohidrato_g,p.grasa_g,o.peso), pe=KN.periodo(p)
+  const obj=(p.intake&&p.intake.objetivo)||null, dt=p.tdee&&p.kcal?Math.round((p.kcal-p.tdee)/p.tdee*100):null, ol=PL_OBJ.find(x=>x[0]===(obj||(dt==null?null:dt<-3?'deficit':dt>3?'super':'mant')))||null
+  const e=adEsc, ali=a=>'<li><span>'+e(a.alimento)+'</span><b>'+e(a.cantidad||'')+'</b></li>'
+  const mac=r?[['PROTEÍNA',r.proteina,'#2BB3C0'],['CARBOHIDRATOS',r.carbohidrato,'#F4F3F0'],['GRASAS',r.grasa,'#8F8D86']].map(([l,x,col])=>'<div class="plW__m"><span>'+l+'</span><b>'+Math.round(x.g)+'<i>g</i></b><small>'+(x.gkg!=null?String(x.gkg).replace('.',',')+' g/kg · ':'')+x.pct+' %</small><em style="--w:'+x.pct+'%;--c:'+col+'"></em></div>').join(''):''
+  const col=(t,body)=>body?'<div class="plW__c"><span class="cmp__k">'+t+'</span>'+body+'</div>':''
+  const lst=a=>a.length?'<ul class="plW__ul">'+a.map(x=>'<li>'+e(x)+'</li>').join('')+'</ul>':''
+  return '<div class="plW">'+
+    '<header class="plW__hero"><div class="plW__id"><span class="plW__k">PLAN NUTRICIONAL'+(p.programa?' · '+e(String(p.programa).toUpperCase()):'')+(p.estado==='borrador'?' · BORRADOR':'')+'</span>'+
+      '<h2>'+e(o.nombre||'')+'</h2>'+(c.resumen?'<p>'+e(c.resumen)+'</p>':'')+
+      (pe?'<div class="plW__per"><span><small>INICIO</small>'+pe.iniTxt+'</span><i></i><span><small>'+pe.semanas+' SEMANAS</small>'+(pe.antes?'Aún no comienza':pe.terminado?'Período cumplido':'Semana '+pe.semana)+'</span><i></i><span><small>REEVALUACIÓN</small>'+pe.finTxt+'</span></div>':'')+'</div>'+
+      '<div class="plW__num"><div class="plW__kc"><b>'+plMil(p.kcal)+'</b><span>KCAL / DÍA</span>'+(ol||dt!=null?'<em>'+(ol?ol[1]:'')+(dt!=null&&Math.abs(dt)>=1?' '+(dt>0?'+':'−')+Math.abs(dt)+' %':'')+'</em>':'')+'</div>'+
+        '<div class="plW__ms">'+mac+'</div></div></header>'+
+    (c.comidas.length?'<section class="plW__meals">'+c.comidas.map((m,i)=>'<article class="plW__meal"><div class="plW__mh"><span class="plW__n">'+String(i+1).padStart(2,'0')+'</span><div><b>'+e(m.nombre)+'</b>'+(m.hora?'<small>'+e(m.hora)+'</small>':'')+'</div></div>'+
+      (m.aporte?'<p class="plW__ap">'+e(m.aporte)+'</p>':'')+m.opciones.map(op=>'<div class="plW__op">'+(m.opciones.length>1?'<span class="plW__ot">OPCIÓN '+e(op.etiqueta)+'</span>':'')+'<ul>'+op.alimentos.map(ali).join('')+'</ul></div>').join('')+'</article>').join('')+'</section>'
+      :'<div class="cmp__vac">Sin comidas todavía: redáctalas con IA o agrégalas a mano.</div>')+
+    '<section class="plW__ind">'+
+      col('SUPLEMENTACIÓN',c.suplementos.length?'<ul class="plW__ul">'+c.suplementos.map(s=>'<li><b>'+e(s.producto)+'</b> '+e([s.dosis,s.horario].filter(Boolean).join(' · '))+'</li>').join('')+'</ul>':'')+
+      col('HIDRATACIÓN',c.hidratacion?'<p>'+e(c.hidratacion)+'</p>':'')+col('INDICACIONES',lst(c.indicaciones))+col('EVITAR',lst(c.evitar))+'</section>'+
+    (c.metas.length?'<section class="plW__metas">'+c.metas.map(m=>'<div><span class="cmp__k">META '+e(m.plazo)+'</span><p>'+e(m.meta)+'</p></div>').join('')+'</section>':'')+
+  '</div>'
+}
+let PL_OV=null
+function plVistaCerrar(){ if(PL_OV){ PL_OV.remove(); PL_OV=null; document.documentElement.style.overflow='' } }
+function plVista(modo, desdeForm){
+  const ev=plUltEval(); let p
+  if(desdeForm && document.getElementById('plKcal')){ fPlanCapturar(); const f=fPlanLeer(); p=Object.assign({ programa:cmpProg()||null, estado:'borrador', fecha:new Date().toISOString().slice(0,10), tdee:NPL.tdee }, f) }
+  else p=NPL.data&&NPL.data.vigente
+  if(!p) return
+  plVistaCerrar(); PL_OV=document.createElement('div'); PL_OV.className='plOv'; PL_OV.setAttribute('role','dialog'); PL_OV.setAttribute('aria-modal','true')
+  const nom=nomDe(F.id), pub=desdeForm?document.getElementById('plPublicar'):null
+  const body=modo==='cel'?'<div class="plOv__cel"><div class="plPhone plPhone--lg">'+KN.plan(p,{ peso: ev&&ev.peso_kg })+'</div></div>':'<div class="plOv__an">'+plAncho(p,{ peso: ev&&ev.peso_kg, nombre: nom })+'</div>'
+  PL_OV.innerHTML='<div class="plOv__bar"><span class="plOv__t">VISTA PREVIA · <b>'+adEsc(nom)+'</b></span>'+
+    '<div class="plOv__seg" role="group" aria-label="Formato"><button type="button" aria-pressed="'+(modo!=='cel')+'" onclick="plVista(\'ancho\','+!!desdeForm+')">ESCRITORIO</button><button type="button" aria-pressed="'+(modo==='cel')+'" onclick="plVista(\'cel\','+!!desdeForm+')">CELULAR</button></div>'+
+    (desdeForm?'<button type="button" class="plOv__b" onclick="plVistaCerrar()">← SEGUIR EDITANDO</button><button type="button" class="plOv__b" onclick="fPlanGuardar(\'borrador\')">GUARDAR BORRADOR</button><button type="button" class="plOv__b plOv__b--p" onclick="fPlanGuardar(\'publicada\')"'+(pub&&pub.disabled?' disabled title="Faltan kcal, proteína o comidas"':'')+'>PUBLICAR AL SOCIO</button>'
+      :'<button type="button" class="plOv__b" onclick="plVistaCerrar()">CERRAR ✕</button>')+'</div>'+body
+  document.body.appendChild(PL_OV); document.documentElement.style.overflow='hidden'
+  if (typeof KN!=='undefined') KN.ensureCss()
+}
+document.addEventListener('keydown',e=>{ if(e.key==='Escape'&&PL_OV) plVistaCerrar() })
+
+// ═══ c222 · DIAGNÓSTICO A PANTALLA COMPLETA (domain/koach-diagnostico.js) ═══
+function fCmpDiag(id){
+  if (typeof KD==='undefined'){ toast('Falta cargar el módulo de diagnóstico'); return }
+  const d=CMP.data||{}, evs=(d.evaluaciones||[]).filter(e=>d.puede_editar||e.estado==='publicada'), a=C.asig&&C.asig[F.id]
+  const i=id?evs.findIndex(e=>e.id===id):null
+  KD.abrir({ evs, i:i!=null&&i>=0?i:null, nombre:nomDe(F.id), programa:cmpProg(), nivel:a&&a.protocolos&&a.protocolos.nivel, sexo:F.sex })
 }

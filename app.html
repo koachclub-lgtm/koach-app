@@ -907,6 +907,7 @@ html .kw.kw--hero .kw-cl{font-size:7px;letter-spacing:.16em}
 <script src="/domain/program-catalog.js"></script>
 <script src="/domain/koach-composicion.js"></script>
 <script src="/domain/koach-nutricion-vista.js"></script>
+<script src="/domain/koach-diagnostico.js"></script>
 <script src="/domain/koach-avatar.js"></script>
 <script src="/domain/koach-timer.js?v=6"></script>
 <style>
@@ -3045,6 +3046,7 @@ html:not(:has(#oAct.vis)) #sBloques.locked{filter:none;opacity:1;pointer-events:
 .av2 .cpTb td i{display:inline-block;width:8px;height:8px;margin-right:8px;border-radius:2px;vertical-align:0}
 .av2 .cpTeaser{display:flex;align-items:center;justify-content:space-between;gap:12px}
 .av2 .cpTeaser .a2pill{margin-top:0;white-space:nowrap;flex:none}
+.av2 .cpDiagB{width:100%;justify-content:center;background:var(--a2Ink);color:var(--a2Bg,#F4F3F0);margin:6px 0 14px}
 </style>
 </head>
 <body>
@@ -7328,10 +7330,14 @@ function pintarComposicion(){
   const link = ses!=null ? '<div class="cpLink"><b>'+ses+'</b><div><span class="a2k a2k--inv">SESIONES ENTRE EVALUACIONES</span><p>'+(ses>0?'Entrenaste '+ses+' '+(ses===1?'vez':'veces')+' en '+dias+' días. Este cambio también es tuyo.':'Sin sesiones registradas en este período. Tu próximo cambio parte por volver a entrenar.')+'</p></div></div>' : ''
   const nota = u.nota_socio ? '<div class="cpBox"><span class="a2k">MENSAJE DE NUTRICIÓN</span><p class="cpNota">'+plEscA(u.nota_socio)+'</p></div>' : ''
   el.innerHTML='<span class="a2k">COMPOSICIÓN CORPORAL · ÚLTIMA EVALUACIÓN '+fechaCorta(u.fecha)+'</span><h3 class="a2h">'+cpTitulo(ev)+'</h3>'+hero+
+    (typeof KD!=='undefined'?'<button type="button" class="a2pill cpDiagB" onclick="cpDiag()">VER MI DIAGNÓSTICO COMPLETO →</button>':'')+
     cpChart(ev)+cpPeso(ev)+cpMedidas(ev)+link+nota+
     '<div class="cpBox"><span class="a2k">TUS INFORMES · '+ev.length+'</span>'+ev.slice().reverse().map(e=>'<button type="button" class="cpInfB" onclick="nuInforme(\''+e.id+'\')"><span>'+fechaCorta(e.fecha)+' '+String(e.fecha).slice(0,4)+'</span><em>'+(e.porcentaje_grasa!=null?cpF(e.porcentaje_grasa)+'% GRASA · ':'')+cpF(e.peso_kg)+' KG</em></button>').join('')+'</div>'+
     '<details class="fzInfo"><summary>ⓘ ¿CÓMO SE MIDE?</summary><p>Nutrición mide pliegues de piel y perímetros con protocolo ISAK. Con eso calculamos tu porcentaje de grasa y tu masa muscular. El hueso es una referencia, y "otros tejidos" es el resto de tu peso (órganos, agua, piel). Compara siempre contigo: el cambio entre evaluaciones dice más que un número aislado.</p></details>'
 }
+// c222 · diagnóstico a pantalla completa (mismo que presenta nutrición, en vertical)
+function cpDiag(){ if(typeof KD==='undefined') return; const me=(S&&S.perfil)||{}
+  KD.abrir({ evs:CPX.data||[], nombre:[me.nombre,me.apellido].filter(Boolean).join(' '), programa:avPrograma(), sexo:me.sex }) }
 // c221 · de qué está hecho tu peso en cada evaluación (kg): grasa · músculo · resto (hueso y otros tejidos)
 function cpPeso(ev){
   const ok=ev.filter(e=>e.peso_kg!=null&&e.masa_grasa_kg!=null&&e.masa_muscular_kg!=null).slice(-4); if(!ok.length) return ''
