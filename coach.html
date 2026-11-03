@@ -1175,6 +1175,25 @@ html[data-rol="recepcion"] .fPlanBtn, html[data-rol="nutricionista"] .fPlanBtn{d
 .cgK{font-family:var(--font-mono);font-weight:500;font-size:10.5px;letter-spacing:.14em;color:#8E8D88;padding-right:40px}
 .cgT{margin:6px 0 12px;font-family:var(--font-display);font-weight:700;font-size:22px;color:#121212}
 .cgNone{font-family:var(--font-mono);font-weight:500;font-size:13px;letter-spacing:.1em;color:#121212}
+.ev__h{display:flex;align-items:baseline;gap:10px;margin:14px 0 6px}
+.ev__h b{font-family:var(--font-mono);font-size:52px;line-height:1;letter-spacing:-.02em;color:#121212}
+.ev__h span{font-family:var(--font-mono);font-size:11px;letter-spacing:.12em;color:#5E5D59}
+.ev__h--ok b{color:#2E7D32}.ev__h--med b{color:#B58100}.ev__h--bad b{color:#C62828}
+.ev__n{font-size:13px;color:#3A3936;margin:0 0 12px}
+.ev__s{font-family:var(--font-mono);font-size:10.5px;letter-spacing:.14em;color:#8E8D88;margin:16px 0 6px}
+.ev__l{list-style:none;margin:0;padding:0}
+.ev__i{background:#fff;border-left:3px solid #C9C7C1;border-radius:8px;padding:9px 11px;margin:0 0 6px}
+.ev__i b{display:block;font-size:13px;font-weight:600;color:#121212}
+.ev__i small{display:block;font-size:12px;color:#5E5D59;margin-top:2px}
+.ev__i--estructura,.ev__i--anclas,.ev__i--datos{border-left-color:#C62828}
+.ev__i--reglas,.ev__i--volumen{border-left-color:#B58100}
+.ev__i--orden,.ev__i--dosis{border-left-color:#8E8D88}
+.ev__t{width:100%;border-collapse:collapse;font-size:12.5px;background:#fff;border-radius:8px;overflow:hidden}
+.ev__t th{font-family:var(--font-mono);font-size:10px;letter-spacing:.12em;color:#8E8D88;text-align:left;padding:7px 10px;font-weight:500}
+.ev__t td{padding:6px 10px;border-top:1px solid #EEECE8}
+.ev__v--bad td:first-child{color:#C62828;font-weight:600}.ev__v--med td:first-child{color:#B58100;font-weight:600}
+.ev__f{font-size:11.5px;color:#8E8D88;margin:6px 0 0}
+.ev__d{margin-top:12px}.ev__d summary{font-family:var(--font-mono);font-size:10.5px;letter-spacing:.12em;color:#5E5D59;cursor:pointer}
 .cgNota{font-family:var(--font-display);font-size:15px;color:#5E5D59}
 .cgGrid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 .cgGrid div{border:1px solid rgba(18,18,18,.1);border-radius:14px;padding:12px}
@@ -2799,6 +2818,7 @@ html.ks-on.en-crm body{max-width:1280px !important;padding-left:32px !important;
     <button class="mSG__del" onclick="plGuardDescartar()">Descartar borrador</button></div>
 </div>
 <div id="mCargas" class="mCg" style="display:none" onclick="if(event.target===this)this.style.display='none'"><div class="mCg__c"><button class="mCg__x" onclick="document.getElementById('mCargas').style.display='none'" aria-label="Cerrar">✕</button><div id="cgBody"></div></div></div>
+<div id="mEval" class="mCg" style="display:none" role="dialog" aria-modal="true" aria-label="Mastermind Hypertrophy" onclick="if(event.target===this)this.style.display='none'"><div class="mCg__c"><button class="mCg__x" onclick="document.getElementById('mEval').style.display='none'" aria-label="Cerrar">✕</button><div id="evBody"></div></div></div>
 <div id="mDash" class="mSG" style="display:none" role="dialog" aria-modal="true" aria-labelledby="mDashT" onclick="if(event.target===this)dashElegir(dashPref()||'auto')">
   <div class="mSG__c"><div class="mSG__k">DASHBOARD COACH</div><h3 id="mDashT">¿CÓMO VAS A USAR EL DASHBOARD?</h3><p>Se recuerda en este navegador. Puedes cambiarlo cuando quieras desde VISTA.</p>
     <button class="dshOpt" id="dsh-desktop" onclick="dashElegir('desktop')"><b>ESCRITORIO</b><span>Vista completa para trabajar desde computador.</span></button>
@@ -4115,6 +4135,7 @@ async function abrirPlan(pid, proto, opts){
               grupo:(be.ejercicios&&be.ejercicios.grupo_muscular)||'',
               sinergistas:(be.ejercicios&&be.ejercicios.sinergistas)||{},
               kg:(be.kg_objetivo!=null?be.kg_objetivo:null), orden:(be.orden!=null?be.orden:null),
+              ancla:!!be.es_ancla, rir:be.rir_objetivo||null,
               tipoReg:(be.ejercicios&&be.ejercicios.tipo_registro)||null, modo:be.modo_registro||null,
               conCarga:(be.ejercicios?be.ejercicios.con_carga:null),
               cuentaDosis:(be.ejercicios?be.ejercicios.cuenta_dosis:null), activo:(be.ejercicios?be.ejercicios.activo:null),
@@ -4431,6 +4452,167 @@ function plTbMenu(ev,beId){ ev.stopPropagation(); plTbMenuCerrar(); const x=plan
   m.style.left=Math.max(8,Math.min(innerWidth-w-8, r.right-w))+'px'; m.style.top=(r.bottom+h+8>innerHeight? Math.max(8,r.top-h-6) : r.bottom+6)+'px'
   const f=m.querySelector('button'); if(f) f.focus() }
 function plTbMenuCerrar(){ const m=document.getElementById('tbMenu'); if(m) m.remove() }
+// ═══ c219 · MASTERMIND HYPERTROPHY · evaluador del planificador (solo entrenamiento)
+// Evalúa la semana que el koach está editando (incluye borradores sin publicar) con las reglas del Método KOACH
+// y el marco científico del mastermind. Índice 0–100: estructura −6 · anclas −5 · volumen −5 · reglas −3 · orden −3 · dosis −2 · datos −10.
+// No modifica nada: muestra errores con su regla y cómo corregirlos. El koach decide.
+const KEV = { lib:null }
+const KEV_PESO = { estructura:6, anclas:5, volumen:5, reglas:3, orden:3, dosis:2, datos:10, aviso:0 }
+const KEV_MUSC = ['QUADS','GLUTS','HAMS','LATS','PECS','DELTS','BIS','TRIS']
+const KEV_NOM = { QUADS:'CUÁDRICEPS', GLUTS:'GLÚTEOS', HAMS:'ISQUIOS', LATS:'ESPALDA', PECS:'PECHO', DELTS:'HOMBROS', BIS:'BÍCEPS', TRIS:'TRÍCEPS' }
+const KEV_UP = ['LATS','PECS','DELTS','BIS','TRIS'], KEV_LO = ['QUADS','GLUTS','HAMS','CALFS']
+const KEV_SYN = { 'HOMBROS':'DELTS','BÍCEPS':'BIS','ISQUIOS':'HAMS','TRÍCEPS':'TRIS','GLÚTEOS':'GLUTS','CUÁDRICEPS':'QUADS','ESPALDA':'LATS','PECHO':'PECS' }
+const KEV_DEM = { ALTA:3, MEDIA:2, BAJA:1 }, KEV_NIV = { BASICO:0, INTERMEDIO:1, AVANZADO:2 }, KEV_NMIN = { BAS:0, INT:1, AVZ:2 }
+// correcciones de biblioteca propuestas por el mastermind (pendientes de aprobación en la base)
+const KEV_CORR = { 'Leg press 45':{ demanda:'MEDIA' }, 'Seated leg curl machine':{ patron_base:'KNEE FLEXION' }, 'Prone leg curl machine':{ patron_base:'KNEE FLEXION' } }
+const KEV_PROHIB = /BB Back squat|BB chest press|deadlift|burpee|jump|clean|snatch|thruster/i
+const KEV_REST = { STRONG:{B1:[45,90],B2:[120,180],B3:[60,90]}, BURN:{B1:[45,60],B2:[60,90],B3:[45,60]}, HEALTHY:{B1:[60,90],B2:[75,120],B3:[60,90]} }
+const KEV_OBJ = { hombre:['LATS','PECS','QUADS','HAMS'], mujer:['GLUTS','QUADS','HAMS','LATS'] }
+const KEV_OBJMIN = { STRONG:[8,10,10], BURN:[6,8,10], HEALTHY:[6,6,8] }
+const KEV_FIX = {
+  R01:'Deja la sesión con exactamente 3 bloques: B1 activación, B2 fuerza principal, B3 cierre.',
+  R02:'Cambia el ejercicio de B1 por uno de demanda MEDIA o BAJA, o muévelo a B2.',
+  R04:'B3 es solo demanda BAJA: muévelo a B2 o reemplázalo por un aislado.',
+  R60:'B2 necesita demanda ALTA o MEDIA: sube un compuesto al bloque.',
+  R05:'CORE y movilidad van solo en B1.',
+  R16:'En B1, CORE va penúltimo y movilidad al final.',
+  CORE:'Agrega 1 ejercicio de CORE en B1 (penúltimo).',
+  R13:'No mezcles bilateral y unilateral del mismo segmento en un bloque: cambia uno de los dos.',
+  R15:'En básico, cada bloque lleva al menos un ejercicio de tren superior y uno de tren inferior.',
+  R17:'En hombre: al menos 1 estímulo de glúteo y más series de isquios que de glúteo.',
+  R18:'Un mismo músculo no debe liderar 2 bloques el mismo día: cambia el primer ejercicio de uno.',
+  R19:'Agrega un dominante de cadera (hip thrust, RDL, glute bridge) en la sesión.',
+  R21:'Sube tracción o baja empuje: la tracción debe igualar o superar al empuje.',
+  R22:'En intermedio, B3 lleva 3 ejercicios.',
+  R24:'En hombre, bíceps y tríceps van en días distintos.',
+  R27:'Pecho en mujer: 1×/semana en básico, 2× en intermedio y avanzado.',
+  R28:'La biserie glúteo + glúteo es solo para mujer avanzada, en B2 de un día Lower.',
+  R34:'Bíceps y tríceps van al final del bloque.',
+  R40:'En HEALTHY, pecho antes que hombro.',
+  R41:'El ejercicio exige un nivel mayor al del socio: elige una variante de su nivel.',
+  R50:'En mujer, el trabajo de cadera debe superar al de rodilla.',
+  BAS:'Ejercicio prohibido en básico (barra libre pesada, saltos, olímpicos): usa la variante en máquina o mancuerna.',
+  ORDEN:'Ordena el bloque por demanda ALTA → MEDIA → BAJA y compuesto antes que aislado.',
+  ANCLA:'4 anclas por semana (rodilla, cadera, empuje, tracción), en B2 y liderando el bloque, ≥1 por sesión.',
+  VOL_MIN:'Sube series del músculo (≥4 series/semana; ≥8–10 en músculos objetivo) o agrega un ejercicio.',
+  VOL_MAX:'Baja series: sobre 20 series/semana suma fatiga sin más estímulo.',
+  VOL_SES:'Reparte el músculo en más días: sobre ~11 series en una sesión el estímulo extra es mínimo.',
+  FREQ:'Músculo objetivo con 1 sola sesión: repártelo en 2 días.',
+  DESC:'Ajusta el descanso al rango del programa.',
+  DUR:'La sesión supera 60 min: baja sets o ejercicios de B3.',
+  RIR:'Define el RIR del ejercicio (solo lo ve el koach).',
+  HEAVY:'STRONG intermedio/avanzado necesita trabajo de 8 reps o menos.',
+  GLUT:'Glúteo en mujer: incluye un ejercicio en largo (RDL, sentadilla), uno en acortado (hip thrust) y abducción.',
+  DATO:'El ejercicio no está en la biblioteca activa: reemplázalo.'
+}
+async function kevLib(){ if (KEV.lib) return KEV.lib
+  const r=await sb.from('ejercicios').select('id,nombre,estimulo,demanda,nivel_min,patron,patron_base,sinergistas,cuenta_dosis,activo')
+  if (r.error) throw r.error
+  const m={}; (r.data||[]).forEach(function(e){ m[e.id]=Object.assign({}, e, KEV_CORR[e.nombre]||{}) }); KEV.lib=m; return m }
+function kevLo(r){ const m=String(r==null?'':r).match(/\d+/); return m?parseInt(m[0],10):null }
+function kevSeg(it){ return typeof esTiempo==='function' ? esTiempo(it) : /s$/i.test(String(it.reps||'')) }
+function kevEvaluar(w){
+  const L=KEV.lib, pr=(P&&P.proto)||{}, prog=String(pr.programa||'STRONG').toUpperCase(), niv=String(pr.nivel||'INTERMEDIO').toUpperCase(),
+        sexo=String(pr.sexo||'mujer').toLowerCase(), Ln=KEV_NIV[niv]!=null?KEV_NIV[niv]:1, REST=KEV_REST[prog]||KEV_REST.STRONG
+  const err=[]; const E=function(cat,regla,ses,msg){ err.push({cat:cat, regla:regla, ses:ses, msg:msg}) }
+  const vol={}, freq={}, sesVol={}; KEV_MUSC.forEach(function(m){ vol[m]=0; freq[m]={} })
+  let hip=0, knee=0, pull=0, push=0, hams=0, glut=0, heavy=false, gl=false, gs=false, ga=false; const anclas=[], pecs={}
+  const LONG=/RDL|Romanian|Bulgarian|Reverse lunge|Walking lunge|Back squat|Pendulum|Goblet|Split squat|Split-stance|Hex bar squat|Safety-bar squat|Sumo deadlift|Deficit cdl/i
+  const SHORT=/Hip thrust|Glute bridge|Kickback/i, ABD=/Abduction|abduction|lateral walk/i
+  const sess=plSesSem(w).filter(function(s){ return !s._extra })
+  sess.forEach(function(s){
+    const sn=String(s.nombre||('S'+s.numero)).toUpperCase(), bl=s.bloques||[]; sesVol[sn]={}
+    if (bl.map(function(b){return b.tag}).join()!=='B1,B2,B3') E('estructura','R01',sn,'La sesión no tiene exactamente B1 · B2 · B3')
+    const leads=[]; let sHip=false, core=false, bis=false, tris=false, tmin=0
+    bl.forEach(function(b){
+      const items=b.items||[]; let t=0
+      items.forEach(function(it){ const r=String(it.reps||''); t+=(kevSeg(it)?(kevLo(r)||30):(kevLo(r)||10)*3)+15 })
+      tmin+=(b.sets||0)*(t+(b.desc||0))/60
+      const ex=items.map(function(it){ return L[it.ejId] })
+      items.forEach(function(it,i){ if(!ex[i]||ex[i].activo===false) E('datos','DATO',sn,b.tag+': '+it.nombre+' no está en la biblioteca activa') })
+      if (ex.some(function(e){return !e}) || !items.length) return
+      const rg=REST[b.tag]; if (rg && (b.desc<rg[0]||b.desc>rg[1])) E('dosis','DESC',sn,b.tag+': descanso '+b.desc+' s (rango '+prog+': '+rg[0]+'–'+rg[1]+' s)')
+      ex.forEach(function(e){ if(e.estimulo==='CORE'||e.estimulo==='MOB'||e.estimulo==='CARDIO') return
+        if(b.tag==='B1'&&e.demanda==='ALTA') E('reglas','R02',sn,'B1: '+e.nombre+' es demanda ALTA')
+        if(b.tag==='B2'&&e.demanda==='BAJA') E('reglas','R60',sn,'B2: '+e.nombre+' es demanda BAJA')
+        if(b.tag==='B3'&&e.demanda!=='BAJA') E('reglas','R04',sn,'B3: '+e.nombre+' es demanda '+e.demanda) })
+      const sinCardio=ex.filter(function(e){ return e.estimulo!=='CARDIO' })
+      if (b.tag==='B1'){ const n=sinCardio.length; if(n<2||sinCardio[n-1].estimulo!=='MOB'||sinCardio[n-2].estimulo!=='CORE') E('reglas','R16',sn,'B1: CORE debe ir penúltimo y movilidad al final') }
+      ex.forEach(function(e){ if(e.estimulo==='CORE') core=true; if((e.estimulo==='CORE'||e.estimulo==='MOB')&&b.tag!=='B1') E('reglas','R05',sn,b.tag+': '+e.nombre+' (CORE/movilidad fuera de B1)') })
+      ;[KEV_UP,KEV_LO].forEach(function(seg){ const p={}; ex.forEach(function(e){ if(seg.indexOf(e.estimulo)>=0&&(e.patron==='bilateral'||e.patron==='unilateral')) p[e.patron]=1 }); if(p.bilateral&&p.unilateral) E('reglas','R13',sn,b.tag+': mezcla bilateral y unilateral del mismo segmento') })
+      const cr=ex.filter(function(e){ return ['CORE','MOB','CARDIO'].indexOf(e.estimulo)<0 })
+      for (let i=0;i+1<cr.length;i++){ const a=cr[i], c=cr[i+1]
+        if ((KEV_DEM[a.demanda]||0)<(KEV_DEM[c.demanda]||0)) E('orden','ORDEN',sn,b.tag+': '+c.nombre+' ('+c.demanda+') va después de '+a.nombre+' ('+a.demanda+')')
+        if (!a.patron_base && c.patron_base && KEV_MUSC.indexOf(a.estimulo)>=0 && KEV_MUSC.indexOf(c.estimulo)>=0) E('orden','ORDEN',sn,b.tag+': compuesto '+c.nombre+' después del aislado '+a.nombre) }
+      let vis=false; cr.forEach(function(e){ if(e.estimulo==='BIS'||e.estimulo==='TRIS') vis=true; else if(vis&&KEV_MUSC.indexOf(e.estimulo)>=0) E('orden','R34',sn,b.tag+': bíceps/tríceps no está al final del bloque') })
+      if (Ln===0){ const es={}; ex.forEach(function(e){es[e.estimulo]=1}); if(!(KEV_UP.some(function(k){return es[k]})&&KEV_LO.some(function(k){return es[k]}))) E('reglas','R15',sn,b.tag+': sin tren superior + inferior') }
+      if (b.tag==='B3'&&Ln===1&&ex.length!==3) E('reglas','R22',sn,'B3 tiene '+ex.length+' ejercicios (intermedio: 3)')
+      if (ex.length===2&&ex.every(function(e){return e.estimulo==='GLUTS'})&&!(sexo==='mujer'&&Ln===2&&b.tag==='B2')) E('reglas','R28',sn,b.tag+': biserie glúteo + glúteo')
+      ex.forEach(function(e){ if((KEV_NMIN[e.nivel_min]||0)>Ln) E('reglas','R41',sn,e.nombre+' exige nivel '+e.nivel_min)
+        if(Ln===0&&KEV_PROHIB.test(e.nombre)) E('reglas','BAS',sn,e.nombre+' está prohibido en básico') })
+      if (cr.length) leads.push(cr[0].estimulo)
+      items.forEach(function(it,i){ const e=ex[i]
+        if (it.ancla) anclas.push({ sn:sn, tag:b.tag, nom:e.nombre, pos:cr.indexOf(e) })
+        const est=e.estimulo, sets=b.sets||0
+        if (KEV_MUSC.indexOf(est)>=0 && e.cuenta_dosis!==false){
+          vol[est]+=sets; freq[est][sn]=1; sesVol[sn][est]=(sesVol[sn][est]||0)+sets
+          Object.entries(e.sinergistas||{}).forEach(function(kv){ const m=KEV_SYN[String(kv[0]).toUpperCase()], v=parseFloat(kv[1])||0; if(m&&m!==est&&v>0){ vol[m]+=sets*v; sesVol[sn][m]=(sesVol[sn][m]||0)+sets*v } })
+          if (kevSeg(it)) E('dosis','RIR',sn,e.nombre+': sin repeticiones numéricas')
+          if (!it.rir && P && !P.bib) E('aviso','RIR',sn,e.nombre+': sin RIR planificado')
+          const lo=kevLo(it.reps); if (lo&&lo<=8) heavy=true
+          if (est==='PECS') pecs[sn]=1; if (est==='BIS') bis=true; if (est==='TRIS') tris=true
+          if (est==='HAMS') hams+=sets; if (est==='GLUTS') glut+=sets }
+        const pb=e.patron_base, sets2=b.sets||0
+        if (pb==='HIP DOMINANT'){ hip+=sets2; sHip=true } if (pb==='KNEE DOMINANT') knee+=sets2; if (pb==='PULL') pull+=sets2; if (pb==='PUSH') push+=sets2
+        if (LONG.test(e.nombre)) gl=true; if (SHORT.test(e.nombre)) gs=true; if (ABD.test(e.nombre)) ga=true })
+    })
+    const vistos={}; leads.forEach(function(l){ if(vistos[l]) E('reglas','R18',sn,(KEV_NOM[l]||l)+' lidera 2 bloques'); vistos[l]=1 })
+    if (!core) E('reglas','CORE',sn,'Sesión sin CORE')
+    if (!sHip) E('reglas','R19',sn,'Sesión sin dominante de cadera')
+    if (sexo==='hombre'&&bis&&tris) E('reglas','R24',sn,'Bíceps y tríceps el mismo día')
+    if (tmin>60) E('dosis','DUR',sn,'Duración estimada '+Math.round(tmin)+' min')
+    Object.entries(sesVol[sn]).forEach(function(kv){ if(kv[1]>11) E('volumen','VOL_SES',sn,(KEV_NOM[kv[0]]||kv[0])+': '+(Math.round(kv[1]*10)/10)+' series en la sesión') })
+  })
+  if (anclas.length!==4) E('anclas','ANCLA','SEMANA',anclas.length+' anclas ◆ (deben ser 4)')
+  anclas.forEach(function(a){ if(a.tag!=='B2') E('anclas','ANCLA',a.sn,'Ancla '+a.nom+' fuera de B2'); else if(a.pos>1) E('anclas','ANCLA',a.sn,'Ancla '+a.nom+' no lidera B2') })
+  if (sess.length && Object.keys(anclas.reduce(function(o,a){o[a.sn]=1;return o},{})).length<Math.min(3,sess.length)) E('anclas','ANCLA','SEMANA','Hay sesiones sin ancla')
+  const om=(KEV_OBJMIN[prog]||KEV_OBJMIN.STRONG)[Ln]
+  KEV_MUSC.forEach(function(m){ const v=Math.round(vol[m]*10)/10
+    if (v<4) E('volumen','VOL_MIN','SEMANA',KEV_NOM[m]+': '+v+' series/semana (mínimo 4)')
+    if (v>20) E('volumen','VOL_MAX','SEMANA',KEV_NOM[m]+': '+v+' series/semana (máximo útil ~20)') })
+  ;(KEV_OBJ[sexo]||KEV_OBJ.mujer).forEach(function(m){ const v=Math.round(vol[m]*10)/10
+    if (v<om) E('volumen','VOL_MIN','SEMANA',KEV_NOM[m]+' (objetivo): '+v+' series (mínimo '+om+')')
+    if (Object.keys(freq[m]).length<2) E('volumen','FREQ','SEMANA',KEV_NOM[m]+' (objetivo) en '+Object.keys(freq[m]).length+' sesión') })
+  if (pull<push) E('reglas','R21','SEMANA','Tracción '+pull+' < empuje '+push+' series')
+  if (sexo==='mujer'&&hip<=knee) E('reglas','R50','SEMANA','Cadera '+hip+' ≤ rodilla '+knee+' series')
+  if (sexo==='hombre'&&(glut<1||hams<glut)) E('reglas','R17','SEMANA','Glúteo '+glut+' / isquios '+hams+' series')
+  if (sexo==='mujer'){ const pf=Object.keys(pecs).length, want=Ln===0?1:2; if(pf!==want) E('reglas','R27','SEMANA','Pecho '+pf+'×/semana (debe ser '+want+'×)')
+    if (!(gl&&gs&&ga)) E('volumen','GLUT','SEMANA','Glúteo sin '+[gl?'':'largo',gs?'':'acortado',ga?'':'abducción'].filter(Boolean).join(' · ')) }
+  if (prog==='STRONG'&&Ln>0&&!heavy) E('dosis','HEAVY','SEMANA','Sin trabajo de 8 reps o menos')
+  if (prog==='HEALTHY') sess.forEach(function(s){ const o=[]; (s.bloques||[]).forEach(function(b){ (b.items||[]).forEach(function(it){ const e=L[it.ejId]; if(e) o.push(e.estimulo) }) }); const ip=o.indexOf('PECS'), id=o.indexOf('DELTS'); if(ip>=0&&id>=0&&id<ip) E('reglas','R40',String(s.nombre||'').toUpperCase(),'Hombro antes que pecho') })
+  const puntaje=Math.max(0, 100-err.reduce(function(a,x){ return a+(KEV_PESO[x.cat]||0) },0))
+  return { puntaje:puntaje, err:err, vol:vol, freq:freq, prog:prog, niv:niv, sexo:sexo, w:w, nses:sess.length, objMin:om, obj:KEV_OBJ[sexo]||[] }
+}
+async function kevAbrir(){
+  const m=document.getElementById('mEval'), body=document.getElementById('evBody'); if(!m||!body||!P) return
+  body.innerHTML='<div class="cgK">MASTERMIND HYPERTROPHY</div><div class="cgNone">EVALUANDO…</div>'; m.style.display='flex'
+  try{ await kevLib() }catch(e){ body.innerHTML='<div class="cgK">MASTERMIND HYPERTROPHY</div><div class="cgNone">NO SE PUDO CARGAR LA BIBLIOTECA</div>'; return }
+  const w=(typeof plTestW==='function')?plTestW():1, r=kevEvaluar(w)
+  const sem=r.puntaje>=70?'ok':r.puntaje>=50?'med':'bad', lab=r.puntaje>=70?'BUENA CALIDAD':r.puntaje>=50?'MEJORABLE':'REQUIERE CORRECCIÓN'
+  const graves=r.err.filter(function(x){return x.cat!=='aviso'}), avisos=r.err.filter(function(x){return x.cat==='aviso'})
+  const porSes={}; graves.forEach(function(x){ (porSes[x.ses]=porSes[x.ses]||[]).push(x) })
+  const fila=function(x){ return '<li class="ev__i ev__i--'+x.cat+'"><b>'+plEsc(x.msg)+'</b><small>'+(x.regla&&/^R\d/.test(x.regla)?x.regla+' · ':'')+plEsc(KEV_FIX[x.regla]||'')+'</small></li>' }
+  const volF=KEV_MUSC.map(function(mu){ const v=Math.round(r.vol[mu]*10)/10, ob=r.obj.indexOf(mu)>=0, f=Object.keys(r.freq[mu]).length
+    const st=v<4||v>20||(ob&&v<r.objMin)?'bad':(ob&&f<2)?'med':'ok'
+    return '<tr class="ev__v--'+st+'"><td>'+KEV_NOM[mu]+(ob?' ◎':'')+'</td><td>'+String(v).replace('.',',')+'</td><td>'+f+'×</td></tr>' }).join('')
+  body.innerHTML='<div class="cgK">MASTERMIND HYPERTROPHY · SEMANA '+r.w+' · '+r.prog+' '+r.niv+' · '+r.sexo.toUpperCase()+'</div>'+
+    '<div class="ev__h ev__h--'+sem+'"><b>'+r.puntaje+'</b><span>/100<br>'+lab+'</span></div>'+
+    '<p class="ev__n">'+(graves.length?graves.length+' punto'+(graves.length>1?'s':'')+' a corregir según el Método KOACH y la evidencia. Evalúa lo que ves en pantalla, incluidos los cambios sin publicar.':'Sin errores: la semana cumple el Método KOACH.')+'</p>'+
+    Object.keys(porSes).map(function(k){ return '<div class="ev__s">'+plEsc(k)+'</div><ul class="ev__l">'+porSes[k].map(fila).join('')+'</ul>' }).join('')+
+    '<div class="ev__s">VOLUMEN SEMANAL · SERIES (SINERGISTAS CON SU PESO)</div><table class="ev__t"><tr><th>MÚSCULO</th><th>SERIES</th><th>FREC.</th></tr>'+volF+'</table>'+
+    '<p class="ev__f">◎ músculo objetivo (mínimo '+r.objMin+' series y 2 sesiones). Rango útil por músculo: 4–20 series/semana.</p>'+
+    (avisos.length?'<details class="ev__d"><summary>'+avisos.length+' AVISO'+(avisos.length>1?'S':'')+' SIN PUNTAJE</summary><ul class="ev__l">'+avisos.map(fila).join('')+'</ul></details>':'')
+}
 // c215 · TEST DE FUERZA · single set de test por semana y ejercicio en el plan del socio (tabla test_programado).
 // Lo decide el koach: lo marca, lo quita o lo APLAZA a una semana siguiente si el socio no está habilitado (energía, molestia).
 // Vive fuera de bloque_ejercicios: la reproyección de semanas no lo borra y no requiere PUBLICAR.
@@ -8094,8 +8276,9 @@ function plBarraSesion(ses){
     cx.textContent = ses ? ((typeof PL!=='undefined'&&PL.w)?'S'+PL.w+(N?'/'+N:'')+' · ':'')+String(ses.nombre||'SESIÓN').toUpperCase() : '' }
   const dsB='<button type="button" id="dsBtn" class="dsBtn" aria-pressed="false" aria-controls="pVivo" onclick="dsModo(\'toggle\')" title="Dosificación semanal: series efectivas de toda la semana">'+
     '<svg viewBox="0 0 16 16" aria-hidden="true"><rect x="1" y="3" width="9" height="2" rx="1"/><rect x="1" y="7" width="13" height="2" rx="1"/><rect x="1" y="11" width="6" height="2" rx="1"/></svg>DOSIFICACIÓN<span class="dsBtn__s mOcul"> →</span></button>'
-  bar.innerHTML = !ses ? '' : ro ? dsB :
-    '<span class="plSesBar__n">'+String(ses.nombre||'SESIÓN').toUpperCase()+' · '+n+' BLOQUE'+(n===1?'':'S')+'</span>'+dsB+
+  const evB=(P&&!P.bib)?'<button type="button" class="ink" onclick="kevAbrir()" title="Mastermind Hypertrophy: evalúa la semana con el Método KOACH">◎ EVALUAR<span class="mOcul"> SEMANA</span></button>':''
+  bar.innerHTML = !ses ? '' : ro ? dsB+evB :
+    '<span class="plSesBar__n">'+String(ses.nombre||'SESIÓN').toUpperCase()+' · '+n+' BLOQUE'+(n===1?'':'S')+'</span>'+dsB+evB+
     (n<6?'<button type="button" onclick="abrirBloque()">+ BLOQUE</button>':'')+
     (n>1?'<button type="button" class="ink" onclick="abrirOrgBloques()">⇅ ORGANIZAR<span class="mOcul"> BLOQUES</span></button>':'')
 }
