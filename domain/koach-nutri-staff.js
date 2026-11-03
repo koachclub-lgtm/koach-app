@@ -149,7 +149,8 @@ function fPlanPintar(){
     (vig?'<div class="plWBar"><span class="cmp__k">ASÍ LO VE '+adEsc(nomDe(F.id).split(' ')[0].toUpperCase())+' · ESCRITORIO</span><button type="button" class="cmp__b cmp__b--l" onclick="plVista(\'cel\',false)">VISTA CELULAR</button><button type="button" class="cmp__b cmp__b--l" onclick="plVista(\'ancho\',false)">PANTALLA COMPLETA ⤢</button></div>'+plAncho(vig,{ peso: ev&&ev.peso_kg, nombre: nomDe(F.id) }):'<div class="cmp__vac">'+(ed?'Arma el primer plan: fija los números (o usa los sugeridos por el motor), completa preferencias y redáctalo con IA o a mano. El socio lo verá en NUTRICIÓN → MI PLAN apenas lo publiques.':'Nutrición aún no publica un plan para este socio.')+'</div>')+
     (filas?'<span class="cmp__k" style="margin:18px 0 8px">VERSIONES · NADA SE BORRA</span>'+filas:'')+'</div>'
 }
-function fPlanNuevo(){ const vig=NPL.data&&NPL.data.vigente; NPL.edit={ id:null }; fPlanForm(vig?Object.assign({},vig,{ id:null, estado:'borrador', inicio:null }):null) }
+function fPlanNuevo(){ const vig=NPL.data&&NPL.data.vigente; NPL.edit={ id:null }; fPlanForm(vig?Object.assign({},vig,{ id:null, estado:'borrador', inicio:null }):null)
+  if(!vig && plUltEval()) fPlanSugerir() }
 function fPlanEditar(id){ const p=((NPL.data&&NPL.data.todas)||[]).find(x=>x.id===id); if(!p) return
   NPL.edit={ id: p.estado==='borrador'?p.id:null }; fPlanForm(p.estado==='borrador'?p:Object.assign({},p,{ id:null, estado:'borrador', inicio:null })) }
 const PL_ACT=[['ligero','LIGERA'],['moderado','MODERADA'],['activo','ALTA'],['muyActivo','MUY ALTA']]
@@ -161,7 +162,7 @@ function fPlanForm(p){
   const ta=(id,l,val,rows)=>'<label>'+l+'<textarea id="'+id+'" rows="'+(rows||2)+'" oninput="fPlanSync()">'+v(val)+'</textarea></label>'
   const metas=['30 DÍAS','60 DÍAS','90 DÍAS'].map((pl,i)=>{ const m=c.metas.find(x=>x.plazo===pl); return ta('plMeta'+i,'META '+pl,m&&m.meta,2) }).join('')
   box.innerHTML='<div class="cmp">'+nuSegHtml('plan')+'<div class="cmp__hd"><div><span class="cmp__k">'+(NPL.edit.id?'EDITAR BORRADOR':'NUEVO PLAN')+' · '+adEsc(nomDe(F.id))+'</span><h2 class="cmp__t">Plan nutricional</h2></div>'+
-    '<div class="cmpF__acts" style="margin:0"><button type="button" class="cmp__b cmp__b--l" onclick="fPlanPintar()">← VOLVER</button><button type="button" class="cmp__b cmp__b--l" onclick="plVista(\'ancho\',true)">VISTA PREVIA ⤢</button></div></div>'+
+    '<div class="cmpF__acts" style="margin:0"><button type="button" class="cmp__b cmp__b--l" onclick="fPlanPintar()">← VOLVER</button><button type="button" class="cmp__b cmp__b--l" onclick="plVista(\'ancho\',true)">VISTA PREVIA ⤢</button><button type="button" class="cmp__b" onclick="fPlanIA()">GENERAR PAUTA CON IA →</button></div></div>'+
     '<div class="plF"><div class="cmpF">'+
     plCalHtml(p)+
     '<div class="cmpF__g"><h4>PERÍODO DEL PLAN · <em>AL TERMINAR TOCA REEVALUAR</em></h4><div class="cmpF__f">'+
@@ -173,7 +174,7 @@ function fPlanForm(p){
       inp('plHor','HORARIO ENTRENO',ix.horario_entreno,'placeholder="ej. 19:00"')+'</div><div class="cmpF__f" style="grid-template-columns:1fr 1fr;margin-top:8px">'+
       ta('plRes','RESTRICCIONES / ALERGIAS',ix.restricciones)+ta('plNoC','NO CONSUME',ix.no_consume)+ta('plPref','PREFERENCIAS',ix.preferencias)+ta('plSupA','SUPLEMENTOS ACTUALES',ix.suplementos)+'</div>'+
       '<div class="cmpF__f" style="grid-template-columns:1fr;margin-top:8px">'+ta('plCtx','CONTEXTO (TRABAJO, HORARIOS, COCINA)',ix.contexto)+'</div>'+
-      '<div class="cmpF__acts" style="justify-content:flex-start"><button type="button" class="cmp__b" id="plIA" onclick="fPlanIA()">REDACTAR CON IA →</button><span class="cmp__k" id="plIAst" style="align-self:center"></span></div></div>'+
+      '<div class="cmpF__acts" style="justify-content:flex-start"><button type="button" class="cmp__b" id="plIA" onclick="fPlanIA()">GENERAR PAUTA CON IA →</button><span class="cmp__k" id="plIAst" style="align-self:center"></span></div></div>'+
     '<div class="cmpF__g"><h4>CONTENIDO DEL PLAN · <em>UNA LÍNEA POR ALIMENTO: ALIMENTO | CANTIDAD</em></h4>'+
       '<div class="cmpF__f" style="grid-template-columns:1fr">'+ta('plRes2','RESUMEN PARA EL SOCIO',c.resumen,3)+'</div><div id="plComidas"></div>'+
       '<button type="button" class="cmp__b cmp__b--l" style="margin-top:8px" onclick="fPlanComida()">+ COMIDA</button></div>'+
@@ -230,16 +231,23 @@ function fPlanSugerir(){
   NPL.tdee=s.tdee; NPL.tmb=s.tmb
   plPut(s.proteina_g, s.carbohidrato_g, s.grasa_g); toast('Sugerido por el motor · gasto estimado '+s.tdee.toLocaleString('es-CL')+' kcal. Ajusta si corresponde.')
 }
+function plComp(ev,a){ const sx=ev.sexo_eval||F.sex, fc=KC.formaCorporal(ev.porcentaje_grasa,ev.ffmi_norm,sx)
+  return { sexo:sx, edad:ev.edad_eval||cmpEdad(F.fecha_nacimiento), peso:ev.peso_kg, talla:ev.talla_cm, nivel:a&&a.protocolos&&a.protocolos.nivel,
+    pct_grasa:ev.porcentaje_grasa, clas_grasa:KC.clasGrasa(ev.porcentaje_grasa,sx), masa_grasa:ev.masa_grasa_kg, masa_muscular:ev.masa_muscular_kg, masa_osea:ev.masa_osea_kg, masa_residual:ev.masa_residual_kg,
+    ffmi:ev.ffmi_norm, clas_ffmi:KC.clasFFMI(ev.ffmi_norm,sx), forma:fc&&fc.label, icc:ev.icc, ict:ev.ict, edad_biologica:ev.edad_biologica, tmb:NPL.tmb, tdee:NPL.tdee } }
 async function fPlanIA(){
   if (NPL.gen) return
-  const f=fPlanLeer(); if(!f.kcal||!f.proteina_g){ toast('Fija primero kcal y proteína (o usa SUGERIR DEL MOTOR)'); return }
+  let f=fPlanLeer()
+  // Como Nutrición Pro: si nutrición aún no fijó los números, el motor KOACH los calcula por programa antes de redactar
+  if(!f.kcal||!f.proteina_g){ const ev0=plUltEval(); if(!ev0){ toast('Registra primero una evaluación con peso, talla y edad'); return }
+    fPlanSugerir(); f=fPlanLeer(); if(!f.kcal||!f.proteina_g) return }
   const ev=plUltEval(), a=C.asig&&C.asig[F.id], meta=ev?KC.metaSeisMeses(ev.peso_kg, cmpProg(), a&&a.protocolos&&a.protocolos.nivel, { pctGrasa:ev.porcentaje_grasa, sexo:ev.sexo_eval||F.sex }):null
-  const b=document.getElementById('plIA'), st=document.getElementById('plIAst'); NPL.gen=true; b.disabled=true; st.textContent='REDACTANDO… 20–40 S'
+  const b=document.getElementById('plIA'), st=document.getElementById('plIAst'); NPL.gen=true; b.disabled=true; st.textContent='LA IA ESTÁ DISEÑANDO LAS COMIDAS… 20–40 S'
   try{
     const { data:{ session } } = await sb.auth.getSession()
     const r=await fetch('/api/pauta-ia', { method:'POST', headers:{ 'content-type':'application/json', authorization:'Bearer '+(session&&session.access_token) },
       body:JSON.stringify({ metas_numericas:{ kcal:f.kcal, proteina_g:f.proteina_g, carbohidrato_g:f.carbohidrato_g, grasa_g:f.grasa_g }, programa:cmpProg(), intake:f.intake, meta:meta&&meta.texto,
-        composicion: ev?{ sexo:ev.sexo_eval||F.sex, edad:ev.edad_eval, peso:ev.peso_kg, talla:ev.talla_cm, pct_grasa:ev.porcentaje_grasa, masa_muscular:ev.masa_muscular_kg }:{} }) })
+        objetivo:plObjDe(f.kcal), composicion: ev?plComp(ev,a):{} }) })
     const j=await r.json().catch(()=>({}))
     if(!r.ok) throw new Error(j.error||('Error '+r.status))
     const actual=fPlanLeer().contenido

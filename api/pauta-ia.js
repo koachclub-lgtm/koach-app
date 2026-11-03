@@ -11,6 +11,9 @@ Grasas: palta 50 g, maní 30 g, aceite de oliva 1 cda, frutos secos 25 g
 Base: verduras mixtas libres en cada comida
 EXCLUIR: quinoa, camote, jugos procesados, bebidas azucaradas, embutidos, pan blanco, azúcar refinada`
 
+const PROTOCOLO = { BURN: 'déficit calórico · alta proteína · preservar músculo · reducir % de grasa', STRONG: 'superávit calórico · carbohidratos estratégicos alrededor del entrenamiento · maximizar síntesis proteica', HEALTHY: 'balance energético neutro · calidad nutricional · salud y rendimiento' }
+const OBJ = { deficit: 'déficit', mant: 'mantención', super: 'superávit' }
+
 const ESQUEMA = {
   type: 'object', additionalProperties: false,
   required: ['resumen', 'comidas', 'suplementos', 'hidratacion', 'indicaciones', 'evitar', 'metas'],
@@ -59,8 +62,14 @@ NÚMEROS FIJOS (calculados por el motor KOACH y validados por nutrición — NO 
 - Calorías: ${m.kcal} kcal/día
 - Proteína: ${m.proteina_g} g · Carbohidratos: ${m.carbohidrato_g || '—'} g · Grasas: ${m.grasa_g || '—'} g
 
-SOCIO: ${c.sexo || '—'}, ${c.edad || '—'} años, ${c.peso || '—'} kg, ${c.talla || '—'} cm · Programa ${b.programa || '—'}
-Composición: grasa ${c.pct_grasa != null ? c.pct_grasa + ' %' : 'no medida'} · masa muscular ${c.masa_muscular != null ? c.masa_muscular + ' kg' : 'no medida'}
+SOCIO: ${c.sexo || '—'}, ${c.edad || '—'} años, ${c.peso || '—'} kg, ${c.talla || '—'} cm · Nivel ${c.nivel || '—'}
+PROTOCOLO ${b.programa || '—'}: ${PROTOCOLO[String(b.programa || '').toUpperCase()] || 'objetivo definido por nutrición'} · Objetivo energético: ${OBJ[b.objetivo] || '—'}
+Gasto: metabolismo basal ${c.tmb || '—'} kcal · mantención (TDEE) ${c.tdee || '—'} kcal → meta ${m.kcal} kcal (${c.tdee ? (m.kcal - c.tdee > 0 ? '+' : '') + Math.round(m.kcal - c.tdee) + ' kcal' : '—'})
+
+COMPOSICIÓN CORPORAL (ISAK · Durnin & Womersley + Siri / Lee):
+% grasa ${c.pct_grasa != null ? c.pct_grasa + ' %' : 'no medida'}${c.clas_grasa ? ' (' + c.clas_grasa + ')' : ''} · masa grasa ${c.masa_grasa != null ? c.masa_grasa + ' kg' : '—'}
+Masa muscular ${c.masa_muscular != null ? c.masa_muscular + ' kg' : 'no medida'} · masa ósea ${c.masa_osea != null ? c.masa_osea + ' kg' : '—'} · residual ${c.masa_residual != null ? c.masa_residual + ' kg' : '—'}
+FFMI ${c.ffmi != null ? c.ffmi : '—'}${c.clas_ffmi ? ' (' + c.clas_ffmi + ')' : ''} · forma corporal ${c.forma || '—'} · ICC ${c.icc != null ? c.icc : '—'} · ICT ${c.ict != null ? c.ict : '—'} · edad biológica ${c.edad_biologica != null ? c.edad_biologica + ' años' : '—'}
 Meta a 6 meses: ${b.meta || '—'}
 
 PREFERENCIAS E INTAKE:
@@ -72,7 +81,7 @@ Contexto: ${ix.contexto || 'sin especificar'}
 ALIMENTOS KOACH (porciones de referencia):
 ${ALIMENTOS_KOACH}
 
-REGLAS: cada comida con hora y alimentos con cantidad exacta. Opción A y B solo en las comidas principales. Ubica pre y post entreno según el horario de entrenamiento.
+REGLAS: cada comida con hora, alimentos con gramaje exacto y qué aporta esa comida al objetivo del día. Las indicaciones son las propias del protocolo ${b.programa || ''} para este socio (según su composición, ICC/ICT y meta). Opción A y B solo en las comidas principales. Ubica pre y post entreno según el horario de entrenamiento.
 Metas 30/60/90 días coherentes con la meta a 6 meses (no inventes otras tasas). Sin recomendaciones médicas ni diagnósticos.`
 
   const r = await json('https://api.anthropic.com/v1/messages', {
