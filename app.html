@@ -7193,17 +7193,21 @@ function pintarAvancesV2(){
 // Punto de partida = promedio de las 2 primeras sesiones del ciclo · Actual = promedio de las 2 últimas.
 // Ejercicio válido con ≥3 sesiones; índice acotado 0,7–2,0; sesión con 1RM > 2× el máximo previo = probable error, se ignora.
 // Grupo = media geométrica de sus ejercicios, ponderada por el aporte al músculo (motor KD: principal 1, sinergistas reales) × sesiones.
-// Grupo visible con ≥2 ejercicios válidos o 1 ejercicio con ≥4 sesiones; si no, CALIBRANDO con la misión de sesiones que faltan.
-const FZ = { data:null, sel:null }
+// Grupo visible con 1 ejercicio principal con ≥3 sesiones (c216); si no, CALIBRANDO con la misión de sesiones que faltan.
+const FZ = { data:null, sel:null, t:0 }
 function fzLunes(f){ const d=new Date(String(f).slice(0,10)+'T12:00:00'); d.setDate(d.getDate()-((d.getDay()+6)%7)); return d }
 function fzPerfil(ej){ const prof={}; if(!ej||ej.cuenta_dosis===false) return prof
   const add=(k,v)=>{ const K=KD.canon(k); if(KD.GRUPOS.indexOf(K)===-1) return; const n=parseFloat(v); if(n>0) prof[K]=Math.max(prof[K]||0,n) }
   if (ej.grupo_muscular) add(ej.grupo_muscular,1); Object.entries(ej.sinergistas||{}).forEach(([k,v])=>add(k,v)); return prof }
 async function fzCargar(){
   const ci=cicloInfo(); const ini=(ci&&ci.inicio)||(S.asig&&S.asig.fecha_inicio); if(!ini||!S.perfil) return null
-  const { data: sets, error } = await sb.from('set_registros').select('peso,reps,ejercicio_id,registro_id,sesiones_registro!inner(fecha,estado)')
-    .eq('socio_id', S.perfil.id).eq('completado', true).gt('peso', 0).lte('peso', 500).gte('sesiones_registro.fecha', ini).neq('sesiones_registro.estado','anulada')   // v11.9: ejecución real = sets hechos en sesiones no anuladas (aunque el socio no haya tocado FINALIZAR)
-  if (error) throw error
+  // c216 · paginado: el servidor corta en 1.000 filas; un ciclo de 8 semanas con 4 sesiones puede superarlo y se perdían las últimas semanas en silencio
+  const sets=[]; for (let a=0;; a+=1000){
+    const { data, error } = await sb.from('set_registros').select('peso,reps,ejercicio_id,registro_id,sesiones_registro!inner(fecha,estado)')
+      .eq('socio_id', S.perfil.id).eq('completado', true).gt('peso', 0).lte('peso', 500).gte('sesiones_registro.fecha', ini).neq('sesiones_registro.estado','anulada')   // v11.9: ejecución real = sets hechos en sesiones no anuladas (aunque el socio no haya tocado FINALIZAR)
+      .order('id').range(a, a+999)
+    if (error) throw error
+    sets.push(...(data||[])); if ((data||[]).length<1000 || a>=9000) break }
   const ids=[...new Set((sets||[]).map(s=>s.ejercicio_id).filter(Boolean))]
   const ejs={}; if(ids.length){ const r=await sb.from('ejercicios').select('id,nombre,grupo_muscular,sinergistas,cuenta_dosis').in('id', ids); (r.data||[]).forEach(e=>ejs[e.id]=e) }
   return fzCalcular(sets||[], ejs, ini)
@@ -7221,18 +7225,23 @@ function fzCalcular(sets, ejs, ini){
   sets.forEach(s=>{ const r=parseInt(String(s.reps||'').match(/\d+/)||'0',10), e=ejs[s.ejercicio_id], f=s.sesiones_registro&&s.sesiones_registro.fecha; if(!r||!e||!f) return
     const w=semDe(f), p=fzPerfil(e); Object.entries(p).forEach(([g,v])=>{ carga[g][w]=(carga[g][w]||0)+s.peso*r*v }) })
   const EX=Object.entries(porEj).map(([id,m])=>{
-    let ss=Object.values(m).sort((a,b)=>a.f<b.f?-1:1), mx=0
-    ss=ss.filter(x=>{ const ok=!mx||x.e1<=2*mx; if(ok) mx=Math.max(mx,x.e1); return ok })
+    // c216 · registro erróneo = fuera de 0,5–1,8× la mediana del ejercicio (antes solo se filtraba hacia arriba: un primer registro
+    // mal anotado bajo, ej. 5 en vez de 50, quedaba como punto de partida e inflaba el aumento hasta el tope de +100%)
+    let ss=Object.values(m).sort((a,b)=>a.f<b.f?-1:1)
+    const ord=ss.map(x=>x.e1).sort((a,b)=>a-b), md=ord.length%2?ord[(ord.length-1)/2]:(ord[ord.length/2-1]+ord[ord.length/2])/2
+    if (ss.length>=3) ss=ss.filter(x=>x.e1>=.5*md && x.e1<=1.8*md)
     return { id, ej:ejs[id], ss, prof:fzPerfil(ejs[id]) }
   }).filter(x=>x.ej && x.ss.length)
   const idxHasta=(x,w)=>{ const u=x.ss.filter(s=>s.w<=w); if(u.length<3) return null
     const b=(u[0].e1+u[1].e1)/2, c=(u[u.length-1].e1+u[u.length-2].e1)/2; return Math.min(2,Math.max(.7,c/b)) }
   const grupos=KD.GRUPOS.map(g=>{
-    const exs=EX.filter(x=>x.prof[g]>0), prim=exs.filter(x=>KD.canon(x.ej.grupo_muscular)===g)
+    // c216 · el índice del grupo usa su ejercicio principal y sinergistas fuertes (≥0,5); los de 0,25 (ej. press de pecho para hombro)
+    // movían el % de hombros, bíceps y tríceps con la fuerza de otro músculo. La carga movilizada sigue contando todos.
+    const exs=EX.filter(x=>x.prof[g]>=.5), prim=exs.filter(x=>KD.canon(x.ej.grupo_muscular)===g)
     const valor=w=>{ let sw=0, sl=0, n=0, n4=false
       exs.forEach(x=>{ const i=idxHasta(x,w); if(i==null) return; const u=x.ss.filter(s=>s.w<=w).length, wt=x.prof[g]*u; sw+=wt; sl+=wt*Math.log(i); n++; if(u>=4) n4=true })
       const pv=prim.filter(x=>x.ss.filter(s=>s.w<=w).length>=3).length
-      return pv>0 && (n>=2||n4) && sw>0 ? Math.exp(sl/sw) : null }
+      return pv>0 && sw>0 ? Math.exp(sl/sw) : null }   // c216 · basta un ejercicio principal con 3 sesiones (ya filtrado por mediana)
     const serie=[]; for(let w=1; w<=Math.max(1,hoyW); w++) serie.push(valor(w))
     const v=valor(hoyW)
     const prin=exs.filter(x=>x.prof[g]>=.5)
@@ -7240,10 +7249,10 @@ function fzCalcular(sets, ejs, ini){
     const mejor=validos.sort((a,b)=>b.i-a.i)[0]
     let marcas=0; prin.forEach(x=>{ let m=0; x.ss.forEach((s,j)=>{ if(j>0&&s.peso>m) marcas++; m=Math.max(m,s.peso) }) })
     const maxS=prim.length?Math.max(...prim.map(x=>x.ss.length)):0
-    const faltan=Math.max(1, (prim.length>=2 ? 3 : 4) - maxS)
+    const faltan=Math.max(1, 3 - maxS)
     return { g, v, pct: v!=null ? Math.round((v-1)*100) : null, serie, n:prin.length, subiendo:validos.filter(o=>o.i>1.005).length, nval:validos.length,
       marcas, mejor: mejor && mejor.i>1.005 ? { nom: mejor.x.ej.nombre, a: mejor.x.ss[0], b: mejor.x.ss[mejor.x.ss.length-1] } : null,
-      cargaHoy: Math.round(carga[g][hoyW]||0), cargaS1: Math.round(carga[g][1]||0), faltan, total: prim.length>=2?3:4, activo: prim.length>0 }
+      cargaHoy: Math.round(carga[g][hoyW]||0), cargaS1: Math.round(carga[g][1]||0), faltan, total: 3, activo: prim.length>0 }
   }).filter(o=>o.activo)
   return { grupos, hoyW }
 }
@@ -7253,7 +7262,8 @@ const fzMiles=n=>String(Math.round(n)).replace(/\B(?=(\d{3})+(?!\d))/g,'.')
 const fzSet=s=>avKg(s.peso)+' kg × '+s.reps
 async function loadFuerza(){
   const el=document.getElementById('avFuerza'); if(!el) return
-  try{ FZ.data=await fzCargar(); pintarFuerza() }catch(e){ console.error('fuerza', e)
+  if (FZ.data && Date.now()-FZ.t<90000){ pintarFuerza(); return }   // c216 · volver a AVANCES no recalcula si no han pasado 90 s
+  try{ FZ.data=await fzCargar(); FZ.t=Date.now(); pintarFuerza() }catch(e){ console.error('fuerza', e)
     el.innerHTML='<div class="avErr"><b>NO PUDIMOS CARGAR TU FUERZA POR GRUPO</b><span>Revisa tu conexión.</span><button type="button" onclick="loadFuerza()">REINTENTAR</button></div>' }
 }
 function pintarFuerza(){
