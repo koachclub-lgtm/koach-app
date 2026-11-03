@@ -83,7 +83,7 @@ begin
       'kcal_objetivo', ev.kcal_objetivo, 'proteina_g', ev.proteina_g, 'carbohidrato_g', ev.carbohidrato_g, 'grasa_g', ev.grasa_g,
       'nota_socio', ev.nota_socio,
       'sesiones_periodo', case when ev.fecha_prev is not null then
-         (select count(*) from sesiones_registro r where r.socio_id = v_sid and coalesce(r.estado, '') <> 'anulada'
+         (select count(*) from sesiones_registro r where r.socio_id = v_sid and r.estado::text is distinct from 'anulada'
             and r.fecha > ev.fecha_prev and r.fecha <= ev.fecha) end,
       'dias_periodo', case when ev.fecha_prev is not null then ev.fecha - ev.fecha_prev end
     )) || case when v_full then jsonb_strip_nulls(jsonb_build_object(
