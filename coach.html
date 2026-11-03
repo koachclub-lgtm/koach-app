@@ -495,6 +495,9 @@ button.bxI:hover,button.bxI:focus-visible{transform:translateY(-2px);box-shadow:
 .tbN{flex:1;min-width:0;display:flex;align-items:baseline;gap:8px}
 .tbN b{font-weight:700;font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:#121212}
 .tbN em{flex:none;font-style:normal;font-family:'Space Mono',var(--font-mono);font-size:9.5px;letter-spacing:.12em;color:#5E5D59}
+.tbN em.tbTest{color:#fff;background:#1C1C1C;padding:1px 5px;border-radius:3px}
+.linTest{flex:none;border:1px solid #1C1C1C;background:transparent;color:#1C1C1C;font-family:'Space Mono',var(--font-mono);font-size:9.5px;letter-spacing:.12em;padding:3px 7px;border-radius:4px;margin-right:6px;cursor:pointer}
+.linTest.on{background:#1C1C1C;color:#fff}
 .tbIc{min-height:0 !important;padding:0 !important;width:34px;height:34px;flex:none;border-radius:9px;border:1px solid rgba(18,18,18,.22);background:#fff;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;color:#121212;font-family:'Space Mono',var(--font-mono);font-weight:700}
 .tbIc svg{width:15px;height:15px}.tbIc:hover,.tbIc[aria-pressed="true"]{background:#121212;color:#F4F3F0;border-color:#121212}
 .tbIc--d{border:0;background:rgba(18,18,18,.06)}
@@ -4117,6 +4120,8 @@ async function abrirPlan(pid, proto, opts){
               cuentaDosis:(be.ejercicios?be.ejercicios.cuenta_dosis:null), activo:(be.ejercicios?be.ejercicios.activo:null),
               reps:(be.reps_txt!=null&&be.reps_txt!==''?be.reps_txt:(be.reps!=null?String(be.reps):'10')) }
           }) } }) } }) }
+  P.tests = {}
+  if (!esBib && !esBase){ try{ const rt=await sb.from('test_programado').select('semana,ejercicio_id').eq('protocolo_id',pid); (rt.data||[]).forEach(function(x){ P.tests[x.semana+'|'+x.ejercicio_id]=true }) }catch(_e){ console.warn('[test_programado]', _e) } }
   const obj = (!esBib && !esBase && F && C.asig[F.id]) ? C.obj[C.asig[F.id].protocolo_id] : null
   P.objetivos = obj || null
   if (esBib){ P.objetivos = {}; pintarPlan(); return }
@@ -4245,7 +4250,7 @@ function pintarPlan(){ setTimeout(function(){ try{ plSaveUI(); rtSyncPlan() }cat
       const plLinea = plActivo() ? plLineaProgresion(it, esBW, esT) : ''
       return '<div class="lin" id="pl-'+it.beId+'">'+
         '<div class="linTop">'+
-          '<div class="chipG">'+(it.grupo||'—')+'</div>'+
+          '<div class="chipG">'+(it.grupo||'—')+'</div>'+(plTestOk()?'<button class="linTest'+(plEsTest(it)?' on':'')+'" aria-pressed="'+plEsTest(it)+'" aria-label="Test de fuerza en '+Nm+'" onclick="plTestMovil(\''+it.beId+'\')">TEST</button>':'')+
           '<button class="ejN" onclick="abrirSelector(\'cambiar\','+bi+',\''+it.beId+'\')">'+it.nombre+'<small>'+ultTxt+(ultTxt?' · ':'')+(it.activo===false?'<b style="color:#1C1C1C">FUERA DE BIBLIOTECA</b> · ':'')+'CAMBIAR ⇄</small></button>'+
           '<span class="ehdl" data-ehdl data-bi="'+bi+'">⋮⋮</span>'+
           '<button class="linX" onclick="quitarEj(\''+it.beId+'\')">✕</button>'+
@@ -4334,7 +4339,7 @@ function plTbCard(it,bi){
   else if (tp.bw) ctl=plTbSt('pi-r-'+it.beId,plEsc(String(it.reps)),'REPS',it.beId,'reps',1,N,'repeticiones','editReps','numeric')+'<div class="tbSt tbSt--fx tbSt--btn">'+plModoBtn(it,'')+'</div>'
   else ctl=plTbSt('pi-r-'+it.beId,plEsc(String(it.reps)),'REPS',it.beId,'reps',1,N,'repeticiones','editReps','numeric')+plTbSt('pi-k-'+it.beId,it.kg==null?'':KSET.kg(it.kg),'KG',it.beId,'kg',2.5,N,'peso','editKg','decimal',it.kg==null?'falta':'')
   const top = ed ? '<div class="tbSwap"><small>REEMPLAZAR '+N.toUpperCase()+' · MISMAS SERIES Y REPS</small><input id="tbSwQ" autocomplete="off" placeholder="Buscar ejercicio…" aria-label="Buscar ejercicio para reemplazar '+N+'" oninput="plTbSwLista()" onkeydown="plTbSwTecla(event)"><ul class="tbSwL" id="tbSwL" role="listbox"></ul></div>'
-    : '<div class="tbN"><b title="'+N+'">'+N+'</b><em>'+plEsc(SIGLA[it.grupo]||it.grupo||'')+'</em>'+(it.activo===false?'<em>FUERA DE BIBLIOTECA</em>':'')+'</div>'
+    : '<div class="tbN"><b title="'+N+'">'+N+'</b><em>'+plEsc(SIGLA[it.grupo]||it.grupo||'')+'</em>'+(plEsTest(it)?'<em class="tbTest">TEST</em>':'')+(it.activo===false?'<em>FUERA DE BIBLIOTECA</em>':'')+'</div>'
   const linea = plActivo() ? plLineaProgresion(it, tp.bw, tp.t) : ''
   return '<div class="tbCard'+(sel?' sel':'')+(ed?' edit':'')+'" draggable="'+(!ed&&!(P&&P.ro))+'" data-be="'+it.beId+'" data-bi="'+bi+'" id="pl-'+it.beId+'" onclick="plTbSel(event,\''+it.beId+'\')">'+
     '<div class="tbT">'+top+
@@ -4387,7 +4392,7 @@ function plTbInsp(){
   return '<div class="k">'+plEsc(bloqueTag(b,bi))+' · '+plEsc(it.grupo||'')+'</div><h3>'+plEsc(it.nombre||'')+'</h3><div class="pres">'+plEsc(pres)+'</div><div class="mut">PRESCRITO · DESCANSO '+b.desc+'s</div>'+
     '<div class="lab">ÚLTIMA CARGA REGISTRADA</div>'+(u?'<div class="hist"><span>'+cgF(u.fecha)+'</span><b>'+plEsc(cgSet(u))+'</b>'+hist.slice(1).map(function(r){ return '<span>'+cgF(r.fecha)+'</span><b>'+plEsc(cgSet(r))+'</b>' }).join('')+'</div>':'<div class="mut">SIN REGISTROS PREVIOS</div>')+
     '<div class="lab">ESTA SEMANA</div><div class="mut">'+(otras.length?'TAMBIÉN EN '+plEsc(otras.join(' · ')):'SOLO EN ESTA SESIÓN')+'</div>'+
-    '<div class="acts">'+(plActivo()?'<button type="button" onclick="cgDrawer(\''+it.ejId+'\',\''+it.beId+'\')">HISTORIAL DE CARGAS →</button>':'')+
+    '<div class="acts">'+(plTestOk()?'<button type="button" onclick="plTest(\''+it.beId+'\')">'+(plEsTest(it)?'QUITAR TEST':'MARCAR COMO TEST · SINGLE SET')+'</button>'+(plEsTest(it)&&plTestSiguiente(it)?'<button type="button" onclick="plTestAplazar(\''+it.beId+'\')">APLAZAR TEST A SEMANA '+plTestSiguiente(it)+'</button>':''):'')+(plActivo()?'<button type="button" onclick="cgDrawer(\''+it.ejId+'\',\''+it.beId+'\')">HISTORIAL DE CARGAS →</button>':'')+
       '<button type="button" onclick="plTbSwAbrir(\''+it.beId+'\','+bi+')">REEMPLAZAR EJERCICIO ✎</button>'+
       '<button type="button" onclick="quitarEj(\''+it.beId+'\')">QUITAR DE B'+(bi+1)+'</button></div>' }
 function plTbSel(ev,beId){ if(ev.target.closest('button,input,a,ul')) return
@@ -4418,7 +4423,7 @@ function plTbMenu(ev,beId){ ev.stopPropagation(); plTbMenuCerrar(); const x=plan
   m.innerHTML=(ii>0?'<button role="menuitem" onclick="plTbMover(\''+beId+'\','+bi+','+(ii-1)+')">SUBIR</button>':'')+
     (ii<x.b.items.length-1?'<button role="menuitem" onclick="plTbMover(\''+beId+'\','+bi+','+(ii+2)+')">BAJAR</button>':'')+
     ses.bloques.map(function(b2,j){ return j===bi?'':'<button role="menuitem" onclick="plTbMover(\''+beId+'\','+j+','+b2.items.length+')">MOVER A B'+(j+1)+'<small>'+plEsc(String(b2.etiqueta||'').toUpperCase())+'</small></button>' }).join('')+
-    '<hr>'+(plActivo()?'<button role="menuitem" onclick="plTbMenuCerrar();cgDrawer(\''+x.it.ejId+'\',\''+beId+'\')">HISTORIAL DE CARGAS</button>':'')+
+    '<hr>'+plTestMenu(x.it)+(plActivo()?'<button role="menuitem" onclick="plTbMenuCerrar();cgDrawer(\''+x.it.ejId+'\',\''+beId+'\')">HISTORIAL DE CARGAS</button>':'')+
     '<button role="menuitem" onclick="plTbMenuCerrar();abrirSelector(\'cambiar\','+bi+',\''+beId+'\')">CAMBIAR · CATÁLOGO COMPLETO</button>'+
     '<button role="menuitem" onclick="plTbMenuCerrar();quitarEj(\''+beId+'\')">QUITAR DE B'+(bi+1)+'</button>'
   document.body.appendChild(m)
@@ -4426,6 +4431,42 @@ function plTbMenu(ev,beId){ ev.stopPropagation(); plTbMenuCerrar(); const x=plan
   m.style.left=Math.max(8,Math.min(innerWidth-w-8, r.right-w))+'px'; m.style.top=(r.bottom+h+8>innerHeight? Math.max(8,r.top-h-6) : r.bottom+6)+'px'
   const f=m.querySelector('button'); if(f) f.focus() }
 function plTbMenuCerrar(){ const m=document.getElementById('tbMenu'); if(m) m.remove() }
+// c215 · TEST DE FUERZA · single set de test por semana y ejercicio en el plan del socio (tabla test_programado).
+// Lo decide el koach: lo marca, lo quita o lo APLAZA a una semana siguiente si el socio no está habilitado (energía, molestia).
+// Vive fuera de bloque_ejercicios: la reproyección de semanas no lo borra y no requiere PUBLICAR.
+function plTestOk(){ return !!(P && !P.bib && !P.base && !P.ro && P.tests) }
+function plTestW(){ const s=P&&P.sesiones&&P.sesiones[P.tab]; return (s&&s.semana)||1 }
+function plEsTest(it,w){ return !!(P&&P.tests&&it&&P.tests[(w||plTestW())+'|'+it.ejId]) }
+function plTestMenu(it){ if(!plTestOk()) return ''
+  const on=plEsTest(it), sig=on?plTestSiguiente(it):null
+  return '<button role="menuitem" onclick="plTbMenuCerrar();plTest(\''+it.beId+'\')">'+(on?'QUITAR TEST':'MARCAR COMO TEST')+'<small>SINGLE SET · SEMANA '+plTestW()+'</small></button>'+
+    (sig?'<button role="menuitem" onclick="plTbMenuCerrar();plTestAplazar(\''+it.beId+'\')">APLAZAR TEST A SEMANA '+sig+'<small>SOCIO NO HABILITADO</small></button>':'')+'<hr>' }
+function plTestSiguiente(it){ if(!P||!it) return null; const w=plTestW()
+  for (let w2=w+1; w2<=w+3; w2++){ if(plSesSem(w2).some(function(s2){ return (s2.bloques||[]).some(function(b2){ return (b2.items||[]).some(function(z){ return z.ejId===it.ejId }) }) })) return w2 }
+  return null }
+async function plTest(beId){ if(!plTestOk()) return; const x=planItem(beId); if(!x) return
+  const w=plTestW(), k=w+'|'+x.it.ejId, on=!P.tests[k]
+  const r = on ? await sb.from('test_programado').insert({ protocolo_id:P.pid, semana:w, ejercicio_id:x.it.ejId })
+               : await sb.from('test_programado').delete().eq('protocolo_id',P.pid).eq('semana',w).eq('ejercicio_id',x.it.ejId)
+  if (r.error && !(on && r.error.code==='23505')){ toast('No se pudo guardar el test: '+r.error.message); return }
+  if (on) P.tests[k]=true; else delete P.tests[k]
+  repintarConservando(); toast(on?'TEST · '+String(x.it.nombre||'').toUpperCase()+' · single set en la semana '+w:'Test quitado de la semana '+w) }
+async function plTestMovil(beId){ const x=planItem(beId); if(!x) return
+  if (plEsTest(x.it) && plTestSiguiente(x.it)){ plTestMenuMovil(beId); return } await plTest(beId) }
+function plTestMenuMovil(beId){ const x=planItem(beId); if(!x) return; const sig=plTestSiguiente(x.it)
+  plTbMenuCerrar(); const m=document.createElement('div'); m.className='tbMenu'; m.id='tbMenu'; m.setAttribute('role','menu')
+  m.innerHTML='<button role="menuitem" onclick="plTbMenuCerrar();plTestAplazar(\''+beId+'\')">APLAZAR TEST A SEMANA '+sig+'<small>SOCIO NO HABILITADO</small></button><button role="menuitem" onclick="plTbMenuCerrar();plTest(\''+beId+'\')">QUITAR TEST</button>'
+  document.body.appendChild(m); const el=document.getElementById('pl-'+beId), r=el?el.getBoundingClientRect():{left:8,bottom:80}
+  m.style.left=Math.max(8,Math.min(innerWidth-m.offsetWidth-8,r.left+8))+'px'; m.style.top=Math.max(8,Math.min(innerHeight-m.offsetHeight-8,r.bottom-40))+'px'
+  setTimeout(function(){ document.addEventListener('click', plTbMenuCerrar, {once:true}) }, 0) }
+async function plTestAplazar(beId){ if(!plTestOk()) return; const x=planItem(beId); if(!x) return
+  const w=plTestW(), w2=plTestSiguiente(x.it); if(!w2){ toast('No hay una semana siguiente con este ejercicio'); return }
+  const ri=await sb.from('test_programado').insert({ protocolo_id:P.pid, semana:w2, ejercicio_id:x.it.ejId })
+  if (ri.error && ri.error.code!=='23505'){ toast('No se pudo aplazar el test: '+ri.error.message); return }
+  const rd=await sb.from('test_programado').delete().eq('protocolo_id',P.pid).eq('semana',w).eq('ejercicio_id',x.it.ejId)
+  if (rd.error){ toast('No se pudo aplazar el test: '+rd.error.message); return }
+  P.tests[w2+'|'+x.it.ejId]=true; delete P.tests[w+'|'+x.it.ejId]
+  repintarConservando(); toast('Test aplazado a la semana '+w2+' · '+String(x.it.nombre||'').toUpperCase()) }
 document.addEventListener('click', function(e){ const m=document.getElementById('tbMenu'); if(m && !m.contains(e.target)) m.remove() })
 document.addEventListener('keydown', function(e){ if(e.key==='Escape') plTbMenuCerrar() })
 // mover dentro del bloque o a otro bloque (antes de la posición 'pos' del destino)
