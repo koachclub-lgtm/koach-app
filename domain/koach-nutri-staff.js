@@ -182,6 +182,7 @@ function fPlanForm(p){
       ta('plInd','INDICACIONES · UNA POR LÍNEA',c.indicaciones.join('\n'),4)+ta('plEv','EVITAR · UNO POR LÍNEA',c.evitar.join('\n'),4)+'</div>'+
       '<div class="cmpF__f" style="grid-template-columns:repeat(3,1fr);margin-top:8px">'+metas+'</div></div>'+
     '<div class="cmpF__acts"><button type="button" class="cmp__b cmp__b--l" onclick="plVista(\'ancho\',true)">VISTA PREVIA ⤢</button><button type="button" class="cmp__b cmp__b--l" id="plGuardar" onclick="fPlanGuardar(\'borrador\')">GUARDAR BORRADOR</button><button type="button" class="cmp__b" id="plPublicar" onclick="fPlanGuardar(\'publicada\')">PUBLICAR AL SOCIO</button></div>'+
+    '<p class="cmp__k" id="plPubWhy" style="text-align:right;margin-top:6px;color:#B85A2E"></p>'+
     '</div><aside class="plPrevWrap plPrevWrap--st"><span class="cmp__k" style="margin-bottom:8px">VISTA DEL SOCIO · EN VIVO</span><div class="plPhone" id="plPrev"></div></aside></div></div>'
   NPL.ia = !!(p&&p.generado_ia); NPL.modelo=(p&&p.modelo)||null; NPL.tdee=(p&&p.tdee)||null; NPL.tmb=(p&&p.tmb)||null
   plCalBase(); fPlanComidasPintar(); fPlanSync()
@@ -211,7 +212,9 @@ function fPlanSync(){
   plCalPintar(f, r, ev)
   const fin=document.getElementById('plFin'); if(fin){ const pe=KN.periodo(f); fin.value=pe?pe.finTxt:'' }
   const pv=document.getElementById('plPrev'); if(pv) pv.innerHTML=KN.plan(Object.assign({ programa:cmpProg(), estado:'borrador', fecha:new Date().toISOString().slice(0,10) }, f), { peso: ev&&ev.peso_kg })
-  const pub=document.getElementById('plPublicar'); if(pub) pub.disabled=!(f.kcal && f.proteina_g && f.contenido.comidas.length)
+  const falta=[!f.kcal&&'las calorías',!f.proteina_g&&'la proteína',!f.contenido.comidas.length&&'al menos una comida con alimentos (REDACTAR CON IA o + COMIDA)'].filter(Boolean)
+  const pub=document.getElementById('plPublicar'); if(pub){ pub.disabled=!!falta.length; pub.title=falta.length?'Falta '+falta.join(', '):'' }
+  const why=document.getElementById('plPubWhy'); if(why) why.textContent=falta.length?'PARA PUBLICAR FALTA: '+falta.join(' · ').toUpperCase():''
 }
 function fPlanComida(){ fPlanCapturar(); NPL.cont.comidas.push({ nombre:'', hora:'', aporte:'', opciones:[{ etiqueta:'A', alimentos:[] }] }); fPlanComidasPintar(); fPlanSync() }
 function fPlanQuitar(i){ fPlanCapturar(); NPL.cont.comidas.splice(i,1); fPlanComidasPintar(); fPlanSync() }
