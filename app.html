@@ -7215,6 +7215,8 @@ async function fzCargar(){
 function fzCalcular(sets, ejs, ini){
   const l0=fzLunes(ini), semDe=f=>Math.floor((fzLunes(f)-l0)/6048e5)+1, hoyW=semDe(fLocal(new Date()))
   const porEj={}
+  const FZ_RMAX=25   // c218 · set con carga sobre 25 reps = error de anotación (ej. 30 kg × 30): no suma ni cuenta
+  sets=sets.filter(s=>{ const r=parseInt(String(s.reps||'').match(/\d+/)||'0',10); return r>0 && r<=FZ_RMAX })
   sets.forEach(s=>{ const r=parseInt(String(s.reps||'').match(/\d+/)||'0',10); if(!r||!s.ejercicio_id) return
     const f=s.sesiones_registro&&s.sesiones_registro.fecha; if(!f) return
     // c217 · lo que cuenta es el REGISTRO REAL: cada set que anota el socio (o corrige el koach) suma peso × reps a su sesión
@@ -7223,9 +7225,10 @@ function fzCalcular(sets, ejs, ini){
     cur.vol+=s.peso*r
     if(e1>cur.e1){ cur.e1=e1; cur.peso=+s.peso; cur.reps=r }
   })
-  const carga={}; KD.GRUPOS.forEach(g=>carga[g]={})
+  const carga={}, sesG={}; KD.GRUPOS.forEach(g=>{ carga[g]={}; sesG[g]={} })
   sets.forEach(s=>{ const r=parseInt(String(s.reps||'').match(/\d+/)||'0',10), e=ejs[s.ejercicio_id], f=s.sesiones_registro&&s.sesiones_registro.fecha; if(!r||!e||!f) return
-    const w=semDe(f), p=fzPerfil(e); Object.entries(p).forEach(([g,v])=>{ carga[g][w]=(carga[g][w]||0)+s.peso*r*v }) })
+    const w=semDe(f), p=fzPerfil(e); Object.entries(p).forEach(([g,v])=>{ carga[g][w]=(carga[g][w]||0)+s.peso*r*v; (sesG[g][w]=sesG[g][w]||new Set()).add(s.registro_id) }) })
+  const porSes=(g,w)=>{ const n=sesG[g][w]?sesG[g][w].size:0; return n?Math.round((carga[g][w]||0)/n):0 }
   const EX=Object.entries(porEj).map(([id,m])=>{
     // c216 · registro erróneo = fuera de 0,5–1,8× la mediana del ejercicio (antes solo se filtraba hacia arriba: un primer registro
     // mal anotado bajo, ej. 5 en vez de 50, quedaba como punto de partida e inflaba el aumento hasta el tope de +100%)
@@ -7256,7 +7259,7 @@ function fzCalcular(sets, ejs, ini){
     const faltan=Math.max(1, 3 - maxS)
     return { g, v, pct: v!=null ? Math.round((v-1)*100) : null, serie, n:prin.length, subiendo:validos.filter(o=>o.i>1.005).length, nval:validos.length,
       marcas, mejor: mejor && mejor.i>1.005 ? { nom: mejor.x.ej.nombre, a: mejor.x.ss[0], b: mejor.x.ss[mejor.x.ss.length-1] } : null,
-      cargaHoy: Math.round(carga[g][hoyW]||0), cargaS1: Math.round(carga[g][1]||0), cargaCiclo: Math.round(Object.values(carga[g]).reduce((a,b)=>a+b,0)), faltan, total: 3, activo: prim.length>0 }
+      cargaHoy: Math.round(carga[g][hoyW]||0), cargaS1: Math.round(carga[g][1]||0), sesHoy: porSes(g,hoyW), sesS1: porSes(g,1), cargaCiclo: Math.round(Object.values(carga[g]).reduce((a,b)=>a+b,0)), faltan, total: 3, activo: prim.length>0 }
   }).filter(o=>o.activo)
   return { grupos, hoyW }
 }
@@ -7280,9 +7283,9 @@ function pintarFuerza(){
     FZ.sel=(pri||orden[0]).g }
   const prg=avPrograma(), tit = prg==='HEALTHY' ? 'Tu fuerza, a tu ritmo' : prg==='BURN' ? 'Más fuerte mientras cambias tu cuerpo' : 'Tu versión más fuerte'
   const s=orden.find(o=>o.g===FZ.sel)
-  const sube=vis.length&&vis[0].pct>0
+  const sube=vis.length&&vis[0].pct>=2
   const fila=o=>{ const img=fzImg(o.g), w=o.pct!=null?Math.max(4,Math.min(100,o.pct/Math.max(1,(vis[0]&&vis[0].pct)||1)*100)):0
-    return '<button type="button" class="fzIt" aria-pressed="'+(o.g===FZ.sel)+'" aria-label="'+fzNom(o.g)+': '+(o.pct==null?'aún midiendo':o.pct<2?'estable':'+'+o.pct+' por ciento')+'" onclick="FZ.sel=\''+o.g+'\';pintarFuerza()">'+
+    return '<button type="button" class="fzIt" aria-pressed="'+(o.g===FZ.sel)+'" aria-label="'+fzNom(o.g)+': '+(o.pct==null?'aún midiendo':Math.abs(o.pct)<2?'estable':(o.pct>0?'más ':'menos ')+Math.abs(o.pct)+' por ciento')+'" onclick="FZ.sel=\''+o.g+'\';pintarFuerza()">'+
       (img?'<img src="'+img+'" alt="">':'<span class="fzIt__ph"></span>')+'<span class="fzIt__n">'+fzNom(o.g)+(o.pct!=null?'<i><u style="width:'+w+'%"></u></i>':'')+'</span><em>'+fzEtiqueta(o)+'</em></button>' }
   const calN=cal.length
   el.innerHTML='<div class="fz"><span class="a2k">FUERZA POR GRUPO MUSCULAR · CICLO '+((S.asig&&S.asig.ciclo_actual)||1)+'</span>'+
@@ -7294,7 +7297,9 @@ function pintarFuerza(){
     '<details class="fzInfo"><summary>ⓘ ¿CÓMO SE CALCULA?</summary><p>Sumamos lo que realmente haces: cada set que registras (peso × repeticiones) en los ejercicios de este grupo. El porcentaje compara la carga que movilizas por sesión hoy con tus primeras sesiones del ciclo, en los mismos ejercicios: sube cuando haces más peso, más repeticiones o más sets. Un ejercicio cuenta cuando lo has hecho al menos 3 veces.</p></details></div>'
   if (vis.length) fzChart(vis, d.hoyW)
 }
-function fzEtiqueta(o){ if(o.pct==null) return '<small>—</small>'; if(o.pct<2) return '<small>0% · ESTABLE</small>'; return '+'+o.pct+'%' }
+// c218 · el socio ve el cambio real: sube (+), estable (−1 a +1%) o baja (−), sin redondear las bajas a 0%
+const fzPct=p=>p==null?'—':Math.abs(p)<2?'0%':(p>0?'+':'−')+Math.abs(p)+'%'
+function fzEtiqueta(o){ if(o.pct==null) return '<small>—</small>'; if(Math.abs(o.pct)<2) return '<small>0% · ESTABLE</small>'; return fzPct(o.pct) }
 function fzCard(o){
   const img=fzImg(o.g), cab='<div class="fzCH">'+(img?'<img src="'+img+'" alt="">':'<span></span>')+'<div><div class="fzH"><b>'+fzNom(o.g)+'</b>'
   if (o.pct==null){
@@ -7306,14 +7311,14 @@ function fzCard(o){
   const nv=String((S.proto&&S.proto.nivel)||''), ci=(S.asig&&S.asig.ciclo_actual)||1
   const ctx = o.pct>0 && /avanz/i.test(nv) ? 'En tu etapa, +'+o.pct+'% en un ciclo es un gran avance.'
     : (/b[aá]sic/i.test(nv) || ci===1) && o.pct>0 ? 'Al comenzar, la fuerza aumenta rápido; después el ritmo se estabiliza. Es normal.' : ''
-  const est=o.pct<2
-  const badge = !est && FZ.data && FZ.data.grupos.filter(x=>x.pct!=null).sort((a,b)=>b.pct-a.pct)[0]===o ? 'TU MAYOR AUMENTO DE FUERZA'
+  const est=Math.abs(o.pct)<2, baja=o.pct<=-2
+  const badge = !est && !baja && FZ.data && FZ.data.grupos.filter(x=>x.pct!=null).sort((a,b)=>b.pct-a.pct)[0]===o ? 'TU MAYOR AUMENTO DE FUERZA'
     : (()=>{ const s=o.serie.filter(v=>v!=null); let n=0; for(let i=s.length-1;i>0&&s[i]>s[i-1];i--) n++; return n>=3?n+' SEMANAS AUMENTANDO':o.marcas?'NUEVA MARCA PERSONAL':'' })()
-  return '<div class="fzHero"><div><span class="fzHero__g">'+fzNom(o.g)+'</span><b class="fzHero__p">'+(est?'0%':'+'+o.pct+'%')+'</b><span class="a2k">'+(est?'ESTABLE · DESDE EL INICIO DEL CICLO':'MÁS CARGA MOVILIZADA · DESDE EL INICIO DEL CICLO')+'</span></div>'+(img?'<img src="'+img+'" alt="">':'')+'</div>'+
-    (ctx?'<p class="fzCtx">'+ctx+'</p>':'')+
+  return '<div class="fzHero"><div><span class="fzHero__g">'+fzNom(o.g)+'</span><b class="fzHero__p">'+fzPct(o.pct)+'</b><span class="a2k">'+(est?'ESTABLE · DESDE EL INICIO DEL CICLO':baja?'MENOS CARGA MOVILIZADA · DESDE EL INICIO DEL CICLO':'MÁS CARGA MOVILIZADA · DESDE EL INICIO DEL CICLO')+'</span></div>'+(img?'<img src="'+img+'" alt="">':'')+'</div>'+
+    (baja?'<p class="fzCtx">Movilizas menos carga que al inicio. Puede ser un cambio de tu plan (menos sets o repeticiones) o una semana de descarga: revísalo con tu koach.</p>':ctx?'<p class="fzCtx">'+ctx+'</p>':'')+
     '<div class="fzG"><div class="a2n"><b>'+o.marcas+'</b><small>MARCAS<br>PERSONALES</small></div><div class="a2n"><b>'+o.subiendo+'<i>/'+o.nval+'</i></b><small>EJERCICIOS<br>SUBIENDO</small></div>'+
     '<div class="a2n a2n--w">'+(o.mejor?'<b class="a2n__t">'+plEscA(o.mejor.nom)+'</b><small>MEJOR PROGRESIÓN · '+fzSet(o.mejor.a)+' → '+fzSet(o.mejor.b)+'</small>':'<b class="a2n__t">—</b><small>MEJOR PROGRESIÓN</small>')+'</div></div>'+
-    '<p class="fzMeta"><b>'+fzMiles(o.cargaCiclo)+' KG</b> MOVIDOS EN EL CICLO · '+fzMiles(o.cargaHoy)+' KG ESTA SEMANA'+(o.cargaS1&&o.cargaHoy?' ('+(o.cargaHoy>=o.cargaS1?'+':'−')+fzMiles(Math.abs(o.cargaHoy-o.cargaS1))+' VS. SEMANA 1)':'')+'</p>'+
+    '<p class="fzMeta"><b>'+fzMiles(o.cargaCiclo)+' KG</b> MOVIDOS EN EL CICLO'+(o.sesHoy?' · '+fzMiles(o.sesHoy)+' KG POR SESIÓN ESTA SEMANA'+(o.sesS1?' ('+(o.sesHoy>=o.sesS1?'+':'−')+fzMiles(Math.abs(o.sesHoy-o.sesS1))+' VS. SEMANA 1)':''):'')+'</p>'+
     (badge?'<span class="a2tag">'+badge+'</span>':'')
 }
 function fzChart(vis, hoyW){
@@ -7330,7 +7335,7 @@ function fzChart(vis, hoyW){
     g+='<polyline points="'+pts+'" fill="none" class="fzLn'+(on?' on':'')+'" stroke-linejoin="round" stroke-linecap="round"/>'
     g+='<polyline points="'+pts+'" fill="none" stroke="transparent" stroke-width="18" style="cursor:pointer" data-g="'+o.g+'"/>'
     if(on){ p.forEach((q,j)=>{ g+='<rect x="'+(q[0]-4)+'" y="'+(q[1]-4)+'" width="8" height="8" class="fzPt'+(j===p.length-1?' last':'')+'"/>' })
-      const l=p[p.length-1]; g+='<text x="'+(l[0]-8)+'" y="'+(l[1]-9)+'" text-anchor="end" class="fzLb">'+(o.pct<2?'0%':'+'+o.pct+'%')+'</text>' } })
+      const l=p[p.length-1]; g+='<text x="'+(l[0]-8)+'" y="'+(l[1]-9)+'" text-anchor="end" class="fzLb">'+fzPct(o.pct)+'</text>' } })
   sv.innerHTML=g
   sv.querySelectorAll('[data-g]').forEach(n=>n.addEventListener('click',()=>{ FZ.sel=n.dataset.g; pintarFuerza() }))
 }
