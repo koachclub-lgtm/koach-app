@@ -6503,7 +6503,7 @@ function admPintar(){
 // El rol y el estado de una cuenta solo los cambia un administrador (trigger koach_trg_proteger_perfil).
 const PROF_ROL={ admin:'ADMIN', coach:'KOACH', recepcion:'RECEPCIÓN', nutricionista:'NUTRICIÓN' }
 const PROF_ORD={ admin:0, coach:1, nutricionista:2, recepcion:3 }
-const PROF_PANEL={ admin:'Dashboard completo', coach:'Dashboard · sala, planificador y socios', recepcion:'Dashboard · membresías, pagos y agenda', nutricionista:'Panel de nutrición · dashboard.koachclub.cl/nutricion' }
+const PROF_PANEL={ admin:'Dashboard completo', coach:'Dashboard · sala, planificador y socios', recepcion:'Dashboard · membresías, pagos y agenda', nutricionista:'Dashboard · agenda y nutrición' }
 async function profCargar(forzar){
   if (AD.prof && !forzar) return
   const r=await sb.from('profiles').select('id,nombre,apellido,role,activo,email,telefono,created_at').in('role',Object.keys(PROF_ROL))
@@ -6552,7 +6552,7 @@ async function profClave(id){
 }
 async function profCorreo(id){
   const p=(AD.prof||[]).find(function(x){return x.id===id}), a=(AD.profAcc&&AD.profAcc[id])||{}, em=(p&&p.email)||a.email; if(!em) return
-  const dest=p.role==='nutricionista'?'https://dashboard.koachclub.cl/nutricion.html':location.origin+'/coach.html'
+  const dest=location.origin+'/coach.html'
   const r=await sb.auth.resetPasswordForEmail(em, { redirectTo:dest })
   if (r.error){ toast(/rate|seconds|limit/i.test(r.error.message||'')?'Demasiados intentos. Prueba en unos minutos.':'No pudimos enviar el correo.'); return }
   try{ await sb.rpc('admin_acceso_registrar',{ p_socio:id, p_accion:'recovery_email_sent' }) }catch(_e){}
