@@ -487,6 +487,51 @@ html.accBloq #pfCard, html.accBloq #vPerfil .kpc__f, html.accBloq #vPerfil [oncl
 #horAv .horBloq{margin-bottom:6px}
 #horAv .horAv{margin:calc(12px + env(safe-area-inset-top,0px)) 16px 0}
 /* c40 · hoja KOACH de confirmación / aviso */
+/* c216 · anamnesis clase de prueba */
+.an{position:fixed;inset:0;z-index:1960;background:#0E0E10;color:#F3F3F4;--ink:#F3F3F4;--mu:rgba(243,243,244,.58);--ln:rgba(243,243,244,.18);--card:rgba(255,255,255,.06);overflow:hidden}
+.an::before{content:"";position:absolute;inset:0;background:radial-gradient(120% 70% at 85% 8%,rgba(150,160,175,.22),transparent 60%),radial-gradient(90% 60% at 0% 100%,rgba(120,125,135,.18),transparent 60%);pointer-events:none}
+.an--out{transition:opacity .25s;opacity:0}
+.an__s{position:absolute;inset:0;display:flex;flex-direction:column;max-width:560px;margin:0 auto;padding:calc(env(safe-area-inset-top,0px) + 18px) 22px calc(env(safe-area-inset-bottom,0px) + 22px);animation:anIn .32s cubic-bezier(.2,.8,.2,1);outline:none}
+@keyframes anIn{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+.an__top{display:flex;justify-content:space-between;align-items:center}.an__top img{height:15px;width:auto}
+.an__top small{font:700 10px var(--font-mono);letter-spacing:.16em;color:var(--mu);font-variant-numeric:tabular-nums}
+.an__dots{display:flex;gap:4px;margin-top:16px}.an__dots i{flex:1;height:3px;border-radius:2px;background:var(--ln)}.an__dots i.ok{background:var(--mu)}.an__dots i.on{background:var(--ink)}
+.an__k{margin-top:18px;font:700 10px var(--font-mono);letter-spacing:.16em;color:var(--mu)}
+.an__q{margin:8px 0 6px;font:700 clamp(24px,7vw,29px)/1.08 var(--font-display);letter-spacing:-.01em;text-wrap:balance}
+.an__sub{margin:0 0 14px;font:400 15px/1.4 var(--font-display);color:var(--mu)}
+.an__body{flex:1;overflow-y:auto;margin:0 -22px;padding:4px 22px 8px;scrollbar-width:none;-webkit-overflow-scrolling:touch}
+.an__opts{display:grid;gap:8px}
+.an__op{min-height:56px;padding:12px 16px;border-radius:14px;border:1.5px solid var(--ln);background:var(--card);color:var(--ink);font:600 16px/1.2 var(--font-display);text-align:left;cursor:pointer;display:flex;align-items:center;justify-content:space-between;gap:10px}
+.an__op small{display:block;font:400 12.5px/1.3 var(--font-display);color:var(--mu);margin-top:2px}
+.an__op[aria-pressed=true]{background:var(--ink);color:#101012;border-color:var(--ink)}.an__op[aria-pressed=true] small{color:rgba(16,16,18,.6)}
+.an__op i{flex:none;width:20px;height:20px;border-radius:50%;border:1.5px solid currentColor;opacity:.6}
+.an__op[aria-pressed=true] i{opacity:1;background:#101012;box-shadow:inset 0 0 0 4px var(--ink)}
+.an__lbl{font:700 10px var(--font-mono);letter-spacing:.16em;color:var(--mu);margin:14px 0 8px}
+.an__chips{display:flex;flex-wrap:wrap;gap:6px}
+.an__ch{min-height:40px;padding:0 14px;border-radius:999px;border:1.5px solid var(--ln);background:none;color:var(--ink);font:700 11px var(--font-mono);letter-spacing:.08em;cursor:pointer}
+.an__ch[aria-pressed=true]{background:var(--ink);color:#101012;border-color:var(--ink)}
+.an__tx,.an__exp input{width:100%;box-sizing:border-box;border-radius:14px;border:1.5px solid var(--ln);background:var(--card);color:var(--ink);font:400 16px/1.4 var(--font-display);padding:12px 14px;outline:none}
+.an__tx{min-height:110px;resize:none}.an__tx:focus,.an__exp input:focus{border-color:var(--ink)}
+.an ::placeholder{color:rgba(243,243,244,.38)}
+.an__exp{border:1.5px solid var(--ln);border-radius:16px;padding:12px;margin-bottom:10px;background:var(--card)}
+.an__exp h4{margin:0 0 8px;font:700 10px var(--font-mono);letter-spacing:.16em;color:var(--mu);display:flex;justify-content:space-between}
+.an__exp .an__chips{margin-top:8px}.an__exp .an__lbl{margin:10px 0 6px}
+.an__act{display:flex;gap:10px;margin-top:12px}
+.an__back{width:56px;min-height:56px;flex:none;border-radius:50%;border:1.5px solid var(--ln);background:rgba(255,255,255,.06);color:var(--ink);font:400 20px var(--font-mono);cursor:pointer}
+.an__go{flex:1;min-height:56px;border:0;border-radius:28px;background:var(--ink);color:#101012;font:800 14px var(--font-display);letter-spacing:.08em;text-transform:uppercase;cursor:pointer}
+.an__go:disabled{opacity:.35;cursor:default}
+.an__skip{align-self:center;background:none;border:0;color:var(--mu);font:700 10px var(--font-mono);letter-spacing:.14em;margin-top:10px;min-height:36px;cursor:pointer}
+.an__hero{flex:1;display:flex;flex-direction:column;justify-content:flex-end;padding-bottom:6px}
+.an__tag{font:700 10px var(--font-mono);letter-spacing:.18em;color:var(--mu)}
+.an__hero h1{margin:10px 0 14px;font:900 clamp(46px,14vw,62px)/.92 var(--font-display);letter-spacing:-.02em;text-transform:uppercase}
+.an__hero p{margin:0 0 12px;font:400 17px/1.45 var(--font-display);color:var(--mu)}.an__hero p b{color:var(--ink);font-weight:600}
+.an__facts{display:grid;grid-template-columns:repeat(3,1fr);border-top:1px solid var(--ln);border-bottom:1px solid var(--ln);margin:14px 0 16px}
+.an__facts div{padding:12px 0}.an__facts div+div{border-left:1px solid var(--ln);padding-left:12px}
+.an__facts small{display:block;font:700 9px var(--font-mono);letter-spacing:.16em;color:var(--mu)}.an__facts b{display:block;font:700 22px var(--font-mono);margin-top:4px}
+.an__res{display:grid;gap:10px;margin:8px 0 14px}.an__res div{border-top:1px solid var(--ln);padding-top:10px}
+.an__res small{display:block;font:700 9px var(--font-mono);letter-spacing:.16em;color:var(--mu)}.an__res b{font:700 19px/1.2 var(--font-display)}
+.an__sync{font:400 9px var(--font-mono);letter-spacing:.16em;color:var(--mu);margin-top:6px}
+@media (prefers-reduced-motion:reduce){.an__s{animation:none}}
 .bnX{position:fixed;inset:0;z-index:1950;overflow:hidden;color:#101012;--ink:#101012;--mu:rgba(16,16,18,.55);--ln:rgba(16,16,18,.22);--lv:.5;display:flex;flex-direction:column;padding:calc(env(safe-area-inset-top,0px) + 18px) 22px calc(env(safe-area-inset-bottom,0px) + 14px);outline:none;touch-action:none;user-select:none;-webkit-user-select:none;background:#D9DADC}
 .bnX--dk{color:#F3F3F4;--ink:#F3F3F4;--mu:rgba(243,243,244,.6);--ln:rgba(243,243,244,.25)}
 .bnX__bg{position:absolute;inset:0;width:100%;height:100%;display:block;opacity:0;transition:opacity .6s ease}.bnX__bg.on{opacity:1}
@@ -3961,7 +4006,7 @@ function calcularSemana(programa, registros, objetivos){
 }
 function nombreEN(s){
   // Clase de prueba: la sesión es una demostración, no la planificación real del socio
-  if (typeof S!=='undefined' && S && S.perfil && S.perfil.estado==='clase_prueba') return 'DEMO'
+  if (typeof S!=='undefined' && S && S.perfil && S.perfil.estado==='clase_prueba'){ const d=String(s||'').toUpperCase().trim(); return /^DEMO\b/.test(d)?d:'DEMO' }
   // solo se traducen los nombres ANTIGUOS exactos; un nombre libre del KOACH se respeta tal cual
   const x = String(s||'').toUpperCase().trim()
   if (/^(TREN )?SUPERIOR$/.test(x)) return 'UPPER BODY'
@@ -4593,10 +4638,11 @@ async function entrar(opts){
     document.getElementById('hAv').textContent = (perfil.nombre||'K')[0].toUpperCase()
     S.frases = (rCfg && rCfg.data && rCfg.data.frases) || null
     const memP = cargarMembresia()   // en paralelo con el resto (no depende del programa)
-    if (!opts.silent && welcomeDebeMostrarse()) mostrarWelcome()
+    if (!opts.silent && perfil.estado==='clase_prueba') anRevisar()   // c216 · clase de prueba: bienvenida + anamnesis antes de la demo
+    else if (!opts.silent && welcomeDebeMostrarse()) mostrarWelcome()
     else if (!opts.silent) setTimeout(pedirFoto, 1500)
     const asig = rAsig.data
-    if (!asig){ await memP; sinPrograma(); return }
+    if (!asig){ await memP; sinPrograma(perfil.estado==='clase_prueba' ? 'Tu koach está preparando tu <b>clase demo</b>. En unos minutos aparece aquí.' : undefined); return }
     S.asig = asig; S.proto = asig.protocolos
     S.semanaActual = (asig && asig.semana_actual) || 1
 
@@ -4846,10 +4892,122 @@ function pintarBienvenida(msg){
     '<section class="k2-ins"><b>¿TIENES DUDAS?</b><p>Escríbenos o acércate a recepción: te ayudamos a empezar.</p></section>'
   requestAnimationFrame(()=>requestAnimationFrame(()=>box.classList.add('k2-in')))
 }
+/* ═══ c216 · ANAMNESIS · CLASE DE PRUEBA ═══
+   Quien entra con el QR de su clase de prueba (perfil 'clase_prueba') ve primero su bienvenida y responde la anamnesis
+   antes de la demo. Las respuestas van a anamnesis_prueba (mi_anamnesis_guardar) y el Dashboard arma con ellas la ficha
+   del koach y la recomendación de protocolos. Una pregunta por pantalla, mismo lenguaje del TEST WELLNESS. */
+const AN_DUR=['< 1 mes','1–3 meses','3–6 meses','6–12 meses','+ 1 año']
+const AN_LUG=['Gimnasio de cadena','Gimnasio de barrio','CrossFit / funcional','Entrenador personal','Clases grupales','En casa']
+const AN_MUS={hombre:['Pecho','Espalda','Brazos','Hombros','Abdomen','Piernas','Glúteo'],mujer:['Glúteo','Piernas','Abdomen','Espalda','Brazos','Hombros','Pecho']}
+const AN_OBJ={masa:'Ganar masa muscular',grasa:'Bajar grasa',tonificar:'Tonificar y definir',fuerza:'Más fuerza',salud:'Salud y bienestar'}
+const AN_ZN={superior:'Tren superior',inferior:'Tren inferior',completo:'Cuerpo completo'}
+const AN_Q=[
+ {id:'objetivo',k:'TU OBJETIVO',q:'¿Qué resultado quieres conseguir?',sub:'Elige el más importante para ti.',t:'one',o:[['masa','Ganar masa muscular'],['grasa','Bajar grasa'],['tonificar','Tonificar y definir'],['fuerza','Más fuerza'],['salud','Salud y bienestar']]},
+ {id:'zona',k:'TU FOCO',q:'¿Qué quieres trabajar más?',sub:'Elige una zona y, si quieres, los músculos que más te importan.',t:'zona'},
+ {id:'experiencia',k:'TU EXPERIENCIA',q:'¿Cuál es tu experiencia entrenando?',t:'one',o:[['cero','Nunca he entrenado','Parto de cero'],['antes','Entrené antes, hoy no','Vuelvo después de una pausa'],['sinplan','Entreno, pero sin un plan','Voy por mi cuenta'],['plan','Entreno con un plan','Hace más de 6 meses']]},
+ {id:'historial',k:'TU HISTORIAL',q:'Cuéntanos tus últimas 3 experiencias entrenando',sub:'Dónde o cómo entrenabas, y cuánto duraste. Si tienes menos de 3, completa las que tengas.',t:'hist',skip:A=>A.experiencia==='cero'},
+ {id:'frustra',k:'LO QUE NO FUNCIONÓ',q:'¿Qué te frustró o te hizo dejar de entrenar?',sub:'Puedes elegir varias.',t:'many',o:[['resultados','No vi resultados'],['quehacer','No sabía qué hacer'],['correccion','Nadie me corrigió'],['motivacion','Perdí la motivación'],['lesion','Me lesioné o tuve dolor'],['tiempo','No tenía tiempo'],['ambiente','No me sentía cómodo en el gimnasio']],skip:A=>A.experiencia==='cero'},
+ {id:'frustraTxt',k:'EN TUS PALABRAS',q:'¿Qué pasó la última vez que dejaste de entrenar?',sub:'Escríbelo como quieras. Tu koach lo va a leer.',t:'txt',ph:'Ej.: Iba solo, hacía siempre lo mismo y a los dos meses lo dejé…',opt:true,skip:A=>A.experiencia==='cero'},
+ {id:'pt',k:'TU EXPERIENCIA',q:'¿Has entrenado con entrenador personal?',t:'one',o:[['no','No'],['si_ok','Sí, y me funcionó'],['si_no','Sí, y no me funcionó']]},
+ {id:'tiempo',k:'TU TIEMPO',q:'¿Cuánto tiempo tienes para entrenar?',t:'tiempo'},
+ {id:'salud',k:'TU SALUD',q:'¿Tienes alguna lesión o molestia?',sub:'Tu koach adapta la clase si es necesario.',t:'salud'},
+ {id:'origen',k:'KOACH',q:'¿Cómo llegaste a KOACH?',t:'one',o:[['publicidad','Vi publicidad'],['recomendacion','Me lo recomendaron'],['conocia','Ya conocía el método'],['otro','Otro']]},
+ {id:'porque',k:'HOY',q:'¿Qué te hizo venir hoy?',sub:'Lo que sea. Es lo que más nos ayuda a entenderte.',t:'txt',ph:'Ej.: Quiero dejar de empezar y dejar. Esta vez quiero hacerlo bien.',opt:true}
+]
+const AN={A:{}, i:0, el:null, poll:null}
+function anEsc(t){ return String(t==null?'':t).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])) }
+function anSx(){ const s=String((S.perfil&&S.perfil.sex)||'').toLowerCase(); return s==='mujer'?'mujer':'hombre' }
+async function anRevisar(){
+  try{ if (!S.perfil || S.perfil.estado!=='clase_prueba') return false
+    const r=await sb.from('anamnesis_prueba').select('respuestas').eq('socio_id',S.perfil.id).maybeSingle()
+    if (r.error) return false
+    if (r.data && r.data.respuestas && r.data.respuestas.objetivo) return false
+    anAbrir(); return true }catch(_e){ return false } }
+function anAbrir(){ if (document.getElementById('oAn')) return
+  AN.A={}; AN.i=0
+  const el=document.createElement('div'); el.id='oAn'; el.className='an'; el.setAttribute('role','dialog'); el.setAttribute('aria-modal','true'); el.setAttribute('aria-label','Tu clase de prueba')
+  document.body.appendChild(el); document.body.classList.add('wl-on'); AN.el=el; anBienvenida() }
+function anPant(h){ AN.el.innerHTML='<div class="an__s">'+h+'</div>'; const s=AN.el.querySelector('.an__s'); if(s){ s.tabIndex=-1; try{ s.focus({preventScroll:true}) }catch(_e){} } }
+function anTop(st){ return '<div class="an__top"><img src="/img/brand/logotipo-koach.png" alt="KOACH"><small>'+(st||'CLASE DE PRUEBA')+'</small></div>' }
+function anBienvenida(){ const n=anEsc(msgNombre()||''), m=anSx()==='mujer'
+  anPant(anTop()+'<div class="an__hero"><span class="an__tag">CLASE DE PRUEBA · HOY</span><h1>Hola,<br>'+(n||'bienvenido')+'.</h1>'+
+    '<p><b>'+(m?'Bienvenida':'Bienvenido')+' a tu clase de prueba.</b> Hoy vas a vivir el Método KOACH: un koach te guía en todo momento.</p>'+
+    '<div class="an__facts"><div><small>BLOQUES</small><b>2</b></div><div><small>SETS</small><b>3×</b></div><div><small>DURACIÓN</small><b>40′</b></div></div>'+
+    '<p>Antes de comenzar, queremos conocerte. Con tus respuestas, tu koach prepara tu clase.</p></div>'+
+    '<div class="an__act"><button type="button" class="an__go" onclick="AN.i=0;anPaso()">EMPEZAR · 2 MIN →</button></div>') }
+function anVis(){ return AN_Q.filter(q=>!q.skip||!q.skip(AN.A)) }
+function anOk(q){ const v=AN.A[q.id]
+  if(q.opt) return true
+  if(q.t==='one') return !!v
+  if(q.t==='many') return !!(v&&v.length)
+  if(q.t==='zona') return !!(v&&v.z)
+  if(q.t==='hist') return !!(v&&v[0]&&String(v[0].lugar||'').trim()&&v[0].dur!=null)
+  if(q.t==='tiempo') return !!(v&&v.dias&&v.min&&v.hor)
+  if(q.t==='salud') return !!(v&&v.sel&&v.sel.length)
+  return true }
+function anPaso(){ const L=anVis(); if(AN.i>=L.length) return anGuardar(); const q=L[AN.i], v=AN.A[q.id], P=(x)=>'aria-pressed="'+!!x+'"'
+  let b=''
+  if(q.t==='one') b='<div class="an__opts">'+q.o.map(o=>'<button type="button" class="an__op" '+P(v===o[0])+' onclick="anOne(\''+q.id+'\',\''+o[0]+'\')"><span>'+o[1]+(o[2]?'<small>'+o[2]+'</small>':'')+'</span><i></i></button>').join('')+'</div>'
+  if(q.t==='many') b='<div class="an__opts">'+q.o.map(o=>'<button type="button" class="an__op" '+P(v&&v.includes(o[0]))+' onclick="anMany(\''+q.id+'\',\''+o[0]+'\')"><span>'+o[1]+'</span><i></i></button>').join('')+'</div>'
+  if(q.t==='txt') b='<textarea class="an__tx" maxlength="600" placeholder="'+anEsc(q.ph)+'" oninput="AN.A[\''+q.id+'\']=this.value">'+anEsc(v||'')+'</textarea>'
+  if(q.t==='zona'){ const z=(v&&v.z)||'', m=(v&&v.m)||[]
+    b='<div class="an__opts">'+[['superior','Tren superior'],['inferior','Tren inferior'],['completo','Cuerpo completo']].map(o=>'<button type="button" class="an__op" '+P(z===o[0])+' onclick="anZona(\'z\',\''+o[0]+'\')"><span>'+o[1]+'</span><i></i></button>').join('')+'</div>'+
+      '<div class="an__lbl">MÚSCULOS QUE MÁS TE IMPORTAN · OPCIONAL</div><div class="an__chips">'+AN_MUS[anSx()].map(x=>'<button type="button" class="an__ch" '+P(m.includes(x))+' onclick="anZona(\'m\',\''+x+'\')">'+x.toUpperCase()+'</button>').join('')+'</div>' }
+  if(q.t==='hist'){ const h=v||[{},{},{}]; AN.A.historial=h
+    b=h.map((e,k)=>'<div class="an__exp"><h4><span>'+['ÚLTIMA','ANTERIOR','LA DE ANTES'][k]+'</span><span>'+(k?'OPCIONAL':'')+'</span></h4>'+
+      '<input type="text" maxlength="80" placeholder="'+(k?'¿Dónde o cómo?':'Ej.: Gimnasio de cadena, solo')+'" value="'+anEsc(e.lugar||'')+'" oninput="AN.A.historial['+k+'].lugar=this.value;anChk()">'+
+      '<div class="an__chips">'+AN_LUG.map(l=>'<button type="button" class="an__ch" '+P(e.lugar===l)+' onclick="anHist('+k+',\'lugar\',\''+l+'\')">'+l.toUpperCase()+'</button>').join('')+'</div>'+
+      '<div class="an__lbl">¿CUÁNTO DURASTE?</div><div class="an__chips">'+AN_DUR.map((d,j)=>'<button type="button" class="an__ch" '+P(e.dur===j)+' onclick="anHist('+k+',\'dur\','+j+')">'+d.toUpperCase()+'</button>').join('')+'</div></div>').join('') }
+  if(q.t==='tiempo'){ const t=v||{}, row=(k,l,o)=>'<div class="an__lbl">'+l+'</div><div class="an__chips">'+o.map(x=>'<button type="button" class="an__ch" '+P(t[k]===x)+' onclick="anTiempo(\''+k+'\',\''+x+'\')">'+x+'</button>').join('')+'</div>'
+    b=row('dias','DÍAS POR SEMANA',['2','3','4','5+'])+row('min','TIEMPO POR SESIÓN',['45 MIN','60 MIN','90 MIN'])+row('hor','HORARIO',['MAÑANA','MEDIODÍA','TARDE','NOCHE']) }
+  if(q.t==='salud'){ const s=v||{sel:[],txt:''}
+    b='<div class="an__chips">'+['Ninguna','Rodilla','Espalda baja','Hombro','Cadera','Otra'].map(x=>'<button type="button" class="an__ch" '+P(s.sel.includes(x))+' onclick="anSalud(\''+x+'\')">'+x.toUpperCase()+'</button>').join('')+'</div>'+
+      (s.sel.length&&!s.sel.includes('Ninguna')?'<div class="an__lbl">CUÉNTANOS UN POCO MÁS</div><textarea class="an__tx" maxlength="400" placeholder="Ej.: Me duele el hombro derecho al empujar sobre la cabeza." oninput="AN.A.salud.txt=this.value">'+anEsc(s.txt)+'</textarea>':'') }
+  const n=L.length, pad=x=>(x<10?'0':'')+x
+  anPant(anTop(pad(AN.i+1)+' / '+pad(n))+'<div class="an__dots">'+L.map((_,k)=>'<i class="'+(k<AN.i?'ok':k===AN.i?'on':'')+'"></i>').join('')+'</div>'+
+    '<div class="an__k">'+q.k+'</div><h2 class="an__q">'+q.q+'</h2>'+(q.sub?'<p class="an__sub">'+q.sub+'</p>':'')+
+    '<div class="an__body">'+b+'</div><div class="an__act"><button type="button" class="an__back" onclick="anAtras()" aria-label="Pregunta anterior">←</button>'+
+    '<button type="button" class="an__go" id="anGo" onclick="anSig()">'+(AN.i===n-1?'TERMINAR →':'SIGUIENTE →')+'</button></div>'+
+    (q.opt?'<button type="button" class="an__skip" onclick="anSig()">PREFIERO NO RESPONDER</button>':''))
+  anChk() }
+function anChk(){ const L=anVis(), g=document.getElementById('anGo'); if(g) g.disabled=!anOk(L[AN.i]) }
+function anOne(id,x){ AN.A[id]=x; try{ kHaptic(6) }catch(_e){} anPaso() }
+function anMany(id,x){ const a=AN.A[id]||[]; AN.A[id]=a.includes(x)?a.filter(y=>y!==x):a.concat(x); anPaso() }
+function anZona(k,x){ const v=AN.A.zona||{z:'',m:[]}; if(k==='z') v.z=x; else v.m=v.m.includes(x)?v.m.filter(y=>y!==x):v.m.concat(x); AN.A.zona=v; anPaso() }
+function anHist(k,c,x){ AN.A.historial[k][c]=(AN.A.historial[k][c]===x?undefined:x); anPaso() }
+function anTiempo(k,x){ AN.A.tiempo=AN.A.tiempo||{}; AN.A.tiempo[k]=x; anPaso() }
+function anSalud(x){ const s=AN.A.salud||{sel:[],txt:''}; if(x==='Ninguna') s.sel=s.sel.includes(x)?[]:['Ninguna']; else { s.sel=s.sel.filter(y=>y!=='Ninguna'); s.sel=s.sel.includes(x)?s.sel.filter(y=>y!==x):s.sel.concat(x) } AN.A.salud=s; anPaso() }
+function anSig(){ AN.i++; anPaso() }
+function anAtras(){ if(AN.i===0) return anBienvenida(); AN.i--; anPaso() }
+async function anGuardar(){ const A=JSON.parse(JSON.stringify(AN.A))
+  if (A.historial) A.historial=A.historial.filter(e=>e&&(String(e.lugar||'').trim()||e.dur!=null))
+  ;['frustraTxt','porque'].forEach(k=>{ if(typeof A[k]==='string'){ A[k]=A[k].trim(); if(!A[k]) delete A[k] } })
+  A.sexo=anSx(); A.version=1; A.respondida_at=new Date().toISOString()
+  anPant(anTop('GUARDANDO')+'<div class="an__hero"><h1 style="font-size:40px">Un segundo…</h1></div>')
+  const r=await sb.rpc('mi_anamnesis_guardar',{ p_respuestas:A })
+  if (r.error){ anPant(anTop('SIN CONEXIÓN')+'<div class="an__hero"><span class="an__tag">NO SE GUARDÓ</span><h1 style="font-size:40px">Revisa tu conexión.</h1><p>Tus respuestas siguen aquí.</p></div>'+
+      '<div class="an__act"><button type="button" class="an__back" onclick="AN.i=anVis().length-1;anPaso()" aria-label="Volver">←</button><button type="button" class="an__go" onclick="anGuardar()">REINTENTAR</button></div>'); return }
+  anListo() }
+function anListo(){ const A=AN.A, n=anEsc(msgNombre()||''), z=A.zona||{}
+  const foco=(AN_ZN[z.z]||'—')+((z.m&&z.m.length)?' · '+z.m.join(', ').toLowerCase():'')
+  const hay=!!S.asig
+  anPant(anTop('LISTO')+'<div class="an__hero"><span class="an__tag">'+(hay?'TU CLASE ESTÁ LISTA':'TU KOACH PREPARA TU CLASE')+'</span><h1>Listo,<br>'+n+'.</h1>'+
+    '<div class="an__res"><div><small>TU OBJETIVO</small><b>'+anEsc(AN_OBJ[A.objetivo]||'—')+'</b></div><div><small>TU FOCO</small><b>'+anEsc(foco)+'</b></div>'+
+    (hay?'<div><small>HOY ENTRENAS</small><b>'+anEsc(String(((S.proto&&S.proto.nombre)||'DEMO')).toUpperCase())+'</b></div>':'')+'</div>'+
+    '<p>Tu koach ya tiene tu información. <b>Construimos tu versión más fuerte.</b></p><div class="an__sync" id="anSync">'+(hay?'RESPUESTAS SINCRONIZADAS CON TU KOACH':'ESPERANDO TU CLASE DEMO…')+'</div></div>'+
+    '<div class="an__act"><button type="button" class="an__go" id="anFin" onclick="anCerrar()"'+(hay?'':' disabled')+'>'+(hay?'A ENTRENAR →':'TU KOACH ACTIVA TU CLASE')+'</button></div>')
+  if (!hay) anEsperarDemo() }
+function anEsperarDemo(){ clearInterval(AN.poll)
+  AN.poll=setInterval(async function(){ if(!document.getElementById('oAn')){ clearInterval(AN.poll); return }
+    try{ const r=await sb.from('asignaciones').select('id').eq('socio_id',S.perfil.id).eq('activo',true).limit(1).maybeSingle()
+      if (r.data){ clearInterval(AN.poll); const g=document.getElementById('anFin'), s=document.getElementById('anSync')
+        if(s) s.textContent='TU CLASE DEMO ESTÁ LISTA'; if(g){ g.disabled=false; g.textContent='A ENTRENAR →' } try{ kHaptic([20,40,60]) }catch(_e){} } }catch(_e){} }, 5000) }
+function anCerrar(){ clearInterval(AN.poll); const el=document.getElementById('oAn'); if(!el) return
+  el.classList.add('an--out'); setTimeout(function(){ el.remove(); document.body.classList.remove('wl-on'); try{ S._lastLoad=0; entrar({silent:true}) }catch(_e){} }, 260) }
 // ═══════════ v10.6 · WELCOME · PRIMER INGRESO DEL SOCIO ═══════════
 // Se muestra una sola vez (profiles.onboarding_visto_at). Nombre y trato salen del perfil real:
 // sex = 'hombre' → Bienvenido / listo · 'mujer' → Bienvenida / lista · sin dato → neutro. Nunca se infiere por el nombre.
-function welcomeDebeMostrarse(){ return !!(S.perfil && S.perfil.role==='socio' && !S.perfil.onboarding_visto_at) }
+function welcomeDebeMostrarse(){ return !!(S.perfil && S.perfil.role==='socio' && S.perfil.estado!=='clase_prueba' && !S.perfil.onboarding_visto_at) }
 function welcomeTextos(){
   const n=msgNombre()||'', sx=String((S.perfil&&S.perfil.sex)||'').toLowerCase()
   if (sx==='hombre') return { intro:'Bienvenido a KOACH, '+n+'.', cierre:n+', estás listo.' }
