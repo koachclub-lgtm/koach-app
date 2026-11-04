@@ -199,8 +199,9 @@ function fPlanComidasPintar(){
 function fPlanLeer(){
   const g=id=>{ const e=document.getElementById(id); return e?e.value.trim():'' }, lines=t=>t.split('\n').map(x=>x.trim()).filter(Boolean)
   const ali=t=>lines(t).map(l=>{ const [a,...r]=l.split('|'); return { alimento:a.trim(), cantidad:r.join('|').trim() } })
+  const nt=(i,k)=>{ const m=NPL.cont.comidas[i], o=m&&m.opciones&&m.opciones[k]; return (o&&o.nota)||'' } // la nota de cada opción viaja intacta hasta la app del socio
   const comidas=NPL.cont.comidas.map((_,i)=>({ nombre:g('plcN'+i), hora:g('plcH'+i), aporte:g('plcA'+i),
-    opciones:[{ etiqueta:'A', alimentos:ali(g('plcOA'+i)) },{ etiqueta:'B', alimentos:ali(g('plcOB'+i)) }] }))
+    opciones:[{ etiqueta:'A', alimentos:ali(g('plcOA'+i)), nota:nt(i,0) },{ etiqueta:'B', alimentos:ali(g('plcOB'+i)), nota:nt(i,1) }] }))
   const cont=KC.normPlan({ resumen:g('plRes2'), comidas, hidratacion:g('plHid'), indicaciones:lines(g('plInd')), evitar:lines(g('plEv')),
     suplementos:lines(g('plSup')).map(l=>{ const [a,b,c]=l.split('|'); return { producto:(a||'').trim(), dosis:(b||'').trim(), horario:(c||'').trim() } }),
     metas:['30 DÍAS','60 DÍAS','90 DÍAS'].map((pl,i)=>({ plazo:pl, meta:g('plMeta'+i) })) })
@@ -223,7 +224,7 @@ function fPlanQuitar(i){ fPlanCapturar(); NPL.cont.comidas.splice(i,1); fPlanCom
 // guarda lo escrito antes de re-pintar la lista de comidas (incluye comidas aún vacías)
 function fPlanCapturar(){ const g=id=>{ const e=document.getElementById(id); return e?e.value:'' }
   NPL.cont.comidas=NPL.cont.comidas.map((m,i)=>{ const al=t=>t.split('\n').filter(x=>x.trim()).map(l=>{ const [a,...r]=l.split('|'); return { alimento:a.trim(), cantidad:r.join('|').trim() } })
-    const ops=[{ etiqueta:'A', alimentos:al(g('plcOA'+i)) }]; const b=al(g('plcOB'+i)); if(b.length) ops.push({ etiqueta:'B', alimentos:b })
+    const ops=[{ etiqueta:'A', alimentos:al(g('plcOA'+i)), nota:(m.opciones[0]&&m.opciones[0].nota)||'' }]; const b=al(g('plcOB'+i)); if(b.length) ops.push({ etiqueta:'B', alimentos:b, nota:(m.opciones[1]&&m.opciones[1].nota)||'' })
     return { nombre:g('plcN'+i), hora:g('plcH'+i), aporte:g('plcA'+i), opciones:ops } }) }
 function fPlanSugerir(){
   const ev=plUltEval(); if(!ev){ toast('Registra primero una evaluación con peso y talla'); return }

@@ -41,44 +41,63 @@ const ESQUEMA = {
 
 async function json(url, opts) { const r = await fetch(url, opts); const t = await r.text(); let d = null; try { d = JSON.parse(t) } catch (_) {} return { ok: r.ok, status: r.status, d, t } }
 
-// Corrector: aplica SOLO lo que pide nutrición sobre el plan actual y explica qué cambió
-const ESQUEMA_C = { type: 'object', additionalProperties: false, required: ['plan', 'cambios'],
-  properties: { plan: ESQUEMA, cambios: { type: 'string', description: '1–2 frases: qué cambiaste exactamente' } } }
+// Corrector: aplica SOLO lo que pide nutrición. La IA devuelve un PARCHE (solo lo que cambia) y el servidor lo
+// funde sobre el plan actual: ~5× menos tokens de salida que reescribir el plan, y lo no pedido queda idéntico por construcción.
+const MODELO_CORR = process.env.KOACH_CORR_MODEL || 'claude-haiku-5-5'
+const nul = sch => ({ anyOf: [sch, { type: 'null' }] })
+const P = ESQUEMA.properties
+const ESQUEMA_P = { type: 'object', additionalProperties: false,
+  required: ['cambios', 'comidas', 'quitar', 'resumen', 'suplementos', 'hidratacion', 'indicaciones', 'evitar', 'metas'],
+  properties: {
+    cambios: { type: 'string', description: '1–2 frases: qué cambiaste exactamente' },
+    comidas: { type: 'array', description: 'SOLO las comidas modificadas o nuevas, completas. Lista vacía si no cambia ninguna.',
+      items: { type: 'object', additionalProperties: false, required: ['numero', 'comida'],
+        properties: { numero: { type: 'integer', description: 'Número de la comida (desde 1). Un número mayor que el total agrega una comida nueva.' }, comida: P.comidas.items } } },
+    quitar: { type: 'array', items: { type: 'integer' }, description: 'Números de comidas a eliminar. Vacía si no se elimina ninguna.' },
+    resumen: nul(P.resumen), suplementos: nul(P.suplementos), hidratacion: nul(P.hidratacion),
+    indicaciones: nul(P.indicaciones), evitar: nul(P.evitar), metas: nul(P.metas)
+  } }
+function fundir(plan, pa) {
+  const out = JSON.parse(JSON.stringify(plan)), cm = out.comidas
+  for (const x of (pa.comidas || [])) { const i = (x.numero | 0) - 1; if (!x.comida || i < 0) continue; if (i < cm.length) cm[i] = x.comida; else cm.push(x.comida) }
+  const q = new Set((pa.quitar || []).map(n => (n | 0) - 1)); out.comidas = cm.filter((_, i) => !q.has(i))
+  for (const k of ['resumen', 'suplementos', 'hidratacion', 'indicaciones', 'evitar', 'metas']) if (pa[k] != null) out[k] = pa[k]
+  return out
+}
 async function corregir(req, res, b, m, ix, c) {
   const ins = String(b.instruccion || '').trim().slice(0, 1500), plan = b.plan_actual
   if (ins.length < 4) return res.status(400).json({ error: 'Escribe qué quieres corregir' })
   if (!plan || !Array.isArray(plan.comidas) || !plan.comidas.length) return res.status(400).json({ error: 'No hay un plan con comidas para corregir' })
-  const numeradas = plan.comidas.map((x, i) => (i + 1) + '. ' + (x.nombre || 'COMIDA')).join(' · ')
-  const prompt = `Eres el nutricionista de KOACH Club. Corrige el PLAN NUTRICIONAL de abajo según la instrucción de nutrición.
-Escribe en español de Chile, sin emojis ni markdown.
+  const numerado = Object.assign({}, plan, { comidas: plan.comidas.map((x, i) => Object.assign({ numero: i + 1 }, x)) })
+  const prompt = `Eres el nutricionista de KOACH Club. Corrige el PLAN NUTRICIONAL según la instrucción de nutrición. Español de Chile, sin emojis ni markdown.
 
-INSTRUCCIÓN DE NUTRICIÓN: ${ins}
+INSTRUCCIÓN: ${ins}
 
 REGLAS:
-- Aplica SOLO lo que pide la instrucción. Todo lo demás queda IDÉNTICO (mismas comidas, horas, textos, alimentos y cantidades).
-- Las comidas se numeran desde 1 en este orden: ${numeradas}.
-- Números fijos del día: ${m.kcal} kcal · proteína ${m.proteina_g} g · carbohidratos ${m.carbohidrato_g || '—'} g · grasas ${m.grasa_g || '—'} g. Si el cambio altera el aporte, compensa dentro de la MISMA comida para seguir cumpliendo ±5 %.
+- Devuelve SOLO lo que cambia: en "comidas" únicamente las comidas modificadas (completas, con su "numero"); en las demás secciones null si no cambian.
+- No toques nada que la instrucción no pida.
+- Números fijos del día: ${m.kcal} kcal · proteína ${m.proteina_g} g · carbohidratos ${m.carbohidrato_g || '—'} g · grasas ${m.grasa_g || '—'} g. Si el cambio altera el aporte, compensa ajustando CANTIDADES dentro de la MISMA comida (±5 % del día); agrega alimentos solo si la instrucción lo pide.
 - Respeta restricciones: ${ix.restricciones || 'ninguna'} · no consume: ${ix.no_consume || 'nada'}.
-- Si la instrucción pide algo inseguro o médico, no lo apliques y explícalo en "cambios".
-- Usa los ALIMENTOS KOACH cuando reemplaces alimentos:
+- Si piden algo inseguro o médico, no lo apliques y explícalo en "cambios".
+- Para reemplazos usa ALIMENTOS KOACH:
 ${ALIMENTOS_KOACH}
 
-PLAN ACTUAL (JSON):
-${JSON.stringify(plan)}
-
-Devuelve el plan completo corregido y en "cambios" qué modificaste.`
+PLAN ACTUAL (comidas numeradas):
+${JSON.stringify(numerado)}`
   const r = await json('https://api.anthropic.com/v1/messages', {
     method: 'POST',
     headers: { 'content-type': 'application/json', 'x-api-key': process.env.ANTHROPIC_API_KEY, 'anthropic-version': '2023-06-01' },
-    body: JSON.stringify({ model: MODELO, max_tokens: 16000, output_config: { effort: 'low', format: { type: 'json_schema', schema: ESQUEMA_C } }, messages: [{ role: 'user', content: prompt }] })
+    body: JSON.stringify({ model: MODELO_CORR, max_tokens: 6000, output_config: { effort: 'low', format: { type: 'json_schema', schema: ESQUEMA_P } }, messages: [{ role: 'user', content: prompt }] })
   })
   if (!r.ok) return res.status(502).json({ error: 'La IA no respondió (' + r.status + ')', detalle: r.d && r.d.error && r.d.error.message })
   if (r.d.stop_reason === 'refusal') return res.status(422).json({ error: 'La IA no pudo aplicar esta corrección. Hazla a mano.' })
   if (r.d.stop_reason === 'max_tokens') return res.status(422).json({ error: 'La corrección quedó incompleta: vuelve a intentar.' })
   const txt = (r.d.content || []).filter(x => x.type === 'text').map(x => x.text).join('')
-  let o = null; try { o = JSON.parse(txt) } catch (_) {}
-  if (!o || !o.plan) return res.status(502).json({ error: 'La IA no entregó un plan estructurado' })
-  return res.status(200).json({ plan: o.plan, cambios: o.cambios || '', modelo: MODELO })
+  let pa = null; try { pa = JSON.parse(txt) } catch (_) {}
+  if (!pa) return res.status(502).json({ error: 'La IA no entregó la corrección estructurada' })
+  const nuevo = fundir(plan, pa)
+  if (!nuevo.comidas.length) return res.status(422).json({ error: 'La corrección dejaría el plan sin comidas' })
+  return res.status(200).json({ plan: nuevo, cambios: pa.cambios || '', modelo: MODELO_CORR, uso: r.d.usage && { entrada: r.d.usage.input_tokens, salida: r.d.usage.output_tokens } })
 }
 
 module.exports = async (req, res) => {
