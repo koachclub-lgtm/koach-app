@@ -225,6 +225,36 @@ button.bxI:hover,button.bxI:focus-visible{transform:translateY(-2px);box-shadow:
 @media (max-width:640px){ .nu{padding:14px;border-radius:18px} .nu__s{grid-template-columns:1fr} .nu__n{display:none} .nu__g,.vtR2{grid-template-columns:1fr} .vtBig{font-size:38px} }
 
 /* c38 · control de acceso */
+.dmOv{position:fixed;inset:0;z-index:9998;background:rgba(0,0,0,.72);display:flex;align-items:flex-start;justify-content:center;padding:24px 16px;overflow-y:auto}
+.dmBox{background:#FBFAF8;color:#121212;border-radius:18px;padding:20px;width:100%;max-width:560px;font-family:inherit}
+.dmK{font-family:var(--font-mono);font-size:11.5px;letter-spacing:.14em;color:#555553}
+.dmN{font-weight:800;font-size:22px;letter-spacing:-.01em;margin:2px 0 12px;text-transform:uppercase}
+.dmCtx{display:grid;gap:6px;background:#EFEEEA;border-radius:12px;padding:10px 12px;margin-bottom:14px;font-size:13.5px;line-height:1.4}
+.dmCtx small{display:block;font-family:var(--font-mono);font-size:10.5px;letter-spacing:.12em;color:#666}
+.dmCtx--v{color:#555}
+.dmRow{margin:10px 0}
+.dmL{font-family:var(--font-mono);font-size:11px;letter-spacing:.12em;color:#555553;margin-bottom:6px}
+.dmSeg{display:flex;gap:6px;flex-wrap:wrap}
+.dmSeg button{position:relative;flex:1 1 0;min-width:88px;min-height:44px;border-radius:999px;border:1px solid rgba(18,18,18,.25);background:none;color:#121212;font-family:var(--font-mono);font-size:11.5px;letter-spacing:.08em;cursor:pointer}
+.dmSeg button[aria-pressed="true"]{background:#121212;color:#F4F3F0;border-color:#121212}
+.dmSeg button:disabled{opacity:.55;cursor:default}
+.dmSeg button i{position:absolute;top:6px;right:9px;width:6px;height:6px;border-radius:50%;background:#C9A227}
+.dmPrev{margin-top:14px;border-top:1px solid rgba(18,18,18,.14);padding-top:12px}
+.dmPrev__t{font-weight:800;font-size:16px;letter-spacing:.02em;margin-bottom:8px}
+.dmB{background:#EFEEEA;border-radius:12px;padding:10px 12px;margin-bottom:8px}
+.dmB__h{display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap;margin-bottom:6px}
+.dmB__h b{font-family:var(--font-mono);font-size:11.5px;letter-spacing:.12em}
+.dmB__h span{font-family:var(--font-mono);font-size:10.5px;letter-spacing:.08em;color:#555}
+.dmE{display:flex;justify-content:space-between;gap:10px;padding:5px 0;border-top:1px solid rgba(18,18,18,.08);font-size:14px}
+.dmE:first-of-type{border-top:0}
+.dmE em{font-style:normal;font-family:var(--font-mono);font-size:12px;color:#444;white-space:nowrap}
+.dmVac{padding:18px 0;color:#555;font-size:14px}
+.dmAv{margin-top:12px;padding:10px 12px;border-radius:12px;background:#FDECEA;color:#8A2A1C;font-size:13.5px}
+.dmAv--i{background:#F6F0DC;color:#6B5410}
+.dmF{display:flex;gap:8px;justify-content:flex-end;margin-top:16px;flex-wrap:wrap}
+.dmF button{min-height:44px;padding:0 18px;border-radius:999px;border:1px solid #121212;background:none;color:#121212;font-family:var(--font-mono);font-size:11.5px;letter-spacing:.1em;cursor:pointer}
+.dmF button.ink{background:#121212;color:#F4F3F0}
+.dmF button:disabled{opacity:.4;cursor:default}
 .acBan{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px;margin:10px 0 12px;padding:14px 16px;border-radius:16px;background:#121212;color:#F4F3F0}
 .acBan--pr{background:#FBFAF8;color:#121212;border:1px solid rgba(18,18,18,.18)}
 .acBan__t{display:flex;gap:12px;align-items:flex-start;min-width:0;flex:1 1 320px}
@@ -2870,7 +2900,7 @@ html.ks-on.en-crm body{max-width:1280px !important;padding-left:32px !important;
     <div class="stit">Biblioteca</div></div>
   <div class="bxBar"><div class="bxTabs" id="bxTabs" role="group" aria-label="Filtrar"></div>
     <p class="bxWarn">⚠ BASE MAESTRA: editarla cambia los clones que se asignen desde ahora.</p></div>
-  <div class="bxSec" id="bxSecDemo"><b>Clases de prueba</b><span>Sesión DEMO estándar por programa y sexo: la que se le asigna a quien viene a su clase de prueba.</span></div>
+  <div class="bxSec" id="bxSecDemo"><b>Clases de prueba</b><span>Demos por programa, nivel y sexo: LOWER · UPPER · FULL BODY, 2 bloques × 3 sets. En sala se elige desde la ficha de la persona.</span></div>
   <div id="bibDemo"><div class="vacio">Cargando clases de prueba…</div></div>
   <div class="bxSec" id="bxSecExtra"><b>Rutinas extras ★</b><span>Sesiones prediseñadas para sumar a la semana de un socio, fuera de su protocolo.</span></div>
   <div id="bibLista"><div class="vacio">Cargando biblioteca…</div></div>
@@ -3459,8 +3489,8 @@ addEventListener('resize',function(){ if(document.getElementById('vAgenda')?.cla
 function esCP(s){ return !!s && s.estado==='clase_prueba' }
 function cpBanner(id){
   return '<div class="acBan acBan--pr" role="status"><div class="acBan__t"><span class="acBan__d" aria-hidden="true"></span><div><b>CLASE DE PRUEBA</b>'+
-    '<small>Acceso a la app solo el día de su clase. Muéstrale el QR al llegar. Si contrata, registra la venta aquí y pasa a socio activo.</small></div></div>'+
-    '<div class="acBan__b"><button type="button" class="ink" onclick="cpQR(\''+id+'\')">ACCESO QR</button>'+
+    '<small>Al llegar: elige su CLASE DEMO y muéstrale el QR para que la vea en su app (acceso solo el día de su clase). Si contrata, registra la venta aquí y pasa a socio activo.</small></div></div>'+
+    '<div class="acBan__b"><button type="button" class="ink" onclick="cpDemo(\''+id+'\')">CLASE DEMO</button><button type="button" onclick="cpQR(\''+id+'\')">ACCESO QR</button>'+
     (accEsCom()?'<button type="button" onclick="fTab(\'adm\');setTimeout(admFormPago,60)">REGISTRAR VENTA</button>':'')+'</div></div>'
 }
 function cpQRLib(){ return window.qrcode ? Promise.resolve() : new Promise(function(ok,no){ const sc=document.createElement('script')
@@ -3483,6 +3513,81 @@ async function cpQR(id){
     ov.addEventListener('click',function(e){ if(e.target===ov) ov.remove() })
     document.body.appendChild(ov)
   }catch(e){ toast('No se pudo generar el acceso') }
+}
+/* ══ CLASE DEMO · el koach elige programa · nivel · sexo · rutina; viene preseleccionada con lo que la persona contó a Jake ══ */
+const DM_OPC={ programa:[['STRONG','STRONG'],['BURN','BURN'],['HEALTHY','HEALTHY']], nivel:[['BASICO','BÁSICO'],['INTERMEDIO','INTERMEDIO'],['AVANZADO','AVANZADO']],
+  sexo:[['mujer','MUJER'],['hombre','HOMBRE']], zona:[['LOWER','LOWER BODY'],['UPPER','UPPER BODY'],['FULL','FULL BODY']] }
+const DM_TIT={ programa:'PROGRAMA', nivel:'NIVEL', sexo:'SEXO', zona:'RUTINA' }
+let DM=null, DM_TPL=null
+async function dmPlantillas(){
+  if (DM_TPL) return DM_TPL
+  const r=await sb.from('protocolos').select('id,programa,nivel,sexo,sesiones_protocolo(id,nombre,objetivo,bloques(bloque,etiqueta,sets,descanso_seg,bloque_ejercicios(orden,reps_txt,ejercicios(nombre,grupo_muscular,tipo_registro))))')
+    .eq('estado','demo').is('socio_id',null)
+  if (r.error) throw r.error
+  DM_TPL=r.data||[]; return DM_TPL
+}
+function dmSesion(){ const x=DM&&DM.sel; if(!x||!x.programa||!x.nivel||!x.sexo||!x.zona||!DM_TPL) return null
+  const p=DM_TPL.find(function(t){return t.programa===x.programa && t.nivel===x.nivel && t.sexo===x.sexo}); if(!p) return null
+  return (p.sesiones_protocolo||[]).find(function(s){return String(s.objetivo).toUpperCase()===x.zona})||null }
+function dmCerrar(){ const o=document.getElementById('dmOv'); if(o) o.remove(); DM=null }
+async function cpDemo(id){
+  dmCerrar()
+  DM={ id:id, sel:{}, sug:null, run:false }
+  const ov=document.createElement('div'); ov.className='dmOv'; ov.id='dmOv'
+  ov.innerHTML='<div class="dmBox" role="dialog" aria-modal="true" aria-label="Clase demo"><div class="dmK">CLASE DEMO</div><div class="dmVac">Cargando…</div></div>'
+  ov.addEventListener('click',function(e){ if(e.target===ov) dmCerrar() })
+  document.body.appendChild(ov)
+  try{
+    const [rs]=await Promise.all([ sb.rpc('koach_demo_sugerencia',{ p_socio:id }), dmPlantillas() ])
+    if (rs.error) throw rs.error
+    if (!DM || DM.id!==id) return
+    DM.sug=rs.data||{}; const a=DM.sug.activa
+    DM.sel = a ? { programa:a.programa, nivel:a.nivel, sexo:a.sexo, zona:String(a.zona||'').toUpperCase() }
+               : { programa:DM.sug.programa, nivel:DM.sug.nivel, sexo:DM.sug.sexo||null, zona:DM.sug.zona }
+    dmPintar()
+  }catch(e){ dmCerrar(); toast('No se pudo cargar la clase demo: '+(e.message||e)) }
+}
+function dmSet(k,v){ if(!DM||DM.run) return; if(DM.sug&&DM.sug.activa&&DM.sug.activa.entrenada) return; DM.sel[k]=v; dmPintar() }
+function dmVal(be){ const t=String((be.ejercicios||{}).tipo_registro||''), r=be.reps_txt||''
+  return t==='TIME' ? r+' s' : r+' reps' }
+function dmPintar(){
+  const box=document.querySelector('#dmOv .dmBox'); if(!box||!DM) return
+  const S2=DM.sel, sug=DM.sug||{}, f=sug.fuentes||{}, act=sug.activa, bloq=!!(act&&act.entrenada)
+  const fil=Object.keys(DM_OPC).map(function(k){
+    return '<div class="dmRow"><div class="dmL">'+DM_TIT[k]+'</div><div class="dmSeg" role="group" aria-label="'+DM_TIT[k]+'">'+DM_OPC[k].map(function(o){
+      const on=S2[k]===o[0], su=sug[k]===o[0]
+      return '<button type="button" aria-pressed="'+on+'"'+(bloq?' disabled':'')+' onclick="dmSet(\''+k+'\',\''+o[0]+'\')">'+o[1]+(su?'<i title="Sugerido por su conversación con Jake"></i>':'')+'</button>'
+    }).join('')+'</div></div>' }).join('')
+  const lo=[f.objetivo&&['OBJETIVO',f.objetivo], f.experiencia&&['EXPERIENCIA',f.experiencia], f.dolor&&['DOLOR',f.dolor], f.preferencia&&['PREFERENCIA',f.preferencia]].filter(Boolean)
+  const ctx=lo.length ? '<div class="dmCtx">'+lo.map(function(x){return '<div><small>'+x[0]+'</small><span>'+bxEsc(x[1])+'</span></div>'}).join('')+'</div>'
+                      : '<div class="dmCtx dmCtx--v">Sin datos de su conversación con Jake: elige según lo que te cuente al llegar.</div>'
+  const ses=dmSesion()
+  const prev = ses ? '<div class="dmPrev"><div class="dmPrev__t">'+bxEsc(ses.nombre)+' · '+S2.programa+'</div>'+
+      (ses.bloques||[]).slice().sort(function(a,b){return String(a.bloque).localeCompare(String(b.bloque))}).map(function(b){
+        return '<div class="dmB"><div class="dmB__h"><b>'+b.bloque+' · '+bxEsc(b.etiqueta||'')+'</b><span>'+b.sets+' SETS · DESCANSO '+(b.descanso_seg||0)+' s</span></div>'+
+          (b.bloque_ejercicios||[]).slice().sort(function(a,c){return a.orden-c.orden}).map(function(be){
+            return '<div class="dmE"><span>'+bxEsc((be.ejercicios||{}).nombre||'—')+'</span><em>'+dmVal(be)+'</em></div>' }).join('')+'</div>'
+      }).join('')+'</div>'
+    : '<div class="dmVac">'+(S2.sexo?'No hay demo para esa combinación.':'Elige el sexo para ver la demo.')+'</div>'
+  const aviso = bloq ? '<div class="dmAv">Ya empezó a entrenar su demo ('+bxEsc(act.nombre||'')+'). No se puede cambiar.</div>'
+              : act ? '<div class="dmAv dmAv--i">Demo activa: '+bxEsc(act.nombre||'')+' · '+act.programa+'. Si cambias algo y activas, se reemplaza.</div>' : ''
+  box.innerHTML='<div class="dmK">CLASE DEMO</div><div class="dmN">'+bxEsc(nomDe(DM.id))+'</div>'+ctx+fil+aviso+prev+
+    '<div class="dmF"><button type="button" onclick="dmCerrar()">CERRAR</button>'+
+    (bloq ? '<button type="button" class="ink" onclick="cpQR(\''+DM.id+'\')">ACCESO QR</button>'
+          : '<button type="button" class="ink" id="dmOk"'+(ses?'':' disabled')+' onclick="dmActivar()">'+(DM.run?'ACTIVANDO…':'ACTIVAR DEMO →')+'</button>')+'</div>'
+}
+async function dmActivar(){
+  if(!DM||DM.run||!dmSesion()) return
+  DM.run=true; dmPintar()
+  const id=DM.id, x=DM.sel
+  const r=await sb.rpc('koach_demo_activar',{ p_socio:id, p_programa:x.programa, p_nivel:x.nivel, p_sexo:x.sexo, p_zona:x.zona })
+  if(!DM){ return }
+  DM.run=false
+  if(r.error){ dmPintar(); toast(String(r.error.message||'').replace(/^DEMO:\s*/,'')||'No se pudo activar la demo'); return }
+  try{ if(F && F.id===id && x.sexo) F.sex=x.sexo }catch(_e){}
+  toast('Demo activada ✓ · '+((r.data&&r.data.nombre)||'')+' · '+x.programa)
+  dmCerrar()
+  cpQR(id)
 }
 function verSala(){ vista('vSala'); pintarSala(); rtSet('#/', 'Sala | KOACH'); socRTSeguir(null) }
 
@@ -3578,7 +3683,7 @@ async function verExtra(){
   const sexo=(F&&(F.sex==='hombre'||F.sex==='mujer'))?F.sex:(a&&a.protocolos?a.protocolos.sexo:null)
   try{ const rp = await sb.from('protocolos').select('*').eq('sexo',sexo)
     ;(rp.data||[]).forEach(function(p){ if(!C.protos[p.id]) C.protos[p.id]=p }) }catch(_e){}
-  const protos=Object.values(C.protos).filter(function(p){return ((!sexo||p.sexo===sexo) && !p.socio_id && p.estado!=='biblioteca' && p.estado!=='extras_personales')})
+  const protos=Object.values(C.protos).filter(function(p){return ((!sexo||p.sexo===sexo) && !p.socio_id && p.estado!=='biblioteca' && p.estado!=='extras_personales' && p.estado!=='demo')})
   try{ const bp = await bibProto(); if(bp && !protos.some(function(p){return p.id===bp.id})) protos.unshift(bp) }catch(_e){}
   const pids=protos.map(function(p){return p.id})
   const rs = await sb.from('sesiones_protocolo').select('*').in('protocolo_id',pids).order('numero')
@@ -3742,7 +3847,7 @@ async function bibProto(){
 let BIB_ERR = null
 async function verBases(){
   document.getElementById('basesLista').innerHTML=kLd('Cargando protocolos base…')
-  const rp = await sb.from('protocolos').select('*').is('socio_id',null).neq('estado','biblioteca').neq('estado','extras_personales')
+  const rp = await sb.from('protocolos').select('*').is('socio_id',null).neq('estado','biblioteca').neq('estado','extras_personales').neq('estado','demo')
   if(rp.error){ document.getElementById('basesLista').innerHTML='<div class="vacio">'+koachMsg(rp.error.message)+'</div>'; return }
   const bases=(rp.data||[]).sort(function(a,b){return ((a.programa||'')+(a.nivel||'')+(a.sexo||'')).localeCompare((b.programa||'')+(b.nivel||'')+(b.sexo||'')) || ((+a.variante||1)-(+b.variante||1))})
   document.getElementById('basesLista').innerHTML = bases.map(function(p){
@@ -3771,7 +3876,7 @@ function bxSp(k,v){ return '<div><small>'+k+'</small><b>'+v+'</b></div>' }
 function bxTabs(){
   const el=document.getElementById('bxTabs'); if(!el) return
   const cnt=function(p){return BX_BASES.filter(function(b){return (b.programa||'').toUpperCase()===p}).length}
-  el.innerHTML=[['TODOS','TODOS'],['PRUEBA','CLASES DE PRUEBA'+(BX_DEMOS!=null?' · '+BX_DEMOS+'/6':'')],['EXTRAS','EXTRAS ★'+(BX_EXTRAS?' · '+BX_EXTRAS:'')],['STRONG','STRONG · '+cnt('STRONG')],['BURN','BURN · '+cnt('BURN')],['HEALTHY','HEALTHY · '+cnt('HEALTHY')]]
+  el.innerHTML=[['TODOS','TODOS'],['PRUEBA','CLASES DE PRUEBA'+(BX_DEMOS!=null?' · '+BX_DEMOS:'')],['EXTRAS','EXTRAS ★'+(BX_EXTRAS?' · '+BX_EXTRAS:'')],['STRONG','STRONG · '+cnt('STRONG')],['BURN','BURN · '+cnt('BURN')],['HEALTHY','HEALTHY · '+cnt('HEALTHY')]]
     .map(function(x){return '<button type="button" aria-pressed="'+(x[0]===BX_TAB)+'" onclick="bxFiltro(\''+x[0]+'\')">'+x[1]+'</button>'}).join('')
 }
 function bxFiltro(t){ BX_TAB=t; bxTabs(); bxProgramas()
@@ -3803,7 +3908,7 @@ async function verBib(){
   vista('vBib'); bxTabs()
   document.getElementById('bibLista').innerHTML=kLd('Cargando biblioteca…')
   try{
-    const rp=await sb.from('protocolos').select('id,nombre,programa,nivel,sexo,ciclo_semanas,variante').is('socio_id',null).neq('estado','biblioteca').neq('estado','extras_personales')
+    const rp=await sb.from('protocolos').select('id,nombre,programa,nivel,sexo,ciclo_semanas,variante').is('socio_id',null).neq('estado','biblioteca').neq('estado','extras_personales').neq('estado','demo')
     if(rp.error) throw rp.error
     BX_BASES=rp.data||[]
     const ids=BX_BASES.map(function(b){return b.id})
@@ -3823,7 +3928,7 @@ async function verBib(){
     return
   }
   const _todas = (rs.data||[]).filter(function(s){ return !esContenedor(s) })
-  bxDemos(_todas.filter(esDemo))
+  bxDemosProto()
   const ses = _todas.filter(function(s){ return !esDemo(s) }); BX_EXTRAS=ses.length; bxTabs()
   const sids = ses.map(function(s){return s.id})
   let uso = {}
@@ -3924,6 +4029,26 @@ async function confirmarRutinaStd(){
   toast('\u2713 Rutina creada — ábrela y arma sus ejercicios')
   editarRutinaStd(rs.data.id)
 }
+/* c-demo · CLASES DE PRUEBA = 18 protocolos DEMO (programa × nivel × sexo), cada uno con LOWER · UPPER · FULL BODY */
+async function bxDemosProto(){
+  const el=document.getElementById('bibDemo'); if(!el) return
+  const r=await sb.from('protocolos').select('id,nombre,programa,nivel,sexo,sesiones_protocolo(id,objetivo,bloques(id,bloque_ejercicios(id)))').eq('estado','demo').is('socio_id',null)
+  if(r.error){ el.innerHTML='<div class="vacio">No pudimos cargar las clases de prueba.<br><b>'+bxEsc(r.error.message)+'</b></div>'; return }
+  const lista=r.data||[]; BX_DEMOS=lista.length; bxTabs()
+  if(!lista.length){ el.innerHTML='<div class="vacio">Aún no hay demos cargadas.</div>'; return }
+  el.innerHTML=['STRONG','BURN','HEALTHY'].map(function(p){ const P=BX_PROG[p]
+    const ds=lista.filter(function(d){return d.programa===p}).sort(function(a,b){ return ((BX_NIV[a.nivel]||[0,9])[1]-(BX_NIV[b.nivel]||[0,9])[1]) || String(b.sexo).localeCompare(String(a.sexo)) })
+    return (ds.length?'<div class="bxSec"><b>DEMO '+p+'</b><span>'+P.d+'</span></div>':'')+'<div class="bxG">'+ds.map(function(d){ const nv=BX_NIV[d.nivel]||[d.nivel,0,''], sx=d.sexo==='mujer'?'MUJER':'HOMBRE'
+      const ses=(d.sesiones_protocolo||[]), nEj=ses.reduce(function(t,s){ return t+(s.bloques||[]).reduce(function(u,b){return u+(b.bloque_ejercicios||[]).length},0) },0)
+      return '<button type="button" class="bxI t-'+P.t+'" onclick="editarBase(\''+d.id+'\')" aria-label="Editar demo '+bxEsc(d.nombre)+'">'+
+        '<div class="bxI__h"><div><div class="bxI__n">'+p+'</div><div class="bxI__s">DEMO · '+sx+' · '+nv[0]+'</div>'+
+          '<div class="bxI__lv" aria-label="Nivel '+nv[1]+' de 3">'+[1,2,3].map(function(k){return '<i class="'+(k<=nv[1]?'on':'')+'"></i>'}).join('')+'</div></div>'+
+          '<img src="/img/brand/isotipo-blanco.png" alt="" width="22" height="23"></div>'+
+        '<div class="bxI__sp">'+bxSp('RUTINAS','LOWER · UPPER · FULL')+bxSp('FORMATO','2 BLOQUES × 3 SETS')+bxSp('DURACIÓN','40 MIN')+bxSp('EJERCICIOS',String(nEj))+'</div>'+
+        '<div class="bxI__f"><div class="bxI__tag">CLASE<br>DE PRUEBA</div><div class="bxI__bc" aria-hidden="true">'+bxBarcode(d.nombre)+'</div></div></button>'
+    }).join('')+'</div>'
+  }).join('')
+}
 async function editarRutinaStd(sesId){
   const bp = await bibProto(); if(!bp) return
   abrirPlan(bp.id, bp, { modo:'bib', soloSesion:sesId })
@@ -3995,7 +4120,7 @@ async function verPicker(){
   vista('vPicker')
   const rp = await sb.from('protocolos').select('*').is('socio_id', null)
   if(rp.error){ document.getElementById('pkLista').innerHTML='<div class="vacio">'+koachMsg(rp.error.message)+'</div>'; return }
-  const bases = (rp.data||[]).filter(function(p){return p.estado!=='biblioteca' && p.estado!=='extras_personales'})
+  const bases = (rp.data||[]).filter(function(p){return p.estado!=='biblioteca' && p.estado!=='extras_personales' && p.estado!=='demo'})
     .sort(function(a,b){ return ((a.programa||'')+(a.nivel||'')).localeCompare((b.programa||'')+(b.nivel||'')) || ((+a.variante||1)-(+b.variante||1)) })
   document.getElementById('pkLista').innerHTML = bases.map(function(p){
     return '<div class="glass pkCard" onclick="asignarBase(\''+p.id+'\')"><div class="pkN">'+(p.programa||p.nombre||'PROTOCOLO')+' · '+(p.nivel||'')+varTag(p)+'</div>'+
@@ -4021,6 +4146,8 @@ function limpia(row, quitar){
   return o
 }
 async function clonarPrograma(basePid, socioId){
+  // Si venía de clase de prueba, su DEMO se archiva antes (libera su asignación y su protocolo individual)
+  try{ await sb.rpc('koach_demo_cerrar',{ p_socio:socioId }) }catch(_e){}
   // Idempotencia: ¿ya existe su copia? → se reutiliza, jamás se duplica
   try{
     const rex = await sb.from('protocolos').select('*').eq('socio_id',socioId).neq('estado','archivado').limit(1).maybeSingle()
@@ -7578,7 +7705,7 @@ function gpCerrar(){ document.getElementById('mGP').style.display='none' }
 async function gpAbrir(){
   if (!F) return; const id=F.id
   document.getElementById('mGP').style.display='flex'; document.getElementById('gpBody').innerHTML=kLd('Cargando')
-  const [re, rb] = await Promise.all([ sb.rpc('koach_programa_estado',{p_socio:id}), sb.from('protocolos').select('id,programa,nivel,sexo,variante').is('socio_id',null).neq('estado','biblioteca').neq('estado','extras_personales') ])
+  const [re, rb] = await Promise.all([ sb.rpc('koach_programa_estado',{p_socio:id}), sb.from('protocolos').select('id,programa,nivel,sexo,variante').is('socio_id',null).neq('estado','biblioteca').neq('estado','extras_personales').neq('estado','demo') ])
   if (!F || F.id!==id) return
   if (re.error){ document.getElementById('gpBody').innerHTML='<div class="gpErr">No se pudo leer el programa: '+plEsc(re.error.message)+'</div>'; return }
   GP.st=re.data||{}; GP.bases=rb.data||[]

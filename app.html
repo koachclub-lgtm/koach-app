@@ -3961,7 +3961,7 @@ function calcularSemana(programa, registros, objetivos){
 }
 function nombreEN(s){
   // Clase de prueba: la sesión es una demostración, no la planificación real del socio
-  if (typeof S!=='undefined' && S && S.perfil && S.perfil.estado==='clase_prueba') return 'DEMO'
+  if (typeof S!=='undefined' && S && S.perfil && S.perfil.estado==='clase_prueba'){ const d=String(s||'').toUpperCase().trim(); return /^DEMO\b/.test(d)?d:'DEMO' }
   // solo se traducen los nombres ANTIGUOS exactos; un nombre libre del KOACH se respeta tal cual
   const x = String(s||'').toUpperCase().trim()
   if (/^(TREN )?SUPERIOR$/.test(x)) return 'UPPER BODY'
