@@ -12,7 +12,6 @@ create table if not exists public.anamnesis_prueba (
   updated_at timestamptz not null default now()
 );
 alter table public.anamnesis_prueba enable row level security;
-drop policy if exists an_leer on public.anamnesis_prueba;
 create policy an_leer on public.anamnesis_prueba for select using ((select public.es_staff()) or socio_id = (select auth.uid()));
 -- escrituras solo por RPC (security definer)
 

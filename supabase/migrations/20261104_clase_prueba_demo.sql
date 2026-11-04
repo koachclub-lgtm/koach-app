@@ -2,32 +2,20 @@
 -- de 2 bloques × 3 sets. Al activar una demo se clona SOLO la sesión elegida a un protocolo personal (estado 'demo'),
 -- se asigna y se habilita hoy. Si la persona compra (deja de ser clase de prueba), su demo se archiva sola.
 
-drop index if exists public.uq_protocolos_base_variante;
-create unique index uq_protocolos_base_variante on public.protocolos (programa, nivel, sexo, variante)
-  where socio_id is null and estado is distinct from 'demo';
+-- Las plantillas demo usan variante 90: no chocan con uq_protocolos_base_variante (bases V1..V3).
 create unique index if not exists uq_protocolos_demo on public.protocolos (programa, nivel, sexo)
   where socio_id is null and estado = 'demo';
 
--- Cierra la demo de una persona: la borra si nunca se entrenó (p_borrar); si se entrenó, la archiva (queda el historial).
+-- Cierra la demo de una persona: retira su habilitación, desactiva la asignación y archiva el protocolo demo (queda el historial).
 create or replace function public._koach_demo_cerrar(p_socio uuid, p_borrar boolean default false)
 returns int language plpgsql security definer set search_path = public as $f$
 declare r record; n int := 0; v_prev text := coalesce(current_setting('koach.sync', true),'');
 begin
   perform set_config('koach.sync','1',true);
   for r in select id from protocolos where socio_id = p_socio and estado = 'demo' loop
-    if p_borrar and not exists (select 1 from sesiones_registro sr join sesiones_protocolo sp on sp.id = sr.sesion_protocolo_id where sp.protocolo_id = r.id) then
-      delete from sesion_habilitada where asignacion_id in (select id from asignaciones where protocolo_id = r.id)
-        or sesion_protocolo_id in (select id from sesiones_protocolo where protocolo_id = r.id);
-      delete from asignaciones where protocolo_id = r.id;
-      delete from bloque_ejercicios where bloque_id in (select b.id from bloques b join sesiones_protocolo sp on sp.id = b.sesion_id where sp.protocolo_id = r.id);
-      delete from bloques where sesion_id in (select id from sesiones_protocolo where protocolo_id = r.id);
-      delete from sesiones_protocolo where protocolo_id = r.id;
-      delete from protocolos where id = r.id;
-    else
-      update sesion_habilitada set estado = 'retirada' where estado = 'activa' and sesion_protocolo_id in (select id from sesiones_protocolo where protocolo_id = r.id);
-      update asignaciones set activo = false where protocolo_id = r.id and activo;
-      update protocolos set estado = 'archivado' where id = r.id;
-    end if;
+    update sesion_habilitada set estado = 'retirada' where estado = 'activa' and sesion_protocolo_id in (select id from sesiones_protocolo where protocolo_id = r.id);
+    update asignaciones set activo = false where protocolo_id = r.id and activo;
+    update protocolos set estado = 'archivado' where id = r.id;
     n := n + 1;
   end loop;
   perform set_config('koach.sync', v_prev, true);
@@ -123,7 +111,7 @@ begin
 
   perform set_config('koach.sync','1',true);
   insert into protocolos(programa, nivel, sexo, nombre, ciclo_semanas, socio_id, estado, variante, activo, fecha_inicio_ciclo)
-    values (p_programa::programa_tipo, p_nivel::nivel_tipo, p_sexo::user_sex, 'DEMO ' || p_programa || ' · ' || replace(v_tpl.nombre,'DEMO ',''), 1, p_socio, 'demo', 1, true, v_hoy)
+    values (p_programa::programa_tipo, p_nivel::nivel_tipo, p_sexo::user_sex, 'DEMO ' || p_programa || ' · ' || replace(v_tpl.nombre,'DEMO ',''), 1, p_socio, 'demo', 90, true, v_hoy)
     returning id into v_pid;
   insert into sesiones_protocolo(protocolo_id, numero, nombre, objetivo, semana, publicado)
     values (v_pid, 1, v_tpl.nombre, v_tpl.objetivo, 1, true) returning id into v_sid;
@@ -160,5 +148,4 @@ begin
   end if;
   return new;
 end $f$;
-drop trigger if exists trg_demo_conversion on public.profiles;
 create trigger trg_demo_conversion after update of estado on public.profiles for each row execute function public.koach_trg_demo_conversion();
