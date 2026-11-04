@@ -3537,17 +3537,47 @@ async function cpQR(id){
       body:JSON.stringify({ accion:'acceso_prueba', socio_id:id }) }).then(function(x){return x.json()}), cpQRLib() ])
     if(!r || !r.ok || !r.url){ toast('No se pudo generar el acceso'+(r&&r.error?': '+r.error:'')); return }
     const q=window.qrcode(0,'M'); q.addData(r.url); q.make()
+    document.querySelectorAll('.cpQR').forEach(function(x){x.remove()})
     const ov=document.createElement('div'); ov.className='cpQR'
-    ov.setAttribute('style','position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,.82);display:flex;align-items:center;justify-content:center;padding:16px')
-    ov.innerHTML='<div style="background:#fff;color:#111;border-radius:16px;padding:22px;max-width:360px;width:100%;text-align:center;font-family:inherit">'+
+    ov.setAttribute('style','position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,.82);display:flex;align-items:flex-start;justify-content:center;padding:24px 16px;overflow-y:auto')
+    ov.innerHTML='<div style="background:#fff;color:#111;border-radius:16px;padding:22px;max-width:380px;width:100%;text-align:center;font-family:inherit">'+
       '<div style="font-weight:900;letter-spacing:.08em;font-size:13px">ACCESO CLASE DE PRUEBA</div>'+
-      '<div style="font-size:15px;margin:4px 0 14px"><b>'+nomDe(id)+'</b></div>'+
-      '<div style="display:flex;justify-content:center">'+q.createSvgTag({ cellSize:6, margin:2, scalable:true }).replace('<svg ','<svg style="width:100%;max-width:280px;height:auto" ')+'</div>'+
-      '<div style="font-size:12px;color:#555;margin:12px 0 16px">Que lo escanee con la cámara de su celular: entra directo a su app. El código sirve una sola vez.</div>'+
-      '<button type="button" style="width:100%;padding:12px;border-radius:10px;border:0;background:#111;color:#fff;font-weight:800" onclick="this.closest(\'.cpQR\').remove()">LISTO</button></div>'
+      '<div style="font-size:15px;margin:4px 0 14px"><b>'+bxEsc(nomDe(id))+'</b></div>'+
+      '<div style="display:flex;justify-content:center">'+q.createSvgTag({ cellSize:6, margin:2, scalable:true }).replace('<svg ','<svg style="width:100%;max-width:260px;height:auto" ')+'</div>'+
+      '<div style="font-size:12px;color:#555;margin:10px 0 14px">Que lo escanee con la cámara de su celular: entra directo a su app. El código sirve una sola vez.</div>'+
+      '<div id="cpCred" style="text-align:left;border-top:1px solid #e3e2de;padding-top:14px"></div>'+
+      '<button type="button" style="width:100%;margin-top:14px;padding:12px;border-radius:10px;border:0;background:#111;color:#fff;font-weight:800" onclick="this.closest(\'.cpQR\').remove()">LISTO</button></div>'
     ov.addEventListener('click',function(e){ if(e.target===ov) ov.remove() })
     document.body.appendChild(ov)
+    cpCredPintar(id, r.email, r.rut)
   }catch(e){ toast('No se pudo generar el acceso') }
+}
+/* Credenciales de respaldo: correo + RUT como clave (sirven también cuando compre). */
+function cpCredPintar(id, email, rut){
+  const el=document.getElementById('cpCred'); if(!el) return
+  const L='display:block;font-size:10.5px;letter-spacing:.12em;color:#666;font-weight:700;margin-bottom:3px'
+  const V='font-size:16px;font-weight:700;word-break:break-all'
+  el.innerHTML='<div style="font-size:11px;letter-spacing:.1em;font-weight:900;margin-bottom:10px">O ENTRA CON CORREO Y CLAVE · app.koachclub.cl</div>'+
+    '<div style="margin-bottom:10px"><span style="'+L+'">CORREO</span><span style="'+V+'">'+bxEsc(email||'—')+'</span></div>'+
+    (rut ? '<div><span style="'+L+'">CLAVE · SU RUT</span><span style="'+V+';font-family:var(--font-mono,monospace)">'+bxEsc(rut)+'</span></div>'+
+           '<div style="font-size:12px;color:#555;margin-top:8px">Sin puntos y con guión. Es su clave también cuando compre.</div>'+
+           '<button type="button" style="margin-top:8px;background:none;border:0;padding:6px 0;color:#555;text-decoration:underline;font-size:12px" onclick="cpCredPintar(\''+id+'\',\''+bxEsc(email||'')+'\',null)">Cambiar RUT</button>'
+         : '<label for="cpRut" style="'+L+'">RUT DEL CLIENTE · SERÁ SU CLAVE</label>'+
+           '<div style="display:flex;gap:8px"><input id="cpRut" inputmode="text" autocomplete="off" placeholder="12.345.678-9" style="flex:1;min-width:0;min-height:44px;border:1.5px solid #bbb;border-radius:10px;padding:0 12px;font-size:16px">'+
+           '<button type="button" id="cpRutOk" style="min-height:44px;padding:0 14px;border-radius:10px;border:0;background:#111;color:#fff;font-weight:800;font-size:12px" onclick="cpCredGuardar(\''+id+'\')">GUARDAR</button></div>'+
+           '<div id="cpRutMsg" role="status" style="font-size:12px;color:#8A2A1C;margin-top:6px"></div>')
+}
+async function cpCredGuardar(id){
+  const inp=document.getElementById('cpRut'), btn=document.getElementById('cpRutOk'), msg=document.getElementById('cpRutMsg')
+  const rut=(inp&&inp.value||'').trim(); if(!rut){ if(msg) msg.textContent='Escribe su RUT'; return }
+  btn.disabled=true; btn.textContent='…'
+  try{
+    const ses=(await sb.auth.getSession()).data.session
+    const r=await fetch('https://koach-jake.vercel.app/api/agenda',{ method:'POST', headers:{ 'content-type':'application/json', authorization:'Bearer '+ses.access_token },
+      body:JSON.stringify({ accion:'credenciales_prueba', socio_id:id, rut:rut }) }).then(function(x){return x.json()})
+    if(!r||!r.ok){ btn.disabled=false; btn.textContent='GUARDAR'; if(msg) msg.textContent=(r&&r.error)||'No se pudo guardar'; return }
+    toast('Clave creada: su RUT ✓'); cpCredPintar(id, r.email, r.rut)
+  }catch(e){ btn.disabled=false; btn.textContent='GUARDAR'; if(msg) msg.textContent='Sin conexión: intenta de nuevo' }
 }
 /* ══ CLASE DEMO · el koach elige programa · nivel · sexo · rutina; viene preseleccionada con lo que la persona contó a Jake ══ */
 const DM_OPC={ programa:[['STRONG','STRONG'],['BURN','BURN'],['HEALTHY','HEALTHY']], nivel:[['BASICO','BÁSICO'],['INTERMEDIO','INTERMEDIO'],['AVANZADO','AVANZADO']],

@@ -345,6 +345,8 @@ function eventos(lista){
   return out
 }
 
+// Dentro del Dashboard (iframe, mismo origen) usa las herramientas de la ficha: QR, anamnesis y demo.
+function agPadre(){ try{ const w=window.parent; return (w&&w!==window&&typeof w.cpQR==='function')?w:null }catch(_e){ return null } }
 // ---------- Hojas ----------
 function abrirHoja(html){document.getElementById('hoja').innerHTML=html;document.getElementById('velo').classList.remove('hide')}
 function cerrarHoja(){document.getElementById('velo').classList.add('hide')}
@@ -367,6 +369,11 @@ function verCita(id){
       <div class="dato"><span class="lbl">Origen</span><v>${c.origen==='panel'?'Panel del equipo':'Jake · WhatsApp'}${c.socio_id?' · socio':''}</v></div>
       ${c.notas?`<div class="dato"><span class="lbl">Notas</span><v>${esc(c.notas)}</v></div>`:''}
     </div>
+    ${c.servicio==='clase_prueba'&&c.socio_id&&c.estado!=='cancelada'&&agPadre()?`<div class="acciones">
+      <button class="btn btn--ink full" onclick="agPadre().cpQR('${c.socio_id}')">ACCESO QR · CORREO Y CLAVE</button>
+      <button class="btn" onclick="agPadre().apAbrir('${c.socio_id}')">ANAMNESIS</button>
+      <button class="btn" onclick="agPadre().cpDemo('${c.socio_id}')">CLASE DEMO</button>
+    </div>`:''}
     <div class="acciones">
       <button class="btn ${c.estado==='asistio'?'btn--ink':''}" onclick="marcar('${c.id}','asistio')">✓ Asistió</button>
       <button class="btn ${c.estado==='no_asistio'?'btn--ink':''}" onclick="marcar('${c.id}','no_asistio')">No asistió</button>
