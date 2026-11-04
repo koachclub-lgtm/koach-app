@@ -169,15 +169,11 @@ function fPlanForm(p){
       '<label>DURACIÓN<select id="plSem" onchange="fPlanSync()">'+[4,5,6,8,10,12].map(n=>'<option value="'+n+'"'+((+((p&&p.semanas)||6))===n?' selected':'')+'>'+n+' SEMANAS</option>').join('')+'</select></label>'+
       '<label>INICIO<input type="date" id="plIni" value="'+v((p&&p.estado==='borrador'&&p.inicio)||new Date().toISOString().slice(0,10))+'" onchange="fPlanSync()"></label>'+
       '<label>REEVALUACIÓN<input id="plFin" disabled></label></div><p class="cmp__k" style="margin-top:6px">Ventana habitual de reevaluación ISAK: 4 a 8 semanas.</p></div>'+
-    '<div class="cmpF__g"><h4>PREFERENCIAS E INTAKE</h4><div class="cmpF__f">'+
-      '<label>COMIDAS AL DÍA<select id="plComD" onchange="fPlanSync()">'+['3','4','5','6'].map(n=>'<option'+((ix.comidas_dia||'4')===n?' selected':'')+'>'+n+'</option>').join('')+'</select></label>'+
-      inp('plHor','HORARIO ENTRENO',ix.horario_entreno,'placeholder="ej. 19:00"')+'</div><div class="cmpF__f" style="grid-template-columns:1fr 1fr;margin-top:8px">'+
-      ta('plRes','RESTRICCIONES / ALERGIAS',ix.restricciones)+ta('plNoC','NO CONSUME',ix.no_consume)+ta('plPref','PREFERENCIAS',ix.preferencias)+ta('plSupA','SUPLEMENTOS ACTUALES',ix.suplementos)+'</div>'+
-      '<div class="cmpF__f" style="grid-template-columns:1fr;margin-top:8px">'+ta('plCtx','CONTEXTO (TRABAJO, HORARIOS, COCINA)',ix.contexto)+'</div>'+
-      '<div class="cmpF__acts" style="justify-content:flex-start"><button type="button" class="cmp__b" id="plIA" onclick="fPlanIA()">GENERAR PAUTA CON IA →</button><span class="cmp__k" id="plIAst" style="align-self:center"></span></div></div>'+
+    plPrefHtml(ix)+
     '<div class="cmpF__g"><h4>CONTENIDO DEL PLAN · <em>UNA LÍNEA POR ALIMENTO: ALIMENTO | CANTIDAD</em></h4>'+
       '<div class="cmpF__f" style="grid-template-columns:1fr">'+ta('plRes2','RESUMEN PARA EL SOCIO',c.resumen,3)+'</div><div id="plComidas"></div>'+
       '<button type="button" class="cmp__b cmp__b--l" style="margin-top:8px" onclick="fPlanComida()">+ COMIDA</button></div>'+
+    '<div class="cmpF__g plCor" id="plCor"></div>'+
     '<div class="cmpF__g"><h4>INDICACIONES</h4><div class="cmpF__f" style="grid-template-columns:1fr 1fr">'+
       ta('plSup','SUPLEMENTACIÓN · PRODUCTO | DOSIS | HORARIO',c.suplementos.map(x=>[x.producto,x.dosis,x.horario].join(' | ')).join('\n'),4)+ta('plHid','HIDRATACIÓN',c.hidratacion,4)+
       ta('plInd','INDICACIONES · UNA POR LÍNEA',c.indicaciones.join('\n'),4)+ta('plEv','EVITAR · UNO POR LÍNEA',c.evitar.join('\n'),4)+'</div>'+
@@ -186,7 +182,9 @@ function fPlanForm(p){
     '<p class="cmp__k" id="plPubWhy" style="text-align:right;margin-top:6px;color:#B85A2E"></p>'+
     '</div><aside class="plPrevWrap plPrevWrap--st"><span class="cmp__k" style="margin-bottom:8px">VISTA DEL SOCIO · EN VIVO</span><div class="plPhone" id="plPrev"></div></aside></div></div>'
   NPL.ia = !!(p&&p.generado_ia); NPL.modelo=(p&&p.modelo)||null; NPL.tdee=(p&&p.tdee)||null; NPL.tmb=(p&&p.tmb)||null
-  plCalBase(); fPlanComidasPintar(); fPlanSync()
+  NPL.ix={ orden:Array.isArray(ix.orden_comidas)?ix.orden_comidas.slice():[], restr:Array.isArray(ix.restricciones_lista)?ix.restricciones_lista.slice():[], sup:Array.isArray(ix.suplementos_abordar)?ix.suplementos_abordar.slice():[] }
+  NPL.corr=Array.isArray(ix.correcciones)?ix.correcciones.slice():[]; NPL.prev=null
+  plCalBase(); plPrefPintar(); fPlanComidasPintar(); plCorPintar(); fPlanSync()
 }
 function fPlanComidasPintar(){
   const el=document.getElementById('plComidas'); if(!el) return
@@ -196,6 +194,7 @@ function fPlanComidasPintar(){
     '<label>QUÉ APORTA<input id="plcA'+i+'" value="'+adEsc(m.aporte)+'" oninput="fPlanSync()"></label><label>&nbsp;<button type="button" class="cmp__b cmp__b--l" onclick="fPlanQuitar('+i+')" aria-label="Quitar comida">✕</button></label></div>'+
     '<div class="cmpF__f" style="grid-template-columns:1fr 1fr;margin-top:6px"><label>OPCIÓN A<textarea id="plcOA'+i+'" rows="4" oninput="fPlanSync()">'+adEsc(lin(m.opciones[0]))+'</textarea></label>'+
     '<label>OPCIÓN B (OPCIONAL)<textarea id="plcOB'+i+'" rows="4" oninput="fPlanSync()">'+adEsc(lin(m.opciones[1]))+'</textarea></label></div></div>').join('')||'<div class="cmp__vac" style="padding:14px">Sin comidas todavía: redáctalas con IA o agrégalas a mano.</div>'
+  plCorPintar()
 }
 function fPlanLeer(){
   const g=id=>{ const e=document.getElementById(id); return e?e.value.trim():'' }, lines=t=>t.split('\n').map(x=>x.trim()).filter(Boolean)
@@ -206,7 +205,9 @@ function fPlanLeer(){
     suplementos:lines(g('plSup')).map(l=>{ const [a,b,c]=l.split('|'); return { producto:(a||'').trim(), dosis:(b||'').trim(), horario:(c||'').trim() } }),
     metas:['30 DÍAS','60 DÍAS','90 DÍAS'].map((pl,i)=>({ plazo:pl, meta:g('plMeta'+i) })) })
   return { semanas:+(g('plSem')||6), inicio:g('plIni')||null, actividad:g('plAct'), kcal:cmpNum(g('plKcal')), proteina_g:cmpNum(g('plP')), carbohidrato_g:cmpNum(g('plC')), grasa_g:cmpNum(g('plG')),
-    intake:{ objetivo:plObjDe(cmpNum(g('plKcal'))), comidas_dia:g('plComD'), horario_entreno:g('plHor'), restricciones:g('plRes'), no_consume:g('plNoC'), preferencias:g('plPref'), suplementos:g('plSupA'), contexto:g('plCtx') }, contenido:cont }
+    intake:{ objetivo:plObjDe(cmpNum(g('plKcal'))), comidas_dia:String(((NPL.ix&&NPL.ix.orden.length)||cmpNum(g('plComD'))||4)), orden_comidas:NPL.ix?NPL.ix.orden.slice():[], horario_entreno:g('plHor'),
+      restricciones_lista:NPL.ix?NPL.ix.restr.slice():[], restricciones:[].concat(NPL.ix?NPL.ix.restr:[], g('plRes')?[g('plRes')]:[]).join(', '), no_consume:g('plNoC'), preferencias:g('plPref'),
+      suplementos_abordar:NPL.ix?NPL.ix.sup.slice():[], suplementos:g('plSupA'), contexto:g('plCtx'), correcciones:(NPL.corr||[]).slice(-20) }, contenido:cont }
 }
 function fPlanSync(){
   const f=fPlanLeer(), ev=plUltEval(), r=KC.reparto(f.kcal,f.proteina_g,f.carbohidrato_g,f.grasa_g,ev&&ev.peso_kg)
@@ -235,12 +236,23 @@ function plComp(ev,a){ const sx=ev.sexo_eval||F.sex, fc=KC.formaCorporal(ev.porc
   return { sexo:sx, edad:ev.edad_eval||cmpEdad(F.fecha_nacimiento), peso:ev.peso_kg, talla:ev.talla_cm, nivel:a&&a.protocolos&&a.protocolos.nivel,
     pct_grasa:ev.porcentaje_grasa, clas_grasa:KC.clasGrasa(ev.porcentaje_grasa,sx), masa_grasa:ev.masa_grasa_kg, masa_muscular:ev.masa_muscular_kg, masa_osea:ev.masa_osea_kg, masa_residual:ev.masa_residual_kg,
     ffmi:ev.ffmi_norm, clas_ffmi:KC.clasFFMI(ev.ffmi_norm,sx), forma:fc&&fc.label, icc:ev.icc, ict:ev.ict, edad_biologica:ev.edad_biologica, tmb:NPL.tmb, tdee:NPL.tdee } }
+function plAplicarCont(plan, modelo){
+  NPL.cont=KC.normPlan(plan); NPL.ia=true; if(modelo) NPL.modelo=modelo
+  const $=id=>document.getElementById(id)
+  $('plRes2').value=NPL.cont.resumen; $('plHid').value=NPL.cont.hidratacion
+  $('plInd').value=NPL.cont.indicaciones.join('\n'); $('plEv').value=NPL.cont.evitar.join('\n')
+  $('plSup').value=NPL.cont.suplementos.map(x=>[x.producto,x.dosis,x.horario].join(' | ')).join('\n')
+  ;['30 DÍAS','60 DÍAS','90 DÍAS'].forEach((pl,i)=>{ const m=NPL.cont.metas.find(x=>x.plazo===pl); $('plMeta'+i).value=m?m.meta:'' })
+  fPlanComidasPintar(); plCorPintar(); fPlanSync()
+}
 async function fPlanIA(){
   if (NPL.gen) return
   let f=fPlanLeer()
   // Como Nutrición Pro: si nutrición aún no fijó los números, el motor KOACH los calcula por programa antes de redactar
   if(!f.kcal||!f.proteina_g){ const ev0=plUltEval(); if(!ev0){ toast('Registra primero una evaluación con peso, talla y edad'); return }
     fPlanSugerir(); f=fPlanLeer(); if(!f.kcal||!f.proteina_g) return }
+  if(!NPL.ix.orden.length) plOrdenTipo(cmpNum(f.intake.comidas_dia)||4)
+  f=fPlanLeer()
   const ev=plUltEval(), a=C.asig&&C.asig[F.id], meta=ev?KC.metaSeisMeses(ev.peso_kg, cmpProg(), a&&a.protocolos&&a.protocolos.nivel, { pctGrasa:ev.porcentaje_grasa, sexo:ev.sexo_eval||F.sex }):null
   const b=document.getElementById('plIA'), st=document.getElementById('plIAst'); NPL.gen=true; b.disabled=true; st.textContent='LA IA ESTÁ DISEÑANDO LAS COMIDAS… 20–40 S'
   try{
@@ -252,12 +264,7 @@ async function fPlanIA(){
     if(!r.ok) throw new Error(j.error||('Error '+r.status))
     const actual=fPlanLeer().contenido
     if ((actual.comidas.length||actual.resumen) && !(await kConfirm('La IA reemplazará el contenido actual del plan (los números no cambian). ¿Continuar?'))) { st.textContent=''; return }
-    NPL.cont=KC.normPlan(j.plan); NPL.ia=true; NPL.modelo=j.modelo
-    document.getElementById('plRes2').value=NPL.cont.resumen; document.getElementById('plHid').value=NPL.cont.hidratacion
-    document.getElementById('plInd').value=NPL.cont.indicaciones.join('\n'); document.getElementById('plEv').value=NPL.cont.evitar.join('\n')
-    document.getElementById('plSup').value=NPL.cont.suplementos.map(x=>[x.producto,x.dosis,x.horario].join(' | ')).join('\n')
-    ;['30 DÍAS','60 DÍAS','90 DÍAS'].forEach((pl,i)=>{ const m=NPL.cont.metas.find(x=>x.plazo===pl); document.getElementById('plMeta'+i).value=m?m.meta:'' })
-    fPlanComidasPintar(); fPlanSync(); st.textContent='LISTO · REVISA Y AJUSTA ANTES DE PUBLICAR'; plVista('ancho',true)
+    NPL.prev=null; NPL.corr=[]; plAplicarCont(j.plan, j.modelo); st.textContent='LISTO · REVISA, CORRIGE CON IA SI HACE FALTA Y PUBLICA'; plVista('ancho',true)
   }catch(e){ console.error('pauta ia', e); st.textContent=''; toast('No se pudo redactar: '+((e&&e.message)||'error')) }
   finally{ NPL.gen=false; b.disabled=false }
 }
@@ -405,4 +412,86 @@ function fCmpDiag(id){
   const d=CMP.data||{}, evs=(d.evaluaciones||[]).filter(e=>d.puede_editar||e.estado==='publicada'), a=C.asig&&C.asig[F.id]
   const i=id?evs.findIndex(e=>e.id===id):null
   KD.abrir({ evs, i:i!=null&&i>=0?i:null, nombre:nomDe(F.id), programa:cmpProg(), nivel:a&&a.protocolos&&a.protocolos.nivel, sexo:F.sex })
+}
+
+// ═══ c224 · PREFERENCIAS POR SELECCIÓN (orden de comidas, restricciones, suplementos) + CORRECTOR CON IA ═══
+const PL_COMIDAS=['DESAYUNO','COLACIÓN AM','ALMUERZO','ONCE','COLACIÓN PM','PRE ENTRENO','POST ENTRENO','CENA']
+const PL_TIPO={ 3:['DESAYUNO','ALMUERZO','CENA'], 4:['DESAYUNO','ALMUERZO','ONCE','CENA'], 5:['DESAYUNO','COLACIÓN AM','ALMUERZO','ONCE','CENA'], 6:['DESAYUNO','COLACIÓN AM','ALMUERZO','PRE ENTRENO','POST ENTRENO','CENA'] }
+const PL_RESTR=['SIN LACTOSA','SIN GLUTEN','VEGETARIANO','VEGANO','SIN CERDO','SIN PESCADO NI MARISCOS','ALERGIA A FRUTOS SECOS','ALERGIA AL HUEVO','BAJO EN AZÚCAR','BAJO EN SODIO']
+const PL_SUP=['Whey protein','Proteína vegana','Caseína','Creatina monohidrato','Creatina vegana','Omega 3','Vitamina D3','Vitamina C','Vitamina A','Vitamina B12','Complejo B','Magnesio','Zinc','Hierro','Calcio','Multivitamínico','Colágeno','Electrolitos','Cafeína','Beta-alanina']
+function plPrefHtml(ix){
+  const v=x=>x==null?'':adEsc(String(x))
+  const ta=(id,l,val,ph)=>'<label>'+l+'<textarea id="'+id+'" rows="2" placeholder="'+(ph||'')+'" oninput="fPlanSync()">'+v(val)+'</textarea></label>'
+  const otras=String(ix.restricciones||'').split(',').map(x=>x.trim()).filter(x=>x&&!PL_RESTR.includes(x.toUpperCase())).join(', ')
+  return '<div class="cmpF__g plPref"><h4>PREFERENCIAS · <em>SELECCIONA Y LA IA ARMA LA PAUTA CON ESTOS CRITERIOS</em></h4>'+
+    '<div class="plPref__row"><div class="plPref__c"><span class="cmp__k">CANTIDAD DE COMIDAS</span><div class="plSegB" id="plComSeg">'+[3,4,5,6].map(n=>'<button type="button" data-n="'+n+'" onclick="plOrdenTipo('+n+')">'+n+'</button>').join('')+'</div><input type="hidden" id="plComD" value="'+v(ix.comidas_dia||'4')+'"></div>'+
+      '<div class="plPref__c"><span class="cmp__k">HORARIO DE ENTRENAMIENTO</span><input type="time" id="plHor" class="plIn" value="'+v(/^\d{1,2}:\d{2}$/.test(ix.horario_entreno||'')?String(ix.horario_entreno).padStart(5,'0'):'')+'" oninput="fPlanSync()"></div></div>'+
+    '<div class="plPref__c"><span class="cmp__k">ORDEN DE LAS COMIDAS · TOCA PARA AGREGAR, USA LAS FLECHAS PARA ORDENAR</span><div class="plOrd" id="plOrd"></div><div class="plChips" id="plOrdCat"></div></div>'+
+    '<div class="plPref__c"><span class="cmp__k">RESTRICCIONES ALIMENTARIAS</span><div class="plChips" id="plRestr"></div>'+
+      '<input id="plRes" class="plIn" placeholder="Otra restricción o alergia (opcional)" value="'+v(otras)+'" oninput="fPlanSync()"></div>'+
+    '<div class="plPref__c"><span class="cmp__k">SUPLEMENTOS A ABORDAR EN LA PAUTA</span><div class="plSupSel"><select id="plSupAdd" onchange="plSupAgregar(this)"><option value="">+ AGREGAR SUPLEMENTO…</option>'+PL_SUP.map(x=>'<option>'+x+'</option>').join('')+'<option value="__otro">OTRO…</option></select></div><div class="plChips" id="plSupL"></div></div>'+
+    '<div class="cmpF__f" style="grid-template-columns:1fr 1fr;margin-top:10px">'+ta('plNoC','NO CONSUME',ix.no_consume,'Alimentos que no le gustan')+ta('plPref','PREFERENCIAS',ix.preferencias,'Lo que sí disfruta, estilo de cocina')+
+      ta('plSupA','SUPLEMENTOS QUE YA TOMA',ix.suplementos,'Opcional')+ta('plCtx','CONTEXTO',ix.contexto,'Trabajo, horarios, si cocina o come fuera')+'</div>'+
+    '<div class="cmpF__acts" style="justify-content:flex-start"><button type="button" class="cmp__b" id="plIA" onclick="fPlanIA()">GENERAR PAUTA CON IA →</button><span class="cmp__k" id="plIAst" style="align-self:center"></span></div></div>'
+}
+function plPrefPintar(){
+  const o=NPL.ix, $=id=>document.getElementById(id); if(!$('plOrd')) return
+  $('plComD').value=String(o.orden.length||$('plComD').value||4)
+  document.querySelectorAll('#plComSeg button').forEach(b=>b.setAttribute('aria-pressed',String(+b.dataset.n===(o.orden.length||+$('plComD').value))))
+  $('plOrd').innerHTML=o.orden.length?o.orden.map((m,i)=>'<span class="plOrd__i"><b>'+(i+1)+'</b>'+adEsc(m)+
+      '<button type="button" onclick="plOrdenMover('+i+',-1)" aria-label="Subir"'+(i?'':' disabled')+'>↑</button><button type="button" onclick="plOrdenMover('+i+',1)" aria-label="Bajar"'+(i<o.orden.length-1?'':' disabled')+'>↓</button><button type="button" onclick="plOrdenQuitar('+i+')" aria-label="Quitar">✕</button></span>').join('')
+    :'<span class="cmp__k">Elige la cantidad de comidas o toca las comidas abajo.</span>'
+  $('plOrdCat').innerHTML=PL_COMIDAS.map(m=>'<button type="button" onclick="plOrdenAgregar(\''+m+'\')">+ '+m+'</button>').join('')
+  $('plRestr').innerHTML='<button type="button" aria-pressed="'+(!o.restr.length)+'" onclick="plRestr(null)">SIN RESTRICCIONES</button>'+PL_RESTR.map(r=>'<button type="button" aria-pressed="'+o.restr.includes(r)+'" onclick="plRestr(\''+r+'\')">'+r+'</button>').join('')
+  $('plSupL').innerHTML=o.sup.length?o.sup.map((x,i)=>'<span class="plTag">'+adEsc(x)+'<button type="button" onclick="plSupQuitar('+i+')" aria-label="Quitar '+adEsc(x)+'">✕</button></span>').join(''):'<span class="cmp__k">Sin suplementos: la IA no prescribirá ninguno.</span>'
+}
+function plOrdenTipo(n){ NPL.ix.orden=(PL_TIPO[n]||PL_TIPO[4]).slice(); plPrefPintar(); fPlanSync() }
+function plOrdenAgregar(m){ if(NPL.ix.orden.length>=8){ toast('Máximo 8 comidas'); return }
+  let nm=m, k=2; while(NPL.ix.orden.includes(nm)) nm=m+' '+(k++)
+  NPL.ix.orden.push(nm); plPrefPintar(); fPlanSync() }
+function plOrdenQuitar(i){ NPL.ix.orden.splice(i,1); plPrefPintar(); fPlanSync() }
+function plOrdenMover(i,d){ const o=NPL.ix.orden, j=i+d; if(j<0||j>=o.length) return; [o[i],o[j]]=[o[j],o[i]]; plPrefPintar(); fPlanSync() }
+function plRestr(r){ const o=NPL.ix; if(r==null) o.restr=[]; else o.restr=o.restr.includes(r)?o.restr.filter(x=>x!==r):o.restr.concat(r)
+  if(o.restr.includes('VEGANO')&&!o.restr.includes('VEGETARIANO')) o.restr.push('VEGETARIANO')
+  plPrefPintar(); fPlanSync() }
+function plSupAgregar(sel){ let x=sel.value; sel.value=''; if(!x) return
+  if(x==='__otro'){ x=(window.prompt('Suplemento a agregar')||'').trim(); if(!x) return }
+  if(!NPL.ix.sup.includes(x)) NPL.ix.sup.push(x)
+  if(NPL.ix.restr.includes('VEGANO')&&/^(whey|caseína|colágeno|creatina monohidrato)/i.test(x)) toast('Ojo: '+x+' no es apto para vegano')
+  plPrefPintar(); fPlanSync() }
+function plSupQuitar(i){ NPL.ix.sup.splice(i,1); plPrefPintar(); fPlanSync() }
+
+// Corrector: la nutricionista escribe qué cambiar y la IA aplica SOLO eso sobre el plan actual
+function plCorPintar(){
+  const el=document.getElementById('plCor'); if(!el) return
+  const prevTx=(document.getElementById('plCorTx')||{}).value||''
+  const cm=(NPL.cont&&NPL.cont.comidas)||[]
+  if(!cm.length){ el.innerHTML='<h4>CORREGIR CON IA</h4><p class="cmp__k">Disponible cuando la pauta tenga comidas.</p>'; return }
+  const tg=[['TODO EL PLAN','Todo el plan: ']].concat(cm.map((m,i)=>['COMIDA '+(i+1)+' · '+m.nombre,'Comida '+(i+1)+' ('+m.nombre+'): ']),[['SUPLEMENTOS','Suplementos: '],['INDICACIONES','Indicaciones: ']])
+  el.innerHTML='<h4>CORREGIR CON IA · <em>DILE QUÉ CAMBIAR Y SOLO CAMBIA ESO</em></h4>'+
+    '<div class="plChips plChips--s">'+tg.map(t=>'<button type="button" onclick="plCorObj(\''+adEsc(t[1]).replace(/'/g,"\\'")+'\')">'+adEsc(t[0])+'</button>').join('')+'</div>'+
+    '<textarea id="plCorTx" rows="3" class="plIn" placeholder="Ej: Comida 2: cambia el pollo por pescado y baja el arroz a 100 g. Agrega una opción sin lácteos en el desayuno.">'+adEsc(prevTx)+'</textarea>'+
+    '<div class="cmpF__acts" style="justify-content:flex-start;margin-top:8px"><button type="button" class="cmp__b" id="plCorB" onclick="fPlanCorregir()">APLICAR CORRECCIÓN →</button>'+
+      (NPL.prev?'<button type="button" class="cmp__b cmp__b--l" onclick="plCorDeshacer()">↶ DESHACER ÚLTIMA</button>':'')+'<span class="cmp__k" id="plCorSt" style="align-self:center"></span></div>'+
+    (NPL.corr&&NPL.corr.length?'<div class="plCorH"><span class="cmp__k">CORRECCIONES APLICADAS</span>'+NPL.corr.slice().reverse().map(c=>'<div><b>'+adEsc(c.pedido)+'</b>'+(c.cambios?'<small>'+adEsc(c.cambios)+'</small>':'')+'</div>').join('')+'</div>':'')
+}
+function plCorObj(t){ const x=document.getElementById('plCorTx'); x.value=(x.value?x.value.replace(/\s*$/,'\n'):'')+t; x.focus(); x.setSelectionRange(x.value.length,x.value.length) }
+function plCorDeshacer(){ if(!NPL.prev) return; const p=NPL.prev; NPL.prev=null; NPL.corr.pop(); plAplicarCont(p); toast('Corrección deshecha') }
+async function fPlanCorregir(){
+  if(NPL.gen) return
+  const tx=(document.getElementById('plCorTx').value||'').trim(); if(tx.length<4){ toast('Escribe qué quieres corregir'); return }
+  fPlanCapturar(); const f=fPlanLeer(), ev=plUltEval(), a=C.asig&&C.asig[F.id]
+  const b=document.getElementById('plCorB'), st=document.getElementById('plCorSt'); NPL.gen=true; b.disabled=true; st.textContent='CORRIGIENDO… 20–40 S'
+  try{
+    const { data:{ session } } = await sb.auth.getSession()
+    const r=await fetch('/api/pauta-ia', { method:'POST', headers:{ 'content-type':'application/json', authorization:'Bearer '+(session&&session.access_token) },
+      body:JSON.stringify({ modo:'corregir', instruccion:tx.slice(0,1500), plan_actual:f.contenido, metas_numericas:{ kcal:f.kcal, proteina_g:f.proteina_g, carbohidrato_g:f.carbohidrato_g, grasa_g:f.grasa_g },
+        programa:cmpProg(), objetivo:plObjDe(f.kcal), intake:f.intake, composicion: ev?plComp(ev,a):{} }) })
+    const j=await r.json().catch(()=>({}))
+    if(!r.ok) throw new Error(j.error||('Error '+r.status))
+    NPL.prev=JSON.parse(JSON.stringify(f.contenido)); NPL.corr.push({ pedido:tx, cambios:j.cambios||'', at:new Date().toISOString() })
+    plAplicarCont(j.plan, j.modelo); toast('Corrección aplicada ✓')
+    const s2=document.getElementById('plCorSt'); if(s2) s2.textContent=j.cambios?'LISTO · '+j.cambios.toUpperCase():'LISTO'
+  }catch(e){ console.error('pauta corregir', e); st.textContent=''; toast('No se pudo corregir: '+((e&&e.message)||'error')) }
+  finally{ NPL.gen=false; const b2=document.getElementById('plCorB'); if(b2) b2.disabled=false }
 }

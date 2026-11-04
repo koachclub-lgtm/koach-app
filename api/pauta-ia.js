@@ -41,6 +41,46 @@ const ESQUEMA = {
 
 async function json(url, opts) { const r = await fetch(url, opts); const t = await r.text(); let d = null; try { d = JSON.parse(t) } catch (_) {} return { ok: r.ok, status: r.status, d, t } }
 
+// Corrector: aplica SOLO lo que pide nutrición sobre el plan actual y explica qué cambió
+const ESQUEMA_C = { type: 'object', additionalProperties: false, required: ['plan', 'cambios'],
+  properties: { plan: ESQUEMA, cambios: { type: 'string', description: '1–2 frases: qué cambiaste exactamente' } } }
+async function corregir(req, res, b, m, ix, c) {
+  const ins = String(b.instruccion || '').trim().slice(0, 1500), plan = b.plan_actual
+  if (ins.length < 4) return res.status(400).json({ error: 'Escribe qué quieres corregir' })
+  if (!plan || !Array.isArray(plan.comidas) || !plan.comidas.length) return res.status(400).json({ error: 'No hay un plan con comidas para corregir' })
+  const numeradas = plan.comidas.map((x, i) => (i + 1) + '. ' + (x.nombre || 'COMIDA')).join(' · ')
+  const prompt = `Eres el nutricionista de KOACH Club. Corrige el PLAN NUTRICIONAL de abajo según la instrucción de nutrición.
+Escribe en español de Chile, sin emojis ni markdown.
+
+INSTRUCCIÓN DE NUTRICIÓN: ${ins}
+
+REGLAS:
+- Aplica SOLO lo que pide la instrucción. Todo lo demás queda IDÉNTICO (mismas comidas, horas, textos, alimentos y cantidades).
+- Las comidas se numeran desde 1 en este orden: ${numeradas}.
+- Números fijos del día: ${m.kcal} kcal · proteína ${m.proteina_g} g · carbohidratos ${m.carbohidrato_g || '—'} g · grasas ${m.grasa_g || '—'} g. Si el cambio altera el aporte, compensa dentro de la MISMA comida para seguir cumpliendo ±5 %.
+- Respeta restricciones: ${ix.restricciones || 'ninguna'} · no consume: ${ix.no_consume || 'nada'}.
+- Si la instrucción pide algo inseguro o médico, no lo apliques y explícalo en "cambios".
+- Usa los ALIMENTOS KOACH cuando reemplaces alimentos:
+${ALIMENTOS_KOACH}
+
+PLAN ACTUAL (JSON):
+${JSON.stringify(plan)}
+
+Devuelve el plan completo corregido y en "cambios" qué modificaste.`
+  const r = await json('https://api.anthropic.com/v1/messages', {
+    method: 'POST',
+    headers: { 'content-type': 'application/json', 'x-api-key': process.env.ANTHROPIC_API_KEY, 'anthropic-version': '2023-06-01' },
+    body: JSON.stringify({ model: MODELO, max_tokens: 16000, output_config: { effort: 'low', format: { type: 'json_schema', schema: ESQUEMA_C } }, messages: [{ role: 'user', content: prompt }] })
+  })
+  if (!r.ok) return res.status(502).json({ error: 'La IA no respondió (' + r.status + ')', detalle: r.d && r.d.error && r.d.error.message })
+  if (r.d.stop_reason === 'refusal') return res.status(422).json({ error: 'La IA no pudo aplicar esta corrección. Hazla a mano.' })
+  if (r.d.stop_reason === 'max_tokens') return res.status(422).json({ error: 'La corrección quedó incompleta: vuelve a intentar.' })
+  const txt = (r.d.content || []).filter(x => x.type === 'text').map(x => x.text).join('')
+  let o = null; try { o = JSON.parse(txt) } catch (_) {}
+  if (!o || !o.plan) return res.status(502).json({ error: 'La IA no entregó un plan estructurado' })
+  return res.status(200).json({ plan: o.plan, cambios: o.cambios || '', modelo: MODELO })
+}
+
 module.exports = async (req, res) => {
   if (req.method !== 'POST') { res.setHeader('Allow', 'POST'); return res.status(405).json({ error: 'Método no permitido' }) }
   const token = String(req.headers.authorization || '').replace(/^Bearer\s+/i, '')
@@ -55,6 +95,9 @@ module.exports = async (req, res) => {
 
   const b = req.body || {}, m = b.metas_numericas || {}, ix = b.intake || {}, c = b.composicion || {}
   if (!m.kcal || !m.proteina_g) return res.status(400).json({ error: 'Faltan kcal y proteína: defínelos antes de generar' })
+  const orden = Array.isArray(ix.orden_comidas) ? ix.orden_comidas.map(String).filter(Boolean).slice(0, 8) : []
+  const sup = Array.isArray(ix.suplementos_abordar) ? ix.suplementos_abordar.map(String).filter(Boolean).slice(0, 15) : []
+  if (b.modo === 'corregir') return corregir(req, res, b, m, ix, c)
   const prompt = `Eres el nutricionista de KOACH Club (Concepción, Chile). Diseña el PLAN NUTRICIONAL de un socio para mostrarlo dentro de la app.
 Escribe en español de Chile, tono profesional, directo y cercano, sin emojis ni markdown.
 
@@ -72,8 +115,10 @@ Masa muscular ${c.masa_muscular != null ? c.masa_muscular + ' kg' : 'no medida'}
 FFMI ${c.ffmi != null ? c.ffmi : '—'}${c.clas_ffmi ? ' (' + c.clas_ffmi + ')' : ''} · forma corporal ${c.forma || '—'} · ICC ${c.icc != null ? c.icc : '—'} · ICT ${c.ict != null ? c.ict : '—'} · edad biológica ${c.edad_biologica != null ? c.edad_biologica + ' años' : '—'}
 Meta a 6 meses: ${b.meta || '—'}
 
-PREFERENCIAS E INTAKE:
-Comidas al día: ${ix.comidas_dia || '4-5'} · Horario de entrenamiento: ${ix.horario_entreno || 'sin especificar'}
+PREFERENCIAS E INTAKE (definidas por nutrición, son obligatorias):
+Comidas al día: ${ix.comidas_dia || '4-5'}${orden.length ? ' · ORDEN EXACTO (usa estos nombres y este orden, una comida por elemento): ' + orden.map((x, i) => (i + 1) + '. ' + x).join(' · ') : ''}
+Horario de entrenamiento: ${ix.horario_entreno || 'sin especificar'}
+Suplementos a abordar: ${sup.length ? sup.join(', ') + ' — inclúyelos TODOS y solo esos en "suplementos", con dosis habitual segura (sin megadosis) y horario según el entrenamiento' : 'ninguno: deja "suplementos" vacío'}
 Restricciones/alergias: ${ix.restricciones || 'ninguna'} · No consume: ${ix.no_consume || 'nada'}
 Preferencias: ${ix.preferencias || 'sin especificar'} · Suplementos actuales: ${ix.suplementos || 'ninguno'}
 Contexto: ${ix.contexto || 'sin especificar'}
@@ -88,7 +133,7 @@ Metas 30/60/90 días coherentes con la meta a 6 meses (no inventes otras tasas).
     method: 'POST',
     headers: { 'content-type': 'application/json', 'x-api-key': process.env.ANTHROPIC_API_KEY, 'anthropic-version': '2023-06-01' },
     // Salida estructurada con output_config.format: en Sonnet/Opus 5.5 el tool_choice forzado devuelve 400
-    body: JSON.stringify({ model: MODELO, max_tokens: 8000, output_config: { format: { type: 'json_schema', schema: ESQUEMA } }, messages: [{ role: 'user', content: prompt }] })
+    body: JSON.stringify({ model: MODELO, max_tokens: 16000, output_config: { effort: 'low', format: { type: 'json_schema', schema: ESQUEMA } }, messages: [{ role: 'user', content: prompt }] })
   })
   if (!r.ok) return res.status(502).json({ error: 'La IA no respondió (' + r.status + ')', detalle: r.d && r.d.error && r.d.error.message })
   if (r.d.stop_reason === 'refusal') return res.status(422).json({ error: 'La IA no pudo redactar este plan. Escríbelo a mano.' })
