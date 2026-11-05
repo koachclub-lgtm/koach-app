@@ -1,0 +1,338 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Nutrición | KOACH</title>
+<link rel="icon" href="/favicon-32.png">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="/domain/koach-composicion.js"></script>
+<script src="/domain/koach-nutricion-vista.js"></script>
+<script src="/domain/koach-diagnostico.js"></script>
+<link rel="stylesheet" href="/domain/koach-nutri-staff.css">
+<style>
+@font-face{font-family:'Space Mono';src:url('/fonts/SpaceMono-Regular.woff2') format('woff2');font-weight:400;font-display:swap}
+@font-face{font-family:'Space Mono';src:url('/fonts/SpaceMono-Bold.woff2') format('woff2');font-weight:700;font-display:swap}
+@font-face{font-family:'KOACH Display';src:url('/fonts/Archivo-Var.woff2') format('woff2');font-weight:400 900;font-stretch:100% 115%;font-display:swap}
+@font-face{font-family:'Inter Display';src:url('/fonts/InterDisplay-Regular.woff2') format('woff2');font-weight:400;font-display:swap}
+@font-face{font-family:'Inter Display';src:url('/fonts/InterDisplay-SemiBold.woff2') format('woff2');font-weight:600;font-display:swap}
+:root{--font-display:'KOACH Display',Arial,sans-serif;--font-mono:'Space Mono','Courier New',monospace;--font-body:'Inter Display',Arial,sans-serif;
+  --ink:#121212;--g5:#4A4945;--g4:#6B6A65;--g3:#A3A29C;--ln:rgba(18,18,18,.1);--bg:#E9E8E4;--card:#FBFAF8;--sig:#2BB3C0;--warn:#B8741A}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--font-body);-webkit-font-smoothing:antialiased;font-variant-numeric:tabular-nums}
+button{font:inherit;color:inherit}
+.hide{display:none!important}
+.k{display:block;font:700 10px/1.4 var(--font-mono);letter-spacing:.14em;text-transform:uppercase;color:var(--g4)}
+/* login */
+#vLogin{min-height:100vh;display:grid;place-items:center;background:#0B0B0C;padding:24px}
+.lg{width:min(380px,100%);color:#F4F3F0}
+.lg img{height:22px;filter:brightness(0) invert(1)}
+.lg h1{margin:28px 0 6px;font:900 34px/1 var(--font-display);font-stretch:110%;text-transform:uppercase}
+.lg p{margin:0 0 24px;color:#A3A29C;font-size:14px}
+.lg label{display:block;margin:0 0 12px;font:700 10px var(--font-mono);letter-spacing:.14em;color:#A3A29C}
+.lg input{display:block;width:100%;margin-top:6px;min-height:48px;padding:0 14px;border-radius:10px;border:1px solid #333;background:#151515;color:#F4F3F0;font:400 15px var(--font-body)}
+.lg button{width:100%;min-height:50px;margin-top:8px;border:0;border-radius:999px;background:#F4F3F0;color:#0B0B0C;font:700 12px var(--font-mono);letter-spacing:.14em;cursor:pointer}
+.lg .err{min-height:20px;margin-top:12px;color:#E58A7B;font-size:13px}
+/* shell */
+.top{position:sticky;top:0;z-index:20;display:flex;align-items:center;gap:28px;height:64px;padding:0 32px;background:#0B0B0C;color:#F4F3F0}
+.top img{height:16px;filter:brightness(0) invert(1)}
+.top .tag{font:700 10px var(--font-mono);letter-spacing:.18em;color:var(--sig)}
+.top nav{display:flex;gap:4px;margin-left:12px}
+.top nav button{min-height:36px;padding:0 16px;border:0;border-radius:999px;background:transparent;color:#A3A29C;font:700 10.5px var(--font-mono);letter-spacing:.14em;cursor:pointer}
+.top nav button[aria-pressed="true"]{background:#F4F3F0;color:#0B0B0C}
+.top .me{margin-left:auto;display:flex;align-items:center;gap:14px;font:400 11px var(--font-mono);letter-spacing:.08em;color:#A3A29C}
+.top .me button{border:1px solid #333;background:transparent;border-radius:999px;min-height:32px;padding:0 14px;color:#F4F3F0;font:700 10px var(--font-mono);letter-spacing:.12em;cursor:pointer}
+main{max-width:2200px;margin:0 auto;padding:24px clamp(16px,2.4vw,40px) 60px}
+.h1{margin:4px 0 18px;font:900 34px/1 var(--font-display);font-stretch:108%;text-transform:uppercase;letter-spacing:-.01em}
+.card{background:var(--card);border:1px solid var(--ln);border-radius:16px;padding:20px}
+.grid{display:grid;gap:14px}
+.kpis{grid-template-columns:repeat(4,minmax(0,1fr));margin-bottom:14px}
+.kpi b{display:block;margin-top:8px;font:800 40px/1 var(--font-display)}
+.kpi small{display:block;margin-top:6px;color:var(--g4);font-size:13px}
+.two{grid-template-columns:minmax(0,1.25fr) minmax(0,1fr)}
+@media (max-width:1000px){.kpis{grid-template-columns:repeat(2,1fr)}.two{grid-template-columns:1fr}}
+.list{margin:10px 0 0;padding:0;list-style:none}
+.list li{display:flex;align-items:center;gap:14px;padding:12px 0;border-bottom:1px solid var(--ln)}
+.list li:last-child{border:0}
+.av{flex:none;width:36px;height:36px;border-radius:50%;display:grid;place-items:center;background:#E2E1DC;font:700 13px var(--font-mono)}
+.who{min-width:0;flex:1}.who b{display:block;font:600 15px var(--font-body);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.who span{display:block;margin-top:2px;font:400 10.5px var(--font-mono);letter-spacing:.08em;color:var(--g4)}
+.when{flex:none;text-align:right;font:700 12px var(--font-mono)}.when small{display:block;font-weight:400;color:var(--g4);font-size:10px;letter-spacing:.08em}
+.btn{flex:none;min-height:34px;padding:0 14px;border-radius:999px;border:1px solid var(--ink);background:var(--ink);color:#F4F3F0;font:700 10px var(--font-mono);letter-spacing:.12em;cursor:pointer}
+.btn--l{background:transparent;color:var(--ink)}
+.btn:disabled{opacity:.35;cursor:default}
+.vac{padding:18px 0 6px;color:var(--g4);font-size:14px}
+.pill{display:inline-flex;align-items:center;gap:6px;min-height:22px;padding:0 9px;border-radius:999px;font:700 9.5px var(--font-mono);letter-spacing:.1em;background:#E2E1DC;color:var(--g5);white-space:nowrap}
+.pill i{width:6px;height:6px;border-radius:50%;background:currentColor}
+.pill--ok{background:rgba(43,179,192,.14);color:#167A84}.pill--warn{background:rgba(184,116,26,.14);color:var(--warn)}.pill--ink{background:var(--ink);color:#F4F3F0}
+/* pacientes */
+.bar{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:14px}
+.bar input{flex:1;min-width:240px;min-height:42px;padding:0 14px;border-radius:999px;border:1px solid var(--ln);background:var(--card);font:400 14px var(--font-body)}
+.flt button{min-height:34px;padding:0 13px;border-radius:999px;border:1px solid var(--ln);background:var(--card);font:700 10px var(--font-mono);letter-spacing:.1em;cursor:pointer;color:var(--g5)}
+.flt button[aria-pressed="true"]{background:var(--ink);border-color:var(--ink);color:#F4F3F0}
+table.tb{width:100%;border-collapse:collapse}
+.tb th{text-align:left;padding:10px 12px;font:700 9.5px var(--font-mono);letter-spacing:.14em;color:var(--g4);border-bottom:1px solid var(--ln)}
+.tb td{padding:11px 12px;border-bottom:1px solid var(--ln);font-size:14px;vertical-align:middle}
+.tb tr.row{cursor:pointer}.tb tr.row:hover td{background:#F1F0EC}
+.tb td.m{font:400 12px var(--font-mono)}
+.tb .d{font:700 11px var(--font-mono);color:var(--g4)}.tb .d.ok{color:#167A84}
+/* ficha */
+.fh{display:flex;align-items:flex-start;gap:18px;flex-wrap:wrap;margin-bottom:14px}
+.fh .av{width:56px;height:56px;font-size:18px;background:var(--ink);color:#F4F3F0}
+.fh h2{margin:2px 0 6px;font:900 30px/1 var(--font-display);font-stretch:108%;text-transform:uppercase}
+.fh .meta{font:400 11px var(--font-mono);letter-spacing:.08em;color:var(--g4)}
+.fh .acts{margin-left:auto;display:flex;gap:8px}
+.ctx{grid-template-columns:repeat(4,minmax(0,1fr));margin-bottom:18px}
+@media (max-width:1000px){.ctx{grid-template-columns:repeat(2,1fr)}}
+.ctx .card{padding:16px}
+.ctx b{display:block;margin-top:8px;font:800 24px/1 var(--font-display)}
+.ctx small{display:block;margin-top:6px;font-size:12px;color:var(--g4)}
+.wk{display:flex;align-items:flex-end;gap:4px;height:44px;margin-top:10px}
+.wk i{flex:1;border-radius:2px;background:var(--ink);min-height:2px}.wk i.z{background:#D8D7D2}
+.back{border:0;background:none;padding:0;margin-bottom:12px;font:700 10px var(--font-mono);letter-spacing:.14em;color:var(--g4);cursor:pointer}
+.toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%) translateY(20px);opacity:0;transition:.2s;z-index:99;padding:12px 18px;border-radius:12px;background:#121212;color:#F4F3F0;font:700 11px var(--font-mono);letter-spacing:.08em}
+.toast.vis{opacity:1;transform:translateX(-50%)}
+.conf{position:fixed;inset:0;z-index:98;display:grid;place-items:center;background:rgba(0,0,0,.45)}
+.conf div{width:min(420px,92vw);padding:22px;border-radius:16px;background:var(--card)}
+.conf p{margin:0 0 18px;font-size:15px;line-height:1.45;white-space:pre-line}
+.conf nav{display:flex;justify-content:flex-end;gap:8px}
+.ld{padding:24px 0;font:700 10px var(--font-mono);letter-spacing:.14em;color:var(--g4)}
+#agFrame{width:100%;height:calc(100vh - 150px);border:0;border-radius:16px;background:var(--card)}
+</style>
+</head>
+<body>
+
+<section id="vLogin" class="hide">
+  <form class="lg" onsubmit="event.preventDefault();login()">
+    <img src="/img/brand/logotipo-koach.png" alt="KOACH">
+    <h1>Panel de<br>nutrición</h1>
+    <p>Acceso exclusivo de nutrición KOACH.</p>
+    <label>CORREO<input id="lEmail" type="email" autocomplete="username" required></label>
+    <label>CONTRASEÑA<input id="lPass" type="password" autocomplete="current-password" required></label>
+    <button id="lBtn" type="submit">ENTRAR →</button>
+    <div class="err" id="lErr" role="alert"></div>
+  </form>
+</section>
+
+<section id="vApp" class="hide">
+  <header class="top">
+    <img src="/img/brand/logotipo-koach.png" alt="KOACH"><span class="tag">NUTRICIÓN</span>
+    <nav aria-label="Secciones"><button type="button" data-v="hoy" onclick="ir('hoy')">HOY</button><button type="button" data-v="pac" onclick="ir('pac')">PACIENTES</button><button type="button" data-v="agenda" onclick="ir('agenda')">AGENDA</button></nav>
+    <div class="me"><span id="who"></span><button type="button" onclick="salir()">SALIR</button></div>
+  </header>
+  <main>
+    <div id="pHoy"></div>
+    <div id="pPac" class="hide"></div>
+    <div id="pFicha" class="hide"><button type="button" class="back" onclick="ir(N.volver||'pac')">← VOLVER</button><div id="fCab"></div><div id="fTabCmp"></div></div>
+    <div id="pAgenda" class="hide"><span class="k">AGENDA · EVALUACIONES NUTRICIONALES</span><h1 class="h1">Agenda</h1><iframe id="agFrame" title="Agenda KOACH"></iframe></div>
+  </main>
+</section>
+<div class="toast" id="toast" role="status"></div>
+
+<script>
+// KOACH · PANEL DE NUTRICIÓN (escritorio). Solo nutricionista y admin.
+// Misma base que la app de entrenamiento: perfiles, programa y sesiones del socio; agenda de Jake (agenda_citas, servicio 'nutricion');
+// evaluación ISAK y plan nutricional con el motor compartido (domain/koach-nutri-staff.js + koach-composicion.js).
+const SB_URL='https://siecbdatfgmqbpxqtvsl.supabase.co'
+const SB_KEY='sb_publishable_ffGsmagqocuP1n1jvKUVGw_hVzdojas'
+const sb=supabase.createClient(SB_URL,SB_KEY,{auth:{persistSession:true,autoRefreshToken:true,storageKey:'koach-nutricion'}})
+const ROLES=['nutricionista','admin']
+const C={ socios:[], asig:{} }
+const N={ yo:null, vista:'hoy', ev:{}, pa:{}, citas:[], filtro:'todos', q:'', volver:'pac' }
+let F=null
+
+// ── utilidades que usa el motor compartido ─────────────────────────
+const adEsc=t=>String(t==null?'':t).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))
+function nomDe(id){ const s=C.socios.find(x=>x.id===id); return s?[s.nombre,s.apellido].filter(Boolean).join(' ').trim()||'Socio':'Socio' }
+function kLd(t){ return '<div class="ld">'+adEsc(String(t||'Cargando').toUpperCase())+'…</div>' }
+function toast(m){ const t=document.getElementById('toast'); t.textContent=m; t.classList.add('vis'); clearTimeout(t._x); t._x=setTimeout(()=>t.classList.remove('vis'),2800) }
+function kConfirm(msg){ return new Promise(ok=>{ const d=document.createElement('div'); d.className='conf'
+  d.innerHTML='<div role="dialog" aria-modal="true"><p></p><nav><button type="button" class="btn btn--l">CANCELAR</button><button type="button" class="btn">CONFIRMAR</button></nav></div>'
+  d.querySelector('p').textContent=String(msg||''); const [no,si]=d.querySelectorAll('button')
+  no.onclick=()=>{ d.remove(); ok(false) }; si.onclick=()=>{ d.remove(); ok(true) }; document.body.appendChild(d); si.focus() }) }
+
+// ── fechas ───────────────────────────────────────────────────────
+const MES=['ENE','FEB','MAR','ABR','MAY','JUN','JUL','AGO','SEP','OCT','NOV','DIC']
+const hoyISO=()=>new Intl.DateTimeFormat('en-CA',{timeZone:'America/Santiago'}).format(new Date())
+const fCorta=iso=>{ if(!iso) return '—'; const d=new Date(String(iso).slice(0,10)+'T12:00:00'); return d.getDate()+' '+MES[d.getMonth()] }
+const hora=ts=>new Intl.DateTimeFormat('es-CL',{timeZone:'America/Santiago',hour:'2-digit',minute:'2-digit',hourCycle:'h23'}).format(new Date(ts))
+const diaCita=ts=>new Intl.DateTimeFormat('en-CA',{timeZone:'America/Santiago'}).format(new Date(ts))
+const diasEntre=(a,b)=>Math.round((new Date(b+'T12:00:00')-new Date(a+'T12:00:00'))/864e5)
+function edad(nac){ if(!nac) return null; const a=new Date(nac+'T12:00:00'), b=new Date(); let e=b.getFullYear()-a.getFullYear(); if(b<new Date(b.getFullYear(),a.getMonth(),a.getDate())) e--; return e }
+const ini=s=>((s.nombre||'?')[0]+((s.apellido||'')[0]||'')).toUpperCase()
+const f1=v=>v==null?'—':(Math.round(+v*10)/10).toFixed(1).replace('.',',')
+
+// ── sesión ────────────────────────────────────────────────────────
+async function login(){
+  const b=document.getElementById('lBtn'), e=document.getElementById('lErr'); e.textContent=''; b.disabled=true; b.textContent='VERIFICANDO…'
+  const r=await sb.auth.signInWithPassword({ email:document.getElementById('lEmail').value.trim(), password:document.getElementById('lPass').value })
+  b.disabled=false; b.textContent='ENTRAR →'
+  if(r.error){ e.textContent=/credential/i.test(r.error.message)?'Correo o contraseña incorrectos':r.error.message; return }
+  entrar()
+}
+async function salir(){ await sb.auth.signOut({ scope:'local' }); location.reload() }
+async function entrar(){
+  const { data } = await sb.auth.getSession(); const user=data&&data.session&&data.session.user
+  if(!user){ mostrar('vLogin'); return }
+  const { data:p } = await sb.from('profiles').select('id,nombre,role,activo').eq('id',user.id).maybeSingle()
+  if(!p || p.activo===false || !ROLES.includes(p.role)){
+    await sb.auth.signOut({ scope:'local' }); mostrar('vLogin')
+    document.getElementById('lErr').textContent='Esta cuenta no tiene acceso al panel de nutrición.'; return }
+  N.yo=p; document.getElementById('who').textContent=(p.role==='admin'?'ADMIN':'NUTRICIÓN')+' · '+String(p.nombre||'').toUpperCase()
+  mostrar('vApp'); document.getElementById('pHoy').innerHTML=kLd('Cargando pacientes')
+  await cargar()
+  const h=location.hash.match(/^#\/socio\/([0-9a-f-]{36})/); if(h && C.socios.some(s=>s.id===h[1])) abrir(h[1]); else ir('hoy')
+}
+function mostrar(id){ ['vLogin','vApp'].forEach(v=>document.getElementById(v).classList.toggle('hide',v!==id)) }
+
+// ── datos del ecosistema ─────────────────────────────────────────────
+async function todo(q){ const out=[]; for(let i=0;;i+=1000){ const { data, error } = await q().range(i,i+999); if(error) throw error; out.push(...(data||[])); if(!data||data.length<1000) break } return out }
+async function cargar(){
+  try{
+    const desde=new Date(Date.now()-864e5).toISOString()
+    const [soc, asg, evs, pas, cit] = await Promise.all([
+      todo(()=>sb.from('profiles').select('id,nombre,apellido,sex,fecha_nacimiento,telefono,estado,numero_socio').eq('role','socio').order('nombre')),
+      todo(()=>sb.from('asignaciones').select('socio_id,semana_actual,ciclo_actual,fecha_inicio,protocolos(programa,nivel,ciclo_semanas)').eq('activo',true)),
+      todo(()=>sb.from('evaluaciones_nutricion').select('id,socio_id,fecha,estado,peso_kg,porcentaje_grasa,masa_muscular_kg,grasa_medida,musculo_medido,created_at').order('fecha')),
+      todo(()=>sb.from('pautas_nutricion').select('id,socio_id,estado,inicio,semanas,kcal,fecha,publicada_at').in('estado',['publicada','borrador'])),
+      todo(()=>sb.from('agenda_citas').select('id,inicio,fin,estado,socio_id,nombre,telefono,notas').eq('servicio','nutricion').neq('estado','cancelada').gte('inicio',desde).order('inicio'))
+    ])
+    C.socios=soc.filter(s=>s.estado!=='fusionado')
+    C.asig={}; asg.forEach(a=>{ C.asig[a.socio_id]=a })
+    N.ev={}; evs.forEach(e=>{ (N.ev[e.socio_id]=N.ev[e.socio_id]||[]).push(e) })
+    N.pa={}; pas.forEach(p=>{ const o=N.pa[p.socio_id]=N.pa[p.socio_id]||{}; if(p.estado==='publicada') o.vig=p; else o.borr=(o.borr||0)+1 })
+    // la cita de Jake trae socio_id; si no, se une por teléfono
+    const porTel={}; C.socios.forEach(s=>{ const t=String(s.telefono||'').replace(/\D/g,'').slice(-8); if(t) porTel[t]=s.id })
+    N.citas=cit.filter(c=>c.estado!=='retenida').map(c=>Object.assign({},c,{ socio_id:c.socio_id||porTel[String(c.telefono||'').replace(/\D/g,'').slice(-8)]||null }))
+  }catch(e){ console.error('cargar', e); toast('No se pudieron cargar los datos: '+((e&&e.message)||'error')) }
+}
+// estado nutricional de un socio para listas
+function estadoSocio(id){
+  const ev=(N.ev[id]||[]), pub=ev.filter(e=>e.estado==='publicada'), u=ev[ev.length-1], pv=(N.pa[id]||{}).vig
+  const pe=pv?KN.periodo(pv):null, hoy=hoyISO()
+  const cita=N.citas.find(c=>c.socio_id===id && diaCita(c.inicio)>=hoy)
+  let plan
+  if(!pv) plan={ t:'SIN PLAN', c:'' }
+  else if(!pe) plan={ t:'PLAN VIGENTE', c:'pill--ok' }
+  else if(pe.terminado) plan={ t:'PERÍODO CUMPLIDO', c:'pill--warn' }
+  else if(pe.restan<=7) plan={ t:'VENCE '+fCorta(pe.fin), c:'pill--warn' }
+  else plan={ t:'SEMANA '+pe.semana+'/'+pe.semanas, c:'pill--ok' }
+  const g=KC.cambio(pub.length?pub:ev,'porcentaje_grasa',-1)
+  return { ev, u, pv, pe, plan, cita, g, reevaluar: !!(pe && (pe.terminado || pe.restan<=7)) }
+}
+
+// ── navegación ────────────────────────────────────────────────────
+function ir(v){
+  N.vista=v; F=null
+  document.querySelectorAll('.top nav button').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.v===v)))
+  ;['pHoy','pPac','pFicha','pAgenda'].forEach(id=>document.getElementById(id).classList.add('hide'))
+  if(v==='hoy'){ document.getElementById('pHoy').classList.remove('hide'); pintarHoy() }
+  if(v==='pac'){ document.getElementById('pPac').classList.remove('hide'); pintarPac() }
+  if(v==='agenda'){ document.getElementById('pAgenda').classList.remove('hide'); const f=document.getElementById('agFrame'); if(!f.getAttribute('src')) f.setAttribute('src','/agenda.html?embed=1') }
+  try{ history.replaceState(null,'',v==='hoy'?location.pathname:'#/'+v) }catch(_){}
+  scrollTo(0,0)
+}
+
+// ── HOY ───────────────────────────────────────────────────────────
+function filaCita(c){
+  const s=c.socio_id&&C.socios.find(x=>x.id===c.socio_id), nm=s?nomDe(s.id):(c.nombre||'Sin nombre'), st=s?estadoSocio(s.id):null
+  const sub = s ? ((C.asig[s.id]&&C.asig[s.id].protocolos&&C.asig[s.id].protocolos.programa)||'SIN PROGRAMA')+' · '+(st.u?'ÚLTIMA EVALUACIÓN '+fCorta(st.u.fecha):'PRIMERA EVALUACIÓN') : 'SIN PERFIL EN LA APP'
+  return '<li><span class="av">'+adEsc(s?ini(s):(nm[0]||'?'))+'</span><div class="who"><b>'+adEsc(nm)+'</b><span>'+adEsc(sub)+'</span></div>'+
+    '<div class="when">'+hora(c.inicio)+'<small>'+fCorta(diaCita(c.inicio))+'</small></div>'+
+    (s?'<button type="button" class="btn" onclick="N.volver=\'hoy\';abrir(\''+s.id+'\')">'+(st.u?'ABRIR FICHA':'EVALUAR')+'</button>':'<button type="button" class="btn btn--l" disabled title="Esta persona aún no tiene cuenta en la app">SIN CUENTA</button>')+'</li>'
+}
+function filaSocio(s, extra){ const st=estadoSocio(s.id)
+  return '<li><span class="av">'+adEsc(ini(s))+'</span><div class="who"><b>'+adEsc(nomDe(s.id))+'</b><span>'+adEsc(extra(st))+'</span></div><span class="pill '+st.plan.c+'"><i></i>'+st.plan.t+'</span><button type="button" class="btn btn--l" onclick="N.volver=\'hoy\';abrir(\''+s.id+'\')">ABRIR</button></li>' }
+function pintarHoy(){
+  const hoy=hoyISO(), finSem=new Date(Date.now()+7*864e5).toISOString().slice(0,10)
+  const citasHoy=N.citas.filter(c=>diaCita(c.inicio)===hoy), prox=N.citas.filter(c=>diaCita(c.inicio)>hoy && diaCita(c.inicio)<=finSem)
+  const est=C.socios.map(s=>({ s, st:estadoSocio(s.id) }))
+  const reev=est.filter(x=>x.st.reevaluar).sort((a,b)=>a.st.pe.fin<b.st.pe.fin?-1:1)
+  const conPlan=est.filter(x=>x.st.pv).length, evaluados=est.filter(x=>x.st.ev.length).length
+  const sinPlan=est.filter(x=>x.st.ev.length && !x.st.pv)
+  const kpi=(k,v,t)=>'<div class="card kpi"><span class="k">'+k+'</span><b>'+v+'</b><small>'+t+'</small></div>'
+  document.getElementById('pHoy').innerHTML='<span class="k">'+new Intl.DateTimeFormat('es-CL',{timeZone:'America/Santiago',weekday:'long',day:'numeric',month:'long'}).format(new Date()).toUpperCase()+'</span><h1 class="h1">Hoy en nutrición</h1>'+
+    '<div class="grid kpis">'+kpi('CITAS HOY',citasHoy.length,prox.length+' en los próximos 7 días')+kpi('TOCA REEVALUAR',reev.length,'Plan cumplido o por vencer en 7 días')+
+      kpi('PLANES VIGENTES',conPlan,'De '+evaluados+' socios evaluados')+kpi('SIN PLAN',sinPlan.length,'Evaluados que aún no tienen plan publicado')+'</div>'+
+    '<div class="grid two"><div class="card"><span class="k">EVALUACIONES AGENDADAS · VÍA JAKE</span>'+
+      (citasHoy.length||prox.length?'<ul class="list">'+citasHoy.concat(prox).map(filaCita).join('')+'</ul>':'<p class="vac">No hay evaluaciones agendadas para esta semana.</p>')+'</div>'+
+    '<div class="grid" style="align-content:start"><div class="card"><span class="k">TOCA REEVALUAR</span>'+
+      (reev.length?'<ul class="list">'+reev.slice(0,8).map(x=>filaSocio(x.s,st=>st.pe.terminado?'PERÍODO CUMPLIDO EL '+fCorta(st.pe.fin):'QUEDAN '+st.pe.restan+' DÍAS · '+fCorta(st.pe.fin))).join('')+'</ul>':'<p class="vac">Nadie tiene su plan por vencer.</p>')+'</div>'+
+    '<div class="card"><span class="k">EVALUADOS SIN PLAN</span>'+
+      (sinPlan.length?'<ul class="list">'+sinPlan.slice(0,8).map(x=>filaSocio(x.s,st=>'EVALUADO EL '+fCorta(st.u.fecha))).join('')+'</ul>':'<p class="vac">Todos los evaluados tienen plan.</p>')+'</div></div></div>'
+}
+
+// ── PACIENTES ─────────────────────────────────────────────────────
+function pintarPac(){
+  const box=document.getElementById('pPac')
+  if(!box.dataset.ok){ box.dataset.ok=1
+    box.innerHTML='<span class="k">BASE DE SOCIOS KOACH · '+C.socios.length+'</span><h1 class="h1">Pacientes</h1>'+
+      '<div class="bar"><input id="pQ" type="search" placeholder="Buscar por nombre o teléfono" oninput="N.q=this.value;pacTabla()" aria-label="Buscar socio">'+
+      '<div class="flt" role="group" aria-label="Filtro">'+[['todos','TODOS'],['eval','EVALUADOS'],['plan','CON PLAN'],['reev','TOCA REEVALUAR'],['sin','SIN EVALUACIÓN']].map(([k,t])=>'<button type="button" data-f="'+k+'" onclick="N.filtro=\''+k+'\';pacTabla()">'+t+'</button>').join(' ')+'</div></div>'+
+      '<div class="card" style="padding:6px 8px"><table class="tb"><thead><tr><th>SOCIO</th><th>PROGRAMA</th><th>ÚLTIMA EVALUACIÓN</th><th>% GRASA</th><th>PLAN</th><th>PRÓXIMA CITA</th></tr></thead><tbody id="pTb"></tbody></table></div>'
+  }
+  pacTabla()
+}
+function pacTabla(){
+  document.querySelectorAll('.flt button').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.f===N.filtro)))
+  const q=N.q.trim().toLowerCase()
+  let rows=C.socios.map(s=>({ s, st:estadoSocio(s.id) }))
+  if(q) rows=rows.filter(x=>(nomDe(x.s.id)+' '+(x.s.telefono||'')).toLowerCase().includes(q))
+  if(N.filtro==='eval') rows=rows.filter(x=>x.st.ev.length)
+  if(N.filtro==='plan') rows=rows.filter(x=>x.st.pv)
+  if(N.filtro==='reev') rows=rows.filter(x=>x.st.reevaluar)
+  if(N.filtro==='sin') rows=rows.filter(x=>!x.st.ev.length)
+  rows.sort((a,b)=>(b.st.ev.length?1:0)-(a.st.ev.length?1:0) || nomDe(a.s.id).localeCompare(nomDe(b.s.id)))
+  const tb=document.getElementById('pTb')
+  tb.innerHTML=rows.slice(0,300).map(({s,st})=>{ const a=C.asig[s.id], pr=a&&a.protocolos
+    const g=st.g, dg=g&&g.vsInicio!=null&&Math.abs(g.vsInicio)>=0.1?'<span class="d'+(g.tonoInicio==='mejora'?' ok':'')+'"> '+(g.vsInicio>0?'+':'−')+f1(Math.abs(g.vsInicio))+'</span>':''
+    return '<tr class="row" onclick="N.volver=\'pac\';abrir(\''+s.id+'\')"><td><b>'+adEsc(nomDe(s.id))+'</b></td><td class="m">'+adEsc(pr?pr.programa:'—')+'</td>'+
+      '<td class="m">'+(st.u?fCorta(st.u.fecha)+' · '+st.ev.length+(st.ev.length===1?' EVAL.':' EVALS.'):'—')+'</td><td class="m">'+(g?f1(g.actual)+' %':'—')+dg+'</td>'+
+      '<td><span class="pill '+st.plan.c+'"><i></i>'+st.plan.t+'</span></td><td class="m">'+(st.cita?fCorta(diaCita(st.cita.inicio))+' · '+hora(st.cita.inicio):'—')+'</td></tr>' }).join('') ||
+    '<tr><td colspan="6" class="vac">Sin resultados.</td></tr>'
+}
+
+// ── FICHA ──────────────────────────────────────────────────────────
+async function abrir(id){
+  const s=C.socios.find(x=>x.id===id); if(!s) return
+  F=Object.assign({},s); N.vista='ficha'
+  document.querySelectorAll('.top nav button').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.v==='pac')))
+  ;['pHoy','pPac','pAgenda'].forEach(x=>document.getElementById(x).classList.add('hide')); document.getElementById('pFicha').classList.remove('hide')
+  try{ history.replaceState(null,'','#/socio/'+id) }catch(_){}
+  N._ses=null; scrollTo(0,0); pintarCab(null); fCmpCargar()
+  // contexto de entrenamiento: sesiones completadas por semana (12 semanas)
+  const desde=new Date(Date.now()-84*864e5).toISOString().slice(0,10)
+  const { data } = await sb.from('sesiones_registro').select('fecha,estado').eq('socio_id',id).eq('estado','completada').gte('fecha',desde)
+  if(F && F.id===id){ N._ses=data||[]; pintarCab(N._ses) }
+}
+function pintarCab(ses){
+  const s=F, st=estadoSocio(s.id), a=C.asig[s.id], pr=a&&a.protocolos, e=edad(s.fecha_nacimiento)
+  const tel=String(s.telefono||'').replace(/\D/g,''), wa=tel?'https://wa.me/'+(tel.length===9?'56'+tel:tel):null
+  let wkH='<p class="vac" style="padding:8px 0 0">Cargando…</p>', prom='—'
+  if(ses){ const sem=Array(12).fill(0), hoy=new Date(hoyISO()+'T12:00:00')
+    ses.forEach(r=>{ const k=Math.floor((hoy-new Date(r.fecha+'T12:00:00'))/(7*864e5)); if(k>=0&&k<12) sem[11-k]++ })
+    const mx=Math.max(3,...sem); wkH='<div class="wk" role="img" aria-label="Sesiones completadas por semana, últimas 12 semanas">'+sem.map(n=>'<i class="'+(n?'':'z')+'" style="height:'+Math.max(4,n/mx*100)+'%" title="'+n+' sesiones"></i>').join('')+'</div>'
+    prom=(sem.slice(-4).reduce((x,y)=>x+y,0)/4).toFixed(1).replace('.',',') }
+  document.getElementById('fCab').innerHTML='<div class="fh"><span class="av">'+adEsc(ini(s))+'</span><div><span class="k">'+(s.numero_socio?'SOCIO #'+String(s.numero_socio).padStart(4,'0'):'SOCIO')+'</span><h2>'+adEsc(nomDe(s.id))+'</h2>'+
+      '<div class="meta">'+[s.sex?String(s.sex).toUpperCase():null, e!=null?e+' AÑOS':null, s.telefono||null].filter(Boolean).join(' · ')+'</div></div>'+
+      '<div class="acts">'+(wa?'<a class="btn btn--l" style="display:inline-flex;align-items:center;text-decoration:none" href="'+wa+'" target="_blank" rel="noopener">WHATSAPP</a>':'')+'</div></div>'+
+    '<div class="grid ctx">'+
+      '<div class="card"><span class="k">ENTRENAMIENTO</span><b>'+adEsc(pr?pr.programa:'SIN PROGRAMA')+'</b><small>'+(pr?'Semana '+(a.semana_actual||1)+' de '+(pr.ciclo_semanas||6)+' · ciclo '+(a.ciclo_actual||1):'Sin protocolo activo')+'</small></div>'+
+      '<div class="card"><span class="k">SESIONES · 12 SEMANAS</span>'+wkH+'<small>'+prom+' por semana en el último mes</small></div>'+
+      '<div class="card"><span class="k">PLAN NUTRICIONAL</span><b>'+st.plan.t+'</b><small>'+(st.pe?'Reevaluación '+st.pe.finTxt:st.pv?'Sin período definido':'Aún sin plan publicado')+'</small></div>'+
+      '<div class="card"><span class="k">PRÓXIMA CITA</span><b>'+(st.cita?fCorta(diaCita(st.cita.inicio))+' · '+hora(st.cita.inicio):'—')+'</b><small>'+(st.cita?'Agendada con Jake':'Sin evaluación agendada')+'</small></div>'+
+    '</div>'
+}
+
+sb.auth.onAuthStateChange(ev=>{ if(ev==='SIGNED_OUT' && N.yo) location.reload() })
+entrar()
+</script>
+<script src="/domain/koach-escaner.js"></script>
+<script src="/domain/koach-nutri-staff.js"></script>
+<script>
+// Cada vez que el motor compartido recarga (tras guardar o publicar), la base del panel se actualiza en segundo plano
+;['fCmpCargar','fPlanCargar'].forEach(n=>{ const f=window[n]; window[n]=async function(){ const r=await f.apply(this,arguments)
+  if(N._dirty){ N._dirty=false; cargar().then(()=>{ if(F) pintarCab(N._ses) }) } return r } })
+;['fCmpEstado','fPlanGuardar','fPlanPublicar','fCmpGuardar'].forEach(n=>{ const f=window[n]; if(typeof f!=='function') return; window[n]=async function(){ N._dirty=true; return f.apply(this,arguments) } })
+</script>
+</body>
+</html>
