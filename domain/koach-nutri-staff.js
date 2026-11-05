@@ -430,10 +430,10 @@ document.addEventListener('keydown',e=>{ if(e.key==='Escape'&&PL_OV) plVistaCerr
 
 // ═══ c222 · DIAGNÓSTICO A PANTALLA COMPLETA (domain/koach-diagnostico.js) ═══
 function fCmpDiag(id){
-  if (typeof KD==='undefined'){ toast('Falta cargar el módulo de diagnóstico'); return }
+  if (typeof KDG==='undefined'){ toast('Falta cargar el módulo de diagnóstico'); return }
   const d=CMP.data||{}, evs=(d.evaluaciones||[]).filter(e=>d.puede_editar||e.estado==='publicada'), a=C.asig&&C.asig[F.id]
   const i=id?evs.findIndex(e=>e.id===id):null
-  KD.abrir({ evs, i:i!=null&&i>=0?i:null, nombre:nomDe(F.id), programa:cmpProg(), nivel:a&&a.protocolos&&a.protocolos.nivel, sexo:F.sex })
+  KDG.abrir({ evs, i:i!=null&&i>=0?i:null, nombre:nomDe(F.id), programa:cmpProg(), nivel:a&&a.protocolos&&a.protocolos.nivel, sexo:F.sex })
 }
 
 // ═══ c224 · PREFERENCIAS POR SELECCIÓN (orden de comidas, restricciones, suplementos) + CORRECTOR CON IA ═══

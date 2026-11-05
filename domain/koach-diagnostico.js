@@ -2,7 +2,7 @@
    Lo que nutrición le presenta al socio al terminar la evaluación, y lo que el socio puede volver a ver en su app.
    Escritorio: horizontal, todo a la vista. Celular: vertical, una sección bajo otra.
    Entrada: evaluaciones ordenadas por fecha (forma de koach_composicion). Usa KC (koach-composicion.js) si está cargado.
-   Sin dependencias del anfitrión: KD.abrir({ evs, nombre, programa, nivel, sexo, i }) */
+   Global KDG (no KD: ese nombre es del motor de entrenamiento koach-domain.js). Sin dependencias del anfitrión: KDG.abrir({ evs, nombre, programa, nivel, sexo, i }) */
 (function(){
 'use strict'
 const VERSION = 'koach-diagnostico@1.0.0'
@@ -332,7 +332,7 @@ const CSS = `
 `
 function ensureCss(){ if (document.getElementById('kdCss')) return; const s = document.createElement('style'); s.id = 'kdCss'; s.textContent = CSS; document.head.appendChild(s) }
 
-const KD = { VERSION, abrir, cerrar, _segmento: segmento, _S: S }
-if (typeof window !== 'undefined') window.KD = KD
-if (typeof module !== 'undefined') module.exports = KD
+const KDG = { VERSION, abrir, cerrar, _segmento: segmento, _S: S }
+if (typeof window !== 'undefined') window.KDG = KDG
+if (typeof module !== 'undefined') module.exports = KDG
 })()

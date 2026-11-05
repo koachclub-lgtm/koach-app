@@ -7502,14 +7502,14 @@ function pintarComposicion(){
   const link = ses!=null ? '<div class="cpLink"><b>'+ses+'</b><div><span class="a2k a2k--inv">SESIONES ENTRE EVALUACIONES</span><p>'+(ses>0?'Entrenaste '+ses+' '+(ses===1?'vez':'veces')+' en '+dias+' días. Este cambio también es tuyo.':'Sin sesiones registradas en este período. Tu próximo cambio parte por volver a entrenar.')+'</p></div></div>' : ''
   const nota = u.nota_socio ? '<div class="cpBox"><span class="a2k">MENSAJE DE NUTRICIÓN</span><p class="cpNota">'+plEscA(u.nota_socio)+'</p></div>' : ''
   el.innerHTML='<span class="a2k">COMPOSICIÓN CORPORAL · ÚLTIMA EVALUACIÓN '+fechaCorta(u.fecha)+'</span><h3 class="a2h">'+cpTitulo(ev)+'</h3>'+hero+
-    (typeof KD!=='undefined'?'<button type="button" class="a2pill cpDiagB" onclick="cpDiag()">VER MI DIAGNÓSTICO COMPLETO →</button>':'')+
+    (typeof KDG!=='undefined'?'<button type="button" class="a2pill cpDiagB" onclick="cpDiag()">VER MI DIAGNÓSTICO COMPLETO →</button>':'')+
     cpChart(ev)+cpPeso(ev)+cpMedidas(ev)+link+nota+
     '<div class="cpBox"><span class="a2k">TUS INFORMES · '+ev.length+'</span>'+ev.slice().reverse().map(e=>'<button type="button" class="cpInfB" onclick="nuInforme(\''+e.id+'\')"><span>'+fechaCorta(e.fecha)+' '+String(e.fecha).slice(0,4)+'</span><em>'+(e.porcentaje_grasa!=null?cpF(e.porcentaje_grasa)+'% GRASA · ':'')+cpF(e.peso_kg)+' KG</em></button>').join('')+'</div>'+
     '<details class="fzInfo"><summary>ⓘ ¿CÓMO SE MIDE?</summary><p>Nutrición mide pliegues de piel y perímetros con protocolo ISAK. Con eso calculamos tu porcentaje de grasa y tu masa muscular. El hueso es una referencia, y "otros tejidos" es el resto de tu peso (órganos, agua, piel). Compara siempre contigo: el cambio entre evaluaciones dice más que un número aislado.</p></details>'
 }
 // c222 · diagnóstico a pantalla completa (mismo que presenta nutrición, en vertical)
-function cpDiag(){ if(typeof KD==='undefined') return; const me=(S&&S.perfil)||{}
-  KD.abrir({ evs:CPX.data||[], nombre:[me.nombre,me.apellido].filter(Boolean).join(' '), programa:avPrograma(), sexo:me.sex }) }
+function cpDiag(){ if(typeof KDG==='undefined') return; const me=(S&&S.perfil)||{}
+  KDG.abrir({ evs:CPX.data||[], nombre:[me.nombre,me.apellido].filter(Boolean).join(' '), programa:avPrograma(), sexo:me.sex }) }
 // c221 · de qué está hecho tu peso en cada evaluación (kg): grasa · músculo · resto (hueso y otros tejidos)
 function cpPeso(ev){
   const ok=ev.filter(e=>e.peso_kg!=null&&e.masa_grasa_kg!=null&&e.masa_muscular_kg!=null).slice(-4); if(!ok.length) return ''
