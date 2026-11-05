@@ -7271,7 +7271,8 @@ function pintarNuPlan(){
   const esc = NU.pauta && NU.pauta.estado==='publicada' && typeof KEU!=='undefined' ? 'KEU.abrir' : null
   el.innerHTML = KN.plan(NU.pauta, { peso: u&&u.peso_kg, agendar, escanear: esc })
   if (esc) nuEscInit()
-  if (!NU.pauta) el.querySelector('.knVac').insertAdjacentHTML('beforeend','<br><a class="a2pill" style="margin-top:14px" href="https://wa.me/56971333042?text='+encodeURIComponent('Hola KOACH, quiero agendar mi evaluación nutricional')+'" target="_blank" rel="noopener">AGENDAR EVALUACIÓN →</a>')
+  // Sin pauta publicada todavía: nutrición está cargando las planificaciones socio por socio
+  if (!NU.pauta) el.innerHTML='<div class="kn"><div class="knVac"><b style="display:block;margin-bottom:6px;color:#0B0B0C;font-weight:700">Estamos trabajando en esto.</b>Pronto vas a tener acceso al servicio completo de nutrición KOACH: tu plan de comidas y el escáner de platos.</div></div>'
 }
 // Escáner de plato (KEU): foto → /api/escaner → veredicto según su pauta. Resumen de 7 días bajo el plan.
 let NU_ESC=false
