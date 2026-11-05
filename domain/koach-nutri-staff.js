@@ -147,8 +147,29 @@ function fPlanPintar(){
     (ed?'<div class="cmp__acts"><button type="button" onclick="fPlanEditar(\''+p.id+'\')">'+(p.estado==='borrador'?'EDITAR':'NUEVA VERSIÓN')+'</button>'+(p.estado==='borrador'?'<button type="button" onclick="fPlanPublicar(\''+p.id+'\')">PUBLICAR</button>':'')+'</div>':'<div></div>')+'</div>').join('')
   box.innerHTML='<div class="cmp">'+nuSegHtml('plan')+hd+
     (vig?'<div class="plWBar"><span class="cmp__k">ASÍ LO VE '+adEsc(nomDe(F.id).split(' ')[0].toUpperCase())+' · ESCRITORIO</span><button type="button" class="cmp__b cmp__b--l" onclick="plVista(\'cel\',false)">VISTA CELULAR</button><button type="button" class="cmp__b cmp__b--l" onclick="plVista(\'ancho\',false)">PANTALLA COMPLETA ⤢</button></div>'+plAncho(vig,{ peso: ev&&ev.peso_kg, nombre: nomDe(F.id) }):'<div class="cmp__vac">'+(ed?'Arma el primer plan: fija los números (o usa los sugeridos por el motor), completa preferencias y redáctalo con IA o a mano. El socio lo verá en NUTRICIÓN → MI PLAN apenas lo publiques.':'Nutrición aún no publica un plan para este socio.')+'</div>')+
+    (vig?'<div id="plEscBox"></div>':'')+
     (filas?'<span class="cmp__k" style="margin:18px 0 8px">VERSIONES · NADA SE BORRA</span>'+filas:'')+'</div>'
+  if (vig) plEscCargar()
 }
+// Escáner de plato del socio: lo que fotografió y el veredicto de las reglas KOACH (solo lectura)
+const PL_FOCO=[['general','GENERAL'],['antiinflamatorio','ANTIINFLAMATORIO'],['glucosa','GLUCOSA'],['trigliceridos','TRIGLICÉRIDOS']]
+async function plEscCargar(){
+  const box=document.getElementById('plEscBox'); if(!box||!F) return
+  let rows=[]; try{ const { data, error } = await sb.rpc('koach_escaneos', { p_socio:F.id, p_dias:14 }); if(error) throw error; rows=data||[] }
+  catch(e){ box.innerHTML='<p class="cmp__k" style="margin-top:14px">ESCÁNER DE PLATO · '+adEsc(/koach_escaneos/.test((e&&e.message)||'')?'FALTA CORRER LA MIGRACIÓN escaneos_nutricion':'NO DISPONIBLE')+'</p>'; return }
+  if(!document.getElementById('plEscBox')) return
+  const s=(typeof KE!=='undefined')?KE.semana(rows):null, foco=(NPL.data&&NPL.data.vigente&&NPL.data.vigente.intake&&NPL.data.vigente.intake.foco)||'general'
+  const VC={ adecuado:['ADECUADO','#2F7D4F'], relativo:['RELATIVO','#C48A2C'], alerta:['ALERTA','#121212'] }
+  const hd='<span class="cmp__k" style="margin:18px 0 8px">ESCÁNER DE PLATO · ÚLTIMOS 14 DÍAS · FOCO '+adEsc(((PL_FOCO.find(x=>x[0]===foco)||PL_FOCO[0])[1]))+'</span>'
+  if(!rows.length){ box.innerHTML=hd+'<div class="cmp__vac" style="padding:14px">Todavía no escanea platos. En su app aparece ESCANEAR en cada comida del plan.</div>'; return }
+  box.innerHTML=hd+(s?'<div class="plEsR"><div><b>'+s.escaneos+'</b><small>PLATOS</small></div><div><b>'+s.dias+'</b><small>DÍAS</small></div><div><b>'+(s.aciertos!=null?s.aciertos+'%':'—')+'</b><small>EN PLAN</small></div><div><b>'+s.alertas+'</b><small>ALERTAS</small></div>'+
+      (s.patron?'<p>Patrón: '+adEsc(s.patron.comida.toLowerCase())+' fuera de plan '+s.patron.veces+' veces.</p>':'')+'</div>':'')+
+    rows.slice(0,20).map(r=>{ const v=VC[r.veredicto]||['—','#6B6A65'], al=((r.resultado&&r.resultado.alimentos)||[]).map(a=>a.nombre).slice(0,5).join(', ')
+      return '<div class="cmp__row plEsF"><div><small>'+adEsc(cmpFecha(r.fecha))+' · '+adEsc(new Date(r.created_at).toLocaleTimeString('es-CL',{hour:'2-digit',minute:'2-digit',hour12:false}))+'</small>'+adEsc(r.comida||'—')+'</div>'+
+        '<span class="cmp__pill" style="background:'+v[1]+';color:#fff;border-color:'+v[1]+'">'+v[0]+(r.cheat?' · CHEAT':'')+'</span>'+
+        '<div><small>PLATO</small>'+adEsc(r.plato||'—')+(al?'<em>'+adEsc(al)+'</em>':'')+'</div><div><small>KCAL EST.</small>'+(r.kcal!=null?r.kcal:'—')+'</div><div><small>PUNTAJE</small>'+(r.puntaje!=null?r.puntaje:'—')+'</div></div>' }).join('')
+}
+function plFoco(f){ NPL.ix.foco=f; plPrefPintar(); fPlanSync() }
 function fPlanNuevo(){ const vig=NPL.data&&NPL.data.vigente; NPL.edit={ id:null }; fPlanForm(vig?Object.assign({},vig,{ id:null, estado:'borrador', inicio:null }):null)
   if(!vig && plUltEval()) fPlanSugerir() }
 function fPlanEditar(id){ const p=((NPL.data&&NPL.data.todas)||[]).find(x=>x.id===id); if(!p) return
@@ -182,7 +203,7 @@ function fPlanForm(p){
     '<p class="cmp__k" id="plPubWhy" style="text-align:right;margin-top:6px;color:#B85A2E"></p>'+
     '</div><aside class="plPrevWrap plPrevWrap--st"><span class="cmp__k" style="margin-bottom:8px">VISTA DEL SOCIO · EN VIVO</span><div class="plPhone" id="plPrev"></div></aside></div></div>'
   NPL.ia = !!(p&&p.generado_ia); NPL.modelo=(p&&p.modelo)||null; NPL.tdee=(p&&p.tdee)||null; NPL.tmb=(p&&p.tmb)||null
-  NPL.ix={ orden:Array.isArray(ix.orden_comidas)?ix.orden_comidas.slice():[], restr:Array.isArray(ix.restricciones_lista)?ix.restricciones_lista.slice():[], sup:Array.isArray(ix.suplementos_abordar)?ix.suplementos_abordar.slice():[] }
+  NPL.ix={ orden:Array.isArray(ix.orden_comidas)?ix.orden_comidas.slice():[], restr:Array.isArray(ix.restricciones_lista)?ix.restricciones_lista.slice():[], sup:Array.isArray(ix.suplementos_abordar)?ix.suplementos_abordar.slice():[], foco:ix.foco||'general' }
   NPL.corr=Array.isArray(ix.correcciones)?ix.correcciones.slice():[]; NPL.prev=null
   plCalBase(); plPrefPintar(); fPlanComidasPintar(); plCorPintar(); fPlanSync()
 }
@@ -208,7 +229,7 @@ function fPlanLeer(){
   return { semanas:+(g('plSem')||6), inicio:g('plIni')||null, actividad:g('plAct'), kcal:cmpNum(g('plKcal')), proteina_g:cmpNum(g('plP')), carbohidrato_g:cmpNum(g('plC')), grasa_g:cmpNum(g('plG')),
     intake:{ objetivo:plObjDe(cmpNum(g('plKcal'))), comidas_dia:String(((NPL.ix&&NPL.ix.orden.length)||cmpNum(g('plComD'))||4)), orden_comidas:NPL.ix?NPL.ix.orden.slice():[], horario_entreno:g('plHor'),
       restricciones_lista:NPL.ix?NPL.ix.restr.slice():[], restricciones:[].concat(NPL.ix?NPL.ix.restr:[], g('plRes')?[g('plRes')]:[]).join(', '), no_consume:g('plNoC'), preferencias:g('plPref'),
-      suplementos_abordar:NPL.ix?NPL.ix.sup.slice():[], suplementos:g('plSupA'), contexto:g('plCtx'), correcciones:(NPL.corr||[]).slice(-20) }, contenido:cont }
+      suplementos_abordar:NPL.ix?NPL.ix.sup.slice():[], suplementos:g('plSupA'), contexto:g('plCtx'), correcciones:(NPL.corr||[]).slice(-20), foco:(NPL.ix&&NPL.ix.foco)||'general' }, contenido:cont }
 }
 function fPlanSync(){
   const f=fPlanLeer(), ev=plUltEval(), r=KC.reparto(f.kcal,f.proteina_g,f.carbohidrato_g,f.grasa_g,ev&&ev.peso_kg)
@@ -430,6 +451,7 @@ function plPrefHtml(ix){
     '<div class="plPref__c"><span class="cmp__k">ORDEN DE LAS COMIDAS · TOCA PARA AGREGAR, USA LAS FLECHAS PARA ORDENAR</span><div class="plOrd" id="plOrd"></div><div class="plChips" id="plOrdCat"></div></div>'+
     '<div class="plPref__c"><span class="cmp__k">RESTRICCIONES ALIMENTARIAS</span><div class="plChips" id="plRestr"></div>'+
       '<input id="plRes" class="plIn" placeholder="Otra restricción o alergia (opcional)" value="'+v(otras)+'" oninput="fPlanSync()"></div>'+
+    '<div class="plPref__c"><span class="cmp__k">FOCO DEL ESCÁNER DE PLATO · CÓMO JUZGA LAS FOTOS DEL SOCIO (NO SE MUESTRA EN SU TARJETA)</span><div class="plChips" id="plFoco"></div></div>'+
     '<div class="plPref__c"><span class="cmp__k">SUPLEMENTOS A ABORDAR EN LA PAUTA</span><div class="plSupSel"><select id="plSupAdd" onchange="plSupAgregar(this)"><option value="">+ AGREGAR SUPLEMENTO…</option>'+PL_SUP.map(x=>'<option>'+x+'</option>').join('')+'<option value="__otro">OTRO…</option></select></div><div class="plChips" id="plSupL"></div></div>'+
     '<div class="cmpF__f" style="grid-template-columns:1fr 1fr;margin-top:10px">'+ta('plNoC','NO CONSUME',ix.no_consume,'Alimentos que no le gustan')+ta('plPref','PREFERENCIAS',ix.preferencias,'Lo que sí disfruta, estilo de cocina')+
       ta('plSupA','SUPLEMENTOS QUE YA TOMA',ix.suplementos,'Opcional')+ta('plCtx','CONTEXTO',ix.contexto,'Trabajo, horarios, si cocina o come fuera')+'</div>'+
@@ -443,6 +465,7 @@ function plPrefPintar(){
       '<button type="button" onclick="plOrdenMover('+i+',-1)" aria-label="Subir"'+(i?'':' disabled')+'>↑</button><button type="button" onclick="plOrdenMover('+i+',1)" aria-label="Bajar"'+(i<o.orden.length-1?'':' disabled')+'>↓</button><button type="button" onclick="plOrdenQuitar('+i+')" aria-label="Quitar">✕</button></span>').join('')
     :'<span class="cmp__k">Elige la cantidad de comidas o toca las comidas abajo.</span>'
   $('plOrdCat').innerHTML=PL_COMIDAS.map(m=>'<button type="button" onclick="plOrdenAgregar(\''+m+'\')">+ '+m+'</button>').join('')
+  if($('plFoco')) $('plFoco').innerHTML=PL_FOCO.map(f=>'<button type="button" aria-pressed="'+((o.foco||'general')===f[0])+'" onclick="plFoco(\''+f[0]+'\')">'+f[1]+'</button>').join('')
   $('plRestr').innerHTML='<button type="button" aria-pressed="'+(!o.restr.length)+'" onclick="plRestr(null)">SIN RESTRICCIONES</button>'+PL_RESTR.map(r=>'<button type="button" aria-pressed="'+o.restr.includes(r)+'" onclick="plRestr(\''+r+'\')">'+r+'</button>').join('')
   $('plSupL').innerHTML=o.sup.length?o.sup.map((x,i)=>'<span class="plTag">'+adEsc(x)+'<button type="button" onclick="plSupQuitar('+i+')" aria-label="Quitar '+adEsc(x)+'">✕</button></span>').join(''):'<span class="cmp__k">Sin suplementos: la IA no prescribirá ninguno.</span>'
 }

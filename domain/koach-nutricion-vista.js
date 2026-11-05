@@ -43,6 +43,17 @@ const CSS = `
 .kn .knM__h{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}
 .kn .knM__h em{font:700 12px var(--knM);font-style:normal;letter-spacing:.06em;color:var(--knG4)}
 .kn .knM__h b{font:800 18px/1.1 var(--knD);letter-spacing:.02em}
+.kn .knScan{margin-left:auto;display:inline-flex;align-items:center;gap:6px;height:32px;padding:0 12px;border-radius:999px;border:1px solid var(--knI);background:var(--knI);color:var(--knB);font:700 10px var(--knM);letter-spacing:.12em;cursor:pointer;align-self:center}
+.kn .knScan svg{width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round}
+.kn .knScan:active{transform:scale(.97)}
+.kn .knEsc{background:#fff;border:1px solid var(--knL);border-radius:20px;padding:16px 18px;margin:0 0 12px}
+.kn .knEsN{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-top:10px}
+.kn .knEsN b{display:block;font:700 24px/1 var(--knM);letter-spacing:-.03em}
+.kn .knEsN span{display:block;margin-top:6px;font:700 9px/1.35 var(--knM);letter-spacing:.1em;color:var(--knG4)}
+.kn .knEsD{display:flex;gap:4px;margin-top:12px}
+.kn .knEsD i{flex:1;height:8px;border-radius:3px;background:rgba(11,11,12,.08)}
+.kn .knEsD i.a{background:#2F7D4F}.kn .knEsD i.r{background:#C48A2C}.kn .knEsD i.x{background:var(--knI)}
+.kn .knEsP{margin:10px 0 0;font:400 13px/1.45 var(--knD);color:var(--knG5)}
 .kn .knM__a{margin:4px 0 8px;font:400 13px/1.45 var(--knD);color:var(--knG4)}
 .kn .knOp{display:inline-flex;gap:4px;padding:3px;margin:2px 0 8px;border-radius:999px;background:rgba(11,11,12,.06)}
 .kn .knOp button{min-width:44px;min-height:32px;padding:0 12px;white-space:nowrap;border:0;border-radius:999px;background:transparent;font:700 10px var(--knM);letter-spacing:.12em;color:var(--knG4);cursor:pointer}
@@ -172,9 +183,10 @@ function plan(p, o){
   if (c.resumen) h += '<p class="knP" style="margin:4px 4px 16px">'+esc(c.resumen)+'</p>'
   if (o.nota) h += '<div class="knBox"><span class="knK">MENSAJE DE NUTRICIÓN</span><p class="knP" style="color:var(--knI)">'+esc(o.nota)+'</p></div>'
   if (c.comidas.length){
+    if (o.escanear) h += '<div class="knEsc" id="knEscSem"><span class="knK">ESCÁNER DE PLATO · ESTA SEMANA</span><p class="knP" style="margin-top:6px">Saca una foto a tu plato antes de comer y te decimos si va con tu plan.</p></div>'
     h += '<span class="knK" style="margin:18px 4px 10px">TUS COMIDAS · '+c.comidas.length+'</span><div class="knTl">'
     c.comidas.forEach((m, i) => {
-      h += '<article class="knM" style="animation-delay:'+(i * 40)+'ms"><div class="knM__h">'+(m.hora ? '<em>'+esc(m.hora)+'</em>' : '')+'<b>'+esc(m.nombre)+'</b></div>'+
+      h += '<article class="knM" style="animation-delay:'+(i * 40)+'ms"><div class="knM__h">'+(m.hora ? '<em>'+esc(m.hora)+'</em>' : '')+'<b>'+esc(m.nombre)+'</b>'+(o.escanear ? '<button type="button" class="knScan" onclick="'+esc(o.escanear)+'('+(i + 1)+','+c.comidas.length+',\''+esc(String(m.nombre).replace(/[\\']/g, ''))+'\')" aria-label="Escanear mi '+esc(m.nombre.toLowerCase())+'"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 8V5a1 1 0 0 1 1-1h3M16 4h3a1 1 0 0 1 1 1v3M20 16v3a1 1 0 0 1-1 1h-3M8 20H5a1 1 0 0 1-1-1v-3"/><circle cx="12" cy="12" r="3.2"/></svg>ESCANEAR</button>' : '')+'</div>'+
         (m.aporte ? '<p class="knM__a">'+esc(m.aporte)+'</p>' : '')
       if (m.opciones.length > 1) h += '<div class="knOp" role="group" aria-label="Opciones de '+esc(m.nombre.toLowerCase())+'">'+m.opciones.map((x, j) => '<button type="button" data-op="'+j+'" aria-pressed="'+(j === 0)+'" onclick="KN.op(this)">OPCIÓN '+esc(x.etiqueta)+'</button>').join('')+'</div>'
       m.opciones.forEach((x, j) => { h += '<div data-op="'+j+'"'+(j ? ' hidden' : '')+'><ul class="knAl">'+x.alimentos.map(a => '<li><span>'+esc(a.alimento)+'</span><i></i><b>'+esc(a.cantidad)+'</b></li>').join('')+'</ul>'+(x.nota ? '<p class="knNo">'+esc(x.nota)+'</p>' : '')+'</div>' })

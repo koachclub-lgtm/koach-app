@@ -908,6 +908,8 @@ html .kw.kw--hero .kw-cl{font-size:7px;letter-spacing:.16em}
 <script src="/domain/koach-composicion.js"></script>
 <script src="/domain/koach-nutricion-vista.js"></script>
 <script src="/domain/koach-diagnostico.js"></script>
+<script src="/domain/koach-escaner.js"></script>
+<script src="/domain/koach-escaner-ui.js"></script>
 <script src="/domain/koach-avatar.js"></script>
 <script src="/domain/koach-timer.js?v=6"></script>
 <style>
@@ -7266,8 +7268,19 @@ function pintarNuPlan(){
   if (!NU.ok && !NU.pauta){ el.innerHTML='<div class="avLoad" aria-busy="true"><i></i><i></i><i></i></div>'; return }
   const ev=CPX.data||[], u=ev[ev.length-1]
   const agendar='<a class="a2pill" href="https://wa.me/56971333042?text='+encodeURIComponent('Hola KOACH, terminé mi plan nutricional y quiero agendar mi reevaluación')+'" target="_blank" rel="noopener">AGENDAR REEVALUACIÓN →</a>'
-  el.innerHTML = KN.plan(NU.pauta, { peso: u&&u.peso_kg, agendar })
+  const esc = NU.pauta && NU.pauta.estado==='publicada' && typeof KEU!=='undefined' ? 'KEU.abrir' : null
+  el.innerHTML = KN.plan(NU.pauta, { peso: u&&u.peso_kg, agendar, escanear: esc })
+  if (esc) nuEscInit()
   if (!NU.pauta) el.querySelector('.knVac').insertAdjacentHTML('beforeend','<br><a class="a2pill" style="margin-top:14px" href="https://wa.me/56971333042?text='+encodeURIComponent('Hola KOACH, quiero agendar mi evaluación nutricional')+'" target="_blank" rel="noopener">AGENDAR EVALUACIÓN →</a>')
+}
+// Escáner de plato (KEU): foto → /api/escaner → veredicto según su pauta. Resumen de 7 días bajo el plan.
+let NU_ESC=false
+function nuEscInit(){
+  if (!NU_ESC){ NU_ESC=true
+    KEU.init({ token: async()=>{ const { data } = await sb.auth.getSession(); return data&&data.session&&data.session.access_token },
+      escaneos: async()=>{ const { data, error } = await sb.rpc('koach_escaneos', { p_socio:null, p_dias:7 }); if (error) throw error; return data||[] },
+      whatsapp: t=>'https://wa.me/56971333042?text='+encodeURIComponent(t) }) }
+  if (KEU._S.semana) KEU.pintarSemana(); else KEU.semana().catch(e=>console.warn('escaneos', e&&e.message))
 }
 function nuInforme(id){
   const ev=CPX.data||[], i=ev.findIndex(e=>e.id===id); if(i<0) return
