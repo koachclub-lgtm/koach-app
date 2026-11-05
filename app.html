@@ -3413,6 +3413,7 @@ const SB_KEY = 'sb_publishable_ffGsmagqocuP1n1jvKUVGw_hVzdojas'
 const SB_STORE_KEY = 'sb-'+SB_URL.replace(/^https?:\/\//,'').split('.')[0]+'-auth-token'
 const KC_CK = 'kc_rt'
 function kcCkGet(){ try{ const m=document.cookie.match(/(?:^|;\s*)kc_rt=([^;]*)/); return m?decodeURIComponent(m[1]):null }catch(_e){ return null } }
+function kcCkTodos(){ try{ return (document.cookie.match(/(?:^|;\s*)kc_rt=([^;]*)/g)||[]).map(function(x){ return decodeURIComponent(x.replace(/^;?\s*kc_rt=/,'')) }) }catch(_e){ return [] } }
 function kcCkDom(){ return /(^|\.)koachclub\.cl$/i.test(location.hostname) ? '; Domain=.koachclub.cl' : '' }
 function kcCkSet(v){ try{ document.cookie=KC_CK+'='+encodeURIComponent(v)+'; Max-Age=34560000; Path=/; SameSite=Lax'+(location.protocol==='https:'?'; Secure':'')+kcCkDom() }catch(_e){} }
 function kcCkDel(){ try{ document.cookie=KC_CK+'=; Max-Age=0; Path=/; SameSite=Lax'+(location.protocol==='https:'?'; Secure':'')+kcCkDom() }catch(_e){} }
@@ -3423,6 +3424,7 @@ const kcStorage = {
     const rt=kcCkGet(); if (!rt) return v
     try{
       if (v){ const o=JSON.parse(v)
+        if (o && o.refresh_token && kcCkTodos().indexOf(o.refresh_token)>=0) return v   // c217 · la sesión local sigue vigente: no la pisa una cookie vieja
         if (o && o.refresh_token && o.refresh_token!==rt){ o.refresh_token=rt; o.expires_at=1; return JSON.stringify(o) }   // otro origen ya rotó el token
         return v }
       // sin sesión local pero con token en cookie → sesión mínima vencida: supabase la renueva sola
@@ -4646,8 +4648,11 @@ async function salir(){ window._saliendo=true
   try{ if (S.perfil) localStorage.removeItem('kc_snap_'+S.perfil.id); localStorage.removeItem('koach_rol') }catch(_e){}
   try{ await sb.auth.signOut({ scope:'local' }) }catch(_e){}
   location.reload() }
-sb.auth.onAuthStateChange(function(ev){
+sb.auth.onAuthStateChange(function(ev, ses){
   klog('AUTH_EVENT', { evento:ev })
+  // c217 · al entrar (QR, clave o renovación) la cookie compartida queda con el token vigente de ESTA cuenta
+  if ((ev==='SIGNED_IN'||ev==='TOKEN_REFRESHED') && ses && ses.refresh_token) kcCkSet(ses.refresh_token)
+  if (ev==='SIGNED_OUT' && document.getElementById('oAn')) anSesionPerdida()
   if (ev==='PASSWORD_RECOVERY'){ authListo(); vista('vLogin'); authVista('fNueva'); return }
   // La sesión terminó de verdad (refresh token inválido/revocado), no por un cierre explícito
   if (ev==='SIGNED_OUT' && !window._saliendo && S.perfil){ S.perfil=null; authListo(); vista('vLogin'); authVista('fLogin')
@@ -5001,16 +5006,40 @@ const AN_Q=[
 const AN={A:{}, i:0, el:null, poll:null}
 function anEsc(t){ return String(t==null?'':t).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])) }
 function anSx(){ const s=String((S.perfil&&S.perfil.sex)||'').toLowerCase(); return s==='mujer'?'mujer':'hombre' }
+function anClave(t){ return 'kan_'+t+'_'+((S.perfil&&S.perfil.id)||'x') }
+function anBorrador(){ try{ localStorage.setItem(anClave('b'), JSON.stringify({ A:AN.A, i:AN.i, t:Date.now() })) }catch(_e){} }
+function anErrSesion(e){ const m=String((e&&(e.message||e.code))||'')+' '+String((e&&e.status)||'')
+  return /JWT|jwt|401|42501|PGRST30|permission denied|Sin sesi/.test(m) }
+async function anSesionOk(){
+  try{ const r=await sb.auth.getSession(); if (r && r.data && r.data.session) return true }catch(_e){}
+  try{ const r=await sb.auth.refreshSession(); return !!(r && r.data && r.data.session) }catch(_e){ return false } }
+function anSesionPerdida(){ if(!AN.el) return
+  try{ localStorage.setItem(anClave('p'), JSON.stringify(anFinal())) }catch(_e){}
+  anPant(anTop('ACCESO')+'<div class="an__hero"><span class="an__tag">TUS RESPUESTAS ESTÁN GUARDADAS</span><h1 style="font-size:40px">Vuelve a entrar.</h1>'+
+    '<p>Tu acceso se cerró en este celular. Pídele a tu koach el <b>QR de nuevo</b> o entra con tu <b>correo y tu RUT</b> como clave. No tienes que responder otra vez.</p></div>'+
+    '<div class="an__act"><button type="button" class="an__go" onclick="anIrLogin()">ENTRAR DE NUEVO →</button></div>') }
+function anIrLogin(){ clearInterval(AN.poll); const el=document.getElementById('oAn'); if(el) el.remove(); document.body.classList.remove('wl-on')
+  try{ S.perfil=null; authListo(); vista('vLogin'); authVista('fLogin') }catch(_e){ location.reload() } }
 async function anRevisar(){
   try{ if (!S.perfil || S.perfil.estado!=='clase_prueba') return false
+    // c217 · si quedaron respuestas sin enviar (se cayó la sesión), se envían solas al volver a entrar
+    let pend=null; try{ pend=JSON.parse(localStorage.getItem(anClave('p'))||'null') }catch(_e){}
+    if (pend && pend.objetivo){ const rp=await sb.rpc('mi_anamnesis_guardar',{ p_respuestas:pend })
+      if (!rp.error){ try{ localStorage.removeItem(anClave('p')); localStorage.removeItem(anClave('b')) }catch(_e){} AN.A=pend; anAbrirListo(); return true } }
     const r=await sb.from('anamnesis_prueba').select('respuestas').eq('socio_id',S.perfil.id).maybeSingle()
     if (r.error) return false
     if (r.data && r.data.respuestas && r.data.respuestas.objetivo) return false
     anAbrir(); return true }catch(_e){ return false } }
+function anCrear(){ if (document.getElementById('oAn')) return false
+  const el=document.createElement('div'); el.id='oAn'; el.className='an'; el.setAttribute('role','dialog'); el.setAttribute('aria-modal','true'); el.setAttribute('aria-label','Tu clase de prueba')
+  document.body.appendChild(el); document.body.classList.add('wl-on'); AN.el=el; return true }
+function anAbrirListo(){ if(!anCrear()) return; anListo() }
 function anAbrir(){ if (document.getElementById('oAn')) return
   AN.A={}; AN.i=0
+  try{ const b=JSON.parse(localStorage.getItem(anClave('b'))||'null'); if (b && b.A && Date.now()-b.t < 12*3600e3){ AN.A=b.A; AN.i=b.i||0 } }catch(_e){}
   const el=document.createElement('div'); el.id='oAn'; el.className='an'; el.setAttribute('role','dialog'); el.setAttribute('aria-modal','true'); el.setAttribute('aria-label','Tu clase de prueba')
-  document.body.appendChild(el); document.body.classList.add('wl-on'); AN.el=el; anBienvenida() }
+  document.body.appendChild(el); document.body.classList.add('wl-on'); AN.el=el
+  if (AN.A && AN.A.objetivo && AN.i>0) anPaso(); else anBienvenida() }
 function anPant(h){ AN.el.innerHTML='<div class="an__s">'+h+'</div>'; const s=AN.el.querySelector('.an__s'); if(s){ s.tabIndex=-1; try{ s.focus({preventScroll:true}) }catch(_e){} } }
 function anTop(st){ return '<div class="an__top"><img src="/img/brand/logotipo-koach.png" alt="KOACH"><small>'+(st||'CLASE DE PRUEBA')+'</small></div>' }
 function anBienvenida(){ const n=anEsc(msgNombre()||''), m=anSx()==='mujer'
@@ -5054,7 +5083,7 @@ function anPaso(){ const L=anVis(); if(AN.i>=L.length) return anGuardar(); const
     '<button type="button" class="an__go" id="anGo" onclick="anSig()">'+(AN.i===n-1?'TERMINAR →':'SIGUIENTE →')+'</button></div>'+
     (q.opt?'<button type="button" class="an__skip" onclick="anSig()">PREFIERO NO RESPONDER</button>':''))
   anChk() }
-function anChk(){ const L=anVis(), g=document.getElementById('anGo'); if(g) g.disabled=!anOk(L[AN.i]) }
+function anChk(){ const L=anVis(), g=document.getElementById('anGo'); if(g) g.disabled=!anOk(L[AN.i]); anBorrador() }
 function anOne(id,x){ AN.A[id]=x; try{ kHaptic(6) }catch(_e){} anPaso() }
 function anMany(id,x){ const a=AN.A[id]||[]; AN.A[id]=a.includes(x)?a.filter(y=>y!==x):a.concat(x); anPaso() }
 function anZona(k,x){ const v=AN.A.zona||{z:'',m:[]}; if(k==='z') v.z=x; else v.m=v.m.includes(x)?v.m.filter(y=>y!==x):v.m.concat(x); AN.A.zona=v; anPaso() }
@@ -5063,14 +5092,22 @@ function anTiempo(k,x){ AN.A.tiempo=AN.A.tiempo||{}; AN.A.tiempo[k]=x; anPaso() 
 function anSalud(x){ const s=AN.A.salud||{sel:[],txt:''}; if(x==='Ninguna') s.sel=s.sel.includes(x)?[]:['Ninguna']; else { s.sel=s.sel.filter(y=>y!=='Ninguna'); s.sel=s.sel.includes(x)?s.sel.filter(y=>y!==x):s.sel.concat(x) } AN.A.salud=s; anPaso() }
 function anSig(){ AN.i++; anPaso() }
 function anAtras(){ if(AN.i===0) return anBienvenida(); AN.i--; anPaso() }
-async function anGuardar(){ const A=JSON.parse(JSON.stringify(AN.A))
-  if (A.historial) A.historial=A.historial.filter(e=>e&&(String(e.lugar||'').trim()||e.dur!=null))
-  ;['frustraTxt','porque'].forEach(k=>{ if(typeof A[k]==='string'){ A[k]=A[k].trim(); if(!A[k]) delete A[k] } })
-  A.sexo=anSx(); A.version=1; A.respondida_at=new Date().toISOString()
+function anFinal(){ const A=JSON.parse(JSON.stringify(AN.A||{}))
+  if (A.historial) A.historial=A.historial.filter(function(e){ return e&&(String(e.lugar||'').trim()||e.dur!=null) })
+  ;['frustraTxt','porque'].forEach(function(k){ if(typeof A[k]==='string'){ A[k]=A[k].trim(); if(!A[k]) delete A[k] } })
+  A.sexo=anSx(); A.version=1; A.respondida_at=A.respondida_at||new Date().toISOString(); return A }
+async function anGuardar(){ const A=anFinal()
+  try{ localStorage.setItem(anClave('p'), JSON.stringify(A)) }catch(_e){}   // c217 · respaldo: no se pierde aunque se caiga todo
   anPant(anTop('GUARDANDO')+'<div class="an__hero"><h1 style="font-size:40px">Un segundo…</h1></div>')
-  const r=await sb.rpc('mi_anamnesis_guardar',{ p_respuestas:A })
-  if (r.error){ anPant(anTop('SIN CONEXIÓN')+'<div class="an__hero"><span class="an__tag">NO SE GUARDÓ</span><h1 style="font-size:40px">Revisa tu conexión.</h1><p>Tus respuestas siguen aquí.</p></div>'+
+  if (!(await anSesionOk())) return anSesionPerdida()
+  let r=await sb.rpc('mi_anamnesis_guardar',{ p_respuestas:A })
+  if (r.error && anErrSesion(r.error)){ if (await anSesionOk()) r=await sb.rpc('mi_anamnesis_guardar',{ p_respuestas:A }) }
+  if (r.error && anErrSesion(r.error)) return anSesionPerdida()
+  if (r.error && /ya registrada/.test(String(r.error.message||''))){ try{ localStorage.removeItem(anClave('p')); localStorage.removeItem(anClave('b')) }catch(_e){} return anListo() }
+  if (r.error){ klog('ANAMNESIS_ERROR', { error:String(r.error.message||'') })
+    anPant(anTop('SIN CONEXIÓN')+'<div class="an__hero"><span class="an__tag">NO SE GUARDÓ</span><h1 style="font-size:40px">Revisa tu conexión.</h1><p>Tus respuestas quedan guardadas en tu celular.</p></div>'+
       '<div class="an__act"><button type="button" class="an__back" onclick="AN.i=anVis().length-1;anPaso()" aria-label="Volver">←</button><button type="button" class="an__go" onclick="anGuardar()">REINTENTAR</button></div>'); return }
+  try{ localStorage.removeItem(anClave('p')); localStorage.removeItem(anClave('b')) }catch(_e){}
   anListo() }
 function anListo(){ const A=AN.A, n=anEsc(msgNombre()||''), z=A.zona||{}
   const foco=(AN_ZN[z.z]||'—')+((z.m&&z.m.length)?' · '+z.m.join(', ').toLowerCase():'')
