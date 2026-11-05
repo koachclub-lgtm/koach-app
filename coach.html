@@ -625,8 +625,6 @@ button.bxI:hover,button.bxI:focus-visible{transform:translateY(-2px);box-shadow:
 <script src="/domain/koach-domain.js"></script>
 <script src="/domain/koach-series.js"></script>
 <script src="/domain/program-catalog.js"></script>
-<script src="/domain/koach-composicion.js"></script>
-<script src="/domain/koach-nutricion-vista.js"></script>
 <script src="/domain/koach-avatar.js"></script>
 <script src="/domain/koach-timer.js?v=6"></script>
 <style>
@@ -2658,15 +2656,6 @@ html.ks-on.en-crm body{max-width:1280px !important;padding-left:32px !important;
   #pGuardia .plDock__apl{flex:1.4 1 0 !important;min-width:0 !important;min-height:42px !important;padding:0 10px !important;font-size:11px !important;letter-spacing:.08em !important;white-space:nowrap}
 }
 </style>
-<style>
-/* ═══ c147 · COMPOSICIÓN CORPORAL (ficha del socio) · estética de data: gris, mono, cero sombras ═══ */
-html[data-rol="recepcion"] #fTbCmp{display:none}
-/* c221 · nutrición entra a la ficha directo en NUTRICIÓN; no ve entrenamiento ni adherencia */
-html[data-rol="nutricionista"] #fTbEnt, html[data-rol="nutricionista"] #fTbAdh, html[data-rol="nutricionista"] #fTabAdh{display:none!important}
-</style>
-<link rel="stylesheet" href="/domain/koach-nutri-staff.css">
-<style>
-</style>
 </head>
 <body>
 <div id="oAuth" role="status" aria-live="polite" style="position:fixed;inset:0;z-index:9999;background:#000;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:22px;padding:env(safe-area-inset-top,0) 24px env(safe-area-inset-bottom,0);font-family:system-ui,-apple-system,sans-serif;color:#fff;text-align:center">
@@ -2793,13 +2782,12 @@ html[data-rol="nutricionista"] #fTbEnt, html[data-rol="nutricionista"] #fTbAdh, 
       </div>
     </div>
     <div class="mh__bar">
-      <nav class="mh__doors" aria-label="Dominios del socio"><button id="fTbEnt" class="on" onclick="fTab('ent')">ENTRENAMIENTO</button><button id="fTbAdm" onclick="fTab('adm')">PERFIL</button><button id="fTbCmp" onclick="fTab('cmp')">NUTRICIÓN</button><button id="fTbAdh" hidden></button></nav>
+      <nav class="mh__doors" aria-label="Dominios del socio"><button id="fTbEnt" class="on" onclick="fTab('ent')">ENTRENAMIENTO</button><button id="fTbAdm" onclick="fTab('adm')">PERFIL</button><button id="fTbAdh" hidden></button></nav>
       <div class="mh__acc" id="fAccCtx"></div>
     </div>
   </section>
   <div id="fAccBan" aria-live="polite"></div>
   <div id="fTabAdm" style="display:none"></div>
-  <div id="fTabCmp" style="display:none"></div>
   <div id="fTabEnt">
   <div class="fCtx" id="fCtx"></div>
   <div id="fTabAdh" class="fAdhIn" hidden></div>
@@ -3800,9 +3788,8 @@ function verFicha(id, sinRuta){
   const d=F.created_at?new Date(F.created_at):null
   document.getElementById('fNombre').textContent=nomDe(id)
   fichaAvatar()
-  AD.socioTab='ent'; if(document.getElementById('fTabEnt')){ document.getElementById('fTabEnt').style.display=''; document.getElementById('fTabAdm').style.display='none'; document.getElementById('fTabCmp').style.display='none'; document.getElementById('fTbCmp').classList.remove('on'); document.getElementById('fTabAdh').style.display=''; document.getElementById('fTbEnt').classList.add('on'); document.getElementById('fTbAdm').classList.remove('on'); document.getElementById('fTbAdh').classList.remove('on') }
+  AD.socioTab='ent'; if(document.getElementById('fTabEnt')){ document.getElementById('fTabEnt').style.display=''; document.getElementById('fTabAdm').style.display='none'; document.getElementById('fTabAdh').style.display=''; document.getElementById('fTbEnt').classList.add('on'); document.getElementById('fTbAdm').classList.remove('on'); document.getElementById('fTbAdh').classList.remove('on') }
   mhPintar(id); try{ fAdhCargar() }catch(_e){}
-  if (document.documentElement.getAttribute('data-rol')==='nutricionista') fTab('cmp')
   const _mv=admEstadoSocio(F.id)
   document.getElementById('fEstado').textContent=esCP(F)?'CLASE DE PRUEBA':(F.estado==='congelado')?'ACCESO SUSPENDIDO':(_mv.k==='sin'?'SIN MEMBRESÍA':_mv.t)
   document.getElementById('btnFrio').textContent=(F.estado==='congelado')?'REACTIVAR':'CONGELAR'
@@ -6830,7 +6817,7 @@ function admPintar(){
 // El rol y el estado de una cuenta solo los cambia un administrador (trigger koach_trg_proteger_perfil).
 const PROF_ROL={ admin:'ADMIN', coach:'KOACH', recepcion:'RECEPCIÓN', nutricionista:'NUTRICIÓN' }
 const PROF_ORD={ admin:0, coach:1, nutricionista:2, recepcion:3 }
-const PROF_PANEL={ admin:'Dashboard completo', coach:'Dashboard · sala, planificador y socios', recepcion:'Dashboard · membresías, pagos y agenda', nutricionista:'Panel de nutrición · dashboard.koachclub.cl/nutricion' }
+const PROF_PANEL={ admin:'Dashboard completo', coach:'Dashboard · sala, planificador y socios', recepcion:'Dashboard · membresías, pagos y agenda', nutricionista:'Dashboard · agenda y nutrición' }
 async function profCargar(forzar){
   if (AD.prof && !forzar) return
   const r=await sb.from('profiles').select('id,nombre,apellido,role,activo,email,telefono,created_at').in('role',Object.keys(PROF_ROL))
@@ -6879,7 +6866,7 @@ async function profClave(id){
 }
 async function profCorreo(id){
   const p=(AD.prof||[]).find(function(x){return x.id===id}), a=(AD.profAcc&&AD.profAcc[id])||{}, em=(p&&p.email)||a.email; if(!em) return
-  const dest=p.role==='nutricionista'?'https://dashboard.koachclub.cl/nutricion.html':location.origin+'/coach.html'
+  const dest=location.origin+'/coach.html'
   const r=await sb.auth.resetPasswordForEmail(em, { redirectTo:dest })
   if (r.error){ toast(/rate|seconds|limit/i.test(r.error.message||'')?'Demasiados intentos. Prueba en unos minutos.':'No pudimos enviar el correo.'); return }
   try{ await sb.rpc('admin_acceso_registrar',{ p_socio:id, p_accion:'recovery_email_sent' }) }catch(_e){}
@@ -6931,12 +6918,10 @@ function fTab(t){
   AD.socioTab=t
   document.getElementById('fTabEnt').style.display=t==='ent'?'':'none'
   document.getElementById('fTabAdm').style.display=t==='adm'?'':'none'
-  document.getElementById('fTabCmp').style.display=t==='cmp'?'':'none'; document.getElementById('fTbCmp').classList.toggle('on',t==='cmp')
   document.getElementById('fTabAdh').style.display=''
   document.getElementById('fTbEnt').classList.toggle('on',t==='ent'); document.getElementById('fTbAdm').classList.toggle('on',t==='adm'); document.getElementById('fTbAdh').classList.toggle('on',t==='adh')
   if (t==='ent'){ const d=document.getElementById('fTabAdh'); if(d) d.hidden=true; fAdhCargar() }
   if (t==='adm') fAdmCargar()
-  if (t==='cmp') fCmpCargar()
   mhAcciones()
 }
 async function fAdmCargar(){
@@ -9630,10 +9615,6 @@ addEventListener('resize', function(){ if(document.documentElement.classList.con
   window.addEventListener('pageshow',function(ev){ if(ev.persisted) revisar() })
   setInterval(revisar,5*60*1000)
 })()
-
 </script>
-<script src="/domain/koach-diagnostico.js"></script>
-<script src="/domain/koach-escaner.js"></script>
-<script src="/domain/koach-nutri-staff.js"></script>
 </body>
 </html>
