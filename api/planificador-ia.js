@@ -76,9 +76,9 @@ module.exports = async (req, res) => {
   if (!lib.ok || !Array.isArray(lib.d) || !lib.d.length) return res.status(502).json({ error: 'No se pudo leer la biblioteca de ejercicios' })
   const usoM = new Map(((uso.ok && uso.d) || []).map(x => [x.ejercicio_id, x.sets_90d]))
   const dictN = norm(dictado)
-  // Máquinas sin uso real (< 10 sets en 90 días) o marcadas no disponibles quedan fuera, salvo que el koach las nombre en el dictado
+  // Máquinas sin piso asignado y sin uso real (< 10 sets en 90 días) o marcadas no disponibles quedan fuera, salvo que el koach las nombre en el dictado
   const pedido = e => dictN && dictN.includes(norm(e.nombre))
-  const L = lib.d.filter(e => pedido(e) || (e.disponible !== false && !(e.implemento === 'MACHINE' && (usoM.get(e.id) || 0) < 10)))
+  const L = lib.d.filter(e => pedido(e) || (e.disponible !== false && !(e.implemento === 'MACHINE' && !e.zona && (usoM.get(e.id) || 0) < 10)))
   const excluidas = lib.d.filter(e => !L.includes(e) && e.implemento === 'MACHINE').map(e => e.nombre)
   let anam = null
   if (b.socio_id && /^[0-9a-f-]{36}$/i.test(b.socio_id)) {
@@ -106,7 +106,7 @@ ESTRUCTURA SEMANAL (matriz de frecuencia por días disponibles):
 
 LOGÍSTICA DE SALA (obligatorio — los bloques se hacen como circuito, el socio no puede ocupar dos máquinas):
 - Máximo 1 ejercicio de implemento MACHINE por bloque. Leg extension y leg curl, por ejemplo, nunca en el mismo bloque.
-- Todos los ejercicios de un bloque en la misma zona/piso (columna zona). Sin zona = portátil (mancuernas, peso corporal, bandas).
+- Todos los ejercicios de un bloque en la misma zona/piso (columna zona). PISO 1 = sala glúteo (abducción, pendulum, hip thrust). PISO 2 = máquinas, barra libre, poleas sentado y cardio. Sin zona = existe en ambos pisos (mancuernas, banco, suelo/core, globales, polea de pie): combina con cualquier piso.
 - Selección estable y simple: prefiere los ejercicios ★ (los que KOACH usa todos los días). Repite los ejercicios principales en los días que corresponda en vez de inventar variantes nuevas; máximo 1 variante por patrón y músculo en la semana salvo pedido del koach. Nada de ejercicios exóticos.
 - Un mismo ejercicio no se repite dentro de la misma sesión.
 
