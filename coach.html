@@ -5000,13 +5000,24 @@ function kevEvaluar(w){
 const PIA = { c:{}, plan:null, rec:null, oyendo:false, run:false }
 const PIA_OPC = {
   programa:['STRONG','BURN','HEALTHY'], nivel:['BASICO','INTERMEDIO','AVANZADO'], sexo:['mujer','hombre'],
-  dias:['2','3','4','5'], rotativo:['NO','SÍ'],
-  estructura:['FULL BODY','UPPER / LOWER','UPPER · LOWER · FULL','PUSH · PULL · LEGS','LA DECIDE EL MASTERMIND'],
+  dias:['2','3','4','5'], estructura:[],
+  rotativo:['NO','LO DECIDE EL MASTERMIND','FULL BODY','TREN SUPERIOR','TREN INFERIOR','GLÚTEO','ISQUIOS','BRAZOS','HOMBROS','CORE'],
   prioridad:['EQUILIBRADO','TREN SUPERIOR','TREN INFERIOR','GLÚTEO','ISQUIOS','CUÁDRICEPS','PECHO','ESPALDA','HOMBROS','BRAZOS','CORE'],
   implementos:['MÁQUINAS PRIMERO','MIXTO','PESO LIBRE','GIMNASIO EXTERNO (1 MÁQUINA POR BLOQUE)'],
   minutos:['60','75','80','90'], grandes:['8','10','12'], secundarios:['6','8','10']
 }
-const PIA_TIT = { programa:'PROGRAMA', nivel:'NIVEL', sexo:'SEXO', dias:'DÍAS FIJOS POR SEMANA', rotativo:'+ DÍA ROTATIVO', estructura:'ESTRUCTURA',
+// Matriz de frecuencia para elegir el split (curso de hipertrofia; respaldo: Schoenfeld 2016 y 2019 — ≥2 estímulos/semana
+// por músculo; con volumen igualado la frecuencia pesa poco, así que se elige por días disponibles y adherencia).
+// Clave = días fijos · valor = { frecuencia por músculo: secuencia de sesiones }
+const PIA_SPLIT = {
+  '2': { '2':['FULL BODY','FULL BODY'] },
+  '3': { '2':['LOWER','UPPER','FULL BODY'], '3':['FULL BODY','FULL BODY','FULL BODY'] },
+  '4': { '2':['LOWER','UPPER','LOWER','UPPER'], '3':['UPPER','LOWER','FULL BODY','FULL BODY'], '4':['FULL BODY','FULL BODY','FULL BODY','FULL BODY'] },
+  '5': { '2':['LEGS','PUSH','PULL','LOWER','UPPER'], '3':['LEGS','PUSH','PULL','FULL BODY','FULL BODY'], '4':['FULL BODY','FULL BODY','FULL BODY','UPPER','LOWER'], '5':['FULL BODY','FULL BODY','FULL BODY','FULL BODY','FULL BODY'] }
+}
+const PIA_MM='LA DECIDE EL MASTERMIND'
+function piaSplits(d){ const m=PIA_SPLIT[d]||{}; return Object.keys(m).map(function(f){ return 'FRECUENCIA '+f+'× · '+m[f].join(' · ') }).concat([PIA_MM]) }
+const PIA_TIT = { programa:'PROGRAMA', nivel:'NIVEL', sexo:'SEXO', dias:'DÍAS FIJOS POR SEMANA', rotativo:'+ DÍA ROTATIVO · TIPO', estructura:'ESTRUCTURA SEGÚN DÍAS Y FRECUENCIA POR MÚSCULO',
   prioridad:'PRIORIDAD (VARIAS)', implementos:'IMPLEMENTOS', minutos:'DURACIÓN (MIN)', grandes:'SERIES MÍN. · MÚSCULOS GRANDES', secundarios:'SERIES MÍN. · SECUNDARIOS' }
 const PIA_MULTI = { prioridad:true }
 function piaOk(){ return !!(P && !P.bib && !P.ro) }
@@ -5014,7 +5025,7 @@ function piaAbrir(){
   if (!piaOk()) return
   const pr=(P&&P.proto)||{}
   PIA.c = { programa:String(pr.programa||'STRONG').toUpperCase(), nivel:String(pr.nivel||'INTERMEDIO').toUpperCase(), sexo:String(pr.sexo||'mujer').toLowerCase(),
-    dias:'3', rotativo:'NO', estructura:'LA DECIDE EL MASTERMIND', prioridad:['EQUILIBRADO'], implementos:'MÁQUINAS PRIMERO', minutos:'75', grandes:'10', secundarios:'8' }
+    dias:'3', rotativo:'NO', estructura:PIA_MM, prioridad:['EQUILIBRADO'], implementos:'MÁQUINAS PRIMERO', minutos:'75', grandes:'10', secundarios:'8' }
   PIA.plan=null
   let m=document.getElementById('mPia')
   if (!m){ m=document.createElement('div'); m.id='mPia'; m.className='mCg'; m.setAttribute('role','dialog'); m.setAttribute('aria-modal','true'); m.setAttribute('aria-label','Planificador IA')
@@ -5025,10 +5036,10 @@ function piaAbrir(){
 }
 function piaCerrar(){ piaMic(false); const m=document.getElementById('mPia'); if(m) m.style.display='none' }
 function piaSel(k,v){ if (PIA_MULTI[k]){ const a=PIA.c[k]||[]; const i=a.indexOf(v); if(v==='EQUILIBRADO') PIA.c[k]=['EQUILIBRADO']; else { if(i>=0) a.splice(i,1); else a.push(v); PIA.c[k]=a.filter(function(x){return x!=='EQUILIBRADO'}); if(!PIA.c[k].length) PIA.c[k]=['EQUILIBRADO'] } }
-  else PIA.c[k]=v; piaPintarCrit() }
+  else { PIA.c[k]=v; if(k==='dias' && piaSplits(v).indexOf(PIA.c.estructura)<0) PIA.c.estructura=PIA_MM } piaPintarCrit() }
 function piaPintarCrit(){ const box=document.getElementById('piaCrit'); if(!box) return
   box.innerHTML=Object.keys(PIA_OPC).map(function(k){ return '<div class="pia__g"><div class="pia__k">'+PIA_TIT[k]+'</div><div class="pia__o">'+
-    PIA_OPC[k].map(function(v){ const on=PIA_MULTI[k]?(PIA.c[k]||[]).indexOf(v)>=0:PIA.c[k]===v
+    (k==='estructura'?piaSplits(PIA.c.dias):PIA_OPC[k]).map(function(v){ const on=PIA_MULTI[k]?(PIA.c[k]||[]).indexOf(v)>=0:PIA.c[k]===v
       return '<button type="button" class="pia__c'+(on?' on':'')+'" aria-pressed="'+on+'" onclick="piaSel(\''+k+'\',\''+v.replace(/'/g,"\\'")+'\')">'+(k==='nivel'?v.replace('BASICO','BÁSICO'):v.toUpperCase())+'</button>' }).join('')+'</div></div>' }).join('') }
 function piaPintar(){
   const b=document.getElementById('piaBody'); if(!b) return

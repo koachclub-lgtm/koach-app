@@ -90,8 +90,13 @@ DICTADO DEL KOACH:
 
 ${METODO}
 
+ESTRUCTURA SEMANAL (matriz de frecuencia por días disponibles):
+- 2 días: FULL BODY ×2. 3 días: LOWER · UPPER · FULL BODY (frecuencia 2) o FULL BODY ×3 (frecuencia 3). 4 días: LOWER · UPPER · LOWER · UPPER (2), UPPER · LOWER · FULL · FULL (3), FULL ×4 (4). 5 días: LEGS · PUSH · PULL · LOWER · UPPER (2), LEGS · PUSH · PULL · FULL · FULL (3), FULL ×3 · UPPER · LOWER (4), FULL ×5 (5).
+- Si el criterio "estructura" trae una secuencia, ÚSALA en ese orden: una sesión por elemento, con ese tipo. Si dice "LA DECIDE EL MASTERMIND", elige de la matriz según los días, el nivel y las prioridades (frecuencia ≥2 por músculo objetivo).
+- Día rotativo ("rotativo"): si es "NO", no lo agregues. Si es un tipo (FULL BODY, TREN SUPERIOR, TREN INFERIOR, GLÚTEO, ISQUIOS, BRAZOS, HOMBROS, CORE), agrega UNA sesión final llamada "ROTATIVO · <tipo>" centrada en eso, manteniendo B1-B2-B3. Si es "LO DECIDE EL MASTERMIND", el rotativo completa los músculos que quedaron bajo su mínimo semanal.
+
 REGLAS DE SALIDA:
-- Una sesión por cada día de entrenamiento pedido (días fijos + día rotativo si lo pide; el rotativo completa lo que falte de volumen y grupos).
+- Una sesión por cada día fijo, en el orden de la estructura, más el rotativo si corresponde.
 - Usa SOLO ejercicios de la BIBLIOTECA, con el nombre EXACTO. Respeta el nivel mínimo y el implemento que pida el koach.
 - Core y movilidad con tiempo=true (segundos). Cardio de BURN con tiempo=true.
 - En "decisiones" explica en frases cortas el volumen semanal logrado por músculo grande y secundario y cualquier regla que no se pudo cumplir por pedido del koach.
