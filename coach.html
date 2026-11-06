@@ -571,6 +571,8 @@ button.bxI:hover,button.bxI:focus-visible{transform:translateY(-2px);box-shadow:
 .tbN b{font-weight:700;font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:#121212}
 .tbN em{flex:none;font-style:normal;font-family:'Space Mono',var(--font-mono);font-size:9.5px;letter-spacing:.12em;color:#5E5D59}
 .tbN em.tbTest{color:#fff;background:#1C1C1C;padding:1px 5px;border-radius:3px}
+.linMas{letter-spacing:.05em}
+em.tbDolor,.selDolor{font-style:normal;color:#fff!important;background:#B3261E!important;padding:1px 5px;border-radius:3px;font-size:9px;letter-spacing:.08em;font-weight:700}
 .linTest{flex:none;border:1px solid #1C1C1C;background:transparent;color:#1C1C1C;font-family:'Space Mono',var(--font-mono);font-size:9.5px;letter-spacing:.12em;padding:3px 7px;border-radius:4px;margin-right:6px;cursor:pointer}
 .linTest.on{background:#1C1C1C;color:#fff}
 .tbIc{min-height:0 !important;padding:0 !important;width:34px;height:34px;flex:none;border-radius:9px;border:1px solid rgba(18,18,18,.22);background:#fff;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;color:#121212;font-family:'Space Mono',var(--font-mono);font-weight:700}
@@ -4545,6 +4547,8 @@ async function abrirPlan(pid, proto, opts){
           }) } }) } }) }
   P.tests = {}
   if (!esBib && !esBase){ try{ const rt=await sb.from('test_programado').select('semana,ejercicio_id').eq('protocolo_id',pid); (rt.data||[]).forEach(function(x){ P.tests[x.semana+'|'+x.ejercicio_id]=true }) }catch(_e){ console.warn('[test_programado]', _e) } }
+  P.dolor = {}; P.dolorSocio = (!esBib && !esBase && typeof F!=='undefined' && F && C.asig[F.id] && C.asig[F.id].protocolo_id===pid) ? F.id : null
+  if (P.dolorSocio){ try{ const rd=await sb.from('ejercicio_dolor').select('ejercicio_id,nota').eq('socio_id',P.dolorSocio); (rd.data||[]).forEach(function(x){ P.dolor[x.ejercicio_id]=x.nota||'' }) }catch(_e){ console.warn('[ejercicio_dolor]', _e) } }
   const obj = (!esBib && !esBase && F && C.asig[F.id]) ? C.obj[C.asig[F.id].protocolo_id] : null
   P.objetivos = obj || null
   if (esBib){ P.objetivos = {}; pintarPlan(); return }
@@ -4674,8 +4678,9 @@ function pintarPlan(){ setTimeout(function(){ try{ plSaveUI(); rtSyncPlan() }cat
       return '<div class="lin" id="pl-'+it.beId+'">'+
         '<div class="linTop">'+
           '<div class="chipG">'+(it.grupo||'—')+'</div>'+(plTestOk()?'<button class="linTest'+(plEsTest(it)?' on':'')+'" aria-pressed="'+plEsTest(it)+'" aria-label="Test de fuerza en '+Nm+'" onclick="plTestMovil(\''+it.beId+'\')">TEST</button>':'')+
-          '<button class="ejN" onclick="abrirSelector(\'cambiar\','+bi+',\''+it.beId+'\')">'+it.nombre+'<small>'+ultTxt+(ultTxt?' · ':'')+(it.activo===false?'<b style="color:#1C1C1C">FUERA DE BIBLIOTECA</b> · ':'')+'CAMBIAR ⇄</small></button>'+
+          '<button class="ejN" onclick="abrirSelector(\'cambiar\','+bi+',\''+it.beId+'\')">'+it.nombre+(plDolor(it.ejId)?' <em class="tbDolor">DOLOR</em>':'')+'<small>'+ultTxt+(ultTxt?' · ':'')+(it.activo===false?'<b style="color:#1C1C1C">FUERA DE BIBLIOTECA</b> · ':'')+'CAMBIAR ⇄</small></button>'+
           '<span class="ehdl" data-ehdl data-bi="'+bi+'">⋮⋮</span>'+
+          ((P&&P.dolorSocio&&!P.ro)?'<button class="linX linMas" aria-haspopup="menu" aria-label="Más acciones de '+Nm+'" onclick="plDolorMenuMovil(event,\''+it.beId+'\')">···</button>':'')+
           '<button class="linX" onclick="quitarEj(\''+it.beId+'\')">✕</button>'+
         '</div>'+
         '<div class="linRx">'+controles+'</div>'+plLinea+
@@ -4762,7 +4767,7 @@ function plTbCard(it,bi){
   else if (tp.bw) ctl=plTbSt('pi-r-'+it.beId,plEsc(String(it.reps)),'REPS',it.beId,'reps',1,N,'repeticiones','editReps','numeric')+'<div class="tbSt tbSt--fx tbSt--btn">'+plModoBtn(it,'')+'</div>'
   else ctl=plTbSt('pi-r-'+it.beId,plEsc(String(it.reps)),'REPS',it.beId,'reps',1,N,'repeticiones','editReps','numeric')+plTbSt('pi-k-'+it.beId,it.kg==null?'':KSET.kg(it.kg),'KG',it.beId,'kg',2.5,N,'peso','editKg','decimal',it.kg==null?'falta':'')
   const top = ed ? '<div class="tbSwap"><small>REEMPLAZAR '+N.toUpperCase()+' · MISMAS SERIES Y REPS</small><input id="tbSwQ" autocomplete="off" placeholder="Buscar ejercicio…" aria-label="Buscar ejercicio para reemplazar '+N+'" oninput="plTbSwLista()" onkeydown="plTbSwTecla(event)"><ul class="tbSwL" id="tbSwL" role="listbox"></ul></div>'
-    : '<div class="tbN"><b title="'+N+'">'+N+'</b><em>'+plEsc(SIGLA[it.grupo]||it.grupo||'')+'</em>'+(plEsTest(it)?'<em class="tbTest">TEST</em>':'')+(it.activo===false?'<em>FUERA DE BIBLIOTECA</em>':'')+'</div>'
+    : '<div class="tbN"><b title="'+N+'">'+N+'</b><em>'+plEsc(SIGLA[it.grupo]||it.grupo||'')+'</em>'+(plEsTest(it)?'<em class="tbTest">TEST</em>':'')+(plDolor(it.ejId)?'<em class="tbDolor" title="'+plEsc(plDolorTit(it.ejId))+'">DOLOR</em>':'')+(it.activo===false?'<em>FUERA DE BIBLIOTECA</em>':'')+'</div>'
   const linea = plLineaOk() ? plLineaProgresion(it, tp.bw, tp.t) : ''
   return '<div class="tbCard'+(sel?' sel':'')+(ed?' edit':'')+'" draggable="'+(!ed&&!(P&&P.ro))+'" data-be="'+it.beId+'" data-bi="'+bi+'" id="pl-'+it.beId+'" onclick="plTbSel(event,\''+it.beId+'\')">'+
     '<div class="tbT">'+top+
@@ -4846,7 +4851,7 @@ function plTbMenu(ev,beId){ ev.stopPropagation(); plTbMenuCerrar(); const x=plan
   m.innerHTML=(ii>0?'<button role="menuitem" onclick="plTbMover(\''+beId+'\','+bi+','+(ii-1)+')">SUBIR</button>':'')+
     (ii<x.b.items.length-1?'<button role="menuitem" onclick="plTbMover(\''+beId+'\','+bi+','+(ii+2)+')">BAJAR</button>':'')+
     ses.bloques.map(function(b2,j){ return j===bi?'':'<button role="menuitem" onclick="plTbMover(\''+beId+'\','+j+','+b2.items.length+')">MOVER A B'+(j+1)+'<small>'+plEsc(String(b2.etiqueta||'').toUpperCase())+'</small></button>' }).join('')+
-    '<hr>'+plTestMenu(x.it)+(plActivo()?'<button role="menuitem" onclick="plTbMenuCerrar();cgDrawer(\''+x.it.ejId+'\',\''+beId+'\')">HISTORIAL DE CARGAS</button>':'')+
+    '<hr>'+plTestMenu(x.it)+plDolorMenu(x.it)+(plActivo()?'<button role="menuitem" onclick="plTbMenuCerrar();cgDrawer(\''+x.it.ejId+'\',\''+beId+'\')">HISTORIAL DE CARGAS</button>':'')+
     '<button role="menuitem" onclick="plTbMenuCerrar();abrirSelector(\'cambiar\','+bi+',\''+beId+'\')">CAMBIAR · CATÁLOGO COMPLETO</button>'+
     '<button role="menuitem" onclick="plTbMenuCerrar();quitarEj(\''+beId+'\')">QUITAR DE B'+(bi+1)+'</button>'
   document.body.appendChild(m)
@@ -5194,6 +5199,27 @@ async function plTestAplazar(beId){ if(!plTestOk()) return; const x=planItem(beI
   if (rd.error){ toast('No se pudo aplazar el test: '+rd.error.message); return }
   P.tests[w2+'|'+x.it.ejId]=true; delete P.tests[w+'|'+x.it.ejId]
   repintarConservando(); toast('Test aplazado a la semana '+w2+' · '+String(x.it.nombre||'').toUpperCase()) }
+// c225 · DOLOR por socio (tabla ejercicio_dolor): excepción marcada desde ··· de la tarjeta. Solo afecta a ese socio:
+// la tarjeta muestra DOLOR, el catálogo lo señala, avisa al prescribirlo y el planificador IA no lo usa.
+function plDolor(ejId){ return !!(P && P.dolor && ejId && Object.prototype.hasOwnProperty.call(P.dolor, ejId)) }
+function plDolorTit(ejId){ const n=P&&P.dolor&&P.dolor[ejId]; return 'El socio indicó dolor en este ejercicio'+(n?': '+n:'') }
+function plDolorMenu(it){ if(!P||!P.dolorSocio||P.ro) return ''
+  const on=plDolor(it.ejId)
+  return '<button role="menuitem" onclick="plTbMenuCerrar();plDolorToggle(\''+it.beId+'\')">'+(on?'QUITAR DOLOR':'MARCAR DOLOR')+'<small>'+(on?plEsc(P.dolor[it.ejId]||'SOLO ESTE SOCIO'):'SOLO ESTE SOCIO')+'</small></button><hr>' }
+function plDolorMenuMovil(ev,beId){ ev.stopPropagation(); plTbMenuCerrar(); const x=planItem(beId); if(!x) return
+  const m=document.createElement('div'); m.className='tbMenu'; m.id='tbMenu'; m.setAttribute('role','menu')
+  m.innerHTML=plDolorMenu(x.it).replace(/<hr>$/,''); document.body.appendChild(m)
+  const r=ev.currentTarget.getBoundingClientRect(), w=m.offsetWidth, h=m.offsetHeight
+  m.style.left=Math.max(8,Math.min(innerWidth-w-8, r.right-w))+'px'; m.style.top=(r.bottom+h+8>innerHeight? Math.max(8,r.top-h-6) : r.bottom+6)+'px' }
+async function plDolorToggle(beId){ const x=planItem(beId); if(!x||!P.dolorSocio) return
+  const id=x.it.ejId, on=!plDolor(id)
+  let nota=null
+  if (on){ nota=window.prompt('¿Dónde o cuándo le duele? (opcional)',''); if (nota===null) return; nota=nota.trim()||null }
+  const r = on ? await sb.from('ejercicio_dolor').upsert({ socio_id:P.dolorSocio, ejercicio_id:id, nota:nota })
+               : await sb.from('ejercicio_dolor').delete().eq('socio_id',P.dolorSocio).eq('ejercicio_id',id)
+  if (r.error){ toast('No se pudo guardar: '+r.error.message); return }
+  if (on) P.dolor[id]=nota||''; else delete P.dolor[id]
+  repintarConservando(); toast(on?'DOLOR · '+String(x.it.nombre||'').toUpperCase()+' · marcado para este socio':'Dolor quitado · '+String(x.it.nombre||'').toUpperCase()) }
 document.addEventListener('click', function(e){ const m=document.getElementById('tbMenu'); if(m && !m.contains(e.target)) m.remove() })
 document.addEventListener('keydown', function(e){ if(e.key==='Escape') plTbMenuCerrar() })
 // mover dentro del bloque o a otro bloque (antes de la posición 'pos' del destino)
@@ -5738,7 +5764,7 @@ function selCapsula(e,q,enS){
   const enB = !act && enS[e.id]
   const sub = [selImp(e), enB?('EN '+enB):''].filter(Boolean).join(' · ')
   return '<button type="button" class="selRow'+(act?' act':'')+(enB?' in':'')+'" role="option" tabindex="-1" aria-selected="false" title="'+plEsc(e.nombre)+(e.implemento?' · '+String(e.implemento).replace('_',' '):'')+'" onclick="elegirEj(\''+e.id+'\')">'+selFoto(e)+
-    '<span class="selTx"><span class="selN">'+selResaltar(e.nombre,q)+(act?'<span class="selAct">ACTUAL</span>':'')+'</span>'+(sub?'<span class="selSub">'+plEsc(sub)+'</span>':'')+'</span></button>'
+    '<span class="selTx"><span class="selN">'+selResaltar(e.nombre,q)+(act?'<span class="selAct">ACTUAL</span>':'')+(plDolor(e.id)?'<span class="selAct selDolor">DOLOR</span>':'')+'</span>'+(sub?'<span class="selSub">'+plEsc(sub)+'</span>':'')+'</span></button>'
 }
 function pintarSelector(){
   const q=_selNorm(document.getElementById('selBusca').value)
@@ -5775,6 +5801,7 @@ async function elegirEj(ejId, confirmado){
   }
   selRecordar(e.id)
   cerrarSelector()
+  if (plDolor(e.id)) setTimeout(function(){ toast('⚠ '+String(e.nombre).toUpperCase()+' · el socio indicó dolor en este ejercicio'+(P.dolor[e.id]?' ('+P.dolor[e.id]+')':'')) }, 400)
   if(SEL.modo==='cambiar'){
     const x=planItem(SEL.beId); if(!x)return
     x.it.ejId=e.id; x.it.nombre=e.nombre; x.it.grupo=e.grupo_muscular; x.it.sinergistas=e.sinergistas||{}

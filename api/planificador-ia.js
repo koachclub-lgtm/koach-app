@@ -78,12 +78,16 @@ module.exports = async (req, res) => {
   const dictN = norm(dictado)
   // Máquinas sin piso asignado y sin uso real (< 10 sets en 90 días) o marcadas no disponibles quedan fuera, salvo que el koach las nombre en el dictado
   const pedido = e => dictN && dictN.includes(norm(e.nombre))
-  const L = lib.d.filter(e => pedido(e) || (e.disponible !== false && !(e.implemento === 'MACHINE' && !e.zona && (usoM.get(e.id) || 0) < 10)))
+  let L = lib.d.filter(e => pedido(e) || (e.disponible !== false && !(e.implemento === 'MACHINE' && !e.zona && (usoM.get(e.id) || 0) < 10)))
   const excluidas = lib.d.filter(e => !L.includes(e) && e.implemento === 'MACHINE').map(e => e.nombre)
   let anam = null
   if (b.socio_id && /^[0-9a-f-]{36}$/i.test(b.socio_id)) {
     const a = await json(SB_URL + '/rest/v1/anamnesis_prueba?select=respuestas&socio_id=eq.' + b.socio_id, { headers: H })
     if (a.ok && a.d && a.d[0]) anam = a.d[0].respuestas
+    // Ejercicios que el socio indicó que le provocan dolor: fuera de la biblioteca para este socio (salvo que el koach los nombre)
+    const dl = await json(SB_URL + '/rest/v1/ejercicio_dolor?select=ejercicio_id&socio_id=eq.' + b.socio_id, { headers: H })
+    const dolorIds = new Set(((dl.ok && dl.d) || []).map(x => x.ejercicio_id))
+    if (dolorIds.size) { lib.d.filter(e => dolorIds.has(e.id) && L.includes(e)).forEach(e => { if (!pedido(e)) excluidas.push(e.nombre + ' (dolor)') }); L = L.filter(e => !dolorIds.has(e.id) || pedido(e)) }
   }
   const catalogo = L.map(e => [((usoM.get(e.id) || 0) >= 150 ? '★ ' : '') + e.nombre, e.estimulo, e.demanda, e.nivel_min, e.patron, e.implemento || '', e.zona || ''].join(' | ')).join('\n')
 
