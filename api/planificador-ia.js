@@ -68,15 +68,24 @@ module.exports = async (req, res) => {
   const dictado = String(b.instruccion || '').trim().slice(0, 4000)
   if (dictado.length < 4 && !c.programa) return res.status(400).json({ error: 'Dicta o elige qué quieres planificar' })
 
-  // Biblioteca activa (fuente de verdad de nombres) y anamnesis del socio si existe
-  const lib = await json(SB_URL + '/rest/v1/ejercicios?select=id,nombre,estimulo,demanda,nivel_min,patron,implemento,tipo_registro&activo=is.true&order=estimulo,nombre', { headers: H })
+  // Biblioteca activa + uso real de los últimos 90 días (el equipo que el club realmente tiene y usa)
+  const [lib, uso] = await Promise.all([
+    json(SB_URL + '/rest/v1/ejercicios?select=id,nombre,estimulo,demanda,nivel_min,patron,patron_base,implemento,tipo_registro,disponible,zona&activo=is.true&order=estimulo,nombre', { headers: H }),
+    json(SB_URL + '/rest/v1/v_ejercicio_uso?select=ejercicio_id,sets_90d', { headers: H })
+  ])
   if (!lib.ok || !Array.isArray(lib.d) || !lib.d.length) return res.status(502).json({ error: 'No se pudo leer la biblioteca de ejercicios' })
+  const usoM = new Map(((uso.ok && uso.d) || []).map(x => [x.ejercicio_id, x.sets_90d]))
+  const dictN = norm(dictado)
+  // Máquinas sin uso real (< 10 sets en 90 días) o marcadas no disponibles quedan fuera, salvo que el koach las nombre en el dictado
+  const pedido = e => dictN && dictN.includes(norm(e.nombre))
+  const L = lib.d.filter(e => pedido(e) || (e.disponible !== false && !(e.implemento === 'MACHINE' && (usoM.get(e.id) || 0) < 10)))
+  const excluidas = lib.d.filter(e => !L.includes(e) && e.implemento === 'MACHINE').map(e => e.nombre)
   let anam = null
   if (b.socio_id && /^[0-9a-f-]{36}$/i.test(b.socio_id)) {
     const a = await json(SB_URL + '/rest/v1/anamnesis_prueba?select=respuestas&socio_id=eq.' + b.socio_id, { headers: H })
     if (a.ok && a.d && a.d[0]) anam = a.d[0].respuestas
   }
-  const catalogo = lib.d.map(e => [e.nombre, e.estimulo, e.demanda, e.nivel_min, e.patron, e.implemento || ''].join(' | ')).join('\n')
+  const catalogo = L.map(e => [((usoM.get(e.id) || 0) >= 150 ? '★ ' : '') + e.nombre, e.estimulo, e.demanda, e.nivel_min, e.patron, e.implemento || '', e.zona || ''].join(' | ')).join('\n')
 
   const prompt = `Eres el MASTERMIND HYPERTROPHY de KOACH Club (Concepción, Chile): el planificador técnico del head koach.
 Arma la SEMANA de entrenamiento del socio según el DICTADO del koach y sus CRITERIOS. El dictado manda sobre los valores por defecto; el Método KOACH manda sobre tus preferencias. Español de Chile, sin emojis.
@@ -95,36 +104,88 @@ ESTRUCTURA SEMANAL (matriz de frecuencia por días disponibles):
 - Si el criterio "estructura" trae una secuencia, ÚSALA en ese orden: una sesión por elemento, con ese tipo. Si dice "LA DECIDE EL MASTERMIND", elige de la matriz según los días, el nivel y las prioridades (frecuencia ≥2 por músculo objetivo).
 - Día rotativo ("rotativo"): si es "NO", no lo agregues. Si es un tipo (FULL BODY, TREN SUPERIOR, TREN INFERIOR, GLÚTEO, ISQUIOS, BRAZOS, HOMBROS, CORE), agrega UNA sesión final llamada "ROTATIVO · <tipo>" centrada en eso, manteniendo B1-B2-B3. Si es "LO DECIDE EL MASTERMIND", el rotativo completa los músculos que quedaron bajo su mínimo semanal.
 
+LOGÍSTICA DE SALA (obligatorio — los bloques se hacen como circuito, el socio no puede ocupar dos máquinas):
+- Máximo 1 ejercicio de implemento MACHINE por bloque. Leg extension y leg curl, por ejemplo, nunca en el mismo bloque.
+- Todos los ejercicios de un bloque en la misma zona/piso (columna zona). Sin zona = portátil (mancuernas, peso corporal, bandas).
+- Selección estable y simple: prefiere los ejercicios ★ (los que KOACH usa todos los días). Repite los ejercicios principales en los días que corresponda en vez de inventar variantes nuevas; máximo 1 variante por patrón y músculo en la semana salvo pedido del koach. Nada de ejercicios exóticos.
+- Un mismo ejercicio no se repite dentro de la misma sesión.
+
 REGLAS DE SALIDA:
 - Una sesión por cada día fijo, en el orden de la estructura, más el rotativo si corresponde.
-- Usa SOLO ejercicios de la BIBLIOTECA, con el nombre EXACTO. Respeta el nivel mínimo y el implemento que pida el koach.
+- Usa SOLO ejercicios de la BIBLIOTECA, con el nombre EXACTO (sin la ★). Respeta el nivel mínimo y el implemento que pida el koach.
 - Core y movilidad con tiempo=true (segundos). Cardio de BURN con tiempo=true.
 - En "decisiones" explica en frases cortas el volumen semanal logrado por músculo grande y secundario y cualquier regla que no se pudo cumplir por pedido del koach.
 
-BIBLIOTECA KOACH (nombre | estímulo | demanda | nivel mínimo | patrón | implemento):
+BIBLIOTECA KOACH DISPONIBLE (nombre | estímulo | demanda | nivel mínimo | patrón | implemento | zona):
 ${catalogo}`
 
-  const r = await json('https://api.anthropic.com/v1/messages', {
-    method: 'POST',
-    headers: { 'content-type': 'application/json', 'x-api-key': process.env.ANTHROPIC_API_KEY, 'anthropic-version': '2023-06-01' },
-    body: JSON.stringify({ model: MODELO, max_tokens: 12000, output_config: { effort: 'medium', format: { type: 'json_schema', schema: ESQUEMA } }, messages: [{ role: 'user', content: prompt }] })
-  })
-  if (!r.ok) return res.status(502).json({ error: 'La IA no respondió (' + r.status + ')', detalle: r.d && r.d.error && r.d.error.message })
-  if (r.d.stop_reason === 'refusal') return res.status(422).json({ error: 'La IA no pudo planificar este pedido.' })
-  if (r.d.stop_reason === 'max_tokens') return res.status(422).json({ error: 'La propuesta quedó incompleta: pide menos sesiones o ejercicios.' })
-  const txt = (r.d.content || []).filter(x => x.type === 'text').map(x => x.text).join('')
-  let plan = null; try { plan = JSON.parse(txt) } catch (_) {}
-  if (!plan || !Array.isArray(plan.sesiones)) return res.status(502).json({ error: 'La IA no entregó una propuesta estructurada' })
-
-  // Vincula cada ejercicio con su id de la biblioteca (exacto → normalizado); lo que no existe se informa y se quita
-  const exacto = new Map(lib.d.map(e => [e.nombre, e])), suave = new Map(lib.d.map(e => [norm(e.nombre), e]))
-  const fuera = []
-  plan.sesiones.forEach(s => (s.bloques || []).forEach(bl => {
-    bl.ejercicios = (bl.ejercicios || []).filter(x => {
-      const e = exacto.get(x.nombre) || suave.get(norm(x.nombre))
-      if (!e) { fuera.push(x.nombre); return false }
-      x.id = e.id; x.nombre = e.nombre; x.estimulo = e.estimulo; return true
+  const llamar = async msgs => {
+    const r = await json('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json', 'x-api-key': process.env.ANTHROPIC_API_KEY, 'anthropic-version': '2023-06-01' },
+      body: JSON.stringify({ model: MODELO, max_tokens: 12000, output_config: { effort: 'medium', format: { type: 'json_schema', schema: ESQUEMA } }, messages: msgs })
     })
-  }))
-  return res.status(200).json({ plan, fuera, modelo: MODELO, uso: r.d.usage && { entrada: r.d.usage.input_tokens, salida: r.d.usage.output_tokens } })
+    if (!r.ok) return { error: 'La IA no respondió (' + r.status + ')', status: 502, detalle: r.d && r.d.error && r.d.error.message }
+    if (r.d.stop_reason === 'refusal') return { error: 'La IA no pudo planificar este pedido.', status: 422 }
+    if (r.d.stop_reason === 'max_tokens') return { error: 'La propuesta quedó incompleta: pide menos sesiones o ejercicios.', status: 422 }
+    const txt = (r.d.content || []).filter(x => x.type === 'text').map(x => x.text).join('')
+    let plan = null; try { plan = JSON.parse(txt) } catch (_) {}
+    if (!plan || !Array.isArray(plan.sesiones)) return { error: 'La IA no entregó una propuesta estructurada', status: 502 }
+    return { plan, txt, usage: r.d.usage }
+  }
+
+  // Vincula cada ejercicio con la biblioteca disponible (exacto → normalizado); lo que no está se informa y se quita
+  const exacto = new Map(L.map(e => [e.nombre, e])), suave = new Map(L.map(e => [norm(e.nombre), e]))
+  const vincular = plan => { const fuera = []
+    plan.sesiones.forEach(s => (s.bloques || []).forEach(bl => {
+      bl.ejercicios = (bl.ejercicios || []).filter(x => {
+        const e = exacto.get(String(x.nombre || '').replace(/^★\s*/, '')) || suave.get(norm(x.nombre))
+        if (!e) { fuera.push(x.nombre); return false }
+        x.id = e.id; x.nombre = e.nombre; x.estimulo = e.estimulo; x._e = e; return true
+      })
+    })); return fuera }
+
+  // Revisión dura en servidor: reglas del Método y de logística que la IA no puede saltarse
+  const NIV = { BASICO: 0, INTERMEDIO: 1, AVANZADO: 2 }, NMIN = { BAS: 0, INT: 1, AVZ: 2 }, DEM = { ALTA: 3, MEDIA: 2, BAJA: 1 }
+  const UP = ['LATS', 'PECS', 'DELTS', 'BIS', 'TRIS'], LO = ['QUADS', 'GLUTS', 'HAMS', 'CALFS']
+  const nivel = NIV[String(c.nivel || '').toUpperCase()] != null ? NIV[String(c.nivel || '').toUpperCase()] : 1
+  const revisar = plan => { const E = []
+    plan.sesiones.forEach(s => { const sn = s.nombre, vistos = {}; let core = false, bis = false, tris = false
+      ;(s.bloques || []).forEach(bl => { const ex = bl.ejercicios || [], es = ex.map(x => x._e)
+        const maq = es.filter(e => e.implemento === 'MACHINE'); if (maq.length > 1) E.push(`${sn} ${bl.bloque}: ${maq.length} máquinas (${maq.map(e => e.nombre).join(' + ')}); máximo 1 por bloque`)
+        const zonas = [...new Set(es.map(e => e.zona).filter(Boolean))]; if (zonas.length > 1) E.push(`${sn} ${bl.bloque}: mezcla zonas ${zonas.join(' y ')}`)
+        es.forEach((e, i) => {
+          if (vistos[e.nombre]) E.push(`${sn}: ${e.nombre} repetido en la sesión`); vistos[e.nombre] = 1
+          if (e.estimulo === 'CORE') core = true; if (e.estimulo === 'BIS') bis = true; if (e.estimulo === 'TRIS') tris = true
+          if ((e.estimulo === 'CORE' || e.estimulo === 'MOB') && bl.bloque !== 'B1') E.push(`${sn} ${bl.bloque}: ${e.nombre} (core/movilidad) va solo en B1`)
+          if (['CORE', 'MOB', 'CARDIO'].includes(e.estimulo)) return
+          if (bl.bloque === 'B1' && e.demanda === 'ALTA') E.push(`${sn} B1: ${e.nombre} es demanda ALTA`)
+          if (bl.bloque === 'B3' && e.demanda !== 'BAJA') E.push(`${sn} B3: ${e.nombre} es demanda ${e.demanda} (B3 solo BAJA)`)
+          if (bl.bloque === 'B2' && e.demanda === 'BAJA') E.push(`${sn} B2: ${e.nombre} es demanda BAJA`)
+          if ((NMIN[e.nivel_min] || 0) > nivel) E.push(`${sn}: ${e.nombre} exige nivel ${e.nivel_min}`)
+          if (ex[i].ancla && bl.bloque !== 'B2') E.push(`${sn}: ancla ${e.nombre} fuera de B2`)
+        })
+        const cr = es.filter(e => !['CORE', 'MOB', 'CARDIO'].includes(e.estimulo))
+        for (let i = 0; i + 1 < cr.length; i++) if ((DEM[cr[i].demanda] || 0) < (DEM[cr[i + 1].demanda] || 0)) E.push(`${sn} ${bl.bloque}: ${cr[i + 1].nombre} (${cr[i + 1].demanda}) va después de ${cr[i].nombre} (${cr[i].demanda})`)
+        ;[UP, LO].forEach(seg => { const pt = new Set(es.filter(e => seg.includes(e.estimulo) && ['bilateral', 'unilateral'].includes(e.patron)).map(e => e.patron)); if (pt.size === 2) E.push(`${sn} ${bl.bloque}: mezcla bilateral y unilateral del mismo segmento`) })
+        if (bl.bloque === 'B1') { const n = es.length; if (n >= 2 && (es[n - 1].estimulo !== 'MOB' || es[n - 2].estimulo !== 'CORE')) E.push(`${sn} B1: CORE penúltimo y movilidad al final`) }
+      })
+      if (!core) E.push(`${sn}: sin CORE`)
+      if (String(c.sexo || '').toLowerCase() === 'hombre' && bis && tris) E.push(`${sn}: bíceps y tríceps el mismo día (hombre)`)
+    })
+    return E }
+
+  let R = await llamar([{ role: 'user', content: prompt }])
+  if (R.error) return res.status(R.status).json({ error: R.error, detalle: R.detalle })
+  let fuera = vincular(R.plan), obs = revisar(R.plan), correcciones = 0
+  const uso1 = R.usage
+  if (obs.length) {
+    // Una vuelta de corrección: la IA recibe los errores exactos y devuelve la semana completa corregida
+    const R2 = await llamar([{ role: 'user', content: prompt }, { role: 'assistant', content: R.txt },
+      { role: 'user', content: 'La revisión del Método KOACH encontró estos errores. Corrígelos TODOS cambiando lo mínimo y devuelve la semana completa corregida con el mismo formato:\n- ' + obs.join('\n- ') + (fuera.length ? '\n- No existen en la biblioteca disponible: ' + fuera.join(', ') : '') }])
+    if (!R2.error) { const f2 = vincular(R2.plan), o2 = revisar(R2.plan); if (o2.length <= obs.length) { R = R2; fuera = f2; correcciones = obs.length - o2.length; obs = o2 } }
+  }
+  R.plan.sesiones.forEach(s => (s.bloques || []).forEach(bl => (bl.ejercicios || []).forEach(x => { delete x._e })))
+  return res.status(200).json({ plan: R.plan, fuera, observaciones: obs, corregidas: correcciones, excluidas, modelo: MODELO,
+    uso: uso1 && { entrada: uso1.input_tokens, salida: uso1.output_tokens } })
 }

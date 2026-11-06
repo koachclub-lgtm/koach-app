@@ -5075,7 +5075,7 @@ async function piaGenerar(){
       body:JSON.stringify({ instruccion:txt, criterios:crit, socio_id:(typeof F!=='undefined'&&F)?F.id:null }) })
     const d=await r.json().catch(function(){ return {} })
     if (!r.ok) throw new Error(d.error||('Error '+r.status))
-    PIA.plan=d.plan; PIA.fuera=d.fuera||[]; await kevLib(); piaResultado()
+    PIA.plan=d.plan; PIA.fuera=d.fuera||[]; PIA.corr=d.corregidas||0; PIA.excl=d.excluidas||[]; await kevLib(); piaResultado()
   }catch(e){ res.innerHTML='<div class="cgNone">'+plEsc(e.message||String(e))+'</div>' }
   finally{ PIA.run=false; go.disabled=false; go.textContent='GENERAR DE NUEVO' }
 }
@@ -5101,6 +5101,8 @@ function piaResultado(){
     '<p class="ev__n">'+plEsc(pl.resumen||'')+'</p>'+
     ((pl.decisiones||[]).length?'<ul class="pia__dec">'+pl.decisiones.map(function(x){ return '<li>'+plEsc(x)+'</li>' }).join('')+'</ul>':'')+
     (PIA.fuera.length?'<p class="pia__w">No están en la biblioteca y se quitaron: '+plEsc(PIA.fuera.join(', '))+'</p>':'')+
+    (PIA.corr?'<p class="ev__f">El mastermind corrigió '+PIA.corr+' error'+(PIA.corr>1?'es':'')+' de reglas antes de mostrarte la propuesta.</p>':'')+
+    (PIA.excl&&PIA.excl.length?'<details class="ev__d"><summary>'+PIA.excl.length+' MÁQUINAS FUERA (SIN USO REAL O NO DISPONIBLES)</summary><p class="ev__f">'+plEsc(PIA.excl.join(' · '))+'. Si alguna existe, nómbrala en el dictado y la usa.</p></details>':'')+
     (pl.sesiones||[]).map(function(s){ return '<div class="ev__s">'+plEsc(String(s.nombre||'').toUpperCase())+'</div>'+
       (s.bloques||[]).map(function(b){ return '<div class="pia__b"><div class="pia__bh">'+b.bloque+' · '+b.sets+' SETS · '+b.descanso_seg+' s</div>'+
         (b.ejercicios||[]).map(function(x){ return '<div class="pia__e">'+(x.ancla?'◆ ':'')+plEsc(x.nombre)+'<span>'+plEsc(String(x.reps))+(x.tiempo?' s':' reps')+(x.rir?' · RIR '+plEsc(x.rir):'')+'</span></div>' }).join('')+'</div>' }).join('') }).join('')+
