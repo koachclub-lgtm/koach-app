@@ -157,12 +157,18 @@ async function plEscCargar(){
   const box=document.getElementById('plEscBox'); if(!box||!F) return
   let rows=[]; try{ const { data, error } = await sb.rpc('koach_escaneos', { p_socio:F.id, p_dias:14 }); if(error) throw error; rows=data||[] }
   catch(e){ box.innerHTML='<p class="cmp__k" style="margin-top:14px">ESCÁNER DE PLATO · '+adEsc(/koach_escaneos/.test((e&&e.message)||'')?'FALTA CORRER LA MIGRACIÓN escaneos_nutricion':'NO DISPONIBLE')+'</p>'; return }
+  let reg=[]; try{ const { data, error } = await sb.rpc('koach_registro_comidas', { p_socio:F.id, p_dias:14 }); if(!error) reg=data||[] }catch(_){}
   if(!document.getElementById('plEscBox')) return
+  // Adherencia: comidas del plan marcadas cumplidas (con o sin foto) y cheat meals, semana en curso
+  const vg=NPL.data&&NPL.data.vigente, nCom=((vg&&vg.contenido&&vg.contenido.comidas)||[]).length
+  const cu=(typeof KE!=='undefined'&&KE.cumplimiento&&nCom)?KE.cumplimiento(reg, nCom, new Date().toLocaleDateString('sv-SE',{ timeZone:'America/Santiago' })):null
+  const adh=cu?'<div class="plEsR"><div><b>'+(cu.semana.adherencia!=null?cu.semana.adherencia+'%':'—')+'</b><small>ADHERENCIA SEMANA</small></div><div><b>'+cu.semana.cumplidas+'</b><small>COMIDAS CUMPLIDAS</small></div><div><b>'+cu.semana.cheat+'</b><small>CHEAT MEALS</small></div><div><b>'+cu.hoy.hechas+'/'+nCom+'</b><small>HOY</small></div>'+
+    (reg.length?'':'<p>Todavía no registra comidas en su app.</p>')+'</div>':''
   const s=(typeof KE!=='undefined')?KE.semana(rows):null, foco=(NPL.data&&NPL.data.vigente&&NPL.data.vigente.intake&&NPL.data.vigente.intake.foco)||'general'
   const VC={ adecuado:['ADECUADO','#2F7D4F'], relativo:['RELATIVO','#C48A2C'], alerta:['ALERTA','#121212'] }
-  const hd='<span class="cmp__k" style="margin:18px 0 8px">ESCÁNER DE PLATO · ÚLTIMOS 14 DÍAS · FOCO '+adEsc(((PL_FOCO.find(x=>x[0]===foco)||PL_FOCO[0])[1]))+'</span>'
-  if(!rows.length){ box.innerHTML=hd+'<div class="cmp__vac" style="padding:14px">Todavía no escanea platos. En su app aparece ESCANEAR en cada comida del plan.</div>'; return }
-  box.innerHTML=hd+(s?'<div class="plEsR"><div><b>'+s.escaneos+'</b><small>PLATOS</small></div><div><b>'+s.dias+'</b><small>DÍAS</small></div><div><b>'+(s.aciertos!=null?s.aciertos+'%':'—')+'</b><small>EN PLAN</small></div><div><b>'+s.alertas+'</b><small>ALERTAS</small></div>'+
+  const hd='<span class="cmp__k" style="margin:18px 0 8px">REGISTRO DE COMIDAS Y ESCÁNER · FOCO '+adEsc(((PL_FOCO.find(x=>x[0]===foco)||PL_FOCO[0])[1]))+'</span>'
+  if(!rows.length){ box.innerHTML=hd+adh+'<div class="cmp__vac" style="padding:14px">Todavía no escanea platos. En su app aparece ESCANEAR en cada comida del plan.</div>'; return }
+  box.innerHTML=hd+adh+(s?'<div class="plEsR"><div><b>'+s.escaneos+'</b><small>PLATOS</small></div><div><b>'+s.dias+'</b><small>DÍAS</small></div><div><b>'+(s.aciertos!=null?s.aciertos+'%':'—')+'</b><small>EN PLAN</small></div><div><b>'+s.alertas+'</b><small>ALERTAS</small></div>'+
       (s.patron?'<p>Patrón: '+adEsc(s.patron.comida.toLowerCase())+' fuera de plan '+s.patron.veces+' veces.</p>':'')+'</div>':'')+
     rows.slice(0,20).map(r=>{ const v=VC[r.veredicto]||['—','#6B6A65'], al=((r.resultado&&r.resultado.alimentos)||[]).map(a=>a.nombre).slice(0,5).join(', ')
       return '<div class="cmp__row plEsF"><div><small>'+adEsc(cmpFecha(r.fecha))+' · '+adEsc(new Date(r.created_at).toLocaleTimeString('es-CL',{hour:'2-digit',minute:'2-digit',hour12:false}))+'</small>'+adEsc(r.comida||'—')+'</div>'+

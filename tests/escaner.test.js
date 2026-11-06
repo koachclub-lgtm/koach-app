@@ -37,3 +37,39 @@ t('semana', () => {
   assert.deepEqual(s, { escaneos: 4, dias: 3, aciertos: 50, alertas: 2, patron: { comida: 'CENA', veces: 2 } })
 })
 console.log(n + ' pruebas OK')
+
+// ── v2: comparación con la pauta, corrección de gramos y cumplimiento
+t('comparar: atún en vez de pollo = reemplazo adecuado; falta verdura; falta proteína', () => {
+  const comida = { nombre: 'ALMUERZO', opciones: [{ alimentos: [{ alimento: 'Pollo (cocido)', cantidad: '150 g' }, { alimento: 'Arroz cocido', cantidad: '300 g' }, { alimento: 'Verduras mixtas', cantidad: 'libre' }] }] }
+  const al = [A('atún', 'proteina', 'otro', 1, 120, { proteina_g: 26 }), A('arroz blanco', 'carbohidrato', 'hervido', 1, 330, { carbohidrato_g: 72, refinado: true })]
+  const c = KE.comparar(al, comida, { kcal: 776, proteina_g: 47, carbohidrato_g: 98, grasa_g: 21 })
+  assert.equal(c.items[0].estado, 'reemplazo'); assert.equal(c.items[0].ref, 'Pollo (cocido)')
+  assert.equal(c.items[1].estado, 'plan')
+  assert.deepEqual(c.faltan.map(f => f.rol), ['VERDURAS'])
+  assert.ok(c.ajustes.some(a => a.tipo === 'proteina' && /20 g/.test(a.texto)), JSON.stringify(c.ajustes))
+})
+t('comparar: papas fritas no cuentan como carbohidrato del plan', () => {
+  const comida = { opciones: [{ alimentos: [{ alimento: 'Papa', cantidad: '300 g' }] }] }
+  const c = KE.comparar([A('papas fritas', 'carbohidrato', 'frito', 4, 400)], comida, null)
+  assert.equal(c.items[0].estado, 'fuera'); assert.deepEqual(c.faltan.map(f => f.rol), ['CARBOHIDRATO'])
+})
+t('grupoDe clasifica la pauta', () => {
+  assert.deepEqual(['Yoghurt griego', 'Avena', 'Palta', 'Pescado', 'Fruta de estación', 'Verduras mixtas', 'Porotos'].map(KE.grupoDe), ['proteina', 'carbohidrato', 'grasa', 'proteina', 'fruta', 'verdura', 'legumbre'])
+})
+t('regramar escala macros', () => { const a = KE.regramar(A('arroz', 'carbohidrato', 'hervido', 1, 300, { gramos: 200, carbohidrato_g: 62 }), 100); assert.equal(a.kcal, 150); assert.equal(a.carbohidrato_g, 31) })
+t('inflamatorios', () => {
+  const r = KE.evaluar({ es_comida: true, alimentos: [A('vienesa', 'proteina', 'procesado', 4, 200, { carne_procesada: true }), A('bebida', 'bebida', 'otro', 4, 140, { azucar_anadida: true })] }, ctx)
+  const inf = KE.inflamatorios(r); assert.equal(inf.length, 2); assert.ok(inf[0].motivos.includes('Carne procesada'))
+})
+t('cumplimiento: hoy y semana', () => {
+  // jueves 2026-11-05; plan de 4 comidas
+  const R = (f, n, e, k) => ({ fecha: f, comida_num: n, estado: e, kcal: k || 0 })
+  const rs = [R('2026-11-02', 1, 'cumplida'), R('2026-11-02', 2, 'cumplida'), R('2026-11-02', 3, 'cumplida'), R('2026-11-02', 4, 'cumplida'),
+    R('2026-11-03', 1, 'cumplida'), R('2026-11-03', 4, 'cheat'), R('2026-11-04', 2, 'cumplida'),
+    R('2026-11-05', 1, 'cumplida', 600), R('2026-11-05', 2, 'cheat', 1100), R('2026-11-01', 1, 'cumplida'), R('2026-11-05', 7, 'cumplida')]
+  const c = KE.cumplimiento(rs, 4, '2026-11-05')
+  assert.equal(c.hoy.hechas, 1); assert.equal(c.hoy.cheat, 1); assert.equal(c.hoy.pct, 25); assert.equal(c.hoy.kcal, 1700)
+  assert.equal(c.semana.cumplidas, 7); assert.equal(c.semana.cheat, 2); assert.equal(c.semana.esperadas, 14); assert.equal(c.semana.adherencia, 50)
+  assert.equal(c.semana.dias.length, 7); assert.equal(c.semana.dias[0].hechas, 4); assert.equal(c.semana.dias[4].futuro, true)
+})
+console.log('v2 OK')

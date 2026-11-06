@@ -152,7 +152,96 @@ function semana(rows){
   return { escaneos: rows.length, dias: dias.size, aciertos: rows.length ? Math.round(ok / rows.length * 100) : null, alertas: rows.length - ok, patron: foco && foco[1] >= 2 ? { comida: foco[0], veces: foco[1] } : null }
 }
 
-const KE = { VERSION, FOCOS, GRUPOS, ESQUEMA, prompt, evaluar, semana }
+// ═══ COMPARACIÓN CON LA PAUTA · ¿lo que comí calza con lo que me tocaba en esta comida?
+// Los alimentos de la pauta son texto libre: se clasifican por palabras clave en 4 roles (PROTEÍNA, CARBOHIDRATO, VERDURAS, GRASAS).
+const KW = [
+  ['proteina', /pollo|pavo|carne|vacuno|cerdo|lomo|posta|pescado|salm[oó]n|at[uú]n|merluza|reineta|jurel|sardina|congrio|huevo|clara|whey|prote[ií]na|griego|quesillo|cottage|tofu|seit[aá]n|camar[oó]n|marisco|pechuga|filete|bistec/i],
+  ['legumbre', /poroto|lenteja|garbanzo|edamame/i],
+  ['fruta', /fruta|pl[aá]tano|manzana|pera|naranja|kiwi|frutilla|berr|ar[aá]ndano|mango|pi[nñ]a|uva|durazno|mandarina/i],
+  ['carbohidrato', /arroz|papa|camote|pasta|fideo|tallar|[nñ]oqui|avena|pan\b|pan |tortilla|quinoa|choclo|granola|cereal|galleta|marraqueta|hallulla|mote|cous|wrap|arepa|polenta|sémola|semola/i],
+  ['verdura', /verdura|ensalada|br[oó]coli|lechuga|tomate|zanahoria|espinaca|zapallo|pepino|acelga|repollo|piment[oó]n|champi|apio|betarraga|coliflor|esp[aá]rrago|r[uú]cula|cebolla|poroto verde/i],
+  ['grasa', /palta|aceite|man[ií]\b|man[ií] |nuez|nueces|almendra|semilla|ch[ií]a|aceituna|mantequilla de|linaza/i],
+  ['lacteo', /leche|yogh?urt|queso|kéfir|kefir/i]
+]
+const ROL = { proteina: 'PROTEÍNA', legumbre: 'PROTEÍNA', lacteo: 'PROTEÍNA', carbohidrato: 'CARBOHIDRATO', fruta: 'CARBOHIDRATO', verdura: 'VERDURAS', grasa: 'GRASAS' }
+const ROLES = ['PROTEÍNA', 'CARBOHIDRATO', 'VERDURAS', 'GRASAS']
+function grupoDe(nombre){ const t = String(nombre || ''); for (const [g, re] of KW) if (re.test(t)) return g; return 'otro' }
+const rolDe = a => ROL[a.grupo] || (a.grupo === 'lacteo' ? 'PROTEÍNA' : null)
+const NO_CUENTA = /^(de|del|la|el|los|las|con|sin|al|a|en|y|o|cocido|cocida|crudo|cruda|peso|unidades?|natural|light|entero|entera)$/i
+const palabras = t => String(t || '').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').split(/[^a-zñ]+/).filter(w => w.length >= 4 && !NO_CUENTA.test(w))
+// alimentos de una comida de la pauta (todas sus opciones): [{nombre, cantidad, rol}]
+function alimentosPauta(comida){
+  const out = []; ((comida && comida.opciones) || []).forEach(o => (o.alimentos || []).forEach(x => {
+    const n = x.alimento || x.nombre || ''; if (!n) return
+    const g = grupoDe(n); out.push({ nombre: n, cantidad: x.cantidad || '', rol: ROL[g] || null })
+  })); return out
+}
+// metas por comida = macros del día / número de comidas
+function metasComida(pauta){
+  const n = ((pauta && pauta.contenido && pauta.contenido.comidas) || []).length || 1
+  return { kcal: (+pauta.kcal || 0) / n, proteina_g: (+pauta.proteina_g || 0) / n, carbohidrato_g: (+pauta.carbohidrato_g || 0) / n, grasa_g: (+pauta.grasa_g || 0) / n }
+}
+function comparar(alimentos, comida, metas){
+  const pa = alimentosPauta(comida), al = alimentos || []
+  const rolesPauta = ROLES.filter(r => pa.some(x => x.rol === r))
+  const items = al.map((a, i) => {
+    const rol = rolDe(a), pw = palabras(a.nombre)
+    const igual = pa.find(x => palabras(x.nombre).some(w => pw.includes(w)))
+    const malo = a.preparacion === 'frito' || a.nova === 4 || a.carne_procesada || a.azucar_anadida || a.alcohol
+    const estado = igual && !malo ? 'plan' : rol && rolesPauta.includes(rol) && !malo ? 'reemplazo' : malo ? 'fuera' : 'extra'
+    const ref = estado === 'reemplazo' ? (pa.find(x => x.rol === rol) || {}).nombre : igual ? igual.nombre : null
+    return { idx: i, rol, estado, ref }
+  })
+  const rolesHechos = new Set(items.filter(x => x.estado !== 'fuera').map(x => x.rol))
+  const faltan = rolesPauta.filter(r => !rolesHechos.has(r)).map(r => ({ rol: r, ej: [...new Set(pa.filter(x => x.rol === r).map(x => x.nombre.toLowerCase()))].slice(0, 2) }))
+  const tot = al.reduce((t, a) => ({ kcal: t.kcal + (+a.kcal || 0), p: t.p + (+a.proteina_g || 0), c: t.c + (+a.carbohidrato_g || 0), g: t.g + (+a.grasa_g || 0) }), { kcal: 0, p: 0, c: 0, g: 0 })
+  const aj = [], r5 = v => Math.max(5, Math.round(v / 5) * 5)
+  if (metas && metas.proteina_g){
+    const dp = metas.proteina_g - tot.p; if (dp >= 8) aj.push({ tipo: 'proteina', texto: 'Suma ~' + r5(dp) + ' g de proteína para llegar a tu meta de esta comida (' + Math.round(metas.proteina_g) + ' g).' }) }
+  if (metas && metas.carbohidrato_g){
+    const dc = tot.c - metas.carbohidrato_g
+    if (dc > metas.carbohidrato_g * 0.35) aj.push({ tipo: 'carbo_alto', texto: 'Te pasaste ~' + r5(dc) + ' g de carbohidratos: la próxima vez achica esa porción.' })
+    else if (-dc > metas.carbohidrato_g * 0.4) aj.push({ tipo: 'carbo_bajo', texto: 'Te faltan ~' + r5(-dc) + ' g de carbohidratos para esta comida.' }) }
+  if (metas && metas.grasa_g && tot.g > metas.grasa_g * 1.6) aj.push({ tipo: 'grasa_alta', texto: 'Esta comida trae más grasa de la indicada (~' + Math.round(tot.g) + ' g vs ' + Math.round(metas.grasa_g) + ' g).' })
+  return { items, faltan, ajustes: aj, metas: metas || null, totales: { kcal: Math.round(tot.kcal), proteina_g: Math.round(tot.p), carbohidrato_g: Math.round(tot.c), grasa_g: Math.round(tot.g) }, roles_pauta: rolesPauta }
+}
+// Alimentos inflamatorios / contra el perfil: lo que se marca como alerta al socio
+const INFLA = { frito: 'Fritura', ultraprocesado: 'Ultraprocesado', carne_procesada: 'Carne procesada', bebida_azucarada: 'Bebida azucarada', azucar: 'Azúcar añadida', alcohol: 'Alcohol' }
+function inflamatorios(res){
+  const m = new Map(); ((res && res.banderas) || []).forEach(b => { if (!INFLA[b.tipo] || b.idx == null) return
+    const a = res.alimentos[b.idx]; if (!a) return; const k = a.nombre; if (!m.has(k)) m.set(k, []); if (!m.get(k).includes(INFLA[b.tipo])) m.get(k).push(INFLA[b.tipo]) })
+  return [...m.entries()].map(([nombre, motivos]) => ({ nombre, motivos }))
+}
+// Reescala un alimento cuando el socio corrige los gramos (mismas proporciones)
+function regramar(a, g){
+  g = Math.max(0, Math.round(+g || 0)); const k = a.gramos > 0 ? g / a.gramos : 0
+  return Object.assign({}, a, { gramos: g, kcal: Math.round(a.kcal * k), proteina_g: r1(a.proteina_g * k), carbohidrato_g: r1(a.carbohidrato_g * k), grasa_g: r1(a.grasa_g * k) })
+}
+
+// ═══ CUMPLIMIENTO · hoy y semana (lunes a domingo, hora de Chile)
+// registros: filas de koach_registro_comidas · n: comidas del plan por día · hoy: 'AAAA-MM-DD'
+function cumplimiento(registros, n, hoy){
+  n = Math.max(1, +n || 1); const rs = (registros || []).filter(r => r && r.fecha && +r.comida_num <= n)
+  const dia = rs.filter(r => String(r.fecha).slice(0, 10) === hoy)
+  const d0 = new Date(hoy + 'T12:00:00'), lunes = new Date(d0); lunes.setDate(d0.getDate() - ((d0.getDay() + 6) % 7))
+  const iso = d => d.toISOString().slice(0, 10), ini = iso(lunes)
+  const sem = rs.filter(r => String(r.fecha).slice(0, 10) >= ini && String(r.fecha).slice(0, 10) <= hoy)
+  const diasPasados = Math.round((d0 - lunes) / 864e5)                // días completos antes de hoy
+  const esperadas = n * diasPasados + dia.length                      // hoy solo cuenta lo ya registrado
+  const ok = sem.filter(r => r.estado === 'cumplida').length, cheat = sem.filter(r => r.estado === 'cheat').length
+  const suma = (arr, k) => Math.round(arr.reduce((s, r) => s + (+r[k] || 0), 0))
+  const dias = []; for (let i = 0; i < 7; i++){ const d = new Date(lunes); d.setDate(lunes.getDate() + i); const k = iso(d)
+    const del = sem.filter(r => String(r.fecha).slice(0, 10) === k); dias.push({ fecha: k, futuro: k > hoy, hechas: del.filter(r => r.estado === 'cumplida').length, cheat: del.filter(r => r.estado === 'cheat').length, n }) }
+  return {
+    hoy: { hechas: dia.filter(r => r.estado === 'cumplida').length, cheat: dia.filter(r => r.estado === 'cheat').length, registradas: dia.length, n,
+      pct: Math.round(dia.filter(r => r.estado === 'cumplida').length / n * 100),
+      kcal: suma(dia, 'kcal'), proteina_g: suma(dia, 'proteina_g'), carbohidrato_g: suma(dia, 'carbohidrato_g'), grasa_g: suma(dia, 'grasa_g'),
+      porNum: Object.fromEntries(dia.map(r => [r.comida_num, r])) },
+    semana: { cumplidas: ok, cheat, registradas: sem.length, esperadas, adherencia: esperadas ? Math.round(ok / esperadas * 100) : null, dias }
+  }
+}
+
+const KE = { VERSION, FOCOS, GRUPOS, ROLES, ESQUEMA, prompt, evaluar, semana, grupoDe, alimentosPauta, metasComida, comparar, inflamatorios, regramar, cumplimiento }
 if (typeof module !== 'undefined' && module.exports) module.exports = KE
 if (typeof window !== 'undefined') window.KE = KE
 })()

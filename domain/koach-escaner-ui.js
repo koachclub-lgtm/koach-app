@@ -1,21 +1,19 @@
-/* KOACH · ESCÁNER DE PLATO · interfaz del socio (window.KEU)
-   Foto → /api/escaner (IA de visión identifica; reglas KOACH deciden) → resultado con zonas tocables, acciones y tarjeta para compartir.
-   La foto viaja comprimida (≤1024 px JPEG) y no se guarda. La tarjeta NO muestra el foco de salud del socio.
-   KEU.init({ token: async () => 'jwt', escaneos: async () => rows, toast, whatsapp }) · KEU.abrir(num, total, nombre) · KEU.semana() */
+/* KOACH · ESCÁNER DE COMIDAS · interfaz del socio (window.KEU) · v2
+   Flujo: elegir comida del plan → foto → /api/escaner (la IA identifica alimentos, gramos y zonas; la foto NO se guarda)
+   → veredicto con reglas KOACH + comparación con la comida de la pauta (en tu plan / reemplazo / falta / porción) + alertas inflamatorias
+   → el socio corrige alimentos y gramos (recalcula) → CONFIRMAR registra la comida (cumplida o cheat meal).
+   La tarjeta para Instagram es una capa aparte (más adelante): esta pantalla es el registro interno.
+   KEU.init({ token, plan: () => ({ pauta, comidas, estado(num) }), confirmar: async (id, num, det, res), onRegistrado }) · KEU.abrir(num?) */
 (function(){
 'use strict'
 const esc = t => String(t == null ? '' : t).replace(/[&<>"']/g, c => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[c]))
 const n0 = v => Math.round(+v || 0).toLocaleString('es-CL')
-const DIAS = ['DOMINGO','LUNES','MARTES','MIÉRCOLES','JUEVES','VIERNES','SÁBADO']
 const VER = {
   adecuado: { k: 'ADECUADO', c: '#2F7D4F', ico: '<path d="M5 12.5l4.5 4.5L19 7.5"/>', card: 'Adecuado para mi plan' },
   relativo: { k: 'RELATIVAMENTE ADECUADO', c: '#C48A2C', ico: '<path d="M6 12h12"/>', card: 'Relativamente adecuado' },
   alerta:   { k: 'ALERTA', c: '#121212', ico: '<path d="M12 6.5v7"/><path d="M12 17.2v.3"/>', card: 'Fuera de mi plan' },
   no_comida:{ k: 'SIN COMIDA', c: '#6B6A65', ico: '<path d="M8 8l8 8M16 8l-8 8"/>', card: '' }
 }
-const GR = { proteina: 'PROTEÍNA', carbohidrato: 'CARBOHIDRATO', verdura: 'VERDURA', fruta: 'FRUTA', grasa: 'GRASA', lacteo: 'LÁCTEO', legumbre: 'LEGUMBRE', dulce: 'DULCE', bebida: 'BEBIDA', otro: 'OTRO' }
-const S = { cfg: {}, ctx: null, img: null, url: null, r: null, sel: 0, file: null, busy: false, semana: null }
-
 const CSS = `
 .keu{position:fixed;inset:0;z-index:9000;display:flex;flex-direction:column;background:#F4F3F0;color:#121212;font-family:var(--font-display,'Inter Display',Inter,Arial,sans-serif);font-variant-numeric:tabular-nums;overflow:hidden}
 .keu[hidden]{display:none}
@@ -76,10 +74,64 @@ const CSS = `
 @media (prefers-reduced-motion:reduce){.keu__scan{animation:none;top:50%}}
 @media (min-width:640px){.keu__sc{max-width:520px;margin:0 auto;width:100%}}
 `
-function css(){ if (document.getElementById('keuCss')) return; const s = document.createElement('style'); s.id = 'keuCss'; s.textContent = CSS; document.head.appendChild(s) }
+const KEU_CSS2 = `
+.keu__pick{padding:22px 20px 0}
+.keu__pick h2{margin:6px 0 16px;font:700 26px/1.1 var(--font-display,'Inter Display',Inter,Arial,sans-serif);letter-spacing:-.02em}
+.keu__pick small{display:block;font:600 10px var(--font-mono,'IBM Plex Mono',monospace);letter-spacing:.16em;color:#5E5D59}
+.keu__pk{display:flex;flex-direction:column;gap:10px}
+.keu__pk button{display:grid;grid-template-columns:44px 1fr auto;align-items:center;gap:12px;min-height:64px;padding:10px 16px;border-radius:18px;border:1px solid rgba(18,18,18,.14);background:#fff;color:#121212;text-align:left;cursor:pointer}
+.keu__pk button b{font:700 17px var(--font-display,'Inter Display',Inter,Arial,sans-serif)}
+.keu__pk button em{font:600 22px var(--font-mono,'IBM Plex Mono',monospace);font-style:normal}
+.keu__pk button span{font:600 9.5px var(--font-mono,'IBM Plex Mono',monospace);letter-spacing:.12em;color:#5E5D59}
+.keu__pk button.ok span{color:#2F7D4F}.keu__pk button.ch span{color:#B23A2E}
+.keu__ms{display:flex;gap:6px;padding:12px 16px 0;overflow-x:auto;scrollbar-width:none}
+.keu__ms::-webkit-scrollbar{display:none}
+.keu__ms button{flex:1 0 auto;min-width:74px;height:50px;border-radius:14px;border:1.5px solid rgba(18,18,18,.16);background:#fff;color:#121212;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;font:600 13px var(--font-mono,'IBM Plex Mono',monospace);cursor:pointer}
+.keu__ms button span{font-size:8.5px;letter-spacing:.08em}
+.keu__ms button[aria-pressed="true"]{background:#121212;border-color:#121212;color:#F4F3F0}
+.keu__k{display:block;margin-bottom:8px;font:600 10px var(--font-mono,'IBM Plex Mono',monospace);letter-spacing:.16em;color:#5E5D59}
+.keu__card{background:#fff;border:1px solid rgba(18,18,18,.08);border-radius:18px;padding:14px 16px}
+.keu__cm{display:flex;gap:10px;align-items:flex-start;padding:8px 0;border-top:1px solid rgba(18,18,18,.07);font:400 14px/1.4 var(--font-display,'Inter Display',Inter,Arial,sans-serif)}
+.keu__cm:first-of-type{border-top:0}
+.keu__cm i{flex-shrink:0;min-width:96px;padding:4px 8px;border-radius:999px;font:600 8.5px/1.3 var(--font-mono,'IBM Plex Mono',monospace);font-style:normal;letter-spacing:.1em;text-align:center}
+.keu__cm i.plan{background:#E3EEE7;color:#1F5B38}.keu__cm i.reemplazo{background:#E8EEF6;color:#244A73}.keu__cm i.fuera{background:#121212;color:#F4F3F0}.keu__cm i.extra{background:#EFEDE8;color:#4A4945}.keu__cm i.falta{background:#FBEFD9;color:#7A4E0E}.keu__cm i.ajuste{background:#F1F0EC;color:#121212}
+.keu__inf{background:#121212;color:#F4F3F0;border-radius:18px;padding:14px 16px}
+.keu__inf .keu__k{color:#C9CDD3}
+.keu__inf div{display:flex;justify-content:space-between;gap:10px;padding:7px 0;border-top:1px solid rgba(244,243,240,.12);font:600 14px var(--font-display,'Inter Display',Inter,Arial,sans-serif)}
+.keu__inf div:first-of-type{border-top:0}
+.keu__inf div span{font:600 9.5px var(--font-mono,'IBM Plex Mono',monospace);letter-spacing:.1em;color:#E8B4AC;text-align:right}
+.keu__ed{display:grid;grid-template-columns:24px minmax(0,1fr) 78px 36px;gap:8px;align-items:center;padding:10px 0;border-top:1px solid rgba(18,18,18,.07)}
+.keu__ed:first-of-type{border-top:0}
+.keu__ed>em{width:24px;height:24px;border-radius:999px;background:#121212;color:#F4F3F0;font:600 10px/24px var(--font-mono,'IBM Plex Mono',monospace);font-style:normal;text-align:center}
+.keu__ed.on>em{background:#2F7D4F}
+.keu__ed input{width:100%;min-width:0;height:40px;border-radius:10px;border:1px solid rgba(18,18,18,.16);background:#FBFAF8;padding:0 10px;font:600 15px var(--font-display,'Inter Display',Inter,Arial,sans-serif);color:#121212}
+.keu__ed input:focus{outline:2px solid #121212;outline-offset:0;border-color:#121212}
+.keu__g{position:relative}.keu__g input{padding-right:22px;text-align:right;font-family:var(--font-mono,'IBM Plex Mono',monospace)}
+.keu__g b{position:absolute;right:8px;top:50%;transform:translateY(-50%);font:600 10px var(--font-mono,'IBM Plex Mono',monospace);color:#5E5D59}
+.keu__ed button{width:36px;height:40px;border-radius:10px;border:1px solid rgba(18,18,18,.12);background:transparent;color:#5E5D59;cursor:pointer;font-size:16px}
+.keu__ed small{grid-column:2/-1;margin-top:-2px;font:600 9.5px var(--font-mono,'IBM Plex Mono',monospace);letter-spacing:.06em;color:#5E5D59}
+.keu__ed small b{display:inline-block;margin-right:6px;padding:2px 6px;border-radius:999px;border:1px solid #121212;color:#121212;font-weight:600;letter-spacing:.1em}
+.keu__add{margin-top:8px;width:100%;height:44px;border-radius:12px;border:1px dashed rgba(18,18,18,.3);background:transparent;font:600 10.5px var(--font-mono,'IBM Plex Mono',monospace);letter-spacing:.12em;color:#121212;cursor:pointer}
+.keu__nota{margin:8px 0 0;font:400 12.5px/1.45 var(--font-display,'Inter Display',Inter,Arial,sans-serif);color:#5E5D59}
+.keu__tot{display:flex;justify-content:space-between;align-items:baseline;gap:8px;margin-top:10px;padding-top:12px;border-top:2px solid #121212}
+.keu__tot b{font:700 26px var(--font-display,'Inter Display',Inter,Arial,sans-serif);letter-spacing:-.02em}.keu__tot b small{font-size:12px;font-weight:400;color:#5E5D59}
+.keu__tot span{font:600 10px var(--font-mono,'IBM Plex Mono',monospace);letter-spacing:.06em}
+.keu__mt{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:10px}
+.keu__mt div{font:600 9.5px var(--font-mono,'IBM Plex Mono',monospace);letter-spacing:.08em;color:#5E5D59}
+.keu__mt div b{display:block;margin-top:3px;font:600 13px var(--font-mono,'IBM Plex Mono',monospace);color:#121212}
+.keu__mt i{display:block;height:5px;margin-top:5px;border-radius:3px;background:#E7E6E2;overflow:hidden}.keu__mt i s{display:block;height:100%;background:#121212;text-decoration:none}
+.keu__mt i s.over{background:#B23A2E}
+.keu__bt button[disabled]{opacity:.45;cursor:default}
+.keu__ok{padding:40px 24px 0;text-align:center}
+.keu__ok .keu__ic{width:76px;height:76px;margin:0 auto 18px}.keu__ok .keu__ic svg{width:40px;height:40px}
+.keu__ok b{display:block;font:700 26px/1.15 var(--font-display,'Inter Display',Inter,Arial,sans-serif);letter-spacing:-.02em}
+.keu__ok p{margin:8px 0 0;font:400 15px/1.45 var(--font-display,'Inter Display',Inter,Arial,sans-serif);color:#5E5D59}
+`
+const S = { cfg: {}, num: null, img: null, url: null, r: null, al: [], res: null, cmp: null, sel: 0, busy: false, sucio: false, edit: false }
+function css(){ if (document.getElementById('keuCss')) return; const s = document.createElement('style'); s.id = 'keuCss'; s.textContent = CSS + KEU_CSS2; document.head.appendChild(s) }
 function el(){
   let o = document.getElementById('keuO'); if (o) return o
-  css(); o = document.createElement('div'); o.id = 'keuO'; o.className = 'keu'; o.hidden = true; o.setAttribute('role', 'dialog'); o.setAttribute('aria-modal', 'true'); o.setAttribute('aria-label', 'Escáner de plato')
+  css(); o = document.createElement('div'); o.id = 'keuO'; o.className = 'keu'; o.hidden = true; o.setAttribute('role', 'dialog'); o.setAttribute('aria-modal', 'true'); o.setAttribute('aria-label', 'Escáner de comidas')
   o.innerHTML = '<div class="keu__top"><button type="button" onclick="KEU.cerrar()"><svg viewBox="0 0 24 24"><path d="M15 6l-6 6 6 6"/></svg>ESCÁNER</button><span id="keuT"></span></div><div class="keu__sc" id="keuSc"></div>'
   document.body.appendChild(o)
   const f = document.createElement('input'); f.type = 'file'; f.accept = 'image/*'; f.id = 'keuF'; f.hidden = true
@@ -88,13 +140,25 @@ function el(){
   return o
 }
 const $ = id => document.getElementById(id)
+// Plan del socio (lo entrega la app): { pauta, comidas:[{nombre,hora,opciones}], estado(num) → 'cumplida'|'cheat'|null }
+const plan = () => (S.cfg.plan && S.cfg.plan()) || { pauta: null, comidas: [] }
+const comidaN = n => plan().comidas[n - 1] || null
+function mostrar(){ const o = el(); o.hidden = false; document.documentElement.style.overflow = 'hidden' }
+function titulo(t){ const e = $('keuT'); if (e) e.textContent = t || '' }
 
-/** Abre la cámara (o la galería) para la comida num de total. Debe llamarse desde un toque. */
-function abrir(num, total, nombre){
+/** Abre el escáner. Con num: directo a la cámara para esa comida. Sin num: primero elige la comida (el toque abre la cámara). */
+function abrir(num){
   if (S.busy) return
-  el(); S.ctx = { num: +num || null, total: +total || null, nombre: String(nombre || '').toUpperCase() }
-  $('keuF').click()
+  el(); S.r = null; S.al = []; S.res = null; S.cmp = null; S.sucio = false
+  if (num) { S.num = +num; $('keuF').click(); return }
+  S.num = null; mostrar(); titulo('ELIGE TU COMIDA')
+  const p = plan()
+  $('keuSc').innerHTML = '<div class="keu__pick"><small>ESCÁNER DE COMIDAS</small><h2>¿Qué comida de tu plan vas a escanear?</h2><div class="keu__pk">' +
+    p.comidas.map((c, i) => { const e = p.estado ? p.estado(i + 1) : null
+      return '<button type="button" class="' + (e === 'cumplida' ? 'ok' : e === 'cheat' ? 'ch' : '') + '" onclick="KEU.elegir(' + (i + 1) + ')"><em>' + (i + 1) + '</em><b>' + esc(c.nombre) + '</b><span>' + (e === 'cumplida' ? '✓ LISTA' : e === 'cheat' ? 'CHEAT MEAL' : esc(c.hora || 'PENDIENTE')) + '</span></button>' }).join('') +
+    '</div><p class="keu__nota" style="margin-top:14px">Saca la foto desde arriba, con buena luz y el plato completo. La foto no se guarda: solo se usa para reconocer tu comida.</p></div>'
 }
+function elegir(n){ S.num = +n; $('keuF').click() }
 function cerrar(){ const o = $('keuO'); if (!o) return; o.hidden = true; document.documentElement.style.overflow = ''; if (S.url) { URL.revokeObjectURL(S.url); S.url = null } }
 
 async function comprimir(file){
@@ -105,192 +169,151 @@ async function comprimir(file){
   const cv = document.createElement('canvas'); cv.width = Math.round(w * k); cv.height = Math.round(h * k)
   cv.getContext('2d').drawImage(bmp, 0, 0, cv.width, cv.height)
   const blob = await new Promise(ok => cv.toBlob(ok, 'image/jpeg', .82))
-  const data = cv.toDataURL('image/jpeg', .82)
-  return { data, blob, w: cv.width, h: cv.height }
+  return { data: cv.toDataURL('image/jpeg', .82), blob, w: cv.width, h: cv.height }
 }
-
+async function api(body){
+  const tok = S.cfg.token ? await S.cfg.token() : null
+  if (!tok) throw Object.assign(new Error('sesion'), { msg: 'Tu sesión expiró. Vuelve a entrar.' })
+  const ctl = new AbortController(), to = setTimeout(() => ctl.abort(), 60000)
+  let r; try { r = await fetch(S.cfg.api || '/api/escaner', { method: 'POST', signal: ctl.signal, headers: { 'content-type': 'application/json', Authorization: 'Bearer ' + tok }, body: JSON.stringify(body) }) } finally { clearTimeout(to) }
+  const j = await r.json().catch(() => ({}))
+  if (!r.ok) throw Object.assign(new Error('api'), { msg: j.error || 'El escáner no respondió (' + r.status + ')' })
+  return j
+}
 async function foto(file){
-  const o = el(); o.hidden = false; document.documentElement.style.overflow = 'hidden'
-  const c = S.ctx || {}
-  $('keuT').textContent = (c.nombre || 'COMIDA') + ' · ' + new Date().toLocaleTimeString('es-CL', { hour: '2-digit', minute: '2-digit', hour12: false })
-  S.r = null; S.file = null; S.busy = true
+  mostrar(); const c = comidaN(S.num)
+  titulo((c ? c.nombre : 'COMIDA') + ' · ' + new Date().toLocaleTimeString('es-CL', { hour: '2-digit', minute: '2-digit', hour12: false }))
+  S.r = null; S.busy = true
+  try { S.img = await comprimir(file); if (S.url) URL.revokeObjectURL(S.url); S.url = URL.createObjectURL(S.img.blob) }
+  catch (e) { S.busy = false; return error('No pudimos leer la foto', 'Prueba con otra foto o con la cámara.') }
+  $('keuSc').innerHTML = '<div class="keu__ph"><img src="' + S.url + '" alt="Tu plato"><div class="keu__scan"></div><div class="keu__load">ANALIZANDO TU COMIDA…</div></div>'
   try {
-    S.img = await comprimir(file)
-    if (S.url) URL.revokeObjectURL(S.url); S.url = URL.createObjectURL(S.img.blob)
-  } catch (e) { S.busy = false; return error('No pudimos leer la foto', 'Prueba con otra foto o con la cámara.') }
-  $('keuSc').innerHTML = '<div class="keu__ph"><img src="' + S.url + '" alt="Tu plato"><div class="keu__scan"></div><div class="keu__load">ANALIZANDO TU PLATO…</div></div>'
-  try {
-    const tok = S.cfg.token ? await S.cfg.token() : null
-    if (!tok) throw Object.assign(new Error('sesion'), { msg: 'Tu sesión expiró. Vuelve a entrar.' })
-    const ctl = new AbortController(), to = setTimeout(() => ctl.abort(), 60000)
-    let r
-    try { r = await fetch(S.cfg.api || '/api/escaner', { method: 'POST', signal: ctl.signal, headers: { 'content-type': 'application/json', Authorization: 'Bearer ' + tok },
-      body: JSON.stringify({ imagen: S.img.data, comida: c.nombre || null, comida_num: c.num }) }) } finally { clearTimeout(to) }
-    const j = await r.json().catch(() => ({}))
-    if (!r.ok) throw Object.assign(new Error('api'), { msg: j.error || 'El escáner no respondió (' + r.status + ')' })
-    S.r = j; S.sel = 0; pintar(); preparar()
-    semana().then(() => pie()).catch(() => {})
+    S.r = await api({ imagen: S.img.data, comida: c ? c.nombre : null, comida_num: S.num })
+    S.al = ((S.r.resultado && S.r.resultado.alimentos) || []).map(a => Object.assign({}, a)); S.sel = 0; S.sucio = false
+    if (!S.al.length || (S.r.resultado && S.r.resultado.veredicto === 'no_comida')) return error('No reconocimos comida', 'Toma la foto desde arriba, con buena luz y el plato completo.')
+    recalc(); pintar()
   } catch (e) {
     console.error('escaner', e)
-    error(e && e.msg ? e.msg : e && e.name === 'AbortError' ? 'El análisis tardó demasiado' : 'No pudimos analizar tu plato', e && e.msg ? '' : 'Revisa tu conexión y vuelve a intentar.')
+    error(e && e.msg ? e.msg : e && e.name === 'AbortError' ? 'El análisis tardó demasiado' : 'No pudimos analizar tu comida', e && e.msg ? '' : 'Revisa tu conexión y vuelve a intentar.')
   } finally { S.busy = false }
 }
 function error(t, p){
   $('keuSc').innerHTML = (S.url ? '<div class="keu__ph"><img src="' + S.url + '" alt="Tu plato"></div>' : '') +
     '<div class="keu__err"><b>' + esc(t) + '</b>' + (p ? '<p>' + esc(p) + '</p>' : '') + '</div>' +
-    '<div class="keu__bt"><button type="button" onclick="KEU.otra()">Intentar con otra foto<span>→</span></button><button type="button" class="sec" onclick="KEU.cerrar()">Volver a mi plan<span>←</span></button></div>'
+    '<div class="keu__bt"><button type="button" onclick="KEU.otra()">Intentar con otra foto<span>→</span></button><button type="button" class="sec" onclick="KEU.cerrar()">Volver<span>←</span></button></div>'
 }
 function otra(){ if (S.busy) return; $('keuF').click() }
 
+// Veredicto (reglas KOACH) + comparación con la comida de la pauta, siempre sobre los alimentos ya corregidos
+function recalc(){
+  const p = plan(), pa = p.pauta || {}, n = p.comidas.length || null, c = comidaN(S.num)
+  S.res = KE.evaluar({ es_comida: true, alimentos: S.al }, { foco: (pa.intake && pa.intake.foco) || (S.r && S.r.contexto && S.r.contexto.foco) || 'general',
+    comida: c ? { nombre: c.nombre } : null, kcal_dia: pa.kcal || null, comidas_dia: n })
+  S.cmp = c ? KE.comparar(S.res.alimentos, c, KE.metasComida(pa)) : null
+}
 function zonas(){
-  const r = S.r.resultado, im = S.img
-  return r.alimentos.map((a, i) => {
+  return S.res.alimentos.map((a, i) => {
     if (!a.zona) return ''
     const [y0, x0, y1, x1] = a.zona, t = Math.min(y0, y1) / 10, l = Math.min(x0, x1) / 10, h = Math.abs(y1 - y0) / 10, w = Math.abs(x1 - x0) / 10
     if (w < 2 || h < 2) return ''
-    return '<button type="button" class="keu__z' + (i === S.sel ? ' on' : '') + '" style="top:' + t + '%;left:' + l + '%;width:' + w + '%;height:' + h + '%" onclick="KEU.sel(' + i + ')" aria-label="' + esc(a.nombre) + '"><i>' + (i + 1) + '</i></button>'
+    return '<button type="button" class="keu__z' + (i === S.sel ? ' on' : '') + '" data-i="' + i + '" style="top:' + t + '%;left:' + l + '%;width:' + w + '%;height:' + h + '%" onclick="KEU.sel(' + i + ')" aria-label="' + esc(a.nombre) + '"><i>' + (i + 1) + '</i></button>'
   }).join('')
 }
 function ajustarZonas(){
-  // las zonas se alinean a la imagen real (object-fit:contain deja bandas)
-  const img = document.querySelector('#keuSc .keu__ph img'), zs = $('keuZs'); if (!img || !zs) return
+  const img = document.querySelector('#keuSc .keu__ph img'), zs = $('keuZs'); if (!img || !zs || !S.img) return
   const W = img.clientWidth, H = img.clientHeight, k = Math.min(W / S.img.w, H / S.img.h), w = S.img.w * k, h = S.img.h * k
   zs.style.width = w + 'px'; zs.style.height = h + 'px'; zs.style.left = (W - w) / 2 + 'px'; zs.style.top = (H - h) / 2 + 'px'; zs.style.right = 'auto'; zs.style.bottom = 'auto'
 }
+const ROLX = { proteina: 'PROTEÍNA', legumbre: 'PROTEÍNA', lacteo: 'PROTEÍNA', carbohidrato: 'CARBOHIDRATO', fruta: 'CARBOHIDRATO', verdura: 'VERDURAS', grasa: 'GRASAS', dulce: 'DULCE', bebida: 'BEBIDA', otro: 'OTRO' }
 function pintar(){
-  const j = S.r, r = j.resultado, v = VER[r.veredicto] || VER.relativo, c = S.ctx || {}, cx = j.contexto || {}
-  if (r.veredicto === 'no_comida'){ error(r.titulo, r.mensaje); return }
-  const nCom = cx.comidas_dia || c.total
-  const kick = r.cheat ? 'ALERTA · CHEAT MEAL DETECTADO' : v.k + (c.num && nCom ? ' · COMIDA ' + c.num + ' DE ' + nCom : '')
-  let h = '<div class="keu__ph"><img src="' + S.url + '" alt="' + esc(j.deteccion.plato || 'Tu plato') + '"><div class="keu__zs" id="keuZs">' + zonas() + '</div></div>'
-  h += '<div class="keu__chips" role="group" aria-label="Alimentos detectados">' + r.alimentos.map((a, i) => '<button type="button" aria-pressed="' + (i === S.sel) + '" onclick="KEU.sel(' + i + ')">' + (i + 1) + ' · ' + esc(a.nombre.toUpperCase()) + '</button>').join('') + '</div>'
-  h += '<div class="keu__ver keu__ver--' + r.veredicto + '" style="--c:' + v.c + ';margin-top:10px"><div class="keu__ic"><svg viewBox="0 0 24 24">' + v.ico + '</svg></div><div><small>' + esc(kick) + '</small><b>' + esc(r.titulo) + '</b><p>' + esc(r.mensaje) + '</p></div></div>'
-  h += '<div class="keu__b"><div class="keu__det" id="keuDet">' + detalle() + '</div>'
-  const t = r.totales, meta = r.ratio_comida ? Math.round(t.kcal / r.ratio_comida) : null, pct = r.porcentaje_dia
-  h += '<div class="keu__kc"><div class="r"><b>≈ ' + n0(t.kcal) + ' <small>kcal estimadas</small></b>' + (pct != null ? '<span>' + pct + ' % DE TU DÍA</span>' : '') + '</div>' +
-    (pct != null ? '<div class="keu__bar"><i style="width:' + Math.min(100, pct) + '%"></i></div>' : '<div style="height:6px"></div>') +
-    '<span>P ' + n0(t.proteina_g) + ' · C ' + n0(t.carbohidrato_g) + ' · G ' + n0(t.grasa_g) + ' g' + (meta ? ' · TU PAUTA PARA ESTA COMIDA: ' + n0(meta) + ' KCAL' : '') + '</span></div>'
-  if (r.acciones.length) h += '<div class="keu__acc"><span>' + (r.veredicto === 'alerta' ? 'PARA VOLVER A TU PLAN HOY' : r.veredicto === 'relativo' ? 'PARA AJUSTARLO' : 'PARA LA PRÓXIMA') + '</span>' + r.acciones.map((a, i) => '<div><em>0' + (i + 1) + '</em><span>' + esc(a) + '</span></div>').join('') + '</div>'
-  h += '</div><div class="keu__bt"><button type="button" onclick="KEU.compartir()">Compartir mi plato<span>HISTORIA · WHATSAPP</span></button>'
-  if (r.veredicto === 'alerta' && S.cfg.whatsapp) h += '<a href="' + esc(S.cfg.whatsapp('Hola, escaneé mi ' + (c.nombre || 'comida').toLowerCase() + ' (' + (j.deteccion.plato || '') + ') y salió fuera de mi plan. ¿Cómo lo compenso sin saltarme comidas?')) + '" target="_blank" rel="noopener" class="sec">Consultar a mi nutricionista<span>→</span></a>'
-  h += '<button type="button" class="sec" onclick="KEU.otra()">Escanear otro plato<span>+</span></button><button type="button" class="sec" onclick="KEU.cerrar()">Listo<span>←</span></button></div>'
-  h += '<div class="keu__st" id="keuSt" role="status"></div><p class="keu__pie" id="keuPie">KCAL ESTIMADAS POR FOTO · NO REEMPLAZA A TU NUTRICIONISTA</p>'
-  $('keuSc').innerHTML = h; $('keuSc').scrollTop = 0
-  const img = document.querySelector('#keuSc .keu__ph img'); if (img.complete) ajustarZonas(); else img.onload = ajustarZonas
+  const sc = $('keuSc'), y = sc.scrollTop, r = S.res, v = VER[r.veredicto] || VER.relativo, p = plan(), c = comidaN(S.num), n = p.comidas.length
+  titulo(c ? 'COMIDA ' + S.num + ' DE ' + n + ' · ' + c.nombre : 'ESCÁNER')
+  let h = '<div class="keu__ph"><img src="' + S.url + '" alt="Tu comida"><div class="keu__zs" id="keuZs">' + zonas() + '</div></div>'
+  // a qué comida corresponde (cambia la comparación al instante)
+  h += '<div class="keu__ms" role="group" aria-label="¿Qué comida de tu plan es?">' + p.comidas.map((x, i) => '<button type="button" aria-pressed="' + (S.num === i + 1) + '" onclick="KEU.comida(' + (i + 1) + ')">' + (i + 1) + '<span>' + esc(String(x.nombre).slice(0, 10)) + '</span></button>').join('') + '</div>'
+  const kick = r.cheat ? 'ALERTA · CHEAT MEAL DETECTADO' : v.k + (c ? ' · COMIDA ' + S.num + ' DE ' + n : '')
+  h += '<div class="keu__ver keu__ver--' + r.veredicto + '" style="--c:' + v.c + ';margin-top:12px"><div class="keu__ic"><svg viewBox="0 0 24 24">' + v.ico + '</svg></div><div><small>' + esc(kick) + '</small><b>' + esc(r.titulo) + '</b><p>' + esc(r.mensaje) + '</p></div></div>'
+  h += '<div class="keu__b">'
+  // cómo va con la pauta
+  if (S.cmp) {
+    const E = { plan: 'EN TU PLAN', reemplazo: 'REEMPLAZO ADECUADO', fuera: 'NO ADECUADO', extra: 'FUERA DE PAUTA' }
+    let rows = S.cmp.items.map(it => { const a = r.alimentos[it.idx]
+      return '<div class="keu__cm"><i class="' + it.estado + '">' + E[it.estado] + '</i><span><b>' + esc(cap(a.nombre)) + '</b>' + (it.estado === 'reemplazo' && it.ref ? ' en vez de ' + esc(it.ref.toLowerCase()) : '') + '</span></div>' }).join('')
+    rows += S.cmp.faltan.map(f => '<div class="keu__cm"><i class="falta">FALTA ' + f.rol + '</i><span>Tu plan incluye ' + esc(f.ej.join(' o ').toLowerCase() || f.rol.toLowerCase()) + '.</span></div>').join('')
+    rows += S.cmp.ajustes.map(a => '<div class="keu__cm"><i class="ajuste">PORCIÓN</i><span>' + esc(a.texto) + '</span></div>').join('')
+    h += '<div class="keu__card"><span class="keu__k">CÓMO VA CON TU PLAN · ' + esc(c.nombre) + '</span>' + rows + '</div>'
+  }
+  // alimentos inflamatorios / contra tu perfil
+  const inf = KE.inflamatorios(r)
+  if (inf.length) h += '<div class="keu__inf"><span class="keu__k">ALERTA · ALIMENTOS INFLAMATORIOS</span>' + inf.map(x => '<div>' + esc(cap(x.nombre)) + '<span>' + esc(x.motivos.join(' · ').toUpperCase()) + '</span></div>').join('') + '</div>'
+  // revisión: nombre y gramos editables
+  h += '<div class="keu__card"><span class="keu__k">REVISA LO QUE DETECTAMOS</span>' +
+    S.al.map((a, i) => { const ra = r.alimentos[i] || a
+      return '<div class="keu__ed' + (i === S.sel ? ' on' : '') + '"><em>' + (i + 1) + '</em><input type="text" value="' + esc(a.nombre) + '" aria-label="Alimento ' + (i + 1) + '" oninput="KEU.nombre(' + i + ',this.value)" onfocus="KEU.sel(' + i + ',1)">' +
+        '<label class="keu__g"><input type="number" inputmode="numeric" min="0" max="2000" value="' + Math.round(a.gramos) + '" aria-label="Gramos de ' + esc(a.nombre) + '" onchange="KEU.gramos(' + i + ',this.value)"><b>g</b></label>' +
+        '<button type="button" aria-label="Quitar ' + esc(a.nombre) + '" onclick="KEU.quitar(' + i + ')">✕</button>' +
+        '<small><b>' + (ROLX[ra.grupo] || 'OTRO') + '</b>' + n0(ra.kcal) + ' KCAL · P ' + n0(ra.proteina_g) + ' · C ' + n0(ra.carbohidrato_g) + ' · G ' + n0(ra.grasa_g) + '</small></div>' }).join('') +
+    '<button type="button" class="keu__add" onclick="KEU.agregar()">+ AGREGAR UN ALIMENTO</button>' +
+    '<p class="keu__nota">Los gramos son una lectura aproximada de la foto. Si pesaste tu comida, corrígelos: así tu registro queda exacto.</p>'
+  const t = r.totales, m = S.cmp && S.cmp.metas
+  const barra = (lbl, val, meta) => '<div>' + lbl + '<b>' + n0(val) + (meta ? ' / ' + n0(meta) : '') + ' g</b>' + (meta ? '<i><s class="' + (val > meta * 1.25 ? 'over' : '') + '" style="width:' + Math.min(100, val / meta * 100) + '%"></s></i>' : '') + '</div>'
+  h += '<div class="keu__tot"><span>TOTAL' + (m ? ' · TU PAUTA: ' + n0(m.kcal) + ' KCAL' : '') + '</span><b>≈ ' + n0(t.kcal) + ' <small>kcal</small></b></div>' +
+    '<div class="keu__mt">' + barra('PROTEÍNA', t.proteina_g, m && m.proteina_g) + barra('CARBOHIDRATOS', t.carbohidrato_g, m && m.carbohidrato_g) + barra('GRASAS', t.grasa_g, m && m.grasa_g) + '</div></div></div>'
+  h += '<div class="keu__bt" id="keuBt">' + botones() + '</div>'
+  h += '<div class="keu__st" id="keuSt" role="status"></div><p class="keu__pie">KCAL ESTIMADAS POR FOTO · LA FOTO NO SE GUARDA</p>'
+  sc.innerHTML = h; sc.scrollTop = y
+  const img = sc.querySelector('.keu__ph img'); if (img.complete) ajustarZonas(); else img.onload = ajustarZonas
 }
-function detalle(){
-  const r = S.r.resultado, a = r.alimentos[S.sel]; if (!a) return ''
-  const b = r.banderas.filter(x => x.idx === S.sel).map(x => '<i>' + esc(x.tipo.replace(/_/g, ' ').toUpperCase()) + '</i>')
-  if (!b.length && a.nova <= 2 && a.preparacion !== 'frito') b.push('<i class="ok">' + (a.nova === 1 ? 'ALIMENTO REAL' : 'BUENA OPCIÓN') + '</i>')
-  return '<div class="h"><span>' + (S.sel + 1) + ' · ' + (GR[a.grupo] || 'OTRO') + ' · ' + esc(a.preparacion.toUpperCase()) + '</span><em>≈ ' + n0(a.gramos) + ' g · ' + n0(a.kcal) + ' kcal</em></div><b>' + esc(a.nombre.charAt(0).toUpperCase() + a.nombre.slice(1)) + '</b><div class="keu__tags">' + b.join('') + '</div>'
-}
-function sel(i){
-  S.sel = i
-  document.querySelectorAll('#keuSc .keu__z').forEach(z => z.classList.toggle('on', z.getAttribute('onclick') === 'KEU.sel(' + i + ')'))
-  document.querySelectorAll('#keuSc .keu__chips button').forEach((b, k) => b.setAttribute('aria-pressed', String(k === i)))
-  const d = $('keuDet'); if (d) d.innerHTML = detalle()
-}
-
-// ═══ Tarjeta 1080×1920 (sin datos de salud: solo plato, veredicto y comida de su plan)
-function rr(g, x, y, w, h, r){ g.beginPath(); g.moveTo(x + r, y); g.arcTo(x + w, y, x + w, y + h, r); g.arcTo(x + w, y + h, x, y + h, r); g.arcTo(x, y + h, x, y, r); g.arcTo(x, y, x + w, y, r); g.closePath() }
-async function tarjeta(){
-  const j = S.r, r = j.resultado, v = VER[r.veredicto] || VER.relativo, c = S.ctx || {}, cx = j.contexto || {}
-  const D = getComputedStyle(document.documentElement).getPropertyValue('--font-display').trim() || "'Inter Display', Inter, Arial, sans-serif"
-  const M = getComputedStyle(document.documentElement).getPropertyValue('--font-mono').trim() || "'IBM Plex Mono', monospace"
-  try { await document.fonts.ready } catch (_) {}
-  const cv = document.createElement('canvas'); cv.width = 1080; cv.height = 1920; const g = cv.getContext('2d')
-  g.fillStyle = '#121212'; g.fillRect(0, 0, 1080, 1920)
-  g.fillStyle = '#F4F3F0'; g.textBaseline = 'alphabetic'
-  g.font = '700 64px ' + D; g.fillText('KOACH', 80, 150)
-  g.font = '500 26px ' + M; g.fillStyle = '#A7A9AE'; g.textAlign = 'right'
-  g.fillText(((c.nombre || 'MI COMIDA') + ' · ' + DIAS[new Date().getDay()]).slice(0, 34), 1000, 146); g.textAlign = 'left'
-  // foto recortada en cuadrado (cover) con zonas
-  const X = 80, Y = 210, L = 920, im = new Image(); im.src = S.url; await im.decode()
-  const iw = im.naturalWidth, ih = im.naturalHeight, s = Math.max(L / iw, L / ih), dw = iw * s, dh = ih * s, ox = X + (L - dw) / 2, oy = Y + (L - dh) / 2
-  g.save(); rr(g, X, Y, L, L, 48); g.clip(); g.drawImage(im, ox, oy, dw, dh)
-  g.fillStyle = 'rgba(18,18,18,.18)'; g.fillRect(X, Y, L, L)
-  const et = [], cajas = []
-  const iou = (a, b) => { const ix = Math.max(0, Math.min(a[2], b[2]) - Math.max(a[0], b[0])), iy = Math.max(0, Math.min(a[3], b[3]) - Math.max(a[1], b[1])), i = ix * iy, u = (a[2] - a[0]) * (a[3] - a[1]) + (b[2] - b[0]) * (b[3] - b[1]) - i; return u ? i / u : 0 }
-  r.alimentos.slice(0, 5).forEach((a, i) => { if (!a.zona) return
-    const [y0, x0, y1, x1] = a.zona, zx = ox + Math.min(x0, x1) / 1000 * dw, zy = oy + Math.min(y0, y1) / 1000 * dh, zw = Math.abs(x1 - x0) / 1000 * dw, zh = Math.abs(y1 - y0) / 1000 * dh
-    if (zw < 30 || zh < 30) return
-    const bx4 = [zx, zy, zx + zw, zy + zh], dup = cajas.some(c => iou(c, bx4) > .8); cajas.push(bx4)
-    if (!dup) { g.setLineDash([12, 10]); g.lineWidth = 3; g.strokeStyle = 'rgba(244,243,240,.85)'; rr(g, zx, zy, zw, zh, 22); g.stroke(); g.setLineDash([]) }
-    et.push({ x: Math.max(X + 16, Math.min(zx + 12, X + L - 40)), y: Math.max(Y + 16, Math.min(zy + 12, Y + L - 60)), t: (GR[a.grupo] || '') + ' · ' + a.nombre.toUpperCase() })
-  })
-  g.font = '500 24px ' + M
-  const usadas = []
-  et.forEach(e => { const t = e.t.length > 26 ? e.t.slice(0, 25) + '…' : e.t, w = g.measureText(t).width + 44, x = Math.min(e.x, X + L - w - 16)
-    while (usadas.some(u => x < u[0] + u[2] && u[0] < x + w && e.y < u[1] + 52 && u[1] < e.y + 52) && e.y < Y + L - 70) e.y += 62
-    usadas.push([x, e.y, w])
-    g.fillStyle = 'rgba(18,18,18,.78)'; rr(g, x, e.y, w, 52, 26); g.fill(); g.strokeStyle = 'rgba(244,243,240,.4)'; g.lineWidth = 1.5; g.stroke()
-    g.fillStyle = '#F4F3F0'; g.fillText(t, x + 22, e.y + 34) })
-  g.restore()
-  // tarjeta inferior
-  const CY = 1180; g.fillStyle = '#1E1F22'; rr(g, 64, CY, 952, 600, 56); g.fill(); g.strokeStyle = 'rgba(244,243,240,.12)'; g.lineWidth = 2; g.stroke()
-  g.beginPath(); g.arc(196, CY + 120, 52, 0, Math.PI * 2)
-  if (r.veredicto === 'alerta') { g.strokeStyle = '#F4F3F0'; g.lineWidth = 5; g.stroke() } else { g.fillStyle = v.c; g.fill() }
-  g.save(); g.translate(196 - 28, CY + 120 - 28); g.scale(56 / 24, 56 / 24); g.strokeStyle = '#fff'; g.lineWidth = 3; g.lineCap = 'round'; g.lineJoin = 'round'
-  const ic = { adecuado: 'M5 12.5l4.5 4.5L19 7.5', relativo: 'M6 12h12', alerta: 'M12 6.5v7M12 17.2v.3' }[r.veredicto]; if (ic) g.stroke(new Path2D(ic)); g.restore()
-  g.fillStyle = '#A7A9AE'; g.font = '500 26px ' + M; g.fillText('MI ' + (c.nombre || 'COMIDA'), 276, CY + 92)
-  g.fillStyle = '#F4F3F0'
-  const tt = r.cheat ? 'Cheat meal detectado' : v.card; let fs = 70; g.font = '700 ' + fs + 'px ' + D
-  while (g.measureText(tt).width > 690 && fs > 44) { fs -= 2; g.font = '700 ' + fs + 'px ' + D }
-  g.fillText(tt, 276, CY + 166)
-  const t = r.totales
-  g.font = '700 72px ' + D; g.fillText('≈ ' + n0(t.kcal), 128, CY + 320); const kw = g.measureText('≈ ' + n0(t.kcal)).width
-  g.font = '400 30px ' + D; g.fillStyle = '#A7A9AE'; g.fillText('kcal', 128 + kw + 14, CY + 320)
-  g.font = '500 30px ' + M; g.fillStyle = '#C9CDD3'; g.textAlign = 'right'; g.fillText('P ' + n0(t.proteina_g) + ' · C ' + n0(t.carbohidrato_g) + ' · G ' + n0(t.grasa_g) + ' g', 952, CY + 316); g.textAlign = 'left'
-  const kp = t.proteina_g * 4, kc = t.carbohidrato_g * 4, kg = t.grasa_g * 9, kt = kp + kc + kg || 1; let bx = 128
-  ;[[kp, '#F4F3F0'], [kc, '#C9CDD3'], [kg, '#8A8F97']].forEach(([k, col]) => { const w = Math.max(0, k / kt * 824 - 6); g.fillStyle = col; rr(g, bx, CY + 352, Math.max(w, 1), 20, 6); g.fill(); bx += w + 6 })
-  g.font = '500 22px ' + M; g.fillStyle = '#A7A9AE'; g.fillText('PROTEÍNA      CARBOHIDRATOS      GRASAS', 128, CY + 412)
-  g.fillStyle = 'rgba(244,243,240,.12)'; g.fillRect(128, CY + 460, 824, 2)
-  const nCom = cx.comidas_dia || c.total
-  g.fillStyle = '#F4F3F0'; g.font = '500 26px ' + M
-  if (c.num && nCom) {
-    g.fillText('COMIDA ' + c.num + ' DE ' + nCom + ' DE MI PLAN', 128, CY + 530)
-    const n = Math.min(nCom, 8), sw = 56, gap = 10; let sx = 952 - n * sw - (n - 1) * gap
-    for (let i = 1; i <= n; i++) { g.fillStyle = i <= c.num ? '#C9CDD3' : '#2A2B2E'; rr(g, sx, CY + 512, sw, 14, 6); g.fill(); sx += sw + gap }
-  } else g.fillText('ESCANEADO CON KOACH', 128, CY + 530)
-  g.font = '500 24px ' + M; g.fillStyle = '#8E8D88'; g.fillText('MÉTODO KOACH · NUTRICIÓN', 80, 1840); g.textAlign = 'right'; g.fillText('KCAL ESTIMADAS POR FOTO', 1000, 1840); g.textAlign = 'left'
-  return await new Promise((ok, no) => cv.toBlob(b => b ? ok(new File([b], 'koach-plato-' + Date.now() + '.jpg', { type: 'image/jpeg' })) : no(new Error('img')), 'image/jpeg', .9))
-}
-// La tarjeta se arma apenas llega el resultado: el toque en COMPARTIR abre el menú del teléfono sin trabajo previo (iOS lo exige)
-function preparar(){ S.file = null; tarjeta().then(f => { S.file = f }).catch(e => console.error('tarjeta', e)) }
+const cap = s => { s = String(s || ''); return s.charAt(0).toUpperCase() + s.slice(1) }
 function st(m){ const s = $('keuSt'); if (s) s.textContent = m || '' }
-function bajar(f){ const a = document.createElement('a'); a.href = URL.createObjectURL(f); a.download = f.name; document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 4000) }
-async function compartir(){
-  let f = S.file
-  if (!f) { st('Preparando tu tarjeta…'); try { f = S.file = await tarjeta() } catch (e) { st('No se pudo generar la imagen.'); return } st('Lista. Toca COMPARTIR otra vez.'); return }
-  let ok = false; try { ok = !!(navigator.canShare && navigator.share && navigator.canShare({ files: [f] })) } catch (_) {}
-  if (!ok) { bajar(f); st('La imagen se descargó.'); return }
-  st('En el menú elige Instagram → Historia, o WhatsApp.')
-  navigator.share({ files: [f] }).then(() => st(''), e => { if (!e || e.name !== 'AbortError') st('No se pudo abrir el menú. Prueba de nuevo.') })
+function sel(i, sinPintar){
+  S.sel = i
+  document.querySelectorAll('#keuSc .keu__z').forEach(z => z.classList.toggle('on', +z.dataset.i === i))
+  document.querySelectorAll('#keuSc .keu__ed').forEach((z, k) => z.classList.toggle('on', k === i))
+  if (!sinPintar) { const row = document.querySelectorAll('#keuSc .keu__ed')[i]; if (row) row.scrollIntoView({ behavior: 'smooth', block: 'center' }) }
 }
-
-// ═══ Resumen semanal (sobre lo escaneado: no castiga a quien escanea poco)
-async function semana(){
-  if (!S.cfg.escaneos) return null
-  const rows = await S.cfg.escaneos()
-  S.semana = { rows: rows || [], res: (window.KE || {}).semana ? KE.semana(rows) : null }
-  pintarSemana(); return S.semana
+function comida(n){ S.num = +n; recalc(); pintar() }
+function nombre(i, v){ if (!S.al[i]) return; S.al[i].nombre = String(v).slice(0, 60); S.al[i]._n = 1; if (!S.sucio) { S.sucio = true; pintarBotones() } }
+function gramos(i, v){ if (!S.al[i]) return; S.al[i] = Object.assign(KE.regramar(S.al[i], v), { _n: S.al[i]._n }); recalc(); pintar() }
+function quitar(i){ S.al.splice(i, 1); if (S.sel >= S.al.length) S.sel = 0; if (!S.al.length) { S.al.push({ nombre: '', gramos: 100, kcal: 0, proteina_g: 0, carbohidrato_g: 0, grasa_g: 0, grupo: 'otro', preparacion: 'otro', nova: 1, zona: null, _n: 1 }); S.sucio = true } recalc(); pintar() }
+function agregar(){ S.al.push({ nombre: '', gramos: 100, kcal: 0, proteina_g: 0, carbohidrato_g: 0, grasa_g: 0, grupo: 'otro', preparacion: 'otro', nova: 1, zona: null, _n: 1 }); S.sucio = true; S.sel = S.al.length - 1; recalc(); pintar()
+  const ins = document.querySelectorAll('#keuSc .keu__ed input[type=text]'); const x = ins[ins.length - 1]; if (x) x.focus() }
+function botones(){ const c = comidaN(S.num)
+  return (S.sucio ? '<button type="button" onclick="KEU.recalcular()">Recalcular con mis cambios<span>IA</span></button>' : '') +
+    '<button type="button"' + (S.sucio || !c ? ' disabled' : '') + ' onclick="KEU.confirmar()">' + (c ? 'Confirmar y registrar ' + esc(c.nombre.toLowerCase()) : 'Elige la comida') + '<span>✓</span></button>' +
+    '<button type="button" class="sec" onclick="KEU.otra()">Escanear otra foto<span>+</span></button><button type="button" class="sec" onclick="KEU.cerrar()">Descartar<span>✕</span></button>' }
+// escribir un nombre no repinta la pantalla (no se pierde el foco): solo cambian los botones
+function pintarBotones(){ const b = $('keuBt'); if (b) b.innerHTML = botones() }
+async function recalcular(){
+  if (S.busy) return
+  const lista = S.al.filter(a => String(a.nombre).trim()).map(a => ({ nombre: String(a.nombre).trim(), gramos: Math.round(a.gramos) || 100 }))
+  if (!lista.length) { st('Escribe al menos un alimento.'); return }
+  S.busy = true; st('Recalculando…')
+  try {
+    const j = await api({ modo: 'recalcular', alimentos: lista })
+    const prev = S.al.filter(a => String(a.nombre).trim())
+    S.al = (j.alimentos || []).map((x, i) => Object.assign({}, x, { zona: (prev[i] && prev[i].zona) || null }))
+    S.sucio = false; recalc(); pintar(); st('Listo: calorías y macros actualizados.')
+  } catch (e) { st((e && e.msg) || 'No pudimos recalcular. Prueba de nuevo.') }
+  finally { S.busy = false }
 }
-function pintarSemana(){
-  const box = document.getElementById('knEscSem'); if (!box || !S.semana || !S.semana.res) return
-  const s = S.semana.res; if (!s.escaneos) return
-  const hoy = new Date(), dias = []
-  for (let i = 6; i >= 0; i--) { const d = new Date(hoy); d.setDate(d.getDate() - i); const k = d.toLocaleDateString('sv-SE', { timeZone: 'America/Santiago' })
-    const del = S.semana.rows.filter(r => String(r.fecha) === k && r.veredicto !== 'no_comida')
-    dias.push(!del.length ? '' : del.some(r => r.veredicto === 'alerta') ? 'x' : del.some(r => r.veredicto === 'relativo') ? 'r' : 'a') }
-  box.innerHTML = '<span class="knK">ESCÁNER DE PLATO · ÚLTIMOS 7 DÍAS</span><div class="knEsN"><div><b>' + s.escaneos + '</b><span>PLATOS ESCANEADOS</span></div><div><b>' + s.dias + '<small style="font-size:12px;color:#A3A29C">/7</small></b><span>DÍAS CON ESCÁNER</span></div><div><b>' + (s.aciertos != null ? s.aciertos + '%' : '—') + '</b><span>EN PLAN</span></div></div>' +
-    '<div class="knEsD" aria-hidden="true">' + dias.map(d => '<i class="' + d + '"></i>').join('') + '</div>' +
-    (s.patron ? '<p class="knEsP">Tu ' + esc(s.patron.comida.toLowerCase()) + ' salió fuera de plan ' + s.patron.veces + ' veces esta semana. Ahí está tu mayor oportunidad.</p>' : s.alertas === 0 ? '<p class="knEsP">Todo lo que escaneaste va con tu plan. Sigue así.</p>' : '')
+async function confirmar(){
+  if (S.busy || S.sucio || !S.r || !S.num) return
+  S.busy = true; st('Registrando…')
+  try {
+    const det = { plato: (S.r.deteccion && S.r.deteccion.plato) || '', confianza: S.r.deteccion && S.r.deteccion.confianza, editado: S.al.some(a => a._n), detectado: (S.r.resultado && S.r.resultado.alimentos || []).map(a => ({ nombre: a.nombre, gramos: a.gramos })) }
+    const res = Object.assign({}, S.res, { comparacion: S.cmp && { items: S.cmp.items, faltan: S.cmp.faltan.map(f => f.rol), ajustes: S.cmp.ajustes.map(a => a.tipo) } })
+    await S.cfg.confirmar(S.r.id, S.num, det, res)
+    const c = comidaN(S.num), v = VER[S.res.veredicto] || VER.relativo
+    $('keuSc').innerHTML = '<div class="keu__ok"><div class="keu__ic" style="--c:' + (S.res.cheat ? '#121212' : '#2F7D4F') + '"><svg viewBox="0 0 24 24">' + (S.res.cheat ? VER.alerta.ico : VER.adecuado.ico) + '</svg></div>' +
+      '<b>' + esc(c ? cap(c.nombre.toLowerCase()) : 'Comida') + (S.res.cheat ? ' registrado como cheat meal' : ' registrado') + '</b><p>≈ ' + n0(S.res.totales.kcal) + ' kcal · P ' + n0(S.res.totales.proteina_g) + ' · C ' + n0(S.res.totales.carbohidrato_g) + ' · G ' + n0(S.res.totales.grasa_g) + ' g' +
+      (S.res.cheat ? '<br>Sigue tu pauta en la próxima comida. No te la saltes.' : '') + '</p></div>' +
+      '<div class="keu__bt"><button type="button" onclick="KEU.cerrar()">Volver a mi día<span>←</span></button></div>'
+    titulo('REGISTRADO')
+    if (S.cfg.onRegistrado) S.cfg.onRegistrado({ num: S.num, estado: S.res.cheat ? 'cheat' : 'cumplida' })
+  } catch (e) { console.error('confirmar', e); st((e && (e.msg || e.message)) || 'No pudimos registrar. Prueba de nuevo.') }
+  finally { S.busy = false }
 }
-function pie(){
-  const p = $('keuPie'), s = S.semana && S.semana.res; if (!p || !s || !s.escaneos) return
-  p.textContent = s.escaneos + (s.escaneos === 1 ? ' PLATO ESCANEADO' : ' PLATOS ESCANEADOS') + ' ESTA SEMANA' + (s.aciertos != null ? ' · ' + s.aciertos + ' % EN PLAN' : '') + ' · KCAL ESTIMADAS POR FOTO'
-}
-
-function init(cfg){ S.cfg = Object.assign(S.cfg, cfg || {}); window.addEventListener('resize', () => { if ($('keuO') && !$('keuO').hidden) ajustarZonas() }) }
-window.KEU = { init, abrir, cerrar, otra, sel, compartir, semana, pintarSemana, _S: S }
+function init(cfg){ S.cfg = Object.assign(S.cfg, cfg || {}); if (!S._rz) { S._rz = 1; window.addEventListener('resize', () => { if ($('keuO') && !$('keuO').hidden) ajustarZonas() }) } }
+window.KEU = { init, abrir, elegir, cerrar, otra, sel, comida, nombre, gramos, quitar, agregar, recalcular, confirmar, _S: S }
 })()

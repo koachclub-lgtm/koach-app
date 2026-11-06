@@ -36,14 +36,15 @@ function esquemaClaude(s) {
   return o
 }
 
-async function gemini(b64, mime, prompt) {
+async function gemini(b64, mime, prompt, schema) {
+  schema = schema || KE.ESQUEMA
   const url = 'https://generativelanguage.googleapis.com/v1beta/models/' + encodeURIComponent(GEMINI) + ':generateContent'
-  const base = { contents: [{ role: 'user', parts: [{ inline_data: { mime_type: mime, data: b64 } }, { text: prompt }] }] }
+  const base = { contents: [{ role: 'user', parts: (b64 ? [{ inline_data: { mime_type: mime, data: b64 } }] : []).concat([{ text: prompt }]) }] }
   const gc = { thinkingConfig: { thinkingLevel: 'low' }, maxOutputTokens: 4096 }
   // La API cambió el nombre del campo de salida estructurada; se prueba el actual y, si responde 400, la variante anterior
   const variantes = [
-    Object.assign({}, gc, { responseMimeType: 'application/json', responseJsonSchema: KE.ESQUEMA }),
-    Object.assign({}, gc, { responseFormat: { text: { mimeType: 'APPLICATION_JSON', schema: KE.ESQUEMA } } }),
+    Object.assign({}, gc, { responseMimeType: 'application/json', responseJsonSchema: schema }),
+    Object.assign({}, gc, { responseFormat: { text: { mimeType: 'APPLICATION_JSON', schema } } }),
     Object.assign({}, gc, { responseMimeType: 'application/json' })
   ]
   let r
@@ -62,12 +63,13 @@ async function gemini(b64, mime, prompt) {
   return { det, modelo: GEMINI, uso: { entrada: u.promptTokenCount, salida: (u.candidatesTokenCount || 0) + (u.thoughtsTokenCount || 0) } }
 }
 
-async function claude(b64, mime, prompt) {
+async function claude(b64, mime, prompt, schema) {
+  schema = schema || KE.ESQUEMA
   const r = await json('https://api.anthropic.com/v1/messages', {
     method: 'POST', timeout: 45000,
     headers: { 'content-type': 'application/json', 'x-api-key': process.env.ANTHROPIC_API_KEY, 'anthropic-version': '2023-06-01' },
-    body: JSON.stringify({ model: CLAUDE, max_tokens: 4096, output_config: { effort: 'low', format: { type: 'json_schema', schema: esquemaClaude(KE.ESQUEMA) } },
-      messages: [{ role: 'user', content: [{ type: 'image', source: { type: 'base64', media_type: mime, data: b64 } }, { type: 'text', text: prompt }] }] })
+    body: JSON.stringify({ model: CLAUDE, max_tokens: 4096, output_config: { effort: 'low', format: { type: 'json_schema', schema: esquemaClaude(schema) } },
+      messages: [{ role: 'user', content: (b64 ? [{ type: 'image', source: { type: 'base64', media_type: mime, data: b64 } }] : []).concat([{ type: 'text', text: prompt }]) }] })
   })
   if (!r.ok) return { error: 'La IA de visión no respondió (' + r.status + ')', status: r.status === 429 ? 429 : 502, detalle: r.d && r.d.error && r.d.error.message }
   if (r.d.stop_reason === 'refusal') return { error: 'La IA no pudo analizar esta foto. Prueba con otra.', status: 422 }
@@ -76,12 +78,34 @@ async function claude(b64, mime, prompt) {
   return { det, modelo: CLAUDE, uso: r.d.usage && { entrada: r.d.usage.input_tokens, salida: r.d.usage.output_tokens } }
 }
 
+// Recalcular: el socio corrigió nombres o agregó alimentos (con sus gramos). Solo texto, sin foto: barato y rápido.
+const ESQUEMA_R = (() => { const it = JSON.parse(JSON.stringify(KE.ESQUEMA.properties.alimentos.items)); delete it.properties.zona
+  it.required = it.required.filter(k => k !== 'zona'); return { type: 'object', properties: { alimentos: { type: 'array', maxItems: 10, items: it } }, required: ['alimentos'] } })()
+async function recalcular(token, lista, res) {
+  const u = await json(SB_URL + '/auth/v1/user', { headers: { apikey: SB_KEY, Authorization: 'Bearer ' + token }, timeout: 8000 })
+  if (!u.ok) return res.status(401).json({ error: 'Sesión inválida' })
+  const al = (Array.isArray(lista) ? lista : []).slice(0, 10).map(a => ({ nombre: String(a && a.nombre || '').replace(/[\r\n]+/g, ' ').trim().slice(0, 60), gramos: Math.max(1, Math.min(2000, Math.round(+(a && a.gramos) || 0))) })).filter(a => a.nombre && a.gramos)
+  if (!al.length) return res.status(400).json({ error: 'Sin alimentos para recalcular' })
+  const prompt = 'Eres el nutricionista de cálculo de KOACH Club (Chile). Para cada alimento, con EXACTAMENTE los gramos indicados (peso tal como se come, cocido si corresponde), entrega kcal y macros realistas según tablas de composición (USDA / tabla chilena). ' +
+    'Mantén el nombre tal cual. Clasifica grupo, preparación, NOVA y si es refinado, con azúcar añadida, carne procesada o alcohol. Responde en el mismo orden.\n' +
+    al.map((a, i) => (i + 1) + '. ' + a.nombre + ' — ' + a.gramos + ' g').join('\n')
+  let v = process.env.GEMINI_API_KEY ? await gemini(null, null, prompt, ESQUEMA_R) : await claude(null, null, prompt, ESQUEMA_R)
+  if (v.error && process.env.GEMINI_API_KEY && process.env.ANTHROPIC_API_KEY && v.status !== 422) v = await claude(null, null, prompt, ESQUEMA_R)
+  if (v.error) return res.status(v.status || 502).json({ error: 'No pudimos recalcular. Prueba de nuevo.', detalle: v.detalle })
+  const out = (v.det.alimentos || []).slice(0, al.length).map((x, i) => Object.assign({}, x, { nombre: al[i].nombre, gramos: al[i].gramos }))
+  return res.status(200).json({ alimentos: out, modelo: v.modelo })
+}
+
 module.exports = async (req, res) => {
   const t0 = Date.now()
   if (req.method !== 'POST') { res.setHeader('Allow', 'POST'); return res.status(405).json({ error: 'Método no permitido' }) }
   const token = String(req.headers.authorization || '').replace(/^Bearer\s+/i, '')
   if (!token) return res.status(401).json({ error: 'Sin sesión' })
   const b = req.body || {}
+  if (b.modo === 'recalcular') {
+    if (!process.env.GEMINI_API_KEY && !process.env.ANTHROPIC_API_KEY) return res.status(503).json({ error: 'El escáner aún no está configurado' })
+    return recalcular(token, b.alimentos, res)
+  }
   const m = /^data:(image\/(?:jpeg|png|webp));base64,/.exec(String(b.imagen || '').slice(0, 40))
   const mime = m ? m[1] : (['image/jpeg', 'image/png', 'image/webp'].includes(b.mime) ? b.mime : 'image/jpeg')
   const b64 = String(b.imagen || '').replace(/^data:[^,]+,/, '')
