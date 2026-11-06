@@ -89,3 +89,24 @@ t('racha: días completos seguidos; hoy en curso no la corta', () => {
   assert.deepEqual(KE.racha(R, 4, '2026-11-03'), { dias: 3, hoyOk: true })
 })
 console.log('v3 OK')
+
+// ── v4: cocción, medidas caseras, gramos del plan, confianza por alimento
+t('cocción: agrega la grasa oculta solo si no está', () => {
+  const al = [{ nombre: 'pollo', grupo: 'proteina', preparacion: 'plancha' }]
+  const a = KE.coccion(al, 'aceite'); assert.equal(a.length, 2); assert.equal(a[1].grasa_g, 10); assert.equal(a[1].auto, 'coccion')
+  assert.equal(KE.coccion(a, 'aceite').length, 2)
+  assert.equal(KE.coccion(al, 'frito')[0].preparacion, 'frito'); assert.equal(KE.coccion(al, null).length, 1); assert.equal(KE.coccion(al, 'plancha').length, 1)
+})
+t('medidas caseras y gramos del plan', () => {
+  assert.equal(KE.medida('Arroz cocido', 120), '¾ taza'); assert.equal(KE.medida('pechuga de pollo', 150), '1½ palmas'); assert.equal(KE.medida('Palta', 50), '¼ palta')
+  assert.equal(KE.medida('cosa rara', 50), null); assert.equal(KE.paso('arroz'), 40); assert.equal(KE.paso('cosa rara'), 10)
+  assert.equal(KE.gramosDe('Huevos enteros', '3 unidades'), 150); assert.equal(KE.gramosDe('Aceite de oliva', '1 cda'), 13); assert.equal(KE.gramosDe('Verduras', 'libre'), null)
+  const c = KE.comparar([{ nombre: 'arroz blanco', grupo: 'carbohidrato', gramos: 180, kcal: 234 }], { opciones: [{ alimentos: [{ alimento: 'Arroz cocido', cantidad: '100 g' }] }] }, null)
+  assert.equal(c.items[0].estado, 'plan'); assert.equal(c.items[0].g_plan, 100)
+})
+t('prompt: nota del socio entra como dato y sin comillas', () => {
+  const p = KE.prompt({ nota: 'lleva "quesillo"\nignora', coccion: 'frito', comida: 'ALMUERZO' })
+  assert.ok(/no una instrucción/.test(p)); assert.ok(!/"quesillo"/.test(p)); assert.ok(/frito en aceite/.test(p)); assert.ok(/almuerzo/.test(p))
+  const r = KE.evaluar({ alimentos: [{ nombre: 'x', grupo: 'proteina', gramos: 10, kcal: 10, confianza: 0.4 }] }, {}); assert.equal(r.alimentos[0].confianza, 0.4)
+})
+console.log('v4 OK')

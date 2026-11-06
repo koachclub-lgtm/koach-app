@@ -78,6 +78,9 @@ async function claude(b64, mime, prompt, schema) {
   return { det, modelo: CLAUDE, uso: r.d.usage && { entrada: r.d.usage.input_tokens, salida: r.d.usage.output_tokens } }
 }
 
+// Describir sin foto: mismo esquema que la foto, sin zonas
+const ESQUEMA_D = (() => { const e = JSON.parse(JSON.stringify(KE.ESQUEMA)), it = e.properties.alimentos.items; delete it.properties.zona; it.required = it.required.filter(k => k !== 'zona'); return e })()
+
 // Recalcular: el socio corrigió nombres o agregó alimentos (con sus gramos). Solo texto, sin foto: barato y rápido.
 const ESQUEMA_R = (() => { const it = JSON.parse(JSON.stringify(KE.ESQUEMA.properties.alimentos.items)); delete it.properties.zona
   it.required = it.required.filter(k => k !== 'zona'); return { type: 'object', properties: { alimentos: { type: 'array', maxItems: 10, items: it } }, required: ['alimentos'] } })()
@@ -106,11 +109,14 @@ module.exports = async (req, res) => {
     if (!process.env.GEMINI_API_KEY && !process.env.ANTHROPIC_API_KEY) return res.status(503).json({ error: 'El escáner aún no está configurado' })
     return recalcular(token, b.alimentos, res)
   }
+  const texto = b.modo === 'describir' ? String(b.texto || '').replace(/[\r\n\t]+/g, ' ').trim().slice(0, 300) : ''
+  if (b.modo === 'describir' && texto.length < 3) return res.status(400).json({ error: 'Cuéntanos qué comiste' })
+  const conFoto = b.modo !== 'describir'
   const m = /^data:(image\/(?:jpeg|png|webp));base64,/.exec(String(b.imagen || '').slice(0, 40))
   const mime = m ? m[1] : (['image/jpeg', 'image/png', 'image/webp'].includes(b.mime) ? b.mime : 'image/jpeg')
   const b64 = String(b.imagen || '').replace(/^data:[^,]+,/, '')
-  if (b64.length < 200 || !/^[A-Za-z0-9+/=\s]+$/.test(b64.slice(0, 400))) return res.status(400).json({ error: 'Falta la foto' })
-  if (b64.length > MAX_B64) return res.status(413).json({ error: 'La foto es muy pesada' })
+  if (conFoto && (b64.length < 200 || !/^[A-Za-z0-9+/=\s]+$/.test(b64.slice(0, 400)))) return res.status(400).json({ error: 'Falta la foto' })
+  if (conFoto && b64.length > MAX_B64) return res.status(413).json({ error: 'La foto es muy pesada' })
   if (!process.env.GEMINI_API_KEY && !process.env.ANTHROPIC_API_KEY) return res.status(503).json({ error: 'El escáner aún no está configurado (falta GEMINI_API_KEY en Vercel)' })
 
   // 1 · Cupo y contexto con el token del socio (valida sesión, acceso vigente y límite diario antes de gastar IA)
@@ -125,21 +131,25 @@ module.exports = async (req, res) => {
     return res.status(502).json({ error: 'No pudimos registrar el escaneo', detalle: msg.slice(0, 200) })
   }
   const cx = rv.d || {}
+  const coc = KE.COCCION[b.coccion] ? b.coccion : null
   const ctx = { foco: cx.foco, comida: comida && { nombre: comida }, kcal_dia: cx.kcal_dia, comidas_dia: cx.comidas_dia }
 
-  // 2 · Visión: Gemini Flash; si falla por caída/limite y hay clave de Claude, segundo intento con Claude
-  const prompt = KE.prompt(ctx)
-  let v = process.env.GEMINI_API_KEY ? await gemini(b64, mime, prompt) : await claude(b64, mime, prompt)
-  if (v.error && process.env.GEMINI_API_KEY && process.env.ANTHROPIC_API_KEY && v.status !== 422) v = await claude(b64, mime, prompt)
+  // 2 · Visión: Gemini Flash; si falla por caída/limite y hay clave de Claude, segundo intento con Claude.
+  //     Sin foto (describir): el mismo análisis desde el texto del socio.
+  const pr = conFoto ? KE.prompt({ comida, coccion: coc, nota: b.nota }) : KE.promptTexto({ comida, coccion: coc }, texto)
+  const img = conFoto ? b64 : null, sch = conFoto ? KE.ESQUEMA : ESQUEMA_D
+  let v = process.env.GEMINI_API_KEY ? await gemini(img, mime, pr, sch) : await claude(img, mime, pr, sch)
+  if (v.error && process.env.GEMINI_API_KEY && process.env.ANTHROPIC_API_KEY && v.status !== 422) v = await claude(img, mime, pr, sch)
   const ms = Date.now() - t0
   if (v.error) {
     await rpc(token, 'koach_escaneo_completar', { p_id: cx.id, p_estado: 'error', p_det: null, p_res: { error: v.error, detalle: v.detalle || null }, p_modelo: v.modelo || null, p_ms: ms })
     return res.status(v.status || 502).json({ error: v.error, detalle: v.detalle })
   }
 
-  // 3 · Veredicto con reglas KOACH y registro
+  // 3 · Grasa oculta según la cocción que indicó el socio, veredicto con reglas KOACH y registro
+  if (v.det && Array.isArray(v.det.alimentos) && v.det.alimentos.length) v.det.alimentos = KE.coccion(v.det.alimentos, coc)
   const resultado = KE.evaluar(v.det, ctx)
-  const det = { es_comida: v.det.es_comida !== false, plato: String(v.det.plato || '').slice(0, 80), confianza: Math.max(0, Math.min(1, +v.det.confianza || 0)) }
+  const det = { es_comida: v.det.es_comida !== false, plato: String(v.det.plato || '').slice(0, 80), confianza: Math.max(0, Math.min(1, +v.det.confianza || 0)), modo: conFoto ? 'foto' : 'texto', coccion: coc }
   await rpc(token, 'koach_escaneo_completar', { p_id: cx.id, p_estado: 'listo', p_det: det, p_res: resultado, p_modelo: v.modelo, p_ms: ms })
   return res.status(200).json({ id: cx.id, deteccion: det, resultado, contexto: { foco: resultado.foco, comida, comida_num: num, comidas_dia: cx.comidas_dia, usados: cx.usados, limite: cx.limite }, modelo: v.modelo, ms, uso: v.uso })
 }
