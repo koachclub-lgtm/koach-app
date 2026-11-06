@@ -75,6 +75,9 @@ const CSS = `
 @media (min-width:640px){.keu__sc{max-width:520px;margin:0 auto;width:100%}}
 `
 const KEU_CSS2 = `
+.keu__pts{flex-shrink:0;display:flex;flex-direction:column;align-items:flex-end;gap:2px;padding-left:6px}
+.keu__pts b{font:900 34px/.9 var(--font-display,'Inter Display',Inter,Arial,sans-serif);font-stretch:112%;letter-spacing:-.03em;color:#F4F3F0}
+.keu__pts span{font:600 9px var(--font-mono,'IBM Plex Mono',monospace);letter-spacing:.14em;color:#A7A9AE}
 .keu__pick{padding:22px 20px 0}
 .keu__pick h2{margin:8px 0 18px;font-family:var(--font-display,'Inter Display',Inter,Arial,sans-serif);font-weight:900;font-stretch:112%;font-size:clamp(30px,9vw,38px);line-height:.92;letter-spacing:-.03em;text-transform:uppercase}
 .keu__pick small{display:block;font:600 10px var(--font-mono,'IBM Plex Mono',monospace);letter-spacing:.16em;color:#5E5D59}
@@ -233,7 +236,8 @@ function pintar(){
   // a qué comida corresponde (cambia la comparación al instante)
   h += '<div class="keu__ms" role="group" aria-label="¿Qué comida de tu plan es?">' + p.comidas.map((x, i) => '<button type="button" aria-pressed="' + (S.num === i + 1) + '" onclick="KEU.comida(' + (i + 1) + ')">' + (i + 1) + '<span>' + esc(String(x.nombre).slice(0, 10)) + '</span></button>').join('') + '</div>'
   const kick = r.cheat ? 'ALERTA · CHEAT MEAL DETECTADO' : v.k + (c ? ' · COMIDA ' + S.num + ' DE ' + n : '')
-  h += '<div class="keu__ver keu__ver--' + r.veredicto + '" style="--c:' + v.c + ';margin-top:12px"><div class="keu__ic"><svg viewBox="0 0 24 24">' + v.ico + '</svg></div><div><small>' + esc(kick) + '</small><b>' + esc(r.titulo) + '</b><p>' + esc(r.mensaje) + '</p></div></div>'
+  h += '<div class="keu__ver keu__ver--' + r.veredicto + '" style="--c:' + v.c + ';margin-top:12px"><div class="keu__ic"><svg viewBox="0 0 24 24">' + v.ico + '</svg></div><div style="flex:1;min-width:0"><small>' + esc(kick) + '</small><b>' + esc(r.titulo) + '</b><p>' + esc(r.mensaje) + '</p></div>' +
+    (r.puntaje != null ? '<div class="keu__pts" role="img" aria-label="Puntaje ' + r.puntaje + ' de 100"><b>' + r.puntaje + '</b><span>/100</span></div>' : '') + '</div>'
   h += '<div class="keu__b">'
   // cómo va con la pauta
   if (S.cmp) {

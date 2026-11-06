@@ -73,3 +73,19 @@ t('cumplimiento: hoy y semana', () => {
   assert.equal(c.semana.dias.length, 7); assert.equal(c.semana.dias[0].hechas, 4); assert.equal(c.semana.dias[4].futuro, true)
 })
 console.log('v2 OK')
+
+// ── v3: calorías del día (sin foto = según pauta) y racha
+t('cumplimiento con metas: comida lista sin foto suma lo de la pauta', () => {
+  const m = { kcal: 776, proteina_g: 47, carbohidrato_g: 98, grasa_g: 21 }
+  const c = KE.cumplimiento([{ fecha: '2026-11-05', comida_num: 1, estado: 'cumplida', origen: 'manual' }, { fecha: '2026-11-05', comida_num: 2, estado: 'cumplida', origen: 'escaneo', escaneo_id: 'x', kcal: 600, proteina_g: 50 }], 4, '2026-11-05', m)
+  assert.equal(c.hoy.kcal, 1376); assert.equal(c.hoy.proteina_g, 97); assert.equal(c.hoy.estimadas, 1)
+})
+t('racha: días completos seguidos; hoy en curso no la corta', () => {
+  const R = []; const add = (f, nums, cheat) => nums.forEach(n => R.push({ fecha: f, comida_num: n, estado: cheat && cheat.includes(n) ? 'cheat' : 'cumplida' }))
+  add('2026-11-01', [1, 2, 3, 4]); add('2026-11-02', [1, 2, 3, 4], [4]); add('2026-11-03', [1, 2, 3, 4]); add('2026-11-04', [1, 2, 3, 4], [2, 3]); add('2026-11-05', [1, 2])
+  assert.deepEqual(KE.racha(R, 4, '2026-11-05'), { dias: 0, hoyOk: false })      // 4-nov tuvo 2 cheat → corta
+  add('2026-11-05', [3, 4]); assert.deepEqual(KE.racha(R, 4, '2026-11-05'), { dias: 1, hoyOk: true })
+  assert.deepEqual(KE.racha(R, 4, '2026-11-04').dias, 3)   // hoy (4-nov) aún en curso: no corta la racha previa
+  assert.deepEqual(KE.racha(R, 4, '2026-11-03'), { dias: 3, hoyOk: true })
+})
+console.log('v3 OK')
