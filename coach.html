@@ -255,7 +255,15 @@ button.bxI:hover,button.bxI:focus-visible{transform:translateY(-2px);box-shadow:
 .dmF button{min-height:44px;padding:0 18px;border-radius:999px;border:1px solid #121212;background:none;color:#121212;font-family:var(--font-mono);font-size:11.5px;letter-spacing:.1em;cursor:pointer}
 .dmF button.ink{background:#121212;color:#F4F3F0}
 .dmF button:disabled{opacity:.4;cursor:default}
-.apBox{max-width:620px}
+.apDs{margin-top:6px;display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
+.apD{background:#EFEEEA;border-radius:10px;padding:8px 10px}.apD--w{grid-column:span 2}
+.apD small{display:block;font:700 9px var(--font-mono);letter-spacing:.1em;color:#666;margin-bottom:2px}.apD b{font-size:14px;line-height:1.3}
+@media (max-width:520px){.apDs{grid-template-columns:1fr 1fr}.apD--w{grid-column:span 2}}
+.apSs{margin-top:6px;display:grid;gap:6px}
+.apS{padding:9px 12px;border-radius:10px;background:#FDECEA;color:#8A2A1C}.apS--ok{background:#E8F3EC;color:#1E5A33}
+.apS small{display:block;font:700 9px var(--font-mono);letter-spacing:.1em;opacity:.8;margin-bottom:2px}.apS b{font-size:14px}.apS span{display:block;font-size:13px;margin-top:3px}
+.apXp i{font-style:normal;color:#555;font-size:13px}
+.apBox{max-width:660px}
 .apMeta{font-size:13px;color:#555;margin:-8px 0 10px}
 .ec{margin:6px 0 4px;padding:12px 14px;border-radius:12px;background:#121212;color:#F4F3F0}
 .ec small{display:block;font:700 9.5px var(--font-mono);letter-spacing:.16em;opacity:.7}
@@ -3684,6 +3692,25 @@ const AP_PILAR={
  lesion:['Se lesionó o tuvo dolor','Entrenamiento guiado y seguro: técnica supervisada y cargas ajustadas a su capacidad.'],
  tiempo:['No tenía tiempo','Sesiones de 60 minutos, sin esperar máquina, llegas sin reserva todos los días.'],
  ambiente:['No se sentía cómodo en el gimnasio','KOACH no es un gimnasio: sala especializada en fuerza, siempre con un koach.']}
+const AP_ULT={ahora:'Entrena actualmente',m1:'Hace menos de 1 mes',m3:'Hace 1 a 3 meses',m6:'Hace 3 a 6 meses',m12:'Hace 6 a 12 meses',a1:'Hace más de 1 año',nunca:'Nunca ha entrenado'}
+const AP_ENER=['','Muy baja','Baja','Normal','Buena','Muy alta']
+const AP_DET={
+ planificacion:['Una buena planificación','Planificación individual: el koach prescribe ejercicios, carga e intensidad según su objetivo y nivel. Muéstrale su protocolo en la app.'],
+ esquema:['Un esquema de trabajo claro','Sabe qué hacer cada día: su protocolo semana a semana en la app, sesión por sesión.'],
+ guia:['Alguien que lo guíe y corrija','Entrenamiento guiado: nunca entrenas solo. Corrígele técnica en cada set de la demo.'],
+ constancia:['Constancia y frecuencia','Frecuencia según su agenda, llega sin reserva todos los días y el koach le da seguimiento a su asistencia.'],
+ intensidad:['La intensidad correcta','El koach regula carga e intensidad en cada set y la ajusta semana a semana. Que lo sienta en la demo.'],
+ alimentacion:['La alimentación','Nutrición incluida en la membresía: evaluación de composición corporal y pauta según su objetivo.'],
+ seguimiento:['Ver su progreso','App: cada set registrado, progreso de fuerza y mediciones mensuales. Muéstrale AVANCES.'],
+ comunidad:['Un buen ambiente','Club del 1%: comunidad, Social Run y actividades especiales.']}
+const AP_PRE={
+ lesion:['Lesionarse','Técnica supervisada y cargas ajustadas a su capacidad; parte con un protocolo inicial según su nivel.'],
+ constancia:['No ser constante','Planificación según su frecuencia real y un koach que lo espera y le hace seguimiento.'],
+ resultados:['No ver resultados','Progreso medido: cargas registradas en la app y tests de fuerza durante el ciclo.'],
+ maquinas:['No saber usar las máquinas','Nunca entrena solo: el koach le enseña cada ejercicio y le ayuda a cargar las máquinas.'],
+ nivel:['No estar al nivel','Cada protocolo es individual: parte desde su nivel, sin compararse con nadie.'],
+ tiempo:['No tener tiempo','Sesiones de 60 minutos, sin esperar máquina, de lunes a viernes 06:00–22:00 y sábado 09:00–15:00.'],
+ nada:['Nada, quiere partir','Está listo: haz una gran demo y ofrécele empezar hoy.']}
 let AP=null, AP_BASES=null
 function apCerrar(){ const o=document.getElementById('apOv'); if(o) o.remove(); AP=null }
 async function apAbrir(id){
@@ -3718,8 +3745,12 @@ function apCalc(){ const A=AP.A||{}, ex=A.experiencia, fr=A.frustra||[], h=(A.hi
   if(A.origen==='conocia'){ ec=5; ecT='YA QUIERE KOACH'; ecD='Está decidido. Haz una gran demo y ofrécele empezar hoy.' }
   const crit=[]
   if(lesion) crit.push('Molestia: '+sal.join(', ').toLowerCase()+(A.salud.txt?' — "'+A.salud.txt+'"':'')+'. Adaptar ejercicios y rangos.')
-  const durs=h.filter(function(e){return e.dur!=null}).map(function(e){return AP_DURM[e.dur]})
+  const les=(A.lesiones&&A.lesiones.sel)||[]; if(les.length&&les[0]!=='Ninguna') crit.push('Lesión o cirugía previa: '+les.join(', ').toLowerCase()+'. Evitar cargas que la comprometan y elegir variantes seguras.')
+  const dol=(A.dolor&&A.dolor.sel)||[]; if(dol.length&&dol[0]!=='No, me siento bien') crit.push('Dolor hoy: '+dol.join(', ').toLowerCase()+'. Adaptar ejercicios y rangos en la demo.')
+  const durs=h.filter(function(e){return e.dur!=null}).map(function(e){return AP_DURM[e.dur]}); if(A.maximo!=null&&A.maximo!=='') durs.push(AP_DURM[+A.maximo])
   if(durs.length&&Math.max.apply(null,durs)<3) crit.push('Nunca ha sostenido más de 3 meses seguidos: riesgo de abandono. Hablar de constancia y seguimiento.')
+  const pat=(A.patologias&&A.patologias.sel)||[]; if(pat.length&&pat[0]!=='Ninguna') crit.push('Patología declarada ('+pat.join(', ').toLowerCase()+'): confirmar control médico y ajustar intensidad.')
+  if(A.energia&&A.energia<=2) crit.push('Energía baja en el día a día: muéstrale que el entrenamiento le va a devolver energía; parte con intensidad moderada.')
   if(A.pt==='si_no') crit.push('Un entrenador personal no le funcionó: expectativa alta. Mostrar en qué es distinto el sistema.')
   if(ex==='cero') crit.push('Nunca ha entrenado: prioridad en técnica y en que se vaya con una buena experiencia.')
   if(dias===2) crit.push('Solo 2 días por semana: el método está pensado para 3, pero se planifica según su frecuencia.')
@@ -3759,18 +3790,35 @@ function apPintar(){
       '<div class="rcW">'+r.why.join(' · ')+(r.why.length?' · ':'')+r.tot+' sets/sem</div>'+(r.warn?'<div class="rcX">⚠ '+bxEsc(r.warn)+'</div>':'')+
       '<button type="button"'+(AP.run?' disabled':'')+' onclick="apProponer(\''+b.id+'\')">'+(es?'PROPUESTO ✓':'PROPONER')+'</button></div>' }
   const cero = AP.prop===null && AP.propAt
+  const ult=AP_ULT[A.ultima]||({cero:'Nunca ha entrenado',antes:'Entrenó antes, hoy no',sinplan:'Entrena sin un plan',plan:'Entrena con un plan'}[A.experiencia]||'—')
+  const maxTxt=(A.maximo!=null&&A.maximo!=='')?AP_DUR[+A.maximo]:(c.h.length?AP_DUR[Math.max.apply(null,c.h.filter(function(e){return e.dur!=null}).map(function(e){return e.dur}).concat([0]))]:'—')
+  const disc=[].concat.apply([],c.h.map(function(e){return e.disc?[e.disc]:[]})).filter(function(x,i,a){return a.indexOf(x)===i})
+  const edad=A.edad||ed
+  const dato=function(l,v,w){ return '<div class="apD'+(w?' apD--w':'')+'"><small>'+l+'</small><b>'+v+'</b></div>' }
+  const salud=function(l,o,n){ const v=o||{}, sel=v.sel||[]; if(!sel.length) return ''
+    const ok=sel[0]===n; return '<div class="apS'+(ok?' apS--ok':'')+'"><small>'+l+'</small><b>'+bxEsc(sel.join(' · '))+'</b>'+(v.txt?'<span>"'+bxEsc(v.txt)+'"</span>':'')+'</div>' }
+  const hayV2=!!(A.patologias||A.lesiones||A.dolor)
+  const saludHTML = hayV2
+    ? salud('PATOLOGÍAS · DIAGNÓSTICOS',A.patologias,'Ninguna')+salud('LESIONES · CIRUGÍAS',A.lesiones,'Ninguna')+salud('DOLOR O MOLESTIA HOY',A.dolor,'No, me siento bien')
+    : salud('LESIÓN O MOLESTIA',A.salud,'Ninguna')
   box.innerHTML=head+
-    '<div class="ec"><small>ESTADO DE CONCIENCIA</small><div class="ecR"><span class="ecBar">'+[1,2,3,4,5].map(function(k){return '<i class="'+(k<=c.ec?'on':'')+'"></i>'}).join('')+'</span><b>'+c.ecT+'</b></div><p>'+c.ecD+'</p></div>'+
-    '<div class="apGr"><div>OBJETIVO</div><div>'+(AP_OBJ[A.objetivo]||'—')+'</div><div>FOCO</div><div>'+bxEsc(focoTxt)+'</div>'+
-      '<div>EXPERIENCIA</div><div>'+exTxt+(ptTxt?' · '+ptTxt:'')+'</div>'+
-      '<div>TIEMPO</div><div>'+(t.dias?t.dias+' días':'—')+(t.min?' · '+t.min.toLowerCase():'')+(t.hor?' · '+t.hor.toLowerCase():'')+'</div>'+
-      '<div>DOLORES</div><div>'+(c.fr.length?c.fr.map(function(f,k){return (k+1)+'. '+AP_PILAR[f][0]}).join('<br>'):'—')+'</div>'+
-      (orTxt?'<div>LLEGÓ</div><div>'+orTxt+'</div>':'')+'</div>'+
-    (c.h.length?'<div class="apSec">HISTORIAL · ÚLTIMAS EXPERIENCIAS</div><div class="apXp">'+c.h.map(function(e){return '<div><span>'+bxEsc(e.lugar||'—')+'</span><em>'+(e.dur!=null?AP_DUR[e.dur]:'—')+'</em></div>'}).join('')+'</div>':'')+
-    (A.frustraTxt?'<div class="apQ"><small>POR QUÉ DEJÓ DE ENTRENAR · EN SUS PALABRAS</small>"'+bxEsc(A.frustraTxt)+'"</div>':'')+
+    '<div class="apSec">DATOS CLAVE</div><div class="apDs">'+
+      dato('EDAD',edad?edad+' años':'—')+dato('ÚLTIMA VEZ QUE ENTRENÓ',ult)+dato('MÁXIMO SEGUIDO',maxTxt)+
+      dato('ENERGÍA',A.energia?A.energia+'/5 · '+AP_ENER[A.energia]:'—')+
+      dato('PUEDE ENTRENAR',(t.dias?t.dias+' días':'—')+(t.min?' · '+t.min.toLowerCase():'')+(t.hor?' · '+t.hor.toLowerCase():''),1)+
+      dato('DISCIPLINAS',disc.length?bxEsc(disc.join(' · ')):'—',1)+
+      dato('OBJETIVO',(AP_OBJ[A.objetivo]||'—')+' · '+bxEsc(focoTxt),1)+
+      (ptTxt?dato('ENTRENADOR PERSONAL',ptTxt,1):'')+'</div>'+
+    '<div class="apSec">SALUD</div><div class="apSs">'+(saludHTML||'<div class="apS"><b>Sin datos</b></div>')+'</div>'+
+    (c.h.length?'<div class="apSec">HISTORIAL · ÚLTIMAS EXPERIENCIAS</div><div class="apXp">'+c.h.map(function(e){return '<div><span><b>'+bxEsc(e.lugar||e.disc||'—')+'</b>'+(e.lugar&&e.disc?' · '+bxEsc(e.disc):'')+(e.desc?'<br><i>"'+bxEsc(e.desc)+'"</i>':'')+'</span><em>'+(e.dur!=null?AP_DUR[e.dur]:'—')+'</em></div>'}).join('')+'</div>':'')+
+    (A.espera?'<div class="apQ"><small>QUÉ ESPERA LOGRAR · EN SUS PALABRAS</small>"'+bxEsc(A.espera)+'"</div>':'')+
     (A.porque?'<div class="apQ"><small>POR QUÉ VINO HOY · EN SUS PALABRAS</small>"'+bxEsc(A.porque)+'"</div>':'')+
+    (A.frustraTxt?'<div class="apQ"><small>POR QUÉ DEJÓ DE ENTRENAR · EN SUS PALABRAS</small>"'+bxEsc(A.frustraTxt)+'"</div>':'')+
     (c.crit.length?'<div class="apCrit"><b>⚠ PUNTOS CRÍTICOS</b>'+c.crit.map(function(x){return '· '+bxEsc(x)}).join('<br>')+'</div>':'')+
-    (c.fr.length?'<div class="apSec">CÓMO ABORDARLO EN LA CLASE</div><div class="apAb">'+c.fr.map(function(f){return '<div><small>'+AP_PILAR[f][0].toUpperCase()+'</small>'+AP_PILAR[f][1]+'</div>'}).join('')+'</div>':'')+
+    '<div class="ec"><small>ESTADO DE CONCIENCIA</small><div class="ecR"><span class="ecBar">'+[1,2,3,4,5].map(function(k){return '<i class="'+(k<=c.ec?'on':'')+'"></i>'}).join('')+'</span><b>'+c.ecT+'</b></div><p>'+c.ecD+'</p></div>'+
+    ((A.determinante||[]).length?'<div class="apSec">LO QUE CREE DETERMINANTE · MUÉSTRALE QUE KOACH LO TIENE</div><div class="apAb">'+A.determinante.map(function(f){const d=AP_DET[f]||[f,''];return '<div><small>'+d[0].toUpperCase()+'</small>'+d[1]+'</div>'}).join('')+'</div>':'')+
+    ((A.preocupa||[]).length?'<div class="apSec">LO QUE LE PREOCUPA · RESPÓNDELO EN LA CLASE</div><div class="apAb">'+A.preocupa.map(function(f){const d=AP_PRE[f]||[f,''];return '<div><small>'+d[0].toUpperCase()+'</small>'+d[1]+'</div>'}).join('')+'</div>':'')+
+    (c.fr.length?'<div class="apSec">LO QUE NO LE FUNCIONÓ ANTES</div><div class="apAb">'+c.fr.map(function(f){return '<div><small>'+AP_PILAR[f][0].toUpperCase()+'</small>'+AP_PILAR[f][1]+'</div>'}).join('')+'</div>':'')+
     '<div class="apSec">CLASIFICACIÓN</div><div class="apCls">'+c.prog+' · '+AP_NIVT[c.niv]+' · '+(apSx()==='mujer'?'MUJER':'HOMBRE')+' · '+c.dias+' DÍAS · '+fz.toUpperCase()+'</div>'+
     '<div class="apSec">'+(AP.otros?'TODOS LOS PROTOCOLOS BASE · '+(apSx()==='mujer'?'MUJER':'HOMBRE'):'PROTOCOLOS RECOMENDADOS')+'</div><div class="rc">'+top.map(card).join('')+'</div>'+
     (extra>0?'<p class="rcN2">Las bases están diseñadas para 3 sesiones. Para '+c.dias+' días se suma '+(extra>1?extra+' sesiones extra':'1 sesión extra')+' de '+fz+' desde la biblioteca.</p>':'')+
