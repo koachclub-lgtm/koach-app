@@ -15,7 +15,7 @@ const VER = {
   no_comida:{ k: 'SIN COMIDA', c: '#6B6A65', ico: '<path d="M8 8l8 8M16 8l-8 8"/>', card: '' }
 }
 const CSS = `
-.keu{position:fixed;inset:0;z-index:9000;display:flex;flex-direction:column;background:#F4F3F0;color:#121212;font-family:var(--font-display,'Inter Display',Inter,Arial,sans-serif);font-variant-numeric:tabular-nums;overflow:hidden}
+.keu{position:fixed;inset:0;z-index:9000;display:flex;flex-direction:column;background:#C9CBCE url('/img/bg/silver-plan.jpg') center/cover no-repeat;color:#121212;font-family:var(--font-display,'Inter Display',Inter,Arial,sans-serif);font-variant-numeric:tabular-nums;overflow:hidden}
 .keu[hidden]{display:none}
 .keu *{box-sizing:border-box}
 .keu__top{flex-shrink:0;height:52px;display:flex;align-items:center;justify-content:space-between;padding:0 16px;padding-top:env(safe-area-inset-top);background:#121212;color:#F4F3F0}
@@ -63,8 +63,8 @@ const CSS = `
 .keu__acc div{display:flex;gap:10px;align-items:flex-start;margin-top:8px;font:400 14px/1.4 var(--font-display,'Inter Display',Inter,Arial,sans-serif)}
 .keu__acc div em{font:600 11px var(--font-mono,'IBM Plex Mono',monospace);font-style:normal;padding-top:2px}
 .keu__bt{display:flex;flex-direction:column;gap:10px;padding:18px 20px 0}
-.keu__bt button,.keu__bt a{height:54px;border-radius:18px;border:1px solid #121212;background:#121212;color:#F4F3F0;display:flex;align-items:center;justify-content:space-between;padding:0 20px;font:700 16px var(--font-display,'Inter Display',Inter,Arial,sans-serif);text-decoration:none;cursor:pointer}
-.keu__bt .sec{background:transparent;color:#121212}
+.keu__bt button,.keu__bt a{height:54px;border-radius:999px;border:1px solid #121212;background:#121212;color:#F4F3F0;display:flex;align-items:center;justify-content:space-between;padding:0 20px;font:700 16px var(--font-display,'Inter Display',Inter,Arial,sans-serif);text-decoration:none;cursor:pointer}
+.keu__bt .sec{background:rgba(255,255,255,.55);border-color:rgba(255,255,255,.7);color:#121212}
 .keu__bt span{font:600 10px var(--font-mono,'IBM Plex Mono',monospace);letter-spacing:.16em;opacity:.7}
 .keu__pie{margin:14px 20px 0;text-align:center;font:600 10px var(--font-mono,'IBM Plex Mono',monospace);letter-spacing:.12em;color:#5E5D59}
 .keu__err{padding:28px 20px 0;text-align:center}
@@ -76,26 +76,27 @@ const CSS = `
 `
 const KEU_CSS2 = `
 .keu__pick{padding:22px 20px 0}
-.keu__pick h2{margin:6px 0 16px;font:700 26px/1.1 var(--font-display,'Inter Display',Inter,Arial,sans-serif);letter-spacing:-.02em}
+.keu__pick h2{margin:8px 0 18px;font-family:var(--font-display,'Inter Display',Inter,Arial,sans-serif);font-weight:900;font-stretch:112%;font-size:clamp(30px,9vw,38px);line-height:.92;letter-spacing:-.03em;text-transform:uppercase}
 .keu__pick small{display:block;font:600 10px var(--font-mono,'IBM Plex Mono',monospace);letter-spacing:.16em;color:#5E5D59}
 .keu__pk{display:flex;flex-direction:column;gap:10px}
-.keu__pk button{display:grid;grid-template-columns:44px 1fr auto;align-items:center;gap:12px;min-height:64px;padding:10px 16px;border-radius:18px;border:1px solid rgba(18,18,18,.14);background:#fff;color:#121212;text-align:left;cursor:pointer}
+.keu__pk button{display:grid;grid-template-columns:52px 1fr auto;align-items:center;gap:12px;min-height:72px;padding:6px 18px 6px 6px;border-radius:999px;border:1px solid rgba(255,255,255,.9);box-shadow:0 10px 30px rgba(0,0,0,.07);background:#fff;color:#121212;text-align:left;cursor:pointer}
 .keu__pk button b{font:700 17px var(--font-display,'Inter Display',Inter,Arial,sans-serif)}
-.keu__pk button em{font:600 22px var(--font-mono,'IBM Plex Mono',monospace);font-style:normal}
+.keu__pk button em{width:52px;height:52px;border-radius:50%;background:#E3E2DE;display:flex;align-items:center;justify-content:center;font:700 20px var(--font-display,'Inter Display',Inter,Arial,sans-serif);font-style:normal;color:#6B6A65}
+.keu__pk button.ok em{background:#111;color:#F4F3F0}.keu__pk button b{text-transform:uppercase;letter-spacing:.01em}
 .keu__pk button span{font:600 9.5px var(--font-mono,'IBM Plex Mono',monospace);letter-spacing:.12em;color:#5E5D59}
 .keu__pk button.ok span{color:#2F7D4F}.keu__pk button.ch span{color:#B23A2E}
 .keu__ms{display:flex;gap:6px;padding:12px 16px 0;overflow-x:auto;scrollbar-width:none}
 .keu__ms::-webkit-scrollbar{display:none}
-.keu__ms button{flex:1 0 auto;min-width:74px;height:50px;border-radius:14px;border:1.5px solid rgba(18,18,18,.16);background:#fff;color:#121212;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;font:600 13px var(--font-mono,'IBM Plex Mono',monospace);cursor:pointer}
+.keu__ms button{flex:1 0 auto;min-width:74px;height:50px;border-radius:999px;border:1px solid rgba(255,255,255,.9);box-shadow:0 6px 18px rgba(0,0,0,.06);background:#fff;color:#121212;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;font:600 13px var(--font-mono,'IBM Plex Mono',monospace);cursor:pointer}
 .keu__ms button span{font-size:8.5px;letter-spacing:.08em}
 .keu__ms button[aria-pressed="true"]{background:#121212;border-color:#121212;color:#F4F3F0}
 .keu__k{display:block;margin-bottom:8px;font:600 10px var(--font-mono,'IBM Plex Mono',monospace);letter-spacing:.16em;color:#5E5D59}
-.keu__card{background:#fff;border:1px solid rgba(18,18,18,.08);border-radius:18px;padding:14px 16px}
+.keu__card{background:#fff;border:1px solid rgba(255,255,255,.9);border-radius:22px;box-shadow:0 10px 30px rgba(0,0,0,.07);padding:16px 18px}
 .keu__cm{display:flex;gap:10px;align-items:flex-start;padding:8px 0;border-top:1px solid rgba(18,18,18,.07);font:400 14px/1.4 var(--font-display,'Inter Display',Inter,Arial,sans-serif)}
 .keu__cm:first-of-type{border-top:0}
 .keu__cm i{flex-shrink:0;min-width:96px;padding:4px 8px;border-radius:999px;font:600 8.5px/1.3 var(--font-mono,'IBM Plex Mono',monospace);font-style:normal;letter-spacing:.1em;text-align:center}
 .keu__cm i.plan{background:#E3EEE7;color:#1F5B38}.keu__cm i.reemplazo{background:#E8EEF6;color:#244A73}.keu__cm i.fuera{background:#121212;color:#F4F3F0}.keu__cm i.extra{background:#EFEDE8;color:#4A4945}.keu__cm i.falta{background:#FBEFD9;color:#7A4E0E}.keu__cm i.ajuste{background:#F1F0EC;color:#121212}
-.keu__inf{background:#121212;color:#F4F3F0;border-radius:18px;padding:14px 16px}
+.keu__inf{background:#111;color:#F4F3F0;border-radius:22px;padding:16px 18px;box-shadow:0 10px 30px rgba(0,0,0,.12)}
 .keu__inf .keu__k{color:#C9CDD3}
 .keu__inf div{display:flex;justify-content:space-between;gap:10px;padding:7px 0;border-top:1px solid rgba(244,243,240,.12);font:600 14px var(--font-display,'Inter Display',Inter,Arial,sans-serif)}
 .keu__inf div:first-of-type{border-top:0}
