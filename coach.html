@@ -263,6 +263,8 @@ button.bxI:hover,button.bxI:focus-visible{transform:translateY(-2px);box-shadow:
 .apS{padding:9px 12px;border-radius:10px;background:#FDECEA;color:#8A2A1C}.apS--ok{background:#E8F3EC;color:#1E5A33}
 .apS small{display:block;font:700 9px var(--font-mono);letter-spacing:.1em;opacity:.8;margin-bottom:2px}.apS b{font-size:14px}.apS span{display:block;font-size:13px;margin-top:3px}
 .apXp i{font-style:normal;color:#555;font-size:13px}
+.apS--am{background:#F6F0DC;color:#6B5410}
+.apDec{margin-top:6px;display:flex;flex-wrap:wrap;gap:6px}.apDec span{padding:7px 12px;border-radius:999px;background:#121212;color:#F4F3F0;font-size:13px;font-weight:600}
 .apBox{max-width:660px}
 .apMeta{font-size:13px;color:#555;margin:-8px 0 10px}
 .ec{margin:6px 0 4px;padding:12px 14px;border-radius:12px;background:#121212;color:#F4F3F0}
@@ -3750,6 +3752,7 @@ function apCalc(){ const A=AP.A||{}, ex=A.experiencia, fr=A.frustra||[], h=(A.hi
   const durs=h.filter(function(e){return e.dur!=null}).map(function(e){return AP_DURM[e.dur]}); if(A.maximo!=null&&A.maximo!=='') durs.push(AP_DURM[+A.maximo])
   if(durs.length&&Math.max.apply(null,durs)<3) crit.push('Nunca ha sostenido más de 3 meses seguidos: riesgo de abandono. Hablar de constancia y seguimiento.')
   const pat=(A.patologias&&A.patologias.sel)||[]; if(pat.length&&pat[0]!=='Ninguna') crit.push('Patología declarada ('+pat.join(', ').toLowerCase()+'): confirmar control médico y ajustar intensidad.')
+  const sen=(A.sensacion&&A.sensacion.sel)||[]; if(sen.length&&sen[0]!=='Me siento bien, con energía') crit.push('Cómo se siente: '+sen.join(', ').toLowerCase()+'. Muéstrale que el entrenamiento le va a devolver energía; parte con intensidad moderada.')
   if(A.energia&&A.energia<=2) crit.push('Energía baja en el día a día: muéstrale que el entrenamiento le va a devolver energía; parte con intensidad moderada.')
   if(A.pt==='si_no') crit.push('Un entrenador personal no le funcionó: expectativa alta. Mostrar en qué es distinto el sistema.')
   if(ex==='cero') crit.push('Nunca ha entrenado: prioridad en técnica y en que se vaya con una buena experiencia.')
@@ -3804,12 +3807,15 @@ function apPintar(){
   box.innerHTML=head+
     '<div class="apSec">DATOS CLAVE</div><div class="apDs">'+
       dato('EDAD',edad?edad+' años':'—')+dato('ÚLTIMA VEZ QUE ENTRENÓ',ult)+dato('MÁXIMO SEGUIDO',maxTxt)+
-      dato('ENERGÍA',A.energia?A.energia+'/5 · '+AP_ENER[A.energia]:'—')+
+      (A.energia?dato('ENERGÍA',A.energia+'/5 · '+AP_ENER[A.energia]):'')+
       dato('PUEDE ENTRENAR',(t.dias?t.dias+' días':'—')+(t.min?' · '+t.min.toLowerCase():'')+(t.hor?' · '+t.hor.toLowerCase():''),1)+
       dato('DISCIPLINAS',disc.length?bxEsc(disc.join(' · ')):'—',1)+
       dato('OBJETIVO',(AP_OBJ[A.objetivo]||'—')+' · '+bxEsc(focoTxt),1)+
       (ptTxt?dato('ENTRENADOR PERSONAL',ptTxt,1):'')+'</div>'+
     '<div class="apSec">SALUD</div><div class="apSs">'+(saludHTML||'<div class="apS"><b>Sin datos</b></div>')+'</div>'+
+    (A.sensacion?'<div class="apSec">CÓMO SE SIENTE EN SU DÍA A DÍA</div><div class="apSs">'+salud('ÚLTIMAMENTE',A.sensacion,'Me siento bien, con energía').replace('apS"','apS apS--am"')+'</div>':'')+
+    (A.decision?'<div class="apSec">POR QUÉ DECIDIÓ CAMBIAR AHORA</div><div class="apDec">'+(A.decision.sel||[]).map(function(x){return '<span>'+bxEsc(x)+'</span>'}).join('')+'</div>'+(A.decision.txt?'<div class="apQ"><small>EN SUS PALABRAS</small>"'+bxEsc(A.decision.txt)+'"</div>':''):'')+
+    (A.ayuda?'<div class="apQ"><small>CÓMO CREE QUE KOACH LO VA A AYUDAR · EN SUS PALABRAS</small>"'+bxEsc(A.ayuda)+'"</div>':'')+
     (c.h.length?'<div class="apSec">HISTORIAL · ÚLTIMAS EXPERIENCIAS</div><div class="apXp">'+c.h.map(function(e){return '<div><span><b>'+bxEsc(e.lugar||e.disc||'—')+'</b>'+(e.lugar&&e.disc?' · '+bxEsc(e.disc):'')+(e.desc?'<br><i>"'+bxEsc(e.desc)+'"</i>':'')+'</span><em>'+(e.dur!=null?AP_DUR[e.dur]:'—')+'</em></div>'}).join('')+'</div>':'')+
     (A.espera?'<div class="apQ"><small>QUÉ ESPERA LOGRAR · EN SUS PALABRAS</small>"'+bxEsc(A.espera)+'"</div>':'')+
     (A.porque?'<div class="apQ"><small>POR QUÉ VINO HOY · EN SUS PALABRAS</small>"'+bxEsc(A.porque)+'"</div>':'')+
