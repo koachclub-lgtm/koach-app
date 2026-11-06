@@ -18,9 +18,11 @@ const CSS = `
 .keu{position:fixed;inset:0;z-index:9000;display:flex;flex-direction:column;background:#C9CBCE url('/img/bg/silver-plan.jpg') center/cover no-repeat;color:#121212;font-family:var(--font-display,'Inter Display',Inter,Arial,sans-serif);font-variant-numeric:tabular-nums;overflow:hidden}
 .keu[hidden]{display:none}
 .keu *{box-sizing:border-box}
-.keu__top{flex-shrink:0;height:52px;display:flex;align-items:center;justify-content:space-between;padding:0 16px;padding-top:env(safe-area-inset-top);background:#121212;color:#F4F3F0}
+.keu__top{position:relative;flex-shrink:0;height:52px;display:flex;align-items:center;justify-content:space-between;padding:0 16px;padding-top:env(safe-area-inset-top);background:#121212;color:#F4F3F0}
 .keu__top button{display:flex;align-items:center;gap:8px;height:40px;padding:0 6px;border:0;background:none;color:inherit;font:600 10px var(--font-mono,'IBM Plex Mono',monospace);letter-spacing:.16em;cursor:pointer}
 .keu__top button svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.keu__logo{position:absolute;left:50%;top:calc(50% + env(safe-area-inset-top,0px)/2);transform:translate(-50%,-50%);width:88px;height:auto;pointer-events:none}
+@media (max-width:400px){.keu__top span{display:none}}
 .keu__top span{font:500 10px var(--font-mono,'IBM Plex Mono',monospace);letter-spacing:.16em;color:#A7A9AE}
 .keu__sc{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding-bottom:calc(20px + env(safe-area-inset-bottom))}
 .keu__ph{position:relative;background:#1E1F22;overflow:hidden}
@@ -136,7 +138,7 @@ function css(){ if (document.getElementById('keuCss')) return; const s = documen
 function el(){
   let o = document.getElementById('keuO'); if (o) return o
   css(); o = document.createElement('div'); o.id = 'keuO'; o.className = 'keu'; o.hidden = true; o.setAttribute('role', 'dialog'); o.setAttribute('aria-modal', 'true'); o.setAttribute('aria-label', 'Escáner de comidas')
-  o.innerHTML = '<div class="keu__top"><button type="button" onclick="KEU.cerrar()"><svg viewBox="0 0 24 24"><path d="M15 6l-6 6 6 6"/></svg>ESCÁNER</button><span id="keuT"></span></div><div class="keu__sc" id="keuSc"></div>'
+  o.innerHTML = '<div class="keu__top"><button type="button" onclick="KEU.cerrar()"><svg viewBox="0 0 24 24"><path d="M15 6l-6 6 6 6"/></svg>ESCÁNER</button><img class="keu__logo" src="/img/brand/logotipo-koach.png" alt="KOACH"><span id="keuT"></span></div><div class="keu__sc" id="keuSc"></div>'
   document.body.appendChild(o)
   const f = document.createElement('input'); f.type = 'file'; f.accept = 'image/*'; f.id = 'keuF'; f.hidden = true
   f.addEventListener('change', () => { const x = f.files && f.files[0]; f.value = ''; if (x) foto(x) })
