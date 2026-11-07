@@ -1,5 +1,5 @@
 /* KOACH · COMPARTIR MI COMIDA (window.KESH) · historias 1080×1920 para Instagram, copia del sistema de las fotos de entrenamiento
-   (mismos filtros, zona segura, logotipo, pills, ticket de cristal con código, señaladores y escáner), adaptado a comida.
+   (zona segura, logotipo, pills, ticket de cristal con código, señaladores y escáner), adaptado a comida. Los filtros son propios de comida: color vivo, no los B/N dramáticos de entrenamiento.
    Regla: la tarjeta muestra kcal, macros y la comida del plan (COMIDA 2/5 · ALMUERZO). NUNCA nombres de alimentos ni datos de salud.
    Solo se abre con un registro válido hecho con foto real (no errores, no pantallas/internet). La foto vive en memoria: no se sube ni se guarda.
    KESH.abrir({ foto: canvas|bitmap, al: [{grupo, kcal, proteina_g, carbohidrato_g, grasa_g, zona:[y0,x0,y1,x1] 0-1000}], tot: {kcal, proteina_g, carbohidrato_g, grasa_g},
@@ -9,10 +9,10 @@
 const W = 1080, H = 1920, ST = 250, SB = 250, SX = 110, B = '#FFFFFF', G = '#C9CDD3'
 const DISP = "'Inter Display', Inter, Arial, sans-serif", MONO = "'IBM Plex Mono', monospace"
 const PLANT = [['mapa', 'MAPA'], ['ticket', 'TICKET'], ['scan', 'ESCÁNER'], ['editorial', 'EDITORIAL'], ['dia', 'DÍA']]
-const FILT = [['frio', 'DRAMÁTICO FRÍO'], ['drama', 'DRAMÁTICO'], ['plata', 'PLATA'], ['natural', 'NATURAL']]
+const FILT = [['vivo', 'VIVO'], ['calido', 'CÁLIDO'], ['fresco', 'FRESCO'], ['natural', 'NATURAL']]
 const ROL = { proteina: ['PROTEÍNA', 'proteina_g'], legumbre: ['PROTEÍNA', 'proteina_g'], lacteo: ['PROTEÍNA', 'proteina_g'], carbohidrato: ['CARBOS', 'carbohidrato_g'], fruta: ['CARBOS', 'carbohidrato_g'], grasa: ['GRASAS', 'grasa_g'], verdura: ['VERDURAS', 'kcal'] }
 const EST = { plan: 'EN TU PLAN', completada: 'COMPLETADA', registrada: 'REGISTRADA' }
-const K = { d: null, plant: 'mapa', filt: 'frio', cache: {}, logo: null, fondo: null }
+const K = { d: null, plant: 'mapa', filt: 'vivo', cache: {}, logo: null, fondo: null }
 const $ = id => document.getElementById(id)
 const n0 = v => Math.round(+v || 0).toLocaleString('es-CL')
 
@@ -35,24 +35,6 @@ function caja(a){
   if (cx < 60 || cx > W - 60 || cy < ST || cy > H - SB) return null
   return Object.assign(r, { cx, cy })
 }
-function lut(x, L){ const px = x.getImageData(0, 0, W, H), d = px.data; for (let i = 0; i < d.length; i += 4) { d[i] = L[d[i]]; d[i + 1] = L[d[i + 1]]; d[i + 2] = L[d[i + 2]] } x.putImageData(px, 0, 0) }
-function exposicion(x, ev){ const k = Math.pow(2, ev), L = new Uint8ClampedArray(256)
-  for (let v = 0; v < 256; v++) { const c = v / 255, lin = c <= .04045 ? c / 12.92 : Math.pow((c + .055) / 1.055, 2.4), o = lin * k; L[v] = Math.round((o <= .0031308 ? o * 12.92 : 1.055 * Math.pow(o, 1 / 2.4) - .055) * 255) }
-  lut(x, L) }
-function ajuste(x, c, b){ const L = new Uint8ClampedArray(256); for (let v = 0; v < 256; v++) L[v] = Math.round((v - 128) * c + 128 + b); lut(x, L) }
-function dramatico(x, frio){
-  const S = frio ? .56 : .66, curva = new Float32Array(256)
-  for (let v = 0; v < 256; v++) { let t = v / 255; t = t < .5 ? .5 * Math.pow(2 * t, 1.42) : 1 - .5 * Math.pow(2 * (1 - t), 1.42); t -= Math.max(0, t - .72) * .38; curva[v] = t * .97 * 255 }
-  const px = x.getImageData(0, 0, W, H), d = px.data
-  for (let i = 0; i < d.length; i += 4) {
-    const l = .2126 * d[i] + .7152 * d[i + 1] + .0722 * d[i + 2]
-    let r = curva[Math.max(0, Math.min(255, l + (d[i] - l) * S)) | 0], g = curva[Math.max(0, Math.min(255, l + (d[i + 1] - l) * S)) | 0], b = curva[Math.max(0, Math.min(255, l + (d[i + 2] - l) * S)) | 0]
-    if (frio) { const sh = 1 - l / 255; r = r * .92; g = g * .98 + sh * 3; b = b * 1.03 + sh * 16 } else { r = r * 1.01; b = b * .985 }
-    d[i] = r > 255 ? 255 : r; d[i + 1] = g > 255 ? 255 : g; d[i + 2] = b > 255 ? 255 : b }
-  x.putImageData(px, 0, 0)
-  const v = x.createRadialGradient(W / 2, H * .45, H * .28, W / 2, H * .45, H * .78); v.addColorStop(0, 'rgba(0,0,0,0)'); v.addColorStop(1, frio ? 'rgba(4,10,20,.42)' : 'rgba(0,0,0,.4)')
-  x.fillStyle = v; x.fillRect(0, 0, W, H)
-}
 function base(){
   const k = K.filt; if (K.cache[k]) return K.cache[k]
   const c = document.createElement('canvas'); c.width = W; c.height = H; const x = c.getContext('2d', { willReadFrequently: true }), e = K.enc
@@ -62,13 +44,32 @@ function base(){
     ax.drawImage(K.d.foto, (W - e.fw * sc) / 2 / 20, (H - e.fh * sc) / 2 / 20, e.fw * sc / 20, e.fh * sc / 20)
     x.drawImage(a, -40, -40, W + 80, H + 80); x.fillStyle = 'rgba(12,13,15,.32)'; x.fillRect(0, 0, W, H) }
   x.drawImage(K.d.foto, e.ox, e.oy, e.fw * e.s, e.fh * e.s)
-  if (k !== 'natural') exposicion(x, -.5)   // comida: media exposición menos (a -1 EV, como en entrenamiento, el plato se ve apagado)
-  if (k === 'plata') { const px = x.getImageData(0, 0, W, H), d = px.data
-    for (let i = 0; i < d.length; i += 4) { let l = (.2126 * d[i] + .7152 * d[i + 1] + .0722 * d[i + 2]) * 1.04; l = (l - 128) * 1.12 + 128; d[i] = d[i + 1] = d[i + 2] = l < 0 ? 0 : l > 255 ? 255 : l }
-    x.putImageData(px, 0, 0) }
-  else if (k === 'frio' || k === 'drama') dramatico(x, k === 'frio')
-  ajuste(x, k === 'natural' ? 1.06 : 1.10, k === 'natural' ? 0 : 10)
+  color(x, FC[k] || FC.natural)
   K.cache[k] = c; return c
+}
+/* Filtros de COMIDA (distintos a los de entrenamiento): color vivo que resalta los tonos del plato.
+   vib = intensidad que sube más los colores apagados que los ya intensos (no quema la piel de un tomate) · sat = saturación pareja
+   wb = balance de blancos por canal · con = contraste en curva S suave · luz = brillo · som = levanta sombras (el plato no se hunde) · vig = viñeta */
+const FC = {
+  vivo:    { vib: .70, sat: 1.14, wb: [1.03, 1, .97], con: .20, luz: 4, som: .10, vig: .18 },
+  calido:  { vib: .40, sat: 1.08, wb: [1.10, 1.02, .86], con: .16, luz: 2, som: .12, vig: .24 },
+  fresco:  { vib: .50, sat: 1.06, wb: [.96, 1.02, 1.05], con: .10, luz: 12, som: .14, vig: .08 },
+  natural: { vib: .12, sat: 1.0, wb: [1, 1, 1], con: .06, luz: 2, som: .04, vig: 0 }
+}
+function color(x, o){
+  const C = new Float32Array(256)
+  for (let v = 0; v < 256; v++) { let t = v / 255; t = t + o.som * (1 - t) * Math.pow(1 - t, 2) * 1.6   // sombras arriba
+    t = t + o.con * (t - .5) * (1 - Math.abs(2 * t - 1)) * 2                                           // curva S suave
+    C[v] = Math.max(0, Math.min(255, t * 255 + o.luz)) }
+  const px = x.getImageData(0, 0, W, H), d = px.data
+  for (let i = 0; i < d.length; i += 4) {
+    let r = d[i] * o.wb[0], g = d[i + 1] * o.wb[1], b = d[i + 2] * o.wb[2]
+    const mx = Math.max(r, g, b), mn = Math.min(r, g, b), sat = mx > 0 ? (mx - mn) / mx : 0, l = .299 * r + .587 * g + .114 * b
+    const k = o.sat * (1 + o.vib * (1 - sat))
+    r = l + (r - l) * k; g = l + (g - l) * k; b = l + (b - l) * k
+    d[i] = C[r < 0 ? 0 : r > 255 ? 255 : r | 0]; d[i + 1] = C[g < 0 ? 0 : g > 255 ? 255 : g | 0]; d[i + 2] = C[b < 0 ? 0 : b > 255 ? 255 : b | 0] }
+  x.putImageData(px, 0, 0)
+  if (o.vig) { const v = x.createRadialGradient(W / 2, H * .45, H * .3, W / 2, H * .45, H * .8); v.addColorStop(0, 'rgba(0,0,0,0)'); v.addColorStop(1, 'rgba(0,0,0,' + o.vig + ')'); x.fillStyle = v; x.fillRect(0, 0, W, H) }
 }
 // ── Piezas de dibujo (las mismas de las tarjetas de entrenamiento)
 function logo(color){
