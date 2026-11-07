@@ -138,7 +138,7 @@ function mapa(ctx){
   const y = H - SB; ctx.save(); ctx.strokeStyle = 'rgba(255,255,255,.3)'; ctx.lineWidth = 3; ctx.beginPath(); ctx.moveTo(SX, y - 210); ctx.lineTo(W - SX, y - 210); ctx.stroke(); ctx.restore()
   txt(ctx, 'KCAL DE ESTA COMIDA', SX, y - 158, 500, 24, 'mono', 4, G)
   const wk = txt(ctx, d.kcal, SX - 4, y - 10, 700, 150, 'disp', -6, B); txt(ctx, 'KCAL', SX + wk + 10, y - 14, 500, 30, 'mono', 4, B)
-  txt(ctx, d.nombre.toUpperCase(), W - SX, y - 52, 500, 24, 'mono', 4, B, 'right'); txt(ctx, d.cn + ' · ' + d.est, W - SX, y - 14, 500, 22, 'mono', 3.5, G, 'right')
+  txt(ctx, 'PLAN NUTRICIONAL', W - SX, y - 52, 500, 24, 'mono', 4, B, 'right'); txt(ctx, d.cn + ' · ' + d.est, W - SX, y - 14, 500, 22, 'mono', 3.5, G, 'right')
 }
 // 2 · TICKET: foto a sangre + ticket de cristal con código
 function ticket(ctx){
@@ -159,7 +159,7 @@ function ticket(ctx){
   ctx.save(); rr(ctx, tx, ty, tw, th, 60); ctx.lineWidth = 3; ctx.strokeStyle = 'rgba(255,255,255,.5)'; ctx.stroke(); ctx.restore()
   const MU = 'rgba(255,255,255,.78)'; ctx.save(); ctx.shadowColor = 'rgba(20,28,40,.3)'; ctx.shadowBlur = 14
   let y = ty + tp + 24; const x0 = tx + tp, x1 = tx + tw - tp
-  txt(ctx, d.cn + ' · ' + d.est, x0, y, 500, 21, 'mono', 4, MU)
+  txt(ctx, d.dia + ' · ' + d.est, x0, y, 500, 21, 'mono', 4, MU)
   y += 22 + tS * .92; txt(ctx, d.nombre, x0, y, 700, tS, 'disp', -tS * .03, B)
   y += 30; pills(ctx, d.roles, x0, y, tw - 2 * tp, Object.assign({ stroke: 'rgba(255,255,255,.85)', lw: 3, color: B }, PO))
   y += ph + 36; ctx.save(); ctx.shadowBlur = 0; ctx.setLineDash([9, 9]); ctx.strokeStyle = 'rgba(255,255,255,.4)'; ctx.lineWidth = 3; ctx.beginPath(); ctx.moveTo(x0, y); ctx.lineTo(x1, y); ctx.stroke(); ctx.restore()
@@ -188,7 +188,7 @@ function scan(ctx){
   const fw = W - 2 * SX, fh = 360, fx = SX, fy = H - SB - fh + 20
   ctx.save(); ctx.fillStyle = 'rgba(18,18,18,.78)'; rr(ctx, fx, fy, fw, fh, 8); ctx.fill(); ctx.strokeStyle = 'rgba(255,255,255,.35)'; ctx.lineWidth = 2; ctx.stroke(); ctx.restore()
   ctx.fillStyle = B; ctx.fillRect(fx, fy, fw, 58); txt(ctx, 'PERFIL DE COMIDA', fx + 28, fy + 39, 600, 22, 'mono', 4, '#121212'); txt(ctx, d.cn, fx + fw - 28, fy + 39, 600, 22, 'mono', 4, '#121212', 'right')
-  txt(ctx, d.nombre.toUpperCase() + ' · ' + d.est, fx + 28, fy + 112, 500, 22, 'mono', 3.5, G)
+  txt(ctx, d.dia + ' · ' + d.est, fx + 28, fy + 112, 500, 22, 'mono', 3.5, G)
   const wk = txt(ctx, d.kcal, fx + 24, fy + 222, 700, 104, 'disp', -3, B); txt(ctx, 'KCAL', fx + 30 + wk + 8, fy + 222, 500, 26, 'mono', 4, B)
   ;[['PROTEÍNA', d.p], ['CARBOS', d.c], ['GRASAS', d.g]].forEach(([l, v], i) => { const yy = fy + 150 + i * 62; txt(ctx, '• ' + l, fx + fw - 300, yy, 500, 20, 'mono', 3, G); txt(ctx, v + ' G', fx + fw - 28, yy, 600, 30, 'mono', 0, B, 'right') })
   txt(ctx, 'SOCIO KOACH · PLAN NUTRICIONAL', fx + 28, fy + fh - 34, 500, 18, 'mono', 3.5, 'rgba(255,255,255,.6)')
@@ -206,7 +206,7 @@ function editorial(ctx){
   const O = { size: 23, track: 2.5, h: 68, gap: 12, px: 22, color: B }, ph = pills(document.createElement('canvas').getContext('2d'), d.roles, 0, 0, W - 2 * SX, O)
   y -= 36 + ph; pills(ctx, d.roles, SX, y, W - 2 * SX, Object.assign({ stroke: 'rgba(255,255,255,.55)', lw: 3 }, O))
   const s = 156; y -= 40; txt(ctx, d.nombre, SX - 4, y, 700, s, 'disp', -s * .04, B); y -= s * .95
-  txt(ctx, d.cn + ' · ' + d.est, SX, y - 6, 500, 27, 'mono', 5, G)
+  txt(ctx, d.dia + ' · ' + d.est, SX, y - 6, 500, 27, 'mono', 5, G)
 }
 // 5 · DÍA: el día y las kcal al centro; comida del plan debajo; logo al pie
 function dia(ctx){
@@ -219,7 +219,7 @@ function dia(ctx){
   ctx.font = F(800, Math.round(s * .58)); ctx.textAlign = 'center'; ctx.fillText(d.dia, W / 2, yc - s * .82)
   ctx.textAlign = 'left'; ctx.font = F(900, s); if ('letterSpacing' in ctx) ctx.letterSpacing = '-4px'; ctx.fillText(kc, x0, yc); if ('letterSpacing' in ctx) ctx.letterSpacing = '0px'
   const fs = Math.max(22, Math.round(s * .2)), y2 = yc + fs * 1.9; ctx.font = '700 ' + fs + 'px ' + MONO; if ('letterSpacing' in ctx) ctx.letterSpacing = '3px'
-  ctx.fillText(d.cn, x0 + 4, y2); ctx.textAlign = 'right'; ctx.fillText(d.nombre.toUpperCase(), x0 + bw - 4, y2); if ('letterSpacing' in ctx) ctx.letterSpacing = '0px'
+  ctx.fillText(d.cn, x0 + 4, y2); ctx.textAlign = 'right'; ctx.fillText('PLAN NUTRICIONAL', x0 + bw - 4, y2); if ('letterSpacing' in ctx) ctx.letterSpacing = '0px'
   ctx.restore(); ctx.save(); sombra(ctx, 14); dibLogo(ctx, 0, H - SB - 10, 39, B, true); ctx.restore()
 }
 const RENDER = { mapa, ticket, scan, editorial, dia }

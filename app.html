@@ -681,6 +681,69 @@ html.en-nutri #vNutri.on::before{content:'';position:fixed;inset:0;z-index:-1;po
 #vNutri .spNote{margin:-2px 6px 6px 64px;font-size:8.5px;line-height:1.4}
 #vNutri .spActs{margin:-2px 0 8px 64px;gap:4px 12px}
 #vNutri .spActs .pAct.sec{font-size:8.5px;padding:3px 0}
+/* ═══ c226 · NUTRICIÓN HOY propio: tarjeta del día (barra de energía lineal + registro) y comidas por número con plato gráfico ═══ */
+#vNutri .nuD{background:#FFFFFF;border:1px solid rgba(255,255,255,.9);border-radius:22px;box-shadow:0 10px 30px rgba(0,0,0,.07);padding:20px 20px 18px;margin:0 0 18px;color:#111}
+.nuD__h{display:flex;justify-content:space-between;gap:10px;font:700 10px/1.3 var(--a2M,'Space Mono',monospace);letter-spacing:.14em;color:#5E5D59}
+.nuD__h span:last-child{color:#111}
+.nuD__k{display:flex;align-items:baseline;gap:8px;margin-top:14px}
+.nuD__k b{font:700 clamp(46px,14vw,58px)/.9 var(--a2M,'Space Mono',monospace);letter-spacing:-.05em}
+.nuD__k span{font:700 12px var(--a2M,'Space Mono',monospace);letter-spacing:.06em;color:#5E5D59}
+.nuD__bar{position:relative;height:14px;margin-top:14px;border-radius:4px;background:#E7E6E2;overflow:hidden}
+.nuD__bar s{position:absolute;left:0;top:0;bottom:0;border-radius:4px;background:#111;text-decoration:none;transition:width .5s cubic-bezier(.2,.8,.2,1)}
+.nuD__bar i{position:absolute;top:0;bottom:0;width:2px;margin-left:-1px;background:#FFFFFF}
+.nuD__s{display:flex;justify-content:space-between;gap:10px;margin-top:8px;font:700 9.5px var(--a2M,'Space Mono',monospace);letter-spacing:.1em;color:#5E5D59}
+.nuD__ms{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;margin-top:18px}
+.nuD__m span{display:block;font:700 9px var(--a2M,'Space Mono',monospace);letter-spacing:.12em;color:#5E5D59}
+.nuD__m b{display:block;margin-top:4px;font:700 17px var(--a2M,'Space Mono',monospace);letter-spacing:-.03em}
+.nuD__m b small{font-size:10px;letter-spacing:0;color:#5E5D59;margin-left:2px}
+.nuD__m em{display:block;height:4px;margin-top:6px;border-radius:4px;background:#E7E6E2;overflow:hidden}.nuD__m em s{display:block;height:100%;background:#111;text-decoration:none}
+.nuD__r{display:flex;justify-content:space-between;align-items:flex-end;gap:14px;margin-top:18px;padding-top:16px;border-top:1px solid rgba(18,18,18,.08)}
+.nuD__r span{display:block;font:700 9.5px var(--a2M,'Space Mono',monospace);letter-spacing:.12em;color:#5E5D59}
+.nuD__r b{display:block;margin-top:4px;font:700 34px/.9 var(--a2M,'Space Mono',monospace);letter-spacing:-.05em}
+.nuD__r b small{font-size:16px;color:#8E8D88;letter-spacing:-.02em}
+.nuD__pl{display:flex;gap:6px;padding-bottom:4px}
+.nuD__pl i{width:22px;height:22px;border-radius:50%;border:2px solid #C9C8C3;box-sizing:border-box}
+.nuD__pl i.ok{border-color:#111;background:#111;box-shadow:inset 0 0 0 4px #FFFFFF}.nuD__pl i.ch{border-color:#111;border-style:dashed}
+.nuD__p{margin:12px 0 0;font:400 14.5px/1.45 var(--font-display);color:#3F3F3C}.nuD__p b{color:#111}
+.nuD__cta{width:100%;min-height:54px;margin-top:16px;border:0;border-radius:18px;background:#111;color:#F4F3F0;display:flex;align-items:center;justify-content:center;gap:10px;font:700 16px var(--font-display);cursor:pointer}
+.nuD__cta svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.nuL{display:flex;flex-direction:column;gap:8px}
+.nuC{background:#FFFFFF;border:1px solid rgba(255,255,255,.9);border-radius:18px;box-shadow:0 6px 18px rgba(0,0,0,.05);overflow:hidden}
+.nuC.on{box-shadow:0 12px 30px rgba(0,0,0,.10)}
+.nuC__h{width:100%;display:grid;grid-template-columns:56px minmax(0,1fr) auto 22px;align-items:center;gap:12px;min-height:76px;padding:10px 14px 10px 10px;border:0;background:transparent;color:#111;text-align:left;cursor:pointer}
+.nuC__t b{display:block;font:900 19px/1 var(--font-display);font-stretch:110%;letter-spacing:-.01em}
+.nuC__t small{display:block;margin-top:5px;font:700 10px var(--a2M,'Space Mono',monospace);letter-spacing:.08em;color:#5E5D59}
+.nuC__st{padding:5px 9px;border-radius:999px;font:700 8.5px var(--a2M,'Space Mono',monospace);letter-spacing:.1em;white-space:nowrap}
+.nuC__st.ok{background:#E7E6E2;color:#111}.nuC__st.ch{border:1px dashed #111;color:#111}
+.nuC__v{width:22px;height:22px;fill:none;stroke:#111;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;transition:transform .2s}
+.nuC.on .nuC__v{transform:rotate(180deg)}
+.nuP{width:56px;height:56px;color:#111}
+.nuP .u{fill:none;stroke:#8E8D88;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
+.nuP .r{fill:#F4F3F0;stroke:#111;stroke-width:1.6}.nuP .w{fill:#FFFFFF;stroke:#C9C8C3;stroke-width:1.2}
+.nuP text{font:700 13px 'Space Mono',monospace;fill:#111}
+.nuC.ok .nuP .w,.nuC.ch .nuP .w{fill:#111;stroke:#111}.nuC.ok .nuP text,.nuC.ch .nuP text{fill:#F4F3F0}
+.nuP .ck{fill:none;stroke:#F4F3F0;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round}
+.nuC__b{padding:2px 16px 16px;border-top:1px solid rgba(18,18,18,.06);animation:nuIn .25s ease both}
+@keyframes nuIn{from{opacity:0;transform:translateY(-4px)}to{opacity:1;transform:none}}
+.nuC__op{display:inline-flex;gap:3px;margin-top:14px;padding:3px;border-radius:999px;background:#E7E6E2}
+.nuC__op button{min-height:34px;padding:0 14px;border:0;border-radius:999px;background:transparent;color:#5E5D59;font:700 9.5px var(--a2M,'Space Mono',monospace);letter-spacing:.1em;cursor:pointer}
+.nuC__op button[aria-pressed="true"]{background:#111;color:#F4F3F0}
+.nuC__al{list-style:none;margin:12px 0 0;padding:0}
+.nuC__al li{display:flex;align-items:baseline;gap:8px;padding:9px 0;border-bottom:1px solid rgba(18,18,18,.06);font:400 15px var(--font-display)}
+.nuC__al i{flex:1;border-bottom:1px dotted #C9C8C3;transform:translateY(-3px)}
+.nuC__al b{font:700 11px var(--a2M,'Space Mono',monospace);letter-spacing:.04em;white-space:nowrap}
+.nuC__no{margin:8px 0 0;font:400 13px/1.4 var(--font-display);color:#5E5D59}
+.nuC__mt{display:grid;grid-template-columns:1fr auto;gap:2px 10px;align-items:baseline;margin-top:14px;padding:12px 14px;border-radius:12px;background:#F4F3F0}
+.nuC__mt span{grid-column:1/-1;font:700 9px var(--a2M,'Space Mono',monospace);letter-spacing:.12em;color:#5E5D59}
+.nuC__mt b{font:700 22px var(--a2M,'Space Mono',monospace);letter-spacing:-.04em}
+.nuC__mt em{font:700 10.5px var(--a2M,'Space Mono',monospace);font-style:normal;letter-spacing:.04em;color:#3F3F3C;text-align:right}
+.nuC__ac{display:flex;flex-direction:column;gap:8px;margin-top:14px}
+.nuC__dos{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.nuC__cta{min-height:52px;border:0;border-radius:18px;background:#111;color:#F4F3F0;font:700 16px var(--font-display);cursor:pointer}
+.nuC__sec{min-height:46px;border:1px solid #111;border-radius:14px;background:transparent;color:#111;font:700 9.5px var(--a2M,'Space Mono',monospace);letter-spacing:.1em;cursor:pointer}
+.nuC__lnk{min-height:40px;border:0;background:none;color:#5E5D59;font:700 9.5px var(--a2M,'Space Mono',monospace);letter-spacing:.12em;cursor:pointer}
+.nuC button:focus-visible,.nuD button:focus-visible{outline:2px solid #111;outline-offset:2px}
+@media (prefers-reduced-motion:reduce){.nuC__b{animation:none}.nuD__bar s{transition:none}}
 /* ═══ c92 · MI PLAN · SILVER CLEAN: fondo Silver Texture (imagen original, capa fija solo en esta pestaña) + tarjetas blancas opacas
    con el mismo lenguaje del Home (radio 22, filo blanco, sombra suave · session pills claras · etiquetas mono · links carbón) ═══ */
 html.en-plan{background:#C9CBCE}
@@ -3120,7 +3183,7 @@ html:not(:has(#oAct.vis)) #sBloques.locked{filter:none;opacity:1;pointer-events:
 #vNutri .kh--met .k2h__bg,#vNutri .kh--met .k2h__lines{display:none}
 #vNutri .mtT{margin-top:12px;color:#C9C8C2;font-weight:900;font-stretch:112%;font-size:clamp(36px,10.6vw,44px);line-height:.92;letter-spacing:-.015em;text-transform:uppercase}
 @media (max-width:374px){ #vNutri .kh--met{padding-left:22px;padding-right:22px} #vNutri .kh--met::before{left:22px;right:22px} }
-.nuSub{display:flex;align-items:center;gap:12px;margin:4px 0 8px}
+.nuSub{display:flex;align-items:center;gap:12px;margin:4px 0 8px}.nuSub[hidden]{display:none}
 .nuBack{display:inline-flex;align-items:center;gap:6px;min-height:44px;padding:0 16px 0 10px;border-radius:999px;border:1px solid rgba(255,255,255,.7);background:rgba(255,255,255,.55);-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);font:500 10px var(--font-mono);letter-spacing:.14em;color:#111;cursor:pointer}
 .nuBack svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round}
 .nuSubT{margin:0;font-family:var(--font-display);font-weight:900;font-stretch:112%;font-size:24px;line-height:1;letter-spacing:-.02em;text-transform:uppercase;color:#111}
@@ -7611,6 +7674,12 @@ async function loadRegistroComidas(){
 const nuHoyISO=()=>new Date().toLocaleDateString('sv-SE',{ timeZone:'America/Santiago' })
 function nuComidas(){ try{ return KC.normPlan(NU.pauta&&NU.pauta.contenido).comidas||[] }catch(_){ return [] } }
 function nuEstado(num){ const r=(NU.reg||[]).find(x=>String(x.fecha).slice(0,10)===nuHoyISO() && +x.comida_num===+num); return r?r.estado:null }
+// c226 · NUTRICIÓN HOY (propio, no copia del Home de entrenamiento): el día y su energía en barra lineal, registro de comidas (n de N)
+// y las comidas por NÚMERO con un plato gráfico; al tocar una, su tarjeta con el detalle (opción A/B, alimentos, meta) y los botones.
+// Sin "tu próxima comida": la app no empuja a comer (de noche no te habla del desayuno).
+const NU_PLATO=(num,est)=>'<svg class="nuP" viewBox="0 0 56 56" aria-hidden="true"><path class="u" d="M6 14v9a3 3 0 0 0 3 3v16M9 14v8M12 14v9a3 3 0 0 1-3 3"/><path class="u" d="M48 42V14c-3 2-4 6-4 11v5h4"/>'+
+  '<circle class="r" cx="28" cy="28" r="17"/><circle class="w" cx="28" cy="28" r="12"/>'+
+  (est==='cumplida'?'<path class="ck" d="M22.5 28.5l4 4 7.5-8"/>':est==='cheat'?'<text x="28" y="32.5" text-anchor="middle">!</text>':'<text x="28" y="32.5" text-anchor="middle">'+num+'</text>')+'</svg>'
 function pintarNuHoy(){
   const el=document.getElementById('nuHoy'); if(!el) return
   const lnk=(t,on)=>'<button type="button" class="p2Lnk nuLnk" onclick="'+on+'">'+t+' →</button>'
@@ -7620,48 +7689,44 @@ function pintarNuHoy(){
   const pa=NU.pauta
   if (!pa || pa.estado!=='publicada'){ el.innerHTML='<div class="nuW"><span class="nuIso" aria-hidden="true"></span>'+k2Label('TU PLAN NUTRICIONAL')+'<h2 class="nuW__t">Estamos trabajando en esto.</h2><p class="nuW__p">Pronto vas a tener acceso al servicio completo de nutrición KOACH: tu plan de comidas y el escáner de comidas.</p></div>'+btnEv; return }
   const com=nuComidas(), n=com.length||1, hoy=nuHoyISO(), MC=KE.metasComida(pa), c=KE.cumplimiento(NU.reg, n, hoy, MC), H=c.hoy, W=c.semana, RA=c.racha
-  const n0=v=>Math.round(+v||0).toLocaleString('es-CL'), pct=Math.min(100,H.pct)
-  // próxima comida pendiente = protagonista de la tarjeta (igual que la sesión en el Home)
-  const pend=com.map((m,i)=>({ m, num:i+1 })).filter(x=>!H.porNum[x.num]), prox=pend[0]||null, listo=!pend.length
-  const tit = listo ? 'DÍA<br>CUMPLIDO' : plEscA(prox.m.nombre)
-  const kick = listo ? 'COMIDAS DE HOY' : 'TU PRÓXIMA COMIDA'
-  const pills=['<span class="kh__pill">'+n0(pa.kcal)+' KCAL</span>','<span class="kh__pill">P '+n0(pa.proteina_g)+' G</span>','<span class="kh__pill">C '+n0(pa.carbohidrato_g)+' G</span>','<span class="kh__pill">G '+n0(pa.grasa_g)+' G</span>'].join('')
-  const desc = listo ? 'Cumpliste las <b>'+n+' comidas</b> de tu plan hoy.'+(H.cheat?' Con <b>'+H.cheat+' cheat meal</b>.':'')
-    : 'Llevas <b>'+H.hechas+' de '+n+' comidas</b>.'+(H.cheat?' <b>'+H.cheat+' cheat meal</b> hoy: vuelve a tu plan en la próxima.':'')+' Te toca tu <b>'+plEscA(prox.m.nombre.toLowerCase())+'</b>'+(prox.m.hora?' a las <b>'+plEscA(prox.m.hora)+'</b>':'')+'.'
-  const descR = RA.dias>=2 ? ' Llevas <b>'+RA.dias+' días seguidos</b> cumpliendo tu plan.' : ''
-  let h='<div class="hh hh--ed" aria-label="Nutrición de hoy"><div class="hh__c"><div class="hh__hd"><span class="hh__k">'+kick+'</span><span class="hh__n"><b>'+String(H.hechas).padStart(2,'0')+'</b> / '+String(n).padStart(2,'0')+'</span></div>'+
-    '<h2 class="hh__t" style="--L:8">'+tit+'</h2><div class="kh__pills">'+pills+'</div>'+
-    '<div class="hh__code">PLAN NUTRICIONAL · '+n+' COMIDAS AL DÍA</div><p class="hh__desc">'+desc+descR+'</p>'+
-    '<div class="hh__ft"><div class="hh__acts"><button class="hh__pill" type="button" onclick="nuEscanear('+(prox?prox.num:'')+')"><span>ESCANEAR</span><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M5 12h13M13 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></button></div>'+
-    '<div class="nuPct" role="img" aria-label="Cumplimiento de hoy: '+pct+' por ciento"><b>'+pct+'<small>%</small></b><span>DEL DÍA</span></div></div></div></div>'
-  // ENERGÍA DE HOY: calorías y macros del plan de nutrición como cumplimiento (se valora lo hecho, sin culpa)
-  { const meta=+pa.kcal||0, k=H.kcal, pk=meta?Math.round(k/meta*100):0, faltan=n-H.registradas, R2=50, C2=2*Math.PI*R2
-    const frase = !k ? 'Tu energía de hoy se suma con cada comida que registras.'
-      : faltan<=0 && pk>=90 && pk<=110 ? '<b>Cumpliste la energía de tu plan hoy.</b>'
-      : pk>110 ? 'Hoy pasaste tu plan en ≈ <b>'+n0(k-meta)+' kcal</b>. Mañana sigue tu pauta tal cual: no compenses saltándote comidas.'
-      : faltan>0 ? 'Llevas el <b>'+pk+' %</b> de tu energía de hoy. Te quedan ≈ <b>'+n0(Math.max(0,meta-k))+' kcal</b> en '+(faltan===1?'tu última comida':'tus '+faltan+' comidas')+'.'
-      : 'Llevas el <b>'+pk+' %</b> de tu energía de hoy.'
-    const fila=(l,v,m)=>'<div class="nuMac"><div class="nuMac__h"><span>'+l+'</span><b>'+n0(v)+'<small> / '+n0(m)+' G</small></b></div>'+k2Bar(m?v/m*100:0)+'</div>'
-    h+='<div class="k2-sec nuSec"><div class="k2-sec__h">'+k2Label('TU ENERGÍA DE HOY')+'</div><div class="nuW nuEn">'+
-      '<div class="nuEn__r"><svg viewBox="0 0 120 120" class="nuEn__ring" role="img" aria-label="'+n0(k)+' de '+n0(meta)+' kilocalorías"><circle cx="60" cy="60" r="'+R2+'" class="bg"/><circle cx="60" cy="60" r="'+R2+'" class="fg" stroke-dasharray="'+C2.toFixed(1)+'" stroke-dashoffset="'+(C2*(1-Math.min(1,meta?k/meta:0))).toFixed(1)+'"/><text x="60" y="62" text-anchor="middle">'+Math.min(999,pk)+'%</text><text x="60" y="80" text-anchor="middle" class="l">DE TU PLAN</text></svg>'+
-      '<div class="nuEn__t"><b>'+n0(k)+'<small> / '+n0(meta)+' kcal</small></b><p>'+frase+'</p>'+(H.estimadas?'<small>'+H.estimadas+(H.estimadas===1?' COMIDA SIN FOTO CONTADA':' COMIDAS SIN FOTO CONTADAS')+' SEGÚN TU PAUTA</small>':'')+'</div></div>'+
-      fila('PROTEÍNA',H.proteina_g,pa.proteina_g)+fila('CARBOHIDRATOS',H.carbohidrato_g,pa.carbohidrato_g)+fila('GRASAS',H.grasa_g,pa.grasa_g)+'</div></div>' }
-  // comidas del día = session pills de MÉTODO (toca una para escanearla o marcarla lista)
-  h+='<div class="k2-sec nuSec"><div class="k2-sec__h">'+k2Label('TUS COMIDAS DE HOY')+'<button class="k2-link" onclick="nuPane(\'plan\')">VER MI PLAN →</button></div>'+
-    com.map((m,i)=>{ const num=i+1, r=H.porNum[num], e=r&&r.estado
-      const sub = e==='cumplida' ? 'LISTA'+(r.origen==='escaneo'&&r.kcal?' · ≈ '+n0(r.kcal)+' KCAL':' · ≈ '+n0(MC.kcal)+' KCAL SEGÚN PAUTA') : e==='cheat' ? 'CHEAT MEAL'+(r.kcal?' · ≈ '+n0(r.kcal)+' KCAL':'') : (m.hora?m.hora+' · ':'')+'COMIDA '+num+' DE '+n
-      const est = e ? 'completed' : (prox&&prox.num===num) ? 'active' : 'available'
-      let pill=sessionPill({ nombre:plEscA(m.nombre), sub, estado:est, onClick:"nuAbrirComida("+num+")" })
-      pill=pill.replace(/<i class="sp__mono">[^<]*<\/i>/, '<i class="sp__mono">'+num+'</i>')
-      if (e==='cheat') pill=pill.replace('class="sp ', 'class="sp sp--cheat ')
-      const abierta=NU.abierta===num
-      return pill+(abierta?'<div class="nuAcc">'+(e?'<button type="button" class="p2Lnk" onclick="nuMarcar('+num+',\'pendiente\')">DESMARCAR</button>':
-        '<button type="button" class="nuAcc__on" onclick="nuEscanear('+num+')">ESCANEAR '+plEscA(m.nombre)+' →</button><button type="button" class="p2Lnk" onclick="nuMarcar('+num+',\'cumplida\')">MARCAR LISTA SIN FOTO</button>')+'</div>':'') }).join('')+
-    '</div>'
-  // semana: adherencia + cheat meals (tarjeta blanca de MÉTODO)
+  const n0=v=>Math.round(+v||0).toLocaleString('es-CL'), meta=+pa.kcal||0, k=H.kcal, pk=meta?Math.round(k/meta*100):0
+  const f=new Date(hoy+'T12:00:00'), fecha=f.toLocaleDateString('es-CL',{ weekday:'long', day:'numeric', month:'long' }).replace(',','').toUpperCase()
+  // 1 · EL DÍA: energía (kcal) en barra lineal con una marca por comida + macros + registro de comidas
+  const ticks=Array.from({length:n-1},(_,i)=>'<i style="left:'+((i+1)/n*100)+'%"></i>').join('')
+  const mac=(l,v,m)=>'<div class="nuD__m"><span>'+l+'</span><b>'+n0(v)+'<small>/'+n0(m)+' G</small></b><em><s style="width:'+Math.min(100,m?v/m*100:0)+'%"></s></em></div>'
+  const reg=H.registradas, todo=reg>=n
+  const frase = !reg ? 'Registra cada comida cuando la termines: con foto o marcándola lista.'
+    : todo ? '<b>Registraste todas tus comidas de hoy.</b>'+(H.cheat?' Con '+H.cheat+' cheat meal: registrarlo también es cumplir.':'')
+    : '¿Ya comiste las demás? Regístralas y tu día queda completo.'
+  let h='<div class="nuD" role="region" aria-label="Tu nutrición de hoy"><div class="nuD__h"><span>'+plEscA(fecha)+'</span><span>HOY</span></div>'+
+    '<div class="nuD__k"><b>'+n0(k)+'</b><span>/ '+n0(meta)+' KCAL</span></div>'+
+    '<div class="nuD__bar" role="img" aria-label="'+n0(k)+' de '+n0(meta)+' kilocalorías, '+pk+' por ciento"><s style="width:'+Math.min(100,pk)+'%"></s>'+ticks+'</div>'+
+    '<div class="nuD__s"><span>'+pk+' % DE TU ENERGÍA DE HOY</span>'+(H.estimadas?'<span>'+H.estimadas+' SIN FOTO · SEGÚN PLAN</span>':'')+'</div>'+
+    '<div class="nuD__ms">'+mac('PROTEÍNA',H.proteina_g,pa.proteina_g)+mac('CARBOS',H.carbohidrato_g,pa.carbohidrato_g)+mac('GRASAS',H.grasa_g,pa.grasa_g)+'</div>'+
+    '<div class="nuD__r"><div><span>COMIDAS REGISTRADAS</span><b>'+reg+'<small>/'+n+'</small></b></div><div class="nuD__pl" aria-hidden="true">'+
+      com.map((m,i)=>{ const r=H.porNum[i+1]; return '<i class="'+(r?r.estado==='cheat'?'ch':'ok':'')+'"></i>' }).join('')+'</div></div>'+
+    '<p class="nuD__p">'+frase+'</p>'+
+    '<button type="button" class="nuD__cta" onclick="nuEscanear()"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 8V6a2 2 0 0 1 2-2h2M16 4h2a2 2 0 0 1 2 2v2M20 16v2a2 2 0 0 1-2 2h-2M8 20H6a2 2 0 0 1-2-2v-2"/><circle cx="12" cy="12" r="3.5"/></svg>Escanear una comida</button></div>'
+  // 2 · LAS COMIDAS: por número, con plato gráfico; al tocar, su tarjeta con el detalle
+  h+='<div class="k2-sec nuSec"><div class="k2-sec__h">'+k2Label('TUS COMIDAS DE HOY')+'<button class="k2-link" onclick="nuPane(\'plan\')">VER MI PLAN →</button></div><div class="nuL">'+
+    com.map((m,i)=>{ const num=i+1, r=H.porNum[num], e=r&&r.estado, ab=NU.abierta===num, op=Math.min((NU.op&&NU.op[num])||0, m.opciones.length-1), o=m.opciones[op]
+      const sub=(m.hora?m.hora+' · ':'')+(r&&r.kcal?'≈ '+n0(r.kcal)+' KCAL':'≈ '+n0(MC.kcal)+' KCAL')
+      const pill=e==='cumplida'?'<span class="nuC__st ok">REGISTRADA</span>':e==='cheat'?'<span class="nuC__st ch">CHEAT MEAL</span>':''
+      let x='<div class="nuC'+(ab?' on':'')+(e?' '+(e==='cheat'?'ch':'ok'):'')+'"><button type="button" class="nuC__h" aria-expanded="'+ab+'" onclick="nuAbrirComida('+num+')">'+NU_PLATO(num,e)+
+        '<span class="nuC__t"><b>COMIDA '+num+'</b><small>'+plEscA(sub)+'</small></span>'+pill+'<svg class="nuC__v" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></button>'
+      if (ab){
+        x+='<div class="nuC__b">'
+        if (m.opciones.length>1) x+='<div class="nuC__op" role="group" aria-label="Opción de la comida '+num+'">'+m.opciones.map((q,j)=>'<button type="button" aria-pressed="'+(j===op)+'" onclick="nuOp('+num+','+j+')">OPCIÓN '+plEscA(q.etiqueta)+'</button>').join('')+'</div>'
+        x+='<ul class="nuC__al">'+o.alimentos.map(a=>'<li><span>'+plEscA(a.alimento)+'</span><i></i><b>'+plEscA(a.cantidad||'')+'</b></li>').join('')+'</ul>'+(o.nota?'<p class="nuC__no">'+plEscA(o.nota)+'</p>':'')
+        x+='<div class="nuC__mt"><span>'+(r&&r.kcal?'REGISTRADO':'META DE ESTA COMIDA')+'</span><b>≈ '+n0(r&&r.kcal||MC.kcal)+' KCAL</b><em>P '+n0(r&&r.proteina_g!=null?r.proteina_g:MC.proteina_g)+' · C '+n0(r&&r.carbohidrato_g!=null?r.carbohidrato_g:MC.carbohidrato_g)+' · G '+n0(r&&r.grasa_g!=null?r.grasa_g:MC.grasa_g)+'</em></div>'
+        x+= e ? '<div class="nuC__ac"><button type="button" class="nuC__sec" onclick="nuVariantes('+num+')">VER VARIANTES</button><button type="button" class="nuC__lnk" onclick="nuMarcar('+num+',\'pendiente\')">QUITAR REGISTRO</button></div>'
+          : '<div class="nuC__ac"><button type="button" class="nuC__cta" onclick="nuEscanear('+num+')">Escanear comida '+num+'</button><div class="nuC__dos"><button type="button" class="nuC__sec" onclick="nuMarcar('+num+',\'cumplida\')">REGISTRAR SIN FOTO</button><button type="button" class="nuC__sec" onclick="nuVariantes('+num+')">VER VARIANTES</button></div></div>'
+        x+='</div>' }
+      return x+'</div>' }).join('')+'</div></div>'
+  // 3 · LA SEMANA: adherencia y cheat meals
   const DS=['L','M','M','J','V','S','D']
   h+='<div class="k2-sec nuSec"><div class="k2-sec__h">'+k2Label('ESTA SEMANA')+'</div><div class="nuW nuSem"><div class="nuSem__h"><div><b>'+(W.adherencia!=null?W.adherencia+'<small>%</small>':'—')+'</b><span>ADHERENCIA A TU PLAN</span></div>'+
-    '<div class="nuSem__m">'+k2Metric(RA.dias,RA.dias===1?'DÍA SEGUIDO':'DÍAS SEGUIDOS')+k2Metric(W.cumplidas,'CUMPLIDAS')+k2Metric(W.cheat,'CHEAT MEALS')+'</div></div>'+
+    '<div class="nuSem__m">'+k2Metric(RA.dias,RA.dias===1?'DÍA SEGUIDO':'DÍAS SEGUIDOS')+k2Metric(W.cumplidas,'REGISTRADAS')+k2Metric(W.cheat,'CHEAT MEALS')+'</div></div>'+
     '<div class="nuSem__d" aria-hidden="true">'+W.dias.map((d,i)=>'<div class="'+(d.futuro?'fut':'')+(d.fecha===hoy?' hoy':'')+'"><span>'+Array.from({length:n},(_,k)=>'<i class="'+(k<d.hechas?'ok':k<d.hechas+d.cheat?'ch':'')+'"></i>').join('')+'</span><em>'+DS[i]+'</em></div>').join('')+'</div></div></div>'
   h+=lnk('MI PLAN · TU PAUTA Y SUS ALIMENTOS',"nuPane('plan')")+btnEv
   if (!NU.regOk) h+='<p class="spNote nuNota">Tu registro se está sincronizando.</p>'
@@ -7669,6 +7734,9 @@ function pintarNuHoy(){
   nuEscInit()
 }
 function nuAbrirComida(num){ NU.abierta = NU.abierta===num ? null : num; pintarNuHoy() }
+function nuOp(num, j){ NU.op=NU.op||{}; NU.op[num]=j; pintarNuHoy() }
+// variantes = la comida en MI PLAN (opciones A/B y sus alimentos)
+function nuVariantes(num){ nuPane('plan'); setTimeout(()=>{ const m=document.querySelectorAll('#nuPlan .knM')[num-1]; if (m) m.scrollIntoView({ behavior:'smooth', block:'start' }) }, 120) }
 async function nuMarcar(num, estado){
   NU.abierta=null; const hoy=nuHoyISO(), prev=(NU.reg||[]).slice()
   NU.reg=(NU.reg||[]).filter(r=>!(String(r.fecha).slice(0,10)===hoy && +r.comida_num===+num))
