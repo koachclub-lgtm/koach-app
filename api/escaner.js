@@ -79,7 +79,8 @@ async function claude(b64, mime, prompt, schema) {
 }
 
 // Describir sin foto: mismo esquema que la foto, sin zonas
-const ESQUEMA_D = (() => { const e = JSON.parse(JSON.stringify(KE.ESQUEMA)), it = e.properties.alimentos.items; delete it.properties.zona; it.required = it.required.filter(k => k !== 'zona'); return e })()
+const ESQUEMA_D = (() => { const e = JSON.parse(JSON.stringify(KE.ESQUEMA)), it = e.properties.alimentos.items; delete it.properties.zona; it.required = it.required.filter(k => k !== 'zona')
+  delete e.properties.calidad; delete e.properties.origen; e.required = e.required.filter(k => k !== 'calidad' && k !== 'origen'); return e })()
 
 // Recalcular: el socio corrigió nombres o agregó alimentos (con sus gramos). Solo texto, sin foto: barato y rápido.
 const ESQUEMA_R = (() => { const it = JSON.parse(JSON.stringify(KE.ESQUEMA.properties.alimentos.items)); delete it.properties.zona
@@ -149,7 +150,10 @@ module.exports = async (req, res) => {
   // 3 · Grasa oculta según la cocción que indicó el socio, veredicto con reglas KOACH y registro
   if (v.det && Array.isArray(v.det.alimentos) && v.det.alimentos.length) v.det.alimentos = KE.coccion(v.det.alimentos, coc)
   const resultado = KE.evaluar(v.det, ctx)
-  const det = { es_comida: v.det.es_comida !== false, plato: String(v.det.plato || '').slice(0, 80), confianza: Math.max(0, Math.min(1, +v.det.confianza || 0)), modo: conFoto ? 'foto' : 'texto', coccion: coc }
-  await rpc(token, 'koach_escaneo_completar', { p_id: cx.id, p_estado: 'listo', p_det: det, p_res: resultado, p_modelo: v.modelo, p_ms: ms })
+  const det = { es_comida: v.det.es_comida !== false, plato: String(v.det.plato || '').slice(0, 80), confianza: Math.max(0, Math.min(1, +v.det.confianza || 0)), modo: conFoto ? 'foto' : 'texto', coccion: coc,
+    calidad: ['oscura', 'borrosa', 'incompleta'].includes(v.det.calidad) ? v.det.calidad : 'buena', origen: conFoto && ['pantalla', 'imagen_internet'].includes(v.det.origen) ? v.det.origen : (conFoto ? 'plato_real' : null), fuente: ['camara', 'galeria'].includes(b.fuente) ? b.fuente : null }
+  // sin comida o foto de pantalla/internet: queda como error (no descuenta del cupo diario de escaneos válidos) y no se puede registrar
+  const valido = resultado.veredicto !== 'no_comida' && (!det.origen || det.origen === 'plato_real')
+  await rpc(token, 'koach_escaneo_completar', { p_id: cx.id, p_estado: valido ? 'listo' : 'error', p_det: det, p_res: valido ? resultado : { error: resultado.veredicto === 'no_comida' ? 'no_comida' : det.origen }, p_modelo: v.modelo, p_ms: ms })
   return res.status(200).json({ id: cx.id, deteccion: det, resultado, contexto: { foco: resultado.foco, comida, comida_num: num, comidas_dia: cx.comidas_dia, usados: cx.usados, limite: cx.limite }, modelo: v.modelo, ms, uso: v.uso })
 }

@@ -23,6 +23,8 @@ const ESQUEMA = {
     es_comida: { type: 'boolean', description: 'true si la foto muestra comida o bebida para consumir' },
     plato: { type: 'string', description: 'Nombre corto del plato en español de Chile, ej: "Salmón con arroz y ensalada"' },
     confianza: { type: 'number', description: '0 a 1: qué tan seguro estás de la identificación general' },
+    calidad: { type: 'string', enum: ['buena', 'oscura', 'borrosa', 'incompleta'], description: 'Calidad de la foto para reconocer la comida: oscura (poca luz), borrosa (movida o desenfocada), incompleta (el plato está cortado o tapado)' },
+    origen: { type: 'string', enum: ['plato_real', 'pantalla', 'imagen_internet'], description: 'plato_real = foto tomada a un plato; pantalla = foto o captura de una pantalla, menú o papel; imagen_internet = foto publicitaria, de stock o de una receta' },
     alimentos: {
       type: 'array', maxItems: 8,
       items: {
@@ -48,7 +50,7 @@ const ESQUEMA = {
       }
     }
   },
-  required: ['es_comida', 'plato', 'confianza', 'alimentos']
+  required: ['es_comida', 'plato', 'confianza', 'calidad', 'origen', 'alimentos']
 }
 
 // Cómo se cocinó (lo responde el socio con un toque): la grasa que la foto no muestra es el error n.º 1 de todos los escáneres
@@ -69,6 +71,8 @@ function prompt(ctx){
     '- confianza por alimento: baja (<0,6) si está tapado, mezclado, la porción es difícil de ver o podría ser otro alimento.\n' +
     '- zona = caja del alimento en la foto, [ymin, xmin, ymax, xmax] normalizado de 0 a 1000.\n' +
     '- Si la foto no es comida, es_comida=false y alimentos vacío.\n' +
+    '- calidad: marca oscura, borrosa o incompleta solo si eso dificulta reconocer los alimentos o la porción.\n' +
+    '- origen: pantalla si es una foto o captura de una pantalla, menú o papel; imagen_internet si es claramente una foto publicitaria, de stock o de receta. Ante la duda, plato_real.\n' +
     '- No juzgues si el plato es bueno o malo: solo describe con precisión. El veredicto lo decide KOACH.\n' +
     (co ? '- El socio indica que se preparó ' + co.ia + ': refléjalo en la preparación y en la grasa' + (ctx.coccion === 'plancha' ? '' : ' (incluye el aceite o la salsa como alimento aparte si no se ve)') + '.\n' : '') +
     (ctx.comida ? '- Contexto (no lo asumas si no se ve): el socio dice que es su ' + limpio(ctx.comida, 40).toLowerCase() + '.\n' : '') +
@@ -99,6 +103,26 @@ function coccion(alimentos, tipo){
   if (tipo === 'frito') al.forEach(a => { if (a.grupo === 'proteina' || a.grupo === 'carbohidrato') a.preparacion = 'frito' })
   al.push(Object.assign({ refinado: false, azucar_anadida: false, carne_procesada: false, alcohol: false, confianza: null, zona: null, auto: 'coccion' }, g))
   return al
+}
+
+// ¿La foto calza mejor con otra comida del plan? (ej: eligió ALMUERZO y la foto parece su DESAYUNO)
+// Puntaje por comida: alimentos que están en esa comida ×2 + reemplazos − roles que faltan. Sugiere solo con diferencia clara.
+function comidaProbable(alimentos, comidas, actual){
+  const pts = (comidas || []).map((c, i) => { const r = comparar(alimentos, c, null)
+    return { num: i + 1, nombre: c.nombre, p: r.items.filter(x => x.estado === 'plan').length * 2 + r.items.filter(x => x.estado === 'reemplazo').length - r.faltan.length } })
+  const act = pts.find(x => x.num === +actual), mej = pts.slice().sort((a, b) => b.p - a.p)[0]
+  if (!act || !mej || mej.num === act.num || mej.p < 2 || mej.p - act.p < 2) return null
+  return { num: mej.num, nombre: mej.nombre }
+}
+// Una sola sugerencia para la próxima comida, sin culpa ni compensación
+function proxima(res, cmp){
+  if (!res || !res.totales) return null
+  const aj = ((cmp && cmp.ajustes) || []).map(a => a.tipo), b = (res.banderas || []).map(x => x.tipo)
+  if (aj.includes('grasa_alta') || b.includes('frito')) return 'En tu próxima comida, prefiere preparaciones a la plancha o al horno.'
+  if (aj.includes('carbo_alto') || b.includes('azucar') || b.includes('bebida_azucarada')) return 'En tu próxima comida, prioriza proteína y verduras.'
+  if (aj.includes('proteina') || b.includes('sin_proteina')) return 'En tu próxima comida, asegura tu porción de proteína.'
+  if (b.includes('sin_verdura')) return 'En tu próxima comida, llena la mitad del plato con verduras.'
+  return res.veredicto === 'alerta' ? 'En tu próxima comida, vuelve a tu plan tal cual.' : null
 }
 
 // ═══ MEDIDAS CASERAS · gramos ⇄ "¾ taza", "1½ palmas" (lo que el socio entiende sin balanza)
@@ -339,7 +363,7 @@ function racha(rs, n, hoy){
   return { dias, hoyOk }
 }
 
-const KE = { VERSION, FOCOS, GRUPOS, ROLES, ESQUEMA, COCCION, prompt, promptTexto, coccion, unidad, medida, paso, gramosDe, evaluar, semana, grupoDe, alimentosPauta, metasComida, comparar, inflamatorios, regramar, cumplimiento, racha }
+const KE = { VERSION, FOCOS, GRUPOS, ROLES, ESQUEMA, COCCION, prompt, promptTexto, comidaProbable, proxima, coccion, unidad, medida, paso, gramosDe, evaluar, semana, grupoDe, alimentosPauta, metasComida, comparar, inflamatorios, regramar, cumplimiento, racha }
 if (typeof module !== 'undefined' && module.exports) module.exports = KE
 if (typeof window !== 'undefined') window.KE = KE
 })()

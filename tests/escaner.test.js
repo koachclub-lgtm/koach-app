@@ -110,3 +110,13 @@ t('prompt: nota del socio entra como dato y sin comillas', () => {
   const r = KE.evaluar({ alimentos: [{ nombre: 'x', grupo: 'proteina', gramos: 10, kcal: 10, confianza: 0.4 }] }, {}); assert.equal(r.alimentos[0].confianza, 0.4)
 })
 console.log('v4 OK')
+t('comida probable y próxima comida', () => {
+  const C = [{ nombre: 'DESAYUNO', opciones: [{ alimentos: [{ alimento: 'Huevos enteros', cantidad: '3 unidades' }, { alimento: 'Pan integral', cantidad: '60 g' }, { alimento: 'Palta', cantidad: '50 g' }] }] },
+    { nombre: 'ALMUERZO', opciones: [{ alimentos: [{ alimento: 'Pescado cocido', cantidad: '220 g' }, { alimento: 'Arroz cocido', cantidad: '100 g' }, { alimento: 'Verduras mixtas', cantidad: 'libre' }] }] }]
+  const des = [{ nombre: 'huevos revueltos', grupo: 'proteina' }, { nombre: 'pan integral', grupo: 'carbohidrato' }, { nombre: 'palta', grupo: 'grasa' }]
+  assert.deepEqual(KE.comidaProbable(des, C, 2), { num: 1, nombre: 'DESAYUNO' }); assert.equal(KE.comidaProbable(des, C, 1), null)
+  assert.equal(KE.comidaProbable([{ nombre: 'pollo', grupo: 'proteina' }], C, 2), null)
+  const r = KE.evaluar({ alimentos: [{ nombre: 'papas fritas', grupo: 'carbohidrato', preparacion: 'frito', nova: 4, gramos: 200, kcal: 600 }] }, { comida: { nombre: 'ALMUERZO' } })
+  assert.ok(/plancha/.test(KE.proxima(r, null))); assert.ok(!/salt|ayun|compens/i.test(KE.proxima(r, null)))
+})
+console.log('v5 OK')

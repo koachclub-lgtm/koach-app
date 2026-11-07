@@ -121,3 +121,27 @@ revoke all on function public.koach_registro_comidas(uuid, integer) from public,
 grant execute on function public.koach_comida_marcar(integer, text, date) to authenticated;
 grant execute on function public.koach_escaneo_confirmar(uuid, integer, jsonb, jsonb) to authenticated;
 grant execute on function public.koach_registro_comidas(uuid, integer) to authenticated;
+
+-- Cupo del escáner: 20 escaneos VÁLIDOS al día. Una foto sin comida, de pantalla o un error de la IA no descuenta
+-- (estado = 'error'), pero hay un tope de 40 intentos totales para evitar abuso.
+create or replace function public.koach_escaneo_reservar(p_comida text default null, p_num integer default null)
+returns jsonb language plpgsql security definer set search_path to 'public' as $$
+declare v_uid uuid := auth.uid(); v_rol text; v_hoy date := (now() at time zone 'America/Santiago')::date;
+  v_n integer; v_t integer; v_lim integer := 20; v_p pautas_nutricion; v_id uuid;
+begin
+  if v_uid is null then raise exception 'no autenticado'; end if;
+  select role::text into v_rol from profiles where id = v_uid and coalesce(activo, true);
+  if v_rol is null then raise exception 'sin permiso'; end if;
+  if v_rol = 'socio' and not koach_acceso_ok(v_uid) then raise exception 'sin acceso vigente'; end if;
+  perform pg_advisory_xact_lock(hashtext('escaneo:' || v_uid::text));
+  select count(*) filter (where estado <> 'error'), count(*) into v_n, v_t from escaneos_nutricion where socio_id = v_uid and fecha = v_hoy;
+  if v_n >= v_lim or v_t >= v_lim * 2 then raise exception 'limite diario'; end if;
+  select * into v_p from pautas_nutricion where socio_id = v_uid and estado = 'publicada' limit 1;
+  insert into escaneos_nutricion (socio_id, pauta_id, fecha, comida, comida_num, comidas_total, foco)
+  values (v_uid, v_p.id, v_hoy, left(nullif(trim(p_comida), ''), 40), p_num,
+          case when v_p.id is null then null else jsonb_array_length(coalesce(v_p.contenido->'comidas', '[]'::jsonb)) end,
+          coalesce(nullif(v_p.intake->>'foco', ''), 'general'))
+  returning id into v_id;
+  return jsonb_build_object('id', v_id, 'usados', v_n + 1, 'limite', v_lim, 'foco', coalesce(nullif(v_p.intake->>'foco', ''), 'general'),
+    'kcal_dia', v_p.kcal, 'comidas_dia', case when v_p.id is null then null else nullif(jsonb_array_length(coalesce(v_p.contenido->'comidas', '[]'::jsonb)), 0) end);
+end $$;
