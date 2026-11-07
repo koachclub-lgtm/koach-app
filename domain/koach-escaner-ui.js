@@ -246,7 +246,10 @@ async function comprimir(file){
   const cv = document.createElement('canvas'); cv.width = Math.round(w * k); cv.height = Math.round(h * k)
   cv.getContext('2d').drawImage(bmp, 0, 0, cv.width, cv.height)
   const blob = await new Promise(ok => cv.toBlob(ok, 'image/jpeg', .82))
-  return { data: cv.toDataURL('image/jpeg', .82), blob, w: cv.width, h: cv.height }
+  // copia grande solo en memoria para la historia de Instagram (no se envía ni se guarda)
+  const kg = Math.min(1, 2160 / Math.max(w, h)), big = document.createElement('canvas'); big.width = Math.round(w * kg); big.height = Math.round(h * kg)
+  big.getContext('2d').drawImage(bmp, 0, 0, big.width, big.height)
+  return { data: cv.toDataURL('image/jpeg', .82), blob, w: cv.width, h: cv.height, big }
 }
 async function api(body){
   const tok = S.cfg.token ? await S.cfg.token() : null
@@ -469,11 +472,19 @@ async function confirmar(){
     pantalla('<div class="keu__ok"><div class="ic' + (S.res.cheat ? ' ch' : '') + '">' + ico(S.res.cheat ? VER.alerta.ico : VER.adecuado.ico) + '</div>' +
       '<b>' + esc(c ? cap(low(c.nombre)) : 'Comida') + (S.res.cheat ? ' registrado como cheat meal' : ' completado') + '</b><p>' + (S.res.cheat ? 'Registrarlo también es cumplir. ' + esc(KE.proxima(S.res, S.cmp) || 'Sigue tu plan en la próxima comida.') : S.res.veredicto === 'alerta' && KE.proxima(S.res, S.cmp) ? 'Quedó registrado en tu día. ' + esc(KE.proxima(S.res, S.cmp)) : 'Quedó registrado en tu día.') + '</p>' +
       '<span class="keu__lbl">≈ ' + n0(t.kcal) + ' KCAL · P ' + n0(t.proteina_g) + ' · C ' + n0(t.carbohidrato_g) + ' · G ' + n0(t.grasa_g) + '</span></div>' +
-      '<div class="keu__bt"><button type="button" class="keu__cta" onclick="KEU.cerrar()">Volver a mi día</button></div>', 'REGISTRADO')
+      '<div class="keu__bt">' + (puedeCompartir() ? '<button type="button" class="keu__cta" onclick="KEU.compartir()">' + ico('<path d="M12 15V4M12 4l-4 4M12 4l4 4"/><path d="M5 13v5a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-5"/>') + 'Compartir mi comida</button><button type="button" class="keu__sec" onclick="KEU.cerrar()">VOLVER A MI DÍA</button>' : '<button type="button" class="keu__cta" onclick="KEU.cerrar()">Volver a mi día</button>') + '</div>', 'REGISTRADO')
     if (S.cfg.onRegistrado) S.cfg.onRegistrado({ num: S.num, estado: S.res.cheat ? 'cheat' : 'cumplida' })
   } catch (e) { console.error('confirmar', e); st((e && (e.msg || e.message)) || 'No pudimos registrar. Prueba de nuevo.') }
   finally { S.busy = false }
 }
+// La historia solo existe para un registro válido hecho con una foto real del plato
+function puedeCompartir(){ const d = S.r && S.r.deteccion || {}; return typeof KESH !== 'undefined' && S.modo === 'foto' && S.img && S.img.big && (!d.origen || d.origen === 'plato_real') }
+function compartir(){
+  if (!puedeCompartir()) return
+  const p = plan(), c = comidaN(S.num), r = S.res
+  KESH.abrir({ foto: S.img.big, al: r.alimentos, tot: r.totales, num: S.num, n: p.comidas.length, comida: c ? c.nombre : 'Comida',
+    estado: r.cheat || r.veredicto === 'alerta' ? 'registrada' : r.veredicto === 'adecuado' ? 'plan' : 'completada', fecha: new Date().toLocaleDateString('sv-SE', { timeZone: 'America/Santiago' }) })
+}
 function init(cfg){ S.cfg = Object.assign(S.cfg, cfg || {}); if (!S._rz) { S._rz = 1; window.addEventListener('resize', () => { if ($('keuO') && !$('keuO').hidden) ajustarZonas() }) } }
-window.KEU = { init, abrir, guia, elegir: guia, camara, galeria, describir, coc, analizar, preparar, seguir, noSug, porcion, atras, cerrar, otra, sel, comida, nombre, gramos, mas, igualPlan, quitar, agregar, recalcular, confirmar, _S: S }
+window.KEU = { init, compartir, abrir, guia, elegir: guia, camara, galeria, describir, coc, analizar, preparar, seguir, noSug, porcion, atras, cerrar, otra, sel, comida, nombre, gramos, mas, igualPlan, quitar, agregar, recalcular, confirmar, _S: S }
 })()
