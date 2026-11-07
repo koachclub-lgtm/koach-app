@@ -705,6 +705,12 @@ html.en-nutri #vNutri.on::before{content:'';position:fixed;inset:0;z-index:-1;po
 .nuD__pl i{width:22px;height:22px;border-radius:50%;border:2px solid #C9C8C3;box-sizing:border-box}
 .nuD__pl i.ok{border-color:#111;background:#111;box-shadow:inset 0 0 0 4px #FFFFFF}.nuD__pl i.ch{border-color:#111;border-style:dashed}
 .nuD__p{margin:12px 0 0;font:400 14.5px/1.45 var(--font-display);color:#3F3F3C}.nuD__p b{color:#111}
+.nuD__l{display:block;margin-top:16px;font:700 9.5px var(--a2M,'Space Mono',monospace);letter-spacing:.12em;color:#5E5D59}
+.nuD__l+.nuD__k{margin-top:6px}
+#vNutri .nuR{background:#FFFFFF;border:1px solid rgba(255,255,255,.9);border-radius:18px;box-shadow:0 6px 18px rgba(0,0,0,.05);padding:16px 18px;margin:0 0 8px}
+#vNutri .nuR .nuD__r{margin-top:0;padding-top:0;border-top:0}
+.nuC__q{display:block;font:700 9.5px var(--a2M,'Space Mono',monospace);letter-spacing:.12em;color:#5E5D59}
+.nuC__dos .nuC__cta{min-height:50px}.nuC__cta--b{background:#FFFFFF!important;color:#111!important;border:1.5px solid #111!important}
 .nuD__cta{width:100%;min-height:54px;margin-top:16px;border:0;border-radius:18px;background:#111;color:#F4F3F0;display:flex;align-items:center;justify-content:center;gap:10px;font:700 16px var(--font-display);cursor:pointer}
 .nuD__cta svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
 .nuL{display:flex;flex-direction:column;gap:8px}
@@ -7695,20 +7701,21 @@ function pintarNuHoy(){
   const ticks=Array.from({length:n-1},(_,i)=>'<i style="left:'+((i+1)/n*100)+'%"></i>').join('')
   const mac=(l,v,m)=>'<div class="nuD__m"><span>'+l+'</span><b>'+n0(v)+'<small>/'+n0(m)+' G</small></b><em><s style="width:'+Math.min(100,m?v/m*100:0)+'%"></s></em></div>'
   const reg=H.registradas, todo=reg>=n
-  const frase = !reg ? 'Registra cada comida cuando la termines: con foto o marcándola lista.'
+  const frase = !reg ? 'Registra cada comida cuando la termines, con o sin foto. Tu registro es tu adherencia.'
     : todo ? '<b>Registraste todas tus comidas de hoy.</b>'+(H.cheat?' Con '+H.cheat+' cheat meal: registrarlo también es cumplir.':'')
     : '¿Ya comiste las demás? Regístralas y tu día queda completo.'
-  let h='<div class="nuD" role="region" aria-label="Tu nutrición de hoy"><div class="nuD__h"><span>'+plEscA(fecha)+'</span><span>HOY</span></div>'+
+  let h='<div class="nuD" role="region" aria-label="Tu ingesta calórica de hoy"><div class="nuD__h"><span>'+plEscA(fecha)+'</span><span>HOY</span></div>'+
+    '<span class="nuD__l">TU INGESTA CALÓRICA DE HOY</span>'+
     '<div class="nuD__k"><b>'+n0(k)+'</b><span>/ '+n0(meta)+' KCAL</span></div>'+
     '<div class="nuD__bar" role="img" aria-label="'+n0(k)+' de '+n0(meta)+' kilocalorías, '+pk+' por ciento"><s style="width:'+Math.min(100,pk)+'%"></s>'+ticks+'</div>'+
-    '<div class="nuD__s"><span>'+pk+' % DE TU ENERGÍA DE HOY</span>'+(H.estimadas?'<span>'+H.estimadas+' SIN FOTO · SEGÚN PLAN</span>':'')+'</div>'+
+    '<div class="nuD__s"><span>'+pk+' % DEL TOTAL DE TUS COMIDAS</span>'+(H.estimadas?'<span>'+H.estimadas+' SIN FOTO · SEGÚN PLAN</span>':'')+'</div>'+
     '<div class="nuD__ms">'+mac('PROTEÍNA',H.proteina_g,pa.proteina_g)+mac('CARBOS',H.carbohidrato_g,pa.carbohidrato_g)+mac('GRASAS',H.grasa_g,pa.grasa_g)+'</div>'+
-    '<div class="nuD__r"><div><span>COMIDAS REGISTRADAS</span><b>'+reg+'<small>/'+n+'</small></b></div><div class="nuD__pl" aria-hidden="true">'+
-      com.map((m,i)=>{ const r=H.porNum[i+1]; return '<i class="'+(r?r.estado==='cheat'?'ch':'ok':'')+'"></i>' }).join('')+'</div></div>'+
-    '<p class="nuD__p">'+frase+'</p>'+
-    '<button type="button" class="nuD__cta" onclick="nuEscanear()"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 8V6a2 2 0 0 1 2-2h2M16 4h2a2 2 0 0 1 2 2v2M20 16v2a2 2 0 0 1-2 2h-2M8 20H6a2 2 0 0 1-2-2v-2"/><circle cx="12" cy="12" r="3.5"/></svg>Escanear una comida</button></div>'
+    '</div>'
   // 2 · LAS COMIDAS: por número, con plato gráfico; al tocar, su tarjeta con el detalle
-  h+='<div class="k2-sec nuSec"><div class="k2-sec__h">'+k2Label('TUS COMIDAS DE HOY')+'<button class="k2-link" onclick="nuPane(\'plan\')">VER MI PLAN →</button></div><div class="nuL">'+
+  h+='<div class="k2-sec nuSec"><div class="k2-sec__h">'+k2Label('TUS COMIDAS DE HOY')+'<button class="k2-link" onclick="nuPane(\'plan\')">VER MI PLAN →</button></div>'+
+    '<div class="nuR"><div class="nuD__r"><div><span>COMIDAS REGISTRADAS</span><b>'+reg+'<small>/'+n+'</small></b></div><div class="nuD__pl" aria-hidden="true">'+
+      com.map((m,i)=>{ const r=H.porNum[i+1]; return '<i class="'+(r?r.estado==='cheat'?'ch':'ok':'')+'"></i>' }).join('')+'</div></div><p class="nuD__p">'+frase+'</p>'+
+      (todo?'':'<button type="button" class="nuD__cta" onclick="nuEscanear()"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 8V6a2 2 0 0 1 2-2h2M16 4h2a2 2 0 0 1 2 2v2M20 16v2a2 2 0 0 1-2 2h-2M8 20H6a2 2 0 0 1-2-2v-2"/><circle cx="12" cy="12" r="3.5"/></svg>Escanear una comida</button>')+'</div><div class="nuL">'+
     com.map((m,i)=>{ const num=i+1, r=H.porNum[num], e=r&&r.estado, ab=NU.abierta===num, op=Math.min((NU.op&&NU.op[num])||0, m.opciones.length-1), o=m.opciones[op]
       const sub=(m.hora?m.hora+' · ':'')+(r&&r.kcal?'≈ '+n0(r.kcal)+' KCAL':'≈ '+n0(MC.kcal)+' KCAL')
       const pill=e==='cumplida'?'<span class="nuC__st ok">REGISTRADA</span>':e==='cheat'?'<span class="nuC__st ch">CHEAT MEAL</span>':''
@@ -7720,7 +7727,8 @@ function pintarNuHoy(){
         x+='<ul class="nuC__al">'+o.alimentos.map(a=>'<li><span>'+plEscA(a.alimento)+'</span><i></i><b>'+plEscA(a.cantidad||'')+'</b></li>').join('')+'</ul>'+(o.nota?'<p class="nuC__no">'+plEscA(o.nota)+'</p>':'')
         x+='<div class="nuC__mt"><span>'+(r&&r.kcal?'REGISTRADO':'META DE ESTA COMIDA')+'</span><b>≈ '+n0(r&&r.kcal||MC.kcal)+' KCAL</b><em>P '+n0(r&&r.proteina_g!=null?r.proteina_g:MC.proteina_g)+' · C '+n0(r&&r.carbohidrato_g!=null?r.carbohidrato_g:MC.carbohidrato_g)+' · G '+n0(r&&r.grasa_g!=null?r.grasa_g:MC.grasa_g)+'</em></div>'
         x+= e ? '<div class="nuC__ac"><button type="button" class="nuC__sec" onclick="nuVariantes('+num+')">VER VARIANTES</button><button type="button" class="nuC__lnk" onclick="nuMarcar('+num+',\'pendiente\')">QUITAR REGISTRO</button></div>'
-          : '<div class="nuC__ac"><button type="button" class="nuC__cta" onclick="nuEscanear('+num+')">Escanear comida '+num+'</button><div class="nuC__dos"><button type="button" class="nuC__sec" onclick="nuMarcar('+num+',\'cumplida\')">REGISTRAR SIN FOTO</button><button type="button" class="nuC__sec" onclick="nuVariantes('+num+')">VER VARIANTES</button></div></div>'
+          : NU.registrar===num ? '<div class="nuC__ac"><span class="nuC__q">REGISTRAR COMIDA '+num+'</span><div class="nuC__dos"><button type="button" class="nuC__cta" onclick="nuEscanear('+num+')">Con foto</button><button type="button" class="nuC__cta nuC__cta--b" onclick="nuMarcar('+num+',\'cumplida\')">Sin foto</button></div><button type="button" class="nuC__lnk" onclick="nuRegistrar(null)">CANCELAR</button></div>'
+          : '<div class="nuC__ac"><div class="nuC__dos"><button type="button" class="nuC__sec" onclick="nuVariantes('+num+')">VER VARIANTES</button><button type="button" class="nuC__cta" onclick="nuRegistrar('+num+')">Registrar comida</button></div></div>'
         x+='</div>' }
       return x+'</div>' }).join('')+'</div></div>'
   // 3 · LA SEMANA: adherencia y cheat meals
@@ -7733,7 +7741,8 @@ function pintarNuHoy(){
   el.innerHTML=h
   nuEscInit()
 }
-function nuAbrirComida(num){ NU.abierta = NU.abierta===num ? null : num; pintarNuHoy() }
+function nuAbrirComida(num){ NU.abierta = NU.abierta===num ? null : num; NU.registrar=null; pintarNuHoy() }
+function nuRegistrar(num){ NU.registrar=num; pintarNuHoy() }
 function nuOp(num, j){ NU.op=NU.op||{}; NU.op[num]=j; pintarNuHoy() }
 // variantes = la comida en MI PLAN (opciones A/B y sus alimentos)
 function nuVariantes(num){ nuPane('plan'); setTimeout(()=>{ const m=document.querySelectorAll('#nuPlan .knM')[num-1]; if (m) m.scrollIntoView({ behavior:'smooth', block:'start' }) }, 120) }
