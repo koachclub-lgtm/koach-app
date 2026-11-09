@@ -10,7 +10,7 @@ const COLS = "id,estado,plan_nombre,monto,duracion_valor,tarjeta_tipo,tarjeta_ul
 
 // Plan Flow por plan KOACH y precio (si cambia el precio, nace un plan nuevo: Flow no permite editar monto con suscritos)
 async function planFlow(plan: { nombre: string; precio: number; duracion_valor: number }) {
-  const id = ("KOACH_" + plan.nombre.normalize("NFD").replace(/[^A-Za-z0-9]+/g, "_") + "_" + plan.precio).toUpperCase().slice(0, 60);
+  const id = ("KOACH_" + plan.nombre.normalize("NFD").replace(/[^A-Za-z0-9]+/g, "_") + "_" + plan.duracion_valor + "M_" + plan.precio).toUpperCase().slice(0, 60);
   try { await flow("GET", "plans/get", { planId: id }); return id; } catch (_) { /* no existe */ }
   await flow("POST", "plans/create", {
     planId: id, name: "KOACH · Membresía " + plan.nombre, currency: "CLP", amount: plan.precio,
@@ -46,8 +46,16 @@ Deno.serve(async (req) => {
     // iniciar
     if (viva && viva.estado !== "registrando_tarjeta") return j({ error: "Ya tienes el pago automático activo" }, 400);
     if (viva) await admin.from("flow_suscripciones").update({ estado: "error", error: "reemplazada por un nuevo intento", updated_at: new Date().toISOString() }).eq("id", viva.id);
-    const { data: plan } = await admin.from("planes").select("*").eq("id", body.plan_id).eq("activo", true).maybeSingle();
-    if (!plan || plan.duracion_tipo !== "mes" || plan.hora_limite || !(plan.precio >= 350)) return j({ error: "Este plan no admite pago automático" }, 400);
+    let plan: { id: string | null; nombre: string; precio: number; duracion_valor: number; tc: string; cobro_id: string | null } | null = null;
+    if (body.cobro_id) {
+      const { data: c } = await admin.from("cobros_socio").select("*").eq("id", body.cobro_id).eq("socio_id", uid).eq("estado", "pendiente").maybeSingle();
+      if (!c || !c.recurrente || c.duracion_tipo !== "mes") return j({ error: "Este cobro ya no está disponible" }, 400);
+      plan = { id: null, nombre: c.duracion_valor === 1 ? "MENSUAL" : c.duracion_valor + " MESES", precio: c.monto, duracion_valor: c.duracion_valor, tc: c.tipo_comercial, cobro_id: c.id };
+    } else {
+      const { data: pl } = await admin.from("planes").select("*").eq("id", body.plan_id).eq("activo", true).maybeSingle();
+      if (pl && pl.duracion_tipo === "mes" && !pl.hora_limite) plan = { id: pl.id, nombre: pl.nombre, precio: pl.precio, duracion_valor: pl.duracion_valor, tc: "normal", cobro_id: null };
+    }
+    if (!plan || !(plan.precio >= 350)) return j({ error: "Este plan no admite pago automático" }, 400);
     const { data: perfil } = await admin.from("profiles").select("id,email,nombre,apellido").eq("id", uid).maybeSingle();
     const email = (perfil?.email || u.user.email || "").trim();
     if (!email) return j({ error: "Tu cuenta no tiene correo" }, 400);
@@ -70,7 +78,7 @@ Deno.serve(async (req) => {
     const reg = await flow("POST", "customer/register", { customerId, url_return: HOOK + "?t=card" });
     await admin.from("flow_suscripciones").insert({
       socio_id: uid, plan_id: plan.id, plan_nombre: plan.nombre, monto: plan.precio, duracion_valor: plan.duracion_valor,
-      flow_plan_id: flowPlan, flow_customer_id: customerId, email, register_token: reg.token,
+      flow_plan_id: flowPlan, flow_customer_id: customerId, email, register_token: reg.token, tipo_comercial: plan.tc, cobro_id: plan.cobro_id,
     });
     return j({ url: reg.url + "?token=" + reg.token });
   } catch (e) {

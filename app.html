@@ -4851,7 +4851,7 @@ async function entrar(opts){
     document.getElementById('hAv').textContent = (perfil.nombre||'K')[0].toUpperCase()
     S.frases = (rCfg && rCfg.data && rCfg.data.frases) || null
     const memP = cargarMembresia()   // en paralelo con el resto (no depende del programa)
-    if (/[?&](pago|susc)=/.test(location.search)) memP.then(()=>flowRetorno()).catch(()=>{})   // vuelta desde Flow
+    if (/[?&](pago|susc|cobro)=/.test(location.search)) memP.then(()=>flowRetorno()).catch(()=>{})   // vuelta desde Flow
     if (!opts.silent && perfil.estado==='clase_prueba') anRevisar()   // c216 · clase de prueba: bienvenida + anamnesis antes de la demo
     else if (!opts.silent && welcomeDebeMostrarse()) mostrarWelcome()
     else if (!opts.silent) setTimeout(pedirFoto, 1500)
@@ -8177,13 +8177,17 @@ async function flowFn(body, fn){
   const d = await r.json().catch(()=>({})); if (!r.ok) throw new Error(d.error||'No pudimos conectar con Flow'); return d
 }
 async function flowPagar(){
-  let planes=[]
-  try{ planes=(await flowFn({ accion:'planes' })).planes||[] }catch(e){ toast(e.message); return }
-  if (!planes.length){ toast('No hay planes disponibles para pago en línea'); return }
+  let planes=[], cobros=[]
+  try{ const d=await flowFn({ accion:'planes' }); planes=d.planes||[]; cobros=d.cobros||[] }catch(e){ toast(e.message); return }
+  if (S.flowSusc && S.flowSusc.estado==='activa') cobros=cobros.filter(c=>!c.recurrente)
+  if (!planes.length && !cobros.length){ toast('No hay planes disponibles para pago en línea'); return }
   const $=n=>'$'+(+n).toLocaleString('es-CL'), dur=p=>p.duracion_tipo==='mes'?(p.duracion_valor===1?'1 MES':p.duracion_valor+' MESES'):p.duracion_tipo==='semana'?'1 SEMANA':'1 DÍA'
   const bg=document.createElement('div'); bg.className='kHoja'; bg.setAttribute('role','dialog'); bg.setAttribute('aria-modal','true')
   bg.innerHTML='<div class="kHoja__c"><span class="kHoja__k">PAGO EN LÍNEA · FLOW</span><h3 class="kHoja__t">ELIGE TU MEMBRESÍA</h3>'+
     '<p class="kHoja__p">Pagas con tarjeta en Flow y tu membresía se activa sola en la app. Si tienes una vigente, el nuevo período parte cuando termine.</p>'+
+    (cobros.length ? '<span class="kHoja__k" style="display:block;margin-top:14px">TU COBRO KOACH</span><div style="display:grid;gap:8px;margin:8px 0 4px">'+cobros.map(c=>'<button type="button" class="flCo" data-id="'+c.id+'" data-rec="'+(c.recurrente?1:0)+'" style="display:flex;justify-content:space-between;align-items:center;gap:10px;width:100%;min-height:62px;padding:10px 14px;border-radius:12px;border:2px solid #121212;background:#F4F3F0;color:#121212;cursor:pointer;text-align:left">'+
+        '<span><b style="display:block;font:800 15px var(--font-display);text-transform:uppercase">'+plEscA(c.concepto||'MEMBRESÍA '+dur(c))+'</b><small style="font:400 10.5px var(--font-mono);letter-spacing:.08em">'+dur(c)+(c.recurrente?(c.duracion_valor===1?' · PAGO AUTOMÁTICO CADA MES':' · PAGO AUTOMÁTICO CADA '+c.duracion_valor+' MESES'):' · PAGO ÚNICO')+'</small></span>'+
+        '<b style="font:700 15px var(--font-mono)">'+$(c.monto)+'</b></button>').join('')+'</div>' : '')+
     (S.flowSusc && S.flowSusc.estado==='activa' ? '' : (()=>{ const auto=planes.filter(p=>p.duracion_tipo==='mes' && !p.hora_limite); if(!auto.length) return ''
       return '<span class="kHoja__k" style="display:block;margin-top:14px">PAGO AUTOMÁTICO · TE OLVIDAS DE RENOVAR</span>'+
       '<div style="display:grid;gap:8px;margin:8px 0 4px">'+auto.map(p=>'<button type="button" class="flAu" data-id="'+p.id+'" style="display:flex;justify-content:space-between;align-items:center;gap:10px;width:100%;min-height:58px;padding:10px 14px;border-radius:12px;border:none;background:#121212;color:#F4F3F0;cursor:pointer;text-align:left">'+
@@ -8196,6 +8200,11 @@ async function flowPagar(){
     '<div class="kHoja__b"><button type="button" class="kHoja__no">VOLVER</button></div></div>'
   const fin=()=>bg.remove()
   bg.addEventListener('click',e=>{ if(e.target===bg) fin() }); bg.querySelector('.kHoja__no').onclick=fin
+  bg.querySelectorAll('.flCo').forEach(b=>b.onclick=async()=>{
+    bg.querySelectorAll('.flPl,.flAu,.flCo').forEach(x=>x.disabled=true); b.style.opacity='.6'; b.querySelector('small').textContent='CONECTANDO CON FLOW…'
+    try{ const d = b.dataset.rec==='1' ? await flowFn({ accion:'iniciar', cobro_id:b.dataset.id }, 'flow-suscripcion') : await flowFn({ accion:'crear', cobro_id:b.dataset.id }); location.href=d.url }
+    catch(e){ toast(e.message); fin() }
+  })
   bg.querySelectorAll('.flAu').forEach(b=>b.onclick=async()=>{
     bg.querySelectorAll('.flPl,.flAu').forEach(x=>x.disabled=true); b.style.opacity='.6'; b.querySelector('small').textContent='CONECTANDO CON FLOW…'
     try{ const d=await flowFn({ accion:'iniciar', plan_id:b.dataset.id }, 'flow-suscripcion'); location.href=d.url }
@@ -8237,6 +8246,7 @@ async function flowSuscRetorno(r){
 async function flowRetorno(){
   const q=new URLSearchParams(location.search), est=q.get('pago'), orden=q.get('orden'), su=q.get('susc')
   if (su){ history.replaceState(null,'',location.pathname); return flowSuscRetorno(su) }
+  if (q.get('cobro')){ history.replaceState(null,'',location.pathname); return flowPagar() }
   if (!est) return
   history.replaceState(null,'',location.pathname)
   let e=est

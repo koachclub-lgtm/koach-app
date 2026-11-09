@@ -7225,6 +7225,7 @@ async function fAdmCargar(){
     (ult?'<div class="pfRow2"><div><div class="pfK2">ÚLTIMO PAGO</div><div class="pfBig">'+(ult.metodo==='ugc'?'UGC':adCLP(ult.monto_final))+'</div></div>'+
       '<div class="pfR"><b>'+adF(ult.fecha_pago)+'</b><small>'+(ult.metodo?String(ult.metodo).toUpperCase()+' · ':'')+String(ult.estado||'').toUpperCase()+'</small></div></div>':'<div class="pfS">Sin pagos registrados.</div>')+
     '<div class="pfBtns"><button type="button" class="pfB" onclick="pfVer(\'pfPagos\',this)">VER PAGOS</button><button type="button" class="pfB pfB--ink" onclick="admFormPago()">REGISTRAR PAGO</button></div>'+
+    (accEsCom()?'<div class="pfBtns"><button type="button" class="pfB" onclick="admFormCobro()">COBRO EN LÍNEA · FLOW</button></div><div id="pfCobro"></div>':'')+
     '<div class="pfDet" id="pfPagos" hidden>'+AD.fPag.map(function(p){
       const pm=AD.fMem.find(function(m){return m.id===p.membresia_id})
       const vg=pm?((pm.duracion_label||'')+' · '+(pm.duracion_tipo==='dia'?adF(pm.fecha_inicio):adF(pm.fecha_inicio)+' → '+adF(pm.fecha_fin))+'<br>'):''
@@ -7252,7 +7253,7 @@ async function fAdmCargar(){
     (accPuede()?'<div class="pfBtns"><button type="button" class="pfB pfB--ink" id="acBtn" onclick="accAbrir()">RECUPERAR ACCESO</button></div>':'')+'</section>'
   h+='</div>'
   mhPintar(id, finAcc, dAcc); accBan(id)   // c64 · tras pagar, anular, editar o cancelar: estado de acceso fresco
-  box.innerHTML=h
+  box.innerHTML=h; if (accEsCom()) cobroEstadoPintar()
   if (accPuede()) accEstado(id)
 }
 function admFormDatos(){
@@ -7454,6 +7455,83 @@ function vtError(m){ const t=String(m||'')
     : /PERMISO_DENEGADO/.test(t)? t.replace(/^.*PERMISO_DENEGADO:\s*/,'Sin permiso: ')
     : /^(VENTA|ALTA):/.test(t)? t.replace(/^(VENTA|ALTA):\s*/,'')
     : 'No se pudo completar: '+t }
+
+// ═══ FLOW · COBRO EN LÍNEA INDIVIDUAL ═══
+// El staff fija monto, duración y modalidad (único o automático) para UN socio; el socio lo paga en su app.
+// La acreditación la hace el servidor (flow-webhook) con el motor de ventas único: aquí solo se crea el cobro.
+const CB={}
+async function cobroEstadoPintar(){
+  const el=document.getElementById('pfCobro'); if(!el || !F || !F.id) return
+  const [rc, rs] = await Promise.all([
+    sb.from('cobros_socio').select('id,monto,duracion_tipo,duracion_valor,tipo_comercial,recurrente,concepto,created_at').eq('socio_id',F.id).eq('estado','pendiente').order('created_at',{ascending:false}),
+    sb.from('flow_suscripciones').select('estado,plan_nombre,monto,tarjeta_tipo,tarjeta_ult4,inicio').eq('socio_id',F.id).in('estado',['activa','cancelada_fin_periodo']).order('created_at',{ascending:false}).limit(1).maybeSingle()
+  ])
+  let h=''
+  const su=rs && rs.data
+  if (su) h+='<div class="pfS"><b>'+(su.estado==='activa'?'PAGO AUTOMÁTICO ACTIVO':'PAGO AUTOMÁTICO DESACTIVADO · sin más cobros')+'</b> · '+adEsc(su.plan_nombre)+' '+adCLP(su.monto)+(su.tarjeta_ult4?' · •••• '+adEsc(su.tarjeta_ult4):'')+'</div>'
+  ;((rc && rc.data)||[]).forEach(function(c){
+    h+='<div class="pfS"><b>COBRO PENDIENTE</b> · '+adCLP(c.monto)+' · '+cbDur(c)+(c.recurrente?' · AUTOMÁTICO':' · ÚNICO')+(c.concepto?' · '+adEsc(c.concepto):'')+
+      ' <button type="button" class="pfB" style="min-height:32px;padding:0 10px" onclick="cobroCompartir(\''+c.id+'\')">ENVIAR</button>'+
+      ' <button type="button" class="pfB" style="min-height:32px;padding:0 10px" onclick="cobroAnular(\''+c.id+'\')">ANULAR</button></div>'
+  })
+  el.innerHTML=h
+}
+function cbDur(c){ return c.duracion_tipo==='mes'?(c.duracion_valor===1?'1 MES':c.duracion_valor+' MESES'):c.duracion_tipo==='semana'?'1 SEMANA':'DAY PASS' }
+async function admFormCobro(){
+  await vtCatalogo()
+  CB.dur='mes:1'; CB.rec=false; CB.tc=null; CB.monto=vtPrecio('mes:1')
+  const durs=VT_DUR.filter(function(d){ return d[0]!=='semana:2' })
+  admAbrir('COBRO EN LÍNEA · '+nomDe(F.id).toUpperCase(),
+    '<div class="vtS"><div class="vtK">1 · DURACIÓN</div><div class="vtCh" id="cbDur">'+durs.map(function(d){ return '<button type="button" data-v="'+d[0]+'" onclick="cbSet(\'dur\',\''+d[0]+'\')">'+d[1]+'</button>' }).join('')+'</div></div>'+
+    '<div class="vtS"><div class="vtK">2 · MONTO A COBRAR</div><label class="vtMoney"><span>$</span><input inputmode="numeric" id="cbM" oninput="cbMonto(this.value)"></label><div class="vtSub" id="cbSub"></div></div>'+
+    '<div class="vtS"><div class="vtK">3 · TIPO DE VENTA</div><div class="vtCh" id="cbTc">'+[['normal','PRECIO LISTA'],['descuento','DESCUENTO'],['promocion','PROMOCIÓN'],['convenio','CONVENIO'],['otro','OTRO']].map(function(t){ return '<button type="button" data-v="'+t[0]+'" onclick="cbSet(\'tc\',\''+t[0]+'\')">'+t[1]+'</button>' }).join('')+'</div></div>'+
+    '<div class="vtS"><div class="vtK">4 · MODALIDAD</div><div class="vtCh" id="cbRec"><button type="button" data-v="0" onclick="cbSet(\'rec\',false)">PAGO ÚNICO</button><button type="button" data-v="1" onclick="cbSet(\'rec\',true)">PAGO AUTOMÁTICO</button></div>'+
+      '<div class="vtNote" id="cbRecN"></div></div>'+
+    '<div class="vtS"><div class="vtK">5 · CONCEPTO · OPCIONAL</div><label class="vtL"><input id="cbCon" maxlength="60" placeholder="Ej: Convenio empresa · Membresía mensual"></label></div>'+
+    '<div id="cbErr"></div><button type="button" class="vtGo" id="cbOk" onclick="cobroCrear()">CREAR COBRO →</button>')
+  cbPintar()
+}
+function cbAutoTc(){ const cat=vtPrecio(CB.dur); if (CB.monto==null || cat==null) return CB.tc||'otro'; if (CB.monto===cat) return 'normal'; return (CB.tc && CB.tc!=='normal') ? CB.tc : (CB.monto<cat?'descuento':'otro') }
+function cbSet(k,v){ if(k==='dur'){ CB.dur=v; const c=vtPrecio(v); if(c!=null){ CB.monto=c } if(v.indexOf('mes:')!==0) CB.rec=false }
+  else if(k==='rec'){ if(v && CB.dur.indexOf('mes:')!==0){ toast('El pago automático solo funciona con duración en meses'); return } CB.rec=v }
+  else CB[k]=v; cbPintar() }
+function cbMonto(v){ const n=parseInt(String(v).replace(/\D/g,''),10); CB.monto=isNaN(n)?null:n; CB.tc=null; cbPintar(true) }
+function cbPintar(soloTexto){
+  CB.tc=cbAutoTc(); const cat=vtPrecio(CB.dur)
+  const m=document.getElementById('cbM'); if(m && !soloTexto) m.value=CB.monto!=null?Number(CB.monto).toLocaleString('es-CL'):''
+  else if (m && CB.monto!=null){ const t=Number(CB.monto).toLocaleString('es-CL'); if(m.value!==t) m.value=t }
+  document.querySelectorAll('#cbDur button').forEach(function(b){ b.classList.toggle('on', b.dataset.v===CB.dur) })
+  document.querySelectorAll('#cbTc button').forEach(function(b){ b.classList.toggle('on', b.dataset.v===CB.tc) })
+  document.querySelectorAll('#cbRec button').forEach(function(b){ b.classList.toggle('on', (b.dataset.v==='1')===CB.rec) })
+  const sub=document.getElementById('cbSub'); if(sub) sub.textContent = cat!=null ? 'Precio lista '+adCLP(cat)+(CB.monto!=null&&CB.monto!==cat?' · diferencia '+(CB.monto<cat?'− ':'+ ')+adCLP(Math.abs(CB.monto-cat)):'') : 'Sin precio de lista para esta duración'
+  const n=document.getElementById('cbRecN'); if(n) n.innerHTML = CB.rec
+    ? 'El socio registra su tarjeta y Flow le cobra <b>'+(CB.monto!=null?adCLP(CB.monto):'$ —')+'</b> '+(CB.dur==='mes:1'?'cada mes':'cada '+CB.dur.split(':')[1]+' meses')+' hasta que lo desactive. Si tiene membresía vigente, el primer cobro es cuando vence.'
+    : 'Un solo pago con tarjeta en Flow. La membresía se activa sola al pagar.'
+}
+async function cobroCrear(){
+  const b=document.getElementById('cbOk'), e=document.getElementById('cbErr'); if(b.disabled) return
+  if (CB.monto==null || CB.monto<350){ e.innerHTML='<div class="vtErr">Ingresa el monto (mínimo $350).</div>'; return }
+  b.disabled=true; b.textContent='CREANDO…'
+  const t=CB.dur.split(':'), yo=(C.yo&&((C.yo.nombre||'')+' '+(C.yo.apellido||'')).trim())||null
+  const r=await sb.rpc('admin_cobro_crear',{ p_socio:F.id, p_monto:CB.monto, p_dur_tipo:t[0], p_dur_valor:+t[1], p_tc:CB.tc, p_recurrente:CB.rec, p_concepto:(document.getElementById('cbCon').value||'').trim()||null, p_actor_nombre:yo })
+  if (r.error){ e.innerHTML='<div class="vtErr">'+adEsc(vtError(r.error.message))+'</div>'; b.disabled=false; b.textContent='CREAR COBRO →'; return }
+  document.getElementById('mAdm').classList.remove('vis'); toast('Cobro creado ✓ · el socio lo ve en su app')
+  cobroEstadoPintar(); cobroCompartir(r.data.id)
+}
+function cobroLink(){ return 'https://app.koachclub.cl/app.html?cobro=1' }
+async function cobroCompartir(id){
+  const s=C.socios.find(function(x){return x.id===F.id})||{}, tel=String(s.telefono||F.telefono||'').replace(/\D/g,'')
+  const txt='Hola '+(s.nombre||'')+', tu pago KOACH ya está listo en la app. Entra aquí y págalo con tarjeta en un minuto: '+cobroLink()
+  const ok=await kHoja({ k:'COBRO EN LÍNEA', msg:'ENVIAR AL SOCIO\nEl cobro ya aparece en su app (Perfil → Renovar en línea). También puedes mandarle el enlace.', si:tel?'ENVIAR POR WHATSAPP':'COPIAR ENLACE', no:'LISTO' })
+  if (!ok) return
+  if (tel) window.open('https://wa.me/'+(tel.length===9?'56'+tel:tel)+'?text='+encodeURIComponent(txt),'_blank')
+  else { try{ await navigator.clipboard.writeText(txt); toast('Mensaje copiado') }catch(_){ toast(cobroLink()) } }
+}
+async function cobroAnular(id){
+  if (!(await kHoja({ k:'COBRO EN LÍNEA', msg:'¿ANULAR ESTE COBRO?\nEl socio dejará de verlo en su app.', peligro:true, si:'SÍ, ANULAR', no:'VOLVER' }))) return
+  const r=await sb.rpc('admin_cobro_anular',{ p_id:id }); if (r.error){ toast(vtError(r.error.message)); return }
+  toast('Cobro anulado'); cobroEstadoPintar()
+}
 const AD_DUR=VT_DUR
 function admFormPago(){
   document.getElementById('mAdm').classList.add('adWide')
