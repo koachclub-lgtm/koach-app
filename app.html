@@ -4851,6 +4851,7 @@ async function entrar(opts){
     document.getElementById('hAv').textContent = (perfil.nombre||'K')[0].toUpperCase()
     S.frases = (rCfg && rCfg.data && rCfg.data.frases) || null
     const memP = cargarMembresia()   // en paralelo con el resto (no depende del programa)
+    if (/[?&]pago=/.test(location.search)) memP.then(()=>flowRetorno()).catch(()=>{})   // vuelta desde Flow
     if (!opts.silent && perfil.estado==='clase_prueba') anRevisar()   // c216 · clase de prueba: bienvenida + anamnesis antes de la demo
     else if (!opts.silent && welcomeDebeMostrarse()) mostrarWelcome()
     else if (!opts.silent) setTimeout(pedirFoto, 1500)
@@ -8132,7 +8133,7 @@ function avisoRenovacion(vig){
   if (['ugc','canje','cortesia'].includes(vig.tipo_comercial)) return   // beneficio sin cobro: no se le pide pago
   const t=textoRenovacion(S.memDiasAcceso); if (!t) return
   const d=document.createElement('div'); d.id='avRenov'; d.className='avRenov'; d.setAttribute('role','status')
-  d.innerHTML='<div class="avRenov__tx"><b>'+t+'</b><span>Acércate a recepción para poder actualizar tu pago.</span></div>'+
+  d.innerHTML='<div class="avRenov__tx"><b>'+t+'</b><span>Renueva en línea o acércate a recepción. <a href="#" onclick="flowPagar();return false" style="color:inherit;font-weight:700;text-decoration:underline">RENOVAR AHORA</a></span></div>'+
     '<button type="button" class="avRenov__x" aria-label="Cerrar aviso" onclick="var a=document.getElementById(\'avRenov\'); if(a){a.classList.add(\'out\'); setTimeout(function(){a.remove()},220)}">'+
     '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button>'
   document.body.appendChild(d)
@@ -8155,7 +8156,8 @@ function aplicarBloqueo(){
   const html='<div class="lockAcc__i" aria-hidden="true">'+
       '<svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg></div>'+
     '<div class="lockAcc__k">ACCESO RESTRINGIDO</div><h2 class="lockAcc__t">'+t.t+'</h2><p class="lockAcc__b">'+t.b+'</p>'+
-    '<a class="lockAcc__cta" href="https://wa.me/56974369521?text='+encodeURIComponent('Hola KOACH, quiero regularizar mi membresía')+'" target="_blank" rel="noopener">HABLAR CON KOACH →</a>'+
+    (S.acceso.estado==='congelada'||S.acceso.estado==='futura' ? '' : '<button type="button" class="lockAcc__cta" onclick="flowPagar()">PAGAR EN LÍNEA →</button>')+
+    '<a class="lockAcc__sec" href="https://wa.me/56974369521?text='+encodeURIComponent('Hola KOACH, quiero regularizar mi membresía')+'" target="_blank" rel="noopener">HABLAR CON KOACH</a>'+
     '<button type="button" class="lockAcc__sec" onclick="accReintentar(this)">YA PAGUÉ · ACTUALIZAR</button>'
   ;['vHome','vPlan','vAvances','vHist','vPerfil'].forEach(function(id){ const v=document.getElementById(id); if(!v) return
     const d=document.createElement('section'); d.className='lockAcc'; d.id='lock_'+id; d.setAttribute('role','status'); d.innerHTML=html
@@ -8164,10 +8166,50 @@ function aplicarBloqueo(){
 async function accReintentar(b){ b.disabled=true; b.textContent='REVISANDO…'
   await cargarMembresia()
   if (S.acceso && S.acceso.acceso){ toast('Acceso habilitado ✓'); entrar() } else { b.disabled=false; b.textContent='YA PAGUÉ · ACTUALIZAR'; toast('Aún no vemos el pago registrado. Pide a recepción que lo ingrese.') } }
+/* ═══ FLOW · pago en línea de la membresía ═══
+   La app solo pide la orden (Edge Function flow-pago) y redirige a Flow. La acreditación la hace el servidor
+   (flow-webhook → getStatus firmado → flow_procesar → motor de ventas único), nunca el navegador. */
+async function flowFn(body){
+  const { data:{ session } } = await sb.auth.getSession()
+  const r = await fetch(SB_URL+'/functions/v1/flow-pago', { method:'POST', headers:{ 'Content-Type':'application/json', apikey:SB_KEY, Authorization:'Bearer '+(session&&session.access_token||'') }, body:JSON.stringify(body) })
+  const d = await r.json().catch(()=>({})); if (!r.ok) throw new Error(d.error||'No pudimos conectar con Flow'); return d
+}
+async function flowPagar(){
+  let planes=[]
+  try{ planes=(await flowFn({ accion:'planes' })).planes||[] }catch(e){ toast(e.message); return }
+  if (!planes.length){ toast('No hay planes disponibles para pago en línea'); return }
+  const $=n=>'$'+(+n).toLocaleString('es-CL'), dur=p=>p.duracion_tipo==='mes'?(p.duracion_valor===1?'1 MES':p.duracion_valor+' MESES'):p.duracion_tipo==='semana'?'1 SEMANA':'1 DÍA'
+  const bg=document.createElement('div'); bg.className='kHoja'; bg.setAttribute('role','dialog'); bg.setAttribute('aria-modal','true')
+  bg.innerHTML='<div class="kHoja__c"><span class="kHoja__k">PAGO EN LÍNEA · FLOW</span><h3 class="kHoja__t">ELIGE TU MEMBRESÍA</h3>'+
+    '<p class="kHoja__p">Pagas con tarjeta en Flow y tu membresía se activa sola en la app. Si tienes una vigente, el nuevo período parte cuando termine.</p>'+
+    '<div style="display:grid;gap:8px;margin:14px 0">'+planes.map(p=>'<button type="button" class="flPl" data-id="'+p.id+'" style="display:flex;justify-content:space-between;align-items:center;gap:10px;width:100%;min-height:58px;padding:10px 14px;border-radius:12px;border:1px solid rgba(18,18,18,.25);background:#F6F5F2;color:#121212;cursor:pointer;text-align:left">'+
+      '<span><b style="display:block;font:800 15px var(--font-display);text-transform:uppercase">'+plEscA(p.nombre)+'</b><small style="font:400 10.5px var(--font-mono);letter-spacing:.08em">'+dur(p)+(p.hora_limite?' · INGRESO HASTA '+String(p.hora_limite).slice(0,5):'')+'</small></span>'+
+      '<b style="font:700 15px var(--font-mono)">'+$(p.precio)+'</b></button>').join('')+'</div>'+
+    '<div class="kHoja__b"><button type="button" class="kHoja__no">VOLVER</button></div></div>'
+  const fin=()=>bg.remove()
+  bg.addEventListener('click',e=>{ if(e.target===bg) fin() }); bg.querySelector('.kHoja__no').onclick=fin
+  bg.querySelectorAll('.flPl').forEach(b=>b.onclick=async()=>{
+    bg.querySelectorAll('.flPl').forEach(x=>x.disabled=true); b.style.opacity='.6'; b.querySelector('small').textContent='CONECTANDO CON FLOW…'
+    try{ const d=await flowFn({ accion:'crear', plan_id:b.dataset.id }); location.href=d.url }
+    catch(e){ toast(e.message); fin() }
+  })
+  document.body.appendChild(bg)
+}
+// Vuelta desde Flow: ?pago=pagada|pendiente|rechazada|anulada&orden=KCH-…
+async function flowRetorno(){
+  const q=new URLSearchParams(location.search), est=q.get('pago'), orden=q.get('orden'); if (!est) return
+  history.replaceState(null,'',location.pathname)
+  let e=est
+  if (e==='pendiente' && orden){ for (let i=0;i<4 && e==='pendiente';i++){ await new Promise(r=>setTimeout(r,2500)); try{ const o=(await flowFn({ accion:'estado', orden })).orden; if (o) e=o.estado }catch(_){} } }
+  if (e==='pagada'){ await cargarMembresia(); try{ pintarPerfil() }catch(_){}; if (S.acceso && S.acceso.acceso) entrar({ silent:true })
+    kHoja({ k:'PAGO CONFIRMADO', aviso:true, si:'GO TRAIN!', msg:'TU MEMBRESÍA ESTÁ ACTIVA\nRecibimos tu pago. 1% MEJOR CADA DÍA.' }) }
+  else if (e==='pendiente') kAviso('TU PAGO ESTÁ EN PROCESO\nFlow aún no lo confirma. Se activará solo apenas llegue la confirmación.','PAGO EN PROCESO')
+  else kAviso('EL PAGO NO SE COMPLETÓ\nNo se hizo ningún cargo. Puedes intentarlo de nuevo cuando quieras.','PAGO NO REALIZADO')
+}
 function pintarMembresia(){
   const el=document.getElementById('pfMem'); if(!el) return
   const m=S.memVig
-  if (!m){ el.innerHTML='<div class="memCard"><div class="mK">KOACH MEMBERSHIP</div><div class="mS">Tu membresía aún no está registrada en la app. Consulta en recepción.</div></div>'; return }
+  if (!m){ el.innerHTML='<div class="memCard"><div class="mK">KOACH MEMBERSHIP</div><div class="mS">Tu membresía aún no está registrada en la app.</div><button type="button" class="mCta" style="width:100%;cursor:pointer" onclick="flowPagar()">PAGAR EN LÍNEA →</button></div>'; return }
   const pagosM=(S.pagos||[])
   el.innerHTML='<div class="memCard"><div class="mK"><span>KOACH MEMBERSHIP</span><span class="mE '+m.estado_calc+'">'+(_MEST[m.estado_calc]||'')+'</span></div>'+
     // c36 · lo relevante primero: los días que quedan (cifra dominante, como el panel del coach); la vigencia pasa a detalle
@@ -8179,7 +8221,8 @@ function pintarMembresia(){
     '<div class="mBtns"><button onclick="det(\'dPagos\')">VER PAGOS · '+pagosM.length+'</button><button onclick="det(\'dMemH\')">VER HISTORIAL · '+S.mem.length+'</button></div>'+
     '<div class="det" id="dPagos">'+(pagosM.length?pagosM.map(p=>'<div class="mLi"><span>'+_fm(p.fecha_pago)+'</span><span>$'+(+p.monto_final).toLocaleString('es-CL')+' · '+String(p.estado).toUpperCase()+'</span></div>').join(''):'Sin pagos registrados.')+'</div>'+
     '<div class="det" id="dMemH">'+S.mem.map(x=>'<div class="mLi"><span>'+(x.duracion_tipo==='dia'?_fm(x.fecha_inicio):_fm(x.fecha_inicio)+' — '+_fm(x.fecha_fin))+'</span><span>'+(x.duracion_label||x.meses+' M')+' · '+(_MEST[x.estado_calc]||'')+'</span></div>').join('')+'</div>'+
-    '<a class="mCta" href="https://wa.me/56974369521?text=Hola%20KOACH%2C%20quiero%20consultar%20mi%20membres%C3%ADa" target="_blank">CONSULTAR RENOVACIÓN →</a></div>'
+    '<button type="button" class="mCta" style="width:100%;cursor:pointer" onclick="flowPagar()">RENOVAR EN LÍNEA →</button>'+
+    '<a class="mCta" style="background:none;color:inherit" href="https://wa.me/56974369521?text=Hola%20KOACH%2C%20quiero%20consultar%20mi%20membres%C3%ADa" target="_blank">CONSULTAR RENOVACIÓN</a></div>'
 }
 function pintarPerfil(){
   pintarMembresia()
