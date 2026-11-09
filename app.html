@@ -4853,7 +4853,7 @@ async function entrar(opts){
     document.getElementById('hAv').textContent = (perfil.nombre||'K')[0].toUpperCase()
     S.frases = (rCfg && rCfg.data && rCfg.data.frases) || null
     const memP = cargarMembresia()   // en paralelo con el resto (no depende del programa)
-    if (/[?&](pago|susc|cobro)=/.test(location.search)) memP.then(()=>flowRetorno()).catch(()=>{})   // vuelta desde Flow
+    if (/[?&](pago|susc|cobro|auto)=/.test(location.search)) memP.then(()=>flowRetorno()).catch(()=>{})   // vuelta desde Flow
     if (!opts.silent && perfil.estado==='clase_prueba') anRevisar()   // c216 · clase de prueba: bienvenida + anamnesis antes de la demo
     else if (!opts.silent && welcomeDebeMostrarse()) mostrarWelcome()
     else if (!opts.silent) setTimeout(pedirFoto, 1500)
@@ -8252,7 +8252,7 @@ function flowSuscHtml(){
   const f=S.flowSusc; if(!f) return ''
   const tj=f.tarjeta_ult4?' · '+String(f.tarjeta_tipo||'TARJETA').toUpperCase()+' •••• '+f.tarjeta_ult4:'', sl=flowSalida(f)
   if (f.estado!=='activa') return '<div class="mS" style="margin-top:10px"><b>PAGO AUTOMÁTICO DESACTIVADO</b> · no habrá más cobros; tu membresía sigue hasta su término.</div>'
-  return '<div class="mS" style="margin-top:10px"><b>PAGO AUTOMÁTICO ACTIVO</b> · $'+(+f.monto).toLocaleString('es-CL')+' al mes'+tj+'</div>'+
+  return '<div class="mS" style="margin-top:10px"><b>PAGO AUTOMÁTICO ACTIVO</b> · $'+(+f.monto).toLocaleString('es-CL')+((f.duracion_valor||1)>1?' cada '+f.duracion_valor+' meses':' al mes')+tj+'</div>'+
     (f.proximo_cobro?'<div class="mS">PRÓXIMO COBRO · '+_fm(f.proximo_cobro).toUpperCase()+'</div>':'')+
     (sl.en?'<div class="mS">PERMANENCIA HASTA EL '+_fm(f.permanencia_hasta).toUpperCase()+'</div>':'')+
     '<button type="button" class="mCta" style="width:100%;cursor:pointer;background:none;color:inherit" onclick="flowSuscCancelar(this)">'+(sl.en?'SOLICITAR TÉRMINO':'DESACTIVAR PAGO AUTOMÁTICO')+'</button>'
@@ -8273,18 +8273,18 @@ async function flowSuscCancelar(b){
 // T&C v2.0 cl. 4.1 · antes de registrar la tarjeta: monto, periodicidad, fechas, permanencia y autorización expresa
 async function flowAutoAutorizar(){
   let c; try{ c=await flowFn({ accion:'cotizar' }, 'flow-suscripcion') }catch(e){ toast(e.message); return }
-  const $=n=>'$'+(+n).toLocaleString('es-CL'), hoy=fLocal(new Date()), dia=+String(c.primer_cobro).slice(8,10), perm=c.permanencia_meses>0
+  const $=n=>'$'+(+n).toLocaleString('es-CL'), hoy=fLocal(new Date()), dia=+String(c.primer_cobro).slice(8,10), perm=c.permanencia_meses>0, per=c.periodo_meses||1, cada=per===1?' AL MES':' CADA '+per+' MESES'
   const fila=(k,v)=>'<div style="display:flex;justify-content:space-between;gap:12px;padding:9px 0;border-bottom:1px solid rgba(18,18,18,.12)"><span style="font:400 10.5px var(--font-mono);letter-spacing:.08em">'+k+'</span><b style="font:700 13px var(--font-mono);text-align:right">'+v+'</b></div>'
   const bg=document.createElement('div'); bg.className='kHoja'; bg.setAttribute('role','dialog'); bg.setAttribute('aria-modal','true')
-  bg.innerHTML='<div class="kHoja__c" style="max-height:88vh;overflow:auto"><span class="kHoja__k">PAGO AUTOMÁTICO · FLOW</span><h3 class="kHoja__t">MENSUAL AUTOMÁTICO</h3>'+
-    '<div style="margin:12px 0">'+fila('MONTO', $(c.monto)+' AL MES')+fila('PERIODICIDAD','MENSUAL')+
-      fila('PRIMER COBRO', c.primer_cobro<=hoy?'HOY':_fm(c.primer_cobro).toUpperCase())+fila('SIGUIENTES COBROS','EL '+dia+' DE CADA MES')+
+  bg.innerHTML='<div class="kHoja__c" style="max-height:88vh;overflow:auto"><span class="kHoja__k">PAGO AUTOMÁTICO · FLOW</span><h3 class="kHoja__t">'+(per===1?'MENSUAL AUTOMÁTICO':'AUTOMÁTICO CADA '+per+' MESES')+'</h3>'+
+    '<div style="margin:12px 0">'+fila('MONTO', $(c.monto)+cada)+fila('PERIODICIDAD',per===1?'MENSUAL':'CADA '+per+' MESES')+
+      fila('PRIMER COBRO', c.primer_cobro<=hoy?'HOY':_fm(c.primer_cobro).toUpperCase())+fila('SIGUIENTES COBROS',per===1?'EL '+dia+' DE CADA MES':'EL '+dia+', CADA '+per+' MESES')+
       fila('PERMANENCIA', perm ? c.permanencia_meses+' MESES · HASTA '+_fm(c.permanencia_hasta).toUpperCase() : 'SIN PERMANENCIA')+
-      fila('PRECIO DE LISTA', $(c.precio_lista)+' AL MES')+'</div>'+
-    (perm?'<p class="kHoja__p" style="font-size:13px">Si terminas antes de cumplir la permanencia, pagas una sola vez el descuento recibido: '+$(c.descuento_mensual)+' por cada mes pagado (ej.: al cuarto mes, 4 × '+$(c.descuento_mensual)+' = '+$(4*c.descuento_mensual)+'). No se cobra en caso de fallecimiento, incapacidad médica acreditada sobre 60 días, cambio de domicilio fuera de la provincia de Concepción, cierre del club o incumplimiento de KOACH. Al cumplir la permanencia, el compromiso no se renueva solo.</p>'
+      fila('PRECIO DE LISTA', $(c.precio_lista)+cada)+'</div>'+
+    (perm?'<p class="kHoja__p" style="font-size:13px">Si terminas antes de cumplir la permanencia, pagas una sola vez el descuento recibido: '+$(c.descuento_mensual)+' por cada '+(per===1?'mes pagado (ej.: al cuarto mes, 4 × ':'cobro pagado (ej.: al cuarto cobro, 4 × ')+$(c.descuento_mensual)+' = '+$(4*c.descuento_mensual)+'). No se cobra en caso de fallecimiento, incapacidad médica acreditada sobre 60 días, cambio de domicilio fuera de la provincia de Concepción, cierre del club o incumplimiento de KOACH. Al cumplir la permanencia, el compromiso no se renueva solo.</p>'
           :'<p class="kHoja__p" style="font-size:13px">Puedes desactivarlo cuando quieras desde tu Perfil, sin costo.</p>')+
     '<p class="kHoja__p" style="font-size:12.5px">Te avisamos en la app 5 días antes de cada cobro. Al registrar tu tarjeta, Flow hace un cargo de verificación de $50 que se reversa solo. KOACH solo ve el tipo y los últimos 4 dígitos de tu tarjeta.</p>'+
-    '<label style="display:flex;gap:10px;align-items:flex-start;margin:12px 0 6px;font-size:14px;cursor:pointer"><input type="checkbox" id="flAut" style="width:22px;height:22px;flex:none;margin-top:1px"> <span><b>Autorizo el cobro automático de mi membresía</b> por '+$(c.monto)+' al mes en mi tarjeta de crédito.</span></label>'+
+    '<label style="display:flex;gap:10px;align-items:flex-start;margin:12px 0 6px;font-size:14px;cursor:pointer"><input type="checkbox" id="flAut" style="width:22px;height:22px;flex:none;margin-top:1px"> <span><b>Autorizo el cobro automático de mi membresía</b> por '+$(c.monto)+cada.toLowerCase()+' en mi tarjeta de crédito.</span></label>'+
     (perm?'<label style="display:flex;gap:10px;align-items:flex-start;margin:6px 0;font-size:14px;cursor:pointer"><input type="checkbox" id="flPerm" style="width:22px;height:22px;flex:none;margin-top:1px"> <span>Acepto la <b>permanencia de '+c.permanencia_meses+' meses</b> y el cálculo de salida anticipada de los Términos y Condiciones v2.0.</span></label>':'')+
     '<div class="kHoja__b"><button type="button" class="kHoja__no">VOLVER</button><button type="button" class="kHoja__si" id="flGo" disabled>REGISTRAR TARJETA →</button></div></div>'
   const fin=()=>bg.remove(), go=bg.querySelector('#flGo')
@@ -8308,6 +8308,7 @@ async function flowRetorno(){
   const q=new URLSearchParams(location.search), est=q.get('pago'), orden=q.get('orden'), su=q.get('susc')
   if (su){ history.replaceState(null,'',location.pathname); return flowSuscRetorno(su) }
   if (q.get('cobro')){ history.replaceState(null,'',location.pathname); return flowPagar() }
+  if (q.get('auto')){ history.replaceState(null,'',location.pathname); await flowSuscCargar(); if (S.flowSusc && S.flowSusc.estado==='activa') return kAviso('YA TIENES EL PAGO AUTOMÁTICO ACTIVO\nLo ves en tu Perfil.','PAGO AUTOMÁTICO'); return flowAutoAutorizar() }
   if (!est) return
   history.replaceState(null,'',location.pathname)
   let e=est

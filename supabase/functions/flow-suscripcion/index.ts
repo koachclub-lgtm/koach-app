@@ -28,14 +28,14 @@ async function planFlow(nombre: string, precio: number, meses: number) {
 function salida(s: Susc) {
   const hoy = hoyCL();
   const enPermanencia = !!(s.permanencia_meses > 0 && s.permanencia_hasta && hoy < s.permanencia_hasta);
-  const desc = Math.max(0, (s.precio_lista || 80000) - s.monto);
+  const desc = Math.max(0, (s.precio_lista || 80000 * (s.duracion_valor || 1)) - s.monto); // por cobro (precio_lista = lista × periodo)
   const monto = enPermanencia ? desc * (s.cobros_pagados || 0) : 0;
   return { en_permanencia: enPermanencia, permanencia_hasta: s.permanencia_hasta, meses_pagados: s.cobros_pagados || 0, descuento_mensual: desc, monto };
 }
 const publica = (s: Susc | null) => s ? {
   id: s.id, estado: s.estado, plan_nombre: s.plan_nombre, monto: s.monto, tarjeta_tipo: s.tarjeta_tipo, tarjeta_ult4: s.tarjeta_ult4,
   inicio: s.inicio, proximo_cobro: s.proximo_cobro, permanencia_meses: s.permanencia_meses, permanencia_hasta: s.permanencia_hasta,
-  cobros_pagados: s.cobros_pagados, salida: salida(s),
+  cobros_pagados: s.cobros_pagados, periodo_meses: s.duracion_valor || 1, salida: salida(s),
 } : null;
 
 async function vivaDe(uid: string) {
@@ -83,9 +83,9 @@ Deno.serve(async (req) => {
       const { data: t } = await admin.rpc("tarifa_auto_de", { p_socio: uid });
       const { data: acc } = await admin.rpc("_flow_fin_acceso", { p_socio: uid });
       const hoy = hoyCL(), primero = acc && acc > hoy ? acc : hoy;
-      const perm = t?.permanencia_meses || 0;
-      return j({ monto: t.monto, precio_lista: t.precio_lista, personalizada: !!t.personalizada, permanencia_meses: perm,
-        primer_cobro: primero, permanencia_hasta: perm ? masMeses(primero, perm) : null, descuento_mensual: Math.max(0, t.precio_lista - t.monto) });
+      const perm = t?.permanencia_meses || 0, per = t?.periodo_meses || 1;
+      return j({ monto: t.monto, precio_lista: t.precio_lista * per, personalizada: !!t.personalizada, permanencia_meses: perm, periodo_meses: per,
+        primer_cobro: primero, permanencia_hasta: perm ? masMeses(primero, perm) : null, descuento_mensual: Math.max(0, t.precio_lista * per - t.monto) });
     }
 
     // desactivar sin costo (sin permanencia o permanencia cumplida) — cl. 4.4 / 4.10
@@ -114,7 +114,8 @@ Deno.serve(async (req) => {
     if (viva && viva.estado !== "registrando_tarjeta") return j({ error: "Ya tienes el pago automático activo" }, 400);
     const { data: t } = await admin.rpc("tarifa_auto_de", { p_socio: uid });
     if (!t?.monto || t.monto < 350) return j({ error: "Pago automático no disponible" }, 400);
-    const perm = t.permanencia_meses || 0;
+    const perm = t.permanencia_meses || 0, per = t.periodo_meses || 1;
+    const periodicidad = per === 1 ? "mensual" : "cada " + per + " meses";
     if (body.autorizo !== true) return j({ error: "Debes autorizar el cobro automático" }, 400);
     if (perm > 0 && body.acepto_permanencia !== true) return j({ error: "Debes aceptar la permanencia" }, 400);
     if (Number(body.monto_visto) !== Number(t.monto)) return j({ error: "La tarifa cambió. Vuelve a abrir el pago automático." }, 409);
@@ -124,7 +125,7 @@ Deno.serve(async (req) => {
     const email = (perfil?.email || u.user.email || "").trim();
     if (!email) return j({ error: "Tu cuenta no tiene correo" }, 400);
     const { data: ver } = await admin.from("config_pagos").select("valor").eq("clave", "tyc_version").maybeSingle();
-    const flowPlan = await planFlow("MENSUAL AUTO", t.monto, 1);
+    const flowPlan = await planFlow(per === 1 ? "MENSUAL AUTO" : "AUTO", t.monto, per);
 
     const { data: prev } = await admin.from("flow_suscripciones").select("flow_customer_id").eq("socio_id", uid).not("flow_customer_id", "is", null).order("created_at", { ascending: false }).limit(1).maybeSingle();
     let customerId = prev?.flow_customer_id as string | undefined;
@@ -140,10 +141,10 @@ Deno.serve(async (req) => {
     }
     const reg = await flow("POST", "customer/register", { customerId, url_return: HOOK + "?t=card" });
     await admin.from("flow_suscripciones").insert({
-      socio_id: uid, plan_id: null, plan_nombre: "MENSUAL AUTOMÁTICO", monto: t.monto, duracion_valor: 1,
+      socio_id: uid, plan_id: null, plan_nombre: per === 1 ? "MENSUAL AUTOMÁTICO" : "AUTOMÁTICO CADA " + per + " MESES", monto: t.monto, duracion_valor: per,
       flow_plan_id: flowPlan, flow_customer_id: customerId, email, register_token: reg.token, tipo_comercial: t.tipo_comercial || "promocion",
-      permanencia_meses: perm, precio_lista: t.precio_lista,
-      autorizacion: { texto: "Autorizo el cobro automático de mi membresía", monto: t.monto, periodicidad: "mensual", permanencia_meses: perm,
+      permanencia_meses: perm, precio_lista: t.precio_lista * per,
+      autorizacion: { texto: "Autorizo el cobro automático de mi membresía", monto: t.monto, periodicidad, periodo_meses: per, permanencia_meses: perm,
         acepto_permanencia: perm > 0, tyc: ver?.valor?.version || "v2.0", at: ahora(), ua: req.headers.get("user-agent") || null,
         ip: (req.headers.get("x-forwarded-for") || "").split(",")[0] || null },
     });
