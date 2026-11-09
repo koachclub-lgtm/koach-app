@@ -43,6 +43,11 @@ Deno.serve(async (req) => {
     } else token = new URL(req.url).searchParams.get("token") || "";
   } catch (_) { /* sin token */ }
 
+  if (t === "ping") {   // diagnóstico: ¿hay llaves y Flow las acepta? (no expone valores)
+    let flow: unknown = null;
+    try { await estadoFlow("ping_koach"); } catch (e) { flow = String((e as Error).message).slice(0, 300); }
+    return new Response(JSON.stringify({ api_key: !!API_KEY, secret_key: !!SECRET, flow }), { headers: { "Content-Type": "application/json" } });
+  }
   if (t === "return") {
     let estado = "pendiente", orden = "";
     try {
