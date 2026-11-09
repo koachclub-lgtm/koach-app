@@ -35,9 +35,10 @@ async function activarSuscripcion(token: string) {
   const hoy = hoyCL();
   const inicio = acc && acc > hoy ? acc : hoy;
   const sub = await flow("POST", "subscription/create", { planId: s.flow_plan_id, customerId: s.flow_customer_id, subscription_start: inicio });
+  const permHasta = s.permanencia_meses > 0 ? (() => { const d = new Date(inicio + "T12:00:00Z"); d.setUTCMonth(d.getUTCMonth() + s.permanencia_meses); return d.toISOString().slice(0, 10); })() : null;
   await admin.from("flow_suscripciones").update({
-    estado: "activa", flow_subscription_id: sub.subscriptionId, inicio,
-    proximo_cobro: String(sub.next_invoice_date || inicio).slice(0, 10),
+    estado: "activa", flow_subscription_id: sub.subscriptionId, inicio, permanencia_hasta: permHasta,
+    proximo_cobro: inicio,
     tarjeta_tipo: rs.creditCardType || null, tarjeta_ult4: rs.last4CardDigits || null,
     flow_data: sub, error: null, updated_at: ahora(),
   }).eq("id", s.id);

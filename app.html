@@ -8145,10 +8145,24 @@ function avisoRenovacion(vig){
   const prev=document.getElementById('avRenov'); if (prev) prev.remove()
   if (!vig || vig.estado_calc==='congelada' || S.memBloqueo) return
   if (['ugc','canje','cortesia'].includes(vig.tipo_comercial)) return   // beneficio sin cobro: no se le pide pago
-  if (S.flowSusc && S.flowSusc.estado==='activa') return   // pago automático: se renueva solo
+  if (S.flowSusc && S.flowSusc.estado==='activa') return avisoCobroAuto()   // T&C 4.3: aviso previo a cada cobro
   const t=textoRenovacion(S.memDiasAcceso); if (!t) return
   const d=document.createElement('div'); d.id='avRenov'; d.className='avRenov'; d.setAttribute('role','status')
   d.innerHTML='<div class="avRenov__tx"><b>'+t+'</b><span>Renueva en línea o acércate a recepción. <a href="#" onclick="flowPagar();return false" style="color:inherit;font-weight:700;text-decoration:underline">RENOVAR AHORA</a></span></div>'+
+    '<button type="button" class="avRenov__x" aria-label="Cerrar aviso" onclick="var a=document.getElementById(\'avRenov\'); if(a){a.classList.add(\'out\'); setTimeout(function(){a.remove()},220)}">'+
+    '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button>'
+  document.body.appendChild(d)
+}
+// T&C v2.0 cl. 4.3 · aviso 5 días antes de cada cobro automático · cl. 4.9 · aviso 30 días antes del fin de la permanencia
+function avisoCobroAuto(){
+  const f=S.flowSusc; if(!f || f.estado!=='activa') return
+  const hoy=fLocal(new Date()), dd=iso=>Math.round((new Date(iso+'T12:00:00')-new Date(hoy+'T12:00:00'))/86400000)
+  let t=null, sub='Puedes revisarlo o desactivarlo en tu Perfil.'
+  if (f.proximo_cobro){ const d=dd(f.proximo_cobro); if (d>=0 && d<=5) t=(d===0?'Hoy':d===1?'Mañana':'El '+_fm(f.proximo_cobro))+' se cobra tu mensualidad automática de $'+(+f.monto).toLocaleString('es-CL')+'.' }
+  if (!t && f.permanencia_hasta){ const d=dd(f.permanencia_hasta); if (d>=0 && d<=30){ t='Tu permanencia termina el '+_fm(f.permanencia_hasta)+'.'; sub='El compromiso no se renueva solo: desde esa fecha puedes desactivar tu pago automático sin costo.' } }
+  if (!t) return
+  const d=document.createElement('div'); d.id='avRenov'; d.className='avRenov'; d.setAttribute('role','status')
+  d.innerHTML='<div class="avRenov__tx"><b>'+t+'</b><span>'+sub+'</span></div>'+
     '<button type="button" class="avRenov__x" aria-label="Cerrar aviso" onclick="var a=document.getElementById(\'avRenov\'); if(a){a.classList.add(\'out\'); setTimeout(function(){a.remove()},220)}">'+
     '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button>'
   document.body.appendChild(d)
@@ -8218,11 +8232,7 @@ async function flowPagar(){
     try{ const d = b.dataset.rec==='1' ? await flowFn({ accion:'iniciar', cobro_id:b.dataset.id }, 'flow-suscripcion') : await flowFn({ accion:'crear', cobro_id:b.dataset.id }); location.href=d.url }
     catch(e){ toast(e.message); fin() }
   })
-  bg.querySelectorAll('.flAu').forEach(b=>b.onclick=async()=>{
-    bg.querySelectorAll('.flPl,.flAu').forEach(x=>x.disabled=true); b.style.opacity='.6'; b.querySelector('small').textContent='CONECTANDO CON FLOW…'
-    try{ const d=await flowFn({ accion:'iniciar' }, 'flow-suscripcion'); location.href=d.url }
-    catch(e){ toast(e.message); fin() }
-  })
+  bg.querySelectorAll('.flAu').forEach(b=>b.onclick=()=>{ fin(); flowAutoAutorizar() })
   bg.querySelectorAll('.flPl').forEach(b=>b.onclick=async()=>{
     bg.querySelectorAll('.flPl').forEach(x=>x.disabled=true); b.style.opacity='.6'; b.querySelector('small').textContent='CONECTANDO CON FLOW…'
     try{ const d=await flowFn({ accion:'crear', plan_id:b.dataset.id }); location.href=d.url }
@@ -8231,22 +8241,60 @@ async function flowPagar(){
   document.body.appendChild(bg)
 }
 async function flowSuscCargar(){
-  try{ const r=await sb.from('flow_suscripciones').select('id,estado,plan_nombre,monto,duracion_valor,tarjeta_tipo,tarjeta_ult4,inicio,proximo_cobro').eq('socio_id',S.perfil.id).in('estado',['activa','cancelada_fin_periodo']).order('created_at',{ascending:false}).limit(1).maybeSingle()
+  try{ const r=await sb.from('flow_suscripciones').select('id,estado,plan_nombre,monto,duracion_valor,tarjeta_tipo,tarjeta_ult4,inicio,proximo_cobro,permanencia_meses,permanencia_hasta,precio_lista,cobros_pagados').eq('socio_id',S.perfil.id).in('estado',['activa','cancelada_fin_periodo']).order('created_at',{ascending:false}).limit(1).maybeSingle()
     S.flowSusc=(r && !r.error && r.data) || null }catch(_){ S.flowSusc=null }
 }
+// T&C v2.0 cl. 4.9 · salida anticipada = (lista − valor mensual) × meses pagados, solo dentro de la permanencia
+function flowSalida(f){ const hoy=fLocal(new Date()), en=!!(f && f.permanencia_meses>0 && f.permanencia_hasta && hoy<f.permanencia_hasta)
+  const desc=Math.max(0,((f&&f.precio_lista)||80000)-((f&&f.monto)||0)), meses=(f&&f.cobros_pagados)||0
+  return { en, desc, meses, monto: en ? desc*meses : 0 } }
 function flowSuscHtml(){
   const f=S.flowSusc; if(!f) return ''
-  const tj=f.tarjeta_ult4?' · '+String(f.tarjeta_tipo||'TARJETA').toUpperCase()+' •••• '+f.tarjeta_ult4:''
-  return f.estado==='activa'
-    ? '<div class="mS" style="margin-top:10px"><b>PAGO AUTOMÁTICO ACTIVO</b> · '+plEscA(f.plan_nombre)+' $'+(+f.monto).toLocaleString('es-CL')+tj+'</div>'+
-      '<button type="button" class="mCta" style="width:100%;cursor:pointer;background:none;color:inherit" onclick="flowSuscCancelar(this)">DESACTIVAR PAGO AUTOMÁTICO</button>'
-    : '<div class="mS" style="margin-top:10px"><b>PAGO AUTOMÁTICO DESACTIVADO</b> · no habrá más cobros; tu membresía sigue hasta su término.</div>'
+  const tj=f.tarjeta_ult4?' · '+String(f.tarjeta_tipo||'TARJETA').toUpperCase()+' •••• '+f.tarjeta_ult4:'', sl=flowSalida(f)
+  if (f.estado!=='activa') return '<div class="mS" style="margin-top:10px"><b>PAGO AUTOMÁTICO DESACTIVADO</b> · no habrá más cobros; tu membresía sigue hasta su término.</div>'
+  return '<div class="mS" style="margin-top:10px"><b>PAGO AUTOMÁTICO ACTIVO</b> · $'+(+f.monto).toLocaleString('es-CL')+' al mes'+tj+'</div>'+
+    (f.proximo_cobro?'<div class="mS">PRÓXIMO COBRO · '+_fm(f.proximo_cobro).toUpperCase()+'</div>':'')+
+    (sl.en?'<div class="mS">PERMANENCIA HASTA EL '+_fm(f.permanencia_hasta).toUpperCase()+'</div>':'')+
+    '<button type="button" class="mCta" style="width:100%;cursor:pointer;background:none;color:inherit" onclick="flowSuscCancelar(this)">'+(sl.en?'SOLICITAR TÉRMINO':'DESACTIVAR PAGO AUTOMÁTICO')+'</button>'
 }
 async function flowSuscCancelar(b){
-  if (!(await kHoja({ k:'PAGO AUTOMÁTICO', msg:'¿DESACTIVAR EL PAGO AUTOMÁTICO?\nNo se harán más cobros. Tu membresía sigue vigente hasta su término y puedes renovar cuando quieras.', si:'SÍ, DESACTIVAR', no:'VOLVER' }))) return
-  b.disabled=true; b.textContent='DESACTIVANDO…'
-  try{ await flowFn({ accion:'cancelar' }, 'flow-suscripcion'); await flowSuscCargar(); pintarMembresia(); toast('Pago automático desactivado') }
-  catch(e){ toast(e.message); b.disabled=false; b.textContent='DESACTIVAR PAGO AUTOMÁTICO' }
+  const f=S.flowSusc, sl=flowSalida(f), $=n=>'$'+(+n).toLocaleString('es-CL')
+  if (sl.en){
+    const msg = sl.monto>0
+      ? 'TÉRMINO ANTICIPADO\nEstás dentro de tu permanencia hasta el '+_fm(f.permanencia_hasta)+'. El monto de salida es el descuento recibido: '+sl.meses+' '+(sl.meses===1?'mes':'meses')+' × '+$(sl.desc)+' = '+$(sl.monto)+'. Se cobra una sola vez en tu tarjeta registrada, se cierra el pago automático y tu membresía sigue vigente hasta el fin del mes pagado.'
+      : 'TÉRMINO ANTICIPADO\nAún no tienes meses pagados en tu permanencia: no hay monto de salida. Se cierra el pago automático.'
+    if (!(await kHoja({ k:'PAGO AUTOMÁTICO', msg, si: sl.monto>0 ? 'CONFIRMAR Y PAGAR '+$(sl.monto) : 'CONFIRMAR TÉRMINO', no:'VOLVER' }))) return
+  } else if (!(await kHoja({ k:'PAGO AUTOMÁTICO', msg:'¿DESACTIVAR EL PAGO AUTOMÁTICO?\nNo se harán más cobros. Tu membresía sigue vigente hasta su término y puedes renovar cuando quieras.', si:'SÍ, DESACTIVAR', no:'VOLVER' }))) return
+  b.disabled=true; b.textContent='PROCESANDO…'
+  try{ const r=await flowFn({ accion:'terminar', confirmo:true }, 'flow-suscripcion'); await flowSuscCargar(); pintarMembresia()
+    toast(r.cobrado>0 ? 'Término registrado · cobro de salida '+$(r.cobrado) : 'Pago automático desactivado') }
+  catch(e){ kAviso('NO SE PUDO COMPLETAR\n'+e.message,'PAGO AUTOMÁTICO'); b.disabled=false; b.textContent=sl.en?'SOLICITAR TÉRMINO':'DESACTIVAR PAGO AUTOMÁTICO' }
+}
+// T&C v2.0 cl. 4.1 · antes de registrar la tarjeta: monto, periodicidad, fechas, permanencia y autorización expresa
+async function flowAutoAutorizar(){
+  let c; try{ c=await flowFn({ accion:'cotizar' }, 'flow-suscripcion') }catch(e){ toast(e.message); return }
+  const $=n=>'$'+(+n).toLocaleString('es-CL'), hoy=fLocal(new Date()), dia=+String(c.primer_cobro).slice(8,10), perm=c.permanencia_meses>0
+  const fila=(k,v)=>'<div style="display:flex;justify-content:space-between;gap:12px;padding:9px 0;border-bottom:1px solid rgba(18,18,18,.12)"><span style="font:400 10.5px var(--font-mono);letter-spacing:.08em">'+k+'</span><b style="font:700 13px var(--font-mono);text-align:right">'+v+'</b></div>'
+  const bg=document.createElement('div'); bg.className='kHoja'; bg.setAttribute('role','dialog'); bg.setAttribute('aria-modal','true')
+  bg.innerHTML='<div class="kHoja__c" style="max-height:88vh;overflow:auto"><span class="kHoja__k">PAGO AUTOMÁTICO · FLOW</span><h3 class="kHoja__t">MENSUAL AUTOMÁTICO</h3>'+
+    '<div style="margin:12px 0">'+fila('MONTO', $(c.monto)+' AL MES')+fila('PERIODICIDAD','MENSUAL')+
+      fila('PRIMER COBRO', c.primer_cobro<=hoy?'HOY':_fm(c.primer_cobro).toUpperCase())+fila('SIGUIENTES COBROS','EL '+dia+' DE CADA MES')+
+      fila('PERMANENCIA', perm ? c.permanencia_meses+' MESES · HASTA '+_fm(c.permanencia_hasta).toUpperCase() : 'SIN PERMANENCIA')+
+      fila('PRECIO DE LISTA', $(c.precio_lista)+' AL MES')+'</div>'+
+    (perm?'<p class="kHoja__p" style="font-size:13px">Si terminas antes de cumplir la permanencia, pagas una sola vez el descuento recibido: '+$(c.descuento_mensual)+' por cada mes pagado (ej.: al cuarto mes, 4 × '+$(c.descuento_mensual)+' = '+$(4*c.descuento_mensual)+'). No se cobra en caso de fallecimiento, incapacidad médica acreditada sobre 60 días, cambio de domicilio fuera de la provincia de Concepción, cierre del club o incumplimiento de KOACH. Al cumplir la permanencia, el compromiso no se renueva solo.</p>'
+          :'<p class="kHoja__p" style="font-size:13px">Puedes desactivarlo cuando quieras desde tu Perfil, sin costo.</p>')+
+    '<p class="kHoja__p" style="font-size:12.5px">Te avisamos en la app 5 días antes de cada cobro. Al registrar tu tarjeta, Flow hace un cargo de verificación de $50 que se reversa solo. KOACH solo ve el tipo y los últimos 4 dígitos de tu tarjeta.</p>'+
+    '<label style="display:flex;gap:10px;align-items:flex-start;margin:12px 0 6px;font-size:14px;cursor:pointer"><input type="checkbox" id="flAut" style="width:22px;height:22px;flex:none;margin-top:1px"> <span><b>Autorizo el cobro automático de mi membresía</b> por '+$(c.monto)+' al mes en mi tarjeta de crédito.</span></label>'+
+    (perm?'<label style="display:flex;gap:10px;align-items:flex-start;margin:6px 0;font-size:14px;cursor:pointer"><input type="checkbox" id="flPerm" style="width:22px;height:22px;flex:none;margin-top:1px"> <span>Acepto la <b>permanencia de '+c.permanencia_meses+' meses</b> y el cálculo de salida anticipada de los Términos y Condiciones v2.0.</span></label>':'')+
+    '<div class="kHoja__b"><button type="button" class="kHoja__no">VOLVER</button><button type="button" class="kHoja__si" id="flGo" disabled>REGISTRAR TARJETA →</button></div></div>'
+  const fin=()=>bg.remove(), go=bg.querySelector('#flGo')
+  const chk=()=>{ go.disabled=!(bg.querySelector('#flAut').checked && (!perm || bg.querySelector('#flPerm').checked)) }
+  bg.querySelectorAll('input[type=checkbox]').forEach(x=>x.onchange=chk)
+  bg.addEventListener('click',e=>{ if(e.target===bg) fin() }); bg.querySelector('.kHoja__no').onclick=fin
+  go.onclick=async()=>{ go.disabled=true; go.textContent='CONECTANDO CON FLOW…'
+    try{ const d=await flowFn({ accion:'iniciar', autorizo:true, acepto_permanencia:perm, monto_visto:c.monto }, 'flow-suscripcion'); location.href=d.url }
+    catch(e){ toast(e.message); go.disabled=false; go.textContent='REGISTRAR TARJETA →' } }
+  document.body.appendChild(bg)
 }
 async function flowSuscRetorno(r){
   if (r==='activa'){ await flowSuscCargar(); try{ pintarPerfil() }catch(_){}
