@@ -52,8 +52,9 @@ Deno.serve(async (req) => {
       if (!c || !c.recurrente || c.duracion_tipo !== "mes") return j({ error: "Este cobro ya no está disponible" }, 400);
       plan = { id: null, nombre: c.duracion_valor === 1 ? "MENSUAL" : c.duracion_valor + " MESES", precio: c.monto, duracion_valor: c.duracion_valor, tc: c.tipo_comercial, cobro_id: c.id };
     } else {
-      const { data: pl } = await admin.from("planes").select("*").eq("id", body.plan_id).eq("activo", true).maybeSingle();
-      if (pl && pl.duracion_tipo === "mes" && !pl.hora_limite) plan = { id: pl.id, nombre: pl.nombre, precio: pl.precio, duracion_valor: pl.duracion_valor, tc: "normal", cobro_id: null };
+      // MENSUAL AUTOMÁTICO: tarifa individual del socio o la tarifa por defecto ($70.000)
+      const { data: t } = await admin.rpc("tarifa_auto_de", { p_socio: uid });
+      if (t?.monto) plan = { id: null, nombre: "MENSUAL AUTO", precio: t.monto, duracion_valor: 1, tc: t.tipo_comercial || "promocion", cobro_id: null };
     }
     if (!plan || !(plan.precio >= 350)) return j({ error: "Este plan no admite pago automático" }, 400);
     const { data: perfil } = await admin.from("profiles").select("id,email,nombre,apellido").eq("id", uid).maybeSingle();

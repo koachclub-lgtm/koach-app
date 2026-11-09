@@ -27,9 +27,10 @@ Deno.serve(async (req) => {
     const body = await req.json().catch(() => ({}));
 
     if (body.accion === "planes") {
-      const { data } = await admin.from("planes").select("id,nombre,precio,duracion_tipo,duracion_valor,hora_limite").eq("activo", true).gte("precio", 350).order("precio");
+      const { data } = await admin.from("planes").select("id,nombre,precio,duracion_tipo,duracion_valor,hora_limite").eq("activo", true).eq("en_linea", true).gte("precio", 350).order("precio");
+      const { data: auto } = await admin.rpc("tarifa_auto_de", { p_socio: u.user.id });
       const { data: cobros } = await admin.from("cobros_socio").select("id,monto,duracion_tipo,duracion_valor,tipo_comercial,recurrente,concepto,created_at").eq("socio_id", u.user.id).eq("estado", "pendiente").order("created_at", { ascending: false });
-      return j({ planes: data || [], cobros: cobros || [] });
+      return j({ planes: data || [], cobros: cobros || [], auto: auto ? { monto: auto.monto, personalizada: !!auto.personalizada } : null });
     }
     if (body.accion === "estado") {
       const { data } = await admin.from("flow_ordenes").select("id,estado,plan_nombre,monto,pagada_at").eq("socio_id", u.user.id).eq("commerce_order", String(body.orden || "")).maybeSingle();
@@ -44,7 +45,7 @@ Deno.serve(async (req) => {
       const dur = c.duracion_tipo === "mes" ? (c.duracion_valor === 1 ? "1 MES" : c.duracion_valor + " MESES") : c.duracion_tipo === "semana" ? c.duracion_valor + " SEMANA" + (c.duracion_valor > 1 ? "S" : "") : "DAY PASS";
       plan = { id: null, nombre: c.concepto || dur, precio: c.monto, duracion_tipo: c.duracion_tipo, duracion_valor: c.duracion_valor, tc: c.tipo_comercial, cobro_id: c.id };
     } else {
-      const { data: pl } = await admin.from("planes").select("*").eq("id", body.plan_id).eq("activo", true).maybeSingle();
+      const { data: pl } = await admin.from("planes").select("*").eq("id", body.plan_id).eq("activo", true).eq("en_linea", true).maybeSingle();
       if (pl) plan = { id: pl.id, nombre: pl.nombre, precio: pl.precio, duracion_tipo: pl.duracion_tipo, duracion_valor: pl.duracion_valor, tc: "normal", cobro_id: null };
     }
     if (!plan || !(plan.precio >= 350)) return j({ error: "Plan no disponible para pago en línea" }, 400);

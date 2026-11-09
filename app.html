@@ -8177,8 +8177,8 @@ async function flowFn(body, fn){
   const d = await r.json().catch(()=>({})); if (!r.ok) throw new Error(d.error||'No pudimos conectar con Flow'); return d
 }
 async function flowPagar(){
-  let planes=[], cobros=[]
-  try{ const d=await flowFn({ accion:'planes' }); planes=d.planes||[]; cobros=d.cobros||[] }catch(e){ toast(e.message); return }
+  let planes=[], cobros=[], auto=null
+  try{ const d=await flowFn({ accion:'planes' }); planes=d.planes||[]; cobros=d.cobros||[]; auto=d.auto||null }catch(e){ toast(e.message); return }
   if (S.flowSusc && S.flowSusc.estado==='activa') cobros=cobros.filter(c=>!c.recurrente)
   if (!planes.length && !cobros.length){ toast('No hay planes disponibles para pago en línea'); return }
   const $=n=>'$'+(+n).toLocaleString('es-CL'), dur=p=>p.duracion_tipo==='mes'?(p.duracion_valor===1?'1 MES':p.duracion_valor+' MESES'):p.duracion_tipo==='semana'?'1 SEMANA':'1 DÍA'
@@ -8188,12 +8188,12 @@ async function flowPagar(){
     (cobros.length ? '<span class="kHoja__k" style="display:block;margin-top:14px">TU COBRO KOACH</span><div style="display:grid;gap:8px;margin:8px 0 4px">'+cobros.map(c=>'<button type="button" class="flCo" data-id="'+c.id+'" data-rec="'+(c.recurrente?1:0)+'" style="display:flex;justify-content:space-between;align-items:center;gap:10px;width:100%;min-height:62px;padding:10px 14px;border-radius:12px;border:2px solid #121212;background:#F4F3F0;color:#121212;cursor:pointer;text-align:left">'+
         '<span><b style="display:block;font:800 15px var(--font-display);text-transform:uppercase">'+plEscA(c.concepto||'MEMBRESÍA '+dur(c))+'</b><small style="font:400 10.5px var(--font-mono);letter-spacing:.08em">'+dur(c)+(c.recurrente?(c.duracion_valor===1?' · PAGO AUTOMÁTICO CADA MES':' · PAGO AUTOMÁTICO CADA '+c.duracion_valor+' MESES'):' · PAGO ÚNICO')+'</small></span>'+
         '<b style="font:700 15px var(--font-mono)">'+$(c.monto)+'</b></button>').join('')+'</div>' : '')+
-    (S.flowSusc && S.flowSusc.estado==='activa' ? '' : (()=>{ const auto=planes.filter(p=>p.duracion_tipo==='mes' && !p.hora_limite); if(!auto.length) return ''
-      return '<span class="kHoja__k" style="display:block;margin-top:14px">PAGO AUTOMÁTICO · TE OLVIDAS DE RENOVAR</span>'+
-      '<div style="display:grid;gap:8px;margin:8px 0 4px">'+auto.map(p=>'<button type="button" class="flAu" data-id="'+p.id+'" style="display:flex;justify-content:space-between;align-items:center;gap:10px;width:100%;min-height:58px;padding:10px 14px;border-radius:12px;border:none;background:#121212;color:#F4F3F0;cursor:pointer;text-align:left">'+
-        '<span><b style="display:block;font:800 15px var(--font-display);text-transform:uppercase">'+plEscA(p.nombre)+' AUTOMÁTICO</b><small style="font:400 10.5px var(--font-mono);letter-spacing:.08em">'+(p.duracion_valor===1?'COBRO CADA MES':'COBRO CADA '+p.duracion_valor+' MESES')+' · CANCELAS CUANDO QUIERAS</small></span>'+
-        '<b style="font:700 15px var(--font-mono)">'+$(p.precio)+'</b></button>').join('')+'</div>'+
-      '<span class="kHoja__k" style="display:block;margin-top:14px">PAGO ÚNICO</span>' })())+
+    (S.flowSusc && S.flowSusc.estado==='activa' || !auto ? '' :
+      '<span class="kHoja__k" style="display:block;margin-top:14px">PAGO AUTOMÁTICO'+(auto.personalizada?' · TARIFA EXCLUSIVA':'')+'</span>'+
+      '<div style="display:grid;gap:8px;margin:8px 0 4px"><button type="button" class="flAu" style="display:flex;justify-content:space-between;align-items:center;gap:10px;width:100%;min-height:58px;padding:10px 14px;border-radius:12px;border:none;background:#121212;color:#F4F3F0;cursor:pointer;text-align:left">'+
+        '<span><b style="display:block;font:800 15px var(--font-display);text-transform:uppercase">MENSUAL AUTOMÁTICO</b><small style="font:400 10.5px var(--font-mono);letter-spacing:.08em">COBRO CADA MES · CANCELAS CUANDO QUIERAS</small></span>'+
+        '<b style="font:700 15px var(--font-mono)">'+$(auto.monto)+'</b></button></div>')+
+    '<span class="kHoja__k" style="display:block;margin-top:14px">PAGO ÚNICO</span>'+
     '<div style="display:grid;gap:8px;margin:8px 0 14px">'+planes.map(p=>'<button type="button" class="flPl" data-id="'+p.id+'" style="display:flex;justify-content:space-between;align-items:center;gap:10px;width:100%;min-height:58px;padding:10px 14px;border-radius:12px;border:1px solid rgba(18,18,18,.25);background:#F6F5F2;color:#121212;cursor:pointer;text-align:left">'+
       '<span><b style="display:block;font:800 15px var(--font-display);text-transform:uppercase">'+plEscA(p.nombre)+'</b><small style="font:400 10.5px var(--font-mono);letter-spacing:.08em">'+dur(p)+(p.hora_limite?' · INGRESO HASTA '+String(p.hora_limite).slice(0,5):'')+'</small></span>'+
       '<b style="font:700 15px var(--font-mono)">'+$(p.precio)+'</b></button>').join('')+'</div>'+
@@ -8207,7 +8207,7 @@ async function flowPagar(){
   })
   bg.querySelectorAll('.flAu').forEach(b=>b.onclick=async()=>{
     bg.querySelectorAll('.flPl,.flAu').forEach(x=>x.disabled=true); b.style.opacity='.6'; b.querySelector('small').textContent='CONECTANDO CON FLOW…'
-    try{ const d=await flowFn({ accion:'iniciar', plan_id:b.dataset.id }, 'flow-suscripcion'); location.href=d.url }
+    try{ const d=await flowFn({ accion:'iniciar' }, 'flow-suscripcion'); location.href=d.url }
     catch(e){ toast(e.message); fin() }
   })
   bg.querySelectorAll('.flPl').forEach(b=>b.onclick=async()=>{
