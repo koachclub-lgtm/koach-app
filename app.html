@@ -520,6 +520,8 @@ html.accBloq #pfCard, html.accBloq #vPerfil .kpc__f, html.accBloq #vPerfil [oncl
 .an__exp{border:1.5px solid var(--ln);border-radius:16px;padding:12px;margin-bottom:10px;background:var(--card)}
 .an__exp h4{margin:0 0 8px;font:700 10px var(--font-mono);letter-spacing:.16em;color:var(--mu);display:flex;justify-content:space-between}
 .an__exp .an__chips{margin-top:8px}.an__exp .an__lbl{margin:10px 0 6px}
+.an__regla{display:grid;grid-template-columns:repeat(11,minmax(0,1fr));gap:4px}.an__regla .an__ch{padding:0;min-width:0;min-height:44px;border-radius:12px;font-size:13px}
+.an__escL{display:flex;justify-content:space-between;font:700 9px var(--font-mono);letter-spacing:.12em;color:var(--mu);margin-top:8px}
 .an__act{display:flex;gap:10px;margin-top:12px}
 .an__back{width:56px;min-height:56px;flex:none;border-radius:50%;border:1.5px solid var(--ln);background:rgba(255,255,255,.06);color:var(--ink);font:400 20px var(--font-mono);cursor:pointer}
 .an__go{flex:1;min-height:56px;border:0;border-radius:28px;background:var(--ink);color:#101012;font:800 14px var(--font-display);letter-spacing:.08em;text-transform:uppercase;cursor:pointer}
@@ -5116,6 +5118,7 @@ const AN_MUS={hombre:['Pecho','Espalda','Brazos','Hombros','Abdomen','Piernas','
 const AN_OBJ={masa:'Ganar masa muscular',grasa:'Bajar grasa',tonificar:'Tonificar y definir',fuerza:'Más fuerza',salud:'Salud y bienestar'}
 const AN_ZN={superior:'Tren superior',inferior:'Tren inferior',completo:'Cuerpo completo'}
 const AN_NUNCA=A=>A.ultima==='nunca'
+// c220 · anamnesis v4: + por qué entrena (autodeterminación), meta única y plazo, importancia y confianza 0–10, barrera, qué lo mueve y qué necesita ver hoy
 // c218 · anamnesis v2: datos clave (edad, última vez, máximo continuo, disciplinas), salud (patologías, lesiones, dolor hoy, energía) y proceso (qué será determinante, qué le preocupa, qué espera)
 const AN_Q=[
  {id:'edad',k:'TÚ',q:'¿Cuántos años tienes?',t:'edad'},
@@ -5132,9 +5135,15 @@ const AN_Q=[
  {id:'sensacion',k:'CÓMO TE SIENTES',q:'¿Cómo te has sentido últimamente en tu día a día?',sub:'Puedes elegir varias.',t:'chk',o:()=>['Me siento bien, con energía','Me canso durante el día','Me da sueño o duermo mal','Me duele el cuerpo o me siento rígido','Me siento pesado o hinchado','Ando con estrés o ansiedad','Me falta energía para entrenar'],txt:{l:'CUÉNTANOS UN POCO MÁS · OPCIONAL',ph:'Ej.: Llego muy cansado del trabajo y me cuesta levantarme en la mañana'}},
  {id:'tiempo',k:'TU TIEMPO',q:'¿Cuánto tiempo tienes para entrenar?',t:'tiempo'},
  {id:'decision',k:'TU DECISIÓN',q:'¿Qué te hizo tomar la decisión de cambiar ahora?',sub:'Puedes elegir varias.',t:'chk',excl:false,o:()=>['Me vi en una foto o en el espejo','Un tema de salud o un examen','Me siento sin energía','Una fecha o evento que se viene','Quiero volver a sentirme como antes','Me cansé de empezar y dejar','Alguien me motivó','Otro'],txt:{l:'CON TUS PALABRAS · OPCIONAL',ph:'Ej.: Me hice exámenes y salí con el colesterol alto',siempre:true}},
- {id:'espera',k:'TU PROCESO',q:'¿Qué esperas lograr con este proceso?',sub:'Con tus palabras: qué quieres ver, sentir o cambiar, y en cuánto tiempo.',t:'txt',ph:'Ej.: Bajar 6 kilos y sentirme con energía antes del verano'},
+ {id:'motivo',k:'TU DECISIÓN',q:'¿Por qué quieres entrenar?',sub:'Elige hasta 2. No hay respuestas buenas ni malas.',t:'many',max:2,o:[['valoro','Valoro lo que me va a dar'],['parte','Quiero que sea parte de mi vida'],['gusta','Me gusta entrenar'],['alguien','Alguien me lo pidió o recomendó'],['culpa','Me siento culpable si no lo hago']]},
+ {id:'espera',k:'TU META',q:'Si tuvieras que elegir una sola cosa, ¿qué quieres lograr?',sub:'Con tus palabras: qué quieres ver, sentir o cambiar.',t:'txt',ph:'Ej.: Llegar al matrimonio de mi hermana con los brazos y el abdomen más firmes'},
+ {id:'plazo',k:'TU META',q:'¿Para cuándo quieres lograrlo?',t:'one',o:[['1m','En 1 mes'],['3m','En 3 meses'],['6m','En 6 meses'],['fecha','Para una fecha o evento'],['sin','Sin apuro, quiero hacerlo bien']]},
+ {id:'regla',k:'TU META',q:'Del 0 al 10…',sub:'Responde con lo primero que sientas.',t:'regla'},
  {id:'determinante',k:'ESTA VEZ',q:'¿Qué crees que será determinante para lograr tu resultado esta vez?',sub:'Elige hasta 3.',t:'many',max:3,txt:{k:'ayuda',l:'¿CÓMO CREES QUE KOACH TE VA A AYUDAR A LOGRARLO?',ph:'Ej.: Teniendo a alguien que me diga qué hacer y me corrija'},o:[['planificacion','Una buena planificación'],['esquema','Un esquema de trabajo claro'],['guia','Alguien que me guíe y corrija'],['constancia','Constancia y frecuencia'],['intensidad','Entrenar con la intensidad correcta'],['alimentacion','La alimentación'],['seguimiento','Ver mi progreso'],['comunidad','Un buen ambiente que me motive']]},
  {id:'preocupa',k:'ESTA VEZ',q:'¿Qué te preocupa al empezar?',sub:'Puedes elegir varias.',t:'many',solo:'nada',o:[['lesion','Lesionarme'],['constancia','No ser constante'],['resultados','No ver resultados'],['maquinas','No saber usar las máquinas'],['nivel','No estar al nivel'],['tiempo','No tener tiempo'],['nada','Nada, quiero partir']]},
+ {id:'barrera',k:'ESTA VEZ',q:'Si esta vez lo dejaras, ¿qué sería lo más probable?',sub:'Saberlo hoy nos ayuda a que no pase.',t:'one',o:[['trabajo','El trabajo o la falta de tiempo'],['viajes','Viajes'],['resultados','No ver resultados'],['aburrir','Aburrirme'],['lesion','Una lesión o dolor'],['plata','La plata'],['motivacion','Perder la motivación']]},
+ {id:'mueve',k:'TU ESTILO',q:'¿Qué te mueve más?',t:'one',o:[['pertenecer','Entrenar acompañado y ser parte de algo'],['medirme','Medirme y superar mis marcas'],['guia','Que alguien experto me guíe y no tener que pensar']]},
+ {id:'verhoy',k:'HOY',q:'¿Qué necesitas ver hoy para sentir que esta vez sí va a funcionar?',sub:'Elige hasta 2.',t:'many',max:2,txt:{k:'verhoyTxt',l:'CON TUS PALABRAS · OPCIONAL',ph:'Ej.: Que me expliquen cómo voy a progresar'},o:[['plan','Que me expliquen mi plan'],['sentir','Sentir un buen entrenamiento'],['progreso','Ver cómo registro mi progreso'],['correccion','Que el koach me corrija'],['precio','Conocer las opciones y el precio'],['ambiente','Conocer el ambiente']]},
  {id:'origen',k:'KOACH',q:'¿Cómo llegaste a KOACH?',t:'one',o:[['publicidad','Vi publicidad'],['recomendacion','Me lo recomendaron'],['conocia','Ya conocía el método'],['otro','Otro']]}
 ]
 const AN={A:{}, i:0, el:null, poll:null}
@@ -5181,7 +5190,7 @@ function anBienvenida(){ const n=anEsc(msgNombre()||''), m=anSx()==='mujer'
     '<p><b>'+(m?'Bienvenida':'Bienvenido')+' a tu clase de prueba.</b> Hoy vas a vivir el Método KOACH: un koach te guía en todo momento.</p>'+
     '<div class="an__facts"><div><small>BLOQUES</small><b>2</b></div><div><small>SETS</small><b>3×</b></div><div><small>DURACIÓN</small><b>40′</b></div></div>'+
     '<p>Antes de comenzar, queremos conocerte. Con tus respuestas, tu koach prepara tu clase.</p></div>'+
-    '<div class="an__act"><button type="button" class="an__go" onclick="AN.i=0;anPaso()">EMPEZAR · 3 MIN →</button></div>') }
+    '<div class="an__act"><button type="button" class="an__go" onclick="AN.i=0;anPaso()">EMPEZAR · 4 MIN →</button></div>') }
 function anVis(){ return AN_Q.filter(q=>!q.skip||!q.skip(AN.A)) }
 function anOk(q){ const v=AN.A[q.id]
   if(q.opt) return true
@@ -5193,6 +5202,7 @@ function anOk(q){ const v=AN.A[q.id]
   if(q.t==='hist') return !!(v&&v[0]&&(String(v[0].lugar||'').trim()||v[0].disc)&&v[0].dur!=null)
   if(q.t==='tiempo') return !!(v&&v.dias&&v.min&&v.hor)
   if(q.t==='chk') return !!(v&&v.sel&&v.sel.length)
+  if(q.t==='regla') return !!(v&&v.imp!=null&&v.conf!=null)
   return true }
 function anPaso(){ const L=anVis(); if(AN.i>=L.length) return anGuardar(); const q=L[AN.i], v=AN.A[q.id], P=(x)=>'aria-pressed="'+!!x+'"'
   let b=''
@@ -5212,6 +5222,8 @@ function anPaso(){ const L=anVis(); if(AN.i>=L.length) return anGuardar(); const
       '<div class="an__lbl">¿CÓMO TE FUE? · OPCIONAL</div><textarea class="an__tx an__tx--s" maxlength="300" placeholder="Ej.: Iba solo, hacía siempre lo mismo y lo dejé a los 2 meses" oninput="AN.A.historial['+k+'].desc=this.value">'+anEsc(e.desc||'')+'</textarea></div>').join('') }
   if(q.t==='tiempo'){ const t=v||{}, row=(k,l,o)=>'<div class="an__lbl">'+l+'</div><div class="an__chips">'+o.map(x=>'<button type="button" class="an__ch" '+P(t[k]===x)+' onclick="anTiempo(\''+k+'\',\''+x+'\')">'+x+'</button>').join('')+'</div>'
     b=row('dias','DÍAS POR SEMANA',['2','3','4','5+'])+row('min','TIEMPO POR SESIÓN',['45 MIN','60 MIN','90 MIN'])+row('hor','HORARIO',['MAÑANA','MEDIODÍA','TARDE','NOCHE']) }
+  if(q.t==='regla'){ const r=v||{}, fila=(k,l)=>'<div class="an__lbl">'+l+'</div><div class="an__chips an__regla">'+[0,1,2,3,4,5,6,7,8,9,10].map(x=>'<button type="button" class="an__ch" '+P(r[k]===x)+' onclick="anRegla(\''+k+'\','+x+')">'+x+'</button>').join('')+'</div>'
+    b=fila('imp','¿QUÉ TAN IMPORTANTE ES PARA TI LOGRARLO AHORA?')+fila('conf','¿QUÉ TAN SEGURO TE SIENTES DE PODER MANTENERLO?')+'<div class="an__escL"><span>0 · NADA</span><span>10 · TOTALMENTE</span></div>' }
   if(q.t==='chk'){ const c=v||{sel:[],txt:''}, ops=q.o(), ning=q.excl===false?'':ops[0]
     b='<div class="an__chips">'+ops.map(x=>'<button type="button" class="an__ch" '+P(c.sel.includes(x))+' onclick="anChkSel(\''+q.id+'\',\''+x+'\',\''+ning+'\')">'+x.toUpperCase()+'</button>').join('')+'</div>'+
       ((q.txt.siempre||(c.sel.length&&!c.sel.includes(ning)))?'<div class="an__lbl">'+q.txt.l+'</div><textarea class="an__tx" maxlength="400" placeholder="'+anEsc(q.txt.ph)+'" oninput="AN.A[\''+q.id+'\'].txt=this.value">'+anEsc(c.txt||'')+'</textarea>':'') }
@@ -5235,18 +5247,19 @@ function anChkSel(id,x,ning){ const c=AN.A[id]||{sel:[],txt:''}
   AN.A[id]=c; anPaso() }
 function anZona(k,x){ const v=AN.A.zona||{z:'',m:[]}; if(k==='z') v.z=x; else v.m=v.m.includes(x)?v.m.filter(y=>y!==x):v.m.concat(x); AN.A.zona=v; anPaso() }
 function anHist(k,c,x){ AN.A.historial[k][c]=(AN.A.historial[k][c]===x?undefined:x); anPaso() }
+function anRegla(k,x){ AN.A.regla=AN.A.regla||{}; AN.A.regla[k]=x; anPaso() }
 function anTiempo(k,x){ AN.A.tiempo=AN.A.tiempo||{}; AN.A.tiempo[k]=x; anPaso() }
 function anSalud(x){ const s=AN.A.salud||{sel:[],txt:''}; if(x==='Ninguna') s.sel=s.sel.includes(x)?[]:['Ninguna']; else { s.sel=s.sel.filter(y=>y!=='Ninguna'); s.sel=s.sel.includes(x)?s.sel.filter(y=>y!==x):s.sel.concat(x) } AN.A.salud=s; anPaso() }
 function anSig(){ AN.i++; anPaso() }
 function anAtras(){ if(AN.i===0) return anBienvenida(); AN.i--; anPaso() }
 function anFinal(){ const A=JSON.parse(JSON.stringify(AN.A||{}))
   if (A.historial) A.historial=A.historial.filter(function(e){ return e&&(String(e.lugar||'').trim()||e.dur!=null) })
-  ;['frustraTxt','porque','espera','ayuda'].forEach(function(k){ if(typeof A[k]==='string'){ A[k]=A[k].trim(); if(!A[k]) delete A[k] } })
+  ;['frustraTxt','porque','espera','ayuda','verhoyTxt'].forEach(function(k){ if(typeof A[k]==='string'){ A[k]=A[k].trim(); if(!A[k]) delete A[k] } })
   if (A.edad) A.edad=+A.edad
   if (A.maximo!=null&&A.maximo!=='') A.maximo=+A.maximo
   if (A.ultima){ const lejos=['m6','m12','a1'].includes(A.ultima), corto=A.maximo!=null&&A.maximo<=1
     A.experiencia = A.ultima==='nunca' ? 'cero' : (lejos||corto) ? 'antes' : 'sinplan' }
-  A.sexo=anSx(); A.version=3; A.respondida_at=A.respondida_at||new Date().toISOString(); return A }
+  A.sexo=anSx(); A.version=4; A.respondida_at=A.respondida_at||new Date().toISOString(); return A }
 async function anGuardar(){ const A=anFinal()
   try{ localStorage.setItem(anClave('p'), JSON.stringify(A)) }catch(_e){}   // c217 · respaldo: no se pierde aunque se caiga todo
   anPant(anTop('GUARDANDO')+'<div class="an__hero"><h1 style="font-size:40px">Un segundo…</h1></div>')

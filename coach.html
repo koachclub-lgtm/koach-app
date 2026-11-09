@@ -285,6 +285,20 @@ button.bxI:hover,button.bxI:focus-visible{transform:translateY(-2px);box-shadow:
 .apCrit b{font:700 10px var(--font-mono);letter-spacing:.14em;display:block;margin-bottom:4px}
 .apAb{margin-top:6px;display:grid;gap:8px}.apAb div{padding:10px 12px;border-radius:12px;background:#EFEEEA;font-size:14px;line-height:1.4}
 .apAb small{display:block;font:700 9.5px var(--font-mono);letter-spacing:.12em;color:#666;margin-bottom:2px}
+.lcG{margin-top:6px;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}
+.lc{background:#EFEEEA;border-radius:12px;padding:10px 12px;display:grid;gap:3px;align-content:start;min-width:0}
+.lc small{font:700 9px var(--font-mono);letter-spacing:.12em;color:#666}.lc b{font-size:14.5px;line-height:1.3}.lc span{font-size:12.5px;color:#555;line-height:1.35}
+.lc--ok{background:#E8F3EC}.lc--ok b{color:#1E5A33}.lc--am{background:#F6F0DC}.lc--am b{color:#6B5410}.lc--fr{background:#E6E5E1}
+@media (max-width:620px){.lcG{grid-template-columns:1fr 1fr}}
+.apAl{margin-top:6px;padding:8px 12px;border-radius:10px;background:#FDECEA;color:#8A2A1C;font-size:13px;font-weight:600}
+.pd{margin-top:6px;display:grid;grid-template-columns:1fr 1fr;gap:6px}.pd>div{background:#EFEEEA;border-radius:12px;padding:10px 12px;display:grid;gap:4px;align-content:start;min-width:0}
+.pd>div:first-child{grid-column:span 2}.pd small{font:700 9px var(--font-mono);letter-spacing:.12em;color:#666}.pd b{font-size:14px;line-height:1.3}.pd span{font-size:12.5px;color:#555;line-height:1.35}
+.pd em{font:700 13px var(--font-mono);font-style:normal}.pdBar{display:block;height:7px;border-radius:4px;background:#DCDBD6;overflow:hidden}.pdBar i{display:block;height:100%;background:#121212}
+.pdT{justify-self:start;font:700 9.5px var(--font-mono)!important;letter-spacing:.12em;padding:3px 8px;border-radius:999px}.pdT--ok{background:#E8F3EC;color:#1E5A33!important}.pdT--am{background:#F6F0DC;color:#6B5410!important}
+.gu{margin-top:6px;padding:14px;border-radius:14px;background:#121212;color:#F4F3F0;display:grid;gap:12px}
+.gs small{display:block;font:700 9.5px var(--font-mono);letter-spacing:.14em;color:#B79CFF;margin-bottom:3px}.gs p{margin:0;font-size:15px;line-height:1.4}.gs b{color:#fff}.gs em{display:block;font-style:normal;font-size:12.5px;opacity:.65;margin-top:3px}
+.es{margin-top:6px;display:grid;gap:6px}.es>div{background:#EFEEEA;border-radius:12px;padding:10px 12px}.es small{display:block;font:700 9px var(--font-mono);letter-spacing:.1em;color:#666;margin-bottom:3px}
+.es p{margin:0;font-size:13.5px;line-height:1.4}.es q{display:block;margin-top:5px;font-size:13.5px;font-style:italic;color:#5B3BA8;quotes:'"' '"'}
 .apCls{margin-top:6px;padding:12px 14px;border-radius:12px;background:#121212;color:#F4F3F0;font:700 12px var(--font-mono);letter-spacing:.1em;line-height:1.5}
 .rc{margin-top:6px;display:grid;gap:8px}
 .rcI{border:1.5px solid rgba(18,18,18,.18);border-radius:14px;padding:12px 14px;display:grid;gap:6px}
@@ -3733,6 +3747,112 @@ const AP_PRE={
  nivel:['No estar al nivel','Cada protocolo es individual: parte desde su nivel, sin compararse con nadie.'],
  tiempo:['No tener tiempo','Sesiones de 60 minutos, sin esperar máquina, de lunes a viernes 06:00–22:00 y sábado 09:00–15:00.'],
  nada:['Nada, quiere partir','Está listo: haz una gran demo y ofrécele empezar hoy.']}
+/* c220 · ficha v4: lectura en 90 s, perfil de decisión, estrategia por respuesta y guion de cierre armado con sus palabras */
+const AP_EST_DEC={
+ 'Me vi en una foto o en el espejo':['Gatillo de imagen: fuerte, pero frágil si queda en culpa.','Habla del cambio que quiere ver y de cómo se mide (evaluación nutricional mensual y progreso en la App). No repitas la crítica a su cuerpo.','"Esa foto es tu punto de partida. Desde hoy lo vamos a medir y vas a ver cómo cambia."'],
+ 'Un tema de salud o un examen':['Importancia alta, con algo de miedo.','Seguridad primero: progresión controlada y koach supervisando cada carga. Nunca uses el examen para presionar.','"Lo primero es que entrenes seguro. Tu koach ajusta cada carga y vamos viendo cómo respondes."'],
+ 'Me siento sin energía':['Quiere sentirse mejor, no solo verse mejor.','Intensidad moderada: que salga con más energía de la que llegó. Pregúntale cómo se siente al terminar.','"¿Cómo te sientes ahora, comparado con cuando llegaste? Eso es lo que buscamos cada semana."'],
+ 'Una fecha o evento que se viene':['Plazo propio: urgencia real, no hay que inventarla.','Cuenta las semanas hasta su fecha y arma el plan hacia ella. Cierra con fecha de inicio.','"Hasta tu fecha tienes pocas semanas. Si partimos esta semana, alcanzamos el ciclo completo."'],
+ 'Quiero volver a sentirme como antes':['Recuperar algo que ya tuvo.','Valida lo que ya logró y muéstrale que su cuerpo responde rápido con progresión.','"Tú ya sabes lo que es estar bien. Ahora lo vamos a recuperar con un plan."'],
+ 'Me cansé de empezar y dejar':['El problema es la constancia, no los ejercicios.','Vende el sistema: días fijos, koach que lo espera, progreso en la App. Usa la regla de confianza sí o sí.','"Esta vez no dependes de tu motivación: tienes un plan, un horario y un koach que te espera."'],
+ 'Alguien me motivó':['Motivación que viene de otro.','Conviértela en suya: pregúntale qué gana si lo logra.','"Qué bueno que te motivaron. ¿Y para ti, qué cambia si lo logras?"']}
+const AP_EST_FR={
+ resultados:['Muéstrale el registro de cargas en la App y cómo se ajusta semana a semana.','"Antes no veías avance porque no se medía. Acá cada carga queda registrada y la ves subir."'],
+ quehacer:['Que vea su sesión ya planificada en la App antes de empezar.','"Llegas y tu sesión ya está escrita. Tu única tarea es venir."'],
+ correccion:['Corrígele la técnica en vivo al menos dos veces, y que lo note.','"¿Sentiste la diferencia con ese ajuste? Eso pasa en cada sesión."'],
+ motivacion:['Compromiso de días, Club del 1% y revisión en la semana 4.','"La motivación va y viene. Lo que te sostiene es tu horario y tu koach."'],
+ lesion:['Progresión y ejercicios seguros para las articulaciones. Si hay dolor limitante, sugiere control médico o kinésico.','"Partimos donde tu cuerpo está hoy y subimos de a poco. Tu koach ajusta todo."'],
+ tiempo:['60 minutos, sin esperar máquina, en los días que elija.','"Son 60 minutos y no esperas máquina. Elige tú los días."'],
+ ambiente:['Muéstrale la sala: nadie entrena libre, siempre con un koach.','"Acá nadie entrena solo ni improvisa. Es otra forma de entrenar."']}
+const AP_EST_DET={
+ planificacion:['tu planificación individual, escrita en la App','Muestra su protocolo en la App: bloques, ejercicios y cargas.'],
+ esquema:['un esquema claro: 3 bloques por sesión y un objetivo por semana','Explica los 3 bloques de la sesión y la semana completa.'],
+ guia:['entrenamiento guiado: un koach contigo en cada set','Que sienta la diferencia de tener un koach al lado en cada set.'],
+ constancia:['días fijos y un horario que eliges tú','Cierra con días y hora concretos: ese es su producto.'],
+ intensidad:['cargas ajustadas para que cada set tenga el estímulo correcto','Un set exigente y bien dosificado en la demo.'],
+ alimentacion:['tu evaluación nutricional y tu pauta, alineadas al entrenamiento','Nutrición incluida: evaluación y pauta según su objetivo.'],
+ seguimiento:['tu progreso registrado en la App, en números','Registro de sets y gráficos en la App.'],
+ comunidad:['el Club del 1%: gente que entrena por lo mismo que tú','Preséntale al koach de su horario y a otros socios.']}
+const AP_EST_PRE={
+ lesion:['Técnica primero, carga después.','"Primero la técnica, después la carga. Tu koach decide cuándo subir."'],
+ constancia:['Compromiso de días y revisión en la semana 4.','"Por eso fijamos tus días hoy. Y en 4 semanas lo revisamos juntos."'],
+ resultados:['Meta medible a 4 semanas con test.','"En la semana 4 hacemos un test y comparamos con hoy."'],
+ maquinas:['Que use 2 o 3 máquinas en la demo con tu ayuda.','"¿Viste? Nadie usa una máquina sin que su koach se la enseñe."'],
+ nivel:['Su programa parte desde su nivel.','"Tu programa parte desde donde estás hoy, no desde el nivel de otro."'],
+ tiempo:['60 minutos, días a su elección. Si es AM, la oferta vigente de horario AM.','"¿Qué horario te acomoda? Lo armamos con eso."'],
+ nada:['Está caliente: cierre directo, no expliques de más.','"Perfecto. ¿Qué días partimos?"']}
+const AP_MOT={valoro:['Valora lo que le va a dar',1],parte:['Quiere que sea parte de su vida',1],gusta:['Le gusta entrenar',1],alguien:['Alguien se lo pidió o recomendó',0],culpa:['Se siente culpable si no lo hace',0]}
+const AP_BAR={trabajo:['El trabajo o la falta de tiempo','Fija días y hora hoy; plan B si le sale trabajo ("si no puedes el lunes, vienes el martes").'],viajes:['Viajes','Acuerda qué hace cuando viaja: retoma el día que vuelve, sin perder el ciclo.'],resultados:['No ver resultados','Meta medible a 4 semanas y test de comparación.'],aburrir:['Aburrirse','Explica que el protocolo progresa y cambia por ciclos.'],lesion:['Una lesión o dolor','Progresión controlada y koach ajustando cargas.'],plata:['La plata','Presenta cuotas y lo que incluye; no ofrezcas descuentos que no existen.'],motivacion:['Perder la motivación','Compromiso de días + seguimiento en la App + Club del 1%.']}
+const AP_MUEVE={pertenecer:['Pertenecer','Muéstrale la comunidad: Club del 1%, Social Run y la sala.'],medirme:['Medirse','Muéstrale tests de fuerza, registro de cargas y su progreso en números.'],guia:['Que lo guíen','Muéstrale el método y que su koach decide todo: él solo viene.']}
+const AP_VER={plan:'Que le expliquen su plan',sentir:'Sentir un buen entrenamiento',progreso:'Ver cómo registra su progreso',correccion:'Que el koach lo corrija',precio:'Conocer opciones y precio',ambiente:'Conocer el ambiente'}
+const AP_PLAZO={'1m':'En 1 mes','3m':'En 3 meses','6m':'En 6 meses',fecha:'Para una fecha o evento',sin:'Sin apuro'}
+const AP_QUE={STRONG:'ganar músculo y fuerza en las zonas que más te importan',BURN:'bajar grasa y mejorar tu condición física sin perder fuerza',HEALTHY:'entrenar seguro, a tu ritmo y sin dolores'}
+function apLow(x){ return String(x||'').charAt(0).toLowerCase()+String(x||'').slice(1) }
+function apTemp(A){ let t=0
+  if(A.origen==='conocia'||A.origen==='recomendacion') t+=2
+  if(A.regla&&A.regla.imp>=8) t++
+  if((A.preocupa||[]).indexOf('nada')>=0) t++
+  if((A.verhoy||[]).indexOf('precio')>=0) t++
+  if(A.plazo==='fecha'||A.plazo==='1m') t++
+  return t>=3?['CALIENTE','Cierre directo: buena demo y ofrécele partir hoy.','ok']:t>=1?['TIBIA','Método en versión corta durante la demo, luego el mapa de trabajo.','am']:['FRÍA','Conócelo primero; muéstrale qué puede lograr y por qué ahora.','fr'] }
+function apLectura(A,c){
+  const dec=(A.decision&&A.decision.sel)||[], sen=((A.sensacion&&A.sensacion.sel)||[]).filter(function(x){return x!=='Me siento bien, con energía'})
+  const fr=(A.frustra||[]).map(function(f){return (AP_PILAR[f]||[f])[0]}), pre=(A.preocupa||[]).filter(function(x){return x!=='nada'}).map(function(f){return (AP_PRE[f]||[f])[0]})
+  const det=(A.determinante||[]).map(function(f){return (AP_DET[f]||[f])[0]}), ver=(A.verhoy||[]).map(function(f){return AP_VER[f]||f})
+  const tp=apTemp(A)
+  const pat=(A.patologias&&A.patologias.sel)||[], les=(A.lesiones&&A.lesiones.sel)||[], dol=(A.dolor&&A.dolor.sel)||[]
+  const alerta=(pat.length&&pat[0]!=='Ninguna')||(les.length&&les[0]!=='Ninguna')||(dol.length&&dol[0]!=='No, me siento bien')
+  const card=function(k,t,sub){ return '<div class="lc"><small>'+k+'</small><b>'+t+'</b>'+(sub?'<span>'+sub+'</span>':'')+'</div>' }
+  return '<div class="apSec">LECTURA EN 90 SEGUNDOS</div>'+(alerta?'<div class="apAl">⚠ Tiene datos de salud que revisar antes de la demo. Mira SALUD y PUNTOS CRÍTICOS más abajo.</div>':'')+'<div class="lcG">'+
+    card('¿QUÉ QUIERE?',A.espera?'"'+bxEsc(A.espera)+'"':bxEsc(AP_OBJ[A.objetivo]||'—'),AP_PLAZO[A.plazo]?bxEsc(AP_PLAZO[A.plazo]):'')+
+    card('¿POR QUÉ AHORA?',dec.length?bxEsc(dec.join(' · ')):'—',A.decision&&A.decision.txt?'"'+bxEsc(A.decision.txt)+'"':'')+
+    card('¿QUÉ LE DUELE?',sen.length?bxEsc(sen.join(' · ')):'Se siente bien',fr.length?'Lo dejó por: '+bxEsc(fr.join(', ').toLowerCase()):'')+
+    card('¿QUÉ LO FRENA?',pre.length?bxEsc(pre.join(' · ')):'Nada, quiere partir',A.barrera&&AP_BAR[A.barrera]?'Si lo dejara: '+bxEsc(apLow(AP_BAR[A.barrera][0])):'')+
+    card('¿QUÉ CREE QUE NECESITA?',det.length?bxEsc(det.join(' · ')):'—',ver.length?'Hoy necesita ver: '+bxEsc(ver.join(', ').toLowerCase()):'')+
+    '<div class="lc lc--'+tp[2]+'"><small>¿QUÉ TAN CALIENTE ESTÁ?</small><b>'+tp[0]+'</b><span>'+tp[1]+'</span></div></div>' }
+function apPerfil(A){ if(!A.motivo&&!A.regla&&!A.barrera&&!A.mueve) return ''
+  const mot=(A.motivo||[]).map(function(m){return AP_MOT[m]}).filter(Boolean), aut=mot.some(function(m){return m[1]}), ctrl=mot.some(function(m){return !m[1]})
+  const r=A.regla||{}, imp=r.imp, conf=r.conf
+  const al=[]
+  if(ctrl&&!aut) al.push('Motivación que viene de afuera (culpa o presión): no refuerces el miedo. Pregúntale qué gana si lo logra, para que sea suya.')
+  if(imp!=null&&conf!=null&&imp>=7&&conf<=5) al.push('Le importa mucho pero confía poco en mantenerlo: necesita acompañamiento, no motivación. En sala pregúntale "¿por qué un '+conf+' y no un '+Math.max(0,conf-3)+'?".')
+  if(conf!=null&&conf<7) al.push('Confianza bajo 7: al cerrar, ajusta el compromiso (2 días fijos + 1 flexible) antes que perderlo en la semana 2.')
+  const m=AP_MUEVE[A.mueve], b=AP_BAR[A.barrera]
+  const bar=function(v){ return v==null?'—':'<span class="pdBar"><i style="width:'+(v*10)+'%"></i></span><em>'+v+'/10</em>' }
+  return '<div class="apSec">PERFIL DE DECISIÓN</div><div class="pd">'+
+    '<div><small>POR QUÉ ENTRENA</small><b>'+(mot.length?bxEsc(mot.map(function(x){return x[0]}).join(' · ')):'—')+'</b><span class="pdT pdT--'+(aut?'ok':'am')+'">'+(mot.length?(aut&&!ctrl?'MOTIVACIÓN PROPIA':aut?'MIXTA':'MOTIVACIÓN EXTERNA'):'')+'</span></div>'+
+    '<div><small>IMPORTANCIA</small>'+bar(imp)+'</div><div><small>CONFIANZA EN MANTENERLO</small>'+bar(conf)+'</div>'+
+    (m?'<div><small>LO MUEVE</small><b>'+m[0]+'</b><span>'+m[1]+'</span></div>':'')+
+    (b?'<div><small>SI LO DEJARA, SERÍA POR</small><b>'+b[0]+'</b><span>'+b[1]+'</span></div>':'')+'</div>'+
+    (al.length?'<div class="apCrit"><b>CÓMO ABORDARLO</b>'+al.map(function(x){return '· '+bxEsc(x)}).join('<br>')+'</div>':'') }
+function apEstrategia(A){ const rows=[]
+  ;((A.decision&&A.decision.sel)||[]).forEach(function(d){ const e=AP_EST_DEC[d]; if(e) rows.push(['POR QUÉ AHORA · '+d,e[1],e[2]]) })
+  ;(A.frustra||[]).forEach(function(f){ const e=AP_EST_FR[f]; if(e) rows.push(['NO LE FUNCIONÓ · '+(AP_PILAR[f]||[f])[0],e[0],e[1]]) })
+  ;(A.determinante||[]).forEach(function(f){ const e=AP_EST_DET[f]; if(e) rows.push(['CREE DETERMINANTE · '+(AP_DET[f]||[f])[0],e[1],'"Eso es justo lo que hace el Método KOACH: '+e[0]+'."']) })
+  ;(A.preocupa||[]).forEach(function(f){ const e=AP_EST_PRE[f]; if(e) rows.push(['LE PREOCUPA · '+(AP_PRE[f]||[f])[0],e[0],e[1]]) })
+  if(!rows.length) return ''
+  return '<div class="apSec">ESTRATEGIA · QUÉ HACER Y QUÉ DECIR</div><div class="es">'+rows.map(function(r){return '<div><small>'+bxEsc(r[0]).toUpperCase()+'</small><p>'+bxEsc(r[1])+'</p><q>'+bxEsc(r[2].replace(/^"|"$/g,''))+'</q></div>'}).join('')+'</div>' }
+const AP_TU_FR={resultados:'no veías resultados',quehacer:'no sabías qué hacer',correccion:'nadie te corregía',motivacion:'perdiste la motivación',lesion:'te lesionaste o tuviste dolor',tiempo:'no tenías tiempo',ambiente:'no te sentías cómodo en el gimnasio'}
+const AP_TU_DEC={'Me vi en una foto o en el espejo':'te viste en una foto o en el espejo','Un tema de salud o un examen':'quieres cuidar tu salud','Me siento sin energía':'te sientes sin energía','Una fecha o evento que se viene':'se viene una fecha importante para ti','Quiero volver a sentirme como antes':'quieres volver a sentirte como antes','Me cansé de empezar y dejar':'te cansaste de empezar y dejar','Alguien me motivó':'alguien te motivó'}
+const AP_TU_SEN={'Me canso durante el día':'te cansas durante el día','Me da sueño o duermo mal':'duermes mal','Me duele el cuerpo o me siento rígido':'sientes el cuerpo rígido','Me siento pesado o hinchado':'te sientes pesado','Ando con estrés o ansiedad':'andas con estrés','Me falta energía para entrenar':'te falta energía'}
+function apY(a){ return a.length<2?(a[0]||''):a.slice(0,-1).join(', ')+' y '+a[a.length-1] }
+function apGuion(A,c,nom){
+  const n=bxEsc(String(nom||'').split(' ')[0]||''), dec=((A.decision&&A.decision.sel)||[]).filter(function(x){return x!=='Otro'})
+  const fr=(A.frustra||[]).map(function(f){return AP_TU_FR[f]}).filter(Boolean).slice(0,2), det=(A.determinante||[])[0], pre=(A.preocupa||[]).filter(function(x){return x!=='nada'})[0]
+  const dias=c.dias, prog=c.prog, conf=A.regla&&A.regla.conf
+  const st=function(k,t,note){ return '<div class="gs"><small>'+k+'</small><p>'+t+'</p>'+(note?'<em>'+note+'</em>':'')+'</div>' }
+  const hoy=[]; const sen=((A.sensacion&&A.sensacion.sel)||[]).filter(function(x){return x!=='Me siento bien, con energía'})
+  if(fr.length) hoy.push('la última vez lo dejaste porque <b>'+bxEsc(apY(fr))+'</b>')
+  const sTu=sen.map(function(x){return AP_TU_SEN[x]}).filter(Boolean).slice(0,2); if(sTu.length) hoy.push('últimamente <b>'+bxEsc(apY(sTu))+'</b>')
+  const dTu=dec.map(function(x){return AP_TU_DEC[x]}).filter(Boolean).slice(0,1); if(dTu.length) hoy.push('y te decidiste ahora porque <b>'+bxEsc(dTu[0])+'</b>')
+  return '<div class="apSec">GUION DE CIERRE · MAPA DE TRABAJO</div><div class="gu">'+
+    st('1 · DÓNDE ESTÁS','"'+(n?n+', hoy':'Hoy')+' estás aquí: '+(hoy.length?hoy.join(', '):'vienes a conocer cómo entrenar con un plan')+'."')+
+    st('2 · DÓNDE QUIERES LLEGAR','"Tú me dijiste que quieres <b>'+bxEsc(apLow(A.espera)||apLow(AP_OBJ[A.objetivo]||'lograr tu objetivo'))+'</b>'+(A.plazo&&A.plazo!=='sin'?', '+bxEsc(apLow(AP_PLAZO[A.plazo]))+'':'')+'."','Dilo textual. Si hay fecha, cuenta las semanas.')+
+    st('3 · VALIDACIÓN','"Sí se puede, y te digo por qué. '+(det&&AP_EST_DET[det]?'Me dijiste que esta vez lo determinante es <b>'+bxEsc(apLow((AP_DET[det]||[det])[0]))+'</b>: eso es justo lo que hace el Método KOACH, con '+AP_EST_DET[det][0]+'.':'El Método KOACH te da planificación individual, entrenamiento guiado y nutrición.')+'"',det&&AP_EST_DET[det]?'Muéstralo en la demo antes de decirlo: '+AP_EST_DET[det][1]:'')+
+    st('4 · MI COMPROMISO','"Yo voy a diseñar tu programa <b>'+prog+'</b> de <b>'+dias+' días</b> a la semana para '+AP_QUE[prog]+', pensado en esto que conversamos."')+
+    st('5 · TU COMPROMISO','"Mi parte es el programa. La tuya es venir esos '+dias+' días. ¿Qué días y a qué hora te acomoda?"','Luego: "Del 0 al 10, ¿qué tan seguro estás de venir esos días?"'+(conf!=null?' En el test respondió '+conf+'/10 a mantenerlo.':'')+' Si responde menos de 7, ajusta el compromiso.')+
+    (pre&&AP_EST_PRE[pre]?st('ANTES DE QUE LO DIGA','Le preocupa <b>'+bxEsc(apLow((AP_PRE[pre]||[pre])[0]))+'</b>. '+bxEsc(AP_EST_PRE[pre][1]),bxEsc(AP_EST_PRE[pre][0])):'')+
+    st('CIERRE','"Para partir esta semana, dejamos tu plan inscrito hoy. ¿Te reservo tus días?"')+'</div>' }
 let AP=null, AP_BASES=null
 function apCerrar(){ const o=document.getElementById('apOv'); if(o) o.remove(); AP=null }
 async function apAbrir(id){
@@ -3824,7 +3944,7 @@ function apPintar(){
   const saludHTML = hayV2
     ? salud('PATOLOGÍAS · DIAGNÓSTICOS',A.patologias,'Ninguna')+salud('LESIONES · CIRUGÍAS',A.lesiones,'Ninguna')+salud('DOLOR O MOLESTIA HOY',A.dolor,'No, me siento bien')
     : salud('LESIÓN O MOLESTIA',A.salud,'Ninguna')
-  box.innerHTML=head+
+  box.innerHTML=head+apLectura(A,c)+apPerfil(A)+apGuion(A,c,nom)+apEstrategia(A)+
     '<div class="apSec">DATOS CLAVE</div><div class="apDs">'+
       dato('EDAD',edad?edad+' años':'—')+dato('ÚLTIMA VEZ QUE ENTRENÓ',ult)+dato('MÁXIMO SEGUIDO',maxTxt)+
       (A.energia?dato('ENERGÍA',A.energia+'/5 · '+AP_ENER[A.energia]):'')+
@@ -3842,9 +3962,6 @@ function apPintar(){
     (A.frustraTxt?'<div class="apQ"><small>POR QUÉ DEJÓ DE ENTRENAR · EN SUS PALABRAS</small>"'+bxEsc(A.frustraTxt)+'"</div>':'')+
     (c.crit.length?'<div class="apCrit"><b>⚠ PUNTOS CRÍTICOS</b>'+c.crit.map(function(x){return '· '+bxEsc(x)}).join('<br>')+'</div>':'')+
     '<div class="ec"><small>ESTADO DE CONCIENCIA</small><div class="ecR"><span class="ecBar">'+[1,2,3,4,5].map(function(k){return '<i class="'+(k<=c.ec?'on':'')+'"></i>'}).join('')+'</span><b>'+c.ecT+'</b></div><p>'+c.ecD+'</p></div>'+
-    ((A.determinante||[]).length?'<div class="apSec">LO QUE CREE DETERMINANTE · MUÉSTRALE QUE KOACH LO TIENE</div><div class="apAb">'+A.determinante.map(function(f){const d=AP_DET[f]||[f,''];return '<div><small>'+d[0].toUpperCase()+'</small>'+d[1]+'</div>'}).join('')+'</div>':'')+
-    ((A.preocupa||[]).length?'<div class="apSec">LO QUE LE PREOCUPA · RESPÓNDELO EN LA CLASE</div><div class="apAb">'+A.preocupa.map(function(f){const d=AP_PRE[f]||[f,''];return '<div><small>'+d[0].toUpperCase()+'</small>'+d[1]+'</div>'}).join('')+'</div>':'')+
-    (c.fr.length?'<div class="apSec">LO QUE NO LE FUNCIONÓ ANTES</div><div class="apAb">'+c.fr.map(function(f){return '<div><small>'+AP_PILAR[f][0].toUpperCase()+'</small>'+AP_PILAR[f][1]+'</div>'}).join('')+'</div>':'')+
     '<div class="apSec">CLASIFICACIÓN</div><div class="apCls">'+c.prog+' · '+AP_NIVT[c.niv]+' · '+(apSx()==='mujer'?'MUJER':'HOMBRE')+' · '+c.dias+' DÍAS · '+fz.toUpperCase()+'</div>'+
     '<div class="apSec">'+(AP.otros?'TODOS LOS PROTOCOLOS BASE · '+(apSx()==='mujer'?'MUJER':'HOMBRE'):'PROTOCOLOS RECOMENDADOS')+'</div><div class="rc">'+top.map(card).join('')+'</div>'+
     (extra>0?'<p class="rcN2">Las bases están diseñadas para 3 sesiones. Para '+c.dias+' días se suma '+(extra>1?extra+' sesiones extra':'1 sesión extra')+' de '+fz+' desde la biblioteca.</p>':'')+
