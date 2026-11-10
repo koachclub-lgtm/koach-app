@@ -619,7 +619,7 @@ html.accBloq #pfCard, html.accBloq #vPerfil .kpc__f, html.accBloq #vPerfil [oncl
 .kAu__chk input:checked+.kAu__box{background:#F6F5F2;border-color:#F6F5F2}
 .kAu__chk input:checked+.kAu__box::after{content:'';width:7px;height:13px;border:solid #0B0B0C;border-width:0 3px 3px 0;transform:translateY(-1px) rotate(45deg)}
 .kAu__chk input:focus-visible+.kAu__box{outline:2px solid #F6F5F2;outline-offset:3px}
-.kAu__cond{margin-top:6px;font-size:13px;line-height:1.45;color:rgba(246,245,242,.6)}.kAu__cond summary{cursor:pointer;padding:8px 0;font:400 10.5px var(--font-mono);letter-spacing:.12em}.kAu__cond p{margin:4px 0 0}
+.kAu__cond{margin:8px 0 0;font-size:13px;line-height:1.45;color:rgba(246,245,242,.6)}
 .kAu__pie{padding:12px 22px 20px;display:flex;flex-direction:column;gap:6px;max-width:560px;width:100%;margin:0 auto;box-sizing:border-box}
 .kAu__go{height:60px;border:0;border-radius:18px;background:#F6F5F2;color:#0B0B0C;font:700 14px var(--font-mono);letter-spacing:.14em;cursor:pointer;transition:background .15s,color .15s}
 .kAu__go:disabled{background:rgba(246,245,242,.12);color:rgba(246,245,242,.38);cursor:not-allowed}
@@ -8316,8 +8316,7 @@ async function flowAutoAutorizar(){
         '<div><span>PERMANENCIA</span><b'+(perm?'':' class="kAu__s"')+'>'+(perm?c.permanencia_meses+' MESES':'SIN PERMANENCIA')+'</b></div></div>'+
       '<div class="kAu__ok">'+chkL('flAut','Autorizo el cobro automático de <b>'+$(c.monto)+' '+cada.toLowerCase()+'</b> en mi tarjeta.')+
       (perm?chkL('flPerm','Acepto la <b>permanencia de '+c.permanencia_meses+' meses</b> según mi contrato.'):'')+
-      '<details class="kAu__cond"><summary>VER CONDICIONES</summary><p>'+(perm?'Si terminas antes de los '+c.permanencia_meses+' meses, pagas una vez el descuento recibido ('+$(c.descuento_mensual)+' por '+(per===1?'mes':'cobro')+' pagado). Al cumplirlos, no se renueva sola.':'Lo desactivas cuando quieras desde tu Perfil, sin costo.')+
-        ' Te avisamos 5 días antes de cada cobro. Flow hace un cargo de verificación de $50 que se reversa solo.</p></details></div>'+
+      '<p class="kAu__cond">El cobro se hará de forma automática y recurrente en tu tarjeta de crédito, según tu plan.'+(perm?' La permanencia y el retiro anticipado se rigen por los Términos y Condiciones de tu contrato.':' Puedes desactivarlo cuando quieras desde tu Perfil.')+'</p></div>'+
     '</div>'+
     '<div class="kAu__pie"><button type="button" class="kAu__go" id="flGo" disabled>REGISTRAR TARJETA</button><button type="button" class="kAu__no">VOLVER</button></div>'
   const fin=()=>{ bg.remove(); document.documentElement.style.overflow='' }, go=bg.querySelector('#flGo')

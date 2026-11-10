@@ -152,6 +152,8 @@ Deno.serve(async (req) => {
   } catch (e) {
     const fe = e as FlowError;
     console.error("flow-suscripcion", fe?.message, fe?.data);
+    if (fe instanceof FlowError && /email is not valid/i.test(fe.message))
+      return j({ error: "Flow no aceptó tu correo. Revisa que sea tu correo real en Perfil → Mis datos, o acércate a recepción." }, 400);
     return j({ error: fe instanceof FlowError ? "Flow: " + fe.message : String(fe?.message || e) }, 502);
   }
 });
