@@ -4666,7 +4666,7 @@ async function abrirPlan(pid, proto, opts){
               nombre:(be.ejercicios&&be.ejercicios.nombre)||'—',
               grupo:(be.ejercicios&&be.ejercicios.grupo_muscular)||'',
               sinergistas:(be.ejercicios&&be.ejercicios.sinergistas)||{},
-              kg:(be.kg_objetivo!=null?be.kg_objetivo:null), orden:(be.orden!=null?be.orden:null),
+              kg:(be.kg_objetivo!=null?be.kg_objetivo:null), kg0:(be.kg_objetivo!=null?be.kg_objetivo:null), orden:(be.orden!=null?be.orden:null),
               ancla:!!be.es_ancla, rir:be.rir_objetivo||null,
               tipoReg:(be.ejercicios&&be.ejercicios.tipo_registro)||null, modo:be.modo_registro||null,
               conCarga:(be.ejercicios?be.ejercicios.con_carga:null),
@@ -8020,6 +8020,19 @@ function plSesActual(){ return P && P.sesiones && P.sesiones[P.tab] }
 function plEsDirty(){ return !!(P && P.dirty && Object.keys(P.dirty).length) }
 function plDirty(){ const s=plSesActual(); if(!s) return; P.dirty=P.dirty||{}; P.dirty[s.id]=true; plSaveUI(); dsProg() }
 function plFirma(s){ return String(s.nombre||'').toUpperCase()+JSON.stringify((s.bloques||[]).map(function(b){ return [b.id,b.etiqueta||'',b.sets,b.desc,b.timer?JSON.stringify(b.timer):null,(b.items||[]).map(function(it){ return [it.beId,it.ejId,it.kg==null?null:+it.kg,String(it.reps==null?'':it.reps)] })] })) }
+// c218 · si el socio registró un peso mientras el planificador estaba abierto, los kilos que el koach NO tocó toman el valor actual de la base
+// (así publicar con una pestaña antigua nunca devuelve al socio a su peso anterior)
+async function plCargasFrescas(s){
+  try{ const its=[]; (s.bloques||[]).forEach(function(b){ (b.items||[]).forEach(function(it){ if(it.beId && 'kg0' in it) its.push(it) }) })
+    if (!its.length) return
+    const r=await sb.from('bloque_ejercicios').select('id, kg_objetivo').in('id', its.map(function(it){ return it.beId }))
+    if (r.error || !r.data) return
+    const db={}; r.data.forEach(function(x){ db[x.id]=x.kg_objetivo })
+    let n=0; its.forEach(function(it){ if(!(it.beId in db)) return
+      const sinTocar = String(it.kg==null?'':it.kg)===String(it.kg0==null?'':it.kg0), nuevo=db[it.beId]
+      if (sinTocar && String(nuevo==null?'':nuevo)!==String(it.kg0==null?'':it.kg0)){ it.kg=nuevo; it.kg0=nuevo; n++ } })
+    if (n) console.info('[c218] cargas actualizadas desde la base:', n)
+  }catch(_e){} }
 function plPayload(s){
   return (s.bloques||[]).map(function(b){ return { id:b.id, etiqueta:b.etiqueta||null, rol:b.rol||null, sets:b.sets, desc:b.desc, timer:(b.timer||null),
     items:(b.items||[]).map(function(it){ return { id:it.beId, ejercicio_id:it.ejId, kg:(it.kg==null||it.kg===''?null:it.kg), reps:(it.reps==null?null:String(it.reps)), modo:(it.modo||null) } }) } })
@@ -8066,6 +8079,7 @@ async function plGuardar(){
   if (plHaySiguientes(s)){ alc=await kAlcance(s); if(!alc){ plSaveUI(); return false }
     const ra2=await sb.rpc('koach_sesion_alcance',{ p_sesion:s.id, p_temporal:alc==='semana' })
     if (ra2.error){ plSaveUI('err'); toast('No se pudo publicar: '+ra2.error.message); return false } }
+  await plCargasFrescas(s)
   const firma=plFirma(s)
   plSaveUI('saving'); syncEnvio()
   const r=await sb.rpc('koach_guardar_sesion',{p_sesion:s.id, p_bloques:plPayload(s), p_nombre:(s._renombrada?s.nombre:null)})
