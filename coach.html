@@ -3310,18 +3310,29 @@ function kHoja(o){ return new Promise(function(res){
   document.addEventListener('keydown',kd,true); document.body.appendChild(bg); setTimeout(function(){ (pel&&no?no:si).focus() },30)
 }) }
 // c214 · ALCANCE DEL CAMBIO: al publicar una sesión con semanas siguientes, el koach decide si vale solo esta semana o todo el ciclo
+// c217 · ALCANCE: por defecto el cambio es DEFINITIVO (todo el ciclo). "Solo esta semana" es una excepción explícita, con segunda confirmación.
 function kAlcance(s){ return new Promise(function(res){
   const prev=document.activeElement, bg=document.createElement('div'); bg.className='kHoja'; bg.setAttribute('role','dialog'); bg.setAttribute('aria-modal','true')
   const rest=P.sesiones.filter(function(x){ return x.semana>s.semana }).map(function(x){ return x.semana }), hasta=Math.max.apply(null,rest)
-  bg.innerHTML='<div class="kHoja__c"><span class="kHoja__k">ALCANCE DEL CAMBIO</span><h3 class="kHoja__t"></h3><p class="kHoja__p"></p>'+
-    '<div class="kHoja__b"><button type="button" class="kHoja__no" data-v="semana">SOLO ESTA SEMANA</button><button type="button" class="kHoja__si" data-v="ciclo">TODO EL CICLO</button></div>'+
-    '<button type="button" class="kAlc__x" data-v="" style="display:block;margin:12px auto 0;border:none;background:none;font:inherit;font-size:10px;font-weight:800;letter-spacing:.14em;color:var(--koach-text-secondary);cursor:pointer">VOLVER SIN PUBLICAR</button></div>'
-  bg.querySelector('.kHoja__t').textContent='¿'+String(s.nombre||'Esta sesión').toUpperCase()+': cambio temporal o definitivo?'
-  bg.querySelector('.kHoja__p').textContent='Solo esta semana: la semana '+s.semana+' cambia y las siguientes mantienen su diseño. Todo el ciclo: se aplica a la misma sesión de '+(hasta>s.semana+1?'las semanas '+(s.semana+1)+'–'+hasta:'la semana '+hasta)+', aunque ya las hayas editado (no se tocan las que el socio ya inició o completó).'
+  const sig=(hasta>s.semana+1?'las semanas '+(s.semana+1)+'–'+hasta:'la semana '+hasta)
+  const lnk='display:block;margin:12px auto 0;border:none;background:none;font:inherit;font-size:10px;font-weight:800;letter-spacing:.14em;color:var(--koach-text-secondary);cursor:pointer;text-decoration:underline'
+  function paso1(){
+    bg.innerHTML='<div class="kHoja__c"><span class="kHoja__k">PUBLICAR CAMBIOS</span><h3 class="kHoja__t"></h3><p class="kHoja__p"></p>'+
+      '<div class="kHoja__b"><button type="button" class="kHoja__no" data-v="">VOLVER</button><button type="button" class="kHoja__si" data-v="ciclo">PUBLICAR EN TODO EL CICLO</button></div>'+
+      '<button type="button" data-v="__temp" style="'+lnk+'">ES UNA EXCEPCIÓN SOLO PARA LA SEMANA '+s.semana+'</button></div>'
+    bg.querySelector('.kHoja__t').textContent=String(s.nombre||'Esta sesión').toUpperCase()+' queda así para el resto del ciclo'
+    bg.querySelector('.kHoja__p').textContent='Se aplica a la misma sesión de '+sig+'. No se tocan las sesiones que el socio ya inició o completó.'
+    setTimeout(function(){ bg.querySelector('.kHoja__si').focus() },30) }
+  function paso2(){
+    bg.innerHTML='<div class="kHoja__c kHoja__c--pel"><span class="kHoja__k">EXCEPCIÓN · SOLO SEMANA '+s.semana+'</span><h3 class="kHoja__t"></h3><p class="kHoja__p"></p>'+
+      '<div class="kHoja__b"><button type="button" class="kHoja__no" data-v="semana">SÍ, SOLO ESTA SEMANA</button><button type="button" class="kHoja__si" data-v="ciclo">MEJOR TODO EL CICLO</button></div></div>'
+    bg.querySelector('.kHoja__t').textContent='¿Seguro? '+String(s.nombre||'Esta sesión').toUpperCase()+' volverá a su diseño anterior en '+sig
+    bg.querySelector('.kHoja__p').textContent='Úsalo solo para un ajuste puntual (máquina ocupada, molestia, día especial). La sesión quedará marcada como EXCEPCIÓN en el planificador.'
+    setTimeout(function(){ bg.querySelector('.kHoja__si').focus() },30) }
   function fin(v){ document.removeEventListener('keydown',kd,true); bg.remove(); try{prev&&prev.focus()}catch(_){}; res(v) }
   function kd(e){ if(e.key==='Escape'){ e.preventDefault(); fin(null) } }
-  bg.addEventListener('click',function(e){ if(e.target===bg) fin(null); const v=e.target.closest&&e.target.closest('[data-v]'); if(v) fin(v.getAttribute('data-v')||null) })
-  document.addEventListener('keydown',kd,true); document.body.appendChild(bg); setTimeout(function(){ bg.querySelector('.kHoja__si').focus() },30)
+  bg.addEventListener('click',function(e){ if(e.target===bg) return fin(null); const v=e.target.closest&&e.target.closest('[data-v]'); if(!v) return; const d=v.getAttribute('data-v'); if(d==='__temp') return paso2(); fin(d||null) })
+  document.addEventListener('keydown',kd,true); document.body.appendChild(bg); paso1()
 }) }
 function plHaySiguientes(s){ return !!(s && P && !P.bib && !P.base && P.sesiones.some(function(x){ return x.semana>s.semana })) }
 function plAlcanceToast(r){ const d=(r&&r.data)||{}, sk=d.saltadas||[]
@@ -4646,7 +4657,7 @@ async function abrirPlan(pid, proto, opts){
   if (_tok!==window._plTok || (F && F.id)!==_fid) return   // llegó tarde: el KOACH ya navegó a otro socio
   setTimeout(function(){ plLeerRev() }, 0)
   P = { pid:pid, proto:proto, tab:0, bib:esBib, base:esBase, ro:!!opts.soloLectura||(proto&&proto.estado==='archivado'), dirty:{}, sesiones:(rses.data||[]).map(function(s){
-    return { id:s.id, numero:s.numero, semana:(s.semana||1), editada:!!s.editada, nombre:nombreEN(s.objetivo)||('SESION '+s.numero),
+    return { id:s.id, numero:s.numero, semana:(s.semana||1), editada:!!s.editada, temporal:!!s.temporal, nombre:nombreEN(s.objetivo)||('SESION '+s.numero),
       bloques:(rblo.data||[]).filter(function(b){return b.sesion_id===s.id}).sort(function(a,x){ return String(a.bloque).localeCompare(String(x.bloque)) }).map(function(b){
         return { id:b.id, bId:b.id, tag:b.bloque, rol:b.rol||null, etiqueta:b.etiqueta||null, sets:b.sets||3,
           desc:(b.descanso_seg!=null?b.descanso_seg:(b.descanso_segundos!=null?b.descanso_segundos:60)), timer:(b.timer||null),
@@ -4728,7 +4739,7 @@ function pintarPlan(){ setTimeout(function(){ try{ plSaveUI(); rtSyncPlan() }cat
     const opc = (i===P.tab && !P.bib && !P.base) ? '<button class="tabOpc" onclick="event.stopPropagation();abrirSesOpc()">•••</button>' : ''
     const _num = P.bib?'★':String(_plW!=null?_plPos:(i+1)).padStart(2,'0')
     return '<div class="mtab '+(i===P.tab?'on':'')+'" role="tab" tabindex="0" aria-selected="'+(i===P.tab)+'" data-sid="'+s.id+'" data-i="'+i+'" onclick="tabTap('+i+')" onkeydown="if(event.key===\'Enter\'||event.key===\' \'){event.preventDefault();tabTap('+i+')}">'+
-      '<span class="sN">'+hdl+_num+'</span><span class="sT">'+nom+'</span>'+opc+'</div>'
+      '<span class="sN">'+hdl+_num+'</span><span class="sT">'+nom+'</span>'+(s.temporal&&!P.bib&&!P.base?'<span title="Cambio solo para esta semana: las siguientes mantienen su diseño" style="margin-left:6px;font-size:8px;font-weight:900;letter-spacing:.12em;padding:2px 6px;border-radius:6px;background:#C8502A;color:#fff">EXCEPCIÓN</span>':'')+opc+'</div>'
   }).join('') + ((!P.bib && !P.base) ? ((_plW!=null?plSesSem(_plW).length:P.sesiones.length)<6
       ? '<button type="button" class="mtab mtabAdd" onclick="abrirAddSes()" aria-label="Nueva sesión"><span class="sT">+<span class="mtabAdd__t"> NUEVA SESIÓN</span></span></button>'
       : '<div class="mtab" style="opacity:.4" onclick="toast(\'Esta semana ya tiene 6 sesiones programadas.\')"><span class="sT">MAX</span></div>') : '')
