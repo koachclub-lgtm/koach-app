@@ -596,6 +596,34 @@ html.accBloq #pfCard, html.accBloq #vPerfil .kpc__f, html.accBloq #vPerfil [oncl
 .kHoja__t{margin:8px 0 0;font-family:'KOACH Display','Inter Display',Inter,Arial,sans-serif;font-weight:800;font-size:22px;line-height:1.15;letter-spacing:-.01em}
 .kHoja__p{margin:10px 0 0;font-size:14px;line-height:1.5;color:#4A4945}
 .kHoja__b{display:flex;gap:8px;margin-top:18px}.kHoja__b button{flex:1;min-height:52px;border-radius:14px;font:700 11px 'Space Mono','IBM Plex Mono',monospace;letter-spacing:.12em;cursor:pointer}
+.kAu{position:fixed;inset:0;z-index:2100;background:#0B0B0C;color:#F6F5F2;display:flex;flex-direction:column;animation:kHf .2s ease-out;padding:env(safe-area-inset-top) 0 env(safe-area-inset-bottom)}
+.kAu__top{display:flex;align-items:center;justify-content:space-between;padding:18px 22px 6px}
+.kAu__logo{width:104px;height:22px;background:#F6F5F2;-webkit-mask:url(/img/brand/logotipo-koach.png) no-repeat left center/contain;mask:url(/img/brand/logotipo-koach.png) no-repeat left center/contain}
+.kAu__x{width:44px;height:44px;border:0;border-radius:50%;background:rgba(246,245,242,.08);color:#F6F5F2;font-size:18px;cursor:pointer}
+.kAu__body{flex:1;overflow:auto;padding:4vh 24px 16px;display:flex;flex-direction:column;max-width:560px;width:100%;margin:0 auto;box-sizing:border-box}
+.kAu__k{font:400 11px var(--font-mono);letter-spacing:.14em;color:rgba(246,245,242,.6)}.kAu__k b{color:#F6F5F2;font-weight:700}
+.kAu__lista{margin-top:3.5vh;font:700 clamp(20px,5.5vw,26px) var(--font-display);color:rgba(246,245,242,.42);text-decoration:line-through;text-decoration-thickness:2px}
+.kAu__precio{font:800 clamp(64px,21vw,120px)/.92 var(--font-display);letter-spacing:-.035em;margin-top:2px;white-space:nowrap}.kAu__precio--l{font-size:clamp(54px,17.5vw,112px)}
+.kAu__ok{margin-top:auto}
+@media (min-width:600px) and (min-height:900px){.kAu{justify-content:center}.kAu__top{position:absolute;top:env(safe-area-inset-top);left:0;right:0}.kAu__body{flex:none}.kAu__ok{margin-top:0}.kAu__precio{font-size:clamp(96px,16vw,150px)}.kAu__pie{padding-bottom:6vh}}
+@media (max-height:720px){.kAu__body{padding-top:2vh}.kAu__precio{font-size:clamp(52px,16vw,88px)}.kAu__precio--l{font-size:clamp(46px,14vw,80px)}.kAu__lista{margin-top:2vh}.kAu__datos{margin:2.5vh 0 1.5vh}.kAu__datos div{padding:10px 14px}.kAu__chk{padding:8px 0;font-size:15px}.kAu__go{height:54px}.kAu__top{padding-top:12px}}
+.kAu__cada{font:800 clamp(20px,6vw,30px) var(--font-display);letter-spacing:.01em;text-transform:uppercase;margin-top:6px}
+.kAu__ahorro{align-self:flex-start;margin-top:14px;padding:7px 12px;border-radius:999px;background:#F6F5F2;color:#0B0B0C;font:700 11px var(--font-mono);letter-spacing:.1em}
+.kAu__datos{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:4.5vh 0 3vh}.kAu__datos b.kAu__s{font-size:clamp(15px,4.2vw,19px)}
+.kAu__datos div{border:1px solid rgba(246,245,242,.16);border-radius:16px;padding:14px 16px}
+.kAu__datos span{display:block;font:400 10px var(--font-mono);letter-spacing:.12em;color:rgba(246,245,242,.55)}
+.kAu__datos b{display:block;margin-top:6px;font:800 clamp(17px,4.8vw,22px) var(--font-display);text-transform:uppercase}
+.kAu__chk{display:flex;gap:14px;align-items:flex-start;padding:12px 0;font-size:16px;line-height:1.38;cursor:pointer;color:rgba(246,245,242,.86)}.kAu__chk b{color:#F6F5F2}
+.kAu__chk input{position:absolute;opacity:0;pointer-events:none}
+.kAu__box{flex:none;width:26px;height:26px;border:2px solid rgba(246,245,242,.55);border-radius:7px;margin-top:-1px;display:grid;place-items:center;transition:background .12s,border-color .12s}
+.kAu__chk input:checked+.kAu__box{background:#F6F5F2;border-color:#F6F5F2}
+.kAu__chk input:checked+.kAu__box::after{content:'';width:7px;height:13px;border:solid #0B0B0C;border-width:0 3px 3px 0;transform:translateY(-1px) rotate(45deg)}
+.kAu__chk input:focus-visible+.kAu__box{outline:2px solid #F6F5F2;outline-offset:3px}
+.kAu__cond{margin-top:6px;font-size:13px;line-height:1.45;color:rgba(246,245,242,.6)}.kAu__cond summary{cursor:pointer;padding:8px 0;font:400 10.5px var(--font-mono);letter-spacing:.12em}.kAu__cond p{margin:4px 0 0}
+.kAu__pie{padding:12px 22px 20px;display:flex;flex-direction:column;gap:6px;max-width:560px;width:100%;margin:0 auto;box-sizing:border-box}
+.kAu__go{height:60px;border:0;border-radius:18px;background:#F6F5F2;color:#0B0B0C;font:700 14px var(--font-mono);letter-spacing:.14em;cursor:pointer;transition:background .15s,color .15s}
+.kAu__go:disabled{background:rgba(246,245,242,.12);color:rgba(246,245,242,.38);cursor:not-allowed}
+.kAu__no{height:44px;border:0;background:none;color:rgba(246,245,242,.6);font:400 11px var(--font-mono);letter-spacing:.14em;cursor:pointer}
 .kHoja__no{background:transparent;border:1.5px solid #111;color:#111}.kHoja__si{background:#111;border:0;color:#F6F5F2}.kHoja__si:disabled{background:rgba(18,18,18,.14);color:rgba(18,18,18,.38);cursor:not-allowed}
 .kHoja__b button:focus-visible{outline:2px solid #111;outline-offset:3px}
 @keyframes kHf{from{opacity:0}}@keyframes kHu{from{opacity:0;transform:translateY(12px)}}
@@ -8273,28 +8301,33 @@ async function flowSuscCancelar(b){
 // T&C v2.0 cl. 4.1 · antes de registrar la tarjeta: monto, periodicidad, fechas, permanencia y autorización expresa
 async function flowAutoAutorizar(){
   let c; try{ c=await flowFn({ accion:'cotizar' }, 'flow-suscripcion') }catch(e){ toast(e.message); return }
-  const $=n=>'$'+(+n).toLocaleString('es-CL'), hoy=fLocal(new Date()), dia=+String(c.primer_cobro).slice(8,10), perm=c.permanencia_meses>0, per=c.periodo_meses||1, cada=per===1?' AL MES':' CADA '+per+' MESES'
-  const fila=(k,v)=>'<div style="display:flex;justify-content:space-between;gap:12px;padding:9px 0;border-bottom:1px solid rgba(18,18,18,.12)"><span style="font:400 10.5px var(--font-mono);letter-spacing:.08em">'+k+'</span><b style="font:700 13px var(--font-mono);text-align:right">'+v+'</b></div>'
-  const bg=document.createElement('div'); bg.className='kHoja'; bg.setAttribute('role','dialog'); bg.setAttribute('aria-modal','true')
-  const chkL=(id,txt)=>'<label style="display:flex;gap:12px;align-items:flex-start;margin:10px 0;font-size:14.5px;line-height:1.35;cursor:pointer"><input type="checkbox" id="'+id+'" style="width:22px;height:22px;flex:none;margin-top:1px;accent-color:#111"> <span>'+txt+'</span></label>'
-  bg.innerHTML='<div class="kHoja__c" style="max-height:88vh;overflow:auto"><span class="kHoja__k">PAGO AUTOMÁTICO</span>'+
-    '<h3 class="kHoja__t" style="margin-bottom:2px">'+$(c.monto)+'<span style="font-size:.5em;letter-spacing:.02em">'+cada+'</span></h3>'+
-    '<div style="margin:10px 0 14px">'+fila('PRIMER COBRO', c.primer_cobro<=hoy?'HOY':_fm(c.primer_cobro).toUpperCase())+
-      fila('PERMANENCIA', perm ? c.permanencia_meses+' MESES' : 'SIN PERMANENCIA')+'</div>'+
-    chkL('flAut','Autorizo el cobro automático de <b>'+$(c.monto)+cada.toLowerCase()+'</b> en mi tarjeta.')+
-    (perm?chkL('flPerm','Acepto la <b>permanencia de '+c.permanencia_meses+' meses</b> según mi contrato.'):'')+
-    '<details style="margin:8px 0 2px;font-size:12.5px;color:rgba(18,18,18,.7)"><summary style="cursor:pointer;font:400 10.5px var(--font-mono);letter-spacing:.08em;padding:6px 0">VER CONDICIONES</summary>'+
-      '<p style="margin:6px 0">'+(perm?'Si terminas antes de los '+c.permanencia_meses+' meses, pagas una vez el descuento recibido ('+$(c.descuento_mensual)+' por '+(per===1?'mes':'cobro')+' pagado). Al cumplirlos, no se renueva sola.':'Lo desactivas cuando quieras desde tu Perfil, sin costo.')+
-      ' Te avisamos 5 días antes de cada cobro. Flow hace un cargo de verificación de $50 que se reversa solo.</p></details>'+
-    '<div class="kHoja__b"><button type="button" class="kHoja__no">VOLVER</button><button type="button" class="kHoja__si" id="flGo" disabled>REGISTRAR TARJETA</button></div></div>'
-  const fin=()=>bg.remove(), go=bg.querySelector('#flGo')
+  const $=n=>'$'+(+n).toLocaleString('es-CL'), hoy=fLocal(new Date()), perm=c.permanencia_meses>0, per=c.periodo_meses||1
+  const cada=per===1?'AL MES':'CADA '+per+' MESES', ahorro=Math.max(0,(c.precio_lista||0)-c.monto)
+  const chkL=(id,txt)=>'<label class="kAu__chk"><input type="checkbox" id="'+id+'"><span class="kAu__box" aria-hidden="true"></span><span>'+txt+'</span></label>'
+  const bg=document.createElement('div'); bg.className='kAu'; bg.setAttribute('role','dialog'); bg.setAttribute('aria-modal','true'); bg.setAttribute('aria-label','Pago automático')
+  bg.innerHTML='<div class="kAu__top"><span class="kAu__logo" role="img" aria-label="KOACH"></span><button type="button" class="kAu__x" aria-label="Cerrar">✕</button></div>'+
+    '<div class="kAu__body">'+
+      '<div class="kAu__k">PAGO AUTOMÁTICO'+(c.personalizada?' · <b>TARIFA EXCLUSIVA</b>':'')+'</div>'+
+      (ahorro>0?'<div class="kAu__lista">'+$(c.precio_lista)+'</div>':'')+
+      '<div class="kAu__precio'+($(c.monto).length>7?' kAu__precio--l':'')+'">'+$(c.monto)+'</div>'+
+      '<div class="kAu__cada">'+cada+'</div>'+
+      (ahorro>0?'<div class="kAu__ahorro">AHORRAS '+$(ahorro)+' '+(per===1?'CADA MES':'CADA '+per+' MESES')+'</div>':'')+
+      '<div class="kAu__datos"><div><span>PRIMER COBRO</span><b>'+(c.primer_cobro<=hoy?'HOY':_fm(c.primer_cobro).toUpperCase().replace(' '+hoy.slice(0,4),''))+'</b></div>'+
+        '<div><span>PERMANENCIA</span><b'+(perm?'':' class="kAu__s"')+'>'+(perm?c.permanencia_meses+' MESES':'SIN PERMANENCIA')+'</b></div></div>'+
+      '<div class="kAu__ok">'+chkL('flAut','Autorizo el cobro automático de <b>'+$(c.monto)+' '+cada.toLowerCase()+'</b> en mi tarjeta.')+
+      (perm?chkL('flPerm','Acepto la <b>permanencia de '+c.permanencia_meses+' meses</b> según mi contrato.'):'')+
+      '<details class="kAu__cond"><summary>VER CONDICIONES</summary><p>'+(perm?'Si terminas antes de los '+c.permanencia_meses+' meses, pagas una vez el descuento recibido ('+$(c.descuento_mensual)+' por '+(per===1?'mes':'cobro')+' pagado). Al cumplirlos, no se renueva sola.':'Lo desactivas cuando quieras desde tu Perfil, sin costo.')+
+        ' Te avisamos 5 días antes de cada cobro. Flow hace un cargo de verificación de $50 que se reversa solo.</p></details></div>'+
+    '</div>'+
+    '<div class="kAu__pie"><button type="button" class="kAu__go" id="flGo" disabled>REGISTRAR TARJETA</button><button type="button" class="kAu__no">VOLVER</button></div>'
+  const fin=()=>{ bg.remove(); document.documentElement.style.overflow='' }, go=bg.querySelector('#flGo')
   const chk=()=>{ go.disabled=!(bg.querySelector('#flAut').checked && (!perm || bg.querySelector('#flPerm').checked)) }
   bg.querySelectorAll('input[type=checkbox]').forEach(x=>x.onchange=chk)
-  bg.addEventListener('click',e=>{ if(e.target===bg) fin() }); bg.querySelector('.kHoja__no').onclick=fin
+  bg.querySelector('.kAu__x').onclick=fin; bg.querySelector('.kAu__no').onclick=fin
   go.onclick=async()=>{ go.disabled=true; go.textContent='CONECTANDO CON FLOW…'
     try{ const d=await flowFn({ accion:'iniciar', autorizo:true, acepto_permanencia:perm, monto_visto:c.monto }, 'flow-suscripcion'); location.href=d.url }
     catch(e){ toast(e.message); go.disabled=false; go.textContent='REGISTRAR TARJETA' } }
-  document.body.appendChild(bg)
+  document.documentElement.style.overflow='hidden'; document.body.appendChild(bg)
 }
 async function flowSuscRetorno(r){
   if (r==='activa'){ await flowSuscCargar(); try{ pintarPerfil() }catch(_){}
