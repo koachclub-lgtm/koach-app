@@ -86,7 +86,7 @@ function logros(){
 // ── cuerpo: maniquí por segmentos, coloreado según cómo cambió cada zona
 const COL_STAFF = { mej:'#2BB3C0', ret:'#D9774A', est:'#BDBBB4', nd:'#DEDCD6' }
 // en la app del socio: solo grises + verde funcional de mejora (manual de marca)
-const COL_SOCIO = { mej:'#2F7D4F', ret:'#121212', est:'#BDBBB4', nd:'#E2E1DD' }
+const COL_SOCIO = { mej:'#2BB3C0', ret:'#E07A3F', est:'#BDBBB4', nd:'#E2E1DD' }
 const COL = Object.assign({}, COL_STAFF)
 function cuerpo(segs){
   if (S.inline && S.d3 !== false) return cuerpo3d(segs)
@@ -115,14 +115,26 @@ function cuerpo(segs){
 // ── CUERPO 3D (app del socio): maniquí isométrico que gira; la zona elegida se ve en calipso. Proporciones desde las medidas reales.
 const B3 = { r:null, cam:null, scene:null, grupo:null, partes:[], key:'', ang:0.5, raf:0, drag:null, carga:null }
 const CALIPSO = 0x2BB3C0, METAL = 0xC9CBCE, NEUTRO = 0xDCDDDF
+const P3 = { BRA:['i', 27], CAD:['i', 49], PAN:['i', 76], TRO:['d', 23], ABD:['d', 40], MUS:['d', 62] }
+function lect3(s){
+  const mm = s.filas.filter(r => r.u === 'mm' && r.v != null), cm = s.filas.filter(r => r.u === 'cm' && r.v != null)
+  if (mm.length){ const v = mm.reduce((a, r) => a + r.v, 0); return { v, u:'MM', l: mm.length > 1 ? 'Σ ' + mm.length + ' PLIEGUES' : mm[0].l.toUpperCase(), d: s.sp } }
+  if (cm.length){ const r = cm[0]; return { v:r.v, u:'CM', l:r.l.toUpperCase(), d:r.d } }
+  return null
+}
 function cuerpo3d(segs){
-  return '<div class="kd3" id="kd3" role="img" aria-label="Cuerpo en 3D: toca una zona para ver su cambio"><div class="kd3__tag" id="kd3Tag">' + tag3(segs) + '</div>' +
+  const lab = segs.map(s => { const p = P3[s.id]; if (!p) return ''; const L = lect3(s), on = S.seg === s.id
+    const dl = L && L.d != null ? '<em class="kdT-' + s.t + '">' + fx(L.d) + ' ' + L.u + '</em>' : '<em>' + (S.i ? 'SIN DATO PREVIO' : 'LÍNEA BASE') + '</em>'
+    return '<button type="button" class="kd3__p kd3__p--' + p[0] + (on ? ' on' : '') + '" data-seg="' + s.id + '" style="top:' + p[1] + '%"><span>' + s.nombre + '</span>' +
+      (L ? '<b><span data-cnt="' + L.v + '">' + f1(L.v) + '</span><i>' + L.u + '</i></b><small>' + esc(L.l) + '</small>' : '<b>—</b>') + dl + '</button>' }).join('')
+  return '<div class="kd3" id="kd3" role="img" aria-label="Cuerpo en 3D: toca una zona para ver su cambio"><svg class="kd3__ln" id="kd3Ln" aria-hidden="true">' +
+    Object.keys(P3).map(k => '<path data-l="' + k + '"/><circle data-c="' + k + '" r="3.5"/>').join('') + '</svg>' + lab +
     '<span class="kd3__h">ARRASTRA PARA GIRAR · TOCA UNA ZONA</span></div>'
 }
 function tag3(segs){ const s = segs.find(x => x.id === S.seg) || segs[0], d = s.sp != null ? s.sp : s.sq
   const v = d == null ? (S.i ? 'SIN DATO' : 'LÍNEA BASE') : s.sp != null ? fx(s.sp) + ' MM' : fx(s.filas.find(r => r.u === 'cm' && r.d != null).d) + ' CM'
   return '<i></i><span>' + s.nombre + '</span><b>' + v + '</b>' }
-function b3Tag(segs){ const t = ov && ov.querySelector('#kd3Tag'); if (t) t.innerHTML = tag3(segs) }
+function b3Tag(segs){ if (!ov) return; ov.querySelectorAll('.kd3__p').forEach(b => b.classList.toggle('on', b.dataset.seg === S.seg)) }
 function b3Cargar(){
   if (window.THREE) return Promise.resolve(true)
   if (!B3.carga) B3.carga = new Promise(ok => { const sc = document.createElement('script'); sc.src = '/vendor/three-r128.min.js'; sc.async = true
@@ -174,8 +186,22 @@ function b3Loop(){
   const r = cv.getBoundingClientRect(); if (r.bottom < 0 || r.top > innerHeight) return
   if (!B3.drag && (!B3.quieto || Date.now() - B3.quieto > 2500)) B3.ang += 0.006
   if (B3.grupo) B3.grupo.rotation.y = B3.ang
+  if ((B3.fr = (B3.fr || 0) + 1) % 2 === 0) b3Lineas()
   if (cv.width !== Math.round(cv.parentNode.clientWidth * B3.r.getPixelRatio())) b3Tam()
   B3.r.render(B3.scene, B3.cam)
+}
+function b3Lineas(){
+  const T = window.THREE, svg = ov && ov.querySelector('#kd3Ln'); if (!svg || !B3.anc || !B3.grupo) return
+  const box = svg.parentNode, W = box.clientWidth, H = box.clientHeight, cs = Math.cos(B3.ang), sn = Math.sin(B3.ang), v = new T.Vector3()
+  Object.keys(P3).forEach(k => { const [lado, top] = P3[k], pts = B3.anc[k]; if (!pts) return
+    let best = null
+    pts.forEach(c => { v.set(c.x * cs + c.z * sn, c.y + B3.grupo.position.y, -c.x * sn + c.z * cs).project(B3.cam)
+      const x = (v.x + 1) / 2 * W, y = (1 - v.y) / 2 * H; if (!best || (lado === 'd' ? x > best[0] : x < best[0])) best = [x, y] })
+    const lb = box.querySelector('.kd3__p[data-seg="' + k + '"]'); if (!lb || !best) return
+    const ly = lb.offsetTop + 14, lx = lado === 'd' ? lb.offsetLeft - 6 : lb.offsetLeft + lb.offsetWidth + 6, ex = lado === 'd' ? lx - 14 : lx + 14
+    svg.querySelector('[data-l="' + k + '"]').setAttribute('d', 'M' + best[0].toFixed(1) + ' ' + best[1].toFixed(1) + ' L' + ex.toFixed(1) + ' ' + ly + ' L' + lx.toFixed(1) + ' ' + ly)
+    const c = svg.querySelector('[data-c="' + k + '"]'); c.setAttribute('cx', best[0].toFixed(1)); c.setAttribute('cy', best[1].toFixed(1))
+    const on = k === S.seg; svg.querySelector('[data-l="' + k + '"]').classList.toggle('on', on); c.classList.toggle('on', on) })
 }
 function b3Color(){ const T = window.THREE; if (!T) return
   B3.partes.forEach(m => { const on = m.userData.seg === S.seg; m.material.color = new T.Color(on ? CALIPSO : METAL); m.material.emissive = new T.Color(on ? 0x0b3a3e : 0x000000) }) }
@@ -212,6 +238,8 @@ function b3Armar(e){
     const mano = neutro(new T.SphereGeometry(0.036, 20, 14)); mano.scale.set(0.7, 1.45, 0.45); mano.position.y = 0.6; a.add(mano)
     const hom = new T.Mesh(new T.SphereGeometry(rb * 1.08, 28, 18), m.material); hom.position.y = 0.01; hom.scale.set(1, 0.85, 1); hom.userData.seg = 'BRA'; B3.partes.push(hom); a.add(hom)
     g.add(a) })
+  g.rotation.y = 0; g.updateMatrixWorld(true); B3.anc = {}
+  B3.partes.forEach(m => { const c = new T.Box3().setFromObject(m).getCenter(new T.Vector3()); c.y -= g.position.y; (B3.anc[m.userData.seg] = B3.anc[m.userData.seg] || []).push(c) })
 }
 function panelSeg(segs){
   const s = segs.find(x => x.id === S.seg) || segs[0], b = base()
@@ -267,6 +295,28 @@ function composicion(){
     (cl.length ? '<div class="kdCl">' + cl.map(c => '<div><span class="kdK">' + c[0] + '</span><b>' + esc(c[1]) + '</b><small>' + esc(c[2]) + '</small></div>').join('') + '</div>' : '')
 }
 
+function compActual(){
+  const e = actual(), pe = n(e.peso_kg); if (!pe) return ''
+  const arr = [['GRASA', masaGrasa(e), '#E07A3F', '#FFFFFF'], ['MÚSCULO', n(e.masa_muscular_kg), '#2BB3C0', '#04363B'], ['ÓSEA', n(e.masa_osea_kg), '#8F8D86', '#FFFFFF'], ['RESIDUAL', n(e.masa_residual_kg), '#CFCDC7', '#121212']].filter(x => x[1] != null)
+  const resto = pe - arr.reduce((a, x) => a + x[1], 0); if (arr.length < 4 && resto > 0.2) arr.push(['RESTO', resto, '#E2E0DA', '#121212'])
+  const K = typeof KC !== 'undefined' ? KC : null, sx = S.o.sexo || e.sexo_eval
+  const cg = K && K.clasGrasa ? K.clasGrasa(e.porcentaje_grasa, sx) : null, cf = K && K.clasFFMI ? K.clasFFMI(e.ffmi_norm, sx) : null, fc = K && K.formaCorporal ? K.formaCorporal(e.porcentaje_grasa, e.ffmi_norm, sx) : null
+  const cl = [fc ? ['FORMA CORPORAL', fc.label, fc.msg] : null, cg ? ['NIVEL DE GRASA', cg, f1(e.porcentaje_grasa) + ' % de grasa'] : null, cf ? ['ÍNDICE MUSCULAR', cf, 'FFMI ' + f1(e.ffmi_norm)] : null,
+    n(e.edad_biologica) != null ? ['EDAD BIOLÓGICA', Math.round(e.edad_biologica) + ' AÑOS', n(e.edad_eval) != null ? 'Edad real ' + e.edad_eval + ' años' : ''] : null,
+    n(e.ict) != null ? ['CINTURA / TALLA', String(e.ict).replace('.', ','), e.ict < 0.5 ? 'En rango saludable (< 0,5)' : 'Sobre 0,5: foco en cintura'] : null].filter(Boolean)
+  return '<section class="kdCard kdCa"><div class="kdCa__h"><span class="kdK">TU COMPOSICIÓN CORPORAL · ' + fecha(e.fecha) + '</span><b><span data-cnt="' + pe + '">' + f1(pe) + '</span><i>kg</i></b></div>' +
+    '<div class="kdCa__bar">' + arr.map((x, i) => '<i style="flex:' + x[1].toFixed(2) + ';background:' + x[2] + ';color:' + x[3] + ';animation-delay:' + (0.15 + i * 0.18).toFixed(2) + 's"><span>' + (x[1] / pe > 0.1 ? Math.round(x[1] / pe * 100) + '%' : '') + '</span></i>').join('') + '</div>' +
+    '<div class="kdCa__g">' + arr.map(x => '<div><span class="kdK"><i style="background:' + x[2] + '"></i>' + x[0] + '</span><b><span data-cnt="' + x[1] + '">' + f1(x[1]) + '</span><i>kg</i></b><small><span data-cnt="' + Math.round(x[1] / pe * 100) + '" data-d="0">' + Math.round(x[1] / pe * 100) + '</span> %</small></div>').join('') + '</div>' +
+    (cl.length ? '<div class="kdCl">' + cl.map(c => '<div><span class="kdK">' + c[0] + '</span><b>' + esc(c[1]) + '</b><small>' + esc(c[2]) + '</small></div>').join('') + '</div>' : '') + '</section>'
+}
+function contar(){
+  if (!ov) return; const els = [...ov.querySelectorAll('[data-cnt]')].filter(x => x.dataset.cnt !== ''); if (!els.length) return
+  const t0 = performance.now(), D = 1400
+  const paso = now => { const k = Math.min(1, Math.max(0, (now - t0 - 120) / D)), e = 1 - Math.pow(1 - k, 3)
+    els.forEach(x => { const v = +x.dataset.cnt * e; x.textContent = x.dataset.d === '0' ? String(Math.round(v)) : f1(v) })
+    if (k < 1 && els[0].isConnected) requestAnimationFrame(paso) }
+  requestAnimationFrame(paso)
+}
 function tabla(){
   const e = actual(), a = S.i > 0 ? S.evs[S.i - 1] : null, ini = S.i > 0 ? S.evs[0] : null
   const G = [['BÁSICOS', [['peso_kg','Peso','kg',0],['talla_cm','Talla','cm',0],['porcentaje_grasa','% grasa','%',-1],['masa_grasa','Masa grasa','kg',-1],['masa_muscular_kg','Masa muscular','kg',1],['masa_osea_kg','Masa ósea','kg',0]]],
@@ -290,7 +340,7 @@ function html(){
   const kpis = IND.map(([k, l, u, sn]) => { const v = val(e, k), bv = val(b, k), d = v != null && bv != null ? v - bv : null, tn = tono(d, sn), pc = pct(v, bv)
     const serie = S.evs.slice(0, S.i + 1).map(x => val(x, k)).filter(x => x != null)
     let sp = ''; if (serie.length > 1){ const mn = Math.min(...serie), mx = Math.max(...serie), rg = mx - mn || 1; sp = '<svg viewBox="0 0 100 26" preserveAspectRatio="none" class="kdSpk"><polyline fill="none" stroke="currentColor" stroke-width="2" points="' + serie.map((x, i) => (i * 100 / (serie.length - 1)).toFixed(1) + ',' + (23 - (x - mn) / rg * 20).toFixed(1)).join(' ') + '"/></svg>' }
-    return '<div class="kdKp kdT-' + tn + '"><span class="kdK">' + l + '</span><b>' + f1(v) + '<i>' + u + '</i></b>' +
+    return '<div class="kdKp kdT-' + tn + '"><span class="kdK">' + l + '</span><b><span data-cnt="' + (v != null ? v : '') + '">' + f1(v) + '</span><i>' + u + '</i></b>' +
       '<em>' + (d != null ? fx(d) + ' ' + u + (pc != null && u !== '%' ? ' · ' + fx(pc) + ' %' : '') : S.i ? 'sin dato previo' : 'línea base') + '</em>' + sp + '</div>' }).join('')
   const ring = mt && mt.avance != null ? (() => { const R = 54, C = 2 * Math.PI * R, a = mt.avance
       return '<div class="kdMeta"><svg viewBox="0 0 140 140" class="kdRing"><circle cx="70" cy="70" r="' + R + '" class="kdRing__bg"/><circle cx="70" cy="70" r="' + R + '" class="kdRing__fg" stroke-dasharray="' + C.toFixed(1) + '" stroke-dashoffset="' + (C * (1 - a)).toFixed(1) + '" style="--c:' + C.toFixed(1) + '"/>' +
@@ -307,21 +357,23 @@ function html(){
     '<button type="button" class="kdX" data-act="cerrar" aria-label="Cerrar diagnóstico">CERRAR ✕</button></div>') +
     '<div class="kdIn">' +
     '<section class="kdHero"><div><span class="kdK">EVALUACIÓN N° ' + (S.i + 1) + ' · ' + fecha(e.fecha) + (S.o.programa ? ' · ' + esc(String(S.o.programa).toUpperCase()) : '') + '</span>' +
-      '<h1 class="kdH1">' + nom + '</h1><p class="kdFr">' + esc(frase) + '</p>' + (e.nota_socio ? '<blockquote class="kdNota">' + esc(e.nota_socio) + '<cite>NUTRICIÓN KOACH</cite></blockquote>' : '') + '</div>' + ring + '</section>' +
+      '<h1 class="kdH1">' + nom + '</h1><p class="kdFr">' + esc(frase) + '</p>' + (e.nota_socio ? '<blockquote class="kdNota">' + esc(e.nota_socio) + '<cite>NUTRICIÓN KOACH</cite></blockquote>' : '') + '</div>' + (S.inline ? '' : ring) + '</section>' +
+    (S.inline ? compActual() + (ring ? '<div class="kdRingW">' + ring + '</div>' : '') : '') +
     '<section class="kdKps">' + kpis + '</section>' +
     '<section class="kdGrid">' +
       '<div class="kdCard kdCard--body"><span class="kdK">CÓMO CAMBIÓ CADA ZONA · TOCA UNA ZONA</span><div class="kdBodyW"><div id="kdBody">' + cuerpo(segs) + '</div><div id="kdSp">' + panelSeg(segs) + '</div></div>' +
         '<div class="kdLeg"><span><i style="background:' + COL.mej + '"></i>MEJORA</span><span><i style="background:' + COL.est + '"></i>ESTABLE</span><span><i style="background:' + COL.ret + '"></i>FOCO</span></div></div>' +
-      '<div class="kdCard"><span class="kdK">DE QUÉ ESTÁ HECHO TU PESO</span>' + composicion() + '</div>' +
+      (S.inline ? '' : '<div class="kdCard"><span class="kdK">DE QUÉ ESTÁ HECHO TU PESO</span>' + composicion() + '</div>') +
     '</section>' +
-    '<section class="kdCard kdCard--ev"><span class="kdK">TU EVOLUCIÓN</span><div id="kdEv">' + evolucion() + '</div></section>' +
+    (S.inline ? '' : '<section class="kdCard kdCard--ev"><span class="kdK">TU EVOLUCIÓN</span><div id="kdEv">' + evolucion() + '</div></section>') +
     (lg.length ? '<section class="kdLog"><span class="kdK">LOGROS' + (pn ? ' DE ' + pn.toUpperCase() : '') + '</span><div class="kdLog__g">' + lg.map((x, i) => '<div class="kdBadge" style="--d:' + (i * 70) + 'ms"><b>' + x[0] + '</b><span>' + x[1] + '</span><small>' + x[2] + '</small></div>').join('') + '</div></section>' : '') +
+    (S.inline && S.i > 0 ? '<section class="kdCard kdCard--ev"><span class="kdK">EXTRA · TU EVOLUCIÓN ENTRE EVALUACIONES</span><div id="kdEv">' + evolucion() + '</div></section>' : '') +
     '<section class="kdCard"><span class="kdK">TODO LO QUE MEDIMOS · PROTOCOLO ISAK</span>' + tabla() + '</section>' +
     '<p class="kdPie">' + VERSION + ' · Estimaciones antropométricas ISAK: orientan el trabajo de nutrición y entrenamiento, no son un diagnóstico médico.</p></div>'
 }
 
 let ov = null
-function pintar(){ if (!ov) return; if (S.inline){ ov.innerHTML = html(); b3Enlazar(); anilloAnim(); return enlazarChart() } const y = ov.scrollTop; ov.innerHTML = html(); ov.scrollTop = y; enlazarChart() }
+function pintar(){ if (!ov) return; if (S.inline){ ov.innerHTML = html(); b3Enlazar(); anilloAnim(); contar(); return enlazarChart() } const y = ov.scrollTop; ov.innerHTML = html(); ov.scrollTop = y; enlazarChart() }
 function repSeg(){ const e = actual(), b = base(), segs = SEG.map(s => segmento(s, e, b)); if (S.inline && B3.r && ov.querySelector('#kd3')){ b3Color(); b3Tag(segs) } else { ov.querySelector('#kdBody').innerHTML = cuerpo(segs); b3Enlazar() } ov.querySelector('#kdSp').innerHTML = panelSeg(segs) }
 function enlazarChart(){
   const ch = ov && ov.querySelector('.kdCh'); if (!ch) return
@@ -446,16 +498,44 @@ const CSS = `
 .kd--in .kdSegs button[aria-pressed="true"]{background:#121212;color:#F4F3F0}
 .kd--in .kdSegs button[aria-pressed="true"] i{background:#2BB3C0!important}
 .kd--in .kdBar.kdBar--in{flex-wrap:wrap;gap:6px}.kd--in .kdBar--in .kdSeg{margin-left:auto}
+.kd--in .kdH1{font-size:clamp(22px,6.4vw,30px)!important;line-height:1;margin:6px 0 8px}
+.kd--in .kdFr{font-size:16px}
+.kdCa{margin-top:14px}
+.kd--in .kdRingW{margin-top:14px}
+.kdCa__h{display:flex;justify-content:space-between;align-items:flex-end;gap:10px}
+.kdCa__h b{font:700 34px/1 var(--font-mono,monospace);letter-spacing:-.05em}.kdCa__h b i{font-size:13px;font-style:normal;letter-spacing:0;color:#6B6A65;margin-left:3px}
+.kdCa__bar{display:flex;gap:3px;height:46px;margin-top:14px}
+.kdCa__bar i{min-width:0;border-radius:8px;display:flex;align-items:center;justify-content:center;overflow:hidden;animation:kdGrow 1.3s cubic-bezier(.2,.8,.2,1) both}
+.kdCa__bar i span{font:700 11px var(--font-mono,monospace);white-space:nowrap;animation:kdFade .4s ease 1.2s both}
+@keyframes kdGrow{from{flex-grow:0;opacity:.3}}@keyframes kdFade{from{opacity:0}}
+.kdCa__g{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px 16px;margin-top:16px}
+.kdCa__g .kdK{display:flex;align-items:center;gap:6px}.kdCa__g .kdK i{width:9px;height:9px;border-radius:2px}
+.kdCa__g b{display:block;margin-top:4px;font:700 24px/1 var(--font-mono,monospace);letter-spacing:-.04em}.kdCa__g b i{font-size:11px;font-style:normal;color:#6B6A65;margin-left:3px;letter-spacing:0}
+.kdCa__g small{font:400 11px var(--font-mono,monospace);color:#6B6A65}
+.kdCa .kdCl{margin-top:16px}
+@media (prefers-reduced-motion:reduce){.kdCa__bar i,.kdCa__bar i span{animation:none}}
+.kd--in .kd3{height:clamp(440px,118vw,560px);margin:8px -8px 0}
+.kd3__ln{position:absolute;inset:0;width:100%;height:100%;z-index:1;pointer-events:none;overflow:visible}
+.kd3__ln path{fill:none;stroke:#121212;stroke-width:1;opacity:.45}.kd3__ln path.on{stroke:#2BB3C0;stroke-width:2;opacity:1}
+.kd3__ln circle{fill:#121212}.kd3__ln circle.on{fill:#2BB3C0}
+.kd3__p{position:absolute;z-index:2;max-width:31%;padding:6px 8px;border:0;border-radius:10px;background:rgba(251,250,248,.82);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);color:#121212;cursor:pointer;font-family:var(--font-mono,monospace);animation:kdFade .5s ease both}
+.kd3__p--i{left:8px;text-align:left}.kd3__p--d{right:8px;text-align:right}
+.kd3__p span{display:block;font:700 8.5px var(--font-mono,monospace);letter-spacing:.14em;color:#5E5D59}
+.kd3__p b{display:block;margin-top:3px;font:700 22px/1 var(--font-mono,monospace);letter-spacing:-.04em}.kd3__p b span{display:inline;font:inherit;color:inherit;letter-spacing:inherit}.kd3__p b i{font-size:10px;font-style:normal;margin-left:2px;letter-spacing:0;color:#6B6A65}
+.kd3__p small{display:block;margin-top:2px;font:400 8px var(--font-mono,monospace);letter-spacing:.08em;color:#8E8D88;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.kd3__p em{display:block;margin-top:3px;font:700 10px var(--font-mono,monospace);font-style:normal;letter-spacing:.04em;color:#8E8D88}
+.kd3__p.on{background:#121212;color:#F4F3F0;box-shadow:0 0 0 2px #2BB3C0,0 8px 20px rgba(43,179,192,.3)}.kd3__p.on>span,.kd3__p.on b i,.kd3__p.on small{color:#A7A9AE}.kd3__p.on b span{color:#F4F3F0}.kd3__p.on em.kdT-mej{color:#7FD6DD}.kd3__p.on em.kdT-ret{color:#F2A273}
+.kd3__p:nth-of-type(2){animation-delay:.08s}.kd3__p:nth-of-type(3){animation-delay:.16s}.kd3__p:nth-of-type(4){animation-delay:.24s}.kd3__p:nth-of-type(5){animation-delay:.32s}.kd3__p:nth-of-type(6){animation-delay:.4s}
 .kd.kd--in{position:static;inset:auto;z-index:auto;overflow:visible;background:transparent;animation:none}
 .kd--in .kdBar--in{position:static;min-height:0;padding:8px 8px 8px 16px;border-radius:20px;background:#121212;justify-content:space-between;flex-wrap:nowrap}
-.kd--in section.kdCard{background:#FBFAF8!important;border-radius:20px!important}
+.kd--in section.kdCard{background:#FBFAF8!important;border-radius:20px!important;padding:18px 18px 20px!important;border:1px solid rgba(18,18,18,.06)!important;box-shadow:0 14px 34px rgba(18,18,18,.10)!important}
 .kd--in .kdPie{color:#2A2A2A}
 .kd--in .kdHero .kdK,.kd--in .kdLog>.kdK{color:#2A2A2A}
 @media (max-width:420px){.kd--in .kdBar--in .kdSel{font-size:0;gap:0;margin-left:0}.kd--in .kdSeg button{padding:0 10px}}
 .kd--in .kdBar--in .kdSel{margin-left:10px;font-size:9.5px;gap:8px}
 .kd--in .kdIn{padding:12px 0 8px}
 .kd--in .kdNota{border-left-color:#121212}
-.kd--in .kdT-mej{color:#2F7D4F}.kd--in .kdT-ret{color:#121212}.kd--in .kdBg-mej{background:#2F7D4F}.kd--in .kdBg-ret{background:#121212}
+.kd--in .kdT-mej{color:#13848F}.kd--in .kdT-ret{color:#C2602F}.kd--in .kdBg-mej{background:#2BB3C0}.kd--in .kdBg-ret{background:#E07A3F}
 .kd--in .kdRing__fg{stroke:#2BB3C0;filter:drop-shadow(0 0 6px rgba(43,179,192,.55));animation:kdRing 1.8s cubic-bezier(.2,.7,.2,1) .15s both}.kd--in .kdBadge b{color:#F4F3F0}.kd--in .kdSeg button{white-space:nowrap}
 .kd--in .kdH1{font-size:clamp(30px,9vw,44px)}
 `
@@ -472,7 +552,7 @@ function montar(el, o){
   ov = el; el.classList.add('kd', 'kd--in')
   if (!el._kd){ el._kd = 1; el.addEventListener('click', ev => { if (ov === el) onClick(ev) })
     el.addEventListener('change', ev => { if (ov === el && ev.target.dataset.act === 'ev'){ S.i = +ev.target.value; if (S.i === 0) S.cmp = 'ini'; pintar() } }) }
-  el.innerHTML = html(); b3Enlazar(); anilloAnim(); enlazarChart(); return true
+  el.innerHTML = html(); b3Enlazar(); anilloAnim(); contar(); enlazarChart(); return true
 }
 const KDG = { VERSION, abrir, cerrar, montar, _segmento: segmento, _S: S, _B3: B3 }
 if (typeof window !== 'undefined') window.KDG = KDG
