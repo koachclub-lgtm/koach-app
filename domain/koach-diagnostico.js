@@ -89,6 +89,7 @@ const COL_STAFF = { mej:'#2BB3C0', ret:'#D9774A', est:'#BDBBB4', nd:'#DEDCD6' }
 const COL_SOCIO = { mej:'#2F7D4F', ret:'#121212', est:'#BDBBB4', nd:'#E2E1DD' }
 const COL = Object.assign({}, COL_STAFF)
 function cuerpo(segs){
+  if (S.inline && S.d3 !== false) return cuerpo3d(segs)
   const g = id => segs.find(s => s.id === id)
   const sh = (id, d, extra) => { const s = g(id), c = COL[s.t], op = s.t === 'mej' || s.t === 'ret' ? (0.55 + 0.45 * s.mag).toFixed(2) : 1
     return '<path class="kdSg' + (S.seg === id ? ' on' : '') + '" data-seg="' + id + '" d="' + d + '" fill="' + c + '" fill-opacity="' + op + '"' + (extra || '') + '/>' }
@@ -109,6 +110,104 @@ function cuerpo(segs){
     sh('BRA', brazo) + sh('MUS', musl) + sh('PAN', pant) +
     '<rect x="' + (X + 70) + '" y="406" width="24" height="9" rx="4" fill="#D3D1CB"/><rect x="' + (X + 106) + '" y="406" width="24" height="9" rx="4" fill="#D3D1CB"/>' +
     lab('BRA', 'i', 118, 110) + lab('CAD', 'i', 222, 216) + lab('PAN', 'i', 370, 366) + lab('TRO', 'd', 92, 100) + lab('ABD', 'd', 172, 174) + lab('MUS', 'd', 282, 280) + '</svg>'
+}
+
+// ── CUERPO 3D (app del socio): maniquí isométrico que gira; la zona elegida se ve en calipso. Proporciones desde las medidas reales.
+const B3 = { r:null, cam:null, scene:null, grupo:null, partes:[], key:'', ang:0.5, raf:0, drag:null, carga:null }
+const CALIPSO = 0x2BB3C0, METAL = 0xC9CBCE, NEUTRO = 0xDCDDDF
+function cuerpo3d(segs){
+  return '<div class="kd3" id="kd3" role="img" aria-label="Cuerpo en 3D: toca una zona para ver su cambio"><div class="kd3__tag" id="kd3Tag">' + tag3(segs) + '</div>' +
+    '<span class="kd3__h">ARRASTRA PARA GIRAR · TOCA UNA ZONA</span></div>'
+}
+function tag3(segs){ const s = segs.find(x => x.id === S.seg) || segs[0], d = s.sp != null ? s.sp : s.sq
+  const v = d == null ? (S.i ? 'SIN DATO' : 'LÍNEA BASE') : s.sp != null ? fx(s.sp) + ' MM' : fx(s.filas.find(r => r.u === 'cm' && r.d != null).d) + ' CM'
+  return '<i></i><span>' + s.nombre + '</span><b>' + v + '</b>' }
+function b3Tag(segs){ const t = ov && ov.querySelector('#kd3Tag'); if (t) t.innerHTML = tag3(segs) }
+function b3Cargar(){
+  if (window.THREE) return Promise.resolve(true)
+  if (!B3.carga) B3.carga = new Promise(ok => { const sc = document.createElement('script'); sc.src = '/vendor/three-r128.min.js'; sc.async = true
+    sc.onload = () => ok(!!window.THREE); sc.onerror = () => ok(false); document.head.appendChild(sc) })
+  return B3.carga
+}
+function b3Enlazar(){
+  const box = ov && ov.querySelector('#kd3'); if (!box) return
+  if (!window.THREE){ b3Cargar().then(ok => { if (!ok){ S.d3 = false; if (ov && ov.querySelector('#kd3')) ov.querySelector('#kdBody').innerHTML = cuerpo(SEG.map(x => segmento(x, actual(), base()))) } else b3Enlazar() }); return }
+  const T = window.THREE
+  if (!B3.r){
+    try { B3.r = new T.WebGLRenderer({ antialias:true, alpha:true }) } catch (e) { S.d3 = false; return repSeg() }
+    B3.r.setPixelRatio(Math.min(2, window.devicePixelRatio || 1))
+    B3.scene = new T.Scene(); B3.cam = new T.OrthographicCamera(-1, 1, 1, -1, 0.1, 50)
+    B3.cam.position.set(0, 1.35, 3.2); B3.cam.lookAt(0, 0.05, 0)
+    B3.scene.add(new T.HemisphereLight(0xffffff, 0x6f7276, 0.95))
+    const d1 = new T.DirectionalLight(0xffffff, 0.85); d1.position.set(2, 4, 3); B3.scene.add(d1)
+    const d2 = new T.DirectionalLight(0xffffff, 0.35); d2.position.set(-3, 2, -2); B3.scene.add(d2)
+    const piso = new T.Mesh(new T.CircleGeometry(0.5, 64), new T.MeshBasicMaterial({ color:0x121212, transparent:true, opacity:0.08 })); piso.rotation.x = -Math.PI / 2; piso.position.y = -0.86; B3.scene.add(piso)
+    const anillo = new T.Mesh(new T.RingGeometry(0.52, 0.535, 96), new T.MeshBasicMaterial({ color:0x121212, transparent:true, opacity:0.25, side:T.DoubleSide })); anillo.rotation.x = -Math.PI / 2; anillo.position.y = -0.859; B3.scene.add(anillo)
+    const cv = B3.r.domElement; cv.className = 'kd3__cv'
+    cv.addEventListener('pointerdown', e => { B3.drag = { x:e.clientX, a:B3.ang, t:Date.now(), mv:0 }; cv.setPointerCapture(e.pointerId) })
+    cv.addEventListener('pointermove', e => { if (!B3.drag) return; const dx = e.clientX - B3.drag.x; B3.drag.mv = Math.max(B3.drag.mv, Math.abs(dx)); B3.ang = B3.drag.a + dx * 0.012 })
+    cv.addEventListener('pointerup', e => { const d = B3.drag; B3.drag = null; if (!d || d.mv > 6) { B3.quieto = Date.now(); return } b3Tocar(e) })
+    cv.addEventListener('pointercancel', () => { B3.drag = null })
+  }
+  box.insertBefore(B3.r.domElement, box.firstChild)
+  const e = actual(), key = S.i + ':' + (e && e.id)
+  if (key !== B3.key){ B3.key = key; b3Armar(e) }
+  b3Color(); b3Tam()
+  if (!B3.raf) b3Loop()
+}
+function b3Tocar(ev){
+  const T = window.THREE, cv = B3.r.domElement, rc = cv.getBoundingClientRect(), ray = new T.Raycaster()
+  ray.setFromCamera(new T.Vector2((ev.clientX - rc.left) / rc.width * 2 - 1, -((ev.clientY - rc.top) / rc.height) * 2 + 1), B3.cam)
+  const hit = ray.intersectObjects(B3.partes, false)[0]; if (hit){ S.seg = hit.object.userData.seg; repSeg() }
+}
+function b3Tam(){ if (!B3.r) return; const box = B3.r.domElement.parentNode; if (!box) return
+  const W = box.clientWidth || 320, H = box.clientHeight || 380; B3.r.setSize(W, H, false)
+  const a = W / H, h = 1.08; B3.cam.left = -h * a; B3.cam.right = h * a; B3.cam.top = h; B3.cam.bottom = -h; B3.cam.updateProjectionMatrix() }
+function b3Loop(){
+  const cv = B3.r && B3.r.domElement
+  if (!cv || !cv.isConnected){ B3.raf = 0; return }
+  B3.raf = requestAnimationFrame(b3Loop)
+  const r = cv.getBoundingClientRect(); if (r.bottom < 0 || r.top > innerHeight) return
+  if (!B3.drag && (!B3.quieto || Date.now() - B3.quieto > 2500)) B3.ang += 0.006
+  if (B3.grupo) B3.grupo.rotation.y = B3.ang
+  if (cv.width !== Math.round(cv.parentNode.clientWidth * B3.r.getPixelRatio())) b3Tam()
+  B3.r.render(B3.scene, B3.cam)
+}
+function b3Color(){ const T = window.THREE; if (!T) return
+  B3.partes.forEach(m => { const on = m.userData.seg === S.seg; m.material.color = new T.Color(on ? CALIPSO : METAL); m.material.emissive = new T.Color(on ? 0x0b3a3e : 0x000000) }) }
+function b3Armar(e){
+  const T = window.THREE; e = e || {}
+  if (B3.grupo) B3.scene.remove(B3.grupo)
+  B3.partes = []; const g = new T.Group(); g.position.y = -0.86; B3.grupo = g; B3.scene.add(g)
+  const v = (k, d) => { const x = n(e[k]); return x != null && x > 0 ? x : d }
+  const r = c => c / (2 * Math.PI) / 100, gm = x => x / 1000, pc = (per, pl) => r(per - Math.PI * pl / 10)
+  const suave = (k, m) => { const out = [], P = i => k[Math.max(0, Math.min(k.length - 1, i))]
+    for (let i = 0; i < k.length - 1; i++){ const p0 = P(i - 1), p1 = P(i), p2 = P(i + 1), p3 = P(i + 2)
+      for (let j = 0; j < m; j++){ const t = j / m, t2 = t * t, t3 = t2 * t, f = (a, b, c, d) => 0.5 * ((2 * b) + (-a + c) * t + (2 * a - 5 * b + 4 * c - d) * t2 + (-a + 3 * b - 3 * c + d) * t3)
+        out.push([Math.max(0.004, f(p0[0], p1[0], p2[0], p3[0])), f(p0[1], p1[1], p2[1], p3[1])]) } }
+    out.push(k[k.length - 1]); return out }
+  const tramo = (pf, y0, y1) => { const at = y => { for (let i = 0; i < pf.length - 1; i++){ const a = pf[i], b = pf[i + 1]; if (y >= a[1] && y <= b[1]){ const t = (y - a[1]) / ((b[1] - a[1]) || 1); return [a[0] + (b[0] - a[0]) * t, y] } } return pf[y < pf[0][1] ? 0 : pf.length - 1] }
+    return [at(y0)].concat(pf.filter(p => p[1] > y0 && p[1] < y1), [at(y1)]) }
+  const lathe = pf => new T.LatheGeometry(pf.map(([a, b]) => new T.Vector2(a, b)), 48)
+  const neutro = geo => new T.Mesh(geo, new T.MeshStandardMaterial({ color:NEUTRO, roughness:0.5, metalness:0.12 }))
+  const zona = (pf, zEsc, seg) => { const m = new T.Mesh(lathe(pf), new T.MeshStandardMaterial({ color:METAL, roughness:0.42, metalness:0.18 })); m.scale.z = zEsc; m.userData.seg = seg; B3.partes.push(m); return m }
+  const rp = pc(v('pantorrilla_cm', 36), v('pantorrilla_mm', 10)) + gm(v('pantorrilla_mm', 10)), rm = pc(v('muslo_cm', 54), v('muslo_mm', 14)) + gm(v('muslo_mm', 14))
+  const pierna = suave([[0.026, 0.06], [0.03, 0.12], [rp * 0.86, 0.22], [rp, 0.31], [rp * 0.78, 0.42], [0.05, 0.48], [rm * 0.72, 0.56], [rm, 0.68], [rm * 1.06, 0.8], [rm * 1.04, 0.9], [rm * 0.7, 0.97]], 10)
+  ;[-1, 1].forEach(sd => { const x = 0.088 * sd
+    ;[['PAN', 0.06, 0.48], ['MUS', 0.48, 0.97]].forEach(([id, a, b]) => { const m = zona(tramo(pierna, a, b), 1, id); m.position.x = x; g.add(m) })
+    const pie = neutro(new T.SphereGeometry(0.05, 24, 16)); pie.scale.set(0.85, 0.5, 2.1); pie.position.set(x, 0.035, 0.05); g.add(pie) })
+  const rc = r(v('cadera_cm', 98)) * 0.93, ra = r(v('cintura_cm', 82)) * 0.95, rt = Math.max(ra * 1.2, 0.16)
+  const tronco = suave([[0.11, 0.84], [rc * 0.95, 0.88], [rc, 0.94], [rc * 0.96, 1.0], [ra * 1.02, 1.05], [ra, 1.1], [ra * 1.04, 1.16], [rt * 0.98, 1.24], [rt, 1.32], [rt * 1.02, 1.38], [rt * 0.9, 1.43], [0.12, 1.47], [0.065, 1.5]], 10)
+  ;[['CAD', 0.84, 1.03], ['ABD', 1.03, 1.19], ['TRO', 1.19, 1.5]].forEach(([id, a, b]) => g.add(zona(tramo(tronco, a, b), 0.66, id)))
+  const cue = neutro(lathe(suave([[0.07, 1.48], [0.054, 1.53], [0.052, 1.57], [0.06, 1.6]], 6))); cue.scale.z = 0.9; g.add(cue)
+  const cab = neutro(new T.SphereGeometry(0.095, 40, 28)); cab.scale.set(0.86, 1.12, 0.98); cab.position.y = 1.68; g.add(cab)
+  const rb = pc(v('brazo_cm', 31), v('triceps_mm', 10)) + gm(v('triceps_mm', 10))
+  const brazo = suave([[0.05, 0], [rb * 1.02, 0.06], [rb, 0.13], [rb * 0.84, 0.22], [0.042, 0.29], [0.044, 0.36], [0.04, 0.44], [0.03, 0.53], [0.024, 0.56]], 10)
+  ;[-1, 1].forEach(sd => { const a = new T.Group(); a.position.set(0.175 * sd, 1.41, 0); a.rotation.z = Math.PI + sd * 0.13
+    const m = zona(tramo(brazo, 0, 0.3), 1, 'BRA'); a.add(m); a.add(neutro(lathe(tramo(brazo, 0.3, 0.56))))
+    const mano = neutro(new T.SphereGeometry(0.036, 20, 14)); mano.scale.set(0.7, 1.45, 0.45); mano.position.y = 0.6; a.add(mano)
+    const hom = new T.Mesh(new T.SphereGeometry(rb * 1.08, 28, 18), m.material); hom.position.y = 0.01; hom.scale.set(1, 0.85, 1); hom.userData.seg = 'BRA'; B3.partes.push(hom); a.add(hom)
+    g.add(a) })
 }
 function panelSeg(segs){
   const s = segs.find(x => x.id === S.seg) || segs[0], b = base()
@@ -218,8 +317,8 @@ function html(){
 }
 
 let ov = null
-function pintar(){ if (!ov) return; if (S.inline){ ov.innerHTML = html(); return enlazarChart() } const y = ov.scrollTop; ov.innerHTML = html(); ov.scrollTop = y; enlazarChart() }
-function repSeg(){ const e = actual(), b = base(), segs = SEG.map(s => segmento(s, e, b)); ov.querySelector('#kdBody').innerHTML = cuerpo(segs); ov.querySelector('#kdSp').innerHTML = panelSeg(segs) }
+function pintar(){ if (!ov) return; if (S.inline){ ov.innerHTML = html(); b3Enlazar(); return enlazarChart() } const y = ov.scrollTop; ov.innerHTML = html(); ov.scrollTop = y; enlazarChart() }
+function repSeg(){ const e = actual(), b = base(), segs = SEG.map(s => segmento(s, e, b)); if (S.inline && B3.r && ov.querySelector('#kd3')){ b3Color(); b3Tag(segs) } else { ov.querySelector('#kdBody').innerHTML = cuerpo(segs); b3Enlazar() } ov.querySelector('#kdSp').innerHTML = panelSeg(segs) }
 function enlazarChart(){
   const ch = ov && ov.querySelector('.kdCh'); if (!ch) return
   const pts = JSON.parse(ch.dataset.pts || '[]'), tip = ch.querySelector('.kdTip'), u = ch.dataset.u
@@ -334,6 +433,14 @@ const CSS = `
 @media (max-width:1200px){.kdKps{grid-template-columns:repeat(3,minmax(0,1fr))}.kdGrid{grid-template-columns:1fr}.kdTb{grid-template-columns:1fr 1fr}}
 @media (max-width:760px){.kdHero{grid-template-columns:1fr}.kdKps{grid-template-columns:repeat(2,minmax(0,1fr))}.kdBodyW{grid-template-columns:1fr}.kdBody{max-height:440px}.kdTb{grid-template-columns:1fr}.kdSel{margin-left:auto;font-size:0;gap:0}.kdBar{gap:10px}.kdMeta{flex-direction:column;text-align:center}}
 @media (prefers-reduced-motion:reduce){.kd,.kd *{animation:none!important}}
+.kd3{position:relative;height:clamp(340px,92vw,460px);margin:6px -6px 0;border-radius:18px;background:radial-gradient(70% 55% at 50% 48%,#FFFFFF 0%,#EFEEEA 70%,#E4E3DF 100%);overflow:hidden;touch-action:pan-y}
+.kd3__cv{position:absolute;inset:0;width:100%!important;height:100%!important;display:block;cursor:grab}
+.kd3__tag{position:absolute;left:12px;top:12px;z-index:2;display:flex;align-items:center;gap:8px;padding:8px 12px;border-radius:999px;background:#121212;color:#F4F3F0;font:700 9.5px var(--font-mono,monospace);letter-spacing:.12em;pointer-events:none}
+.kd3__tag i{width:9px;height:9px;border-radius:50%;background:#2BB3C0;box-shadow:0 0 10px #2BB3C0}
+.kd3__tag b{color:#7FD6DD;font-weight:700}
+.kd3__h{position:absolute;left:0;right:0;bottom:10px;z-index:2;text-align:center;font:700 8.5px var(--font-mono,monospace);letter-spacing:.16em;color:#8E8D88;pointer-events:none}
+.kd--in .kdSegs button[aria-pressed="true"]{background:#121212;color:#F4F3F0}
+.kd--in .kdSegs button[aria-pressed="true"] i{background:#2BB3C0!important}
 .kd.kd--in{position:static;inset:auto;z-index:auto;overflow:visible;background:transparent;animation:none}
 .kd--in .kdBar--in{position:static;min-height:0;padding:8px 8px 8px 16px;border-radius:20px;background:#121212;justify-content:space-between;flex-wrap:nowrap}
 .kd--in section.kdCard{background:#FBFAF8!important;border-radius:20px!important}
@@ -360,9 +467,9 @@ function montar(el, o){
   ov = el; el.classList.add('kd', 'kd--in')
   if (!el._kd){ el._kd = 1; el.addEventListener('click', ev => { if (ov === el) onClick(ev) })
     el.addEventListener('change', ev => { if (ov === el && ev.target.dataset.act === 'ev'){ S.i = +ev.target.value; if (S.i === 0) S.cmp = 'ini'; pintar() } }) }
-  el.innerHTML = html(); enlazarChart(); return true
+  el.innerHTML = html(); b3Enlazar(); enlazarChart(); return true
 }
-const KDG = { VERSION, abrir, cerrar, montar, _segmento: segmento, _S: S }
+const KDG = { VERSION, abrir, cerrar, montar, _segmento: segmento, _S: S, _B3: B3 }
 if (typeof window !== 'undefined') window.KDG = KDG
 if (typeof module !== 'undefined') module.exports = KDG
 })()
