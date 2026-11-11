@@ -38,6 +38,23 @@ const publica = (s: Susc | null) => s ? {
   cobros_pagados: s.cobros_pagados, periodo_meses: s.duracion_valor || 1, salida: salida(s),
 } : null;
 
+// Interruptor: config_pagos.pago_automatico.habilitado (apagado por defecto si no existe)
+async function autoHabilitado() {
+  const { data } = await admin.from("config_pagos").select("valor").eq("clave", "pago_automatico").maybeSingle();
+  return data?.valor?.habilitado === true;
+}
+const NO_DISPONIBLE = "El pago automático estará disponible muy pronto. Por ahora puedes pagar tu membresía con PAGO ÚNICO.";
+// Traza de todo rechazo de Flow (tolerante: si la tabla no existe, no rompe el flujo)
+async function registrarEvento(socio: string | null, origen: string, e: unknown) {
+  const fe = e as FlowError;
+  try { await admin.from("flow_eventos").insert({ socio_id: socio, origen, codigo: String(fe?.code ?? ""), mensaje: String(fe?.message ?? e).slice(0, 500), datos: (fe?.data ?? null) as never }); } catch (_) { /* */ }
+}
+async function guardarCliente(socio: string, customerId: string, email: string) {
+  try { await admin.from("flow_clientes").upsert({ socio_id: socio, customer_id: customerId, email }); } catch (_) { /* */ }
+}
+async function clienteGuardado(socio: string): Promise<string | undefined> {
+  try { const { data } = await admin.from("flow_clientes").select("customer_id").eq("socio_id", socio).maybeSingle(); return data?.customer_id; } catch (_) { return undefined; }
+}
 async function buscarCliente(uid: string, nombre: string, email: string): Promise<string | undefined> {
   type C = { customerId: string; externalId?: string; email?: string };
   const hit = (l: C[]) => l.find((c) => c.externalId === uid) || l.find((c) => (c.email || "").toLowerCase() === email.toLowerCase());
@@ -92,6 +109,9 @@ Deno.serve(async (req) => {
 
     if (body.accion === "estado") return j({ suscripcion: publica(viva && viva.estado !== "registrando_tarjeta" ? viva : null) });
 
+    if (body.accion === "cotizar" || body.accion === "iniciar" || !body.accion) {
+      if (!(await autoHabilitado())) return j({ error: NO_DISPONIBLE, no_disponible: true }, 503);
+    }
     if (body.accion === "cotizar") {
       const { data: t } = await admin.rpc("tarifa_auto_de", { p_socio: uid });
       const { data: acc } = await admin.rpc("_flow_fin_acceso", { p_socio: uid });
@@ -141,7 +161,7 @@ Deno.serve(async (req) => {
     const flowPlan = await planFlow(per === 1 ? "MENSUAL AUTO" : "AUTO", t.monto, per);
 
     const { data: prev } = await admin.from("flow_suscripciones").select("flow_customer_id").eq("socio_id", uid).not("flow_customer_id", "is", null).order("created_at", { ascending: false }).limit(1).maybeSingle();
-    let customerId = prev?.flow_customer_id as string | undefined;
+    let customerId = (await clienteGuardado(uid)) || (prev?.flow_customer_id as string | undefined);
     if (!customerId) {
       const nombre = [perfil?.nombre, perfil?.apellido].filter(Boolean).join(" ") || email;
       try { customerId = (await flow("POST", "customer/create", { name: nombre, email, externalId: uid })).customerId; }
@@ -152,6 +172,7 @@ Deno.serve(async (req) => {
         if (!customerId) throw e;
       }
     }
+    await guardarCliente(uid, customerId!, email);   // se guarda ANTES de cualquier otro paso con Flow
     const reg = await flow("POST", "customer/register", { customerId, url_return: HOOK + "?t=card" });
     await admin.from("flow_suscripciones").insert({
       socio_id: uid, plan_id: null, plan_nombre: per === 1 ? "MENSUAL AUTOMÁTICO" : "AUTOMÁTICO CADA " + per + " MESES", monto: t.monto, duracion_valor: per,
@@ -165,6 +186,9 @@ Deno.serve(async (req) => {
   } catch (e) {
     const fe = e as FlowError;
     console.error("flow-suscripcion", fe?.message, fe?.data);
+    await registrarEvento(null, "flow-suscripcion", e);
+    if (fe instanceof FlowError && String(fe.code) === "7001")
+      return j({ error: NO_DISPONIBLE, no_disponible: true }, 503);
     if (fe instanceof FlowError && /email is not valid/i.test(fe.message))
       return j({ error: "Flow no aceptó tu correo. Revisa que sea tu correo real en Perfil → Mis datos, o acércate a recepción." }, 400);
     return j({ error: fe instanceof FlowError ? "Flow: " + fe.message : String(fe?.message || e) }, 502);
