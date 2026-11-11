@@ -38,6 +38,19 @@ const publica = (s: Susc | null) => s ? {
   cobros_pagados: s.cobros_pagados, periodo_meses: s.duracion_valor || 1, salida: salida(s),
 } : null;
 
+async function buscarCliente(uid: string, nombre: string, email: string): Promise<string | undefined> {
+  type C = { customerId: string; externalId?: string; email?: string };
+  const hit = (l: C[]) => l.find((c) => c.externalId === uid) || l.find((c) => (c.email || "").toLowerCase() === email.toLowerCase());
+  const f = await flow("GET", "customer/list", { filter: nombre, limit: 100 }).catch(() => null);
+  let h = hit((f?.data || []) as C[]); if (h) return h.customerId;
+  for (let start = 0; start < 5000; start += 100) {
+    const l = await flow("GET", "customer/list", { start, limit: 100 }).catch(() => null);
+    const d = (l?.data || []) as C[];
+    h = hit(d); if (h) return h.customerId;
+    if (!l?.hasMore || d.length < 100) break;
+  }
+  return undefined;
+}
 async function vivaDe(uid: string) {
   const { data } = await admin.from("flow_suscripciones").select("*").eq("socio_id", uid)
     .in("estado", ["registrando_tarjeta", "activa", "cancelada_fin_periodo"]).order("created_at", { ascending: false }).limit(1).maybeSingle();
@@ -133,10 +146,10 @@ Deno.serve(async (req) => {
       const nombre = [perfil?.nombre, perfil?.apellido].filter(Boolean).join(" ") || email;
       try { customerId = (await flow("POST", "customer/create", { name: nombre, email, externalId: uid })).customerId; }
       catch (e) {
-        const l = await flow("GET", "customer/list", { filter: email, limit: 100 }).catch(() => null);
-        const hit = (l?.data || []).find((c: { externalId?: string; email?: string }) => c.externalId === uid || (c.email || "").toLowerCase() === email.toLowerCase());
-        if (!hit) throw e;
-        customerId = hit.customerId;
+        // ya existe en Flow (intento anterior): se busca por externalId. El filtro de customer/list busca por NOMBRE,
+        // así que primero se filtra por nombre y, si no aparece, se recorre la lista completa.
+        customerId = await buscarCliente(uid, nombre, email);
+        if (!customerId) throw e;
       }
     }
     const reg = await flow("POST", "customer/register", { customerId, url_return: HOOK + "?t=card" });
