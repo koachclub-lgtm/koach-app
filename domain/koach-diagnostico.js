@@ -295,6 +295,22 @@ function composicion(){
     (cl.length ? '<div class="kdCl">' + cl.map(c => '<div><span class="kdK">' + c[0] + '</span><b>' + esc(c[1]) + '</b><small>' + esc(c[2]) + '</small></div>').join('') + '</div>' : '')
 }
 
+function tablero(e, b, mt){
+  const ST = [['% GRASA', 'porcentaje_grasa', 'PTS', '%', -1], ['MASA GRASA', 'masa_grasa', 'KG', 'KG', -1], ['MÚSCULO', 'masa_muscular_kg', 'KG', 'KG', 1], ['PESO', 'peso_kg', 'KG', 'KG', 0]]
+  const it = ST.map(([l, k, ud, uv, sn], i) => { const v = val(e, k), bv = val(b, k), d = v != null && bv != null ? v - bv : null, tn = d != null ? tono(d, sn) : 'nd'
+    const x = d != null ? d : v, pc = d != null ? Math.abs(pct(v, bv) || 0) : null, w = pc != null ? Math.max(6, Math.min(100, pc * 9)) : 0
+    return '<div class="kdTb2__s kdT-' + tn + '" style="--d:' + (0.25 + i * 0.12).toFixed(2) + 's"><span class="kdK">' + l + '</span>' +
+      (x != null ? '<b>' + (d != null ? (d > 0.05 ? '+' : d < -0.05 ? '−' : '±') : '') + '<span data-cnt="' + Math.abs(x) + '">' + f1(Math.abs(x)) + '</span><i>' + (d != null ? ud : uv) + '</i></b>' : '<b>—</b>') +
+      (d != null ? '<em><s class="kdBg-' + tn + '" style="width:' + w.toFixed(0) + '%"></s></em><small>' + (S.cmp === 'ant' ? 'VS ANTERIOR' : 'VS INICIO') + '</small>' : '<small>' + (S.i ? 'SIN DATO PREVIO' : 'LÍNEA BASE') + '</small>') + '</div>' })
+  let centro
+  if (mt && mt.avance != null){ const R = 54, C = 2 * Math.PI * R, a = mt.avance
+    centro = '<svg viewBox="0 0 140 140" class="kdRing"><circle cx="70" cy="70" r="' + R + '" class="kdRing__bg"/><circle cx="70" cy="70" r="' + R + '" class="kdRing__fg" stroke-dasharray="' + C.toFixed(1) + '" stroke-dashoffset="' + (C * (1 - a)).toFixed(1) + '" style="--c:' + C.toFixed(1) + '"/>' +
+      '<text x="70" y="70" text-anchor="middle" class="kdRing__n">' + Math.round(a * 100) + '%</text><text x="70" y="90" text-anchor="middle" class="kdRing__l">DE TU META</text></svg>'
+  } else centro = '<div class="kdTb2__c"><b>' + (S.i + 1) + '</b><span>' + (S.i ? 'EVALUACIONES' : 'LÍNEA BASE') + '</span></div>'
+  const pie = mt ? '<div class="kdTb2__m"><span class="kdK">META 6 MESES' + (S.o.programa ? ' · ' + esc(String(S.o.programa).toUpperCase()) : '') + '</span><b>' + esc(mt.texto) + '</b>' +
+    (mt.avance != null ? '<small>Llevas ' + fx(mt.hecho) + ' kg · ' + (mt.avance >= 1 ? 'meta cumplida' : 'faltan ' + f1(Math.abs(mt.valor - mt.hecho)) + ' kg') + '</small>' : '<small>Desde la próxima evaluación verás tu avance.</small>') + '</div>' : ''
+  return '<div class="kdTb2"><div class="kdTb2__g"><div class="kdTb2__col">' + it[0] + it[1] + '</div><div class="kdTb2__ce">' + centro + '</div><div class="kdTb2__col kdTb2__col--d">' + it[2] + it[3] + '</div></div>' + pie + '</div>'
+}
 function compActual(){
   const e = actual(), pe = n(e.peso_kg); if (!pe) return ''
   const arr = [['GRASA', masaGrasa(e), '#E07A3F', '#FFFFFF'], ['MÚSCULO', n(e.masa_muscular_kg), '#2BB3C0', '#04363B'], ['ÓSEA', n(e.masa_osea_kg), '#8F8D86', '#FFFFFF'], ['RESIDUAL', n(e.masa_residual_kg), '#CFCDC7', '#121212']].filter(x => x[1] != null)
@@ -307,7 +323,7 @@ function compActual(){
   return '<section class="kdCard kdCa"><div class="kdCa__h"><span class="kdK">TU COMPOSICIÓN CORPORAL · ' + fecha(e.fecha) + '</span><b><span data-cnt="' + pe + '">' + f1(pe) + '</span><i>kg</i></b></div>' +
     '<div class="kdCa__bar">' + arr.map((x, i) => '<i style="flex:' + x[1].toFixed(2) + ';background:' + x[2] + ';color:' + x[3] + ';animation-delay:' + (0.15 + i * 0.18).toFixed(2) + 's"><span>' + (x[1] / pe > 0.1 ? Math.round(x[1] / pe * 100) + '%' : '') + '</span></i>').join('') + '</div>' +
     '<div class="kdCa__g">' + arr.map(x => '<div><span class="kdK"><i style="background:' + x[2] + '"></i>' + x[0] + '</span><b><span data-cnt="' + x[1] + '">' + f1(x[1]) + '</span><i>kg</i></b><small><span data-cnt="' + Math.round(x[1] / pe * 100) + '" data-d="0">' + Math.round(x[1] / pe * 100) + '</span> %</small></div>').join('') + '</div>' +
-    (cl.length ? '<div class="kdCl">' + cl.map(c => '<div><span class="kdK">' + c[0] + '</span><b>' + esc(c[1]) + '</b><small>' + esc(c[2]) + '</small></div>').join('') + '</div>' : '') + '</section>'
+    '</section>' + (cl.length ? '\u0000' + '<section class="kdCard"><span class="kdK">EXTRA · CLASIFICACIÓN DE TU CUERPO</span><div class="kdCl">' + cl.map(c => '<div><span class="kdK">' + c[0] + '</span><b>' + esc(c[1]) + '</b><small>' + esc(c[2]) + '</small></div>').join('') + '</div></section>' : '')
 }
 function contar(){
   if (!ov) return; const els = [...ov.querySelectorAll('[data-cnt]')].filter(x => x.dataset.cnt !== ''); if (!els.length) return
@@ -348,6 +364,7 @@ function html(){
         '<div><span class="kdK">META 6 MESES · ' + esc(String(S.o.programa || '').toUpperCase() || 'KOACH') + '</span><b>' + esc(mt.texto) + '</b><small>Llevas ' + fx(mt.hecho) + ' kg de ' + (mt.tipo === 'GRASA' ? 'grasa' : 'músculo') + '. ' +
         (a >= 1 ? 'Meta cumplida: toca fijar la siguiente.' : 'Te falta ' + f1(Math.abs(mt.valor - mt.hecho)) + ' kg. Pégate al plan.') + '</small></div></div>' })()
     : mt ? '<div class="kdMeta kdMeta--t"><div><span class="kdK">META 6 MESES</span><b>' + esc(mt.texto) + '</b><small>' + (S.i ? '' : 'Desde la próxima evaluación verás tu avance hacia la meta.') + '</small></div></div>' : ''
+  const CA = S.inline ? compActual().split('\u0000') : []
   const opts = S.evs.map((x, i) => '<option value="' + i + '"' + (i === S.i ? ' selected' : '') + '>' + fecha(x.fecha) + (x.estado === 'borrador' ? ' · BORRADOR' : '') + '</option>').join('')
   return (S.inline ? '<div class="kdBar kdBar--in"><label class="kdSel">EVALUACIÓN<select data-act="ev">' + opts + '</select></label>' +
     (S.i > 0 ? '<div class="kdSeg" role="group" aria-label="Comparar con"><button type="button" data-cmp="ini" aria-pressed="' + (S.cmp === 'ini') + '">VS INICIO</button><button type="button" data-cmp="ant" aria-pressed="' + (S.cmp === 'ant') + '">VS ANTERIOR</button></div>' : '') + '</div>' :
@@ -357,15 +374,16 @@ function html(){
     '<button type="button" class="kdX" data-act="cerrar" aria-label="Cerrar diagnóstico">CERRAR ✕</button></div>') +
     '<div class="kdIn">' +
     '<section class="kdHero"><div><span class="kdK">EVALUACIÓN N° ' + (S.i + 1) + ' · ' + fecha(e.fecha) + (S.o.programa ? ' · ' + esc(String(S.o.programa).toUpperCase()) : '') + '</span>' +
-      '<h1 class="kdH1">' + nom + '</h1><p class="kdFr">' + esc(frase) + '</p>' + (e.nota_socio ? '<blockquote class="kdNota">' + esc(e.nota_socio) + '<cite>NUTRICIÓN KOACH</cite></blockquote>' : '') + '</div>' + (S.inline ? '' : ring) + '</section>' +
-    (S.inline ? compActual() + (ring ? '<div class="kdRingW">' + ring + '</div>' : '') : '') +
-    '<section class="kdKps">' + kpis + '</section>' +
+      '<h1 class="kdH1">' + nom + '</h1>' + (S.inline ? '' : '<p class="kdFr">' + esc(frase) + '</p>' + (e.nota_socio ? '<blockquote class="kdNota">' + esc(e.nota_socio) + '<cite>NUTRICIÓN KOACH</cite></blockquote>' : '')) + '</div>' + (S.inline ? '' : ring) + '</section>' +
+    (S.inline ? tablero(e, b, mt) + CA[0] : '<section class="kdKps">' + kpis + '</section>') +
     '<section class="kdGrid">' +
       '<div class="kdCard kdCard--body"><span class="kdK">CÓMO CAMBIÓ CADA ZONA · TOCA UNA ZONA</span><div class="kdBodyW"><div id="kdBody">' + cuerpo(segs) + '</div><div id="kdSp">' + panelSeg(segs) + '</div></div>' +
         '<div class="kdLeg"><span><i style="background:' + COL.mej + '"></i>MEJORA</span><span><i style="background:' + COL.est + '"></i>ESTABLE</span><span><i style="background:' + COL.ret + '"></i>FOCO</span></div></div>' +
       (S.inline ? '' : '<div class="kdCard"><span class="kdK">DE QUÉ ESTÁ HECHO TU PESO</span>' + composicion() + '</div>') +
     '</section>' +
     (S.inline ? '' : '<section class="kdCard kdCard--ev"><span class="kdK">TU EVOLUCIÓN</span><div id="kdEv">' + evolucion() + '</div></section>') +
+    (S.inline ? '<section class="kdKps">' + kpis + '</section>' + (CA[1] || '') : '') +
+    (S.inline ? '<section class="kdCard kdRes"><span class="kdK">RESUMEN DE TU EVALUACIÓN</span><p class="kdFr">' + esc(frase) + '</p>' + (e.nota_socio ? '<blockquote class="kdNota">' + esc(e.nota_socio) + '<cite>NUTRICIÓN KOACH</cite></blockquote>' : '') + '</section>' : '') +
     (lg.length ? '<section class="kdLog"><span class="kdK">LOGROS' + (pn ? ' DE ' + pn.toUpperCase() : '') + '</span><div class="kdLog__g">' + lg.map((x, i) => '<div class="kdBadge" style="--d:' + (i * 70) + 'ms"><b>' + x[0] + '</b><span>' + x[1] + '</span><small>' + x[2] + '</small></div>').join('') + '</div></section>' : '') +
     (S.inline && S.i > 0 ? '<section class="kdCard kdCard--ev"><span class="kdK">EXTRA · TU EVOLUCIÓN ENTRE EVALUACIONES</span><div id="kdEv">' + evolucion() + '</div></section>' : '') +
     '<section class="kdCard"><span class="kdK">TODO LO QUE MEDIMOS · PROTOCOLO ISAK</span>' + tabla() + '</section>' +
@@ -526,6 +544,22 @@ const CSS = `
 .kd3__p em{display:block;margin-top:3px;font:700 10px var(--font-mono,monospace);font-style:normal;letter-spacing:.04em;color:#8E8D88}
 .kd3__p.on{background:#121212;color:#F4F3F0;box-shadow:0 0 0 2px #2BB3C0,0 8px 20px rgba(43,179,192,.3)}.kd3__p.on>span,.kd3__p.on b i,.kd3__p.on small{color:#A7A9AE}.kd3__p.on b span{color:#F4F3F0}.kd3__p.on em.kdT-mej{color:#7FD6DD}.kd3__p.on em.kdT-ret{color:#F2A273}
 .kd3__p:nth-of-type(2){animation-delay:.08s}.kd3__p:nth-of-type(3){animation-delay:.16s}.kd3__p:nth-of-type(4){animation-delay:.24s}.kd3__p:nth-of-type(5){animation-delay:.32s}.kd3__p:nth-of-type(6){animation-delay:.4s}
+.kdTb2{margin-top:12px;padding:18px 14px 16px;border-radius:22px;background:#0B0B0B radial-gradient(90% 70% at 50% 35%,#1E1E1E 0%,#0B0B0B 70%);color:#F4F3F0;box-shadow:0 18px 40px rgba(0,0,0,.25)}
+.kdTb2__g{display:grid;grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);gap:10px;align-items:center}
+.kdTb2__col{display:flex;flex-direction:column;gap:14px}.kdTb2__col--d{text-align:right}
+.kdTb2__s{animation:kdFade .5s ease var(--d) both}
+.kdTb2__s .kdK{color:#8E8D88;font-size:8.5px}
+.kdTb2__s b{display:block;margin-top:4px;font:700 22px/1 var(--font-mono,monospace);letter-spacing:-.04em;color:#F4F3F0}.kdTb2__s b span{font:inherit;color:inherit}.kdTb2__s b i{font-size:9px;font-style:normal;margin-left:3px;letter-spacing:.06em;color:#8E8D88}
+.kdTb2__s.kdT-mej b{color:#7FD6DD}.kdTb2__s.kdT-ret b{color:#F2A273}
+.kdTb2__s em{display:block;height:4px;margin-top:6px;border-radius:2px;background:#262626;overflow:hidden}.kdTb2__col--d em{display:flex;justify-content:flex-end}
+.kdTb2__s em s{display:block;height:100%;text-decoration:none;animation:nuW2 1.4s cubic-bezier(.2,.8,.2,1) var(--d) both}
+@keyframes nuW2{from{width:0}}
+.kdTb2__s small{display:block;margin-top:4px;font:700 7.5px var(--font-mono,monospace);letter-spacing:.14em;color:#5E5D59}
+.kdTb2 .kdRing{width:clamp(112px,32vw,140px);height:auto}
+.kdTb2__c{width:112px;height:112px;border-radius:50%;border:10px solid #262626;display:flex;flex-direction:column;align-items:center;justify-content:center}.kdTb2__c b{font:800 34px/1 var(--font-display,Arial)}.kdTb2__c span{font:700 7.5px var(--font-mono,monospace);letter-spacing:.14em;color:#8E8D88;margin-top:4px}
+.kdTb2__m{margin-top:14px;padding-top:12px;border-top:1px solid #262626;text-align:center}.kdTb2__m .kdK{color:#8E8D88}.kdTb2__m b{display:block;margin-top:4px;font:900 16px/1.1 var(--font-display,Arial);text-transform:uppercase}.kdTb2__m small{display:block;margin-top:4px;font:400 11px var(--font-mono,monospace);color:#A7A9AE}
+.kd--in .kdHero{margin-bottom:0}.kd--in .kdHero .kdH1{margin-bottom:0}
+.kd--in .kdRes .kdFr{margin:8px 0 0;font-size:15px}
 .kd.kd--in{position:static;inset:auto;z-index:auto;overflow:visible;background:transparent;animation:none}
 .kd--in .kdBar--in{position:static;min-height:0;padding:8px 8px 8px 16px;border-radius:20px;background:#121212;justify-content:space-between;flex-wrap:nowrap}
 .kd--in section.kdCard{background:#FBFAF8!important;border-radius:20px!important;padding:18px 18px 20px!important;border:1px solid rgba(18,18,18,.06)!important;box-shadow:0 14px 34px rgba(18,18,18,.10)!important}

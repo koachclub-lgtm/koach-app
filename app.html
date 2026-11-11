@@ -787,13 +787,13 @@ html.en-nutri #vNutri.on::before{content:'';position:fixed;inset:0;z-index:-1;po
 html.en-nutri{background:#9A9A9A}
 html.en-nutri #vNutri.on::before{background:#9A9A9A url('/img/bg/nutri-plan.webp') center/cover no-repeat!important}
 #vNutri{--nI:#121212;--nG4:#5E5D59;--nG3:#8E8D88;--nG2:#C9C8C3;--nG1:#E7E6E2;--nP:#FBFAF8;--nM:'Space Mono','IBM Plex Mono',monospace;--nD:var(--font-display);color:var(--nI)}
-#vNutri .nuHd{position:relative;margin:-16px -14px 0;padding:calc(16px + env(safe-area-inset-top,0px)) 24px 20px;background:#070707 url('/img/bg/tex-nutri.webp') center 80%/cover no-repeat;color:#F4F3F0;border-radius:0 0 26px 26px;overflow:hidden}
+#vNutri .nuHd{position:relative;margin:-16px -14px 0;padding:calc(12px + env(safe-area-inset-top,0px)) 22px 16px;background:#070707 url('/img/bg/tex-nutri.webp') center 80%/cover no-repeat;color:#F4F3F0;border-radius:0 0 26px 26px;overflow:hidden}
 #vNutri .nuHd::after{content:'';position:absolute;left:24px;right:24px;bottom:12px;height:1px;background:rgba(244,240,232,.14)}
 #vNutri .nuHd__c{color:#A7A7A7}
 .nuHd__r{display:flex;justify-content:space-between;align-items:center;gap:12px}
 .nuHd__logo{display:block;width:82px;height:auto}
 .nuHd__c{font:700 10px var(--nM);letter-spacing:.16em;color:#A7A9AE}
-.nuHd__t{margin:12px 0 0;font:900 clamp(24px,7.4vw,30px)/.95 var(--nD);font-stretch:116%;letter-spacing:-.02em;text-transform:uppercase;color:#F4F3F0}
+.nuHd__t{margin:8px 0 0;white-space:nowrap;font:900 clamp(19px,5.7vw,25px)/1 var(--nD);font-stretch:116%;letter-spacing:-.02em;text-transform:uppercase;color:#F4F3F0}
 #vNutri .nuTabs{position:sticky;top:calc(8px + env(safe-area-inset-top,0px));z-index:20;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:4px;margin:14px 0 16px;padding:4px;border-radius:999px;background:rgba(251,250,248,.86);-webkit-backdrop-filter:blur(14px) saturate(1.2);backdrop-filter:blur(14px) saturate(1.2);border:1px solid rgba(18,18,18,.06);box-shadow:0 6px 20px rgba(18,18,18,.06)}
 .nuTabs button{min-height:42px;border:0;border-radius:999px;background:transparent;color:var(--nG4);font:700 10.5px var(--nM);letter-spacing:.12em;cursor:pointer}
 .nuTabs button[aria-selected="true"]{background:#121212;color:#F4F3F0}
@@ -989,6 +989,46 @@ html.nu-hoja{overflow:hidden}
 .nuNt{background:rgba(251,250,248,.55)}
 #vNutri .nuMsg{color:#1E1E1E}
 #vNutri .nuSc .nuTk__k,#vNutri .nuPie{color:#2A2A2A}
+/* c233 · HOY más compacto y con más detalle: ticket gris, comidas en tarjetas, check calipso, carga animada */
+#vNutri .nuTk{background:linear-gradient(180deg,#F8F8F6 0%,#EEEEEB 55%,#E6E6E3 100%);padding:16px 16px 26px}
+.nuTk__hd{padding-bottom:10px}
+.nuTk__ad{color:#5E5D59}.nuTk__ad b{color:#121212;margin-left:4px}
+.nuTk__adb{height:4px;margin:0 0 12px;border-radius:2px;background:rgba(18,18,18,.08);overflow:hidden}.nuTk__adb s{display:block;height:100%;background:#2BB3C0;text-decoration:none;box-shadow:0 0 8px rgba(43,179,192,.6)}
+.nuTk__hd+.nuTk__adb+.nuTk__k{margin-top:0}
+.nuTk__big{margin-top:4px}.nuTk__big b{font-size:clamp(54px,16vw,68px)}
+.nuTk__bar{height:14px;margin-top:12px}
+.nuTk__bar i.ok s{background:linear-gradient(90deg,#121212,#2E2E2E)}
+.nuTk__mac{gap:12px;margin-top:14px}
+.nuTk__mac span{font-size:9px}
+.nuTk__mac b{font-size:28px;line-height:1;letter-spacing:-.05em;margin-top:6px}.nuTk__mac b span{font:inherit;color:inherit;letter-spacing:inherit;display:inline}
+.nuTk__mac b small{display:block;margin:3px 0 0;font-size:9.5px;letter-spacing:.06em}
+.nuTk__mac em{height:6px;border-radius:3px;margin-top:8px;background:rgba(18,18,18,.1)}.nuTk__mac em s{background:#121212}
+.nuTk__cut{margin:16px 0 12px}
+.nuTk__ls{margin-top:8px;display:flex;flex-direction:column;gap:6px}
+.nuTk__ls>li+li{border-top:0}
+.nuTk__ls>li{border-radius:14px;background:linear-gradient(180deg,#FFFFFF,#F2F2F0);border:1px solid rgba(18,18,18,.07);box-shadow:0 1px 0 rgba(255,255,255,.9) inset,0 4px 10px rgba(18,18,18,.05);padding:0 10px}
+.nuTk__ls>li.ok{background:linear-gradient(180deg,#E3E4E3,#D7D8D6);border-color:rgba(43,179,192,.35)}
+.nuTk__ls>li.ab{background:#FFFFFF;border-color:rgba(18,18,18,.18)}
+.nuTk__ls>li>button{min-height:54px;padding:6px 0}
+.nuTk__ls .nuP{width:34px;height:34px}
+.nuTk__ls>li>button{grid-template-columns:34px auto minmax(12px,1fr) auto 14px;gap:10px}
+.nuTk__ln b{font-size:16px}
+.ok .nuP .w,.ok>button .nuP .w{fill:#2BB3C0!important;stroke:#2BB3C0!important}.ok .nuP .r{stroke:#2BB3C0!important;opacity:.45}
+.ok .nuP .ck{stroke:#FFFFFF}
+.nuTk__ls li.ok .nuTk__ln small{color:#13848F}
+.nuDd{margin-left:44px}
+.nuTk__ft{margin-top:12px;padding-top:12px;align-items:center}
+.nuTk__ft b{font-size:24px}
+.nuTk__bc svg{height:28px}
+/* carga animada al entrar */
+.nuTk--anim .nuTk__adb s{animation:nuW 1.4s cubic-bezier(.2,.8,.2,1) .1s both}
+.nuTk--anim .nuTk__bar i s{animation:nuW 1.1s cubic-bezier(.2,.8,.2,1) both}
+.nuTk--anim .nuTk__bar i:nth-child(2) s{animation-delay:.15s}.nuTk--anim .nuTk__bar i:nth-child(3) s{animation-delay:.3s}.nuTk--anim .nuTk__bar i:nth-child(4) s{animation-delay:.45s}.nuTk--anim .nuTk__bar i:nth-child(5) s{animation-delay:.6s}.nuTk--anim .nuTk__bar i:nth-child(6) s{animation-delay:.75s}
+.nuTk--anim .nuTk__mac em s{animation:nuW 1.2s cubic-bezier(.2,.8,.2,1) .3s both}
+.nuTk--anim .nuTk__ls>li{animation:nuIn .45s cubic-bezier(.2,.8,.2,1) both}
+.nuTk--anim .nuTk__ls>li:nth-child(2){animation-delay:.06s}.nuTk--anim .nuTk__ls>li:nth-child(3){animation-delay:.12s}.nuTk--anim .nuTk__ls>li:nth-child(4){animation-delay:.18s}.nuTk--anim .nuTk__ls>li:nth-child(5){animation-delay:.24s}
+@keyframes nuW{from{width:0}}@keyframes nuIn{from{opacity:0;transform:translateY(8px)}}
+@media (prefers-reduced-motion:reduce){.nuTk--anim *{animation:none!important}}
 /* ═══ c92 · MI PLAN · SILVER CLEAN: fondo Silver Texture (imagen original, capa fija solo en esta pestaña) + tarjetas blancas opacas
    con el mismo lenguaje del Home (radio 22, filo blanco, sombra suave · session pills claras · etiquetas mono · links carbón) ═══ */
 html.en-plan{background:#C9CBCE}
@@ -7974,7 +8014,9 @@ function pintarNuHoy(){
   // barra: un tramo por comida; cada tramo se llena con lo registrado en esa comida
   const tramos=com.map((m,i)=>{ const r=H.porNum[i+1], kc=r?(r.kcal||MC.kcal):0, pc=Math.min(100, MC.kcal?kc/MC.kcal*100:0)
     return '<i class="'+(r?r.estado==='cheat'?'ch':'ok':'')+'"><s style="width:'+pc+'%"></s></i>' }).join('')
-  const mac=(l,v,m)=>'<div><span>'+l+'</span><b>'+n0(v)+'<small>/'+n0(m)+'</small></b><em><s style="width:'+Math.min(100,m?v/m*100:0)+'%"></s></em></div>'
+  const mac=(l,v,m)=>'<div><span>'+l+'</span><b><span data-nc="'+Math.round(+v||0)+'">'+n0(v)+'</span><small>/'+n0(m)+' G</small></b><em><s style="width:'+Math.min(100,m?v/m*100:0)+'%"></s></em></div>'
+  const anim = NU._anim!==hoy+':'+k+':'+reg; NU._anim=hoy+':'+k+':'+reg
+  const ad = W.adherencia!=null ? W.adherencia : null
   const lineas=com.map((m,i)=>{ const num=i+1, r=H.porNum[num], e=r&&r.estado, ab=NU.abierta===num
     const val = r ? (r.kcal?n0(r.kcal):'≈ '+n0(MC.kcal))+' KCAL' : n0(MC.kcal)+' KCAL'
     let li='<li class="'+(e?(e==='cheat'?'ch':'ok'):'')+(ab?' ab':'')+'"><button type="button" onclick="nuToggle('+num+')" aria-expanded="'+ab+'" aria-controls="nuDd'+num+'">'+NU_PLATO(num,e)+
@@ -7988,13 +8030,14 @@ function pintarNuHoy(){
            : '<div class="nuDd__ac"><button type="button" class="nuDd__b1" onclick="nuEscanear('+num+')">'+NU_ICO.cam+'<span>Escanear</span></button><button type="button" class="nuDd__b1 nuDd__b1--w" onclick="nuMarcar('+num+',\'cumplida\')">'+NU_ICO.ok+'<span>Marcar lista</span></button></div>')+'</div>' }
     return li+'</li>' }).join('')
   const sello = todo ? '<div class="nuTk__st" aria-hidden="true">DÍA<br>COMPLETO</div>' : ''
-  let h='<article class="nuTk" aria-label="Ticket de tu día">'+sello+'<div class="nuTk__hd"><span>'+plEscA(dia)+' · '+plEscA(fch)+'</span><span>SOCIO #'+plEscA(socio)+'</span></div>'+
-    '<span class="nuTk__k">TU INGESTA CALÓRICA DE HOY</span><div class="nuTk__big"><b>'+n0(k)+'</b><span>/ '+n0(meta)+'<br>KCAL</span></div>'+
+  let h='<article class="nuTk'+(anim?' nuTk--anim':'')+'" aria-label="Ticket de tu día">'+sello+'<div class="nuTk__hd"><span>'+plEscA(dia)+' · '+plEscA(fch)+'</span><span class="nuTk__ad">ADHERENCIA SEMANA <b><span data-nc="'+(ad||0)+'">'+(ad!=null?ad:'—')+'</span>%</b></span></div>'+
+    '<div class="nuTk__adb" aria-hidden="true"><s style="width:'+(ad||0)+'%"></s></div>'+
+    '<span class="nuTk__k">TU INGESTA CALÓRICA DE HOY</span><div class="nuTk__big"><b data-nc="'+Math.round(k)+'">'+n0(k)+'</b><span>/ '+n0(meta)+'<br>KCAL</span></div>'+
     '<div class="nuTk__bar" role="img" aria-label="'+n0(k)+' de '+n0(meta)+' kilocalorías, '+pk+' por ciento, '+reg+' de '+n+' comidas registradas">'+tramos+'</div>'+
-    '<div class="nuTk__pc"><span>'+pk+' % DE TU PLAN</span><span>'+reg+'/'+n+' COMIDAS</span></div>'+
+    '<div class="nuTk__pc"><span><span data-nc="'+pk+'">'+pk+'</span> % DE TU PLAN</span><span>'+reg+'/'+n+' COMIDAS</span></div>'+
     '<div class="nuTk__mac">'+mac('PROTEÍNA',H.proteina_g,pa.proteina_g)+mac('CARBOS',H.carbohidrato_g,pa.carbohidrato_g)+mac('GRASAS',H.grasa_g,pa.grasa_g)+'</div>'+
     '<div class="nuTk__cut" aria-hidden="true"></div><span class="nuTk__k">TUS COMIDAS DE HOY</span><ul class="nuTk__ls">'+lineas+'</ul>'+
-    '<div class="nuTk__ft"><div><span>REGISTRADAS</span><b>'+reg+'<small>/'+n+'</small></b></div><div class="nuTk__bc">'+barcodeSVG(hoy.slice(2).replace(/-/g,'')+'-'+String(socio).replace(/\D/g,''), 40)+'<span>Nº '+hoy.slice(2).replace(/-/g,'')+'-'+plEscA(socio)+'</span></div></div></article>'
+    '<div class="nuTk__ft"><div><span>REGISTRADAS</span><b>'+reg+'<small>/'+n+'</small></b></div><div class="nuTk__bc">'+barcodeSVG(hoy.slice(2).replace(/-/g,'')+'-'+String(socio).replace(/\D/g,''), 40)+'<span>Nº '+hoy.slice(2).replace(/-/g,'')+'-'+plEscA(socio)+' · SOCIO #'+plEscA(socio)+'</span></div></div></article>'
   // acción principal del día (una sola)
   h+= todo ? '<p class="nuMsg"><b>Registraste todas tus comidas de hoy.</b>'+(H.cheat?' Con '+H.cheat+' cheat meal: registrarlo también es cumplir.':'')+'</p>'
     : '<button type="button" class="nuCta" onclick="nuHoja(0)">'+NU_ICO.cam+'<span>Registrar una comida</span></button><p class="nuMsg">'+(reg?'¿Ya comiste las demás? Regístralas y tu día queda completo.':'Toca una comida para ver qué contiene y registrarla.')+'</p>'
@@ -8006,6 +8049,7 @@ function pintarNuHoy(){
     '<div class="nuWk__d" aria-hidden="true">'+W.dias.map((d,i)=>'<div class="'+(d.futuro?'fut':'')+(d.fecha===hoy?' hoy':'')+'"><span>'+Array.from({length:n},(_,q)=>'<i class="'+(q<d.hechas?'ok':q<d.hechas+d.cheat?'ch':'')+'"></i>').join('')+'</span><em>'+DS[i]+'</em></div>').join('')+'</div></div></section>'
   if (!NU.regOk) h+='<p class="nuMsg">Tu registro se está sincronizando.</p>'
   el.innerHTML=h
+  if (anim) nuContar(el)
   nuEscInit()
   if (NU.hoja!=null && !document.getElementById('nuSh').hidden) nuHojaPintar()
 }
@@ -8034,6 +8078,11 @@ function nuHojaPintar(){
   else if (NU.registrar===num) h+='<div class="nuSh__ac"><span class="nuTk__k">¿CÓMO LA REGISTRAS?</span><div class="nuSh__dos"><button type="button" class="nuSh__b1" onclick="nuHojaCerrar();nuEscanear('+num+')">'+NU_ICO.cam+'<span>Con foto</span></button><button type="button" class="nuSh__b1 nuSh__b1--w" onclick="nuHojaCerrar();nuMarcar('+num+',\'cumplida\')">'+NU_ICO.ok+'<span>Sin foto</span></button></div><button type="button" class="nuSh__b3" onclick="nuRegistrar(null)">CANCELAR</button></div>'
   else h+='<div class="nuSh__ac"><div class="nuSh__dos nuSh__dos--r"><button type="button" class="nuSh__b2" onclick="nuVariantes('+num+')">VER VARIANTES</button><button type="button" class="nuSh__b1" onclick="nuRegistrar('+num+')"><span>Registrar comida</span></button></div></div>'
   p.innerHTML=h
+}
+function nuContar(el){
+  const xs=[...el.querySelectorAll('.nuTk [data-nc]')]; if(!xs.length) return; const t0=performance.now(), D=1300
+  const paso=now=>{ const q=Math.min(1,Math.max(0,(now-t0-100)/D)), e=1-Math.pow(1-q,3); xs.forEach(x=>{ x.textContent=Math.round(+x.dataset.nc*e).toLocaleString('es-CL') }); if(q<1&&xs[0].isConnected) requestAnimationFrame(paso) }
+  requestAnimationFrame(paso)
 }
 function nuAbrirComida(num){ nuToggle(num, true) }
 function nuToggle(num, abrir){ NU.abierta = (abrir || NU.abierta!==num) ? num : null; pintarNuHoy(); if (NU.abierta){ const b=document.querySelector('#nuHoy .nuTk__ls li.ab'); if (b) setTimeout(()=>{ const r=b.getBoundingClientRect(); if (r.bottom>innerHeight-90) window.scrollBy({ top:r.bottom-innerHeight+110, behavior:'smooth' }) }, 30) } }
