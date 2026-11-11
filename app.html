@@ -8232,7 +8232,7 @@ function pintarComposicion(){
     cpChart(ev)+cpPeso(ev)+cpMedidas(ev)+link+nota)+
     '<div class="cpBox"><span class="a2k">TUS INFORMES · '+ev.length+'</span>'+ev.slice().reverse().map(e=>'<button type="button" class="cpInfB" onclick="nuInforme(\''+e.id+'\')"><span>'+fechaCorta(e.fecha)+' '+String(e.fecha).slice(0,4)+'</span><em>'+(e.porcentaje_grasa!=null?cpF(e.porcentaje_grasa)+'% GRASA · ':'')+cpF(e.peso_kg)+' KG</em></button>').join('')+'</div>'+
     '<details class="fzInfo"><summary>ⓘ ¿CÓMO SE MIDE?</summary><p>Nutrición mide pliegues de piel y perímetros con protocolo ISAK. Con eso calculamos tu porcentaje de grasa y tu masa muscular. El hueso es una referencia, y "otros tejidos" es el resto de tu peso (órganos, agua, piel). Compara siempre contigo: el cambio entre evaluaciones dice más que un número aislado.</p></details>'
-  if (kd) KDG.montar(document.getElementById('cpKd'), { evs:ev, nombre:[me.nombre,me.apellido].filter(Boolean).join(' '), programa:avPrograma(), sexo:me.sex, paleta:'socio' })
+  if (kd) KDG.montar(document.getElementById('cpKd'), { evs:ev, nombre:[me.nombre,me.apellido].filter(Boolean).join(' '), programa:avPrograma(), sexo:me.sex, socio:(typeof kodeTxt==='function'?kodeTxt(me.numero_socio):me.numero_socio)||'', paleta:'socio' })
 }
 // c222 · diagnóstico a pantalla completa (mismo que presenta nutrición, en vertical)
 function cpDiag(){ if(typeof KDG==='undefined') return; const me=(S&&S.perfil)||{}

@@ -181,6 +181,44 @@ const CSS = `
 .keu__err .ic svg{width:28px;height:28px}
 .keu__err .keu__gd{margin-top:20px;text-align:center}
 @media (prefers-reduced-motion:reduce){.keu__scan{animation:none;top:50%}.keu__wait i{animation:none}}
+/* Superficie de marca (metal gris) para registro y avisos */
+.keu.keu--tex .keu__sc{background:#9A9A9A url('/img/bg/nutri-plan.webp') center/cover no-repeat}
+.keu__win,.keu__av{padding:16px 16px 0}
+.keu__wt,.keu__avc{position:relative;background:linear-gradient(180deg,#FFFFFF 0%,#F4F4F2 60%,#ECECEA 100%);border-radius:24px 24px 8px 8px;padding:18px 18px 26px;box-shadow:0 20px 44px rgba(18,18,18,.22);
+  -webkit-mask:conic-gradient(from -45deg at bottom,#0000,#000 1deg 89deg,#0000 90deg) 50% / 18px 100%;mask:conic-gradient(from -45deg at bottom,#0000,#000 1deg 89deg,#0000 90deg) 50% / 18px 100%;animation:keuPop .5s cubic-bezier(.2,.8,.2,1) both}
+@keyframes keuPop{from{opacity:0;transform:translateY(18px) scale(.98)}}
+.keu__wh{display:flex;justify-content:space-between;align-items:center;gap:10px;padding-bottom:12px;border-bottom:1.5px solid #121212;font:700 10px var(--k-m);letter-spacing:.14em}
+.keu__wok{display:inline-flex;align-items:center;gap:6px;padding:6px 10px;border-radius:999px;background:#2BB3C0;color:#04363B}.keu__wok svg{width:14px;height:14px;stroke-width:3}
+.keu__wok.ch{background:#121212;color:#F4F3F0}
+.keu__wp{position:relative;margin-top:14px;height:150px;border-radius:14px;overflow:hidden;background:#1E1F22}.keu__wp img{width:100%;height:100%;object-fit:cover;display:block}
+.keu__wp span{position:absolute;left:10px;bottom:10px;padding:6px 10px;border-radius:999px;background:rgba(18,18,18,.85);color:#F4F3F0;font:700 9.5px var(--k-m);letter-spacing:.14em}
+.keu__wn{margin-top:16px;font:900 44px/.9 var(--k-d);font-stretch:118%;text-transform:uppercase;letter-spacing:-.02em}.keu__wn small{display:block;margin-top:4px;font:700 10px var(--k-m);letter-spacing:.16em;color:var(--k-muted)}
+.keu__wl{display:block;margin-top:16px;font:700 9.5px var(--k-m);letter-spacing:.16em;color:var(--k-muted)}
+.keu__wk{display:flex;align-items:flex-end;gap:10px;margin-top:4px}.keu__wk b{font:700 clamp(64px,21vw,88px)/.82 var(--k-m);letter-spacing:-.07em}.keu__wk span{padding-bottom:6px;font:700 11px/1.3 var(--k-m);letter-spacing:.08em;color:var(--k-muted)}
+.keu__wb{height:12px;margin-top:14px;border-radius:4px;background:rgba(18,18,18,.08);overflow:hidden}.keu__wb s{display:block;height:100%;background:linear-gradient(90deg,#1E8F9A,#2BB3C0);text-decoration:none;box-shadow:0 0 10px rgba(43,179,192,.55);animation:keuW 1.3s cubic-bezier(.2,.8,.2,1) .2s both}
+@keyframes keuW{from{width:0}}
+.keu__wbp{display:flex;justify-content:space-between;gap:10px;margin-top:8px;font:700 9.5px var(--k-m);letter-spacing:.1em;color:var(--k-muted)}.keu__wbp span:last-child{color:#121212}.keu__wbp i{font-style:normal}
+.keu__wm{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin-top:18px;padding-top:16px;border-top:2px dashed var(--k-g2)}
+.keu__wm span{display:block;font:700 9px var(--k-m);letter-spacing:.12em;color:var(--k-muted)}
+.keu__wm b{display:block;margin-top:6px;font:700 30px/1 var(--k-m);letter-spacing:-.05em}.keu__wm b i{font-style:normal}.keu__wm b small{font-size:11px;margin-left:2px;letter-spacing:0;color:var(--k-muted)}
+.keu__wm em{display:block;height:6px;margin-top:8px;border-radius:3px;background:rgba(18,18,18,.1);overflow:hidden}.keu__wm em s{display:block;height:100%;background:#121212;text-decoration:none;animation:keuW 1.2s cubic-bezier(.2,.8,.2,1) .4s both}
+.keu__wm>div>small{display:block;margin-top:5px;font:400 8.5px var(--k-m);letter-spacing:.08em;color:var(--k-faint)}
+.keu__wx{margin:16px 0 0;font:400 14px/1.45 var(--k-d);color:#3F3F3C}
+.keu__wf,.keu__avb{display:flex;flex-direction:column;align-items:center;gap:6px;margin-top:16px;padding-top:14px;border-top:1.5px solid #121212}
+.keu__wf svg,.keu__avb svg{width:100%;height:34px;fill:#121212}.keu__wf span,.keu__avb span{font:700 9px var(--k-m);letter-spacing:.16em}
+.keu--tex .keu__bt{padding-top:14px}
+.keu--tex .keu__sec{background:rgba(251,250,248,.85)}
+/* aviso */
+.keu__avc{text-align:center}
+.keu__avf{position:relative;height:220px;margin:-2px -2px 16px;border-radius:16px;overflow:hidden;background:#1E1F22}
+.keu__avf img{width:100%;height:100%;object-fit:cover;filter:grayscale(.6) contrast(1.05) brightness(.8)}
+.keu__avf i{position:absolute;width:22px;height:22px;border:2.5px solid #F4F3F0}.keu__avf .tl{left:10px;top:10px;border-right:0;border-bottom:0}.keu__avf .tr{right:10px;top:10px;border-left:0;border-bottom:0}.keu__avf .bl{left:10px;bottom:10px;border-right:0;border-top:0}.keu__avf .br{right:10px;bottom:10px;border-left:0;border-top:0}
+.keu__avs{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%) rotate(-6deg);padding:10px 16px;border:3px solid #F4F3F0;border-radius:8px;background:rgba(18,18,18,.55);color:#F4F3F0;font:900 20px/1 var(--k-d);font-stretch:118%;letter-spacing:.02em;white-space:nowrap}
+.keu__avk{display:block;font:700 9px var(--k-m);letter-spacing:.16em;color:var(--k-muted)}
+.keu__avc>b{display:block;margin-top:8px;font:900 24px/1.05 var(--k-d);letter-spacing:-.01em;text-wrap:balance}
+.keu__avc>p{margin:10px 0 0;font:400 14.5px/1.45 var(--k-d);color:#3F3F3C}
+.keu__avc .ic{width:64px;height:64px;margin:6px auto 14px;border-radius:50%;background:#121212;color:#F4F3F0;display:flex;align-items:center;justify-content:center}.keu__avc .ic svg{width:28px;height:28px}
+@media (prefers-reduced-motion:reduce){.keu__wt,.keu__avc,.keu__wb s,.keu__wm em s{animation:none}}
 /* Lectura en curso · pantalla negra tipo escáner */
 .keu.keu--hud{background:#050505}
 .keu--hud .keu__sc{background:#050505}
@@ -360,7 +398,11 @@ function hudIni(){
       lg.appendChild(ln); while (lg.children.length > 9) lg.firstChild.remove() }
   }, 90)
 }
-function hudFin(){ if (S.hudT){ clearInterval(S.hudT); S.hudT = null } const r = document.getElementById('keuO'); if (r) r.classList.remove('keu--hud') }
+function hudFin(){ if (S.hudT){ clearInterval(S.hudT); S.hudT = null } const r = document.getElementById('keuO'); if (r) r.classList.remove('keu--hud', 'keu--tex') }
+const bc = (t, h) => typeof window.barcodeSVG === 'function' ? window.barcodeSVG(String(t).toUpperCase().replace(/[^A-Z0-9 \-.$/+%]/g, ''), h || 34) : ''
+const tex = () => { const r = $('keuO'); if (r) r.classList.add('keu--tex') }
+function cuenta(){ const xs = [...($('keuSc') || document).querySelectorAll('[data-kc]')], t0 = performance.now()
+  const f = now => { const q = Math.min(1, Math.max(0, (now - t0 - 200) / 1300)), e = 1 - Math.pow(1 - q, 3); xs.forEach(x => { x.textContent = n0(+x.dataset.kc * e) }); if (q < 1 && xs[0] && xs[0].isConnected) requestAnimationFrame(f) }; if (xs.length) requestAnimationFrame(f) }
 async function analizar(){
   if (S.busy) return
   const c = comidaN(S.num), txt = S.modo === 'texto'
@@ -384,23 +426,26 @@ async function analizar(){
 // ── Errores: cada uno dice qué pasó y siempre deja un camino (otra foto · describir sin foto · volver)
 const IC_X = '<circle cx="12" cy="12" r="8.5"/><path d="M9 9l6 6M15 9l-6 6"/>', IC_I = '<circle cx="12" cy="12" r="8.5"/><path d="M12 7.5v5.5M12 16.4v.3"/>'
 function aviso(o){
-  const foto = o.foto !== false && S.url && S.modo === 'foto'
-  pantalla((foto ? '<div class="keu__ph sm"><img src="' + S.url + '" alt="Tu foto"></div>' : '') +
-    '<div class="keu__err">' + (foto ? '' : '<div class="ic">' + ico(o.ico || IC_I) + '</div>') + '<b>' + esc(o.t) + '</b>' + (o.p ? '<p>' + esc(o.p) + '</p>' : '') + (o.extra || '') + '</div>' +
+  const foto = o.foto !== false && S.url && S.modo === 'foto', cod = 'KO-' + (o.cod || 'REV') + '-' + String(Date.now()).slice(-6)
+  pantalla('<div class="keu__av"><div class="keu__avc">' +
+    (foto ? '<div class="keu__avf"><img src="' + S.url + '" alt="Tu foto"><span class="keu__avs">' + esc(o.sello || 'REVISAR') + '</span><i class="tl"></i><i class="tr"></i><i class="bl"></i><i class="br"></i></div>' : '<div class="ic">' + ico(o.ico || IC_I) + '</div>') +
+    '<span class="keu__avk">' + esc(etiqueta()) + ' · ESCÁNER KOACH</span><b>' + esc(o.t) + '</b>' + (o.p ? '<p>' + esc(o.p) + '</p>' : '') + (o.extra || '') +
+    '<div class="keu__avb">' + bc(cod, 30) + '<span>' + cod + ' · NO DESCUENTA</span></div></div></div>' +
     '<div class="keu__bt">' + o.bt.map((b, i) => '<button type="button" class="keu__' + (i === 0 ? 'cta' : i === 1 ? 'sec' : 'lnk') + '" onclick="' + b[1] + '">' + (i === 0 ? b[0] : b[0].toUpperCase()) + '</button>').join('') + '</div>', etiqueta(), o.atras || null, o.atrasFn)
+  tex()
 }
 const B_FOTO = ['Tomar otra foto', 'KEU.camara()'], B_TXT = ['Describir sin foto', 'KEU.describir()'], B_VOLVER = ['Volver', 'KEU.cerrar()']
 const GUIA = () => '<div class="keu__gd"><div>' + ico(I.top) + 'Desde arriba</div><div>' + ico(I.sol) + 'Con buena luz</div><div>' + ico(I.plato) + 'Todo el plato</div></div>'
 function sinComida(){
   if (S.modo === 'texto') return aviso({ ico: IC_X, t: 'No entendimos tu comida', p: 'Escribe cada alimento y, si puedes, su cantidad. Este intento no descuenta de tus escaneos del día.', bt: [['Escribir de nuevo', 'KEU.describir()'], B_VOLVER] })
-  aviso({ t: 'En la foto no vemos comida', p: 'Este intento no descuenta de tus escaneos del día.', extra: GUIA(), bt: [B_FOTO, B_TXT, B_VOLVER] })
+  aviso({ sello: 'SIN COMIDA', cod: 'NOFOOD', t: 'En la foto no vemos comida', p: 'Este intento no descuenta de tus escaneos del día.', extra: GUIA(), bt: [B_FOTO, B_TXT, B_VOLVER] })
 }
 function noReal(){
-  aviso({ t: 'Esta foto parece de una pantalla o de internet', p: 'Para registrar tu comida necesitamos una foto de tu plato. Si no la tienes, descríbela.', bt: [B_FOTO, B_TXT, B_VOLVER] })
+  aviso({ sello: 'FOTO NO VÁLIDA', cod: 'ORIG', t: 'Esta foto parece de una pantalla o de internet', p: 'Para registrar tu comida necesitamos una foto de tu plato. Si no la tienes, descríbela.', bt: [B_FOTO, B_TXT, B_VOLVER] })
 }
 function pocoClara(c){
   const T = { oscura: 'La foto está muy oscura', borrosa: 'La foto salió borrosa', incompleta: 'El plato no se ve completo' }
-  aviso({ t: T[c] || 'No vemos bien tu plato', p: 'Con otra foto el cálculo sale más exacto. También puedes seguir con esta y revisar los alimentos.', extra: GUIA(), bt: [B_FOTO, ['Seguir con esta foto', 'KEU.seguir()'], B_TXT] })
+  aviso({ sello: 'FOTO POCO CLARA', cod: 'QLTY', t: T[c] || 'No vemos bien tu plato', p: 'Con otra foto el cálculo sale más exacto. También puedes seguir con esta y revisar los alimentos.', extra: GUIA(), bt: [B_FOTO, ['Seguir con esta foto', 'KEU.seguir()'], B_TXT] })
 }
 function seguir(){ recalc(); pintar(true) }
 function fallo(e){
@@ -536,10 +581,22 @@ async function confirmar(){
     const res = Object.assign({}, S.res, { comparacion: S.cmp && { items: S.cmp.items, faltan: S.cmp.faltan.map(f => f.rol), ajustes: S.cmp.ajustes.map(a => a.tipo) } })
     await S.cfg.confirmar(S.r.id, S.num, det, res)
     const c = comidaN(S.num), t = S.res.totales
-    pantalla('<div class="keu__ok"><div class="ic' + (S.res.cheat ? ' ch' : '') + '">' + ico(S.res.cheat ? VER.alerta.ico : VER.adecuado.ico) + '</div>' +
-      '<b>Comida ' + S.num + (S.res.cheat ? ' registrada como cheat meal' : ' registrada') + '</b><p>' + (S.res.cheat ? 'Registrarlo también es cumplir. ' + esc(KE.proxima(S.res, S.cmp) || 'Sigue tu plan en la próxima comida.') : S.res.veredicto === 'alerta' && KE.proxima(S.res, S.cmp) ? 'Quedó registrado en tu día. ' + esc(KE.proxima(S.res, S.cmp)) : 'Quedó registrado en tu día.') + '</p>' +
-      '<span class="keu__lbl">≈ ' + n0(t.kcal) + ' KCAL · P ' + n0(t.proteina_g) + ' · C ' + n0(t.carbohidrato_g) + ' · G ' + n0(t.grasa_g) + '</span></div>' +
+    const p = plan(), M = KE.metasComida(p.pauta || {}) || {}, ch = S.res.cheat, ver = VER[S.res.veredicto] || VER.adecuado
+    const hora = new Date().toLocaleTimeString('es-CL', { hour: '2-digit', minute: '2-digit', hourCycle: 'h23', timeZone: 'America/Santiago' })
+    const fch = new Date().toLocaleDateString('es-CL', { weekday: 'short', day: 'numeric', month: 'short', timeZone: 'America/Santiago' }).replace(/\./g, '').toUpperCase()
+    const pc = (v, m) => m ? Math.min(100, Math.round(v / m * 100)) : 0, kp = pc(t.kcal, M.kcal)
+    const mac = (l, v, m) => '<div><span>' + l + '</span><b><i data-kc="' + Math.round(+v || 0) + '">0</i><small>G</small></b><em><s style="width:' + pc(v, m) + '%"></s></em><small>META ' + n0(m) + ' G</small></div>'
+    const cod = new Date().toLocaleDateString('sv-SE', { timeZone: 'America/Santiago' }).slice(2).replace(/-/g, '') + '-' + hora.replace(':', '') + '-C' + S.num
+    pantalla('<div class="keu__win"><div class="keu__wt">' +
+      '<div class="keu__wh"><span>' + fch + ' · ' + hora + '</span><span class="keu__wok' + (ch ? ' ch' : '') + '">' + ico(ch ? VER.alerta.ico : '<path d="M5 12.5l4.5 4.5L19 7.5"/>') + (ch ? 'CHEAT MEAL' : 'REGISTRADA') + '</span></div>' +
+      (S.modo === 'foto' && S.url ? '<div class="keu__wp"><img src="' + S.url + '" alt="Tu plato"><span>COMIDA ' + S.num + ' DE ' + (p.comidas.length || '—') + '</span></div>' : '<div class="keu__wn">COMIDA ' + S.num + '<small>DE ' + (p.comidas.length || '—') + '</small></div>') +
+      '<span class="keu__wl">INGESTA DE ESTA COMIDA</span><div class="keu__wk"><b data-kc="' + Math.round(t.kcal) + '">0</b><span>KCAL' + (M.kcal ? '<br>META ' + n0(M.kcal) : '') + '</span></div>' +
+      (M.kcal ? '<div class="keu__wb"><s style="width:' + kp + '%"></s></div><div class="keu__wbp"><span><i data-kc="' + (M.kcal ? Math.round(t.kcal / M.kcal * 100) : 0) + '">0</i> % DE TU META</span><span>' + esc(ver.k) + (S.res.puntaje != null && !ch ? ' · ' + S.res.puntaje + '/100' : '') + '</span></div>' : '') +
+      '<div class="keu__wm">' + mac('PROTEÍNA', t.proteina_g, M.proteina_g) + mac('CARBOS', t.carbohidrato_g, M.carbohidrato_g) + mac('GRASAS', t.grasa_g, M.grasa_g) + '</div>' +
+      '<p class="keu__wx">' + (ch ? 'Registrarlo también es cumplir. ' + esc(KE.proxima(S.res, S.cmp) || 'Sigue tu plan en la próxima comida.') : S.res.veredicto === 'alerta' && KE.proxima(S.res, S.cmp) ? esc(KE.proxima(S.res, S.cmp)) : 'Quedó sumada a tu ingesta de hoy.') + '</p>' +
+      '<div class="keu__wf">' + bc(cod, 34) + '<span>Nº ' + cod + '</span></div></div></div>' +
       '<div class="keu__bt">' + (puedeCompartir() ? '<button type="button" class="keu__cta" onclick="KEU.compartir()">' + ico('<path d="M12 15V4M12 4l-4 4M12 4l4 4"/><path d="M5 13v5a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-5"/>') + 'Compartir mi comida</button><button type="button" class="keu__sec" onclick="KEU.cerrar()">VOLVER A MI DÍA</button>' : '<button type="button" class="keu__cta" onclick="KEU.cerrar()">Volver a mi día</button>') + '</div>', 'REGISTRADO')
+    tex(); cuenta()
     if (S.cfg.onRegistrado) S.cfg.onRegistrado({ num: S.num, estado: S.res.cheat ? 'cheat' : 'cumplida' })
   } catch (e) { console.error('confirmar', e); st((e && (e.msg || e.message)) || 'No pudimos registrar. Prueba de nuevo.') }
   finally { S.busy = false }

@@ -366,15 +366,16 @@ function html(){
     : mt ? '<div class="kdMeta kdMeta--t"><div><span class="kdK">META 6 MESES</span><b>' + esc(mt.texto) + '</b><small>' + (S.i ? '' : 'Desde la próxima evaluación verás tu avance hacia la meta.') + '</small></div></div>' : ''
   const CA = S.inline ? compActual().split('\u0000') : []
   const opts = S.evs.map((x, i) => '<option value="' + i + '"' + (i === S.i ? ' selected' : '') + '>' + fecha(x.fecha) + (x.estado === 'borrador' ? ' · BORRADOR' : '') + '</option>').join('')
-  return (S.inline ? '<div class="kdBar kdBar--in"><label class="kdSel">EVALUACIÓN<select data-act="ev">' + opts + '</select></label>' +
-    (S.i > 0 ? '<div class="kdSeg" role="group" aria-label="Comparar con"><button type="button" data-cmp="ini" aria-pressed="' + (S.cmp === 'ini') + '">VS INICIO</button><button type="button" data-cmp="ant" aria-pressed="' + (S.cmp === 'ant') + '">VS ANTERIOR</button></div>' : '') + '</div>' :
+  return (S.inline ? '\u0001<div class="kdBar kdBar--in"><label class="kdSel">EVALUACIÓN<select data-act="ev">' + opts + '</select></label>' +
+    (S.i > 0 ? '<div class="kdSeg" role="group" aria-label="Comparar con"><button type="button" data-cmp="ini" aria-pressed="' + (S.cmp === 'ini') + '">VS INICIO</button><button type="button" data-cmp="ant" aria-pressed="' + (S.cmp === 'ant') + '">VS ANTERIOR</button></div>' : '') + '</div>\u0001' :
     '<div class="kdBar"><span class="kdBar__l">KOACH <em>DIAGNÓSTICO</em></span>' +
     '<label class="kdSel">EVALUACIÓN<select data-act="ev">' + opts + '</select></label>' +
     (S.i > 0 ? '<div class="kdSeg" role="group" aria-label="Comparar con"><button type="button" data-cmp="ini" aria-pressed="' + (S.cmp === 'ini') + '">VS INICIO</button><button type="button" data-cmp="ant" aria-pressed="' + (S.cmp === 'ant') + '">VS ANTERIOR</button></div>' : '') +
     '<button type="button" class="kdX" data-act="cerrar" aria-label="Cerrar diagnóstico">CERRAR ✕</button></div>') +
     '<div class="kdIn">' +
-    '<section class="kdHero"><div><span class="kdK">EVALUACIÓN N° ' + (S.i + 1) + ' · ' + fecha(e.fecha) + (S.o.programa ? ' · ' + esc(String(S.o.programa).toUpperCase()) : '') + '</span>' +
-      '<h1 class="kdH1">' + nom + '</h1>' + (S.inline ? '' : '<p class="kdFr">' + esc(frase) + '</p>' + (e.nota_socio ? '<blockquote class="kdNota">' + esc(e.nota_socio) + '<cite>NUTRICIÓN KOACH</cite></blockquote>' : '')) + '</div>' + (S.inline ? '' : ring) + '</section>' +
+    (S.inline ? '<div class="kdId"><span>' + [nom || 'SOCIO', S.o.edad || n(e.edad_eval) ? (S.o.edad || e.edad_eval) + ' AÑOS' : '', S.o.socio ? 'SOCIO #' + esc(S.o.socio) : '', S.o.programa ? esc(String(S.o.programa).toUpperCase()) : '', 'EVAL Nº' + (S.i + 1) + ' · ' + fecha(e.fecha)].filter(Boolean).join('</span><i>/</i><span>') + '</span></div>' : '') +
+    (S.inline ? '' : '<section class="kdHero"><div><span class="kdK">EVALUACIÓN N° ' + (S.i + 1) + ' · ' + fecha(e.fecha) + (S.o.programa ? ' · ' + esc(String(S.o.programa).toUpperCase()) : '') + '</span>' +
+      '<h1 class="kdH1">' + nom + '</h1>' + (S.inline ? '' : '<p class="kdFr">' + esc(frase) + '</p>' + (e.nota_socio ? '<blockquote class="kdNota">' + esc(e.nota_socio) + '<cite>NUTRICIÓN KOACH</cite></blockquote>' : '')) + '</div>' + (S.inline ? '' : ring) + '</section>') +
     (S.inline ? tablero(e, b, mt) + CA[0] : '<section class="kdKps">' + kpis + '</section>') +
     '<section class="kdGrid">' +
       '<div class="kdCard kdCard--body"><span class="kdK">CÓMO CAMBIÓ CADA ZONA · TOCA UNA ZONA</span><div class="kdBodyW"><div id="kdBody">' + cuerpo(segs) + '</div><div id="kdSp">' + panelSeg(segs) + '</div></div>' +
@@ -385,13 +386,15 @@ function html(){
     (S.inline ? '<section class="kdKps">' + kpis + '</section>' + (CA[1] || '') : '') +
     (S.inline ? '<section class="kdCard kdRes"><span class="kdK">RESUMEN DE TU EVALUACIÓN</span><p class="kdFr">' + esc(frase) + '</p>' + (e.nota_socio ? '<blockquote class="kdNota">' + esc(e.nota_socio) + '<cite>NUTRICIÓN KOACH</cite></blockquote>' : '') + '</section>' : '') +
     (lg.length ? '<section class="kdLog"><span class="kdK">LOGROS' + (pn ? ' DE ' + pn.toUpperCase() : '') + '</span><div class="kdLog__g">' + lg.map((x, i) => '<div class="kdBadge" style="--d:' + (i * 70) + 'ms"><b>' + x[0] + '</b><span>' + x[1] + '</span><small>' + x[2] + '</small></div>').join('') + '</div></section>' : '') +
+    (S.inline ? '<div class="kdCmpH"><span class="kdK">COMPARA TU PROGRESO</span>\u0002</div>' : '') +
     (S.inline && S.i > 0 ? '<section class="kdCard kdCard--ev"><span class="kdK">EXTRA · TU EVOLUCIÓN ENTRE EVALUACIONES</span><div id="kdEv">' + evolucion() + '</div></section>' : '') +
     '<section class="kdCard"><span class="kdK">TODO LO QUE MEDIMOS · PROTOCOLO ISAK</span>' + tabla() + '</section>' +
     '<p class="kdPie">' + VERSION + ' · Estimaciones antropométricas ISAK: orientan el trabajo de nutrición y entrenamiento, no son un diagnóstico médico.</p></div>'
 }
 
 let ov = null
-function pintar(){ if (!ov) return; if (S.inline){ ov.innerHTML = html(); b3Enlazar(); anilloAnim(); contar(); return enlazarChart() } const y = ov.scrollTop; ov.innerHTML = html(); ov.scrollTop = y; enlazarChart() }
+function htmlIn(){ const h = html(), p = h.split('\u0001'); return p.length === 3 ? (p[0] + p[2]).replace('\u0002', p[1]) : h.replace('\u0002', '') }
+function pintar(){ if (!ov) return; if (S.inline){ ov.innerHTML = htmlIn(); b3Enlazar(); anilloAnim(); contar(); return enlazarChart() } const y = ov.scrollTop; ov.innerHTML = html(); ov.scrollTop = y; enlazarChart() }
 function repSeg(){ const e = actual(), b = base(), segs = SEG.map(s => segmento(s, e, b)); if (S.inline && B3.r && ov.querySelector('#kd3')){ b3Color(); b3Tag(segs) } else { ov.querySelector('#kdBody').innerHTML = cuerpo(segs); b3Enlazar() } ov.querySelector('#kdSp').innerHTML = panelSeg(segs) }
 function enlazarChart(){
   const ch = ov && ov.querySelector('.kdCh'); if (!ch) return
@@ -560,6 +563,10 @@ const CSS = `
 .kdTb2__m{margin-top:14px;padding-top:12px;border-top:1px solid #262626;text-align:center}.kdTb2__m .kdK{color:#8E8D88}.kdTb2__m b{display:block;margin-top:4px;font:900 16px/1.1 var(--font-display,Arial);text-transform:uppercase}.kdTb2__m small{display:block;margin-top:4px;font:400 11px var(--font-mono,monospace);color:#A7A9AE}
 .kd--in .kdHero{margin-bottom:0}.kd--in .kdHero .kdH1{margin-bottom:0}
 .kd--in .kdRes .kdFr{margin:8px 0 0;font-size:15px}
+.kd--in .kdId{display:flex;flex-wrap:wrap;align-items:center;gap:4px 6px;margin:2px 2px 0;font:700 9px/1.4 var(--font-mono,monospace);letter-spacing:.12em;color:#2A2A2A;text-transform:uppercase}
+.kd--in .kdId i{font-style:normal;color:#8E8D88}
+.kd--in .kdTb2{margin-top:10px}
+.kd--in .kdCmpH{margin-top:18px}.kd--in .kdCmpH>.kdK{display:block;margin:0 4px 8px;color:#2A2A2A}
 .kd.kd--in{position:static;inset:auto;z-index:auto;overflow:visible;background:transparent;animation:none}
 .kd--in .kdBar--in{position:static;min-height:0;padding:8px 8px 8px 16px;border-radius:20px;background:#121212;justify-content:space-between;flex-wrap:nowrap}
 .kd--in section.kdCard{background:#FBFAF8!important;border-radius:20px!important;padding:18px 18px 20px!important;border:1px solid rgba(18,18,18,.06)!important;box-shadow:0 14px 34px rgba(18,18,18,.10)!important}
@@ -586,7 +593,7 @@ function montar(el, o){
   ov = el; el.classList.add('kd', 'kd--in')
   if (!el._kd){ el._kd = 1; el.addEventListener('click', ev => { if (ov === el) onClick(ev) })
     el.addEventListener('change', ev => { if (ov === el && ev.target.dataset.act === 'ev'){ S.i = +ev.target.value; if (S.i === 0) S.cmp = 'ini'; pintar() } }) }
-  el.innerHTML = html(); b3Enlazar(); anilloAnim(); contar(); enlazarChart(); return true
+  el.innerHTML = htmlIn(); b3Enlazar(); anilloAnim(); contar(); enlazarChart(); return true
 }
 const KDG = { VERSION, abrir, cerrar, montar, _segmento: segmento, _S: S, _B3: B3 }
 if (typeof window !== 'undefined') window.KDG = KDG
