@@ -1327,6 +1327,9 @@ html .kw.kw--hero .kw-cl{font-size:7px;letter-spacing:.16em}
 .ktm-on.ktm-pausa .ktm{background:#0B0B0C}
 .ktm-on.ktm-pausa .ktm .ktm__ic{width:0;height:0;background:none;border-left:11px solid #F4F3F0;border-top:7px solid transparent;border-bottom:7px solid transparent;margin-left:3px}
 .kset--seg .kset__r{position:relative}
+.kset__r--tm{display:flex;align-items:center;justify-content:center;gap:10px}
+.ktm__val{font:800 24px/1 var(--font-display);font-variant-numeric:tabular-nums}
+.kset__r--tm .kset__u{position:static!important;opacity:.55}
 .ktm__bar{position:absolute;inset:0;z-index:2;border-radius:inherit;overflow:hidden;background:#0B0B0C;color:#F4F3F0;display:flex;align-items:center;justify-content:center;gap:10px;pointer-events:none}
 .ktm__bar i{position:absolute;left:0;top:0;bottom:0;background:linear-gradient(90deg,#3A3C40,#5E6166);transition:width .2s linear}
 .ktm__bar b,.ktm__bar small{position:relative}
@@ -6681,7 +6684,10 @@ function bkPintar(){
       '<button type="button" onclick="rwStep(\''+be.id+'\','+n+',\''+k+'\','+paso+')" aria-label="Aumentar '+qué+' de '+N+'">+</button></div></div>'
     const repsControl = () => ctl('reps','REPS',rv.reps,1,'rwR-'+be.id+'-'+n,'numeric','repeticiones')
     const weightControl = () => ctl('kg','KG',rv.kg==null?null:KSET.kg(rv.kg),2.5,'rwK-'+be.id+'-'+n,'decimal','peso')
-    const timeControl = () => ctl('seg','SEG',rv.seg||30,5,'rwS-'+be.id+'-'+n,'numeric','segundos').replace('<span class="kset__l"><b>SEG</b>','<span class="kset__l"><button type="button" class="ktm" id="ktm-'+be.id+'" onclick="ktmToggle(\''+be.id+'\','+n+')" aria-label="Iniciar temporizador de '+N+'"><span class="ktm__ic" aria-hidden="true"></span></button>')
+    // c235 · tiempo prescrito por el koach: sin − / +; solo ▶ a la izquierda. El tiempo real se guarda solo (ktmGuardar).
+    const timeControl = () => { const pS=+(w.seg||30), rS=+(rv.seg||pS)
+      return '<div class="kset kset--seg kset--tm"><span class="kset__l"><button type="button" class="ktm" id="ktm-'+be.id+'" onclick="ktmToggle(\''+be.id+'\','+n+')" aria-label="Iniciar temporizador de '+N+', '+pS+' segundos"><span class="ktm__ic" aria-hidden="true"></span></button></span>'+
+        '<div class="kset__r kset__r--tm"><b class="ktm__val" id="ktmV-'+be.id+'-'+n+'">'+ktmMMSS(rS*1000)+'</b><span class="kset__u">'+(rS<pS?'DE '+ktmMMSS(pS*1000):'SEG')+'</span></div></div>' }
     const bodyweight = '<div class="kset kset--bw"><span class="kset__l"><b>KG</b></span><div class="kset__pc">PESO CORPORAL</div></div>'
     const sinCarga = '<div class="kset kset--bw"><span class="kset__l"><b>KG</b></span><div class="kset__pc">SIN CARGA</div></div>'
     let ctr=''
@@ -6857,19 +6863,23 @@ document.addEventListener('visibilitychange', function(){ if(document.visibility
    ▶ en la fila SEG: la fila se vuelve una barra que se vacía y la foto muestra el número grande con un anillo.
    Toque = pausa/sigue · toque largo = reinicia · últimos 3 s suenan · al terminar vibra y marca ✓. No registra el set solo. */
 const KTM = { be: null, n: 0, dur: 0, fin: 0, resta: 0, run: false, t: null, ok: {} }
-function ktmSeg(beId, n){ const rv=S.rw[beId+'#'+n]; const v=parseInt(rv&&rv.seg)||parseInt((document.getElementById('rwS-'+beId+'-'+n)||{}).value)||30; return Math.max(5,v) }
+function ktmSeg(beId){ const w=S.wk[beId]; return Math.max(5, parseInt(w&&w.seg)||30) }
+/* guarda en el borrador del set los segundos realmente hechos (los registra REGISTRAR SET) */
+function ktmGuardar(beId, n, seg){ const rv=S.rw[beId+'#'+n]; if(!rv) return; const p=ktmSeg(beId); rv.seg=Math.max(1,Math.min(p,Math.round(seg))); rv._man=true; rwPersistir()
+  const v=document.getElementById('ktmV-'+beId+'-'+n); if(v){ v.textContent=ktmMMSS(rv.seg*1000); const u=v.nextElementSibling; if(u) u.textContent=rv.seg<p?'DE '+ktmMMSS(p*1000):'SEG' }
+  const fila=S.setLog[setKey(beId,n)]; if(fila&&fila.id){ fila.seg=rv.seg; sb.from('set_registros').update({seg:rv.seg, updated_at:new Date().toISOString()}).eq('id',fila.id).then(()=>{},()=>{}) } }
 function ktmToggle(beId, n){ kAudioUnlock(); kHaptic(10)
   if (KTM._lp){ KTM._lp=false; return }
   if (KTM.be===beId && KTM.n===n && (KTM.run || KTM.resta>0)){
-    if (KTM.run){ KTM.resta=Math.max(0,KTM.fin-Date.now()); KTM.run=false; clearInterval(KTM.t) }
+    if (KTM.run){ KTM.resta=Math.max(0,KTM.fin-Date.now()); KTM.run=false; clearInterval(KTM.t); ktmGuardar(beId,n,(KTM.dur-KTM.resta)/1000) }
     else { KTM.fin=Date.now()+KTM.resta; KTM.run=true; ktmLoop() }
     return ktmPintar() }
-  ktmParar(true); const d=ktmSeg(beId,n)
+  ktmParar(true); const d=ktmSeg(beId)
   Object.assign(KTM,{ be:beId, n, dur:d*1000, fin:Date.now()+d*1000, resta:0, run:true, _bip:null }); delete KTM.ok[beId+'#'+n]
   bkWake(true); ktmLoop(); ktmPintar() }
 function ktmParar(silencio){ clearInterval(KTM.t); KTM.t=null; const k=KTM.be; Object.assign(KTM,{ be:null, n:0, run:false, resta:0 }); if(k && !silencio) ktmPintar() }
 function ktmLoop(){ clearInterval(KTM.t); KTM.t=setInterval(()=>{ if(!KTM.run) return; const ms=KTM.fin-Date.now(), s=Math.ceil(ms/1000)
-    if (ms<=0){ KTM.ok[KTM.be+'#'+KTM.n]=true; kBeep(880,.5,.22); try{ navigator.vibrate&&navigator.vibrate([90,60,90,60,220]) }catch(_){} kHaptic(30); ktmParar(); return }
+    if (ms<=0){ KTM.ok[KTM.be+'#'+KTM.n]=true; ktmGuardar(KTM.be,KTM.n,KTM.dur/1000); kBeep(880,.5,.22); try{ navigator.vibrate&&navigator.vibrate([90,60,90,60,220]) }catch(_){} kHaptic(30); ktmParar(); return }
     if (s<=3 && KTM._bip!==s){ KTM._bip=s; kSonTick(); kHaptic(8) }
     ktmPintar() },200) }
 function ktmTxt(ms){ const s=Math.max(0,Math.ceil(ms/1000)); return s>=60 ? Math.floor(s/60)+':'+String(s%60).padStart(2,'0') : String(s) }
@@ -6889,7 +6899,7 @@ function ktmPintar(){
     if(!rg){ fo.insertAdjacentHTML('beforeend','<span class="ktm__ring" aria-hidden="true"><svg viewBox="0 0 100 100"><circle cx="50" cy="50" r="44" class="ktm__rb"/><circle cx="50" cy="50" r="44" class="ktm__rf" stroke-dasharray="'+C+'" transform="rotate(-90 50 50)"/></svg><b><span></span><small></small></b></span>'); rg=fo.querySelector('.ktm__ring') }
     rg.querySelector('.ktm__rf').setAttribute('stroke-dashoffset',(C*(1-p)).toFixed(1)); rg.querySelector('b span').textContent=ktmTxt(ms); rg.querySelector('small').textContent=KTM.run?(ms>=60000?'MIN':'SEG'):'PAUSA' } }
 document.addEventListener('pointerdown',e=>{ const b=e.target.closest&&e.target.closest('.ktm'); if(!b) return; clearTimeout(KTM._lpT)
-  KTM._lpT=setTimeout(()=>{ if(KTM.be){ KTM._lp=true; kHaptic(25); ktmParar(true); ktmPintar() } },650) })
+  KTM._lpT=setTimeout(()=>{ if(KTM.be){ KTM._lp=true; kHaptic(25); const be=KTM.be, n=KTM.n; ktmParar(true); ktmGuardar(be,n,ktmSeg(be)); ktmPintar() } },650) })
 document.addEventListener('pointerup',()=>clearTimeout(KTM._lpT)); document.addEventListener('pointercancel',()=>clearTimeout(KTM._lpT))
 async function bkWake(on){ try{ if(on){ if(!BK._wl && navigator.wakeLock){ BK._wl=await navigator.wakeLock.request('screen'); BK._wl.addEventListener('release',function(){ BK._wl=null }) } } else if(BK._wl){ await BK._wl.release(); BK._wl=null } }catch(_){ BK._wl=null } }
 
