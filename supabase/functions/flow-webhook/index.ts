@@ -25,7 +25,11 @@ async function procesarPago(token: string) {
 async function activarSuscripcion(token: string) {
   const { data: s } = await admin.from("flow_suscripciones").select("*").eq("register_token", token).maybeSingle();
   if (!s) throw new Error("registro de tarjeta desconocido");
-  if (s.estado === "activa") return "activa";
+  if (s.estado === "activa" || s.estado === "activando") return "activa";
+  // bloqueo atómico: solo una ejecución pasa de 'registrando_tarjeta' a 'activando' (evita dos suscripciones)
+  const { data: tomada } = await admin.from("flow_suscripciones").update({ estado: "activando", updated_at: ahora() })
+    .eq("id", s.id).eq("estado", "registrando_tarjeta").select("id");
+  if (!tomada || !tomada.length) return "activa";
   const rs = await flow("GET", "customer/getRegisterStatus", { token });
   if (String(rs.status) !== "1") {
     await admin.from("flow_suscripciones").update({ estado: "error", error: "tarjeta no registrada", flow_data: rs, updated_at: ahora() }).eq("id", s.id);
@@ -53,7 +57,24 @@ Deno.serve(async (req) => {
     let planes: unknown = null;
     try { const l = await flow("GET", "plans/list", { limit: 50 }); planes = { total: l.total, ids: (l.data || []).map((x: { planId: string }) => x.planId) }; }
     catch (e) { planes = "error: " + String((e as Error).message).slice(0, 200); }
-    return new Response(JSON.stringify({ api_key: !!API_KEY, flow: flowR, planes }), { headers: { "Content-Type": "application/json" } });
+    // ?cargo=1 · verifica el contrato de Cargo Automático con un cliente técnico de KOACH (no cobra nada)
+    let cargo: unknown = null;
+    if (new URL(req.url).searchParams.get("cargo") === "1") {
+      try {
+        let cid: string | undefined;
+        try { cid = (await flow("POST", "customer/create", { name: "KOACH verificacion", email: "koachclub@gmail.com", externalId: "koach-verificacion-contrato" })).customerId; }
+        catch (_) {
+          for (let start = 0; start < 2000 && !cid; start += 100) {
+            const l = await flow("GET", "customer/list", { start, limit: 100 }).catch(() => null);
+            cid = (l?.data || []).find((c: { externalId?: string }) => c.externalId === "koach-verificacion-contrato")?.customerId;
+            if (!l?.hasMore) break;
+          }
+        }
+        const reg = await flow("POST", "customer/register", { customerId: cid, url_return: "https://app.koachclub.cl/app.html" });
+        cargo = { ok: true, registro: !!reg.token };
+      } catch (e) { cargo = { ok: false, codigo: (e as { code?: unknown }).code ?? null, mensaje: String((e as Error).message).slice(0, 200) }; }
+    }
+    return new Response(JSON.stringify({ api_key: !!API_KEY, flow: flowR, planes, cargo }), { headers: { "Content-Type": "application/json" } });
   }
   const token = await tokenDe(req);
 
@@ -66,6 +87,7 @@ Deno.serve(async (req) => {
     let r = "error";
     try { if (token) r = await activarSuscripcion(token); } catch (e) {
       console.error("flow card", (e as Error).message);
+      try { await admin.from("flow_eventos").insert({ origen: "flow-webhook card", codigo: String((e as { code?: unknown }).code ?? ""), mensaje: String((e as Error).message).slice(0, 500) }); } catch (_) { /* */ }
       await admin.from("flow_suscripciones").update({ estado: "error", error: String((e as Error).message).slice(0, 500), updated_at: ahora() }).eq("register_token", token);
     }
     return ir("susc=" + r);

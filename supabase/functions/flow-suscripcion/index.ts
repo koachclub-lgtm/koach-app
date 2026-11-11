@@ -39,9 +39,9 @@ const publica = (s: Susc | null) => s ? {
 } : null;
 
 // Interruptor: config_pagos.pago_automatico.habilitado (apagado por defecto si no existe)
-async function autoHabilitado() {
+async function autoHabilitado(uid: string) {
   const { data } = await admin.from("config_pagos").select("valor").eq("clave", "pago_automatico").maybeSingle();
-  return data?.valor?.habilitado === true;
+  return data?.valor?.habilitado === true || (Array.isArray(data?.valor?.prueba) && data.valor.prueba.includes(uid));
 }
 const NO_DISPONIBLE = "El pago automático estará disponible muy pronto. Por ahora puedes pagar tu membresía con PAGO ÚNICO.";
 // Traza de todo rechazo de Flow (tolerante: si la tabla no existe, no rompe el flujo)
@@ -70,7 +70,7 @@ async function buscarCliente(uid: string, nombre: string, email: string): Promis
 }
 async function vivaDe(uid: string) {
   const { data } = await admin.from("flow_suscripciones").select("*").eq("socio_id", uid)
-    .in("estado", ["registrando_tarjeta", "activa", "cancelada_fin_periodo"]).order("created_at", { ascending: false }).limit(1).maybeSingle();
+    .in("estado", ["registrando_tarjeta", "activando", "activa", "cancelada_fin_periodo"]).order("created_at", { ascending: false }).limit(1).maybeSingle();
   return data as Susc | null;
 }
 async function cerrar(s: Susc, termino: Record<string, unknown>) {
@@ -110,7 +110,7 @@ Deno.serve(async (req) => {
     if (body.accion === "estado") return j({ suscripcion: publica(viva && viva.estado !== "registrando_tarjeta" ? viva : null) });
 
     if (body.accion === "cotizar" || body.accion === "iniciar" || !body.accion) {
-      if (!(await autoHabilitado())) return j({ error: NO_DISPONIBLE, no_disponible: true }, 503);
+      if (!(await autoHabilitado(uid))) return j({ error: NO_DISPONIBLE, no_disponible: true }, 503);
     }
     if (body.accion === "cotizar") {
       const { data: t } = await admin.rpc("tarifa_auto_de", { p_socio: uid });
@@ -186,7 +186,7 @@ Deno.serve(async (req) => {
   } catch (e) {
     const fe = e as FlowError;
     console.error("flow-suscripcion", fe?.message, fe?.data);
-    await registrarEvento(null, "flow-suscripcion", e);
+    await registrarEvento(null, "flow-suscripcion", e);   // (socio no disponible en este alcance)
     if (fe instanceof FlowError && String(fe.code) === "7001")
       return j({ error: NO_DISPONIBLE, no_disponible: true }, 503);
     if (fe instanceof FlowError && /email is not valid/i.test(fe.message))

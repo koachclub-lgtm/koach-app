@@ -32,7 +32,7 @@ Deno.serve(async (req) => {
       const { data: cobros } = await admin.from("cobros_socio").select("id,monto,duracion_tipo,duracion_valor,tipo_comercial,recurrente,concepto,created_at").eq("socio_id", u.user.id).eq("estado", "pendiente").order("created_at", { ascending: false });
       // Pago automático solo si config_pagos.pago_automatico.habilitado = true (Flow exige contrato de cargo automático).
       const { data: cfg } = await admin.from("config_pagos").select("valor").eq("clave", "pago_automatico").maybeSingle();
-      const autoOn = cfg?.valor?.habilitado === true;
+      const autoOn = cfg?.valor?.habilitado === true || (Array.isArray(cfg?.valor?.prueba) && cfg.valor.prueba.includes(u.user.id));
       return j({ planes: data || [], cobros: (cobros || []).filter((c: { recurrente: boolean }) => autoOn || !c.recurrente),
         auto: autoOn && auto ? { monto: auto.monto, personalizada: !!auto.personalizada } : null, auto_habilitado: autoOn });
     }
