@@ -219,6 +219,16 @@ const CSS = `
 .keu__avc>p{margin:10px 0 0;font:400 14.5px/1.45 var(--k-d);color:#3F3F3C}
 .keu__avc .ic{width:64px;height:64px;margin:6px auto 14px;border-radius:50%;background:#121212;color:#F4F3F0;display:flex;align-items:center;justify-content:center}.keu__avc .ic svg{width:28px;height:28px}
 @media (prefers-reduced-motion:reduce){.keu__wt,.keu__avc,.keu__wb s,.keu__wm em s{animation:none}}
+.keu__pkx{border-style:dashed!important;background:transparent!important}.keu__pkx em{border-style:dashed!important}
+.keu__nq{margin:0 0 4px;padding:14px;border-radius:18px;background:#121212;color:#F4F3F0}
+.keu__nqh{display:grid;grid-template-columns:40px 1fr;gap:12px;align-items:start}
+.keu__nqh i{width:40px;height:40px;border-radius:50%;background:#D7392B;display:flex;align-items:center;justify-content:center}.keu__nqh i svg{width:20px;height:20px;stroke:#FFFFFF;stroke-width:3}
+.keu__nqh b{display:block;font:700 16px/1.2 var(--k-d)}.keu__nqh span{display:block;margin-top:4px;font:400 13.5px/1.4 var(--k-d);color:#C9C8C3}
+.keu__nqt{display:flex;flex-wrap:wrap;gap:6px;margin-top:12px}.keu__nqt span{padding:6px 10px;border-radius:999px;background:#262626;font:700 10px var(--k-m);letter-spacing:.08em}
+.keu__nqt span:first-child{background:#F4F3F0;color:#121212}
+.keu__wb--x s{background:linear-gradient(90deg,#A92A1E,#D7392B)!important;box-shadow:0 0 10px rgba(215,57,43,.5)!important}
+.keu__cta--x{background:#D7392B!important;color:#FFFFFF!important}
+.keu__wok.ch{background:#D7392B!important;color:#FFFFFF!important}
 /* Lectura en curso · pantalla negra tipo escáner */
 .keu.keu--hud{background:#050505}
 .keu--hud .keu__sc{background:#050505}
@@ -279,12 +289,15 @@ function el(){
 // Plan del socio (lo entrega la app): { pauta, comidas:[{nombre,hora,opciones}], estado(num) → 'cumplida'|'cheat'|null }
 const plan = () => (S.cfg.plan && S.cfg.plan()) || { pauta: null, comidas: [] }
 const comidaN = n => plan().comidas[n - 1] || null
-const nomC = () => S.num ? 'comida ' + S.num : 'comida'
+const esExtra = () => !!S.num && S.num > plan().comidas.length
+const nomC = () => esExtra() ? 'comida fuera del plan' : S.num ? 'comida ' + S.num : 'comida'
 function mostrar(){ el().hidden = false; document.documentElement.style.overflow = 'hidden' }
 function cab(t, atras){ const e = $('keuT'); if (e) e.textContent = t || ''; const a = $('keuAtrasT'); if (a) a.textContent = atras || 'CERRAR'; S.atras = atras ? S.atrasFn : null }
 function pantalla(h, t, atras, fn){ hudFin(); S.atrasFn = fn || null; cab(t, atras); const sc = $('keuSc'); sc.innerHTML = h; sc.scrollTop = 0 }
 function atras(){ if (S.busy) return; if (S.atras) S.atras(); else cerrar() }
-const etiqueta = () => { const c = comidaN(S.num), n = plan().comidas.length; return c ? 'COMIDA ' + S.num + ' DE ' + n : 'ESCÁNER' }
+const etiqueta = () => { const c = comidaN(S.num), n = plan().comidas.length; return esExtra() ? 'FUERA DEL PLAN' : c ? 'COMIDA ' + S.num + ' DE ' + n : 'ESCÁNER' }
+// siguiente número libre para una comida fuera del plan (después de las del plan, hasta 12)
+function extra(){ const p = plan(), n = p.comidas.length; let k = n + 1; while (k <= 12 && p.estado && p.estado(k)) k++; if (k > 12) return; guia(k) }
 
 /** Abre el escáner. Con num: guía de foto para esa comida. Sin num: primero elige la comida. */
 function abrir(num){
@@ -297,6 +310,7 @@ function abrir(num){
     p.comidas.map((c, i) => { const e = p.estado ? p.estado(i + 1) : null
       const pill = e === 'cumplida' ? '<span class="keu__pill done">' + ico(VER.adecuado.ico) + 'COMPLETADA</span>' : e === 'cheat' ? '<span class="keu__pill fill">CHEAT MEAL</span>' : '<span class="keu__pill">PENDIENTE</span>'
       return '<button type="button" class="' + (e ? 'ok' : '') + '" onclick="KEU.guia(' + (i + 1) + ')"><em>' + (i + 1) + '</em><span><b>Comida ' + (i + 1) + '</b><small>' + esc(c.hora || '') + '</small></span>' + pill + '</button>' }).join('') +
+    '<button type="button" class="keu__pkx" onclick="KEU.extra()"><em>+</em><span><b>Fuera del plan</b><small>UN ANTOJO, UN TRAGO · SUMA A TU DÍA COMO CHEAT MEAL</small></span><span class="keu__pill fill">CHEAT</span></button>' +
     '</div></div>', 'ELIGE TU COMIDA')
 }
 function reset(){ S.porc = 1; S.noSug = false; S.fuente = null; S.r = null; S.al = []; S.res = null; S.cmp = null; S.sucio = false; S.coc = null; S.nota = ''; S.texto = ''; S.modo = 'foto'; S.sel = 0 }
@@ -553,7 +567,12 @@ const vacio = () => ({ nombre: '', gramos: 100, kcal: 0, proteina_g: 0, carbohid
 function quitar(i){ S.al.splice(i, 1); if (S.sel >= S.al.length) S.sel = 0; if (!S.al.length) { S.al.push(vacio()); S.sucio = true } recalc(); pintar() }
 function agregar(){ S.al.push(vacio()); S.sucio = true; S.sel = S.al.length - 1; recalc(); pintar()
   const ins = document.querySelectorAll('#keuSc .keu__eh input'); const x = ins[ins.length - 1]; if (x) x.focus() }
-function botones(){ const c = comidaN(S.num)
+function botones(){ const c = comidaN(S.num) || (esExtra() ? { extra: true } : null)
+  const no = S.res && (S.res.veredicto === 'alerta' || esExtra())
+  if (no && !S.sucio && c) return '<div class="keu__nq"><div class="keu__nqh"><i>' + ico('<path d="M7 7l10 10M17 7L7 17"/>') + '</i><div><b>' + (esExtra() ? 'Comida fuera de tu plan' : 'Alimento no adecuado para tu plan') + '</b><span>¿Deseas registrarla igual para sumar sus calorías a tu día? Quedará como cheat meal.</span></div></div>' +
+    '<div class="keu__nqt"><span>≈ ' + n0(S.res.totales.kcal) + ' KCAL</span><span>P ' + n0(S.res.totales.proteina_g) + '</span><span>C ' + n0(S.res.totales.carbohidrato_g) + '</span><span>G ' + n0(S.res.totales.grasa_g) + '</span></div></div>' +
+    '<button type="button" class="keu__cta keu__cta--x" onclick="KEU.confirmar(true)">Sí, registrar como cheat meal</button><button type="button" class="keu__sec" onclick="KEU.cerrar()">NO, NO REGISTRAR</button>' +
+    '<button type="button" class="keu__lnk" onclick="KEU.otra()">' + ico(I.cam) + 'EMPEZAR DE NUEVO</button>'
   return (S.sucio ? '<button type="button" class="keu__cta" onclick="KEU.recalcular()">Recalcular con mis cambios</button>' : '') +
     '<button type="button" class="keu__' + (S.sucio ? 'sec' : 'cta') + '"' + (S.sucio || !c ? ' disabled' : '') + ' onclick="KEU.confirmar()">' + (c ? (S.sucio ? 'CONFIRMAR Y REGISTRAR' : 'Confirmar y registrar') : 'Elige la comida') + '</button>' +
     '<button type="button" class="keu__lnk" onclick="KEU.otra()">' + ico(I.cam) + 'EMPEZAR DE NUEVO</button><button type="button" class="keu__lnk" onclick="KEU.cerrar()">DESCARTAR</button>' }
@@ -572,8 +591,9 @@ async function recalcular(){
   } catch (e) { st((e && e.msg) || 'No pudimos recalcular. Prueba de nuevo.') }
   finally { S.busy = false }
 }
-async function confirmar(){
+async function confirmar(forzar){
   if (S.busy || S.sucio || !S.r || !S.num) return
+  if (forzar === true || esExtra()) S.res = Object.assign({}, S.res, { cheat: true })
   S.busy = true; st('Registrando…')
   try {
     const d0 = S.r.deteccion || {}
@@ -588,12 +608,12 @@ async function confirmar(){
     const mac = (l, v, m) => '<div><span>' + l + '</span><b><i data-kc="' + Math.round(+v || 0) + '">0</i><small>G</small></b><em><s style="width:' + pc(v, m) + '%"></s></em><small>META ' + n0(m) + ' G</small></div>'
     const cod = new Date().toLocaleDateString('sv-SE', { timeZone: 'America/Santiago' }).slice(2).replace(/-/g, '') + '-' + hora.replace(':', '') + '-C' + S.num
     pantalla('<div class="keu__win"><div class="keu__wt">' +
-      '<div class="keu__wh"><span>' + fch + ' · ' + hora + '</span><span class="keu__wok' + (ch ? ' ch' : '') + '">' + ico(ch ? VER.alerta.ico : '<path d="M5 12.5l4.5 4.5L19 7.5"/>') + (ch ? 'CHEAT MEAL' : 'REGISTRADA') + '</span></div>' +
-      (S.modo === 'foto' && S.url ? '<div class="keu__wp"><img src="' + S.url + '" alt="Tu plato"><span>COMIDA ' + S.num + ' DE ' + (p.comidas.length || '—') + '</span></div>' : '<div class="keu__wn">COMIDA ' + S.num + '<small>DE ' + (p.comidas.length || '—') + '</small></div>') +
+      '<div class="keu__wh"><span>' + fch + ' · ' + hora + '</span><span class="keu__wok' + (ch ? ' ch' : '') + '">' + ico(ch ? '<path d="M7 7l10 10M17 7L7 17"/>' : '<path d="M5 12.5l4.5 4.5L19 7.5"/>') + (ch ? 'CHEAT MEAL' : 'REGISTRADA') + '</span></div>' +
+      (S.modo === 'foto' && S.url ? '<div class="keu__wp"><img src="' + S.url + '" alt="Tu plato"><span>' + esc(etiqueta()) + '</span></div>' : '<div class="keu__wn">' + (esExtra() ? 'FUERA DEL PLAN' : 'COMIDA ' + S.num + '<small>DE ' + (p.comidas.length || '—') + '</small>') + '</div>') +
       '<span class="keu__wl">INGESTA DE ESTA COMIDA</span><div class="keu__wk"><b data-kc="' + Math.round(t.kcal) + '">0</b><span>KCAL' + (M.kcal ? '<br>META ' + n0(M.kcal) : '') + '</span></div>' +
-      (M.kcal ? '<div class="keu__wb"><s style="width:' + kp + '%"></s></div><div class="keu__wbp"><span><i data-kc="' + (M.kcal ? Math.round(t.kcal / M.kcal * 100) : 0) + '">0</i> % DE TU META</span><span>' + esc(ver.k) + (S.res.puntaje != null && !ch ? ' · ' + S.res.puntaje + '/100' : '') + '</span></div>' : '') +
+      (M.kcal ? '<div class="keu__wb' + (ch ? ' keu__wb--x' : '') + '"><s style="width:' + kp + '%"></s></div><div class="keu__wbp"><span><i data-kc="' + (M.kcal ? Math.round(t.kcal / M.kcal * 100) : 0) + '">0</i> % DE TU META</span><span>' + esc(ver.k) + (S.res.puntaje != null && !ch ? ' · ' + S.res.puntaje + '/100' : '') + '</span></div>' : '') +
       '<div class="keu__wm">' + mac('PROTEÍNA', t.proteina_g, M.proteina_g) + mac('CARBOS', t.carbohidrato_g, M.carbohidrato_g) + mac('GRASAS', t.grasa_g, M.grasa_g) + '</div>' +
-      '<p class="keu__wx">' + (ch ? 'Registrarlo también es cumplir. ' + esc(KE.proxima(S.res, S.cmp) || 'Sigue tu plan en la próxima comida.') : S.res.veredicto === 'alerta' && KE.proxima(S.res, S.cmp) ? esc(KE.proxima(S.res, S.cmp)) : 'Quedó sumada a tu ingesta de hoy.') + '</p>' +
+      '<p class="keu__wx">' + (ch ? 'Quedó registrada como cheat meal: suma ' + n0(t.kcal) + ' kcal a tu día y aparece en tu reporte semanal. ' + esc(KE.proxima(S.res, S.cmp) || 'Vuelve a tu plan en la próxima comida.') : S.res.veredicto === 'alerta' && KE.proxima(S.res, S.cmp) ? esc(KE.proxima(S.res, S.cmp)) : 'Quedó sumada a tu ingesta de hoy.') + '</p>' +
       '<div class="keu__wf">' + bc(cod, 34) + '<span>Nº ' + cod + '</span></div></div></div>' +
       '<div class="keu__bt">' + (puedeCompartir() ? '<button type="button" class="keu__cta" onclick="KEU.compartir()">' + ico('<path d="M12 15V4M12 4l-4 4M12 4l4 4"/><path d="M5 13v5a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-5"/>') + 'Compartir mi comida</button><button type="button" class="keu__sec" onclick="KEU.cerrar()">VOLVER A MI DÍA</button>' : '<button type="button" class="keu__cta" onclick="KEU.cerrar()">Volver a mi día</button>') + '</div>', 'REGISTRADO')
     tex(); cuenta()
@@ -610,5 +630,5 @@ function compartir(){
     estado: r.cheat || r.veredicto === 'alerta' ? 'registrada' : r.veredicto === 'adecuado' ? 'plan' : 'completada', fecha: new Date().toLocaleDateString('sv-SE', { timeZone: 'America/Santiago' }) })
 }
 function init(cfg){ S.cfg = Object.assign(S.cfg, cfg || {}); if (!S._rz) { S._rz = 1; window.addEventListener('resize', () => { if ($('keuO') && !$('keuO').hidden) ajustarZonas() }) } }
-window.KEU = { init, compartir, abrir, guia, elegir: guia, camara, galeria, describir, coc, analizar, preparar, seguir, noSug, porcion, atras, cerrar, otra, sel, comida, nombre, gramos, mas, igualPlan, quitar, agregar, recalcular, confirmar, _S: S }
+window.KEU = { init, compartir, abrir, guia, extra, elegir: guia, camara, galeria, describir, coc, analizar, preparar, seguir, noSug, porcion, atras, cerrar, otra, sel, comida, nombre, gramos, mas, igualPlan, quitar, agregar, recalcular, confirmar, _S: S }
 })()

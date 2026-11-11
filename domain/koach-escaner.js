@@ -221,8 +221,8 @@ function evaluar(det, ctx){
     else if (ratio > 1.35){ pts -= 10; ban.push({ tipo: 'porcion', idx: null, pena: 10, texto: 'Porción sobre tu pauta' }) } }
   pts = Math.max(0, Math.min(100, pts))
   const ultra = al.filter(a => a.nova === 4).length, frit = has(al, 'preparacion') && al.some(a => a.preparacion === 'frito')
-  const veredicto = pts >= 75 ? 'adecuado' : pts >= 50 ? 'relativo' : 'alerta'
-  const cheat = veredicto === 'alerta' && (ultra >= 2 || (ratio != null && ratio > 1.8) || (frit && al.some(a => a.carne_procesada)) || al.some(a => a.grupo === 'dulce' && a.kcal >= 300))
+  const veredicto = al.some(a => a.alcohol) ? 'alerta' : pts >= 75 ? 'adecuado' : pts >= 50 ? 'relativo' : 'alerta'   // el alcohol nunca es adecuado para el plan
+  const cheat = veredicto === 'alerta' && (al.some(a => a.alcohol) || ultra >= 2 || (ratio != null && ratio > 1.8) || (frit && al.some(a => a.carne_procesada)) || al.some(a => a.grupo === 'dulce' && a.kcal >= 300))
   // Acciones concretas, de lo que más pesó a lo que menos; nunca restricción compensatoria
   const ACC = {
     frito: 'Próxima vez, prefiérelo al horno, a la plancha o al vapor.',
@@ -330,23 +330,26 @@ function regramar(a, g){
 // registros: filas de koach_registro_comidas · n: comidas del plan por día · hoy: 'AAAA-MM-DD'
 // metas (opcional) = metas por comida (KE.metasComida): una comida marcada LISTA sin foto suma lo que su pauta indica
 function cumplimiento(registros, n, hoy, metas){
-  n = Math.max(1, +n || 1); const rs = (registros || []).filter(r => r && r.fecha && +r.comida_num <= n)
+  n = Math.max(1, +n || 1); const todos = (registros || []).filter(r => r && r.fecha), rs = todos.filter(r => +r.comida_num <= n)
   const dia = rs.filter(r => String(r.fecha).slice(0, 10) === hoy)
+  // comidas FUERA DEL PLAN (extras): siempre cheat; suman calorías y cheat meals, no cuentan como comidas del plan
+  const ext = todos.filter(r => +r.comida_num > n && r.estado === 'cheat'), extHoy = ext.filter(r => String(r.fecha).slice(0, 10) === hoy)
   const d0 = new Date(hoy + 'T12:00:00'), lunes = new Date(d0); lunes.setDate(d0.getDate() - ((d0.getDay() + 6) % 7))
   const iso = d => d.toISOString().slice(0, 10), ini = iso(lunes)
   const sem = rs.filter(r => String(r.fecha).slice(0, 10) >= ini && String(r.fecha).slice(0, 10) <= hoy)
   const diasPasados = Math.round((d0 - lunes) / 864e5)                // días completos antes de hoy
   const esperadas = n * diasPasados + dia.length                      // hoy solo cuenta lo ya registrado
-  const ok = sem.filter(r => r.estado === 'cumplida').length, cheat = sem.filter(r => r.estado === 'cheat').length
+  const semX = ext.filter(r => String(r.fecha).slice(0, 10) >= ini && String(r.fecha).slice(0, 10) <= hoy)
+  const ok = sem.filter(r => r.estado === 'cumplida').length, cheat = sem.filter(r => r.estado === 'cheat').length + semX.length
   const val = (r, k) => r[k] != null && r[k] !== '' ? +r[k] : (metas && r.estado === 'cumplida' && !r.escaneo_id && r.origen !== 'escaneo' ? metas[k] || 0 : 0)
   const suma = (arr, k) => Math.round(arr.reduce((s, r) => s + val(r, k), 0))
   const dias = []; for (let i = 0; i < 7; i++){ const d = new Date(lunes); d.setDate(lunes.getDate() + i); const k = iso(d)
     const del = sem.filter(r => String(r.fecha).slice(0, 10) === k); dias.push({ fecha: k, futuro: k > hoy, hechas: del.filter(r => r.estado === 'cumplida').length, cheat: del.filter(r => r.estado === 'cheat').length, n }) }
   return {
-    hoy: { hechas: dia.filter(r => r.estado === 'cumplida').length, cheat: dia.filter(r => r.estado === 'cheat').length, registradas: dia.length, n,
+    hoy: { hechas: dia.filter(r => r.estado === 'cumplida').length, cheat: dia.filter(r => r.estado === 'cheat').length + extHoy.length, registradas: dia.length, n, extras: extHoy.slice().sort((a, b) => a.comida_num - b.comida_num),
       pct: Math.round(dia.filter(r => r.estado === 'cumplida').length / n * 100),
       estimadas: metas ? dia.filter(r => r.estado === 'cumplida' && (r.kcal == null || r.kcal === '') && r.origen !== 'escaneo').length : 0,
-      kcal: suma(dia, 'kcal'), proteina_g: suma(dia, 'proteina_g'), carbohidrato_g: suma(dia, 'carbohidrato_g'), grasa_g: suma(dia, 'grasa_g'),
+      kcal: suma(dia.concat(extHoy), 'kcal'), proteina_g: suma(dia.concat(extHoy), 'proteina_g'), carbohidrato_g: suma(dia.concat(extHoy), 'carbohidrato_g'), grasa_g: suma(dia.concat(extHoy), 'grasa_g'),
       porNum: Object.fromEntries(dia.map(r => [r.comida_num, r])) },
     semana: { cumplidas: ok, cheat, registradas: sem.length, esperadas, adherencia: esperadas ? Math.round(ok / esperadas * 100) : null, dias },
     racha: racha(rs, n, hoy)

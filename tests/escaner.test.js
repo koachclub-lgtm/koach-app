@@ -120,3 +120,15 @@ t('comida probable y próxima comida', () => {
   assert.ok(/plancha/.test(KE.proxima(r, null))); assert.ok(!/salt|ayun|compens/i.test(KE.proxima(r, null)))
 })
 console.log('v5 OK')
+
+// ── v6: comidas fuera del plan y alcohol
+t('extra fuera del plan suma calorías y cheat, no cuenta como comida del plan', () => {
+  const rs = [{ fecha: '2026-11-05', comida_num: 1, estado: 'cumplida', kcal: 600 }, { fecha: '2026-11-05', comida_num: 5, estado: 'cheat', kcal: 900, proteina_g: 30 }]
+  const c = KE.cumplimiento(rs, 4, '2026-11-05')
+  assert.equal(c.hoy.kcal, 1500); assert.equal(c.hoy.cheat, 1); assert.equal(c.hoy.registradas, 1); assert.equal(c.hoy.extras.length, 1); assert.equal(c.semana.cheat, 1)
+})
+t('alcohol es cheat meal', () => {
+  const r = KE.evaluar({ es_comida: true, alimentos: [A('pisco sour', 'bebida', 'otro', 4, 220, { alcohol: true })] }, ctx)
+  assert.equal(r.veredicto, 'alerta'); assert.equal(r.cheat, true)
+})
+console.log('v6 OK')
