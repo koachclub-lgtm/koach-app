@@ -2710,6 +2710,10 @@ html[data-rol="nutricionista"] #fTbEnt, html[data-rol="nutricionista"] #fTbAdh, 
 </style>
 <link rel="stylesheet" href="/domain/koach-nutri-staff.css">
 <style>
+
+/* c221 · sin menú ni selección de texto al mantener presionado un ejercicio en la tablet */
+#tbBoard .tbCard,#tbBoard .tbCol__h,.lin,.ocard{-webkit-touch-callout:none;-webkit-user-select:none;user-select:none}
+#tbBoard .tbCard input,#tbBoard .tbCard textarea{-webkit-user-select:text;user-select:text}
 </style>
 </head>
 <body>
@@ -5664,6 +5668,11 @@ document.addEventListener('contextmenu', function(e){
 })
 document.addEventListener('selectstart', function(e){
   if (DG.el && e.target.closest && e.target.closest('#pTabs')) e.preventDefault()
+})
+/* c221 · tablet: mantener presionado un ejercicio para arrastrarlo abría el menú del navegador (Volver, Descargar…) y cortaba el arrastre */
+document.addEventListener('contextmenu', function(e){
+  const c=e.target.closest && e.target.closest('#tbBoard .tbCard, #tbBoard .tbCol, .lin, .ocard, #pTabs')
+  if (c && !e.target.closest('input,textarea,select')) e.preventDefault()
 })
 document.addEventListener('pointerup', async function(){
   if(!DG.el) return
