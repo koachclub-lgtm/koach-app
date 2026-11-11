@@ -1,0 +1,184 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Reserva tu clase · KOACH Club</title>
+<meta name="theme-color" content="#D0D0CE">
+<meta name="robots" content="noindex">
+<link rel="icon" href="/favicon-32.png">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<style>
+@font-face{font-family:'Inter Display';src:url('/fonts/InterDisplay-Regular.woff2') format('woff2');font-weight:400;font-display:swap}
+@font-face{font-family:'Inter Display';src:url('/fonts/InterDisplay-SemiBold.woff2') format('woff2');font-weight:600;font-display:swap}
+@font-face{font-family:'Inter Display';src:url('/fonts/InterDisplay-Bold.woff2') format('woff2');font-weight:700;font-display:swap}
+@font-face{font-family:'IBM Plex Mono';src:url('/fonts/IBMPlexMono-Medium.woff2') format('woff2');font-weight:500;font-display:swap}
+@font-face{font-family:'KOACH Display';src:url('/fonts/Archivo-Var.woff2') format('woff2');font-weight:400 900;font-stretch:100% 115%;font-display:swap}
+:root{--bg:#D0D0CE;--card:#F4F4F2;--ink:#111;--t2:#555553;--t3:#7a7a77;--line:rgba(17,17,17,.14);--ok:#2F7D4F;--err:#A33A2B;
+  --display:'KOACH Display','Inter Display',Arial,sans-serif;--sans:'Inter Display','Inter',Arial,sans-serif;--mono:'IBM Plex Mono',ui-monospace,monospace}
+*{box-sizing:border-box}html,body{margin:0}
+body{background:var(--bg);color:var(--ink);font:16px/1.4 var(--sans);-webkit-font-smoothing:antialiased;min-height:100vh}
+.wrap{max-width:560px;margin:0 auto;padding:20px 16px calc(120px + env(safe-area-inset-bottom))}
+.top{display:flex;align-items:center;justify-content:space-between;padding:4px 0 22px}
+.top img{height:20px;filter:brightness(0)}
+.k{font:500 11px var(--mono);letter-spacing:.14em;color:var(--t2);text-transform:uppercase}
+h1{font:800 clamp(34px,10vw,48px)/.95 var(--display);letter-spacing:-.02em;margin:8px 0 10px;text-transform:uppercase}
+.sub{color:var(--t2);font-size:15px;margin:0 0 22px}
+.paso{margin:26px 0 10px;display:flex;align-items:baseline;gap:10px}
+.paso b{font:500 11px var(--mono);letter-spacing:.14em}
+.paso span{font:500 11px var(--mono);color:var(--t3)}
+.progs{display:grid;gap:8px}
+.prog{display:flex;gap:12px;align-items:flex-start;text-align:left;width:100%;border:1.5px solid var(--line);background:var(--card);border-radius:16px;padding:14px 16px;cursor:pointer;color:inherit;font:inherit}
+.prog strong{display:block;font:800 18px var(--display);letter-spacing:.01em}
+.prog small{display:block;color:var(--t2);font-size:13.5px;margin-top:2px}
+.prog .dot{flex:none;width:20px;height:20px;border-radius:50%;border:2px solid var(--t3);margin-top:3px}
+.prog[aria-pressed=true]{border-color:var(--ink);box-shadow:0 0 0 1px var(--ink)}
+.prog[aria-pressed=true] .dot{border:6px solid var(--ink)}
+.dias{display:flex;gap:8px;overflow-x:auto;padding:2px 2px 8px;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch}
+.dia{flex:none;scroll-snap-align:start;width:68px;border:1.5px solid var(--line);background:var(--card);border-radius:14px;padding:10px 0;text-align:center;cursor:pointer;color:inherit;font:inherit}
+.dia em{display:block;font:500 10.5px var(--mono);letter-spacing:.1em;font-style:normal;color:var(--t2);text-transform:uppercase}
+.dia strong{display:block;font:800 24px/1.1 var(--display)}
+.dia small{display:block;font:500 10px var(--mono);color:var(--t3);text-transform:uppercase}
+.dia[aria-pressed=true]{background:var(--ink);color:#F4F4F2;border-color:var(--ink)}.dia[aria-pressed=true] em,.dia[aria-pressed=true] small{color:rgba(244,244,242,.7)}
+.franja{font:500 10.5px var(--mono);letter-spacing:.12em;color:var(--t2);margin:14px 0 8px;text-transform:uppercase}
+.horas{display:grid;grid-template-columns:repeat(auto-fill,minmax(84px,1fr));gap:8px}
+.hora{border:1.5px solid var(--line);background:var(--card);border-radius:12px;padding:12px 0;font:600 16px var(--sans);cursor:pointer;color:inherit}
+.hora[aria-pressed=true]{background:var(--ink);color:#F4F4F2;border-color:var(--ink)}
+.vacio{color:var(--t2);font-size:14px;padding:6px 0}
+label{display:block;font:500 10.5px var(--mono);letter-spacing:.12em;color:var(--t2);margin:12px 0 6px;text-transform:uppercase}
+input{width:100%;height:52px;border:1.5px solid var(--line);background:var(--card);border-radius:12px;padding:0 14px;font:16px var(--sans);color:var(--ink)}
+input:focus,button:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
+.pie{position:fixed;left:0;right:0;bottom:0;background:linear-gradient(rgba(208,208,206,0),var(--bg) 30%);padding:22px 16px calc(14px + env(safe-area-inset-bottom))}
+.pie .in{max-width:560px;margin:0 auto}
+.resumen{font:500 11px var(--mono);letter-spacing:.08em;color:var(--t2);text-align:center;margin-bottom:8px;min-height:14px;text-transform:uppercase}
+.go{width:100%;height:58px;border:0;border-radius:16px;background:var(--ink);color:#F4F4F2;font:600 14px var(--mono);letter-spacing:.14em;cursor:pointer}
+.go:disabled{background:#BCBCBA;color:rgba(17,17,17,.45);cursor:not-allowed}
+.msg{margin:12px 0 0;padding:12px 14px;border-radius:12px;font-size:14px}
+.msg.err{background:rgba(163,58,43,.1);color:var(--err)}
+.msg.info{background:var(--card)}
+.ok{text-align:center;padding:30px 0}
+.ok .chk{width:72px;height:72px;border-radius:50%;background:var(--ink);display:grid;place-items:center;margin:10px auto 20px}
+.ok .chk::after{content:'';width:16px;height:30px;border:solid #F4F4F2;border-width:0 5px 5px 0;transform:translateY(-3px) rotate(45deg)}
+.ok h1{font-size:clamp(30px,9vw,42px)}
+.ok .cuando{font:800 22px var(--display);margin:6px 0 14px;text-transform:uppercase}
+.ok p{color:var(--t2);margin:6px 0}
+.cargando{padding:60px 0;text-align:center;color:var(--t2)}
+[hidden]{display:none!important}
+</style>
+</head>
+<body>
+<main class="wrap">
+  <div class="top"><img src="/img/brand/logotipo-koach.png" alt="KOACH"><span class="k">Serrano 489 · Concepción</span></div>
+  <div id="cargando" class="cargando">Cargando horarios…</div>
+  <div id="error" class="msg err" hidden></div>
+
+  <section id="form" hidden>
+    <div class="k" id="kicker">Clase de prueba gratis</div>
+    <h1 id="titulo">Elige tu día y hora</h1>
+    <p class="sub" id="sub">Unos 40 minutos · una demo del programa que te interesa, guiada por un koach.</p>
+    <div id="yaTiene" class="msg info" hidden></div>
+
+    <div id="bloqueProg">
+      <div class="paso"><b>1 · PROGRAMA</b><span>¿Qué quieres conseguir?</span></div>
+      <div class="progs" id="progs"></div>
+    </div>
+
+    <div class="paso"><b id="pDia">2 · DÍA</b></div>
+    <div class="dias" id="dias"></div>
+
+    <div class="paso"><b id="pHora">3 · HORA</b></div>
+    <div id="horas"><p class="vacio">Elige un día.</p></div>
+
+    <div class="paso"><b id="pDatos">4 · TUS DATOS</b></div>
+    <label for="nombre">Nombre y apellido</label>
+    <input id="nombre" autocomplete="name" placeholder="Ej: Camila Fierro">
+    <label for="email">Correo</label>
+    <input id="email" type="email" inputmode="email" autocomplete="email" placeholder="tucorreo@gmail.com">
+    <div id="errForm" class="msg err" hidden></div>
+  </section>
+
+  <section id="listo" class="ok" hidden>
+    <div class="chk" aria-hidden="true"></div>
+    <div class="k">Quedó agendada</div>
+    <h1 id="okTitulo">Te esperamos</h1>
+    <div class="cuando" id="okCuando"></div>
+    <p>📍 Serrano 489, Concepción</p>
+    <p>Llega 10 minutos antes con ropa deportiva, toalla y agua.</p>
+    <p>Te enviamos la confirmación por WhatsApp.</p>
+    <a id="okPagar" class="go" style="display:grid;place-items:center;text-decoration:none;margin-top:22px" hidden>PAGAR VERANO AM · $189.900</a>
+  </section>
+</main>
+
+<div class="pie" id="pie" hidden><div class="in">
+  <div class="resumen" id="resumen"></div>
+  <button class="go" id="go" disabled>AGENDAR MI CLASE</button>
+</div></div>
+
+<script>
+(function(){
+  var API='https://koach-jake.vercel.app/api/agenda?publico=1';
+  var q=new URLSearchParams(location.search), T=q.get('t')||'';
+  var PROGS=[['STRONG','Desarrollar fuerza y masa muscular.'],['BURN','Mejorar la composición corporal y la condición física sin dejar la fuerza.'],['HEALTHY','Fuerza orientada a salud y bienestar, con progresión gradual.']];
+  var DIAS=['DOM','LUN','MAR','MIÉ','JUE','VIE','SÁB'], MESES=['ENE','FEB','MAR','ABR','MAY','JUN','JUL','AGO','SEP','OCT','NOV','DIC'];
+  var FR={manana:'Mañana',tarde:'Tarde',noche:'Noche'};
+  var S={prog:'STRONG',dia:null,inicio:null,hora:null,data:null};
+  var $=function(id){return document.getElementById(id)};
+  function err(m){$('cargando').hidden=true;$('error').textContent=m;$('error').hidden=false}
+  function fechaTxt(f){var d=new Date(f+'T12:00:00');return DIAS[d.getDay()].charAt(0)+DIAS[d.getDay()].slice(1).toLowerCase()+' '+d.getDate()+' '+MESES[d.getMonth()].toLowerCase()}
+  function pinta(){
+    document.querySelectorAll('.prog').forEach(function(b){b.setAttribute('aria-pressed',b.dataset.v===S.prog)});
+    document.querySelectorAll('.dia').forEach(function(b){b.setAttribute('aria-pressed',b.dataset.v===S.dia)});
+    document.querySelectorAll('.hora').forEach(function(b){b.setAttribute('aria-pressed',b.dataset.v===S.inicio)});
+    var ok=S.inicio && $('nombre').value.trim().length>2 && /^[^@\s]+@[^@\s]+\.[^@\s]{2,}$/.test($('email').value.trim());
+    $('go').disabled=!ok;
+    $('resumen').textContent=S.inicio?((S.data.servicio==='clase_prueba'?S.prog+' · ':'')+fechaTxt(S.dia)+' · '+S.hora):'';
+  }
+  function horas(){
+    var d=(S.data.dias||[]).filter(function(x){return x.fecha===S.dia})[0], box=$('horas'); box.innerHTML='';
+    if(!d){box.innerHTML='<p class="vacio">Elige un día.</p>';return}
+    var g={};d.horas.forEach(function(h){(g[h.franja]=g[h.franja]||[]).push(h)});
+    ['manana','tarde','noche'].forEach(function(f){ if(!g[f])return;
+      var t=document.createElement('div');t.className='franja';t.textContent=FR[f];box.appendChild(t);
+      var w=document.createElement('div');w.className='horas';
+      g[f].forEach(function(h){var b=document.createElement('button');b.type='button';b.className='hora';b.dataset.v=h.inicio;b.textContent=h.hora;
+        b.onclick=function(){S.inicio=h.inicio;S.hora=h.hora;pinta();$('nombre').value?null:$('nombre').focus()};w.appendChild(b)});
+      box.appendChild(w)});
+  }
+  function arma(d){
+    S.data=d;
+    var intro=d.servicio==='introductoria';
+    if(intro){$('kicker').textContent='Tu primera sesión';$('titulo').textContent='Elige tu día y hora';
+      $('sub').textContent='Entrenas con tu koach y defines el objetivo de tu protocolo, para que nuestro Head KOACH diseñe tu plan de trabajo.';
+      $('bloqueProg').hidden=true;$('pDia').textContent='1 · DÍA';$('pHora').textContent='2 · HORA';$('pDatos').textContent='3 · TUS DATOS';$('go').textContent='AGENDAR MI SESIÓN'}
+    if(d.programa)S.prog=d.programa;
+    $('progs').innerHTML='';PROGS.forEach(function(p){var b=document.createElement('button');b.type='button';b.className='prog';b.dataset.v=p[0];
+      b.innerHTML='<span class="dot" aria-hidden="true"></span><span><strong>'+p[0]+'</strong><small>'+p[1]+'</small></span>';b.onclick=function(){S.prog=p[0];pinta()};$('progs').appendChild(b)});
+    $('dias').innerHTML='';
+    if(!(d.dias||[]).length){$('dias').innerHTML='<p class="vacio">No quedan horarios disponibles estas semanas. Escríbele a Jake por WhatsApp y te ayudamos.</p>'}
+    d.dias.forEach(function(x){var dt=new Date(x.fecha+'T12:00:00'),b=document.createElement('button');b.type='button';b.className='dia';b.dataset.v=x.fecha;
+      b.innerHTML='<em>'+DIAS[dt.getDay()]+'</em><strong>'+dt.getDate()+'</strong><small>'+MESES[dt.getMonth()]+'</small>';
+      b.onclick=function(){S.dia=x.fecha;S.inicio=null;horas();pinta()};$('dias').appendChild(b)});
+    if(d.ya_tiene){$('yaTiene').textContent='Ya tienes una hora agendada: '+d.ya_tiene+'. Si quieres cambiarla, escríbele a Jake por WhatsApp.';$('yaTiene').hidden=false}
+    var nom=[d.datos&&d.datos.nombre,d.datos&&d.datos.apellido].filter(function(x){return x&&x!=='·'}).join(' ');
+    if(nom)$('nombre').value=nom; if(d.datos&&d.datos.email)$('email').value=d.datos.email;
+    $('cargando').hidden=true;$('form').hidden=false;$('pie').hidden=false;pinta();
+  }
+  if(!T){err('Este link no es válido. Pídele uno nuevo a Jake por WhatsApp.');return}
+  fetch(API+'&accion=reserva&t='+encodeURIComponent(T)).then(function(r){return r.json()}).then(function(d){
+    if(!d.ok)return err(d.error||'No pudimos cargar la agenda.'); arma(d) }).catch(function(){err('No pudimos cargar la agenda. Revisa tu conexión e inténtalo de nuevo.')});
+  ['nombre','email'].forEach(function(id){$(id).addEventListener('input',pinta)});
+  $('go').onclick=function(){
+    var b=$('go'),txt=b.textContent;b.disabled=true;b.textContent='AGENDANDO…';$('errForm').hidden=true;
+    fetch(API,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({accion:'reservar',t:T,inicio:S.inicio,nombre:$('nombre').value.trim(),email:$('email').value.trim(),formato:S.prog})})
+    .then(function(r){return r.json()}).then(function(d){
+      if(!d.ok){$('errForm').textContent=d.error||'No se pudo agendar.';$('errForm').hidden=false;b.textContent=txt;pinta();
+        if(d.motivo&&d.motivo!=='ya_tiene'){fetch(API+'&accion=reserva&t='+encodeURIComponent(T)).then(function(r){return r.json()}).then(function(n){if(n.ok){S.data=n;S.inicio=null;horas();pinta()}})}return}
+      $('form').hidden=true;$('pie').hidden=true;$('okCuando').textContent=d.cuando+(d.formato?' · '+d.formato:'');
+      if(d.servicio==='introductoria'){$('okPagar').href='/pagar?t='+encodeURIComponent(T)+'&o=verano_am';$('okPagar').hidden=false}
+      $('listo').hidden=false;window.scrollTo(0,0)})
+    .catch(function(){$('errForm').textContent='No pudimos agendar. Revisa tu conexión e inténtalo de nuevo.';$('errForm').hidden=false;b.textContent=txt;pinta()});
+  };
+})();
+</script>
+</body>
+</html>
