@@ -520,6 +520,8 @@ html.accBloq #pfCard, html.accBloq #vPerfil .kpc__f, html.accBloq #vPerfil [oncl
 .an__exp{border:1.5px solid var(--ln);border-radius:16px;padding:12px;margin-bottom:10px;background:var(--card)}
 .an__exp h4{margin:0 0 8px;font:700 10px var(--font-mono);letter-spacing:.16em;color:var(--mu);display:flex;justify-content:space-between}
 .an__exp .an__chips{margin-top:8px}.an__exp .an__lbl{margin:10px 0 6px}
+.an__regla{display:grid;grid-template-columns:repeat(11,minmax(0,1fr));gap:4px}.an__regla .an__ch{padding:0;min-width:0;min-height:44px;border-radius:12px;font-size:13px}
+.an__escL{display:flex;justify-content:space-between;font:700 9px var(--font-mono);letter-spacing:.12em;color:var(--mu);margin-top:8px}
 .an__act{display:flex;gap:10px;margin-top:12px}
 .an__back{width:56px;min-height:56px;flex:none;border-radius:50%;border:1.5px solid var(--ln);background:rgba(255,255,255,.06);color:var(--ink);font:400 20px var(--font-mono);cursor:pointer}
 .an__go{flex:1;min-height:56px;border:0;border-radius:28px;background:var(--ink);color:#101012;font:800 14px var(--font-display);letter-spacing:.08em;text-transform:uppercase;cursor:pointer}
@@ -594,7 +596,35 @@ html.accBloq #pfCard, html.accBloq #vPerfil .kpc__f, html.accBloq #vPerfil [oncl
 .kHoja__t{margin:8px 0 0;font-family:'KOACH Display','Inter Display',Inter,Arial,sans-serif;font-weight:800;font-size:22px;line-height:1.15;letter-spacing:-.01em}
 .kHoja__p{margin:10px 0 0;font-size:14px;line-height:1.5;color:#4A4945}
 .kHoja__b{display:flex;gap:8px;margin-top:18px}.kHoja__b button{flex:1;min-height:52px;border-radius:14px;font:700 11px 'Space Mono','IBM Plex Mono',monospace;letter-spacing:.12em;cursor:pointer}
-.kHoja__no{background:transparent;border:1.5px solid #111;color:#111}.kHoja__si{background:#111;border:0;color:#F6F5F2}
+.kAu{position:fixed;inset:0;z-index:2100;background:#0B0B0C;color:#F6F5F2;display:flex;flex-direction:column;animation:kHf .2s ease-out;padding:env(safe-area-inset-top) 0 env(safe-area-inset-bottom)}
+.kAu__top{display:flex;align-items:center;justify-content:space-between;padding:18px 22px 6px}
+.kAu__logo{width:104px;height:22px;background:#F6F5F2;-webkit-mask:url(/img/brand/logotipo-koach.png) no-repeat left center/contain;mask:url(/img/brand/logotipo-koach.png) no-repeat left center/contain}
+.kAu__x{width:44px;height:44px;border:0;border-radius:50%;background:rgba(246,245,242,.08);color:#F6F5F2;font-size:18px;cursor:pointer}
+.kAu__body{flex:1;overflow:auto;padding:4vh 24px 16px;display:flex;flex-direction:column;max-width:560px;width:100%;margin:0 auto;box-sizing:border-box}
+.kAu__k{font:400 11px var(--font-mono);letter-spacing:.14em;color:rgba(246,245,242,.6)}.kAu__k b{color:#F6F5F2;font-weight:700}
+.kAu__lista{margin-top:3.5vh;font:700 clamp(20px,5.5vw,26px) var(--font-display);color:rgba(246,245,242,.42);text-decoration:line-through;text-decoration-thickness:2px}
+.kAu__precio{font:800 clamp(64px,21vw,120px)/.92 var(--font-display);letter-spacing:-.035em;margin-top:2px;white-space:nowrap}.kAu__precio--l{font-size:clamp(54px,17.5vw,112px)}
+.kAu__ok{margin-top:auto}
+@media (min-width:600px) and (min-height:900px){.kAu{justify-content:center}.kAu__top{position:absolute;top:env(safe-area-inset-top);left:0;right:0}.kAu__body{flex:none}.kAu__ok{margin-top:0}.kAu__precio{font-size:clamp(96px,16vw,150px)}.kAu__pie{padding-bottom:6vh}}
+@media (max-height:720px){.kAu__body{padding-top:2vh}.kAu__precio{font-size:clamp(52px,16vw,88px)}.kAu__precio--l{font-size:clamp(46px,14vw,80px)}.kAu__lista{margin-top:2vh}.kAu__datos{margin:2.5vh 0 1.5vh}.kAu__datos div{padding:10px 14px}.kAu__chk{padding:8px 0;font-size:15px}.kAu__go{height:54px}.kAu__top{padding-top:12px}}
+.kAu__cada{font:800 clamp(20px,6vw,30px) var(--font-display);letter-spacing:.01em;text-transform:uppercase;margin-top:6px}
+.kAu__ahorro{align-self:flex-start;margin-top:14px;padding:7px 12px;border-radius:999px;background:#F6F5F2;color:#0B0B0C;font:700 11px var(--font-mono);letter-spacing:.1em}
+.kAu__datos{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:4.5vh 0 3vh}.kAu__datos b.kAu__s{font-size:clamp(15px,4.2vw,19px)}
+.kAu__datos div{border:1px solid rgba(246,245,242,.16);border-radius:16px;padding:14px 16px}
+.kAu__datos span{display:block;font:400 10px var(--font-mono);letter-spacing:.12em;color:rgba(246,245,242,.55)}
+.kAu__datos b{display:block;margin-top:6px;font:800 clamp(17px,4.8vw,22px) var(--font-display);text-transform:uppercase}
+.kAu__chk{display:flex;gap:14px;align-items:flex-start;padding:12px 0;font-size:16px;line-height:1.38;cursor:pointer;color:rgba(246,245,242,.86)}.kAu__chk b{color:#F6F5F2}
+.kAu__chk input{position:absolute;opacity:0;pointer-events:none}
+.kAu__box{flex:none;width:26px;height:26px;border:2px solid rgba(246,245,242,.55);border-radius:7px;margin-top:-1px;display:grid;place-items:center;transition:background .12s,border-color .12s}
+.kAu__chk input:checked+.kAu__box{background:#F6F5F2;border-color:#F6F5F2}
+.kAu__chk input:checked+.kAu__box::after{content:'';width:7px;height:13px;border:solid #0B0B0C;border-width:0 3px 3px 0;transform:translateY(-1px) rotate(45deg)}
+.kAu__chk input:focus-visible+.kAu__box{outline:2px solid #F6F5F2;outline-offset:3px}
+.kAu__cond{margin:8px 0 0;font-size:13px;line-height:1.45;color:rgba(246,245,242,.6)}
+.kAu__pie{padding:12px 22px 20px;display:flex;flex-direction:column;gap:6px;max-width:560px;width:100%;margin:0 auto;box-sizing:border-box}
+.kAu__go{height:60px;border:0;border-radius:18px;background:#F6F5F2;color:#0B0B0C;font:700 14px var(--font-mono);letter-spacing:.14em;cursor:pointer;transition:background .15s,color .15s}
+.kAu__go:disabled{background:rgba(246,245,242,.12);color:rgba(246,245,242,.38);cursor:not-allowed}
+.kAu__no{height:44px;border:0;background:none;color:rgba(246,245,242,.6);font:400 11px var(--font-mono);letter-spacing:.14em;cursor:pointer}
+.kHoja__no{background:transparent;border:1.5px solid #111;color:#111}.kHoja__si{background:#111;border:0;color:#F6F5F2}.kHoja__si:disabled{background:rgba(18,18,18,.14);color:rgba(18,18,18,.38);cursor:not-allowed}
 .kHoja__b button:focus-visible{outline:2px solid #111;outline-offset:3px}
 @keyframes kHf{from{opacity:0}}@keyframes kHu{from{opacity:0;transform:translateY(12px)}}
 @media (prefers-reduced-motion:reduce){ .kHoja,.kHoja__c{animation:none} }
@@ -4920,6 +4950,7 @@ async function entrar(opts){
     document.getElementById('hAv').textContent = (perfil.nombre||'K')[0].toUpperCase()
     S.frases = (rCfg && rCfg.data && rCfg.data.frases) || null
     const memP = cargarMembresia()   // en paralelo con el resto (no depende del programa)
+    if (/[?&](pago|susc|cobro|auto)=/.test(location.search)) memP.then(()=>flowRetorno()).catch(()=>{})   // vuelta desde Flow
     if (!opts.silent && perfil.estado==='clase_prueba') anRevisar()   // c216 · clase de prueba: bienvenida + anamnesis antes de la demo
     else if (!opts.silent && welcomeDebeMostrarse()) mostrarWelcome()
     else if (!opts.silent) setTimeout(pedirFoto, 1500)
@@ -5184,6 +5215,7 @@ const AN_MUS={hombre:['Pecho','Espalda','Brazos','Hombros','Abdomen','Piernas','
 const AN_OBJ={masa:'Ganar masa muscular',grasa:'Bajar grasa',tonificar:'Tonificar y definir',fuerza:'Más fuerza',salud:'Salud y bienestar'}
 const AN_ZN={superior:'Tren superior',inferior:'Tren inferior',completo:'Cuerpo completo'}
 const AN_NUNCA=A=>A.ultima==='nunca'
+// c220 · anamnesis v4: + por qué entrena (autodeterminación), meta única y plazo, importancia y confianza 0–10, barrera, qué lo mueve y qué necesita ver hoy
 // c218 · anamnesis v2: datos clave (edad, última vez, máximo continuo, disciplinas), salud (patologías, lesiones, dolor hoy, energía) y proceso (qué será determinante, qué le preocupa, qué espera)
 const AN_Q=[
  {id:'edad',k:'TÚ',q:'¿Cuántos años tienes?',t:'edad'},
@@ -5200,9 +5232,15 @@ const AN_Q=[
  {id:'sensacion',k:'CÓMO TE SIENTES',q:'¿Cómo te has sentido últimamente en tu día a día?',sub:'Puedes elegir varias.',t:'chk',o:()=>['Me siento bien, con energía','Me canso durante el día','Me da sueño o duermo mal','Me duele el cuerpo o me siento rígido','Me siento pesado o hinchado','Ando con estrés o ansiedad','Me falta energía para entrenar'],txt:{l:'CUÉNTANOS UN POCO MÁS · OPCIONAL',ph:'Ej.: Llego muy cansado del trabajo y me cuesta levantarme en la mañana'}},
  {id:'tiempo',k:'TU TIEMPO',q:'¿Cuánto tiempo tienes para entrenar?',t:'tiempo'},
  {id:'decision',k:'TU DECISIÓN',q:'¿Qué te hizo tomar la decisión de cambiar ahora?',sub:'Puedes elegir varias.',t:'chk',excl:false,o:()=>['Me vi en una foto o en el espejo','Un tema de salud o un examen','Me siento sin energía','Una fecha o evento que se viene','Quiero volver a sentirme como antes','Me cansé de empezar y dejar','Alguien me motivó','Otro'],txt:{l:'CON TUS PALABRAS · OPCIONAL',ph:'Ej.: Me hice exámenes y salí con el colesterol alto',siempre:true}},
- {id:'espera',k:'TU PROCESO',q:'¿Qué esperas lograr con este proceso?',sub:'Con tus palabras: qué quieres ver, sentir o cambiar, y en cuánto tiempo.',t:'txt',ph:'Ej.: Bajar 6 kilos y sentirme con energía antes del verano'},
+ {id:'motivo',k:'TU DECISIÓN',q:'¿Por qué quieres entrenar?',sub:'Elige hasta 2. No hay respuestas buenas ni malas.',t:'many',max:2,o:[['valoro','Valoro lo que me va a dar'],['parte','Quiero que sea parte de mi vida'],['gusta','Me gusta entrenar'],['alguien','Alguien me lo pidió o recomendó'],['culpa','Me siento culpable si no lo hago']]},
+ {id:'espera',k:'TU META',q:'Si tuvieras que elegir una sola cosa, ¿qué quieres lograr?',sub:'Con tus palabras: qué quieres ver, sentir o cambiar.',t:'txt',ph:'Ej.: Llegar al matrimonio de mi hermana con los brazos y el abdomen más firmes'},
+ {id:'plazo',k:'TU META',q:'¿Para cuándo quieres lograrlo?',t:'one',o:[['1m','En 1 mes'],['3m','En 3 meses'],['6m','En 6 meses'],['fecha','Para una fecha o evento'],['sin','Sin apuro, quiero hacerlo bien']]},
+ {id:'regla',k:'TU META',q:'Del 0 al 10…',sub:'Responde con lo primero que sientas.',t:'regla'},
  {id:'determinante',k:'ESTA VEZ',q:'¿Qué crees que será determinante para lograr tu resultado esta vez?',sub:'Elige hasta 3.',t:'many',max:3,txt:{k:'ayuda',l:'¿CÓMO CREES QUE KOACH TE VA A AYUDAR A LOGRARLO?',ph:'Ej.: Teniendo a alguien que me diga qué hacer y me corrija'},o:[['planificacion','Una buena planificación'],['esquema','Un esquema de trabajo claro'],['guia','Alguien que me guíe y corrija'],['constancia','Constancia y frecuencia'],['intensidad','Entrenar con la intensidad correcta'],['alimentacion','La alimentación'],['seguimiento','Ver mi progreso'],['comunidad','Un buen ambiente que me motive']]},
  {id:'preocupa',k:'ESTA VEZ',q:'¿Qué te preocupa al empezar?',sub:'Puedes elegir varias.',t:'many',solo:'nada',o:[['lesion','Lesionarme'],['constancia','No ser constante'],['resultados','No ver resultados'],['maquinas','No saber usar las máquinas'],['nivel','No estar al nivel'],['tiempo','No tener tiempo'],['nada','Nada, quiero partir']]},
+ {id:'barrera',k:'ESTA VEZ',q:'Si esta vez lo dejaras, ¿qué sería lo más probable?',sub:'Saberlo hoy nos ayuda a que no pase.',t:'one',o:[['trabajo','El trabajo o la falta de tiempo'],['viajes','Viajes'],['resultados','No ver resultados'],['aburrir','Aburrirme'],['lesion','Una lesión o dolor'],['plata','La plata'],['motivacion','Perder la motivación']]},
+ {id:'mueve',k:'TU ESTILO',q:'¿Qué te mueve más?',t:'one',o:[['pertenecer','Entrenar acompañado y ser parte de algo'],['medirme','Medirme y superar mis marcas'],['guia','Que alguien experto me guíe y no tener que pensar']]},
+ {id:'verhoy',k:'HOY',q:'¿Qué necesitas ver hoy para sentir que esta vez sí va a funcionar?',sub:'Elige hasta 2.',t:'many',max:2,txt:{k:'verhoyTxt',l:'CON TUS PALABRAS · OPCIONAL',ph:'Ej.: Que me expliquen cómo voy a progresar'},o:[['plan','Que me expliquen mi plan'],['sentir','Sentir un buen entrenamiento'],['progreso','Ver cómo registro mi progreso'],['correccion','Que el koach me corrija'],['precio','Conocer las opciones y el precio'],['ambiente','Conocer el ambiente']]},
  {id:'origen',k:'KOACH',q:'¿Cómo llegaste a KOACH?',t:'one',o:[['publicidad','Vi publicidad'],['recomendacion','Me lo recomendaron'],['conocia','Ya conocía el método'],['otro','Otro']]}
 ]
 const AN={A:{}, i:0, el:null, poll:null}
@@ -5249,7 +5287,7 @@ function anBienvenida(){ const n=anEsc(msgNombre()||''), m=anSx()==='mujer'
     '<p><b>'+(m?'Bienvenida':'Bienvenido')+' a tu clase de prueba.</b> Hoy vas a vivir el Método KOACH: un koach te guía en todo momento.</p>'+
     '<div class="an__facts"><div><small>BLOQUES</small><b>2</b></div><div><small>SETS</small><b>3×</b></div><div><small>DURACIÓN</small><b>40′</b></div></div>'+
     '<p>Antes de comenzar, queremos conocerte. Con tus respuestas, tu koach prepara tu clase.</p></div>'+
-    '<div class="an__act"><button type="button" class="an__go" onclick="AN.i=0;anPaso()">EMPEZAR · 3 MIN →</button></div>') }
+    '<div class="an__act"><button type="button" class="an__go" onclick="AN.i=0;anPaso()">EMPEZAR · 4 MIN →</button></div>') }
 function anVis(){ return AN_Q.filter(q=>!q.skip||!q.skip(AN.A)) }
 function anOk(q){ const v=AN.A[q.id]
   if(q.opt) return true
@@ -5261,6 +5299,7 @@ function anOk(q){ const v=AN.A[q.id]
   if(q.t==='hist') return !!(v&&v[0]&&(String(v[0].lugar||'').trim()||v[0].disc)&&v[0].dur!=null)
   if(q.t==='tiempo') return !!(v&&v.dias&&v.min&&v.hor)
   if(q.t==='chk') return !!(v&&v.sel&&v.sel.length)
+  if(q.t==='regla') return !!(v&&v.imp!=null&&v.conf!=null)
   return true }
 function anPaso(){ const L=anVis(); if(AN.i>=L.length) return anGuardar(); const q=L[AN.i], v=AN.A[q.id], P=(x)=>'aria-pressed="'+!!x+'"'
   let b=''
@@ -5280,6 +5319,8 @@ function anPaso(){ const L=anVis(); if(AN.i>=L.length) return anGuardar(); const
       '<div class="an__lbl">¿CÓMO TE FUE? · OPCIONAL</div><textarea class="an__tx an__tx--s" maxlength="300" placeholder="Ej.: Iba solo, hacía siempre lo mismo y lo dejé a los 2 meses" oninput="AN.A.historial['+k+'].desc=this.value">'+anEsc(e.desc||'')+'</textarea></div>').join('') }
   if(q.t==='tiempo'){ const t=v||{}, row=(k,l,o)=>'<div class="an__lbl">'+l+'</div><div class="an__chips">'+o.map(x=>'<button type="button" class="an__ch" '+P(t[k]===x)+' onclick="anTiempo(\''+k+'\',\''+x+'\')">'+x+'</button>').join('')+'</div>'
     b=row('dias','DÍAS POR SEMANA',['2','3','4','5+'])+row('min','TIEMPO POR SESIÓN',['45 MIN','60 MIN','90 MIN'])+row('hor','HORARIO',['MAÑANA','MEDIODÍA','TARDE','NOCHE']) }
+  if(q.t==='regla'){ const r=v||{}, fila=(k,l)=>'<div class="an__lbl">'+l+'</div><div class="an__chips an__regla">'+[0,1,2,3,4,5,6,7,8,9,10].map(x=>'<button type="button" class="an__ch" '+P(r[k]===x)+' onclick="anRegla(\''+k+'\','+x+')">'+x+'</button>').join('')+'</div>'
+    b=fila('imp','¿QUÉ TAN IMPORTANTE ES PARA TI LOGRARLO AHORA?')+fila('conf','¿QUÉ TAN SEGURO TE SIENTES DE PODER MANTENERLO?')+'<div class="an__escL"><span>0 · NADA</span><span>10 · TOTALMENTE</span></div>' }
   if(q.t==='chk'){ const c=v||{sel:[],txt:''}, ops=q.o(), ning=q.excl===false?'':ops[0]
     b='<div class="an__chips">'+ops.map(x=>'<button type="button" class="an__ch" '+P(c.sel.includes(x))+' onclick="anChkSel(\''+q.id+'\',\''+x+'\',\''+ning+'\')">'+x.toUpperCase()+'</button>').join('')+'</div>'+
       ((q.txt.siempre||(c.sel.length&&!c.sel.includes(ning)))?'<div class="an__lbl">'+q.txt.l+'</div><textarea class="an__tx" maxlength="400" placeholder="'+anEsc(q.txt.ph)+'" oninput="AN.A[\''+q.id+'\'].txt=this.value">'+anEsc(c.txt||'')+'</textarea>':'') }
@@ -5303,18 +5344,19 @@ function anChkSel(id,x,ning){ const c=AN.A[id]||{sel:[],txt:''}
   AN.A[id]=c; anPaso() }
 function anZona(k,x){ const v=AN.A.zona||{z:'',m:[]}; if(k==='z') v.z=x; else v.m=v.m.includes(x)?v.m.filter(y=>y!==x):v.m.concat(x); AN.A.zona=v; anPaso() }
 function anHist(k,c,x){ AN.A.historial[k][c]=(AN.A.historial[k][c]===x?undefined:x); anPaso() }
+function anRegla(k,x){ AN.A.regla=AN.A.regla||{}; AN.A.regla[k]=x; anPaso() }
 function anTiempo(k,x){ AN.A.tiempo=AN.A.tiempo||{}; AN.A.tiempo[k]=x; anPaso() }
 function anSalud(x){ const s=AN.A.salud||{sel:[],txt:''}; if(x==='Ninguna') s.sel=s.sel.includes(x)?[]:['Ninguna']; else { s.sel=s.sel.filter(y=>y!=='Ninguna'); s.sel=s.sel.includes(x)?s.sel.filter(y=>y!==x):s.sel.concat(x) } AN.A.salud=s; anPaso() }
 function anSig(){ AN.i++; anPaso() }
 function anAtras(){ if(AN.i===0) return anBienvenida(); AN.i--; anPaso() }
 function anFinal(){ const A=JSON.parse(JSON.stringify(AN.A||{}))
   if (A.historial) A.historial=A.historial.filter(function(e){ return e&&(String(e.lugar||'').trim()||e.dur!=null) })
-  ;['frustraTxt','porque','espera','ayuda'].forEach(function(k){ if(typeof A[k]==='string'){ A[k]=A[k].trim(); if(!A[k]) delete A[k] } })
+  ;['frustraTxt','porque','espera','ayuda','verhoyTxt'].forEach(function(k){ if(typeof A[k]==='string'){ A[k]=A[k].trim(); if(!A[k]) delete A[k] } })
   if (A.edad) A.edad=+A.edad
   if (A.maximo!=null&&A.maximo!=='') A.maximo=+A.maximo
   if (A.ultima){ const lejos=['m6','m12','a1'].includes(A.ultima), corto=A.maximo!=null&&A.maximo<=1
     A.experiencia = A.ultima==='nunca' ? 'cero' : (lejos||corto) ? 'antes' : 'sinplan' }
-  A.sexo=anSx(); A.version=3; A.respondida_at=A.respondida_at||new Date().toISOString(); return A }
+  A.sexo=anSx(); A.version=4; A.respondida_at=A.respondida_at||new Date().toISOString(); return A }
 async function anGuardar(){ const A=anFinal()
   try{ localStorage.setItem(anClave('p'), JSON.stringify(A)) }catch(_e){}   // c217 · respaldo: no se pierde aunque se caiga todo
   anPant(anTop('GUARDANDO')+'<div class="an__hero"><h1 style="font-size:40px">Un segundo…</h1></div>')
@@ -8167,6 +8209,7 @@ async function cargarMembresia(){
   }catch(_){}
   // c38 · CONTROL DE ACCESO: el servidor decide (membresía vigente + pago registrado, o prórroga del staff)
   try{ const ra=await sb.rpc('mi_acceso'); S.acceso=(ra && !ra.error && ra.data) || null }catch(_){ S.acceso=null }
+  await flowSuscCargar()
   const vig=S.mem.find(m=>['activa','proxima','congelada'].includes(m.estado_calc))
     || S.mem.filter(m=>m.estado_calc==='futura').sort((a,b)=>a.fecha_inicio<b.fecha_inicio?-1:1)[0] || null
   S.memVig = vig || S.mem[0] || null
@@ -8207,9 +8250,24 @@ function avisoRenovacion(vig){
   const prev=document.getElementById('avRenov'); if (prev) prev.remove()
   if (!vig || vig.estado_calc==='congelada' || S.memBloqueo) return
   if (['ugc','canje','cortesia'].includes(vig.tipo_comercial)) return   // beneficio sin cobro: no se le pide pago
+  if (S.flowSusc && S.flowSusc.estado==='activa') return avisoCobroAuto()   // T&C 4.3: aviso previo a cada cobro
   const t=textoRenovacion(S.memDiasAcceso); if (!t) return
   const d=document.createElement('div'); d.id='avRenov'; d.className='avRenov'; d.setAttribute('role','status')
-  d.innerHTML='<div class="avRenov__tx"><b>'+t+'</b><span>Acércate a recepción para poder actualizar tu pago.</span></div>'+
+  d.innerHTML='<div class="avRenov__tx"><b>'+t+'</b><span>Renueva en línea o acércate a recepción. <a href="#" onclick="flowPagar();return false" style="color:inherit;font-weight:700;text-decoration:underline">RENOVAR AHORA</a></span></div>'+
+    '<button type="button" class="avRenov__x" aria-label="Cerrar aviso" onclick="var a=document.getElementById(\'avRenov\'); if(a){a.classList.add(\'out\'); setTimeout(function(){a.remove()},220)}">'+
+    '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button>'
+  document.body.appendChild(d)
+}
+// T&C v2.0 cl. 4.3 · aviso 5 días antes de cada cobro automático · cl. 4.9 · aviso 30 días antes del fin de la permanencia
+function avisoCobroAuto(){
+  const f=S.flowSusc; if(!f || f.estado!=='activa') return
+  const hoy=fLocal(new Date()), dd=iso=>Math.round((new Date(iso+'T12:00:00')-new Date(hoy+'T12:00:00'))/86400000)
+  let t=null, sub='Puedes revisarlo o desactivarlo en tu Perfil.'
+  if (f.proximo_cobro){ const d=dd(f.proximo_cobro); if (d>=0 && d<=5) t=(d===0?'Hoy':d===1?'Mañana':'El '+_fm(f.proximo_cobro))+' se cobra tu mensualidad automática de $'+(+f.monto).toLocaleString('es-CL')+'.' }
+  if (!t && f.permanencia_hasta){ const d=dd(f.permanencia_hasta); if (d>=0 && d<=30){ t='Tu permanencia termina el '+_fm(f.permanencia_hasta)+'.'; sub='El compromiso no se renueva solo: desde esa fecha puedes desactivar tu pago automático sin costo.' } }
+  if (!t) return
+  const d=document.createElement('div'); d.id='avRenov'; d.className='avRenov'; d.setAttribute('role','status')
+  d.innerHTML='<div class="avRenov__tx"><b>'+t+'</b><span>'+sub+'</span></div>'+
     '<button type="button" class="avRenov__x" aria-label="Cerrar aviso" onclick="var a=document.getElementById(\'avRenov\'); if(a){a.classList.add(\'out\'); setTimeout(function(){a.remove()},220)}">'+
     '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button>'
   document.body.appendChild(d)
@@ -8232,7 +8290,8 @@ function aplicarBloqueo(){
   const html='<div class="lockAcc__i" aria-hidden="true">'+
       '<svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg></div>'+
     '<div class="lockAcc__k">ACCESO RESTRINGIDO</div><h2 class="lockAcc__t">'+t.t+'</h2><p class="lockAcc__b">'+t.b+'</p>'+
-    '<a class="lockAcc__cta" href="https://wa.me/56974369521?text='+encodeURIComponent('Hola KOACH, quiero regularizar mi membresía')+'" target="_blank" rel="noopener">HABLAR CON KOACH →</a>'+
+    (S.acceso.estado==='congelada'||S.acceso.estado==='futura' ? '' : '<button type="button" class="lockAcc__cta" onclick="flowPagar()">PAGAR EN LÍNEA →</button>')+
+    '<a class="lockAcc__sec" href="https://wa.me/56974369521?text='+encodeURIComponent('Hola KOACH, quiero regularizar mi membresía')+'" target="_blank" rel="noopener">HABLAR CON KOACH</a>'+
     '<button type="button" class="lockAcc__sec" onclick="accReintentar(this)">YA PAGUÉ · ACTUALIZAR</button>'
   ;['vHome','vPlan','vAvances','vHist','vPerfil'].forEach(function(id){ const v=document.getElementById(id); if(!v) return
     const d=document.createElement('section'); d.className='lockAcc'; d.id='lock_'+id; d.setAttribute('role','status'); d.innerHTML=html
@@ -8241,10 +8300,137 @@ function aplicarBloqueo(){
 async function accReintentar(b){ b.disabled=true; b.textContent='REVISANDO…'
   await cargarMembresia()
   if (S.acceso && S.acceso.acceso){ toast('Acceso habilitado ✓'); entrar() } else { b.disabled=false; b.textContent='YA PAGUÉ · ACTUALIZAR'; toast('Aún no vemos el pago registrado. Pide a recepción que lo ingrese.') } }
+/* ═══ FLOW · pago en línea de la membresía ═══
+   La app solo pide la orden (Edge Function flow-pago) y redirige a Flow. La acreditación la hace el servidor
+   (flow-webhook → getStatus firmado → flow_procesar → motor de ventas único), nunca el navegador. */
+async function flowFn(body, fn){
+  const { data:{ session } } = await sb.auth.getSession()
+  const r = await fetch(SB_URL+'/functions/v1/'+(fn||'flow-pago'), { method:'POST', headers:{ 'Content-Type':'application/json', apikey:SB_KEY, Authorization:'Bearer '+(session&&session.access_token||'') }, body:JSON.stringify(body) })
+  const d = await r.json().catch(()=>({})); if (!r.ok) throw new Error(d.error||'No pudimos conectar con Flow'); return d
+}
+async function flowPagar(){
+  let planes=[], cobros=[], auto=null
+  try{ const d=await flowFn({ accion:'planes' }); planes=d.planes||[]; cobros=d.cobros||[]; auto=d.auto||null }catch(e){ toast(e.message); return }
+  if (S.flowSusc && S.flowSusc.estado==='activa') cobros=cobros.filter(c=>!c.recurrente)
+  if (!planes.length && !cobros.length){ toast('No hay planes disponibles para pago en línea'); return }
+  const $=n=>'$'+(+n).toLocaleString('es-CL'), dur=p=>p.duracion_tipo==='mes'?(p.duracion_valor===1?'1 MES':p.duracion_valor+' MESES'):p.duracion_tipo==='semana'?'1 SEMANA':'1 DÍA'
+  const bg=document.createElement('div'); bg.className='kHoja'; bg.setAttribute('role','dialog'); bg.setAttribute('aria-modal','true')
+  bg.innerHTML='<div class="kHoja__c"><span class="kHoja__k">PAGO EN LÍNEA · FLOW</span><h3 class="kHoja__t">ELIGE TU MEMBRESÍA</h3>'+
+    '<p class="kHoja__p">Pagas con tarjeta en Flow y tu membresía se activa sola en la app. Si tienes una vigente, el nuevo período parte cuando termine.</p>'+
+    (cobros.length ? '<span class="kHoja__k" style="display:block;margin-top:14px">TU COBRO KOACH</span><div style="display:grid;gap:8px;margin:8px 0 4px">'+cobros.map(c=>'<button type="button" class="flCo" data-id="'+c.id+'" data-rec="'+(c.recurrente?1:0)+'" style="display:flex;justify-content:space-between;align-items:center;gap:10px;width:100%;min-height:62px;padding:10px 14px;border-radius:12px;border:2px solid #121212;background:#F4F3F0;color:#121212;cursor:pointer;text-align:left">'+
+        '<span><b style="display:block;font:800 15px var(--font-display);text-transform:uppercase">'+plEscA(c.concepto||'MEMBRESÍA '+dur(c))+'</b><small style="font:400 10.5px var(--font-mono);letter-spacing:.08em">'+dur(c)+(c.recurrente?(c.duracion_valor===1?' · PAGO AUTOMÁTICO CADA MES':' · PAGO AUTOMÁTICO CADA '+c.duracion_valor+' MESES'):' · PAGO ÚNICO')+'</small></span>'+
+        '<b style="font:700 15px var(--font-mono)">'+$(c.monto)+'</b></button>').join('')+'</div>' : '')+
+    (S.flowSusc && S.flowSusc.estado==='activa' || !auto ? '' :
+      '<span class="kHoja__k" style="display:block;margin-top:14px">PAGO AUTOMÁTICO'+(auto.personalizada?' · TARIFA EXCLUSIVA':'')+'</span>'+
+      '<div style="display:grid;gap:8px;margin:8px 0 4px"><button type="button" class="flAu" style="display:flex;justify-content:space-between;align-items:center;gap:10px;width:100%;min-height:58px;padding:10px 14px;border-radius:12px;border:none;background:#121212;color:#F4F3F0;cursor:pointer;text-align:left">'+
+        '<span><b style="display:block;font:800 15px var(--font-display);text-transform:uppercase">MENSUAL AUTOMÁTICO</b><small style="font:400 10.5px var(--font-mono);letter-spacing:.08em">COBRO CADA MES · CANCELAS CUANDO QUIERAS</small></span>'+
+        '<b style="font:700 15px var(--font-mono)">'+$(auto.monto)+'</b></button></div>')+
+    '<span class="kHoja__k" style="display:block;margin-top:14px">PAGO ÚNICO</span>'+
+    '<div style="display:grid;gap:8px;margin:8px 0 14px">'+planes.map(p=>'<button type="button" class="flPl" data-id="'+p.id+'" style="display:flex;justify-content:space-between;align-items:center;gap:10px;width:100%;min-height:58px;padding:10px 14px;border-radius:12px;border:1px solid rgba(18,18,18,.25);background:#F6F5F2;color:#121212;cursor:pointer;text-align:left">'+
+      '<span><b style="display:block;font:800 15px var(--font-display);text-transform:uppercase">'+plEscA(p.nombre)+'</b><small style="font:400 10.5px var(--font-mono);letter-spacing:.08em">'+dur(p)+(p.hora_limite?' · INGRESO HASTA '+String(p.hora_limite).slice(0,5):'')+'</small></span>'+
+      '<b style="font:700 15px var(--font-mono)">'+$(p.precio)+'</b></button>').join('')+'</div>'+
+    '<div class="kHoja__b"><button type="button" class="kHoja__no">VOLVER</button></div></div>'
+  const fin=()=>bg.remove()
+  bg.addEventListener('click',e=>{ if(e.target===bg) fin() }); bg.querySelector('.kHoja__no').onclick=fin
+  bg.querySelectorAll('.flCo').forEach(b=>b.onclick=async()=>{
+    bg.querySelectorAll('.flPl,.flAu,.flCo').forEach(x=>x.disabled=true); b.style.opacity='.6'; b.querySelector('small').textContent='CONECTANDO CON FLOW…'
+    try{ const d = b.dataset.rec==='1' ? await flowFn({ accion:'iniciar', cobro_id:b.dataset.id }, 'flow-suscripcion') : await flowFn({ accion:'crear', cobro_id:b.dataset.id }); location.href=d.url }
+    catch(e){ toast(e.message); fin() }
+  })
+  bg.querySelectorAll('.flAu').forEach(b=>b.onclick=()=>{ fin(); flowAutoAutorizar() })
+  bg.querySelectorAll('.flPl').forEach(b=>b.onclick=async()=>{
+    bg.querySelectorAll('.flPl').forEach(x=>x.disabled=true); b.style.opacity='.6'; b.querySelector('small').textContent='CONECTANDO CON FLOW…'
+    try{ const d=await flowFn({ accion:'crear', plan_id:b.dataset.id }); location.href=d.url }
+    catch(e){ toast(e.message); fin() }
+  })
+  document.body.appendChild(bg)
+}
+async function flowSuscCargar(){
+  try{ const r=await sb.from('flow_suscripciones').select('id,estado,plan_nombre,monto,duracion_valor,tarjeta_tipo,tarjeta_ult4,inicio,proximo_cobro,permanencia_meses,permanencia_hasta,precio_lista,cobros_pagados').eq('socio_id',S.perfil.id).in('estado',['activa','cancelada_fin_periodo']).order('created_at',{ascending:false}).limit(1).maybeSingle()
+    S.flowSusc=(r && !r.error && r.data) || null }catch(_){ S.flowSusc=null }
+}
+// T&C v2.0 cl. 4.9 · salida anticipada = (lista − valor mensual) × meses pagados, solo dentro de la permanencia
+function flowSalida(f){ const hoy=fLocal(new Date()), en=!!(f && f.permanencia_meses>0 && f.permanencia_hasta && hoy<f.permanencia_hasta)
+  const desc=Math.max(0,((f&&f.precio_lista)||80000)-((f&&f.monto)||0)), meses=(f&&f.cobros_pagados)||0
+  return { en, desc, meses, monto: en ? desc*meses : 0 } }
+function flowSuscHtml(){
+  const f=S.flowSusc; if(!f) return ''
+  const tj=f.tarjeta_ult4?' · '+String(f.tarjeta_tipo||'TARJETA').toUpperCase()+' •••• '+f.tarjeta_ult4:'', sl=flowSalida(f)
+  if (f.estado!=='activa') return '<div class="mS" style="margin-top:10px"><b>PAGO AUTOMÁTICO DESACTIVADO</b> · no habrá más cobros; tu membresía sigue hasta su término.</div>'
+  return '<div class="mS" style="margin-top:10px"><b>PAGO AUTOMÁTICO ACTIVO</b> · $'+(+f.monto).toLocaleString('es-CL')+((f.duracion_valor||1)>1?' cada '+f.duracion_valor+' meses':' al mes')+tj+'</div>'+
+    (f.proximo_cobro?'<div class="mS">PRÓXIMO COBRO · '+_fm(f.proximo_cobro).toUpperCase()+'</div>':'')+
+    (sl.en?'<div class="mS">PERMANENCIA HASTA EL '+_fm(f.permanencia_hasta).toUpperCase()+'</div>':'')+
+    '<button type="button" class="mCta" style="width:100%;cursor:pointer;background:none;color:inherit" onclick="flowSuscCancelar(this)">'+(sl.en?'SOLICITAR TÉRMINO':'DESACTIVAR PAGO AUTOMÁTICO')+'</button>'
+}
+async function flowSuscCancelar(b){
+  const f=S.flowSusc, sl=flowSalida(f), $=n=>'$'+(+n).toLocaleString('es-CL')
+  if (sl.en){
+    const msg = sl.monto>0
+      ? 'TÉRMINO ANTICIPADO\nEstás dentro de tu permanencia hasta el '+_fm(f.permanencia_hasta)+'. El monto de salida es el descuento recibido: '+sl.meses+' '+(sl.meses===1?'mes':'meses')+' × '+$(sl.desc)+' = '+$(sl.monto)+'. Se cobra una sola vez en tu tarjeta registrada, se cierra el pago automático y tu membresía sigue vigente hasta el fin del mes pagado.'
+      : 'TÉRMINO ANTICIPADO\nAún no tienes meses pagados en tu permanencia: no hay monto de salida. Se cierra el pago automático.'
+    if (!(await kHoja({ k:'PAGO AUTOMÁTICO', msg, si: sl.monto>0 ? 'CONFIRMAR Y PAGAR '+$(sl.monto) : 'CONFIRMAR TÉRMINO', no:'VOLVER' }))) return
+  } else if (!(await kHoja({ k:'PAGO AUTOMÁTICO', msg:'¿DESACTIVAR EL PAGO AUTOMÁTICO?\nNo se harán más cobros. Tu membresía sigue vigente hasta su término y puedes renovar cuando quieras.', si:'SÍ, DESACTIVAR', no:'VOLVER' }))) return
+  b.disabled=true; b.textContent='PROCESANDO…'
+  try{ const r=await flowFn({ accion:'terminar', confirmo:true }, 'flow-suscripcion'); await flowSuscCargar(); pintarMembresia()
+    toast(r.cobrado>0 ? 'Término registrado · cobro de salida '+$(r.cobrado) : 'Pago automático desactivado') }
+  catch(e){ kAviso('NO SE PUDO COMPLETAR\n'+e.message,'PAGO AUTOMÁTICO'); b.disabled=false; b.textContent=sl.en?'SOLICITAR TÉRMINO':'DESACTIVAR PAGO AUTOMÁTICO' }
+}
+// T&C v2.0 cl. 4.1 · antes de registrar la tarjeta: monto, periodicidad, fechas, permanencia y autorización expresa
+async function flowAutoAutorizar(){
+  let c; try{ c=await flowFn({ accion:'cotizar' }, 'flow-suscripcion') }catch(e){ toast(e.message); return }
+  const $=n=>'$'+(+n).toLocaleString('es-CL'), hoy=fLocal(new Date()), perm=c.permanencia_meses>0, per=c.periodo_meses||1
+  const cada=per===1?'AL MES':'CADA '+per+' MESES', ahorro=Math.max(0,(c.precio_lista||0)-c.monto)
+  const chkL=(id,txt)=>'<label class="kAu__chk"><input type="checkbox" id="'+id+'"><span class="kAu__box" aria-hidden="true"></span><span>'+txt+'</span></label>'
+  const bg=document.createElement('div'); bg.className='kAu'; bg.setAttribute('role','dialog'); bg.setAttribute('aria-modal','true'); bg.setAttribute('aria-label','Pago automático')
+  bg.innerHTML='<div class="kAu__top"><span class="kAu__logo" role="img" aria-label="KOACH"></span><button type="button" class="kAu__x" aria-label="Cerrar">✕</button></div>'+
+    '<div class="kAu__body">'+
+      '<div class="kAu__k">PAGO AUTOMÁTICO'+(c.personalizada?' · <b>TARIFA EXCLUSIVA</b>':'')+'</div>'+
+      (ahorro>0?'<div class="kAu__lista">'+$(c.precio_lista)+'</div>':'')+
+      '<div class="kAu__precio'+($(c.monto).length>7?' kAu__precio--l':'')+'">'+$(c.monto)+'</div>'+
+      '<div class="kAu__cada">'+cada+'</div>'+
+      (ahorro>0?'<div class="kAu__ahorro">AHORRAS '+$(ahorro)+' '+(per===1?'CADA MES':'CADA '+per+' MESES')+'</div>':'')+
+      '<div class="kAu__datos"><div><span>PRIMER COBRO</span><b>'+(c.primer_cobro<=hoy?'HOY':_fm(c.primer_cobro).toUpperCase().replace(' '+hoy.slice(0,4),''))+'</b></div>'+
+        '<div><span>PERMANENCIA</span><b'+(perm?'':' class="kAu__s"')+'>'+(perm?c.permanencia_meses+' MESES':'SIN PERMANENCIA')+'</b></div></div>'+
+      '<div class="kAu__ok">'+chkL('flAut','Autorizo el cobro automático de <b>'+$(c.monto)+' '+cada.toLowerCase()+'</b> en mi tarjeta.')+
+      (perm?chkL('flPerm','Acepto la <b>permanencia de '+c.permanencia_meses+' meses</b> según mi contrato.'):'')+
+      '<p class="kAu__cond">El cobro se hará de forma automática y recurrente en tu tarjeta de crédito, según tu plan.'+(perm?' La permanencia y el retiro anticipado se rigen por los Términos y Condiciones de tu contrato.':' Puedes desactivarlo cuando quieras desde tu Perfil.')+'</p></div>'+
+    '</div>'+
+    '<div class="kAu__pie"><button type="button" class="kAu__go" id="flGo" disabled>REGISTRAR TARJETA</button><button type="button" class="kAu__no">VOLVER</button></div>'
+  const fin=()=>{ bg.remove(); document.documentElement.style.overflow='' }, go=bg.querySelector('#flGo')
+  const chk=()=>{ go.disabled=!(bg.querySelector('#flAut').checked && (!perm || bg.querySelector('#flPerm').checked)) }
+  bg.querySelectorAll('input[type=checkbox]').forEach(x=>x.onchange=chk)
+  bg.querySelector('.kAu__x').onclick=fin; bg.querySelector('.kAu__no').onclick=fin
+  go.onclick=async()=>{ go.disabled=true; go.textContent='CONECTANDO CON FLOW…'
+    try{ const d=await flowFn({ accion:'iniciar', autorizo:true, acepto_permanencia:perm, monto_visto:c.monto }, 'flow-suscripcion'); location.href=d.url }
+    catch(e){ toast(e.message); go.disabled=false; go.textContent='REGISTRAR TARJETA' } }
+  document.documentElement.style.overflow='hidden'; document.body.appendChild(bg)
+}
+async function flowSuscRetorno(r){
+  if (r==='activa'){ await flowSuscCargar(); try{ pintarPerfil() }catch(_){}
+    const f=S.flowSusc, hoy=fLocal(new Date())
+    kHoja({ k:'PAGO AUTOMÁTICO', aviso:true, si:'GO TRAIN!', msg:'PAGO AUTOMÁTICO ACTIVADO\n'+(f && f.inicio && f.inicio>hoy ? 'Tu primer cobro será el '+_fm(f.inicio)+', cuando termine tu membresía actual.' : 'Estamos procesando tu primer cobro: tu membresía se activa sola apenas Flow lo confirme.') })
+    if (!(f && f.inicio && f.inicio>hoy)) setTimeout(async()=>{ await cargarMembresia(); if (S.acceso && S.acceso.acceso) entrar({ silent:true }) }, 8000) }
+  else kAviso(r==='tarjeta_rechazada' ? 'NO SE REGISTRÓ TU TARJETA\nNo se hizo ningún cargo. Puedes intentarlo de nuevo con otra tarjeta.' : 'NO PUDIMOS ACTIVAR EL PAGO AUTOMÁTICO\nNo se hizo ningún cargo. Intenta de nuevo o acércate a recepción.','PAGO AUTOMÁTICO')
+}
+// Vuelta desde Flow: ?pago=pagada|pendiente|rechazada|anulada&orden=KCH-…
+async function flowRetorno(){
+  const q=new URLSearchParams(location.search), est=q.get('pago'), orden=q.get('orden'), su=q.get('susc')
+  if (su){ history.replaceState(null,'',location.pathname); return flowSuscRetorno(su) }
+  if (q.get('cobro')){ history.replaceState(null,'',location.pathname); return flowPagar() }
+  if (q.get('auto')){ history.replaceState(null,'',location.pathname); await flowSuscCargar(); if (S.flowSusc && S.flowSusc.estado==='activa') return kAviso('YA TIENES EL PAGO AUTOMÁTICO ACTIVO\nLo ves en tu Perfil.','PAGO AUTOMÁTICO'); return flowAutoAutorizar() }
+  if (!est) return
+  history.replaceState(null,'',location.pathname)
+  let e=est
+  if (e==='pendiente' && orden){ for (let i=0;i<4 && e==='pendiente';i++){ await new Promise(r=>setTimeout(r,2500)); try{ const o=(await flowFn({ accion:'estado', orden })).orden; if (o) e=o.estado }catch(_){} } }
+  if (e==='pagada'){ await cargarMembresia(); try{ pintarPerfil() }catch(_){}; if (S.acceso && S.acceso.acceso) entrar({ silent:true })
+    kHoja({ k:'PAGO CONFIRMADO', aviso:true, si:'GO TRAIN!', msg:'TU MEMBRESÍA ESTÁ ACTIVA\nRecibimos tu pago. 1% MEJOR CADA DÍA.' }) }
+  else if (e==='pendiente') kAviso('TU PAGO ESTÁ EN PROCESO\nFlow aún no lo confirma. Se activará solo apenas llegue la confirmación.','PAGO EN PROCESO')
+  else kAviso('EL PAGO NO SE COMPLETÓ\nNo se hizo ningún cargo. Puedes intentarlo de nuevo cuando quieras.','PAGO NO REALIZADO')
+}
 function pintarMembresia(){
   const el=document.getElementById('pfMem'); if(!el) return
   const m=S.memVig
-  if (!m){ el.innerHTML='<div class="memCard"><div class="mK">KOACH MEMBERSHIP</div><div class="mS">Tu membresía aún no está registrada en la app. Consulta en recepción.</div></div>'; return }
+  if (!m){ el.innerHTML='<div class="memCard"><div class="mK">KOACH MEMBERSHIP</div><div class="mS">Tu membresía aún no está registrada en la app.</div><button type="button" class="mCta" style="width:100%;cursor:pointer" onclick="flowPagar()">PAGAR EN LÍNEA →</button></div>'; return }
   const pagosM=(S.pagos||[])
   el.innerHTML='<div class="memCard"><div class="mK"><span>KOACH MEMBERSHIP</span><span class="mE '+m.estado_calc+'">'+(_MEST[m.estado_calc]||'')+'</span></div>'+
     // c36 · lo relevante primero: los días que quedan (cifra dominante, como el panel del coach); la vigencia pasa a detalle
@@ -8256,7 +8442,9 @@ function pintarMembresia(){
     '<div class="mBtns"><button onclick="det(\'dPagos\')">VER PAGOS · '+pagosM.length+'</button><button onclick="det(\'dMemH\')">VER HISTORIAL · '+S.mem.length+'</button></div>'+
     '<div class="det" id="dPagos">'+(pagosM.length?pagosM.map(p=>'<div class="mLi"><span>'+_fm(p.fecha_pago)+'</span><span>$'+(+p.monto_final).toLocaleString('es-CL')+' · '+String(p.estado).toUpperCase()+'</span></div>').join(''):'Sin pagos registrados.')+'</div>'+
     '<div class="det" id="dMemH">'+S.mem.map(x=>'<div class="mLi"><span>'+(x.duracion_tipo==='dia'?_fm(x.fecha_inicio):_fm(x.fecha_inicio)+' — '+_fm(x.fecha_fin))+'</span><span>'+(x.duracion_label||x.meses+' M')+' · '+(_MEST[x.estado_calc]||'')+'</span></div>').join('')+'</div>'+
-    '<a class="mCta" href="https://wa.me/56974369521?text=Hola%20KOACH%2C%20quiero%20consultar%20mi%20membres%C3%ADa" target="_blank">CONSULTAR RENOVACIÓN →</a></div>'
+    flowSuscHtml()+
+    (S.flowSusc && S.flowSusc.estado==='activa' ? '' : '<button type="button" class="mCta" style="width:100%;cursor:pointer" onclick="flowPagar()">RENOVAR EN LÍNEA →</button>')+
+    '<a class="mCta" style="background:none;color:inherit" href="https://wa.me/56974369521?text=Hola%20KOACH%2C%20quiero%20consultar%20mi%20membres%C3%ADa" target="_blank">CONSULTAR RENOVACIÓN</a></div>'
 }
 function pintarPerfil(){
   pintarMembresia()
