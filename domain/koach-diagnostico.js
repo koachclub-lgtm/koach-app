@@ -84,7 +84,10 @@ function logros(){
 }
 
 // ── cuerpo: maniquí por segmentos, coloreado según cómo cambió cada zona
-const COL = { mej:'#2BB3C0', ret:'#D9774A', est:'#BDBBB4', nd:'#DEDCD6' }
+const COL_STAFF = { mej:'#2BB3C0', ret:'#D9774A', est:'#BDBBB4', nd:'#DEDCD6' }
+// en la app del socio: solo grises + verde funcional de mejora (manual de marca)
+const COL_SOCIO = { mej:'#2F7D4F', ret:'#121212', est:'#BDBBB4', nd:'#E2E1DD' }
+const COL = Object.assign({}, COL_STAFF)
 function cuerpo(segs){
   const g = id => segs.find(s => s.id === id)
   const sh = (id, d, extra) => { const s = g(id), c = COL[s.t], op = s.t === 'mej' || s.t === 'ret' ? (0.55 + 0.45 * s.mag).toFixed(2) : 1
@@ -144,7 +147,7 @@ function composicion(){
   const e = actual(), b = S.i > 0 ? S.evs[0] : null
   const partes = x => { if (!x) return null; const pe = n(x.peso_kg); if (!pe) return null
     const gr = masaGrasa(x), mu = n(x.masa_muscular_kg), os = n(x.masa_osea_kg), rs = n(x.masa_residual_kg)
-    const arr = [['GRASA', gr, '#121212', '#F4F3F0'], ['MÚSCULO', mu, '#2BB3C0', '#06363B'], ['ÓSEA', os, '#8F8D86', '#F4F3F0'], ['RESIDUAL', rs, '#CFCDC7', '#121212']].filter(p => p[1] != null)
+    const arr = [['GRASA', gr, '#121212', '#F4F3F0'], ['MÚSCULO', mu, COL.mej, COL.mej === '#2BB3C0' ? '#06363B' : '#F4F3F0'], ['ÓSEA', os, '#8F8D86', '#F4F3F0'], ['RESIDUAL', rs, '#CFCDC7', '#121212']].filter(p => p[1] != null)
     const resto = pe - arr.reduce((s, p) => s + p[1], 0); if (arr.length < 4 && resto > 0.2) arr.push(['RESTO', resto, '#E2E0DA', '#121212'])
     return { pe, arr } }
   const bar = (x, t) => { const pz = partes(x); if (!pz) return ''
@@ -193,10 +196,12 @@ function html(){
         (a >= 1 ? 'Meta cumplida: toca fijar la siguiente.' : 'Te falta ' + f1(Math.abs(mt.valor - mt.hecho)) + ' kg. Pégate al plan.') + '</small></div></div>' })()
     : mt ? '<div class="kdMeta kdMeta--t"><div><span class="kdK">META 6 MESES</span><b>' + esc(mt.texto) + '</b><small>' + (S.i ? '' : 'Desde la próxima evaluación verás tu avance hacia la meta.') + '</small></div></div>' : ''
   const opts = S.evs.map((x, i) => '<option value="' + i + '"' + (i === S.i ? ' selected' : '') + '>' + fecha(x.fecha) + (x.estado === 'borrador' ? ' · BORRADOR' : '') + '</option>').join('')
-  return '<div class="kdBar"><span class="kdBar__l">KOACH <em>DIAGNÓSTICO</em></span>' +
+  return (S.inline ? '<div class="kdBar kdBar--in"><label class="kdSel">EVALUACIÓN<select data-act="ev">' + opts + '</select></label>' +
+    (S.i > 0 ? '<div class="kdSeg" role="group" aria-label="Comparar con"><button type="button" data-cmp="ini" aria-pressed="' + (S.cmp === 'ini') + '">VS INICIO</button><button type="button" data-cmp="ant" aria-pressed="' + (S.cmp === 'ant') + '">VS ANTERIOR</button></div>' : '') + '</div>' :
+    '<div class="kdBar"><span class="kdBar__l">KOACH <em>DIAGNÓSTICO</em></span>' +
     '<label class="kdSel">EVALUACIÓN<select data-act="ev">' + opts + '</select></label>' +
     (S.i > 0 ? '<div class="kdSeg" role="group" aria-label="Comparar con"><button type="button" data-cmp="ini" aria-pressed="' + (S.cmp === 'ini') + '">VS INICIO</button><button type="button" data-cmp="ant" aria-pressed="' + (S.cmp === 'ant') + '">VS ANTERIOR</button></div>' : '') +
-    '<button type="button" class="kdX" data-act="cerrar" aria-label="Cerrar diagnóstico">CERRAR ✕</button></div>' +
+    '<button type="button" class="kdX" data-act="cerrar" aria-label="Cerrar diagnóstico">CERRAR ✕</button></div>') +
     '<div class="kdIn">' +
     '<section class="kdHero"><div><span class="kdK">EVALUACIÓN N° ' + (S.i + 1) + ' · ' + fecha(e.fecha) + (S.o.programa ? ' · ' + esc(String(S.o.programa).toUpperCase()) : '') + '</span>' +
       '<h1 class="kdH1">' + nom + '</h1><p class="kdFr">' + esc(frase) + '</p>' + (e.nota_socio ? '<blockquote class="kdNota">' + esc(e.nota_socio) + '<cite>NUTRICIÓN KOACH</cite></blockquote>' : '') + '</div>' + ring + '</section>' +
@@ -213,7 +218,7 @@ function html(){
 }
 
 let ov = null
-function pintar(){ if (!ov) return; const y = ov.scrollTop; ov.innerHTML = html(); ov.scrollTop = y; enlazarChart() }
+function pintar(){ if (!ov) return; if (S.inline){ ov.innerHTML = html(); return enlazarChart() } const y = ov.scrollTop; ov.innerHTML = html(); ov.scrollTop = y; enlazarChart() }
 function repSeg(){ const e = actual(), b = base(), segs = SEG.map(s => segmento(s, e, b)); ov.querySelector('#kdBody').innerHTML = cuerpo(segs); ov.querySelector('#kdSp').innerHTML = panelSeg(segs) }
 function enlazarChart(){
   const ch = ov && ov.querySelector('.kdCh'); if (!ch) return
@@ -231,11 +236,11 @@ function onClick(ev){
   if (t.dataset.cmp){ S.cmp = t.dataset.cmp; return pintar() }
 }
 function onKey(ev){ if (ev.key === 'Escape') cerrar() }
-function cerrar(){ if (!ov) return; ov.remove(); ov = null; document.documentElement.style.overflow = ''; document.removeEventListener('keydown', onKey) }
+function cerrar(){ if (!ov) return; if (S.inline){ ov = null; S.inline = false; return } ov.remove(); ov = null; document.documentElement.style.overflow = ''; document.removeEventListener('keydown', onKey) }
 function abrir(o){
   o = o || {}; const evs = (o.evs || []).filter(e => e && e.fecha).slice().sort((a, b) => String(a.fecha).localeCompare(String(b.fecha)))
   if (!evs.length) return false
-  ensureCss(); cerrar()
+  ensureCss(); cerrar(); Object.assign(COL, COL_STAFF)
   S.evs = evs; S.o = o; S.i = o.i != null ? Math.max(0, Math.min(evs.length - 1, o.i)) : evs.length - 1; S.cmp = 'ini'; S.met = 'porcentaje_grasa'
   // parte en la zona con el cambio más visible
   const segs = SEG.map(s => segmento(s, actual(), base())).filter(s => s.t === 'mej' || s.t === 'ret').sort((a, b) => b.mag - a.mag); S.seg = segs[0] ? segs[0].id : 'ABD'
@@ -329,10 +334,35 @@ const CSS = `
 @media (max-width:1200px){.kdKps{grid-template-columns:repeat(3,minmax(0,1fr))}.kdGrid{grid-template-columns:1fr}.kdTb{grid-template-columns:1fr 1fr}}
 @media (max-width:760px){.kdHero{grid-template-columns:1fr}.kdKps{grid-template-columns:repeat(2,minmax(0,1fr))}.kdBodyW{grid-template-columns:1fr}.kdBody{max-height:440px}.kdTb{grid-template-columns:1fr}.kdSel{margin-left:auto;font-size:0;gap:0}.kdBar{gap:10px}.kdMeta{flex-direction:column;text-align:center}}
 @media (prefers-reduced-motion:reduce){.kd,.kd *{animation:none!important}}
+.kd.kd--in{position:static;inset:auto;z-index:auto;overflow:visible;background:transparent;animation:none}
+.kd--in .kdBar--in{position:static;min-height:0;padding:8px 8px 8px 16px;border-radius:20px;background:#121212;justify-content:space-between;flex-wrap:nowrap}
+.kd--in section.kdCard{background:#FBFAF8!important;border-radius:20px!important}
+.kd--in .kdPie{color:#2A2A2A}
+.kd--in .kdHero .kdK,.kd--in .kdLog>.kdK{color:#2A2A2A}
+@media (max-width:420px){.kd--in .kdBar--in .kdSel{font-size:0;gap:0;margin-left:0}.kd--in .kdSeg button{padding:0 10px}}
+.kd--in .kdBar--in .kdSel{margin-left:10px;font-size:9.5px;gap:8px}
+.kd--in .kdIn{padding:12px 0 8px}
+.kd--in .kdNota{border-left-color:#121212}
+.kd--in .kdT-mej{color:#2F7D4F}.kd--in .kdT-ret{color:#121212}.kd--in .kdBg-mej{background:#2F7D4F}.kd--in .kdBg-ret{background:#121212}
+.kd--in .kdRing__fg{stroke:#2F7D4F}.kd--in .kdBadge b{color:#F4F3F0}.kd--in .kdSeg button{white-space:nowrap}
+.kd--in .kdH1{font-size:clamp(30px,9vw,44px)}
 `
 function ensureCss(){ if (document.getElementById('kdCss')) return; const s = document.createElement('style'); s.id = 'kdCss'; s.textContent = CSS; document.head.appendChild(s) }
 
-const KDG = { VERSION, abrir, cerrar, _segmento: segmento, _S: S }
+// En línea dentro de una pantalla (app del socio): mismo diagnóstico, sin barra de cierre ni capa fija
+function montar(el, o){
+  o = o || {}; const evs = (o.evs || []).filter(e => e && e.fecha).slice().sort((a, b) => String(a.fecha).localeCompare(String(b.fecha)))
+  if (!el || !evs.length) return false
+  ensureCss(); if (ov && !S.inline) cerrar()
+  Object.assign(COL, o.paleta === 'socio' ? COL_SOCIO : COL_STAFF)
+  S.inline = true; S.evs = evs; S.o = o; S.i = evs.length - 1; S.cmp = 'ini'; S.met = 'porcentaje_grasa'
+  const segs = SEG.map(s => segmento(s, actual(), base())).filter(s => s.t === 'mej' || s.t === 'ret').sort((a, b) => b.mag - a.mag); S.seg = segs[0] ? segs[0].id : 'ABD'
+  ov = el; el.classList.add('kd', 'kd--in')
+  if (!el._kd){ el._kd = 1; el.addEventListener('click', ev => { if (ov === el) onClick(ev) })
+    el.addEventListener('change', ev => { if (ov === el && ev.target.dataset.act === 'ev'){ S.i = +ev.target.value; if (S.i === 0) S.cmp = 'ini'; pintar() } }) }
+  el.innerHTML = html(); enlazarChart(); return true
+}
+const KDG = { VERSION, abrir, cerrar, montar, _segmento: segmento, _S: S }
 if (typeof window !== 'undefined') window.KDG = KDG
 if (typeof module !== 'undefined') module.exports = KDG
 })()
