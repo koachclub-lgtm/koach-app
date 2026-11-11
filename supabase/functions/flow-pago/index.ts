@@ -30,7 +30,11 @@ Deno.serve(async (req) => {
       const { data } = await admin.from("planes").select("id,nombre,precio,duracion_tipo,duracion_valor,hora_limite").eq("activo", true).eq("en_linea", true).gte("precio", 350).order("precio");
       const { data: auto } = await admin.rpc("tarifa_auto_de", { p_socio: u.user.id });
       const { data: cobros } = await admin.from("cobros_socio").select("id,monto,duracion_tipo,duracion_valor,tipo_comercial,recurrente,concepto,created_at").eq("socio_id", u.user.id).eq("estado", "pendiente").order("created_at", { ascending: false });
-      return j({ planes: data || [], cobros: cobros || [], auto: auto ? { monto: auto.monto, personalizada: !!auto.personalizada } : null });
+      // Pago automático solo si config_pagos.pago_automatico.habilitado = true (Flow exige contrato de cargo automático).
+      const { data: cfg } = await admin.from("config_pagos").select("valor").eq("clave", "pago_automatico").maybeSingle();
+      const autoOn = cfg?.valor?.habilitado === true || (Array.isArray(cfg?.valor?.prueba) && cfg.valor.prueba.includes(u.user.id));
+      return j({ planes: data || [], cobros: (cobros || []).filter((c: { recurrente: boolean }) => autoOn || !c.recurrente),
+        auto: autoOn && auto ? { monto: auto.monto, personalizada: !!auto.personalizada } : null, auto_habilitado: autoOn });
     }
     if (body.accion === "estado") {
       const { data } = await admin.from("flow_ordenes").select("id,estado,plan_nombre,monto,pagada_at").eq("socio_id", u.user.id).eq("commerce_order", String(body.orden || "")).maybeSingle();
