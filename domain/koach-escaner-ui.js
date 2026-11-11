@@ -181,6 +181,45 @@ const CSS = `
 .keu__err .ic svg{width:28px;height:28px}
 .keu__err .keu__gd{margin-top:20px;text-align:center}
 @media (prefers-reduced-motion:reduce){.keu__scan{animation:none;top:50%}.keu__wait i{animation:none}}
+/* Lectura en curso · pantalla negra tipo escáner */
+.keu.keu--hud{background:#050505}
+.keu--hud .keu__sc{background:#050505}
+.keu__hud{min-height:100%;padding:12px 16px 28px;background:#050505 radial-gradient(120% 70% at 50% 0%,#1A1A1A 0%,#050505 60%);color:#E9E8E4;font-family:var(--k-m);position:relative;overflow:hidden}
+.keu__hud::before{content:'';position:absolute;inset:0;background:repeating-linear-gradient(0deg,rgba(255,255,255,.025) 0 1px,transparent 1px 3px);pointer-events:none}
+.keu__hh{display:flex;justify-content:space-between;align-items:center;font:700 9.5px var(--k-m);letter-spacing:.16em;color:#A7A9AE;margin:2px 2px 10px}
+.keu__hh span:first-child{display:flex;align-items:center;gap:8px}
+.keu__rec{width:7px;height:7px;border-radius:50%;background:#E9E8E4;box-shadow:0 0 8px #E9E8E4;animation:keuBl 1s steps(2) infinite}
+@keyframes keuBl{50%{opacity:.15}}
+.keu__hv{position:relative;aspect-ratio:1/1;max-height:46vh;width:100%;margin:0 auto;border-radius:6px;overflow:hidden;background:#111}
+.keu__hv img{width:100%;height:100%;object-fit:cover;display:block;filter:grayscale(.55) contrast(1.15) brightness(.78)}
+.keu__hv--t{aspect-ratio:auto;min-height:140px;display:flex;align-items:center;padding:20px;border:1px solid rgba(233,232,228,.18)}
+.keu__hv--t b{font:400 15px/1.5 var(--k-m);color:#E9E8E4}
+.keu__grid{position:absolute;inset:0;background-image:linear-gradient(rgba(233,232,228,.09) 1px,transparent 1px),linear-gradient(90deg,rgba(233,232,228,.09) 1px,transparent 1px);background-size:24px 24px}
+.keu__bx{position:absolute;border:1.5px solid rgba(233,232,228,.9);opacity:0;animation:keuBx 2.8s ease-in-out infinite}
+.keu__bx em{position:absolute;left:-1.5px;top:-17px;padding:2px 5px;background:#E9E8E4;color:#050505;font:700 8px var(--k-m);letter-spacing:.1em;font-style:normal}
+@keyframes keuBx{0%{opacity:0;transform:scale(1.08)}15%,70%{opacity:1;transform:none}100%{opacity:0}}
+.keu__cr{position:absolute;width:26px;height:26px;border:2.5px solid #E9E8E4}
+.keu__cr.tl{left:10px;top:10px;border-right:0;border-bottom:0}.keu__cr.tr{right:10px;top:10px;border-left:0;border-bottom:0}
+.keu__cr.bl{left:10px;bottom:10px;border-right:0;border-top:0}.keu__cr.br{right:10px;bottom:10px;border-left:0;border-top:0}
+.keu__hv .keu__scan{height:2px;background:linear-gradient(90deg,transparent,#FFFFFF,transparent);box-shadow:0 0 24px 6px rgba(255,255,255,.35)}
+.keu__ret{position:absolute;left:50%;top:50%;width:46px;height:46px;transform:translate(-50%,-50%);border:1px solid rgba(233,232,228,.6);border-radius:50%}
+.keu__ret::before,.keu__ret::after{content:'';position:absolute;background:rgba(233,232,228,.6)}.keu__ret::before{left:50%;top:-10px;bottom:-10px;width:1px}.keu__ret::after{top:50%;left:-10px;right:-10px;height:1px}
+.keu__hm{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px;margin-top:14px}
+.keu__hm div{padding:10px 8px;border:1px solid rgba(233,232,228,.16);border-radius:6px;background:rgba(255,255,255,.03)}
+.keu__hm span{display:block;font:700 8.5px var(--k-m);letter-spacing:.16em;color:#8E8D88}
+.keu__hm b{display:block;margin-top:4px;font:700 22px/1 var(--k-m);letter-spacing:-.02em;color:#F4F3F0}
+.keu__hb{height:3px;margin-top:14px;background:rgba(233,232,228,.12);border-radius:2px;overflow:hidden}.keu__hb i{display:block;height:100%;width:0;background:#E9E8E4;transition:width .2s linear}
+.keu__hp{list-style:none;margin:14px 0 0;padding:0}
+.keu__hp li{display:grid;grid-template-columns:28px 1fr auto;align-items:center;gap:8px;padding:7px 0;border-bottom:1px solid rgba(233,232,228,.07);font:700 10px var(--k-m);letter-spacing:.12em;color:#5E5D59}
+.keu__hp li span{color:inherit}
+.keu__hp li.on{color:#F4F3F0}.keu__hp li.on em::after{content:'▌';animation:keuBl .6s steps(2) infinite}
+.keu__hp li.ok{color:#A7A9AE}.keu__hp li.ok em::after{content:'OK';font-style:normal;color:#E9E8E4}
+.keu__hp em{font-style:normal}
+.keu__hl{margin-top:12px;height:126px;overflow:hidden;font:400 9.5px/14px var(--k-m);letter-spacing:.04em;color:#6E6D69;white-space:nowrap;-webkit-mask:linear-gradient(transparent,#000 40%);mask:linear-gradient(transparent,#000 40%)}
+.keu__hl div:last-child{color:#E9E8E4}
+.keu__sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+@media (prefers-reduced-motion:reduce){.keu__bx,.keu__rec{animation:none;opacity:1}}
+
 `
 const COC = [['plancha', 'Plancha, horno o vapor'], ['aceite', 'Con aceite'], ['frito', 'Frito'], ['salsa', 'Con salsa o aderezo']]
 const ROLX = { proteina: 'PROTEÍNA', legumbre: 'PROTEÍNA', lacteo: 'PROTEÍNA', carbohidrato: 'CARBOHIDRATO', fruta: 'CARBOHIDRATO', verdura: 'VERDURA', grasa: 'GRASA', dulce: 'DULCE', bebida: 'BEBIDA', otro: 'OTRO' }
@@ -205,7 +244,7 @@ const comidaN = n => plan().comidas[n - 1] || null
 const nomC = () => S.num ? 'comida ' + S.num : 'comida'
 function mostrar(){ el().hidden = false; document.documentElement.style.overflow = 'hidden' }
 function cab(t, atras){ const e = $('keuT'); if (e) e.textContent = t || ''; const a = $('keuAtrasT'); if (a) a.textContent = atras || 'CERRAR'; S.atras = atras ? S.atrasFn : null }
-function pantalla(h, t, atras, fn){ S.atrasFn = fn || null; cab(t, atras); const sc = $('keuSc'); sc.innerHTML = h; sc.scrollTop = 0 }
+function pantalla(h, t, atras, fn){ hudFin(); S.atrasFn = fn || null; cab(t, atras); const sc = $('keuSc'); sc.innerHTML = h; sc.scrollTop = 0 }
 function atras(){ if (S.busy) return; if (S.atras) S.atras(); else cerrar() }
 const etiqueta = () => { const c = comidaN(S.num), n = plan().comidas.length; return c ? 'COMIDA ' + S.num + ' DE ' + n : 'ESCÁNER' }
 
@@ -236,7 +275,7 @@ function guia(num){
 }
 function camara(){ if (!S.busy) $('keuF').click() }
 function galeria(){ if (!S.busy) $('keuG').click() }
-function cerrar(){ const o = $('keuO'); if (!o) return; o.hidden = true; document.documentElement.style.overflow = ''; if (S.url) { URL.revokeObjectURL(S.url); S.url = null } }
+function cerrar(){ const o = $('keuO'); if (!o) return; hudFin(); o.hidden = true; document.documentElement.style.overflow = ''; if (S.url) { URL.revokeObjectURL(S.url); S.url = null } }
 
 async function comprimir(file){
   let bmp
@@ -293,13 +332,41 @@ function describir(){
     cocBotones() + '</div>' +
     '<div class="keu__bt"><button type="button" class="keu__cta" onclick="KEU.analizar()">Calcular mi ' + esc(nomC()) + '</button></div><div class="keu__sts" id="keuSt" role="status"></div>', etiqueta(), 'ATRÁS', () => guia())
 }
+// ── Lectura en curso: pantalla negra tipo escáner. Los dígitos que corren son lectura en proceso, no el resultado.
+const HUD_PASOS = ['SEGMENTANDO EL PLATO', 'IDENTIFICANDO ALIMENTOS', 'ESTIMANDO PORCIONES · G', 'CALCULANDO MACROS', 'COMPARANDO CON TU PLAN']
+const HUD_M = [['KCAL', 180, 980], ['PROT', 8, 90], ['CARB', 10, 140], ['GRAS', 4, 60]]
+function hud(txt){
+  const cajas = [[14, 22, 34, 30], [52, 18, 36, 26], [30, 52, 44, 28]].map((b, i) => '<i class="keu__bx" style="left:' + b[0] + '%;top:' + b[1] + '%;width:' + b[2] + '%;height:' + b[3] + '%;animation-delay:' + (0.5 + i * 0.7) + 's"><em>OBJ_0' + (i + 1) + '</em></i>').join('')
+  const vis = txt ? '<div class="keu__hv keu__hv--t"><b>' + esc(String(S.texto).slice(0, 140)) + '</b></div>'
+    : '<div class="keu__hv"><img src="' + S.url + '" alt="Tu plato"><div class="keu__grid"></div>' + cajas + '<span class="keu__cr tl"></span><span class="keu__cr tr"></span><span class="keu__cr bl"></span><span class="keu__cr br"></span><div class="keu__scan"></div><div class="keu__ret"></div></div>'
+  return '<div class="keu__hud"><div class="keu__hh"><span><i class="keu__rec"></i>KOACH VISION · ' + (txt ? 'LEYENDO TU DESCRIPCIÓN' : 'ESCANEANDO') + '</span><span id="keuHt">00:00.0</span></div>' + vis +
+    '<div class="keu__hm">' + HUD_M.map(([l, a, z]) => '<div><span>' + l + '</span><b data-a="' + a + '" data-z="' + z + '">000</b></div>').join('') + '</div>' +
+    '<div class="keu__hb"><i id="keuHb"></i></div>' +
+    '<ol class="keu__hp" id="keuHp">' + HUD_PASOS.map((p, i) => '<li' + (i ? '' : ' class="on"') + '><span>' + String(i + 1).padStart(2, '0') + '</span>' + p + '<em></em></li>').join('') + '</ol>' +
+    '<div class="keu__hl" id="keuHl" aria-hidden="true"></div><div class="keu__sr" role="status">Analizando tu comida</div></div>'
+}
+function hudIni(){
+  el().classList.add('keu--hud'); const t0 = Date.now(), hx = n => Math.floor(Math.random() * 16 ** n).toString(16).toUpperCase().padStart(n, '0')
+  const TAG = ['SEG', 'CLS', 'VOL', 'DEN', 'MAC', 'REF', 'ISO', 'NRM']
+  S.hudT = setInterval(() => {
+    const sc = $('keuSc'); if (!sc || !sc.querySelector('.keu__hud')) return hudFin()
+    const ms = Date.now() - t0, tt = $('keuHt'); if (tt) tt.textContent = String(Math.floor(ms / 60000)).padStart(2, '0') + ':' + String(Math.floor(ms / 1000) % 60).padStart(2, '0') + '.' + Math.floor(ms / 100) % 10
+    sc.querySelectorAll('.keu__hm b').forEach(b => { b.textContent = String(+b.dataset.a + Math.floor(Math.random() * (b.dataset.z - b.dataset.a))).padStart(3, '0') })
+    const k = Math.min(HUD_PASOS.length - 1, Math.floor(ms / 1600)), lis = sc.querySelectorAll('#keuHp li')
+    lis.forEach((li, i) => { li.className = i < k ? 'ok' : i === k ? 'on' : '' })
+    const bar = $('keuHb'); if (bar) bar.style.width = Math.min(96, 100 * (1 - Math.exp(-ms / 5200))).toFixed(1) + '%'
+    const lg = $('keuHl'); if (lg){ const ln = document.createElement('div')
+      ln.textContent = '0x' + hx(4) + '  ' + TAG[Math.floor(Math.random() * TAG.length)] + '  ' + hx(6) + ' ' + hx(2) + '.' + hx(2) + '  ' + (Math.random() * 0.4 + 0.6).toFixed(3) + '  ' + HUD_PASOS[k].split(' ')[0].slice(0, 6)
+      lg.appendChild(ln); while (lg.children.length > 9) lg.firstChild.remove() }
+  }, 90)
+}
+function hudFin(){ if (S.hudT){ clearInterval(S.hudT); S.hudT = null } const r = document.getElementById('keuO'); if (r) r.classList.remove('keu--hud') }
 async function analizar(){
   if (S.busy) return
   const c = comidaN(S.num), txt = S.modo === 'texto'
   if (txt && String(S.texto).trim().length < 3) { st('Cuéntanos qué comiste.'); const t = $('keuTxt'); if (t) t.focus(); return }
   S.busy = true
-  pantalla(txt ? '<div class="keu__wait"><i></i>CALCULANDO TU ' + esc(nomC().toUpperCase()) + '…</div>'
-    : '<div class="keu__ph"><img src="' + S.url + '" alt="Tu plato"><div class="keu__scan"></div><div class="keu__load">ANALIZANDO TU COMIDA…</div></div>', etiqueta())
+  pantalla(hud(txt), etiqueta()); hudIni()
   try {
     const base = { comida: c ? c.nombre : null, comida_num: S.num, coccion: S.coc, fuente: S.fuente }
     S.r = await api(txt ? Object.assign(base, { modo: 'describir', texto: S.texto }) : Object.assign(base, { imagen: S.img.data, nota: S.nota || null }))
