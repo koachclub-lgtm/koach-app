@@ -6436,7 +6436,8 @@ function pvDesc(ses,bfs){ const V=pvVol(ses); if(!V.L.length) return 'Tu koach a
   const p=Math.round(top.reduce((a,g)=>a+(V.L.find(x=>x[0]===g)||[0,0])[1],0)/V.tot*100)
   return tipo+tren+' con prioridad en <b>'+plEscA(pvLista(top))+'</b>'+(p<100?', el '+p+'% del volumen del día.':'.') }
 /* c196 · misma fórmula calibrada que el planner del coach (coach plTbMin) */
-function pvDur(bfs){ let s=720; bfs.forEach(b=>{ if(b.timer&&window.KTIMER){ s+=KTIMER.total(b.timer)+600; return } const n=bkBes(b).length||1, k=b.sets||1; s+=600+k*n*60+0.25*(k-1)*(bkDesc(b)||60) }); return Math.max(10,Math.round(s/60/5)*5) }
+// c223 · calibrado con 1.051 sesiones reales: 25 min fijos + 1,35 min por serie de cada ejercicio (mismo cálculo que el planificador)
+function pvDur(bfs){ let s=25*60; bfs.forEach(b=>{ if(b.timer&&window.KTIMER){ s+=KTIMER.total(b.timer)+180; return } const n=bkBes(b).length||1, k=b.sets||1; s+=k*n*81 }); return Math.max(10,Math.round(s/60/5)*5) }
 const PV_FRASES=['se viene con todo. Cada set suma a tu versión más fuerte.','está por comenzar. Hoy sumas a tu versión más fuerte.','se viene con todo. Llega listo, el resto lo ponemos nosotros.']
 function pvHero(ses,bfs){ const ne=bfs.reduce((a,b)=>a+bkBes(b).length,0)
   if (pvEmpezada() && bkPrimerPendiente(bfs)<0){ let sh=0,kg=0; bfs.forEach(b=>{ sh+=bkSetsHechos(b); kg+=bkKgBloque(b) })
