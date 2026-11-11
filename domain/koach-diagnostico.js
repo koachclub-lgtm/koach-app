@@ -129,6 +129,10 @@ function b3Cargar(){
     sc.onload = () => ok(!!window.THREE); sc.onerror = () => ok(false); document.head.appendChild(sc) })
   return B3.carga
 }
+function anilloAnim(){
+  const t = ov && ov.querySelector('.kdRing__n'); if (!t) return; const fin = parseInt(t.textContent, 10) || 0, t0 = performance.now(), D = 1800
+  t.textContent = '0%'; const paso = now => { const k = Math.min(1, Math.max(0, (now - t0 - 150) / D)), e = 1 - Math.pow(1 - k, 3); t.textContent = Math.round(fin * e) + '%'; if (k < 1 && t.isConnected) requestAnimationFrame(paso) }; requestAnimationFrame(paso)
+}
 function b3Enlazar(){
   const box = ov && ov.querySelector('#kd3'); if (!box) return
   if (!window.THREE){ b3Cargar().then(ok => { if (!ok){ S.d3 = false; if (ov && ov.querySelector('#kd3')) ov.querySelector('#kdBody').innerHTML = cuerpo(SEG.map(x => segmento(x, actual(), base()))) } else b3Enlazar() }); return }
@@ -317,7 +321,7 @@ function html(){
 }
 
 let ov = null
-function pintar(){ if (!ov) return; if (S.inline){ ov.innerHTML = html(); b3Enlazar(); return enlazarChart() } const y = ov.scrollTop; ov.innerHTML = html(); ov.scrollTop = y; enlazarChart() }
+function pintar(){ if (!ov) return; if (S.inline){ ov.innerHTML = html(); b3Enlazar(); anilloAnim(); return enlazarChart() } const y = ov.scrollTop; ov.innerHTML = html(); ov.scrollTop = y; enlazarChart() }
 function repSeg(){ const e = actual(), b = base(), segs = SEG.map(s => segmento(s, e, b)); if (S.inline && B3.r && ov.querySelector('#kd3')){ b3Color(); b3Tag(segs) } else { ov.querySelector('#kdBody').innerHTML = cuerpo(segs); b3Enlazar() } ov.querySelector('#kdSp').innerHTML = panelSeg(segs) }
 function enlazarChart(){
   const ch = ov && ov.querySelector('.kdCh'); if (!ch) return
@@ -441,6 +445,7 @@ const CSS = `
 .kd3__h{position:absolute;left:0;right:0;bottom:10px;z-index:2;text-align:center;font:700 8.5px var(--font-mono,monospace);letter-spacing:.16em;color:#8E8D88;pointer-events:none}
 .kd--in .kdSegs button[aria-pressed="true"]{background:#121212;color:#F4F3F0}
 .kd--in .kdSegs button[aria-pressed="true"] i{background:#2BB3C0!important}
+.kd--in .kdBar.kdBar--in{flex-wrap:wrap;gap:6px}.kd--in .kdBar--in .kdSeg{margin-left:auto}
 .kd.kd--in{position:static;inset:auto;z-index:auto;overflow:visible;background:transparent;animation:none}
 .kd--in .kdBar--in{position:static;min-height:0;padding:8px 8px 8px 16px;border-radius:20px;background:#121212;justify-content:space-between;flex-wrap:nowrap}
 .kd--in section.kdCard{background:#FBFAF8!important;border-radius:20px!important}
@@ -451,7 +456,7 @@ const CSS = `
 .kd--in .kdIn{padding:12px 0 8px}
 .kd--in .kdNota{border-left-color:#121212}
 .kd--in .kdT-mej{color:#2F7D4F}.kd--in .kdT-ret{color:#121212}.kd--in .kdBg-mej{background:#2F7D4F}.kd--in .kdBg-ret{background:#121212}
-.kd--in .kdRing__fg{stroke:#2F7D4F}.kd--in .kdBadge b{color:#F4F3F0}.kd--in .kdSeg button{white-space:nowrap}
+.kd--in .kdRing__fg{stroke:#2BB3C0;filter:drop-shadow(0 0 6px rgba(43,179,192,.55));animation:kdRing 1.8s cubic-bezier(.2,.7,.2,1) .15s both}.kd--in .kdBadge b{color:#F4F3F0}.kd--in .kdSeg button{white-space:nowrap}
 .kd--in .kdH1{font-size:clamp(30px,9vw,44px)}
 `
 function ensureCss(){ if (document.getElementById('kdCss')) return; const s = document.createElement('style'); s.id = 'kdCss'; s.textContent = CSS; document.head.appendChild(s) }
@@ -467,7 +472,7 @@ function montar(el, o){
   ov = el; el.classList.add('kd', 'kd--in')
   if (!el._kd){ el._kd = 1; el.addEventListener('click', ev => { if (ov === el) onClick(ev) })
     el.addEventListener('change', ev => { if (ov === el && ev.target.dataset.act === 'ev'){ S.i = +ev.target.value; if (S.i === 0) S.cmp = 'ini'; pintar() } }) }
-  el.innerHTML = html(); b3Enlazar(); enlazarChart(); return true
+  el.innerHTML = html(); b3Enlazar(); anilloAnim(); enlazarChart(); return true
 }
 const KDG = { VERSION, abrir, cerrar, montar, _segmento: segmento, _S: S, _B3: B3 }
 if (typeof window !== 'undefined') window.KDG = KDG
