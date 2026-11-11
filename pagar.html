@@ -85,7 +85,7 @@ input:focus,button:focus-visible{outline:2px solid var(--ink);outline-offset:2px
 
 <script>
 (function(){
-  var API='https://koach-jake.vercel.app/api/autoservicio';
+  var API='https://koach-jake.vercel.app/api/agenda?publico=1';
   var q=new URLSearchParams(location.search), T=q.get('t')||'';
   var S={oferta:null,ofertas:[],est:false};
   var $=function(id){return document.getElementById(id)};
@@ -108,7 +108,7 @@ input:focus,button:focus-visible{outline:2px solid var(--ink);outline-offset:2px
     $('go').disabled=!ok;$('go').textContent=o?'PAGAR '+clp(o.monto):'ELIGE TU PLAN';
   }
   if(!T){err('Este link no es válido. Pídele uno nuevo a Jake por WhatsApp.');return}
-  fetch(API+'?accion=pago&t='+encodeURIComponent(T)+(q.get('o')?'&o='+encodeURIComponent(q.get('o')):'')).then(function(r){return r.json()}).then(function(d){
+  fetch(API+'&accion=pago&t='+encodeURIComponent(T)+(q.get('o')?'&o='+encodeURIComponent(q.get('o')):'')).then(function(r){return r.json()}).then(function(d){
     if(!d.ok)return err(d.error||'No pudimos cargar los planes.');
     S.ofertas=d.ofertas||[];
     if(d.socio)$('kicker').textContent='Renueva tu membresía';

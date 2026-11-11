@@ -116,7 +116,7 @@ input:focus,button:focus-visible{outline:2px solid var(--ink);outline-offset:2px
 
 <script>
 (function(){
-  var API='https://koach-jake.vercel.app/api/autoservicio';
+  var API='https://koach-jake.vercel.app/api/agenda?publico=1';
   var q=new URLSearchParams(location.search), T=q.get('t')||'';
   var PROGS=[['STRONG','Desarrollar fuerza y masa muscular.'],['BURN','Mejorar la composición corporal y la condición física sin dejar la fuerza.'],['HEALTHY','Fuerza orientada a salud y bienestar, con progresión gradual.']];
   var DIAS=['DOM','LUN','MAR','MIÉ','JUE','VIE','SÁB'], MESES=['ENE','FEB','MAR','ABR','MAY','JUN','JUL','AGO','SEP','OCT','NOV','DIC'];
@@ -164,7 +164,7 @@ input:focus,button:focus-visible{outline:2px solid var(--ink);outline-offset:2px
     $('cargando').hidden=true;$('form').hidden=false;$('pie').hidden=false;pinta();
   }
   if(!T){err('Este link no es válido. Pídele uno nuevo a Jake por WhatsApp.');return}
-  fetch(API+'?accion=reserva&t='+encodeURIComponent(T)).then(function(r){return r.json()}).then(function(d){
+  fetch(API+'&accion=reserva&t='+encodeURIComponent(T)).then(function(r){return r.json()}).then(function(d){
     if(!d.ok)return err(d.error||'No pudimos cargar la agenda.'); arma(d) }).catch(function(){err('No pudimos cargar la agenda. Revisa tu conexión e inténtalo de nuevo.')});
   ['nombre','email'].forEach(function(id){$(id).addEventListener('input',pinta)});
   $('go').onclick=function(){
@@ -172,7 +172,7 @@ input:focus,button:focus-visible{outline:2px solid var(--ink);outline-offset:2px
     fetch(API,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({accion:'reservar',t:T,inicio:S.inicio,nombre:$('nombre').value.trim(),email:$('email').value.trim(),formato:S.prog})})
     .then(function(r){return r.json()}).then(function(d){
       if(!d.ok){$('errForm').textContent=d.error||'No se pudo agendar.';$('errForm').hidden=false;b.textContent=txt;pinta();
-        if(d.motivo&&d.motivo!=='ya_tiene'){fetch(API+'?accion=reserva&t='+encodeURIComponent(T)).then(function(r){return r.json()}).then(function(n){if(n.ok){S.data=n;S.inicio=null;horas();pinta()}})}return}
+        if(d.motivo&&d.motivo!=='ya_tiene'){fetch(API+'&accion=reserva&t='+encodeURIComponent(T)).then(function(r){return r.json()}).then(function(n){if(n.ok){S.data=n;S.inicio=null;horas();pinta()}})}return}
       $('form').hidden=true;$('pie').hidden=true;$('okCuando').textContent=d.cuando+(d.formato?' · '+d.formato:'');
       if(d.servicio==='introductoria'){$('okPagar').href='/pagar?t='+encodeURIComponent(T)+'&o=verano_am';$('okPagar').hidden=false}
       $('listo').hidden=false;window.scrollTo(0,0)})
