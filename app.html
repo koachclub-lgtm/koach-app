@@ -986,6 +986,8 @@ html .kw.kw--hero .kw-cl{font-size:7px;letter-spacing:.16em}
 #vSesion.kdk .pvAct .pvWell{color:#F4F3F0!important}
 .pvIni i{width:14px;height:14px;border-radius:50%;background:currentColor;box-shadow:0 0 0 5px rgba(127,127,127,.25);animation:pvPulse 1.6s ease-in-out infinite}
 .pvIni--load{opacity:.6;pointer-events:none}
+.pvAct .pvIni--go{min-height:88px}
+.pvAct .pvIni--go span{font-size:26px!important;letter-spacing:.03em!important}
 .pvWell{min-height:58px;padding:10px 20px;background:transparent;color:inherit;box-shadow:inset 0 0 0 1.5px currentColor}
 .pvWell span{font-size:15px}
 @keyframes pvPulse{0%,100%{transform:scale(1);opacity:1}50%{transform:scale(.7);opacity:.55}}
@@ -6167,7 +6169,7 @@ function pvHero(ses,bfs){ const ne=bfs.reduce((a,b)=>a+bkBes(b).length,0)
     return '<p class="pv__d">'+pvDesc(ses,bfs)+'</p><div class="pv__st pv__st--go"><span><b>'+sh+'/'+stt+'</b>SETS</span><span><b>'+kg.toLocaleString('es-CL')+'</b>KG</span>'+
       (S.regInicio?'<span class="pv__clk"><i id="sClk" data-t="'+sesTxt()+'">'+bkSeg(sesTxt())+'</i>TIEMPO</span>':'')+'</div>' }
   if (!S._preview && !S.regInicio){ const wOk=!(S.regId && S._bn && S._bn[S.regId])
-    return '<p class="pv__d">'+pvDesc(ses,bfs)+'</p><div class="pvAct"><button type="button" class="pvIni" id="pvIni" onclick="pvIniciar()"><i aria-hidden="true"></i><span><small>'+bfs.length+' BLOQUES · '+ne+' EJERCICIOS · ~'+pvDur(bfs)+"'</small>INICIAR ENTRENAMIENTO</span><b aria-hidden=\"true\">→</b></button>"+
+    return '<p class="pv__d">'+pvDesc(ses,bfs)+'</p><div class="pvAct"><button type="button" class="pvIni pvIni--go" id="pvIni" onclick="pvAEntrenar()"><i aria-hidden="true"></i><span><small>'+bfs.length+' BLOQUES · '+ne+' EJERCICIOS · ~'+pvDur(bfs)+"'</small>¡A ENTRENAR!</span><b aria-hidden=\"true\">→</b></button>"+
       (wOk?'<button type="button" class="pvWell" onclick="wellAbrir()"><span><small>ANTES DE ENTRENAR · 1 MIN</small>TEST WELLNESS</span><b aria-hidden="true">→</b></button>':'')+'</div>' }
   if (S._preview){ const g=new Set(); bfs.forEach(b=>bkBes(b).forEach(be=>{ const x=(be.ejercicios||{}).grupo_muscular; if(x) g.add(x) }))
     const nm=String(ses.nombre||'tu sesión').toLowerCase().replace(/^./,c=>c.toUpperCase()), F=PV_FRASES, f=F[(String(ses.id||'').length+ne)%F.length]
@@ -6228,6 +6230,8 @@ async function pvIniciar(){ if (S.regInicio) return true; if (S._iniOcupado) ret
     const v=document.getElementById('vSesion'); if(v){ v.classList.remove('pvLiveIn'); void v.offsetWidth; v.classList.add('pvLive','pvLiveIn') }
     pintarSesion(); return true
   } finally { S._iniOcupado=false; const b2=document.getElementById('pvIni'); if(b2){ b2.disabled=false; b2.classList.remove('pvIni--load') } } }
+/* c219 · ¡A ENTRENAR!: un toque inicia el tiempo y entra directo a los ejercicios del primer bloque pendiente */
+function pvAEntrenar(){ pvIniciar().then(ok=>{ if(!ok) return; const bfs=S._bfs||[], i=bkPrimerPendiente(bfs); if(i>=0) bkAbrir(i) }) }
 function pvEntrar(bi){ if (S.regInicio) return bkAbrir(bi); pvIniciar().then(ok=>{ if(ok) bkAbrir(bi) }) }
 function pvBloques(bfs){ const st=document.getElementById('syncTag'); if(st) st.style.visibility=S._preview?'hidden':''; const vs=document.getElementById('vSesion'); if(vs) vs.classList.toggle('pwOn',!!S._preview); if(vs) vs.classList.toggle('pvLive',!!S.regInicio && !S._preview); if (S._preview) return pvGrupos(bfs); const pp=bkPrimerPendiente(bfs), todo=pp<0, prim=todo?bfs.length-1:pp, emp=pvEmpezada()
   const ab=(S._pvAb!=null) ? S._pvAb : ((todo || !S.regInicio) ? -1 : prim)
@@ -6243,7 +6247,7 @@ function pvBloques(bfs){ const st=document.getElementById('syncTag'); if(st) st.
         return '<li><i>'+String(i+1).padStart(2,'0')+'</i><b>'+bkEsc(ej.nombre||'—')+'</b>'+(ej.grupo_muscular?'<span class="kh__pill pvPill">'+bkEsc(String(ej.grupo_muscular).toUpperCase())+'</span>':'<span></span>')+'</li>' }).join('')+'</ol>'+
       (done||(bi!==prim&&h0) ? '<button type="button" class="pvB__ver" onclick="pvEntrar('+bi+')">VER O CORREGIR '+cod+'</button>'
         : '<button type="button" class="pvB__go" onclick="pvEntrar('+bi+')"><span>'+(!S.regInicio?'INICIAR Y COMENZAR ':(h0?'RETOMAR ':'COMENZAR '))+cod+'</span><b aria-hidden="true">→</b></button>')+'</section>'
-    return '<section class="pvB__c'+(done?' pvB__c--ok':'')+'" id="blq-'+bi+'" role="button" tabindex="0" aria-label="Ver bloque '+cod+'" onclick="S._pvAb='+bi+';pintarSesion()">'+h+
+    return '<section class="pvB__c'+(done?' pvB__c--ok':'')+'" id="blq-'+bi+'" role="button" tabindex="0" aria-label="Ver bloque '+cod+'" onclick="'+(S.regInicio&&!S._preview?'pvEntrar('+bi+')':'S._pvAb='+bi+';pintarSesion()')+'">'+h+
       '<div class="pvB__s">'+bes.map(be=>bkEsc((be.ejercicios||{}).nombre||'—')).join(' · ')+'</div></section>' }).join('')+
     ((emp&&!todo)?'<button type="button" class="pvEnd" onclick="pedirFinal()">TERMINAR SESIÓN ✓</button>':'')+'</div>'+go }
 
