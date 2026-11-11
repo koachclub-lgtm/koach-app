@@ -1342,6 +1342,32 @@ html .kw.kw--hero .kw-cl{font-size:7px;letter-spacing:.16em}
 #vSesion.pvLiveIn::after{content:"";position:fixed;inset:0;z-index:95;pointer-events:none;background:#fff;animation:pvFlash .7s ease-out forwards}
 @keyframes pvFlash{0%{opacity:.85}100%{opacity:0}}
 @media (prefers-reduced-motion:reduce){.pvIni i,#vSesion.pvLive .kh__k::before{animation:none}#vSesion.pvLiveIn::after{display:none}}
+
+/* c234 · temporizador en la fila SEG + anillo sobre la foto */
+.ktm{position:relative;flex:none;display:flex;align-items:center;justify-content:center;width:34px;height:34px;padding:0;border:0;border-radius:50%;background:#0B0B0C;color:#F4F3F0;cursor:pointer;-webkit-tap-highlight-color:transparent;touch-action:manipulation;-webkit-user-select:none;user-select:none}
+.ktm .ktm__ic{display:block;width:0;height:0;border-left:11px solid #F4F3F0;border-top:7px solid transparent;border-bottom:7px solid transparent;margin-left:3px}
+.ktm-on .ktm{background:#FF3B30}
+.ktm-on .ktm .ktm__ic{width:11px;height:12px;border:0;margin:0;background:linear-gradient(90deg,#F4F3F0 0 35%,transparent 35% 65%,#F4F3F0 65%)}
+.ktm-on.ktm-pausa .ktm{background:#0B0B0C}
+.ktm-on.ktm-pausa .ktm .ktm__ic{width:0;height:0;background:none;border-left:11px solid #F4F3F0;border-top:7px solid transparent;border-bottom:7px solid transparent;margin-left:3px}
+.kset--seg .kset__r{position:relative}
+.kset__r--tm{display:flex;align-items:center;justify-content:center;gap:10px}
+.ktm__val{font:800 24px/1 var(--font-display);font-variant-numeric:tabular-nums}
+.kset__r--tm .kset__u{position:static!important;opacity:.55}
+.ktm__bar{position:absolute;inset:0;z-index:2;border-radius:inherit;overflow:hidden;background:#0B0B0C;color:#F4F3F0;display:flex;align-items:center;justify-content:center;gap:10px;pointer-events:none}
+.ktm__bar i{position:absolute;left:0;top:0;bottom:0;background:linear-gradient(90deg,#3A3C40,#5E6166);transition:width .2s linear}
+.ktm__bar b,.ktm__bar small{position:relative}
+.ktm__bar b{font:800 24px/1 var(--font-display);font-variant-numeric:tabular-nums}
+.ktm__bar small{font:700 9px var(--font-mono);letter-spacing:.14em;opacity:.6}
+.ktm-ok .ktm::after{content:"✓";position:absolute;right:-5px;top:-5px;width:17px;height:17px;border-radius:50%;background:#F4F3F0;color:#0B0B0C;font:800 10px/17px var(--font-display);text-align:center;box-shadow:0 0 0 2px #0B0B0C}
+.bk__fo{position:relative}
+.ktm__ring{position:absolute;inset:0;z-index:2;border-radius:inherit;background:rgba(11,11,12,.72);display:flex;align-items:center;justify-content:center;pointer-events:none}
+.ktm__ring svg{position:absolute;inset:6%;width:88%;height:88%}
+.ktm__rb{fill:none;stroke:rgba(255,255,255,.2);stroke-width:6}
+.ktm__rf{fill:none;stroke:#fff;stroke-width:6;stroke-linecap:round;transition:stroke-dashoffset .2s linear}
+.ktm__ring b{position:relative;display:flex;flex-direction:column;align-items:center;color:#fff;font:800 clamp(24px,9vw,40px)/1 var(--font-display);font-variant-numeric:tabular-nums}
+.ktm__ring small{font:700 8px var(--font-mono);letter-spacing:.16em;opacity:.7;margin-top:4px}
+@media (prefers-reduced-motion:reduce){.ktm__bar i,.ktm__rf{transition:none}}
 </style>
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
@@ -6663,7 +6689,7 @@ function bkAbrir(bi){ const bfs=S._bfs||[]; if(!bfs[bi]) return
   o.classList.add('vis'); document.documentElement.classList.add('bk-on'); navPush('blk'); bkWake(true); bkRestRestaurar(); bkOverRestaurar(); bkPintar()
   setTimeout(function(){ const f=o.querySelector('.bk__cta'); if(f) f.focus({preventScroll:true}) },50)
 }
-function bkCerrar(desdeAtras){ if(!desdeAtras) navPop('blk'); rwPersistir(); const o=document.getElementById('oBloque'); if(o) o.classList.remove('vis'); document.documentElement.classList.remove('bk-on'); BK.bi=null; bkWake(false); pintarSesion() }
+function bkCerrar(desdeAtras){ ktmParar(true); if(!desdeAtras) navPop('blk'); rwPersistir(); const o=document.getElementById('oBloque'); if(o) o.classList.remove('vis'); document.documentElement.classList.remove('bk-on'); BK.bi=null; bkWake(false); pintarSesion() }
 function bkPintar(){
   const o=document.getElementById('oBloque'), bfs=S._bfs||[], b=bfs[BK.bi]; if(!o||!b){ return }
   const bes=bkBes(b), cod=bkCod(b,BK.bi), nom=bkNom(b,BK.bi), done=bloqueCompleto(b), n=BK.set, hecho=bkSetHecho(b,n)
@@ -6683,7 +6709,10 @@ function bkPintar(){
       '<button type="button" onclick="rwStep(\''+be.id+'\','+n+',\''+k+'\','+paso+')" aria-label="Aumentar '+qué+' de '+N+'">+</button></div></div>'
     const repsControl = () => ctl('reps','REPS',rv.reps,1,'rwR-'+be.id+'-'+n,'numeric','repeticiones')
     const weightControl = () => ctl('kg','KG',rv.kg==null?null:KSET.kg(rv.kg),2.5,'rwK-'+be.id+'-'+n,'decimal','peso')
-    const timeControl = () => ctl('seg','SEG',rv.seg||30,5,'rwS-'+be.id+'-'+n,'numeric','segundos')
+    // c235 · tiempo prescrito por el koach: sin − / +; solo ▶ a la izquierda. El tiempo real se guarda solo (ktmGuardar).
+    const timeControl = () => { const pS=+(w.seg||30), rS=+(rv.seg||pS)
+      return '<div class="kset kset--seg kset--tm"><span class="kset__l"><button type="button" class="ktm" id="ktm-'+be.id+'" onclick="ktmToggle(\''+be.id+'\','+n+')" aria-label="Iniciar temporizador de '+N+', '+pS+' segundos"><span class="ktm__ic" aria-hidden="true"></span></button></span>'+
+        '<div class="kset__r kset__r--tm"><b class="ktm__val" id="ktmV-'+be.id+'-'+n+'">'+ktmMMSS(rS*1000)+'</b><span class="kset__u">'+(rS<pS?'DE '+ktmMMSS(pS*1000):'SEG')+'</span></div></div>' }
     const bodyweight = '<div class="kset kset--bw"><span class="kset__l"><b>KG</b></span><div class="kset__pc">PESO CORPORAL</div></div>'
     const sinCarga = '<div class="kset kset--bw"><span class="kset__l"><b>KG</b></span><div class="kset__pc">SIN CARGA</div></div>'
     let ctr=''
@@ -6733,7 +6762,7 @@ function bkPintar(){
     '<div class="bk__foot">'+(b.timer&&window.KTIMER&&!done&&!rest ? '<button type="button" class="bk__cta bk__tmr" onclick="bkTimer()">▶ INICIAR '+bkEsc(KTIMER.MODOS[KTIMER.norm(b.timer).modo].lab)+' · '+KTIMER.mmss(KTIMER.total(b.timer))+'</button>' : '')+(done ? sig+'<button type="button" class="bk__lnk" onclick="bkDesmarcar()">DESHACER SET '+n+'</button>' : (!hecho && ctaCls!==' bk__cta--best' ? '<div class="bk__duo"><button type="button" class="bk__cta bk__cta--sec bk__all" onclick="bkFinishAll()" aria-label="Registrar todos los sets de '+cod+' de una vez">FINALIZAR BLOQUE '+String(cod).replace(/^B/,'')+'</button>' : '')+
       '<button type="button" class="bk__cta'+ctaCls+'" onclick="'+(hecho?'bkDesmarcar()':'bkCompletar()')+'">'+cta+'</button>'+(!hecho && ctaCls!==' bk__cta--best' ? '</div><p class="bk__hint">REGISTRA SET POR SET O FINALIZA EL BLOQUE COMPLETO</p>' : ''))+'</div>'+
     '<div class="bk__cd" id="bkCd" aria-live="assertive" aria-atomic="true"><b id="bkCdN"></b></div>'
-  bkRestTick(); if(over) bkOverTick()
+  bkRestTick(); if(over) bkOverTick(); ktmPintar()
 }
 /* c107 · FINISH B1: registra de una todos los sets pendientes del bloque con los valores en pantalla (prescritos o ajustados) */
 /* c125 · peso de referencia de un ejercicio en el bloque: lo que el socio escribió en cualquier set (primero el set actual),
@@ -6854,6 +6883,49 @@ document.addEventListener('visibilitychange', function(){ if(document.visibility
   // I7 · no se repinta todo (se perdería el foco de un input en edición): el reloj se recalcula solo; si expiró, paso() cierra el descanso
   if (BK.rest) bkRestTick(); else if (BK.over) bkOverTick() })
 /* ── pantalla encendida mientras se entrena ── */
+
+/* c234 · TEMPORIZADOR DENTRO DEL EJERCICIO (ejercicios por tiempo: plancha, assault bike…)
+   ▶ en la fila SEG: la fila se vuelve una barra que se vacía y la foto muestra el número grande con un anillo.
+   Toque = pausa/sigue · toque largo = reinicia · últimos 3 s suenan · al terminar vibra y marca ✓. No registra el set solo. */
+const KTM = { be: null, n: 0, dur: 0, fin: 0, resta: 0, run: false, t: null, ok: {} }
+function ktmSeg(beId){ const w=S.wk[beId]; return Math.max(5, parseInt(w&&w.seg)||30) }
+/* guarda en el borrador del set los segundos realmente hechos (los registra REGISTRAR SET) */
+function ktmGuardar(beId, n, seg){ const rv=S.rw[beId+'#'+n]; if(!rv) return; const p=ktmSeg(beId); rv.seg=Math.max(1,Math.min(p,Math.round(seg))); rv._man=true; rwPersistir()
+  const v=document.getElementById('ktmV-'+beId+'-'+n); if(v){ v.textContent=ktmMMSS(rv.seg*1000); const u=v.nextElementSibling; if(u) u.textContent=rv.seg<p?'DE '+ktmMMSS(p*1000):'SEG' }
+  const fila=S.setLog[setKey(beId,n)]; if(fila&&fila.id){ fila.seg=rv.seg; sb.from('set_registros').update({seg:rv.seg, updated_at:new Date().toISOString()}).eq('id',fila.id).then(()=>{},()=>{}) } }
+function ktmToggle(beId, n){ kAudioUnlock(); kHaptic(10)
+  if (KTM._lp){ KTM._lp=false; return }
+  if (KTM.be===beId && KTM.n===n && (KTM.run || KTM.resta>0)){
+    if (KTM.run){ KTM.resta=Math.max(0,KTM.fin-Date.now()); KTM.run=false; clearInterval(KTM.t); ktmGuardar(beId,n,(KTM.dur-KTM.resta)/1000) }
+    else { KTM.fin=Date.now()+KTM.resta; KTM.run=true; ktmLoop() }
+    return ktmPintar() }
+  ktmParar(true); const d=ktmSeg(beId)
+  Object.assign(KTM,{ be:beId, n, dur:d*1000, fin:Date.now()+d*1000, resta:0, run:true, _bip:null }); delete KTM.ok[beId+'#'+n]
+  bkWake(true); ktmLoop(); ktmPintar() }
+function ktmParar(silencio){ clearInterval(KTM.t); KTM.t=null; const k=KTM.be; Object.assign(KTM,{ be:null, n:0, run:false, resta:0 }); if(k && !silencio) ktmPintar() }
+function ktmLoop(){ clearInterval(KTM.t); KTM.t=setInterval(()=>{ if(!KTM.run) return; const ms=KTM.fin-Date.now(), s=Math.ceil(ms/1000)
+    if (ms<=0){ KTM.ok[KTM.be+'#'+KTM.n]=true; ktmGuardar(KTM.be,KTM.n,KTM.dur/1000); kBeep(880,.5,.22); try{ navigator.vibrate&&navigator.vibrate([90,60,90,60,220]) }catch(_){} kHaptic(30); ktmParar(); return }
+    if (s<=3 && KTM._bip!==s){ KTM._bip=s; kSonTick(); kHaptic(8) }
+    ktmPintar() },200) }
+function ktmTxt(ms){ const s=Math.max(0,Math.ceil(ms/1000)); return s>=60 ? Math.floor(s/60)+':'+String(s%60).padStart(2,'0') : String(s) }
+function ktmMMSS(ms){ const s=Math.max(0,Math.ceil(ms/1000)); return Math.floor(s/60)+':'+String(s%60).padStart(2,'0') }
+function ktmPintar(){
+  document.querySelectorAll('.ktm').forEach(b=>{ const id=b.id.slice(4), art=b.closest('.bk__ex'); if(art) art.classList.toggle('ktm-ok', !!KTM.ok[id+'#'+BK.set])
+    const act = KTM.be===id && KTM.n===BK.set, k=b.closest('.kset')
+    if (!act && k && k.classList.contains('ktm-on')){ k.classList.remove('ktm-on','ktm-pausa'); k.querySelectorAll('.ktm__bar').forEach(e=>e.remove()); if(art) art.querySelectorAll('.ktm__ring').forEach(e=>e.remove()); b.setAttribute('aria-label','Iniciar temporizador') } })
+  if (!KTM.be || KTM.n!==BK.set) return
+  const btn=document.getElementById('ktm-'+KTM.be); if(!btn) return
+  const k=btn.closest('.kset'), art=btn.closest('.bk__ex'), r=k&&k.querySelector('.kset__r'); if(!k||!r) return
+  const ms=KTM.run?KTM.fin-Date.now():KTM.resta, p=Math.max(0,Math.min(1,ms/KTM.dur))
+  k.classList.add('ktm-on'); k.classList.toggle('ktm-pausa',!KTM.run); btn.setAttribute('aria-label', KTM.run?'Pausar temporizador':'Seguir temporizador')
+  let bar=r.querySelector('.ktm__bar'); if(!bar){ r.insertAdjacentHTML('beforeend','<div class="ktm__bar" role="timer"><i></i><b></b><small></small></div>'); bar=r.querySelector('.ktm__bar') }
+  bar.querySelector('i').style.width=(p*100).toFixed(1)+'%'; bar.querySelector('b').textContent=ktmMMSS(ms); bar.querySelector('small').textContent=KTM.run?'DE '+ktmMMSS(KTM.dur):'PAUSA'
+  const fo=art&&art.querySelector('.bk__fo'); if(fo){ const C=276.5; let rg=fo.querySelector('.ktm__ring')
+    if(!rg){ fo.insertAdjacentHTML('beforeend','<span class="ktm__ring" aria-hidden="true"><svg viewBox="0 0 100 100"><circle cx="50" cy="50" r="44" class="ktm__rb"/><circle cx="50" cy="50" r="44" class="ktm__rf" stroke-dasharray="'+C+'" transform="rotate(-90 50 50)"/></svg><b><span></span><small></small></b></span>'); rg=fo.querySelector('.ktm__ring') }
+    rg.querySelector('.ktm__rf').setAttribute('stroke-dashoffset',(C*(1-p)).toFixed(1)); rg.querySelector('b span').textContent=ktmTxt(ms); rg.querySelector('small').textContent=KTM.run?(ms>=60000?'MIN':'SEG'):'PAUSA' } }
+document.addEventListener('pointerdown',e=>{ const b=e.target.closest&&e.target.closest('.ktm'); if(!b) return; clearTimeout(KTM._lpT)
+  KTM._lpT=setTimeout(()=>{ if(KTM.be){ KTM._lp=true; kHaptic(25); const be=KTM.be, n=KTM.n; ktmParar(true); ktmGuardar(be,n,ktmSeg(be)); ktmPintar() } },650) })
+document.addEventListener('pointerup',()=>clearTimeout(KTM._lpT)); document.addEventListener('pointercancel',()=>clearTimeout(KTM._lpT))
 async function bkWake(on){ try{ if(on){ if(!BK._wl && navigator.wakeLock){ BK._wl=await navigator.wakeLock.request('screen'); BK._wl.addEventListener('release',function(){ BK._wl=null }) } } else if(BK._wl){ await BK._wl.release(); BK._wl=null } }catch(_){ BK._wl=null } }
 
 /* c71 · tiempo de sesión */
@@ -8986,9 +9058,10 @@ document.addEventListener('DOMContentLoaded', async ()=>{
       <button type="button" class="kset__gi" onclick="ksElegir('editorial')"><img src="/img/share/plantilla-editorial.webp" alt="Plantilla Editorial" width="720" height="1280" loading="lazy" decoding="async"><b>EDITORIAL</b><small>Tu foto a sangre con los kilos del día</small></button>
       <button type="button" class="kset__gi" onclick="ksElegir('scan')"><img src="/img/share/plantilla-scan.webp" alt="Plantilla Escáner" width="720" height="1280" loading="lazy" decoding="async"><b>ESCÁNER</b><small>Tu cuerpo detectado y una ficha con tus datos</small></button>
       <button type="button" class="kset__gi" onclick="ksElegir('mov')"><img src="/img/share/plantilla-mov.webp" alt="Plantilla Movimiento" width="720" height="1280" loading="lazy" decoding="async"><b>MOVIMIENTO</b><small>Foto en barrido: se ve la energía, no la cara</small></button>
+      <button type="button" class="kset__gi" onclick="ksElegir('ton')"><img src="/img/share/plantilla-ton.webp" alt="Plantilla Tonelaje" width="720" height="1280" loading="lazy" decoding="async"><b>TONELAJE</b><small>Tus kilos en vertical sobre tu foto, sin filtro</small></button>
     </div>
     <div class="kset__opts" id="ksOFoto" hidden>
-      <div class="kset__row"><span>ESTILO</span><button type="button" class="kset__chip" data-ks="estilo" data-v="editorial" aria-pressed="true">EDITORIAL</button><button type="button" class="kset__chip" data-ks="estilo" data-v="ticket" aria-pressed="false">TICKET</button><button type="button" class="kset__chip" data-ks="estilo" data-v="mapa" aria-pressed="false">MAPA</button><button type="button" class="kset__chip" data-ks="estilo" data-v="dia" aria-pressed="false">DÍA</button><button type="button" class="kset__chip" data-ks="estilo" data-v="scan" aria-pressed="false">ESCÁNER</button><button type="button" class="kset__chip" data-ks="estilo" data-v="mov" aria-pressed="false">MOVIMIENTO</button><button type="button" class="kset__chip" onclick="ksAjustarActual()">AJUSTAR FOTO</button><label class="kset__chip">CAMBIAR FOTO<input type="file" id="ksFoto2" accept="image/*"></label></div>
+      <div class="kset__row"><span>ESTILO</span><button type="button" class="kset__chip" data-ks="estilo" data-v="editorial" aria-pressed="true">EDITORIAL</button><button type="button" class="kset__chip" data-ks="estilo" data-v="ticket" aria-pressed="false">TICKET</button><button type="button" class="kset__chip" data-ks="estilo" data-v="mapa" aria-pressed="false">MAPA</button><button type="button" class="kset__chip" data-ks="estilo" data-v="dia" aria-pressed="false">DÍA</button><button type="button" class="kset__chip" data-ks="estilo" data-v="scan" aria-pressed="false">ESCÁNER</button><button type="button" class="kset__chip" data-ks="estilo" data-v="mov" aria-pressed="false">MOVIMIENTO</button><button type="button" class="kset__chip" data-ks="estilo" data-v="ton" aria-pressed="false">TONELAJE</button><button type="button" class="kset__chip" onclick="ksAjustarActual()">AJUSTAR FOTO</button><label class="kset__chip">CAMBIAR FOTO<input type="file" id="ksFoto2" accept="image/*"></label></div>
       <div class="kset__row"><span>FILTRO</span><button type="button" class="kset__chip" data-ks="filtro" data-v="frio" aria-pressed="true">DRAMÁTICO FRÍO</button><button type="button" class="kset__chip" data-ks="filtro" data-v="drama" aria-pressed="false">DRAMÁTICO</button><button type="button" class="kset__chip" data-ks="filtro" data-v="plata" aria-pressed="false">PLATA</button></div>
       <div class="kset__row" data-solo="senalador"><span>RUTA</span><button type="button" class="kset__chip" data-ks="ruta" data-v="auto" aria-pressed="true">AUTO</button><button type="button" class="kset__chip" data-ks="ruta" data-v="DIAG" aria-pressed="false">DIAGONAL</button><button type="button" class="kset__chip" data-ks="ruta" data-v="L" aria-pressed="false">L</button><button type="button" class="kset__chip" data-ks="ruta" data-v="GAMMA" aria-pressed="false">Γ</button><button type="button" class="kset__chip" data-ks="ruta" data-v="ELBOW" aria-pressed="false">CODO</button></div>
       <div class="kset__row" data-solo="senalador"><span>MARCA</span><button type="button" class="kset__chip" data-ks="mira" data-v="circulo" aria-pressed="true">MIRA</button><button type="button" class="kset__chip" data-ks="mira" data-v="cuadro" aria-pressed="false">MARCO</button></div>
@@ -9332,15 +9405,17 @@ function ksPintar() {
     else if (KS.estilo === 'editorial') { kmAsegurar(); kaEditorial(ctx) }
     else if (KS.estilo === 'ticket') { kmAsegurar(); kaTicket(ctx) }
     else if (KS.estilo === 'dia') { kmAsegurar(); kaDia(ctx) }
+    else if (KS.estilo === 'ton') kaTon(ctx, false)
     else if (KS.estilo === 'scan') { kmAsegurar(); kaScan(ctx) }
     else if (KS.estilo === 'mov') { kmAsegurar(); kaMov(ctx) }
     else if (KS.estilo === 'cara') { kmAsegurar(); kaCara(ctx) }
     else if (KS.estilo === 'visor') { kmAsegurar(); kaVisor(ctx) }
     else if (KS.estilo === 'tarjeta') KT.renderImagen(ctx, d, kmFoto(), { nitida: true });
     else { if (!KS.target) KS.target = ksTargetSugerido(); KT.renderSenalador(ctx, d, 'auto', 'izq', 1, 'media', KS.mira, { fondo: kmFoto(), target: KS.target, ruta: KS.ruta }) }
-  } else kaCaptura(ctx, true);
+  } else if (KS.estilo === 'ton') kaTon(ctx, true); else kaCaptura(ctx, true);
   ksEl('ksOFoto').hidden = !(KS.formato === 'foto' && KS.foto);
   document.querySelectorAll('#ksOFoto [data-solo]').forEach(r => r.hidden = KS.estilo !== r.dataset.solo);
+  { const fr = document.querySelector('#ksOFoto [data-ks="filtro"]'); if (fr && fr.parentNode) fr.parentNode.hidden = KS.estilo === 'ton' }   // c233 · TONELAJE usa la foto tal cual
   ksEl('ksOTr').hidden = true;
   ksAcciones(sinFoto);
   ksPreparar(sinFoto);
@@ -9887,6 +9962,53 @@ function kxLogo(ctx, x, y, h, color) { const lg = kaLogo(color || '#FFFFFF'); if
 
 // 1 · ESCÁNER: el cuerpo detectado con esquinas y articulaciones + ficha lateral de datos (sin foto de perfil)
 // c188 · DÍA: bloque central mínimo — día de la semana, kilos totales y debajo SESIÓN n/N + rutina (cortada si no cabe)
+/* c233 · TONELAJE VERTICAL: solo texto, logo y gráfico sobre la foto tal cual (sin filtro) o sobre fondo transparente.
+   Logo arriba al centro, justo sobre la zona segura; tonelaje vertical a la altura de la persona; abajo, centrados:
+   rutina · SESSION n/N, línea de kilos por set y EJERCICIOS · SETS · MIN. */
+function kaTonDatos(j) {
+  if (!j || !j.registro_id) return null; if (KS._ton && KS._ton.reg === j.registro_id) return KS._ton.ok ? KS._ton : null;
+  KS._ton = { reg: j.registro_id, ok: false };
+  sb.from('set_registros').select('bloque_id, set_numero, ejercicio_id, peso, reps, created_at').eq('registro_id', j.registro_id).eq('completado', true).then(({ data }) => {
+    const G = {}, ej = new Set(); (data || []).forEach(r => { if (r.ejercicio_id) ej.add(r.ejercicio_id)
+      const k = r.bloque_id + '#' + r.set_numero, reps = parseInt(String(r.reps || '').match(/\d+/) || 0, 10) || 0
+      const g = G[k] || (G[k] = { t: r.created_at || '', kg: 0 }); g.kg += (+r.peso || 0) * reps; if ((r.created_at || '') < g.t) g.t = r.created_at })
+    const serie = Object.values(G).sort((a, b) => String(a.t).localeCompare(String(b.t))).map(g => Math.round(g.kg))
+    KS._ton = { reg: j.registro_id, ok: true, serie, nej: ej.size }; if (KS.estilo === 'ton') ksPintar()
+  }, () => {});
+  return null;
+}
+function kaTon(ctx, trans) {
+  const W = KT.W, H = KT.H, j = KS.data || {}, d = kaDatos(), B = '#FFFFFF', T = kaTonDatos(j) || {};
+  ctx.clearRect(0, 0, W, H);
+  if (!trans && KS.foto) { const c = kmCover(KS.foto); ctx.drawImage(KS.foto, c.ox, c.oy, c.w, c.h) }   // la foto tal cual: sin filtro ni viñeta
+  const sh = (b) => { ctx.shadowColor = 'rgba(0,0,0,' + (trans ? 0 : .32) + ')'; ctx.shadowBlur = b }
+  const F = (w, s) => w + " expanded " + s + "px 'KOACH Display', 'Inter Display', Arial, sans-serif", M = s => "700 " + s + "px 'Space Mono', 'IBM Plex Mono', monospace";
+  // logo: arriba al centro, apoyado justo sobre la zona segura superior
+  ctx.save(); sh(14); const lg = kaLogo(B); if (lg) { const h = 43, w = lg.width * h / lg.height; ctx.drawImage(lg, (W - w) / 2, KS_SAFE_T - h - 6, w, h) } ctx.restore();
+  // tonelaje vertical (de abajo hacia arriba), a la altura de la persona
+  const num = Math.round(+j.tonelaje || 0).toLocaleString('es-CL'); let s = 225; ctx.save(); ctx.font = F(900, s); if ('letterSpacing' in ctx) ctx.letterSpacing = '-4px';
+  while (ctx.measureText(num).width > 820 && s > 120) { s -= 5; ctx.font = F(900, s) }
+  const nw = ctx.measureText(num).width; ctx.translate(KS_SAFE_X + 10, 1275); ctx.rotate(-Math.PI / 2); sh(18); ctx.fillStyle = B; ctx.textBaseline = 'alphabetic'; ctx.textAlign = 'left';
+  ctx.fillText(num, 0, s * .76); if ('letterSpacing' in ctx) ctx.letterSpacing = '0px'; ctx.font = F(900, Math.round(s * .32)); ctx.fillText('KG', nw + 22, s * .76 * .32 + 2); ctx.restore();
+  // abajo, centrado: rutina · SESSION n/N
+  ctx.save(); sh(10); ctx.fillStyle = B; ctx.textAlign = 'center'; ctx.font = M(21); if ('letterSpacing' in ctx) ctx.letterSpacing = '7px';
+  const ses = ksSesTxt(j) || 'SESSION'; let rut = String(j.rutina || '').replace(/^\s*★\s*/, '').toUpperCase(), lab = rut ? rut + ' · ' + ses : ses;
+  while (rut && ctx.measureText(lab).width > W - 2 * KS_SAFE_X - 40) { rut = rut.slice(0, -1).trimEnd(); lab = rut + '… · ' + ses }
+  ctx.globalAlpha = .85; ctx.fillText(lab, W / 2, 1500); ctx.globalAlpha = 1; if ('letterSpacing' in ctx) ctx.letterSpacing = '0px'; ctx.restore();
+  // línea de kilos por set
+  const v = (T.serie || []).filter(x => x > 0), gx = 220, gw = W - 440, gy = 1535, gh = 110;
+  if (v.length > 1) { const mx = Math.max(...v), mn = Math.min(...v), P = v.map((k, i) => [gx + i / (v.length - 1) * gw, gy + gh - (mx === mn ? .5 : (k - mn) / (mx - mn)) * gh])
+    ctx.save(); sh(10); ctx.strokeStyle = B; ctx.fillStyle = B; ctx.lineWidth = 7; ctx.lineJoin = 'round'; ctx.lineCap = 'round'
+    ctx.beginPath(); P.forEach((p, i) => i ? ctx.lineTo(p[0], p[1]) : ctx.moveTo(p[0], p[1])); ctx.stroke()
+    const L = P[P.length - 1]; ctx.beginPath(); ctx.arc(L[0], L[1], 13, 0, 7); ctx.fill(); ctx.lineWidth = 5; ctx.beginPath(); ctx.arc(P[0][0], P[0][1], 9, 0, 7); ctx.stroke(); ctx.restore() }
+  // datos: EJERCICIOS · SETS · MIN (bajo la línea)
+  const dat = [[T.nej || '—', 'EJERCICIOS'], [d.sets || 0, 'SETS'], [d.dur || '—', 'MIN']].map(([n, l]) => [String(n), l]);
+  ctx.save(); sh(10); ctx.fillStyle = B; ctx.textBaseline = 'alphabetic'; const nf = F(900, 44), lf = M(17), gap = 60;
+  const ws = dat.map(([n, l]) => { ctx.font = nf; const a = ctx.measureText(n).width; ctx.font = lf; if ('letterSpacing' in ctx) ctx.letterSpacing = '5px'; const b = ctx.measureText(l).width; if ('letterSpacing' in ctx) ctx.letterSpacing = '0px'; return [a, b] });
+  let x = (W - ws.reduce((t, [a, b]) => t + a + 12 + b, 0) - gap * (dat.length - 1)) / 2;
+  dat.forEach(([n, l], i) => { ctx.font = nf; ctx.textAlign = 'left'; ctx.fillText(n, x, 1745); x += ws[i][0] + 12; ctx.font = lf; if ('letterSpacing' in ctx) ctx.letterSpacing = '5px'; ctx.globalAlpha = .65; ctx.fillText(l, x, 1745); ctx.globalAlpha = 1; if ('letterSpacing' in ctx) ctx.letterSpacing = '0px'; x += ws[i][1] + gap });
+  ctx.restore();
+}
 function kaDia(ctx) {
   const W = KT.W, H = KT.H, j = KS.data || {}, d = kaDatos(), B = '#FFFFFF';
   ctx.clearRect(0, 0, W, H); ctx.drawImage(kmFoto(), 0, 0, W, H);
