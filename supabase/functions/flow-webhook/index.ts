@@ -2,6 +2,7 @@
 // SIEMPRE se consulta firmado a Flow.
 //   ?t=confirm  urlConfirmation de pagos únicos     ?t=return  vuelta del pagador (pago único)
 //   ?t=card     vuelta del registro de tarjeta       ?t=sub     urlCallback de cada cobro automático
+//   ?t=sync     realinea el primer cobro con el fin del acceso (&socio=uuid opcional)
 //   ?t=ping     diagnóstico de llaves (no expone valores)
 import { createClient } from "npm:@supabase/supabase-js@2";
 import { flow, tokenDe, APP, API_KEY } from "./flow.ts";
@@ -49,8 +50,51 @@ async function activarSuscripcion(token: string) {
   return "activa";
 }
 
+// Sincronización: el primer cobro de una suscripción que AÚN NO cobra nada debe coincidir con el fin real del acceso.
+// Caso típico: se activó con una membresía vigente (primer cobro = su vencimiento) y luego esa membresía se anuló.
+// Se crea la suscripción nueva ANTES de cancelar la anterior: si Flow falla, no se pierde nada.
+async function realinear(socio?: string | null) {
+  let q = admin.from("flow_suscripciones").select("*").eq("estado", "activa").not("flow_subscription_id", "is", null).eq("cobros_pagados", 0);
+  if (socio) q = q.eq("socio_id", socio);
+  const { data: lista } = await q;
+  const hoy = hoyCL(), res: unknown[] = [];
+  for (const s of lista || []) {
+    if (!s.inicio || s.inicio <= hoy) continue;                       // ya entró en cobro: no se toca
+    const { count } = await admin.from("flow_cobros").select("id", { count: "exact", head: true }).eq("suscripcion_id", s.id);
+    if (count) continue;
+    const { data: acc } = await admin.rpc("_flow_fin_acceso", { p_socio: s.socio_id });
+    const ancla = acc && acc > hoy ? acc : hoy;
+    if (ancla === s.inicio) continue;
+    const { data: tomada } = await admin.from("flow_suscripciones").update({ estado: "activando", updated_at: ahora() }).eq("id", s.id).eq("estado", "activa").select("id");
+    if (!tomada?.length) continue;
+    try {
+      const sub = await flow("POST", "subscription/create", { planId: s.flow_plan_id, customerId: s.flow_customer_id, subscription_start: ancla });
+      let aviso: string | null = null;
+      try { await flow("POST", "subscription/cancel", { subscriptionId: s.flow_subscription_id, at_period_end: 0 }); }
+      catch (e) { aviso = "no se pudo cancelar " + s.flow_subscription_id + ": " + String((e as Error).message).slice(0, 200); }
+      const permHasta = s.permanencia_meses > 0 ? (() => { const d = new Date(ancla + "T12:00:00Z"); d.setUTCMonth(d.getUTCMonth() + s.permanencia_meses); return d.toISOString().slice(0, 10); })() : null;
+      await admin.from("flow_suscripciones").update({ estado: "activa", flow_subscription_id: sub.subscriptionId, inicio: ancla, proximo_cobro: ancla,
+        permanencia_hasta: permHasta, flow_data: sub, error: aviso, updated_at: ahora() }).eq("id", s.id);
+      await admin.from("admin_eventos").insert({ socio_id: s.socio_id, entidad: "pago_automatico", entidad_id: s.id, accion: "realinear",
+        despues: { primer_cobro_antes: s.inicio, primer_cobro: ancla, suscripcion_anterior: s.flow_subscription_id, suscripcion: sub.subscriptionId, aviso },
+        actor_nombre: "FLOW · sincronización", motivo: "el primer cobro no coincidía con el fin del acceso" });
+      if (aviso) await admin.from("flow_eventos").insert({ socio_id: s.socio_id, origen: "realinear", codigo: "cancel", mensaje: aviso });
+      res.push({ socio: s.socio_id, de: s.inicio, a: ancla });
+    } catch (e) {
+      await admin.from("flow_suscripciones").update({ estado: "activa", updated_at: ahora() }).eq("id", s.id);
+      await admin.from("flow_eventos").insert({ socio_id: s.socio_id, origen: "realinear", codigo: String((e as { code?: unknown }).code ?? ""), mensaje: String((e as Error).message).slice(0, 500) });
+      res.push({ socio: s.socio_id, error: String((e as Error).message).slice(0, 200) });
+    }
+  }
+  return res;
+}
+
 Deno.serve(async (req) => {
   const t = new URL(req.url).searchParams.get("t");
+  if (t === "sync") {
+    const r = await realinear(new URL(req.url).searchParams.get("socio"));
+    return new Response(JSON.stringify({ ok: true, realineadas: r }), { headers: { "Content-Type": "application/json" } });
+  }
   if (t === "ping") {
     let flowR: unknown = null;
     try { await flow("GET", "payment/getStatus", { token: "ping_koach" }); } catch (e) { flowR = String((e as Error).message).slice(0, 300); }

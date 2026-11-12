@@ -68,6 +68,8 @@ async function buscarCliente(uid: string, nombre: string, email: string): Promis
   }
   return undefined;
 }
+// antes de mostrar el estado, se sincroniza el primer cobro con el fin real del acceso (flow-webhook ?t=sync)
+const sincronizar = (socio: string) => fetch(HOOK + "?t=sync&socio=" + socio).then((r) => r.json()).catch(() => null);
 async function vivaDe(uid: string) {
   const { data } = await admin.from("flow_suscripciones").select("*").eq("socio_id", uid)
     .in("estado", ["registrando_tarjeta", "activando", "activa", "cancelada_fin_periodo"]).order("created_at", { ascending: false }).limit(1).maybeSingle();
@@ -93,6 +95,7 @@ Deno.serve(async (req) => {
     if (String(body.accion || "").startsWith("staff_")) {
       const { data: yo } = await admin.from("profiles").select("role,nombre,apellido").eq("id", uid).maybeSingle();
       if (!yo || !["admin", "recepcion"].includes(yo.role)) return j({ error: "Sin permiso" }, 403);
+      if (body.accion === "staff_estado" && body.socio) await sincronizar(body.socio);
       const s = await vivaDe(body.socio);
       if (body.accion === "staff_estado") return j({ suscripcion: publica(s && s.estado !== "registrando_tarjeta" ? s : null) });
       if (body.accion === "staff_terminar") {
@@ -105,6 +108,7 @@ Deno.serve(async (req) => {
       return j({ error: "Acción no válida" }, 400);
     }
 
+    if (body.accion === "estado") await sincronizar(uid);
     const viva = await vivaDe(uid);
 
     if (body.accion === "estado") return j({ suscripcion: publica(viva && viva.estado !== "registrando_tarjeta" ? viva : null) });
