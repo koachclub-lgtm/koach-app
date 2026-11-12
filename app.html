@@ -596,6 +596,52 @@ html.accBloq #pfCard, html.accBloq #vPerfil .kpc__f, html.accBloq #vPerfil [oncl
 .kHoja__t{margin:8px 0 0;font-family:'KOACH Display','Inter Display',Inter,Arial,sans-serif;font-weight:800;font-size:22px;line-height:1.15;letter-spacing:-.01em}
 .kHoja__p{margin:10px 0 0;font-size:14px;line-height:1.5;color:#4A4945}
 .kHoja__b{display:flex;gap:8px;margin-top:18px}.kHoja__b button{flex:1;min-height:52px;border-radius:14px;font:700 11px 'Space Mono','IBM Plex Mono',monospace;letter-spacing:.12em;cursor:pointer}
+/* ═══ Checkout · pago en línea (Flow) — pantalla completa, grises neutros ═══ */
+.kCk{position:fixed;inset:0;z-index:2050;background:#EDEDED;color:#121212;display:flex;flex-direction:column;animation:kHf .18s ease-out}
+.kCk__top{background:#111;color:#F2F2F2;padding:calc(env(safe-area-inset-top) + 14px) 20px 14px;display:flex;align-items:center;gap:12px}
+.kCk__logo{width:96px;height:20px;background:#F2F2F2;-webkit-mask:url(/img/brand/logotipo-koach.png) no-repeat left center/contain;mask:url(/img/brand/logotipo-koach.png) no-repeat left center/contain}
+.kCk__seg{margin-left:auto;display:flex;align-items:center;gap:6px;font:700 10px var(--font-mono);letter-spacing:.14em;color:#BDBDBD}
+.kCk__seg svg{width:13px;height:13px}
+.kCk__x{width:40px;height:40px;border:0;border-radius:50%;background:rgba(242,242,242,.1);color:#F2F2F2;font-size:16px;cursor:pointer;flex:none}
+.kCk__body{flex:1;overflow:auto;-webkit-overflow-scrolling:touch;padding:22px 18px 18px;max-width:560px;width:100%;margin:0 auto;box-sizing:border-box}
+.kCk__paso{font:400 10.5px var(--font-mono);letter-spacing:.16em;color:#6B6B6B}
+.kCk__t{font:800 clamp(26px,7.4vw,34px)/1 var(--font-display);text-transform:uppercase;letter-spacing:-.01em;margin:6px 0 4px}
+.kCk__sub{font:400 13.5px/1.45 var(--font-body,system-ui);color:#4A4A4A;margin:0 0 6px}
+.kCk__k{display:block;font:700 10.5px var(--font-mono);letter-spacing:.16em;color:#6B6B6B;margin:22px 2px 9px}
+.kCk__op{position:relative;display:flex;align-items:center;gap:14px;width:100%;text-align:left;padding:16px 16px;border:1.5px solid #D2D2D2;border-radius:14px;background:#FFF;color:#121212;cursor:pointer;margin-bottom:10px;transition:border-color .12s,box-shadow .12s}
+.kCk__op[aria-checked="true"]{border-color:#121212;box-shadow:0 0 0 1.5px #121212}
+.kCk__rad{flex:none;width:20px;height:20px;border-radius:50%;border:2px solid #9A9A9A;display:grid;place-items:center}
+.kCk__op[aria-checked="true"] .kCk__rad{border-color:#121212}
+.kCk__op[aria-checked="true"] .kCk__rad::after{content:"";width:10px;height:10px;border-radius:50%;background:#121212}
+.kCk__inf{flex:1;min-width:0}
+.kCk__n{display:block;font:800 16px var(--font-display);text-transform:uppercase;letter-spacing:.01em}
+.kCk__d{display:block;font:400 11px/1.5 var(--font-mono);letter-spacing:.05em;color:#5E5E5E;margin-top:3px}
+.kCk__pr{text-align:right;flex:none}
+.kCk__pr b{display:block;font:700 17px var(--font-mono);letter-spacing:-.01em}
+.kCk__pr s{display:block;font:400 11.5px var(--font-mono);color:#8A8A8A}
+.kCk__pr small{display:block;font:400 10.5px var(--font-mono);color:#5E5E5E;letter-spacing:.04em}
+.kCk__tag{position:absolute;top:-9px;left:14px;padding:3px 9px;border-radius:999px;background:#121212;color:#F2F2F2;font:700 9.5px var(--font-mono);letter-spacing:.12em}
+.kCk__op--dark{background:#161616;color:#F2F2F2;border-color:#161616}
+.kCk__op--dark .kCk__d,.kCk__op--dark .kCk__pr small{color:#B5B5B5}.kCk__op--dark .kCk__pr s{color:#8C8C8C}
+.kCk__op--dark .kCk__rad{border-color:#8C8C8C}
+.kCk__op--dark[aria-checked="true"]{border-color:#161616;box-shadow:0 0 0 2px #EDEDED,0 0 0 3.5px #161616}
+.kCk__op--dark[aria-checked="true"] .kCk__rad{border-color:#F2F2F2}.kCk__op--dark[aria-checked="true"] .kCk__rad::after{background:#F2F2F2}
+.kCk__op--dark .kCk__tag{background:#F2F2F2;color:#121212}
+.kCk__conf{margin:20px 0 4px;padding:14px 16px;border-radius:14px;background:#E2E2E2;display:grid;gap:9px}
+.kCk__conf div{display:flex;gap:10px;align-items:flex-start;font:400 12.5px/1.45 var(--font-body,system-ui);color:#3A3A3A}
+.kCk__conf svg{flex:none;width:16px;height:16px;margin-top:1px}
+.kCk__leg{font:400 10px/1.6 var(--font-mono);letter-spacing:.04em;color:#7A7A7A;text-align:center;margin:14px 0 4px}
+.kCk__pie{background:#FFF;border-top:1px solid #D6D6D6;padding:14px 18px calc(env(safe-area-inset-bottom) + 14px)}
+.kCk__pie>div{max-width:560px;margin:0 auto}
+.kCk__tot{display:flex;justify-content:space-between;align-items:baseline;gap:10px;margin-bottom:12px}
+.kCk__tot span{font:700 10.5px var(--font-mono);letter-spacing:.14em;color:#5E5E5E}
+.kCk__tot b{font:800 22px var(--font-mono);letter-spacing:-.02em}
+.kCk__tot>div{text-align:right}.kCk__tot small{display:block;text-align:right;font:400 10.5px var(--font-mono);color:#6B6B6B;letter-spacing:.03em}
+.kCk__go{width:100%;height:56px;border:0;border-radius:14px;background:#121212;color:#F2F2F2;font:700 13px var(--font-mono);letter-spacing:.14em;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:10px}
+.kCk__go:disabled{background:#BDBDBD;color:#F2F2F2;cursor:default}
+.kCk__go svg{width:15px;height:15px}
+.kCk__flow{display:flex;align-items:center;justify-content:center;gap:7px;margin-top:10px;font:400 10.5px var(--font-mono);letter-spacing:.06em;color:#6B6B6B}
+.kCk__flow svg{width:12px;height:12px}
 .kAu{position:fixed;inset:0;z-index:2100;background:#0B0B0C;color:#F6F5F2;display:flex;flex-direction:column;animation:kHf .2s ease-out;padding:env(safe-area-inset-top) 0 env(safe-area-inset-bottom)}
 .kAu__top{display:flex;align-items:center;justify-content:space-between;padding:18px 22px 6px}
 .kAu__logo{width:104px;height:22px;background:#F6F5F2;-webkit-mask:url(/img/brand/logotipo-koach.png) no-repeat left center/contain;mask:url(/img/brand/logotipo-koach.png) no-repeat left center/contain}
@@ -8800,38 +8846,73 @@ async function flowFn(body, fn){
 async function flowPagar(){
   let planes=[], cobros=[], auto=null
   try{ const d=await flowFn({ accion:'planes' }); planes=d.planes||[]; cobros=d.cobros||[]; auto=d.auto||null }catch(e){ toast(e.message); return }
-  if (S.flowSusc && S.flowSusc.estado==='activa') cobros=cobros.filter(c=>!c.recurrente)
-  if (!planes.length && !cobros.length){ toast('No hay planes disponibles para pago en línea'); return }
+  if (S.flowSusc && S.flowSusc.estado==='activa'){ cobros=cobros.filter(c=>!c.recurrente); auto=null }
+  if (!planes.length && !cobros.length && !auto){ toast('No hay planes disponibles para pago en línea'); return }
   const $=n=>'$'+(+n).toLocaleString('es-CL'), dur=p=>p.duracion_tipo==='mes'?(p.duracion_valor===1?'1 MES':p.duracion_valor+' MESES'):p.duracion_tipo==='semana'?'1 SEMANA':'1 DÍA'
-  const bg=document.createElement('div'); bg.className='kHoja'; bg.setAttribute('role','dialog'); bg.setAttribute('aria-modal','true')
-  bg.innerHTML='<div class="kHoja__c"><span class="kHoja__k">PAGO EN LÍNEA · FLOW</span><h3 class="kHoja__t">ELIGE TU MEMBRESÍA</h3>'+
-    '<p class="kHoja__p">Pagas con tarjeta en Flow y tu membresía se activa sola en la app. Si tienes una vigente, el nuevo período parte cuando termine.</p>'+
-    (cobros.length ? '<span class="kHoja__k" style="display:block;margin-top:14px">TU COBRO KOACH</span><div style="display:grid;gap:8px;margin:8px 0 4px">'+cobros.map(c=>'<button type="button" class="flCo" data-id="'+c.id+'" data-rec="'+(c.recurrente?1:0)+'" style="display:flex;justify-content:space-between;align-items:center;gap:10px;width:100%;min-height:62px;padding:10px 14px;border-radius:12px;border:2px solid #121212;background:#F4F3F0;color:#121212;cursor:pointer;text-align:left">'+
-        '<span><b style="display:block;font:800 15px var(--font-display);text-transform:uppercase">'+plEscA(c.concepto||'MEMBRESÍA '+dur(c))+'</b><small style="font:400 10.5px var(--font-mono);letter-spacing:.08em">'+dur(c)+(c.recurrente?(c.duracion_valor===1?' · PAGO AUTOMÁTICO CADA MES':' · PAGO AUTOMÁTICO CADA '+c.duracion_valor+' MESES'):' · PAGO ÚNICO')+'</small></span>'+
-        '<b style="font:700 15px var(--font-mono)">'+$(c.monto)+'</b></button>').join('')+'</div>' : '')+
-    (S.flowSusc && S.flowSusc.estado==='activa' || !auto ? '' :
-      '<span class="kHoja__k" style="display:block;margin-top:14px">PAGO AUTOMÁTICO'+(auto.personalizada?' · TARIFA EXCLUSIVA':'')+'</span>'+
-      '<div style="display:grid;gap:8px;margin:8px 0 4px"><button type="button" class="flAu" style="display:flex;justify-content:space-between;align-items:center;gap:10px;width:100%;min-height:58px;padding:10px 14px;border-radius:12px;border:none;background:#121212;color:#F4F3F0;cursor:pointer;text-align:left">'+
-        '<span><b style="display:block;font:800 15px var(--font-display);text-transform:uppercase">MENSUAL AUTOMÁTICO</b><small style="font:400 10.5px var(--font-mono);letter-spacing:.08em">COBRO CADA MES · CANCELAS CUANDO QUIERAS</small></span>'+
-        '<b style="font:700 15px var(--font-mono)">'+$(auto.monto)+'</b></button></div>')+
-    '<span class="kHoja__k" style="display:block;margin-top:14px">PAGO ÚNICO</span>'+
-    '<div style="display:grid;gap:8px;margin:8px 0 14px">'+planes.map(p=>'<button type="button" class="flPl" data-id="'+p.id+'" style="display:flex;justify-content:space-between;align-items:center;gap:10px;width:100%;min-height:58px;padding:10px 14px;border-radius:12px;border:1px solid rgba(18,18,18,.25);background:#F6F5F2;color:#121212;cursor:pointer;text-align:left">'+
-      '<span><b style="display:block;font:800 15px var(--font-display);text-transform:uppercase">'+plEscA(p.nombre)+'</b><small style="font:400 10.5px var(--font-mono);letter-spacing:.08em">'+dur(p)+(p.hora_limite?' · INGRESO HASTA '+String(p.hora_limite).slice(0,5):'')+'</small></span>'+
-      '<b style="font:700 15px var(--font-mono)">'+$(p.precio)+'</b></button>').join('')+'</div>'+
-    '<div class="kHoja__b"><button type="button" class="kHoja__no">VOLVER</button></div></div>'
+  const lista=(planes.find(p=>p.duracion_tipo==='mes'&&p.duracion_valor===1)||{}).precio || (auto&&auto.precio_lista) || 80000
+  const LOCK='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="10.5" width="16" height="10.5" rx="2"/><path d="M8 10.5V7a4 4 0 0 1 8 0v3.5"/></svg>'
+  const SHIELD='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l8 3v6c0 4.5-3.4 8.3-8 9-4.6-.7-8-4.5-8-9V6z"/><path d="M8.5 12l2.5 2.5 4.5-5"/></svg>'
+  const CARD='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="5" width="19" height="14" rx="2"/><path d="M2.5 10h19M6.5 15h4"/></svg>'
+  const REC='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4v5h5"/><path d="M20 20v-5h-5"/><path d="M5.5 15a7.5 7.5 0 0 0 13 2.5M18.5 9a7.5 7.5 0 0 0-13-2.5"/></svg>'
+  // opciones: {k, tipo:'auto'|'plan'|'cobro', rec, id, titulo, det, precio, tachado, sufijo, nota, tag, dark}
+  const ops=[]
+  cobros.forEach(c=>ops.push({ k:'c'+c.id, tipo:'cobro', id:c.id, rec:!!c.recurrente, titulo:c.concepto||'MEMBRESÍA '+dur(c), det:dur(c)+(c.recurrente?' · PAGO AUTOMÁTICO':' · PAGO ÚNICO'), precio:c.monto, sufijo:c.recurrente?'/mes':'', tag:'TU TARIFA KOACH' }))
+  if (auto) ops.push({ k:'auto', tipo:'auto', rec:true, titulo:'Mensual automático', det:'Tarjeta de crédito · '+(auto.permanencia_meses?'Permanencia '+auto.permanencia_meses+' meses':'Sin permanencia'),
+    precio:auto.monto, sufijo:'/mes', tachado: auto.monto<lista ? lista : null, tag: auto.personalizada?'TARIFA EXCLUSIVA':null, dark:true })
+  planes.forEach(p=>{ const m=p.duracion_tipo==='mes'?p.duracion_valor:0, eq=m>1?Math.round(p.precio/m):0, ah=m>1?Math.max(0,lista*m-p.precio):0
+    ops.push({ k:'p'+p.id, tipo:'plan', id:p.id, rec:false, titulo:p.nombre, det:dur(p)+(p.hora_limite?' · Ingreso hasta '+String(p.hora_limite).slice(0,5):''),
+      precio:p.precio, nota: eq ? 'equivale a '+$(eq)+'/mes' : '', tag: ah ? 'AHORRAS '+$(ah) : null }) })
+  const card=o=>'<button type="button" class="kCk__op'+(o.dark?' kCk__op--dark':'')+'" role="radio" aria-checked="false" data-k="'+o.k+'">'+
+    (o.tag?'<span class="kCk__tag">'+plEscA(o.tag)+'</span>':'')+
+    '<span class="kCk__rad" aria-hidden="true"></span>'+
+    '<span class="kCk__inf"><span class="kCk__n">'+plEscA(o.titulo)+'</span><span class="kCk__d">'+plEscA(o.det)+'</span></span>'+
+    '<span class="kCk__pr">'+(o.tachado?'<s>'+$(o.tachado)+'</s>':'')+'<b>'+$(o.precio)+(o.sufijo?'<span style="font-size:11px;font-weight:400">'+o.sufijo+'</span>':'')+'</b>'+(o.nota?'<small>'+o.nota+'</small>':'')+'</span></button>'
+  const sec=(t,arr)=>arr.length?'<span class="kCk__k">'+t+'</span><div role="radiogroup" aria-label="'+t+'">'+arr.map(card).join('')+'</div>':''
+  const bg=document.createElement('div'); bg.className='kCk'; bg.setAttribute('role','dialog'); bg.setAttribute('aria-modal','true'); bg.setAttribute('aria-label','Pago en línea')
+  bg.innerHTML=
+    '<div class="kCk__top"><span class="kCk__logo" role="img" aria-label="KOACH"></span><span class="kCk__seg">'+LOCK+'PAGO SEGURO</span><button type="button" class="kCk__x" aria-label="Cerrar">✕</button></div>'+
+    '<div class="kCk__body">'+
+      '<div class="kCk__paso">PASO 1 DE 2 · MEMBRESÍA</div>'+
+      '<h2 class="kCk__t">Elige tu membresía</h2>'+
+      '<p class="kCk__sub">Se activa sola en tu app apenas se confirme el pago. Si tienes una membresía vigente, el nuevo período parte cuando termine.</p>'+
+      sec('TU TARIFA', ops.filter(o=>o.tipo==='cobro'))+
+      sec('PAGO AUTOMÁTICO', ops.filter(o=>o.tipo==='auto'))+
+      sec('PAGO ÚNICO', ops.filter(o=>o.tipo==='plan'))+
+      '<div class="kCk__conf">'+
+        '<div>'+SHIELD+'<span><b>Pago procesado por Flow</b>, plataforma de pagos chilena. Tus datos viajan cifrados.</span></div>'+
+        '<div>'+CARD+'<span>KOACH nunca ve ni guarda los datos de tu tarjeta: solo el tipo y los últimos 4 dígitos.</span></div>'+
+        '<div>'+REC+'<span>Con pago automático te avisamos 5 días antes de cada cobro y lo desactivas desde tu Perfil.</span></div>'+
+      '</div>'+
+      '<div class="kCk__leg">PROGRAMAS DE ENTRENAMIENTO COACH SPA · RUT 77.133.627-2<br>SERRANO 489, CONCEPCIÓN · KOACHCLUB@GMAIL.COM</div>'+
+    '</div>'+
+    '<div class="kCk__pie"><div>'+
+      '<div class="kCk__tot"><span id="ckTotK">TOTAL A PAGAR</span><div><b id="ckTot">—</b><small id="ckTotS"></small></div></div>'+
+      '<button type="button" class="kCk__go" id="ckGo" disabled>ELIGE UNA OPCIÓN</button>'+
+      '<div class="kCk__flow">'+LOCK+'Continuarás en el sitio seguro de Flow</div>'+
+    '</div></div>'
+  let sel=null
+  const go=bg.querySelector('#ckGo')
+  const pintar=()=>{ bg.querySelectorAll('.kCk__op').forEach(b=>b.setAttribute('aria-checked', String(!!sel && b.dataset.k===sel.k)))
+    if(!sel){ go.disabled=true; go.textContent='ELIGE UNA OPCIÓN'; return }
+    bg.querySelector('#ckTotK').textContent = sel.rec ? 'COBRO MENSUAL' : 'TOTAL A PAGAR'
+    bg.querySelector('#ckTot').textContent = $(sel.precio)
+    bg.querySelector('#ckTotS').textContent = sel.rec ? 'Se cobra cada mes' : plEscA(sel.det.split(' · ')[0])+' · pago único'
+    go.disabled=false; go.innerHTML = (sel.rec ? 'CONTINUAR' : 'PAGAR '+$(sel.precio))+' <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>' }
+  bg.querySelectorAll('.kCk__op').forEach(b=>b.onclick=()=>{ sel=ops.find(o=>o.k===b.dataset.k); pintar() })
+  sel = ops.find(o=>o.tipo==='cobro') || ops.find(o=>o.tipo==='auto') || null; pintar()
   const fin=()=>bg.remove()
-  bg.addEventListener('click',e=>{ if(e.target===bg) fin() }); bg.querySelector('.kHoja__no').onclick=fin
-  bg.querySelectorAll('.flCo').forEach(b=>b.onclick=async()=>{
-    bg.querySelectorAll('.flPl,.flAu,.flCo').forEach(x=>x.disabled=true); b.style.opacity='.6'; b.querySelector('small').textContent='CONECTANDO CON FLOW…'
-    try{ const d = b.dataset.rec==='1' ? await flowFn({ accion:'iniciar', cobro_id:b.dataset.id }, 'flow-suscripcion') : await flowFn({ accion:'crear', cobro_id:b.dataset.id }); location.href=d.url }
-    catch(e){ toast(e.message); fin() }
-  })
-  bg.querySelectorAll('.flAu').forEach(b=>b.onclick=()=>{ fin(); flowAutoAutorizar() })
-  bg.querySelectorAll('.flPl').forEach(b=>b.onclick=async()=>{
-    bg.querySelectorAll('.flPl').forEach(x=>x.disabled=true); b.style.opacity='.6'; b.querySelector('small').textContent='CONECTANDO CON FLOW…'
-    try{ const d=await flowFn({ accion:'crear', plan_id:b.dataset.id }); location.href=d.url }
-    catch(e){ toast(e.message); fin() }
-  })
+  bg.querySelector('.kCk__x').onclick=fin
+  go.onclick=async()=>{
+    if(!sel) return
+    if (sel.tipo==='auto'){ fin(); return flowAutoAutorizar() }
+    go.disabled=true; go.textContent='CONECTANDO CON FLOW…'
+    try{
+      const d = sel.tipo==='cobro'
+        ? (sel.rec ? await flowFn({ accion:'iniciar', cobro_id:sel.id }, 'flow-suscripcion') : await flowFn({ accion:'crear', cobro_id:sel.id }))
+        : await flowFn({ accion:'crear', plan_id:sel.id })
+      location.href=d.url
+    }catch(e){ toast(e.message); pintar() }
+  }
   document.body.appendChild(bg)
 }
 async function flowSuscCargar(){

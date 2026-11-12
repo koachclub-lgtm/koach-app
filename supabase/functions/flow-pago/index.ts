@@ -34,7 +34,7 @@ Deno.serve(async (req) => {
       const { data: cfg } = await admin.from("config_pagos").select("valor").eq("clave", "pago_automatico").maybeSingle();
       const autoOn = cfg?.valor?.habilitado === true || (Array.isArray(cfg?.valor?.prueba) && cfg.valor.prueba.includes(u.user.id));
       return j({ planes: data || [], cobros: (cobros || []).filter((c: { recurrente: boolean }) => autoOn || !c.recurrente),
-        auto: autoOn && auto ? { monto: auto.monto, personalizada: !!auto.personalizada } : null, auto_habilitado: autoOn });
+        auto: autoOn && auto ? { monto: auto.monto, personalizada: !!auto.personalizada, permanencia_meses: auto.permanencia_meses || 0, precio_lista: auto.precio_lista || null } : null, auto_habilitado: autoOn });
     }
     if (body.accion === "estado") {
       const { data } = await admin.from("flow_ordenes").select("id,estado,plan_nombre,monto,pagada_at").eq("socio_id", u.user.id).eq("commerce_order", String(body.orden || "")).maybeSingle();
