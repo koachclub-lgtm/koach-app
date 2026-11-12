@@ -7051,6 +7051,8 @@ async function adCargarResumen(){
     ])
     AD.nPend = (rs.count!=null) ? rs.count : (C.sols||[]).length
     AD.mem = rm.data||[]
+    // c226 · solicitudes de membresía (congelar) también suman al contador de SOLICITUDES
+    try{ const rmm=await sb.from('solicitudes_membresia').select('id',{count:'exact',head:true}).eq('estado','pendiente'); if(rmm.count) AD.nPend+=rmm.count }catch(_){}
   }catch(_e){ AD.nPend=AD.nPend||0 }
 }
 function adMemVigente(socioId){
@@ -7088,7 +7090,38 @@ async function verSolicitudes(socioId){
   if (AD.solSocio) q=q.eq('socio_id',AD.solSocio)
   const r=await q
   AD.sols=r.data||[]
-  solPintar()
+  let qm=sb.from('solicitudes_membresia').select('*').order('created_at',{ascending:false}).limit(60)
+  if (AD.solSocio) qm=qm.eq('socio_id',AD.solSocio)
+  try{ const rm=await qm; AD.msols=rm.data||[] }catch(_){ AD.msols=[] }
+  solPintar(); msolPintar()
+}
+// ═══ c226 · SOLICITUDES DE MEMBRESÍA (congelar médico / vacaciones / retención) — autoriza administración ═══
+const MSOL_MOT={medico:'MOTIVO MÉDICO',vacaciones:'VACACIONES',retencion:'RETENCIÓN · CONGELAMIENTO EXTENDIDO',horario:'HORARIO',precio:'PRECIO',salud:'SALUD',otro:'OTRO'}
+function msolPintar(){
+  let box=document.getElementById('msolBox'); const lista=document.getElementById('solLista')
+  if (!box){ box=document.createElement('div'); box.id='msolBox'; lista.parentNode.insertBefore(box, document.getElementById('solFE')) }
+  const L=(AD.msols||[]), pend=L.filter(function(x){return x.estado==='pendiente'}), res=L.filter(function(x){return x.estado!=='pendiente'}).slice(0,5)
+  if (!L.length){ box.innerHTML=''; return }
+  const fila=function(x){ const hasta=x.desde&&x.dias?adFH(x.desde).split(' ')[0]:''
+    const venc = x.estado==='pendiente' && new Date(x.contactar_antes)<new Date()
+    return '<div class="adRow"><div class="adB"><div class="adN">'+adEsc(nomDe(x.socio_id))+'</div>'+
+      '<div class="adM"><b>CONGELAR · '+(MSOL_MOT[x.motivo]||x.motivo)+'</b> '+(x.dias?x.dias+' DÍAS DESDE '+String(x.desde||'').split('-').reverse().join('/'):'')+
+      (x.detalle?'<br>“'+adEsc(x.detalle)+'”':'')+'<br>'+
+      (x.estado==='pendiente'?'<span class="adTag ink">'+(venc?'CONTACTO ATRASADO':'CONTACTAR ANTES DEL '+adFH(x.contactar_antes))+'</span>':'<span class="adTag">'+x.estado.toUpperCase()+(x.resuelta_por_nombre?' · '+adEsc(x.resuelta_por_nombre):'')+'</span>')+
+      adHace(x.created_at)+'</div></div>'+
+      (x.estado==='pendiente'?'<div style="display:flex;gap:6px;flex-wrap:wrap"><button class="adGo" onclick="msolResolver(\''+x.id+'\',\'aprobar\')">AUTORIZAR</button><button class="adGo" style="background:none;color:inherit" onclick="msolResolver(\''+x.id+'\',\'rechazar\')">RECHAZAR</button></div>':'')+'</div>' }
+  box.innerHTML='<div class="ssub" style="margin-top:6px">MEMBRESÍA · CONGELAMIENTOS · '+pend.length+' PENDIENTE'+(pend.length===1?'':'S')+'</div>'+
+    pend.map(fila).join('')+(res.length?'<div class="ssub" style="margin-top:10px;opacity:.6">RESUELTAS RECIENTES</div>'+res.map(fila).join(''):'')+'<div style="height:14px"></div>'
+}
+async function msolResolver(id, acc){
+  const x=(AD.msols||[]).find(function(y){return y.id===id}); if(!x) return
+  const nota = acc==='aprobar'
+    ? (await kConfirm('¿Autorizar el congelamiento de '+nomDe(x.socio_id)+'?\n'+x.dias+' días desde el '+String(x.desde).split('-').reverse().join('/')+' · '+(MSOL_MOT[x.motivo]||x.motivo)+'. Los días se suman al vencimiento de su membresía.') ? '' : null)
+    : (await kConfirm('¿Rechazar la solicitud de '+nomDe(x.socio_id)+'? Recuerda contactarle para explicarle.') ? '' : null)
+  if (nota===null) return
+  const r=await sb.rpc('admin_solicitud_membresia_resolver',{ p_id:id, p_accion:acc, p_nota:null })
+  if (r.error){ toast('No se pudo: '+String(r.error.message||'').replace(/^SOLICITUD:\s*/,'')); return }
+  toast(acc==='aprobar'?'Congelamiento autorizado ✓':'Solicitud rechazada'); verSolicitudes(AD.solSocio)
 }
 function solPintar(){
   const E=[['pendiente','PENDIENTES'],['resueltas','RESUELTAS'],['todas','TODAS']]
