@@ -7052,7 +7052,7 @@ async function adCargarResumen(){
     AD.nPend = (rs.count!=null) ? rs.count : (C.sols||[]).length
     AD.mem = rm.data||[]
     // c226 · solicitudes de membresía (congelar) también suman al contador de SOLICITUDES
-    try{ const rmm=await sb.from('solicitudes_membresia').select('id',{count:'exact',head:true}).eq('estado','pendiente'); if(rmm.count) AD.nPend+=rmm.count }catch(_){}
+    try{ const rmm=await sb.from('solicitudes_membresia').select('id',{count:'exact',head:true}).in('estado',['pendiente','programada']); if(rmm.count) AD.nPend+=rmm.count }catch(_){}
   }catch(_e){ AD.nPend=AD.nPend||0 }
 }
 function adMemVigente(socioId){
@@ -7100,19 +7100,29 @@ const MSOL_MOT={medico:'MOTIVO MÉDICO',vacaciones:'VACACIONES',retencion:'RETEN
 function msolPintar(){
   let box=document.getElementById('msolBox'); const lista=document.getElementById('solLista')
   if (!box){ box=document.createElement('div'); box.id='msolBox'; lista.parentNode.insertBefore(box, document.getElementById('solFE')) }
-  const L=(AD.msols||[]), pend=L.filter(function(x){return x.estado==='pendiente'}), res=L.filter(function(x){return x.estado!=='pendiente'}).slice(0,5)
+  const L=(AD.msols||[]), pend=L.filter(function(x){return x.estado==='pendiente'||x.estado==='programada'}), res=L.filter(function(x){return x.estado!=='pendiente'&&x.estado!=='programada'}).slice(0,5)
   if (!L.length){ box.innerHTML=''; return }
   const fila=function(x){ const hasta=x.desde&&x.dias?adFH(x.desde).split(' ')[0]:''
-    const venc = x.estado==='pendiente' && new Date(x.contactar_antes)<new Date()
+    const venc = (x.estado==='pendiente'||x.estado==='programada') && new Date(x.contactar_antes)<new Date()
     return '<div class="adRow"><div class="adB"><div class="adN">'+adEsc(nomDe(x.socio_id))+'</div>'+
-      '<div class="adM"><b>CONGELAR · '+(MSOL_MOT[x.motivo]||x.motivo)+'</b> '+(x.dias?x.dias+' DÍAS DESDE '+String(x.desde||'').split('-').reverse().join('/'):'')+
+      '<div class="adM"><b>'+(x.tipo==='termino'?'AVISO DE TÉRMINO':'CONGELAR')+' · '+(MSOL_MOT[x.motivo]||x.motivo)+'</b> '+(x.dias?x.dias+' DÍAS DESDE '+String(x.desde||'').split('-').reverse().join('/'):'')+
+      (x.tipo==='termino'&&x.efectiva?'EFECTIVO EL '+String(x.efectiva).split('-').reverse().join('/')+(x.monto_estimado>0?' · SALIDA ESTIMADA $'+(+x.monto_estimado).toLocaleString('es-CL'):''):'')+
       (x.detalle?'<br>“'+adEsc(x.detalle)+'”':'')+'<br>'+
-      (x.estado==='pendiente'?'<span class="adTag ink">'+(venc?'CONTACTO ATRASADO':'CONTACTAR ANTES DEL '+adFH(x.contactar_antes))+'</span>':'<span class="adTag">'+x.estado.toUpperCase()+(x.resuelta_por_nombre?' · '+adEsc(x.resuelta_por_nombre):'')+'</span>')+
+      ((x.estado==='pendiente'||x.estado==='programada')?'<span class="adTag ink">'+(venc?'CONTACTO ATRASADO':'CONTACTAR ANTES DEL '+adFH(x.contactar_antes))+'</span>':'<span class="adTag">'+x.estado.toUpperCase()+(x.resuelta_por_nombre?' · '+adEsc(x.resuelta_por_nombre):'')+'</span>')+
       adHace(x.created_at)+'</div></div>'+
+      (x.estado==='programada'?(x.efectiva<=hoyISO()?'<button class="adGo" onclick="msolEjecutar(\''+x.id+'\')">EJECUTAR TÉRMINO</button>':'<span class="adTag">SE EJECUTA DESDE EL '+String(x.efectiva).split('-').reverse().join('/')+'</span>'):'')+
       (x.estado==='pendiente'?'<div style="display:flex;gap:6px;flex-wrap:wrap"><button class="adGo" onclick="msolResolver(\''+x.id+'\',\'aprobar\')">AUTORIZAR</button><button class="adGo" style="background:none;color:inherit" onclick="msolResolver(\''+x.id+'\',\'rechazar\')">RECHAZAR</button></div>':'')+'</div>' }
   box.innerHTML='<div class="ssub" style="margin-top:6px">MEMBRESÍA · CONGELAMIENTOS · '+pend.length+' PENDIENTE'+(pend.length===1?'':'S')+'</div>'+
     pend.map(fila).join('')+(res.length?'<div class="ssub" style="margin-top:10px;opacity:.6">RESUELTAS RECIENTES</div>'+res.map(fila).join(''):'')+'<div style="height:14px"></div>'
 }
+async function msolEjecutar(id){
+  const x=(AD.msols||[]).find(function(y){return y.id===id}); if(!x) return
+  if (!(await kConfirm('¿Ejecutar el término de '+nomDe(x.socio_id)+'?\nSe cierra su pago automático en Flow'+(x.monto_estimado>0?' y se cobra el monto de salida (cl. 4.9), recalculado hoy':'')+'. Queda registrado con tu nombre.'))) return
+  try{ const { data:{ session } } = await sb.auth.getSession()
+    const r=await fetch(SB_URL+'/functions/v1/flow-suscripcion',{ method:'POST', headers:{ 'Content-Type':'application/json', apikey:SB_KEY, Authorization:'Bearer '+(session&&session.access_token||'') }, body:JSON.stringify({ accion:'staff_ejecutar_aviso', solicitud:id }) })
+    const d=await r.json().catch(function(){return {}}); if(!r.ok) throw new Error(d.error||'No se pudo completar')
+    toast('Término ejecutado'+(d.cobrado>0?' · salida $'+(+d.cobrado).toLocaleString('es-CL'):'')+' ✓'); verSolicitudes(AD.solSocio)
+  }catch(e){ toast('No se pudo: '+e.message) } }
 async function msolResolver(id, acc){
   const x=(AD.msols||[]).find(function(y){return y.id===id}); if(!x) return
   const nota = acc==='aprobar'

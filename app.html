@@ -3853,6 +3853,8 @@ html:not(:has(#oAct.vis)) #sBloques.locked{filter:none;opacity:1;pointer-events:
 .kMg__dias em{font-style:normal;min-width:28px;text-align:center}
 .kMg__det span{display:block;font:400 10px var(--font-mono);letter-spacing:.12em;color:rgba(246,245,242,.55);margin-bottom:6px}
 .kMg__det textarea{width:100%;box-sizing:border-box;border:1px solid rgba(255,255,255,.14);border-radius:14px;background:rgba(255,255,255,.06);color:#F6F5F2;padding:12px;font:15px/1.4 inherit;resize:vertical}
+
+.kPa__aviso{margin-top:12px;padding:8px 10px;border-radius:10px;background:rgba(242,198,109,.12);border:1px solid rgba(242,198,109,.35);font:700 9px var(--font-mono);letter-spacing:.12em;color:#F2C66D}
 </style>
 </head>
 <body>
@@ -9125,8 +9127,9 @@ async function flowPagar(){
   document.body.appendChild(bg)
 }
 async function flowSuscCargar(){
-  try{ const r=await sb.from('flow_suscripciones').select('id,estado,plan_nombre,monto,duracion_valor,tarjeta_tipo,tarjeta_ult4,inicio,proximo_cobro,permanencia_meses,permanencia_hasta,precio_lista,cobros_pagados').eq('socio_id',S.perfil.id).in('estado',['activa','cancelada_fin_periodo']).order('created_at',{ascending:false}).limit(1).maybeSingle()
+  try{ const r=await sb.from('flow_suscripciones').select('id,estado,plan_nombre,monto,duracion_valor,tarjeta_tipo,tarjeta_ult4,inicio,proximo_cobro,permanencia_meses,permanencia_hasta,precio_lista,cobros_pagados,autorizacion').eq('socio_id',S.perfil.id).in('estado',['activa','cancelada_fin_periodo']).order('created_at',{ascending:false}).limit(1).maybeSingle()
     S.flowSusc=(r && !r.error && r.data) || null }catch(_){ S.flowSusc=null }
+  try{ const g=await sb.rpc('mi_membresia_gestion'); if(!g.error) MG.st=g.data }catch(_){ }
 }
 // T&C v2.0 cl. 4.9 · salida anticipada = (lista − valor mensual) × meses pagados, solo dentro de la permanencia
 function flowSalida(f){ const hoy=fLocal(new Date()), en=!!(f && f.permanencia_meses>0 && f.permanencia_hasta && hoy<f.permanencia_hasta)
@@ -9140,7 +9143,9 @@ function flowSuscHtml(){
   let perm=''
   if (sl.en && f.permanencia_meses>0){ const tot=f.permanencia_meses, n=Math.min(tot, Math.max(1,(f.cobros_pagados||0)))
     perm='<div class="kPa__perm"><div class="kPa__pl"><span>PERMANENCIA</span><span>MES '+n+' DE '+tot+'</span></div><i style="--p:'+Math.round(n/tot*100)+'%"></i><div class="kPa__ps">HASTA EL '+_fm(f.permanencia_hasta).toUpperCase()+'</div></div>' }
-  return '<div class="kPa"><div class="kPa__top"><span class="kPa__chip" aria-hidden="true"></span><span class="kPa__est">● ACTIVO</span></div>'+
+  const pg=MG.st&&MG.st.pendiente, prog=pg&&pg.tipo==='termino'&&pg.estado==='programada'
+  if (prog) perm+='<div class="kPa__aviso">TÉRMINO SOLICITADO · SE HACE EFECTIVO EL '+_fm(pg.efectiva).toUpperCase()+'</div>'
+  return '<div class="kPa"><div class="kPa__top"><span class="kPa__chip" aria-hidden="true"></span><span class="kPa__est"'+(prog?' style="color:#F2C66D"':'')+'>'+(prog?'● CON AVISO DE TÉRMINO':'● ACTIVO')+'</span></div>'+
     '<div class="kPa__k">PAGO AUTOMÁTICO</div>'+
     '<div class="kPa__m">$'+(+f.monto).toLocaleString('es-CL')+'<small>'+((f.duracion_valor||1)>1?' CADA '+f.duracion_valor+' MESES':' AL MES')+'</small></div>'+
     '<div class="kPa__row"><div><span>TARJETA</span><b>'+(f.tarjeta_ult4?'•••• '+f.tarjeta_ult4:'REGISTRADA')+'</b></div>'+
@@ -9163,8 +9168,12 @@ function mgPintar(){
   const st=MG.st||{}, disp=st.disponibles!=null?st.disponibles:14, f=S.flowSusc, auto=!!(f&&f.estado==='activa'), $=n=>'$'+(+n).toLocaleString('es-CL')
   let k='GESTIONAR MI MEMBRESÍA', h='', pie=''
   if (MG.paso==='pendiente'){ const p=st.pendiente||{}
+    if (p.estado==='programada'){ k='AVISO DE TÉRMINO'
+      h='<h2 class="kMg__t">Tu término se hace efectivo el '+_fm(p.efectiva)+'</h2><p class="kMg__p">Hasta esa fecha tu pago automático sigue activo.'+(p.monto_estimado>0?' Ese día se cobra el monto de salida estimado de <b>$'+(+p.monto_estimado).toLocaleString('es-CL')+'</b> (T&C cl. 4.9).':'')+' Si cambias de opinión, puedes retractarte.</p>'
+      pie='<button type="button" class="kAu__go" onclick="mgCerrar()">ENTENDIDO</button><button type="button" class="kAu__no" onclick="mgCancelarSol(\''+p.id+'\')">RETRACTAR MI AVISO</button>' }
+    else {
     h='<h2 class="kMg__t">Tu solicitud está en revisión</h2><p class="kMg__p">'+(p.tipo==='congelar'?'Pediste congelar tu membresía '+p.dias+' días desde el '+_fm(p.desde)+'.':'Recibimos tu solicitud.')+' Administración la revisa y te contactaremos antes del '+_fm(String(p.contactar_antes||'').slice(0,10))+'.</p>'
-    pie='<button type="button" class="kAu__go" onclick="mgCerrar()">ENTENDIDO</button><button type="button" class="kAu__no" onclick="mgCancelarSol(\''+p.id+'\')">CANCELAR SOLICITUD</button>' }
+    pie='<button type="button" class="kAu__go" onclick="mgCerrar()">ENTENDIDO</button><button type="button" class="kAu__no" onclick="mgCancelarSol(\''+p.id+'\')">CANCELAR SOLICITUD</button>' } }
   else if (MG.paso==='inicio'){
     h='<h2 class="kMg__t">¿Qué necesitas?</h2>'+
       mgOp("mgPausa('medico')",'PAUSAR POR MOTIVO MÉDICO','Congela tu membresía; los días se suman al final.')+
@@ -9200,7 +9209,7 @@ function mgPintar(){
   else if (MG.paso==='ab'){ k='ANTES DE IRTE'
     h='<h2 class="kMg__t">Elige cómo seguir</h2>'+
       '<button type="button" class="kMg__ab kMg__ab--a" onclick="mgPausa(\'retencion\')"><em>A</em><b>CONGELAR HASTA 60 DÍAS</b><span>Pausa tu membresía, conserva tu tarifa y tu plan, y vuelve cuando quieras. Sujeto a autorización de administración.</span></button>'+
-      '<button type="button" class="kMg__ab" onclick="mgTerminar()"><em>B</em><b>CONTINUAR CON EL TÉRMINO</b><span>Se cierra tu pago automático'+(flowSalida(f).en?' con el monto de salida informado':' sin costo')+'.</span></button>'
+      '<button type="button" class="kMg__ab" onclick="mgTerminar()"><em>B</em><b>'+(flowAviso30(f)?'ENVIAR AVISO DE TÉRMINO (30 DÍAS)':'CONTINUAR CON EL TÉRMINO')+'</b><span>'+(flowAviso30(f)?'Tu pago automático termina 30 días después del aviso; los cobros de ese período se mantienen'+(flowSalida(f).en?' y se suman al monto de salida':'')+'.':'Se cierra tu pago automático'+(flowSalida(f).en?' con el monto de salida informado':' sin costo')+'.')+'</span></button>'
     pie='<button type="button" class="kAu__no" onclick="MG.paso=\'clausula\';mgPintar()">VOLVER</button>' }
   else if (MG.paso==='enviado'){ k='SOLICITUD ENVIADA'
     h='<h2 class="kMg__t">Listo, recibimos tu solicitud</h2><p class="kMg__p">Administración la revisa y te contactaremos dentro de 48 horas. Puedes ver su estado en Perfil › Gestionar mi membresía.</p>'
@@ -9217,11 +9226,25 @@ async function mgEnviarPausa(max){ const b=document.getElementById('mgGo'), desd
     if (r.error) throw new Error(String(r.error.message||'').replace(/^SOLICITUD:\s*/,''))
     MG.st=r.data; MG.paso='enviado'; mgPintar() }
   catch(e){ kAviso('NO SE PUDO ENVIAR\n'+e.message,'GESTIONAR MI MEMBRESÍA'); b.disabled=false; b.textContent='ENVIAR SOLICITUD' } }
-async function mgCancelarSol(id){ try{ const r=await sb.rpc('mi_membresia_cancelar_solicitud',{ p_id:id }); if(!r.error) MG.st=r.data }catch(_){}; MG.paso='inicio'; mgPintar() }
+async function mgCancelarSol(id){ try{ const r=await sb.rpc('mi_membresia_cancelar_solicitud',{ p_id:id }); if(!r.error) MG.st=r.data }catch(_){}; MG.paso='inicio'; mgPintar(); try{ pintarMembresia() }catch(_){ } }
 async function mgTerminar(){ try{ await sb.rpc('mi_membresia_motivo_salida',{ p_motivo:MG.motivo, p_detalle:null, p_eleccion:'B_termino' }) }catch(_){}
   mgCerrar(); const b=document.createElement('button'); await flowSuscCancelar(b) }
+function flowAviso30(f){ return String((f&&f.autorizacion&&f.autorizacion.tyc)||'v2.0').localeCompare('v2.1',undefined,{numeric:true})>=0 }
 async function flowSuscCancelar(b){
   const f=S.flowSusc, sl=flowSalida(f), $=n=>'$'+(+n).toLocaleString('es-CL')
+  if (flowAviso30(f)){   // c227 · T&C v2.1: el término se solicita con 30 días de aviso; el descuento de esos meses suma a la salida (cl. 4.9)
+    let r; try{ r=await flowFn({ accion:'terminar' }, 'flow-suscripcion') }catch(e){ return kAviso('NO SE PUDO COMPLETAR\n'+e.message,'PAGO AUTOMÁTICO') }
+    if (r.programada){ await flowSuscCargar(); pintarMembresia(); return kAviso('YA TIENES UN AVISO DE TÉRMINO\nSe hace efectivo el '+_fm(r.programada.efectiva)+'.','PAGO AUTOMÁTICO') }
+    const a=r.aviso||{}
+    const msg='AVISO DE TÉRMINO · 30 DÍAS\nTu término se hace efectivo el '+_fm(a.efectiva)+'. Hasta esa fecha tu pago automático sigue activo y se mantienen los cobros de ese período.'+
+      (a.en_permanencia&&a.monto_estimado>0?' Como terminas dentro de tu permanencia, ese día se cobra una sola vez el descuento recibido: '+a.meses_estimados+' '+(a.meses_estimados===1?'mes':'meses')+' × '+$(a.descuento_mensual)+' = '+$(a.monto_estimado)+' (estimado, T&C cl. 4.9).':' No hay monto de salida.')+
+      ' Puedes retractarte antes de esa fecha desde Gestionar mi membresía.'
+    if (!(await kHoja({ k:'PAGO AUTOMÁTICO', msg, si:'ENVIAR AVISO DE TÉRMINO', no:'VOLVER' }))) return
+    try{ const r2=await flowFn({ accion:'terminar', confirmo:true, motivo:(MG&&MG.motivo_salida)||null }, 'flow-suscripcion'); await flowSuscCargar(); pintarMembresia()
+      kAviso('AVISO DE TÉRMINO REGISTRADO\nTu pago automático termina el '+_fm(((r2.programada||{}).efectiva)||a.efectiva)+'. Te contactaremos dentro de 48 horas.','PAGO AUTOMÁTICO') }
+    catch(e){ kAviso('NO SE PUDO COMPLETAR\n'+e.message,'PAGO AUTOMÁTICO') }
+    return
+  }
   if (sl.en){
     const msg = sl.monto>0
       ? 'TÉRMINO ANTICIPADO\nEstás dentro de tu permanencia hasta el '+_fm(f.permanencia_hasta)+'. El monto de salida es el descuento recibido: '+sl.meses+' '+(sl.meses===1?'mes':'meses')+' × '+$(sl.desc)+' = '+$(sl.monto)+'. Se cobra una sola vez en tu tarjeta registrada, se cierra el pago automático y tu membresía sigue vigente hasta el fin del mes pagado.'

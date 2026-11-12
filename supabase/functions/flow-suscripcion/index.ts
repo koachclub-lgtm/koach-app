@@ -1,7 +1,7 @@
 // KOACH · Pago automático (suscripción Flow). verify_jwt = true
 // T&C v2.0 cl. 4: autorización expresa (4.1), desactivación en un toque (4.4), permanencia y salida anticipada (4.9).
 // acciones socio: estado · cotizar · iniciar {autorizo, acepto_permanencia} · cancelar · terminar {confirmo}
-// acciones staff:  staff_estado {socio} · staff_terminar {socio, causal} (término sin cobro de salida, cl. 4.9)
+// acciones staff:  staff_estado {socio} · staff_terminar {socio, causal} (término sin cobro de salida, cl. 4.9) · staff_ejecutar_aviso {solicitud} (T&C v2.1: término tras 30 días de aviso)
 import { createClient } from "npm:@supabase/supabase-js@2";
 import { flow, FlowError, HOOK, API_KEY } from "./flow.ts";
 
@@ -12,6 +12,10 @@ const ahora = () => new Date().toISOString();
 const hoyCL = () => new Date(Date.now() - 3 * 3600e3).toISOString().slice(0, 10);
 const masMeses = (iso: string, m: number) => { const d = new Date(iso + "T12:00:00Z"); d.setUTCMonth(d.getUTCMonth() + m); return d.toISOString().slice(0, 10); };
 type Susc = Record<string, any>;
+const masDias = (iso: string, d: number) => { const x = new Date(iso + "T12:00:00Z"); x.setUTCDate(x.getUTCDate() + d); return x.toISOString().slice(0, 10); };
+// T&C v2.1+ · el término se solicita con 30 días de aviso (cl. 4.4 v2.1). Quienes aceptaron v2.0 mantienen la desactivación inmediata.
+const aviso30 = (s: Susc) => String(s?.autorizacion?.tyc || "v2.0").localeCompare("v2.1", undefined, { numeric: true }) >= 0;
+const AVISO_DIAS = 30;
 
 // Plan Flow por monto (Flow no permite editar el monto de un plan con suscritos)
 async function planFlow(nombre: string, precio: number, meses: number) {
@@ -75,6 +79,16 @@ async function vivaDe(uid: string) {
     .in("estado", ["registrando_tarjeta", "activando", "activa", "cancelada_fin_periodo"]).order("created_at", { ascending: false }).limit(1).maybeSingle();
   return data as Susc | null;
 }
+// cobro único de salida (cl. 4.9) en la tarjeta registrada; devuelve error legible o el detalle del cobro
+async function cobrarSalida(s: Susc, monto: number): Promise<{ ok: true; ch: Record<string, any>; orden: string } | { ok: false; error: string; detalle?: unknown }> {
+  const orden = "KCH-SAL-" + s.id.slice(0, 8).toUpperCase() + "-" + Date.now().toString(36).toUpperCase();
+  let ch: Record<string, any>;
+  try { ch = await flow("POST", "customer/charge", { customerId: s.flow_customer_id, amount: monto, subject: "KOACH · Término anticipado de permanencia", commerceOrder: orden, currency: "CLP" }); }
+  catch (e) { return { ok: false, error: "No se pudo cobrar el monto de salida en la tarjeta. No se cerró el pago automático.", detalle: (e as Error).message }; }
+  const st = Number(ch?.status ?? ch?.paymentData?.status ?? 0);
+  if (st !== 2) return { ok: false, error: "El banco no aprobó el cobro de salida. No se cerró el pago automático.", detalle: ch };
+  return { ok: true, ch, orden };
+}
 async function cerrar(s: Susc, termino: Record<string, unknown>) {
   await flow("POST", "subscription/cancel", { subscriptionId: s.flow_subscription_id, at_period_end: 1 });
   await admin.from("flow_suscripciones").update({ estado: "cancelada_fin_periodo", termino: { ...termino, at: ahora() }, updated_at: ahora() }).eq("id", s.id);
@@ -95,6 +109,27 @@ Deno.serve(async (req) => {
     if (String(body.accion || "").startsWith("staff_")) {
       const { data: yo } = await admin.from("profiles").select("role,nombre,apellido").eq("id", uid).maybeSingle();
       if (!yo || !["admin", "recepcion"].includes(yo.role)) return j({ error: "Sin permiso" }, 403);
+      if (body.accion === "staff_ejecutar_aviso") {
+        const { data: so } = await admin.from("solicitudes_membresia").select("*").eq("id", body.solicitud).maybeSingle();
+        if (!so || so.tipo !== "termino" || so.estado !== "programada") return j({ error: "La solicitud no está programada" }, 400);
+        if (so.efectiva > hoyCL()) return j({ error: "El aviso de 30 días vence el " + so.efectiva + "; aún no se puede ejecutar" }, 400);
+        const actor = [yo.nombre, yo.apellido].filter(Boolean).join(" ");
+        const s2 = await vivaDe(so.socio_id);
+        if (!s2 || s2.estado !== "activa") {
+          await admin.from("solicitudes_membresia").update({ estado: "ejecutada", nota: "sin pago automático activo", resuelta_por: uid, resuelta_por_nombre: actor, resuelta_at: ahora() }).eq("id", so.id);
+          return j({ ok: true, cobrado: 0 });
+        }
+        const sl2 = salida(s2);
+        let extra: Record<string, unknown> = {};
+        if (sl2.monto > 0) {
+          const c = await cobrarSalida(s2, sl2.monto);
+          if (!c.ok) return j({ error: c.error, detalle: c.detalle }, 402);
+          extra = { monto_salida: sl2.monto, meses_pagados: sl2.meses_pagados, flow_order: c.ch.flowOrder ?? null, commerce_order: c.orden };
+        }
+        await cerrar(s2, { tipo: sl2.monto > 0 ? "salida_anticipada_aviso" : "termino_aviso", solicitud: so.id, ...extra, actor_id: uid, actor_nombre: actor });
+        await admin.from("solicitudes_membresia").update({ estado: "ejecutada", resuelta_por: uid, resuelta_por_nombre: actor, resuelta_at: ahora() }).eq("id", so.id);
+        return j({ ok: true, cobrado: sl2.monto });
+      }
       if (body.accion === "staff_estado" && body.socio) await sincronizar(body.socio);
       const s = await vivaDe(body.socio);
       if (body.accion === "staff_estado") return j({ suscripcion: publica(s && s.estado !== "registrando_tarjeta" ? s : null) });
@@ -129,18 +164,30 @@ Deno.serve(async (req) => {
     if (body.accion === "cancelar" || body.accion === "terminar") {
       if (!viva || viva.estado !== "activa") return j({ error: "No tienes un pago automático activo" }, 400);
       const sl = salida(viva);
+      if (aviso30(viva)) {
+        const { data: prog } = await admin.from("solicitudes_membresia").select("*").eq("socio_id", uid).eq("tipo", "termino").eq("estado", "programada").maybeSingle();
+        if (prog) return j({ programada: prog });
+        const efectiva = masDias(hoyCL(), AVISO_DIAS);
+        // los cobros que caen dentro del aviso se pagan con la tarifa con descuento: suman al descuento recibido (cl. 4.9)
+        let n = sl.meses_pagados, pc = viva.proximo_cobro as string | null;
+        for (let i = 0; pc && pc < efectiva && i < 6; i++) { n++; pc = masMeses(pc, viva.duracion_valor || 1); }
+        const enPermEf = !!(viva.permanencia_meses > 0 && viva.permanencia_hasta && efectiva < viva.permanencia_hasta);
+        const est = enPermEf ? sl.descuento_mensual * n : 0;
+        if (!body.confirmo) return j({ aviso: { efectiva, dias: AVISO_DIAS, meses_estimados: n, descuento_mensual: sl.descuento_mensual, monto_estimado: est, en_permanencia: enPermEf } });
+        const motivo = ["horario", "precio", "salud", "otro"].includes(body.motivo) ? body.motivo : "otro";
+        const { data: ins, error: ie } = await admin.from("solicitudes_membresia").insert({ socio_id: uid, tipo: "termino", motivo, estado: "programada", efectiva,
+          flow_susc_id: viva.id, monto_estimado: est, contactar_antes: new Date(Date.now() + 48 * 3600e3).toISOString() }).select("*").single();
+        if (ie) return j({ error: "No se pudo registrar tu aviso de término" }, 500);
+        await admin.from("admin_eventos").insert({ socio_id: uid, entidad: "pago_automatico", entidad_id: viva.id, accion: "aviso_termino", despues: { efectiva, monto_estimado: est, motivo }, actor_id: uid, actor_nombre: "SOCIO" });
+        return j({ programada: ins });
+      }
       if (body.accion === "cancelar" && sl.monto > 0) return j({ error: "Tu membresía tiene permanencia: revisa el monto de salida", salida: sl }, 409);
       if (sl.monto > 0) {
         if (!body.confirmo) return j({ salida: sl });
         // cobro único de salida a la tarjeta registrada (cl. 4.9)
-        const orden = "KCH-SAL-" + viva.id.slice(0, 8).toUpperCase() + "-" + Date.now().toString(36).toUpperCase();
-        let ch: Record<string, any>;
-        try {
-          ch = await flow("POST", "customer/charge", { customerId: viva.flow_customer_id, amount: sl.monto, subject: "KOACH · Término anticipado de permanencia", commerceOrder: orden, currency: "CLP" });
-        } catch (e) { return j({ error: "No se pudo cobrar el monto de salida en tu tarjeta. No se cerró tu pago automático. Acércate a recepción.", detalle: (e as Error).message }, 402); }
-        const st = Number(ch?.status ?? ch?.paymentData?.status ?? 0);
-        if (st !== 2) return j({ error: "Tu banco no aprobó el cobro de salida. No se cerró tu pago automático. Acércate a recepción.", flow: ch }, 402);
-        await cerrar(viva, { tipo: "salida_anticipada", monto_salida: sl.monto, meses_pagados: sl.meses_pagados, flow_order: ch.flowOrder ?? null, commerce_order: orden });
+        const c = await cobrarSalida(viva, sl.monto);
+        if (!c.ok) return j({ error: c.error + " Acércate a recepción.", detalle: c.detalle }, 402);
+        await cerrar(viva, { tipo: "salida_anticipada", monto_salida: sl.monto, meses_pagados: sl.meses_pagados, flow_order: c.ch.flowOrder ?? null, commerce_order: c.orden });
         return j({ ok: true, cobrado: sl.monto });
       }
       await cerrar(viva, { tipo: "desactivacion" });
