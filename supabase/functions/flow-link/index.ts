@@ -16,6 +16,9 @@ Deno.serve(async (req) => {
     if (!o || o.origen !== "jake" || o.estado !== "creada" || o.flow_token) return j({ error: "orden no disponible" }, 400);
     if (Date.now() - new Date(o.created_at).getTime() > 15 * 60e3) return j({ error: "orden vencida" }, 400);
 
+    // Ofertas con plazo: el link de Flow vence cuando vence la oferta (mínimo 10 min, máximo 7 días).
+    const plazo = o.vence_at ? Math.floor((new Date(o.vence_at).getTime() - Date.now()) / 1000) : 7 * 24 * 3600;
+    if (plazo < 600) return j({ error: "La oferta ya venció" }, 400);
     let fr: { token?: string; url?: string; flowOrder?: number };
     try {
       fr = await flow("POST", "payment/create", {
@@ -23,7 +26,7 @@ Deno.serve(async (req) => {
         subject: ("KOACH Club · " + o.plan_nombre).slice(0, 255),
         currency: "CLP", amount: o.monto, email: o.email,
         urlConfirmation: HOOK + "?t=confirm", urlReturn: HOOK + "?t=return",
-        paymentMethod: 9, timeout: 7 * 24 * 3600,
+        paymentMethod: 9, timeout: Math.min(plazo, 7 * 24 * 3600),
         optional: JSON.stringify({ socio: o.socio_id, oferta: o.oferta, origen: "jake" }),
       });
     } catch (e) {
