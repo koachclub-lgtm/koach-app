@@ -2714,6 +2714,13 @@ html[data-rol="nutricionista"] #fTbEnt, html[data-rol="nutricionista"] #fTbAdh, 
 /* c221 · sin menú ni selección de texto al mantener presionado un ejercicio en la tablet */
 #tbBoard .tbCard,#tbBoard .tbCol__h,.lin,.ocard{-webkit-touch-callout:none;-webkit-user-select:none;user-select:none}
 #tbBoard .tbCard input,#tbBoard .tbCard textarea{-webkit-user-select:text;user-select:text}
+
+/* c228 · hoja de opciones */
+.kEl{display:grid;gap:8px;margin-top:12px}
+.kEl__o{display:block;width:100%;text-align:left;cursor:pointer;border:1.5px solid rgba(18,18,16,.14);border-radius:14px;padding:13px 14px;background:rgba(255,255,255,.6);font:inherit;color:inherit}
+.kEl__o b{display:block;font-size:11px;font-weight:900;letter-spacing:.1em}.kEl__o span{display:block;margin-top:4px;font-size:12px;line-height:1.4;color:var(--koach-text-secondary)}
+.kEl__o--1{border-color:#121210}
+.kEl__o:focus-visible{outline:2px solid #121210;outline-offset:2px}
 </style>
 </head>
 <body>
@@ -2887,8 +2894,6 @@ html[data-rol="nutricionista"] #fTbEnt, html[data-rol="nutricionista"] #fTbAdh, 
   <div class="guardia" id="xGuardia">
     <div class="gt1">LA GUARDIA · VEREDICTO</div>
     <div class="gmsg" id="xVer">Toca una sesión para evaluar su impacto.</div>
-    <label style="display:flex;align-items:center;gap:8px;margin-bottom:10px;font-size:8px;font-weight:900;letter-spacing:.1em;color:#C9C8C2;cursor:pointer">
-      <input type="checkbox" id="xRec" style="width:auto;margin:0"> RECURRENTE · SE REPITE CADA SEMANA HASTA QUE LA RETIRES</label>
     <button class="gb" id="xBtn" disabled onclick="designar()">DESIGNAR COMO EXTRA ★ →</button>
   </div>
 </div>
@@ -3350,6 +3355,29 @@ async function plAplicarCiclo(){
   syncEnvio(); const r=await sb.rpc('koach_propagar_sesion',{ p_sesion:s.id })
   if (r.error){ syncErr(r.error.message); toast('No se pudo aplicar: '+r.error.message); return }
   syncOk(); plAlcanceToast(r); await plReabrir()
+}
+// c228 · hoja con opciones; devuelve el valor elegido o null (Escape / fondo / VOLVER)
+function kElegir(k, titulo, msg, ops){ return new Promise(function(res){
+  const prev=document.activeElement, bg=document.createElement('div'); bg.className='kHoja'; bg.setAttribute('role','dialog'); bg.setAttribute('aria-modal','true')
+  bg.innerHTML='<div class="kHoja__c"><span class="kHoja__k"></span><h3 class="kHoja__t"></h3><p class="kHoja__p"></p><div class="kEl"></div>'+
+    '<button type="button" data-v="" style="display:block;margin:12px auto 0;border:none;background:none;font:inherit;font-size:10px;font-weight:800;letter-spacing:.14em;color:var(--koach-text-secondary);cursor:pointer">VOLVER</button></div>'
+  bg.querySelector('.kHoja__k').textContent=k; bg.querySelector('.kHoja__t').textContent=titulo; bg.querySelector('.kHoja__p').textContent=msg||''
+  bg.querySelector('.kEl').innerHTML=ops.map(function(o,i){ return '<button type="button" data-v="'+o.v+'" class="kEl__o'+(i===0?' kEl__o--1':'')+'"><b></b><span></span></button>' }).join('')
+  bg.querySelectorAll('.kEl__o').forEach(function(b,i){ b.querySelector('b').textContent=ops[i].t; b.querySelector('span').textContent=ops[i].s||'' })
+  function fin(v){ document.removeEventListener('keydown',kd,true); bg.remove(); try{prev&&prev.focus()}catch(_){}; res(v) }
+  function kd(e){ if(e.key==='Escape'){ e.preventDefault(); fin(null) } }
+  bg.addEventListener('click',function(e){ if(e.target===bg) return fin(null); const v=e.target.closest&&e.target.closest('[data-v]'); if(v) fin(v.getAttribute('data-v')||null) })
+  document.addEventListener('keydown',kd,true); document.body.appendChild(bg); setTimeout(function(){ const f=bg.querySelector('.kEl__o'); if(f) f.focus() },30)
+}) }
+const EX_MODOS=[{ v:'auto', t:'SIEMPRE DISPONIBLE', s:'Le aparece sola cada semana al completar sus sesiones principales y no se gasta.' },
+  { v:'koach', t:'SOLO CUANDO YO LA ACTIVE', s:'No le aparece sola: queda guardada y la activas tú desde la Sala (HABILITAR HOY) cada vez que quieras que la haga.' }]
+async function exElegirModo(nom, actual){ return kElegir('SESIÓN EXTRA ★', '¿Cómo queda disponible '+nom+'?', null, actual ? EX_MODOS.map(function(o){ return Object.assign({}, o, { t:o.t+(o.v===actual?' · ACTUAL':'') }) }) : EX_MODOS) }
+async function scModoExtra(id){
+  const x=scExtras().find(function(e){ return e.tipo==='designada' && e.id===id }); if(!x||!F) return
+  const m=await exElegirModo(scNomL(x.nombre), x.activacion||'auto'); if(!m || m===(x.activacion||'auto')) return
+  scGuard('run'); const r=await sb.from('designaciones_extra').update({ activacion:m, recurrente:true }).eq('id',id)
+  if (r.error){ scGuard('err'); toast('No se pudo cambiar: '+r.error.message); return }
+  scGuard('ok'); toast(m==='auto'?'★ Extra siempre disponible':'★ Extra solo cuando la actives'); scCargar(F.id)
 }
 function kConfirm(msg){ const t=String(msg||''); return kHoja({ msg:t, peligro:/eliminar|cancelar|quitar|archivar|descarta|pierde|congelar|dejarán de ver|desmarcar/i.test(t) }) }
 function kAviso(msg,k){ return kHoja({ msg:koachMsg(msg), aviso:true, k:k||'AVISO' }) }
@@ -4150,9 +4178,9 @@ async function designar(){
   if(!X.cand||!F) return
   const b=document.getElementById('xBtn'); b.disabled=true
   try{
-    const rec = !!(document.getElementById('xRec')&&document.getElementById('xRec').checked)
+    const modo=await exElegirModo(X.cand.nombreEN||'esta sesión'); if (!modo){ b.disabled=false; return }
     const r = await sb.from('designaciones_extra').insert({ socio_id:F.id, sesion_protocolo_id:X.cand.id,
-      motivo:(X.sol?'Solicitud del socio':'Criterio del koach')+(rec?' · recurrente':''), recurrente:rec })
+      motivo:(X.sol?'Solicitud del socio':'Criterio del koach'), recurrente:true, activacion:modo })
     if(r.error) throw r.error
     if(X.sol){ try{ await sb.from('solicitudes').update({estado:'atendida',atendida_at:new Date().toISOString()}).eq('id',X.sol) }catch(_e){} }
     window._solPend=null
@@ -4654,7 +4682,7 @@ async function abrirPlan(pid, proto, opts){
   // c86 · el historial de cargas del socio no cambia por guardar el plan: al releer tras PUBLICAR se reutiliza (una RPC menos por guardado)
   const _reusaHist = !!(opts.reusarHist && !esBib && !esBase && F && window._histSocio===F.id)
   if (!_reusaHist){ ULT = {}; HIST = {}
-    if (!esBib && !esBase && F){ try{ await cargarHistorialCargas(F.id) }catch(_e){ console.error('[cargas]', _e) } } }
+    if ((!esBib && !esBase && F) || (opts.extraSocio && F)){ try{ await cargarHistorialCargas(F.id) }catch(_e){ console.error('[cargas]', _e) } } }
   let qq = sb.from('sesiones_protocolo').select('*').eq('protocolo_id',pid).order('numero') // Ajuste F-MULTI: cap de 6 eliminado, numeración es global entre semanas
   if (opts.soloSesion) qq = qq.eq('id', opts.soloSesion)
   const rses = await qq
@@ -4662,7 +4690,7 @@ async function abrirPlan(pid, proto, opts){
   const rblo = sids.length ? await sb.from('bloques').select('*, bloque_ejercicios(*, ejercicios(id,nombre,grupo_muscular,estimulo,sinergistas,tipo_registro,con_carga,cuenta_dosis,implemento,activo))').in('sesion_id',sids).order('bloque') : {data:[]}
   if (_tok!==window._plTok || (F && F.id)!==_fid) return   // llegó tarde: el KOACH ya navegó a otro socio
   setTimeout(function(){ plLeerRev() }, 0)
-  P = { pid:pid, proto:proto, tab:0, bib:esBib, base:esBase, ro:!!opts.soloLectura||(proto&&proto.estado==='archivado'), dirty:{}, sesiones:(rses.data||[]).map(function(s){
+  P = { pid:pid, proto:proto, tab:0, bib:esBib, base:esBase, xs:!!opts.extraSocio, ro:!!opts.soloLectura||(proto&&proto.estado==='archivado'), dirty:{}, sesiones:(rses.data||[]).map(function(s){
     return { id:s.id, numero:s.numero, semana:(s.semana||1), editada:!!s.editada, temporal:!!s.temporal, nombre:nombreEN(s.objetivo)||('SESION '+s.numero),
       bloques:(rblo.data||[]).filter(function(b){return b.sesion_id===s.id}).sort(function(a,x){ return String(a.bloque).localeCompare(String(x.bloque)) }).map(function(b){
         return { id:b.id, bId:b.id, tag:b.bloque, rol:b.rol||null, etiqueta:b.etiqueta||null, sets:b.sets||3,
@@ -6871,7 +6899,7 @@ function plPintarMeso(){
 }
 // Línea de progresión (MICRO): lo último ejecutado + lo prescrito la semana anterior + propuesta
 // c220 · también en un plan SIN APLICAR del socio (es cuando el koach arma el ciclo nuevo)
-function plLineaOk(){ return !!(P && !P.bib && !P.base && typeof F!=='undefined' && F) }
+function plLineaOk(){ return !!(P && ((!P.bib && !P.base) || P.xs) && typeof F!=='undefined' && F) }   // c228 · también en la copia personal de una extra
 function plLineaProgresion(it, esBW, esT){
   const ult=ULT[it.ejId]
   const partes=[]
@@ -6894,13 +6922,15 @@ function plLineaProgresion(it, esBW, esT){
   return '<div class="plProg"><span>'+partes.join(' · ')+'</span>'+prop+'</div>'
 }
 // c220 · completa en borrador las cargas vacías de la sesión con la sugerida del historial (objetivo = tope del rango de reps)
-async function plSugerirSesion(){ const s=plSesActual(); if(!s||P.ro) return; let n=0, sin=0
+async function plSugerirSesion(auto){ const s=plSesActual(); if(!s||P.ro) return; let n=0, sin=0
   for (const b of (s.bloques||[])) for (const it of (b.items||[])){
     if (it.kg!=null && it.kg!=='') continue
     const tp=plTbTipo(it); if (tp.bw||tp.t) continue
     const v=cgSugerida(it.ejId, it.reps); if (v==null){ sin++; continue }
     await editKg(it.beId, v); n++ }
   repintarConservando()
+  if (auto && !n) return
+  if (P.bib){ toast(n?(n+' carga'+(n>1?'s':'')+' completada'+(n>1?'s':'')+' con la sugerida de su historial ✓'):'Sin cargas vacías por completar'); return }
   toast(n?(n+' carga'+(n>1?'s':'')+' sugerida'+(n>1?'s':'')+' · en borrador · PUBLICAR para que el socio lo vea'+(sin?' · '+sin+' sin historial':'')):(sin?sin+' ejercicio'+(sin>1?'s':'')+' sin historial: define la carga en la aproximación':'No hay cargas vacías')) }
 async function plAplicarKg(beId, v){ await editKg(beId, v); repintarConservando(); toast('Carga '+cgKg(v)+' KG aplicada · en borrador · PUBLICAR para que el socio lo vea') }
 // ─── NAVEGACIÓN ───
@@ -8118,7 +8148,7 @@ function plSaveUI(estado){
 }
 async function plReabrir(){
   const nivel=PL.nivel, w=PL.w, sid=plSesActual()&&plSesActual().id, y=window.scrollY
-  await abrirPlan(P.pid, P.proto, P.bib?{modo:'bib', soloSesion:sid}:(P.base?{modo:'base'}:{reusarHist:true}))
+  await abrirPlan(P.pid, P.proto, P.bib?{modo:'bib', soloSesion:sid, extraSocio:P.xs||undefined}:(P.base?{modo:'base'}:{reusarHist:true}))
   PL.nivel=nivel; PL.w=w
   const i=P.sesiones.findIndex(function(s){return s.id===sid}); if(i>-1) P.tab=i
   pintarPlan(); window.scrollTo(0,y)
@@ -8894,7 +8924,8 @@ function scEstadoExtra(e){
   if (e.estado==='completada') return { pill:'★ EXTRA · REALIZADA', sub:e.cuando?scDiaC(e.cuando):'REALIZADA', cls:'x tc--hecha' }
   if (e.estado==='en_curso') return { pill:'★ EXTRA · EN CURSO', sub:'NO SUMA AL '+h+'/'+p, cls:'x tc--curso' }
   if (e.estado==='habilitada') return { pill:'★ EXTRA · HABILITADA', sub:'NO SUMA AL '+h+'/'+p+(e.permite_hoy?' · HOY':''), cls:'x' }
-  return { pill:'★ EXTRA · DISPONIBLE', sub:'NO SUMA AL '+h+'/'+p+(e.recurrente?' · RECURRENTE':''), cls:'x' }
+  if (e.tipo==='designada' && e.activacion==='koach') return { pill:'★ EXTRA · GUARDADA', sub:'SOLO CUANDO LA ACTIVES · HABILITAR HOY', cls:'x' }
+  return { pill:'★ EXTRA · DISPONIBLE', sub:'NO SUMA AL '+h+'/'+p+' · SIEMPRE DISPONIBLE', cls:'x' }
 }
 const SC_ISO='<svg class="tc__iso" viewBox="40 180 790 795" aria-hidden="true" focusable="false"><rect x="52" y="190" width="768" height="162" fill="currentColor"/><polygon points="52,757 438,415 818,752 818,950 438,615 52,962" fill="currentColor"/></svg>'
 function scPintar(){
@@ -8959,6 +8990,7 @@ async function scPintarRes(){
     if (ex.tipo==='designada') acc+='<button type="button" class="tbB" onclick="scEditarExtra(\''+ex.id+'\')">EDITAR</button>'
     if (ex.estado==='habilitada') acc+='<button type="button" class="tbB" onclick="scAccion(\'quitar_habilitacion\')">QUITAR HABILITACIÓN</button>'
     else if (ex.estado==='disponible') acc+='<button type="button" class="tbB tbB--ink" onclick="scAccion(\'habilitar\',null,\''+ex.sesion_id+'\',true)">HABILITAR HOY</button>'
+    if (ex.tipo==='designada') acc+='<button type="button" class="tbB" onclick="scModoExtra(\''+ex.id+'\')">'+((ex.activacion==='koach')?'SOLO CUANDO LA ACTIVE':'SIEMPRE DISPONIBLE')+' ⇄</button>'
     if (ex.tipo==='designada') acc+='<button type="button" class="tbB" onclick="scRetirarExtra(\''+ex.id+'\')">RETIRAR EXTRA</button>' }
   const cab='<div class="tcRes__h"><div><small>'+(ex?'★ SESIÓN EXTRA · NO SUMA A LAS PRINCIPALES':reg&&reg.abandonada?(reg.ejercicios+'/'+reg.total_ejercicios+' EJ · '+reg.sets+' SETS REGISTRADOS'):'RESUMEN DE LA SESIÓN')+'</small><b>'+scNomL(z.nombre)+'</b>'+(done&&z.cuando?'<small>REALIZADA · '+scDiaC(z.cuando)+'</small>':susp?'<small>SUSPENDIDA ESTA SEMANA</small>':'')+'</div><div class="tcRes__a">'+acc+
     '<button type="button" class="tcRes__x" onclick="scAbrirRes(\''+key+'\')" aria-label="Cerrar resumen">✕</button></div></div>'
@@ -9569,6 +9601,7 @@ function scMenu(ev,key){
     if (ex.tipo==='designada' && ex.estado!=='completada') I('FIJAR EN LA SEMANA (SESIÓN PRINCIPAL)','scFijarExtra(\''+ex.id+'\')')
     if (ex.estado==='habilitada') I('QUITAR HABILITACIÓN','scAccion(\'quitar_habilitacion\')')
     else if (ex.tipo==='designada' && ex.estado==='disponible') I('HABILITAR HOY','scAccion(\'habilitar\',null,\''+ex.sesion_id+'\',true)')
+    if (ex.tipo==='designada') I('DISPONIBILIDAD · '+((ex.activacion==='koach')?'SOLO CUANDO YO LA ACTIVE':'SIEMPRE DISPONIBLE'),'scModoExtra(\''+ex.id+'\')')
     if (ex.tipo==='designada'){ it.push('<hr>'); I('RETIRAR EXTRA','scRetirarExtra(\''+ex.id+'\')','pfDanger') }
   } else {
     const z=(st.sesiones||[]).find(function(x){return x.id===key}); if(!z) return
@@ -9623,10 +9656,10 @@ async function scDuplicar(id){
 }
 async function scDesignarExtra(id){
   const z=((SC.st&&SC.st.sesiones)||[]).find(function(x){return x.id===id}); if(!z||!F) return
-  if (!await kConfirm('¿Designar '+scNomL(z.nombre)+' como sesión extra ★? '+nomDe(F.id).split(' ')[0]+' la verá como opcional y no suma a sus principales.')) return
-  scGuard('run'); const r=await sb.from('designaciones_extra').insert({ socio_id:F.id, sesion_protocolo_id:id, motivo:'Criterio del koach', recurrente:false })
+  const modo=await exElegirModo(scNomL(z.nombre)); if (!modo) return
+  scGuard('run'); const r=await sb.from('designaciones_extra').insert({ socio_id:F.id, sesion_protocolo_id:id, motivo:'Criterio del koach', recurrente:true, activacion:modo })
   if (r.error){ scGuard('err'); toast('No se pudo designar: '+r.error.message); return }
-  scGuard('ok'); toast('★ Extra designada — el socio ya la ve'); scCargar(F.id)
+  scGuard('ok'); toast(modo==='auto'?'★ Extra designada · siempre disponible':'★ Extra designada · la activas tú desde la Sala'); scCargar(F.id)
 }
 // c64 · EDITAR UNA EXTRA: la primera vez se crea una copia personal del socio (la base/biblioteca no se toca) y se abre en el planificador
 async function scEditarExtra(desigId){
@@ -9636,8 +9669,9 @@ async function scEditarExtra(desigId){
   scGuard('ok')
   const rp=await sb.from('protocolos').select('*').eq('id',r.data.protocolo_id).single()
   if (rp.error){ toast('No se pudo abrir la extra'); return }
-  await abrirPlan(r.data.protocolo_id, rp.data, { modo:'bib', soloSesion:r.data.sesion_id })
+  await abrirPlan(r.data.protocolo_id, rp.data, { modo:'bib', soloSesion:r.data.sesion_id, extraSocio:true })
   if (!F || F.id!==fid) return
+  try{ await plSugerirSesion(true) }catch(_e){}   // c228 · las cargas vacías se completan con la sugerida del historial del socio
   const hdr=document.querySelector('#vPlan .plHdr'); if (hdr) hdr.classList.remove('plHdr--bib')
   document.getElementById('pQuienN').textContent=nomDe(fid)
   document.getElementById('pQuienP').textContent='★ SESIÓN EXTRA · COPIA PERSONAL'

@@ -4817,7 +4817,8 @@ function semEfectiva(semanas, vig){ const u=[...new Set(semanas)].sort((a,b)=>a-
 function baseSem(){ return (S.programa&&S.programa.sesiones||[]).filter(s=>!s._extra && (s.semana||1)===(S.semanaProg||S.semanaActual||1)).sort((a,b)=>a.numero-b.numero) }
 function posSem(ses){ const i=baseSem().findIndex(s=>s.id===ses.id); return i>-1?i+1:ses.numero }
 function calcularSemana(programa, registros, objetivos){
-  const sesSem = programa.sesiones.filter(s=>((s.semana||1)===(S.semanaProg||S.semanaActual||1)))
+  // c228 · una extra 'solo cuando el koach la active' no aparece sola: entra únicamente por la habilitación del koach (aplicarHabilitada)
+  const sesSem = programa.sesiones.filter(s=>((s.semana||1)===(S.semanaProg||S.semanaActual||1)) && !s._soloKoach)
   const acum = {}
   Object.keys(objetivos).forEach(g=>acum[g]=0)
   const validos = registros.filter(r=>ESTADOS_OK.includes(r.estado))
@@ -5467,7 +5468,7 @@ async function entrar(opts){
       sb.from('asignaciones').select('*, protocolos(*)').eq('socio_id', uid).eq('activo', true).limit(1).maybeSingle(),
       sb.from('sesiones_registro').select('id, sesion_protocolo_id, estado, fecha, bloques_completados, completada_at').eq('socio_id', uid).gte('fecha', lunesISO),
       sb.from('sesiones_registro').select('id, sesion_protocolo_id, fecha, iniciada_at').eq('socio_id', uid).eq('estado','en_curso'),
-      sb.from('designaciones_extra').select('id, sesion_protocolo_id, estado, recurrente').eq('socio_id', uid).neq('estado','retirada'),
+      sb.from('designaciones_extra').select('id, sesion_protocolo_id, estado, recurrente, activacion').eq('socio_id', uid).neq('estado','retirada'),
       sb.from('solicitudes').select('id, tipo, detalle, estado, sesion_protocolo_id, nota_coach, revisado_at').eq('socio_id', uid).in('estado',['pendiente','aprobada','rechazada']).order('created_at'),
       sb.from('coach_config').select('frases').eq('activo',true).limit(1).maybeSingle()
     ])
@@ -5549,7 +5550,7 @@ async function entrar(opts){
         const s = exSes.find(x=>x.id===d.sesion_protocolo_id)
         if (!s) return
         S.programa.sesiones.push({
-          numero: 1000+i, semana: (S.semanaProg||S.semanaActual), id: s.id, _extra: true, _desigId: d.id, _estado: d.estado, _rec: !!d.recurrente,
+          numero: 1000+i, semana: (S.semanaProg||S.semanaActual), id: s.id, _extra: true, _desigId: d.id, _estado: d.estado, _rec: !!d.recurrente, _soloKoach: d.activacion==='koach',
           nombre: '★ '+(nombreEN(s.objetivo)||('SESIÓN '+s.numero)),
           bloquesFull:exBlo.filter(b=>b.sesion_id===s.id),
           bloques:exBlo.filter(b=>b.sesion_id===s.id).map(b=>({
