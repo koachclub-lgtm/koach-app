@@ -9569,7 +9569,7 @@ document.addEventListener('DOMContentLoaded', async ()=>{
       <button type="button" class="kset__gi" onclick="ksElegir('editorial')"><img src="/img/share/plantilla-editorial.webp" alt="Plantilla Editorial" width="720" height="1280" loading="lazy" decoding="async"><b>EDITORIAL</b><small>Tu foto a sangre con los kilos del día</small></button>
       <button type="button" class="kset__gi" onclick="ksElegir('scan')"><img src="/img/share/plantilla-scan.webp" alt="Plantilla Escáner" width="720" height="1280" loading="lazy" decoding="async"><b>ESCÁNER</b><small>Tu cuerpo detectado y una ficha con tus datos</small></button>
       <button type="button" class="kset__gi" onclick="ksElegir('mov')"><img src="/img/share/plantilla-mov.webp" alt="Plantilla Movimiento" width="720" height="1280" loading="lazy" decoding="async"><b>MOVIMIENTO</b><small>Foto en barrido: se ve la energía, no la cara</small></button>
-      <button type="button" class="kset__gi" onclick="ksElegir('ton')"><img src="/img/share/plantilla-ton.webp" alt="Plantilla Tonelaje" width="720" height="1280" loading="lazy" decoding="async"><b>TONELAJE</b><small>Tus kilos en vertical sobre tu foto, sin filtro</small></button>
+      <button type="button" class="kset__gi" onclick="ksElegir('ton')"><img src="/img/share/plantilla-ton.webp" alt="Plantilla Tonelaje" width="720" height="1280" loading="lazy" decoding="async"><b>TONELAJE</b><small>Tus kilos en vertical sobre tu foto</small></button>
     </div>
     <div class="kset__opts" id="ksOFoto" hidden>
       <div class="kset__row"><span>ESTILO</span><button type="button" class="kset__chip" data-ks="estilo" data-v="editorial" aria-pressed="true">EDITORIAL</button><button type="button" class="kset__chip" data-ks="estilo" data-v="ticket" aria-pressed="false">TICKET</button><button type="button" class="kset__chip" data-ks="estilo" data-v="mapa" aria-pressed="false">MAPA</button><button type="button" class="kset__chip" data-ks="estilo" data-v="dia" aria-pressed="false">DÍA</button><button type="button" class="kset__chip" data-ks="estilo" data-v="scan" aria-pressed="false">ESCÁNER</button><button type="button" class="kset__chip" data-ks="estilo" data-v="mov" aria-pressed="false">MOVIMIENTO</button><button type="button" class="kset__chip" data-ks="estilo" data-v="ton" aria-pressed="false">TONELAJE</button><button type="button" class="kset__chip" onclick="ksAjustarActual()">AJUSTAR FOTO</button><label class="kset__chip">CAMBIAR FOTO<input type="file" id="ksFoto2" accept="image/*"></label></div>
@@ -9926,7 +9926,6 @@ function ksPintar() {
   } else if (KS.estilo === 'ton') kaTon(ctx, true); else kaCaptura(ctx, true);
   ksEl('ksOFoto').hidden = !(KS.formato === 'foto' && KS.foto);
   document.querySelectorAll('#ksOFoto [data-solo]').forEach(r => r.hidden = KS.estilo !== r.dataset.solo);
-  { const fr = document.querySelector('#ksOFoto [data-ks="filtro"]'); if (fr && fr.parentNode) fr.parentNode.hidden = KS.estilo === 'ton' }   // c233 · TONELAJE usa la foto tal cual
   ksEl('ksOTr').hidden = true;
   ksAcciones(sinFoto);
   ksPreparar(sinFoto);
@@ -10491,7 +10490,7 @@ function kaTonDatos(j) {
 function kaTon(ctx, trans) {
   const W = KT.W, H = KT.H, j = KS.data || {}, d = kaDatos(), B = '#FFFFFF', T = kaTonDatos(j) || {};
   ctx.clearRect(0, 0, W, H);
-  if (!trans && KS.foto) { const c = kmCover(KS.foto); ctx.drawImage(KS.foto, c.ox, c.oy, c.w, c.h) }   // la foto tal cual: sin filtro ni viñeta
+  if (!trans && KS.foto) ctx.drawImage(kmFoto(), 0, 0)   // c238 · la foto con el filtro elegido (frío, dramático, plata), sin viñeta ni capas extra
   const sh = (b) => { ctx.shadowColor = 'rgba(0,0,0,' + (trans ? 0 : .32) + ')'; ctx.shadowBlur = b }
   const F = (w, s) => w + " expanded " + s + "px 'KOACH Display', 'Inter Display', Arial, sans-serif", M = s => "700 " + s + "px 'Space Mono', 'IBM Plex Mono', monospace";
   // logo: arriba al centro, apoyado justo sobre la zona segura superior
