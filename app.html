@@ -8892,21 +8892,23 @@ async function flowPagar(){
   const MARCAS={ visa:'VISA', mastercard:'MASTERCARD', amex:'AMEX', redcompra:'REDCOMPRA' }
   const marca=id=>'<span class="kCk__mk" data-mk="'+id+'"><img src="/img/pagos/'+id+'.svg" alt="'+MARCAS[id]+'" onerror="this.parentNode.textContent=\''+MARCAS[id]+'\'"></span>'
   const marcas=ids=>'<span class="kCk__cards">'+ids.map(marca).join('')+'</span>'
-  const hoy=fLocal(new Date()).replace(/-/g,'').slice(2)
+  // Código de ticket: 00AA-KCH-TIPO-MMM (año con ceros · tipo · meses con ceros) · las barras codifican 00AA + tipo + MMM
+  const ANIO=String(new Date().getFullYear()%100).padStart(4,'0'), TIPOS={ AUTO:1, UNI:2, TAR:3 }
+  const codigo=(tipo,meses)=>({ txt:ANIO+'-KCH-'+tipo+'-'+String(meses||1).padStart(3,'0'), bar:ANIO+TIPOS[tipo]+String(meses||1).padStart(3,'0') })
   const ops=[]
   cobros.forEach(c=>ops.push({ k:'c'+c.id, tipo:'cobro', id:c.id, rec:!!c.recurrente, titulo:c.concepto||'Membresía '+dur(c), det:dur(c)+(c.recurrente?' · Pago automático':' · Pago único'),
-    precio:c.monto, sufijo:c.recurrente?'/MES':'', tag:'TU TARIFA KOACH', cod:'KCH-T'+String(c.monto/1000|0), tarjetas: c.recurrente?['visa','mastercard','amex']:['visa','mastercard','amex','redcompra'] }))
+    precio:c.monto, sufijo:c.recurrente?'/MES':'', tag:'TU TARIFA KOACH', cod:codigo('TAR', c.duracion_tipo==='mes'?c.duracion_valor:1), tarjetas: c.recurrente?['visa','mastercard','amex']:['visa','mastercard','amex','redcompra'] }))
   if (auto) ops.push({ k:'auto', tipo:'auto', rec:true, titulo:'Mensual automático', det:'Tarjeta de crédito · '+(auto.permanencia_meses?'Permanencia '+auto.permanencia_meses+' meses':'Sin permanencia'),
     precio:auto.monto, sufijo:'/MES', tachado: auto.monto<lista ? lista : null, tag: auto.personalizada?'TARIFA EXCLUSIVA':null, dark:true,
-    cod:'KCH-AUTO-'+(auto.permanencia_meses||0)+'M', tarjetas:['visa','mastercard','amex'] })
+    cod:codigo('AUTO', auto.permanencia_meses||1), tarjetas:['visa','mastercard','amex'] })
   planes.forEach(p=>{ const m=p.duracion_tipo==='mes'?p.duracion_valor:0, eq=m>1?Math.round(p.precio/m):0, ah=m>1?Math.max(0,lista*m-p.precio):0
     ops.push({ k:'p'+p.id, tipo:'plan', id:p.id, rec:false, titulo:p.nombre, det:dur(p)+(p.hora_limite?' · Ingreso hasta '+String(p.hora_limite).slice(0,5):''),
-      precio:p.precio, nota: eq ? 'Equivale a '+$(eq)+'/mes' : '', tag: ah ? 'AHORRAS '+$(ah) : null, cod:'KCH-'+String(m||1).padStart(2,'0')+'M', tarjetas:[] }) })
+      precio:p.precio, nota: eq ? 'Equivale a '+$(eq)+'/mes' : '', tag: ah ? 'AHORRAS '+$(ah) : null, cod:codigo('UNI', m||1), tarjetas:[] }) })
   const card=o=>'<button type="button" class="kCk__op'+(o.dark?' kCk__op--dark':'')+'" role="radio" aria-checked="false" data-k="'+o.k+'">'+
     '<span class="kCk__r1"><span class="kCk__rad" aria-hidden="true"></span>'+
       '<span class="kCk__inf">'+(o.tag?'<span class="kCk__tag">'+plEscA(o.tag)+'</span>':'')+'<span class="kCk__n">'+plEscA(o.titulo)+'</span><span class="kCk__d">'+plEscA(o.det)+'</span></span>'+
       '<span class="kCk__pr">'+(o.tachado?'<s>'+$(o.tachado)+'</s>':'')+'<b>'+$(o.precio)+(o.sufijo?'<i>'+o.sufijo+'</i>':'')+'</b>'+(o.nota?'<small>'+o.nota+'</small>':'')+'</span></span>'+
-    '<span class="kCk__ft">'+(o.tarjetas.length?marcas(o.tarjetas):'<span class="kCk__d" style="margin:0">PAGO ÚNICO</span>')+'<span class="kCk__bc" aria-hidden="true">'+barcodeSVG(String(o.precio)+String((o.cod.match(/\d+/)||[''])[0]),22)+'<span>'+o.cod+'</span></span></span></button>'
+    '<span class="kCk__ft">'+(o.tarjetas.length?marcas(o.tarjetas):'<span class="kCk__d" style="margin:0">PAGO ÚNICO</span>')+'<span class="kCk__bc" aria-hidden="true">'+barcodeSVG(o.cod.bar,22)+'<span>'+o.cod.txt+'</span></span></span></button>'
   const sec=(t,arr)=>arr.length?'<div class="kCk__k">'+t+'</div><div role="radiogroup" aria-label="'+t+'">'+arr.map(card).join('')+'</div>':''
   const bg=document.createElement('div'); bg.className='kCk'; bg.setAttribute('role','dialog'); bg.setAttribute('aria-modal','true'); bg.setAttribute('aria-label','Membership · pago en línea')
   bg.innerHTML=
