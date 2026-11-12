@@ -6633,7 +6633,7 @@ async function wxCompletar(beId,n,bId,ejId,desc,tot){
 // Descanso: cuenta regresiva liviana (solo actualiza su texto, no repinta la sesión)
 function wxMMSS(s){ return String(Math.floor(s/60)).padStart(2,'0')+':'+String(s%60).padStart(2,'0') }
 function wxRestPct(){ const r=S.rest; if(!r) return 0; return Math.max(0,Math.min(100,100*(1-(r.fin-Date.now())/(r.dur*1000)))) }
-function wxRestIni(beId,desc){ clearInterval(S._restT); S.rest={beId, dur:desc, fin:Date.now()+desc*1000}; pintarSesion()
+function wxRestIni(beId,desc){ clearInterval(S._restT); S.rest={beId, dur:desc, fin:Date.now()+desc*1000}; pintarSesion(); try{ kAvisoPreparar() }catch(_){ }
   S._restT=setInterval(function(){ const t=document.getElementById('wxRestT'), bar=document.getElementById('wxRestB'); if(!S.rest){ clearInterval(S._restT); return }
     const s=Math.max(0,Math.ceil((S.rest.fin-Date.now())/1000)); if(t) t.textContent=wxMMSS(s); if(bar) bar.style.width=wxRestPct()+'%'
     if (s<=0){ if(navigator.vibrate) navigator.vibrate([60,40,60]); wxRestFin() } },500) }
@@ -6670,6 +6670,34 @@ const BK = { bi:null, set:null, cap:null, rest:null, over:null, _t:null, _ot:nul
    iOS exige un gesto previo: el contexto se desbloquea en el toque de COMPLETAR SET / SALTAR. Respeta el interruptor de silencio del iPhone
    (no se fuerza la categoría de reproducción para no interrumpir la música del socio). Ajuste en Perfil: k_sonido ('0' = apagado). */
 const KAU={ ctx:null }
+/* ═══ c231 · AVISO DE FIN DE DESCANSO (notificación push) ═══
+   Dentro de la app suena el sonido de siempre. Si el socio bloquea el teléfono o cambia de app durante un descanso,
+   se programa un aviso push para el segundo exacto en que termina; al volver a la app, se cancela. */
+const KAV={ reg:null, listo:false, prog:false }
+function kAvisoFin(){ const r=(typeof BK!=='undefined'&&BK.rest)||S.rest; return r&&r.fin>Date.now()?r.fin:null }
+async function kAvisoFn(body){ const { data:{ session } }=await sb.auth.getSession()
+  const r=await fetch(SB_URL+'/functions/v1/aviso-descanso',{ method:'POST', keepalive:true, headers:{ 'Content-Type':'application/json', apikey:SB_KEY, Authorization:'Bearer '+(session&&session.access_token||'') }, body:JSON.stringify(body) })
+  return r.json().catch(function(){ return {} }) }
+function kB64(s){ const p='='.repeat((4-s.length%4)%4), b=atob((s+p).replace(/-/g,'+').replace(/_/g,'/')); return Uint8Array.from(b, function(c){ return c.charCodeAt(0) }) }
+async function kAvisoRegistrar(){ if (KAV.listo) return true
+  if (!('serviceWorker' in navigator) || !('PushManager' in window) || !('Notification' in window)) return false
+  if (Notification.permission!=='granted') return false
+  try{ KAV.reg = KAV.reg || await navigator.serviceWorker.register('/sw-koach.js')
+    let sub=await KAV.reg.pushManager.getSubscription()
+    if (!sub){ const k=await kAvisoFn({ accion:'clave' }); if(!k.publicKey) return false
+      sub=await KAV.reg.pushManager.subscribe({ userVisibleOnly:true, applicationServerKey:kB64(k.publicKey) }) }
+    await kAvisoFn({ accion:'suscribir', sub:sub.toJSON() }); KAV.listo=true; return true }catch(e){ console.warn('[aviso]', e); return false } }
+// se llama al iniciar un descanso (viene de un toque del socio: el navegador permite pedir el permiso aquí)
+function kAvisoPreparar(){ if (!kSonidoOn() || !('Notification' in window) || !('serviceWorker' in navigator)) return
+  if (Notification.permission==='default'){ try{ if(localStorage.getItem('k_aviso_pedido')) return; localStorage.setItem('k_aviso_pedido','1') }catch(_){}
+    Notification.requestPermission().then(function(p){ if(p==='granted') kAvisoRegistrar() }); return }
+  if (Notification.permission==='granted' && !KAV.listo) kAvisoRegistrar() }
+document.addEventListener('visibilitychange', function(){
+  if (document.visibilityState==='hidden'){ const fin=kAvisoFin(); if(!fin || !kSonidoOn() || !KAV.listo) return
+    const seg=Math.round((fin-Date.now())/1000); if (seg<3) return
+    KAV.prog=true; kAvisoFn({ accion:'programar', seg:seg, titulo:'Descanso terminado', cuerpo:'Tu siguiente set está listo. Vuelve a KOACH y sigue.' }).catch(function(){}) }
+  else if (KAV.prog){ KAV.prog=false; kAvisoFn({ accion:'cancelar' }).catch(function(){}) } })
+try{ if ('serviceWorker' in navigator && 'Notification' in window && Notification.permission==='granted') setTimeout(kAvisoRegistrar, 3000) }catch(_){ }
 function kSonidoOn(){ try{ return localStorage.getItem('k_sonido')!=='0' }catch(_){ return true } }
 function kSonidoToggle(){ const on=!kSonidoOn(); try{ localStorage.setItem('k_sonido', on?'1':'0') }catch(_){} kSonidoPintar(); if(on){ kAudioUnlock(); kSonGo() } }
 function kSonidoPintar(){ const st=document.getElementById('kSonSt'), f=document.getElementById('kSonFila'); if(!st) return; const on=kSonidoOn(); st.textContent=on?'ACTIVADO':'APAGADO'; if(f) f.setAttribute('aria-checked',String(on)) }
@@ -7071,7 +7099,7 @@ function bkTimer(){ const b=(S._bfs||[])[BK.bi]; if(!b||!b.timer||!window.KTIMER
   KTIMER.play(b.timer, { ejercicios:exs, titulo:bkCod(b,BK.bi)+' · '+(b.etiqueta?b.etiqueta.toUpperCase():bkNom(b,BK.bi)), sonido:kSonidoOn,
     onFinish: bloqueCompleto(b) ? null : function(){ bkFinishAll() }, onClose: function(){ bkPintar() } }) }
 /* ── descanso con reloj de pared ── */
-function bkRestIni(b){ BK.rest={ bId:b.id, dur:bkDesc(b), inicio:Date.now(), ajuste:0, fin:Date.now()+bkDesc(b)*1000, regId:S.regId }
+function bkRestIni(b){ try{ kAvisoPreparar() }catch(_){ } BK.rest={ bId:b.id, dur:bkDesc(b), inicio:Date.now(), ajuste:0, fin:Date.now()+bkDesc(b)*1000, regId:S.regId }
   try{ localStorage.setItem('k_rest', JSON.stringify(BK.rest)) }catch(_){} bkRestTick() }
 function bkRestPct(){ if(!BK.rest) return 0; const tot=Math.max(1,BK.rest.dur+(BK.rest.ajuste||0)); return Math.max(0,Math.min(100,(BK.rest.fin-Date.now())/(tot*1000)*100)) }
 /* −15 / +15 · mueve solo el descanso en curso; el siguiente vuelve al prescrito del bloque */
