@@ -59,12 +59,16 @@ async function realinear(socio?: string | null) {
   if (socio) q = q.eq("socio_id", socio);
   const { data: lista } = await q;
   const hoy = hoyCL(), res: unknown[] = [];
+  // cola "cobrar ahora" (la llena el staff desde el Dashboard): el primer cobro pasa a HOY; los días vigentes no se pierden
+  const { data: cfg } = await admin.from("config_pagos").select("valor").eq("clave", "cobrar_ahora").maybeSingle();
+  const ya: string[] = Array.isArray(cfg?.valor?.socios) ? cfg!.valor.socios : [];
   for (const s of lista || []) {
     if (!s.inicio || s.inicio <= hoy) continue;                       // ya entró en cobro: no se toca
     const { count } = await admin.from("flow_cobros").select("id", { count: "exact", head: true }).eq("suscripcion_id", s.id);
     if (count) continue;
     const { data: acc } = await admin.rpc("_flow_fin_acceso", { p_socio: s.socio_id });
-    const ancla = acc && acc > hoy ? acc : hoy;
+    const ahoraYa = ya.includes(s.socio_id);
+    const ancla = ahoraYa ? hoy : (acc && acc > hoy ? acc : hoy);
     if (ancla === s.inicio) continue;
     const { data: tomada } = await admin.from("flow_suscripciones").update({ estado: "activando", updated_at: ahora() }).eq("id", s.id).eq("estado", "activa").select("id");
     if (!tomada?.length) continue;
@@ -78,8 +82,9 @@ async function realinear(socio?: string | null) {
         permanencia_hasta: permHasta, flow_data: sub, error: aviso, updated_at: ahora() }).eq("id", s.id);
       await admin.from("admin_eventos").insert({ socio_id: s.socio_id, entidad: "pago_automatico", entidad_id: s.id, accion: "realinear",
         despues: { primer_cobro_antes: s.inicio, primer_cobro: ancla, suscripcion_anterior: s.flow_subscription_id, suscripcion: sub.subscriptionId, aviso },
-        actor_nombre: "FLOW · sincronización", motivo: "el primer cobro no coincidía con el fin del acceso" });
+        actor_nombre: "FLOW · sincronización", motivo: ahoraYa ? "cobro adelantado a hoy por el staff" : "el primer cobro no coincidía con el fin del acceso" });
       if (aviso) await admin.from("flow_eventos").insert({ socio_id: s.socio_id, origen: "realinear", codigo: "cancel", mensaje: aviso });
+      if (ahoraYa) await admin.from("config_pagos").update({ valor: { socios: ya.filter((x) => x !== s.socio_id) } }).eq("clave", "cobrar_ahora");
       res.push({ socio: s.socio_id, de: s.inicio, a: ancla });
     } catch (e) {
       await admin.from("flow_suscripciones").update({ estado: "activa", updated_at: ahora() }).eq("id", s.id);

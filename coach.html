@@ -7711,6 +7711,7 @@ async function cobroEstadoPintar(){
     (su && su.estado==='activa' && (su.monto!==monto || (su.duracion_valor||1)!==per) ? '<div class="pfS">⚠ Su pago automático sigue cobrando '+adCLP(su.monto)+cada(su.duracion_valor||1)+'. Para aplicar '+adCLP(monto)+cada(per)+' debe desactivarlo y volver a activarlo en su app.</div>':'')+
     (ind && ind.nota ? '<div class="pfS">'+adEsc(ind.nota)+'</div>':'')+
     '<div class="pfBtns"><button type="button" class="pfB" onclick="admTarifaAuto()">'+(ind?'CAMBIAR TARIFA':'ASIGNAR TARIFA EXCLUSIVA')+'</button>'+
+      (su && su.estado==='activa' && !(su.cobros_pagados>0) && su.inicio && su.inicio>hoyISO()?'<button type="button" class="pfB" onclick="admCobrarAhora()">COBRAR AHORA · PRIMER COBRO '+adF(su.inicio).toUpperCase()+'</button>':'')+
       (su && su.estado==='activa'?'<button type="button" class="pfB" onclick="admTerminarSinCobro()">'+(enPerm?'TERMINAR SIN COBRO DE SALIDA':'DESACTIVAR PAGO AUTOMÁTICO')+'</button>':'')+'</div>'
 }
 function admTarifaAuto(){
@@ -7751,6 +7752,17 @@ async function taGuardar(general){
   cobroEstadoPintar()
 }
 // T&C v2.0 cl. 4.9 · término sin cobro de salida por causal (fallecimiento, incapacidad >60 días, cambio de domicilio, cierre, incumplimiento KOACH)
+// c229 · adelanta el primer cobro del pago automático a hoy (Flow cobra en minutos; los días vigentes no se pierden)
+async function admCobrarAhora(){
+  const su=TA.su; if(!su) return
+  if (!confirm('Flow cobrará ahora '+adCLP(su.monto)+' a la tarjeta de '+nomDe(F.id)+'. La nueva membresía parte cuando termine la actual, así no pierde días. ¿Confirmas?')) return
+  try{
+    const { data:{ session } } = await sb.auth.getSession()
+    const r=await fetch(SB_URL+'/functions/v1/flow-suscripcion',{ method:'POST', headers:{ 'Content-Type':'application/json', apikey:SB_KEY, Authorization:'Bearer '+(session&&session.access_token||'') }, body:JSON.stringify({ accion:'staff_cobrar_ahora', socio:F.id }) })
+    const d=await r.json().catch(function(){return {}}); if(!r.ok) throw new Error(d.error||'No se pudo completar')
+    toast('Cobro enviado a Flow ✓ · se acredita en unos minutos'); cobroEstadoPintar()
+  }catch(err){ toast(err.message) }
+}
 async function admTerminarSinCobro(){
   const su=TA.su; if(!su) return
   const enPerm=!!(su.permanencia_hasta && hoyISO()<su.permanencia_hasta)

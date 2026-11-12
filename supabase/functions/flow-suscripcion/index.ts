@@ -1,7 +1,7 @@
 // KOACH · Pago automático (suscripción Flow). verify_jwt = true
 // T&C v2.0 cl. 4: autorización expresa (4.1), desactivación en un toque (4.4), permanencia y salida anticipada (4.9).
 // acciones socio: estado · cotizar · iniciar {autorizo, acepto_permanencia} · cancelar · terminar {confirmo}
-// acciones staff:  staff_estado {socio} · staff_terminar {socio, causal} (término sin cobro de salida, cl. 4.9) · staff_ejecutar_aviso {solicitud} (T&C v2.1: término tras 30 días de aviso)
+// acciones staff:  staff_estado {socio} · staff_cobrar_ahora {socio} · staff_terminar {socio, causal} (término sin cobro de salida, cl. 4.9) · staff_ejecutar_aviso {solicitud} (T&C v2.1: término tras 30 días de aviso)
 import { createClient } from "npm:@supabase/supabase-js@2";
 import { flow, FlowError, HOOK, API_KEY } from "./flow.ts";
 
@@ -133,6 +133,18 @@ Deno.serve(async (req) => {
       if (body.accion === "staff_estado" && body.socio) await sincronizar(body.socio);
       const s = await vivaDe(body.socio);
       if (body.accion === "staff_estado") return j({ suscripcion: publica(s && s.estado !== "registrando_tarjeta" ? s : null) });
+      // adelanta el PRIMER cobro a hoy (aún sin cobros): los días vigentes no se pierden, la membresía nueva parte al terminar la actual
+      if (body.accion === "staff_cobrar_ahora") {
+        if (!s || s.estado !== "activa" || (s.cobros_pagados || 0) > 0) return j({ error: "Solo se puede adelantar el primer cobro de un pago automático activo" }, 400);
+        if (!s.inicio || s.inicio <= hoyCL()) return j({ error: "El cobro ya está en curso en Flow" }, 400);
+        const { data: cfg } = await admin.from("config_pagos").select("valor").eq("clave", "cobrar_ahora").maybeSingle();
+        const lista: string[] = Array.isArray(cfg?.valor?.socios) ? cfg!.valor.socios : [];
+        if (!lista.includes(body.socio)) lista.push(body.socio);
+        await admin.from("config_pagos").upsert({ clave: "cobrar_ahora", valor: { socios: lista } });
+        const r = await sincronizar(body.socio);
+        await admin.from("admin_eventos").insert({ socio_id: body.socio, entidad: "pago_automatico", entidad_id: s.id, accion: "cobrar_ahora", despues: r, actor_id: uid, actor_nombre: [yo.nombre, yo.apellido].filter(Boolean).join(" "), motivo: "primer cobro adelantado a hoy" });
+        return j({ ok: true, resultado: r });
+      }
       if (body.accion === "staff_terminar") {
         if (!s || s.estado !== "activa") return j({ error: "El socio no tiene pago automático activo" }, 400);
         const causal = String(body.causal || "").trim();
