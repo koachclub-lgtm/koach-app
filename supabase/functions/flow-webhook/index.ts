@@ -3,6 +3,7 @@
 //   ?t=confirm  urlConfirmation de pagos únicos     ?t=return  vuelta del pagador (pago único)
 //   ?t=card     vuelta del registro de tarjeta       ?t=sub     urlCallback de cada cobro automático
 //   ?t=sync     realinea el primer cobro con el fin del acceso (&socio=uuid opcional)
+//   ?t=conciliar estado de cobro de cada suscripción contra Flow (cron diario; &socio=uuid opcional)
 //   ?t=ping     diagnóstico de llaves (no expone valores)
 import { createClient } from "npm:@supabase/supabase-js@2";
 import { flow, tokenDe, APP, API_KEY } from "./flow.ts";
@@ -89,11 +90,51 @@ async function realinear(socio?: string | null) {
   return res;
 }
 
+// Conciliación diaria con Flow (cron): estado de cobro de cada pago automático.
+// Flow subscription.morose: 0 al día · 1 importe vencido (rechazado tras los reintentos) · 2 pendiente, aún en reintentos.
+// Con mora vencida sobre 30 días se cierra el pago automático en Flow (T&C cl. 10), sin cobro de salida, y queda alerta al staff.
+async function conciliar(socio?: string | null) {
+  const hoy = hoyCL(), res: unknown[] = [];
+  let q = admin.from("flow_suscripciones").select("*").eq("estado", "activa").not("flow_subscription_id", "is", null);
+  if (socio) q = q.eq("socio_id", socio);
+  const { data: lista } = await q;
+  for (const s of lista || []) {
+    if (!socio && !(s.morosa > 0) && s.proximo_cobro && s.proximo_cobro > hoy) continue;   // nada que revisar todavía
+    let sub: Record<string, any>;
+    try { sub = await flow("GET", "subscription/get", { subscriptionId: s.flow_subscription_id }); }
+    catch (e) { await admin.from("flow_eventos").insert({ socio_id: s.socio_id, origen: "conciliar", codigo: String((e as { code?: unknown }).code ?? ""), mensaje: String((e as Error).message).slice(0, 500) }); continue; }
+    const m = Number(sub.morose || 0);
+    const desde = m === 1 ? (s.morosa_desde || hoy) : (m === 0 ? null : s.morosa_desde);
+    await admin.from("flow_suscripciones").update({ morosa: m, morosa_desde: desde, flow_data: sub, conciliada_at: ahora() }).eq("id", s.id);
+    if (m === 1 && s.morosa !== 1)
+      await admin.from("admin_eventos").insert({ socio_id: s.socio_id, entidad: "pago_automatico", entidad_id: s.id, accion: "cobro_vencido",
+        despues: { monto: s.monto, proximo_cobro: s.proximo_cobro }, actor_nombre: "FLOW · conciliación", motivo: "el cobro automático no se pudo realizar tras los reintentos" });
+    if (m === 0 && s.proximo_cobro && s.proximo_cobro < new Date(Date.now() - 3 * 3600e3 - 2 * 864e5).toISOString().slice(0, 10))
+      await admin.from("flow_eventos").insert({ socio_id: s.socio_id, origen: "conciliar", codigo: "sin_acreditar",
+        mensaje: "Flow no registra deuda pero el cobro del " + s.proximo_cobro + " no se acreditó en la app: revisar en Flow" });
+    // mora sobre 30 días → cierre del pago automático (cl. 10)
+    const d30 = new Date(Date.now() - 3 * 3600e3 - 30 * 864e5).toISOString().slice(0, 10);
+    if (m === 1 && desde && desde <= d30) {
+      try { await flow("POST", "subscription/cancel", { subscriptionId: s.flow_subscription_id, at_period_end: 0 }); } catch (_) { /* ya cancelada */ }
+      const termino = { tipo: "mora", causal: "cobro automático impago por más de 30 días (T&C cl. 10)", at: ahora() };
+      await admin.from("flow_suscripciones").update({ estado: "cancelada_fin_periodo", termino, updated_at: ahora() }).eq("id", s.id);
+      await admin.from("admin_eventos").insert({ socio_id: s.socio_id, entidad: "pago_automatico", entidad_id: s.id, accion: "terminar",
+        despues: termino, actor_nombre: "FLOW · conciliación", motivo: termino.causal });
+      res.push({ socio: s.socio_id, cerrada_por_mora: true });
+    } else res.push({ socio: s.socio_id, morosa: m });
+  }
+  return res;
+}
+
 Deno.serve(async (req) => {
   const t = new URL(req.url).searchParams.get("t");
   if (t === "sync") {
     const r = await realinear(new URL(req.url).searchParams.get("socio"));
     return new Response(JSON.stringify({ ok: true, realineadas: r }), { headers: { "Content-Type": "application/json" } });
+  }
+  if (t === "conciliar") {
+    const r = await conciliar(new URL(req.url).searchParams.get("socio"));
+    return new Response(JSON.stringify({ ok: true, revisadas: r }), { headers: { "Content-Type": "application/json" } });
   }
   if (t === "ping") {
     let flowR: unknown = null;

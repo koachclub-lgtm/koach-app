@@ -7696,7 +7696,7 @@ async function cobroEstadoPintar(){
   const [rt, rd, rs] = await Promise.all([
     sb.from('tarifas_auto_socio').select('monto,tipo_comercial,nota,permanencia_meses,periodo_meses,actualizado_por_nombre,updated_at').eq('socio_id',sid).maybeSingle(),
     sb.from('config_pagos').select('valor').eq('clave','mensual_auto_default').maybeSingle(),
-    sb.from('flow_suscripciones').select('estado,monto,duracion_valor,tarjeta_ult4,inicio,proximo_cobro,permanencia_meses,permanencia_hasta,precio_lista,cobros_pagados,termino').eq('socio_id',sid).in('estado',['activa','cancelada_fin_periodo']).order('created_at',{ascending:false}).limit(1).maybeSingle()
+    sb.from('flow_suscripciones').select('estado,monto,duracion_valor,tarjeta_ult4,inicio,proximo_cobro,morosa,morosa_desde,permanencia_meses,permanencia_hasta,precio_lista,cobros_pagados,termino').eq('socio_id',sid).in('estado',['activa','cancelada_fin_periodo']).order('created_at',{ascending:false}).limit(1).maybeSingle()
   ])
   if (!F || F.id!==sid) return
   const ind=rt&&rt.data, dv=(rd&&rd.data&&rd.data.valor)||{}, def=dv.monto||70000, su=rs&&rs.data
@@ -7706,7 +7706,7 @@ async function cobroEstadoPintar(){
   const enPerm=!!(su && su.estado==='activa' && su.permanencia_hasta && hoy<su.permanencia_hasta)
   const salida=enPerm ? Math.max(0,(su.precio_lista||80000)-su.monto)*(su.cobros_pagados||0) : 0
   el.innerHTML='<div class="pfRow2" style="margin-top:12px"><div><div class="pfK2">PAGO AUTOMÁTICO · '+(ind?'TARIFA EXCLUSIVA':'TARIFA GENERAL')+'</div><div class="pfBig">'+adCLP(monto)+'<small style="font-size:.45em">'+cada(per)+'</small></div></div>'+
-    '<div class="pfR">'+(su ? '<b>'+(su.estado==='activa'?'ACTIVO':'DESACTIVADO')+'</b><small>'+(su.estado==='activa'?'COBRA '+adCLP(su.monto)+cada(su.duracion_valor||1)+(su.tarjeta_ult4?' · •••• '+adEsc(su.tarjeta_ult4):'')+(su.proximo_cobro?' · PRÓX. '+adF(su.proximo_cobro):''):'SIN MÁS COBROS'+(su.termino&&su.termino.monto_salida?' · SALIDA '+adCLP(su.termino.monto_salida):''))+'</small>' : '<b>NO ACTIVADO</b><small>EL SOCIO LO ACTIVA EN SU APP</small>')+'</div></div>'+
+    '<div class="pfR">'+(su ? '<b>'+(su.estado==='activa'?(su.morosa===1?'IMPAGO DESDE '+adF(su.morosa_desde):su.morosa===2?'COBRO PENDIENTE':'ACTIVO'):'DESACTIVADO')+'</b><small>'+(su.estado==='activa'?'COBRA '+adCLP(su.monto)+cada(su.duracion_valor||1)+(su.tarjeta_ult4?' · •••• '+adEsc(su.tarjeta_ult4):'')+(su.proximo_cobro?' · PRÓX. '+adF(su.proximo_cobro):''):'SIN MÁS COBROS'+(su.termino&&su.termino.monto_salida?' · SALIDA '+adCLP(su.termino.monto_salida):''))+'</small>' : '<b>NO ACTIVADO</b><small>EL SOCIO LO ACTIVA EN SU APP</small>')+'</div></div>'+
     '<div class="pfS">'+(perm?'CON PERMANENCIA DE '+perm+' MESES':'SIN PERMANENCIA')+(enPerm?' · VIGENTE HASTA '+adF(su.permanencia_hasta)+' · '+(su.cobros_pagados||0)+' MESES PAGADOS · SALIDA HOY '+adCLP(salida):'')+'</div>'+
     (su && su.estado==='activa' && (su.monto!==monto || (su.duracion_valor||1)!==per) ? '<div class="pfS">⚠ Su pago automático sigue cobrando '+adCLP(su.monto)+cada(su.duracion_valor||1)+'. Para aplicar '+adCLP(monto)+cada(per)+' debe desactivarlo y volver a activarlo en su app.</div>':'')+
     (ind && ind.nota ? '<div class="pfS">'+adEsc(ind.nota)+'</div>':'')+
