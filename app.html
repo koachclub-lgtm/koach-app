@@ -3854,6 +3854,18 @@ html:not(:has(#oAct.vis)) #sBloques.locked{filter:none;opacity:1;pointer-events:
 .kMg__det span{display:block;font:400 10px var(--font-mono);letter-spacing:.12em;color:rgba(246,245,242,.55);margin-bottom:6px}
 .kMg__det textarea{width:100%;box-sizing:border-box;border:1px solid rgba(255,255,255,.14);border-radius:14px;background:rgba(255,255,255,.06);color:#F6F5F2;padding:12px;font:15px/1.4 inherit;resize:vertical}
 
+/* c227 · tarjeta del plan: BLACK solo con fidelidad de 12 meses; el resto, gris metalizado */
+#vPerfil .kPa.kPa--gris{color:#141516;background:radial-gradient(120% 70% at 0% 0%,rgba(255,255,255,.85) 0%,rgba(255,255,255,0) 55%),linear-gradient(150deg,#E9EAEC 0%,#C9CBCF 45%,#A9ACB1 100%);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.9),inset 0 -1px 0 rgba(0,0,0,.12),0 14px 30px rgba(20,20,22,.16)}
+#vPerfil .kPa--gris::after{background:linear-gradient(115deg,rgba(255,255,255,0) 35%,rgba(255,255,255,.35) 50%,rgba(255,255,255,0) 64%)}
+.kPa--gris .kPa__chip{background:linear-gradient(135deg,#6E7177 0%,#3C3E42 35%,#8A8D92 60%,#2E3033 100%)}
+.kPa--gris .kPa__est{color:#1F7A4A}.kPa--gris .kPa__est.is-warn{color:#9A6A12}
+.kPa--gris .kPa__k,.kPa--gris .kPa__pl{color:rgba(20,21,22,.62)}
+.kPa--gris .kPa__m{background:linear-gradient(180deg,#2A2B2E,#0B0B0C);-webkit-background-clip:text;background-clip:text}
+.kPa--gris .kPa__m small{-webkit-text-fill-color:rgba(20,21,22,.6)}
+.kPa--gris .kPa__row span,.kPa--gris .kPa__ps{color:rgba(20,21,22,.5)}.kPa--gris .kPa__row b{color:#141516}
+.kPa--gris .kPa__perm i{background:linear-gradient(90deg,#1C1D1F var(--p),rgba(0,0,0,.12) var(--p))}
+.kPa__tier{font:700 8.5px var(--font-mono);letter-spacing:.18em;opacity:.55;margin-left:auto;margin-right:12px}
 .kPa__aviso{margin-top:12px;padding:8px 10px;border-radius:10px;background:rgba(242,198,109,.12);border:1px solid rgba(242,198,109,.35);font:700 9px var(--font-mono);letter-spacing:.12em;color:#F2C66D}
 </style>
 </head>
@@ -9167,20 +9179,35 @@ function flowSalida(f){ const hoy=fLocal(new Date()), en=!!(f && f.permanencia_m
   const desc=Math.max(0,((f&&f.precio_lista)||80000)-((f&&f.monto)||0)), meses=(f&&f.cobros_pagados)||0
   return { en, desc, meses, monto: en ? desc*meses : 0 } }
 function flowSuscHtml(){
-  const f=S.flowSusc; if(!f) return ''
-  const sl=flowSalida(f)
-  if (f.estado!=='activa') return '<div class="mS" style="margin-top:10px"><b>PAGO AUTOMÁTICO DESACTIVADO</b> · no habrá más cobros; tu membresía sigue hasta su término.</div>'
-  // c226 · tarjeta negra metalizada, solo información: la gestión (pausar / terminar) vive en Perfil › Gestionar mi membresía
-  let perm=''
-  if (sl.en && f.permanencia_meses>0){ const tot=f.permanencia_meses, n=Math.min(tot, Math.max(1,(f.cobros_pagados||0)))
-    perm='<div class="kPa__perm"><div class="kPa__pl"><span>PERMANENCIA</span><span>MES '+n+' DE '+tot+'</span></div><i style="--p:'+Math.round(n/tot*100)+'%"></i><div class="kPa__ps">HASTA EL '+_fm(f.permanencia_hasta).toUpperCase()+'</div></div>' }
-  const pg=MG.st&&MG.st.pendiente, prog=pg&&pg.tipo==='termino'&&pg.estado==='programada'
-  if (prog) perm+='<div class="kPa__aviso">TÉRMINO SOLICITADO · SE HACE EFECTIVO EL '+_fm(pg.efectiva).toUpperCase()+'</div>'
-  return '<div class="kPa"><div class="kPa__top"><span class="kPa__chip" aria-hidden="true"></span><span class="kPa__est"'+(prog?' style="color:#F2C66D"':'')+'>'+(prog?'● CON AVISO DE TÉRMINO':'● ACTIVO')+'</span></div>'+
-    '<div class="kPa__k">PAGO AUTOMÁTICO</div>'+
-    '<div class="kPa__m">$'+(+f.monto).toLocaleString('es-CL')+'<small>'+((f.duracion_valor||1)>1?' CADA '+f.duracion_valor+' MESES':' AL MES')+'</small></div>'+
-    '<div class="kPa__row">'+
-      (f.proximo_cobro?'<div><span>PRÓXIMO COBRO</span><b>'+_fm(f.proximo_cobro).toUpperCase()+'</b></div>':'')+'</div>'+perm+'</div>'
+  // c227 · tarjeta del plan para TODO socio: BLACK solo con pago recurrente y fidelidad de 12 meses; el resto, gris
+  const f=S.flowSusc, m=S.memVig, CLP=n=>'$'+(+n||0).toLocaleString('es-CL')
+  const barra=(lbl,der,p,pie)=>'<div class="kPa__perm"><div class="kPa__pl"><span>'+lbl+'</span><span>'+der+'</span></div><i style="--p:'+Math.max(2,Math.min(100,Math.round(p)))+'%"></i>'+(pie?'<div class="kPa__ps">'+pie+'</div>':'')+'</div>'
+  const tarjeta=(black,tier,est,warn,k,monto,small,filas,extra)=>'<div class="kPa'+(black?'':' kPa--gris')+'"><div class="kPa__top"><span class="kPa__chip" aria-hidden="true"></span>'+
+    '<span class="kPa__tier">'+tier+'</span><span class="kPa__est'+(warn?' is-warn':'')+'"'+(warn&&black?' style="color:#F2C66D"':'')+'>● '+est+'</span></div>'+
+    '<div class="kPa__k">'+k+'</div><div class="kPa__m">'+monto+'<small>'+small+'</small></div>'+
+    (filas?'<div class="kPa__row">'+filas+'</div>':'')+extra+'</div>'
+  const fila=(a,b)=>'<div><span>'+a+'</span><b>'+b+'</b></div>'
+  if (f && f.estado==='activa'){
+    const sl=flowSalida(f), per=f.duracion_valor||1, black=(f.permanencia_meses||0)>=12
+    let extra=''
+    if (sl.en && f.permanencia_meses>0){ const tot=f.permanencia_meses, n=Math.min(tot, Math.max(1,(f.cobros_pagados||0)))
+      extra=barra('PERMANENCIA','MES '+n+' DE '+tot, n/tot*100, 'HASTA EL '+_fm(f.permanencia_hasta).toUpperCase()) }
+    const pg=MG.st&&MG.st.pendiente, prog=pg&&pg.tipo==='termino'&&pg.estado==='programada'
+    if (prog) extra+='<div class="kPa__aviso">TÉRMINO SOLICITADO · SE HACE EFECTIVO EL '+_fm(pg.efectiva).toUpperCase()+'</div>'
+    return tarjeta(black, black?'BLACK':'', prog?'CON AVISO DE TÉRMINO':'ACTIVO', prog,
+      per>1?'RECURRENTE CADA '+per+' MESES':'MENSUAL RECURRENTE', CLP(f.monto), per>1?' CADA '+per+' MESES':' AL MES',
+      f.proximo_cobro?fila('PRÓXIMO COBRO',_fm(f.proximo_cobro).toUpperCase()):'', extra)
+  }
+  if (!m) return ''
+  // pago único (o recurrente desactivado): tarjeta gris con el plan y el avance del período pagado
+  const fin=S.memFinAcceso||m.fecha_fin, d=x=>new Date(x+'T12:00:00'), tot=Math.max(1,Math.round((d(fin)-d(m.fecha_inicio))/864e5))
+  const rest=S.memDiasAcceso!=null?S.memDiasAcceso:Math.max(0,Math.round((d(fin)-new Date())/864e5))
+  const plan=String(m.duracion_label||(m.meses+' MESES')).toUpperCase()
+  const nom={1:'MENSUAL',6:'SEMESTRAL',12:'ANUAL'}[m.duracion_tipo==='mes'?m.duracion_valor:0]||('PLAN '+plan)
+  const warn=m.estado_calc==='proxima'||m.estado_calc==='vencida'
+  const des=f&&f.estado!=='activa'?'<div class="kPa__aviso" style="color:#5A5C60;background:rgba(0,0,0,.05);border-color:rgba(0,0,0,.12)">PAGO RECURRENTE DESACTIVADO · NO HABRÁ MÁS COBROS</div>':''
+  return tarjeta(false, '', _MEST[m.estado_calc]||'ACTIVA', warn, 'PAGO ÚNICO', nom, ' · '+plan,
+    fila('VENCE',_fm(fin).toUpperCase()), barra('PERÍODO PAGADO', rest+(rest===1?' DÍA':' DÍAS')+' RESTANTES', (tot-rest)/tot*100, '')+des)
 }
 /* ═══ c226 · GESTIONAR MI MEMBRESÍA ═══
    Pausar (médico / vacaciones): solicitud con autorización de administración, 14 días al año.
