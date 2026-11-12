@@ -9004,7 +9004,10 @@ async function cargarMembresia(){
   aplicarBloqueo()
   // Aviso de vencimiento: 30 / 14 / 7 días, UNA vez por umbral (registrado en membresia_alertas)
   const av=document.getElementById('hMemAviso'); if (av) av.innerHTML=''
-  if (av && S.acceso && S.acceso.estado==='prorroga') av.innerHTML='<div class="memAv"><b>ACCESO CON PRÓRROGA HASTA EL '+_fm(S.acceso.prorroga_hasta).toUpperCase()+'</b><span>KOACH te dio unos días para regularizar tu pago. Acércate a recepción antes de esa fecha para no perder el acceso a tu rutina.</span><button onclick="this.parentNode.remove()">ENTENDIDO</button></div>'
+  const avHoy = av && S.acceso && (S.acceso.estado==='prorroga' || S.acceso.aviso) && (av.dataset.hoy===fLocal(new Date()) || avisoDelDia('acceso_'+S.acceso.estado))
+  if (avHoy) av.dataset.hoy=fLocal(new Date())
+  if (!avHoy) {}
+  else if (S.acceso && S.acceso.estado==='prorroga') av.innerHTML='<div class="memAv"><b>ACCESO CON PRÓRROGA HASTA EL '+_fm(S.acceso.prorroga_hasta).toUpperCase()+'</b><span>KOACH te dio unos días para regularizar tu pago. Acércate a recepción antes de esa fecha para no perder el acceso a tu rutina.</span><button onclick="this.parentNode.remove()">ENTENDIDO</button></div>'
   else if (av && S.acceso && S.acceso.aviso) av.innerHTML='<div class="memAv"><b>'+accTxt(S.acceso).t+'</b><span>Desde el '+_fm(S.acceso.control_desde)+' necesitarás tu membresía pagada para ver tu rutina y tu credencial. Regularízala en recepción.</span><button onclick="this.parentNode.remove()">ENTENDIDO</button></div>'
   // c212 · Última semana: aviso arriba en cada apertura de la app (se cierra con X; vuelve al abrirla de nuevo)
   avisoRenovacion(vig)
@@ -9023,12 +9026,21 @@ function textoRenovacion(dias){
   return dias===1 ? 'Recuerda que es tu último día de membresía.'
     : 'Recuerda que tu membresía en el club está a '+dias+' días por vencer.'
 }
+// c232 · Avisos de pago/renovación: UNA vez por día (primera apertura de la app del día). Es solo una
+// comodidad de interfaz: si el navegador no guarda, a lo más se repite; el estado real lo manda el servidor.
+function avisoDelDia(clave){
+  const k='kAviso:'+((S.perfil&&S.perfil.id)||'')+':'+clave, hoy=fLocal(new Date())
+  try{ if (localStorage.getItem(k)===hoy) return false; localStorage.setItem(k,hoy) }
+  catch(_){ if ((window._kAvMem||(window._kAvMem={}))[k]===hoy) return false; window._kAvMem[k]=hoy }
+  return true
+}
 function avisoRenovacion(vig){
-  const prev=document.getElementById('avRenov'); if (prev) prev.remove()
+  if (document.getElementById('avRenov')) return   // ya visible: no se repite ni se vuelve a animar
   if (!vig || vig.estado_calc==='congelada' || S.memBloqueo) return
   if (['ugc','canje','cortesia'].includes(vig.tipo_comercial)) return   // beneficio sin cobro: no se le pide pago
   if (S.flowSusc && S.flowSusc.estado==='activa') return avisoCobroAuto()   // T&C 4.3: aviso previo a cada cobro
   const t=textoRenovacion(S.memDiasAcceso); if (!t) return
+  if (!avisoDelDia('renov')) return
   const d=document.createElement('div'); d.id='avRenov'; d.className='avRenov'; d.setAttribute('role','status')
   d.innerHTML='<div class="avRenov__tx"><b>'+t+'</b><span>Renueva en línea o acércate a recepción. <a href="#" onclick="flowPagar();return false" style="color:inherit;font-weight:700;text-decoration:underline">RENOVAR AHORA</a></span></div>'+
     '<button type="button" class="avRenov__x" aria-label="Cerrar aviso" onclick="var a=document.getElementById(\'avRenov\'); if(a){a.classList.add(\'out\'); setTimeout(function(){a.remove()},220)}">'+
@@ -9043,6 +9055,7 @@ function avisoCobroAuto(){
   if (f.proximo_cobro){ const d=dd(f.proximo_cobro); if (d>=0 && d<=5) t=(d===0?'Hoy':d===1?'Mañana':'El '+_fm(f.proximo_cobro))+' se cobra tu mensualidad automática de $'+(+f.monto).toLocaleString('es-CL')+'.' }
   if (!t && f.permanencia_hasta){ const d=dd(f.permanencia_hasta); if (d>=0 && d<=30){ t='Tu permanencia termina el '+_fm(f.permanencia_hasta)+'.'; sub='El compromiso no se renueva solo: desde esa fecha puedes desactivar tu pago automático sin costo.' } }
   if (!t) return
+  if (!avisoDelDia('renov')) return
   const d=document.createElement('div'); d.id='avRenov'; d.className='avRenov'; d.setAttribute('role','status')
   d.innerHTML='<div class="avRenov__tx"><b>'+t+'</b><span>'+sub+'</span></div>'+
     '<button type="button" class="avRenov__x" aria-label="Cerrar aviso" onclick="var a=document.getElementById(\'avRenov\'); if(a){a.classList.add(\'out\'); setTimeout(function(){a.remove()},220)}">'+
