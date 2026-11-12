@@ -2721,6 +2721,13 @@ html[data-rol="nutricionista"] #fTbEnt, html[data-rol="nutricionista"] #fTbAdh, 
 .kEl__o b{display:block;font-size:11px;font-weight:900;letter-spacing:.1em}.kEl__o span{display:block;margin-top:4px;font-size:12px;line-height:1.4;color:var(--koach-text-secondary)}
 .kEl__o--1{border-color:#121210}
 .kEl__o:focus-visible{outline:2px solid #121210;outline-offset:2px}
+
+/* c229 · extra del socio: misma cabecera que su plan; la sesión única no se muestra como franja negra */
+#vPlan.plXs .plPc__st--x{background:#121212;color:#F3F2EF;border-color:#121212}
+#vPlan.plXs .plPc__pub{color:#3F7D57}
+#vPlan.plXs #pTabs{display:none !important}
+#vPlan.plXs .plHdr{grid-template-columns:minmax(0,1fr) auto}
+#vPlan.plXs .plSesBar{grid-column:1/-1;justify-content:flex-start}
 </style>
 </head>
 <body>
@@ -4864,12 +4871,21 @@ function pintarPlan(){ setTimeout(function(){ try{ plSaveUI(); rtSyncPlan() }cat
 // ═══════════ c76 · ESCRITORIO: tarjeta de perfil + bloque activo ═══════════
 function plDeskOn(){ return window.innerWidth>=1200 }
 function plPerfilPintar(){ const v=document.getElementById('vPlan'), el=document.getElementById('plPc'); if(!v||!el) return
-  const on = plDeskOn() && !!P && !P.bib && !P.base && typeof F!=='undefined' && !!F
+  const on = plDeskOn() && !!P && ((!P.bib && !P.base) || P.xs) && typeof F!=='undefined' && !!F   // c229 · la extra del socio usa la misma cabecera
   v.classList.toggle('plDesk', on)
   // c82 · la orientación (ciclo › semana) vive dentro de la cabecera en escritorio; vuelve a su sitio bajo la cabecera si no
   try{ const nav=document.getElementById('pNav'), hdr=v.querySelector('.plHdr'), tabs=document.getElementById('pTabs')
     if (nav && hdr){ if (on && nav.parentNode!==hdr) hdr.insertBefore(nav, tabs); else if (!on && nav.parentNode===hdr) hdr.parentNode.insertBefore(nav, hdr.nextSibling) } }catch(_){}
-  if(!on){ el.innerHTML=''; return } v.classList.remove('plCompacto')
+  if(!on){ el.innerHTML=''; v.classList.remove('plXs'); return } v.classList.remove('plCompacto')
+  v.classList.toggle('plXs', !!P.xs)
+  if (P.xs){ const s=plSesActual()||{}, bl=(s.bloques||[]), ne=bl.reduce(function(n,b){ return n+(b.items||[]).length },0)
+    el.innerHTML='<button type="button" class="plPc__av" onclick="plSocClick(event)" aria-label="Volver al perfil de '+plEsc(nomDe(F.id))+'">'+(typeof avSocio==='function'?avSocio(F.id):'')+'</button>'+
+      '<div class="plPc__id"><div class="plPc__n"><b>'+plEsc(nomDe(F.id))+'</b><span class="plPc__st plPc__st--x">★ EXTRA</span></div>'+
+        '<div class="plPc__p">'+plEsc(String(s.nombre||'SESIÓN EXTRA').toUpperCase())+' · COPIA PERSONAL · LA BIBLIOTECA NO CAMBIA</div></div>'+
+      '<div class="plPc__s"><div><b>'+bl.length+'</b><small>BLOQUES</small></div><div><b>'+ne+'</b><small>EJERCICIOS</small></div></div>'+
+      '<div class="plPc__a"><span class="plPc__pub">✓ SE GUARDA AL INSTANTE</span>'+
+        '<a href="coach.html#/socio/'+F.id+'" onclick="return plSocClick(event)">← PERFIL</a><button type="button" onclick="menuRutina()" aria-label="Más opciones">•••</button></div>'
+    return }
   setTimeout(function(){ try{ plSaveUI() }catch(_){} },0)
   const a=(C.asig&&C.asig[F.id])||{}, pr=a.protocolos||P.proto||{}, N=plN(), w=(typeof PL!=='undefined'&&PL.w)||a.semana_actual||1
   const vig=a.semana_actual||1, sv=plSesSem(vig), hechas=sv.filter(function(x){ return PL.hecho&&PL.hecho[x.id] }).length
