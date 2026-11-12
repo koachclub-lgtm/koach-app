@@ -5550,7 +5550,7 @@ async function entrar(opts){
         const s = exSes.find(x=>x.id===d.sesion_protocolo_id)
         if (!s) return
         S.programa.sesiones.push({
-          numero: 1000+i, semana: (S.semanaProg||S.semanaActual), id: s.id, _extra: true, _desigId: d.id, _estado: d.estado, _rec: !!d.recurrente, _soloKoach: d.activacion==='koach',
+          numero: 1000+i, semana: (S.semanaProg||S.semanaActual), id: s.id, _extra: true, _desigId: d.id, _estado: d.estado, _rec: !!d.recurrente, _soloKoach: d.activacion==='koach', _libre: d.activacion==='libre',
           nombre: '★ '+(nombreEN(s.objetivo)||('SESIÓN '+s.numero)),
           bloquesFull:exBlo.filter(b=>b.sesion_id===s.id),
           bloques:exBlo.filter(b=>b.sesion_id===s.id).map(b=>({
@@ -6392,6 +6392,8 @@ function resolverCap(s, ctx){
     cap.can_continue=true; cap.reason_code='SESSION_IN_PROGRESS'; cap.primary_action='CONTINUAR'; return cap }
   if (ctx.prox){
     cap.can_start=true; cap.primary_action='EMPEZAR'; return cap }
+  if (ctx.libre){   // c230 · extra en MODO VACACIONES: disponible aunque no haya terminado sus sesiones principales
+    cap.can_start=true; cap.reason_code='EXTRA_FREE'; cap.primary_action='EMPEZAR'; return cap }
   // BLOQUEADA: la elegibilidad puede cambiar SOLO por aprobación del coach
   if (req.ADELANTAR==='APROBADA'){
     cap.can_start=true; cap.reason_code='ADVANCE_APPROVED'; cap.primary_action='EMPEZAR'; return cap }
@@ -6410,7 +6412,7 @@ function ctxDe(s){
   const hoyC = fLocal(new Date())
   const reg = S.registros.find(r=>r.sesion_numero===s.numero && esHecha(r))
   const enC = S.registros.find(r=>r.sesion_numero===s.numero && r.estado==='en_curso' && r.fecha===hoyC)
-  return { hecha:!!reg, regId:reg&&reg.id, enCurso:!!enC,
+  return { hecha:!!reg && !s._libre, regId:reg&&reg.id, enCurso:!!enC, libre:!!s._libre,
     prox: (S.sem&&S.sem.proxima&&S.sem.proxima._hab) ? s.id===S.sem.proxima.id : (s.numero===(S.sem&&S.sem.proxima&&S.sem.proxima.numero) && !(S.sem&&S.sem.completa)) }
 }
 async function solicitar(tipo, sesId, nombre){
@@ -7893,7 +7895,7 @@ function pintarPlan(){
       est = post ? 'COORDINANDO' : 'PRÓXIMA →'; cls='prox'; icon=posSem(s)
       if (!post) extra=(estadoSemana().entrenoHoy?' · DISPONIBLE MAÑANA':'')
       if (post) extra=' · TU KOACH REORGANIZA TU SEMANA' }
-    else if (cap.can_start){ est='ADELANTO APROBADO'; cls='prox'; icon='★'
+    else if (cap.can_start){ est=ctx.libre?'★ EXTRA · DISPONIBLE':'ADELANTO APROBADO'; cls='prox'; icon='★'
       acciones=`<button class="pAct" onclick="event.stopPropagation();abrirSesion(${s.numero})">EMPEZAR →</button>` }
     else {
       cls='lock'; icon='🔒'

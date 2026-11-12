@@ -3377,6 +3377,7 @@ function kElegir(k, titulo, msg, ops){ return new Promise(function(res){
   document.addEventListener('keydown',kd,true); document.body.appendChild(bg); setTimeout(function(){ const f=bg.querySelector('.kEl__o'); if(f) f.focus() },30)
 }) }
 const EX_MODOS=[{ v:'auto', t:'SIEMPRE DISPONIBLE', s:'Le aparece sola cada semana al completar sus sesiones principales y no se gasta.' },
+  { v:'libre', t:'MODO VACACIONES', s:'Habilitada siempre, aunque no haya hecho sus sesiones principales. Puede hacerla cuando quiera y no se gasta.' },
   { v:'koach', t:'SOLO CUANDO YO LA ACTIVE', s:'No le aparece sola: queda guardada y la activas tú desde la Sala (HABILITAR HOY) cada vez que quieras que la haga.' }]
 async function exElegirModo(nom, actual){ return kElegir('SESIÓN EXTRA ★', '¿Cómo queda disponible '+nom+'?', null, actual ? EX_MODOS.map(function(o){ return Object.assign({}, o, { t:o.t+(o.v===actual?' · ACTUAL':'') }) }) : EX_MODOS) }
 async function scModoExtra(id){
@@ -3384,7 +3385,7 @@ async function scModoExtra(id){
   const m=await exElegirModo(scNomL(x.nombre), x.activacion||'auto'); if(!m || m===(x.activacion||'auto')) return
   scGuard('run'); const r=await sb.from('designaciones_extra').update({ activacion:m, recurrente:true }).eq('id',id)
   if (r.error){ scGuard('err'); toast('No se pudo cambiar: '+r.error.message); return }
-  scGuard('ok'); toast(m==='auto'?'★ Extra siempre disponible':'★ Extra solo cuando la actives'); scCargar(F.id)
+  scGuard('ok'); toast({auto:'★ Extra siempre disponible',libre:'★ Extra en modo vacaciones · habilitada siempre',koach:'★ Extra solo cuando la actives'}[m]); scCargar(F.id)
 }
 function kConfirm(msg){ const t=String(msg||''); return kHoja({ msg:t, peligro:/eliminar|cancelar|quitar|archivar|descarta|pierde|congelar|dejarán de ver|desmarcar/i.test(t) }) }
 function kAviso(msg,k){ return kHoja({ msg:koachMsg(msg), aviso:true, k:k||'AVISO' }) }
@@ -8941,6 +8942,7 @@ function scEstadoExtra(e){
   if (e.estado==='en_curso') return { pill:'★ EXTRA · EN CURSO', sub:'NO SUMA AL '+h+'/'+p, cls:'x tc--curso' }
   if (e.estado==='habilitada') return { pill:'★ EXTRA · HABILITADA', sub:'NO SUMA AL '+h+'/'+p+(e.permite_hoy?' · HOY':''), cls:'x' }
   if (e.tipo==='designada' && e.activacion==='koach') return { pill:'★ EXTRA · GUARDADA', sub:'SOLO CUANDO LA ACTIVES · HABILITAR HOY', cls:'x' }
+  if (e.tipo==='designada' && e.activacion==='libre') return { pill:'★ EXTRA · MODO VACACIONES', sub:'HABILITADA SIEMPRE · NO SUMA AL '+h+'/'+p, cls:'x' }
   return { pill:'★ EXTRA · DISPONIBLE', sub:'NO SUMA AL '+h+'/'+p+' · SIEMPRE DISPONIBLE', cls:'x' }
 }
 const SC_ISO='<svg class="tc__iso" viewBox="40 180 790 795" aria-hidden="true" focusable="false"><rect x="52" y="190" width="768" height="162" fill="currentColor"/><polygon points="52,757 438,415 818,752 818,950 438,615 52,962" fill="currentColor"/></svg>'
@@ -9006,7 +9008,7 @@ async function scPintarRes(){
     if (ex.tipo==='designada') acc+='<button type="button" class="tbB" onclick="scEditarExtra(\''+ex.id+'\')">EDITAR</button>'
     if (ex.estado==='habilitada') acc+='<button type="button" class="tbB" onclick="scAccion(\'quitar_habilitacion\')">QUITAR HABILITACIÓN</button>'
     else if (ex.estado==='disponible') acc+='<button type="button" class="tbB tbB--ink" onclick="scAccion(\'habilitar\',null,\''+ex.sesion_id+'\',true)">HABILITAR HOY</button>'
-    if (ex.tipo==='designada') acc+='<button type="button" class="tbB" onclick="scModoExtra(\''+ex.id+'\')">'+((ex.activacion==='koach')?'SOLO CUANDO LA ACTIVE':'SIEMPRE DISPONIBLE')+' ⇄</button>'
+    if (ex.tipo==='designada') acc+='<button type="button" class="tbB" onclick="scModoExtra(\''+ex.id+'\')">'+({koach:'SOLO CUANDO LA ACTIVE',libre:'MODO VACACIONES'}[ex.activacion]||'SIEMPRE DISPONIBLE')+' ⇄</button>'
     if (ex.tipo==='designada') acc+='<button type="button" class="tbB" onclick="scRetirarExtra(\''+ex.id+'\')">RETIRAR EXTRA</button>' }
   const cab='<div class="tcRes__h"><div><small>'+(ex?'★ SESIÓN EXTRA · NO SUMA A LAS PRINCIPALES':reg&&reg.abandonada?(reg.ejercicios+'/'+reg.total_ejercicios+' EJ · '+reg.sets+' SETS REGISTRADOS'):'RESUMEN DE LA SESIÓN')+'</small><b>'+scNomL(z.nombre)+'</b>'+(done&&z.cuando?'<small>REALIZADA · '+scDiaC(z.cuando)+'</small>':susp?'<small>SUSPENDIDA ESTA SEMANA</small>':'')+'</div><div class="tcRes__a">'+acc+
     '<button type="button" class="tcRes__x" onclick="scAbrirRes(\''+key+'\')" aria-label="Cerrar resumen">✕</button></div></div>'
@@ -9617,7 +9619,7 @@ function scMenu(ev,key){
     if (ex.tipo==='designada' && ex.estado!=='completada') I('FIJAR EN LA SEMANA (SESIÓN PRINCIPAL)','scFijarExtra(\''+ex.id+'\')')
     if (ex.estado==='habilitada') I('QUITAR HABILITACIÓN','scAccion(\'quitar_habilitacion\')')
     else if (ex.tipo==='designada' && ex.estado==='disponible') I('HABILITAR HOY','scAccion(\'habilitar\',null,\''+ex.sesion_id+'\',true)')
-    if (ex.tipo==='designada') I('DISPONIBILIDAD · '+((ex.activacion==='koach')?'SOLO CUANDO YO LA ACTIVE':'SIEMPRE DISPONIBLE'),'scModoExtra(\''+ex.id+'\')')
+    if (ex.tipo==='designada') I('DISPONIBILIDAD · '+({koach:'SOLO CUANDO YO LA ACTIVE',libre:'MODO VACACIONES'}[ex.activacion]||'SIEMPRE DISPONIBLE'),'scModoExtra(\''+ex.id+'\')')
     if (ex.tipo==='designada'){ it.push('<hr>'); I('RETIRAR EXTRA','scRetirarExtra(\''+ex.id+'\')','pfDanger') }
   } else {
     const z=(st.sesiones||[]).find(function(x){return x.id===key}); if(!z) return
@@ -9675,7 +9677,7 @@ async function scDesignarExtra(id){
   const modo=await exElegirModo(scNomL(z.nombre)); if (!modo) return
   scGuard('run'); const r=await sb.from('designaciones_extra').insert({ socio_id:F.id, sesion_protocolo_id:id, motivo:'Criterio del koach', recurrente:true, activacion:modo })
   if (r.error){ scGuard('err'); toast('No se pudo designar: '+r.error.message); return }
-  scGuard('ok'); toast(modo==='auto'?'★ Extra designada · siempre disponible':'★ Extra designada · la activas tú desde la Sala'); scCargar(F.id)
+  scGuard('ok'); toast({auto:'★ Extra designada · siempre disponible',libre:'★ Extra designada · modo vacaciones',koach:'★ Extra designada · la activas tú desde la Sala'}[modo]); scCargar(F.id)
 }
 // c64 · EDITAR UNA EXTRA: la primera vez se crea una copia personal del socio (la base/biblioteca no se toca) y se abre en el planificador
 async function scEditarExtra(desigId){
