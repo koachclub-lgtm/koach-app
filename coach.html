@@ -3993,7 +3993,9 @@ async function apProponer(pid){ if(!AP||AP.run) return
   AP.prop=pid; AP.propAt=new Date().toISOString(); apPintar()
   toast(pid?'Protocolo propuesto ✓':'Propuesto: diseñar desde cero ✓')
 }
-function verSala(){ vista('vSala'); pintarSala(); rtSet('#/', 'Sala | KOACH'); socRTSeguir(null) }
+// c224 · volver a la Sala (botón SALA o atrás) siempre la muestra limpia: sin la búsqueda anterior
+function salaReset(){ const i=document.getElementById('salaQ'); if(!i || !i.value) return; i.value=''; try{ i.blur() }catch(_){}; salaBuscar() }
+function verSala(){ vista('vSala'); salaReset(); pintarSala(); rtSet('#/', 'Sala | KOACH'); socRTSeguir(null) }
 
 function verFicha(id, sinRuta){
   accBan._sid=null; const _ab=document.getElementById('fAccBan'); if(_ab) _ab.innerHTML=''
