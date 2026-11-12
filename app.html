@@ -1768,6 +1768,10 @@ html[data-tipo="a"] .fk{font-size:10px;letter-spacing:.06em}
 html[data-tipo="a"] #oLoad .lm{font-size:10px;letter-spacing:.06em}
 html[data-tipo="a"] .tb .tl{font-size:10px;letter-spacing:.06em}
 html[data-tipo="a"] #tb-vNutri .tl{letter-spacing:0}
+/* c236 · MÉTODO pasa a ENTRENAMIENTO: su columna es más ancha para que el nombre entre completo */
+.tabbar.vis{grid-template-columns:.82fr 1.42fr 1.08fr 1fr .86fr}
+html[data-tipo="a"] #tb-vPlan .tl,#tb-vPlan .tl{letter-spacing:.01em;font-size:9px;white-space:nowrap}
+@media (max-width:370px){html[data-tipo="a"] #tb-vPlan .tl,#tb-vPlan .tl{font-size:8.2px;letter-spacing:0}}
 html[data-tipo="a"] .ps{font-size:10px;letter-spacing:.06em}
 html[data-tipo="a"] .pm2{font-size:10px}
 html[data-tipo="a"] .pest{font-size:10px}
@@ -4112,7 +4116,7 @@ html:not(:has(#oAct.vis)) #sBloques.locked{filter:none;opacity:1;pointer-events:
 
 <div class="tabbar" id="tabbar">
   <button class="tb on" id="tb-vHome" onclick="tab('vHome')"><span class="ti">●</span><span class="tl">HOY</span></button>
-  <button class="tb" id="tb-vPlan" onclick="tab('vPlan')"><span class="ti">◎</span><span class="tl">MÉTODO</span></button>
+  <button class="tb" id="tb-vPlan" onclick="tab('vPlan')"><span class="ti">◎</span><span class="tl">ENTRENAMIENTO</span></button>
   <button class="tb" id="tb-vNutri" onclick="tab('vNutri')"><span class="ti">◆</span><span class="tl">NUTRICIÓN</span></button>
   <button class="tb" id="tb-vAvances" onclick="tab('vAvances')"><span class="ti">▲</span><span class="tl">AVANCES</span></button>
   <button class="tb" id="tb-vPerfil" onclick="tab('vPerfil')"><span class="ti">■</span><span class="tl">PERFIL</span></button>
@@ -4611,7 +4615,7 @@ function pintarHomeV2(){
    k2HeaderHero(n,{ses,sesEC,e,obj})+
    document.getElementById('hMemAviso').innerHTML+
    homeHero({ ses, sesEC, e, m, ctaT, ctaS, disabled:cta.disabled, obj })+
-   '<section class="k2-sec">'+'<div class="k2-sec__h">'+k2Label('TU SEMANA')+'<button class="k2-link" onclick="tab(\'vPlan\')">VER MI MÉTODO →</button></div><div class="k2-pills">'+tl+'</div></section>'+
+   '<section class="k2-sec">'+'<div class="k2-sec__h">'+k2Label('TU SEMANA')+'<button class="k2-link" onclick="tab(\'vPlan\')">VER MI ENTRENAMIENTO →</button></div><div class="k2-pills">'+tl+'</div></section>'+
    (()=>{ const wd=wheelDatosSocio(), rs=wheelResumen(wd)
      return '<section class="k2-wk" aria-label="Tu semana">'+
      '<div class="k2-sec__h">'+k2Label('MI SEMANA')+'<button class="k2-wk__e" onclick="tab(\'vPlan\');setTimeout(()=>{ const d=document.getElementById(\'pDist\'); if(d) d.scrollIntoView({behavior:\'smooth\'}) },250)">'+etapaSemana(e.pct).charAt(0)+etapaSemana(e.pct).slice(1).toLowerCase()+
