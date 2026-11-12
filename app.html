@@ -9127,7 +9127,7 @@ async function flowPagar(){
   document.body.appendChild(bg)
 }
 async function flowSuscCargar(){
-  try{ const r=await sb.from('flow_suscripciones').select('id,estado,plan_nombre,monto,duracion_valor,tarjeta_tipo,tarjeta_ult4,inicio,proximo_cobro,permanencia_meses,permanencia_hasta,precio_lista,cobros_pagados,autorizacion').eq('socio_id',S.perfil.id).in('estado',['activa','cancelada_fin_periodo']).order('created_at',{ascending:false}).limit(1).maybeSingle()
+  try{ const r=await sb.from('flow_suscripciones').select('id,estado,plan_nombre,monto,duracion_valor,inicio,proximo_cobro,permanencia_meses,permanencia_hasta,precio_lista,cobros_pagados,autorizacion').eq('socio_id',S.perfil.id).in('estado',['activa','cancelada_fin_periodo']).order('created_at',{ascending:false}).limit(1).maybeSingle()
     S.flowSusc=(r && !r.error && r.data) || null }catch(_){ S.flowSusc=null }
   try{ const g=await sb.rpc('mi_membresia_gestion'); if(!g.error) MG.st=g.data }catch(_){ }
 }
@@ -9148,7 +9148,7 @@ function flowSuscHtml(){
   return '<div class="kPa"><div class="kPa__top"><span class="kPa__chip" aria-hidden="true"></span><span class="kPa__est"'+(prog?' style="color:#F2C66D"':'')+'>'+(prog?'● CON AVISO DE TÉRMINO':'● ACTIVO')+'</span></div>'+
     '<div class="kPa__k">PAGO AUTOMÁTICO</div>'+
     '<div class="kPa__m">$'+(+f.monto).toLocaleString('es-CL')+'<small>'+((f.duracion_valor||1)>1?' CADA '+f.duracion_valor+' MESES':' AL MES')+'</small></div>'+
-    '<div class="kPa__row"><div><span>TARJETA</span><b>'+(f.tarjeta_ult4?'•••• '+f.tarjeta_ult4:'REGISTRADA')+'</b></div>'+
+    '<div class="kPa__row">'+
       (f.proximo_cobro?'<div><span>PRÓXIMO COBRO</span><b>'+_fm(f.proximo_cobro).toUpperCase()+'</b></div>':'')+'</div>'+perm+'</div>'
 }
 /* ═══ c226 · GESTIONAR MI MEMBRESÍA ═══
