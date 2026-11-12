@@ -9178,6 +9178,13 @@ async function flowSuscCargar(){
 function flowSalida(f){ const hoy=fLocal(new Date()), en=!!(f && f.permanencia_meses>0 && f.permanencia_hasta && hoy<f.permanencia_hasta)
   const desc=Math.max(0,((f&&f.precio_lista)||80000)-((f&&f.monto)||0)), meses=(f&&f.cobros_pagados)||0
   return { en, desc, meses, monto: en ? desc*meses : 0 } }
+// c228 · nombre del plan (no su duración restante): MENSUAL · SEMESTRAL · ANUAL · MENSUAL RECURRENTE
+function planNombre(m){
+  const f=S.flowSusc; if (f && f.estado==='activa') return (f.duracion_valor||1)>1?'RECURRENTE CADA '+f.duracion_valor+' MESES':'MENSUAL RECURRENTE'
+  if (!m) return ''
+  const n=m.duracion_tipo==='mes'?+m.duracion_valor:(m.duracion_tipo?0:+m.meses)
+  return {1:'MENSUAL',3:'TRIMESTRAL',6:'SEMESTRAL',12:'ANUAL'}[n]||String(m.duracion_label||(m.meses+' MESES')).toUpperCase()
+}
 function flowSuscHtml(){
   // c227 · tarjeta del plan para TODO socio: BLACK solo con pago recurrente y fidelidad de 12 meses; el resto, gris
   const f=S.flowSusc, m=S.memVig, CLP=n=>'$'+(+n||0).toLocaleString('es-CL')
@@ -9202,11 +9209,10 @@ function flowSuscHtml(){
   // pago único (o recurrente desactivado): tarjeta gris con el plan y el avance del período pagado
   const fin=S.memFinAcceso||m.fecha_fin, d=x=>new Date(x+'T12:00:00'), tot=Math.max(1,Math.round((d(fin)-d(m.fecha_inicio))/864e5))
   const rest=S.memDiasAcceso!=null?S.memDiasAcceso:Math.max(0,Math.round((d(fin)-new Date())/864e5))
-  const plan=String(m.duracion_label||(m.meses+' MESES')).toUpperCase()
-  const nom={1:'MENSUAL',6:'SEMESTRAL',12:'ANUAL'}[m.duracion_tipo==='mes'?m.duracion_valor:0]||('PLAN '+plan)
+  const nom=planNombre(m)
   const warn=m.estado_calc==='proxima'||m.estado_calc==='vencida'
   const des=f&&f.estado!=='activa'?'<div class="kPa__aviso" style="color:#5A5C60;background:rgba(0,0,0,.05);border-color:rgba(0,0,0,.12)">PAGO RECURRENTE DESACTIVADO · NO HABRÁ MÁS COBROS</div>':''
-  return tarjeta(false, '', _MEST[m.estado_calc]||'ACTIVA', warn, 'PAGO ÚNICO', nom, ' · '+plan,
+  return tarjeta(false, '', _MEST[m.estado_calc]||'ACTIVA', warn, 'PAGO ÚNICO', nom, '',
     fila('VENCE',_fm(fin).toUpperCase()), barra('PERÍODO PAGADO', rest+(rest===1?' DÍA':' DÍAS')+' RESTANTES', (tot-rest)/tot*100, '')+des)
 }
 /* ═══ c226 · GESTIONAR MI MEMBRESÍA ═══
@@ -9378,7 +9384,7 @@ function pintarMembresia(){
       ? '<div class="mDias"><b>'+S.memDiasAcceso+'</b><span>'+(S.memDiasAcceso===1?'DÍA RESTANTE':'DÍAS RESTANTES')+'</span></div>'
       : '<div class="mH">'+_fm(m.fecha_inicio)+' — '+_fm(m.fecha_fin)+'</div>')+
     '<div class="mS">PLAN PAGADO · '+_fm(m.fecha_inicio).toUpperCase()+' → '+_fm(S.memFinAcceso||m.fecha_fin).toUpperCase()+'</div>'+
-    '<div class="mS">'+[S.proto?String(S.proto.programa||'').toUpperCase():null, 'PLAN '+String(m.duracion_label||(m.meses+' MESES')).toUpperCase(), trayectoriaMeses()?trayTxt(trayectoriaMeses())+' DE TRAYECTORIA':null].filter(Boolean).join(' · ')+'</div>'+
+    '<div class="mS">'+[S.proto?String(S.proto.programa||'').toUpperCase():null, planNombre(m), trayectoriaMeses()?trayTxt(trayectoriaMeses())+' DE TRAYECTORIA':null].filter(Boolean).join(' · ')+'</div>'+
     '<div class="mBtns"><button onclick="det(\'dPagos\')">VER PAGOS · '+pagosM.length+'</button><button onclick="det(\'dMemH\')">VER HISTORIAL · '+S.mem.length+'</button></div>'+
     '<div class="det" id="dPagos">'+(pagosM.length?pagosM.map(p=>'<div class="mLi"><span>'+_fm(p.fecha_pago)+'</span><span>$'+(+p.monto_final).toLocaleString('es-CL')+' · '+String(p.estado).toUpperCase()+'</span></div>').join(''):'Sin pagos registrados.')+'</div>'+
     '<div class="det" id="dMemH">'+S.mem.map(x=>'<div class="mLi"><span>'+(x.duracion_tipo==='dia'?_fm(x.fecha_inicio):_fm(x.fecha_inicio)+' — '+_fm(x.fecha_fin))+'</span><span>'+(x.duracion_label||x.meses+' M')+' · '+(_MEST[x.estado_calc]||'')+'</span></div>').join('')+'</div>'+
