@@ -9095,7 +9095,7 @@ async function flowPagar(){
   const ops=[]
   cobros.forEach(c=>ops.push({ k:'c'+c.id, tipo:'cobro', id:c.id, rec:!!c.recurrente, titulo:c.concepto||'Membresía '+dur(c), det:dur(c)+(c.recurrente?' · Pago automático':' · Pago único'),
     precio:c.monto, sufijo:c.recurrente?'/MES':'', tag:'TU TARIFA KOACH', cod:codigo('TAR', c.duracion_tipo==='mes'?c.duracion_valor:1), tarjetas: c.recurrente?['visa','mastercard','amex']:['visa','mastercard','amex','redcompra'] }))
-  if (auto) ops.push({ k:'auto', tipo:'auto', rec:true, titulo:'Mensual recurrente', det:'Tarjeta de crédito · '+(auto.permanencia_meses?'Permanencia '+auto.permanencia_meses+' meses':'Sin permanencia'),
+  if (auto) ops.push({ k:'auto', tipo:'auto', rec:true, titulo:'Mensual recurrente', det:'Crédito, débito o prepago · '+(auto.permanencia_meses?'Permanencia '+auto.permanencia_meses+' meses':'Sin permanencia'),
     precio:auto.monto, sufijo:'/MES', tachado: auto.monto<lista ? lista : null, tag: auto.personalizada?'TARIFA EXCLUSIVA':null, dark:true,
     cod:codigo('AUTO', auto.permanencia_meses||1), tarjetas:['visa','mastercard','amex'] })
   planes.forEach(p=>{ const m=p.duracion_tipo==='mes'?p.duracion_valor:0, eq=m>1?Math.round(p.precio/m):0, ah=m>1?Math.max(0,lista*m-p.precio):0
@@ -9117,7 +9117,7 @@ async function flowPagar(){
         '<div><span>Valor mensual</span><b>'+$(o.precio)+' AL MES</b></div>'+
         '<div><span>Permanencia</span><b>'+(perm?perm+' MESES':'SIN PERMANENCIA')+'</b></div>'+
         '<div><span>Aviso previo</span><b>5 DÍAS ANTES DE CADA COBRO</b></div>'+
-        '<div class="kCk__pay"><span>SOLO TARJETA DE CRÉDITO</span>'+marcas(['visa','mastercard','amex'])+'</div>'+
+        '<div class="kCk__pay"><span>CRÉDITO · DÉBITO · PREPAGO</span>'+marcas(['visa','mastercard','amex'])+'</div>'+
       '</div>' }
   const card=o=>'<button type="button" class="kCk__op'+(o.dark?' kCk__op--dark':'')+'" role="radio" aria-checked="false" data-k="'+o.k+'">'+
     '<span class="kCk__r1"><span class="kCk__rad" aria-hidden="true"></span>'+
@@ -9343,7 +9343,7 @@ async function flowAutoAutorizar(){
         '<div><span>PERMANENCIA</span><b'+(perm?'':' class="kAu__s"')+'>'+(perm?c.permanencia_meses+' MESES':'SIN PERMANENCIA')+'</b></div></div>'+
       '<div class="kAu__ok">'+chkL('flAut','Autorizo el cobro automático de <b>'+$(c.monto)+' '+cada.toLowerCase()+'</b> en mi tarjeta.')+
       (perm?chkL('flPerm','Acepto la <b>permanencia de '+c.permanencia_meses+' meses</b> según mi contrato.'):'')+
-      '<p class="kAu__cond">El cobro se hará de forma automática y recurrente en tu tarjeta de crédito, según tu plan.'+(perm?' La permanencia y el retiro anticipado se rigen por los Términos y Condiciones de tu contrato.':' Puedes desactivarlo cuando quieras desde tu Perfil.')+'</p></div>'+
+      '<p class="kAu__cond">El cobro se hará de forma automática y recurrente en tu tarjeta (crédito, débito o prepago), según tu plan. Con débito o prepago, mantén saldo el día del cobro.'+(perm?' La permanencia y el retiro anticipado se rigen por los Términos y Condiciones de tu contrato.':' Puedes desactivarlo cuando quieras desde tu Perfil.')+'</p></div>'+
     '</div>'+
     '<div class="kAu__pie"><button type="button" class="kAu__go" id="flGo" disabled>REGISTRAR TARJETA</button><button type="button" class="kAu__no">VOLVER</button></div>'
   const fin=()=>{ bg.remove(); document.documentElement.style.overflow='' }, go=bg.querySelector('#flGo')
