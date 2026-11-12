@@ -635,13 +635,13 @@ html.accBloq #pfCard, html.accBloq #vPerfil .kpc__f, html.accBloq #vPerfil [oncl
 .kCk__pr s{display:block;margin-bottom:3px;font:400 11px var(--font-mono);color:#8A8A8A}
 .kCk__pr small{display:block;margin-top:5px;font:400 9.5px var(--font-mono);letter-spacing:.06em;text-transform:uppercase;color:#4E4F52}
 .kCk__ft{display:flex;align-items:flex-end;justify-content:space-between;gap:10px;margin:12px 0 0 32px;padding-top:9px;border-top:1px dashed rgba(11,11,12,.22)}
-.kCk__cards{display:flex;gap:4px;flex-wrap:nowrap}
+
 .kCk__bc{display:flex;flex-direction:column;align-items:flex-end;gap:3px;margin-left:auto}
 .kCk__bc svg{display:block;width:clamp(86px,26vw,118px);height:22px;fill:currentColor}
 .kCk__bc span{font:700 8px var(--font-mono);letter-spacing:.16em}
 /* marcas de tarjeta: archivo oficial si existe en /img/pagos, si no, insignia de texto */
-.kCk__mk{display:inline-flex;align-items:center;justify-content:center;height:18px;min-width:30px;padding:0 5px;border-radius:4px;background:#FFF;border:1px solid rgba(11,11,12,.14);font:700 7.5px var(--font-mono);letter-spacing:.06em;color:#0B0B0C;box-sizing:border-box;white-space:nowrap}
-.kCk__mk img{display:block;height:13px;width:auto}
+
+
 /* opción oscura (pago automático) */
 .kCk__op--dark{color:#F4F4F4;border:1px solid rgba(255,255,255,.14);background:linear-gradient(150deg,rgba(58,59,62,.96) 0%,rgba(30,30,32,.96) 45%,rgba(14,14,15,.97) 100%);box-shadow:inset 0 1px 0 rgba(255,255,255,.16),inset 0 -1px 0 rgba(0,0,0,.4),0 14px 36px rgba(10,10,12,.32)}
 .kCk__op--dark::before{background:linear-gradient(115deg,rgba(255,255,255,.18) 0%,rgba(255,255,255,0) 30%,rgba(255,255,255,0) 72%,rgba(255,255,255,.07) 100%)}
@@ -675,6 +675,50 @@ html.accBloq #pfCard, html.accBloq #vPerfil .kpc__f, html.accBloq #vPerfil [oncl
 @keyframes kCkSh{0%{transform:translateX(-100%)}45%,100%{transform:translateX(100%)}}
 @media (prefers-reduced-motion:reduce){.kCk__go::before{animation:none}}
 @media (max-width:360px){.kCk__ft{margin-left:0}.kCk__t{font-size:36px}}
+/* ═══ Black card · MENSUAL RECURRENTE (tarjeta de crédito negra metalizada) ═══ */
+.kCk__bk{position:relative;display:block;width:100%;aspect-ratio:1.586/1;max-height:250px;padding:0;border:0;border-radius:18px;cursor:pointer;color:#EDEDED;text-align:left;overflow:hidden;
+  background:
+    radial-gradient(120% 90% at 100% 0%,rgba(255,255,255,.16) 0%,rgba(255,255,255,0) 45%),
+    radial-gradient(80% 70% at 0% 100%,rgba(255,255,255,.07) 0%,rgba(255,255,255,0) 55%),
+    repeating-linear-gradient(115deg,rgba(255,255,255,.018) 0 2px,rgba(0,0,0,0) 2px 5px),
+    linear-gradient(140deg,#2C2D30 0%,#141416 42%,#0A0A0B 70%,#1F2023 100%);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.18),inset 0 -1px 0 rgba(0,0,0,.5),0 18px 40px rgba(10,10,12,.38),0 4px 10px rgba(10,10,12,.25);transition:transform .18s,box-shadow .18s}
+.kCk__bk::before{content:"";position:absolute;inset:0;pointer-events:none;background:linear-gradient(110deg,rgba(255,255,255,0) 35%,rgba(255,255,255,.10) 48%,rgba(255,255,255,0) 60%)}
+.kCk__bk[aria-checked="true"]{box-shadow:inset 0 1px 0 rgba(255,255,255,.18),0 0 0 2px #EDEDED,0 0 0 3.5px #0B0B0C,0 22px 46px rgba(10,10,12,.42)}
+.kCk__bk>div{position:absolute;inset:0;padding:clamp(14px,4.6vw,20px);display:flex;flex-direction:column}
+.kCk__bkTop{display:flex;align-items:center;justify-content:space-between}
+.kCk__bkLogo{width:clamp(78px,24vw,100px);height:18px;background:#EDEDED;-webkit-mask:url(/img/brand/logotipo-koach.png) no-repeat left center/contain;mask:url(/img/brand/logotipo-koach.png) no-repeat left center/contain}
+.kCk__bkK{font:700 9px var(--font-mono);letter-spacing:.2em;color:rgba(237,237,237,.7)}
+.kCk__bkTag{font:700 8.5px var(--font-mono);letter-spacing:.14em;color:#0B0B0C;background:linear-gradient(135deg,#FFFFFF,#BFC0C3);padding:3px 7px;border-radius:4px;box-shadow:inset 0 1px 0 #fff}
+.kCk__bkMid{display:flex;align-items:center;gap:12px;margin-top:clamp(10px,3.6vw,16px)}
+.kCk__chip{flex:none;width:clamp(34px,10vw,42px);height:auto;aspect-ratio:1.3/1;border-radius:6px;
+  background:linear-gradient(135deg,#E9E9EA 0%,#9C9DA0 45%,#D7D8DA 60%,#8A8B8E 100%);box-shadow:inset 0 0 0 1px rgba(0,0,0,.25);position:relative}
+.kCk__chip::after{content:"";position:absolute;inset:22% 18%;border:1px solid rgba(0,0,0,.28);border-radius:3px;box-shadow:0 0 0 0 transparent}
+.kCk__nfc{width:20px;height:20px;color:rgba(237,237,237,.6)}
+.kCk__bkN{margin-top:auto;font:800 clamp(18px,5.6vw,24px)/1 var(--font-display);font-stretch:108%;text-transform:uppercase;letter-spacing:-.005em}
+.kCk__bkP{display:flex;align-items:baseline;gap:8px;margin-top:6px}
+.kCk__bkP b{font:700 clamp(24px,7.6vw,32px)/1 var(--font-mono);letter-spacing:-.03em}
+.kCk__bkP i{font:400 11px var(--font-mono);font-style:normal;letter-spacing:.06em;color:rgba(237,237,237,.75)}
+.kCk__bkP s{font:400 12px var(--font-mono);color:rgba(237,237,237,.45)}
+.kCk__bkFt{display:flex;align-items:flex-end;justify-content:space-between;gap:10px;margin-top:10px}
+.kCk__bkNum{font:700 clamp(10.5px,3.2vw,12.5px) var(--font-mono);letter-spacing:.2em;color:rgba(237,237,237,.85);text-shadow:0 1px 0 rgba(0,0,0,.6)}
+.kCk__bkSel{display:flex;align-items:center;gap:6px;font:700 8.5px var(--font-mono);letter-spacing:.14em;color:rgba(237,237,237,.6)}
+.kCk__bkSel span{width:16px;height:16px;border-radius:50%;border:1.5px solid rgba(237,237,237,.6);display:grid;place-items:center}
+.kCk__bk[aria-checked="true"] .kCk__bkSel{color:#EDEDED}.kCk__bk[aria-checked="true"] .kCk__bkSel span{border-color:#EDEDED;background:#EDEDED}
+.kCk__bk[aria-checked="true"] .kCk__bkSel span::after{content:"";width:6px;height:3px;border:solid #0B0B0C;border-width:0 0 2px 2px;transform:rotate(-45deg) translate(1px,-1px)}
+/* ficha técnica bajo la black card */
+.kCk__spec{margin:12px 2px 0;padding:12px 2px 0;border-top:1px solid rgba(11,11,12,.22);display:grid;gap:7px}
+.kCk__spec div{display:flex;justify-content:space-between;gap:12px;font:400 10px/1.4 var(--font-mono);letter-spacing:.08em;text-transform:uppercase;color:#3E3F42}
+.kCk__spec div b{font-weight:700;color:#0B0B0C;text-align:right}
+.kCk__pay{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:4px;padding-top:9px;border-top:1px dashed rgba(11,11,12,.22)}
+.kCk__pay>span{font:700 9.5px var(--font-mono);letter-spacing:.12em;color:#0B0B0C}
+/* marcas aceptadas como mini tarjetas */
+.kCk__cards{display:flex;gap:5px;flex-wrap:nowrap}
+.kCk__mk{position:relative;display:inline-flex;align-items:center;justify-content:center;width:40px;height:26px;padding:0 3px;border-radius:4px;box-sizing:border-box;overflow:hidden;
+  background:linear-gradient(160deg,#FFFFFF 0%,#EDEDEE 100%);border:1px solid rgba(11,11,12,.16);box-shadow:0 1px 2px rgba(0,0,0,.08);font:700 6.5px var(--font-mono);letter-spacing:.02em;color:#0B0B0C;white-space:nowrap}
+.kCk__mk::before{content:"";position:absolute;left:0;right:0;top:4px;height:3px;background:rgba(11,11,12,.12)}
+.kCk__mk img{position:relative;display:block;max-width:100%;max-height:16px}
+.kCk__mk>span{position:relative;margin-top:5px}.kCk__mk[data-mk="mastercard"]>span{font-size:5.2px;letter-spacing:0}.kCk__mk[data-mk="redcompra"]>span{font-size:5.6px;letter-spacing:0}
 .kAu{position:fixed;inset:0;z-index:2100;background:#0B0B0C;color:#F6F5F2;display:flex;flex-direction:column;animation:kHf .2s ease-out;padding:env(safe-area-inset-top) 0 env(safe-area-inset-bottom)}
 .kAu__top{display:flex;align-items:center;justify-content:space-between;padding:18px 22px 6px}
 .kAu__logo{width:104px;height:22px;background:#F6F5F2;-webkit-mask:url(/img/brand/logotipo-koach.png) no-repeat left center/contain;mask:url(/img/brand/logotipo-koach.png) no-repeat left center/contain}
@@ -8890,7 +8934,7 @@ async function flowPagar(){
   const REC=ic('<path d="M4 4v5h5"/><path d="M20 20v-5h-5"/><path d="M5.5 15a7.5 7.5 0 0 0 13 2.5M18.5 9a7.5 7.5 0 0 0-13-2.5"/>')
   // Marcas de tarjeta: se usa el archivo oficial si existe en /img/pagos/<id>.svg; si no, insignia de texto
   const MARCAS={ visa:'VISA', mastercard:'MASTERCARD', amex:'AMEX', redcompra:'REDCOMPRA' }
-  const marca=id=>'<span class="kCk__mk" data-mk="'+id+'"><img src="/img/pagos/'+id+'.svg" alt="'+MARCAS[id]+'" onerror="this.parentNode.textContent=\''+MARCAS[id]+'\'"></span>'
+  const marca=id=>'<span class="kCk__mk" data-mk="'+id+'" title="'+MARCAS[id]+'"><img src="/img/pagos/'+id+'.svg" alt="'+MARCAS[id]+'" onerror="this.outerHTML=\'<span>'+MARCAS[id]+'</span>\'"></span>'
   const marcas=ids=>'<span class="kCk__cards">'+ids.map(marca).join('')+'</span>'
   // Código de ticket: 00AA-KCH-TIPO-MMM (año con ceros · tipo · meses con ceros) · las barras codifican 00AA + tipo + MMM
   const ANIO=String(new Date().getFullYear()%100).padStart(4,'0'), TIPOS={ AUTO:1, UNI:2, TAR:3 }
@@ -8898,12 +8942,31 @@ async function flowPagar(){
   const ops=[]
   cobros.forEach(c=>ops.push({ k:'c'+c.id, tipo:'cobro', id:c.id, rec:!!c.recurrente, titulo:c.concepto||'Membresía '+dur(c), det:dur(c)+(c.recurrente?' · Pago automático':' · Pago único'),
     precio:c.monto, sufijo:c.recurrente?'/MES':'', tag:'TU TARIFA KOACH', cod:codigo('TAR', c.duracion_tipo==='mes'?c.duracion_valor:1), tarjetas: c.recurrente?['visa','mastercard','amex']:['visa','mastercard','amex','redcompra'] }))
-  if (auto) ops.push({ k:'auto', tipo:'auto', rec:true, titulo:'Mensual automático', det:'Tarjeta de crédito · '+(auto.permanencia_meses?'Permanencia '+auto.permanencia_meses+' meses':'Sin permanencia'),
+  if (auto) ops.push({ k:'auto', tipo:'auto', rec:true, titulo:'Mensual recurrente', det:'Tarjeta de crédito · '+(auto.permanencia_meses?'Permanencia '+auto.permanencia_meses+' meses':'Sin permanencia'),
     precio:auto.monto, sufijo:'/MES', tachado: auto.monto<lista ? lista : null, tag: auto.personalizada?'TARIFA EXCLUSIVA':null, dark:true,
     cod:codigo('AUTO', auto.permanencia_meses||1), tarjetas:['visa','mastercard','amex'] })
   planes.forEach(p=>{ const m=p.duracion_tipo==='mes'?p.duracion_valor:0, eq=m>1?Math.round(p.precio/m):0, ah=m>1?Math.max(0,lista*m-p.precio):0
     ops.push({ k:'p'+p.id, tipo:'plan', id:p.id, rec:false, titulo:p.nombre, det:dur(p)+(p.hora_limite?' · Ingreso hasta '+String(p.hora_limite).slice(0,5):''),
       precio:p.precio, nota: eq ? 'Equivale a '+$(eq)+'/mes' : '', tag: ah ? 'AHORRAS '+$(ah) : null, cod:codigo('UNI', m||1), tarjetas:[] }) })
+  const NFC=ic('<path d="M8.5 8.5a5 5 0 0 1 0 7M11.5 6a8.5 8.5 0 0 1 0 12M14.5 3.5a12 12 0 0 1 0 17"/>')
+  const secBk=o=>{ if(!o) return ''
+    const perm=auto.permanencia_meses||0, n=perm||12
+    return '<div class="kCk__k">PAGO RECURRENTE</div>'+
+      '<button type="button" class="kCk__bk" role="radio" aria-checked="false" data-k="'+o.k+'" aria-label="Mensual recurrente '+$(o.precio)+' al mes">'+
+        '<div><div class="kCk__bkTop"><span class="kCk__bkLogo" aria-hidden="true"></span>'+(o.tag?'<span class="kCk__bkTag">'+plEscA(o.tag)+'</span>':'<span class="kCk__bkK">BLACK · MEMBERSHIP</span>')+'</div>'+
+        '<div class="kCk__bkMid"><span class="kCk__chip" aria-hidden="true"></span><span class="kCk__nfc" aria-hidden="true">'+NFC+'</span></div>'+
+        '<div class="kCk__bkN">'+plEscA(o.titulo)+'</div>'+
+        '<div class="kCk__bkP"><b>'+$(o.precio)+'</b><i>/MES</i>'+(o.tachado?'<s>'+$(o.tachado)+'</s>':'')+'</div>'+
+        '<div class="kCk__bkFt"><span class="kCk__bkNum">'+o.cod.txt.replace(/-/g,'  ')+'</span><span class="kCk__bkSel"><span></span>ELEGIR</span></div></div>'+
+      '</button>'+
+      '<div class="kCk__spec">'+
+        '<div><span>Cobros recurrentes</span><b>'+(perm?n+' COBROS · 1 CADA MES':'1 CADA MES')+'</b></div>'+
+        '<div><span>Valor por cobro</span><b>'+$(o.precio)+'</b></div>'+
+        (perm?'<div><span>Total '+n+' meses</span><b>'+$(o.precio*n)+'</b></div>':'')+
+        '<div><span>Permanencia</span><b>'+(perm?perm+' MESES':'SIN PERMANENCIA')+'</b></div>'+
+        '<div><span>Aviso previo</span><b>5 DÍAS ANTES DE CADA COBRO</b></div>'+
+        '<div class="kCk__pay"><span>SOLO TARJETA DE CRÉDITO</span>'+marcas(['visa','mastercard','amex'])+'</div>'+
+      '</div>' }
   const card=o=>'<button type="button" class="kCk__op'+(o.dark?' kCk__op--dark':'')+'" role="radio" aria-checked="false" data-k="'+o.k+'">'+
     '<span class="kCk__r1"><span class="kCk__rad" aria-hidden="true"></span>'+
       '<span class="kCk__inf">'+(o.tag?'<span class="kCk__tag">'+plEscA(o.tag)+'</span>':'')+'<span class="kCk__n">'+plEscA(o.titulo)+'</span><span class="kCk__d">'+plEscA(o.det)+'</span></span>'+
@@ -8917,12 +8980,12 @@ async function flowPagar(){
       '<div class="kCk__meta"><span>PASO <b>1</b> DE 2 · ELIGE TU MEMBRESÍA</span><span>PAGO SEGURO</span></div></header>'+
     '<div class="kCk__body">'+
       sec('TU TARIFA', ops.filter(o=>o.tipo==='cobro'))+
-      sec('PAGO AUTOMÁTICO', ops.filter(o=>o.tipo==='auto'))+
+      secBk(ops.find(o=>o.tipo==='auto'))+
       sec('PAGO ÚNICO', ops.filter(o=>o.tipo==='plan'))+
       '<div class="kCk__conf">'+
         '<div>'+SHIELD+'<span><b>PAGO PROCESADO POR FLOW</b>, plataforma de pagos chilena. Tus datos viajan cifrados.</span></div>'+
         '<div>'+CARD+'<span>KOACH nunca ve ni guarda los datos de tu tarjeta: solo el tipo y los últimos 4 dígitos.</span></div>'+
-        '<div>'+REC+'<span>Con pago automático te avisamos 5 días antes de cada cobro. Lo desactivas desde tu Perfil.</span></div>'+
+        '<div>'+REC+'<span>Con pago recurrente te avisamos 5 días antes de cada cobro. Lo gestionas desde tu Perfil.</span></div>'+
         '<div class="kCk__acc">ACEPTAMOS '+marcas(['visa','mastercard','amex','redcompra'])+'</div>'+
       '</div>'+
       '<div class="kCk__leg">PROGRAMAS DE ENTRENAMIENTO COACH SPA · RUT 77.133.627-2<br>SERRANO 489, CONCEPCIÓN</div>'+
@@ -8934,13 +8997,14 @@ async function flowPagar(){
     '</div></div>'
   let sel=null
   const go=bg.querySelector('#ckGo')
-  const pintar=()=>{ bg.querySelectorAll('.kCk__op').forEach(b=>b.setAttribute('aria-checked', String(!!sel && b.dataset.k===sel.k)))
+  const pintar=()=>{ bg.querySelectorAll('.kCk__op,.kCk__bk').forEach(b=>b.setAttribute('aria-checked', String(!!sel && b.dataset.k===sel.k)))
     if(!sel){ go.disabled=true; go.textContent='ELIGE UNA OPCIÓN'; return }
-    bg.querySelector('#ckTotK').textContent = sel.rec ? 'COBRO MENSUAL' : 'TOTAL A PAGAR'
+    bg.querySelector('#ckTotK').textContent = sel.rec ? 'MENSUAL RECURRENTE' : 'TOTAL A PAGAR'
+    bg.querySelectorAll('.kCk__bkSel').forEach(x=>x.lastChild.textContent = sel.tipo==='auto' ? 'ELEGIDA' : 'ELEGIR')
     bg.querySelector('#ckTot').textContent = $(sel.precio)
     bg.querySelector('#ckTotS').textContent = sel.rec ? 'Se cobra cada mes' : sel.det.split(' · ')[0]+' · pago único'
     go.disabled=false; go.innerHTML = (sel.rec ? 'CONTINUAR' : 'PAGAR '+$(sel.precio))+' '+ic('<path d="M5 12h14M13 6l6 6-6 6"/>') }
-  bg.querySelectorAll('.kCk__op').forEach(b=>b.onclick=()=>{ sel=ops.find(o=>o.k===b.dataset.k); pintar() })
+  bg.querySelectorAll('.kCk__op,.kCk__bk').forEach(b=>b.onclick=()=>{ sel=ops.find(o=>o.k===b.dataset.k); pintar() })
   sel = ops.find(o=>o.tipo==='cobro') || ops.find(o=>o.tipo==='auto') || null; pintar()
   const fin=()=>bg.remove()
   bg.querySelector('.kCk__x').onclick=fin

@@ -175,7 +175,7 @@ Deno.serve(async (req) => {
     await guardarCliente(uid, customerId!, email);   // se guarda ANTES de cualquier otro paso con Flow
     const reg = await flow("POST", "customer/register", { customerId, url_return: HOOK + "?t=card" });
     await admin.from("flow_suscripciones").insert({
-      socio_id: uid, plan_id: null, plan_nombre: per === 1 ? "MENSUAL AUTOMÁTICO" : "AUTOMÁTICO CADA " + per + " MESES", monto: t.monto, duracion_valor: per,
+      socio_id: uid, plan_id: null, plan_nombre: per === 1 ? "MENSUAL RECURRENTE" : "RECURRENTE CADA " + per + " MESES", monto: t.monto, duracion_valor: per,
       flow_plan_id: flowPlan, flow_customer_id: customerId, email, register_token: reg.token, tipo_comercial: t.tipo_comercial || "promocion",
       permanencia_meses: perm, precio_lista: t.precio_lista * per,
       autorizacion: { texto: "Autorizo el cobro automático de mi membresía", monto: t.monto, periodicidad, periodo_meses: per, permanencia_meses: perm,
