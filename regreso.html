@@ -26,16 +26,16 @@ body{background:radial-gradient(120% 60% at 85% -10%,#2A2C30 0%,rgba(42,44,48,0)
 .k{font:500 10.5px var(--mono);letter-spacing:.14em;color:var(--t2);text-transform:uppercase}
 .k b{color:var(--ink);font-weight:500}
 /* hero */
-.hero{display:flex;align-items:flex-end;justify-content:space-between;gap:12px}
+.hero{display:flex;align-items:flex-end;margin-top:6px;justify-content:space-between;gap:12px}
 .luego{text-align:right;display:flex;flex-direction:column;align-items:flex-end;gap:2px}
 .luego span{font:500 11.5px var(--sans);color:var(--t2)}.luego span b{color:var(--ink);font-weight:700}
-.normal{font:500 11px var(--sans);color:var(--t3)}
-.lista{position:relative;display:inline-block;font:700 15px var(--display);color:var(--t2);margin-left:3px}
+.normal{font:500 11px/1.25 var(--sans);color:var(--t3);text-align:right}
+.lista{position:relative;display:inline-block;font:700 15px var(--display);color:var(--t2);margin:2px 0 6px}
 .lista::after{content:"";position:absolute;left:-1px;right:-1px;top:54%;height:1px;background:rgba(246,245,242,.45);transform-origin:left;transform:scaleX(var(--tachar,1));transition:transform .5s cubic-bezier(.2,.8,.2,1)}
-.precio{font:800 clamp(60px,19vw,100px)/.9 var(--display);letter-spacing:-.035em;white-space:nowrap;margin-top:2px;font-variant-numeric:tabular-nums;
+.precio{font:800 clamp(56px,17vw,96px)/.9 var(--display);letter-spacing:-.035em;white-space:nowrap;margin-top:2px;font-variant-numeric:tabular-nums;
   background:linear-gradient(180deg,#FFFFFF 0%,#E4E5E7 48%,#A9ACB1 100%);-webkit-background-clip:text;background-clip:text;color:transparent}
-.info{font:500 10.5px var(--mono);letter-spacing:.12em;color:var(--t2);text-transform:uppercase;margin-top:10px}
-.info span{color:var(--ink)}
+.info{font:500 14px/1.35 var(--sans);color:var(--t2);margin-top:10px}
+.info b{color:var(--ink);font-weight:700;white-space:nowrap}
 .paso{margin:24px 0 10px;font:500 10.5px var(--mono);letter-spacing:.14em;color:var(--t2)}
 /* programas: tarjetas código de membresía (cristal) */
 .cards{display:grid;gap:9px}
@@ -103,12 +103,12 @@ input:focus{outline:none}button:focus-visible{outline:2px solid var(--ink);outli
   <div id="error" class="msg err" hidden></div>
 
   <section id="form" hidden>
-    <div class="hero a" style="--d:0">
-      <div class="k"><b>Tu primer mes</b></div>
-      <div class="luego"><span>Luego paga <b id="mens">$49.900</b> mes a mes</span><span class="normal">Valor mensual normal <span class="lista" id="lista">$80.000</span></span></div>
+    <div class="k a" style="--d:0"><b>Tu primer mes</b> · Cobro automático mensual</div>
+    <div class="hero a" style="--d:1">
+      <div class="precio" id="pm">$29.900</div>
+      <div class="luego"><span class="normal">Valor mensual<br>normal</span><span class="lista" id="lista">$80.000</span></div>
     </div>
-    <div class="precio a" id="pm" style="--d:1">$29.900</div>
-    <div class="info a" style="--d:2">Cobro automático · Fidelidad <span id="perm">12 meses</span></div>
+    <div class="info a" style="--d:2">Luego paga <b id="mens">$49.900</b> con contrato de fidelidad de <b id="perm">12 meses</b>.</div>
 
     <div class="paso a" style="--d:3">1 · ELIGE TU PROGRAMA</div>
     <div class="cards" id="cards"></div>
