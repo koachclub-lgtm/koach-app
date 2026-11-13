@@ -35,9 +35,8 @@ body{background:var(--bg);color:var(--ink);font:15px/1.4 var(--sans);-webkit-fon
 .datos div{padding:10px 13px}
 .datos span{display:block;font:500 9.5px var(--mono);letter-spacing:.12em;color:var(--t2)}
 .datos b{display:block;margin-top:4px;font:800 15px var(--display);text-transform:uppercase}
-.paso{margin:15px 0 7px;font:500 10.5px var(--mono);letter-spacing:.14em;color:var(--t2)}
+.paso{margin:18px 0 8px;font:500 10.5px var(--mono);letter-spacing:.14em;color:var(--t2)}
 .progs{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
-.prog{height:46px;font:800 14px var(--display);letter-spacing:.05em;color:var(--ink);cursor:pointer}
 .prog[aria-pressed=true]{background:var(--plata);color:#0B0B0C;border-color:#fff;box-shadow:inset 0 1px 0 #fff,0 8px 18px rgba(0,0,0,.35)}
 .fila{display:grid;grid-template-columns:1fr 1fr;gap:8px}
 .campo{margin-top:8px}.fila .campo{margin-top:0}
@@ -66,6 +65,22 @@ input:focus{outline:none}button:focus-visible{outline:2px solid var(--ink);outli
 .fin h1{font:800 clamp(30px,9vw,42px)/.95 var(--display);text-transform:uppercase;margin:14px 0 10px}
 .fin p{color:var(--t2)}
 @media (max-height:740px){.precio{font-size:clamp(50px,15vw,76px)}.paso{margin:13px 0 6px}.datos{margin:10px 0 2px}.campo input{height:44px}.prog{height:42px}.chk{padding:6px 0}}
+.hero{display:flex;align-items:flex-end;justify-content:space-between;gap:12px;margin-top:4px}
+.hero .k b{font-size:12px}
+.luego{text-align:right;display:flex;flex-direction:column;align-items:flex-end;gap:1px}
+.luego span{font:500 11.5px var(--sans);color:var(--t2)}.luego span b{color:var(--ink);font-weight:700}
+.luego s{font:700 clamp(17px,4.8vw,21px) var(--display);color:var(--t3);text-decoration-thickness:2px}
+.info{font:500 10.5px var(--mono);letter-spacing:.12em;color:var(--t2);text-transform:uppercase;margin-top:8px;padding-bottom:4px}
+.info span{color:var(--ink)}
+/* programas: botones de cristal */
+.prog{position:relative;overflow:hidden;height:50px;border:1px solid rgba(255,255,255,.22);border-radius:16px;
+  background:linear-gradient(160deg,rgba(255,255,255,.18) 0%,rgba(255,255,255,.06) 45%,rgba(255,255,255,.02) 55%,rgba(255,255,255,.09) 100%);
+  -webkit-backdrop-filter:blur(18px) saturate(160%);backdrop-filter:blur(18px) saturate(160%);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.35),inset 0 -1px 0 rgba(0,0,0,.25),0 10px 22px rgba(0,0,0,.35);
+  font:800 14px var(--display);letter-spacing:.06em;color:var(--ink);cursor:pointer;transition:transform .12s}
+.prog::before{content:"";position:absolute;left:0;right:0;top:0;height:50%;background:linear-gradient(180deg,rgba(255,255,255,.16),rgba(255,255,255,0));pointer-events:none}
+.prog:active{transform:scale(.97)}
+.chk a{color:var(--ink);text-decoration:underline;text-underline-offset:2px}
 [hidden]{display:none!important}
 </style>
 </head>
@@ -76,14 +91,12 @@ input:focus{outline:none}button:focus-visible{outline:2px solid var(--ink);outli
   <div id="error" class="msg err" hidden></div>
 
   <section id="form" hidden>
-    <div class="k">Vuelve a entrenar · <b>tu primer mes</b></div>
-    <div class="lista" id="lista">$80.000</div>
-    <div class="precio" id="pm">$29.900</div>
-    <div class="cada">Luego <span id="mens">$49.900</span> al mes</div>
-    <div class="datos">
-      <div><span>COBRO</span><b>Automático</b></div>
-      <div><span>FIDELIDAD</span><b id="perm">12 meses</b></div>
+    <div class="hero">
+      <div class="k"><b>Tu primer mes</b></div>
+      <div class="luego"><span>Luego paga <b id="mens">$49.900</b> mes a mes</span><s id="lista">$80.000</s></div>
     </div>
+    <div class="precio" id="pm">$29.900</div>
+    <div class="info">Cobro automático · Fidelidad <span id="perm">12 meses</span></div>
 
     <div class="paso">1 · ¿CON QUÉ PROGRAMA VUELVES?</div>
     <div class="progs">
@@ -99,10 +112,9 @@ input:focus{outline:none}button:focus-visible{outline:2px solid var(--ink);outli
     </div>
     <div class="campo"><input type="email" id="email" inputmode="email" autocomplete="email" placeholder="Correo (con este entras a la App)" aria-label="Correo"></div>
 
-    <div class="paso">3 · CONFIRMA</div>
-    <label class="chk"><input type="checkbox" id="aut"><span class="box"></span><span id="autTxt">Autorizo el cobro automático en mi tarjeta: <b>$29.900</b> el primer mes y luego <b>$49.900</b> cada mes.</span></label>
-    <label class="chk"><input type="checkbox" id="acp"><span class="box"></span><span>Acepto el contrato de fidelidad por <b>12 meses</b>.</span></label>
-    <p class="chica" id="chica">El primer cobro se hace al registrar tu tarjeta y tu membresía parte ese día. Permanencia y término anticipado según los <a href="/terminos.html" target="_blank" rel="noopener">Términos y Condiciones</a>. Válido hasta el 22 de noviembre.</p>
+    <label class="chk"><input type="checkbox" id="acp"><span class="box"></span><span id="acpTxt">Acepto la <b>fidelidad por 12 meses</b> con cobro automático en mi tarjeta.</span></label>
+    <label class="chk"><input type="checkbox" id="aut"><span class="box"></span><span>Acepto los <a href="/terminos.html" target="_blank" rel="noopener">Términos y Condiciones</a>.</span></label>
+    <p class="chica">Primer cobro al registrar tu tarjeta; tu membresía parte ese día. Válido hasta el 22 de noviembre.</p>
     <div id="errForm" class="msg err" hidden></div>
   </section>
 
@@ -159,8 +171,8 @@ input:focus{outline:none}button:focus-visible{outline:2px solid var(--ink);outli
     if(d.ya_activa){$('cargando').hidden=true;$('ok').hidden=false;$('okTxt').textContent='Tu pago automático ya está activo. Cualquier duda, escríbele a Jake por WhatsApp.';return}
     if(d.vencida)return err('Esta oferta terminó el 22 de noviembre. Escríbele a Jake y te contamos las opciones vigentes.');
     var o=d.oferta;
-    $('pm').textContent=clp(o.primer_mes);$('mens').textContent=clp(o.monto);$('lista').textContent=clp(o.precio_lista)+' al mes';$('perm').textContent=o.permanencia_meses+' meses';
-    $('autTxt').innerHTML='Autorizo el cobro automático en mi tarjeta: <b>'+clp(o.primer_mes)+'</b> el primer mes y luego <b>'+clp(o.monto)+'</b> cada mes.';
+    $('pm').textContent=clp(o.primer_mes);$('mens').textContent=clp(o.monto);$('lista').textContent=clp(o.precio_lista);$('perm').textContent=o.permanencia_meses+' meses';
+    $('acpTxt').innerHTML='Acepto la <b>fidelidad por '+o.permanencia_meses+' meses</b> con cobro automático en mi tarjeta.';
     if(d.programa)S.prog=d.programa;
     if(d.datos){$('nombre').value=d.datos.nombre||'';$('apellido').value=(d.datos.apellido&&d.datos.apellido!=='·')?d.datos.apellido:'';$('email').value=d.datos.email||''}
     $('cargando').hidden=true;$('form').hidden=false;$('pie').hidden=false;pinta();
@@ -170,7 +182,7 @@ input:focus{outline:none}button:focus-visible{outline:2px solid var(--ink);outli
   $('aut').onchange=pinta;$('acp').onchange=pinta;
   $('go').onclick=function(){
     var b=$('go');b.disabled=true;b.textContent='CONECTANDO CON FLOW…';$('errForm').hidden=true;
-    fetch(API,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({accion:'regreso',t:T,programa:S.prog,nombre:$('nombre').value.trim(),apellido:$('apellido').value.trim(),email:$('email').value.trim(),autorizo:$('aut').checked,acepto_permanencia:$('acp').checked})})
+    fetch(API,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({accion:'regreso',t:T,programa:S.prog,nombre:$('nombre').value.trim(),apellido:$('apellido').value.trim(),email:$('email').value.trim(),autorizo:$('aut').checked&&$('acp').checked,acepto_permanencia:$('acp').checked})})
     .then(function(r){return r.json()}).then(function(d){
       if(!d.ok||!d.url){$('errForm').textContent=d.error||'No pudimos conectar con Flow.';$('errForm').hidden=false;pinta();return}
       location.href=d.url})
