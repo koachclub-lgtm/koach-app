@@ -174,7 +174,7 @@ input:focus{outline:none}button:focus-visible{outline:2px solid var(--ink);outli
   var susc=q.get('susc');
   if(susc){
     $('cargando').hidden=true;
-    if(susc!=='activa'){$('mal').hidden=false;return}
+    if(susc!=='activa'){$('mal').hidden=false;if(T)fetch(API,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({accion:'regreso_fallo',t:T})}).catch(function(){});return}
     $('ok').hidden=false;
     if(T)fetch(API,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({accion:'regreso_listo',t:T})})
       .then(function(r){return r.json()}).then(function(d){if(d&&d.primer_mes)$('okTxt').textContent='Tu primer mes es de '+clp(d.primer_mes)+' y luego '+clp(d.monto)+' mensuales. Te enviamos la confirmación y el acceso a tu App KOACH por WhatsApp.'}).catch(function(){});
