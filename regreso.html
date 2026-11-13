@@ -36,19 +36,19 @@ body{background:radial-gradient(120% 60% at 85% -10%,#2A2C30 0%,rgba(42,44,48,0)
   background:linear-gradient(180deg,#FFFFFF 0%,#E4E5E7 48%,#A9ACB1 100%);-webkit-background-clip:text;background-clip:text;color:transparent}
 .info{font:500 14px/1.35 var(--sans);color:var(--t2);margin-top:10px}
 .info b{color:var(--ink);font-weight:700;white-space:nowrap}
-.paso{margin:24px 0 10px;font:500 10.5px var(--mono);letter-spacing:.14em;color:var(--t2)}
+.paso{margin:clamp(14px,2.6vh,24px) 0 8px;font:500 10.5px var(--mono);letter-spacing:.14em;color:var(--t2)}
 /* programas: tarjetas código de membresía (cristal) */
-.cards{display:grid;gap:9px}
-.card{position:relative;overflow:hidden;display:grid;grid-template-columns:1fr auto;align-items:center;gap:4px 14px;width:100%;text-align:left;padding:13px 16px 12px;
+.cards{display:grid;gap:8px}
+.card{position:relative;overflow:hidden;display:grid;grid-template-columns:1fr auto;align-items:center;gap:3px 14px;width:100%;text-align:left;padding:11px 15px 10px;
   border:1px solid rgba(255,255,255,.2);border-radius:18px;color:var(--ink);cursor:pointer;font:inherit;
   background:linear-gradient(160deg,rgba(255,255,255,.16) 0%,rgba(255,255,255,.05) 45%,rgba(255,255,255,.02) 56%,rgba(255,255,255,.08) 100%);
   -webkit-backdrop-filter:blur(18px) saturate(160%);backdrop-filter:blur(18px) saturate(160%);
   box-shadow:inset 0 1px 0 rgba(255,255,255,.3),inset 0 -1px 0 rgba(0,0,0,.25),0 12px 26px rgba(0,0,0,.32);transition:transform .15s,box-shadow .2s}
 .card::before{content:"";position:absolute;inset:0 0 50% 0;background:linear-gradient(180deg,rgba(255,255,255,.1),rgba(255,255,255,0));pointer-events:none}
 .card:active{transform:scale(.985)}
-.c-name{font-family:var(--display);font-weight:900;font-stretch:112%;font-size:26px;line-height:.9;letter-spacing:-.005em}
+.c-name{font-family:var(--display);font-weight:900;font-stretch:112%;font-size:clamp(21px,6vw,26px);line-height:.9;letter-spacing:-.005em}
 .c-no{font:500 10px var(--mono);letter-spacing:.14em;color:var(--t3);text-align:right}
-.c-tag{grid-column:1;font:500 9.5px/1.35 var(--mono);letter-spacing:.14em;color:var(--t2);padding-top:7px;border-top:1px dashed rgba(255,255,255,.18);margin-top:4px}
+.c-tag{grid-column:1;font:500 9px/1.35 var(--mono);letter-spacing:.14em;color:var(--t2);padding-top:6px;border-top:1px dashed rgba(255,255,255,.18);margin-top:4px}
 .bar{grid-column:2;grid-row:2;align-self:end;display:flex;gap:2px;height:22px;opacity:.7}
 .bar i{display:block;background:currentColor;height:100%}
 .card[aria-pressed=true]{background:var(--plata);color:#0B0B0C;border-color:#fff;box-shadow:inset 0 1px 0 #fff,0 14px 30px rgba(0,0,0,.45)}
@@ -56,9 +56,10 @@ body{background:radial-gradient(120% 60% at 85% -10%,#2A2C30 0%,rgba(42,44,48,0)
 .card[aria-pressed=true] .c-tag{border-top-color:rgba(11,11,12,.25)}
 .card[aria-pressed=true]::after{content:"";position:absolute;inset:0;pointer-events:none;background:linear-gradient(115deg,rgba(255,255,255,0) 30%,rgba(255,255,255,.75) 48%,rgba(255,255,255,0) 66%);transform:translateX(-120%);animation:brillo 1.1s ease-out .05s 1}
 /* datos */
-.fila{display:grid;grid-template-columns:1fr 1fr;gap:8px}
-.campo{margin-top:8px;border:1px solid var(--line);border-radius:16px;background:var(--vidrio);box-shadow:inset 0 1px 0 rgba(255,255,255,.12)}.fila .campo{margin-top:0}
-.campo input{width:100%;height:48px;border:0;background:none;padding:0 14px;font:16px var(--sans);color:var(--ink);border-radius:16px}
+.fila{display:grid;grid-template-columns:1fr 1fr;gap:7px}.fila+.fila{margin-top:7px}.f2{grid-template-columns:38% 1fr}
+.campo{border:1px solid var(--line);border-radius:13px;background:var(--vidrio);box-shadow:inset 0 1px 0 rgba(255,255,255,.12)}.fila .campo{margin-top:0}
+.campo input{width:100%;height:42px;border:0;background:none;padding:0 12px;font:16px var(--sans);color:var(--ink);border-radius:16px}
+.campo.mal{border-color:rgba(255,138,120,.7)}
 .campo input:-webkit-autofill{-webkit-box-shadow:0 0 0 40px #232427 inset;-webkit-text-fill-color:#F6F5F2;caret-color:#F6F5F2}
 .campo input::placeholder{color:var(--t3)}
 .campo:focus-within{border-color:rgba(255,255,255,.5)}
@@ -79,6 +80,7 @@ input:focus{outline:none}button:focus-visible{outline:2px solid var(--ink);outli
   box-shadow:inset 0 1px 0 #fff,inset 0 -2px 0 rgba(0,0,0,.12),0 14px 32px rgba(0,0,0,.45);transition:background .2s,color .2s}
 .go:not(:disabled)::after{content:"";position:absolute;inset:0;pointer-events:none;background:linear-gradient(115deg,rgba(255,255,255,0) 30%,rgba(255,255,255,.8) 48%,rgba(255,255,255,0) 66%);transform:translateX(-120%);animation:brillo 2.6s ease-in-out .3s infinite}
 .go:disabled{background:#26272A;color:rgba(246,245,242,.42);box-shadow:inset 0 1px 0 rgba(255,255,255,.08);cursor:not-allowed}
+.go span{position:relative;z-index:1}
 .seg{font:500 9.5px var(--mono);letter-spacing:.1em;color:var(--t3);text-align:center;margin-top:8px}
 .msg{margin:10px 0 0;padding:11px 13px;border-radius:12px;font-size:13.5px}.msg.err{background:rgba(255,138,120,.12);color:var(--err)}
 .cargando{padding:80px 0;text-align:center;color:var(--t2)}
@@ -92,7 +94,11 @@ input:focus{outline:none}button:focus-visible{outline:2px solid var(--ink);outli
 .anim .a{opacity:0;animation:sube .7s cubic-bezier(.2,.8,.2,1) forwards;animation-delay:calc(var(--d,0) * 90ms)}
 .anim .card{opacity:0;animation:entra .65s cubic-bezier(.2,.8,.2,1) forwards;animation-delay:calc(700ms + var(--d,0) * 110ms)}
 @media (prefers-reduced-motion:reduce){.anim .a,.anim .card{animation:none;opacity:1}.go::after,.card::after{animation:none!important}}
-@media (max-height:740px){.precio{font-size:clamp(52px,16vw,80px)}.paso{margin:18px 0 8px}.card{padding:11px 14px 10px}.c-name{font-size:23px}.campo input{height:44px}}
+@media (max-height:740px){.wrap{padding-top:max(20px,calc(env(safe-area-inset-top) + 12px))}.top{padding-bottom:14px}.precio{font-size:clamp(48px,14vw,72px)}.card{padding:9px 14px 8px}.c-name{font-size:21px}.c-tag{font-size:8.5px}.bar{height:18px}.chk{padding:5px 0;font-size:13.5px}.go{height:52px}}
+@media (max-width:360px){.wrap{padding-left:16px;padding-right:16px}.f2{grid-template-columns:1fr}.luego .normal{font-size:10px}.info{font-size:13px}}
+/* tablet y escritorio: tarjeta centrada */
+@media (min-width:700px){body{display:flex;flex-direction:column;align-items:center;justify-content:center}.wrap{width:100%}.wrap{margin:40px auto;padding:36px 34px 40px;border:1px solid var(--line);border-radius:28px;background:rgba(255,255,255,.025);box-shadow:0 30px 80px rgba(0,0,0,.45)}
+  .pie{position:static;background:none;padding:18px 0 0}.pie .in{max-width:none}.cards{grid-template-columns:repeat(3,1fr)}.card{grid-template-columns:1fr;gap:6px}.c-no{text-align:left;order:-1}.c-name{font-size:clamp(18px,2.6vw,24px)}.bar{grid-column:1;grid-row:auto}}
 [hidden]{display:none!important}
 </style>
 </head>
@@ -119,7 +125,10 @@ input:focus{outline:none}button:focus-visible{outline:2px solid var(--ink);outli
         <div class="campo"><input type="text" id="nombre" autocomplete="given-name" placeholder="Nombre" aria-label="Nombre"></div>
         <div class="campo"><input type="text" id="apellido" autocomplete="family-name" placeholder="Apellido" aria-label="Apellido"></div>
       </div>
-      <div class="campo"><input type="email" id="email" inputmode="email" autocomplete="email" placeholder="Correo (con este entras a la App)" aria-label="Correo"></div>
+      <div class="fila f2">
+        <div class="campo"><input type="text" id="rut" inputmode="text" autocomplete="off" placeholder="RUT" aria-label="RUT" maxlength="12"></div>
+        <div class="campo"><input type="email" id="email" inputmode="email" autocomplete="email" placeholder="Correo (tu acceso a la App)" aria-label="Correo"></div>
+      </div>
       <label class="chk"><input type="checkbox" id="acp"><span class="box"></span><span id="acpTxt">Acepto la <b>fidelidad por 12 meses</b> con cobro automático en mi tarjeta.</span></label>
       <label class="chk"><input type="checkbox" id="aut"><span class="box"></span><span>Acepto los <a href="/terminos.html" target="_blank" rel="noopener">Términos y Condiciones</a>.</span></label>
       <p class="chica">Primer cobro al registrar tu tarjeta; tu membresía parte ese día. Válido hasta el 22 de noviembre.</p>
@@ -138,12 +147,13 @@ input:focus{outline:none}button:focus-visible{outline:2px solid var(--ink);outli
     <h1>No se registró tu tarjeta</h1>
     <p>No se hizo ningún cobro. Vuelve a abrir tu link e inténtalo de nuevo, o escríbele a Jake por WhatsApp.</p>
   </section>
-</main>
-
 <div class="pie" id="pie" hidden><div class="in">
-  <button class="go" id="go" disabled>UNIRME AL CLUB</button>
+  <button class="go" id="go" disabled><span id="goTxt">UNIRME AL CLUB</span></button>
   <div class="seg">SIGUIENTE PASO: REGISTRA TU TARJETA EN FLOW · CRÉDITO, DÉBITO O PREPAGO</div>
 </div></div>
+</main>
+
+
 
 <script>
 (function(){
@@ -156,6 +166,9 @@ input:focus{outline:none}button:focus-visible{outline:2px solid var(--ink);outli
   var clp=function(n){return '$'+Math.round(n).toLocaleString('es-CL')};
   function err(m){$('cargando').hidden=true;$('error').textContent=m;$('error').hidden=false}
   function emailOk(e){return /^[^@\s]+@[^@\s]+\.[^@\s]{2,}$/.test(e)}
+  function rutLimpio(r){return String(r||'').replace(/[^0-9kK]/g,'').toUpperCase()}
+  function rutOk(r){var c=rutLimpio(r);if(c.length<8||c.length>9)return false;var n=c.slice(0,-1),dv=c.slice(-1),s=0,m=2;for(var i=n.length-1;i>=0;i--){s+=Number(n[i])*m;m=m===7?2:m+1}var r2=11-(s%11);return dv===(r2===11?'0':r2===10?'K':String(r2))}
+  function rutFmt(r){var c=rutLimpio(r);if(c.length<2)return c;var n=c.slice(0,-1),dv=c.slice(-1);return n.replace(/\B(?=(\d{3})+(?!\d))/g,'.')+'-'+dv}
 
   // Vuelta desde Flow (registro de tarjeta)
   var susc=q.get('susc');
@@ -174,7 +187,8 @@ input:focus{outline:none}button:focus-visible{outline:2px solid var(--ink);outli
   $('cards').innerHTML=PROGS.map(function(p,i){return '<button type="button" class="card" style="--d:'+i+'" data-p="'+p[0]+'" aria-pressed="false"><span class="c-name">'+p[0]+'</span><span class="c-no">Nº 0'+(i+1)+'</span><span class="c-tag">'+p[1]+'<br>'+p[2]+'</span><span class="bar">'+barras('KOACH-'+p[0])+'</span></button>'}).join('');
   function pinta(){
     [].forEach.call(document.querySelectorAll('.card'),function(b){b.setAttribute('aria-pressed',b.dataset.p===S.prog)});
-    var ok=S.prog&&$('nombre').value.trim().length>1&&emailOk($('email').value.trim())&&$('aut').checked&&$('acp').checked;
+    var ok=S.prog&&$('nombre').value.trim().length>1&&$('apellido').value.trim().length>1&&rutOk($('rut').value)&&emailOk($('email').value.trim())&&$('aut').checked&&$('acp').checked;
+    $('rut').parentNode.classList.toggle('mal',$('rut').value.length>7&&!rutOk($('rut').value));
     $('go').disabled=!ok;
   }
   if(!T){err('Este link no es válido. Pídele uno nuevo a Jake por WhatsApp.');return}
@@ -194,15 +208,16 @@ input:focus{outline:none}button:focus-visible{outline:2px solid var(--ink);outli
       setTimeout(function(){requestAnimationFrame(function f(t){t0=t0||t;var k=Math.min(1,(t-t0)/1100),e=1-Math.pow(1-k,3);el.textContent=clp(Math.round((de-(de-a)*e)/100)*100);if(k<1)requestAnimationFrame(f);else{el.textContent=clp(a);$('lista').style.setProperty('--tachar',1)}})},250)}
   }).catch(function(){err('No pudimos cargar tu oferta. Revisa tu conexión e inténtalo de nuevo.')});
   [].forEach.call(document.querySelectorAll('.card'),function(b){b.onclick=function(){S.prog=b.dataset.p;pinta();try{navigator.vibrate&&navigator.vibrate(8)}catch(e){}}});
-  ['nombre','apellido','email'].forEach(function(id){$(id).addEventListener('input',pinta)});
+  ['nombre','apellido','email','rut'].forEach(function(id){$(id).addEventListener('input',pinta)});
+  $('rut').addEventListener('blur',function(){if(rutLimpio(this.value).length>1)this.value=rutFmt(this.value)});
   $('aut').onchange=pinta;$('acp').onchange=pinta;
   $('go').onclick=function(){
-    var b=$('go');b.disabled=true;b.textContent='ABRIENDO FLOW…';$('errForm').hidden=true;
-    fetch(API,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({accion:'regreso',t:T,programa:S.prog,nombre:$('nombre').value.trim(),apellido:$('apellido').value.trim(),email:$('email').value.trim(),autorizo:$('aut').checked&&$('acp').checked,acepto_permanencia:$('acp').checked})})
+    var b=$('go');b.disabled=true;$('goTxt').textContent='ABRIENDO FLOW…';$('errForm').hidden=true;
+    fetch(API,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({accion:'regreso',t:T,programa:S.prog,nombre:$('nombre').value.trim(),apellido:$('apellido').value.trim(),rut:rutLimpio($('rut').value),email:$('email').value.trim(),autorizo:$('aut').checked&&$('acp').checked,acepto_permanencia:$('acp').checked})})
     .then(function(r){return r.json()}).then(function(d){
-      if(!d.ok||!d.url){$('errForm').textContent=d.error||'No pudimos conectar con Flow.';$('errForm').hidden=false;b.textContent='UNIRME AL CLUB';pinta();return}
+      if(!d.ok||!d.url){$('errForm').textContent=d.error||'No pudimos conectar con Flow.';$('errForm').hidden=false;$('goTxt').textContent='UNIRME AL CLUB';pinta();return}
       location.href=d.url})
-    .catch(function(){$('errForm').textContent='No pudimos conectar con Flow. Inténtalo de nuevo.';$('errForm').hidden=false;b.textContent='UNIRME AL CLUB';pinta()});
+    .catch(function(){$('errForm').textContent='No pudimos conectar con Flow. Inténtalo de nuevo.';$('errForm').hidden=false;$('goTxt').textContent='UNIRME AL CLUB';pinta()});
   };
 })();
 </script>
