@@ -115,7 +115,12 @@ Deno.serve(async (req) => {
     // Llamada de servicio (Jake, campaña de regreso): actúa por un socio, solo para cotizar o iniciar
     // (el gateway ya verificó la firma del JWT: verify_jwt = true)
     const rolJwt = (() => { try { return JSON.parse(atob(jwt.split(".")[1].replace(/-/g, "+").replace(/_/g, "/"))).role; } catch (_) { return null; } })();
-    const servicio = jwt === Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") || rolJwt === "service_role";
+    // llave de servicio (JWT legado o sb_secret_…): se valida usándola en una operación que solo una llave de servicio puede hacer
+    const esSecreta = async () => {
+      if (!body.socio || !jwt) return false;
+      try { const { error } = await createClient(Deno.env.get("SUPABASE_URL")!, jwt).auth.admin.listUsers({ page: 1, perPage: 1 }); return !error; } catch (_) { return false; }
+    };
+    const servicio = jwt === Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") || rolJwt === "service_role" || await esSecreta();
     let uid: string, uEmail = "";
     if (servicio) {
       if (!body.socio || !["cotizar", "iniciar"].includes(body.accion)) return j({ error: "Sin permiso" }, 403);
