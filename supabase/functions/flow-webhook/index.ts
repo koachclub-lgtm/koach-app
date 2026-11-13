@@ -40,7 +40,8 @@ async function activarSuscripcion(token: string) {
   const { data: acc } = await admin.rpc("_flow_fin_acceso", { p_socio: s.socio_id });
   const hoy = hoyCL();
   const inicio = acc && acc > hoy ? acc : hoy;
-  const sub = await flow("POST", "subscription/create", { planId: s.flow_plan_id, customerId: s.flow_customer_id, subscription_start: inicio });
+  const sub = await flow("POST", "subscription/create", { planId: s.flow_plan_id, customerId: s.flow_customer_id, subscription_start: inicio,
+    ...(s.flow_coupon_id ? { couponId: Number(s.flow_coupon_id) } : {}) });
   const permHasta = s.permanencia_meses > 0 ? (() => { const d = new Date(inicio + "T12:00:00Z"); d.setUTCMonth(d.getUTCMonth() + s.permanencia_meses); return d.toISOString().slice(0, 10); })() : null;
   await admin.from("flow_suscripciones").update({
     estado: "activa", flow_subscription_id: sub.subscriptionId, inicio, permanencia_hasta: permHasta,
@@ -73,7 +74,8 @@ async function realinear(socio?: string | null) {
     const { data: tomada } = await admin.from("flow_suscripciones").update({ estado: "activando", updated_at: ahora() }).eq("id", s.id).eq("estado", "activa").select("id");
     if (!tomada?.length) continue;
     try {
-      const sub = await flow("POST", "subscription/create", { planId: s.flow_plan_id, customerId: s.flow_customer_id, subscription_start: ancla });
+      const sub = await flow("POST", "subscription/create", { planId: s.flow_plan_id, customerId: s.flow_customer_id, subscription_start: ancla,
+        ...(s.flow_coupon_id ? { couponId: Number(s.flow_coupon_id) } : {}) });
       let aviso: string | null = null;
       try { await flow("POST", "subscription/cancel", { subscriptionId: s.flow_subscription_id, at_period_end: 0 }); }
       catch (e) { aviso = "no se pudo cancelar " + s.flow_subscription_id + ": " + String((e as Error).message).slice(0, 200); }
@@ -180,6 +182,7 @@ Deno.serve(async (req) => {
       try { await admin.from("flow_eventos").insert({ origen: "flow-webhook card", codigo: String((e as { code?: unknown }).code ?? ""), mensaje: String((e as Error).message).slice(0, 500) }); } catch (_) { /* */ }
       await admin.from("flow_suscripciones").update({ estado: "error", error: String((e as Error).message).slice(0, 500), updated_at: ahora() }).eq("register_token", token);
     }
+    if (new URL(req.url).searchParams.get("v") === "regreso") return new Response(null, { status: 303, headers: { Location: "https://app.koachclub.cl/regreso?susc=" + r } });
     return ir("susc=" + r);
   }
   if (!token) return new Response("token requerido", { status: 400 });

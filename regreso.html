@@ -1,0 +1,178 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Vuelve a KOACH · KOACH Club</title>
+<meta name="theme-color" content="#D0D0CE">
+<meta name="robots" content="noindex">
+<link rel="icon" href="/favicon-32.png">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<style>
+@font-face{font-family:'Inter Display';src:url('/fonts/InterDisplay-Regular.woff2') format('woff2');font-weight:400;font-display:swap}
+@font-face{font-family:'Inter Display';src:url('/fonts/InterDisplay-SemiBold.woff2') format('woff2');font-weight:600;font-display:swap}
+@font-face{font-family:'Inter Display';src:url('/fonts/InterDisplay-Bold.woff2') format('woff2');font-weight:700;font-display:swap}
+@font-face{font-family:'IBM Plex Mono';src:url('/fonts/IBMPlexMono-Medium.woff2') format('woff2');font-weight:500;font-display:swap}
+@font-face{font-family:'KOACH Display';src:url('/fonts/Archivo-Var.woff2') format('woff2');font-weight:400 900;font-stretch:100% 115%;font-display:swap}
+:root{--bg:#D0D0CE;--card:#F4F4F2;--ink:#111;--t2:#555553;--t3:#7a7a77;--line:rgba(17,17,17,.14);--err:#A33A2B;
+  --display:'KOACH Display','Inter Display',Arial,sans-serif;--sans:'Inter Display','Inter',Arial,sans-serif;--mono:'IBM Plex Mono',ui-monospace,monospace}
+*{box-sizing:border-box}html,body{margin:0}
+body{background:var(--bg);color:var(--ink);font:16px/1.4 var(--sans);-webkit-font-smoothing:antialiased;min-height:100vh}
+.wrap{max-width:560px;margin:0 auto;padding:20px 16px calc(130px + env(safe-area-inset-bottom))}
+.top{display:flex;align-items:center;justify-content:space-between;padding:4px 0 22px}.top img{height:20px;filter:brightness(0)}
+.k{font:500 11px var(--mono);letter-spacing:.14em;color:var(--t2);text-transform:uppercase}
+h1{font:800 clamp(34px,10vw,48px)/.95 var(--display);letter-spacing:-.02em;margin:8px 0 10px;text-transform:uppercase}
+.sub{color:var(--t2);font-size:15px;margin:0 0 18px}
+.oferta{background:var(--ink);color:#F4F4F2;border-radius:22px;padding:22px 20px 20px;margin:6px 0 4px}
+.oferta .k{color:rgba(244,244,242,.65)}
+.oferta .pm{font:800 clamp(52px,17vw,76px)/.9 var(--display);letter-spacing:-.03em;margin:10px 0 2px}
+.oferta .pm small{font:500 13px var(--mono);letter-spacing:.1em;margin-left:6px}
+.oferta .luego{font:600 16px var(--sans);margin:8px 0 14px}
+.oferta .datos{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.oferta .dato{border:1px solid rgba(244,244,242,.2);border-radius:12px;padding:10px 12px}
+.oferta .dato b{display:block;font:700 15px var(--sans);margin-top:3px}
+.oferta s{opacity:.6}
+.paso{margin:26px 0 10px;font:500 11px var(--mono);letter-spacing:.14em}
+.progs{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.prog{border:1.5px solid var(--line);background:var(--card);border-radius:14px;height:58px;font:800 16px var(--display);letter-spacing:.04em;cursor:pointer;color:inherit}
+.prog[aria-pressed=true]{background:var(--ink);color:#F4F4F2;border-color:var(--ink)}
+label{display:block;font:500 10.5px var(--mono);letter-spacing:.12em;color:var(--t2);margin:12px 0 6px;text-transform:uppercase}
+.fila{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+input[type=text],input[type=email]{width:100%;height:52px;border:1.5px solid var(--line);background:var(--card);border-radius:12px;padding:0 14px;font:16px var(--sans);color:var(--ink)}
+input:focus,button:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
+.nota{font-size:13px;color:var(--t2);margin:8px 2px 0}
+label.chk{display:flex;gap:12px;align-items:flex-start;margin:12px 0 0;padding:14px;border:1.5px solid var(--line);background:var(--card);border-radius:14px;font:14px/1.4 var(--sans);letter-spacing:0;text-transform:none;color:var(--ink);cursor:pointer}
+.chk input{width:22px;height:22px;flex:none;accent-color:#111;margin:0}
+.chica{font-size:12px;color:var(--t2);margin:12px 2px 0;line-height:1.45}
+.chica a{color:inherit}
+.pie{position:fixed;left:0;right:0;bottom:0;background:linear-gradient(rgba(208,208,206,0),var(--bg) 30%);padding:22px 16px calc(14px + env(safe-area-inset-bottom))}
+.pie .in{max-width:560px;margin:0 auto}
+.go{width:100%;height:58px;border:0;border-radius:16px;background:var(--ink);color:#F4F4F2;font:600 14px var(--mono);letter-spacing:.12em;cursor:pointer}
+.go:disabled{background:#BCBCBA;color:rgba(17,17,17,.45);cursor:not-allowed}
+.seg{font:500 10.5px var(--mono);letter-spacing:.08em;color:var(--t2);text-align:center;margin-top:8px}
+.msg{margin:12px 0 0;padding:12px 14px;border-radius:12px;font-size:14px}.msg.err{background:rgba(163,58,43,.1);color:var(--err)}
+.cargando{padding:60px 0;text-align:center;color:var(--t2)}
+.fin{text-align:center;padding:40px 4px}
+.fin .ico{font-size:52px}
+.fin h1{margin:14px 0 10px}
+[hidden]{display:none!important}
+</style>
+</head>
+<body>
+<main class="wrap">
+  <div class="top"><img src="/img/brand/logotipo-koach.png" alt="KOACH"><span class="k">Serrano 489 · Concepción</span></div>
+  <div id="cargando" class="cargando">Cargando tu oferta…</div>
+  <div id="error" class="msg err" hidden></div>
+
+  <section id="form" hidden>
+    <div class="k">Lanzamiento App KOACH</div>
+    <h1>Vuelve a entrenar</h1>
+    <p class="sub">Tu entrenamiento y tu nutrición en un solo lugar, en tu app. Tú eliges el horario y cuántas veces por semana vienes.</p>
+
+    <div class="oferta">
+      <div class="k">Tu primer mes</div>
+      <div class="pm" id="pm">$29.900</div>
+      <div class="luego">Luego <span id="mens">$49.900</span> mensuales <s id="lista">$80.000</s></div>
+      <div class="datos">
+        <div class="dato"><span class="k">Cobro</span><b>Automático a tu tarjeta</b></div>
+        <div class="dato"><span class="k">Fidelidad</span><b id="perm">12 meses</b></div>
+      </div>
+    </div>
+
+    <div class="paso">1 · ¿CON QUÉ PROGRAMA VUELVES?</div>
+    <div class="progs" id="progs">
+      <button type="button" class="prog" data-p="STRONG" aria-pressed="false">STRONG</button>
+      <button type="button" class="prog" data-p="BURN" aria-pressed="false">BURN</button>
+      <button type="button" class="prog" data-p="HEALTHY" aria-pressed="false">HEALTHY</button>
+    </div>
+
+    <div class="paso">2 · TUS DATOS</div>
+    <div class="fila">
+      <div><label for="nombre">Nombre</label><input type="text" id="nombre" autocomplete="given-name"></div>
+      <div><label for="apellido">Apellido</label><input type="text" id="apellido" autocomplete="family-name"></div>
+    </div>
+    <label for="email">Correo</label>
+    <input type="email" id="email" inputmode="email" autocomplete="email" placeholder="tucorreo@gmail.com">
+    <p class="nota">Con este correo entras a la App KOACH.</p>
+
+    <div class="paso">3 · CONFIRMA</div>
+    <label class="chk"><input type="checkbox" id="aut"><span id="autTxt">Autorizo el cobro automático mensual en mi tarjeta: $29.900 el primer mes y luego $49.900 cada mes.</span></label>
+    <label class="chk"><input type="checkbox" id="acp"><span>Acepto el contrato de fidelidad por 12 meses.</span></label>
+    <p class="chica" id="chica">Valor normal $80.000 mensual. El primer cobro se hace al registrar tu tarjeta y tu membresía parte ese día. La permanencia y el término anticipado se rigen por los <a href="/terminos.html" target="_blank" rel="noopener">Términos y Condiciones</a>. Oferta válida hasta el 22 de noviembre.</p>
+    <div id="errForm" class="msg err" hidden></div>
+  </section>
+
+  <section id="ok" class="fin" hidden>
+    <div class="ico">💪</div>
+    <div class="k">Pago automático activo</div>
+    <h1>¡Bienvenido de vuelta!</h1>
+    <p class="sub" id="okTxt">Te enviamos la confirmación y el acceso a tu App KOACH por WhatsApp.</p>
+  </section>
+  <section id="mal" class="fin" hidden>
+    <div class="ico">⚠️</div>
+    <h1>No se registró tu tarjeta</h1>
+    <p class="sub">No se hizo ningún cobro. Vuelve a abrir tu link e inténtalo de nuevo, o escríbele a Jake por WhatsApp.</p>
+  </section>
+</main>
+
+<div class="pie" id="pie" hidden><div class="in">
+  <button class="go" id="go" disabled>ELIGE TU PROGRAMA</button>
+  <div class="seg">REGISTRO SEGURO DE TARJETA CON FLOW · CRÉDITO, DÉBITO O PREPAGO</div>
+</div></div>
+
+<script>
+(function(){
+  var API='https://koach-jake.vercel.app/api/agenda?publico=1';
+  var q=new URLSearchParams(location.search);
+  var T=q.get('t')||'';
+  try{if(T)sessionStorage.setItem('koach_regreso_t',T);else T=sessionStorage.getItem('koach_regreso_t')||''}catch(e){}
+  var S={prog:null};
+  var $=function(id){return document.getElementById(id)};
+  var clp=function(n){return '$'+Math.round(n).toLocaleString('es-CL')};
+  function err(m){$('cargando').hidden=true;$('error').textContent=m;$('error').hidden=false}
+  function emailOk(e){return /^[^@\s]+@[^@\s]+\.[^@\s]{2,}$/.test(e)}
+
+  // Vuelta desde Flow (registro de tarjeta)
+  var susc=q.get('susc');
+  if(susc){
+    $('cargando').hidden=true;
+    if(susc!=='activa'){$('mal').hidden=false;return}
+    $('ok').hidden=false;
+    if(T)fetch(API,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({accion:'regreso_listo',t:T})})
+      .then(function(r){return r.json()}).then(function(d){if(d&&d.primer_mes)$('okTxt').textContent='Tu primer mes es de '+clp(d.primer_mes)+' y luego '+clp(d.monto)+' mensuales. Te enviamos la confirmación y el acceso a tu App KOACH por WhatsApp.'}).catch(function(){});
+    return;
+  }
+
+  function pinta(){
+    [].forEach.call(document.querySelectorAll('.prog'),function(b){b.setAttribute('aria-pressed',b.dataset.p===S.prog)});
+    var ok=S.prog&&$('nombre').value.trim().length>1&&emailOk($('email').value.trim())&&$('aut').checked&&$('acp').checked;
+    $('go').disabled=!ok;
+    $('go').textContent=!S.prog?'ELIGE TU PROGRAMA':(!$('aut').checked||!$('acp').checked)?'CONFIRMA PARA CONTINUAR':'REGISTRAR TARJETA';
+  }
+  if(!T){err('Este link no es válido. Pídele uno nuevo a Jake por WhatsApp.');return}
+  fetch(API+'&accion=regreso&t='+encodeURIComponent(T)).then(function(r){return r.json()}).then(function(d){
+    if(!d.ok)return err(d.error||'No pudimos cargar tu oferta.');
+    if(d.ya_activa){$('cargando').hidden=true;$('ok').hidden=false;$('okTxt').textContent='Tu pago automático ya está activo. Cualquier duda, escríbele a Jake por WhatsApp.';return}
+    if(d.vencida)return err('Esta oferta terminó el 22 de noviembre. Escríbele a Jake y te contamos las opciones vigentes.');
+    var o=d.oferta;
+    $('pm').textContent=clp(o.primer_mes);$('mens').textContent=clp(o.monto);$('lista').textContent=clp(o.precio_lista);$('perm').textContent=o.permanencia_meses+' meses';
+    $('autTxt').textContent='Autorizo el cobro automático mensual en mi tarjeta: '+clp(o.primer_mes)+' el primer mes y luego '+clp(o.monto)+' cada mes.';
+    if(d.programa)S.prog=d.programa;
+    if(d.datos){$('nombre').value=d.datos.nombre||'';$('apellido').value=(d.datos.apellido&&d.datos.apellido!=='·')?d.datos.apellido:'';$('email').value=d.datos.email||''}
+    $('cargando').hidden=true;$('form').hidden=false;$('pie').hidden=false;pinta();
+  }).catch(function(){err('No pudimos cargar tu oferta. Revisa tu conexión e inténtalo de nuevo.')});
+  [].forEach.call(document.querySelectorAll('.prog'),function(b){b.onclick=function(){S.prog=b.dataset.p;pinta()}});
+  ['nombre','apellido','email'].forEach(function(id){$(id).addEventListener('input',pinta)});
+  $('aut').onchange=pinta;$('acp').onchange=pinta;
+  $('go').onclick=function(){
+    var b=$('go');b.disabled=true;b.textContent='CONECTANDO CON FLOW…';$('errForm').hidden=true;
+    fetch(API,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({accion:'regreso',t:T,programa:S.prog,nombre:$('nombre').value.trim(),apellido:$('apellido').value.trim(),email:$('email').value.trim(),autorizo:$('aut').checked,acepto_permanencia:$('acp').checked})})
+    .then(function(r){return r.json()}).then(function(d){
+      if(!d.ok||!d.url){$('errForm').textContent=d.error||'No pudimos conectar con Flow.';$('errForm').hidden=false;pinta();return}
+      location.href=d.url})
+    .catch(function(){$('errForm').textContent='No pudimos conectar con Flow. Inténtalo de nuevo.';$('errForm').hidden=false;pinta()});
+  };
+})();
+</script>
+</body>
+</html>

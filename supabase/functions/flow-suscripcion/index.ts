@@ -28,6 +28,17 @@ async function planFlow(nombre: string, precio: number, meses: number) {
   return id;
 }
 
+// Cupón de Flow para el primer cobro (monto fijo, 1 período). Se reutiliza por monto.
+async function cuponFlow(monto: number): Promise<string> {
+  const { data: c } = await admin.from("config_pagos").select("valor").eq("clave", "flow_cupones").maybeSingle();
+  const mapa: Record<string, string> = (c?.valor as Record<string, string>) || {};
+  if (mapa[String(monto)]) return mapa[String(monto)];
+  const r = await flow("POST", "coupon/create", { name: "KOACH primer mes -" + monto, currency: "CLP", amount: monto, duration: 1, times: 1 });
+  const id = String(r.id);
+  await admin.from("config_pagos").upsert({ clave: "flow_cupones", valor: { ...mapa, [String(monto)]: id } });
+  return id;
+}
+
 // Salida anticipada (cl. 4.9): descuento recibido = (lista − valor mensual) × meses pagados, solo dentro de la permanencia
 function salida(s: Susc) {
   const hoy = hoyCL();
@@ -100,10 +111,20 @@ Deno.serve(async (req) => {
   try {
     if (!API_KEY) return j({ error: "Flow no está configurado" }, 500);
     const jwt = (req.headers.get("Authorization") || "").replace(/^Bearer\s+/i, "");
-    const { data: u } = await admin.auth.getUser(jwt);
-    if (!u?.user) return j({ error: "Sesión no válida" }, 401);
-    const uid = u.user.id;
     const body = await req.json().catch(() => ({}));
+    // Llamada de servicio (Jake, campaña de regreso): actúa por un socio, solo para cotizar o iniciar
+    // (el gateway ya verificó la firma del JWT: verify_jwt = true)
+    const rolJwt = (() => { try { return JSON.parse(atob(jwt.split(".")[1].replace(/-/g, "+").replace(/_/g, "/"))).role; } catch (_) { return null; } })();
+    const servicio = jwt === Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") || rolJwt === "service_role";
+    let uid: string, uEmail = "";
+    if (servicio) {
+      if (!body.socio || !["cotizar", "iniciar"].includes(body.accion)) return j({ error: "Sin permiso" }, 403);
+      uid = String(body.socio);
+    } else {
+      const { data: u } = await admin.auth.getUser(jwt);
+      if (!u?.user) return j({ error: "Sesión no válida" }, 401);
+      uid = u.user.id; uEmail = u.user.email || "";
+    }
 
     // ── staff (admin / recepción)
     if (String(body.accion || "").startsWith("staff_")) {
@@ -218,7 +239,7 @@ Deno.serve(async (req) => {
     if (viva) await admin.from("flow_suscripciones").update({ estado: "error", error: "reemplazada por un nuevo intento", updated_at: ahora() }).eq("id", viva.id);
 
     const { data: perfil } = await admin.from("profiles").select("id,email,nombre,apellido").eq("id", uid).maybeSingle();
-    const email = (perfil?.email || u.user.email || "").trim();
+    const email = (perfil?.email || uEmail || "").trim();
     if (!email) return j({ error: "Tu cuenta no tiene correo" }, 400);
     const { data: ver } = await admin.from("config_pagos").select("valor").eq("clave", "tyc_version").maybeSingle();
     const flowPlan = await planFlow(per === 1 ? "MENSUAL AUTO" : "AUTO", t.monto, per);
@@ -236,14 +257,16 @@ Deno.serve(async (req) => {
       }
     }
     await guardarCliente(uid, customerId!, email);   // se guarda ANTES de cualquier otro paso con Flow
-    const reg = await flow("POST", "customer/register", { customerId, url_return: HOOK + "?t=card" });
+    const cupon = Number(t.cupon_monto) > 0 ? Number(t.cupon_monto) : null;
+    const couponId = cupon ? await cuponFlow(cupon) : null;
+    const reg = await flow("POST", "customer/register", { customerId, url_return: HOOK + "?t=card" + (body.volver === "regreso" ? "&v=regreso" : "") });
     await admin.from("flow_suscripciones").insert({
       socio_id: uid, plan_id: null, plan_nombre: per === 1 ? "MENSUAL RECURRENTE" : "RECURRENTE CADA " + per + " MESES", monto: t.monto, duracion_valor: per,
       flow_plan_id: flowPlan, flow_customer_id: customerId, email, register_token: reg.token, tipo_comercial: t.tipo_comercial || "promocion",
-      permanencia_meses: perm, precio_lista: t.precio_lista * per,
+      permanencia_meses: perm, precio_lista: t.precio_lista * per, cupon_monto: cupon, flow_coupon_id: couponId,
       autorizacion: { texto: "Autorizo el cobro automático de mi membresía", monto: t.monto, periodicidad, periodo_meses: per, permanencia_meses: perm,
-        acepto_permanencia: perm > 0, tyc: ver?.valor?.version || "v2.0", at: ahora(), ua: req.headers.get("user-agent") || null,
-        ip: (req.headers.get("x-forwarded-for") || "").split(",")[0] || null },
+        acepto_permanencia: perm > 0, primer_cobro_con_cupon: cupon ? t.monto - cupon : null, origen: servicio ? "link regreso (Jake)" : "app", tyc: ver?.valor?.version || "v2.0", at: ahora(), ua: (servicio && body.ua) || req.headers.get("user-agent") || null,
+        ip: (servicio && body.ip) || (req.headers.get("x-forwarded-for") || "").split(",")[0] || null },
     });
     return j({ url: reg.url + "?token=" + reg.token });
   } catch (e) {
