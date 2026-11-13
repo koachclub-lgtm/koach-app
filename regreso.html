@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Vuelve a KOACH · KOACH Club</title>
-<meta name="theme-color" content="#D0D0CE">
+<meta name="theme-color" content="#141517">
 <meta name="robots" content="noindex">
 <link rel="icon" href="/favicon-32.png">
 <link rel="apple-touch-icon" href="/apple-touch-icon.png">
@@ -14,73 +14,79 @@
 @font-face{font-family:'Inter Display';src:url('/fonts/InterDisplay-Bold.woff2') format('woff2');font-weight:700;font-display:swap}
 @font-face{font-family:'IBM Plex Mono';src:url('/fonts/IBMPlexMono-Medium.woff2') format('woff2');font-weight:500;font-display:swap}
 @font-face{font-family:'KOACH Display';src:url('/fonts/Archivo-Var.woff2') format('woff2');font-weight:400 900;font-stretch:100% 115%;font-display:swap}
-:root{--bg:#D0D0CE;--card:#F4F4F2;--ink:#111;--t2:#555553;--t3:#7a7a77;--line:rgba(17,17,17,.14);--err:#A33A2B;
-  --display:'KOACH Display','Inter Display',Arial,sans-serif;--sans:'Inter Display','Inter',Arial,sans-serif;--mono:'IBM Plex Mono',ui-monospace,monospace}
+:root{--bg:#141517;--ink:#F6F5F2;--t2:rgba(246,245,242,.62);--t3:rgba(246,245,242,.42);--line:rgba(255,255,255,.14);--err:#FF8A78;
+  --display:'KOACH Display','Inter Display',Arial,sans-serif;--sans:'Inter Display','Inter',Arial,sans-serif;--mono:'IBM Plex Mono',ui-monospace,monospace;
+  --vidrio:linear-gradient(150deg,rgba(255,255,255,.11) 0%,rgba(255,255,255,.04) 55%,rgba(255,255,255,.07) 100%);
+  --plata:linear-gradient(160deg,#FFFFFF 0%,#E2E3E5 40%,#B8BABE 100%)}
 *{box-sizing:border-box}html,body{margin:0}
-body{background:var(--bg);color:var(--ink);font:16px/1.4 var(--sans);-webkit-font-smoothing:antialiased;min-height:100vh}
-.wrap{max-width:560px;margin:0 auto;padding:20px 16px calc(130px + env(safe-area-inset-bottom))}
-.top{display:flex;align-items:center;justify-content:space-between;padding:4px 0 22px}.top img{height:20px;filter:brightness(0)}
-.k{font:500 11px var(--mono);letter-spacing:.14em;color:var(--t2);text-transform:uppercase}
-h1{font:800 clamp(34px,10vw,48px)/.95 var(--display);letter-spacing:-.02em;margin:8px 0 10px;text-transform:uppercase}
-.sub{color:var(--t2);font-size:15px;margin:0 0 18px}
-.oferta{background:var(--ink);color:#F4F4F2;border-radius:22px;padding:22px 20px 20px;margin:6px 0 4px}
-.oferta .k{color:rgba(244,244,242,.65)}
-.oferta .pm{font:800 clamp(52px,17vw,76px)/.9 var(--display);letter-spacing:-.03em;margin:10px 0 2px}
-.oferta .pm small{font:500 13px var(--mono);letter-spacing:.1em;margin-left:6px}
-.oferta .luego{font:600 16px var(--sans);margin:8px 0 14px}
-.oferta .datos{display:grid;grid-template-columns:1fr 1fr;gap:8px}
-.oferta .dato{border:1px solid rgba(244,244,242,.2);border-radius:12px;padding:10px 12px}
-.oferta .dato b{display:block;font:700 15px var(--sans);margin-top:3px}
-.oferta s{opacity:.6}
-.paso{margin:26px 0 10px;font:500 11px var(--mono);letter-spacing:.14em}
+body{background:var(--bg);color:var(--ink);font:15px/1.4 var(--sans);-webkit-font-smoothing:antialiased;min-height:100vh}
+.wrap{max-width:520px;margin:0 auto;padding:calc(14px + env(safe-area-inset-top)) 18px calc(118px + env(safe-area-inset-bottom))}
+.top{display:flex;align-items:center;justify-content:space-between;padding:2px 0 14px}
+.logo{width:96px;height:20px;background:var(--ink);-webkit-mask:url(/img/brand/logotipo-koach.png) no-repeat left center/contain;mask:url(/img/brand/logotipo-koach.png) no-repeat left center/contain}
+.k{font:500 10.5px var(--mono);letter-spacing:.14em;color:var(--t2);text-transform:uppercase}
+.k b{color:var(--ink)}
+.lista{margin-top:10px;font:700 clamp(17px,4.6vw,21px) var(--display);color:var(--t3);text-decoration:line-through;text-decoration-thickness:2px}
+.precio{font:800 clamp(58px,18vw,96px)/.92 var(--display);letter-spacing:-.035em;white-space:nowrap;
+  background:linear-gradient(180deg,#FFFFFF 0%,#E4E5E7 48%,#A9ACB1 100%);-webkit-background-clip:text;background-clip:text;color:transparent}
+.cada{font:800 clamp(15px,4.4vw,19px) var(--display);text-transform:uppercase;letter-spacing:.01em;margin-top:4px}
+.cada span{color:var(--t2)}
+.datos{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:12px 0 2px}
+.datos div,.campo,.prog{border:1px solid var(--line);border-radius:16px;background:var(--vidrio);box-shadow:inset 0 1px 0 rgba(255,255,255,.12)}
+.datos div{padding:10px 13px}
+.datos span{display:block;font:500 9.5px var(--mono);letter-spacing:.12em;color:var(--t2)}
+.datos b{display:block;margin-top:4px;font:800 15px var(--display);text-transform:uppercase}
+.paso{margin:15px 0 7px;font:500 10.5px var(--mono);letter-spacing:.14em;color:var(--t2)}
 .progs{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
-.prog{border:1.5px solid var(--line);background:var(--card);border-radius:14px;height:58px;font:800 16px var(--display);letter-spacing:.04em;cursor:pointer;color:inherit}
-.prog[aria-pressed=true]{background:var(--ink);color:#F4F4F2;border-color:var(--ink)}
-label{display:block;font:500 10.5px var(--mono);letter-spacing:.12em;color:var(--t2);margin:12px 0 6px;text-transform:uppercase}
-.fila{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-input[type=text],input[type=email]{width:100%;height:52px;border:1.5px solid var(--line);background:var(--card);border-radius:12px;padding:0 14px;font:16px var(--sans);color:var(--ink)}
-input:focus,button:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
-.nota{font-size:13px;color:var(--t2);margin:8px 2px 0}
-label.chk{display:flex;gap:12px;align-items:flex-start;margin:12px 0 0;padding:14px;border:1.5px solid var(--line);background:var(--card);border-radius:14px;font:14px/1.4 var(--sans);letter-spacing:0;text-transform:none;color:var(--ink);cursor:pointer}
-.chk input{width:22px;height:22px;flex:none;accent-color:#111;margin:0}
-.chica{font-size:12px;color:var(--t2);margin:12px 2px 0;line-height:1.45}
-.chica a{color:inherit}
-.pie{position:fixed;left:0;right:0;bottom:0;background:linear-gradient(rgba(208,208,206,0),var(--bg) 30%);padding:22px 16px calc(14px + env(safe-area-inset-bottom))}
-.pie .in{max-width:560px;margin:0 auto}
-.go{width:100%;height:58px;border:0;border-radius:16px;background:var(--ink);color:#F4F4F2;font:600 14px var(--mono);letter-spacing:.12em;cursor:pointer}
-.go:disabled{background:#BCBCBA;color:rgba(17,17,17,.45);cursor:not-allowed}
-.seg{font:500 10.5px var(--mono);letter-spacing:.08em;color:var(--t2);text-align:center;margin-top:8px}
-.msg{margin:12px 0 0;padding:12px 14px;border-radius:12px;font-size:14px}.msg.err{background:rgba(163,58,43,.1);color:var(--err)}
+.prog{height:46px;font:800 14px var(--display);letter-spacing:.05em;color:var(--ink);cursor:pointer}
+.prog[aria-pressed=true]{background:var(--plata);color:#0B0B0C;border-color:#fff;box-shadow:inset 0 1px 0 #fff,0 8px 18px rgba(0,0,0,.35)}
+.fila{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.campo{margin-top:8px}.fila .campo{margin-top:0}
+.campo input{width:100%;height:48px;border:0;background:none;padding:0 14px;font:16px var(--sans);color:var(--ink)}
+.campo input::placeholder{color:var(--t3)}
+.campo:focus-within{border-color:rgba(255,255,255,.5)}
+input:focus{outline:none}button:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
+.chk{display:flex;gap:12px;align-items:flex-start;padding:8px 0;font-size:14px;line-height:1.38;cursor:pointer;color:rgba(246,245,242,.86)}
+.chk b{color:var(--ink)}
+.chk input{position:absolute;opacity:0;pointer-events:none}
+.box{flex:none;width:24px;height:24px;border:2px solid rgba(246,245,242,.55);border-radius:7px;display:grid;place-items:center;background:rgba(255,255,255,.04)}
+.chk input:checked+.box{background:linear-gradient(135deg,#FFFFFF,#CFD0D3);border-color:#F6F5F2}
+.chk input:checked+.box::after{content:'';width:6px;height:12px;border:solid #0B0B0C;border-width:0 3px 3px 0;transform:translateY(-1px) rotate(45deg)}
+.chk input:focus-visible+.box{outline:2px solid #F6F5F2;outline-offset:3px}
+.chica{font-size:11.5px;color:var(--t3);margin:6px 0 0;line-height:1.45}.chica a{color:var(--t2)}
+.pie{position:fixed;left:0;right:0;bottom:0;background:linear-gradient(180deg,rgba(20,21,23,0),#141517 38%);padding:18px 18px calc(12px + env(safe-area-inset-bottom))}
+.pie .in{max-width:520px;margin:0 auto}
+.go{position:relative;overflow:hidden;width:100%;height:56px;border:0;border-radius:18px;background:var(--plata);color:#0B0B0C;font:700 13.5px var(--mono);letter-spacing:.14em;cursor:pointer;
+  box-shadow:inset 0 1px 0 #fff,inset 0 -2px 0 rgba(0,0,0,.12),0 14px 32px rgba(0,0,0,.45)}
+.go:not(:disabled)::after{content:"";position:absolute;inset:0;pointer-events:none;background:linear-gradient(115deg,rgba(255,255,255,0) 30%,rgba(255,255,255,.7) 48%,rgba(255,255,255,0) 66%)}
+.go:disabled{background:#26272A;color:rgba(246,245,242,.4);box-shadow:inset 0 1px 0 rgba(255,255,255,.08);cursor:not-allowed}
+.seg{font:500 9.5px var(--mono);letter-spacing:.08em;color:var(--t3);text-align:center;margin-top:7px}
+.msg{margin:10px 0 0;padding:11px 13px;border-radius:12px;font-size:13.5px}.msg.err{background:rgba(255,138,120,.12);color:var(--err)}
 .cargando{padding:60px 0;text-align:center;color:var(--t2)}
-.fin{text-align:center;padding:40px 4px}
-.fin .ico{font-size:52px}
-.fin h1{margin:14px 0 10px}
+.fin{text-align:center;padding:40px 4px}.fin .ico{font-size:52px}
+.fin h1{font:800 clamp(30px,9vw,42px)/.95 var(--display);text-transform:uppercase;margin:14px 0 10px}
+.fin p{color:var(--t2)}
+@media (max-height:740px){.precio{font-size:clamp(50px,15vw,76px)}.paso{margin:13px 0 6px}.datos{margin:10px 0 2px}.campo input{height:44px}.prog{height:42px}.chk{padding:6px 0}}
 [hidden]{display:none!important}
 </style>
 </head>
 <body>
 <main class="wrap">
-  <div class="top"><img src="/img/brand/logotipo-koach.png" alt="KOACH"><span class="k">Serrano 489 · Concepción</span></div>
+  <div class="top"><div class="logo" role="img" aria-label="KOACH"></div><span class="k">Lanzamiento App KOACH</span></div>
   <div id="cargando" class="cargando">Cargando tu oferta…</div>
   <div id="error" class="msg err" hidden></div>
 
   <section id="form" hidden>
-    <div class="k">Lanzamiento App KOACH</div>
-    <h1>Vuelve a entrenar</h1>
-    <p class="sub">Tu entrenamiento y tu nutrición en un solo lugar, en tu app. Tú eliges el horario y cuántas veces por semana vienes.</p>
-
-    <div class="oferta">
-      <div class="k">Tu primer mes</div>
-      <div class="pm" id="pm">$29.900</div>
-      <div class="luego">Luego <span id="mens">$49.900</span> mensuales <s id="lista">$80.000</s></div>
-      <div class="datos">
-        <div class="dato"><span class="k">Cobro</span><b>Automático a tu tarjeta</b></div>
-        <div class="dato"><span class="k">Fidelidad</span><b id="perm">12 meses</b></div>
-      </div>
+    <div class="k">Vuelve a entrenar · <b>tu primer mes</b></div>
+    <div class="lista" id="lista">$80.000</div>
+    <div class="precio" id="pm">$29.900</div>
+    <div class="cada">Luego <span id="mens">$49.900</span> al mes</div>
+    <div class="datos">
+      <div><span>COBRO</span><b>Automático</b></div>
+      <div><span>FIDELIDAD</span><b id="perm">12 meses</b></div>
     </div>
 
     <div class="paso">1 · ¿CON QUÉ PROGRAMA VUELVES?</div>
-    <div class="progs" id="progs">
+    <div class="progs">
       <button type="button" class="prog" data-p="STRONG" aria-pressed="false">STRONG</button>
       <button type="button" class="prog" data-p="BURN" aria-pressed="false">BURN</button>
       <button type="button" class="prog" data-p="HEALTHY" aria-pressed="false">HEALTHY</button>
@@ -88,17 +94,15 @@ label.chk{display:flex;gap:12px;align-items:flex-start;margin:12px 0 0;padding:1
 
     <div class="paso">2 · TUS DATOS</div>
     <div class="fila">
-      <div><label for="nombre">Nombre</label><input type="text" id="nombre" autocomplete="given-name"></div>
-      <div><label for="apellido">Apellido</label><input type="text" id="apellido" autocomplete="family-name"></div>
+      <div class="campo"><input type="text" id="nombre" autocomplete="given-name" placeholder="Nombre" aria-label="Nombre"></div>
+      <div class="campo"><input type="text" id="apellido" autocomplete="family-name" placeholder="Apellido" aria-label="Apellido"></div>
     </div>
-    <label for="email">Correo</label>
-    <input type="email" id="email" inputmode="email" autocomplete="email" placeholder="tucorreo@gmail.com">
-    <p class="nota">Con este correo entras a la App KOACH.</p>
+    <div class="campo"><input type="email" id="email" inputmode="email" autocomplete="email" placeholder="Correo (con este entras a la App)" aria-label="Correo"></div>
 
     <div class="paso">3 · CONFIRMA</div>
-    <label class="chk"><input type="checkbox" id="aut"><span id="autTxt">Autorizo el cobro automático mensual en mi tarjeta: $29.900 el primer mes y luego $49.900 cada mes.</span></label>
-    <label class="chk"><input type="checkbox" id="acp"><span>Acepto el contrato de fidelidad por 12 meses.</span></label>
-    <p class="chica" id="chica">Valor normal $80.000 mensual. El primer cobro se hace al registrar tu tarjeta y tu membresía parte ese día. La permanencia y el término anticipado se rigen por los <a href="/terminos.html" target="_blank" rel="noopener">Términos y Condiciones</a>. Oferta válida hasta el 22 de noviembre.</p>
+    <label class="chk"><input type="checkbox" id="aut"><span class="box"></span><span id="autTxt">Autorizo el cobro automático en mi tarjeta: <b>$29.900</b> el primer mes y luego <b>$49.900</b> cada mes.</span></label>
+    <label class="chk"><input type="checkbox" id="acp"><span class="box"></span><span>Acepto el contrato de fidelidad por <b>12 meses</b>.</span></label>
+    <p class="chica" id="chica">El primer cobro se hace al registrar tu tarjeta y tu membresía parte ese día. Permanencia y término anticipado según los <a href="/terminos.html" target="_blank" rel="noopener">Términos y Condiciones</a>. Válido hasta el 22 de noviembre.</p>
     <div id="errForm" class="msg err" hidden></div>
   </section>
 
@@ -106,12 +110,12 @@ label.chk{display:flex;gap:12px;align-items:flex-start;margin:12px 0 0;padding:1
     <div class="ico">💪</div>
     <div class="k">Pago automático activo</div>
     <h1>¡Bienvenido de vuelta!</h1>
-    <p class="sub" id="okTxt">Te enviamos la confirmación y el acceso a tu App KOACH por WhatsApp.</p>
+    <p id="okTxt">Te enviamos la confirmación y el acceso a tu App KOACH por WhatsApp.</p>
   </section>
   <section id="mal" class="fin" hidden>
     <div class="ico">⚠️</div>
     <h1>No se registró tu tarjeta</h1>
-    <p class="sub">No se hizo ningún cobro. Vuelve a abrir tu link e inténtalo de nuevo, o escríbele a Jake por WhatsApp.</p>
+    <p>No se hizo ningún cobro. Vuelve a abrir tu link e inténtalo de nuevo, o escríbele a Jake por WhatsApp.</p>
   </section>
 </main>
 
@@ -155,8 +159,8 @@ label.chk{display:flex;gap:12px;align-items:flex-start;margin:12px 0 0;padding:1
     if(d.ya_activa){$('cargando').hidden=true;$('ok').hidden=false;$('okTxt').textContent='Tu pago automático ya está activo. Cualquier duda, escríbele a Jake por WhatsApp.';return}
     if(d.vencida)return err('Esta oferta terminó el 22 de noviembre. Escríbele a Jake y te contamos las opciones vigentes.');
     var o=d.oferta;
-    $('pm').textContent=clp(o.primer_mes);$('mens').textContent=clp(o.monto);$('lista').textContent=clp(o.precio_lista);$('perm').textContent=o.permanencia_meses+' meses';
-    $('autTxt').textContent='Autorizo el cobro automático mensual en mi tarjeta: '+clp(o.primer_mes)+' el primer mes y luego '+clp(o.monto)+' cada mes.';
+    $('pm').textContent=clp(o.primer_mes);$('mens').textContent=clp(o.monto);$('lista').textContent=clp(o.precio_lista)+' al mes';$('perm').textContent=o.permanencia_meses+' meses';
+    $('autTxt').innerHTML='Autorizo el cobro automático en mi tarjeta: <b>'+clp(o.primer_mes)+'</b> el primer mes y luego <b>'+clp(o.monto)+'</b> cada mes.';
     if(d.programa)S.prog=d.programa;
     if(d.datos){$('nombre').value=d.datos.nombre||'';$('apellido').value=(d.datos.apellido&&d.datos.apellido!=='·')?d.datos.apellido:'';$('email').value=d.datos.email||''}
     $('cargando').hidden=true;$('form').hidden=false;$('pie').hidden=false;pinta();
