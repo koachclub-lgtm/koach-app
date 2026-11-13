@@ -200,7 +200,7 @@ input:focus{outline:none}button:focus-visible{outline:2px solid var(--ink);outli
     $('pm').textContent=clp(o.primer_mes);$('mens').textContent=clp(o.monto);$('lista').textContent=clp(o.precio_lista);$('perm').textContent=o.permanencia_meses+' meses';
     $('acpTxt').innerHTML='Acepto la <b>fidelidad por '+o.permanencia_meses+' meses</b> con cobro automático en mi tarjeta.';
     if(d.programa)S.prog=d.programa;
-    if(d.datos){$('nombre').value=d.datos.nombre||'';$('apellido').value=(d.datos.apellido&&d.datos.apellido!=='·')?d.datos.apellido:'';$('email').value=d.datos.email||''}
+    if(d.datos){$('nombre').value=d.datos.nombre||'';$('apellido').value=(d.datos.apellido&&d.datos.apellido!=='·')?d.datos.apellido:'';$('email').value=d.datos.email||'';if(d.datos.rut)$('rut').value=rutFmt(d.datos.rut)}
     $('cargando').hidden=true;$('form').hidden=false;$('pie').hidden=false;pinta();
     // entrada animada: el precio baja desde el valor normal hasta el primer mes y se tacha el normal
     var rm=window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches;
