@@ -5718,7 +5718,7 @@ function kxPrRevisar(filas){ try{
     S.mejores[f.ejercicio_id]={ peso:p, reps:r }; (S._prHoy=S._prHoy||{})[pr.id]=1; (S._prLista=S._prLista||[]).push(pr)
     const sube=x=>(x.hoy.peso-x.antes.peso)*100+(x.hoy.reps-x.antes.reps)
     if (!S._prPend || sube(pr)>sube(S._prPend)) S._prPend=pr })
-  if (S._prPend){ clearTimeout(S._prT); S._prT=setTimeout(()=>{ const pr=S._prPend; S._prPend=null; S._prVisto=Date.now(); if(pr) kxPR(pr) },220) }
+  if (S._prPend){ clearTimeout(S._prT); S._prT=setTimeout(()=>{ const pr=S._prPend; S._prPend=null; S._prVisto=Date.now(); if(pr) try{ kxPR(pr) }catch(e){ console.error('kxPR',e) } },220) }
 }catch(e){ console.error('kxPrRevisar',e) } }
 function kxPR(pr, alFin){ const ov=document.getElementById('kxDone'); if(!ov) return
   try{ KSFX.play('logro') }catch(_){}   // c240 · DROP: exclusivo de logros (PR, puntos, créditos)   // c160 · alFin: al cerrar el récord del cierre sigue al resumen
@@ -7723,6 +7723,13 @@ async function bkFinishAll(){ const b=(S._bfs||[])[BK.bi]; if(!b || bloqueComple
   kHaptic(12); kAudioUnlock(); BK._busy=true
   try{ await completarBloque(BK.bi) } finally{ BK._busy=false }
   if (bloqueCompleto(b)){ BK.set=b.sets; bkRestFin(true); bkPintar(); bkFinBloque(b) } else bkPintar() }
+/* c263 · si el último set del bloque fue PR, primero se ve el récord completo y recién al cerrarlo aparece el fin de bloque
+   (antes ambas celebraciones salían juntas: dos drops y el récord tapado/cortado) */
+function bkTrasPR(fn){ const ov=document.getElementById('kxDone'), t0=Date.now()
+  const pr=()=>!!(S._prPend || (ov && ov.classList.contains('kxDone--pr')))
+  if (!pr()) { setTimeout(()=>{ if (pr()) espera(); else fn() }, 260); return }   // el PR se agenda a los 220 ms
+  espera()
+  function espera(){ const iv=setInterval(()=>{ if (!pr() || Date.now()-t0>120000){ clearInterval(iv); fn() } }, 250) } }
 async function bkCompletar(){ const b=(S._bfs||[])[BK.bi]; if(!b) return
   const n=BK.set, bes=bkBes(b)
   { const f=bkFaltanKg(b,n); if(f.length){ bkAvisarKg(f,n); return } }
@@ -7737,7 +7744,7 @@ async function bkCompletar(){ const b=(S._bfs||[])[BK.bi]; if(!b) return
   finally{ S._restInfo=null; BK._busy=false; clearTimeout(_sv); if(_ob) _ob.classList.remove('bk--guardando') }
   bkOverFin()
   const sig=bkSetActual(b)
-  if (sig){ try{ KSFX.play('set') }catch(_){} BK.set=sig; bkRestIni(b); bkPintar() } else { try{ KSFX.play('block') }catch(_){} BK.set=n; bkRestFin(true); bkPintar(); bkFinBloque(b) }
+  if (sig){ try{ KSFX.play('set') }catch(_){} BK.set=sig; bkRestIni(b); bkPintar() } else { BK.set=n; bkRestFin(true); bkPintar(); bkTrasPR(()=>{ try{ KSFX.play('block') }catch(_){} bkFinBloque(b) }) }
   try{ kxTrasSet(b,n,bes,!sig) }catch(e){ console.error('kxTrasSet',e) }
 }
 /* c70 · cierre del bloque: pantalla breve en gris intermedio con el bloque y los kilos; vuelve sola a la rutina (o al tocar) */
