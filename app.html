@@ -3471,9 +3471,12 @@ body.wl-on{overflow:hidden}
 @media (prefers-reduced-motion:reduce){.kxCard::after{animation:none}.kxDone.on .kxD__tk{animation:none}.kxSet{transition:none}}
 
 #oWelcome.kxW{background:#F1F2F4 var(--kx-glow) center/cover;color:#0E0E0F}
-#oWelcome.kxW .kxD__t--w{font-size:clamp(44px,13vw,58px)}
+#oWelcome.kxW .kxD__t--w{font-size:clamp(32px,9.6vw,46px)}
+#oWelcome.kxW .kxD__t--w .nw{white-space:nowrap}
 #oWelcome.kxW .kxW__p{margin:16px 0 22px;font:500 20px/1.1 var(--font-display);letter-spacing:-.01em}
-#oWelcome.kxW .kxW__p em{font-style:normal;opacity:.45}
+#oWelcome.kxW .kxW__p em{font-style:normal;opacity:1;color:#0B0B0C}
+#oWelcome.kxW .kxW__p{color:#6F7377}
+#oWelcome.kxW .kxW__s{margin:-8px 0 20px;font:400 14.5px/1.45 var(--font-display);color:#434649;max-width:34ch}
 #oWelcome.kxW .kxFlash{position:fixed;inset:0;background:#fff;opacity:0;pointer-events:none}
 #oWelcome.kxW.on .kxD__tk{animation:kxPrint .9s .25s cubic-bezier(.2,.8,.2,1) both}
 /* c121 · FONDOS GRISES METÁLICOS (reemplazan la luz fría celeste) · rotan por día y tipo de rutina · preview y rutina */
@@ -6457,7 +6460,7 @@ function welcomeTextos(){
 function mostrarWelcome(){
   // c113 · BIENVENIDO AL CLUB DEL 1%: luz fría + credencial de socio en cristal metalizado (Nº de socio real)
   const p=S.perfil||{}, n=msgNombre()||'', sx=String(p.sex||'').toLowerCase()
-  const k=sx==='mujer'?'BIENVENIDA AL CLUB DEL 1%':'BIENVENIDO AL CLUB DEL 1%'
+  const k=sx==='mujer'?'BIENVENIDA':'BIENVENIDO'
   const num=p.numero_socio?String(p.numero_socio).padStart(4,'0'):'—'
   const d=p.created_at?new Date(p.created_at):new Date(), mes=['ENE','FEB','MAR','ABR','MAY','JUN','JUL','AGO','SEP','OCT','NOV','DIC'][d.getMonth()]
   const nomC=((p.nombre||'')+' '+(p.apellido?String(p.apellido).charAt(0)+'.':'')).trim()||'SOCIO KOACH'
@@ -6465,8 +6468,9 @@ function mostrarWelcome(){
   const el=document.getElementById('oWelcome')
   el.classList.add('kxW')
   el.innerHTML='<div class="kxD__in"><div class="kxD__top"><img src="/img/brand/logotipo-koach.png" alt="KOACH"><small>MEMBER</small></div>'+
-    '<span class="kxD__k">'+k+'</span><h1 class="kxD__t kxD__t--w">'+plEscA(n||'Ya')+',<br>ya eres<br>KOACH.</h1>'+
-    '<p class="kxW__p"><em>Tú entrenas.</em> Nosotros nos encargamos del resto.</p>'+
+    '<span class="kxD__k">'+k+'</span><h1 class="kxD__t kxD__t--w">'+plEscA(n||'Ya')+',<br><span class="nw">ya eres parte</span><br>del club<br>del 1%.</h1>'+
+    '<p class="kxW__p">Desde ahora nos encargamos de construir <em>tu versión más fuerte.</em></p>'+
+    '<p class="kxW__s">Pronto tendrás acceso a un programa completo de entrenamiento y nutrición, guiado por profesionales, y todo aquí en tu app.</p>'+
     '<div class="kxCard kxD__tk"><div class="kxCard__r"><span>MEMBER · CLUB DEL 1%</span><span>'+plEscA(prog)+'</span></div><div class="kxCard__t">'+plEscA(nomC)+'</div>'+
       '<div class="kxCard__g"><div><span>MIEMBRO Nº</span><b>'+num+'</b></div><div><span>DESDE</span><b>'+mes+' '+d.getFullYear()+'</b></div></div>'+
       (p.numero_socio?'<div class="kxCard__bc">'+barcodeSVG('KOACH-'+num,34)+'</div><div class="kxCard__n">KOACH-'+num+'</div>':'')+'</div>'+
