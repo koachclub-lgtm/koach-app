@@ -11565,6 +11565,7 @@ function cmSaltar() { if (_cmFin) _cmFin() }
 async function cierreMomento(m) {
   // c158 · RUTINA TERMINADA: el resumen SÓLIDO (kilos, sets, grupos, PR, credencial) a pantalla completa → COMPARTIR PROGRESO
   KS.data = null; KS.reg = null; KS.cierre = m;
+  try { clearTimeout(S._prT); S._prPend = null } catch (_) {}   // c263 · el récord del cierre se muestra una sola vez (no choca con el que agendó el último set)
   const pv = document.getElementById('kxDone'); try { if (pv) { clearTimeout(pv._t); clearTimeout(pv._g); pv.classList.remove('on', 'vis', 'kxDone--pr'); pv.innerHTML = '' } } catch (_) {}
   // c160 · si hubo récord, primero el momento épico de PR (cromo, golpe, flash) y después el resumen
   let pr = null; const L = S._prLista || []; S._prLista = [];
