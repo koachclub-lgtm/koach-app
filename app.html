@@ -4248,6 +4248,16 @@ html[data-lg-at="0"] #vLogin .lgCv{display:block}
 html.en-home,html.en-home body{background:#0B0B0C}
 html.en-av{background:#ECEDEF linear-gradient(176deg,#ECEDEF 0%,#CDD0D4 30%,#B2B6BB 65%,#9EA2A8 100%) no-repeat;background-size:100% 100%;min-height:100%}
 html.en-av body{background:transparent}
+
+/* c271 · curva por ciclo */
+.avx__cis{display:flex;gap:6px;align-items:center;margin-top:10px}
+.avx__cis button{min-height:30px;padding:0 12px;border-radius:999px;border:1px solid rgba(11,11,12,.3);background:transparent;color:#0B0B0C;font:700 9px 'Space Mono',var(--font-mono);letter-spacing:.14em;cursor:pointer}
+.avx__cis button[aria-pressed="true"]{background:#0B0B0C;color:#F4F3F0;border-color:#0B0B0C}
+.avx__cis span{margin-left:auto;font:400 9px 'Space Mono',var(--font-mono);letter-spacing:.14em;color:#6F7377}
+.avx__ch .sm{font:700 8.5px 'Space Mono',monospace;fill:#0B0B0C}.avx__ch .sm.on{fill:#0B0B0C;text-decoration:underline}
+.avx__ch .off{fill:#979C9F!important;font-weight:400}
+.avx__ch .fu{fill:none;stroke:#979C9F;stroke-width:1.2;stroke-dasharray:2 2}
+.avx__ch .hoy{stroke:#0B0B0C;stroke-width:1;stroke-dasharray:3 3;opacity:.5}
 </style>
 </head>
 <body>
@@ -9399,17 +9409,30 @@ function avxHead(){ return '<div class="avx__top"><img src="/img/brand/logotipo-
 function avxSpark(s){ const W=70,H=26; if(s.length<2) s=[s[0]||0,s[0]||0]; let mn=Math.min(...s), mx=Math.max(...s); if(mx===mn) mn=mx-1
   const p=s.map((v,i)=>[i*W/(s.length-1), H-3-(v-mn)/(mx-mn)*(H-6)])
   return '<svg class="avx__spk" viewBox="0 0 '+W+' '+H+'" width="'+W+'" height="'+H+'" aria-hidden="true"><path d="M'+p.map(q=>q[0].toFixed(1)+' '+q[1].toFixed(1)).join(' L')+'"/><circle cx="'+p[p.length-1][0].toFixed(1)+'" cy="'+p[p.length-1][1].toFixed(1)+'" r="2.6"/></svg>' }
-function avxChart(d){ const W=350,H=156,P=12, v=d.W.map(w=>d.tonW[w]||0), mx=Math.max(10,...v)*1.15, ix=v.indexOf(Math.max(...v))
-  const pts=v.map((t,i)=>[P+i*(W-2*P)/(v.length-1), H-22-(t/mx)*(H-46)])
-  const path='M'+pts.map(q=>q[0].toFixed(1)+' '+q[1].toFixed(1)).join(' L'), area=path+' L'+pts[pts.length-1][0].toFixed(1)+' '+(H-22)+' L'+pts[0][0].toFixed(1)+' '+(H-22)+' Z'
+// c271 · la curva muestra el CICLO: SEM 1…N con la fecha de cada semana; las semanas que vienen quedan marcadas y vacías
+let AVXC=0   // 0 = ciclo actual, 1 = ciclo anterior
+function avxCiclo(off){ const N=+((cicloInfo()||{}).semanas||(S.proto&&S.proto.ciclo_semanas)||6), sa=+(S.semanaActual||(S.asig&&S.asig.semana_actual)||1), c=+((S.asig&&S.asig.ciclo_actual)||1)
+  const L0=new Date(avxLunes(fLocal(new Date()))+'T12:00:00'); L0.setDate(L0.getDate()-(sa-1)*7-(off||0)*N*7)
+  const W=[]; for(let i=0;i<N;i++){ const d=new Date(L0); d.setDate(d.getDate()+i*7); W.push(fLocal(d)) }
+  return { N, sa: off?N:sa, c:c-(off||0), W } }
+function avxChart(d){ const C=avxCiclo(AVXC), W=350, H=176, P=16, base=H-36, top=26, n=C.N
+  const v=C.W.map((w,i)=>i<C.sa?(d.tonW[w]||0):null), real=v.filter(x=>x!=null), mx=Math.max(10,...real)*1.15, ix=real.length?v.indexOf(Math.max(...real)):-1
+  const X=i=>P+i*(W-2*P)/Math.max(1,n-1), Y=t=>base-(t/mx)*(base-top)
+  const pts=v.map((t,i)=>t==null?null:[X(i),Y(t)]).filter(Boolean)
+  const path=pts.length>1?'M'+pts.map(q=>q[0].toFixed(1)+' '+q[1].toFixed(1)).join(' L'):'', area=pts.length>1?path+' L'+pts[pts.length-1][0].toFixed(1)+' '+base+' L'+pts[0][0].toFixed(1)+' '+base+' Z':''
   const step=mx>120?50:mx>60?20:10, gl=[]; for(let g=step; g<mx; g+=step) gl.push(g)
-  const pk=pts[ix]
-  return '<svg class="avx__ch" viewBox="0 0 '+W+' '+H+'" role="img" aria-label="Toneladas por semana, últimas 8 semanas"><defs><linearGradient id="avxG" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#0B0B0C" stop-opacity=".45"/><stop offset="1" stop-color="#0B0B0C" stop-opacity="0"/></linearGradient></defs>'+
-    gl.map(g=>{ const y=(H-22-(g/mx)*(H-46)).toFixed(1); return '<line x1="0" x2="'+W+'" y1="'+y+'" y2="'+y+'" class="gl"/><text x="'+W+'" y="'+(y-4)+'" text-anchor="end" class="tx">'+g+' T</text>' }).join('')+
-    '<path class="ar" d="'+area+'" fill="url(#avxG)"/><path class="ln" d="'+path+'" pathLength="1"/>'+
-    pts.map((q,i)=>'<circle class="dt" style="--i:'+i+'" cx="'+q[0].toFixed(1)+'" cy="'+q[1].toFixed(1)+'" r="'+(i===ix?4.5:2.6)+'"/>').join('')+
-    (v[ix]>0?'<g class="pk" transform="translate('+Math.min(W-40,Math.max(40,pk[0])).toFixed(1)+','+(pk[1]-12).toFixed(1)+')"><rect x="-38" y="-16" width="76" height="16" rx="3"/><text y="-5" text-anchor="middle">PEAK '+avxK(v[ix])+' T</text></g>':'')+
-    d.W.map((w,i)=>'<text x="'+pts[i][0].toFixed(1)+'" y="'+(H-5)+'" text-anchor="middle" class="tx">'+w.slice(8,10)+'.'+w.slice(5,7)+'</text>').join('')+'</svg>' }
+  const hoyI=AVXC?-1:C.sa-1
+  return '<svg class="avx__ch" viewBox="0 0 '+W+' '+H+'" role="img" aria-label="Toneladas por semana del ciclo '+C.c+'"><defs><linearGradient id="avxG" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#0B0B0C" stop-opacity=".45"/><stop offset="1" stop-color="#0B0B0C" stop-opacity="0"/></linearGradient></defs>'+
+    gl.map(g=>{ const y=Y(g).toFixed(1); return '<line x1="0" x2="'+W+'" y1="'+y+'" y2="'+y+'" class="gl"/><text x="'+W+'" y="'+(y-4)+'" text-anchor="end" class="tx">'+g+' T</text>' }).join('')+
+    (hoyI>=0?'<line class="hoy" x1="'+X(hoyI).toFixed(1)+'" x2="'+X(hoyI).toFixed(1)+'" y1="'+top+'" y2="'+base+'"/>':'')+
+    (area?'<path class="ar" d="'+area+'" fill="url(#avxG)"/><path class="ln" d="'+path+'" pathLength="1"/>':'')+
+    v.map((t,i)=>t==null?'<circle class="fu" cx="'+X(i).toFixed(1)+'" cy="'+base+'" r="2.6"/>':'<circle class="dt" style="--i:'+i+'" cx="'+X(i).toFixed(1)+'" cy="'+Y(t).toFixed(1)+'" r="'+(i===ix?4.5:2.8)+'"/>').join('')+
+    (ix>=0&&v[ix]>0?'<g class="pk" transform="translate('+Math.min(W-40,Math.max(40,X(ix))).toFixed(1)+','+(Y(v[ix])-12).toFixed(1)+')"><rect x="-38" y="-16" width="76" height="16" rx="3"/><text y="-5" text-anchor="middle">PEAK '+avxK(v[ix])+' T</text></g>':'')+
+    C.W.map((w,i)=>'<text x="'+X(i).toFixed(1)+'" y="'+(H-17)+'" text-anchor="middle" class="sm'+(i===hoyI?' on':'')+(i>=C.sa?' off':'')+'">SEM '+(i+1)+'</text><text x="'+X(i).toFixed(1)+'" y="'+(H-5)+'" text-anchor="middle" class="tx'+(i>=C.sa?' off':'')+'">'+w.slice(8,10)+'.'+w.slice(5,7)+'</text>').join('')+'</svg>' }
+function avxCicloCambiar(){ AVXC=AVXC?0:1; const w=document.querySelector('.avx__chw'); if(!w||!AVX.d) return; w.innerHTML=avxChart(AVX.d); const t=document.getElementById('avxCiT'); if(t) t.innerHTML=avxCicloTxt()
+  const a=w.closest('.avx'); if(a){ a.classList.remove('on'); requestAnimationFrame(()=>requestAnimationFrame(()=>a.classList.add('on'))) } }
+function avxCicloTxt(){ const a=avxCiclo(0), b=avxCiclo(1); return '<button type="button" aria-pressed="'+(AVXC===0)+'" onclick="AVXC!==0&&avxCicloCambiar()">CICLO '+a.c+' · ACTUAL</button>'+(b.c>=1?'<button type="button" aria-pressed="'+(AVXC===1)+'" onclick="AVXC!==1&&avxCicloCambiar()">CICLO '+b.c+'</button>':'')+'<span>'+a.N+' SEMANAS</span>' }
+
 function avXPintar(quieto){
   const box=document.getElementById('avX'), d=AVX.d; if(!box||!d) return
   const vacio=!d.top.length
@@ -9424,7 +9447,7 @@ function avXPintar(quieto){
     '<div class="avx__hero"><div class="avx__k"><span>KG LEVANTADOS · TOTAL</span><b>'+(d.desde?'DESDE '+d.desde.slice(8,10)+'.'+d.desde.slice(5,7):'')+'</b></div><div class="avx__big"><b id="avxKg" data-v="'+Math.round(d.kg)+'">'+(quieto?avxN(d.kg):'0')+'</b><span>KG</span></div>'+
       '<div class="avx__st"><div><b>'+d.nS+'</b><span>SESIONES</span></div><div><b>'+d.racha+'</b><span>'+(d.racha===1?'SEMANA':'SEMANAS')+'<br>SEGUIDAS</span></div><div><b>+'+String(d.subida).replace('.',',')+'</b><span>KG MAYOR<br>SUBIDA</span></div></div></div>'+
     (vacio?'<div class="avxVac"><b>Tus datos empiezan con tu primera sesión.</b><span>Registra tus sets y aquí verás tus récords, tu carga y tu progreso.</span></div>':
-    '<section class="avx__s"><div class="avx__k"><span>01 · TU CARGA POR SEMANA</span><b>TONELADAS</b></div><div class="avx__chw">'+avxChart(d)+'</div></section>'+
+    '<section class="avx__s"><div class="avx__k"><span>01 · TU CARGA POR SEMANA</span><b>TONELADAS</b></div><div class="avx__cis" id="avxCiT">'+avxCicloTxt()+'</div><div class="avx__chw">'+avxChart(d)+'</div></section>'+
     '<section class="avx__s"><div class="avx__k"><span>02 · PERSONAL RECORDS</span><b>TOP '+d.top.length+'</b></div>'+prs+'</section>'+
     (prog?'<section class="avx__s"><div class="avx__k"><span>03 · MAYORES PROGRESOS</span><b>PRIMERA → HOY</b></div>'+prog+'</section>':'')+
     '<section class="avx__s"><div class="avx__k"><span>04 · CONSTANCIA</span><b>SESIONES POR SEMANA</b></div><div class="avx__wks">'+grid+'</div></section>'+
