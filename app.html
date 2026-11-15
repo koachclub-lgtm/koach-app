@@ -4087,6 +4087,31 @@ html:not(:has(#oAct.vis)) #sBloques.locked{filter:none;opacity:1;pointer-events:
 .oi__bic svg{width:34px;height:34px}
 .oi__bi p{margin:0;font-size:14px;line-height:1.4;color:#C9CDD2}.oi__bi b{color:#fff}
 @media (prefers-reduced-motion:reduce){ .oi__dirB,.oi__bic{animation:none} }
+
+/* c261 · INICIO con el atleta del Club del 1%: foto en movimiento de fondo, logo protagonista, "1% CLUB" en la tipografía del afiche, dos caminos claros */
+#vLogin .lgCv{display:none}
+html[data-lg-at="0"] #vLogin .lgCv{display:block}
+#vLogin .lgAt{position:absolute;left:0;right:0;top:0;height:max(70vh,calc(100vw * 1.25));background:#D9D9D9 url('/img/login/atleta-1.webp') 50% 30%/cover no-repeat;-webkit-mask:linear-gradient(#000 62%,transparent 100%);mask:linear-gradient(#000 62%,transparent 100%);animation:lgAtIn 1.6s cubic-bezier(.2,.7,.2,1) both,lgAtDrift 18s ease-in-out 1.6s infinite alternate}
+@keyframes lgAtIn{from{opacity:0;transform:scale(1.08);filter:blur(10px)}to{opacity:1;transform:none;filter:none}}
+@keyframes lgAtDrift{from{transform:none}to{transform:scale(1.05) translateX(-1.5%)}}
+#vLogin .lgBg{background:#0B0B0C}
+#vLogin .lgBg__ov{background:linear-gradient(180deg,rgba(0,0,0,.5) 0%,rgba(0,0,0,.12) 24%,rgba(0,0,0,0) 36%,rgba(0,0,0,0) 46%,rgba(5,5,6,.55) 62%,rgba(5,5,6,.92) 78%,#050506 100%)!important}
+#vLogin .lgBrand{top:calc(env(safe-area-inset-top,0px) + 8vh);width:min(70%,300px)}
+#vLogin .lgBrand img{filter:drop-shadow(0 4px 24px rgba(0,0,0,.5))}
+#vLogin .lgBrand small{color:rgba(255,255,255,.8);font-size:9px;letter-spacing:.24em}
+.lgClub{position:absolute;right:calc(18px + env(safe-area-inset-right,0px));top:calc(env(safe-area-inset-top,0px) + 8vh + min(70vw,300px) * .2 + 64px);display:flex;flex-direction:column;align-items:flex-end;text-align:right;gap:8px;color:#fff;pointer-events:none;animation:lgIn 1.2s .6s cubic-bezier(.2,.8,.2,1) both}
+.lgClub b{font:700 clamp(17px,4.8vw,21px)/1 var(--font-display);letter-spacing:-.01em;text-shadow:0 2px 14px rgba(0,0,0,.35)}
+.lgClub i{width:28px;height:2px;background:#fff}
+.lgClub span{max-width:13ch;text-shadow:0 1px 10px rgba(0,0,0,.35);font:700 10px/1.25 var(--font-display);letter-spacing:.02em;color:rgba(255,255,255,.85)}
+#vLogin:not([data-f="fLogin"]) .lgClub{display:none}
+@media (max-height:780px){ .lgClub span{display:none} }
+@media (max-height:700px){ .lgClub{display:none} }
+#vLogin .lgOr{display:flex;align-items:center;gap:12px;margin:16px 6px 0;font:700 8.5px var(--font-mono);letter-spacing:.2em;color:rgba(255,255,255,.6)}
+#vLogin .lgOr::before,#vLogin .lgOr::after{content:"";flex:1;height:1px;background:rgba(255,255,255,.18)}
+#vLogin:not([data-f="fLogin"]) .lgOr{display:none}
+#vLogin .lgNew{margin-top:10px;background:transparent;box-shadow:inset 0 0 0 1.5px rgba(255,255,255,.7)}
+#vLogin .lgNew span{margin-left:8px}
+@media (prefers-reduced-motion:reduce){ #vLogin .lgAt,.lgClub{animation:none} }
 </style>
 </head>
 <body>
@@ -4101,7 +4126,7 @@ html:not(:has(#oAct.vis)) #sBloques.locked{filter:none;opacity:1;pointer-events:
 
   <!-- ══ LOGIN ══ -->
   <div class="vista" id="vLogin">
-    <div class="lgBg" aria-hidden="true"><canvas class="lgCv" id="lgCv"></canvas><div class="lgBg__img" id="lgBgImg"></div><div class="lgBg__ov"></div></div>
+    <div class="lgBg" aria-hidden="true"><div class="lgAt"></div><canvas class="lgCv" id="lgCv"></canvas><div class="lgBg__img" id="lgBgImg"></div><div class="lgBg__ov"></div></div>
     <div class="wel" id="lgWel">
       <div class="wel__body">
         <div class="wel__firma"><img class="kLogo kLogo--wel" src="/img/brand/logotipo-koach.png" alt="KOACH Fitness Club"></div>
@@ -4114,7 +4139,7 @@ html:not(:has(#oAct.vis)) #sBloques.locked{filter:none;opacity:1;pointer-events:
     </div>
     <div class="lg" id="lgForms" hidden>
       <div class="lgTop"><button type="button" class="lgBack" onclick="bienvenida()" aria-label="Volver al inicio">← VOLVER</button><img src="/img/brand/isotipo-blanco.png" alt="" width="26" height="27" class="lgTop__k"></div>
-      <div class="lgBrand"><img src="/img/brand/logotipo-koach.png" alt="KOACH"><small>LA EVOLUCIÓN DEL FITNESS</small></div>
+      <div class="lgBrand"><img src="/img/brand/logotipo-koach.png" alt="KOACH"><small>LA EVOLUCIÓN DEL FITNESS</small></div><div class="lgClub" aria-hidden="true"><b>1% CLUB</b><i></i><span>FOCUS ON PROGRESS, [NOT PERFECTION]</span></div>
       <div class="lgCard"><h2 class="lgTit" id="lgTit">INICIAR SESIÓN</h2>
       <form id="fLogin" onsubmit="event.preventDefault(); login()" novalidate>
         <label class="lbl" for="lEmail">EMAIL</label>
@@ -4169,7 +4194,7 @@ html:not(:has(#oAct.vis)) #sBloques.locked{filter:none;opacity:1;pointer-events:
         <div class="links"><a href="#" role="button" onclick="event.preventDefault();authVista('fLogin')">← Volver a iniciar sesión</a><span></span></div>
       </div>
       </div>
-      <button type="button" class="lgNew" onclick="authVista('fReg')">CREAR CUENTA</button>
+      <div class="lgOr"><span>¿PRIMERA VEZ EN EL CLUB?</span></div><button type="button" class="lgNew" onclick="authVista('fReg')">CREAR CUENTA <span aria-hidden="true">→</span></button>
     </div>
   </div>
 
@@ -5248,7 +5273,7 @@ function fotoLogin(){ return /* c112 · el inicio usa cromo animado, sin foto */
   const a=new Image(); a.onload=()=>set(LOGIN_BG.avif); a.onerror=()=>{ const w=new Image(); w.onload=()=>set(LOGIN_BG.webp); w.src=LOGIN_BG.webp }; a.src=LOGIN_BG.avif }
 function ojo(id,b){ const i=document.getElementById(id); const v=i.type==='password'; i.type=v?'text':'password'; b.style.opacity=v?'1':'.55'
   b.setAttribute('aria-label', v?'Ocultar contraseña':'Mostrar contraseña'); b.setAttribute('aria-pressed', v?'true':'false') }
-const AUTH_TIT={ fLogin:'INICIAR SESIÓN', fReg:'CREAR MI CUENTA', fRecu:'RECUPERAR ACCESO', fNueva:'CREA TU NUEVA CONTRASEÑA', fInval:'ESTE ENLACE YA NO ES VÁLIDO' }
+const AUTH_TIT={ fLogin:'YA SOY SOCIO · INICIAR SESIÓN', fReg:'CREAR MI CUENTA', fRecu:'RECUPERAR ACCESO', fNueva:'CREA TU NUEVA CONTRASEÑA', fInval:'ESTE ENLACE YA NO ES VÁLIDO' }
 function authVista(id){ ['fLogin','fReg','fRecu','fNueva','fInval'].forEach(f=>document.getElementById(f).style.display=f===id?'block':'none')
   document.getElementById('vLogin').dataset.f=id; lgCromo()
   document.getElementById('lgTit').textContent=AUTH_TIT[id]||''
@@ -5259,7 +5284,7 @@ function authVista(id){ ['fLogin','fReg','fRecu','fNueva','fInval'].forEach(f=>d
 function bienvenida(){ /* c112 · inicio = login directo sobre cromo; crear cuenta es el botón de abajo */
   const e=document.getElementById('lErr'); if(e) e.style.display='none'; authVista('fLogin') }
 /* c112 · fondo del inicio: cromo negro con pliegues lentos y una luz fría que lo recorre. Solo corre con el inicio visible. */
-function lgCromo(){ if(lgCromo._on) return; const cv=document.getElementById('lgCv'); if(!cv||!cv.getContext) return; lgCromo._on=true
+function lgCromo(){ if(lgCromo._on || document.documentElement.dataset.lgAt!=='0') return; const cv=document.getElementById('lgCv'); if(!cv||!cv.getContext) return; lgCromo._on=true
   const c=cv.getContext('2d'), RM=matchMedia('(prefers-reduced-motion: reduce)').matches; let t=0
   const fit=()=>{ const r=Math.min(1.5,window.devicePixelRatio||1); cv.width=Math.round(innerWidth*r); cv.height=Math.round(innerHeight*r) }; fit(); addEventListener('resize',fit)
   const draw=()=>{ const v=document.getElementById('vLogin'); if(!v||!v.classList.contains('on')){ setTimeout(()=>requestAnimationFrame(draw),900); return }
