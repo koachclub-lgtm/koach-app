@@ -4684,14 +4684,14 @@ function sessionTipo(nombre){
   const n=String(nombre||'').toUpperCase()
   if (/METAB|BURN|CARDIO|HIIT|CONDIC|RESIST/.test(n)) return 'metabolic'
   if (/TOTAL|FULL|FUNCIONAL/.test(n)) return 'total'
-  if (/LOWER|GL[UÚ]TE|PIERNA|LEG|INFERIOR|ISQUIO|CU[AÁ]DRI/.test(n)) return 'lower'
-  if (/UPPER|ARMS|BRAZO|PUSH|PULL|PECHO|ESPALDA|HOMBRO|SUPERIOR|TORSO/.test(n)) return 'upper'
+  if (/LOWER|GL[UÚ]TE|PIERNA|LEG|INFERIOR|ISQUIO|CU[AÁ]DRI|SENTADILLA|SQUAT|CADERA|\bHIP\b|BISAGRA|ZANCADA|LUNGE|PESO MUERTO|DEADLIFT/.test(n)) return 'lower'
+  if (/UPPER|ARMS|BRAZO|PUSH|PULL|PECHO|ESPALDA|HOMBRO|SUPERIOR|TORSO|EMPUJE|TRACCI[OÓ]N|REMO|\bROW\b|PRESS|DOMINADA|JAL[OÓ]N/.test(n)) return 'upper'
   return null
 }
 // Segmentación por sexo del SOCIO (registrado en su alta); respaldo: sexo del protocolo asignado
 function sessionVariante(){ const x=String((S.perfil&&(S.perfil.sex||S.perfil.sexo))||(S.proto&&S.proto.sexo)||'').toLowerCase()
   return /muj|fem|^f$/.test(x)?'female':/homb|masc|^m$/.test(x)?'male':'neutral' }
-function sessionImagen(nombre){ const t=sessionTipo(nombre); if(!t) return null
+function sessionImagen(nombre){ const t=sessionTipo(nombre)||'total'   // c264 · ninguna tarjeta sin foto: sin tipo reconocible → foto estándar (cuerpo completo)
   const v=SESSION_VISUAL[t]; return v[sessionVariante()]||v.neutral||null }
 // o: { nombre, sub, estado:'available'|'active'|'completed'|'locked'|'pending'|'future', onClick, variant:'default'|'history' }
 function sessionPill(o){
