@@ -292,7 +292,80 @@ const CSS = `
 .keu__sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
 @media (prefers-reduced-motion:reduce){.keu__bx,.keu__rec{animation:none;opacity:1}}
 
+/* c249 · GUÍA DE CAPTURA en capa HUD (misma gramática que la lectura): texto dominante + escena animada en loop de 9 s
+   01 DESDE ARRIBA (el teléfono baja y encuadra) · 02 CON BUENA LUZ (sol + cono de luz) · 03 TODO EL PLATO (esquinas cierran + barrido) */
+.keu__gx{position:relative;min-height:100%;padding:18px 20px 28px;background:#050505 radial-gradient(120% 60% at 50% 0%,#1C1D20 0%,#050505 62%);color:#E9E8E4;overflow:clip}
+.keu__gx::before{content:'';position:absolute;inset:0;background:repeating-linear-gradient(0deg,rgba(255,255,255,.025) 0 1px,transparent 1px 3px);pointer-events:none}
+.keu__gx>*{position:relative}
+.keu__gh{display:flex;justify-content:space-between;align-items:center;font:700 9.5px var(--k-m);letter-spacing:.16em;color:#A7A9AE}
+.keu__gh span:first-child{display:flex;align-items:center;gap:8px}
+.keu__gx h2{margin:14px 0 0;font:800 clamp(34px,10vw,44px)/.95 var(--k-d);letter-spacing:-.035em;color:#FFFFFF;text-wrap:balance}
+.keu__gx>p{margin:10px 0 0;font:400 14.5px/1.45 var(--k-d);color:#A7A9AE;max-width:36ch}
+.keu__pp{display:flex;align-items:center;gap:6px;margin-top:14px;font:700 8.5px var(--k-m);letter-spacing:.14em;color:#8E8D88;flex-wrap:wrap}
+.keu__pp b{color:#E9E8E4;font-weight:700}.keu__pp i{font-style:normal;color:#5E5D59}
+.keu__st{position:relative;margin:16px auto 0;width:min(100%,330px);aspect-ratio:1/1;border:1px solid rgba(233,232,228,.14);border-radius:8px;overflow:hidden;
+  background:#080809;background-image:linear-gradient(rgba(233,232,228,.07) 1px,transparent 1px),linear-gradient(90deg,rgba(233,232,228,.07) 1px,transparent 1px);background-size:22px 22px}
+.keu__st svg{position:absolute;inset:0;width:100%;height:100%;overflow:visible}
+.keu__st .ln{fill:none;stroke:#E9E8E4;stroke-linecap:round;stroke-linejoin:round}
+.keu__st *{transform-box:fill-box;transform-origin:center}
+.kg-ring{animation:kgRot 14s linear infinite}
+.kg-ring2{animation:kgRot 22s linear infinite reverse}
+.kg-food{animation:kgFood 9s ease-in-out infinite}
+.kg-ph{animation:kgPh 9s cubic-bezier(.3,.8,.3,1) infinite}
+.kg-ar{animation:kgAr 9s ease-in-out infinite}
+.kg-sun{animation:kgSun 9s ease-in-out infinite}
+.kg-sun .ry{animation:kgRot 6s linear infinite}
+.kg-cone{animation:kgCone 9s ease-in-out infinite}
+.kg-cr{animation:kgCr 9s cubic-bezier(.2,.8,.2,1) infinite}
+.kg-sc{animation:kgSc 9s linear infinite}
+.kg-ok{animation:kgOk 9s ease-out infinite}
+@keyframes kgRot{to{transform:rotate(360deg)}}
+@keyframes kgFood{0%,33%{opacity:.55}40%,63%{opacity:1}70%,100%{opacity:.9}}
+@keyframes kgPh{0%{opacity:0;transform:translateY(-70px) scale(.92)}10%,28%{opacity:1;transform:none}36%,100%{opacity:.18;transform:none}}
+@keyframes kgAr{0%,3%{opacity:0;transform:translateY(-10px)}10%,26%{opacity:1;transform:translateY(6px)}33%,100%{opacity:0}}
+@keyframes kgSun{0%,33%{opacity:0;transform:scale(.6)}40%,62%{opacity:1;transform:scale(1)}70%,100%{opacity:.25;transform:scale(.9)}}
+@keyframes kgCone{0%,33%{opacity:0}42%,62%{opacity:.5}70%,100%{opacity:.12}}
+@keyframes kgCr{0%,64%{opacity:0;transform:scale(1.35)}72%,100%{opacity:1;transform:scale(1)}}
+@keyframes kgSc{0%,70%{opacity:0;transform:translateY(-120px)}73%{opacity:1}92%{opacity:1;transform:translateY(120px)}95%,100%{opacity:0;transform:translateY(120px)}}
+@keyframes kgOk{0%,88%{opacity:0;transform:translateY(6px)}92%,100%{opacity:1;transform:none}}
+.keu__cap{position:absolute;left:12px;right:12px;bottom:10px;height:16px;font:700 9.5px var(--k-m);letter-spacing:.18em;color:#F4F3F0}
+.keu__cap span{position:absolute;left:0;right:0;opacity:0;animation:kgCap 9s steps(1) infinite}
+.keu__cap span:nth-child(2){animation-delay:-6s}.keu__cap span:nth-child(3){animation-delay:-3s}
+@keyframes kgCap{0%{opacity:1}33.33%,100%{opacity:0}}
+.keu__tp{list-style:none;margin:14px 0 0;padding:0;display:grid;gap:2px}
+.keu__tp li{display:grid;grid-template-columns:34px 1fr;gap:10px;align-items:start;padding:10px 12px;border-radius:10px;border:1px solid transparent;color:#6E6D69;animation:kgTip 9s steps(1) infinite}
+.keu__tp li:nth-child(2){animation-delay:-6s}.keu__tp li:nth-child(3){animation-delay:-3s}
+.keu__tp em{font:700 11px var(--k-m);letter-spacing:.08em;font-style:normal;padding-top:3px}
+.keu__tp b{display:block;font:800 18px/1.1 var(--k-d);letter-spacing:-.02em}
+.keu__tp small{display:block;margin-top:3px;font:400 12.5px/1.35 var(--k-d)}
+@keyframes kgTip{0%{color:#F4F3F0;border-color:rgba(233,232,228,.22);background:rgba(255,255,255,.04)}33.33%,100%{color:#6E6D69;border-color:transparent;background:transparent}}
+.keu__gx .keu__nota{margin:12px 2px 0;color:#8E8D88}
+.keu__gx .keu__bt{position:sticky;bottom:calc(-48px - env(safe-area-inset-bottom,0px));z-index:2;margin:0 -20px -28px;padding:26px 20px calc(16px + 48px + env(safe-area-inset-bottom,0px));background:linear-gradient(rgba(5,5,5,0),#050505 22%)}
+.keu__gx .keu__cta{background:#F4F3F0;color:#050505}
+.keu__gx .keu__sec{border-color:rgba(233,232,228,.5);color:#F4F3F0}
+.keu__gx .keu__lnk{color:#C9C8C3}
+.keu__gx button:focus-visible{outline-color:#F4F3F0}
+@media (prefers-reduced-motion:reduce){.keu__st *,.keu__tp li,.keu__cap span{animation:none!important}.kg-ph,.kg-cr,.kg-sun,.kg-cone{opacity:1;transform:none}.keu__cap span:first-child{opacity:1}}
 `
+// c249 · escena de la guía (viewBox 300): plato cenital con comida, anillos girando, teléfono que encuadra, sol + cono de luz, esquinas y barrido
+const GSCENA = '<svg viewBox="0 0 300 300">' +
+  '<defs><radialGradient id="kgL" cx="50%" cy="0%" r="100%"><stop offset="0" stop-color="#FFFFFF" stop-opacity=".9"/><stop offset="1" stop-color="#FFFFFF" stop-opacity="0"/></radialGradient></defs>' +
+  '<path class="kg-cone" d="M236 40 L92 250 L250 250 Z" fill="url(#kgL)"/>' +
+  '<circle class="kg-ring ln" cx="150" cy="150" r="104" stroke-width="1" stroke-dasharray="2 7" opacity=".55"/>' +
+  '<circle class="kg-ring2 ln" cx="150" cy="150" r="116" stroke-width="1" stroke-dasharray="26 10 4 10" opacity=".3"/>' +
+  '<g class="kg-food"><circle cx="150" cy="150" r="78" fill="#121214" stroke="#E9E8E4" stroke-width="1.6"/><circle class="ln" cx="150" cy="150" r="62" stroke-width="1" opacity=".5"/>' +
+    '<path d="M118 128c10-14 34-14 40 2 6 15-10 26-26 24-14-2-22-14-14-26z" fill="#C9C8C3"/>' +
+    '<g fill="#F4F3F0">' + [[160,170],[168,163],[175,172],[165,180],[178,182],[157,186],[171,190],[184,175]].map(p => '<ellipse cx="' + p[0] + '" cy="' + p[1] + '" rx="4.2" ry="2.6"/>').join('') + '</g>' +
+    '<path d="M122 170c8-10 22-8 24 4-6 10-20 12-24-4z" fill="#8E8D88"/><path class="ln" d="M124 172c6 2 12 1 20-2" stroke-width="1" opacity=".7"/>' +
+    '<circle cx="182" cy="128" r="9" fill="#A7A9AE"/><circle cx="176" cy="122" r="6" fill="#E9E8E4"/></g>' +
+  '<g class="kg-ph"><rect x="88" y="62" width="124" height="176" rx="18" fill="none" stroke="#F4F3F0" stroke-width="2.5"/><rect x="132" y="70" width="36" height="6" rx="3" fill="#F4F3F0"/>' +
+    '<path class="ln" d="M100 92v-12h12M188 80h12v12M200 208v12h-12M112 220h-12v-12" stroke-width="2"/></g>' +
+  '<g class="kg-ar"><path class="ln" d="M150 14v26M140 30l10 10 10-10" stroke-width="2.2"/><text x="166" y="28" fill="#A7A9AE" font-family="IBM Plex Mono,monospace" font-size="10" letter-spacing="1.5">90°</text></g>' +
+  '<g class="kg-sun"><circle cx="248" cy="44" r="12" fill="#F4F3F0"/><g class="ry"><path class="ln" d="M248 18v8M248 62v8M222 44h8M266 44h8M230 26l5 5M261 57l5 5M230 62l5-5M261 31l5-5" stroke-width="2"/></g></g>' +
+  '<g class="kg-cr"><path class="ln" d="M62 96V66h30M208 66h30v30M238 204v30h-30M92 234H62v-30" stroke-width="3"/></g>' +
+  '<rect class="kg-sc" x="66" y="148" width="168" height="2" fill="#FFFFFF" style="filter:drop-shadow(0 0 8px #FFFFFF)"/>' +
+  '<g class="kg-ok"><rect x="102" y="10" width="96" height="20" rx="3" fill="#F4F3F0"/><text x="150" y="24" text-anchor="middle" fill="#050505" font-family="IBM Plex Mono,monospace" font-size="9" font-weight="700" letter-spacing="1.5">PLATO OK ✓</text></g>' +
+  '</svg>'
 const COC = [['plancha', 'Plancha, horno o vapor'], ['aceite', 'Con aceite'], ['frito', 'Frito'], ['salsa', 'Con salsa o aderezo']]
 const ROLX = { proteina: 'PROTEÍNA', legumbre: 'PROTEÍNA', lacteo: 'PROTEÍNA', carbohidrato: 'CARBOHIDRATO', fruta: 'CARBOHIDRATO', verdura: 'VERDURA', grasa: 'GRASA', dulce: 'DULCE', bebida: 'BEBIDA', otro: 'OTRO' }
 const DUDA = 0.6
@@ -343,13 +416,23 @@ function reset(){ S.porc = 1; S.noSug = false; S.fuente = null; S.r = null; S.al
 function guia(num){
   if (num) S.num = +num
   if (Date.now() - (S._silG || 0) > 400) SND('scan-lock', 0, .65)   // comida elegida: fijación
-  pantalla('<div class="keu__hd"><span class="keu__lbl">' + esc(etiqueta()) + '</span><h2>Saca la foto de tu ' + esc(nomC()) + '</h2></div>' +
-    '<div class="keu__pad"><div class="keu__gd"><div>' + ico(I.top) + 'Desde arriba</div><div>' + ico(I.sol) + 'Con buena luz</div><div>' + ico(I.plato) + 'Todo el plato</div></div>' +
-    '<p class="keu__nota">La foto no se guarda: solo se usa para reconocer tu comida.</p></div>' +
+  const c = comidaN(S.num), hora = c && c.hora ? ' · ' + esc(c.hora) : ''
+  const tit = esExtra() ? 'Escanea lo que comiste' : S.num ? 'Escanea tu comida ' + S.num : 'Escanea tu comida'
+  pantalla('<div class="keu__gx"><div class="keu__gh"><span><i class="keu__rec"></i>SCAN · ' + esc(etiqueta()) + hora + '</span><span>IA · KOACH</span></div>' +
+    '<h2>' + tit + '</h2>' +
+    '<p>Saca una foto de tu plato: reconocemos los alimentos, los comparamos con tu plan y registras tu comida.</p>' +
+    '<div class="keu__pp"><b>01 FOTO</b><i>→</i><b>02 LECTURA</b><i>→</i><b>03 VS TU PLAN</b><i>→</i><b>04 REGISTRO</b></div>' +
+    '<div class="keu__st" aria-hidden="true">' + GSCENA + '<div class="keu__cap"><span>01 · DESDE ARRIBA</span><span>02 · CON BUENA LUZ</span><span>03 · TODO EL PLATO</span></div></div>' +
+    '<ol class="keu__tp" aria-label="Cómo sacar la foto">' +
+      '<li><em>01</em><span><b>Desde arriba</b><small>El teléfono paralelo a la mesa, sobre el centro del plato.</small></span></li>' +
+      '<li><em>02</em><span><b>Con buena luz</b><small>Luz de día o una lámpara encima. Sin flash ni sombras fuertes.</small></span></li>' +
+      '<li><em>03</em><span><b>Todo el plato</b><small>Que entre completo, con un poco de mesa alrededor.</small></span></li></ol>' +
+    '<p class="keu__nota">La foto no se guarda: solo se usa para reconocer tu comida.</p>' +
     '<div class="keu__bt"><button type="button" class="keu__cta" onclick="KEU.camara()">' + ico(I.cam) + 'Tomar foto</button>' +
     '<button type="button" class="keu__sec" onclick="KEU.galeria()">' + ico(I.gal) + 'ELEGIR DE LA GALERÍA</button>' +
-    '<button type="button" class="keu__lnk" onclick="KEU.describir()">' + ico(I.txt) + 'DESCRIBIR SIN FOTO</button></div>',
+    '<button type="button" class="keu__lnk" onclick="KEU.describir()">' + ico(I.txt) + 'DESCRIBIR SIN FOTO</button></div></div>',
     etiqueta(), plan().comidas.length > 1 ? 'COMIDAS' : null, () => abrir())
+  el().classList.add('keu--hud')
 }
 function camara(){ if (!S.busy) { SND('scan-paso', 0, .8); $('keuF').click() } }
 function galeria(){ if (!S.busy) { SND('scan-paso', 0, .8); $('keuG').click() } }
