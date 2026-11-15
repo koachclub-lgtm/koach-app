@@ -511,11 +511,14 @@ async function handle(msg) {
       }
       const t = TOOLS[params?.name];
       if (!t) return { jsonrpc: '2.0', id, error: { code: -32602, message: `Herramienta desconocida: ${params?.name}` } };
+      const t0 = Date.now(), argKB = Math.round(JSON.stringify(params.arguments || {}).length / 1024);
       try {
         if (!SK) throw new Error('Falta SUPABASE_SERVICE_ROLE_KEY en Vercel (proyecto koach-visual-bridge).');
         const out = await t.run(params.arguments || {});
+        console.log(`[tool] ${params.name} ${params.arguments?.visual_key || ''} ok ${Date.now() - t0}ms args=${argKB}KB`);
         return { jsonrpc: '2.0', id, result: { content: [{ type: 'text', text: JSON.stringify(out) }], structuredContent: Array.isArray(out) ? { items: out } : out } };
       } catch (e) {
+        console.error(`[tool] ${params.name} ${params.arguments?.visual_key || ''} ERROR ${Date.now() - t0}ms args=${argKB}KB: ${String(e.message || e).slice(0, 300)}`);
         return { jsonrpc: '2.0', id, result: { isError: true, content: [{ type: 'text', text: String(e.message || e) }] } };
       }
     }
