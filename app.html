@@ -5283,7 +5283,8 @@ function fotoLogin(){ return /* c112 · el inicio usa cromo animado, sin foto */
 function ojo(id,b){ const i=document.getElementById(id); const v=i.type==='password'; i.type=v?'text':'password'; b.style.opacity=v?'1':'.55'
   b.setAttribute('aria-label', v?'Ocultar contraseña':'Mostrar contraseña'); b.setAttribute('aria-pressed', v?'true':'false') }
 const AUTH_TIT={ fLogin:'YA SOY PARTE DEL CLUB · INICIAR SESIÓN', fReg:'CREAR MI CUENTA', fRecu:'RECUPERAR ACCESO', fNueva:'CREA TU NUEVA CONTRASEÑA', fInval:'ESTE ENLACE YA NO ES VÁLIDO' }
-function authVista(id){ ['fLogin','fReg','fRecu','fNueva','fInval'].forEach(f=>document.getElementById(f).style.display=f===id?'block':'none')
+function authVista(id){ const _ant=(document.getElementById('vLogin')||{}).dataset; if (_ant && _ant.f && _ant.f!==id) kSnd('scan-paso',.7)
+  ;['fLogin','fReg','fRecu','fNueva','fInval'].forEach(f=>document.getElementById(f).style.display=f===id?'block':'none')
   document.getElementById('vLogin').dataset.f=id; lgCromo()
   document.getElementById('lgTit').textContent=AUTH_TIT[id]||''
   document.querySelector('#lgForms .lgBack').style.display = id==='fNueva' ? 'none' : ''
@@ -5686,10 +5687,13 @@ function initSlide(el,onOk){
 }
 
 /* ══ AUTH ══ */
+// c263 · sonidos del alta (misma familia que el escáner): paso, fijación, error, listo
+function kSnd(n, g){ try{ kAudioUnlock(); window.KSFX && KSFX.play(n, 0, g==null?.8:g) }catch(_){} }
 async function login(){
   const email=document.getElementById('lEmail').value.trim(), pass=document.getElementById('lPass').value
   const err=document.getElementById('lErr'); err.style.display='none'
   const b=document.getElementById('bLogin'); if (b.disabled) return   // sin doble envío
+  kSnd('scan-paso')
   b.disabled=true; b.classList.add('is-loading'); b.innerHTML='<i class="btn__spin" aria-hidden="true"></i>ENTRANDO…'
   let { error } = await sb.auth.signInWithPassword({ email, password:pass })
   // Clave = RUT: el dígito verificador K se escribe indistinto (k/K). Si falla, reintenta con el otro caso.
@@ -5704,19 +5708,19 @@ async function login(){
       : /rate|too many/i.test(_m) ? 'Demasiados intentos. Espera un minuto y vuelve a intentar.'
       : /fetch|network/i.test(_m) ? 'Sin conexión. Revisa tu internet e intenta de nuevo.'
       : 'No pudimos entrar: '+(_m||'intenta de nuevo')
-    err.style.display='block'; b.disabled=false; b.classList.remove('is-loading'); b.classList.add('is-error'); setTimeout(()=>b.classList.remove('is-error'),600)
+    kSnd('scan-error',.7); err.style.display='block'; b.disabled=false; b.classList.remove('is-loading'); b.classList.add('is-error'); setTimeout(()=>b.classList.remove('is-error'),600)
     b.innerHTML='ENTRAR <span aria-hidden="true">→</span>'; return 
   }
   b.disabled=false; b.classList.remove('is-loading'); b.innerHTML='ENTRAR <span aria-hidden="true">→</span>'
   entrar()
 }
-function regSexo(x){ window._rSexo=x; document.getElementById('rSexH').classList.toggle('on',x==='hombre'); document.getElementById('rSexM').classList.toggle('on',x==='mujer') }
+function regSexo(x){ kSnd('scan-lock',.6); window._rSexo=x; document.getElementById('rSexH').classList.toggle('on',x==='hombre'); document.getElementById('rSexM').classList.toggle('on',x==='mujer') }
 // v10.3 · Registro propio del socio: cuenta + perfil completo en un paso (sin correos). Sin plan ni membresía:
 // el equipo los activa desde MEMBRESÍAS › POR ACTIVAR.
 async function registro(){
   const v=id=>(document.getElementById(id).value||'').trim()
   const err=document.getElementById('rErr'); err.style.display='none'
-  const f=(m)=>{ err.textContent=m; err.style.display='block' }
+  const f=(m)=>{ kSnd('scan-error',.7); err.textContent=m; err.style.display='block' }
   const nombre=v('rNombre'), apellido=v('rApellido'), email=v('rEmail').toLowerCase(), tel=v('rTel'), nac=v('rNac')
   const pass=document.getElementById('rPass').value, pass2=document.getElementById('rPass2').value
   if (nombre.length<2 || apellido.length<2) return f('Completa tu nombre y apellido.')
@@ -5725,13 +5729,14 @@ async function registro(){
   if (!nac) return f('Indica tu fecha de nacimiento.')
   if (pass.length<8) return f('La contraseña debe tener al menos 8 caracteres.')
   if (pass!==pass2) return f('Las contraseñas no coinciden.')
-  const b=document.getElementById('bReg'); b.disabled=true; b.textContent='CREANDO TU CUENTA…'
+  const b=document.getElementById('bReg'); kSnd('scan-paso'); b.disabled=true; b.textContent='CREANDO TU CUENTA…'
   try{
     const r=await sb.rpc('registro_socio',{p_email:email,p_password:pass,p_nombre:nombre,p_apellido:apellido,p_telefono:tel||null,p_sexo:window._rSexo,p_fecha_nacimiento:nac})
     if (r.error) throw r.error
     const { error } = await sb.auth.signInWithPassword({ email, password:pass })
     if (error) throw error
-    b.textContent='CUENTA CREADA ✓'
+    b.textContent='CUENTA CREADA ✓'; kSnd('scan-lista',.9)
+    await new Promise(r=>setTimeout(r,650))   // que se oiga el cierre antes del encendido del logo
     await entrar()
   }catch(e){
     const m=String(e.message||'')
@@ -6423,7 +6428,7 @@ function onbSO(){ const u=navigator.userAgent||''
   if (/iphone|ipad|ipod/i.test(u) || (navigator.platform==='MacIntel' && navigator.maxTouchPoints>1)) return /crios|fxios|edgios/i.test(u)?'ios-otro':'ios'
   if (/android/i.test(u)) return 'android'; return 'pc' }
 function onbIniciar(){ try{ if (!esPWA() && !localStorage.getItem('koach_inst_ok') && onbSO()!=='pc'){ onbInstalar(); return } }catch(_e){} onbTerminos() }
-function onbCerrar(el, sig){ el.classList.remove('in'); setTimeout(()=>{ el.remove(); document.body.classList.remove('wl-on'); if(sig) sig() },300) }
+function onbCerrar(el, sig){ kSnd('scan-paso',.7); el.classList.remove('in'); setTimeout(()=>{ el.remove(); document.body.classList.remove('wl-on'); if(sig) sig() },300) }
 const ONB_SVG={
   share:'<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 15V3M7.5 7.5 12 3l4.5 4.5"/><path d="M7 10H5.5A1.5 1.5 0 0 0 4 11.5v8A1.5 1.5 0 0 0 5.5 21h13a1.5 1.5 0 0 0 1.5-1.5v-8a1.5 1.5 0 0 0-1.5-1.5H17"/></svg>',
   plus:'<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="3.5" y="3.5" width="17" height="17" rx="4"/><path d="M12 8v8M8 12h8"/></svg>',
@@ -6527,7 +6532,7 @@ function pedirFoto(){
     '<ul class="onb__ben"><li>Tu koach te reconoce en la sala desde el primer día.</li><li>Tu credencial digital del club queda activa en tu Perfil.</li><li>Tus logros y tarjetas para compartir llevan tu identidad.</li></ul></div>'+
     '<div class="onb__ft"><div><button type="button" class="onb__ok" id="oFotoOk">SUBIR MI FOTO</button><button type="button" class="onb__no" id="oFotoNo">Ahora no · la agrego desde mi Perfil</button></div></div>'
   document.body.appendChild(el); requestAnimationFrame(function(){ el.classList.add('in') })
-  const fin=function(){ try{ localStorage.setItem(_fotoKey(),'1') }catch(_e){} el.classList.remove('in'); setTimeout(function(){ el.remove() }, 300) }
+  const fin=function(){ kSnd('scan-paso',.7); try{ localStorage.setItem(_fotoKey(),'1') }catch(_e){} el.classList.remove('in'); setTimeout(function(){ el.remove() }, 300) }
   document.getElementById('oFotoNo').onclick=fin
   document.getElementById('oFotoOk').onclick=function(){ fin()
     KAvatar.editar(sb, S.perfil.id, S.perfil.avatar_path||null, function(nuevo){ S.perfil.avatar_path=nuevo; try{ pintarAvatarPerfil() }catch(_e){} if (nuevo) toast('Credencial activada ✓') }) }
