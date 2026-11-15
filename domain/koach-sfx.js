@@ -40,8 +40,20 @@
   };
   fetchAll();   // descarga liviana en segundo plano; se decodifica al primer toque
 
+  /* c241 · SONIDO FORZADO: los sonidos de KOACH suenan aunque el iPhone esté en silencio (solo manda el volumen).
+     iOS 17+: audioSession 'playback'. iOS anterior: un audio HTML mudo en el primer toque saca a Web Audio del canal "ambiente".
+     Android ya suena con el volumen multimedia, sin importar el modo silencio/vibración. */
+  function forzar() { try { if (navigator.audioSession && navigator.audioSession.type !== 'playback') navigator.audioSession.type = 'playback' } catch (_) {} }
+  var SIL = 'data:audio/wav;base64,UklGRigAAABXQVZFZm10IBAAAAABAAEARKwAAIhYAQACABAAZGF0YQQAAAAAAAAA', silEl = null;
+  function puenteIOS() {
+    if (navigator.audioSession || silEl) return;
+    if (!/iP(hone|ad|od)|Macintosh/.test(navigator.userAgent) || !('ontouchend' in document)) return;
+    try { silEl = new Audio(SIL); silEl.setAttribute('playsinline', ''); silEl.loop = true; silEl.volume = 0.01; var p = silEl.play(); if (p && p.catch) p.catch(function () { silEl = null }) } catch (_) { silEl = null }
+  }
+  forzar();
   /* desbloqueo del audio en el primer toque de la app (regla de iOS/Android) y decodificación inmediata */
-  function unlock() { try { if (typeof kAudioUnlock === 'function') kAudioUnlock(); KSFX.preload() } catch (_) {} }
+  function unlock() { try { forzar(); puenteIOS(); if (typeof kAudioUnlock === 'function') kAudioUnlock(); KSFX.preload() } catch (_) {} }
+  document.addEventListener('visibilitychange', function () { if (!document.hidden) { forzar(); try { var c = ctx(); if (c && c.state !== 'running') c.resume() } catch (_) {} } });
   ['pointerdown', 'touchend', 'click'].forEach(function (ev) { document.addEventListener(ev, unlock, { capture: true, passive: true }) });
 
   /* ── KLOGO · video original del encendido ── */
