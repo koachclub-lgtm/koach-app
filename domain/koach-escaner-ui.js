@@ -253,6 +253,34 @@ const CSS = `
 .keu__wt--r:not(.keu__wt--a) .keu__wb--3 s{animation:none}
 .keu__bt--top{padding:0 0 12px}
 .keu__pad--r .keu__sts:empty{display:none}
+/* c264 · selector, preparación y descripción en el lenguaje oscuro de escaneo (igual que guía y análisis) */
+.keu__pp b.ok{color:#3EC6B0}.keu__pp b.off{color:#5E5D59}
+.keu__pk--d{display:flex;flex-direction:column;gap:8px;margin-top:20px}
+.keu__pk--d button{display:grid;grid-template-columns:40px 1fr auto;align-items:center;gap:12px;min-height:66px;padding:10px 14px 10px 12px;border-radius:16px;border:1px solid rgba(233,232,228,.14);background:rgba(255,255,255,.035);color:#F4F3F0;text-align:left;cursor:pointer}
+.keu__pk--d button em{width:40px;height:40px;border-radius:50%;border:1.5px solid rgba(233,232,228,.55);display:flex;align-items:center;justify-content:center;font:700 14px var(--k-m);font-style:normal;color:#F4F3F0;background:transparent}
+.keu__pk--d button b{display:block;font:800 18px/1.1 var(--k-d);letter-spacing:-.01em;color:#FFFFFF}
+.keu__pk--d button small{display:block;margin-top:4px;font:700 9px var(--k-m);letter-spacing:.12em;color:#8E8D88}
+.keu__pk--d .keu__pill{background:transparent!important;border:1px solid rgba(233,232,228,.35)!important;color:#A7A9AE!important}
+.keu__pk--d .keu__pill.done{border-color:#3EC6B0!important;color:#3EC6B0!important}.keu__pk--d .keu__pill.done svg{stroke:#3EC6B0}
+.keu__pk--d .keu__pill.fill{border-color:#FF4200!important;color:#FF4200!important}
+.keu__pk--d button.ok em{border-color:#3EC6B0;color:#3EC6B0}
+.keu__pk--d .keu__pkx{border-style:dashed;background:transparent}
+.keu__pk--d button:active{transform:scale(.99)}
+.keu__pv{position:relative;margin-top:18px;border-radius:14px;overflow:hidden;background:#111}
+.keu__pv img{display:block;width:100%;max-height:42vh;object-fit:cover;filter:contrast(1.05)}
+.keu__pv::after{content:'';position:absolute;inset:0;background-image:linear-gradient(rgba(233,232,228,.07) 1px,transparent 1px),linear-gradient(90deg,rgba(233,232,228,.07) 1px,transparent 1px);background-size:24px 24px;pointer-events:none}
+.keu__pv .keu__cr{z-index:1}
+.keu__pv em{position:absolute;left:50%;bottom:12px;transform:translateX(-50%);z-index:1;padding:6px 12px;border-radius:999px;border:1px solid #3EC6B0;background:rgba(5,5,5,.7);color:#3EC6B0;font:700 9px var(--k-m);font-style:normal;letter-spacing:.14em;white-space:nowrap}
+.keu__gf{margin-top:20px}
+.keu__gf .keu__lbl{display:block;margin:0 0 10px;color:#8E8D88}
+.keu__gf .keu__co{margin-bottom:18px}
+.keu__gf .keu__co button{border:1px solid rgba(233,232,228,.18);background:rgba(255,255,255,.035);color:#E9E8E4;font:600 14px/1.2 var(--k-d)}
+.keu__gf .keu__co button[aria-pressed="true"]{background:rgba(62,198,176,.08);border-color:#3EC6B0;color:#FFFFFF;box-shadow:inset 0 0 0 1px #3EC6B0}
+.keu__gf .keu__in{background:rgba(255,255,255,.04);border-color:rgba(233,232,228,.22);color:#F4F3F0}
+.keu__gf .keu__in::placeholder{color:#6F7377}
+.keu__gf .keu__in:focus{outline:none;border-color:#3EC6B0}
+.keu__gx .keu__cta svg{width:20px;height:20px;margin-right:8px}
+.keu__gf+.keu__nota{font:400 12.5px/1.45 var(--k-d)!important;letter-spacing:0!important;text-transform:none!important;color:#8E8D88!important}
 /* Lectura en curso · pantalla negra tipo escáner */
 .keu.keu--hud{background:#050505}
 .keu--hud .keu__sc{background:#050505}
@@ -516,12 +544,15 @@ function abrir(num){
   if (num) return guia(+num)
   S.num = null
   const p = plan()
-  pantalla('<div class="keu__hd"><span class="keu__lbl">ESCÁNER DE COMIDAS</span><h2>¿Qué comida vas a registrar?</h2></div><div class="keu__pad"><div class="keu__pk">' +
+  const hechas = p.comidas.filter((c, i) => p.estado && p.estado(i + 1)).length
+  pantalla('<div class="keu__gx"><div class="keu__gh"><span><i class="keu__rec"></i>SCAN · ELIGE TU COMIDA</span><span>' + hechas + '/' + p.comidas.length + ' HOY</span></div><h2>¿Qué comida vas a registrar?</h2>' +
+    '<div class="keu__pp"><b>01 COMIDA</b><i>→</i><b>02 FOTO</b><i>→</i><b>03 LECTURA</b><i>→</i><b>04 REGISTRO</b></div><div class="keu__pk keu__pk--d">' +
     p.comidas.map((c, i) => { const e = p.estado ? p.estado(i + 1) : null
       const pill = e === 'cumplida' ? '<span class="keu__pill done">' + ico(VER.adecuado.ico) + 'COMPLETADA</span>' : e === 'cheat' ? '<span class="keu__pill fill">CHEAT MEAL</span>' : '<span class="keu__pill">PENDIENTE</span>'
       return '<button type="button" class="' + (e ? 'ok' : '') + '" onclick="KEU.guia(' + (i + 1) + ')"><em>' + (i + 1) + '</em><span><b>Comida ' + (i + 1) + '</b><small>' + esc(c.hora || '') + '</small></span>' + pill + '</button>' }).join('') +
     '<button type="button" class="keu__pkx" onclick="KEU.extra()"><em>+</em><span><b>Fuera del plan</b><small>UN ANTOJO, UN TRAGO · SUMA A TU DÍA COMO CHEAT MEAL</small></span><span class="keu__pill fill">CHEAT</span></button>' +
     '</div></div>', 'ELIGE TU COMIDA')
+  el().classList.add('keu--hud')
 }
 function reset(){ S.porc = 1; S.noSug = false; S.fuente = null; S.r = null; S.al = []; S.res = null; S.cmp = null; S.sucio = false; S.coc = null; S.nota = ''; S.texto = ''; S.modo = 'foto'; S.sel = 0 }
 /** Guía de captura: cómo sacar la foto + tomar foto / galería / describir sin foto */
@@ -592,19 +623,25 @@ function deHoy(d){
 }
 /** Antes de analizar: cómo se preparó + un detalle opcional (foto + texto) */
 function preparar(){
-  pantalla('<div class="keu__ph sm"><img src="' + S.url + '" alt="Tu plato"></div>' +
-    '<div class="keu__pad">' + cocBotones() +
-    '<label class="keu__lbl" for="keuNota" style="margin-top:8px">AGREGA UN DETALLE · OPCIONAL</label><input id="keuNota" class="keu__in" type="text" maxlength="160" autocomplete="off" placeholder="Ej: lleva quesillo, la carne es de cerdo" value="' + esc(S.nota) + '" oninput="KEU._S.nota=this.value"></div>' +
-    '<div class="keu__bt"><button type="button" class="keu__cta" onclick="KEU.analizar()">Analizar mi ' + esc(nomC()) + '</button>' +
-    '<button type="button" class="keu__lnk" onclick="KEU.camara()">' + ico(I.cam) + 'CAMBIAR FOTO</button></div>', etiqueta(), 'ATRÁS', () => guia())
+  pantalla('<div class="keu__gx"><div class="keu__gh"><span><i class="keu__rec"></i>SCAN · ' + esc(etiqueta()) + '</span><span>FOTO LISTA</span></div>' +
+    '<div class="keu__pp"><b class="ok">01 FOTO ✓</b><i>→</i><b>02 PREPARACIÓN</b><i>→</i><b class="off">03 LECTURA</b><i>→</i><b class="off">04 REGISTRO</b></div>' +
+    '<div class="keu__pv"><img src="' + S.url + '" alt="Tu plato"><span class="keu__cr tl"></span><span class="keu__cr tr"></span><span class="keu__cr bl"></span><span class="keu__cr br"></span><em>LISTA PARA ANALIZAR</em></div>' +
+    '<div class="keu__gf">' + cocBotones() +
+    '<label class="keu__lbl" for="keuNota">AGREGA UN DETALLE · OPCIONAL</label><input id="keuNota" class="keu__in" type="text" maxlength="160" autocomplete="off" placeholder="Ej: lleva quesillo, la carne es de cerdo" value="' + esc(S.nota) + '" oninput="KEU._S.nota=this.value"></div>' +
+    '<p class="keu__nota">Si nos dices cómo se preparó, sumamos el aceite o la salsa que no se ven en la foto.</p>' +
+    '<div class="keu__bt"><button type="button" class="keu__cta" onclick="KEU.analizar()">' + ico('<path d="M4 7V5a1 1 0 0 1 1-1h2M17 4h2a1 1 0 0 1 1 1v2M20 17v2a1 1 0 0 1-1 1h-2M7 20H5a1 1 0 0 1-1-1v-2"/><path d="M7 12h10"/>') + 'Analizar mi ' + esc(nomC()) + '</button>' +
+    '<button type="button" class="keu__lnk" onclick="KEU.camara()">' + ico(I.cam) + 'CAMBIAR FOTO</button></div></div>', etiqueta(), 'ATRÁS', () => guia())
+  el().classList.add('keu--hud')
 }
 /** Sin foto: el socio escribe lo que comió */
 function describir(){ SND('scan-paso', 0, .8)
   S.modo = 'texto'
-  pantalla('<div class="keu__hd"><span class="keu__lbl">' + esc(etiqueta()) + '</span><h2>¿Qué comiste?</h2><p>Escríbelo como se lo contarías a tu nutricionista. Si sabes las cantidades, inclúyelas.</p></div>' +
-    '<div class="keu__pad"><label class="keu__lbl" for="keuTxt">TU ' + esc(nomC().toUpperCase()) + '</label><textarea id="keuTxt" class="keu__in" rows="4" maxlength="300" placeholder="Ej: 1 pechuga de pollo, 1 taza de arroz y ensalada de tomate" oninput="KEU._S.texto=this.value">' + esc(S.texto) + '</textarea>' +
+  pantalla('<div class="keu__gx"><div class="keu__gh"><span><i class="keu__rec"></i>SCAN · ' + esc(etiqueta()) + '</span><span>SIN FOTO</span></div><h2>¿Qué comiste?</h2><p>Escríbelo como se lo contarías a tu nutricionista. Si sabes las cantidades, inclúyelas.</p>' +
+    '<div class="keu__pp"><b>01 DESCRIPCIÓN</b><i>→</i><b class="off">02 LECTURA</b><i>→</i><b class="off">03 REGISTRO</b></div>' +
+    '<div class="keu__gf"><label class="keu__lbl" for="keuTxt">TU ' + esc(nomC().toUpperCase()) + '</label><textarea id="keuTxt" class="keu__in" rows="4" maxlength="300" placeholder="Ej: 1 pechuga de pollo, 1 taza de arroz y ensalada de tomate" oninput="KEU._S.texto=this.value">' + esc(S.texto) + '</textarea>' +
     cocBotones() + '</div>' +
-    '<div class="keu__bt"><button type="button" class="keu__cta" onclick="KEU.analizar()">Calcular mi ' + esc(nomC()) + '</button></div><div class="keu__sts" id="keuSt" role="status"></div>', etiqueta(), 'ATRÁS', () => guia())
+    '<div class="keu__bt"><button type="button" class="keu__cta" onclick="KEU.analizar()">Calcular mi ' + esc(nomC()) + '</button></div><div class="keu__sts" id="keuSt" role="status"></div></div>', etiqueta(), 'ATRÁS', () => guia())
+  el().classList.add('keu--hud')
 }
 // ── Lectura en curso: pantalla negra tipo escáner. Los dígitos que corren son lectura en proceso, no el resultado.
 const HUD_PASOS = ['SEGMENTANDO EL PLATO', 'IDENTIFICANDO ALIMENTOS', 'ESTIMANDO PORCIONES · G', 'CALCULANDO MACROS', 'COMPARANDO CON TU PLAN']
