@@ -3895,6 +3895,47 @@ html:not(:has(#oAct.vis)) #sBloques.locked{filter:none;opacity:1;pointer-events:
 .kPa--gris .kPa__aviso{color:#7A5200;background:rgba(242,198,109,.28);border-color:rgba(160,110,10,.35)}
 .kPa__tier{font:700 8.5px var(--font-mono);letter-spacing:.18em;opacity:.55;margin-left:auto;margin-right:12px}
 .kPa__aviso{margin-top:12px;padding:8px 10px;border-radius:10px;background:rgba(242,198,109,.12);border:1px solid rgba(242,198,109,.35);font:700 9px var(--font-mono);letter-spacing:.12em;color:#F2C66D}
+
+/* c246 · HOME re-enfocado: encabezado compacto → sesión del día + TU NUTRICIÓN DEL DÍA en la primera pantalla */
+.k2 #vHome .k2h{padding-bottom:34px}
+.k2 #vHome .k2h__top{margin-bottom:10px}
+.k2 #vHome .k2h__date{margin-bottom:6px}
+.k2 #vHome .k2h__t{font-size:clamp(28px,8.6vw,36px)}
+.k2 #vHome .k2h__p{display:none}
+.k2 #vHome .k2h__row{margin-top:0;position:absolute;right:26px;bottom:42px}
+.k2 #vHome .k2h__tag i{display:none}
+@media (max-width:380px){ .k2 #vHome .k2h__row{display:none} }
+.k2 #vHome .hh--ed .hh__c{padding:20px 22px 18px}
+.k2 #vHome .hh--ed .hh__t{margin-top:8px;font-size:clamp(38px,11.5vw,48px)}
+.k2 #vHome .hh--ed .hh__code,.k2 #vHome .hh--ed .hh__pills+.hh__code{margin-top:12px}
+.k2 #vHome .hh--ed .hh__desc{display:none}
+.k2 #vHome .hh--ed .hh__ft{margin-top:16px}
+.k2 #vHome .hh--ed .hh__acts{flex-direction:row;align-items:center;gap:14px}
+.k2 #vHome .hh--ed .hh__pill{min-height:46px}
+.nuHm{position:relative;border-radius:22px;margin:0 0 var(--k2-s4,14px);padding:18px 22px 18px;color:#111;
+  background:rgba(255,255,255,.55);-webkit-backdrop-filter:blur(18px) saturate(1.2);backdrop-filter:blur(18px) saturate(1.2);border:1px solid rgba(255,255,255,.55);box-shadow:0 10px 30px rgba(0,0,0,.07)}
+.nuHm__hd{display:flex;justify-content:space-between;align-items:baseline;gap:12px;font:700 10px/1 var(--font-mono);letter-spacing:.18em;color:#5E6066;text-transform:uppercase}
+.nuHm__hd b{font:800 13px/1 var(--font-display);color:#111;letter-spacing:0}
+.nuHm__big{display:flex;align-items:baseline;gap:8px;margin-top:12px;font-family:var(--font-display)}
+.nuHm__big b{font-weight:900;font-stretch:112%;font-size:clamp(38px,11vw,46px);line-height:.9;letter-spacing:-.03em;font-variant-numeric:tabular-nums}
+.nuHm__big span{font:700 11px/1.25 var(--font-mono);letter-spacing:.14em;color:#3F3F3C}
+.nuHm__bar{position:relative;height:8px;margin-top:14px;border-radius:99px;background:rgba(17,17,17,.1);overflow:hidden}
+.nuHm__bar s{position:absolute;left:0;top:0;bottom:0;border-radius:99px;background:linear-gradient(90deg,#5E6166,#111);transform-origin:left;animation:nuHmFill 1s cubic-bezier(.3,.8,.3,1) both}
+.nuHm__bar.is-over s{background:linear-gradient(90deg,#3A3B3E,#000)}
+@keyframes nuHmFill{from{transform:scaleX(0)}}
+.nuHm__esc{display:flex;justify-content:space-between;margin-top:7px;font:500 9px/1 var(--font-mono);letter-spacing:.14em;color:#6A6B70}
+.nuHm__ft{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:16px}
+.nuHm__scan{display:inline-flex;align-items:center;gap:10px;min-height:46px;padding:0 20px 0 16px;border-radius:999px;border:1.5px solid #111;background:#111;color:#F4F3F0;
+  font:700 11px var(--font-mono);letter-spacing:.22em;cursor:pointer;box-shadow:0 8px 22px rgba(0,0,0,.18)}
+.nuHm__scan svg{width:22px;height:22px;flex:0 0 auto}
+.nuHm__scan .sl{animation:nuHmScan 2.2s ease-in-out infinite}
+@keyframes nuHmScan{0%,100%{transform:translateY(-4px);opacity:.35}50%{transform:translateY(4px);opacity:1}}
+.nuHm__sig{font:500 9.5px/1.45 var(--font-mono);letter-spacing:.12em;color:#3F3F3C;text-align:right;text-transform:uppercase}
+.nuHm__sig b{display:block;color:#111;font-weight:700}
+.nuHm__lk{background:none;border:0;padding:2px 0;font:700 10px var(--font-mono);letter-spacing:.16em;color:#111;cursor:pointer;text-decoration:underline;text-underline-offset:4px}
+.nuHm__p{margin:10px 0 0;font:400 14px/1.4 var(--font-display);color:#3F3F3C}
+@media (prefers-reduced-motion:reduce){ .nuHm__bar s,.nuHm__scan .sl{animation:none} }
+@media (max-width:350px){ .nuHm{padding:16px 18px} .nuHm__scan{padding:0 16px 0 12px;letter-spacing:.16em} }
 </style>
 </head>
 <body>
@@ -4639,6 +4680,7 @@ function pintarHomeV2(){
    k2HeaderHero(n,{ses,sesEC,e,obj})+
    document.getElementById('hMemAviso').innerHTML+
    homeHero({ ses, sesEC, e, m, ctaT, ctaS, disabled:cta.disabled, obj })+
+   nuHomeHTML()+
    '<section class="k2-sec">'+'<div class="k2-sec__h">'+k2Label('TU SEMANA')+'<button class="k2-link" onclick="tab(\'vPlan\')">VER MI ENTRENAMIENTO →</button></div><div class="k2-pills">'+tl+'</div></section>'+
    (()=>{ const wd=wheelDatosSocio(), rs=wheelResumen(wd)
      return '<section class="k2-wk" aria-label="Tu semana">'+
@@ -4656,6 +4698,54 @@ function pintarHomeV2(){
   requestAnimationFrame(()=>requestAnimationFrame(()=>box.classList.add('k2-in')))
   kwAnimar(box.querySelector('.kw--anim'))
   cargaSemanalPintar()
+  nuHomeCargar()
+}
+// c246 · HOME · TU NUTRICIÓN DEL DÍA: ingesta registrada vs meta diaria de la pauta + SCAN directo al escáner (sin pasar por la pestaña)
+let _nuHomeAt=0, _nuHomeVa=false
+async function nuHomeCargar(forzar){
+  if (_nuHomeVa) return
+  if (!forzar && NU.ok && Date.now()-_nuHomeAt<60000){ nuHomePintar(); return }
+  _nuHomeVa=true
+  try{
+    if (!NU.ok){ const { data, error } = await sb.rpc('koach_pauta'); if (error) throw error
+      NU.bloqueado=!!(data&&data.bloqueado); NU.pauta=(data&&data.vigente)||null; NU.ok=true }
+    await loadRegistroComidas(); _nuHomeAt=Date.now()
+    if (NU.pauta && NU.pauta.estado==='publicada') nuEscInit()
+  }catch(e){ console.warn('nutricion home', e&&e.message) }
+  finally{ _nuHomeVa=false }
+  nuHomePintar()
+}
+function nuHomePintar(){ const el=document.getElementById('nuHm'); if (el) el.outerHTML=nuHomeHTML() }
+// próxima comida pendiente: la última cuya hora ya pasó (o pasa en 45 min); si ninguna, la primera pendiente
+function nuProxComida(){
+  const com=nuComidas(), ahora=new Date(new Date().toLocaleString('en-US',{ timeZone:'America/Santiago' })), mn=ahora.getHours()*60+ahora.getMinutes()
+  const pend=com.map((m,i)=>({ num:i+1, h:(String(m.hora||'').match(/(\d{1,2})[:.h](\d{2})/)||null) })).filter(x=>!nuEstado(x.num))
+  if (!pend.length) return null
+  const ya=pend.filter(x=>x.h && +x.h[1]*60+ +x.h[2] <= mn+45)
+  return (ya.length?ya[ya.length-1]:pend[0]).num
+}
+function nuScanHome(){
+  if (typeof KEU==='undefined' || !NU.pauta || NU.pauta.estado!=='publicada'){ tab('vNutri'); return }
+  try{ kHaptic && kHaptic(12) }catch(_){}
+  nuEscInit(); KEU.abrir(nuProxComida())
+}
+const NU_SCAN_ICO='<svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M4 8V5.5A1.5 1.5 0 0 1 5.5 4H8M16 4h2.5A1.5 1.5 0 0 1 20 5.5V8M20 16v2.5a1.5 1.5 0 0 1-1.5 1.5H16M8 20H5.5A1.5 1.5 0 0 1 4 18.5V16"/><path class="sl" d="M6.5 12h11"/></svg>'
+function nuHomeHTML(){
+  const ab='<section class="nuHm" id="nuHm" aria-label="Tu nutrición del día"'
+  if (!NU.ok || NU.bloqueado) return ab+' hidden></section>'
+  const pa=NU.pauta, n0=v=>Math.round(+v||0).toLocaleString('es-CL')
+  if (!pa || pa.estado!=='publicada')
+    return ab+'><div class="nuHm__hd"><span>TU NUTRICIÓN DEL DÍA</span></div><p class="nuHm__p">Tu plan de nutrición KOACH aún no está activo. Cuando tu nutricionista lo publique, aquí verás tus calorías del día y podrás escanear tus comidas.</p>'+
+      '<div class="nuHm__ft"><button type="button" class="nuHm__lk" onclick="tab(\'vNutri\')">VER NUTRICIÓN →</button></div></section>'
+  const D=nuDia(), H=D.c.hoy, meta=+pa.kcal||0, k=+H.kcal||0, reg=H.registradas||0, n=D.n, pc=meta?k/meta*100:0, prox=nuProxComida()
+  const pm=prox?D.com[prox-1]:null
+  const sig = reg>=n ? '<b>DÍA COMPLETO</b>TODAS REGISTRADAS' : prox ? '<b>COMIDA '+prox+(pm&&pm.hora?' · '+plEscA(pm.hora):'')+'</b>TOCA REGISTRAR' : ''
+  return ab+'><div class="nuHm__hd"><span>TU NUTRICIÓN DEL DÍA</span><span><b>'+reg+'</b> / '+n+' COMIDAS</span></div>'+
+    '<div class="nuHm__big"><b>'+n0(k)+'</b><span>/ '+n0(meta)+' KCAL<br>'+(meta?Math.round(pc)+'% DE TU META':'')+'</span></div>'+
+    '<div class="nuHm__bar'+(pc>100?' is-over':'')+'" role="img" aria-label="'+n0(k)+' de '+n0(meta)+' kilocalorías registradas hoy"><s style="width:'+Math.min(100,pc).toFixed(1)+'%"></s></div>'+
+    '<div class="nuHm__esc"><span>0</span><span>'+n0(meta)+' KCAL</span></div>'+
+    '<div class="nuHm__ft"><button type="button" class="nuHm__scan" onclick="nuScanHome()" aria-label="Escanear una comida">'+NU_SCAN_ICO+'<span>SCAN</span></button>'+
+    '<div class="nuHm__sig">'+sig+'</div></div></section>'
 }
 /* c27 · CARGA SEMANAL = Σ peso × reps de series completadas desde el lunes (misma regla que Avances/credencial).
    Referencia = carga de la semana pasada: siempre real, y "más fuerte que la anterior" es el método. */
@@ -8626,7 +8716,7 @@ function nuEscInit(){
   KEU.init({ token: async()=>{ const { data } = await sb.auth.getSession(); return data&&data.session&&data.session.access_token },
     plan: ()=>({ pauta:NU.pauta, comidas:nuComidas(), estado:nuEstado }),
     confirmar: async(id, num, det, res)=>{ const { error } = await sb.rpc('koach_escaneo_confirmar', { p_id:id, p_num:num, p_det:det, p_res:res }); if (error) throw Object.assign(new Error(error.message), { msg: /no encontrado/.test(error.message)?'Este escaneo ya no está disponible. Vuelve a sacar la foto.':error.message }) },
-    onRegistrado: async()=>{ await loadRegistroComidas(); if (NU.pane==='hoy') pintarNuHoy() } })
+    onRegistrado: async()=>{ await loadRegistroComidas(); if (NU.pane==='hoy') pintarNuHoy(); nuHomePintar() } })
 }
 function nuInforme(id){
   const ev=CPX.data||[], i=ev.findIndex(e=>e.id===id); if(i<0) return
