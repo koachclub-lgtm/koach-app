@@ -73,6 +73,21 @@ input:focus{outline:none}button:focus-visible{outline:2px solid var(--ink);outli
 .chk input:checked+.box::after{content:'';width:6px;height:12px;border:solid #0B0B0C;border-width:0 3px 3px 0;transform:translateY(-1px) rotate(45deg)}
 .chk input:focus-visible+.box{outline:2px solid #F6F5F2;outline-offset:3px}
 .chica{font-size:11.5px;color:var(--t3);margin:6px 0 0;line-height:1.45}
+/* c233 · detalle del pago (estilo checkout: ítem, descuentos, total hoy) */
+.det{margin-top:14px;border:1px solid var(--line);border-radius:16px;background:var(--vidrio);box-shadow:inset 0 1px 0 rgba(255,255,255,.1)}
+.det summary{list-style:none;display:flex;align-items:center;gap:8px;padding:12px 14px;cursor:pointer;font:500 10.5px var(--mono);letter-spacing:.14em;color:var(--t2)}
+.det summary::-webkit-details-marker{display:none}
+.det summary .tt{margin-left:auto;font:700 15px var(--sans);letter-spacing:0;color:var(--ink)}
+.det summary .fl{transition:transform .2s}.det[open] summary .fl{transform:rotate(180deg)}
+.det .cu{padding:0 14px 6px}
+.ln{display:grid;grid-template-columns:1fr auto;gap:2px 12px;padding:11px 0;border-top:1px solid var(--line);align-items:baseline}
+.ln b{font:600 14px var(--sans)}.ln .v{font:600 14px var(--sans);text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+.ln small{grid-column:1/-1;font:400 12px/1.35 var(--sans);color:var(--t3)}
+.ln .tag{display:inline-flex;align-items:center;gap:6px;padding:5px 9px;border-radius:9px;background:rgba(255,255,255,.08);font:600 13px var(--sans);color:var(--ink)}
+.ln .tag svg{flex:none;opacity:.75}
+.ln .v.dto{color:var(--t2);font-weight:500}
+.ln.tot b,.ln.tot .v{font:700 16px var(--sans)}
+.ln.prox b,.ln.prox .v{font:500 13px var(--sans);color:var(--t2)}
 /* pie */
 .pie{position:fixed;left:0;right:0;bottom:0;background:linear-gradient(180deg,rgba(20,21,23,0),#141517 38%);padding:20px 22px calc(14px + env(safe-area-inset-bottom))}
 .pie .in{max-width:520px;margin:0 auto}
@@ -114,7 +129,17 @@ input:focus{outline:none}button:focus-visible{outline:2px solid var(--ink);outli
       <div class="precio" id="pm">$29.900</div>
       <div class="luego"><span class="normal">Valor mensual<br>normal</span><span class="lista" id="lista">$80.000</span></div>
     </div>
-    <div class="info a" style="--d:2">Luego paga <b id="mens">$49.900</b> con contrato de fidelidad de <b id="perm">12 meses</b>.</div>
+    <div class="info a" style="--d:2">Luego paga <b id="mens">$49.900</b> al mes desde el segundo mes, con contrato de fidelidad de <b id="perm">12 meses</b>.</div>
+    <details class="det a" style="--d:2" id="det">
+      <summary>DETALLE DEL PAGO <span class="tt" id="dTot">$29.900</span><svg class="fl" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></summary>
+      <div class="cu">
+        <div class="ln"><b id="dPlan">Membresía KOACH</b><span class="v" id="dLista">$80.000</span><small>Cobro automático mensual · valor normal</small></div>
+        <div class="ln"><span><span class="tag"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M20.6 13.4l-7.2 7.2a2 2 0 01-2.8 0L3 13V3h10l7.6 7.6a2 2 0 010 2.8z"/><circle cx="7.5" cy="7.5" r="1.5"/></svg><span id="dFidT">Fidelidad 12 meses</span></span></span><span class="v dto" id="dFid">−$30.100</span><small id="dFidS">Descuento de $30.100 cada mes durante tu contrato</small></div>
+        <div class="ln"><span><span class="tag"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M20.6 13.4l-7.2 7.2a2 2 0 01-2.8 0L3 13V3h10l7.6 7.6a2 2 0 010 2.8z"/><circle cx="7.5" cy="7.5" r="1.5"/></svg>Valor especial primer mes</span></span><span class="v dto" id="dPm">−$20.000</span><small id="dPmS">Descuento de $20.000 solo el primer mes</small></div>
+        <div class="ln tot"><b>Total a pagar hoy</b><span class="v" id="dHoy">$29.900</span></div>
+        <div class="ln prox"><b>Desde el segundo mes</b><span class="v" id="dMes">$49.900 / mes</span></div>
+      </div>
+    </details>
 
     <div class="paso a" style="--d:3">1 · ELIGE TU PROGRAMA</div>
     <div class="cards" id="cards"></div>
@@ -185,7 +210,15 @@ input:focus{outline:none}button:focus-visible{outline:2px solid var(--ink);outli
   var PROGS=[['STRONG','GAIN MUSCLE','& STRENGTH'],['BURN','FAT LOSS','& PERFORMANCE'],['HEALTHY','VITALITY','& WELLNESS']];
   function barras(seed){var h=0,o='';for(var i=0;i<seed.length;i++)h=(h*31+seed.charCodeAt(i))>>>0;for(var k=0;k<18;k++){h=(h*1103515245+12345)>>>0;o+='<i style="width:'+(1+(h>>>16)%3)+'px"></i>'}return o}
   $('cards').innerHTML=PROGS.map(function(p,i){return '<button type="button" class="card" style="--d:'+i+'" data-p="'+p[0]+'" aria-pressed="false"><span class="c-name">'+p[0]+'</span><span class="c-no">Nº 0'+(i+1)+'</span><span class="c-tag">'+p[1]+'<br>'+p[2]+'</span><span class="bar">'+barras('KOACH-'+p[0])+'</span></button>'}).join('');
+  function detalle(){var o=S.o;if(!o)return;
+    var fid=Math.max(0,o.precio_lista-o.monto),pm=Math.max(0,o.monto-o.primer_mes);
+    $('dPlan').textContent='Membresía KOACH'+(S.prog?' · '+S.prog:'');$('dLista').textContent=clp(o.precio_lista);
+    $('dFidT').textContent='Fidelidad '+o.permanencia_meses+' meses';$('dFid').textContent='−'+clp(fid);$('dFidS').textContent='Descuento de '+clp(fid)+' cada mes durante tu contrato';
+    $('dPm').textContent='−'+clp(pm);$('dPmS').textContent='Descuento de '+clp(pm)+' solo el primer mes';
+    $('dFid').parentNode.hidden=!fid;$('dPm').parentNode.hidden=!pm;
+    $('dHoy').textContent=clp(o.primer_mes);$('dTot').textContent=clp(o.primer_mes);$('dMes').textContent=clp(o.monto)+' / mes'}
   function pinta(){
+    detalle();
     [].forEach.call(document.querySelectorAll('.card'),function(b){b.setAttribute('aria-pressed',b.dataset.p===S.prog)});
     var ok=S.prog&&$('nombre').value.trim().length>1&&$('apellido').value.trim().length>1&&rutOk($('rut').value)&&emailOk($('email').value.trim())&&$('aut').checked&&$('acp').checked;
     $('rut').parentNode.classList.toggle('mal',$('rut').value.length>7&&!rutOk($('rut').value));
@@ -198,9 +231,11 @@ input:focus{outline:none}button:focus-visible{outline:2px solid var(--ink);outli
     if(d.vencida)return err('Esta oferta terminó el 22 de noviembre. Escríbele a Jake y te contamos las opciones vigentes.');
     var o=d.oferta;
     $('pm').textContent=clp(o.primer_mes);$('mens').textContent=clp(o.monto);$('lista').textContent=clp(o.precio_lista);$('perm').textContent=o.permanencia_meses+' meses';
+    S.o=o;detalle();
     $('acpTxt').innerHTML='Acepto la <b>fidelidad por '+o.permanencia_meses+' meses</b> con cobro automático en mi tarjeta.';
     if(d.programa)S.prog=d.programa;
     if(d.datos){$('nombre').value=d.datos.nombre||'';$('apellido').value=(d.datos.apellido&&d.datos.apellido!=='·')?d.datos.apellido:'';$('email').value=d.datos.email||'';if(d.datos.rut)$('rut').value=rutFmt(d.datos.rut)}
+    if(window.matchMedia&&matchMedia('(min-width:700px)').matches)$('det').open=true;
     $('cargando').hidden=true;$('form').hidden=false;$('pie').hidden=false;pinta();
     // entrada animada: el precio baja desde el valor normal hasta el primer mes y se tacha el normal
     var rm=window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches;
