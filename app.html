@@ -4731,6 +4731,12 @@ function wheelResumen(ds){
 
 /* c100 · Animación de la rueda: espera a que entre en pantalla, pista aparece, cada pétalo se carga radialmente
    en sentido horario (110 ms de desfase, 1 s easeOutCubic), luego coronas; el % central sube en sincronía. Una vez por carga. */
+// c270 · cada vez que se entra a HOY, la rueda vuelve a cargarse de 0 a su % al llegar a ella con el scroll
+function kwRearmar(){ const svg=document.querySelector('#vHome .kw--anim'); if(!svg) return
+  if (svg._io) try{ svg._io.disconnect() }catch(_){}
+  svg.classList.remove('kw--on','kw--done'); svg.querySelectorAll('.kw-fill').forEach(f=>{ f.style.opacity='0' })
+  const cv=svg.querySelector('.kw-cv[data-v]'); if(cv) cv.textContent='0%'
+  kwAnimar(svg) }
 function kwAnimar(svg){
   if (!svg) return
   const fills=[...svg.querySelectorAll('.kw-fill')], cv=svg.querySelector('.kw-cv[data-v]')
@@ -4754,7 +4760,7 @@ function kwAnimar(svg){
   }
   if ('IntersectionObserver' in window){
     const io=new IntersectionObserver(es=>{ if (es.some(e=>e.isIntersecting&&e.intersectionRatio>=.35)){ io.disconnect(); run() } },{threshold:[.35]})
-    io.observe(svg)
+    svg._io=io; io.observe(svg)
     setTimeout(()=>{ if(!svg.isConnected) io.disconnect() },60000)
   } else run()
 }
@@ -5005,7 +5011,7 @@ function pintarHomeV2(){
      '<div class="k2-m3"><div><small>SESIONES</small><b>'+e.hechas+'<span>/'+e.total+'</span></b><em>COMPLETADAS</em></div>'+
        '<div><small>CARGA SEMANAL</small><b id="k2Carga">—</b><div class="k2-m3__bar"><i id="k2CargaBar"></i></div><em id="k2CargaT">CALCULANDO…</em></div></div>'+
      '<div class="hgWheel"><div class="k2-sec__h"><span class="k2-label">OBJETIVO SEMANAL</span><span class="k2-label">'+(sem.fortalecidos||0)+' DE '+(sem.exigibles||0)+' METAS</span></div>'+
-     '<div class="kwHero">'+stimulusWheel(wd,{variant:'hero',theme:'light',center:{v:e.pct+'%',l:'LOGRADO'},onTap:'wheelDetalle',anim:!window._kwAnimOk})+'</div>'+
+     '<div class="kwHero">'+stimulusWheel(wd,{variant:'hero',theme:'light',center:{v:e.pct+'%',l:'LOGRADO'},onTap:'wheelDetalle',anim:true})+'</div>'+
      '<div class="kwRes">'+(rs.top.length?'<div><small>MÁS ESTÍMULO ESTA SEMANA</small><b>'+rs.top.join(' · ')+'</b></div>':'')+(rs.falta.length?'<div><small>AÚN POR DESARROLLAR</small><b>'+rs.falta.join(' · ')+'</b></div>':'')+
        (rs.over.length?'<div><small>SOBRE EL LÍMITE</small><b>'+rs.over.join(', ')+'</b></div>':'')+'</div>'+
      '<div class="k2-week__c" style="text-align:center">'+(PROGRAMA_TXT())+semTxt+' · TOCA UN MÚSCULO PARA VER DETALLE</div></div></section>' })()+
@@ -5362,7 +5368,7 @@ function fLocal(d){ const z=new Date(d.getTime()-d.getTimezoneOffset()*60000); r
 function lunes(){ const h=new Date(),d=(h.getDay()+6)%7,l=new Date(h); l.setDate(h.getDate()-d); l.setHours(0,0,0,0); return l }
 
 /* ══ UTILIDADES ══ */
-function vista(id){ document.querySelectorAll('.vista').forEach(v=>v.classList.toggle('on',v.id===id)); document.documentElement.classList.toggle('en-plan', id==='vPlan'); document.documentElement.classList.toggle('en-nutri', id==='vNutri'); document.documentElement.classList.toggle('en-home', id==='vHome'); document.documentElement.classList.toggle('en-av', id==='vAvances'); window.scrollTo(0,0); if(id==='vLogin') fotoLogin()
+function vista(id){ const _vAnt=(document.querySelector('.vista.on')||{}).id; document.querySelectorAll('.vista').forEach(v=>v.classList.toggle('on',v.id===id)); if (id==='vHome' && _vAnt!=='vHome') setTimeout(()=>{ try{ kwRearmar() }catch(_){} },60); document.documentElement.classList.toggle('en-plan', id==='vPlan'); document.documentElement.classList.toggle('en-nutri', id==='vNutri'); document.documentElement.classList.toggle('en-home', id==='vHome'); document.documentElement.classList.toggle('en-av', id==='vAvances'); window.scrollTo(0,0); if(id==='vLogin') fotoLogin()
   if (id==='vSesion') navPush('ses'); else if (id!=='vLogin') navPop('ses')
   if (id==='vLogin'){ const lf=document.getElementById('lgForms'); if(lf && lf.hidden) authVista('fLogin') }   // c112 · inicio = login directo
   if (id!=='vSesion' && S && S._planPend) setTimeout(function(){ planActualizado('pendiente') }, 50) }
@@ -8494,7 +8500,7 @@ function tab(id){
   vista(id)
   document.querySelectorAll('.tb').forEach(b=>b.classList.toggle('on', b.id==='tb-'+id))
   if (id==='vPlan'){ pintarPlan(); mtDoseAnim() }
-  if (id==='vAvances' && !S._avOk){ S._avOk=true; loadAvances() }
+  if (id==='vAvances' && !S._avOk){ S._avOk=true; loadAvances() } else if (id==='vAvances'){ try{ avXCargar() }catch(_){} }   // c270 · cada entrada vuelve a cargar con animación
   if (id==='vNutri') loadNutricion()
   if (id==='vPerfil') pintarPerfil()
 }
@@ -9354,7 +9360,7 @@ const avxN=n=>Math.round(n).toLocaleString('es-CL'), avxK=n=>(Math.round(n*10)/1
 function avxLunes(f){ const d=new Date(String(f).slice(0,10)+'T12:00:00'); const w=(d.getDay()+6)%7; d.setDate(d.getDate()-w); return fLocal(d) }
 async function avXCargar(){
   const box=document.getElementById('avX'); if(!box || !S.perfil) return
-  if (AVX.d && Date.now()-AVX.t<60000){ avXPintar(true); return }
+  if (AVX.d && Date.now()-AVX.t<60000){ avXPintar(false); return }
   if (AVX.va) return; AVX.va=true
   if (!AVX.d) box.innerHTML='<div class="avx avx--cg"><div class="avx__in">'+avxHead()+'<div class="avxLd"><i></i><i></i><i></i></div></div></div>'
   try{
