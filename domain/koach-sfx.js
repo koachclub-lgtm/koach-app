@@ -40,16 +40,10 @@
   };
   fetchAll();   // descarga liviana en segundo plano; se decodifica al primer toque
 
-  /* c241 · SONIDO FORZADO: los sonidos de KOACH suenan aunque el iPhone esté en silencio (solo manda el volumen).
-     iOS 17+: audioSession 'playback'. iOS anterior: un audio HTML mudo en el primer toque saca a Web Audio del canal "ambiente".
-     Android ya suena con el volumen multimedia, sin importar el modo silencio/vibración. */
-  function forzar() { try { if (navigator.audioSession && navigator.audioSession.type !== 'playback') navigator.audioSession.type = 'playback' } catch (_) {} }
-  var SIL = 'data:audio/wav;base64,UklGRigAAABXQVZFZm10IBAAAAABAAEARKwAAIhYAQACABAAZGF0YQQAAAAAAAAA', silEl = null;
-  function puenteIOS() {
-    if (navigator.audioSession || silEl) return;
-    if (!/iP(hone|ad|od)|Macintosh/.test(navigator.userAgent) || !('ontouchend' in document)) return;
-    try { silEl = new Audio(SIL); silEl.setAttribute('playsinline', ''); silEl.loop = true; silEl.volume = 0.01; var p = silEl.play(); if (p && p.catch) p.catch(function () { silEl = null }) } catch (_) { silEl = null }
-  }
+  /* c242 · los sonidos se MEZCLAN con la música del cliente (nunca la cortan). iOS: sesión 'ambient'.
+     (c241 forzaba 'playback' para saltarse el silencio del iPhone, pero en iOS eso pausa Spotify: se descarta.) */
+  function forzar() { try { if (navigator.audioSession && navigator.audioSession.type !== 'ambient') navigator.audioSession.type = 'ambient' } catch (_) {} }
+  function puenteIOS() {}
   forzar();
   /* desbloqueo del audio en el primer toque de la app (regla de iOS/Android) y decodificación inmediata */
   function unlock() { try { forzar(); puenteIOS(); if (typeof kAudioUnlock === 'function') kAudioUnlock(); KSFX.preload() } catch (_) {} }
@@ -58,10 +52,20 @@
 
   /* ── KLOGO · video original del encendido ── */
   var KLOGO = {
+    fin: Promise.resolve(),
+    /* c242 · arranca el encendido en la pantalla de carga. Si el splash inicial (#oAuth) ya lo venía mostrando,
+       continúa desde ese punto (no se reinicia a la mitad). KLOGO.fin se cumple cuando el logo terminó de armarse. */
     run: function (sonido) {
-      var vs = document.querySelectorAll('video.klv');
-      for (var i = 0; i < vs.length; i++) { var v = vs[i]; try { v.currentTime = 0; var p = v.play(); if (p && p.catch) p.catch(function () {}) } catch (_) {} }
-      if (sonido) KSFX.play('logo');
+      var v = document.querySelector('#oLoad video.klv'); if (!v) { KLOGO.fin = Promise.resolve(); return }
+      var a = document.querySelector('#oAuth video.klv'), desde = 0;
+      try { if (a && a.offsetParent !== null && !a.ended && a.currentTime > 0) desde = a.currentTime } catch (_) {}
+      KLOGO.fin = new Promise(function (res) {
+        var listo = false, fin = function () { if (!listo) { listo = true; v.removeEventListener('ended', fin); res() } };
+        v.addEventListener('ended', fin);
+        setTimeout(fin, Math.max(400, 3200 - desde * 1000));          // tope por si el video no puede reproducirse
+        try { v.currentTime = desde; var p = v.play(); if (p && p.catch) p.catch(fin) } catch (_) { fin() }
+      });
+      if (sonido && desde < 0.15) KSFX.play('logo');
     }
   };
   window.KSFX = KSFX; window.KLOGO = KLOGO;

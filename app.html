@@ -3554,6 +3554,10 @@ html:has(#vSesion.on[data-bg]),body:has(#vSesion.on[data-bg]){background:var(--s
 #oLoad,#oAuth{background:#000!important;overflow:hidden}
 .klv{position:absolute;left:50%;top:50%;width:min(100vw,62vh,560px);height:auto;aspect-ratio:9/16;transform:translate(-50%,-50%);background:#000;object-fit:contain;pointer-events:none;border:0;outline:0}
 #oAuth>:not(.klv){position:relative;z-index:1}
+/* c242 · guardando el set: velo + anillo girando + rótulo, sobre la pantalla del bloque */
+#oBloque.bk--guardando::after{content:'GUARDANDO';position:fixed;inset:0;z-index:50;display:flex;align-items:flex-end;justify-content:center;padding-bottom:calc(50vh - 74px);background:rgba(10,10,11,.6);-webkit-backdrop-filter:blur(3px);backdrop-filter:blur(3px);font:700 10px var(--font-mono,monospace);letter-spacing:.32em;color:#F3F2EF;animation:bkSvIn .2s ease both}
+#oBloque.bk--guardando::before{content:'';position:fixed;left:50%;top:50%;width:72px;height:72px;margin:-36px 0 0 -36px;z-index:51;border-radius:50%;border:2px solid rgba(255,255,255,.14);border-top-color:#fff;animation:bkSvGiro .8s linear infinite}
+@keyframes bkSvGiro{to{transform:rotate(360deg)}} @keyframes bkSvIn{from{opacity:0}}
 /* c125 · campo de peso faltante: se marca y tiembla */
 #oBloque .kset__r.falta{box-shadow:0 0 0 2px var(--ink),inset 0 0 0 1px var(--ink);animation:ksFalta .45s cubic-bezier(.36,.07,.19,.97) 2}
 @keyframes ksFalta{10%,90%{transform:translateX(-1px)}20%,80%{transform:translateX(2px)}30%,50%,70%{transform:translateX(-4px)}40%,60%{transform:translateX(4px)}}
@@ -5193,7 +5197,7 @@ async function kxWellness(ret){ try{
   o.querySelectorAll('.kxL--d .kxHint').forEach(e=>e.textContent='TOCA PARA COMENZAR TU TEST WELLNESS')
   o.querySelectorAll('.kxL--l .kxHint').forEach(e=>e.textContent='PREPARANDO TU TEST WELLNESS…') }catch(_){} }
 function kxEncender(){ if(KX.busy) return; KX.busy=true
-  const o=document.getElementById('oAct'); try{ kHaptic(12); kAudioUnlock() }catch(_){}
+  const o=document.getElementById('oAct'); try{ kHaptic(12); kAudioUnlock(); KSFX.play('start') }catch(_){}   // c242 · sonido START
   o.classList.add('kxGoing'); const H=o.clientHeight, t0=performance.now(), D=matchMedia('(prefers-reduced-motion: reduce)').matches?10:1200
   const st=n=>{ const k=Math.min(1,(n-t0)/D), e=k<.5?2*k*k:1-Math.pow(-2*k+2,2)/2; KX.v=e; o.style.setProperty('--y',(e*H).toFixed(1)+'px'); o.style.setProperty('--c',e.toFixed(3))
     if(k<1) return requestAnimationFrame(st)
@@ -6326,15 +6330,16 @@ function cargando(m){ const o=document.getElementById('oLoad'); if(!o)return
   const x=MSG[m]||['CARGANDO TU SEMANA','Plan, sesiones y progreso.']
   document.getElementById('oLoadM').textContent=x[0]; document.getElementById('oLoadS').textContent=x[1]
   const nuevo=!o.classList.contains('vis'), clave=/PREPARANDO TU SESIÓN|CERRANDO TU SESIÓN|REGISTRANDO TU SESIÓN|ACTUALIZANDO TU SEMANA|PREPARANDO TU CLUB/.test(m||'')
-  window._ldMin = clave ? 1500 : 700   // c240 · momentos clave: el logo alcanza a armarse completo
+  window._ldMin = 700
   o.style.display=''; o.classList.remove('ldOut'); if(nuevo) window._ldT0=Date.now(); window._ldTok=(window._ldTok||0)+1; o.classList.add('vis')
-  if (nuevo){ try{ KLOGO.run(clave && m!=='PREPARANDO TU SESIÓN…'); if(m==='PREPARANDO TU SESIÓN…') setTimeout(()=>{ try{ KSFX.play('logo') }catch(_){} },380) }catch(_){} } }
+  if (nuevo){ try{ KLOGO.run(true) }catch(_){} } }
 /* c124 · la carga se ve como el panel: fondo negro y logotipo KOACH en 3D. No se suelta antes de ~0,7 s (sin parpadeo)
    y, en el arranque, espera la textura del inicio para no mostrar la pantalla a medio pintar. */
 function cargandoOff(){ const o=document.getElementById('oLoad'); if(!o||!o.classList.contains('vis')) return; const tok=window._ldTok
   const min=new Promise(r=>setTimeout(r,Math.max(0,(window._ldMin||700)-(Date.now()-(window._ldT0||0)))))
+  const logo=(window.KLOGO&&KLOGO.fin)||Promise.resolve()   // c242 · no se suelta hasta que el logo terminó de armarse
   const hero=window._bootHero ? Promise.race([window._bootHero,new Promise(r=>setTimeout(r,1500))]) : Promise.resolve()
-  Promise.all([min,hero]).then(()=>{ if(tok!==window._ldTok) return; const boot=!!window._bootHero||!window._kAparecio; window._kAparecio=true; window._bootHero=null; if(boot){ try{ KSFX.play('appear',0,.8) }catch(_){} } o.classList.add('ldOut'); setTimeout(()=>{ if(tok===window._ldTok){ o.classList.remove('vis','ldOut') } },320) }) }
+  Promise.all([min,hero,logo]).then(()=>{ if(tok!==window._ldTok) return; const boot=!!window._bootHero||!window._kAparecio; window._kAparecio=true; window._bootHero=null; if(boot){ try{ KSFX.play('appear',0,.8) }catch(_){} } o.classList.add('ldOut'); setTimeout(()=>{ if(tok===window._ldTok){ o.classList.remove('vis','ldOut') } },320) }) }
 try{ const im=new Image(); im.src='/img/bg/tex-metodo.webp'; window._bootHero=(im.decode?im.decode():Promise.resolve()).catch(()=>{}) }catch(_){}
 async function reanudar(){
   const reg = S.enCurso; if(!reg) return
@@ -6478,7 +6483,7 @@ async function abrirSesion(num){
   if (!capG.can_start && !capG.can_continue){
     toast((REASON_TXT[capG.reason_code]||(()=>'Esta sesión aún no está habilitada.'))(null)); return }
   { const _he=horEstado(); if (_he && _he.fuera && !capG.can_continue){ horBloquear(sesG.id); return } }   // c116 · continuar una ya iniciada sí se permite
-  try{ kAudioUnlock(); KSFX.play('start') }catch(_){}   // c240 · START: pips, luego el encendido del logo
+  try{ kAudioUnlock() }catch(_){}
   cargando('PREPARANDO TU SESIÓN…')
   const hoyC = fLocal(new Date())
   if (!esPrueba() && !habHoy() && S.registros.some(r=>r.fecha===hoyC && esHecha(r))){
@@ -6997,6 +7002,7 @@ function bkgURL(k){ const t=BKG[k]; if(!t) return ''; if(t._u) return t._u
 function bkFondo(o){ const k=(['acero','grafito','cromoN'].indexOf(S._bg)>=0)?'grafito':'plata', u=bkgURL(k); if(!u) return
   o.dataset.bk=k; o.style.setProperty('--bkg',u) }
 function bkAbrir(bi){ const bfs=S._bfs||[]; if(!bfs[bi]) return
+  try{ kAudioUnlock(); KSFX.play('start') }catch(_){}   // c242 · COMENZAR bloque
   BK.bi=bi; const b=bfs[bi]; BK.set = bkSetActual(b) || b.sets
   let o=document.getElementById('oBloque'); if(!o){ o=document.createElement('div'); o.id='oBloque'; o.setAttribute('role','dialog'); o.setAttribute('aria-modal','true'); document.body.appendChild(o) }
   try{ bkFondo(o) }catch(_){}
@@ -7104,13 +7110,13 @@ async function bkCompletar(){ const b=(S._bfs||[])[BK.bi]; if(!b) return
   { const f=bkFaltanKg(b,n); if(f.length){ bkAvisarKg(f,n); return } }
   if (BK._busy) return
   const cta=document.querySelector('#oBloque .bk__cta'); if(cta) cta.disabled=true
-  BK._busy=true
+  BK._busy=true; const _ob=document.getElementById('oBloque'), _sv=setTimeout(()=>{ if(_ob) _ob.classList.add('bk--guardando') },180)   // c242 · si tarda, se ve que está guardando
   kHaptic(12); kAudioUnlock() // dentro del toque: en iPhone es la única ventana para el háptico y para desbloquear el audio
   // Descanso previo a este set: prescrito / ajustado / real (incluye salto implícito y exceso). Nunca toca la planificación.
   const rp = (BK.rest && BK.rest.bId===b.id) ? BK.rest : (BK.over && BK.over.bId===b.id) ? BK.over : null
   S._restInfo = rp ? { p:rp.dur, a:rp.ajuste||0, r:Math.max(0,Math.round((Date.now()-(rp.inicio||(rp.fin-rp.dur*1000)))/1000)) } : null
   try{ for (const be of bes){ if(!S.setLog[setKey(be.id,n)]) await tapSetRow(be.id,n,b.id,(be.ejercicios||{}).id) } }
-  finally{ S._restInfo=null; BK._busy=false }
+  finally{ S._restInfo=null; BK._busy=false; clearTimeout(_sv); if(_ob) _ob.classList.remove('bk--guardando') }
   bkOverFin()
   const sig=bkSetActual(b)
   if (sig){ try{ KSFX.play('set') }catch(_){} BK.set=sig; bkRestIni(b); bkPintar() } else { try{ KSFX.play('block') }catch(_){} BK.set=n; bkRestFin(true); bkPintar(); bkFinBloque(b) }
