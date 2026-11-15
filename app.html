@@ -7895,6 +7895,7 @@ function aplicarGamifCierre(m, g, sig){
 
 /* ══ NAVEGACIÓN POR TABS ══ */
 function tab(id){
+  { const _on=(document.querySelector('.vista.on')||{}).id; if(_on!==id){ try{ kAudioUnlock(); KSFX.play('datos',0,.75) }catch(_){} } }   // c244 · carga de datos al cambiar de menú
   vista(id)
   document.querySelectorAll('.tb').forEach(b=>b.classList.toggle('on', b.id==='tb-'+id))
   if (id==='vPlan'){ pintarPlan(); mtDoseAnim() }

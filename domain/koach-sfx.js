@@ -4,7 +4,7 @@
            Mapa: logo (pantalla de carga) · appear (la app aparece) · start · set · block · tick1-3 + riser (3·2·1) · go · logro (PR, exclusivo de gamificación).
    KLOGO · encendido del logotipo: el VIDEO ORIGINAL de redes (9:16, negro puro #000) en la pantalla de carga. */
 (function () {
-  var FILES = ['logo', 'appear', 'start', 'set', 'block', 'tick1', 'tick2', 'tick3', 'riser', 'go', 'logro'];
+  var FILES = ['logo', 'datos', 'appear', 'start', 'set', 'block', 'tick1', 'tick2', 'tick3', 'riser', 'go', 'logro'];
   var raw = {}, buf = {}, fetching = null;
   function ctx() { try { return (typeof KAU !== 'undefined' && KAU.ctx) || null } catch (_) { return null } }
   function on() { try { return typeof kSonidoOn === 'function' ? kSonidoOn() : true } catch (_) { return true } }
@@ -85,5 +85,17 @@
       if (sonido && desde < 0.15) KSFX.play('logo');
     }
   };
+  /* c244 · SONIDO AL ABRIR: el logo del splash inicial intenta sonar junto con su video. El navegador solo lo permite sin un toque
+     previo cuando la app está instalada en la pantalla de inicio (Android) o el sitio ya es de uso frecuente; si no, queda en silencio. */
+  function logoEl(desde) {
+    if (!on()) return;
+    try { var a = new Audio('/sfx/logo.mp3'); a.preload = 'auto'; if (desde) a.currentTime = desde; var p = a.play(); if (p && p.catch) p.catch(function () {}) } catch (_) {}
+  }
+  function splashSonido() {
+    var v = document.querySelector('#oAuth video.klv'); if (!v || splashSonido.hecho) return; splashSonido.hecho = true;
+    var ir = function () { if (v.offsetParent !== null && v.currentTime < 1.2) logoEl(v.currentTime) };
+    if (!v.paused && v.currentTime > 0) ir(); else v.addEventListener('playing', ir, { once: true });
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', splashSonido); else splashSonido();
   window.KSFX = KSFX; window.KLOGO = KLOGO;
 })();
