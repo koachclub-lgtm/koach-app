@@ -141,10 +141,7 @@ input:focus{outline:none}button:focus-visible{outline:2px solid var(--ink);outli
       </div>
     </details>
 
-    <div class="paso a" style="--d:3">1 · ELIGE TU PROGRAMA</div>
-    <div class="cards" id="cards"></div>
-
-    <div class="paso a" style="--d:5">2 · TUS DATOS</div>
+    <div class="paso a" style="--d:3">TUS DATOS · TU KOACH TE ASIGNA EL PROGRAMA</div>
     <div class="a" style="--d:6">
       <div class="fila">
         <div class="campo"><input type="text" id="nombre" autocomplete="given-name" placeholder="Nombre" aria-label="Nombre"></div>
@@ -206,21 +203,16 @@ input:focus{outline:none}button:focus-visible{outline:2px solid var(--ink);outli
     return;
   }
 
-  // Programas: copy oficial (domain/program-catalog.js)
-  var PROGS=[['STRONG','GAIN MUSCLE','& STRENGTH'],['BURN','FAT LOSS','& PERFORMANCE'],['HEALTHY','VITALITY','& WELLNESS']];
-  function barras(seed){var h=0,o='';for(var i=0;i<seed.length;i++)h=(h*31+seed.charCodeAt(i))>>>0;for(var k=0;k<18;k++){h=(h*1103515245+12345)>>>0;o+='<i style="width:'+(1+(h>>>16)%3)+'px"></i>'}return o}
-  $('cards').innerHTML=PROGS.map(function(p,i){return '<button type="button" class="card" style="--d:'+i+'" data-p="'+p[0]+'" aria-pressed="false"><span class="c-name">'+p[0]+'</span><span class="c-no">Nº 0'+(i+1)+'</span><span class="c-tag">'+p[1]+'<br>'+p[2]+'</span><span class="bar">'+barras('KOACH-'+p[0])+'</span></button>'}).join('');
   function detalle(){var o=S.o;if(!o)return;
     var fid=Math.max(0,o.precio_lista-o.monto),pm=Math.max(0,o.monto-o.primer_mes);
-    $('dPlan').textContent='Membresía KOACH'+(S.prog?' · '+S.prog:'');$('dLista').textContent=clp(o.precio_lista);
+    $('dPlan').textContent='Membresía KOACH';$('dLista').textContent=clp(o.precio_lista);
     $('dFidT').textContent='Fidelidad '+o.permanencia_meses+' meses';$('dFid').textContent='−'+clp(fid);$('dFidS').textContent='Descuento de '+clp(fid)+' cada mes durante tu contrato';
     $('dPm').textContent='−'+clp(pm);$('dPmS').textContent='Descuento de '+clp(pm)+' solo el primer mes';
     $('dFid').parentNode.hidden=!fid;$('dPm').parentNode.hidden=!pm;
     $('dHoy').textContent=clp(o.primer_mes);$('dTot').textContent=clp(o.primer_mes);$('dMes').textContent=clp(o.monto)+' / mes'}
   function pinta(){
     detalle();
-    [].forEach.call(document.querySelectorAll('.card'),function(b){b.setAttribute('aria-pressed',b.dataset.p===S.prog)});
-    var ok=S.prog&&$('nombre').value.trim().length>1&&$('apellido').value.trim().length>1&&rutOk($('rut').value)&&emailOk($('email').value.trim())&&$('aut').checked&&$('acp').checked;
+    var ok=$('nombre').value.trim().length>1&&$('apellido').value.trim().length>1&&rutOk($('rut').value)&&emailOk($('email').value.trim())&&$('aut').checked&&$('acp').checked;
     $('rut').parentNode.classList.toggle('mal',$('rut').value.length>7&&!rutOk($('rut').value));
     $('go').disabled=!ok;
   }
@@ -233,7 +225,6 @@ input:focus{outline:none}button:focus-visible{outline:2px solid var(--ink);outli
     $('pm').textContent=clp(o.primer_mes);$('mens').textContent=clp(o.monto);$('lista').textContent=clp(o.precio_lista);$('perm').textContent=o.permanencia_meses+' meses';
     S.o=o;detalle();
     $('acpTxt').innerHTML='Acepto la <b>fidelidad por '+o.permanencia_meses+' meses</b> con cobro automático en mi tarjeta.';
-    if(d.programa)S.prog=d.programa;
     if(d.datos){$('nombre').value=d.datos.nombre||'';$('apellido').value=(d.datos.apellido&&d.datos.apellido!=='·')?d.datos.apellido:'';$('email').value=d.datos.email||'';if(d.datos.rut)$('rut').value=rutFmt(d.datos.rut)}
     if(window.matchMedia&&matchMedia('(min-width:700px)').matches)$('det').open=true;
     $('cargando').hidden=true;$('form').hidden=false;$('pie').hidden=false;pinta();
@@ -242,13 +233,12 @@ input:focus{outline:none}button:focus-visible{outline:2px solid var(--ink);outli
     if(!rm){document.body.classList.add('anim');var el=$('pm'),de=o.precio_lista,a=o.primer_mes,t0=null;$('lista').style.setProperty('--tachar',0);el.textContent=clp(de);
       setTimeout(function(){requestAnimationFrame(function f(t){t0=t0||t;var k=Math.min(1,(t-t0)/1100),e=1-Math.pow(1-k,3);el.textContent=clp(Math.round((de-(de-a)*e)/100)*100);if(k<1)requestAnimationFrame(f);else{el.textContent=clp(a);$('lista').style.setProperty('--tachar',1)}})},250)}
   }).catch(function(){err('No pudimos cargar tu oferta. Revisa tu conexión e inténtalo de nuevo.')});
-  [].forEach.call(document.querySelectorAll('.card'),function(b){b.onclick=function(){S.prog=b.dataset.p;pinta();try{navigator.vibrate&&navigator.vibrate(8)}catch(e){}}});
   ['nombre','apellido','email','rut'].forEach(function(id){$(id).addEventListener('input',pinta)});
   $('rut').addEventListener('blur',function(){if(rutLimpio(this.value).length>1)this.value=rutFmt(this.value)});
   $('aut').onchange=pinta;$('acp').onchange=pinta;
   $('go').onclick=function(){
     var b=$('go');b.disabled=true;$('goTxt').textContent='ABRIENDO FLOW…';$('errForm').hidden=true;
-    fetch(API,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({accion:'regreso',t:T,programa:S.prog,nombre:$('nombre').value.trim(),apellido:$('apellido').value.trim(),rut:rutLimpio($('rut').value),email:$('email').value.trim(),autorizo:$('aut').checked&&$('acp').checked,acepto_permanencia:$('acp').checked})})
+    fetch(API,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({accion:'regreso',t:T,programa:null,nombre:$('nombre').value.trim(),apellido:$('apellido').value.trim(),rut:rutLimpio($('rut').value),email:$('email').value.trim(),autorizo:$('aut').checked&&$('acp').checked,acepto_permanencia:$('acp').checked})})
     .then(function(r){return r.json()}).then(function(d){
       if(!d.ok||!d.url){$('errForm').textContent=d.error||'No pudimos conectar con Flow.';$('errForm').hidden=false;$('goTxt').textContent='UNIRME AL CLUB';pinta();return}
       location.href=d.url})
