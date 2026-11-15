@@ -7320,7 +7320,7 @@ function bkgURL(k){ const t=BKG[k]; if(!t) return ''; if(t._u) return t._u
 function bkFondo(o){ const k=(['acero','grafito','cromoN'].indexOf(S._bg)>=0)?'grafito':'plata', u=bkgURL(k); if(!u) return
   o.dataset.bk=k; o.style.setProperty('--bkg',u) }
 function bkAbrir(bi){ const bfs=S._bfs||[]; if(!bfs[bi]) return
-  try{ kAudioUnlock(); KSFX.play('start') }catch(_){}   // c242 · COMENZAR bloque
+  try{ kAudioUnlock(); KSFX.play('bloque-ini') }catch(_){}   // c247 · COMENZAR bloque: holograma (ElevenLabs, elegido por Matías)
   BK.bi=bi; const b=bfs[bi]; BK.set = bkSetActual(b) || b.sets
   let o=document.getElementById('oBloque'); if(!o){ o=document.createElement('div'); o.id='oBloque'; o.setAttribute('role','dialog'); o.setAttribute('aria-modal','true'); document.body.appendChild(o) }
   try{ bkFondo(o) }catch(_){}
