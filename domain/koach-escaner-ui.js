@@ -370,6 +370,7 @@ const CSS = `
 .keu .keu__sc.alerta{background:linear-gradient(180deg,rgba(255,66,0,.95) 0,rgba(255,66,0,.6) 190px,rgba(255,66,0,0) 560px),#9A9A9A url('/img/bg/nutri-plan.webp') center/cover no-repeat}
 .keu__al{display:flex;align-items:center;gap:10px;margin:0 0 12px;padding:10px 12px;border-radius:12px;color:#FFFFFF;font:700 9.5px var(--k-m);letter-spacing:.2em;background:repeating-linear-gradient(135deg,#FF4200 0 14px,#E63B00 14px 28px);box-shadow:0 8px 20px -10px rgba(255,66,0,.8)}
 .keu__al svg{width:18px;height:18px;flex:none}
+.keu__al b{white-space:nowrap}
 .keu__al b{font-weight:700}.keu__al span{margin-left:auto;opacity:.85}
 .alerta .keu__sys i{background:#FF4200;box-shadow:0 0 10px 2px rgba(255,66,0,.75)}
 .valido .keu__sys i{background:#3EC6B0;box-shadow:0 0 10px 2px rgba(62,198,176,.75)}
@@ -392,6 +393,22 @@ const CSS = `
 .keu__et .b{margin-top:10px;width:100%;min-height:44px;border:0;border-radius:10px;background:#3EC6B0;color:#131313;font:700 10.5px var(--k-m);letter-spacing:.16em;cursor:pointer}
 .keu__pill.etq{background:#131313;color:#3EC6B0}
 .keu__sc:has(.keu__dock) .keu__bt .keu__cta{display:none}
+/* c253 · CRISTAL: fondos de luz por estado, ticket translúcido, veredicto blanco con contorno de color, botones con contorno */
+.keu .keu__sc.valido{background:radial-gradient(120% 55% at 15% 0%,rgba(62,198,176,.95) 0,rgba(62,198,176,.45) 45%,rgba(62,198,176,0) 75%),radial-gradient(70% 40% at 95% 8%,rgba(255,255,255,.75),rgba(255,255,255,0) 70%),radial-gradient(90% 50% at 60% 55%,rgba(62,198,176,.28),rgba(62,198,176,0) 70%),linear-gradient(160deg,rgba(227,227,227,.35),rgba(172,172,172,.15)),#9A9A9A url('/img/bg/nutri-plan.webp') center/cover no-repeat}
+.keu .keu__sc.alerta{background:radial-gradient(120% 55% at 15% 0%,rgba(255,66,0,.95) 0,rgba(255,66,0,.5) 45%,rgba(255,66,0,0) 75%),radial-gradient(70% 40% at 95% 8%,rgba(255,255,255,.6),rgba(255,255,255,0) 70%),radial-gradient(90% 50% at 60% 55%,rgba(255,66,0,.25),rgba(255,66,0,0) 70%),linear-gradient(160deg,rgba(227,227,227,.35),rgba(172,172,172,.15)),#9A9A9A url('/img/bg/nutri-plan.webp') center/cover no-repeat}
+.keu__sc.valido .keu__wt--r,.keu__sc.alerta .keu__wt--r{background:linear-gradient(180deg,rgba(255,255,255,.82) 0%,rgba(244,244,242,.7) 60%,rgba(236,236,234,.66) 100%);-webkit-backdrop-filter:blur(22px) saturate(1.5);backdrop-filter:blur(22px) saturate(1.5);box-shadow:inset 0 1px 0 rgba(255,255,255,.9),0 20px 44px rgba(19,19,19,.22)}
+.keu__al{background:linear-gradient(135deg,rgba(255,66,0,.92),rgba(255,106,51,.78)),repeating-linear-gradient(135deg,rgba(255,255,255,.12) 0 12px,transparent 12px 24px);background-blend-mode:normal;border:1px solid rgba(255,255,255,.45);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px)}
+.keu__wv{background:rgba(255,255,255,.78)!important;color:#131313!important;border:1.5px solid #ACACAC;border-left-width:5px;-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px)}
+.keu__wv b{color:#131313}.keu__wv p{color:#3D3E42!important}
+.keu__wv.ok{border-color:#3EC6B0;box-shadow:0 0 0 3px rgba(62,198,176,.14),0 10px 24px -14px rgba(62,198,176,.7)}
+.keu__wv.x{border-color:#FF4200;box-shadow:0 0 0 3px rgba(255,66,0,.12),0 10px 24px -14px rgba(255,66,0,.7)}
+.keu__wv .keu__sug{color:#0E8F7C!important}
+.keu__wv .keu__wq{margin-top:10px;padding-top:10px;border-top:1px dashed rgba(255,66,0,.45);font:600 13px/1.4 var(--k-d);color:#131313!important}
+.keu__dock{background:linear-gradient(180deg,rgba(19,19,19,0),rgba(19,19,19,.55) 35%)}
+.keu__dock button{-webkit-backdrop-filter:blur(16px) saturate(1.4);backdrop-filter:blur(16px) saturate(1.4)}
+.keu__dock .ok{background:rgba(19,19,19,.72);border:1.5px solid #3EC6B0;box-shadow:inset 0 1px 0 rgba(255,255,255,.12),0 0 18px -4px rgba(62,198,176,.7)}
+.keu__dock .ch{background:rgba(19,19,19,.72);border:1.5px solid #FF4200;box-shadow:inset 0 1px 0 rgba(255,255,255,.12),0 0 18px -4px rgba(255,66,0,.75)}
+.keu__dock .ch u{background:#FF4200;color:#FFFFFF}
 `
 // c249 · escena de la guía (viewBox 300): plato cenital con comida, anillos girando, teléfono que encuadra, sol + cono de luz, esquinas y barrido
 const GSCENA = '<svg viewBox="0 0 300 300">' +
@@ -674,13 +691,13 @@ function pintar(arriba){
   const kP = (+t.proteina_g || 0) * 4, kC = (+t.carbohidrato_g || 0) * 4, kG = (+t.grasa_g || 0) * 9, kT = kP + kC + kG || 1
   const barK = m && m.kcal ? [['p', kP], ['c', kC], ['g', kG]].map(([k, v]) => '<s class="keu__k' + k + '" style="width:' + (v / kT * Math.min(100, t.kcal / m.kcal * 100)).toFixed(1) + '%"></s>').join('') : ''
   const sugH = h
-  h = '<div class="keu__pad keu__pad--r"><div class="keu__wt keu__wt--r' + (arriba ? ' keu__wt--a' : '') + '"><div class="keu__sys"><img src="/img/brand/logotipo-koach.png" alt="KOACH"><span>SYSTEM · NUTRITIONAL ANALYTICS AI</span><i></i></div>' + (mala ? '<div class="keu__al" role="alert">' + ico('<path d="M12 3.5l9.5 16.5h-19z"/><path d="M12 10v4.5M12 17.2v.3"/>') + '<b>ALERTA · ' + (r.cheat || esExtra() ? 'CHEAT MEAL' : 'NO ADECUADO') + '</b><span>' + esc(etiqueta()) + '</span></div>' : '') + '<div class="keu__wh"><span>DATA ANALYTIC RESULT</span><span class="keu__wok' + (mala ? ' ch' : '') + '">' + ico(mala ? '<path d="M7 7l10 10M17 7L7 17"/>' : '<path d="M5 12.5l4.5 4.5L19 7.5"/>') + (r.cheat || esExtra() ? 'CHEAT MEAL' : v.k) + '</span></div>' +
+  h = '<div class="keu__pad keu__pad--r"><div class="keu__wt keu__wt--r' + (arriba ? ' keu__wt--a' : '') + '"><div class="keu__sys"><img src="/img/brand/logotipo-koach.png" alt="KOACH"><span>SYSTEM · NUTRITIONAL ANALYTICS AI</span><i></i></div>' + (mala ? '<div class="keu__al" role="alert">' + ico('<path d="M12 3.5l9.5 16.5h-19z"/><path d="M12 10v4.5M12 17.2v.3"/>') + '<b>ALERTA · ' + (r.cheat || esExtra() ? 'CHEAT MEAL' : 'NO ADECUADO') + '</b></div>' : '') + '<div class="keu__wh"><span>DATA ANALYTIC RESULT</span><span class="keu__wok' + (mala ? ' ch' : '') + '">' + ico(mala ? '<path d="M7 7l10 10M17 7L7 17"/>' : '<path d="M5 12.5l4.5 4.5L19 7.5"/>') + (r.cheat || esExtra() ? 'CHEAT MEAL' : v.k) + '</span></div>' +
     (fotoT ? '<div class="keu__wph">' + fotoT + '</div>' : '') +
     '<span class="keu__wl">INGESTA ESTIMADA · ' + esc(etiqueta()) + '</span><div class="keu__wk"><b data-kc="' + Math.round(t.kcal) + '">' + n0(t.kcal) + '</b><span>KCAL' + (m && m.kcal ? '<br>TU PLAN ' + n0(m.kcal) : '') + '</span></div>' +
     (kp != null ? '<div class="keu__wb keu__wb--3">' + barK + (kp > 100 ? '<i class="keu__wbo" style="left:' + (100 / kp * 100).toFixed(1) + '%"></i>' : '') + '</div><div class="keu__wbp"><span><i data-kc="' + kp + '">' + kp + '</i> % DE TU PLAN</span><span>' + (r.puntaje != null && !r.cheat ? 'PUNTAJE <i data-kc="' + r.puntaje + '">' + r.puntaje + '</i>/100' : esc(etiqueta())) + '</span></div>' : '') +
     tele() +
     '<div class="keu__wm">' + macW('PROTEÍNA', t.proteina_g, m && m.proteina_g, 'p') + macW('CARBOS', t.carbohidrato_g, m && m.carbohidrato_g, 'c') + macW('GRASAS', t.grasa_g, m && m.grasa_g, 'g') + '</div>' +
-    '<div class="keu__wv' + (mala ? ' x' : '') + '"><b>' + esc(r.titulo) + '</b><p>' + esc(r.mensaje) + '</p>' + (r.veredicto !== 'adecuado' && KE.proxima(r, S.cmp) ? '<span class="keu__sug">→ ' + esc(KE.proxima(r, S.cmp)) + '</span>' : '') + '</div></div>' + '<div class="keu__bt keu__bt--top" id="keuBt">' + botones() + '</div><div class="keu__sts" id="keuSt" role="status"></div>' + msH + sugH
+    '<div class="keu__wv' + (mala ? ' x' : ' ok') + '"><b>' + esc(esExtra() ? 'Comida fuera de tu plan' : r.titulo) + '</b><p>' + esc(r.mensaje) + '</p>' + (mala && comidaN(S.num) || mala && esExtra() ? '<p class="keu__wq">¿Deseas registrarla igual para sumar sus calorías a tu día? Quedará como cheat meal.</p>' : '') + (r.veredicto !== 'adecuado' && KE.proxima(r, S.cmp) ? '<span class="keu__sug">→ ' + esc(KE.proxima(r, S.cmp)) + '</span>' : '') + '</div></div>' + '<div class="keu__bt keu__bt--top" id="keuBt">' + botones() + '</div><div class="keu__sts" id="keuSt" role="status"></div>' + msH + sugH
   // 2 · cómo va con tu plan
   if (S.cmp) {
     const E = { plan: ['done', 'EN TU PLAN'], reemplazo: ['line', 'REEMPLAZO'], fuera: ['fill', 'NO ADECUADO'], extra: ['', 'FUERA DEL PLAN'] }
@@ -747,7 +764,6 @@ function tele(){
   const hh = new Date().toLocaleTimeString('es-CL', { hour: '2-digit', minute: '2-digit', hourCycle: 'h23', timeZone: 'America/Santiago' }).replace(':', '')
   const id = new Date().toLocaleDateString('sv-SE', { timeZone: 'America/Santiago' }).slice(2).replace(/-/g, '') + '-' + hh + '-C' + (S.num || 'X')
   const it = [['ID', id]]
-  if (d.confianza != null) it.push(['CONFIANZA', Math.round(d.confianza * 100) + '%'])
   if (n) it.push(['OBJETOS', String(n)])
   if (S.tAn) it.push(['ANÁLISIS', S.tAn.toFixed(1).replace('.', ',') + ' S'])
   return '<div class="keu__tel">' + it.map(([k, v]) => '<span>' + k + ' <b>' + esc(v) + '</b></span>').join('') + '</div>'
@@ -778,10 +794,7 @@ function etqForm(i, a){
 }
 function botones(){ const c = comidaN(S.num) || (esExtra() ? { extra: true } : null)
   const no = S.res && (S.res.veredicto === 'alerta' || esExtra())
-  if (no && !S.sucio && c) return '<div class="keu__nq"><div class="keu__nqh"><i>' + ico('<path d="M7 7l10 10M17 7L7 17"/>') + '</i><div><b>' + (esExtra() ? 'Comida fuera de tu plan' : 'Alimento no adecuado para tu plan') + '</b><span>¿Deseas registrarla igual para sumar sus calorías a tu día? Quedará como cheat meal.</span></div></div>' +
-    '<div class="keu__nqt"><span>≈ ' + n0(S.res.totales.kcal) + ' KCAL</span><span>P ' + n0(S.res.totales.proteina_g) + '</span><span>C ' + n0(S.res.totales.carbohidrato_g) + '</span><span>G ' + n0(S.res.totales.grasa_g) + '</span></div></div>' +
-    '<button type="button" class="keu__cta keu__cta--x" onclick="KEU.confirmar(true)">Sí, registrar como cheat meal</button><button type="button" class="keu__sec" onclick="KEU.cerrar()">NO, NO REGISTRAR</button>' +
-    '<button type="button" class="keu__lnk" onclick="KEU.otra()">' + ico(I.cam) + 'EMPEZAR DE NUEVO</button>'
+  if (no && !S.sucio && c) return '<button type="button" class="keu__sec" onclick="KEU.cerrar()">NO, NO REGISTRAR</button><button type="button" class="keu__lnk" onclick="KEU.otra()">' + ico(I.cam) + 'EMPEZAR DE NUEVO</button>'   // c253 · la pregunta vive en el ticket y el check en la barra fija
   return (S.sucio ? '<button type="button" class="keu__cta" onclick="KEU.recalcular()">Recalcular con mis cambios</button>' : '') +
     '<button type="button" class="keu__' + (S.sucio ? 'sec' : 'cta keu__cta--tech') + '"' + (S.sucio || !c ? ' disabled' : '') + ' onclick="KEU.confirmar()">' + (c ? (S.sucio ? 'CONFIRMAR Y REGISTRAR' : '<i class="cr a"></i><i class="cr b"></i><span class="tk"><i></i>Confirmar y registrar</span><span class="ar">' + (esExtra() ? 'EXTRA' : 'C' + S.num) + '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>') : 'Elige la comida') + '</button>' +
     '<button type="button" class="keu__lnk" onclick="KEU.otra()">' + ico(I.cam) + 'EMPEZAR DE NUEVO</button><button type="button" class="keu__lnk" onclick="KEU.cerrar()">DESCARTAR</button>' }
