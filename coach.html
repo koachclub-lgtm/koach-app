@@ -2754,12 +2754,12 @@ html.en-sala #vSala #rostN{display:none !important}
 #vSala .s4P{display:flex;flex-direction:column;gap:12px;position:sticky;top:calc(var(--ks-top,60px) + 14px)}
 @media (max-width:999px){#vSala .s4P{position:static}}
 #vSala .s4Q{margin:0;flex:none;min-width:0;display:flex;flex-direction:column;align-items:stretch;gap:6px}
-#vSala .s4Q .salaQ{min-height:52px;border-radius:14px;border:0;background:#000;color:#F4F3F0;box-shadow:inset 0 1px 0 rgba(244,243,240,.14)}
+#vSala .s4Q .salaQ{min-height:52px;border-radius:14px;border:0;background:#434649;color:#F4F3F0;box-shadow:inset 0 1px 0 rgba(244,243,240,.14)}
 #vSala .s4Q .salaQ span{color:#C9CDD3;opacity:1}
 #vSala .s4Q .salaQ input{color:#F4F3F0 !important;font-size:15px}
-#vSala .s4Q .salaQ input::placeholder{color:#979C9F}
+#vSala .s4Q .salaQ input::placeholder{color:#C9CDD3}
 #vSala .s4Q .salaQx{background:rgba(244,243,240,.14);color:#F4F3F0}
-#vSala .s4Q .sl__c{align-self:flex-end;font:400 10px 'Space Mono',var(--font-mono),monospace;letter-spacing:.06em;color:#434649}
+#vSala .s4Q .sl__c{display:none;align-self:flex-end;font:400 10px 'Space Mono',var(--font-mono),monospace;letter-spacing:.06em;color:#434649}
 #vSala .s4C{border-radius:18px;background:rgba(251,250,248,.86);box-shadow:0 0 0 1px rgba(11,11,12,.07),0 8px 24px rgba(11,11,12,.06);padding:16px 18px;color:#000}
 #vSala .s4C--dk{background:#000;color:#F4F3F0;box-shadow:inset 0 1px 0 rgba(244,243,240,.12)}
 #vSala .s4C__h{display:flex;align-items:center;gap:8px;margin-bottom:12px;font:700 10px 'Space Mono',var(--font-mono),monospace;letter-spacing:.12em}
@@ -2823,6 +2823,11 @@ html.en-sala #vSala #rostN{display:none !important}
 #vSala .s4Pg em{font-style:normal;font-family:'KOACH Display','KOACH Display Fallback',sans-serif;font-weight:400;font-stretch:112%;font-size:17px;line-height:1;letter-spacing:-.01em;white-space:nowrap;overflow:hidden;padding-left:4px}
 #vSala .s4Pg--off{opacity:.45}
 @media (max-width:640px){#vSala .s4H__mx{padding-left:0;border-left:0;flex-basis:100%}#vSala .s4Pg em{font-size:14px}}
+#vSala .s4M #rostG:empty{display:none}
+#vSala .s4M #rostG:not(:empty)+.sl__s{margin:18px 0 10px}
+#vSala .s4M #rostG:empty+.sl__s{display:none}
+#vSala .s4M .sl__res:empty,#vSala .s4M #lista:empty{margin:0}
+#vSala .s4H{margin-bottom:12px}
 /* tarjeta que se abre como archivo */
 .s4Ov{position:fixed;z-index:80;overflow:hidden;pointer-events:none;border-radius:18px}
 .s4Ov__t{position:absolute;left:24px;top:22px;font:800 24px/1.02 var(--font-display);font-stretch:106%;text-transform:uppercase}
@@ -2907,7 +2912,7 @@ html.en-sala .kNew:hover{background:linear-gradient(180deg,#fff 0%,#DDDFE1 100%)
   <div class="s4Scan" aria-hidden="true"></div>
   <div class="s4" id="s4">
     <aside class="s4P" aria-label="Panel del día">
-      <div class="sl__q s4Q"><label class="salaQ"><span aria-hidden="true">⌕</span><input id="salaQ" type="search" placeholder="Buscar socio y abrir su ficha" autocomplete="off" oninput="salaBuscar()" onkeydown="salaBuscarKey(event)" aria-label="Buscar socio por nombre o apellido"><button type="button" id="salaQx" class="salaQx" hidden onclick="salaLimpiar()" aria-label="Limpiar búsqueda">×</button></label><span class="sl__c" id="nSoc">—</span></div>
+      <div class="sl__q s4Q"><label class="salaQ"><span aria-hidden="true">⌕</span><input id="salaQ" type="search" placeholder="Buscar socio" autocomplete="off" oninput="salaBuscar()" onkeydown="salaBuscarKey(event)" aria-label="Buscar socio por nombre o apellido"><button type="button" id="salaQx" class="salaQx" hidden onclick="salaLimpiar()" aria-label="Limpiar búsqueda">×</button></label><span class="sl__c" id="nSoc">—</span></div>
       <section class="s4C" id="s4Hoy" aria-label="Hoy"></section>
       <section class="s4C" id="s4Pr" aria-label="Clases de prueba de hoy"></section>
       <section class="s4C s4C--dk" id="s4Ve" aria-label="Por vencer" hidden></section>
@@ -3720,6 +3725,7 @@ function pintarSala(){
     (_modo==='desktop'?'<div class="glass st3"><b>'+completas+'</b><span>SEMANAS COMPLETAS</span></div>'+
       '<div class="glass st3"><b>'+nSol+'</b><span>SOLICITUDES</span></div>':'')
   document.getElementById('nSoc').textContent=SOC.length+' EN EL CLUB'
+  const _q4=document.getElementById('salaQ'); if(_q4) _q4.placeholder='Buscar socio entre '+SOC.length
   document.getElementById('lista').innerHTML = SOC.map(function(s){
     const a=C.asig[s.id], x=ctxEnt(s.id), ex=(C.extras[s.id]||[]).filter(function(e){return e.estado==='disponible'}).length
     const meta=a?(((a.protocolos&&a.protocolos.programa)||'')+' · SEMANA '+(a.semana_actual||1)).toUpperCase():'SIN PLANIFICACIÓN ACTIVA'
@@ -8146,7 +8152,7 @@ function salaPresenciaPintar(){
   const enV = S4.f ? en.filter(function(p){ return kidTone(p.socio_id).p===S4.f }) : en
   g.innerHTML = enV.length ? enV.map(function(p){ const x=p.principal, m=presMin(x.inicio), mas=p.sesiones.length-1
     return kidCard(p.socio_id, p.nombre, (m<2?'RECIÉN LLEGA':kidDur(m)+' EN SALA'), String(x.sesion||'SESIÓN')+(mas>0?' · +'+mas:''), true, null, BN.hoy[p.socio_id]||null) }).join('')
-    : '<div class="kidV">'+(S4.f && en.length ? 'Nadie de '+S4.f+' entrenando en este momento.' : 'Nadie entrenando en este momento.')+'</div>'
+    : (S4.f && en.length ? '<div class="kidV">Nadie de '+S4.f+' entrenando en este momento.</div>' : '')
   salaRecPintar(); salaRecCargar(); s4Cargar()
   const at=per.filter(function(p){ return p.atencion.length }).sort(function(a,b){
     const ca=a.atencion.some(function(x){return x.cat==='atencion'}), cb=b.atencion.some(function(x){return x.cat==='atencion'})
@@ -10379,7 +10385,7 @@ function kShellPaint(){
         ? '<button type="button" class="'+c('agenda')+'" onclick="kAcc(\'agenda\')"'+(act==='agenda'?' aria-current="page"':'')+'>AGENDA</button>'+
           '<button type="button" class="'+(KS.v==='vFicha'||act==='sala'?'on':'')+'" onclick="kAcc(\'socios\')">SOCIOS</button>'
         : (CRM_ACTIVO && b.R==='admin'?'<button type="button" class="'+c('crm','kN-crm')+'" onclick="kAcc(\'crm\')"'+(act==='crm'?' aria-current="page"':'')+'>PANEL</button>':'')+
-      '<button type="button" class="'+c('sala')+'" onclick="kAcc(\'sala\')"'+(act==='sala'?' aria-current="page"':'')+'><i class="kLv" aria-hidden="true"></i>SALA</button>'+
+      '<button type="button" class="'+c('sala')+'" onclick="kAcc(\'sala\')"'+(act==='sala'?' aria-current="page"':'')+'><i class="kLv" aria-hidden="true"></i>CLUB</button>'+
       '<button type="button" class="'+c('agenda')+'" onclick="kAcc(\'agenda\')"'+(act==='agenda'?' aria-current="page"':'')+'>AGENDA</button>'+
       '<button type="button" class="'+c('sol')+'" onclick="kAcc(\'sol\')"'+(act==='sol'?' aria-current="page"':'')+'>SOLICITUDES'+(b.sol?' <span class="kBdg">'+b.sol+'</span>':'')+'</button>'+
       (b.COM?'<button type="button" class="'+c('mem','kN-mem')+'" onclick="kAcc(\'mem\')" title="'+b.memT+'"'+(act==='mem'?' aria-current="page"':'')+'>MEMBRESÍAS'+(b.mem?' <span class="kBdg kBdg--dot" aria-label="con pendientes"></span>':'')+'</button>':'')+
@@ -10407,7 +10413,7 @@ function kShellPaint(){
     ? '<button type="button" class="'+(act==='agenda'?'on':'')+'" onclick="kAcc(\'agenda\')">'+KS_ICO.sol+'AGENDA</button>'+
       '<button type="button" class="'+(KS.v==='vFicha'||act==='sala'?'on':'')+'" onclick="kAcc(\'socios\')">'+KS_ICO.soc+'SOCIOS</button>'+
       '<button type="button" onclick="kMenuT(\'me\')" aria-haspopup="menu">'+KS_ICO.mas+'CUENTA</button>'
-    : '<button type="button" class="'+(act==='sala'?'on':'')+'" onclick="kAcc(\'sala\')">'+KS_ICO.sala+'SALA</button>'+
+    : '<button type="button" class="'+(act==='sala'?'on':'')+'" onclick="kAcc(\'sala\')">'+KS_ICO.sala+'CLUB</button>'+
     '<button type="button" class="'+(KS.v==='vFicha'?'on':'')+'" onclick="kAcc(\'socios\')">'+KS_ICO.soc+'SOCIOS</button>'+
     '<button type="button" class="'+(act==='sol'?'on':'')+'" onclick="kAcc(\'sol\')">'+KS_ICO.sol+(b.sol?'<span class="kBdg">'+b.sol+'</span>':'')+'SOLICITUDES</button>'+
     '<button type="button" class="'+((act==='mem'||act==='adh'||act==='bib'||act==='crm'||act==='agenda')?'on':'')+'" onclick="kMenuT(\'mas\')" aria-haspopup="menu">'+KS_ICO.mas+'MÁS</button>'
