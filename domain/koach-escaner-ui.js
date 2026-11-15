@@ -423,7 +423,7 @@ function hud(txt){
     '<div class="keu__hl" id="keuHl" aria-hidden="true"></div><div class="keu__sr" role="status">Analizando tu comida</div></div>'
 }
 function hudIni(){
-  try { if (S.sndOff) S.sndOff(); S.sndOff = window.KSFX ? KSFX.loop('scan-loop', .55) : null } catch (_) {}
+  try { if (S.sndOff) S.sndOff(); S.sndOff = window.KSFX ? KSFX.loop('scan-loop', .7) : null } catch (_) {}
   S.hudK = -1; S.hudB = 0
   el().classList.add('keu--hud'); const t0 = Date.now(), hx = n => Math.floor(Math.random() * 16 ** n).toString(16).toUpperCase().padStart(n, '0')
   const TAG = ['SEG', 'CLS', 'VOL', 'DEN', 'MAC', 'REF', 'ISO', 'NRM']
@@ -433,8 +433,8 @@ function hudIni(){
     sc.querySelectorAll('.keu__hm b').forEach(b => { b.textContent = String(+b.dataset.a + Math.floor(Math.random() * (b.dataset.z - b.dataset.a))).padStart(3, '0') })
     const k = Math.min(HUD_PASOS.length - 1, Math.floor(ms / 1600)), lis = sc.querySelectorAll('#keuHp li')
     lis.forEach((li, i) => { li.className = i < k ? 'ok' : i === k ? 'on' : '' })
-    if (k !== S.hudK) { S.hudK = k; SND('scan-paso', 0, .7, [1, 1.189, 1.335, 1.498, 2][k] || 1) }   // cada paso sube un tono (La · Do · Re · Mi · La)
-    if (!sc.querySelector('.keu__hv--t')) { while (S.hudB < 3 && ms > 500 + S.hudB * 700) { S.hudB++; SND('scan-captura', 0, .35, 1.5) } }   // OBJ_01-03: destello al detectar
+    if (k !== S.hudK) { S.hudK = k; SND('scan-paso', 0, .8) }   // c246 · tick seco por paso (sin melodía)
+    if (!sc.querySelector('.keu__hv--t')) { while (S.hudB < 3 && ms > 500 + S.hudB * 700) { S.hudB++; SND('scan-lock', 0, .8) } }   // OBJ_01-03: fijación del objeto detectado
     const bar = $('keuHb'); if (bar) bar.style.width = Math.min(96, 100 * (1 - Math.exp(-ms / 5200))).toFixed(1) + '%'
     const lg = $('keuHl'); if (lg){ const ln = document.createElement('div')
       ln.textContent = '0x' + hx(4) + '  ' + TAG[Math.floor(Math.random() * TAG.length)] + '  ' + hx(6) + ' ' + hx(2) + '.' + hx(2) + '  ' + (Math.random() * 0.4 + 0.6).toFixed(3) + '  ' + HUD_PASOS[k].split(' ')[0].slice(0, 6)
