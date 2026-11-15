@@ -25,10 +25,27 @@
       }));
     });
   }
+  /* c243 · MOMENTOS PRINCIPALES (logo, PR, cuenta regresiva, GO): en Android suenan como audio corto del sistema, y Android
+     BAJA el volumen de Spotify mientras suenan y lo devuelve al terminar (foco "transitorio con atenuación" de Chrome para audios
+     de menos de 5 s). El resto de los botones sigue por Web Audio, mezclado sin tocar la música.
+     En iPhone la web no puede atenuar otras apps: ahí todo se mezcla. */
+  var ANDROID = /Android/i.test(navigator.userAgent);
+  var DUCK = { logo: 1, logro: 1, riser: 1, go: 1 }, els = {};
+  function el(n) { if (!els[n]) { var a = new Audio('/sfx/' + n + '.mp3'); a.preload = 'auto'; els[n] = a } return els[n] }
+  if (ANDROID) Object.keys(DUCK).forEach(el);
+  function duck(n, delay, gain) {
+    try {
+      var a = el(n); a.volume = Math.max(0, Math.min(1, gain == null ? 1 : gain));
+      var go = function () { try { a.pause(); a.currentTime = 0 } catch (_) {} var p = a.play(); if (p && p.catch) p.catch(function () {}) };
+      if (delay) setTimeout(go, delay * 1000); else go();
+      return true;
+    } catch (_) { return false }
+  }
   var KSFX = {
     preload: function () { return decodeAll() },
     ok: function (n) { var c = ctx(); return !!(c && c.state === 'running' && on() && buf[n || 'go']) },
     play: function (n, delay, gain) {
+      if (DUCK[n] && ANDROID && on() && duck(n, delay, gain)) return true;
       var c = ctx(); if (!c || !on()) return false;
       if (!buf[n]) { decodeAll(); return false }
       try {
