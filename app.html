@@ -4166,6 +4166,14 @@ html[data-lg-at="0"] #vLogin .lgCv{display:block}
 .kgm__t{margin-top:26px;font:700 9px 'Space Mono',var(--font-mono);letter-spacing:.22em;color:#6F7377;opacity:0;animation:kgmF .5s 2.2s forwards}
 @keyframes kgmF{to{opacity:1}}
 @media (prefers-reduced-motion:reduce){ .kgm *{animation-duration:.01s!important;animation-delay:0s!important} .kgm__bg{clip-path:none} }
+
+/* c266 · PR con la foto del ejercicio (tarjeta gris como en la sesión) */
+.kxPR__fo{width:clamp(92px,27vw,124px);aspect-ratio:1;margin:14px auto 0;border-radius:20px;overflow:hidden;background:linear-gradient(160deg,#E4E5E7,#B9BCC1);box-shadow:0 0 0 1px rgba(255,255,255,.35),0 14px 34px rgba(0,0,0,.55),0 0 40px rgba(220,230,245,.18);opacity:0}
+.kxDone--pr.on .kxPR__fo{animation:prFo .7s .75s cubic-bezier(.2,1.2,.3,1) both}
+@keyframes prFo{from{opacity:0;transform:scale(.6) rotate(-6deg)}to{opacity:1;transform:none}}
+.kxPR__fo img{width:100%;height:100%;object-fit:cover;display:block}
+.kxPR__fo + .kxPR__t{margin-top:10px}
+@media (max-height:740px){ .kxPR__fo{width:78px;border-radius:16px;margin-top:8px} }
 </style>
 </head>
 <body>
@@ -5605,6 +5613,7 @@ function kxPrRevisar(filas){ try{
   if (S._prPend){ clearTimeout(S._prT); S._prT=setTimeout(()=>{ const pr=S._prPend; S._prPend=null; S._prVisto=Date.now(); if(pr) kxPR(pr) },220) }
 }catch(e){ console.error('kxPrRevisar',e) } }
 function kxPR(pr, alFin){ const ov=document.getElementById('kxDone'); if(!ov) return
+  const fPR = pr && pr.id ? exFotoUrl({ id:pr.id }) : ''   // c266 · la foto del ejercicio: que se sepa de qué récord hablamos
   try{ KSFX.play('logro') }catch(_){}   // c240 · DROP: exclusivo de logros (PR, puntos, créditos)   // c160 · alFin: al cerrar el récord del cierre sigue al resumen
   // c136 · RÉCORD ÉPICO: cromo negro, rayos, el número entra de golpe (golpe + onda + temblor + flash) y queda con brillo plateado
   const f=x=>(x.peso%1?String(x.peso).replace('.',','):x.peso)+' KG'+(x.reps?' × '+x.reps:''), dif=Math.round((pr.hoy.peso-pr.antes.peso)*10)/10
@@ -5616,6 +5625,7 @@ function kxPR(pr, alFin){ const ov=document.getElementById('kxDone'); if(!ov) re
     '<div class="kxD__in kxPR"><div class="kxD__top"><img src="/img/brand/logotipo-koach.png" alt="KOACH"><small>'+new Date().toLocaleDateString('es-CL',{day:'2-digit',month:'short'}).toUpperCase()+'</small></div>'+
     '<h1 class="kxPR__hd"><span>PERSONAL</span><span>RECORD</span></h1>'+
     '<div class="kxPR__hero"><i class="kxPR__ring"></i><div class="kxPR__big" style="--n:'+num.length+'"><span class="kxPR__n">'+num+'</span><em>'+uni+'</em></div></div>'+(pr.hoy.reps?'<div class="kxPR__rp">× '+pr.hoy.reps+' REPS</div>':'')+
+    (fPR?'<div class="kxPR__fo"><img src="'+fPR+'" alt="'+plEscA(String(pr.nom||''))+'" onerror="this.parentNode.remove()"></div>':'')+
     '<h2 class="kxPR__t'+(String(pr.nom||'').length>18?' kxPR__t--l':'')+'">'+pal+'</h2>'+
     '<div class="kxPR__da" id="kxPrDa">'+kprDataHTML(pr, null)+'</div>'+
     '<div class="kxPR__acts"><button type="button" class="kxBtn kxPR__ok" id="kxPrOk">'+(alFin?'VER MI SESIÓN':'CONTINUAR MI RUTINA')+' <i></i></button>'+
