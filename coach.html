@@ -655,6 +655,11 @@ em.tbDolor,.selDolor{font-style:normal;color:#fff!important;background:#B3261E!i
 <script src="/domain/koach-nutricion-vista.js"></script>
 <script src="/domain/koach-avatar.js"></script>
 <script src="/domain/koach-timer.js?v=6"></script>
+<script>/* c260 · sonido del dashboard: mismo motor y galería que la app del socio (/sfx). Interruptor: localStorage k_sonido */
+var KAU={ ctx:null }
+function kSonidoOn(){ try{ return localStorage.getItem('k_sonido')!=='0' }catch(_){ return true } }
+function kAudioUnlock(){ if(!kSonidoOn()) return; try{ var AC=window.AudioContext||window.webkitAudioContext; if(!AC) return; if(!KAU.ctx) KAU.ctx=new AC(); if(KAU.ctx.state!=='running') KAU.ctx.resume() }catch(_){} }</script>
+<script src="/domain/koach-sfx.js"></script>
 <style>
 /* c188 · chip del bloque temporizador */
 .ktChip{border:1.5px dashed rgba(18,18,16,.28);background:none;color:inherit;border-radius:999px;padding:6px 10px;font:700 8.5px 'Space Mono',monospace;letter-spacing:.1em;cursor:pointer;white-space:nowrap}
@@ -2729,6 +2734,120 @@ html[data-rol="nutricionista"] #fTbEnt, html[data-rol="nutricionista"] #fTbAdh, 
 #vPlan.plXs .plHdr{grid-template-columns:minmax(0,1fr) auto}
 #vPlan.plXs .plSesBar{grid-column:1/-1;justify-content:flex-start}
 </style>
+<style>
+/* ═══ c260 · SALA v4 (solo #vSala): fondo plata con cuadrícula + escáner, panel lateral del día, hero de sesiones en curso,
+   mini tarjetas de programa, menú con íconos en placa. Todo bajo html.en-sala: las otras pantallas no cambian. ═══ */
+.kNi{display:none}
+@media (min-width:1000px){
+  html.en-sala[data-dash] body,html.en-sala body{max-width:1640px !important;padding-left:28px;padding-right:28px}
+}
+html.en-sala body{background:linear-gradient(rgba(11,11,12,.05) 1px,transparent 1px) 0 0/40px 40px,linear-gradient(90deg,rgba(11,11,12,.05) 1px,transparent 1px) 0 0/40px 40px,url(/img/bg/silver-plan.webp) center/cover fixed,#D0D0CE !important}
+#vSala .s4Scan{display:none}
+html.en-sala #vSala .s4Scan{display:block;position:fixed;left:0;right:0;top:var(--ks-top,60px);height:38px;pointer-events:none;z-index:0;
+  background:linear-gradient(180deg,rgba(255,255,255,0) 0%,rgba(255,255,255,.42) 100%);border-bottom:1px solid rgba(255,255,255,.95);box-shadow:0 8px 14px -6px rgba(255,255,255,.75);
+  animation:s4Scan 7s ease-in-out infinite alternate}
+@keyframes s4Scan{from{transform:translateY(0)}to{transform:translateY(calc(100vh - var(--ks-top,60px) - 40px))}}
+#vSala .s4{position:relative;z-index:1;display:grid;grid-template-columns:300px minmax(0,1fr);gap:20px;align-items:start;margin-top:4px}
+@media (max-width:999px){#vSala .s4{grid-template-columns:minmax(0,1fr)}#vSala .s4 .s4P{display:contents}#vSala .s4 .s4Q{order:0}#vSala .s4 .s4M{order:1}#vSala .s4 .s4C{order:2}#vSala .s4 .s4Pg em{font-size:12px;letter-spacing:0}#vSala .s4 .s4Pg i{display:none}#vSala .s4 .s4Pg{grid-template-columns:22px minmax(0,1fr)}}
+html.en-sala #vSala #rostN{display:none !important}
+@media (max-width:1199px){#vSala .s4Pg{grid-template-columns:24px auto minmax(0,1fr);padding:0 8px;gap:4px}#vSala .s4Pg em{font-size:14px;padding-left:2px}#vSala .s4Pg i{padding:0 2px}}
+#vSala .s4P{display:flex;flex-direction:column;gap:12px;position:sticky;top:calc(var(--ks-top,60px) + 14px)}
+@media (max-width:999px){#vSala .s4P{position:static}}
+#vSala .s4Q{margin:0;flex:none;min-width:0;display:flex;flex-direction:column;align-items:stretch;gap:6px}
+#vSala .s4Q .salaQ{min-height:52px;border-radius:14px;border:0;background:#000;color:#F4F3F0;box-shadow:inset 0 1px 0 rgba(244,243,240,.14)}
+#vSala .s4Q .salaQ span{color:#C9CDD3;opacity:1}
+#vSala .s4Q .salaQ input{color:#F4F3F0 !important;font-size:15px}
+#vSala .s4Q .salaQ input::placeholder{color:#979C9F}
+#vSala .s4Q .salaQx{background:rgba(244,243,240,.14);color:#F4F3F0}
+#vSala .s4Q .sl__c{align-self:flex-end;font:400 10px 'Space Mono',var(--font-mono),monospace;letter-spacing:.06em;color:#434649}
+#vSala .s4C{border-radius:18px;background:rgba(251,250,248,.86);box-shadow:0 0 0 1px rgba(11,11,12,.07),0 8px 24px rgba(11,11,12,.06);padding:16px 18px;color:#000}
+#vSala .s4C--dk{background:#000;color:#F4F3F0;box-shadow:inset 0 1px 0 rgba(244,243,240,.12)}
+#vSala .s4C__h{display:flex;align-items:center;gap:8px;margin-bottom:12px;font:700 10px 'Space Mono',var(--font-mono),monospace;letter-spacing:.12em}
+#vSala .s4C__h>span:first-child{flex:1;min-width:0}
+#vSala .s4C__n{height:22px;min-width:22px;padding:0 7px;box-sizing:border-box;border-radius:6px;background:#000;color:#F4F3F0;display:grid;place-items:center;font:700 11px 'Space Mono',monospace;letter-spacing:0}
+#vSala .s4C--dk .s4C__n{background:#F4F3F0;color:#000}
+#vSala .s4Live{display:flex;align-items:center;gap:6px;font-weight:400;color:#434649;letter-spacing:.06em}
+#vSala .s4Live i{width:6px;height:6px;border-radius:50%;background:#000;animation:kLv 2.4s infinite}
+#vSala .s4Hoy{display:grid;grid-template-columns:repeat(3,minmax(0,1fr))}
+#vSala .s4Hoy>div{display:flex;flex-direction:column;gap:5px;padding-left:10px;border-left:1px solid rgba(11,11,12,.1)}
+#vSala .s4Hoy>div:first-child{padding-left:0;border-left:0}
+#vSala .s4Hoy b{font:700 32px/1 'Space Mono',monospace;letter-spacing:-.04em;font-variant-numeric:tabular-nums}
+#vSala .s4Hoy small{font:400 9px/1.3 'Space Mono',monospace;letter-spacing:.04em;color:#434649;text-transform:uppercase}
+#vSala .s4Sem{margin-top:14px;padding-top:12px;border-top:1px solid rgba(11,11,12,.1)}
+#vSala .s4Sem__h{display:flex;font:700 9.5px 'Space Mono',monospace;letter-spacing:.08em;margin-bottom:8px}
+#vSala .s4Sem__h span:first-child{flex:1}#vSala .s4Sem__h span:last-child{font-weight:400;color:#434649}
+#vSala .s4Sem__b{height:104px;display:flex;align-items:flex-end;gap:8px}
+#vSala .s4Sem__b>div{flex:1;display:flex;flex-direction:column;align-items:center;gap:5px;font:400 10px 'Space Mono',monospace;color:#434649}
+#vSala .s4Sem__b>div b{font:700 10.5px 'Space Mono',monospace}
+#vSala .s4Sem__b>div i{display:block;width:100%;border-radius:4px 4px 2px 2px;background:linear-gradient(180deg,#C9CBCF,#979C9F)}
+#vSala .s4Sem__b>div.hoy{color:#000}
+#vSala .s4Sem__b>div.hoy i{background:linear-gradient(180deg,#434649,#000);box-shadow:0 6px 14px rgba(0,0,0,.25)}
+#vSala .s4Ls{display:flex;flex-direction:column}
+#vSala .s4Ls button{min-height:36px;border:0;border-top:1px solid rgba(11,11,12,.07);background:transparent;color:inherit;padding:0;display:grid;grid-template-columns:46px minmax(0,1fr) auto;align-items:center;gap:8px;text-align:left;cursor:pointer}
+#vSala .s4C--dk .s4Ls button{border-top-color:rgba(244,243,240,.1);grid-template-columns:minmax(0,1fr) auto auto}
+#vSala .s4Ls button:hover{background:rgba(11,11,12,.04)}#vSala .s4C--dk .s4Ls button:hover{background:rgba(244,243,240,.05)}
+#vSala .s4Ls b{font:700 11px 'Space Mono',monospace}
+#vSala .s4Ls span{font:500 13px var(--font-display);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#vSala .s4Ls small{font:400 9px 'Space Mono',monospace;letter-spacing:.06em;color:#434649}
+#vSala .s4C--dk .s4Ls small{color:#979C9F}
+#vSala .s4Ls em{font-style:normal;height:20px;padding:0 7px;border-radius:5px;border:1px solid rgba(244,243,240,.35);display:grid;place-items:center;font:700 9.5px 'Space Mono',monospace}
+#vSala .s4Ls .s4V{padding:8px 0 0;font:400 12px var(--font-display);color:#6F7377}
+#vSala .s4C--dk .s4Ls .s4V{color:#979C9F}
+#vSala .s4Mas{display:block;margin-top:6px;border:0;background:none;padding:4px 0 0;font:400 9.5px 'Space Mono',monospace;letter-spacing:.06em;color:#434649;cursor:pointer;text-align:left}
+/* hero · sesiones en curso */
+#vSala .s4M{margin:0;min-width:0}
+#vSala .s4H{position:relative;overflow:hidden;min-height:86px;box-sizing:border-box;border-radius:18px;margin-bottom:14px;padding:14px 20px 14px 22px;display:flex;align-items:center;gap:22px;flex-wrap:wrap;color:#F4F3F0;
+  background:linear-gradient(rgba(244,243,240,.05) 1px,transparent 1px) 0 0/20px 20px,linear-gradient(90deg,rgba(244,243,240,.05) 1px,transparent 1px) 0 0/20px 20px,linear-gradient(120deg,#1E1F22 0%,#000 60%,#17181A 100%);box-shadow:inset 0 1px 0 rgba(244,243,240,.12)}
+#vSala .s4H__n{display:flex;align-items:center;gap:14px}
+#vSala .s4H__n>b{font:700 60px/.9 'Space Mono',monospace;letter-spacing:-.05em;background:linear-gradient(180deg,#FFF 0%,#C9CDD3 55%,#979C9F 100%);-webkit-background-clip:text;background-clip:text;color:transparent;font-variant-numeric:tabular-nums}
+#vSala .s4H__n>span{display:flex;flex-direction:column;gap:5px}
+#vSala .s4H__n strong{display:flex;align-items:center;gap:7px;font:700 11px 'Space Mono',monospace;letter-spacing:.08em}
+#vSala .s4H__n strong i{width:7px;height:7px;border-radius:50%;background:#F4F3F0;box-shadow:0 0 8px #F4F3F0;animation:kLv 2.4s infinite}
+#vSala .s4H__n small{font:400 9.5px 'Space Mono',monospace;letter-spacing:.04em;color:#979C9F}
+#vSala .s4H__mx{flex:1 1 420px;min-width:0;display:flex;flex-direction:column;gap:9px;padding-left:22px;border-left:1px solid rgba(244,243,240,.12)}
+#vSala .s4H__bar{height:8px;display:flex;gap:3px;border-radius:4px;background:rgba(244,243,240,.08)}
+#vSala .s4H__bar span{border-radius:4px;box-shadow:inset 0 0 0 1px rgba(244,243,240,.25)}
+#vSala .s4H__pg{display:flex;gap:8px}
+#vSala .s4Pg{position:relative;flex:1;min-width:0;height:44px;box-sizing:border-box;border-radius:12px;border:1.5px solid var(--pl);background:var(--pb);color:var(--pf);padding:0 10px;display:grid;grid-template-columns:30px auto minmax(0,1fr);align-items:center;gap:6px;text-align:left;overflow:hidden;cursor:pointer;transition:transform .15s ease,box-shadow .15s ease}
+#vSala .s4Pg:active{transform:scale(.97)}
+#vSala .s4Pg[aria-pressed="true"]{box-shadow:0 0 0 2px #F4F3F0,0 0 16px rgba(244,243,240,.35)}
+#vSala .s4Pg.t-strong{--pb:#979C9F;--pf:#000;--pl:#000}
+#vSala .s4Pg.t-burn{--pb:#434649;--pf:#F4F3F0;--pl:#F4F3F0}
+#vSala .s4Pg.t-healthy{--pb:#000;--pf:#F4F3F0;--pl:#F4F3F0}
+#vSala .s4Pg::before{content:'';position:absolute;inset:0 0 55% 0;background:linear-gradient(180deg,rgba(255,255,255,.16),rgba(255,255,255,0));pointer-events:none}
+#vSala .s4Pg::after{content:'';position:absolute;top:0;bottom:0;left:0;width:60%;background:linear-gradient(105deg,rgba(255,255,255,0) 20%,rgba(255,255,255,.38) 50%,rgba(255,255,255,0) 80%);transform:translateX(-120%);animation:s4Sheen 3.6s ease-in-out infinite;animation-delay:var(--pd,0s);pointer-events:none}
+@keyframes s4Sheen{0%{transform:translateX(-120%)}35%{transform:translateX(220%)}100%{transform:translateX(220%)}}
+#vSala .s4Pg b{font:700 19px/1 'Space Mono',monospace;letter-spacing:-.04em;text-align:center}
+#vSala .s4Pg i{height:24px;display:flex;align-items:stretch;gap:2px;padding:0 4px}
+#vSala .s4Pg i s{display:block;background:currentColor;text-decoration:none}
+#vSala .s4Pg em{font-style:normal;font-family:'KOACH Display','KOACH Display Fallback',sans-serif;font-weight:400;font-stretch:112%;font-size:17px;line-height:1;letter-spacing:-.01em;white-space:nowrap;overflow:hidden;padding-left:4px}
+#vSala .s4Pg--off{opacity:.45}
+@media (max-width:640px){#vSala .s4H__mx{padding-left:0;border-left:0;flex-basis:100%}#vSala .s4Pg em{font-size:14px}}
+/* tarjeta que se abre como archivo */
+.s4Ov{position:fixed;z-index:80;overflow:hidden;pointer-events:none;border-radius:18px}
+.s4Ov__t{position:absolute;left:24px;top:22px;font:800 24px/1.02 var(--font-display);font-stretch:106%;text-transform:uppercase}
+.s4Ov__t small{display:block;margin-top:6px;font:400 10px 'Space Mono',monospace;letter-spacing:.12em}
+/* menú con íconos en placa (solo en la Sala) */
+html.en-sala .kHd{background:linear-gradient(180deg,#18191B 0%,#000 100%);border-bottom:1px solid rgba(244,243,240,.1)}
+html.en-sala .kHd::after{content:'';position:absolute;left:0;right:0;bottom:-1px;height:1px;background:linear-gradient(90deg,rgba(244,243,240,0),rgba(244,243,240,.85),rgba(244,243,240,0)) no-repeat;background-size:40% 1px;animation:s4Nav 5s linear infinite;pointer-events:none}
+@keyframes s4Nav{from{background-position:-40% 0}to{background-position:140% 0}}
+html.en-sala .kNav{border-left:1px solid rgba(244,243,240,.08)}
+@media (min-width:1180px){html.en-sala .kNav>button{flex:1 1 auto}}
+html.en-sala .kNav>button{justify-content:center;gap:9px;padding:0 12px;border-right:1px solid rgba(244,243,240,.08);font:700 10.5px/1 'Space Mono',monospace;letter-spacing:.04em;color:#979C9F}
+html.en-sala .kNav>button:hover{background:rgba(244,243,240,.04)}
+html.en-sala .kNav>button.on{background:linear-gradient(180deg,rgba(244,243,240,0),rgba(244,243,240,.08));color:#fff}
+html.en-sala .kNav>button.on::after{left:18%;right:18%;height:2px;border-radius:2px;background:#F4F3F0;box-shadow:0 0 12px rgba(244,243,240,.85)}
+html.en-sala .kNav .kLv{display:none}
+@media (min-width:1180px){html.en-sala .kNi{display:grid;place-items:center;width:28px;height:28px;flex:none;border-radius:8px;background:linear-gradient(160deg,#222326,#121314);box-shadow:inset 0 0 0 1px rgba(244,243,240,.12)}
+html.en-sala .kNi svg{width:16px;height:16px;stroke:#979C9F}}
+html.en-sala .kNav>button.on .kNi{background:linear-gradient(160deg,#434649,#121314);box-shadow:inset 0 0 0 1px rgba(244,243,240,.35),0 0 14px rgba(244,243,240,.25)}
+html.en-sala .kNav>button.on .kNi svg{stroke:#fff}
+html.en-sala .kNav .kBdg{border-radius:4px;background:#F4F3F0;color:#000;font:700 10px 'Space Mono',monospace}
+html.en-sala .kNew{border:0;border-radius:10px;height:40px;padding:0 14px 0 6px;background:linear-gradient(180deg,#fff 0%,#CFD1D4 100%);color:#000;font:700 11px 'Space Mono',monospace;letter-spacing:.06em;box-shadow:inset 0 1px 0 #fff,inset 0 -1px 0 rgba(0,0,0,.25),0 0 16px rgba(244,243,240,.12)}
+html.en-sala .kNew i{width:28px;height:28px;border-radius:7px;background:#000;color:#F4F3F0;display:grid;place-items:center;font-size:17px}
+html.en-sala .kNew:hover{background:linear-gradient(180deg,#fff 0%,#DDDFE1 100%)}
+@media (prefers-reduced-motion:reduce){html.en-sala #vSala .s4Scan,#vSala .s4Pg::after,html.en-sala .kHd::after{animation:none}#vSala .s4Pg::after{display:none}}
+</style>
 </head>
 <body>
 <div id="oAuth" role="status" aria-live="polite" style="position:fixed;inset:0;z-index:9999;background:#000;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:22px;padding:env(safe-area-inset-top,0) 24px env(safe-area-inset-bottom,0);font-family:system-ui,-apple-system,sans-serif;color:#fff;text-align:center">
@@ -2785,14 +2904,23 @@ html[data-rol="nutricionista"] #fTbEnt, html[data-rol="nutricionista"] #fTbAdh, 
   </div>
   <div class="mtabs" id="mesa"></div>
   <div class="stats" id="pulso" style="display:none"></div>
-  <section class="sl" aria-label="Sala">
-    <div class="sl__h"><div class="sl__ti"><h2 class="sl__t">Sala</h2><span class="sl__n" id="rostN">—</span></div>
-      <div class="sl__q"><label class="salaQ"><span aria-hidden="true">⌕</span><input id="salaQ" type="search" placeholder="Buscar socio…" autocomplete="off" oninput="salaBuscar()" onkeydown="salaBuscarKey(event)" aria-label="Buscar socio por nombre o apellido"><button type="button" id="salaQx" class="salaQx" hidden onclick="salaLimpiar()" aria-label="Limpiar búsqueda">×</button></label><span class="sl__c" id="nSoc">—</span></div></div>
-    <div class="sl__res"><div id="lista"></div><div class="vacio" id="salaQv" style="display:none">Ningún socio coincide con la búsqueda.</div><p class="salaHint" id="salaHint" hidden></p></div>
-    <div class="kidG" id="rostG"></div>
-    <div class="sl__s" id="recH" hidden>Últimos en sala</div>
-    <div class="kidG kidG--rec" id="recG"></div>
-  </section>
+  <div class="s4Scan" aria-hidden="true"></div>
+  <div class="s4" id="s4">
+    <aside class="s4P" aria-label="Panel del día">
+      <div class="sl__q s4Q"><label class="salaQ"><span aria-hidden="true">⌕</span><input id="salaQ" type="search" placeholder="Buscar socio y abrir su ficha" autocomplete="off" oninput="salaBuscar()" onkeydown="salaBuscarKey(event)" aria-label="Buscar socio por nombre o apellido"><button type="button" id="salaQx" class="salaQx" hidden onclick="salaLimpiar()" aria-label="Limpiar búsqueda">×</button></label><span class="sl__c" id="nSoc">—</span></div>
+      <section class="s4C" id="s4Hoy" aria-label="Hoy"></section>
+      <section class="s4C" id="s4Pr" aria-label="Clases de prueba de hoy"></section>
+      <section class="s4C s4C--dk" id="s4Ve" aria-label="Por vencer" hidden></section>
+    </aside>
+    <section class="sl s4M" aria-label="Sala">
+      <div class="s4H" id="s4H"></div>
+      <span class="sl__n" id="rostN" hidden>—</span>
+      <div class="sl__res"><div id="lista"></div><div class="vacio" id="salaQv" style="display:none">Ningún socio coincide con la búsqueda.</div><p class="salaHint" id="salaHint" hidden></p></div>
+      <div class="kidG" id="rostG"></div>
+      <div class="sl__s" id="recH" hidden>Últimos en sala</div>
+      <div class="kidG kidG--rec" id="recG"></div>
+    </section>
+  </div>
   <div class="adAcc" id="accesos"></div>
 </div>
 <div class="vista" id="vSol">
@@ -8014,10 +8142,12 @@ function salaPresenciaPintar(){
   const per=salaPersonas(C.pres)
   const en=per.filter(function(p){ return p.enSala }).sort(function(a,b){ return new Date(a.principal.inicio)-new Date(b.principal.inicio) })
   document.getElementById('rostN').innerHTML = '<i class="kLv" aria-hidden="true"></i>'+en.length+' ENTRENANDO AHORA'
-  g.innerHTML = en.length ? en.map(function(p){ const x=p.principal, m=presMin(x.inicio), mas=p.sesiones.length-1
+  s4Hero(en)
+  const enV = S4.f ? en.filter(function(p){ return kidTone(p.socio_id).p===S4.f }) : en
+  g.innerHTML = enV.length ? enV.map(function(p){ const x=p.principal, m=presMin(x.inicio), mas=p.sesiones.length-1
     return kidCard(p.socio_id, p.nombre, (m<2?'RECIÉN LLEGA':kidDur(m)+' EN SALA'), String(x.sesion||'SESIÓN')+(mas>0?' · +'+mas:''), true, null, BN.hoy[p.socio_id]||null) }).join('')
-    : '<div class="kidV">Nadie entrenando en este momento.</div>'
-  salaRecPintar(); salaRecCargar()
+    : '<div class="kidV">'+(S4.f && en.length ? 'Nadie de '+S4.f+' entrenando en este momento.' : 'Nadie entrenando en este momento.')+'</div>'
+  salaRecPintar(); salaRecCargar(); s4Cargar()
   const at=per.filter(function(p){ return p.atencion.length }).sort(function(a,b){
     const ca=a.atencion.some(function(x){return x.cat==='atencion'}), cb=b.atencion.some(function(x){return x.cat==='atencion'})
     return (ca===cb?0:(ca?-1:1)) || (new Date(b.ultima)-new Date(a.ultima)) })
@@ -8038,6 +8168,104 @@ function salaPresenciaPintar(){
       '<a href="#/socio/'+p.socio_id+'" onclick="return rtClick(event,\''+p.socio_id+'\')">REVISAR</a></div>' }).join('')+'</div>'+
     (at.length>4 && el.dataset.todo!=='1' ? '<button type="button" class="atn__mas" onclick="document.getElementById(\'atn\').dataset.todo=\'1\';salaPresenciaPintar()">VER TODOS ('+at.length+')</button>' : '')
 }
+
+// ═══════════ c260 · SALA v4: hero de sesiones en curso + panel del día + apertura animada + sonido ═══════════
+var S4={ f:null, at:0, run:false, d:null }
+const S4_PROG=['STRONG','BURN','HEALTHY']
+function s4Barras(seed, n){ let h=0, o=''; for(const ch of seed) h=(h*31+ch.charCodeAt(0))>>>0
+  for(let k=0;k<n;k++){ h=(h*1103515245+12345)>>>0; o+='<s style="width:'+(1+(h>>>16)%3)+'px"></s>' } return o }
+function s4Hero(en){
+  const el=document.getElementById('s4H'); if(!el) return
+  const cnt={STRONG:0,BURN:0,HEALTHY:0}; let suma=0
+  ;(en||[]).forEach(function(p){ const t=kidTone(p.socio_id).p; if(cnt[t]!=null) cnt[t]++; suma+=presMin(p.principal.inicio) })
+  const n=(en||[]).length, prom=n?Math.round(suma/n):0
+  const bar=n ? S4_PROG.filter(function(k){return cnt[k]}).map(function(k){ return '<span style="flex:'+cnt[k]+';background:'+({STRONG:'#979C9F',BURN:'#434649',HEALTHY:'#000'})[k]+'"></span>' }).join('') : ''
+  el.innerHTML='<div class="s4H__n"><b>'+n+'</b><span><strong><i aria-hidden="true"></i>'+(n===1?'SESIÓN EN CURSO':'SESIONES EN CURSO')+'</strong><small>'+(n?'PROMEDIO EN SALA · '+prom+' MIN':'SALA SIN SESIONES ACTIVAS')+'</small></span></div>'+
+    '<div class="s4H__mx"><div class="s4H__bar" aria-hidden="true">'+bar+'</div><div class="s4H__pg" role="group" aria-label="Filtrar por programa">'+
+    S4_PROG.map(function(k,i){ const on=S4.f===k
+      return '<button type="button" class="s4Pg t-'+k.toLowerCase()+(cnt[k]?'':' s4Pg--off')+'" style="--pd:'+(i*0.45)+'s" aria-pressed="'+on+'" onclick="s4Filtro(\''+k+'\')" aria-label="'+cnt[k]+' '+k+(on?' · quitar filtro':' · filtrar')+'">'+
+        '<b>'+cnt[k]+'</b><i aria-hidden="true">'+s4Barras('KOACH-'+k,7)+'</i><em>'+k+'</em></button>' }).join('')+'</div></div>'
+}
+function s4Filtro(k){ S4.f = S4.f===k ? null : k; salaPresenciaPintar() }
+async function s4Cargar(forzar){
+  if (S4.run || (!forzar && Date.now()-S4.at < 60000)) { s4Pintar(); return }
+  S4.run=true; S4.at=Date.now()
+  try{
+    const hoy=hoyISO(), lu=fLocal(lunes()), d0=new Date(); d0.setHours(0,0,0,0); const d1=new Date(d0); d1.setDate(d1.getDate()+1)
+    const R=(C.yo&&C.yo.role)||'', COM=(R==='admin'||R==='recepcion')
+    const q=[
+      sb.from('sesiones_registro').select('fecha,socio_id,estado').gte('fecha',lu).in('estado',['completada','en_curso']).limit(5000),
+      sb.from('agenda_citas').select('inicio,nombre,formato,estado,socio_id').eq('servicio','clase_prueba').gte('inicio',d0.toISOString()).lt('inicio',d1.toISOString()).neq('estado','cancelada').order('inicio'),
+      COM ? sb.from('v_membresias').select('socio_id,fecha_fin,dias_restantes,estado_calc').in('estado_calc',['activa','proxima','futura']).limit(2000) : Promise.resolve({ data:null })
+    ]
+    const [rs, ra, rm] = await Promise.all(q)
+    const ses=(rs&&!rs.error&&rs.data)||[], dias={}
+    ses.forEach(function(r){ (dias[r.fecha]=dias[r.fecha]||{n:0,s:new Set()}); dias[r.fecha].n++; dias[r.fecha].s.add(r.socio_id) })
+    const sem=[]; for(let i=0;i<6;i++){ const d=new Date(lunes()); d.setDate(d.getDate()+i); const f=fLocal(d); sem.push({ k:'LMMJVS'[i], f:f, v:dias[f]?dias[f].s.size:0, hoy:f===hoy }) }
+    let ve=null
+    if (rm && rm.data){ const fut=new Set(rm.data.filter(function(m){return m.estado_calc==='futura'}).map(function(m){return m.socio_id}))
+      ve=rm.data.filter(function(m){ return m.estado_calc!=='futura' && m.dias_restantes!=null && m.dias_restantes>=0 && m.dias_restantes<=3 && !fut.has(m.socio_id) })
+        .sort(function(a,b){ return a.dias_restantes-b.dias_restantes }) }
+    S4.d={ socios:dias[hoy]?dias[hoy].s.size:0, sesiones:dias[hoy]?dias[hoy].n:0, sem:sem, pr:(ra&&!ra.error&&ra.data)||[], ve:ve }
+  }catch(e){ console.error('sala v4', e) } finally{ S4.run=false }
+  s4Pintar()
+}
+function s4Pintar(){
+  const d=S4.d; if(!d) return
+  const DIA=['DOM','LUN','MAR','MIÉ','JUE','VIE','SÁB'], MES=['ENE','FEB','MAR','ABR','MAY','JUN','JUL','AGO','SEP','OCT','NOV','DIC'], h=new Date()
+  const hoyEl=document.getElementById('s4Hoy')
+  if (hoyEl){ const mx=Math.max(1,...d.sem.map(function(x){return x.v})), tot=d.sem.reduce(function(a,x){return a+x.v},0)
+    hoyEl.innerHTML='<div class="s4C__h"><span>HOY · '+DIA[h.getDay()]+' '+h.getDate()+' '+MES[h.getMonth()]+'</span><span class="s4Live"><i aria-hidden="true"></i>EN VIVO</span></div>'+
+      '<div class="s4Hoy"><div><b>'+d.socios+'</b><small>Socios entrenaron</small></div><div><b>'+d.sesiones+'</b><small>Sesiones realizadas</small></div><div><b>'+d.pr.length+'</b><small>Clases de prueba</small></div></div>'+
+      '<div class="s4Sem"><div class="s4Sem__h"><span>SOCIOS QUE ENTRENARON · SEMANA</span><span>'+tot+'</span></div><div class="s4Sem__b" role="img" aria-label="Socios por día: '+d.sem.map(function(x){return x.k+' '+x.v}).join(', ')+'">'+
+      d.sem.map(function(x){ return '<div class="'+(x.hoy?'hoy':'')+'"><b>'+x.v+'</b><i style="height:'+Math.max(4,Math.round(x.v/mx*72))+'px"></i>'+x.k+'</div>' }).join('')+'</div></div>' }
+  const pr=document.getElementById('s4Pr')
+  if (pr){ const L=d.pr.slice(0,4)
+    pr.innerHTML='<div class="s4C__h"><span>CLASES DE PRUEBA · HOY</span><span class="s4C__n">'+d.pr.length+'</span></div><div class="s4Ls">'+
+      (L.length ? L.map(function(c){ const t=new Date(c.inicio).toLocaleTimeString('es-CL',{hour:'2-digit',minute:'2-digit',hour12:false})
+        return '<button type="button" onclick="'+(c.socio_id?'verFicha(\''+c.socio_id+'\')':'kAcc(\'agenda\')')+'"><b>'+t+'</b><span>'+plEsc(c.nombre||'—')+'</span><small>'+plEsc(String(c.formato||'').toUpperCase())+'</small></button>' }).join('')
+        : '<p class="s4V">Sin clases de prueba agendadas hoy.</p>')+'</div>'+
+      (d.pr.length>4?'<button type="button" class="s4Mas" onclick="kAcc(\'agenda\')">+'+(d.pr.length-4)+' MÁS · VER AGENDA →</button>':'') }
+  const ve=document.getElementById('s4Ve')
+  if (ve){ if (!d.ve){ ve.hidden=true } else { ve.hidden=false
+    ve.innerHTML='<div class="s4C__h"><span>POR VENCER · 3 DÍAS</span><span class="s4C__n">'+d.ve.length+'</span></div><div class="s4Ls">'+
+      (d.ve.length ? d.ve.slice(0,6).map(function(m){ const f=new Date(m.fecha_fin+'T12:00:00')
+        return '<button type="button" onclick="verFicha(\''+m.socio_id+'\')"><span>'+plEsc(nomDe(m.socio_id)||'Socio')+'</span><small>'+f.getDate()+' '+MES[f.getMonth()]+'</small><em>'+(m.dias_restantes===0?'HOY':m.dias_restantes+(m.dias_restantes===1?' DÍA':' DÍAS'))+'</em></button>' }).join('')
+        : '<p class="s4V">Nadie vence en los próximos 3 días.</p>')+'</div>' } }
+}
+setInterval(function(){ const v=document.getElementById('vSala'); if(v&&v.classList.contains('on')&&document.visibilityState==='visible') s4Cargar() }, 60000)
+// Sonido de la Sala (galería KOACH · /sfx, el mismo motor de la app del socio)
+function s4Son(n, g){ try{ if(window.KSFX) KSFX.play(n, 0, g==null?0.8:g) }catch(_){} }
+// Al tocar una tarjeta de socio: se expande a pantalla completa como un archivo que se abre y luego entra la ficha
+function s4Abrir(card, id){
+  const r=card.getBoundingClientRect(), cs=getComputedStyle(card), bg=cs.backgroundColor, fg=cs.color
+  const nom=Array.from(card.querySelectorAll('.kid__n span')).map(function(x){return x.textContent}).join(' '), num=((card.querySelector('.kid__pr em')||{}).textContent||'').replace('#','')
+  s4Son('appear', 0.9)
+  if (window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches){ verFicha(id); return }
+  const ov=document.createElement('div'); ov.className='s4Ov'
+  ov.style.cssText='left:'+r.left+'px;top:'+r.top+'px;width:'+r.width+'px;height:'+r.height+'px;background:'+bg
+  ov.innerHTML='<div class="s4Ov__t" style="color:'+fg+'">'+plEsc(nom)+'<small>ABRIENDO FICHA'+(num?' · #'+plEsc(num):'')+'</small></div>'
+  document.body.appendChild(ov)
+  const W=innerWidth, H=innerHeight, fin='#E7E6E2'
+  const an=ov.animate([
+    { left:r.left+'px', top:r.top+'px', width:r.width+'px', height:r.height+'px', borderRadius:'18px', backgroundColor:bg },
+    { offset:.55, backgroundColor:'#A3A5A9' },
+    { left:'0px', top:'0px', width:W+'px', height:H+'px', borderRadius:'0px', backgroundColor:fin }
+  ], { duration:650, easing:'cubic-bezier(.7,0,.2,1)', fill:'forwards' })
+  ov.querySelector('.s4Ov__t').animate([{opacity:1},{opacity:1,offset:.7},{opacity:0,transform:'translateY(-8px)'}],{ duration:650, fill:'forwards' })
+  an.onfinish=function(){ verFicha(id); requestAnimationFrame(function(){ const o=ov.animate([{opacity:1},{opacity:0}],{ duration:280, fill:'forwards' }); o.onfinish=function(){ ov.remove() } }) }
+  setTimeout(function(){ if(ov.isConnected) ov.remove() }, 3000)
+}
+document.addEventListener('click', function(ev){
+  if (!document.documentElement.classList.contains('en-sala')) return
+  const t=ev.target
+  const card=t.closest && t.closest('#vSala a.kid')
+  if (card && !(ev.metaKey||ev.ctrlKey||ev.shiftKey||ev.button===1)){
+    const m=/#\/socio\/([^/?#]+)/.exec(card.getAttribute('href')||''); if(m){ ev.preventDefault(); ev.stopPropagation(); s4Abrir(card, m[1]) } return }
+  if (t.closest('.kNew')) return s4Son('start')
+  if (t.closest('.s4Pg')) return s4Son('datos')
+  if (t.closest('.kNav>button, .kMe, #vSala .s4C button, #vSala .s4Q button')) return s4Son('scan-paso', 0.6)
+}, true)
 setInterval(function(){ const v=document.getElementById('vSala'); if(v&&v.classList.contains('on')&&document.visibilityState==='visible') salaPresenciaPintar() }, 30000)
 document.addEventListener('visibilitychange', function(){ if(document.visibilityState==='visible') salaPresenciaCargar(true) })
 
@@ -10105,6 +10333,10 @@ const KS_K='<svg viewBox="0 0 460 462" aria-hidden="true"><rect width="460" heig
 const KS_ROL={admin:'ADMIN', coach:'KOACH', recepcion:'RECEPCIÓN', nutricionista:'NUTRICIÓN'}
 const KS_TIT={vAgenda:'Agenda',vSala:'Sala',vSol:'Solicitudes',vAdmin:'Membresías',vAdh:'Adherencia',vBib:'Biblioteca',vFicha:'Socio',vPlan:'Planificador',vExtra:'Rutina extra',vPicker:'Biblioteca',vCrm:'Panel'}
 const KS_NAV={vAgenda:'agenda',vSala:'sala',vSol:'sol',vAdmin:'mem',vAdh:'adh',vBib:'bib',vCrm:'crm'}
+// c260 · íconos del menú en placa (se muestran solo en la Sala, ver CSS html.en-sala .kNi)
+const KS_NI=(function(){ const sv=function(d,x,y){ return '<svg viewBox="0 0 24 24" fill="none" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="'+d+'"/><circle cx="'+x+'" cy="'+y+'" r="1.6" fill="currentColor" stroke="none"/></svg>' }
+  return { sala:sv('M4 20V10l8-6 8 6v10M9 20v-6h6v6',12,9), agenda:sv('M4 6h16v14H4zM4 10h16M8 3v4M16 3v4',15,15), sol:sv('M4 5h16v11H9l-5 4zM8 9h8M8 12h5',18,5),
+    mem:sv('M3 7h18v11H3zM3 11h18M7 15h4',17,15), adh:sv('M4 19h16M6 16l4-5 3 3 5-7',18,7), bib:sv('M5 4h5v16H5zM14 4.5l5 1-3 14.5-5-1z',7.5,8), crm:sv('M4 19V5M4 19h16M8 15l3-4 3 2 4-6',18,7) } })()
 const KS_ICO={
   sala:'<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M5.6 5.6a9 9 0 0 0 0 12.8M18.4 5.6a9 9 0 0 1 0 12.8M8.5 8.5a5 5 0 0 0 0 7M15.5 8.5a5 5 0 0 1 0 7"/></svg>',
   soc:'<svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5"/><path d="M16 16l4.5 4.5"/></svg>',
@@ -10159,6 +10391,7 @@ function kShellPaint(){
       (alta?'<button type="button" class="kNew" onclick="kAcc(\'alta\')" aria-label="Nuevo socio"><i aria-hidden="true">+</i><span>NUEVO SOCIO</span></button>':'')+
       '<button type="button" class="kMe" onclick="kMenuT(\'me\')" aria-haspopup="menu" aria-expanded="'+(KS.menu==='me')+'"><span class="kMe__av">'+plEsc(ini)+'</span><span class="kMe__t"><b>'+plEsc(nom.split(' ')[0])+'</b><small>'+(KS_ROL[yo.role]||'EQUIPO')+'</small></span><em aria-hidden="true">▾</em></button>'+
     '</div></div>'
+  hd.querySelectorAll('.kNav>button').forEach(function(b){ const m=/kAcc\('(\w+)'\)/.exec(b.getAttribute('onclick')||''); if(m && KS_NI[m[1]]) b.insertAdjacentHTML('afterbegin','<i class="kNi" aria-hidden="true">'+KS_NI[m[1]]+'</i>') })
   hd.style.display=''
   // socios abiertos (ex-pills): barra de contexto, solo si hay
   const tabs=(window._tabs||[]).filter(function(id){ return (C.socios||[]).some(function(s){return s.id===id}) })
