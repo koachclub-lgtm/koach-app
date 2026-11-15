@@ -443,6 +443,18 @@ const CSS = `
 .alerta .keu__hs{background:linear-gradient(90deg,transparent,#FF4200,transparent);box-shadow:0 0 18px 5px rgba(255,66,0,.6)}
 @keyframes keuHs{0%{top:0;opacity:1}85%{top:calc(100% - 3px);opacity:1}100%{top:calc(100% - 3px);opacity:0}}
 @media (prefers-reduced-motion:reduce){.keu__hs{display:none}}
+/* c257 · PALETA GRIS como base (#000000 · #434649 · #6F7377 · #979C9F); turquesa/rojo naranjo solo en contornos, check e información puntual */
+.keu .keu__sc.valido,.keu .keu__sc.alerta{background:radial-gradient(110% 50% at 15% 0%,rgba(151,156,159,.95) 0,rgba(151,156,159,.4) 45%,rgba(151,156,159,0) 75%),radial-gradient(70% 40% at 95% 6%,rgba(255,255,255,.55),rgba(255,255,255,0) 70%),radial-gradient(90% 55% at 55% 60%,rgba(67,70,73,.35),rgba(67,70,73,0) 70%),linear-gradient(170deg,#979C9F 0%,#6F7377 55%,#434649 100%)}
+.keu__wok{background:transparent!important;border:1.5px solid #3EC6B0;color:#0E8F7C!important}
+.keu__wok.ch{background:transparent!important;border-color:#FF4200;color:#FF4200!important}
+.keu__hs,.valido .keu__hs,.alerta .keu__hs{background:linear-gradient(90deg,transparent,#FFFFFF,transparent);box-shadow:0 0 18px 5px rgba(255,255,255,.55)}
+/* foto sin marco: el contenedor no dibuja borde ni sombra, la esquina redondeada va en la imagen */
+.keu__wph.keu__wph--h{border-radius:0;overflow:visible;box-shadow:none;background:transparent}
+.keu__wph--h .keu__ph{border-radius:0;background:transparent;box-shadow:none;border:0;overflow:visible}
+.keu__wph--h .keu__ph img,.keu__wph--h .keu__ph.sm img{border-radius:14px;box-shadow:0 14px 30px -18px rgba(0,0,0,.55)}
+/* 310 KCAL: el número domina y KCAL crece y sube */
+.keu__hn{justify-content:flex-end;gap:2px}
+.keu__hn span{order:-1;font:700 clamp(24px,7.5vw,30px)/1 var(--k-m);letter-spacing:.04em;color:#131313;text-shadow:0 0 14px rgba(255,255,255,.6)}
 `
 // c249 · escena de la guía (viewBox 300): plato cenital con comida, anillos girando, teléfono que encuadra, sol + cono de luz, esquinas y barrido
 const GSCENA = '<svg viewBox="0 0 300 300">' +
