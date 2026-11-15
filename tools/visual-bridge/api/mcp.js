@@ -482,7 +482,7 @@ async function loteSiguiente(genero) {
 
 // ---------- protocolo MCP (JSON-RPC sobre HTTP, sin estado) ----------
 async function handle(msg) {
-  const { id, method, params } = msg;
+  let { id, method, params } = msg;
   if (id === undefined) return null; // notificación
   try {
     if (method === 'initialize') {
@@ -498,6 +498,17 @@ async function handle(msg) {
       return { jsonrpc: '2.0', id, result: { tools: Object.entries(TOOLS).map(([name, t]) => ({ name, description: t.description, inputSchema: t.inputSchema })) } };
     }
     if (method === 'tools/call') {
+      // c267 · claude.ai guarda en caché la lista de herramientas del conector: la pose B viaja por herramientas ya
+      // autorizadas codificada en el visual_key ("clave::b" = pose B, "clave::ini-a|ini-b" = pose inicial del loop).
+      const a0 = params?.arguments || {};
+      const m = typeof a0.visual_key === 'string' && a0.visual_key.match(/^(.+)::(b|ini-a|ini-b)$/);
+      if (m) {
+        const args = { ...a0, visual_key: m[1] };
+        if (m[2] === 'b' && params.name === 'generar_imagen') params = { name: 'generar_pose_b', arguments: { ...args, descripcion_b: args.descripcion_b || args.descripcion } };
+        else if (m[2] === 'b' && (params.name === 'revisar' || params.name === 'guardar_descripcion')) params = { name: params.name, arguments: { ...args, pose: 'b' } };
+        else if (m[2].startsWith('ini-')) params = { name: 'definir_pose_inicial', arguments: { visual_key: m[1], pose_inicial: m[2].slice(4) } };
+        else return { jsonrpc: '2.0', id, result: { isError: true, content: [{ type: 'text', text: `Combinación no soportada: ${params.name} con ${a0.visual_key}` }] } };
+      }
       const t = TOOLS[params?.name];
       if (!t) return { jsonrpc: '2.0', id, error: { code: -32602, message: `Herramienta desconocida: ${params?.name}` } };
       try {
