@@ -4104,14 +4104,23 @@ html[data-lg-at="0"] #vLogin .lgCv{display:block}
 .lgClub i{width:28px;height:2px;background:#fff}
 .lgClub span{max-width:13ch;text-shadow:0 1px 10px rgba(0,0,0,.35);font:700 10px/1.25 var(--font-display);letter-spacing:.02em;color:rgba(255,255,255,.85)}
 #vLogin:not([data-f="fLogin"]) .lgClub{display:none}
-@media (max-height:780px){ .lgClub span{display:none} }
-@media (max-height:700px){ .lgClub{display:none} }
+
 #vLogin .lgOr{display:flex;align-items:center;gap:12px;margin:16px 6px 0;font:700 8.5px var(--font-mono);letter-spacing:.2em;color:rgba(255,255,255,.6)}
 #vLogin .lgOr::before,#vLogin .lgOr::after{content:"";flex:1;height:1px;background:rgba(255,255,255,.18)}
 #vLogin:not([data-f="fLogin"]) .lgOr{display:none}
 #vLogin .lgNew{margin-top:10px;background:transparent;box-shadow:inset 0 0 0 1.5px rgba(255,255,255,.7)}
 #vLogin .lgNew span{margin-left:8px}
 @media (prefers-reduced-motion:reduce){ #vLogin .lgAt,.lgClub{animation:none} }
+
+/* c262 · inicio armonioso: 1% CLUB arriba al costado, logo centrado en la imagen, panel subido del borde */
+#vLogin[data-f="fLogin"] .lg#lgForms{padding-bottom:calc(env(safe-area-inset-bottom,0px) + 5vh)}
+#vLogin[data-f="fLogin"] .lgBrand{position:static;transform:none;flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;width:min(74%,320px);margin:0 auto;padding:calc(env(safe-area-inset-top,0px) + 56px) 0 24px}
+#vLogin[data-f="fLogin"] .lgBrand img{width:100%}
+#vLogin[data-f="fLogin"] .lgBrand small{margin-top:14px;font-size:9.5px}
+.lgClub{top:calc(env(safe-area-inset-top,0px) + 22px)!important;left:calc(22px + env(safe-area-inset-left,0px));right:auto!important;flex-direction:row!important;align-items:center!important;gap:10px!important}
+.lgClub b{font-size:15px!important}
+.lgClub i{width:22px!important;height:1.5px!important;order:-1}
+@media (max-width:380px){ #vLogin .lgTit{letter-spacing:.11em!important;font-size:8.5px!important} }
 </style>
 </head>
 <body>
@@ -4139,7 +4148,7 @@ html[data-lg-at="0"] #vLogin .lgCv{display:block}
     </div>
     <div class="lg" id="lgForms" hidden>
       <div class="lgTop"><button type="button" class="lgBack" onclick="bienvenida()" aria-label="Volver al inicio">← VOLVER</button><img src="/img/brand/isotipo-blanco.png" alt="" width="26" height="27" class="lgTop__k"></div>
-      <div class="lgBrand"><img src="/img/brand/logotipo-koach.png" alt="KOACH"><small>LA EVOLUCIÓN DEL FITNESS</small></div><div class="lgClub" aria-hidden="true"><b>1% CLUB</b><i></i><span>FOCUS ON PROGRESS, [NOT PERFECTION]</span></div>
+      <div class="lgBrand"><img src="/img/brand/logotipo-koach.png" alt="KOACH"><small>LA EVOLUCIÓN DEL FITNESS</small></div><div class="lgClub" aria-hidden="true"><b>1% CLUB</b><i></i></div>
       <div class="lgCard"><h2 class="lgTit" id="lgTit">INICIAR SESIÓN</h2>
       <form id="fLogin" onsubmit="event.preventDefault(); login()" novalidate>
         <label class="lbl" for="lEmail">EMAIL</label>
@@ -5273,7 +5282,7 @@ function fotoLogin(){ return /* c112 · el inicio usa cromo animado, sin foto */
   const a=new Image(); a.onload=()=>set(LOGIN_BG.avif); a.onerror=()=>{ const w=new Image(); w.onload=()=>set(LOGIN_BG.webp); w.src=LOGIN_BG.webp }; a.src=LOGIN_BG.avif }
 function ojo(id,b){ const i=document.getElementById(id); const v=i.type==='password'; i.type=v?'text':'password'; b.style.opacity=v?'1':'.55'
   b.setAttribute('aria-label', v?'Ocultar contraseña':'Mostrar contraseña'); b.setAttribute('aria-pressed', v?'true':'false') }
-const AUTH_TIT={ fLogin:'YA SOY SOCIO · INICIAR SESIÓN', fReg:'CREAR MI CUENTA', fRecu:'RECUPERAR ACCESO', fNueva:'CREA TU NUEVA CONTRASEÑA', fInval:'ESTE ENLACE YA NO ES VÁLIDO' }
+const AUTH_TIT={ fLogin:'YA SOY PARTE DEL CLUB · INICIAR SESIÓN', fReg:'CREAR MI CUENTA', fRecu:'RECUPERAR ACCESO', fNueva:'CREA TU NUEVA CONTRASEÑA', fInval:'ESTE ENLACE YA NO ES VÁLIDO' }
 function authVista(id){ ['fLogin','fReg','fRecu','fNueva','fInval'].forEach(f=>document.getElementById(f).style.display=f===id?'block':'none')
   document.getElementById('vLogin').dataset.f=id; lgCromo()
   document.getElementById('lgTit').textContent=AUTH_TIT[id]||''
