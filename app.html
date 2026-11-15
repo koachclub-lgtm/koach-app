@@ -8972,6 +8972,7 @@ const NU={ pauta:null, ok:false, bloqueado:false, pane:'hoy', reg:[], regOk:fals
 // Nutrición = HOY (cumplimiento del día y la semana + comidas con check + escáner) → MI PLAN y MIS EVALUACIONES en pantallas propias
 function nuPane(p, desdeHist){
   const prev=NU.pane; NU.pane=p
+  if (prev!==p && !desdeHist){ try{ kAudioUnlock(); KSFX.play(p==='cuerpo' ? 'datos' : 'menu', 0, p==='cuerpo' ? .75 : .7) }catch(_){} }   // c260 · Evaluaciones: carga de datos · Hoy/Mi plan: pin
   const sub=p!=='hoy'; document.getElementById('nuHoy').hidden=sub; document.getElementById('nuSub').hidden=true
   document.querySelectorAll('#nuTabs [data-p]').forEach(b=>b.setAttribute('aria-selected', String(b.dataset.p===p)))
   document.getElementById('nuPlan').hidden = p!=='plan'; document.getElementById('avCmp').hidden = p!=='cuerpo'; document.getElementById('nuSalud').hidden = p!=='cuerpo'
