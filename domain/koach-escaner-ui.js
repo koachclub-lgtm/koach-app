@@ -424,6 +424,25 @@ const CSS = `
 .keu__wph.keu__wph--s{margin:0}
 .keu__wph--s .keu__ph{border-radius:14px}
 .keu__wph--s .keu__ph img,.keu__wph--s .keu__ph.sm img{max-height:200px;width:100%;object-fit:contain}
+/* c256 · HERO: foto central + calorías verticales */
+.keu__det{display:flex;justify-content:space-between;align-items:baseline;gap:10px;margin-top:14px;font:700 9.5px var(--k-m);letter-spacing:.18em;color:#6B6E74}
+.keu__det b{font:700 18px var(--k-m);letter-spacing:-.02em;color:#131313;white-space:nowrap}
+.keu__det em{font-style:normal;font-size:11px;letter-spacing:.06em;color:#6B6E74}
+.keu__dif{margin-top:8px;padding:8px 10px;border-radius:10px;font:700 9.5px var(--k-m);letter-spacing:.16em;border:1px solid #ACACAC;color:#131313;background:rgba(255,255,255,.6)}
+.keu__dif.ok{border-color:#3EC6B0;color:#0E8F7C;background:rgba(62,198,176,.1)}
+.keu__dif.x{border-color:#FF4200;color:#D93800;background:rgba(255,66,0,.08)}
+.keu__hero{position:relative;margin-top:14px;padding-left:58px;min-height:220px}
+.keu__hn{position:absolute;left:-4px;top:0;bottom:0;z-index:3;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;gap:8px;pointer-events:none}
+.keu__hn b{writing-mode:vertical-rl;transform:rotate(180deg);font:700 clamp(96px,30vw,128px)/.78 var(--k-m);letter-spacing:-.07em;color:#131313;text-shadow:0 0 18px rgba(255,255,255,.65),0 0 2px rgba(255,255,255,.9)}
+.keu__hn span{writing-mode:vertical-rl;transform:rotate(180deg);font:700 10px var(--k-m);letter-spacing:.3em;color:#131313;order:2}
+.keu__wph.keu__wph--h{position:relative;margin:0;border-radius:16px;overflow:hidden;box-shadow:0 16px 34px -18px rgba(19,19,19,.55)}
+.keu__wph--h .keu__ph{border-radius:16px;background:transparent}
+.keu__wph--h .keu__ph img,.keu__wph--h .keu__ph.sm img{max-height:46vh;width:100%;object-fit:contain}
+.keu__hs{position:absolute;left:0;right:0;top:0;height:3px;z-index:2;background:linear-gradient(90deg,transparent,#FFFFFF,transparent);box-shadow:0 0 18px 5px rgba(255,255,255,.55);animation:keuHs 1.2s cubic-bezier(.4,0,.2,1) .15s both;pointer-events:none}
+.valido .keu__hs{background:linear-gradient(90deg,transparent,#3EC6B0,transparent);box-shadow:0 0 18px 5px rgba(62,198,176,.6)}
+.alerta .keu__hs{background:linear-gradient(90deg,transparent,#FF4200,transparent);box-shadow:0 0 18px 5px rgba(255,66,0,.6)}
+@keyframes keuHs{0%{top:0;opacity:1}85%{top:calc(100% - 3px);opacity:1}100%{top:calc(100% - 3px);opacity:0}}
+@media (prefers-reduced-motion:reduce){.keu__hs{display:none}}
 `
 // c249 · escena de la guía (viewBox 300): plato cenital con comida, anillos girando, teléfono que encuadra, sol + cono de luz, esquinas y barrido
 const GSCENA = '<svg viewBox="0 0 300 300">' +
@@ -708,10 +727,10 @@ function pintar(arriba){
   const sugH = h
   h = '<div class="keu__pad keu__pad--r"><div class="keu__wt keu__wt--r' + (arriba ? ' keu__wt--a' : '') + '"><div class="keu__sys"><img src="/img/brand/logotipo-koach.png" alt="KOACH"><span>SYSTEM · NUTRITIONAL ANALYTICS AI</span><i></i></div>' +
     '<div class="keu__wh"><span>DATA ANALYTIC RESULT</span><span class="keu__wok' + (mala ? ' ch' : '') + '">' + ico(mala ? '<path d="M7 7l10 10M17 7L7 17"/>' : '<path d="M5 12.5l4.5 4.5L19 7.5"/>') + (r.cheat || esExtra() ? 'CHEAT MEAL' : v.k) + '</span></div>' +
-    '<span class="keu__wl">INGESTA ESTIMADA · ' + esc(etiqueta()) + '</span>' +
-    // c255 · la foto va al costado del número (usa el espacio vacío a la derecha)
-    '<div class="keu__wkr' + (fotoT ? '' : ' nf') + '"><div class="keu__wk"><b data-kc="' + Math.round(t.kcal) + '">' + n0(t.kcal) + '</b><span>KCAL' + (m && m.kcal ? '<br>TU PLAN ' + n0(m.kcal) : '') + '</span></div>' +
-    (fotoT ? '<div class="keu__wph keu__wph--s">' + fotoT + '</div>' : '') + '</div>' +
+    detK(t, m) +
+    // c256 · foto protagonista al centro y las calorías en vertical, dominantes, montadas sobre su borde
+    (fotoT ? '<div class="keu__hero"><div class="keu__hn" aria-label="' + n0(t.kcal) + ' kilocalorías"><span>KCAL</span><b data-kc="' + Math.round(t.kcal) + '">' + n0(t.kcal) + '</b></div><div class="keu__wph keu__wph--h">' + fotoT + '<i class="keu__hs" aria-hidden="true"></i></div></div>'
+      : '<span class="keu__wl">INGESTA ESTIMADA · ' + esc(etiqueta()) + '</span><div class="keu__wk"><b data-kc="' + Math.round(t.kcal) + '">' + n0(t.kcal) + '</b><span>KCAL' + (m && m.kcal ? '<br>TU PLAN ' + n0(m.kcal) : '') + '</span></div>') +
     (kp != null ? '<div class="keu__wb keu__wb--3">' + barK + (kp > 100 ? '<i class="keu__wbo" style="left:' + (100 / kp * 100).toFixed(1) + '%"></i>' : '') + '</div><div class="keu__wbp"><span><i data-kc="' + kp + '">' + kp + '</i> % DE TU PLAN</span><span>' + (r.puntaje != null && !r.cheat ? 'PUNTAJE <i data-kc="' + r.puntaje + '">' + r.puntaje + '</i>/100' : esc(etiqueta())) + '</span></div>' : '') +
     tele() +
     '<div class="keu__wm">' + macW('PROTEÍNA', t.proteina_g, m && m.proteina_g, 'p') + macW('CARBOS', t.carbohidrato_g, m && m.carbohidrato_g, 'c') + macW('GRASAS', t.grasa_g, m && m.grasa_g, 'g') + '</div>' +
@@ -777,6 +796,14 @@ function quitar(i){ S.al.splice(i, 1); if (S.sel >= S.al.length) S.sel = 0; if (
 function agregar(){ S.al.push(vacio()); S.sucio = true; S.sel = S.al.length - 1; recalc(); pintar()
   const ins = document.querySelectorAll('#keuSc .keu__eh input'); const x = ins[ins.length - 1]; if (x) x.focus() }
 /** c251 · telemetría real de la lectura: código, confianza del modelo, objetos y tiempo de análisis */
+/** c256 · detalle arriba: calorías analizadas contra la meta de esta comida y cuánto falta o sobra */
+function detK(t, m){
+  const k = Math.round(t.kcal || 0), M = m && m.kcal ? Math.round(m.kcal) : null
+  let h = '<div class="keu__det"><span>CALORÍAS ANALIZADAS</span><b><i data-kc="' + k + '">' + n0(k) + '</i>' + (M ? '<em> / ' + n0(M) + ' KCAL</em>' : '<em> KCAL</em>') + '</b></div>'
+  if (M) { const d = M - k, tol = Math.max(40, M * 0.06)
+    h += '<div class="keu__dif ' + (d < -tol ? 'x' : Math.abs(d) <= tol ? 'ok' : 'n') + '">' + (Math.abs(d) <= tol ? 'EN LA META DE ESTA COMIDA' : d > 0 ? 'FALTAN ' + n0(d) + ' KCAL PARA ESTA COMIDA' : 'SOBRAN ' + n0(-d) + ' KCAL PARA ESTA COMIDA') + '</div>' }
+  return h
+}
 function tele(){
   const d = (S.r && S.r.deteccion) || {}, n = (S.res && S.res.alimentos || []).length
   const hh = new Date().toLocaleTimeString('es-CL', { hour: '2-digit', minute: '2-digit', hourCycle: 'h23', timeZone: 'America/Santiago' }).replace(':', '')
