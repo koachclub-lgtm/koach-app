@@ -4074,6 +4074,19 @@ html:not(:has(#oAct.vis)) #sBloques.locked{filter:none;opacity:1;pointer-events:
 #oInst .onb__s:nth-child(2){animation-delay:-9s}#oInst .onb__s:nth-child(3){animation-delay:-6s}#oInst .onb__s:nth-child(4){animation-delay:-3s}
 @keyframes oiS{0%{border-color:rgba(244,243,240,.55);box-shadow:0 0 0 1px rgba(244,243,240,.25),0 10px 30px rgba(0,0,0,.4);opacity:1}25%,100%{border-color:rgba(244,243,240,.1);box-shadow:none;opacity:.55}}
 @media (prefers-reduced-motion:reduce){ .oi__st svg *,#oInst .onb__s,.oi__cap span{animation:none!important} .oi-b,.oi-c,.oi-d{opacity:0} .oi__cap span:first-child{opacity:1} }
+
+/* c260 · instalar: botón directo (Android) y reconocimiento del ícono Compartir (iPhone, barra arriba o abajo) */
+.oi__bk{display:block;font:700 9.5px 'Space Mono',var(--font-mono);letter-spacing:.18em;color:#A7A9AE}
+.oi__dir{margin-top:18px;padding:16px;border:1px solid rgba(244,243,240,.35);border-radius:18px;background:rgba(255,255,255,.04)}
+.oi__dirB{width:100%;min-height:64px;margin-top:10px;border:0;border-radius:999px;background:#F4F3F0;color:#0B0B0C;font:900 18px var(--font-display);font-stretch:112%;letter-spacing:.06em;cursor:pointer;box-shadow:0 0 0 0 rgba(244,243,240,.5);animation:oiDir 1.8s ease-out infinite}
+@keyframes oiDir{0%{box-shadow:0 0 0 0 rgba(244,243,240,.45)}100%{box-shadow:0 0 0 18px rgba(244,243,240,0)}}
+.oi__dir p{margin:10px 0 0;font-size:14px;line-height:1.4;color:#C9CDD2}.oi__dir b{color:#fff}
+.oi__bi{display:grid;grid-template-columns:auto 1fr;gap:6px 16px;align-items:center;margin-top:18px;padding:14px 16px;border:1px solid rgba(244,243,240,.22);border-radius:18px;background:rgba(255,255,255,.04)}
+.oi__bi .oi__bk{grid-column:1/-1}
+.oi__bic{width:64px;height:64px;border-radius:16px;background:#F4F3F0;color:#0A64FF;display:flex;align-items:center;justify-content:center;animation:oiDir 1.8s ease-out infinite}
+.oi__bic svg{width:34px;height:34px}
+.oi__bi p{margin:0;font-size:14px;line-height:1.4;color:#C9CDD2}.oi__bi b{color:#fff}
+@media (prefers-reduced-motion:reduce){ .oi__dirB,.oi__bic{animation:none} }
 </style>
 </head>
 <body>
@@ -5757,7 +5770,7 @@ function kDispositivoRegistrar(){ try{ const d=kDispositivo(); if(!S.perfil||!S.
 try{ kDispositivo(); addEventListener('resize',()=>{ clearTimeout(window._kdT); window._kdT=setTimeout(()=>{ kDispositivo(); kDispositivoRegistrar() },400) }) }catch(_e){}
 // ═══ v11.2 · INVITACIÓN A AGREGAR KOACH A INICIO (una sola vez, nunca bloquea) ═══
 let _instEvt=null
-window.addEventListener('beforeinstallprompt', function(e){ e.preventDefault(); _instEvt=e })
+window.addEventListener('beforeinstallprompt', function(e){ e.preventDefault(); _instEvt=e; try{ onbDirPintar() }catch(_){} })
 function invitarInstalar(){
   try{ if (esPWA() || localStorage.getItem('koach_a2hs_visto') || document.getElementById('a2hs')) return }catch(_e){ return }
   // nunca encima de la bienvenida del primer ingreso ni durante una sesión: espera a que el socio esté libre
@@ -6395,7 +6408,7 @@ function onbPasos(so){ const S_=ONB_SVG, home='<div class="onb__home"><span></sp
     ['Abre KOACH desde tu inicio','Desde ahora entra siempre por el ícono, no por el navegador.',home]]
   const otro=so==='ios-otro'
   return [
-    ['Toca <b>Compartir</b>', otro?'En Chrome está arriba a la derecha, junto a la dirección. Si no lo ves, abre app.koachclub.cl en Safari.':'Es el cuadrado con la flecha hacia arriba, en la barra de Safari.',
+    ['Toca <b>Compartir</b>', otro?'En Chrome está arriba a la derecha, junto a la dirección. Si no lo ves, abre app.koachclub.cl en Safari.':'Es el cuadrado con la flecha hacia arriba. Según tu iPhone está en la barra de abajo o en la de arriba. Si no lo ves, toca <b>•••</b> y ahí aparece <b>Compartir</b>.',
       '<div class="onb__ui"><div class="onb__row">'+S_.back.replace('currentColor','#8A8E93')+'<div class="onb__url">app.koachclub.cl</div><span class="onb__hit">'+S_.share+'</span></div></div>'],
     ['Toca <b>Agregar a pantalla de inicio</b>','Desliza el menú hacia abajo si no lo ves de inmediato.',
       '<div class="onb__ui"><div class="onb__row onb__dim">Copiar '+S_.book.replace('22','18').replace('22','18')+'</div><div class="onb__row onb__dim">Agregar a favoritos</div><div class="onb__row"><span class="onb__hit onb__hit--row">Agregar a pantalla de inicio '+S_.plus+'</span></div></div>'],
@@ -6405,11 +6418,13 @@ function onbPasos(so){ const S_=ONB_SVG, home='<div class="onb__home"><span></sp
 
 // c259 · escena de instalación (viewBox 300): teléfono con el navegador → menú → confirmar → ícono en el inicio
 function oiEscena(so){
-  const and=so==='android', F="font-family=\"-apple-system,system-ui,sans-serif\""
+  const and=so==='android', crI=so==='ios-otro', F="font-family=\"-apple-system,system-ui,sans-serif\""
   const tap=(x,y,c)=>'<circle class="'+c+'" cx="'+x+'" cy="'+y+'" r="13" fill="none" stroke="#FFFFFF" stroke-width="2.5" style="filter:drop-shadow(0 0 6px #fff)"/>'
-  const pag='<rect x="104" y="'+(and?72:50)+'" width="92" height="40" rx="6" fill="#1E1F22"/><image href="/img/brand/logotipo-koach.png" x="122" y="'+(and?84:62)+'" width="56" height="16"/>'+
-    [0,1,2,3].map(i=>'<rect x="104" y="'+((and?122:100)+i*26)+'" width="'+(92-i%2*28)+'" height="16" rx="4" fill="#1A1B1E"/>').join('')
-  const barra = and
+  const pag='<rect x="104" y="'+(and||crI?72:50)+'" width="92" height="40" rx="6" fill="#1E1F22"/><image href="/img/brand/logotipo-koach.png" x="122" y="'+(and||crI?84:62)+'" width="56" height="16"/>'+
+    [0,1,2,3].map(i=>'<rect x="104" y="'+((and||crI?122:100)+i*26)+'" width="'+(92-i%2*28)+'" height="16" rx="4" fill="#1A1B1E"/>').join('')
+  const barra = crI
+    ? '<rect x="98" y="34" width="104" height="26" fill="#1C1C1E"/><rect x="104" y="40" width="72" height="14" rx="7" fill="#2C2C2E"/><text x="140" y="50" text-anchor="middle" fill="#AEAEB2" font-size="6.5" '+F+'>app.koachclub.cl</text><path class="ln" d="M190 41v8M187 44l3-3 3 3M185.5 46.5v5h9v-5" stroke-width="1.2"/>'
+    : and
     ? '<rect x="98" y="34" width="104" height="26" fill="#202124"/><rect x="104" y="40" width="72" height="14" rx="7" fill="#303134"/><text x="140" y="50" text-anchor="middle" fill="#BDC1C6" font-size="6.5" '+F+'>app.koachclub.cl</text><circle cx="190" cy="43" r="1.6" fill="#E8EAED"/><circle cx="190" cy="47" r="1.6" fill="#E8EAED"/><circle cx="190" cy="51" r="1.6" fill="#E8EAED"/>'
     : '<rect x="98" y="236" width="104" height="44" fill="#1C1C1E"/><rect x="106" y="241" width="88" height="14" rx="7" fill="#2C2C2E"/><text x="150" y="251" text-anchor="middle" fill="#AEAEB2" font-size="6.5" '+F+'>app.koachclub.cl</text><path class="ln" d="M150 259v11M146 263l4-4 4 4M144 266v6h12v-6" stroke-width="1.4"/><path class="ln" d="M112 266l-4 3 4 3M188 263h8v8h-8z" stroke-width="1.2" opacity=".6"/>'
   const menu = and
@@ -6422,7 +6437,7 @@ function oiEscena(so){
     Array.from({length:16},(_,i)=>{ const c=i%4, r=Math.floor(i/4), x=108+c*23, y=56+r*30; return i===9?'':'<rect x="'+x+'" y="'+y+'" width="16" height="16" rx="4" fill="#2A2D33"/>' }).join('')+
     '<g class="oi-ic"><rect x="128" y="113" width="22" height="22" rx="5" fill="none" stroke="#FFFFFF" stroke-width="1.5" style="filter:drop-shadow(0 0 8px #fff)"/><image href="/icon-192.png" x="131" y="116" width="16" height="16"/><text x="139" y="145" text-anchor="middle" fill="#FFFFFF" font-size="5.5" font-weight="700" '+F+'>KOACH</text></g>'+
     '<text x="150" y="250" text-anchor="middle" fill="#A7A9AE" font-size="6.5" letter-spacing="1" font-family="Space Mono,monospace">PANTALLA COMPLETA ✓</text></g>'
-  const t1=and?[190,47]:[150,264], t2=and?[164,96]:[150,209], t3=and?[178,177]:[184,49], t4=[139,124]
+  const t1=(and||crI)?[190,47]:[150,264], t2=and?[164,96]:[150,209], t3=and?[178,177]:[184,49], t4=[139,124]
   return '<svg viewBox="0 -4 300 340"><circle class="oi-ring ln" cx="150" cy="155" r="140" stroke-width="1" stroke-dasharray="2 8" opacity=".5"/>'+
     '<rect x="90" y="22" width="120" height="268" rx="22" fill="#0B0B0C" stroke="#E9E8E4" stroke-width="2.2"/>'+
     '<g clip-path="url(#oiClip)"><defs><clipPath id="oiClip"><rect x="98" y="30" width="104" height="252" rx="15"/></clipPath></defs>'+
@@ -6441,15 +6456,21 @@ function onbInstalar(){ if (document.getElementById('oInst')) return
     '<h1 class="onb__h" id="onbH">Instala la app en tu pantalla de inicio</h1>'+
     '<p class="onb__p">La app se usa desde tu <b>pantalla de inicio</b>: pantalla completa, más rápida y sin perder tu sesión en el navegador.</p>'+
     '<div class="oi__pp">'+(so==='android'?'<b>01 MENÚ ⋮</b><i>→</i><b>02 INSTALAR APP</b><i>→</i><b>03 INSTALAR</b>':'<b>01 COMPARTIR</b><i>→</i><b>02 PANTALLA DE INICIO</b><i>→</i><b>03 AGREGAR</b>')+'<i>→</i><b>04 ÍCONO</b></div>'+
+    '<div id="onbDirBox"></div>'+
+    (so==='android'?'':'<div class="oi__bi"><span class="oi__bk">BUSCA ESTE ÍCONO</span><div class="oi__bic">'+ONB_SVG.share+'</div><p><b>Compartir</b> está en la barra de '+(so==='ios'?'Safari':'tu navegador')+': <b>abajo o arriba</b>, según tu iPhone.<br>¿No lo ves? Toca <b>•••</b> y ahí aparece.</p></div>')+
     '<div class="oi__st" aria-hidden="true">'+oiEscena(so)+'<div class="oi__cap">'+(so==='android'?'<span>01 · TOCA EL MENÚ ⋮</span><span>02 · INSTALAR APP</span><span>03 · CONFIRMA: INSTALAR</span>':'<span>01 · TOCA COMPARTIR</span><span>02 · AGREGAR A PANTALLA DE INICIO</span><span>03 · TOCA AGREGAR</span>')+'<span>04 · ÁBRELA DESDE TU INICIO</span></div></div>'+
-    (directo?'<button type="button" class="onb__ok" style="margin-top:22px" id="onbDir">INSTALAR KOACH AHORA</button><p class="onb__p" style="font-size:14px;margin-top:10px">Si el botón no responde, sigue estos pasos:</p>':'')+
     '<ol class="onb__steps">'+P.map((p,i)=>'<li class="onb__s"><span class="onb__n">'+(i+1)+'</span><div><h3>'+p[0]+'</h3><p>'+p[1]+'</p>'+p[2]+'</div></li>').join('')+'</ol></div>'+
     '<div class="onb__ft"><div><button type="button" class="onb__ok" id="onbOk">YA LA AGREGUÉ</button><button type="button" class="onb__no" id="onbNo">Lo hago después</button></div></div>'
   document.body.appendChild(el); document.body.classList.add('wl-on'); requestAnimationFrame(()=>el.classList.add('in'))
+  if (directo) onbDirPintar()
   el.querySelector('#onbOk').onclick=()=>{ try{ localStorage.setItem('koach_inst_ok','1') }catch(_e){} onbCerrar(el, onbTerminos) }
   el.querySelector('#onbNo').onclick=()=>onbCerrar(el, onbTerminos)
-  const d=el.querySelector('#onbDir'); if(d) d.onclick=async()=>{ try{ _instEvt.prompt(); const r=await _instEvt.userChoice; _instEvt=null; if(r&&r.outcome==='accepted'){ try{ localStorage.setItem('koach_inst_ok','1') }catch(_e){} onbCerrar(el, onbTerminos) } else d.remove() }catch(_e){ d.remove() } }
+
 }
+// c260 · Android: botón protagonista que abre directo el aviso del sistema (solo cuando Chrome lo permite; llega con beforeinstallprompt)
+function onbDirPintar(){ const box=document.getElementById('onbDirBox'), el=document.getElementById('oInst'); if (!box || !el || !_instEvt || box.firstChild) return
+  box.innerHTML='<div class="oi__dir"><span class="oi__bk">UN TOQUE · SIN BUSCAR EN EL MENÚ</span><button type="button" class="oi__dirB" id="onbDir">INSTALA LA APP</button><p>Se abre el aviso de tu teléfono: toca <b>Instalar</b> y listo. Si no aparece, sigue los pasos de abajo.</p></div>'
+  const d=box.querySelector('#onbDir'); d.onclick=async()=>{ try{ _instEvt.prompt(); const r=await _instEvt.userChoice; _instEvt=null; if(r&&r.outcome==='accepted'){ try{ localStorage.setItem('koach_inst_ok','1') }catch(_e){} onbCerrar(el, onbTerminos) } else box.innerHTML='' }catch(_e){ box.innerHTML='' } } }
 /* PENDIENTE (Matías): términos y condiciones. Cuando exista el documento, aquí va la pantalla de aceptación (guardar fecha en profiles). */
 function onbTerminos(){ pedirFoto() }
 // ═══ v11.8 · FOTO DE PERFIL EN EL PRIMER ACCESO (opcional) ═══
