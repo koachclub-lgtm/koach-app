@@ -188,14 +188,14 @@ const CSS = `
   -webkit-mask:conic-gradient(from -45deg at bottom,#0000,#000 1deg 89deg,#0000 90deg) 50% / 18px 100%;mask:conic-gradient(from -45deg at bottom,#0000,#000 1deg 89deg,#0000 90deg) 50% / 18px 100%;animation:keuPop .5s cubic-bezier(.2,.8,.2,1) both}
 @keyframes keuPop{from{opacity:0;transform:translateY(18px) scale(.98)}}
 .keu__wh{display:flex;justify-content:space-between;align-items:center;gap:10px;padding-bottom:12px;border-bottom:1.5px solid #121212;font:700 10px var(--k-m);letter-spacing:.14em}
-.keu__wok{display:inline-flex;align-items:center;gap:6px;padding:6px 10px;border-radius:999px;background:#2BB3C0;color:#04363B}.keu__wok svg{width:14px;height:14px;stroke-width:3}
+.keu__wok{display:inline-flex;align-items:center;gap:6px;padding:6px 10px;border-radius:999px;background:#3EC6B0;color:#04363B}.keu__wok svg{width:14px;height:14px;stroke-width:3}
 .keu__wok.ch{background:#121212;color:#F4F3F0}
 .keu__wp{position:relative;margin-top:14px;height:150px;border-radius:14px;overflow:hidden;background:#1E1F22}.keu__wp img{width:100%;height:100%;object-fit:cover;display:block}
 .keu__wp span{position:absolute;left:10px;bottom:10px;padding:6px 10px;border-radius:999px;background:rgba(18,18,18,.85);color:#F4F3F0;font:700 9.5px var(--k-m);letter-spacing:.14em}
 .keu__wn{margin-top:16px;font:900 44px/.9 var(--k-d);font-stretch:118%;text-transform:uppercase;letter-spacing:-.02em}.keu__wn small{display:block;margin-top:4px;font:700 10px var(--k-m);letter-spacing:.16em;color:var(--k-muted)}
 .keu__wl{display:block;margin-top:16px;font:700 9.5px var(--k-m);letter-spacing:.16em;color:var(--k-muted)}
 .keu__wk{display:flex;align-items:flex-end;gap:10px;margin-top:4px}.keu__wk b{font:700 clamp(64px,21vw,88px)/.82 var(--k-m);letter-spacing:-.07em}.keu__wk span{padding-bottom:6px;font:700 11px/1.3 var(--k-m);letter-spacing:.08em;color:var(--k-muted)}
-.keu__wb{height:12px;margin-top:14px;border-radius:4px;background:rgba(18,18,18,.08);overflow:hidden}.keu__wb s{display:block;height:100%;background:linear-gradient(90deg,#1E8F9A,#2BB3C0);text-decoration:none;box-shadow:0 0 10px rgba(43,179,192,.55);animation:keuW 1.3s cubic-bezier(.2,.8,.2,1) .2s both}
+.keu__wb{height:12px;margin-top:14px;border-radius:4px;background:rgba(18,18,18,.08);overflow:hidden}.keu__wb s{display:block;height:100%;background:linear-gradient(90deg,#1E8F9A,#3EC6B0);text-decoration:none;box-shadow:0 0 10px rgba(43,179,192,.55);animation:keuW 1.3s cubic-bezier(.2,.8,.2,1) .2s both}
 @keyframes keuW{from{width:0}}
 .keu__wbp{display:flex;justify-content:space-between;gap:10px;margin-top:8px;font:700 9.5px var(--k-m);letter-spacing:.1em;color:var(--k-muted)}.keu__wbp span:last-child{color:#121212}.keu__wbp i{font-style:normal}
 .keu__wm{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin-top:18px;padding-top:16px;border-top:2px dashed var(--k-g2)}
@@ -222,34 +222,34 @@ const CSS = `
 .keu__pkx{border-style:dashed!important;background:transparent!important}.keu__pkx em{border-style:dashed!important}
 .keu__nq{margin:0 0 4px;padding:14px;border-radius:18px;background:#121212;color:#F4F3F0}
 .keu__nqh{display:grid;grid-template-columns:40px 1fr;gap:12px;align-items:start}
-.keu__nqh i{width:40px;height:40px;border-radius:50%;background:#D7392B;display:flex;align-items:center;justify-content:center}.keu__nqh i svg{width:20px;height:20px;stroke:#FFFFFF;stroke-width:3}
+.keu__nqh i{width:40px;height:40px;border-radius:50%;background:#FF4200;display:flex;align-items:center;justify-content:center}.keu__nqh i svg{width:20px;height:20px;stroke:#FFFFFF;stroke-width:3}
 .keu__nqh b{display:block;font:700 16px/1.2 var(--k-d)}.keu__nqh span{display:block;margin-top:4px;font:400 13.5px/1.4 var(--k-d);color:#C9C8C3}
 .keu__nqt{display:flex;flex-wrap:wrap;gap:6px;margin-top:12px}.keu__nqt span{padding:6px 10px;border-radius:999px;background:#262626;font:700 10px var(--k-m);letter-spacing:.08em}
 .keu__nqt span:first-child{background:#F4F3F0;color:#121212}
-.keu__wb--x s{background:linear-gradient(90deg,#A92A1E,#D7392B)!important;box-shadow:0 0 10px rgba(215,57,43,.5)!important}
-.keu__cta--x{background:#D7392B!important;color:#FFFFFF!important}
-.keu__wok.ch{background:#D7392B!important;color:#FFFFFF!important}
+.keu__wb--x s{background:linear-gradient(90deg,#C23300,#FF4200)!important;box-shadow:0 0 10px rgba(255,66,0,.5)!important}
+.keu__cta--x{background:#FF4200!important;color:#FFFFFF!important}
+.keu__wok.ch{background:#FF4200!important;color:#FFFFFF!important}
 /* Lectura (resultado del escáner) en el mismo lenguaje del ticket de registro */
 .keu__pad--r{padding-top:16px}
 .keu__wt--r{margin-bottom:14px}
 .keu__wt--r:not(.keu__wt--a),.keu__wt--r:not(.keu__wt--a) .keu__wb s,.keu__wt--r:not(.keu__wt--a) .keu__wm em s{animation:none}
 .keu__wph{margin-top:14px}.keu__wph .keu__ph{margin:0;border-radius:14px;background:transparent}   /* c250 · bordes sobrantes de la foto en el tono del ticket, sin franjas negras */
-.keu__wm em s.ov{background:#D7392B}
+.keu__wm em s.ov{background:#FF4200}
 .keu__wv{margin-top:16px;padding:12px 14px;border-radius:14px;background:#121212;color:#F4F3F0}
 .keu__wv b{display:block;font:700 15px/1.25 var(--k-d)}.keu__wv p{margin:4px 0 0;font:400 13.5px/1.45 var(--k-d);color:#C9C8C3}
 .keu__wv .keu__sug{display:block;margin-top:8px;color:#7FD6DD;font:700 10px/1.4 var(--k-m);letter-spacing:.06em}
-.keu__wv.x{border-left:4px solid #D7392B}
+.keu__wv.x{border-left:4px solid #FF4200}
 .keu--tex .keu__card{box-shadow:0 10px 26px rgba(18,18,18,.12)}
 .keu--tex .keu__ms button{background:rgba(251,250,248,.9)}
 /* macros con color propio: proteína calipso · carbos carbón · grasas naranjo */
 .keu__wm span u{display:inline-block;width:8px;height:8px;margin-right:6px;border-radius:2px;vertical-align:0}
-.keu__mp span u,.keu__mp em s,.keu__kp{background:#2BB3C0!important}
+.keu__mp span u,.keu__mp em s,.keu__kp{background:#3EC6B0!important}
 .keu__mc span u,.keu__mc em s,.keu__kc{background:#121212!important}
 .keu__mg span u,.keu__mg em s,.keu__kg{background:#E07A3F!important}
 .keu__wb--3{position:relative;display:flex;gap:2px;overflow:visible;background:rgba(18,18,18,.08)}
 .keu__wb--3 s{display:block;height:100%;border-radius:3px;text-decoration:none;box-shadow:none!important;animation:keuW 1.2s cubic-bezier(.2,.8,.2,1) .2s both}
 .keu__wb--3 s:nth-child(2){animation-delay:.35s}.keu__wb--3 s:nth-child(3){animation-delay:.5s}
-.keu__wbo{position:absolute;top:-4px;bottom:-4px;width:2px;background:#D7392B;border-radius:1px}
+.keu__wbo{position:absolute;top:-4px;bottom:-4px;width:2px;background:#FF4200;border-radius:1px}
 .keu__wt--r:not(.keu__wt--a) .keu__wb--3 s{animation:none}
 .keu__bt--top{padding:0 0 12px}
 .keu__pad--r .keu__sts:empty{display:none}
@@ -365,6 +365,33 @@ const CSS = `
 .keu__cta--tech .cr.a{top:5px;left:5px;border-width:1.5px 0 0 1.5px}.keu__cta--tech .cr.b{bottom:5px;right:5px;border-width:0 1.5px 1.5px 0}
 .keu__cta--tech:active{transform:scale(.985)}
 @media (prefers-reduced-motion:reduce){.keu__cta--tech::before,.keu__sys i{animation:none}}
+/* c252 · VÁLIDO / NO VÁLIDO con la paleta oficial: turquesa #3EC6B0 · rojo naranjo #FF4200 · negro #131313 · aluminio #ACACAC · off-white #E3E3E3 */
+.keu .keu__sc.valido{background:linear-gradient(180deg,rgba(62,198,176,.92) 0,rgba(62,198,176,.55) 190px,rgba(62,198,176,0) 520px),#9A9A9A url('/img/bg/nutri-plan.webp') center/cover no-repeat}
+.keu .keu__sc.alerta{background:linear-gradient(180deg,rgba(255,66,0,.95) 0,rgba(255,66,0,.6) 190px,rgba(255,66,0,0) 560px),#9A9A9A url('/img/bg/nutri-plan.webp') center/cover no-repeat}
+.keu__al{display:flex;align-items:center;gap:10px;margin:0 0 12px;padding:10px 12px;border-radius:12px;color:#FFFFFF;font:700 9.5px var(--k-m);letter-spacing:.2em;background:repeating-linear-gradient(135deg,#FF4200 0 14px,#E63B00 14px 28px);box-shadow:0 8px 20px -10px rgba(255,66,0,.8)}
+.keu__al svg{width:18px;height:18px;flex:none}
+.keu__al b{font-weight:700}.keu__al span{margin-left:auto;opacity:.85}
+.alerta .keu__sys i{background:#FF4200;box-shadow:0 0 10px 2px rgba(255,66,0,.75)}
+.valido .keu__sys i{background:#3EC6B0;box-shadow:0 0 10px 2px rgba(62,198,176,.75)}
+.keu__dock{position:sticky;bottom:0;z-index:5;margin-top:18px;padding:12px 16px calc(12px + env(safe-area-inset-bottom,0px));background:linear-gradient(180deg,rgba(19,19,19,0),rgba(19,19,19,.88) 30%);display:flex;gap:10px;align-items:stretch}
+.keu__dock button{flex:1;min-height:56px;border:0;border-radius:14px;display:flex;align-items:center;justify-content:center;gap:10px;font:700 11.5px var(--k-m);letter-spacing:.16em;text-transform:uppercase;cursor:pointer;color:#FFFFFF}
+.keu__dock .ok{background:#131313;border:1px solid #3EC6B0;box-shadow:0 0 0 1px rgba(62,198,176,.25),0 12px 28px -12px rgba(62,198,176,.6)}
+.keu__dock .ok u{background:#3EC6B0;color:#131313}
+.keu__dock .ch{background:#FF4200;box-shadow:0 12px 28px -12px rgba(255,66,0,.9)}
+.keu__dock .ch u{background:#FFFFFF;color:#FF4200}
+.keu__dock u{display:flex;align-items:center;justify-content:center;width:26px;height:26px;border-radius:50%;text-decoration:none}
+.keu__dock u svg{width:15px;height:15px;stroke-width:3}
+.keu__dock button[disabled]{opacity:.45;cursor:default}
+.keu__etb{margin-top:10px;display:inline-flex;align-items:center;gap:6px;padding:7px 11px;border-radius:999px;border:1px dashed #131313;background:transparent;font:700 9.5px var(--k-m);letter-spacing:.14em;color:#131313;cursor:pointer}
+.keu__etb.on{background:#131313;color:#E3E3E3;border-style:solid}
+.keu__et{margin-top:10px;padding:12px;border-radius:12px;background:#131313;color:#E3E3E3}
+.keu__et p{margin:0 0 10px;font:600 9.5px/1.5 var(--k-m);letter-spacing:.1em;color:#ACACAC}
+.keu__et .g{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}
+.keu__et label{display:flex;flex-direction:column;gap:4px;font:700 8.5px var(--k-m);letter-spacing:.14em;color:#ACACAC}
+.keu__et input{width:100%;box-sizing:border-box;padding:10px;border-radius:10px;border:1px solid #3A3D42;background:#1E1F22;color:#FFFFFF;font:700 16px var(--k-m)}
+.keu__et .b{margin-top:10px;width:100%;min-height:44px;border:0;border-radius:10px;background:#3EC6B0;color:#131313;font:700 10.5px var(--k-m);letter-spacing:.16em;cursor:pointer}
+.keu__pill.etq{background:#131313;color:#3EC6B0}
+.keu__sc:has(.keu__dock) .keu__bt .keu__cta{display:none}
 `
 // c249 · escena de la guía (viewBox 300): plato cenital con comida, anillos girando, teléfono que encuadra, sol + cono de luz, esquinas y barrido
 const GSCENA = '<svg viewBox="0 0 300 300">' +
@@ -409,7 +436,7 @@ const esExtra = () => !!S.num && S.num > plan().comidas.length
 const nomC = () => esExtra() ? 'comida fuera del plan' : S.num ? 'comida ' + S.num : 'comida'
 function mostrar(){ el().hidden = false; document.documentElement.style.overflow = 'hidden' }
 function cab(t, atras){ const e = $('keuT'); if (e) e.textContent = t || ''; const a = $('keuAtrasT'); if (a) a.textContent = atras || 'CERRAR'; S.atras = atras ? S.atrasFn : null }
-function pantalla(h, t, atras, fn){ hudFin(); S.atrasFn = fn || null; cab(t, atras); const sc = $('keuSc'); sc.innerHTML = h; sc.scrollTop = 0 }
+function pantalla(h, t, atras, fn){ hudFin(); S.atrasFn = fn || null; cab(t, atras); const sc = $('keuSc'); sc.classList.remove('alerta', 'valido'); sc.innerHTML = h; sc.scrollTop = 0 }
 function atras(){ if (S.busy) return; if (S.atras) S.atras(); else cerrar() }
 const etiqueta = () => { const c = comidaN(S.num), n = plan().comidas.length; return esExtra() ? 'FUERA DEL PLAN' : c ? 'COMIDA ' + S.num + ' DE ' + n : 'ESCÁNER' }
 // siguiente número libre para una comida fuera del plan (después de las del plan, hasta 12)
@@ -641,13 +668,13 @@ function pintar(arriba){
   const mac = (lbl, val, meta) => { const pct = meta ? val / meta * 100 : 0
     return '<div><b>' + n0(val) + '<small> ' + (meta ? '/ ' + n0(meta) + ' g' : 'g') + '</small></b>' + (meta ? '<i><s style="width:' + Math.min(100, pct) + '%"></s></i>' : '<i></i>') + '<span class="' + (pct > 125 ? 'over' : '') + '">' + lbl + (pct > 125 ? ' · SOBRE' : '') + '</span></div>' }
   // TICKET DE LECTURA: lo primero que ves tras escanear (mismo lenguaje que la comida registrada)
-  const kp = m && m.kcal ? Math.round(t.kcal / m.kcal * 100) : null, mala = r.cheat || r.veredicto === 'alerta'
+  const kp = m && m.kcal ? Math.round(t.kcal / m.kcal * 100) : null, mala = r.cheat || r.veredicto === 'alerta' || esExtra()
   const macW = (l, val, meta, k) => '<div class="keu__m' + k + '"><span><u></u>' + l + '</span><b><i data-kc="' + Math.round(+val || 0) + '">' + n0(val) + '</i><small>G</small></b><em><s style="width:' + (meta ? Math.min(100, val / meta * 100) : 0) + '%"></s></em><small>' + (meta ? (val / meta > 1.25 ? 'SOBRE · ' : '') + 'TU PLAN ' + n0(meta) + ' G' : '—') + '</small></div>'
   // barra de calorías partida por macro: de dónde vienen tus kcal (P·4, C·4, G·9) contra la meta de la comida
   const kP = (+t.proteina_g || 0) * 4, kC = (+t.carbohidrato_g || 0) * 4, kG = (+t.grasa_g || 0) * 9, kT = kP + kC + kG || 1
   const barK = m && m.kcal ? [['p', kP], ['c', kC], ['g', kG]].map(([k, v]) => '<s class="keu__k' + k + '" style="width:' + (v / kT * Math.min(100, t.kcal / m.kcal * 100)).toFixed(1) + '%"></s>').join('') : ''
   const sugH = h
-  h = '<div class="keu__pad keu__pad--r"><div class="keu__wt keu__wt--r' + (arriba ? ' keu__wt--a' : '') + '"><div class="keu__sys"><img src="/img/brand/logotipo-koach.png" alt="KOACH"><span>SYSTEM · NUTRITIONAL ANALYTICS AI</span><i></i></div><div class="keu__wh"><span>DATA ANALYTIC RESULT</span><span class="keu__wok' + (mala ? ' ch' : '') + '">' + ico(mala ? '<path d="M7 7l10 10M17 7L7 17"/>' : '<path d="M5 12.5l4.5 4.5L19 7.5"/>') + (r.cheat ? 'CHEAT MEAL' : v.k) + '</span></div>' +
+  h = '<div class="keu__pad keu__pad--r"><div class="keu__wt keu__wt--r' + (arriba ? ' keu__wt--a' : '') + '"><div class="keu__sys"><img src="/img/brand/logotipo-koach.png" alt="KOACH"><span>SYSTEM · NUTRITIONAL ANALYTICS AI</span><i></i></div>' + (mala ? '<div class="keu__al" role="alert">' + ico('<path d="M12 3.5l9.5 16.5h-19z"/><path d="M12 10v4.5M12 17.2v.3"/>') + '<b>ALERTA · ' + (r.cheat || esExtra() ? 'CHEAT MEAL' : 'NO ADECUADO') + '</b><span>' + esc(etiqueta()) + '</span></div>' : '') + '<div class="keu__wh"><span>DATA ANALYTIC RESULT</span><span class="keu__wok' + (mala ? ' ch' : '') + '">' + ico(mala ? '<path d="M7 7l10 10M17 7L7 17"/>' : '<path d="M5 12.5l4.5 4.5L19 7.5"/>') + (r.cheat || esExtra() ? 'CHEAT MEAL' : v.k) + '</span></div>' +
     (fotoT ? '<div class="keu__wph">' + fotoT + '</div>' : '') +
     '<span class="keu__wl">INGESTA ESTIMADA · ' + esc(etiqueta()) + '</span><div class="keu__wk"><b data-kc="' + Math.round(t.kcal) + '">' + n0(t.kcal) + '</b><span>KCAL' + (m && m.kcal ? '<br>TU PLAN ' + n0(m.kcal) : '') + '</span></div>' +
     (kp != null ? '<div class="keu__wb keu__wb--3">' + barK + (kp > 100 ? '<i class="keu__wbo" style="left:' + (100 / kp * 100).toFixed(1) + '%"></i>' : '') + '</div><div class="keu__wbp"><span><i data-kc="' + kp + '">' + kp + '</i> % DE TU PLAN</span><span>' + (r.puntaje != null && !r.cheat ? 'PUNTAJE <i data-kc="' + r.puntaje + '">' + r.puntaje + '</i>/100' : esc(etiqueta())) + '</span></div>' : '') +
@@ -681,11 +708,13 @@ function pintar(arriba){
         '<div class="keu__st2"><div class="keu__stp"><button type="button" aria-label="Menos ' + esc(a.nombre) + '" onclick="KEU.mas(' + i + ',-1)">−</button><label><input type="number" inputmode="numeric" min="0" max="2000" value="' + g + '" aria-label="Gramos de ' + esc(a.nombre) + '" onchange="KEU.gramos(' + i + ',this.value)"><span>g</span></label><button type="button" aria-label="Más ' + esc(a.nombre) + '" onclick="KEU.mas(' + i + ',1)">+</button></div>' +
         (md ? '<span class="keu__md">' + esc(md) + '</span>' : '') +
         (eq ? '<button type="button" class="keu__eq" onclick="KEU.igualPlan(' + i + ')">= MI PLAN · ' + gp + ' G</button>' : '') + '</div>' +
-        '<div class="keu__mac">' + n0(ra.kcal) + ' KCAL · P ' + n0(ra.proteina_g) + ' · C ' + n0(ra.carbohidrato_g) + ' · G ' + n0(ra.grasa_g) + '</div></div>' }).join('') +
+        '<div class="keu__mac">' + n0(ra.kcal) + ' KCAL · P ' + n0(ra.proteina_g) + ' · C ' + n0(ra.carbohidrato_g) + ' · G ' + n0(ra.grasa_g) + '</div>' +
+        '<button type="button" class="keu__etb' + (S.etq === i ? ' on' : '') + '" onclick="KEU.etq(' + i + ')">' + (a.etiqueta ? '✓ SEGÚN ETIQUETA · EDITAR' : '+ CORREGIR CON ETIQUETA NUTRICIONAL') + '</button>' + (S.etq === i ? etqForm(i, a) : '') + '</div>' }).join('') +
     '<button type="button" class="keu__add" onclick="KEU.agregar()">+ AGREGAR UN ALIMENTO</button>' +
     '<p class="keu__txt">' + (S.modo === 'texto' ? 'Las cantidades se calcularon desde tu descripción.' : 'Los gramos son una lectura aproximada de la foto.') + ' Si pesaste tu comida, corrígelos: así tu registro queda exacto.</p></div></div>'
   h += '<div class="keu__bt" id="keuBt2">' + botones() + '</div>'
-  sc.innerHTML = h; sc.scrollTop = arriba ? 0 : y
+  sc.classList.toggle('alerta', !!mala); sc.classList.toggle('valido', !mala)
+  sc.innerHTML = h + dock(mala); sc.scrollTop = arriba ? 0 : y
   const R = $('keuO'); if (R){ R.classList.remove('keu--hud'); R.classList.add('keu--tex') } if (arriba) cuenta()
   const img = sc.querySelector('.keu__ph img'); if (img) { if (img.complete) ajustarZonas(); else img.onload = ajustarZonas }
 }
@@ -722,6 +751,30 @@ function tele(){
   if (n) it.push(['OBJETOS', String(n)])
   if (S.tAn) it.push(['ANÁLISIS', S.tAn.toFixed(1).replace('.', ',') + ' S'])
   return '<div class="keu__tel">' + it.map(([k, v]) => '<span>' + k + ' <b>' + esc(v) + '</b></span>').join('') + '</div>'
+}
+/** c252 · barra fija con el check: registrar siempre a mano, aunque no sea adecuado */
+function dock(mala){
+  const c = comidaN(S.num) || (esExtra() ? { extra: true } : null); if (!c) return ''
+  const chk = '<u>' + ico('<path d="M5 12.5l4.5 4.5L19 7.5"/>') + '</u>'
+  if (S.sucio) return '<div class="keu__dock"><button type="button" class="ok" onclick="KEU.recalcular()">RECALCULAR CON MIS CAMBIOS</button></div>'
+  return '<div class="keu__dock">' + (mala ? '<button type="button" class="ch" onclick="KEU.confirmar(true)">' + chk + 'REGISTRAR COMO CHEAT MEAL</button>'
+    : '<button type="button" class="ok" onclick="KEU.confirmar()">' + chk + 'CONFIRMAR Y REGISTRAR</button>') + '</div>'
+}
+/** c252 · corregir con la etiqueta nutricional (valores por 100 g/ml × cantidad consumida) */
+function etq(i){ S.etq = S.etq === i ? null : i; pintar() }
+function etqAplicar(i){
+  const a = S.al[i]; if (!a) return
+  const v = k => { const e = document.getElementById('keuEt' + k + i); return e ? Math.max(0, +String(e.value).replace(',', '.') || 0) : 0 }
+  const g = Math.max(1, Math.round(v('g') || +a.gramos || 100)), f = g / 100, kc = v('k')
+  if (!kc) { st('Ingresa al menos las calorías de la etiqueta.'); return }
+  S.al[i] = Object.assign({}, a, { gramos: g, kcal: Math.round(kc * f), proteina_g: Math.round(v('p') * f * 10) / 10, carbohidrato_g: Math.round(v('c') * f * 10) / 10, grasa_g: Math.round(v('x') * f * 10) / 10, confianza: null, _n: 1, etiqueta: { k: kc, p: v('p'), c: v('c'), g: v('x') } })
+  S.etq = null; SND('scan-lista', 0, .6); recalc(); pintar(); st('Corregido con la etiqueta nutricional.')
+}
+function etqForm(i, a){
+  const e = a.etiqueta || {}, g = Math.round(a.gramos) || ''
+  const f = (k, l, v) => '<label>' + l + '<input id="keuEt' + k + i + '" type="number" inputmode="decimal" min="0" step="any" value="' + (v || v === 0 ? v : '') + '"></label>'
+  return '<div class="keu__et"><p>VALORES DE LA ETIQUETA · POR 100 G O 100 ML</p><div class="g">' + f('k', 'KCAL', e.k) + f('g', 'CANTIDAD QUE CONSUMISTE (G/ML)', g) + f('p', 'PROTEÍNA G', e.p) + f('c', 'CARBOS G', e.c) + f('x', 'GRASAS G', e.g) + '</div>' +
+    '<button type="button" class="b" onclick="KEU.etqAplicar(' + i + ')">APLICAR ETIQUETA</button></div>'
 }
 function botones(){ const c = comidaN(S.num) || (esExtra() ? { extra: true } : null)
   const no = S.res && (S.res.veredicto === 'alerta' || esExtra())
@@ -786,5 +839,5 @@ function compartir(){
     estado: r.cheat || r.veredicto === 'alerta' ? 'registrada' : r.veredicto === 'adecuado' ? 'plan' : 'completada', fecha: new Date().toLocaleDateString('sv-SE', { timeZone: 'America/Santiago' }) })
 }
 function init(cfg){ S.cfg = Object.assign(S.cfg, cfg || {}); if (!S._rz) { S._rz = 1; window.addEventListener('resize', () => { if ($('keuO') && !$('keuO').hidden) ajustarZonas() }) } }
-window.KEU = { init, compartir, abrir, guia, extra, elegir: guia, camara, galeria, describir, coc, analizar, preparar, seguir, noSug, porcion, atras, cerrar, otra, sel, comida, nombre, gramos, mas, igualPlan, quitar, agregar, recalcular, confirmar, _S: S }
+window.KEU = { etq, etqAplicar, init, compartir, abrir, guia, extra, elegir: guia, camara, galeria, describir, coc, analizar, preparar, seguir, noSug, porcion, atras, cerrar, otra, sel, comida, nombre, gramos, mas, igualPlan, quitar, agregar, recalcular, confirmar, _S: S }
 })()
