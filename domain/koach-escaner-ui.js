@@ -326,6 +326,7 @@ function extra(){ const p = plan(), n = p.comidas.length; let k = n + 1; while (
 /** Abre el escáner. Con num: guía de foto para esa comida. Sin num: primero elige la comida. */
 function abrir(num){
   if (S.busy) return
+  try { if (window.KSFX) KSFX.preload() } catch (_) {} SND('datos', 0, .7); S._silG = Date.now()   // c249 · entrar al escáner: carga de datos
   el(); mostrar(); reset()
   if (num) return guia(+num)
   S.num = null
@@ -341,6 +342,7 @@ function reset(){ S.porc = 1; S.noSug = false; S.fuente = null; S.r = null; S.al
 /** Guía de captura: cómo sacar la foto + tomar foto / galería / describir sin foto */
 function guia(num){
   if (num) S.num = +num
+  if (Date.now() - (S._silG || 0) > 400) SND('scan-lock', 0, .65)   // comida elegida: fijación
   pantalla('<div class="keu__hd"><span class="keu__lbl">' + esc(etiqueta()) + '</span><h2>Saca la foto de tu ' + esc(nomC()) + '</h2></div>' +
     '<div class="keu__pad"><div class="keu__gd"><div>' + ico(I.top) + 'Desde arriba</div><div>' + ico(I.sol) + 'Con buena luz</div><div>' + ico(I.plato) + 'Todo el plato</div></div>' +
     '<p class="keu__nota">La foto no se guarda: solo se usa para reconocer tu comida.</p></div>' +
@@ -349,8 +351,8 @@ function guia(num){
     '<button type="button" class="keu__lnk" onclick="KEU.describir()">' + ico(I.txt) + 'DESCRIBIR SIN FOTO</button></div>',
     etiqueta(), plan().comidas.length > 1 ? 'COMIDAS' : null, () => abrir())
 }
-function camara(){ if (!S.busy) $('keuF').click() }
-function galeria(){ if (!S.busy) $('keuG').click() }
+function camara(){ if (!S.busy) { SND('scan-paso', 0, .8); $('keuF').click() } }
+function galeria(){ if (!S.busy) { SND('scan-paso', 0, .8); $('keuG').click() } }
 function cerrar(){ const o = $('keuO'); if (!o) return; hudFin(); o.hidden = true; document.documentElement.style.overflow = ''; if (S.url) { URL.revokeObjectURL(S.url); S.url = null } }
 
 async function comprimir(file){
@@ -378,7 +380,7 @@ async function api(body){
 // Cómo se preparó: un toque (opcional) · la grasa que no se ve en la foto
 const cocBotones = () => '<span class="keu__lbl">¿CÓMO SE PREPARÓ?</span><div class="keu__co" role="group" aria-label="¿Cómo se preparó?">' +
   COC.map(([k, t]) => '<button type="button" aria-pressed="' + (S.coc === k) + '" onclick="KEU.coc(\'' + k + '\')">' + t + '</button>').join('') + '</div>'
-function coc(k){ S.coc = S.coc === k ? null : k; document.querySelectorAll('#keuSc .keu__co button').forEach((b, i) => b.setAttribute('aria-pressed', String(COC[i][0] === S.coc))) }
+function coc(k){ SND('scan-paso', 0, .6); S.coc = S.coc === k ? null : k; document.querySelectorAll('#keuSc .keu__co button').forEach((b, i) => b.setAttribute('aria-pressed', String(COC[i][0] === S.coc))) }
 const SND = (n, d, g, r) => { try { if (window.KSFX) KSFX.play(n, d, g, r) } catch (_) {} }   // c245 · línea sonora del escáner (familia KOACH)
 async function foto(file){
   mostrar(); S.modo = 'foto'; SND('scan-captura')
@@ -402,7 +404,7 @@ function preparar(){
     '<button type="button" class="keu__lnk" onclick="KEU.camara()">' + ico(I.cam) + 'CAMBIAR FOTO</button></div>', etiqueta(), 'ATRÁS', () => guia())
 }
 /** Sin foto: el socio escribe lo que comió */
-function describir(){
+function describir(){ SND('scan-paso', 0, .8)
   S.modo = 'texto'
   pantalla('<div class="keu__hd"><span class="keu__lbl">' + esc(etiqueta()) + '</span><h2>¿Qué comiste?</h2><p>Escríbelo como se lo contarías a tu nutricionista. Si sabes las cantidades, inclúyelas.</p></div>' +
     '<div class="keu__pad"><label class="keu__lbl" for="keuTxt">TU ' + esc(nomC().toUpperCase()) + '</label><textarea id="keuTxt" class="keu__in" rows="4" maxlength="300" placeholder="Ej: 1 pechuga de pollo, 1 taza de arroz y ensalada de tomate" oninput="KEU._S.texto=this.value">' + esc(S.texto) + '</textarea>' +
@@ -450,7 +452,7 @@ async function analizar(){
   if (S.busy) return
   const c = comidaN(S.num), txt = S.modo === 'texto'
   if (txt && String(S.texto).trim().length < 3) { st('Cuéntanos qué comiste.'); const t = $('keuTxt'); if (t) t.focus(); return }
-  S.busy = true
+  S.busy = true; SND('appear', 0, .55)   // inicia la lectura: el encendido tech antes del fondo de datos
   pantalla(hud(txt), etiqueta()); hudIni()
   try {
     const base = { comida: c ? c.nombre : null, comida_num: S.num, coccion: S.coc, fuente: S.fuente }
@@ -589,7 +591,7 @@ function sel(i, sinPintar){
   document.querySelectorAll('#keuSc .keu__ed').forEach((z, k) => z.classList.toggle('on', k === i))
   if (!sinPintar) { const row = document.querySelectorAll('#keuSc .keu__ed')[i]; if (row) row.scrollIntoView({ behavior: 'smooth', block: 'center' }) }
 }
-function comida(n){ S.num = +n; S.noSug = true; recalc(); pintar() }
+function comida(n){ SND('scan-paso', 0, .6); S.num = +n; S.noSug = true; recalc(); pintar() }
 function noSug(){ S.noSug = true; pintar() }
 // "¿Cuánto comiste?": escala todos los alimentos de una vez (plato compartido, lo que sobró)
 function porcion(f){ f = +f; if (!f || f === S.porc) return; const k = f / S.porc
