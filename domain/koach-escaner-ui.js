@@ -346,6 +346,25 @@ const CSS = `
 .keu__gx .keu__lnk{color:#C9C8C3}
 .keu__gx button:focus-visible{outline-color:#F4F3F0}
 @media (prefers-reduced-motion:reduce){.keu__st *,.keu__tp li,.keu__cap span{animation:none!important}.kg-ph,.kg-cr,.kg-sun,.kg-cone{opacity:1;transform:none}.keu__cap span:first-child{opacity:1}}
+/* c251 · RESULTADO TECH: barra de sistema, telemetría y botón de registro futurista (solo grises) */
+.keu__sys{display:flex;align-items:center;gap:10px;margin:0 0 14px;padding:8px 12px;border-radius:12px;background:linear-gradient(180deg,#1B1C1F,#0E0F11);color:#C9CBD0;font:700 8.5px var(--k-m);letter-spacing:.14em;box-shadow:inset 0 1px 0 rgba(255,255,255,.08)}
+.keu__sys img{height:12px;width:auto;display:block}
+.keu__sys span{flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.keu__sys i{width:6px;height:6px;border-radius:50%;background:#E6E8EC;box-shadow:0 0 8px 2px rgba(230,232,236,.6);animation:keuPulse 1.6s ease-in-out infinite}
+@keyframes keuPulse{50%{opacity:.25;box-shadow:none}}
+.keu__tel{display:flex;flex-wrap:wrap;gap:6px 14px;margin-top:12px;padding-top:10px;border-top:1px dashed rgba(18,18,18,.18);font:600 8.5px var(--k-m);letter-spacing:.16em;color:#6B6E74;text-transform:uppercase}
+.keu__tel b{color:#121212;font-weight:700}
+.keu__cta.keu__cta--tech{position:relative;overflow:hidden;min-height:60px;border-radius:14px;background:linear-gradient(180deg,#2A2C30 0%,#0D0E10 100%);color:#F2F3F5;font:700 11.5px var(--k-m);letter-spacing:.18em;text-transform:uppercase;white-space:nowrap;border:1px solid #3A3D42;box-shadow:inset 0 1px 0 rgba(255,255,255,.14),0 14px 30px -14px rgba(0,0,0,.6);justify-content:space-between;padding:0 18px}
+.keu__cta--tech::before{content:'';position:absolute;inset:0;background:linear-gradient(100deg,transparent 30%,rgba(255,255,255,.16) 50%,transparent 70%);transform:translateX(-120%);animation:keuSweep 2.8s cubic-bezier(.4,0,.2,1) infinite}
+@keyframes keuSweep{60%,100%{transform:translateX(120%)}}
+.keu__cta--tech .tk{display:flex;align-items:center;gap:10px}
+.keu__cta--tech .tk i{width:8px;height:8px;border:1.5px solid #F2F3F5;border-radius:2px;transform:rotate(45deg)}
+.keu__cta--tech .ar{display:flex;align-items:center;gap:8px;font-size:9px;letter-spacing:.2em;color:#9EA1A7}
+.keu__cta--tech .ar svg{width:18px;height:18px;color:#F2F3F5}
+.keu__cta--tech .cr{position:absolute;width:10px;height:10px;border-color:#BFC2C8;border-style:solid;opacity:.7}
+.keu__cta--tech .cr.a{top:5px;left:5px;border-width:1.5px 0 0 1.5px}.keu__cta--tech .cr.b{bottom:5px;right:5px;border-width:0 1.5px 1.5px 0}
+.keu__cta--tech:active{transform:scale(.985)}
+@media (prefers-reduced-motion:reduce){.keu__cta--tech::before,.keu__sys i{animation:none}}
 `
 // c249 · escena de la guía (viewBox 300): plato cenital con comida, anillos girando, teléfono que encuadra, sol + cono de luz, esquinas y barrido
 const GSCENA = '<svg viewBox="0 0 300 300">' +
@@ -539,7 +558,9 @@ async function analizar(){
   pantalla(hud(txt), etiqueta()); hudIni()
   try {
     const base = { comida: c ? c.nombre : null, comida_num: S.num, coccion: S.coc, fuente: S.fuente }
+    S.tAn0 = Date.now()
     S.r = await api(txt ? Object.assign(base, { modo: 'describir', texto: S.texto }) : Object.assign(base, { imagen: S.img.data, nota: S.nota || null }))
+    S.tAn = (Date.now() - S.tAn0) / 1000
     S.al = ((S.r.resultado && S.r.resultado.alimentos) || []).map(a => Object.assign({}, a)); S.sel = 0; S.sucio = false; S.porc = 1; S.noSug = false
     const dt = S.r.deteccion || {}
     if (!S.al.length || (S.r.resultado && S.r.resultado.veredicto === 'no_comida')) return sinComida()
@@ -626,10 +647,11 @@ function pintar(arriba){
   const kP = (+t.proteina_g || 0) * 4, kC = (+t.carbohidrato_g || 0) * 4, kG = (+t.grasa_g || 0) * 9, kT = kP + kC + kG || 1
   const barK = m && m.kcal ? [['p', kP], ['c', kC], ['g', kG]].map(([k, v]) => '<s class="keu__k' + k + '" style="width:' + (v / kT * Math.min(100, t.kcal / m.kcal * 100)).toFixed(1) + '%"></s>').join('') : ''
   const sugH = h
-  h = '<div class="keu__pad keu__pad--r"><div class="keu__wt keu__wt--r' + (arriba ? ' keu__wt--a' : '') + '"><div class="keu__wh"><span>' + (S.modo === 'texto' ? 'DE TU DESCRIPCIÓN' : 'LECTURA DE TU FOTO') + '</span><span class="keu__wok' + (mala ? ' ch' : '') + '">' + ico(mala ? '<path d="M7 7l10 10M17 7L7 17"/>' : '<path d="M5 12.5l4.5 4.5L19 7.5"/>') + (r.cheat ? 'CHEAT MEAL' : v.k) + '</span></div>' +
+  h = '<div class="keu__pad keu__pad--r"><div class="keu__wt keu__wt--r' + (arriba ? ' keu__wt--a' : '') + '"><div class="keu__sys"><img src="/img/brand/logotipo-koach.png" alt="KOACH"><span>SYSTEM · NUTRITIONAL ANALYTICS AI</span><i></i></div><div class="keu__wh"><span>DATA ANALYTIC RESULT</span><span class="keu__wok' + (mala ? ' ch' : '') + '">' + ico(mala ? '<path d="M7 7l10 10M17 7L7 17"/>' : '<path d="M5 12.5l4.5 4.5L19 7.5"/>') + (r.cheat ? 'CHEAT MEAL' : v.k) + '</span></div>' +
     (fotoT ? '<div class="keu__wph">' + fotoT + '</div>' : '') +
     '<span class="keu__wl">INGESTA ESTIMADA · ' + esc(etiqueta()) + '</span><div class="keu__wk"><b data-kc="' + Math.round(t.kcal) + '">' + n0(t.kcal) + '</b><span>KCAL' + (m && m.kcal ? '<br>TU PLAN ' + n0(m.kcal) : '') + '</span></div>' +
     (kp != null ? '<div class="keu__wb keu__wb--3">' + barK + (kp > 100 ? '<i class="keu__wbo" style="left:' + (100 / kp * 100).toFixed(1) + '%"></i>' : '') + '</div><div class="keu__wbp"><span><i data-kc="' + kp + '">' + kp + '</i> % DE TU PLAN</span><span>' + (r.puntaje != null && !r.cheat ? 'PUNTAJE <i data-kc="' + r.puntaje + '">' + r.puntaje + '</i>/100' : esc(etiqueta())) + '</span></div>' : '') +
+    tele() +
     '<div class="keu__wm">' + macW('PROTEÍNA', t.proteina_g, m && m.proteina_g, 'p') + macW('CARBOS', t.carbohidrato_g, m && m.carbohidrato_g, 'c') + macW('GRASAS', t.grasa_g, m && m.grasa_g, 'g') + '</div>' +
     '<div class="keu__wv' + (mala ? ' x' : '') + '"><b>' + esc(r.titulo) + '</b><p>' + esc(r.mensaje) + '</p>' + (r.veredicto !== 'adecuado' && KE.proxima(r, S.cmp) ? '<span class="keu__sug">→ ' + esc(KE.proxima(r, S.cmp)) + '</span>' : '') + '</div></div>' + '<div class="keu__bt keu__bt--top" id="keuBt">' + botones() + '</div><div class="keu__sts" id="keuSt" role="status"></div>' + msH + sugH
   // 2 · cómo va con tu plan
@@ -690,6 +712,17 @@ const vacio = () => ({ nombre: '', gramos: 100, kcal: 0, proteina_g: 0, carbohid
 function quitar(i){ S.al.splice(i, 1); if (S.sel >= S.al.length) S.sel = 0; if (!S.al.length) { S.al.push(vacio()); S.sucio = true } recalc(); pintar() }
 function agregar(){ S.al.push(vacio()); S.sucio = true; S.sel = S.al.length - 1; recalc(); pintar()
   const ins = document.querySelectorAll('#keuSc .keu__eh input'); const x = ins[ins.length - 1]; if (x) x.focus() }
+/** c251 · telemetría real de la lectura: código, confianza del modelo, objetos y tiempo de análisis */
+function tele(){
+  const d = (S.r && S.r.deteccion) || {}, n = (S.res && S.res.alimentos || []).length
+  const hh = new Date().toLocaleTimeString('es-CL', { hour: '2-digit', minute: '2-digit', hourCycle: 'h23', timeZone: 'America/Santiago' }).replace(':', '')
+  const id = new Date().toLocaleDateString('sv-SE', { timeZone: 'America/Santiago' }).slice(2).replace(/-/g, '') + '-' + hh + '-C' + (S.num || 'X')
+  const it = [['ID', id]]
+  if (d.confianza != null) it.push(['CONFIANZA', Math.round(d.confianza * 100) + '%'])
+  if (n) it.push(['OBJETOS', String(n)])
+  if (S.tAn) it.push(['ANÁLISIS', S.tAn.toFixed(1).replace('.', ',') + ' S'])
+  return '<div class="keu__tel">' + it.map(([k, v]) => '<span>' + k + ' <b>' + esc(v) + '</b></span>').join('') + '</div>'
+}
 function botones(){ const c = comidaN(S.num) || (esExtra() ? { extra: true } : null)
   const no = S.res && (S.res.veredicto === 'alerta' || esExtra())
   if (no && !S.sucio && c) return '<div class="keu__nq"><div class="keu__nqh"><i>' + ico('<path d="M7 7l10 10M17 7L7 17"/>') + '</i><div><b>' + (esExtra() ? 'Comida fuera de tu plan' : 'Alimento no adecuado para tu plan') + '</b><span>¿Deseas registrarla igual para sumar sus calorías a tu día? Quedará como cheat meal.</span></div></div>' +
@@ -697,7 +730,7 @@ function botones(){ const c = comidaN(S.num) || (esExtra() ? { extra: true } : n
     '<button type="button" class="keu__cta keu__cta--x" onclick="KEU.confirmar(true)">Sí, registrar como cheat meal</button><button type="button" class="keu__sec" onclick="KEU.cerrar()">NO, NO REGISTRAR</button>' +
     '<button type="button" class="keu__lnk" onclick="KEU.otra()">' + ico(I.cam) + 'EMPEZAR DE NUEVO</button>'
   return (S.sucio ? '<button type="button" class="keu__cta" onclick="KEU.recalcular()">Recalcular con mis cambios</button>' : '') +
-    '<button type="button" class="keu__' + (S.sucio ? 'sec' : 'cta') + '"' + (S.sucio || !c ? ' disabled' : '') + ' onclick="KEU.confirmar()">' + (c ? (S.sucio ? 'CONFIRMAR Y REGISTRAR' : 'Confirmar y registrar') : 'Elige la comida') + '</button>' +
+    '<button type="button" class="keu__' + (S.sucio ? 'sec' : 'cta keu__cta--tech') + '"' + (S.sucio || !c ? ' disabled' : '') + ' onclick="KEU.confirmar()">' + (c ? (S.sucio ? 'CONFIRMAR Y REGISTRAR' : '<i class="cr a"></i><i class="cr b"></i><span class="tk"><i></i>Confirmar y registrar</span><span class="ar">' + (esExtra() ? 'EXTRA' : 'C' + S.num) + '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>') : 'Elige la comida') + '</button>' +
     '<button type="button" class="keu__lnk" onclick="KEU.otra()">' + ico(I.cam) + 'EMPEZAR DE NUEVO</button><button type="button" class="keu__lnk" onclick="KEU.cerrar()">DESCARTAR</button>' }
 // escribir un nombre no repinta la pantalla (no se pierde el foco): solo cambian los botones
 function pintarBotones(){ ['keuBt', 'keuBt2'].forEach(id => { const b = $(id); if (b) b.innerHTML = botones() }) }
