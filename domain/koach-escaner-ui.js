@@ -379,8 +379,9 @@ async function api(body){
 const cocBotones = () => '<span class="keu__lbl">¿CÓMO SE PREPARÓ?</span><div class="keu__co" role="group" aria-label="¿Cómo se preparó?">' +
   COC.map(([k, t]) => '<button type="button" aria-pressed="' + (S.coc === k) + '" onclick="KEU.coc(\'' + k + '\')">' + t + '</button>').join('') + '</div>'
 function coc(k){ S.coc = S.coc === k ? null : k; document.querySelectorAll('#keuSc .keu__co button').forEach((b, i) => b.setAttribute('aria-pressed', String(COC[i][0] === S.coc))) }
+const SND = (n, d, g, r) => { try { if (window.KSFX) KSFX.play(n, d, g, r) } catch (_) {} }   // c245 · línea sonora del escáner (familia KOACH)
 async function foto(file){
-  mostrar(); S.modo = 'foto'
+  mostrar(); S.modo = 'foto'; SND('scan-captura')
   try { S.img = await comprimir(file); if (S.url) URL.revokeObjectURL(S.url); S.url = URL.createObjectURL(S.img.blob) }
   catch (e) { return error('No pudimos leer la foto', 'Prueba con otra foto o con la cámara.') }
   // foto de la galería con fecha de otro día: se pregunta (el escáner registra las comidas de hoy)
@@ -422,6 +423,8 @@ function hud(txt){
     '<div class="keu__hl" id="keuHl" aria-hidden="true"></div><div class="keu__sr" role="status">Analizando tu comida</div></div>'
 }
 function hudIni(){
+  try { if (S.sndOff) S.sndOff(); S.sndOff = window.KSFX ? KSFX.loop('scan-loop', .55) : null } catch (_) {}
+  S.hudK = -1; S.hudB = 0
   el().classList.add('keu--hud'); const t0 = Date.now(), hx = n => Math.floor(Math.random() * 16 ** n).toString(16).toUpperCase().padStart(n, '0')
   const TAG = ['SEG', 'CLS', 'VOL', 'DEN', 'MAC', 'REF', 'ISO', 'NRM']
   S.hudT = setInterval(() => {
@@ -430,13 +433,15 @@ function hudIni(){
     sc.querySelectorAll('.keu__hm b').forEach(b => { b.textContent = String(+b.dataset.a + Math.floor(Math.random() * (b.dataset.z - b.dataset.a))).padStart(3, '0') })
     const k = Math.min(HUD_PASOS.length - 1, Math.floor(ms / 1600)), lis = sc.querySelectorAll('#keuHp li')
     lis.forEach((li, i) => { li.className = i < k ? 'ok' : i === k ? 'on' : '' })
+    if (k !== S.hudK) { S.hudK = k; SND('scan-paso', 0, .7, [1, 1.189, 1.335, 1.498, 2][k] || 1) }   // cada paso sube un tono (La · Do · Re · Mi · La)
+    if (!sc.querySelector('.keu__hv--t')) { while (S.hudB < 3 && ms > 500 + S.hudB * 700) { S.hudB++; SND('scan-captura', 0, .35, 1.5) } }   // OBJ_01-03: destello al detectar
     const bar = $('keuHb'); if (bar) bar.style.width = Math.min(96, 100 * (1 - Math.exp(-ms / 5200))).toFixed(1) + '%'
     const lg = $('keuHl'); if (lg){ const ln = document.createElement('div')
       ln.textContent = '0x' + hx(4) + '  ' + TAG[Math.floor(Math.random() * TAG.length)] + '  ' + hx(6) + ' ' + hx(2) + '.' + hx(2) + '  ' + (Math.random() * 0.4 + 0.6).toFixed(3) + '  ' + HUD_PASOS[k].split(' ')[0].slice(0, 6)
       lg.appendChild(ln); while (lg.children.length > 9) lg.firstChild.remove() }
   }, 90)
 }
-function hudFin(){ if (S.hudT){ clearInterval(S.hudT); S.hudT = null } const r = document.getElementById('keuO'); if (r) r.classList.remove('keu--hud', 'keu--tex') }
+function hudFin(){ if (S.sndOff){ try { S.sndOff() } catch (_) {} S.sndOff = null } if (S.hudT){ clearInterval(S.hudT); S.hudT = null } const r = document.getElementById('keuO'); if (r) r.classList.remove('keu--hud', 'keu--tex') }
 const bc = (t, h) => typeof window.barcodeSVG === 'function' ? window.barcodeSVG(String(t).toUpperCase().replace(/[^A-Z0-9 \-.$/+%]/g, ''), h || 34) : ''
 const tex = () => { const r = $('keuO'); if (r) r.classList.add('keu--tex') }
 function cuenta(){ const xs = [...($('keuSc') || document).querySelectorAll('[data-kc]')], t0 = performance.now()
@@ -455,10 +460,10 @@ async function analizar(){
     if (!S.al.length || (S.r.resultado && S.r.resultado.veredicto === 'no_comida')) return sinComida()
     if (!txt && dt.origen && dt.origen !== 'plato_real') return noReal()
     if (!txt && (dt.calidad && dt.calidad !== 'buena' || (dt.confianza != null && dt.confianza < 0.45))) return pocoClara(dt.calidad)
-    recalc(); pintar(true)
+    recalc(); pintar(true); SND('scan-lista')
   } catch (e) {
     console.error('escaner', e)
-    fallo(e)
+    SND('scan-error'); fallo(e)
   } finally { S.busy = false }
 }
 // ── Errores: cada uno dice qué pasó y siempre deja un camino (otra foto · describir sin foto · volver)
@@ -474,14 +479,14 @@ function aviso(o){
 }
 const B_FOTO = ['Tomar otra foto', 'KEU.camara()'], B_TXT = ['Describir sin foto', 'KEU.describir()'], B_VOLVER = ['Volver', 'KEU.cerrar()']
 const GUIA = () => '<div class="keu__gd"><div>' + ico(I.top) + 'Desde arriba</div><div>' + ico(I.sol) + 'Con buena luz</div><div>' + ico(I.plato) + 'Todo el plato</div></div>'
-function sinComida(){
+function sinComida(){ SND('scan-error');
   if (S.modo === 'texto') return aviso({ ico: IC_X, t: 'No entendimos tu comida', p: 'Escribe cada alimento y, si puedes, su cantidad. Este intento no descuenta de tus escaneos del día.', bt: [['Escribir de nuevo', 'KEU.describir()'], B_VOLVER] })
   aviso({ sello: 'SIN COMIDA', cod: 'NOFOOD', t: 'En la foto no vemos comida', p: 'Este intento no descuenta de tus escaneos del día.', extra: GUIA(), bt: [B_FOTO, B_TXT, B_VOLVER] })
 }
-function noReal(){
+function noReal(){ SND('scan-error');
   aviso({ sello: 'FOTO NO VÁLIDA', cod: 'ORIG', t: 'Esta foto parece de una pantalla o de internet', p: 'Para registrar tu comida necesitamos una foto de tu plato. Si no la tienes, descríbela.', bt: [B_FOTO, B_TXT, B_VOLVER] })
 }
-function pocoClara(c){
+function pocoClara(c){ SND('scan-error');
   const T = { oscura: 'La foto está muy oscura', borrosa: 'La foto salió borrosa', incompleta: 'El plato no se ve completo' }
   aviso({ sello: 'FOTO POCO CLARA', cod: 'QLTY', t: T[c] || 'No vemos bien tu plato', p: 'Con otra foto el cálculo sale más exacto. También puedes seguir con esta y revisar los alimentos.', extra: GUIA(), bt: [B_FOTO, ['Seguir con esta foto', 'KEU.seguir()'], B_TXT] })
 }
@@ -649,7 +654,7 @@ async function confirmar(forzar){
       '<p class="keu__wx">' + (ch ? 'Quedó registrada como cheat meal: suma ' + n0(t.kcal) + ' kcal a tu día y aparece en tu reporte semanal. ' + esc(KE.proxima(S.res, S.cmp) || 'Vuelve a tu plan en la próxima comida.') : S.res.veredicto === 'alerta' && KE.proxima(S.res, S.cmp) ? esc(KE.proxima(S.res, S.cmp)) : 'Quedó sumada a tu ingesta de hoy.') + '</p>' +
       '<div class="keu__wf">' + bc(cod, 34) + '<span>Nº ' + cod + '</span></div></div></div>' +
       '<div class="keu__bt">' + (puedeCompartir() ? '<button type="button" class="keu__cta" onclick="KEU.compartir()">' + ico('<path d="M12 15V4M12 4l-4 4M12 4l4 4"/><path d="M5 13v5a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-5"/>') + 'Compartir mi comida</button><button type="button" class="keu__sec" onclick="KEU.cerrar()">VOLVER A MI DÍA</button>' : '<button type="button" class="keu__cta" onclick="KEU.cerrar()">Volver a mi día</button>') + '</div>', 'REGISTRADO')
-    tex(); cuenta()
+    tex(); cuenta(); SND('set'); SND('datos', .32, .7)   // registrada: confirmación + los números que corren
     if (S.cfg.onRegistrado) S.cfg.onRegistrado({ num: S.num, estado: S.res.cheat ? 'cheat' : 'cumplida' })
   } catch (e) { console.error('confirmar', e); st((e && (e.msg || e.message)) || 'No pudimos registrar. Prueba de nuevo.') }
   finally { S.busy = false }
