@@ -38,6 +38,12 @@ const COLS = {
   m: { ruta: 'ruta_m', full: 'ruta_full_m', estado: 'estado', version: 'version', nota: 'nota', origen: 'origen', aprob: 'aprobada_at', lote: 'lote_intentos' },
   f: { ruta: 'ruta_f', full: 'ruta_full_f', estado: 'estado_f', version: 'version_f', nota: 'nota_f', origen: 'origen_f', aprob: 'aprobada_f_at', lote: 'lote_intentos_f' }
 };
+// c266 · pose B: el extremo opuesto del rango de movimiento, para el loop A↔B en la app
+const COLSB = {
+  m: { ruta: 'ruta_b_m', full: 'ruta_full_b_m', estado: 'estado_b', version: 'version_b', nota: 'nota_b', origen: 'origen_b', aprob: 'aprobada_b_at' },
+  f: { ruta: 'ruta_b_f', full: 'ruta_full_b_f', estado: 'estado_b_f', version: 'version_b_f', nota: 'nota_b_f', origen: 'origen_b_f', aprob: 'aprobada_b_f_at' }
+};
+const colsFor = (genero, pose) => (pose === 'b' ? COLSB : COLS)[G(genero)];
 
 const REF = {};
 function refImage(g = 'm') {
@@ -195,14 +201,63 @@ const TOOLS = {
         miniatura: con_miniaturas ? await thumbData(r[C.ruta]) : null,
         // versión femenina: indica si existe foto masculina aprobada que servirá de espejo, y su miniatura
         espejo: G(genero) === 'f' ? /^(aprobada|provisional)$/.test(r.estado || '') : undefined,
-        miniatura_m: (G(genero) === 'f' && con_miniaturas && /^(aprobada|provisional)$/.test(r.estado || '')) ? await thumbData(r.ruta_m) : undefined
+        miniatura_m: (G(genero) === 'f' && con_miniaturas && /^(aprobada|provisional)$/.test(r.estado || '')) ? await thumbData(r.ruta_m) : undefined,
+        // pose B (loop A↔B)
+        pose_inicial: r.pose_inicial || 'a', descripcion_b: r.descripcion_b || null,
+        estado_b: r[COLSB[G(genero)].estado] || 'sin_foto', version_b: r[COLSB[G(genero)].version] || 0, nota_b: r[COLSB[G(genero)].nota] || null,
+        miniatura_b: con_miniaturas ? await thumbData(r[COLSB[G(genero)].ruta]) : null
       }; }));
     }
   },
   guardar_descripcion: {
-    description: 'Guarda la descripción visual (en inglés: posición, agarre, fase y ángulo de cámara) de un visual_key. Se usa como instrucción para Gemini.',
-    inputSchema: { type: 'object', properties: { visual_key: { type: 'string' }, descripcion: { type: 'string' } }, required: ['visual_key', 'descripcion'] },
-    async run({ visual_key, descripcion }) { await patchRecurso(visual_key, { descripcion }); return { ok: true, visual_key }; }
+    description: 'Guarda la descripción visual (en inglés: posición, agarre, fase y ángulo de cámara) de un visual_key. Se usa como instrucción para Gemini. pose: a (foto original, defecto) o b (extremo opuesto del movimiento).',
+    inputSchema: { type: 'object', properties: { visual_key: { type: 'string' }, descripcion: { type: 'string' }, pose: { type: 'string', enum: ['a', 'b'] } }, required: ['visual_key', 'descripcion'] },
+    async run({ visual_key, descripcion, pose }) { await patchRecurso(visual_key, pose === 'b' ? { descripcion_b: descripcion } : { descripcion }); return { ok: true, visual_key, pose: pose === 'b' ? 'b' : 'a' }; }
+  },
+  generar_pose_b: {
+    description: 'Genera con Gemini la pose B de un ejercicio: la MISMA foto aprobada (pose A) con el movimiento en el extremo opuesto del rango (ej. abajo → arriba). Usa la foto A como molde para mantener atleta, máquina, encuadre y luz. Pasa control anatómico (reintenta 1 vez). Si no hay instrucción B, la redacta a partir de la instrucción A. Requiere pose A aprobada o provisional. Tarda 20-90 s.',
+    inputSchema: { type: 'object', properties: { visual_key: { type: 'string' }, descripcion_b: { type: 'string', description: 'Instrucción de la pose B en inglés; si se omite se usa la guardada o se redacta' }, correccion: { type: 'string' }, genero: { type: 'string', enum: ['m', 'f'] }, sin_miniatura: { type: 'boolean' } }, required: ['visual_key'] },
+    async run({ visual_key, descripcion_b, correccion, genero, sin_miniatura }) {
+      const g = G(genero), CA = COLS[g], CB = COLSB[g];
+      const [rec] = await rest(`recursos_visuales?visual_key=eq.${encodeURIComponent(visual_key)}&select=*`);
+      if (!rec) throw new Error(`visual_key desconocido: ${visual_key}`);
+      if (!/^(aprobada|provisional)$/.test(rec[CA.estado] || '') || !(rec[CA.full] || rec[CA.ruta])) throw new Error('Primero aprueba la pose A (la foto actual) de este avatar: la pose B se genera usándola como molde.');
+      let descB = descripcion_b || rec.descripcion_b;
+      if (!descB) {
+        const [ej] = await rest(`ejercicios?select=nombre&visual_key=eq.${encodeURIComponent(visual_key)}&limit=1`);
+        descB = await redactarB(ej?.nombre || visual_key, rec.descripcion || visual_key);
+        if (/^NONE\b/i.test(descB)) throw new Error('Ejercicio estático (isométrico o posición sostenida): no lleva pose B.');
+      }
+      if (descB !== rec.descripcion_b) await patchRecurso(visual_key, { descripcion_b: descB });
+      const ra = await fetch(publicUrl(rec[CA.full] || rec[CA.ruta]));
+      if (!ra.ok) throw new Error(`No se pudo leer la foto A (${ra.status})`);
+      const fotoA = (await sharp(Buffer.from(await ra.arrayBuffer())).jpeg({ quality: 90 }).toBuffer()).toString('base64');
+      const rules = koachRules(visual_key);
+      const molde = `\nPOSE REFERENCE (most important): the SECOND attached image is our approved photo of this exact exercise (pose A). Recreate it as faithfully as possible: the identical athlete, identical camera angle, framing and crop, identical equipment and its placement, identical grip, body support, lighting and backdrop. The ONLY change is the movement phase: show the position described above, which is the opposite end of the range of motion of the same repetition. Move only the joints and the implement that move in this exercise; everything that stays still in the exercise stays exactly where it is in pose A. Do not add, remove or move anything else.`;
+      let extra = correccion ? `\nIMPORTANT CORRECTION: ${correccion}` : '';
+      let model, data, check, intentos;
+      for (intentos = 1; intentos <= 2; intentos++) {
+        ({ model, data } = await gemini(`${MASTER_FOR(g)}\n${descB}${molde}${rules.length ? `\nMANDATORY KOACH RULES (override the description if they conflict):\n- ${rules.join('\n- ')}` : ''}${extra}`, [fotoA], g));
+        const jpg = await sharp(data).resize(768, 768, { fit: 'cover' }).jpeg({ quality: 85 }).toBuffer();
+        check = await qa(jpg, descB, rules);
+        if (check.ok !== false) break;
+        extra = `${correccion ? `\nIMPORTANT CORRECTION: ${correccion}` : ''}\nA previous attempt had these defects, avoid them: ${check.issues.join('; ')}.`;
+      }
+      const v = (rec[CB.version] || 0) + 1;
+      const full = await sharp(data).resize(1024, 1024, { fit: 'cover', position: 'centre' }).webp({ quality: 82 }).toBuffer();
+      const thumb = await sharp(data).resize(192, 192, { fit: 'cover', position: 'centre', kernel: 'lanczos3' }).sharpen({ sigma: 0.5 }).webp({ quality: 80 }).toBuffer();
+      const ruta = `ex/${visual_key}_${g}_b_v${v}.webp`, rutaFull = `ex/full/${visual_key}_${g}_b_v${v}.webp`;
+      await upload(ruta, thumb); await upload(rutaFull, full);
+      const estado = check.ok === false ? 'corregir' : 'pendiente';
+      const nota = check.ok === false ? `Control automático: ${check.issues.join('; ')}` : (check.minor && check.minor.length ? `Observaciones: ${check.minor.join('; ')}` : (correccion || null));
+      await patchRecurso(visual_key, { [CB.version]: v, [CB.ruta]: ruta, [CB.full]: rutaFull, [CB.estado]: estado, [CB.nota]: nota, [CB.origen]: `gemini-api:${model}` });
+      return { visual_key, genero: g, pose: 'b', version: v, estado, nota, descripcion_b: descB, control: { ok: check.ok, problemas: check.issues, observaciones: check.minor || [], intentos: Math.min(intentos, 2) }, modelo: model, kb: Math.round(full.length / 1024), miniatura: sin_miniatura ? null : 'data:image/webp;base64,' + thumb.toString('base64') };
+    }
+  },
+  definir_pose_inicial: {
+    description: 'Define con qué pose parte el loop A↔B en la app: a (foto original) o b (pose generada). Ej.: leg press y sentadilla parten extendidos.',
+    inputSchema: { type: 'object', properties: { visual_key: { type: 'string' }, pose_inicial: { type: 'string', enum: ['a', 'b'] } }, required: ['visual_key', 'pose_inicial'] },
+    async run({ visual_key, pose_inicial }) { await patchRecurso(visual_key, { pose_inicial: pose_inicial === 'b' ? 'b' : 'a' }); return { ok: true, visual_key, pose_inicial }; }
   },
   generar_imagen: {
     description: 'Genera con Gemini una foto nueva para un visual_key, pasa un control anatómico automático (reintenta 1 vez solo ante errores críticos), la guarda como nueva versión y devuelve su miniatura y el resultado del control. Tarda 20-90 segundos.',
@@ -307,14 +362,14 @@ const TOOLS = {
     }
   },
   revisar: {
-    description: 'Marca una foto como aprobada, provisional o para corregir (con nota).',
-    inputSchema: { type: 'object', properties: { visual_key: { type: 'string' }, estado: { type: 'string', enum: ['aprobada', 'provisional', 'corregir'] }, nota: { type: 'string' }, genero: { type: 'string', enum: ['m', 'f'] } }, required: ['visual_key', 'estado'] },
-    async run({ visual_key, estado, nota, genero }) {
-      const C = COLS[G(genero)];
+    description: 'Marca una foto como aprobada, provisional o para corregir (con nota). pose: a (defecto) o b.',
+    inputSchema: { type: 'object', properties: { visual_key: { type: 'string' }, estado: { type: 'string', enum: ['aprobada', 'provisional', 'corregir'] }, nota: { type: 'string' }, genero: { type: 'string', enum: ['m', 'f'] }, pose: { type: 'string', enum: ['a', 'b'] } }, required: ['visual_key', 'estado'] },
+    async run({ visual_key, estado, nota, genero, pose }) {
+      const C = colsFor(genero, pose);
       const body = { [C.estado]: estado, [C.nota]: nota || null };
       if (estado === 'aprobada') body[C.aprob] = new Date().toISOString();
       const r = await patchRecurso(visual_key, body);
-      return { ok: true, visual_key, genero: G(genero), estado: r?.[0]?.[C.estado] };
+      return { ok: true, visual_key, genero: G(genero), pose: pose === 'b' ? 'b' : 'a', estado: r?.[0]?.[C.estado] };
     }
   },
   vincular: {
@@ -353,6 +408,26 @@ async function redactar(nombre, implemento, rules) {
   const prompt = `Write precise image-generation instructions for ONE exercise photo in a strength-training app. Describe the body configuration unambiguously because image models make anatomical mistakes. ONE paragraph in English, 60 to 110 words, in this order: (1) exercise name and exact equipment (implement, how many, bench or machine and its angle); (2) body support: what touches the bench/floor/seat and where each foot is; (3) head and neck neutral, in line with the spine; (4) each arm and hand: grip type, hand width, what each hand holds; (5) the most recognizable movement phase with joint angles (press: elbows at 90 degrees; rows and pulldowns: peak contraction; flys: controlled stretch; squats/lunges/hinges: bottom position; jumps: highest point; isometrics and mobility: held position); (6) camera: one of "pure side view", "three-quarter view from the feet slightly above", "three-quarter front view", "low side view". No style, lighting or clothing words. KOACH conventions: BB = barbell, DB = dumbbells, KB = kettlebell, MB = mini band, CABLE = cable pulley; "prone" = PRONATED overhand grip and "supine" = SUPINATED underhand grip (never a lying position); "neutral" = palms facing each other; "close-grip" = hands shoulder-width or narrower; "single" = one arm or leg works; "alternating" = asymmetric; "ISO" = held position; "pulse" = short range at the bottom; "1 1/2" = show the bottom position.
 ${rules.length ? 'Mandatory rules: ' + rules.join(' ') : ''}
 Exercise name: "${nombre}". Implement: ${implemento || 'unknown'}. Answer with the paragraph only.`;
+  for (const model of QA_MODELS) {
+    const r = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`, {
+      method: 'POST', headers: { 'Content-Type': 'application/json', 'x-goog-api-key': key },
+      body: JSON.stringify({ contents: [{ role: 'user', parts: [{ text: prompt }] }], generationConfig: { temperature: 0.2 } }) });
+    if (r.status === 404) continue;
+    const j = await r.json().catch(() => ({}));
+    if (!r.ok) throw new Error(`Gemini texto ${r.status}: ${JSON.stringify(j).slice(0, 200)}`);
+    const txt = (j?.candidates?.[0]?.content?.parts || []).map(p => p.text || '').join('').trim();
+    if (txt) return txt;
+  }
+  throw new Error('Sin modelo de texto disponible');
+}
+// Instrucción de la pose B a partir de la instrucción de la pose A
+async function redactarB(nombre, descA) {
+  const key = process.env.GEMINI_API_KEY;
+  const prompt = `An exercise photo (pose A) of "${nombre}" is described as:
+"${descA}"
+Write the image-generation instruction for pose B: the OPPOSITE end of the range of motion of the same repetition (if A is the bottom / stretched / flexed position, B is the top / contracted / extended position, and vice versa). Keep the same equipment, body support, foot position, grip, head position and camera angle; change only the joint angles and where the implement or sled is. Never lock joints: "almost fully extended, not locked". State the joint angles explicitly (elbows, knees, hips). ONE paragraph in English, 40 to 90 words, no style, lighting or clothing words.
+If the exercise is a static hold, isometric or a held stretch with no movement, answer exactly: NONE
+Answer with the paragraph only.`;
   for (const model of QA_MODELS) {
     const r = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`, {
       method: 'POST', headers: { 'Content-Type': 'application/json', 'x-goog-api-key': key },
