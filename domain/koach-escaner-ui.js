@@ -423,7 +423,7 @@ function hud(txt){
     '<div class="keu__hl" id="keuHl" aria-hidden="true"></div><div class="keu__sr" role="status">Analizando tu comida</div></div>'
 }
 function hudIni(){
-  try { if (S.sndOff) S.sndOff(); S.sndOff = window.KSFX ? KSFX.loop('scan-loop', .7) : null } catch (_) {}
+  try { if (S.sndOff) S.sndOff(); S.sndOff = window.KSFX ? KSFX.loop('scan-datos', .75)   /* c248 · procesamiento de datos (TheAudioHorizonSFX, licencia abierta según Matías) */ : null } catch (_) {}
   S.hudK = -1; S.hudB = 0
   el().classList.add('keu--hud'); const t0 = Date.now(), hx = n => Math.floor(Math.random() * 16 ** n).toString(16).toUpperCase().padStart(n, '0')
   const TAG = ['SEG', 'CLS', 'VOL', 'DEN', 'MAC', 'REF', 'ISO', 'NRM']
