@@ -4027,6 +4027,53 @@ html:not(:has(#oAct.vis)) #sBloques.locked{filter:none;opacity:1;pointer-events:
 .kprS__acts button+button{background:transparent;color:#F4F3F0}
 .kprS__acts .w{grid-column:1/-1;min-height:34px;border:0;background:none;color:#A7A9AE;font:500 9.5px var(--font-mono);letter-spacing:.14em;text-decoration:underline}
 .kprS__st{min-height:16px;text-align:center;font:500 9.5px var(--font-mono);letter-spacing:.12em;color:#A7A9AE;margin-top:6px}
+
+/* c259 · INSTALAR EN PANTALLA DE INICIO: misma capa HUD y animación en loop que la guía del escáner (12 s, 4 fases sincronizadas con los pasos) */
+#oInst{background:#050505}
+#oInst::after{content:"";position:fixed;inset:0;background:repeating-linear-gradient(0deg,rgba(255,255,255,.025) 0 1px,transparent 1px 3px);pointer-events:none}
+#oInst .onb__in{z-index:1}
+.oi__gh{display:flex;justify-content:space-between;align-items:center;margin-top:18px;font:700 9.5px 'Space Mono',var(--font-mono);letter-spacing:.16em;color:#A7A9AE;text-transform:uppercase}
+.oi__gh span:first-child{display:flex;align-items:center;gap:8px}
+.oi__gh i{width:7px;height:7px;border-radius:50%;background:#E9E8E4;box-shadow:0 0 8px #E9E8E4;animation:nuHmBlink 1s steps(2) infinite}
+#oInst .onb__h{text-transform:none;font-size:clamp(34px,10vw,44px);letter-spacing:-.035em}
+.oi__pp{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-top:14px;font:700 8.5px 'Space Mono',var(--font-mono);letter-spacing:.14em;color:#8E8D88}
+.oi__pp b{color:#E9E8E4}.oi__pp i{font-style:normal;color:#5E5D59}
+.oi__st{position:relative;margin:18px auto 0;width:min(100%,330px);aspect-ratio:1/1;border:1px solid rgba(233,232,228,.14);border-radius:8px;overflow:hidden;
+  background:#080809;background-image:linear-gradient(rgba(233,232,228,.07) 1px,transparent 1px),linear-gradient(90deg,rgba(233,232,228,.07) 1px,transparent 1px);background-size:22px 22px}
+.oi__st svg{position:absolute;inset:0;width:100%;height:100%}
+.oi__st svg *{transform-box:fill-box;transform-origin:center}
+.oi__st .ln{fill:none;stroke:#E9E8E4;stroke-linecap:round;stroke-linejoin:round}
+.oi-ring{animation:kgRot 16s linear infinite}
+.oi-a{animation:oiA 12s steps(1) infinite}
+.oi-b{animation:oiB 12s cubic-bezier(.2,.8,.2,1) infinite}
+.oi-b.dn{animation-name:oiBd}
+.oi-c{animation:oiC 12s cubic-bezier(.2,.8,.2,1) infinite}
+.oi-d{animation:oiD 12s steps(1) infinite}
+.oi-ic{animation:oiIc 12s cubic-bezier(.2,1.4,.3,1) infinite}
+.oi-tap{animation:oiTap 3s ease-out infinite}
+.oi-t1{animation:oiTap 3s ease-out infinite,oiV1 12s steps(1) infinite}
+.oi-t2{animation:oiTap 3s ease-out infinite,oiV2 12s steps(1) infinite}
+.oi-t3{animation:oiTap 3s ease-out infinite,oiV3 12s steps(1) infinite}
+.oi-t4{animation:oiTap 3s ease-out infinite,oiV4 12s steps(1) infinite}
+@keyframes oiA{0%{opacity:1}75%,100%{opacity:0}}
+@keyframes oiB{0%,24%{opacity:0;transform:translateY(120px)}29%,74%{opacity:1;transform:none}75%,100%{opacity:0;transform:none}}
+@keyframes oiBd{0%,24%{opacity:0;transform:translateY(-20px) scale(.9)}29%,49%{opacity:1;transform:none}50%,100%{opacity:0}}
+@keyframes oiC{0%,49%{opacity:0;transform:scale(.92)}54%,74%{opacity:1;transform:none}75%,100%{opacity:0}}
+@keyframes oiD{0%,74.9%{opacity:0}75%,100%{opacity:1}}
+@keyframes oiIc{0%,77%{opacity:0;transform:scale(.2)}84%,100%{opacity:1;transform:none}}
+@keyframes oiTap{0%,30%{opacity:0;transform:scale(1.6)}45%{opacity:1;transform:scale(1)}70%{opacity:.9;transform:scale(.88)}100%{opacity:0;transform:scale(.88)}}
+@keyframes oiV1{0%{visibility:visible}25%,100%{visibility:hidden}}
+@keyframes oiV2{0%,24.9%{visibility:hidden}25%{visibility:visible}50%,100%{visibility:hidden}}
+@keyframes oiV3{0%,49.9%{visibility:hidden}50%{visibility:visible}75%,100%{visibility:hidden}}
+@keyframes oiV4{0%,74.9%{visibility:hidden}75%{visibility:visible}100%{visibility:visible}}
+.oi__cap{position:absolute;left:12px;right:12px;bottom:10px;height:16px;font:700 9.5px 'Space Mono',var(--font-mono);letter-spacing:.16em;color:#F4F3F0}
+.oi__cap span{position:absolute;left:0;right:0;opacity:0;animation:oiCap 12s steps(1) infinite}
+.oi__cap span:nth-child(2){animation-delay:-9s}.oi__cap span:nth-child(3){animation-delay:-6s}.oi__cap span:nth-child(4){animation-delay:-3s}
+@keyframes oiCap{0%{opacity:1}25%,100%{opacity:0}}
+#oInst .onb__s{animation:oiS 12s steps(1) infinite}
+#oInst .onb__s:nth-child(2){animation-delay:-9s}#oInst .onb__s:nth-child(3){animation-delay:-6s}#oInst .onb__s:nth-child(4){animation-delay:-3s}
+@keyframes oiS{0%{border-color:rgba(244,243,240,.55);box-shadow:0 0 0 1px rgba(244,243,240,.25),0 10px 30px rgba(0,0,0,.4);opacity:1}25%,100%{border-color:rgba(244,243,240,.1);box-shadow:none;opacity:.55}}
+@media (prefers-reduced-motion:reduce){ .oi__st svg *,#oInst .onb__s,.oi__cap span{animation:none!important} .oi-b,.oi-c,.oi-d{opacity:0} .oi__cap span:first-child{opacity:1} }
 </style>
 </head>
 <body>
@@ -6355,15 +6402,46 @@ function onbPasos(so){ const S_=ONB_SVG, home='<div class="onb__home"><span></sp
     ['Toca <b>Agregar</b>','Arriba a la derecha. El nombre KOACH ya viene listo.',
       '<div class="onb__ui"><div class="onb__row"><span class="onb__dim">Cancelar</span><b>Pantalla de inicio</b><span class="onb__hit">Agregar</span></div></div>'],
     ['Abre KOACH desde tu inicio','Entra con tu email y contraseña. Desde ahora usa siempre el ícono.',home]] }
+
+// c259 · escena de instalación (viewBox 300): teléfono con el navegador → menú → confirmar → ícono en el inicio
+function oiEscena(so){
+  const and=so==='android', F="font-family=\"-apple-system,system-ui,sans-serif\""
+  const tap=(x,y,c)=>'<circle class="'+c+'" cx="'+x+'" cy="'+y+'" r="13" fill="none" stroke="#FFFFFF" stroke-width="2.5" style="filter:drop-shadow(0 0 6px #fff)"/>'
+  const pag='<rect x="104" y="'+(and?72:50)+'" width="92" height="40" rx="6" fill="#1E1F22"/><image href="/img/brand/logotipo-koach.png" x="122" y="'+(and?84:62)+'" width="56" height="16"/>'+
+    [0,1,2,3].map(i=>'<rect x="104" y="'+((and?122:100)+i*26)+'" width="'+(92-i%2*28)+'" height="16" rx="4" fill="#1A1B1E"/>').join('')
+  const barra = and
+    ? '<rect x="98" y="34" width="104" height="26" fill="#202124"/><rect x="104" y="40" width="72" height="14" rx="7" fill="#303134"/><text x="140" y="50" text-anchor="middle" fill="#BDC1C6" font-size="6.5" '+F+'>app.koachclub.cl</text><circle cx="190" cy="43" r="1.6" fill="#E8EAED"/><circle cx="190" cy="47" r="1.6" fill="#E8EAED"/><circle cx="190" cy="51" r="1.6" fill="#E8EAED"/>'
+    : '<rect x="98" y="236" width="104" height="44" fill="#1C1C1E"/><rect x="106" y="241" width="88" height="14" rx="7" fill="#2C2C2E"/><text x="150" y="251" text-anchor="middle" fill="#AEAEB2" font-size="6.5" '+F+'>app.koachclub.cl</text><path class="ln" d="M150 259v11M146 263l4-4 4 4M144 266v6h12v-6" stroke-width="1.4"/><path class="ln" d="M112 266l-4 3 4 3M188 263h8v8h-8z" stroke-width="1.2" opacity=".6"/>'
+  const menu = and
+    ? '<g class="oi-b dn"><rect x="128" y="40" width="72" height="92" rx="6" fill="#2D2E31" stroke="rgba(255,255,255,.12)"/>'+['Nueva pestaña','Historial','Instalar app','Compartir'].map((t,i)=>'<text x="136" y="'+(58+i*20)+'" fill="'+(i===2?'#FFFFFF':'#8E9196')+'" font-size="7.5" font-weight="'+(i===2?700:400)+'" '+F+'>'+t+'</text>').join('')+'<rect x="131" y="87" width="66" height="18" rx="4" fill="none" stroke="#FFFFFF" stroke-width="1"/></g>'
+    : '<g class="oi-b"><rect x="98" y="128" width="104" height="154" rx="12" fill="#2C2C2E"/><rect x="138" y="133" width="24" height="3" rx="1.5" fill="#636366"/>'+['Copiar','Agregar a favoritos','Agregar a pantalla de inicio','Buscar en página'].map((t,i)=>'<text x="106" y="'+(160+i*26)+'" fill="'+(i===2?'#FFFFFF':'#8E8E93')+'" font-size="'+(i===2?6.4:7.5)+'" font-weight="'+(i===2?700:400)+'" '+F+'>'+t+'</text>').join('')+'<rect x="102" y="199" width="96" height="20" rx="5" fill="none" stroke="#FFFFFF" stroke-width="1"/></g>'
+  const conf = and
+    ? '<g class="oi-c"><rect x="98" y="30" width="104" height="252" fill="rgba(0,0,0,.55)"/><rect x="106" y="110" width="88" height="80" rx="10" fill="#2D2E31"/><text x="114" y="128" fill="#FFFFFF" font-size="8" font-weight="700" '+F+'>¿Instalar app?</text><image href="/icon-192.png" x="114" y="136" width="18" height="18"/><text x="138" y="148" fill="#BDC1C6" font-size="6.5" '+F+'>KOACH</text><text x="126" y="180" fill="#8E9196" font-size="7" '+F+'>Cancelar</text><text x="186" y="180" text-anchor="end" fill="#8AB4F8" font-size="7.5" font-weight="700" '+F+'>Instalar</text></g>'
+    : '<g class="oi-c"><rect x="98" y="30" width="104" height="252" fill="#1C1C1E"/><text x="104" y="52" fill="#0A84FF" font-size="6.5" '+F+'>Cancelar</text><text x="196" y="52" text-anchor="end" fill="#0A84FF" font-size="7.5" font-weight="700" '+F+'>Agregar</text><rect x="104" y="64" width="92" height="40" rx="8" fill="#2C2C2E"/><image href="/icon-192.png" x="110" y="70" width="28" height="28"/><text x="146" y="82" fill="#FFFFFF" font-size="8" font-weight="700" '+F+'>KOACH</text><text x="146" y="94" fill="#8E8E93" font-size="6" '+F+'>app.koachclub.cl</text></g>'
+  const home='<g class="oi-d"><rect x="98" y="30" width="104" height="252" fill="#15171B"/>'+
+    Array.from({length:16},(_,i)=>{ const c=i%4, r=Math.floor(i/4), x=108+c*23, y=56+r*30; return i===9?'':'<rect x="'+x+'" y="'+y+'" width="16" height="16" rx="4" fill="#2A2D33"/>' }).join('')+
+    '<g class="oi-ic"><rect x="128" y="113" width="22" height="22" rx="5" fill="none" stroke="#FFFFFF" stroke-width="1.5" style="filter:drop-shadow(0 0 8px #fff)"/><image href="/icon-192.png" x="131" y="116" width="16" height="16"/><text x="139" y="145" text-anchor="middle" fill="#FFFFFF" font-size="5.5" font-weight="700" '+F+'>KOACH</text></g>'+
+    '<text x="150" y="250" text-anchor="middle" fill="#A7A9AE" font-size="6.5" letter-spacing="1" font-family="Space Mono,monospace">PANTALLA COMPLETA ✓</text></g>'
+  const t1=and?[190,47]:[150,264], t2=and?[164,96]:[150,209], t3=and?[178,177]:[184,49], t4=[139,124]
+  return '<svg viewBox="0 -4 300 340"><circle class="oi-ring ln" cx="150" cy="155" r="140" stroke-width="1" stroke-dasharray="2 8" opacity=".5"/>'+
+    '<rect x="90" y="22" width="120" height="268" rx="22" fill="#0B0B0C" stroke="#E9E8E4" stroke-width="2.2"/>'+
+    '<g clip-path="url(#oiClip)"><defs><clipPath id="oiClip"><rect x="98" y="30" width="104" height="252" rx="15"/></clipPath></defs>'+
+    '<g class="oi-a"><rect x="98" y="30" width="104" height="252" fill="#0E0F11"/>'+pag+barra+'</g>'+menu+conf+home+'</g>'+
+    '<rect x="132" y="27" width="36" height="8" rx="4" fill="#000"/>'+
+    tap(t1[0],t1[1],'oi-t1')+tap(t2[0],t2[1],'oi-t2')+tap(t3[0],t3[1],'oi-t3')+tap(t4[0],t4[1],'oi-t4')+'</svg>'
+}
 function onbInstalar(){ if (document.getElementById('oInst')) return
   try{ localStorage.setItem('koach_a2hs_visto','1') }catch(_e){}   // el aviso chico ya no hace falta
   const so=onbSO(), P=onbPasos(so), directo=so==='android' && _instEvt
   const el=document.createElement('div'); el.id='oInst'; el.className='onb'; el.setAttribute('role','dialog'); el.setAttribute('aria-modal','true'); el.setAttribute('aria-labelledby','onbH')
   el.innerHTML='<div class="onb__in"><div class="onb__top"><img src="/img/brand/logotipo-koach.png" alt="KOACH"><span class="onb__k">PASO 1 DE 2</span></div>'+
     '<div class="onb__bar"><i class="on"></i><i></i></div>'+
+    '<div class="oi__gh"><span><i></i>INSTALACIÓN · '+({android:'ANDROID · CHROME',ios:'IPHONE · SAFARI','ios-otro':'IPHONE'}[so]||'TELÉFONO')+'</span><span>20 SEG</span></div>'+
     '<span class="onb__tag">EL PASO MÁS IMPORTANTE</span>'+
-    '<h1 class="onb__h" id="onbH">Instala KOACH en tu teléfono</h1>'+
-    '<p class="onb__p">KOACH se usa como app, desde tu <b>pantalla de inicio</b>: pantalla completa, más rápida y sin perder tu sesión en el navegador. Te toma 20 segundos.</p>'+
+    '<h1 class="onb__h" id="onbH">Instala la app en tu pantalla de inicio</h1>'+
+    '<p class="onb__p">La app se usa desde tu <b>pantalla de inicio</b>: pantalla completa, más rápida y sin perder tu sesión en el navegador.</p>'+
+    '<div class="oi__pp">'+(so==='android'?'<b>01 MENÚ ⋮</b><i>→</i><b>02 INSTALAR APP</b><i>→</i><b>03 INSTALAR</b>':'<b>01 COMPARTIR</b><i>→</i><b>02 PANTALLA DE INICIO</b><i>→</i><b>03 AGREGAR</b>')+'<i>→</i><b>04 ÍCONO</b></div>'+
+    '<div class="oi__st" aria-hidden="true">'+oiEscena(so)+'<div class="oi__cap">'+(so==='android'?'<span>01 · TOCA EL MENÚ ⋮</span><span>02 · INSTALAR APP</span><span>03 · CONFIRMA: INSTALAR</span>':'<span>01 · TOCA COMPARTIR</span><span>02 · AGREGAR A PANTALLA DE INICIO</span><span>03 · TOCA AGREGAR</span>')+'<span>04 · ÁBRELA DESDE TU INICIO</span></div></div>'+
     (directo?'<button type="button" class="onb__ok" style="margin-top:22px" id="onbDir">INSTALAR KOACH AHORA</button><p class="onb__p" style="font-size:14px;margin-top:10px">Si el botón no responde, sigue estos pasos:</p>':'')+
     '<ol class="onb__steps">'+P.map((p,i)=>'<li class="onb__s"><span class="onb__n">'+(i+1)+'</span><div><h3>'+p[0]+'</h3><p>'+p[1]+'</p>'+p[2]+'</div></li>').join('')+'</ol></div>'+
     '<div class="onb__ft"><div><button type="button" class="onb__ok" id="onbOk">YA LA AGREGUÉ</button><button type="button" class="onb__no" id="onbNo">Lo hago después</button></div></div>'
@@ -6391,7 +6469,7 @@ function pedirFoto(){
     '<p class="onb__p">Agrega tu <b>foto de perfil</b> para aprovechar todos tus beneficios y activar tu credencial en el <b>Club del 1%</b>.</p>'+
     '<div class="onb__cred" aria-hidden="true"><header><img src="/img/brand/logotipo-koach.png" alt=""><span>CLUB DEL 1%</span></header>'+
       '<div class="onb__av">'+plEscA(ini)+'<b>+</b></div><h4>'+plEscA(nom||'TU NOMBRE')+(ape?'<br>'+plEscA(ape):'')+'</h4><small>MEMBERSHIP PASS · CONCEPCIÓN</small>'+bc+'<span class="onb__lock">PENDIENTE DE ACTIVAR</span></div>'+
-    '<ul class="onb__ben"><li>Tu coach te reconoce en la sala desde el primer día.</li><li>Tu credencial digital del club queda activa en tu Perfil.</li><li>Tus logros y tarjetas para compartir llevan tu identidad.</li></ul></div>'+
+    '<ul class="onb__ben"><li>Tu koach te reconoce en la sala desde el primer día.</li><li>Tu credencial digital del club queda activa en tu Perfil.</li><li>Tus logros y tarjetas para compartir llevan tu identidad.</li></ul></div>'+
     '<div class="onb__ft"><div><button type="button" class="onb__ok" id="oFotoOk">SUBIR MI FOTO</button><button type="button" class="onb__no" id="oFotoNo">Ahora no · la agrego desde mi Perfil</button></div></div>'
   document.body.appendChild(el); requestAnimationFrame(function(){ el.classList.add('in') })
   const fin=function(){ try{ localStorage.setItem(_fotoKey(),'1') }catch(_e){} el.classList.remove('in'); setTimeout(function(){ el.remove() }, 300) }
