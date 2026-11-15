@@ -4228,9 +4228,14 @@ html[data-lg-at="0"] #vLogin .lgCv{display:block}
 .avx__pgs{display:flex;justify-content:space-between;margin-top:5px;font:400 8.5px 'Space Mono',var(--font-mono);letter-spacing:.12em;color:#434649}
 .avx__wks{display:grid;grid-template-columns:repeat(8,1fr);gap:6px;margin-top:12px}.avx__wk{display:flex;flex-direction:column;gap:5px;align-items:center}
 .avx__wk span{font:400 7.5px 'Space Mono',var(--font-mono);color:#6F7377}.avx__wk i{width:100%;aspect-ratio:1;border-radius:5px;background:rgba(11,11,12,.08)}
-.avx__wk i.on{background:rgba(11,11,12,.08)}
-.avx.on .avx__wk i.on{animation:avxOn .35s forwards;animation-delay:calc(.3s + var(--i) * 25ms)}
-@keyframes avxOn{to{background:#0B0B0C;box-shadow:0 4px 10px rgba(11,11,12,.25)}}
+.avx__wk i{position:relative;display:flex;align-items:center;justify-content:center}
+.avx__wk i.on{background:rgba(11,11,12,.08);transform:scale(.6);opacity:.4}
+.avx__wk i.on::after{content:"";width:42%;height:42%;opacity:0;background:no-repeat center/contain url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%230B0B0C' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M5 12.5l4.5 4.5L19 7.5'/%3E%3C/svg%3E")}
+.avx.on .avx__wk i.on{animation:avxOn .45s cubic-bezier(.2,1.3,.4,1) forwards,avxPlata 3.6s linear infinite;animation-delay:calc(.3s + var(--i) * 30ms),calc(var(--i) * -90ms)}
+.avx.on .avx__wk i.on::after{animation:kgmF .3s forwards;animation-delay:calc(.55s + var(--i) * 30ms)}
+@keyframes avxOn{to{transform:none;opacity:1;background-color:transparent;background-image:linear-gradient(115deg,#9EA2A8 0%,#F4F5F6 22%,#B7BBC0 40%,#FFFFFF 55%,#8E9297 75%,#DADDE0 100%);background-size:300% 300%;box-shadow:inset 0 1px 0 rgba(255,255,255,.9),0 4px 10px rgba(11,11,12,.18)}}
+@keyframes avxPlata{0%{background-position:0% 50%}100%{background-position:300% 50%}}
+
 .avx__gr{display:grid;grid-template-columns:96px 1fr 58px;gap:10px;align-items:center;margin-top:12px;font:400 9.5px 'Space Mono',var(--font-mono);letter-spacing:.1em;color:#434649}
 .avx__gr div{height:4px;border-radius:2px;background:rgba(11,11,12,.08)}.avx__gr div i{display:block;height:100%;width:0;border-radius:2px;background:linear-gradient(90deg,#6F7377,#0B0B0C);transition:width 1s cubic-bezier(.6,0,.2,1);transition-delay:calc(.3s + var(--i) * .1s)}
 .avx.on .avx__gr div i{width:var(--w)}.avx__gr b{text-align:right;font:700 13px 'Space Mono',var(--font-mono);color:#0B0B0C}
@@ -4253,11 +4258,23 @@ html.en-av body{background:transparent}
 .avx__cis{display:flex;gap:6px;align-items:center;margin-top:10px}
 .avx__cis button{min-height:30px;padding:0 12px;border-radius:999px;border:1px solid rgba(11,11,12,.3);background:transparent;color:#0B0B0C;font:700 9px 'Space Mono',var(--font-mono);letter-spacing:.14em;cursor:pointer}
 .avx__cis button[aria-pressed="true"]{background:#0B0B0C;color:#F4F3F0;border-color:#0B0B0C}
+.avx__cis button,.avx__cis span{white-space:nowrap}
 .avx__cis span{margin-left:auto;font:400 9px 'Space Mono',var(--font-mono);letter-spacing:.14em;color:#6F7377}
 .avx__ch .sm{font:700 8.5px 'Space Mono',monospace;fill:#0B0B0C}.avx__ch .sm.on{fill:#0B0B0C;text-decoration:underline}
 .avx__ch .off{fill:#979C9F!important;font-weight:400}
 .avx__ch .fu{fill:none;stroke:#979C9F;stroke-width:1.2;stroke-dasharray:2 2}
 .avx__ch .hoy{stroke:#0B0B0C;stroke-width:1;stroke-dasharray:3 3;opacity:.5}
+
+/* c272 · progresos con % y desplegable por ejercicio */
+.avx__pg{width:100%;border:0;background:none;padding:0;text-align:left;color:inherit;cursor:pointer}
+.avx__pgs em{font-style:normal;font-weight:700;color:#0B0B0C;letter-spacing:.1em}
+.avx__pg[aria-expanded="true"] .avx__pgs em{text-decoration:underline}
+.avx__pgd{margin:10px 0 4px}.avx__pgd .avx__cis{margin-top:0}
+.avx__chw--ej{margin-top:8px}
+.avx__ch .vl{font:700 8px 'Space Mono',monospace;fill:#0B0B0C;opacity:0}
+.avx.on .avx__pgd.on .avx__ch .vl,.avx__pgd.on .avx__ch .vl{transition:opacity .3s 1.3s;opacity:1}
+.avx__pgd.on .avx__ch .ln{transition:stroke-dashoffset 1.2s .1s cubic-bezier(.6,0,.2,1);stroke-dashoffset:0}
+.avx__pgd.on .avx__ch .ar{transition:opacity .6s .9s;opacity:1}.avx__pgd.on .avx__ch .dt{transition:opacity .3s;transition-delay:calc(.2s + var(--i) * .12s);opacity:1}
 </style>
 </head>
 <body>
@@ -9391,7 +9408,8 @@ function avxCalc(sets, ses){
   const kg=sets.reduce((a,x)=>a+x.peso*x.reps,0), ej={}
   sets.forEach(x=>{ const e=ej[x.id]||(ej[x.id]={ id:x.id, nom:x.nom, dias:{} }); const d=e.dias[x.fecha]; if(!d || x.peso>d.peso || (x.peso===d.peso && x.reps>d.reps)) e.dias[x.fecha]={ peso:x.peso, reps:x.reps } })
   const L=Object.values(ej).map(e=>{ const f=Object.keys(e.dias).sort(), serie=f.map(k=>e.dias[k].peso); let best=null; f.forEach(k=>{ const v=e.dias[k]; if(!best||v.peso>best.peso||(v.peso===best.peso&&v.reps>best.reps)) best=Object.assign({fecha:k},v) })
-    return { id:e.id, nom:e.nom, best, serie, n:f.length, p0:serie[0], subida:best.peso-serie[0] } })
+    const sem={}; f.forEach(k=>{ const w=avxLunes(k); sem[w]=Math.max(sem[w]||0, e.dias[k].peso) })
+    return { id:e.id, nom:e.nom, best, serie, n:f.length, p0:serie[0], subida:best.peso-serie[0], sem } })
   const top=L.slice().sort((a,b)=>b.best.peso-a.best.peso||b.best.reps-a.best.reps).slice(0,5)
   const prog=L.filter(e=>e.n>=2 && e.subida>0).sort((a,b)=>b.subida-a.subida).slice(0,3)
   // semanas (8 últimas, lunes a domingo)
@@ -9415,20 +9433,33 @@ function avxCiclo(off){ const N=+((cicloInfo()||{}).semanas||(S.proto&&S.proto.c
   const L0=new Date(avxLunes(fLocal(new Date()))+'T12:00:00'); L0.setDate(L0.getDate()-(sa-1)*7-(off||0)*N*7)
   const W=[]; for(let i=0;i<N;i++){ const d=new Date(L0); d.setDate(d.getDate()+i*7); W.push(fLocal(d)) }
   return { N, sa: off?N:sa, c:c-(off||0), W } }
-function avxChart(d){ const C=avxCiclo(AVXC), W=350, H=176, P=16, base=H-36, top=26, n=C.N
-  const v=C.W.map((w,i)=>i<C.sa?(d.tonW[w]||0):null), real=v.filter(x=>x!=null), mx=Math.max(10,...real)*1.15, ix=real.length?v.indexOf(Math.max(...real)):-1
-  const X=i=>P+i*(W-2*P)/Math.max(1,n-1), Y=t=>base-(t/mx)*(base-top)
+function avxChart(d, mapa, unidad, ciclo){ const C=avxCiclo(ciclo==null?AVXC:ciclo), W=350, H=176, P=16, base=H-36, top=26, n=C.N, M=mapa||d.tonW, U=unidad||'T', gid='g'+Math.random().toString(36).slice(2,7)
+  const v=C.W.map((w,i)=>i<C.sa?(M[w]!=null&&M[w]>0?M[w]:(mapa?null:0)):undefined), real=v.filter(x=>x!=null), mx0=Math.max(...real,0), mn0=mapa&&real.length?Math.min(...real):0
+  const lo=mapa?Math.max(0,mn0-(mx0-mn0||mx0*.2)*.6):0, mx=Math.max(mapa?lo+1:10, mx0+(mx0-lo)*.15), ix=real.length?v.indexOf(mx0):-1
+  const X=i=>P+i*(W-2*P)/Math.max(1,n-1), Y=t=>base-((t-lo)/(mx-lo))*(base-top)
   const pts=v.map((t,i)=>t==null?null:[X(i),Y(t)]).filter(Boolean)
   const path=pts.length>1?'M'+pts.map(q=>q[0].toFixed(1)+' '+q[1].toFixed(1)).join(' L'):'', area=pts.length>1?path+' L'+pts[pts.length-1][0].toFixed(1)+' '+base+' L'+pts[0][0].toFixed(1)+' '+base+' Z':''
-  const step=mx>120?50:mx>60?20:10, gl=[]; for(let g=step; g<mx; g+=step) gl.push(g)
-  const hoyI=AVXC?-1:C.sa-1
-  return '<svg class="avx__ch" viewBox="0 0 '+W+' '+H+'" role="img" aria-label="Toneladas por semana del ciclo '+C.c+'"><defs><linearGradient id="avxG" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#0B0B0C" stop-opacity=".45"/><stop offset="1" stop-color="#0B0B0C" stop-opacity="0"/></linearGradient></defs>'+
-    gl.map(g=>{ const y=Y(g).toFixed(1); return '<line x1="0" x2="'+W+'" y1="'+y+'" y2="'+y+'" class="gl"/><text x="'+W+'" y="'+(y-4)+'" text-anchor="end" class="tx">'+g+' T</text>' }).join('')+
+  const rg=mx-lo, step=rg>120?50:rg>60?20:rg>25?10:rg>10?5:rg>4?2:1, gl=[]; for(let g=Math.ceil((lo+.001)/step)*step; g<mx; g+=step) gl.push(g)
+  const hoyI=(ciclo==null?AVXC:ciclo)?-1:C.sa-1, fmt=x=>(Math.round(x*10)/10).toLocaleString('es-CL')
+  return '<svg class="avx__ch" viewBox="0 0 '+W+' '+H+'" role="img" aria-label="'+(mapa?'Peso máximo':'Toneladas')+' por semana del ciclo '+C.c+'"><defs><linearGradient id="'+gid+'" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#0B0B0C" stop-opacity=".45"/><stop offset="1" stop-color="#0B0B0C" stop-opacity="0"/></linearGradient></defs>'+
+    gl.map(g=>{ const y=Y(g).toFixed(1); return '<line x1="0" x2="'+W+'" y1="'+y+'" y2="'+y+'" class="gl"/><text x="'+W+'" y="'+(y-4)+'" text-anchor="end" class="tx">'+fmt(g)+' '+U+'</text>' }).join('')+
     (hoyI>=0?'<line class="hoy" x1="'+X(hoyI).toFixed(1)+'" x2="'+X(hoyI).toFixed(1)+'" y1="'+top+'" y2="'+base+'"/>':'')+
-    (area?'<path class="ar" d="'+area+'" fill="url(#avxG)"/><path class="ln" d="'+path+'" pathLength="1"/>':'')+
-    v.map((t,i)=>t==null?'<circle class="fu" cx="'+X(i).toFixed(1)+'" cy="'+base+'" r="2.6"/>':'<circle class="dt" style="--i:'+i+'" cx="'+X(i).toFixed(1)+'" cy="'+Y(t).toFixed(1)+'" r="'+(i===ix?4.5:2.8)+'"/>').join('')+
-    (ix>=0&&v[ix]>0?'<g class="pk" transform="translate('+Math.min(W-40,Math.max(40,X(ix))).toFixed(1)+','+(Y(v[ix])-12).toFixed(1)+')"><rect x="-38" y="-16" width="76" height="16" rx="3"/><text y="-5" text-anchor="middle">PEAK '+avxK(v[ix])+' T</text></g>':'')+
+    (area?'<path class="ar" d="'+area+'" fill="url(#'+gid+')"/><path class="ln" d="'+path+'" pathLength="1"/>':'')+
+    v.map((t,i)=>t===undefined?'<circle class="fu" cx="'+X(i).toFixed(1)+'" cy="'+base+'" r="2.6"/>':t==null?'<circle class="fu" cx="'+X(i).toFixed(1)+'" cy="'+base+'" r="1.6"/>':'<circle class="dt" style="--i:'+i+'" cx="'+X(i).toFixed(1)+'" cy="'+Y(t).toFixed(1)+'" r="'+(i===ix?4.5:2.8)+'"/>'+(mapa?'<text class="vl" x="'+X(i).toFixed(1)+'" y="'+(Y(t)-9).toFixed(1)+'" text-anchor="middle">'+fmt(t)+'</text>':'')).join('')+
+    (!mapa&&ix>=0&&v[ix]>0?'<g class="pk" transform="translate('+Math.min(W-40,Math.max(40,X(ix))).toFixed(1)+','+(Y(v[ix])-12).toFixed(1)+')"><rect x="-38" y="-16" width="76" height="16" rx="3"/><text y="-5" text-anchor="middle">PEAK '+avxK(v[ix])+' '+U+'</text></g>':'')+
+    (mapa&&!real.length?'<text x="'+(W/2)+'" y="'+((top+base)/2)+'" text-anchor="middle" class="tx">SIN REGISTROS EN ESTE CICLO</text>':'')+
     C.W.map((w,i)=>'<text x="'+X(i).toFixed(1)+'" y="'+(H-17)+'" text-anchor="middle" class="sm'+(i===hoyI?' on':'')+(i>=C.sa?' off':'')+'">SEM '+(i+1)+'</text><text x="'+X(i).toFixed(1)+'" y="'+(H-5)+'" text-anchor="middle" class="tx'+(i>=C.sa?' off':'')+'">'+w.slice(8,10)+'.'+w.slice(5,7)+'</text>').join('')+'</svg>' }
+// desplegable de un ejercicio: su peso máximo semana a semana en el ciclo (con cambio al ciclo anterior)
+function avxPgAbrir(btn, id){ const det=btn.nextElementSibling; if(!det||!AVX.d) return
+  const ab=btn.getAttribute('aria-expanded')==='true'; btn.setAttribute('aria-expanded',String(!ab)); if(ab){ det.hidden=true; return }
+  const e=AVX.d.prog.find(x=>String(x.id)===String(id)); if(!e) return
+  // por defecto el ciclo donde el ejercicio tiene datos (actual si hay, si no el anterior)
+  const tiene=c=>avxCiclo(c).W.some((w,i)=>i<avxCiclo(c).sa && e.sem[w]); let c=tiene(0)?0:(tiene(1)?1:0)
+  const pinta=()=>{ const a=avxCiclo(0), b=avxCiclo(1)
+    det.innerHTML='<div class="avx__cis"><button type="button" aria-pressed="'+(c===0)+'" data-c="0">CICLO '+a.c+'</button>'+(b.c>=1?'<button type="button" aria-pressed="'+(c===1)+'" data-c="1">CICLO '+b.c+'</button>':'')+'<span>KG MÁX. / SEMANA</span></div><div class="avx__chw avx__chw--ej">'+avxChart(AVX.d, e.sem, 'KG', c)+'</div>'
+    det.querySelectorAll('[data-c]').forEach(x=>x.onclick=()=>{ c=+x.dataset.c; pinta() })
+    det.classList.remove('on'); requestAnimationFrame(()=>requestAnimationFrame(()=>det.classList.add('on'))) }
+  det.hidden=false; pinta() }
 function avxCicloCambiar(){ AVXC=AVXC?0:1; const w=document.querySelector('.avx__chw'); if(!w||!AVX.d) return; w.innerHTML=avxChart(AVX.d); const t=document.getElementById('avxCiT'); if(t) t.innerHTML=avxCicloTxt()
   const a=w.closest('.avx'); if(a){ a.classList.remove('on'); requestAnimationFrame(()=>requestAnimationFrame(()=>a.classList.add('on'))) } }
 function avxCicloTxt(){ const a=avxCiclo(0), b=avxCiclo(1); return '<button type="button" aria-pressed="'+(AVXC===0)+'" onclick="AVXC!==0&&avxCicloCambiar()">CICLO '+a.c+' · ACTUAL</button>'+(b.c>=1?'<button type="button" aria-pressed="'+(AVXC===1)+'" onclick="AVXC!==1&&avxCicloCambiar()">CICLO '+b.c+'</button>':'')+'<span>'+a.N+' SEMANAS</span>' }
@@ -9438,7 +9469,7 @@ function avXPintar(quieto){
   const vacio=!d.top.length
   const fo=e=>{ const u=exFotoUrl({id:e.id}); return u?'<img src="'+u+'" alt="" loading="lazy" decoding="async" onerror="this.remove()">':'<i class="avx__ini">'+plEscA(String(e.nom||'K').charAt(0))+'</i>' }
   const prs=d.top.map((e,i)=>'<button type="button" class="avx__pr" style="--i:'+i+'" onclick="avxPr(this,\''+e.id+'\')" aria-expanded="false"><span class="avx__ph">'+fo(e)+'</span><span class="avx__pb"><em>'+String(i+1).padStart(2,'0')+' · '+plEscA(e.nom.toUpperCase())+'</em><b>'+String(e.best.peso).replace('.',',')+'<small>KG</small>'+(e.best.reps?' <i>× '+e.best.reps+'</i>':'')+'</b><span class="avx__sp">'+avxSpark(e.serie)+'<span>'+e.n+(e.n===1?' SESIÓN':' SESIONES')+'</span></span></span><span class="avx__go">›</span></button><div class="avx__prd" hidden></div>').join('')
-  const prog=d.prog.map((e,i)=>'<div class="avx__pg" style="--i:'+i+'"><span class="avx__pgf">'+fo(e)+'</span><div><div class="avx__pgh"><span>'+plEscA(e.nom.toUpperCase())+'</span><b>+'+String(e.subida).replace('.',',')+' KG</b></div><div class="avx__pgb"><i class="a" style="--w:'+(e.p0/e.best.peso*100).toFixed(1)+'%"></i><i class="d" style="--w:'+((e.best.peso-e.p0)/e.best.peso*100).toFixed(1)+'%"></i></div><div class="avx__pgs"><span>'+String(e.p0).replace('.',',')+' KG · PRIMERA</span><span>'+String(e.best.peso).replace('.',',')+' KG · HOY</span></div></div></div>').join('')
+  const prog=d.prog.map((e,i)=>{ const pc=e.p0>0?Math.round(e.subida/e.p0*100):0; return '<button type="button" class="avx__pg" style="--i:'+i+'" onclick="avxPgAbrir(this,\''+e.id+'\')" aria-expanded="false"><span class="avx__pgf">'+fo(e)+'</span><div><div class="avx__pgh"><span>'+plEscA(e.nom.toUpperCase())+'</span><b>+'+String(e.subida).replace('.',',')+' KG</b></div><div class="avx__pgb"><i class="a" style="--w:'+(e.p0/e.best.peso*100).toFixed(1)+'%"></i><i class="d" style="--w:'+((e.best.peso-e.p0)/e.best.peso*100).toFixed(1)+'%"></i></div><div class="avx__pgs"><span>'+String(e.p0).replace('.',',')+' → '+String(e.best.peso).replace('.',',')+' KG</span><em>+'+pc.toLocaleString('es-CL')+'% MEJORA ›</em></div></div></button><div class="avx__pgd" hidden></div>' }).join('')
   const grid=d.W.map((w,i)=>{ const n=Math.min(4,d.sesW[w]||0); return '<div class="avx__wk"><span>'+w.slice(8,10)+'.'+w.slice(5,7)+'</span>'+[0,1,2,3].map(j=>'<i class="'+(j<n?'on':'')+'" style="--i:'+(i*4+j)+'"></i>').join('')+'</div>' }).join('')
   const gmax=d.grupos.length?d.grupos[0][1]:1
   const grs=d.grupos.map(([g,t],i)=>'<div class="avx__gr" style="--i:'+i+'"><span>'+plEscA(g)+'</span><div><i style="--w:'+(t/gmax*100).toFixed(1)+'%"></i></div><b>'+avxK(t)+' T</b></div>').join('')
