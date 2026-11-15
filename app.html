@@ -3916,25 +3916,62 @@ html:not(:has(#oAct.vis)) #sBloques.locked{filter:none;opacity:1;pointer-events:
   background:rgba(255,255,255,.55);-webkit-backdrop-filter:blur(18px) saturate(1.2);backdrop-filter:blur(18px) saturate(1.2);border:1px solid rgba(255,255,255,.55);box-shadow:0 10px 30px rgba(0,0,0,.07)}
 .nuHm__hd{display:flex;justify-content:space-between;align-items:baseline;gap:12px;font:700 10px/1 var(--font-mono);letter-spacing:.18em;color:#5E6066;text-transform:uppercase}
 .nuHm__hd b{font:800 13px/1 var(--font-display);color:#111;letter-spacing:0}
-.nuHm__big{display:flex;align-items:baseline;gap:8px;margin-top:12px;font-family:var(--font-display)}
-.nuHm__big b{font-weight:900;font-stretch:112%;font-size:clamp(38px,11vw,46px);line-height:.9;letter-spacing:-.03em;font-variant-numeric:tabular-nums}
-.nuHm__big span{font:700 11px/1.25 var(--font-mono);letter-spacing:.14em;color:#3F3F3C}
-.nuHm__bar{position:relative;height:8px;margin-top:14px;border-radius:99px;background:rgba(17,17,17,.1);overflow:hidden}
-.nuHm__bar s{position:absolute;left:0;top:0;bottom:0;border-radius:99px;background:linear-gradient(90deg,#5E6166,#111);transform-origin:left;animation:nuHmFill 1s cubic-bezier(.3,.8,.3,1) both}
-.nuHm__bar.is-over s{background:linear-gradient(90deg,#3A3B3E,#000)}
-@keyframes nuHmFill{from{transform:scaleX(0)}}
-.nuHm__esc{display:flex;justify-content:space-between;margin-top:7px;font:500 9px/1 var(--font-mono);letter-spacing:.14em;color:#6A6B70}
+.nuHm__big{display:flex;align-items:flex-end;justify-content:space-between;gap:12px;margin-top:14px}
+.nuHm__num{display:flex;align-items:baseline;gap:8px;min-width:0}
+.nuHm__num b{font:700 clamp(46px,14vw,60px)/.85 'Space Mono',var(--font-mono);letter-spacing:-.06em;font-variant-numeric:tabular-nums;color:#0B0B0C}
+.nuHm__num span{font:700 11px/1 'Space Mono',var(--font-mono);letter-spacing:.2em;color:#3F3F3C}
+.nuHm__meta{display:flex;flex-direction:column;align-items:flex-end;gap:5px;font:400 9px/1 'Space Mono',var(--font-mono);letter-spacing:.18em;color:#5E6066;text-transform:uppercase;white-space:nowrap}
+.nuHm__meta b{font:700 15px/1 'Space Mono',var(--font-mono);letter-spacing:-.02em;color:#111}
+.nuHm__bar{position:relative;height:14px;margin-top:16px;background:repeating-linear-gradient(90deg,rgba(17,17,17,.13) 0 4px,transparent 4px 7px)}
+.nuHm__bar s{position:absolute;left:0;top:0;bottom:0;width:var(--w,0%);background:repeating-linear-gradient(90deg,#111 0 4px,transparent 4px 7px);transition:width 1.4s cubic-bezier(.5,0,.15,1)}
+.nuHm__bar s::after{content:"";position:absolute;right:-3px;top:-4px;bottom:-4px;width:2px;background:#111;box-shadow:0 0 8px rgba(17,17,17,.45);animation:nuHmBlink 1s steps(2) infinite}
+.nuHm__bar.is-over s{background:repeating-linear-gradient(90deg,#000 0 4px,transparent 4px 7px)}
+@keyframes nuHmBlink{50%{opacity:.15}}
+.nuHm__esc{display:flex;justify-content:space-between;margin-top:8px;font:400 9px/1 'Space Mono',var(--font-mono);letter-spacing:.16em;color:#6A6B70}
+.nuHm.is-cg .nuHm__num b{color:rgba(17,17,17,.28)}
 .nuHm__ft{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:16px}
 .nuHm__scan{display:inline-flex;align-items:center;gap:10px;min-height:46px;padding:0 20px 0 16px;border-radius:999px;border:1.5px solid #111;background:#111;color:#F4F3F0;
   font:700 11px var(--font-mono);letter-spacing:.22em;cursor:pointer;box-shadow:0 8px 22px rgba(0,0,0,.18)}
 .nuHm__scan svg{width:22px;height:22px;flex:0 0 auto}
 .nuHm__scan .sl{animation:nuHmScan 2.2s ease-in-out infinite}
 @keyframes nuHmScan{0%,100%{transform:translateY(-4px);opacity:.35}50%{transform:translateY(4px);opacity:1}}
-.nuHm__sig{font:500 9.5px/1.45 var(--font-mono);letter-spacing:.12em;color:#3F3F3C;text-align:right;text-transform:uppercase}
+.nuHm__sig{font:400 9.5px/1.45 'Space Mono',var(--font-mono);letter-spacing:.12em;color:#3F3F3C;text-align:right;text-transform:uppercase}
 .nuHm__sig b{display:block;color:#111;font-weight:700}
 .nuHm__lk{background:none;border:0;padding:2px 0;font:700 10px var(--font-mono);letter-spacing:.16em;color:#111;cursor:pointer;text-decoration:underline;text-underline-offset:4px}
 .nuHm__p{margin:10px 0 0;font:400 14px/1.4 var(--font-display);color:#3F3F3C}
-@media (prefers-reduced-motion:reduce){ .nuHm__bar s,.nuHm__scan .sl{animation:none} }
+@media (prefers-reduced-motion:reduce){ .nuHm__bar s::after,.nuHm__scan .sl{animation:none} .nuHm__bar s{transition:none} }
+/* c247 · línea de sincronización del día (encabezado) */
+.k2h__sync{display:flex;align-items:center;gap:8px;margin-top:10px;max-width:calc(100% - 70px);font:400 9.5px/1.3 'Space Mono',var(--font-mono);letter-spacing:.14em;color:rgba(244,243,240,.72);text-transform:uppercase}
+.k2h__sync i{flex:0 0 auto;width:6px;height:6px;border-radius:50%;background:#F4F3F0;box-shadow:0 0 0 3px rgba(244,243,240,.15);animation:nuHmBlink 1.2s steps(2) infinite}
+.k2h__sync span{min-width:0}
+.k2h__sync b{font-weight:700;color:#F4F3F0}
+.k2h__sync.ok i{animation:none}
+@media (max-width:380px){ .k2h__sync{max-width:100%} }
+/* c247 · INTRO DEL HOME: pantalla en cero → carga de datos → tu día (una vez por apertura) */
+.k2-intro .k2h__date{animation:kiType .7s steps(28) .05s both}
+.k2-intro .k2h__t{animation:kiRise .7s cubic-bezier(.2,.7,.2,1) .2s both}
+.k2-intro .k2h__sync{animation:kiFade .3s .35s both}
+.k2-intro .hh{animation:kiCard .7s cubic-bezier(.2,.7,.2,1) .55s both}
+.k2-intro .hh .hh__k{animation:kiType .6s steps(22) .85s both}
+.k2-intro .hh .hh__n{animation:kiFade .3s 1s both}
+.k2-intro .hh .hh__t{animation:kiWipe .8s cubic-bezier(.6,0,.2,1) .95s both}
+.k2-intro .hh .kh__pill{animation:kiPop .4s cubic-bezier(.2,.9,.3,1.3) both}
+.k2-intro .hh .kh__pill:nth-child(1){animation-delay:1.35s}.k2-intro .hh .kh__pill:nth-child(2){animation-delay:1.45s}.k2-intro .hh .kh__pill:nth-child(3){animation-delay:1.55s}.k2-intro .hh .kh__pill:nth-child(n+4){animation-delay:1.65s}
+.k2-intro .hh .hh__code,.k2-intro .hh .hh__f{animation:kiType .6s steps(26) 1.6s both}
+.k2-intro .hh .hh__ft{animation:kiRise .5s cubic-bezier(.2,.7,.2,1) 1.8s both}
+.k2-intro .nuHm{animation:kiCard .7s cubic-bezier(.2,.7,.2,1) 1.15s both}
+.k2-intro .nuHm__hd{animation:kiType .6s steps(30) 1.45s both}
+.k2-intro .nuHm__ft{animation:kiRise .5s cubic-bezier(.2,.7,.2,1) 2.3s both}
+.k2-intro .nuHm__scan{animation:kiRise .5s cubic-bezier(.2,.7,.2,1) 2.3s both,kiPulse 1s ease-out 2.9s 1}
+.k2-intro .k2-sec,.k2-intro .k2-wk,.k2-intro .k2-ins{animation:kiRise .7s cubic-bezier(.2,.7,.2,1) 2.4s both}
+@keyframes kiType{from{clip-path:inset(0 100% 0 0)}to{clip-path:inset(0 0 0 0)}}
+@keyframes kiWipe{from{clip-path:inset(0 100% 0 0);filter:blur(6px)}to{clip-path:inset(0 0 0 0);filter:none}}
+@keyframes kiRise{from{opacity:0;transform:translateY(14px);filter:blur(4px)}to{opacity:1;transform:none;filter:none}}
+@keyframes kiFade{from{opacity:0}to{opacity:1}}
+@keyframes kiCard{from{opacity:0;transform:translateY(22px) scale(.97)}to{opacity:1;transform:none}}
+@keyframes kiPop{from{opacity:0;transform:scale(.7)}to{opacity:1;transform:none}}
+@keyframes kiPulse{0%{box-shadow:0 8px 22px rgba(0,0,0,.18),0 0 0 0 rgba(17,17,17,.45)}100%{box-shadow:0 8px 22px rgba(0,0,0,.18),0 0 0 16px rgba(17,17,17,0)}}
+@media (prefers-reduced-motion:reduce){ .k2-intro *{animation:none!important} }
 @media (max-width:350px){ .nuHm{padding:16px 18px} .nuHm__scan{padding:0 16px 0 12px;letter-spacing:.16em} }
 </style>
 </head>
@@ -4620,6 +4657,7 @@ function k2HeaderHero(n, ctx){
     '<div class="k2h__top"><span class="k2h__brand"><img class="kLogo kLogo--hdr" src="/img/brand/logotipo-koach.png" alt="KOACH Fitness Club"></span><span class="k2h__av k2h__av--x" aria-hidden="true"></span></div>'+
     '<span class="k2h__date">'+k2FechaHoy()+'</span>'+
     '<h1 class="k2h__t">Hola, '+(n||'')+'.</h1>'+
+    '<div class="k2h__sync'+(K2_SYNC.ok?' ok':'')+'" id="k2Sync"><i></i><span>'+K2_SYNC.t+'</span></div>'+
     '<div class="k2h__row"><p class="k2h__p">'+frase+'</p><div class="k2h__tag" aria-hidden="true"><i></i>EL CLUB<br>DEL 1%</div></div>'+
   '</header>'
 }
@@ -4641,6 +4679,8 @@ function k2Metric(v, l){ return '<div class="k2-metric"><b>'+v+'</b><span>'+l+'<
 function pintarHomeV2(){
   if (!K2.on) return
   const box=document.getElementById('k2Home'); if(!box) return
+  // c247 · durante la intro no se re-pinta (reiniciaría la animación): se aplaza al final
+  if (box.classList.contains('k2-intro')){ clearTimeout(box._kr); box._kr=setTimeout(pintarHomeV2, Math.max(50, _k2IntroAt+3650-Date.now())); return }
   const e=estadoSemana(), sem=e.sem, m=mensajeHome(), n=msgNombre()
   const cta=document.getElementById('hCta')
   const ctaT=document.getElementById('hCtaT').textContent, ctaS=document.getElementById('hCtaS').textContent
@@ -4698,6 +4738,7 @@ function pintarHomeV2(){
   requestAnimationFrame(()=>requestAnimationFrame(()=>box.classList.add('k2-in')))
   kwAnimar(box.querySelector('.kw--anim'))
   cargaSemanalPintar()
+  k2Intro(box, { ses, sesEC, e })
   nuHomeCargar()
 }
 // c246 · HOME · TU NUTRICIÓN DEL DÍA: ingesta registrada vs meta diaria de la pauta + SCAN directo al escáner (sin pasar por la pestaña)
@@ -4711,11 +4752,52 @@ async function nuHomeCargar(forzar){
       NU.bloqueado=!!(data&&data.bloqueado); NU.pauta=(data&&data.vigente)||null; NU.ok=true }
     await loadRegistroComidas(); _nuHomeAt=Date.now()
     if (NU.pauta && NU.pauta.estado==='publicada') nuEscInit()
-  }catch(e){ console.warn('nutricion home', e&&e.message) }
+  }catch(e){ console.warn('nutricion home', e&&e.message); if (!NU.ok) NU._hmErr=true }
   finally{ _nuHomeVa=false }
   nuHomePintar()
 }
-function nuHomePintar(){ const el=document.getElementById('nuHm'); if (el) el.outerHTML=nuHomeHTML() }
+// c247 · INTRO: una vez por apertura (o al volver tras 10 min): el home parte en cero y se carga tu día
+const K2_SYNC={ t:'SINCRONIZANDO TU DÍA', ok:false }
+let _k2IntroAt=0, _k2Ctx=null
+function k2Intro(box, ctx){
+  _k2Ctx=ctx
+  const red=matchMedia('(prefers-reduced-motion: reduce)').matches
+  if (red || Date.now()-_k2IntroAt<600000 || !document.getElementById('vHome').classList.contains('on')){ k2SyncFin(true); nuHomeNum(true); return }
+  _k2IntroAt=Date.now(); K2_SYNC.ok=false
+  box.classList.add('k2-intro'); clearTimeout(box._ki); box._ki=setTimeout(()=>box.classList.remove('k2-intro'), 3600)
+  const t0=performance.now(), D=1900
+  const paso=()=>{ const el=document.getElementById('k2Sync'); const f=Math.min(1,(performance.now()-t0)/D)
+    if (el && !K2_SYNC.ok){ const sp=el.querySelector('span'); if (sp) sp.innerHTML='CARGANDO TU DÍA · <b>'+String(Math.round(f*100)).padStart(2,'0')+'%</b>' }
+    if (f<1) requestAnimationFrame(paso); else k2SyncFin() }
+  requestAnimationFrame(paso)
+  _nuHmK=null; const bs=document.querySelector('#nuHm .nuHm__bar s'); if (bs) bs.style.setProperty('--w','0%')
+  nuHomeNum(false, 1500)
+}
+// resumen final: de qué te preocupas hoy (solo datos reales)
+function k2SyncTxt(){ const c=_k2Ctx||{}, e=c.e||{}, t=[]
+  if (S.memBloqueo) t.push('MEMBRESÍA NO VIGENTE')
+  else if (c.sesEC) t.push(plEscA(c.sesEC.nombre)+' EN CURSO')
+  else if (e.entrenoHoy) t.push('ENTRENAMIENTO LISTO ✓')
+  else if (c.ses && !e.completa) t.push('ENTRENAR '+plEscA(c.ses.nombre))
+  if (NU.ok && NU.pauta && NU.pauta.estado==='publicada'){ try{ const D=nuDia(), f=D.n-(D.c.hoy.registradas||0); t.push(f>0?'REGISTRAR '+f+(f===1?' COMIDA':' COMIDAS'):'NUTRICIÓN COMPLETA ✓') }catch(_){} }
+  return t.length ? 'HOY: '+t.join(' · ') : 'TU DÍA ESTÁ LISTO' }
+function k2SyncFin(){ K2_SYNC.ok=true; K2_SYNC.t=k2SyncTxt(); const el=document.getElementById('k2Sync'); if(!el) return; el.classList.add('ok'); const sp=el.querySelector('span'); if(sp) sp.innerHTML=K2_SYNC.t }
+// número de kcal: decodifica (dígitos aleatorios) y cuenta hasta el valor; la barra segmentada se llena
+let _nuHmK=null
+function nuHomeNum(sinAnim, delay){
+  const c=document.getElementById('nuHm'); if(!c) return; const b=c.querySelector('.nuHm__num b'), bar=c.querySelector('.nuHm__bar s'); if(!b) return
+  const v=+b.dataset.v||0, w=bar?bar.dataset.w:'0%', f0=n=>Math.round(n).toLocaleString('es-CL')
+  if (sinAnim || _nuHmK===v){ b.textContent=f0(v); if(bar) bar.style.setProperty('--w',w); _nuHmK=v; return }
+  _nuHmK=v; c.classList.remove('is-cg')
+  setTimeout(()=>{ const t0=performance.now(), D=1300, L=f0(v).length
+    if(bar) bar.style.setProperty('--w',w)
+    const tick=()=>{ const f=Math.min(1,(performance.now()-t0)/D)
+      if (f<.35) b.textContent=Array.from(f0(v),ch=>/\d/.test(ch)?Math.floor(Math.random()*10):ch).join('')
+      else { const e=1-Math.pow(1-(f-.35)/.65,3); b.textContent=f0(v*e) }
+      if (f<1) requestAnimationFrame(tick); else b.textContent=f0(v) }
+    requestAnimationFrame(tick) }, delay||0)
+}
+function nuHomePintar(){ const el=document.getElementById('nuHm'); if (!el) return; el.outerHTML=nuHomeHTML(); nuHomeNum(false, Math.max(0,_k2IntroAt+1500-Date.now())); if (K2_SYNC.ok) k2SyncFin() }
 // próxima comida pendiente: la última cuya hora ya pasó (o pasa en 45 min); si ninguna, la primera pendiente
 function nuProxComida(){
   const com=nuComidas(), ahora=new Date(new Date().toLocaleString('en-US',{ timeZone:'America/Santiago' })), mn=ahora.getHours()*60+ahora.getMinutes()
@@ -4732,7 +4814,8 @@ function nuScanHome(){
 const NU_SCAN_ICO='<svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M4 8V5.5A1.5 1.5 0 0 1 5.5 4H8M16 4h2.5A1.5 1.5 0 0 1 20 5.5V8M20 16v2.5a1.5 1.5 0 0 1-1.5 1.5H16M8 20H5.5A1.5 1.5 0 0 1 4 18.5V16"/><path class="sl" d="M6.5 12h11"/></svg>'
 function nuHomeHTML(){
   const ab='<section class="nuHm" id="nuHm" aria-label="Tu nutrición del día"'
-  if (!NU.ok || NU.bloqueado) return ab+' hidden></section>'
+  if (NU.bloqueado || NU._hmErr) return ab+' hidden></section>'
+  if (!NU.ok) return ab+'><div class="nuHm__hd"><span>TU NUTRICIÓN DEL DÍA</span><span>— COMIDAS</span></div><div class="nuHm__big"><div class="nuHm__num"><b data-v="0">0</b><span>KCAL</span></div><div class="nuHm__meta">CARGANDO<b>—</b></div></div><div class="nuHm__bar"><s data-w="0%"></s></div><div class="nuHm__esc"><span>0</span><span>— KCAL</span></div></section>'
   const pa=NU.pauta, n0=v=>Math.round(+v||0).toLocaleString('es-CL')
   if (!pa || pa.estado!=='publicada')
     return ab+'><div class="nuHm__hd"><span>TU NUTRICIÓN DEL DÍA</span></div><p class="nuHm__p">Tu plan de nutrición KOACH aún no está activo. Cuando tu nutricionista lo publique, aquí verás tus calorías del día y podrás escanear tus comidas.</p>'+
@@ -4741,8 +4824,8 @@ function nuHomeHTML(){
   const pm=prox?D.com[prox-1]:null
   const sig = reg>=n ? '<b>DÍA COMPLETO</b>TODAS REGISTRADAS' : prox ? '<b>COMIDA '+prox+(pm&&pm.hora?' · '+plEscA(pm.hora):'')+'</b>TOCA REGISTRAR' : ''
   return ab+'><div class="nuHm__hd"><span>TU NUTRICIÓN DEL DÍA</span><span><b>'+reg+'</b> / '+n+' COMIDAS</span></div>'+
-    '<div class="nuHm__big"><b>'+n0(k)+'</b><span>/ '+n0(meta)+' KCAL<br>'+(meta?Math.round(pc)+'% DE TU META':'')+'</span></div>'+
-    '<div class="nuHm__bar'+(pc>100?' is-over':'')+'" role="img" aria-label="'+n0(k)+' de '+n0(meta)+' kilocalorías registradas hoy"><s style="width:'+Math.min(100,pc).toFixed(1)+'%"></s></div>'+
+    '<div class="nuHm__big"><div class="nuHm__num"><b data-v="'+Math.round(k)+'">'+(_nuHmK===Math.round(k)?n0(k):'0')+'</b><span>KCAL</span></div><div class="nuHm__meta">META<b>'+n0(meta)+'</b>'+(meta?Math.round(pc)+'% LOGRADO':'')+'</div></div>'+
+    '<div class="nuHm__bar'+(pc>100?' is-over':'')+'" role="img" aria-label="'+n0(k)+' de '+n0(meta)+' kilocalorías registradas hoy"><s data-w="'+Math.min(100,pc).toFixed(1)+'%"'+(_nuHmK===Math.round(k)?' style="--w:'+Math.min(100,pc).toFixed(1)+'%"':'')+'></s></div>'+
     '<div class="nuHm__esc"><span>0</span><span>'+n0(meta)+' KCAL</span></div>'+
     '<div class="nuHm__ft"><button type="button" class="nuHm__scan" onclick="nuScanHome()" aria-label="Escanear una comida">'+NU_SCAN_ICO+'<span>SCAN</span></button>'+
     '<div class="nuHm__sig">'+sig+'</div></div></section>'
