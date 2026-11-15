@@ -233,7 +233,7 @@ const CSS = `
 .keu__pad--r{padding-top:16px}
 .keu__wt--r{margin-bottom:14px}
 .keu__wt--r:not(.keu__wt--a),.keu__wt--r:not(.keu__wt--a) .keu__wb s,.keu__wt--r:not(.keu__wt--a) .keu__wm em s{animation:none}
-.keu__wph{margin-top:14px}.keu__wph .keu__ph{margin:0;border-radius:14px}
+.keu__wph{margin-top:14px}.keu__wph .keu__ph{margin:0;border-radius:14px;background:transparent}   /* c250 · bordes sobrantes de la foto en el tono del ticket, sin franjas negras */
 .keu__wm em s.ov{background:#D7392B}
 .keu__wv{margin-top:16px;padding:12px 14px;border-radius:14px;background:#121212;color:#F4F3F0}
 .keu__wv b{display:block;font:700 15px/1.25 var(--k-d)}.keu__wv p{margin:4px 0 0;font:400 13.5px/1.45 var(--k-d);color:#C9C8C3}
