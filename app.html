@@ -1580,6 +1580,7 @@ html .kw.kw--hero .kw-cl{font-size:7px;letter-spacing:.16em}
 <script src="/domain/koach-escaner-ui.js"></script>
 <script src="/domain/koach-escaner-share.js"></script>
 <script src="/domain/koach-compras.js"></script>
+<script src="/domain/koach-sfx.js"></script>
 <script src="/domain/koach-avatar.js"></script>
 <script src="/domain/koach-timer.js?v=6"></script>
 <style>
@@ -3548,6 +3549,11 @@ html:has(#vSesion.on[data-bg]),body:has(#vSesion.on[data-bg]){background:var(--s
 @keyframes ld3dBrillo{0%{background-position:120% 0}55%,100%{background-position:-60% 0}}
 @keyframes ld3dPiso{0%,100%{transform:scaleX(.82);opacity:.7}50%{transform:scaleX(1.05);opacity:1}}
 @media (prefers-reduced-motion:reduce){.ld3d__obj,.ld3d__sheen,.ld3d__floor{animation:none}}
+/* c240 · encendido del logo: video original 9:16 a pantalla completa. Negro puro #000 igual al del video: no se ve el recorte.
+   Ancho = pantalla (márgenes ideales ya dentro del video); en tablet/escritorio se limita para no agigantarse. */
+#oLoad,#oAuth{background:#000!important;overflow:hidden}
+.klv{position:absolute;left:50%;top:50%;width:min(100vw,62vh,560px);height:auto;aspect-ratio:9/16;transform:translate(-50%,-50%);background:#000;object-fit:contain;pointer-events:none;border:0;outline:0}
+#oAuth>:not(.klv){position:relative;z-index:1}
 /* c125 · campo de peso faltante: se marca y tiembla */
 #oBloque .kset__r.falta{box-shadow:0 0 0 2px var(--ink),inset 0 0 0 1px var(--ink);animation:ksFalta .45s cubic-bezier(.36,.07,.19,.97) 2}
 @keyframes ksFalta{10%,90%{transform:translateX(-1px)}20%,80%{transform:translateX(2px)}30%,50%,70%{transform:translateX(-4px)}40%,60%{transform:translateX(4px)}}
@@ -3889,7 +3895,7 @@ html:not(:has(#oAct.vis)) #sBloques.locked{filter:none;opacity:1;pointer-events:
 </head>
 <body>
 <div id="oAuth" role="status" aria-live="polite" style="position:fixed;inset:0;z-index:9999;background:#000;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:22px;padding:env(safe-area-inset-top,0) 24px env(safe-area-inset-bottom,0);font-family:system-ui,-apple-system,sans-serif;color:#fff;text-align:center">
-  <div class="ld3d" aria-hidden="true"><div class="ld3d__obj"><img class="ld3d__logo" src="/img/brand/logotipo-koach.png" alt=""><span class="ld3d__sheen"></span></div><span class="ld3d__floor"></span></div>
+  <video class="klv" src="/img/brand/koach-encendido-916.mp4" muted playsinline autoplay preload="auto" disablepictureinpicture aria-hidden="true"></video>
   <div id="oAuthT" class="kLbl ldSr">PREPARANDO TU CLUB…</div>
   <div id="oAuthS" style="display:none;font-size:15px;line-height:1.45;opacity:.85;max-width:300px">Tu sesión sigue guardada en este teléfono. Revisa tu conexión.</div>
   <button id="oAuthB" type="button" onclick="arrancarAuth()" style="display:none;min-height:48px;padding:0 26px;border-radius:14px;border:1px solid rgba(255,255,255,.4);background:#fff;color:#000;font-size:13px;letter-spacing:.14em;font-weight:600">REINTENTAR</button>
@@ -4150,7 +4156,7 @@ html:not(:has(#oAct.vis)) #sBloques.locked{filter:none;opacity:1;pointer-events:
 </div>
 <div class="kbm" id="oBM" role="status" aria-live="polite"></div>
 <div class="ovl oscuro" id="oFlash"><img class="kLogo kLogo--flash" src="/img/brand/logotipo-koach.png" alt="KOACH"><div class="ftx" id="oFT"></div><div class="fsb" id="oFS"></div></div>
-<div id="oLoad" role="status" aria-live="polite"><div class="ld3d" aria-hidden="true"><div class="ld3d__obj"><img class="ld3d__logo" src="/img/brand/logotipo-koach.png" alt=""><span class="ld3d__sheen"></span></div><span class="ld3d__floor"></span></div><span class="ldSr" id="oLoadM">ENTRANDO A TU PLAN</span><span class="ldSr" id="oLoadS">Sincronizando tu semana y progreso.</span></div>
+<div id="oLoad" role="status" aria-live="polite"><video class="klv" src="/img/brand/koach-encendido-916.mp4" muted playsinline autoplay preload="auto" disablepictureinpicture aria-hidden="true"></video><span class="ldSr" id="oLoadM">ENTRANDO A TU PLAN</span><span class="ldSr" id="oLoadS">Sincronizando tu semana y progreso.</span></div>
 <div id="mFinQ" style="display:none;position:fixed;inset:0;z-index:82;background:rgba(18,18,16,.5);backdrop-filter:blur(6px)">
   <div class="kFinQ">
     <span class="kLbl kLbl--dk">CERRAR SESIÓN</span><div class="kFinQ__t">¿COMPLETASTE TODAS TUS SERIES?</div>
@@ -5227,7 +5233,8 @@ function kxPrRevisar(filas){ try{
     if (!S._prPend || sube(pr)>sube(S._prPend)) S._prPend=pr })
   if (S._prPend){ clearTimeout(S._prT); S._prT=setTimeout(()=>{ const pr=S._prPend; S._prPend=null; S._prVisto=Date.now(); if(pr) kxPR(pr) },220) }
 }catch(e){ console.error('kxPrRevisar',e) } }
-function kxPR(pr, alFin){ const ov=document.getElementById('kxDone'); if(!ov) return   // c160 · alFin: al cerrar el récord del cierre sigue al resumen
+function kxPR(pr, alFin){ const ov=document.getElementById('kxDone'); if(!ov) return
+  try{ KSFX.play('logro') }catch(_){}   // c240 · DROP: exclusivo de logros (PR, puntos, créditos)   // c160 · alFin: al cerrar el récord del cierre sigue al resumen
   // c136 · RÉCORD ÉPICO: cromo negro, rayos, el número entra de golpe (golpe + onda + temblor + flash) y queda con brillo plateado
   const f=x=>(x.peso%1?String(x.peso).replace('.',','):x.peso)+' KG'+(x.reps?' × '+x.reps:''), dif=Math.round((pr.hoy.peso-pr.antes.peso)*10)/10
   // c168 · el número grande es LA MARCA (peso × reps), no la diferencia
@@ -6318,13 +6325,16 @@ function cargando(m){ const o=document.getElementById('oLoad'); if(!o)return
     'CARGANDO TUS AVANCES…':['CARGANDO TUS AVANCES','Récords, constancia y tonelaje.']}
   const x=MSG[m]||['CARGANDO TU SEMANA','Plan, sesiones y progreso.']
   document.getElementById('oLoadM').textContent=x[0]; document.getElementById('oLoadS').textContent=x[1]
-  o.style.display=''; o.classList.remove('ldOut'); if(!o.classList.contains('vis')) window._ldT0=Date.now(); window._ldTok=(window._ldTok||0)+1; o.classList.add('vis') }
+  const nuevo=!o.classList.contains('vis'), clave=/PREPARANDO TU SESIÓN|CERRANDO TU SESIÓN|REGISTRANDO TU SESIÓN|ACTUALIZANDO TU SEMANA|PREPARANDO TU CLUB/.test(m||'')
+  window._ldMin = clave ? 1500 : 700   // c240 · momentos clave: el logo alcanza a armarse completo
+  o.style.display=''; o.classList.remove('ldOut'); if(nuevo) window._ldT0=Date.now(); window._ldTok=(window._ldTok||0)+1; o.classList.add('vis')
+  if (nuevo){ try{ KLOGO.run(clave && m!=='PREPARANDO TU SESIÓN…'); if(m==='PREPARANDO TU SESIÓN…') setTimeout(()=>{ try{ KSFX.play('logo') }catch(_){} },380) }catch(_){} } }
 /* c124 · la carga se ve como el panel: fondo negro y logotipo KOACH en 3D. No se suelta antes de ~0,7 s (sin parpadeo)
    y, en el arranque, espera la textura del inicio para no mostrar la pantalla a medio pintar. */
 function cargandoOff(){ const o=document.getElementById('oLoad'); if(!o||!o.classList.contains('vis')) return; const tok=window._ldTok
-  const min=new Promise(r=>setTimeout(r,Math.max(0,700-(Date.now()-(window._ldT0||0)))))
+  const min=new Promise(r=>setTimeout(r,Math.max(0,(window._ldMin||700)-(Date.now()-(window._ldT0||0)))))
   const hero=window._bootHero ? Promise.race([window._bootHero,new Promise(r=>setTimeout(r,1500))]) : Promise.resolve()
-  Promise.all([min,hero]).then(()=>{ if(tok!==window._ldTok) return; window._bootHero=null; o.classList.add('ldOut'); setTimeout(()=>{ if(tok===window._ldTok){ o.classList.remove('vis','ldOut') } },320) }) }
+  Promise.all([min,hero]).then(()=>{ if(tok!==window._ldTok) return; const boot=!!window._bootHero||!window._kAparecio; window._kAparecio=true; window._bootHero=null; if(boot){ try{ KSFX.play('appear',0,.8) }catch(_){} } o.classList.add('ldOut'); setTimeout(()=>{ if(tok===window._ldTok){ o.classList.remove('vis','ldOut') } },320) }) }
 try{ const im=new Image(); im.src='/img/bg/tex-metodo.webp'; window._bootHero=(im.decode?im.decode():Promise.resolve()).catch(()=>{}) }catch(_){}
 async function reanudar(){
   const reg = S.enCurso; if(!reg) return
@@ -6468,6 +6478,7 @@ async function abrirSesion(num){
   if (!capG.can_start && !capG.can_continue){
     toast((REASON_TXT[capG.reason_code]||(()=>'Esta sesión aún no está habilitada.'))(null)); return }
   { const _he=horEstado(); if (_he && _he.fuera && !capG.can_continue){ horBloquear(sesG.id); return } }   // c116 · continuar una ya iniciada sí se permite
+  try{ kAudioUnlock(); KSFX.play('start') }catch(_){}   // c240 · START: pips, luego el encendido del logo
   cargando('PREPARANDO TU SESIÓN…')
   const hoyC = fLocal(new Date())
   if (!esPrueba() && !habHoy() && S.registros.some(r=>r.fecha===hoyC && esHecha(r))){
@@ -6736,9 +6747,12 @@ function kBeep(f,dur,gain,at){ const c=KAU.ctx; if(!c||c.state!=='running'||!kSo
   try{ const t=c.currentTime+(at||0), o=c.createOscillator(), g=c.createGain(); o.type='sine'; o.frequency.value=f
     g.gain.setValueAtTime(0,t); g.gain.linearRampToValueAtTime(gain,t+.008); g.gain.exponentialRampToValueAtTime(.0001,t+dur)
     o.connect(g); g.connect(c.destination); o.start(t); o.stop(t+dur+.02) }catch(_){} }
-function kSonTick(){ kBeep(1100,.07,.16) }            // 3 · 2 · 1
+function kSonTick(s,riser){ // 3 · 2 · 1 — c240: pips de la familia KOACH que suben + tensión (sin drop: el drop es solo de logros)
+  try{ if(s>=1&&s<=3&&window.KSFX&&KSFX.play('tick'+(4-s))){ if(riser&&s===3) KSFX.play('riser',0,.55); return } }catch(_){}
+  kBeep(1100,.07,.16) }
 /* GO · pistola de salida (decisión 8-oct): ráfaga de ruido filtrado 140 ms + golpe grave 110→50 Hz */
 function kSonGo(){ const c=KAU.ctx; if(!c||c.state!=='running'||!kSonidoOn()) return
+  try{ if(window.KSFX&&KSFX.play('go')) return }catch(_){}   // c240 · GO de la familia KOACH; si no cargó, la pistola sintética
   try{ const t=c.currentTime+.01
     const n=Math.ceil(c.sampleRate*.2), buf=c.createBuffer(1,n,c.sampleRate), d=buf.getChannelData(0); for(let i=0;i<n;i++) d[i]=Math.random()*2-1
     const src=c.createBufferSource(); src.buffer=buf; const bp=c.createBiquadFilter(); bp.type='bandpass'; bp.frequency.value=1800; bp.Q.value=.7
@@ -7099,7 +7113,7 @@ async function bkCompletar(){ const b=(S._bfs||[])[BK.bi]; if(!b) return
   finally{ S._restInfo=null; BK._busy=false }
   bkOverFin()
   const sig=bkSetActual(b)
-  if (sig){ BK.set=sig; bkRestIni(b); bkPintar() } else { BK.set=n; bkRestFin(true); bkPintar(); bkFinBloque(b) }
+  if (sig){ try{ KSFX.play('set') }catch(_){} BK.set=sig; bkRestIni(b); bkPintar() } else { try{ KSFX.play('block') }catch(_){} BK.set=n; bkRestFin(true); bkPintar(); bkFinBloque(b) }
   try{ kxTrasSet(b,n,bes,!sig) }catch(e){ console.error('kxTrasSet',e) }
 }
 /* c70 · cierre del bloque: pantalla breve en gris intermedio con el bloque y los kilos; vuelve sola a la rutina (o al tocar) */
@@ -7169,7 +7183,7 @@ function bkRestTick(){ clearInterval(BK._t); BK._t=null; if(!BK.rest) return
     if (bar) bar.style.width=bkRestPct()+'%'
     if (s<=0){ if(navigator.vibrate) navigator.vibrate([80,60,80]); kSonGo(); bkRestFin(); return }
     // últimos 10 segundos: cuenta regresiva grande, sincronizada con el segundo real
-    if (s<=10){ if(cd && BK._cdS!==s){ BK._cdS=s; if(s<=3) kSonTick(); if(o) o.classList.add('cd'); cdn.innerHTML=bkSeg(String(s)); cdn.dataset.t=String(s); cd.classList.add('on'); cdn.classList.remove('pop'); void cdn.offsetWidth; cdn.classList.add('pop') } }
+    if (s<=10){ if(cd && BK._cdS!==s){ BK._cdS=s; if(s<=3) kSonTick(s,true); if(o) o.classList.add('cd'); cdn.innerHTML=bkSeg(String(s)); cdn.dataset.t=String(s); cd.classList.add('on'); cdn.classList.remove('pop'); void cdn.offsetWidth; cdn.classList.add('pop') } }
     else if (cd && cd.classList.contains('on')){ cd.classList.remove('on'); if(o) o.classList.remove('cd') } }
   paso(); BK._t=setInterval(paso, 200) }
 /* GO · el blanco vuelve con la palabra GO; después la pantalla queda en el set que corresponde */
@@ -7205,7 +7219,7 @@ function ktmToggle(beId, n){ kAudioUnlock(); kHaptic(10)
 function ktmParar(silencio){ clearInterval(KTM.t); KTM.t=null; const k=KTM.be; Object.assign(KTM,{ be:null, n:0, run:false, resta:0 }); if(k && !silencio) ktmPintar() }
 function ktmLoop(){ clearInterval(KTM.t); KTM.t=setInterval(()=>{ if(!KTM.run) return; const ms=KTM.fin-Date.now(), s=Math.ceil(ms/1000)
     if (ms<=0){ KTM.ok[KTM.be+'#'+KTM.n]=true; ktmGuardar(KTM.be,KTM.n,KTM.dur/1000); kBeep(880,.5,.22); try{ navigator.vibrate&&navigator.vibrate([90,60,90,60,220]) }catch(_){} kHaptic(30); ktmParar(); return }
-    if (s<=3 && KTM._bip!==s){ KTM._bip=s; kSonTick(); kHaptic(8) }
+    if (s<=3 && KTM._bip!==s){ KTM._bip=s; kSonTick(s); kHaptic(8) }
     ktmPintar() },200) }
 function ktmTxt(ms){ const s=Math.max(0,Math.ceil(ms/1000)); return s>=60 ? Math.floor(s/60)+':'+String(s%60).padStart(2,'0') : String(s) }
 function ktmMMSS(ms){ const s=Math.max(0,Math.ceil(ms/1000)); return Math.floor(s/60)+':'+String(s%60).padStart(2,'0') }
