@@ -455,6 +455,9 @@ const CSS = `
 /* 310 KCAL: el número domina y KCAL crece y sube */
 .keu__hn{justify-content:flex-end;gap:2px}
 .keu__hn span{order:-1;font:700 clamp(24px,7.5vw,30px)/1 var(--k-m);letter-spacing:.04em;color:#131313;text-shadow:0 0 14px rgba(255,255,255,.6)}
+/* c258 · la imagen mide exactamente lo que la foto: sin letterbox, sin sombra ni marco de otro tono */
+.keu__wph--h .keu__ph{display:flex;justify-content:center}
+.keu__wph--h .keu__ph img,.keu__wph--h .keu__ph.sm img{width:auto!important;height:auto!important;max-width:100%!important;max-height:46vh!important;object-fit:fill!important;margin:0 auto;border-radius:14px;box-shadow:none!important;background:transparent}
 `
 // c249 · escena de la guía (viewBox 300): plato cenital con comida, anillos girando, teléfono que encuadra, sol + cono de luz, esquinas y barrido
 const GSCENA = '<svg viewBox="0 0 300 300">' +
