@@ -1189,6 +1189,21 @@ html.nu-hoja{overflow:hidden}
 .nuDd__ch{width:100%;display:flex;align-items:center;justify-content:center;gap:6px;min-height:40px;margin-top:6px;border:0;background:none;color:#B5301F;font:700 9px var(--nM);letter-spacing:.12em;cursor:pointer}
 .nuDd__ch svg{width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:2.6;stroke-linecap:round}
 .nuSh__px{border-style:dashed!important}
+/* c265 · NUTRICIÓN sin plan: agendar con nutrición + registrar comidas con el escáner */
+.nuSp__k{display:inline-block;margin-top:14px;padding:5px 10px;border-radius:999px;border:1px solid #FF4200;color:#FF4200;font:700 8.5px var(--nM);letter-spacing:.14em}
+.nuSp .nuTk__h{font-size:clamp(24px,7vw,30px)}
+.nuSp__wa{display:flex;align-items:center;gap:10px;min-height:56px;margin-top:16px;padding:0 18px;border-radius:18px;border:1.5px solid #3EC6B0;background:#121212;color:#F4F3F0;text-decoration:none;font:700 15px var(--nD)}
+.nuSp__wa svg{width:22px;height:22px;flex:none;fill:none;stroke:#3EC6B0;stroke-width:1.8;stroke-linejoin:round}.nuSp__wa span{flex:1}.nuSp__wa b{color:#3EC6B0}
+.nuSp2{margin-top:14px}
+.nuSp__t{margin:14px 0 16px;font:400 14.5px/1.5 var(--nD);color:#3F3F3C}.nuSp__t b{color:#121212}
+.nuSp__mp u,.nuSp__mc u,.nuSp__mg u{display:inline-block;width:8px;height:8px;margin-right:6px;border-radius:2px}
+.nuSp__mp u{background:#3EC6B0}.nuSp__mc u{background:#121212}.nuSp__mg u{background:#979C9F}
+.nuSp2 .nuTk__mac b small{display:inline;margin:0;font-size:11px}
+.nuSp__cta{margin-top:16px}
+.nuSp2--v .nuSp__cta{animation:nuPulso 2.2s ease-in-out 1s infinite}
+@keyframes nuPulso{0%,100%{box-shadow:0 10px 24px rgba(18,18,18,.18)}50%{box-shadow:0 0 0 6px rgba(62,198,176,.25),0 10px 24px rgba(18,18,18,.18)}}
+.nuSp__hint{margin:10px 4px 0;text-align:center;font:400 13px/1.45 var(--nD);color:#5E5D59}
+@media (prefers-reduced-motion:reduce){.nuSp2--v .nuSp__cta{animation:none}}
 /* ═══ c92 · MI PLAN · SILVER CLEAN: fondo Silver Texture (imagen original, capa fija solo en esta pestaña) + tarjetas blancas opacas
    con el mismo lenguaje del Home (radio 22, filo blanco, sombra suave · session pills claras · etiquetas mono · links carbón) ═══ */
 html.en-plan{background:#C9CBCE}
@@ -8847,7 +8862,7 @@ async function loadNutricion(){
   pintarNuCab(); nuPane(NU.pane, true)
 }
 async function loadRegistroComidas(){
-  if (!NU.pauta || NU.pauta.estado!=='publicada') return
+  // también sin plan: el socio puede escanear y registrar sus comidas mientras agenda con nutrición
   try{ const { data, error } = await sb.rpc('koach_registro_comidas', { p_socio:null, p_dias:90 }); if (error) throw error; NU.reg=data||[]; NU.regOk=true }
   catch(e){ console.warn('registro comidas', e&&e.message); NU.regOk=false }
 }
@@ -8872,16 +8887,7 @@ function pintarNuHoy(){
   if (!NU.ok && !NU.pauta){ el.innerHTML='<div class="avLoad" aria-busy="true"><i></i><i></i><i></i></div>'; return }
   const pa=NU.pauta, n0=v=>Math.round(+v||0).toLocaleString('es-CL'), socio=kodeTxt((S.perfil||{}).numero_socio)||'—'
   // SIN PLAN: el proceso en 3 pasos (se ve dónde está y qué viene), nunca una pantalla vacía
-  if (!pa || pa.estado!=='publicada'){
-    const ev=(CPX.data||[]).length>0
-    const paso=(t,d,e)=>'<li class="'+e+'"><i>'+(e==='ok'?NU_ICO.ok:'')+'</i><div><b>'+t+'</b><span>'+d+'</span></div></li>'
-    el.innerHTML='<div class="nuTk nuTk--msg"><div class="nuTk__hd"><span>NUTRICIÓN KOACH</span><span>SOCIO #'+plEscA(socio)+'</span></div>'+
-      '<h2 class="nuTk__h">Estamos trabajando en esto.</h2><p class="nuTk__p">Pronto vas a tener acceso al servicio completo de nutrición KOACH: tu plan de comidas y el escáner de comidas.</p>'+
-      '<ol class="nuPasos">'+paso('Evaluación con tu nutricionista', ev?'Lista':'Agéndala en recepción', ev?'ok':'on')+paso('Tu plan en preparación','Lo diseña tu nutricionista con tu evaluación', ev?'on':'')+paso('Tu plan en la app','Comidas, escáner y registro diario','')+'</ol>'+
-      '<div class="nuTk__bc">'+barcodeSVG('NU-'+String(socio).replace(/\D/g,''), 40)+'<span>EN PREPARACIÓN</span></div></div>'+
-      (ev?'<button type="button" class="nuLk" onclick="nuPane(\'cuerpo\')"><span>Ver mi evaluación</span><b>→</b></button>':'')
-    return
-  }
+  if (!pa || pa.estado!=='publicada'){ el.innerHTML=nuSinPlan(socio, n0); if (NU._animSP!==nuHoyISO()){ NU._animSP=nuHoyISO(); nuContar(el) } nuEscInit(); return }
   const D=nuDia(), com=D.com, n=D.n, H=D.c.hoy, W=D.c.semana, RA=D.c.racha, MC=D.MC, hoy=D.hoy
   const meta=+pa.kcal||0, k=H.kcal, pk=meta?Math.round(k/meta*100):0, reg=H.registradas, todo=reg>=n
   const f=new Date(hoy+'T12:00:00'), dia=f.toLocaleDateString('es-CL',{ weekday:'long' }).toUpperCase(), fch=f.toLocaleDateString('es-CL',{ day:'numeric', month:'short' }).replace('.','').toUpperCase()
@@ -8964,6 +8970,32 @@ function nuContar(el){
   const paso=now=>{ const q=Math.min(1,Math.max(0,(now-t0-100)/D)), e=1-Math.pow(1-q,3); xs.forEach(x=>{ x.textContent=Math.round(+x.dataset.nc*e).toLocaleString('es-CL') }); if(q<1&&xs[0].isConnected) requestAnimationFrame(paso) }
   requestAnimationFrame(paso)
 }
+// SIN PLAN PUBLICADO: invitar a agendar con nutrición (Jake) y, mientras tanto, a registrar comidas con el escáner
+const NU_JAKE='https://wa.me/56974369521?text='+encodeURIComponent('Hola Jake, quiero agendar mi evaluación con la nutricionista de KOACH')
+function nuSinPlan(socio, n0){
+  const hoy=nuHoyISO(), rs=(NU.reg||[]).filter(r=>String(r.fecha).slice(0,10)===hoy).sort((a,b)=>a.comida_num-b.comida_num)
+  const sum=k=>rs.reduce((a,r)=>a+(+r[k]||0),0), k=sum('kcal'), P=sum('proteina_g'), C=sum('carbohidrato_g'), G=sum('grasa_g')
+  const ev=(CPX.data||[]).length>0, fch=new Date().toLocaleDateString('es-CL',{ weekday:'long', day:'numeric', month:'short', timeZone:'America/Santiago' }).replace('.','').toUpperCase()
+  let h='<article class="nuTk nuTk--msg nuSp"><div class="nuTk__hd"><span>NUTRICIÓN KOACH</span><span>SOCIO #'+plEscA(socio)+'</span></div>'+
+    '<span class="nuSp__k">PLAN PERSONALIZADO · PENDIENTE</span>'+
+    '<h2 class="nuTk__h">Aún no tienes tu plan de nutrición personalizado cargado.</h2>'+
+    '<p class="nuTk__p">Recuerda agendar tu horario con la nutricionista: con tu evaluación diseña tu plan y lo ves aquí.</p>'+
+    '<a class="nuSp__wa" href="'+NU_JAKE+'" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20l1.3-3.9A8 8 0 1 1 8 18.8z"/><path d="M9 9.5c.3 2 2.5 4.2 4.5 4.5l1.2-1.2 1.8.8-.4 1.6c-3.6.4-7.4-3.4-7-7l1.6-.4.8 1.8z"/></svg><span>Agendar con la nutricionista</span><b>→</b></a>'+
+    (ev?'<button type="button" class="nuLk" onclick="nuPane(\'cuerpo\')"><span>Ver mi evaluación</span><b>→</b></button>':'')+
+    '</article>'
+  h+='<article class="nuTk nuSp2'+(rs.length?'':' nuSp2--v')+'"><div class="nuTk__hd"><span>'+plEscA(fch)+'</span><span>ESCÁNER KOACH</span></div>'+
+    '<p class="nuSp__t">Como tu plan no está cargado, aún no tienes toda la información de tu planificación, tu pauta y tus progresos. <b>Por ahora puedes registrar tus comidas</b> para ir llevando tus calorías y macros diarios.</p>'+
+    '<span class="nuTk__k">TU INGESTA CALÓRICA DE HOY</span><div class="nuTk__big"><b data-nc="'+Math.round(k)+'">'+n0(k)+'</b><span>KCAL<br>'+rs.length+' '+(rs.length===1?'COMIDA':'COMIDAS')+'</span></div>'+
+    '<div class="nuTk__mac">'+[['PROTEÍNA',P,'p'],['CARBOS',C,'c'],['GRASAS',G,'g']].map(([l,v,c])=>'<div class="nuSp__m'+c+'"><span><u></u>'+l+'</span><b><span data-nc="'+Math.round(v)+'">'+n0(v)+'</span><small> G</small></b></div>').join('')+'</div>'
+  if (rs.length){
+    h+='<div class="nuTk__cut"></div><span class="nuTk__k">TUS COMIDAS DE HOY</span><ul class="nuTk__ls">'+rs.map(r=>{ const ch=r.estado==='cheat'
+      return '<li class="'+(ch?'ch':'ok')+'"><button type="button" aria-expanded="false" style="cursor:default">'+NU_PLATO(r.comida_num, ch?'cheat':'cumplida')+'<span class="nuTk__ln"><b>COMIDA '+r.comida_num+'</b><small>'+plEscA(String(r.comida||'').toUpperCase().slice(0,24))+(ch?' · CHEAT MEAL':'')+'</small></span><i class="nuTk__dt"></i><span class="nuTk__kc">'+n0(r.kcal)+' KCAL</span><i></i></button></li>' }).join('')+'</ul>'
+  }
+  h+='<button type="button" class="nuCta nuSp__cta" onclick="nuEscanear()">'+NU_ICO.cam+(rs.length?'Registrar otra comida':'Prueba con una foto de tu comida')+'</button>'+
+    (rs.length?'':'<p class="nuSp__hint">Saca una foto de tu plato: reconocemos los alimentos y calculamos tus calorías y macros.</p>')+
+    '<div class="nuTk__ft"><div><span>REGISTRADAS HOY</span><b>'+rs.length+'</b></div><div class="nuTk__bc">'+barcodeSVG(hoy.slice(2).replace(/-/g,'')+'-'+String(socio).replace(/\D/g,''), 40)+'<span>Nº '+hoy.slice(2).replace(/-/g,'')+'-'+plEscA(socio)+'</span></div></div></article>'
+  return h
+}
 function nuAbrirComida(num){ nuToggle(num, true) }
 function nuToggle(num, abrir){ NU.abierta = (abrir || NU.abierta!==num) ? num : null; pintarNuHoy(); if (NU.abierta){ const b=document.querySelector('#nuHoy .nuTk__ls li.ab'); if (b) setTimeout(()=>{ const r=b.getBoundingClientRect(); if (r.bottom>innerHeight-90) window.scrollBy({ top:r.bottom-innerHeight+110, behavior:'smooth' }) }, 30) } }
 function nuOpHoy(num, j){ NU.op=NU.op||{}; NU.op[num]=j; pintarNuHoy() }
@@ -9002,7 +9034,7 @@ function pintarNuPlan(){
   if (NU.bloqueado){ el.innerHTML='<article class="nuTk nuTk--msg"><div class="nuTk__hd"><span>MI PLAN</span><span>EN PAUSA</span></div><h2 class="nuTk__h">Tu plan está en pausa</h2><p class="nuTk__p">'+plEscA((S.acceso&&accTxt(S.acceso).t)||'Tu membresía no está al día')+'. Se habilita con tu membresía pagada; regularízala en recepción.</p></article>'; return }
   if (!NU.ok && !NU.pauta){ el.innerHTML='<div class="avLoad" aria-busy="true"><i></i><i></i><i></i></div>'; return }
   const pa=NU.pauta
-  if (!pa){ el.innerHTML='<article class="nuTk nuTk--msg"><div class="nuTk__hd"><span>MI PLAN</span><span>EN PREPARACIÓN</span></div><h2 class="nuTk__h">Estamos trabajando en esto.</h2><p class="nuTk__p">Tu plan de comidas aparece aquí cuando nutrición KOACH lo publique después de tu evaluación.</p></article>'; return }
+  if (!pa){ el.innerHTML='<article class="nuTk nuTk--msg nuSp"><div class="nuTk__hd"><span>MI PLAN</span><span>PENDIENTE</span></div><h2 class="nuTk__h">Aún no tienes tu plan de nutrición personalizado cargado.</h2><p class="nuTk__p">Agenda tu horario con la nutricionista: tu plan de comidas, tu pauta y tu compra semanal aparecen aquí cuando lo publique.</p><a class="nuSp__wa" href="'+NU_JAKE+'" target="_blank" rel="noopener"><span>Agendar con la nutricionista</span><b>→</b></a></article><button type="button" class="nuCta nuSp__cta" onclick="nuEscanear()">'+NU_ICO.cam+'Registrar una comida</button>'; return }
   const ev=CPX.data||[], u=ev[ev.length-1], c=KC.normPlan(pa.contenido), MC=KE.metasComida(pa), n0=v=>Math.round(+v||0).toLocaleString('es-CL')
   const r=KC.reparto(pa.kcal, pa.proteina_g, pa.carbohidrato_g, pa.grasa_g, u&&u.peso_kg), pe=KN.periodo(pa)
   const MAC=r?[['PROTEÍNA',r.proteina,'p'],['CARBOHIDRATOS',r.carbohidrato,'c'],['GRASAS',r.grasa,'g']]:[]

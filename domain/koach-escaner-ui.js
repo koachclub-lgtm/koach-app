@@ -526,13 +526,14 @@ function el(){
 // Plan del socio (lo entrega la app): { pauta, comidas:[{nombre,hora,opciones}], estado(num) → 'cumplida'|'cheat'|null }
 const plan = () => (S.cfg.plan && S.cfg.plan()) || { pauta: null, comidas: [] }
 const comidaN = n => plan().comidas[n - 1] || null
-const esExtra = () => !!S.num && S.num > plan().comidas.length
+const sinPlan = () => !plan().comidas.length
+const esExtra = () => !sinPlan() && !!S.num && S.num > plan().comidas.length
 const nomC = () => esExtra() ? 'comida fuera del plan' : S.num ? 'comida ' + S.num : 'comida'
 function mostrar(){ el().hidden = false; document.documentElement.style.overflow = 'hidden' }
 function cab(t, atras){ const e = $('keuT'); if (e) e.textContent = t || ''; const a = $('keuAtrasT'); if (a) a.textContent = atras || 'CERRAR'; S.atras = atras ? S.atrasFn : null }
 function pantalla(h, t, atras, fn){ hudFin(); S.atrasFn = fn || null; cab(t, atras); const sc = $('keuSc'); sc.classList.remove('alerta', 'valido'); sc.innerHTML = h; sc.scrollTop = 0 }
 function atras(){ if (S.busy) return; if (S.atras) S.atras(); else cerrar() }
-const etiqueta = () => { const c = comidaN(S.num), n = plan().comidas.length; return esExtra() ? 'FUERA DEL PLAN' : c ? 'COMIDA ' + S.num + ' DE ' + n : 'ESCÁNER' }
+const etiqueta = () => { const c = comidaN(S.num), n = plan().comidas.length; return esExtra() ? 'FUERA DEL PLAN' : sinPlan() && S.num ? 'COMIDA ' + S.num : c ? 'COMIDA ' + S.num + ' DE ' + n : 'ESCÁNER' }
 // siguiente número libre para una comida fuera del plan (después de las del plan, hasta 12)
 function extra(){ const p = plan(), n = p.comidas.length; let k = n + 1; while (k <= 12 && p.estado && p.estado(k)) k++; if (k > 12) return; guia(k) }
 
@@ -544,6 +545,7 @@ function abrir(num){
   if (num) return guia(+num)
   S.num = null
   const p = plan()
+  if (!p.comidas.length){ let k = 1; while (k < 12 && p.estado && p.estado(k)) k++; return guia(k) }
   const hechas = p.comidas.filter((c, i) => p.estado && p.estado(i + 1)).length
   pantalla('<div class="keu__gx"><div class="keu__gh"><span><i class="keu__rec"></i>SCAN · ELIGE TU COMIDA</span><span>' + hechas + '/' + p.comidas.length + ' HOY</span></div><h2>¿Qué comida vas a registrar?</h2>' +
     '<div class="keu__pp"><b>01 COMIDA</b><i>→</i><b>02 FOTO</b><i>→</i><b>03 LECTURA</b><i>→</i><b>04 REGISTRO</b></div><div class="keu__pk keu__pk--d">' +
@@ -563,8 +565,10 @@ function guia(num){
   const tit = esExtra() ? 'Escanea lo que comiste' : S.num ? 'Escanea tu comida ' + S.num : 'Escanea tu comida'
   pantalla('<div class="keu__gx"><div class="keu__gh"><span><i class="keu__rec"></i>SCAN · ' + esc(etiqueta()) + hora + '</span><span>IA · KOACH</span></div>' +
     '<h2>' + tit + '</h2>' +
-    '<p>Saca una foto de tu plato: reconocemos los alimentos, los comparamos con tu plan y registras tu comida.</p>' +
-    '<div class="keu__pp"><b>01 FOTO</b><i>→</i><b>02 LECTURA</b><i>→</i><b>03 VS TU PLAN</b><i>→</i><b>04 REGISTRO</b></div>' +
+    (sinPlan() ? '<p>Saca una foto de tu plato: reconocemos los alimentos, calculamos tus calorías y macros y registras tu comida.</p>' +
+      '<div class="keu__pp"><b>01 FOTO</b><i>→</i><b>02 LECTURA</b><i>→</i><b>03 CALORÍAS Y MACROS</b><i>→</i><b>04 REGISTRO</b></div>'
+    : '<p>Saca una foto de tu plato: reconocemos los alimentos, los comparamos con tu plan y registras tu comida.</p>' +
+      '<div class="keu__pp"><b>01 FOTO</b><i>→</i><b>02 LECTURA</b><i>→</i><b>03 VS TU PLAN</b><i>→</i><b>04 REGISTRO</b></div>') +
     '<div class="keu__st" aria-hidden="true">' + GSCENA + '<div class="keu__cap"><span>01 · DESDE ARRIBA</span><span>02 · CON BUENA LUZ</span><span>03 · TODO EL PLATO</span></div></div>' +
     '<ol class="keu__tp" aria-label="Cómo sacar la foto">' +
       '<li><em>01</em><span><b>Desde arriba</b><small>El teléfono paralelo a la mesa, sobre el centro del plato.</small></span></li>' +
@@ -867,7 +871,7 @@ function tele(){
 }
 /** c252 · barra fija con el check: registrar siempre a mano, aunque no sea adecuado */
 function dock(mala){
-  const c = comidaN(S.num) || (esExtra() ? { extra: true } : null); if (!c) return ''
+  const c = (comidaN(S.num) || (esExtra() || (sinPlan() && S.num) ? { extra: true } : null)); if (!c) return ''
   const chk = '<u>' + ico('<path d="M5 12.5l4.5 4.5L19 7.5"/>') + '</u>'
   if (S.sucio) return '<div class="keu__dock"><button type="button" class="ok" onclick="KEU.recalcular()">RECALCULAR CON MIS CAMBIOS</button></div>'
   return '<div class="keu__dock">' + (mala ? '<button type="button" class="ch" onclick="KEU.confirmar(true)">' + chk + 'REGISTRAR COMO CHEAT MEAL</button>'
@@ -889,7 +893,7 @@ function etqForm(i, a){
   return '<div class="keu__et"><p>VALORES DE LA ETIQUETA · POR 100 G O 100 ML</p><div class="g">' + f('k', 'KCAL', e.k) + f('g', 'CANTIDAD QUE CONSUMISTE (G/ML)', g) + f('p', 'PROTEÍNA G', e.p) + f('c', 'CARBOS G', e.c) + f('x', 'GRASAS G', e.g) + '</div>' +
     '<button type="button" class="b" onclick="KEU.etqAplicar(' + i + ')">APLICAR ETIQUETA</button></div>'
 }
-function botones(){ const c = comidaN(S.num) || (esExtra() ? { extra: true } : null)
+function botones(){ const c = (comidaN(S.num) || (esExtra() || (sinPlan() && S.num) ? { extra: true } : null))
   const no = S.res && (S.res.veredicto === 'alerta' || esExtra())
   if (no && !S.sucio && c) return '<button type="button" class="keu__sec" onclick="KEU.cerrar()">NO, NO REGISTRAR</button><button type="button" class="keu__lnk" onclick="KEU.otra()">' + ico(I.cam) + 'EMPEZAR DE NUEVO</button>'   // c253 · la pregunta vive en el ticket y el check en la barra fija
   return (S.sucio ? '<button type="button" class="keu__cta" onclick="KEU.recalcular()">Recalcular con mis cambios</button>' : '') +
