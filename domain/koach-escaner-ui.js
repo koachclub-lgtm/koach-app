@@ -416,6 +416,14 @@ const CSS = `
 .keu__wv.ok .keu__vs{color:#0E8F7C}.keu__wv.x .keu__vs{color:#FF4200}
 .keu__wt--r .keu__wph{margin-top:14px}
 .keu__wh span+span{color:#6B6E74;font-weight:600}
+/* c255 · número + foto lado a lado */
+.keu__wkr{display:grid;grid-template-columns:1fr 46%;gap:12px;align-items:end;margin-top:6px}
+.keu__wkr.nf{grid-template-columns:1fr}
+.keu__wkr .keu__wk{flex-direction:column;align-items:flex-start;gap:8px;margin:0}
+.keu__wkr .keu__wk span{padding:0}
+.keu__wph.keu__wph--s{margin:0}
+.keu__wph--s .keu__ph{border-radius:14px}
+.keu__wph--s .keu__ph img,.keu__wph--s .keu__ph.sm img{max-height:200px;width:100%;object-fit:contain}
 `
 // c249 · escena de la guía (viewBox 300): plato cenital con comida, anillos girando, teléfono que encuadra, sol + cono de luz, esquinas y barrido
 const GSCENA = '<svg viewBox="0 0 300 300">' +
@@ -699,15 +707,15 @@ function pintar(arriba){
   const barK = m && m.kcal ? [['p', kP], ['c', kC], ['g', kG]].map(([k, v]) => '<s class="keu__k' + k + '" style="width:' + (v / kT * Math.min(100, t.kcal / m.kcal * 100)).toFixed(1) + '%"></s>').join('') : ''
   const sugH = h
   h = '<div class="keu__pad keu__pad--r"><div class="keu__wt keu__wt--r' + (arriba ? ' keu__wt--a' : '') + '"><div class="keu__sys"><img src="/img/brand/logotipo-koach.png" alt="KOACH"><span>SYSTEM · NUTRITIONAL ANALYTICS AI</span><i></i></div>' +
-    '<div class="keu__wh"><span>DATA ANALYTIC RESULT</span><span>' + esc(etiqueta()) + '</span></div>' +
-    // c254 · el veredicto vive en un solo lugar: arriba, con su estado, el motivo y (si no es adecuado) la pregunta
-    '<div class="keu__wv' + (mala ? ' x' : ' ok') + '" role="' + (mala ? 'alert' : 'status') + '"><span class="keu__vs">' + ico(mala ? '<path d="M12 3.5l9.5 16.5h-19z"/><path d="M12 10v4.5M12 17.2v.3"/>' : '<path d="M5 12.5l4.5 4.5L19 7.5"/>') + (mala ? 'ALERTA · ' + (r.cheat || esExtra() ? 'CHEAT MEAL' : 'NO ADECUADO') : String(v.k || 'ADECUADO').toUpperCase()) + '</span>' +
-    '<b>' + esc(esExtra() ? 'Comida fuera de tu plan' : r.titulo) + '</b><p>' + esc(r.mensaje) + '</p>' + (mala && (comidaN(S.num) || esExtra()) ? '<p class="keu__wq">¿Deseas registrarla igual para sumar sus calorías a tu día? Quedará como cheat meal.</p>' : '') + (r.veredicto !== 'adecuado' && KE.proxima(r, S.cmp) ? '<span class="keu__sug">→ ' + esc(KE.proxima(r, S.cmp)) + '</span>' : '') + '</div>' +
-    (fotoT ? '<div class="keu__wph">' + fotoT + '</div>' : '') +
-    '<span class="keu__wl">INGESTA ESTIMADA · ' + esc(etiqueta()) + '</span><div class="keu__wk"><b data-kc="' + Math.round(t.kcal) + '">' + n0(t.kcal) + '</b><span>KCAL' + (m && m.kcal ? '<br>TU PLAN ' + n0(m.kcal) : '') + '</span></div>' +
+    '<div class="keu__wh"><span>DATA ANALYTIC RESULT</span><span class="keu__wok' + (mala ? ' ch' : '') + '">' + ico(mala ? '<path d="M7 7l10 10M17 7L7 17"/>' : '<path d="M5 12.5l4.5 4.5L19 7.5"/>') + (r.cheat || esExtra() ? 'CHEAT MEAL' : v.k) + '</span></div>' +
+    '<span class="keu__wl">INGESTA ESTIMADA · ' + esc(etiqueta()) + '</span>' +
+    // c255 · la foto va al costado del número (usa el espacio vacío a la derecha)
+    '<div class="keu__wkr' + (fotoT ? '' : ' nf') + '"><div class="keu__wk"><b data-kc="' + Math.round(t.kcal) + '">' + n0(t.kcal) + '</b><span>KCAL' + (m && m.kcal ? '<br>TU PLAN ' + n0(m.kcal) : '') + '</span></div>' +
+    (fotoT ? '<div class="keu__wph keu__wph--s">' + fotoT + '</div>' : '') + '</div>' +
     (kp != null ? '<div class="keu__wb keu__wb--3">' + barK + (kp > 100 ? '<i class="keu__wbo" style="left:' + (100 / kp * 100).toFixed(1) + '%"></i>' : '') + '</div><div class="keu__wbp"><span><i data-kc="' + kp + '">' + kp + '</i> % DE TU PLAN</span><span>' + (r.puntaje != null && !r.cheat ? 'PUNTAJE <i data-kc="' + r.puntaje + '">' + r.puntaje + '</i>/100' : esc(etiqueta())) + '</span></div>' : '') +
     tele() +
-    '<div class="keu__wm">' + macW('PROTEÍNA', t.proteina_g, m && m.proteina_g, 'p') + macW('CARBOS', t.carbohidrato_g, m && m.carbohidrato_g, 'c') + macW('GRASAS', t.grasa_g, m && m.grasa_g, 'g') + '</div></div>' + '<div class="keu__bt keu__bt--top" id="keuBt">' + botones() + '</div><div class="keu__sts" id="keuSt" role="status"></div>' + msH + sugH
+    '<div class="keu__wm">' + macW('PROTEÍNA', t.proteina_g, m && m.proteina_g, 'p') + macW('CARBOS', t.carbohidrato_g, m && m.carbohidrato_g, 'c') + macW('GRASAS', t.grasa_g, m && m.grasa_g, 'g') + '</div>' +
+    '<div class="keu__wv' + (mala ? ' x' : ' ok') + '"><b>' + esc(esExtra() ? 'Comida fuera de tu plan' : r.titulo) + '</b><p>' + esc(r.mensaje) + '</p>' + (mala && (comidaN(S.num) || esExtra()) ? '<p class="keu__wq">¿Deseas registrarla igual para sumar sus calorías a tu día? Quedará como cheat meal.</p>' : '') + (r.veredicto !== 'adecuado' && KE.proxima(r, S.cmp) ? '<span class="keu__sug">→ ' + esc(KE.proxima(r, S.cmp)) + '</span>' : '') + '</div></div>' + '<div class="keu__bt keu__bt--top" id="keuBt">' + botones() + '</div><div class="keu__sts" id="keuSt" role="status"></div>' + msH + sugH
   // 2 · cómo va con tu plan
   if (S.cmp) {
     const E = { plan: ['done', 'EN TU PLAN'], reemplazo: ['line', 'REEMPLAZO'], fuera: ['fill', 'NO ADECUADO'], extra: ['', 'FUERA DEL PLAN'] }
