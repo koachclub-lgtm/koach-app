@@ -2959,7 +2959,7 @@ html[data-fprog] #vFicha .kcU{background:var(--fp-card);color:var(--fp-cfg);bord
 html[data-fprog] #vFicha .kcU small{color:var(--fp-cmu)}
 html[data-fprog] #vFicha .kcU b{font-family:'Space Mono',monospace;font-weight:700}
 /* Perfil / Nutrición conservan su lámina clara para que todo se lea */
-html[data-fprog="burn"] #vFicha #fTabAdm,html[data-fprog="burn"] #vFicha #fTabCmp,html[data-fprog="healthy"] #vFicha #fTabAdm,html[data-fprog="healthy"] #vFicha #fTabCmp,html[data-fprog="burn"] #vFicha #fTabAdh,html[data-fprog="healthy"] #vFicha #fTabAdh{background:#F4F3F0;color:#121212;border-radius:20px;padding:16px}
+html[data-fprog="burn"] #vFicha #fTabCmp,html[data-fprog="healthy"] #vFicha #fTabCmp,html[data-fprog="burn"] #vFicha #fTabAdh,html[data-fprog="healthy"] #vFicha #fTabAdh{background:#F4F3F0;color:#121212;border-radius:20px;padding:16px}
 html[data-fprog="burn"] #vFicha #fTabAdh[hidden],html[data-fprog="healthy"] #vFicha #fTabAdh[hidden]{display:none}
 @media (max-width:900px){ html[data-fprog] #vFicha .mh:not(.mh--mini) .mh__av,html[data-fprog] #vFicha .mh:not(.mh--mini) .mh__av .kav{width:96px !important;height:96px !important;font-size:36px !important} html[data-fprog] #vFicha .mh__bar{border-radius:22px} }
 
@@ -3300,6 +3300,69 @@ html[data-fprog] #vFicha .fpSem{flex-wrap:nowrap;gap:6px}
 #vFicha .fpTools__m button:hover small{color:#434649}
 #vFicha .fpTools__m button:disabled{opacity:.45;cursor:not-allowed}
 #vFicha .fpTools .plTools__b i{font-style:normal}
+/* ═══ c277 · FICHA · PERFIL en tarjetas grafito + hojas de administración (venta, pagos, membresía) en cristal negro flotante ═══ */
+html[data-fprog]:not([data-fprog="plan"]) #vFicha #fTbCmp{display:none !important}
+html[data-fprog] #vFicha #fTabAdm{background:transparent !important;padding:0 !important;color:#F4F3F0 !important;animation:kpIn .42s cubic-bezier(.2,.8,.2,1) both}
+html[data-fprog] #vFicha #fTabAdm .pf{gap:14px}
+html[data-fprog] #vFicha #fTabAdm .pfC{background:linear-gradient(160deg,#232427,#141517) !important;border:1px solid #3D4044 !important;border-radius:24px !important;padding:20px 22px !important;color:#F4F3F0;box-shadow:0 14px 34px rgba(0,0,0,.28),inset 0 1px 0 rgba(255,255,255,.06);opacity:0;animation:holoRow .5s cubic-bezier(.2,.8,.2,1) both}
+html[data-fprog] #vFicha #fTabAdm .pfC:nth-child(2){animation-delay:.06s}html[data-fprog] #vFicha #fTabAdm .pfC:nth-child(3){animation-delay:.12s}html[data-fprog] #vFicha #fTabAdm .pfC:nth-child(4){animation-delay:.18s}
+html[data-fprog] #vFicha #fTabAdm .pfK{color:#A9ADB0 !important;font:700 10.5px 'Space Mono',monospace !important;letter-spacing:.14em !important}
+html[data-fprog] #vFicha #fTabAdm .pfBig{color:#F4F3F0 !important;font:700 clamp(26px,2.6vw,34px)/1 'Space Mono',monospace !important;letter-spacing:-.03em !important}
+html[data-fprog] #vFicha #fTabAdm .pfS{color:#C9CBCF !important}html[data-fprog] #vFicha #fTabAdm .pfS b{color:#F4F3F0 !important}
+html[data-fprog] #vFicha #fTabAdm .pfR b{color:#F4F3F0}html[data-fprog] #vFicha #fTabAdm .pfR small{color:#A9ADB0}
+html[data-fprog] #vFicha #fTabAdm .pfBar{background:#2E3034 !important;height:6px}html[data-fprog] #vFicha #fTabAdm .pfBar i{background:linear-gradient(90deg,#979C9F,#F4F3F0) !important}
+html[data-fprog] #vFicha #fTabAdm .pfL{border-top-color:#2E3034 !important}html[data-fprog] #vFicha #fTabAdm .pfL span{color:#A9ADB0 !important}html[data-fprog] #vFicha #fTabAdm .pfL b{color:#F4F3F0}
+html[data-fprog] #vFicha #fTabAdm .pfDet{border-top-color:#2E3034 !important}
+html[data-fprog] #vFicha #fTabAdm .pfB{min-height:50px;border-radius:999px !important;border:1px solid #55585C !important;background:#2E3034 !important;color:#F4F3F0 !important;font:700 11px 'Space Mono',monospace !important;letter-spacing:.08em;transition:background .2s,color .2s,border-color .2s,transform .15s}
+html[data-fprog] #vFicha #fTabAdm .pfB:hover{border-color:#F4F3F0 !important;transform:translateY(-1px)}
+html[data-fprog] #vFicha #fTabAdm .pfB:active{transform:scale(.98)}
+html[data-fprog] #vFicha #fTabAdm .pfB--ink{background:#F4F3F0 !important;color:#000 !important;border-color:#F4F3F0 !important}
+html[data-fprog] #vFicha #fTabAdm .adLi{border-color:#2E3034 !important;color:#F4F3F0}
+html[data-fprog] #vFicha #fTabAdm .adLi *{border-color:#2E3034}
+html[data-fprog] #vFicha #fTabAdm small,html[data-fprog] #vFicha #fTabAdm .mut{color:#A9ADB0}
+html[data-fprog] .pfMenu{background:linear-gradient(160deg,rgba(30,31,34,.94),rgba(6,7,8,.96)) !important;border:1px solid rgba(244,243,240,.18) !important;border-radius:22px !important;padding:8px !important;min-width:300px !important;box-shadow:0 30px 70px rgba(0,0,0,.55),inset 0 1px 0 rgba(255,255,255,.12) !important;backdrop-filter:blur(18px);animation:kFloat .3s cubic-bezier(.16,.9,.24,1) both}
+html[data-fprog] .pfMenu button{min-height:54px !important;border-radius:999px !important;color:#F4F3F0 !important;font:700 12.5px 'Space Mono',monospace !important;letter-spacing:.08em;padding:0 20px !important}
+html[data-fprog] .pfMenu button:hover,html[data-fprog] .pfMenu button:focus-visible{background:#F4F3F0 !important;color:#000 !important;outline:none}
+html[data-fprog] .pfMenu .pfDanger{color:#FF4200 !important}
+/* hoja de administración (registrar venta, pagos, gestionar membresía…) */
+html[data-fprog] #mAdm{background:rgba(0,0,0,.55) !important;backdrop-filter:blur(10px) !important;-webkit-backdrop-filter:blur(10px) !important}
+html[data-fprog] #mAdm.vis{animation:holoBgIn .3s ease both}
+html[data-fprog] #mAdm .adSheet{top:50% !important;bottom:auto !important;transform:translate(-50%,-50%) !important;width:min(1180px,calc(100vw - 32px)) !important;border-radius:28px !important;padding:16px 24px 0 !important;background:linear-gradient(160deg,rgba(28,29,32,.92),rgba(8,9,10,.95)) !important;color:#F4F3F0;border:1px solid rgba(244,243,240,.16);box-shadow:0 0 0 1px rgba(62,198,176,.08),0 40px 120px rgba(0,0,0,.6),inset 0 1px 0 rgba(255,255,255,.14);backdrop-filter:blur(22px) saturate(1.2);-webkit-backdrop-filter:blur(22px) saturate(1.2);scrollbar-width:none}
+html[data-fprog] #mAdm:not(.adWide) .adSheet{max-width:620px !important;padding-bottom:24px !important}
+html[data-fprog] #mAdm.vis .adSheet{animation:kAdm .55s cubic-bezier(.16,.9,.24,1) both}
+@keyframes kAdm{0%{opacity:0;transform:translate(-50%,-50%) perspective(1400px) translateY(80px) rotateX(16deg) scale(.62);filter:blur(12px) brightness(2.2);clip-path:inset(46% 0 46% 0 round 28px)}45%{opacity:1;clip-path:inset(0 0 0 0 round 28px);filter:blur(2px) brightness(1.3)}100%{opacity:1;transform:translate(-50%,-50%);filter:none;clip-path:inset(0 0 0 0 round 28px)}}
+html[data-fprog] #mAdm .adSheetTop{color:#A9ADB0 !important;font:700 10.5px 'Space Mono',monospace !important;letter-spacing:.14em !important}
+html[data-fprog] #mAdm .adSheetTop button{width:44px;height:44px;padding:0;border-radius:999px !important;border:1px solid rgba(244,243,240,.3) !important;background:rgba(255,255,255,.06) !important;color:#F4F3F0 !important}
+html[data-fprog] #mAdm .vtS{background:#1C1D20 !important;border-color:#3D4044 !important;color:#F4F3F0}
+html[data-fprog] #mAdm .vtK{color:#F4F3F0 !important}
+html[data-fprog] #mAdm .vtL,html[data-fprog] #mAdm .vtSub,html[data-fprog] #mAdm .vtNote,html[data-fprog] #mAdm .vtVig small{color:#A9ADB0 !important}
+html[data-fprog] #mAdm .vtVig,html[data-fprog] #mAdm .vtBig{color:#F4F3F0 !important}
+html[data-fprog] #mAdm .vtC .vtZ,html[data-fprog] #mAdm .vtC .vtZ--pag,html[data-fprog] #mAdm .vtPs--c{border-color:#2E3034 !important}
+html[data-fprog] #mAdm .vtP{background:#26282B !important;border:1px solid #3D4044 !important;color:#F4F3F0 !important;border-radius:18px !important;transition:background .18s,border-color .18s,transform .15s}
+html[data-fprog] #mAdm .vtP span{color:#A9ADB0 !important}
+html[data-fprog] #mAdm .vtP:hover{border-color:#F4F3F0 !important;transform:translateY(-1px)}
+html[data-fprog] #mAdm .vtP.on{background:#F4F3F0 !important;border-color:#F4F3F0 !important;color:#000 !important;box-shadow:0 10px 24px rgba(0,0,0,.35)}html[data-fprog] #mAdm .vtP.on span{color:#434649 !important}
+html[data-fprog] #mAdm .vtTg button,html[data-fprog] #mAdm .vtCh button{background:#26282B !important;border:1px solid #3D4044 !important;color:#F4F3F0 !important;font-weight:700;transition:background .18s,border-color .18s,transform .15s}
+html[data-fprog] #mAdm .vtTg button:hover,html[data-fprog] #mAdm .vtCh button:hover{border-color:#F4F3F0 !important}
+html[data-fprog] #mAdm .vtTg button.on,html[data-fprog] #mAdm .vtCh button.on{background:#F4F3F0 !important;border-color:#F4F3F0 !important;color:#000 !important}
+html[data-fprog] #mAdm .vtCh button[data-v="ugc"]{border-style:dashed !important}
+html[data-fprog] #mAdm .vtMoney{border-bottom-color:#F4F3F0 !important}
+html[data-fprog] #mAdm .vtMoney span{color:#A9ADB0 !important}
+html[data-fprog] #mAdm .vtMoney input{color:#F4F3F0 !important;caret-color:#3EC6B0;font-size:52px !important}
+html[data-fprog] #mAdm .vtMoney:focus-within{border-bottom-color:#3EC6B0 !important;box-shadow:0 10px 24px -14px rgba(62,198,176,.6)}
+html[data-fprog] #mAdm input:not([type=checkbox]):not([type=radio]),html[data-fprog] #mAdm textarea,html[data-fprog] #mAdm select{background:#1C1D20 !important;border:1px solid #4A4D51 !important;color:#F4F3F0 !important;border-radius:16px !important;color-scheme:dark}
+html[data-fprog] #mAdm .vtMoney input:not([type=checkbox]):not([type=radio]){background:transparent !important;border:0 !important;border-radius:0 !important}
+html[data-fprog] #mAdm input:focus,html[data-fprog] #mAdm textarea:focus{border-color:#3EC6B0 !important;outline:none}
+html[data-fprog] #mAdm ::placeholder{color:#6F7377 !important}
+html[data-fprog] #mAdm .vtFoot{background:linear-gradient(rgba(14,15,16,.9),rgba(8,9,10,.98)) !important;border-top-color:#3D4044 !important;margin-left:-24px !important;margin-right:-24px !important;padding-left:24px !important;padding-right:24px !important}
+html[data-fprog] #mAdm .vtSum{color:#F4F3F0 !important}html[data-fprog] #mAdm .vtSum small,html[data-fprog] #mAdm .vtSum i{color:#A9ADB0 !important}
+html[data-fprog] #mAdm .vtGo{background:#F4F3F0 !important;color:#000 !important;border-radius:999px !important;position:relative;overflow:hidden;transition:transform .15s}
+html[data-fprog] #mAdm .vtGo:hover{transform:translateY(-1px)}html[data-fprog] #mAdm .vtGo:active{transform:scale(.98)}
+html[data-fprog] #mAdm .vtErr{background:rgba(255,66,0,.12) !important;color:#FF8A5C !important;border:1px solid rgba(255,66,0,.4)}
+html[data-fprog] #mAdm .vtOk{background:rgba(62,198,176,.12) !important;color:#3EC6B0 !important;border:1px solid rgba(62,198,176,.4)}
+html[data-fprog] #mAdm .btn,html[data-fprog] #mAdm .pfB{border-radius:999px !important}
+html[data-fprog] #mAdm .adLi{border-color:#2E3034 !important;color:#F4F3F0}
+@media (prefers-reduced-motion:reduce){ html[data-fprog] #mAdm.vis .adSheet,html[data-fprog] #vFicha #fTabAdm .pfC,html[data-fprog] .pfMenu{animation:none;opacity:1} }
 /* ═══ c267 · TRANSICIÓN ENTRE VENTANAS: zoom de entrada al profundizar y de salida al volver ═══ */
 @keyframes kvIn{from{opacity:0;transform:scale(.94);filter:blur(6px)}to{opacity:1;transform:none;filter:none}}
 @keyframes kvOut{from{opacity:0;transform:scale(1.06);filter:blur(6px)}to{opacity:1;transform:none;filter:none}}
@@ -7811,9 +7874,13 @@ function adF(iso){ if(!iso) return '—'; const d=new Date(String(iso).slice(0,1
 function adFH(ts){ if(!ts) return '—'; const d=new Date(ts); return d.getDate()+' '+AD_MES[d.getMonth()]+' · '+String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0') }
 function adHace(ts){ const m=Math.max(0,Math.round((Date.now()-new Date(ts))/60000)); return m<60?('HACE '+m+' MIN'):m<1440?('HACE '+Math.round(m/60)+' H'):('HACE '+Math.round(m/1440)+' D') }
 function adCLP(n){ return '$'+(Math.round(+n||0)).toLocaleString('es-CL') }
-function admCerrar(){ document.getElementById('mAdm').classList.remove('vis'); admCerrarWide() }
+function admCerrar(){ const _m=document.getElementById('mAdm'); if(_m && _m.classList.contains('vis') && document.documentElement.hasAttribute('data-fprog')) s4Son('scan-lock',0.5); _m.classList.remove('vis'); admCerrarWide() }
+document.addEventListener('click',function(e){ const t=e.target; if(!t.closest || !document.documentElement.hasAttribute('data-fprog')) return
+  if (t.closest('#mAdm .vtGo')) s4Son('start',0.7)
+  else if (t.closest('#mAdm .vtP, #mAdm .vtCh button, #mAdm .vtTg button, #mAdm .pfB, #mAdm .btn')) s4Son('scan-paso',0.55)
+  else if (t.closest('#vFicha #fTabAdm button')) s4Son('scan-paso',0.55) },true)   // c277
 function admCerrarWide(){ const m=document.getElementById('mAdm'); if(m) m.classList.remove('adWide') }
-function admAbrir(tit, html){ document.getElementById('mAdmTit').textContent=tit; document.getElementById('mAdmBody').innerHTML=html; document.getElementById('mAdm').classList.add('vis') }
+function admAbrir(tit, html){ try{ if(document.documentElement.hasAttribute('data-fprog')) s4Son('appear',0.8) }catch(_e){} document.getElementById('mAdmTit').textContent=tit; document.getElementById('mAdmBody').innerHTML=html; document.getElementById('mAdm').classList.add('vis') }
 const SOL_TIPO={postergar:'POSTERGAR', adelantar:'ADELANTAR', preview:'VISTA PREVIA', extra:'SESIÓN EXTRA'}
 const MEM_EST={activa:'ACTIVA', proxima:'PRÓXIMA A VENCER', vencida:'VENCIDA', congelada:'CONGELADA', cancelada:'CANCELADA', finalizada:'FINALIZADA', futura:'COMIENZA PRONTO'}
 const MEM_TIPO={normal:'NORMAL',promocion:'PROMOCIÓN',descuento:'DESCUENTO',convenio:'CONVENIO',canje:'CANJE',cortesia:'CORTESÍA',otro:'OTRO'}
