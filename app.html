@@ -1626,6 +1626,16 @@ html:has(#vSesion.esf.on),html:has(#vSesion.esf.on) body{background:#C9CBCE url(
 /* c277 · antes de iniciar: misma ruta de esferas (sin EN CURSO; bloques · ejercicios · duración; ¡A ENTRENAR! y TEST WELLNESS en píldora) */
 .esD{margin:14px auto 0;max-width:31ch;text-align:center;font:400 14px/1.45 var(--font-body,'Inter Display',sans-serif);color:#434649}
 #vSesion .esD b{font:inherit;font-weight:700;color:#131313;letter-spacing:0}
+/* c278 · esferas solo con B1/B2/B3; píldoras de músculo en gris cristal sólido; botón sin flecha con un contorno parejo; estado bloqueado */
+.esO__b small{display:none}
+.esPl--c{background:rgba(255,255,255,.38);border-color:rgba(19,19,19,.38);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);box-shadow:inset 0 1px 0 rgba(255,255,255,.7)}
+.esGo,.esGo:active{justify-content:center;padding:0 24px;border:1px solid rgba(19,19,19,.16);background:linear-gradient(180deg,#FFFFFF 0%,#F2F3F4 100%);box-shadow:inset 0 1px 0 #FFFFFF,0 18px 36px -20px rgba(19,19,19,.55)}
+.esGo::before{display:none}
+.esGo--lk,.esGo--lk:active{background:rgba(255,255,255,.22);border:1px dashed rgba(19,19,19,.35);color:#434649;box-shadow:none;font-size:10px}
+.esGo--lk span{letter-spacing:.16em}
+.esO--lk{cursor:default}
+.esL__h{flex-wrap:wrap;row-gap:6px}
+
 .esFin--w{margin-bottom:0}
 
 </style>
@@ -7830,31 +7840,41 @@ function esfHero(ses,bfs){ let sh=0,stt=0,kg=0; bfs.forEach(b=>{ sh+=bkSetsHecho
     '<h2 class="esT">'+plEscA(String(ses.nombre||'SESIÓN').toUpperCase())+'</h2>'+
     (S.regInicio?'<div class="esP"><span class="esPl">'+sh+'/'+stt+' SETS</span><span class="esPl">'+kg.toLocaleString('es-CL')+' KG</span><span class="esPl"><i id="sClk" class="esClk" data-t="'+sesTxt()+'">'+sesTxt()+'</i></span></div>'
       :'<div class="esP"><span class="esPl">'+bfs.length+' BLOQUES</span><span class="esPl">'+bfs.reduce((a,b)=>a+bkBes(b).length,0)+' EJERCICIOS</span><span class="esPl">~'+pvDur(bfs)+"'</span></div>")+
-    '<p class="esD">'+pvDesc(ses,bfs)+'</p>' }
+    '<p class="esD">'+esfDesc(ses)+'</p>' }
 function esfCuerpo(ses,bfs){ const pp=bkPrimerPendiente(bfs), prim=pp<0?bfs.length-1:pp
   const sel=(S._pvAb!=null && S._pvAb>=0 && bfs[S._pvAb]) ? S._pvAb : prim, emp=pvEmpezada()
   const orbs='<div class="esR'+(bfs.length>3?' esR--n':'')+'" id="esR"><svg class="esR__l" aria-hidden="true"><path d=""/></svg>'+bfs.map((b,bi)=>{
       const done=bloqueCompleto(b), cur=bi===prim, h0=bkSetsHechos(b), cod=bkCod(b,bi)
       const k = done ? 'LISTO ✓' : cur ? (h0?'SET '+h0+'/'+b.sets:'TE TOCA') : 'DESPUÉS'
-      const cl = done ? 'esO--ok' : cur ? 'esO--on' : 'esO--nx'
+      const cl = (done ? 'esO--ok' : cur ? 'esO--on' : 'esO--nx')+(!done&&!cur?' esO--lk':'')
       return '<button type="button" class="esO '+cl+(bi===sel?' esO--sel':'')+'" style="--i:'+bi+'" onclick="esfSel('+bi+')" aria-label="Bloque '+cod+' · '+bkEsc(bkNom(b,bi))+' · '+k+'">'+
-        '<span class="esO__b">'+(cur?'<i class="esO__ha" aria-hidden="true"></i><i class="esO__g" aria-hidden="true"></i>':'')+'<b>'+cod+'</b><small>'+k+'</small></span><span class="esO__n">'+bkEsc(bkNom(b,bi))+'</span></button>' }).join('')+'</div>'
-  const V=pvVol(ses), mus=V.pct.length?'<div class="esP esM">'+V.pct.slice(0,4).map(([g,p])=>'<span class="esPl"><i style="width:'+p+'%"></i>'+plEscA(g)+' '+p+'%</span>').join('')+'</div>':''
+        '<span class="esO__b">'+(cur?'<i class="esO__ha" aria-hidden="true"></i><i class="esO__g" aria-hidden="true"></i>':'')+'<b>'+cod+'</b></span><span class="esO__n">'+bkEsc(bkNom(b,bi))+'</span></button>' }).join('')+'</div>'
+  const V=pvVol(ses), mus=V.pct.length?'<div class="esP esM">'+V.pct.slice(0,4).map(([g,p])=>'<span class="esPl esPl--c">'+plEscA(g)+' '+p+'%</span>').join('')+'</div>':''
   const b=bfs[sel]||{}, cod=bkCod(b,sel), done=bloqueCompleto(b), h0=bkSetsHechos(b), bes=bkBes(b)
-  const lst='<section class="esL" aria-label="Ejercicios de '+cod+'"><div class="esL__h"><span class="esPl esPl--w">'+cod+' · '+bkEsc(bkNom(b,sel))+'</span><span class="esPl esPl--w">'+
-      (done?'LISTO · '+bkKgBloque(b).toLocaleString('es-CL')+' KG':String(b.sets||0).padStart(2,'0')+' SETS · '+bkMMSS(bkDesc(b)))+'</span></div>'+
+  const lst='<section class="esL" aria-label="Ejercicios de '+cod+'"><div class="esL__h"><span class="esPl esPl--w">'+esfBloque(b,sel)+' · '+bkEsc(bkNom(b,sel))+'</span><span class="esPl esPl--w">'+
+      (done?'LISTO · '+bkKgBloque(b).toLocaleString('es-CL')+' KG':String(b.sets||0).padStart(2,'0')+' SETS · REST '+bkMMSS(bkDesc(b)))+'</span></div>'+
     (h0&&!done?'<div class="esL__sg" aria-hidden="true">'+Array.from({length:b.sets},(_,i)=>'<i class="'+(bkSetHecho(b,i+1)?'on':'')+'"></i>').join('')+'</div>':'')+
     '<ol class="esL__l">'+bes.map((be,i)=>{ const ej=be.ejercicios||{}
       return '<li><em>'+String(i+1).padStart(2,'0')+'</em><b>'+bkEsc(ej.nombre||'—')+'</b>'+(ej.grupo_muscular?'<span class="esPl esPl--w">'+bkEsc(String(ej.grupo_muscular).toUpperCase())+'</span>':'')+'</li>' }).join('')+'</ol></section>'
   const pre=!S.regInicio && !emp, wOk=!(S.regId && S._bn && S._bn[S.regId])
-  const cta = pre ? '¡A ENTRENAR! · '+cod : done ? 'VER O CORREGIR '+cod : (sel===prim&&h0?'RETOMAR ':'COMENZAR ')+cod
-  return orbs+mus+lst+'<button type="button" class="esGo" id="'+(pre?'pvIni':'esGo')+'" onclick="'+(pre?'esfAEntrenar('+sel+')':'pvEntrar('+sel+')')+'"><span>'+cta+'</span><b aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></b></button>'+
+  const lk=!done && sel!==prim, cp=bkCod(bfs[prim]||{},prim)   // c278 · un bloque se abre solo cuando terminaste el anterior
+  const cta = lk ? 'TERMINA '+cp+' PARA ABRIR '+cod : pre ? '¡A ENTRENAR! · '+cod : done ? 'VER O CORREGIR '+cod : (sel===prim&&h0?'RETOMAR ':'COMENZAR ')+cod
+  return orbs+mus+lst+(lk?'<button type="button" class="esGo esGo--lk" aria-disabled="true" onclick="esfSel('+prim+')"><span>'+cta+'</span></button>'
+      :'<button type="button" class="esGo" id="'+(pre?'pvIni':'esGo')+'" onclick="'+(pre?'esfAEntrenar('+sel+')':'pvEntrar('+sel+')')+'"><span>'+cta+'</span></button>')+
     (pre&&wOk?'<div class="esFin esFin--w"><button type="button" class="esPl esPl--w" onclick="wellAbrir()">TEST WELLNESS · ANTES DE ENTRENAR · 1 MIN</button></div>':'')+
     (emp?'<div class="esFin"><button type="button" class="esPl esPl--w" onclick="pedirFinal()">TERMINAR SESIÓN ✓</button></div>':(pre&&wOk?'':'<div class="esFin"></div>')) }
+/* c278 · frase conceptual de la sesión: el enfoque principal (dos grupos con más volumen) y la invitación a completarla.
+   BURN se presenta como entrenamiento metabólico; los % quedan en las píldoras de abajo. */
+function esfDesc(ses){ const V=pvVol(ses), prog=String((S.proto&&S.proto.programa)||'').toUpperCase()
+  const top=V.L.slice(0,2).map(x=>String(x[0]).toLowerCase()), g=top.length>1?top[0]+' y '+top[1]:(top[0]||'')
+  const fin=' Completa toda tu sesión, registra tus nuevas cargas y sigue avanzando hacia tu versión más fuerte.'
+  if (prog==='BURN') return 'Tu sesión de hoy es un entrenamiento metabólico'+(g?' enfocado principalmente en <b>'+plEscA(g)+'</b>':'')+'.'+fin
+  return 'Tu sesión de hoy está diseñada para fortalecer principalmente'+(g?' <b>'+plEscA(g)+'</b>':' todo tu cuerpo')+'.'+fin }
+function esfBloque(b,bi){ const c=bkCod(b,bi), m=/^B(\d+)$/i.exec(c); return 'BLOQUE '+(m?m[1]:(bi+1)) }
 function esfAEntrenar(bi){ pvIniciar().then(ok=>{ if(ok) bkAbrir(bi) }) }
 addEventListener('resize',()=>{ try{ esfLinea() }catch(_){} })
 function esfSel(bi){ const bfs=S._bfs||[], pp=bkPrimerPendiente(bfs), prim=pp<0?bfs.length-1:pp, sel=(S._pvAb!=null&&S._pvAb>=0)?S._pvAb:prim
-  if (bi===sel){ pvEntrar(bi); return }
+  if (bi===sel){ const b=bfs[bi]; if(b && (bloqueCompleto(b) || bi===prim)) pvEntrar(bi); return }   // c278 · bloques siguientes bloqueados
   S._pvAb=bi; try{ KSFX.play('menu',0,.7) }catch(_){} pintarSesion() }
 /* línea punteada que une las esferas por sus centros (curva suave) y centra el bloque que toca */
 function esfLinea(){ const r=document.getElementById('esR'); if(!r) return; const os=[...r.querySelectorAll('.esO__b')]; if(os.length<2) return
