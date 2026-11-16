@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>Vuelve a KOACH · KOACH Club</title>
+<title>Lanzamiento App KOACH · KOACH Club</title>
 <meta name="theme-color" content="#141517">
 <meta name="robots" content="noindex">
 <link rel="icon" href="/favicon-32.png">
@@ -181,8 +181,8 @@ input:focus{outline:none}button:focus-visible{outline:2px solid var(--ink);outli
 (function(){
   var API='https://koach-jake.vercel.app/api/agenda?publico=1';
   var q=new URLSearchParams(location.search);
-  var T=q.get('t')||'';
-  try{if(T)sessionStorage.setItem('koach_regreso_t',T);else T=sessionStorage.getItem('koach_regreso_t')||''}catch(e){}
+  var T=q.get('t')||'',O=q.get('o')||'';
+  try{if(T){sessionStorage.setItem('koach_regreso_t',T);sessionStorage.setItem('koach_regreso_o',O)}else{T=sessionStorage.getItem('koach_regreso_t')||'';O=sessionStorage.getItem('koach_regreso_o')||''}}catch(e){}
   var S={prog:null};
   var $=function(id){return document.getElementById(id)};
   var clp=function(n){return '$'+Math.round(n).toLocaleString('es-CL')};
@@ -196,9 +196,9 @@ input:focus{outline:none}button:focus-visible{outline:2px solid var(--ink);outli
   var susc=q.get('susc');
   if(susc){
     $('cargando').hidden=true;
-    if(susc!=='activa'){$('mal').hidden=false;if(T)fetch(API,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({accion:'regreso_fallo',t:T})}).catch(function(){});return}
+    if(susc!=='activa'){$('mal').hidden=false;if(T)fetch(API,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({accion:'regreso_fallo',t:T,o:O})}).catch(function(){});return}
     $('ok').hidden=false;
-    if(T)fetch(API,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({accion:'regreso_listo',t:T})})
+    if(T)fetch(API,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({accion:'regreso_listo',t:T,o:O})})
       .then(function(r){return r.json()}).then(function(d){if(d&&d.primer_mes)$('okTxt').textContent='Tu primer mes es de '+clp(d.primer_mes)+' y luego '+clp(d.monto)+' mensuales. Te enviamos la confirmación y el acceso a tu App KOACH por WhatsApp.'}).catch(function(){});
     return;
   }
@@ -217,10 +217,10 @@ input:focus{outline:none}button:focus-visible{outline:2px solid var(--ink);outli
     $('go').disabled=!ok;
   }
   if(!T){err('Este link no es válido. Pídele uno nuevo a Jake por WhatsApp.');return}
-  fetch(API+'&accion=regreso&t='+encodeURIComponent(T)).then(function(r){return r.json()}).then(function(d){
+  fetch(API+'&accion=regreso&t='+encodeURIComponent(T)+(O?'&o='+encodeURIComponent(O):'')).then(function(r){return r.json()}).then(function(d){
     if(!d.ok)return err(d.error||'No pudimos cargar tu oferta.');
     if(d.ya_activa){$('cargando').hidden=true;$('ok').hidden=false;$('okTxt').textContent='Tu pago automático ya está activo. Cualquier duda, escríbele a Jake por WhatsApp.';return}
-    if(d.vencida)return err('Esta oferta terminó el 22 de noviembre. Escríbele a Jake y te contamos las opciones vigentes.');
+    if(d.vencida)return err('Esta oferta terminó'+(d.oferta&&d.oferta.fin_texto?' el '+d.oferta.fin_texto:'')+'. Escríbele a Jake y te contamos las opciones vigentes.');
     var o=d.oferta;
     $('pm').textContent=clp(o.primer_mes);$('mens').textContent=clp(o.monto);$('lista').textContent=clp(o.precio_lista);$('perm').textContent=o.permanencia_meses+' meses';
     S.o=o;detalle();
@@ -238,7 +238,7 @@ input:focus{outline:none}button:focus-visible{outline:2px solid var(--ink);outli
   $('aut').onchange=pinta;$('acp').onchange=pinta;
   $('go').onclick=function(){
     var b=$('go');b.disabled=true;$('goTxt').textContent='ABRIENDO FLOW…';$('errForm').hidden=true;
-    fetch(API,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({accion:'regreso',t:T,programa:null,nombre:$('nombre').value.trim(),apellido:$('apellido').value.trim(),rut:rutLimpio($('rut').value),email:$('email').value.trim(),autorizo:$('aut').checked&&$('acp').checked,acepto_permanencia:$('acp').checked})})
+    fetch(API,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({accion:'regreso',t:T,o:O,programa:null,nombre:$('nombre').value.trim(),apellido:$('apellido').value.trim(),rut:rutLimpio($('rut').value),email:$('email').value.trim(),autorizo:$('aut').checked&&$('acp').checked,acepto_permanencia:$('acp').checked})})
     .then(function(r){return r.json()}).then(function(d){
       if(!d.ok||!d.url){$('errForm').textContent=d.error||'No pudimos conectar con Flow.';$('errForm').hidden=false;$('goTxt').textContent='UNIRME AL CLUB';pinta();return}
       location.href=d.url})
