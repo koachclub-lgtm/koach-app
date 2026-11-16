@@ -3363,6 +3363,41 @@ html[data-fprog] #mAdm .vtOk{background:rgba(62,198,176,.12) !important;color:#3
 html[data-fprog] #mAdm .btn,html[data-fprog] #mAdm .pfB{border-radius:999px !important}
 html[data-fprog] #mAdm .adLi{border-color:#2E3034 !important;color:#F4F3F0}
 @media (prefers-reduced-motion:reduce){ html[data-fprog] #mAdm.vis .adSheet,html[data-fprog] #vFicha #fTabAdm .pfC,html[data-fprog] .pfMenu{animation:none;opacity:1} }
+/* ═══ c278 · EDITOR EN LA FICHA ═══ */
+.fxBar{display:none}
+html.fx-edit #vFicha{display:block !important;padding-bottom:0 !important}
+html.fx-edit #vFicha>*:not(#fTabEnt):not(.fxBar){display:none !important}
+html.fx-edit #vFicha #fTabEnt>*:not(#fCtx){display:none !important}
+html.fx-edit #vFicha #fCtx>*:not(:has(#scCard)),html.fx-edit #vFicha #fCtx .kc>*:not(#scCard){display:none !important}
+html.fx-edit #oLoad{display:none !important}
+html.fx-edit #vFicha .fxBar{display:flex;align-items:center;gap:8px;margin:8px 0 10px;padding:8px 8px 8px 20px;border-radius:999px;background:#141517;border:1px solid #3D4044}
+.fxBar__t{flex:1;min-width:0}.fxBar__t small{display:block;font:700 9.5px 'Space Mono',monospace;letter-spacing:.14em;color:#A9ADB0}
+.fxBar__t b{display:block;font-family:'KOACH Display','Archivo',Arial,sans-serif;font-weight:900;font-stretch:112%;text-transform:uppercase;font-size:20px;line-height:1.05;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;background:linear-gradient(180deg,#FFF 0%,#C9CBCF 45%,#FFF 58%,#979C9F 100%);-webkit-background-clip:text;background-clip:text;color:transparent}
+.fxB{min-height:42px;padding:0 16px;border-radius:999px;border:1px solid #4A4D51;background:#26282B;color:#F4F3F0;font:700 11px 'Space Mono',monospace;letter-spacing:.06em;cursor:pointer;white-space:nowrap;transition:background .2s,color .2s,border-color .2s}
+.fxB:hover{border-color:#F4F3F0}.fxB--x{background:#F4F3F0;color:#000;border-color:#F4F3F0}
+/* tarjetas de sesión compactas como selector */
+html.fx-edit #vFicha .tb2{gap:8px !important}
+html.fx-edit #vFicha .tc{min-height:0 !important;border-radius:18px !important;box-shadow:none !important;transition:background .2s,border-color .2s,transform .2s}
+html.fx-edit #vFicha .tc__body{min-height:62px !important;padding:8px 58px 8px 16px !important;display:flex !important;flex-direction:row !important;align-items:center !important;justify-content:flex-start !important;gap:12px;text-align:left}
+html.fx-edit #vFicha .tc__h,html.fx-edit #vFicha .tc__iso,html.fx-edit #vFicha .tc::before{display:none !important}
+html.fx-edit #vFicha .tc__k{margin:0 !important;flex:none;display:flex;flex-direction:column;align-items:flex-start;gap:4px}
+html.fx-edit #vFicha .tc__k i{font-size:8.5px !important;padding:2px 7px !important}
+html.fx-edit #vFicha .tc__n{font-size:18px !important;line-height:1.05 !important;margin:0 !important;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
+html.fx-edit #vFicha .tc__s{display:none !important}
+html.fx-edit #vFicha .tcM{top:50% !important;transform:translateY(-50%);width:34px !important;height:34px !important;bottom:auto !important}
+html.fx-edit #vFicha .tc.fx-on{background:#F4F3F0 !important;border-color:#F4F3F0 !important;color:#000 !important;transform:translateY(-2px);box-shadow:0 12px 26px rgba(0,0,0,.35) !important}
+html.fx-edit #vFicha .tc.fx-on .tc__k i{color:#1F8A79 !important}
+html.fx-edit #vFicha .tc.tc--curso.fx-on{background:linear-gradient(115deg,#F4F3F0,#FFFFFF 40%,#E4E5E7) !important}
+html.fx-in #vFicha #scCard{animation:fxComp .55s cubic-bezier(.2,.8,.2,1) both;transform-origin:50% 0}
+@keyframes fxComp{from{transform:scaleY(2.6);opacity:.4}to{transform:none;opacity:1}}
+html.fx-in #vPlan{animation:kpIn .5s cubic-bezier(.2,.8,.2,1) .12s both}
+/* planificador debajo: sin identidad repetida ni pestañas (las tarjetas de arriba seleccionan la sesión) */
+html.fx-edit.en-plan[data-fprog="plan"] #vPlan.plDesk .plPc__av,html.fx-edit.en-plan[data-fprog="plan"] #vPlan.plDesk .plPc__id,html.fx-edit.en-plan[data-fprog="plan"] #vPlan.plDesk .plHdr .mtabs,html.fx-edit.en-plan[data-fprog="plan"] #vPlan.plDesk .plPc__a>a{display:none !important}
+html.fx-edit.en-plan[data-fprog="plan"] #vPlan.plDesk .plHdr{grid-template-columns:auto minmax(0,1fr) auto !important;padding-top:0 !important}
+html.fx-edit.en-plan[data-fprog="plan"] #vPlan.plDesk .plPc{grid-row:1 !important;grid-column:2 !important;display:flex !important;justify-content:flex-end;align-items:center}
+html.fx-edit.en-plan[data-fprog="plan"] #vPlan.plDesk #pNav{grid-row:1 !important;grid-column:1 !important}
+html.fx-edit.en-plan[data-fprog="plan"] #vPlan.plDesk .plSesBar{grid-row:1 !important;grid-column:3 !important}
+@media (prefers-reduced-motion:reduce){ html.fx-in #vFicha #scCard,html.fx-in #vPlan{animation:none} }
 /* ═══ c267 · TRANSICIÓN ENTRE VENTANAS: zoom de entrada al profundizar y de salida al volver ═══ */
 @keyframes kvIn{from{opacity:0;transform:scale(.94);filter:blur(6px)}to{opacity:1;transform:none;filter:none}}
 @keyframes kvOut{from{opacity:0;transform:scale(1.06);filter:blur(6px)}to{opacity:1;transform:none;filter:none}}
@@ -3517,6 +3552,12 @@ html[data-fprog] #mAdm .adLi{border-color:#2E3034 !important;color:#F4F3F0}
   <div id="fAccBan" aria-live="polite"></div>
   <div id="fTabAdm" style="display:none"></div>
   <div id="fTabCmp" style="display:none"></div>
+  <div class="fxBar" id="fxBar" aria-label="Editor de sesiones">
+    <div class="fxBar__t"><small>EDITOR DE SESIONES · <span id="fxSem">—</span></small><b id="fxNom">—</b></div>
+    <button type="button" class="fxB" onclick="fxSesOpc()">··· SESIÓN</button>
+    <button type="button" class="fxB" onclick="fxAddSes()">+ SESIÓN</button>
+    <button type="button" class="fxB fxB--x" onclick="fxCerrar()">✕ CERRAR EDITOR</button>
+  </div>
   <div id="fTabEnt">
   <div class="fCtx" id="fCtx"></div>
   <div id="fTabAdh" class="fAdhIn" hidden></div>
@@ -3948,8 +3989,12 @@ function hoyISO(){return fLocal(new Date())}
 const KV_PROF={vSala:0,vSol:0,vAgenda:0,vAdh:0,vCrm:0,vAdmin:0,vBib:0,vFicha:1,vExtra:2,vPlan:2,vPicker:2}
 function vista(id){ const _prev=document.querySelector('.vista.on'), _pid=_prev&&_prev.id
   document.querySelectorAll('.vista').forEach(function(v){v.classList.toggle('on',v.id===id)});window.scrollTo(0,0)
+  // c278: desde la ficha, el planificador se abre en la misma pantalla (la ficha se compacta arriba y el editor aparece debajo)
+  const _rt=document.documentElement, _fx = id==='vPlan' && (_pid==='vFicha' || (_pid==='vPlan' && _rt.classList.contains('fx-edit')))
+  _rt.classList.toggle('fx-edit', !!_fx)
+  if (_fx && _pid==='vFicha'){ _rt.classList.add('fx-in'); clearTimeout(vista._fx); vista._fx=setTimeout(function(){ _rt.classList.remove('fx-in') },900); try{ s4Son('appear',0.7) }catch(_e){} }
   // c267: al profundizar (Club → ficha → planificador) la ventana entra con zoom; al volver, sale con zoom hacia atrás
-  if (_pid && _pid!==id && id!=='vLogin' && id!=='vAgenda'){ const el=document.getElementById(id), a=KV_PROF[_pid]||0, b=KV_PROF[id]||0
+  if (_pid && _pid!==id && id!=='vLogin' && id!=='vAgenda' && !_fx){ const el=document.getElementById(id), a=KV_PROF[_pid]||0, b=KV_PROF[id]||0
     if (el && !(window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches)){ el.classList.remove('kv-in','kv-out'); void el.offsetWidth; el.classList.add(b>=a?'kv-in':'kv-out')
       clearTimeout(el._kv); el._kv=setTimeout(function(){ el.classList.remove('kv-in','kv-out') },560) } }
   document.documentElement.classList.toggle('en-sala', id==='vSala'); document.documentElement.classList.toggle('en-plan', id==='vPlan'); document.documentElement.classList.toggle('en-ficha', id==='vFicha'); document.documentElement.classList.toggle('en-crm', id==='vCrm')
@@ -5344,6 +5389,7 @@ async function abrirPlan(pid, proto, opts){
     document.getElementById('pQuienP').textContent=_pp([(proto&&proto.nombre)||'RUTINA ESTÁNDAR'])
     document.getElementById('pQuienM').textContent=' · SE GUARDA AL INSTANTE'
     document.title='Biblioteca · Planner | KOACH' }
+  if (esBib||esBase) document.documentElement.classList.remove('fx-edit')
   document.documentElement.setAttribute('data-fprog','plan')   // c269: el planificador siempre usa el mismo formato oscuro sólido, sin importar el programa
   if (esBib||esBase) {}
   else { document.getElementById('pQuienN').textContent=nomDe(F.id)
@@ -9999,6 +10045,26 @@ function fpHerr(ev,b){ ev.stopPropagation(); const w=b.closest('.plTools'), m=w.
   if (ab){ const v=document.getElementById('kcUAdhV'), fv=document.getElementById('fpAdhV'); if(v&&fv) fv.textContent=v.textContent
     m.hidden=false; w.classList.add('open'); b.setAttribute('aria-expanded','true'); s4Son('appear',0.6) } }
 function fpHerrIr(fn){ s4Son('scan-paso',0.6); plHerrCerrar(); try{ fn() }catch(e){ console.error(e) } }
+
+// ═══ c278 · EDITOR EN LA FICHA: las tarjetas de sesión se compactan arriba y seleccionan la sesión que se edita debajo ═══
+function fxSync(){
+  if (!document.documentElement.classList.contains('fx-edit') || !P || !P.sesiones) return
+  const cur=(P.sesiones[P.tab]||{}).id
+  document.querySelectorAll('#vFicha .tc').forEach(function(c){ c.classList.toggle('fx-on', !!cur && c.dataset.sid===cur) })
+  const n=document.getElementById('fxNom'); if(n && F) n.textContent=nomDe(F.id)
+  const w=document.getElementById('fxSem'); if(w) w.textContent='SEMANA '+(PL.w||'—')+' DE '+plN()
+}
+function fxCerrar(){ s4Son('scan-lock',0.6); if (F) rtIr(null,'#/socio/'+F.id) }
+function fxSesOpc(){ if (P && P.sesiones && P.sesiones[P.tab]) abrirSesOpc() }
+function fxAddSes(){ s4Son('appear',0.6); if (typeof abrirAddSes==='function') abrirAddSes() }
+document.addEventListener('click',function(e){
+  if (!document.documentElement.classList.contains('fx-edit')) return
+  const b=e.target.closest && e.target.closest('#vFicha .tc__body, #vFicha .tc'); if(!b || (e.target.closest && e.target.closest('#vFicha .tcM'))) return
+  const c=b.closest('.tc'), sid=c&&c.dataset.sid; e.preventDefault(); e.stopPropagation()
+  if (sid && P && P.sesiones.some(function(x){return x.id===sid})){ s4Son('scan-paso',0.6); plIrSes(sid); setTimeout(fxSync,0) }
+  else toast('Esta sesión no está en la semana que estás editando.')
+},true)
+;(function(){ const _pbs2=plBarraSesion; plBarraSesion=function(s){ _pbs2(s); try{ fxSync() }catch(_e){} } })()
 // ═══ c271 · PLANIFICADOR: herramientas agrupadas, sonidos de hojas y selector ═══
 function plHerr(){
   if (document.documentElement.getAttribute('data-fprog')!=='plan') return
