@@ -8372,7 +8372,9 @@ function salaRecPintar(){
   ;(C.rec||[]).forEach(function(r){ if(enSala.has(r.socio_id) || r.estado==='anulada') return
     const t=new Date(r.completada_at||r.iniciada_at||(r.fecha+'T12:00:00')).getTime(), cur=M.get(r.socio_id)
     if(!cur || t>cur._t) M.set(r.socio_id, Object.assign({_t:t}, r)) })
-  const L=Array.from(M.values()).sort(function(a,b){return b._t-a._t}).slice(0,12)
+  // c268: todos los que entrenaron hoy (antes se cortaba en 12 y no cuadraba con el contador); días anteriores solo completan hasta 12
+  const _all=Array.from(M.values()).sort(function(a,b){return b._t-a._t}), _nh=_all.filter(function(r){return r.fecha===hoy}).length
+  const L=_all.slice(0,Math.max(12,_nh))
   if(h) h.hidden=!L.length
   g.innerHTML=L.map(function(r){
     let est
