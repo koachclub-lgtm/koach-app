@@ -1643,6 +1643,19 @@ html:has(#vSesion.esf.on),html:has(#vSesion.esf.on) body{background:#C9CBCE url(
 
 .esFin--w{margin-bottom:0}
 
+
+/* c283 · cintas THE LAST SET */
+.kci{position:absolute;inset:0;z-index:40;pointer-events:none;overflow:hidden}
+.kci__b{position:absolute;left:-12%;right:-12%;height:68px;background:#131313;display:flex;align-items:center;overflow:hidden;transform:rotate(var(--r));box-shadow:0 18px 40px rgba(0,0,0,.35);animation:kciIn 2.8s cubic-bezier(.2,.8,.2,1) both}
+.kci__b--r{animation-name:kciInR}
+.kci__b--p{background:linear-gradient(115deg,#9EA2A8,#F4F5F6 30%,#B7BBC0 55%,#FFFFFF 75%,#C3C6CA)}
+.kci__b span{display:block;white-space:nowrap;font:700 28px 'Space Mono',monospace;letter-spacing:.14em;color:#FFFFFF;padding-left:18px;animation:kciMq 2.8s linear both}
+.kci__b--p span{color:#131313}
+.kci__b--r span{animation-name:kciMqR}
+@keyframes kciIn{0%{translate:-125% 0}22%{translate:0 0}80%{translate:0 0;opacity:1}100%{translate:125% 0;opacity:0}}
+@keyframes kciInR{0%{translate:125% 0}22%{translate:0 0}80%{translate:0 0;opacity:1}100%{translate:-125% 0;opacity:0}}
+@keyframes kciMq{from{transform:translateX(0)}to{transform:translateX(-28%)}}
+@keyframes kciMqR{from{transform:translateX(-28%)}to{transform:translateX(0)}}
 </style>
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
@@ -8020,7 +8033,7 @@ function bkPintar(){
   let cta, ctaCls=''
   if (hecho){ cta='DESHACER SET '+n; ctaCls=' bk__cta--sec' }
   else if (done){ cta='BLOQUE '+String(cod).replace(/^B/,'')+' LISTO ✓'; ctaCls=' bk__cta--sec' }
-  else { const _ult=bkSetsHechos(b)>=b.sets-1; cta=_ult?'REGISTRAR ÚLTIMO SET':'REGISTRAR SET '+n; if(_ult) ctaCls=' bk__cta--best' }
+  else { const _ult=bkSetsHechos(b)>=b.sets-1; cta=_ult?'VOY CON TODO':'REGISTRAR SET '+n;   /* c283 · último set programado del bloque */ if(_ult) ctaCls=' bk__cta--best' }
   // c70 · bloque completado: se vuelve a la pantalla de la rutina (los tres bloques); el siguiente se inicia desde ahí
   const _pp = bkPrimerPendiente(S._bfs||[])   // c158 · último bloque listo: TERMINAR SESIÓN cierra de inmediato y lleva al resumen
   const sig = done ? '<button type="button" class="bk__cta" onclick="bkCerrar()'+(_pp<0?';pedirFinal()':'')+'">'+(_pp>=0?'COMENZAR '+bkCod((S._bfs||[])[_pp],_pp)+' →':'TERMINAR SESIÓN →')+'</button>' : ''
@@ -8098,11 +8111,21 @@ async function bkCompletar(){ const b=(S._bfs||[])[BK.bi]; if(!b) return
   finally{ S._restInfo=null; BK._busy=false; clearTimeout(_sv); if(_ob) _ob.classList.remove('bk--guardando') }
   bkOverFin()
   const sig=bkSetActual(b)
-  if (sig){ try{ KSFX.play('set') }catch(_){} BK.set=sig; bkRestIni(b); bkPintar() } else { BK.set=n; bkRestFin(true); bkPintar(); bkTrasPR(()=>{ try{ KSFX.play('block') }catch(_){} bkFinBloque(b) }) }
+  if (sig){ try{ KSFX.play('set') }catch(_){} BK.set=sig; bkRestIni(b); bkPintar(); if(b.sets>1 && sig>=b.sets) bkCintas() } else { BK.set=n; bkRestFin(true); bkPintar(); bkTrasPR(()=>{ try{ KSFX.play('block') }catch(_){} bkFinBloque(b) }) }
   try{ kxTrasSet(b,n,bes,!sig) }catch(e){ console.error('kxTrasSet',e) }
 }
 /* c70 · cierre del bloque: pantalla breve en gris intermedio con el bloque y los kilos; vuelve sola a la rutina (o al tocar) */
+/* c283 · THE LAST SET: al partir el descanso antes del último set del bloque entran 4 cintas (negra/plata) con el texto corriendo, 2,8 s */
+function bkCintas(){ const o=document.getElementById('oBloque'); if(!o) return; try{ if(matchMedia('(prefers-reduced-motion: reduce)').matches) return }catch(_){}
+  const old=o.querySelector('.kci'); if(old) old.remove()
+  const T='<span>'+Array(6).fill('THE LAST SET').join(' · ')+' · </span>'
+  const el=document.createElement('div'); el.className='kci'; el.setAttribute('aria-hidden','true')
+  el.innerHTML=[['kci__b','20%','-8deg',''],['kci__b kci__b--p kci__b--r','38%','5deg','.08s'],['kci__b','56%','-3deg','.16s'],['kci__b kci__b--p kci__b--r','72%','9deg','.24s']]
+    .map(([c,t,r,d])=>'<div class="'+c+'" style="top:'+t+';--r:'+r+';animation-delay:'+d+'">'+T+'</div>').join('')
+  o.appendChild(el); try{ kHaptic([18,40,18]); KSFX.play('appear',0,.7) }catch(_){}
+  setTimeout(function(){ el.remove() }, 3300) }
 function bkFinBloque(b){ const o=document.getElementById('oBloque'); if(!o||!b) return
+  { const p=bkPrimerPendiente(S._bfs||[]); setTimeout(function(){ if(p>=0){ BK.cap=p; bkAbrir(p) } else { BK.cap=null; bkCerrar() } }, 450); return }   // c283 · sin pantalla del círculo: directo al bloque siguiente (o a la sesión)
   const bfs=S._bfs||[], kg=bkKgBloque(b); let kgHoy=0, sh=0, stt=0; bfs.forEach(x=>{ kgHoy+=bkKgBloque(x); sh+=bkSetsHechos(x); stt+=(x.sets||0) }); const st=[sh,stt]
   const prim=bkPrimerPendiente(bfs), ult=prim<0, nomV=(b.etiqueta?b.etiqueta.toUpperCase():bkNom(b,BK.bi))
   const el=document.createElement('div'); el.className='bk__fin'; el.setAttribute('role','status'); el.setAttribute('aria-live','polite')
