@@ -3423,7 +3423,7 @@ html[data-fprog] #vFicha .tc:has(.tc__body[aria-expanded="true"]){border-color:v
 html.fx-edit #vFicha .tcRes.is-visor{display:none !important}
 @media (prefers-reduced-motion:reduce){ html[data-fprog] #vFicha .tcRes.is-visor.is-anim,html[data-fprog] #vFicha .tcRes.is-visor.is-anim .tcB{animation:none} }
 /* ═══ c282 · RESUMEN DE SESIÓN EN DOS PASOS: BANDEJA abajo (no saca de la ficha) → ABRIR RUTINA expande al frente ═══ */
-.tcRes.is-drawer{position:fixed;z-index:80;left:50%;bottom:calc(14px + env(safe-area-inset-bottom,0px));width:min(1180px,calc(100vw - 32px));max-height:min(54vh,560px);overflow:auto;transform:translateX(-50%);box-sizing:border-box;margin:0;padding:16px 20px 18px;border-radius:24px;
+.tcRes.is-drawer{position:fixed;z-index:80;left:0;right:0;margin:0 auto !important;bottom:calc(14px + env(safe-area-inset-bottom,0px));width:min(1180px,calc(100vw - 32px));max-height:min(54vh,560px);overflow:auto;transform:none;animation:none;box-sizing:border-box;padding:16px 20px 18px;border-radius:24px;
   background:linear-gradient(160deg,#1C1D20 0%,#0A0B0C 60%,#000 100%);color:#F4F3F0;border:1px solid rgba(244,243,240,.16);
   box-shadow:0 -14px 60px rgba(0,0,0,.45),inset 0 1px 0 rgba(255,255,255,.14);scrollbar-width:none;will-change:transform,opacity}
 .tcRes.is-drawer::-webkit-scrollbar{display:none}
@@ -3431,8 +3431,8 @@ html.fx-edit #vFicha .tcRes.is-visor{display:none !important}
 .tcRes.is-drawer.is-in .tcB{animation:holoRow .4s cubic-bezier(.2,.8,.2,1) both}
 .tcRes.is-drawer.is-in .tcB:nth-child(2){animation-delay:.05s}.tcRes.is-drawer.is-in .tcB:nth-child(3){animation-delay:.1s}.tcRes.is-drawer.is-in .tcB:nth-child(4){animation-delay:.15s}
 .tcRes.is-drawer.is-out{animation:drwOut .26s cubic-bezier(.5,0,.75,0) both}
-@keyframes drwIn{0%{opacity:0;transform:translate(-50%,28px)}100%{opacity:1;transform:translate(-50%,0)}}
-@keyframes drwOut{to{opacity:0;transform:translate(-50%,28px)}}
+@keyframes drwIn{0%{opacity:0;transform:translateY(22px)}100%{opacity:1;transform:none}}
+@keyframes drwOut{to{opacity:0;transform:translateY(22px)}}
 .tcRes.is-drawer .tcRes__h{display:flex;align-items:center;justify-content:space-between;gap:14px;border-bottom:1px solid rgba(244,243,240,.12);padding-bottom:12px}
 .tcRes.is-drawer .tcRes__h small{display:block;color:rgba(244,243,240,.6);font:700 10px 'Space Mono',monospace;letter-spacing:.14em}
 .tcRes.is-drawer .tcRes__h b{display:block;margin-top:4px;font-family:'KOACH Display','Archivo',Arial,sans-serif;font-weight:900;font-stretch:112%;text-transform:uppercase;font-size:clamp(22px,2.4vw,32px);line-height:.95;
@@ -3557,6 +3557,13 @@ body .kte__btns button:hover{background:rgba(255,255,255,.08)}
 body .kte__btns .ink{background:#F4F3F0;color:#000;border-color:#F4F3F0}
 body .kte__btns .ink:hover{background:#fff}
 body .kte__btns .dng{color:#FF4200;border-color:rgba(255,66,0,.6)}
+/* ═══ c288 · ENTRAR A EDITAR SIN PANTALLA DE LOGO: barra de carga fina bajo la cabecera + tarjeta activa pulsando ═══ */
+html.fx-carga::after{content:"";position:fixed;z-index:9500;left:0;top:var(--ks-top,60px);height:3px;width:34%;background:linear-gradient(90deg,rgba(244,243,240,0),#F4F3F0,rgba(62,198,176,.9),rgba(244,243,240,0));animation:fxCarga .9s cubic-bezier(.4,0,.2,1) infinite;pointer-events:none}
+@keyframes fxCarga{from{transform:translateX(-100%)}to{transform:translateX(300%)}}
+html.fx-carga #vFicha .tc.is-on .tc__body,html.fx-carga #vFicha .tc.is-open .tc__body{animation:fxPulso .9s ease-in-out infinite alternate}
+@keyframes fxPulso{from{filter:brightness(1)}to{filter:brightness(1.18)}}
+html.fx-carga #vFicha{cursor:progress}
+@media (prefers-reduced-motion:reduce){ html.fx-carga::after,html.fx-carga #vFicha .tc__body{animation:none} }
 /* ═══ c280 · CABECERA DE LA FICHA SIN SOLAPE: la identidad se va con el scroll; solo la barra de botones queda fija, sólida, en el color del programa ═══ */
 html[data-fprog] #vFicha .mh{position:relative !important;top:auto !important}
 html[data-fprog] #vFicha .mh.mh--pin{padding-bottom:var(--fp-barh,56px) !important}
@@ -4370,7 +4377,7 @@ function kLd(t){ const txt=String(t||'Cargando').replace(/…|\.{3}/g,'').trim()
   return '<div class="kld" role="status" aria-live="polite"><div class="ld3d" aria-hidden="true"><div class="ld3d__obj"><img class="ld3d__logo" src="/img/brand/logotipo-koach.png" alt=""><span class="ld3d__sheen"></span></div><span class="ld3d__floor"></span></div><span class="kld__t">'+txt+'</span></div>' }
 document.addEventListener('DOMContentLoaded', function(){ document.querySelectorAll('.vacio').forEach(function(el){ if(/^Cargando/.test(el.textContent.trim())) el.outerHTML=kLd(el.textContent) }) })
 function cargando(){ const o=document.getElementById('oLoad'); if(o) o.classList.add('vis') }
-function cargandoOff(){ const o=document.getElementById('oLoad'); if(o) o.classList.remove('vis') }
+function cargandoOff(){ const o=document.getElementById('oLoad'); if(o) o.classList.remove('vis'); document.documentElement.classList.remove('fx-carga') }
 async function loadSala(silent){
   if (!silent) cargando('sala')
   C._lastSala = Date.now()
@@ -5588,7 +5595,9 @@ async function deshacerClon(pid){
 async function abrirPlan(pid, proto, opts){
   opts = opts || {}
   const _tok = (window._plTok=(window._plTok||0)+1), _fid = F && F.id
+  const _fxDesdeFicha = !opts.modo && (document.getElementById('vFicha').classList.contains('on') || document.documentElement.classList.contains('fx-edit'))
   if (opts.modo==='base' || opts.modo==='bib') cargando('base')
+  else if (_fxDesdeFicha){ document.documentElement.classList.add('fx-carga'); clearTimeout(window._fxCargaT); window._fxCargaT=setTimeout(function(){ document.documentElement.classList.remove('fx-carga') },9000) }   // c288: desde la ficha no aparece el logo: barra fina y la tarjeta pulsando
   else cargando('plan', (typeof F!=='undefined' && F) ? nomDe(F.id) : '')
   P = null
   await cargarCatalogo()
@@ -10376,8 +10385,6 @@ async function scPintarRes(){
     if (ex.tipo==='designada') acc+='<button type="button" class="tbB" onclick="scModoExtra(\''+ex.id+'\')">'+({koach:'SOLO CUANDO LA ACTIVE',libre:'MODO VACACIONES'}[ex.activacion]||'SIEMPRE DISPONIBLE')+' ⇄</button>'
     if (ex.tipo==='designada') acc+='<button type="button" class="tbB" onclick="scRetirarExtra(\''+ex.id+'\')">RETIRAR EXTRA</button>' }
   const cab='<div class="tcRes__h"><div><small>'+(ex?'★ SESIÓN EXTRA · NO SUMA A LAS PRINCIPALES':reg&&reg.abandonada?(reg.ejercicios+'/'+reg.total_ejercicios+' EJ · '+reg.sets+' SETS REGISTRADOS'):'RESUMEN DE LA SESIÓN')+'</small><b>'+scNomL(z.nombre)+'</b>'+(done&&z.cuando?'<small>REALIZADA · '+scDiaC(z.cuando)+'</small>':susp?'<small>SUSPENDIDA ESTA SEMANA</small>':'')+'</div><div class="tcRes__a">'+acc+
-    '<button type="button" class="tbB tbB--full" onclick="scResFull()">⤢ ABRIR RUTINA</button>'+
-    '<button type="button" class="tbB tbB--min" onclick="scResMin()" aria-label="Volver al resumen">↙ RESUMEN</button>'+
     '<button type="button" class="tcRes__x" onclick="holoCerrar()" aria-label="Cerrar resumen">✕</button></div></div>'
   box.hidden=false
   if (!SCD.det[id]){ box.innerHTML=cab+kLd('Cargando')
