@@ -3219,6 +3219,18 @@ html[data-fprog="plan"] .tbMenu button:last-child{color:#FF4200 !important}
 html[data-fprog="plan"] .tbMenu small{color:#A9ADB0 !important;font-weight:400;margin-left:auto;white-space:nowrap}
 html[data-fprog="plan"] .tbMenu--bq button small{margin-left:0}
 html[data-fprog="plan"] .tbMenu hr{border-top-color:#3D4044 !important}
+/* c273 · hojas del planificador (borrador sin publicar, etc.): flotan al centro en cristal negro */
+html[data-fprog="plan"] .mSG{align-items:center !important;justify-content:center !important;background:rgba(0,0,0,.55) !important;padding:16px !important}
+html[data-fprog="plan"] .mSG[style*="display: block"],html[data-fprog="plan"] .mSG[style*="display:block"],html[data-fprog="plan"] .mSG[style*="display: flex"]{display:flex !important}
+html[data-fprog="plan"] .mSG__c{max-width:540px !important;border-radius:26px !important;padding:26px 24px !important;background:linear-gradient(160deg,rgba(30,31,34,.9),rgba(6,7,8,.94)) !important;color:#F4F3F0 !important;border:1px solid rgba(244,243,240,.18);box-shadow:0 0 0 1px rgba(62,198,176,.1),0 40px 120px rgba(0,0,0,.6),inset 0 1px 0 rgba(255,255,255,.16) !important;backdrop-filter:blur(20px) saturate(1.2);-webkit-backdrop-filter:blur(20px) saturate(1.2);animation:kAlert .45s cubic-bezier(.16,.9,.24,1) both}
+html[data-fprog="plan"] .mSG__k{color:rgba(244,243,240,.62) !important;font:700 10.5px 'Space Mono',monospace !important;letter-spacing:.14em !important}
+html[data-fprog="plan"] .mSG__c h3{font-family:'KOACH Display','Archivo',Arial,sans-serif !important;font-weight:900 !important;font-stretch:110%;text-transform:uppercase;background:linear-gradient(180deg,#FFFFFF 0%,#C9CBCF 45%,#FFFFFF 58%,#979C9F 100%);-webkit-background-clip:text;background-clip:text;color:transparent !important}
+html[data-fprog="plan"] .mSG__c p{color:rgba(244,243,240,.75) !important}
+html[data-fprog="plan"] .mSG__ok,html[data-fprog="plan"] .mSG__sec{border-radius:999px !important;min-height:52px;font:700 11px 'Space Mono',monospace !important;letter-spacing:.08em}
+html[data-fprog="plan"] .mSG__ok{background:#F4F3F0 !important;color:#000 !important;border:1px solid #F4F3F0 !important}
+html[data-fprog="plan"] .mSG__sec{background:transparent !important;color:#F4F3F0 !important;border:1px solid rgba(244,243,240,.6) !important}
+html[data-fprog="plan"] .mSG__del{color:#FF4200 !important;font-family:'Space Mono',monospace}
+html[data-fprog="plan"] .mSG__c .dshOpt{background:#26282B !important;border-color:#3D4044 !important;color:#F4F3F0 !important;border-radius:20px}
 /* ═══ c267 · TRANSICIÓN ENTRE VENTANAS: zoom de entrada al profundizar y de salida al volver ═══ */
 @keyframes kvIn{from{opacity:0;transform:scale(.94);filter:blur(6px)}to{opacity:1;transform:none;filter:none}}
 @keyframes kvOut{from{opacity:0;transform:scale(1.06);filter:blur(6px)}to{opacity:1;transform:none;filter:none}}
@@ -8908,7 +8920,7 @@ function plGuard(accion){
   _plPend=accion
   const s=P.sesiones.find(function(x){return P.dirty[x.id]})
   document.getElementById('mSinGuardarTxt').textContent='Has realizado cambios en '+String((s&&s.nombre)||'esta sesión').toUpperCase()+' que el socio aún no ve (borrador sin publicar).'
-  document.getElementById('mSinGuardar').style.display='flex'
+  document.getElementById('mSinGuardar').style.display='flex'; try{ s4Son('appear',0.7) }catch(_e){}
 }
 function plGuardCerrar(){ document.getElementById('mSinGuardar').style.display='none'; _plPend=null }
 async function plGuardGuardar(){
