@@ -2781,6 +2781,12 @@ html.en-sala #vSala #rostN{display:none !important}
 #vSala .s4Sem__b>div b{font:700 10.5px 'Space Mono',monospace}
 #vSala .s4Sem__b>div i{display:block;width:100%;border-radius:4px 4px 2px 2px;background:linear-gradient(180deg,#C9CBCF,#979C9F)}
 #vSala .s4Sem__b>div.hoy{color:#000}
+#vSala .s4Sem__b>div{gap:0}#vSala .s4Sem__b>div b{margin-bottom:5px}#vSala .s4Sem__b>div i+i{margin-top:2px}#vSala .s4Sem__b>div i:last-of-type{margin-bottom:5px}
+#vSala .s4Sem__b>div b small{font:700 9px 'Space Mono',monospace;color:#1F8A79;margin-left:2px}
+#vSala .s4Sem__b>div i.cp,#vSala .s4Sem__b>div.hoy i.cp{background:transparent;border:1.5px solid #3EC6B0;box-shadow:none;box-sizing:border-box}
+#vSala .s4Sem__h em{font-style:normal;color:#1F8A79}
+#vSala .s4Sem__ley{display:flex;gap:14px;margin-top:10px;font:700 9px 'Space Mono',monospace;letter-spacing:.08em;color:#434649}
+#vSala .s4Sem__ley span{display:inline-flex;align-items:center;gap:6px}#vSala .s4Sem__ley i{width:10px;height:10px;border-radius:3px;background:#434649}#vSala .s4Sem__ley i.cp{background:transparent;border:1.5px solid #3EC6B0}
 #vSala .s4Sem__b>div.hoy i{background:linear-gradient(180deg,#434649,#000);box-shadow:0 6px 14px rgba(0,0,0,.25)}
 #vSala .s4Ls{display:flex;flex-direction:column}
 #vSala .s4Ls button{min-height:36px;border:0;border-top:1px solid rgba(11,11,12,.07);background:transparent;color:inherit;padding:0;display:grid;grid-template-columns:46px minmax(0,1fr) auto;align-items:center;gap:8px;text-align:left;cursor:pointer}
@@ -8352,18 +8358,25 @@ async function s4Cargar(forzar){
     const R=(C.yo&&C.yo.role)||'', COM=(R==='admin'||R==='recepcion')
     const q=[
       sb.from('sesiones_registro').select('fecha,socio_id,estado').gte('fecha',lu).in('estado',['completada','en_curso']).limit(5000),
-      sb.from('agenda_citas').select('inicio,nombre,formato,estado,socio_id').eq('servicio','clase_prueba').gte('inicio',d0.toISOString()).lt('inicio',d1.toISOString()).neq('estado','cancelada').order('inicio'),
+      sb.from('agenda_citas').select('inicio,nombre,formato,estado,socio_id').eq('servicio','clase_prueba').gte('inicio',lunes().toISOString()).lt('inicio',d1.toISOString()).neq('estado','cancelada').order('inicio'),
       COM ? sb.from('v_membresias').select('socio_id,fecha_fin,dias_restantes,estado_calc').in('estado_calc',['activa','proxima','futura']).limit(2000) : Promise.resolve({ data:null })
     ]
     const [rs, ra, rm] = await Promise.all(q)
-    const ses=(rs&&!rs.error&&rs.data)||[], dias={}
-    ses.forEach(function(r){ (dias[r.fecha]=dias[r.fecha]||{n:0,s:new Set()}); dias[r.fecha].n++; dias[r.fecha].s.add(r.socio_id) })
-    const sem=[]; for(let i=0;i<6;i++){ const d=new Date(lunes()); d.setDate(d.getDate()+i); const f=fLocal(d); sem.push({ k:'LMMJVS'[i], f:f, v:dias[f]?dias[f].n:0, hoy:f===hoy }) }
+    // c266: las clases de prueba se cuentan aparte — solo las que asistieron (marcada 'asistio' o con sesión ese día); socios y sesiones = solo alumnos
+    const ses=(rs&&!rs.error&&rs.data)||[], citas=(ra&&!ra.error&&ra.data)||[], dias={}, cpKey=new Set(), cpDia={}
+    citas.forEach(function(c){ if (c.socio_id) cpKey.add(fLocal(new Date(c.inicio))+'|'+c.socio_id) })
+    const conSes=new Set(ses.map(function(r){ return r.fecha+'|'+r.socio_id }))
+    ses.forEach(function(r){ if (cpKey.has(r.fecha+'|'+r.socio_id)) return
+      (dias[r.fecha]=dias[r.fecha]||{n:0,s:new Set()}); dias[r.fecha].n++; dias[r.fecha].s.add(r.socio_id) })
+    citas.forEach(function(c){ const f=fLocal(new Date(c.inicio)), k=f+'|'+(c.socio_id||c.nombre)
+      if (c.estado==='asistio' || (c.socio_id && conSes.has(f+'|'+c.socio_id))) (cpDia[f]=cpDia[f]||new Set()).add(k) })
+    const sem=[]; for(let i=0;i<6;i++){ const d=new Date(lunes()); d.setDate(d.getDate()+i); const f=fLocal(d); sem.push({ k:'LMMJVS'[i], f:f, v:dias[f]?dias[f].n:0, p:cpDia[f]?cpDia[f].size:0, hoy:f===hoy }) }
+    const prHoy=citas.filter(function(c){ return fLocal(new Date(c.inicio))===hoy && c.estado!=='no_asistio' })
     let ve=null
     if (rm && rm.data){ const fut=new Set(rm.data.filter(function(m){return m.estado_calc==='futura'}).map(function(m){return m.socio_id}))
       ve=rm.data.filter(function(m){ return m.estado_calc!=='futura' && m.dias_restantes!=null && m.dias_restantes>=0 && m.dias_restantes<=3 && !fut.has(m.socio_id) })
         .sort(function(a,b){ return a.dias_restantes-b.dias_restantes }) }
-    S4.d={ socios:dias[hoy]?dias[hoy].s.size:0, sesiones:dias[hoy]?dias[hoy].n:0, sem:sem, pr:(ra&&!ra.error&&ra.data)||[], ve:ve }
+    S4.d={ socios:dias[hoy]?dias[hoy].s.size:0, sesiones:dias[hoy]?dias[hoy].n:0, cp:cpDia[hoy]?cpDia[hoy].size:0, sem:sem, pr:prHoy, ve:ve }
   }catch(e){ console.error('sala v4', e) } finally{ S4.run=false }
   s4Pintar()
 }
@@ -8371,11 +8384,12 @@ function s4Pintar(){
   const d=S4.d; if(!d) return
   const DIA=['DOM','LUN','MAR','MIÉ','JUE','VIE','SÁB'], MES=['ENE','FEB','MAR','ABR','MAY','JUN','JUL','AGO','SEP','OCT','NOV','DIC'], h=new Date()
   const hoyEl=document.getElementById('s4Hoy')
-  if (hoyEl){ const mx=Math.max(1,...d.sem.map(function(x){return x.v})), tot=d.sem.reduce(function(a,x){return a+x.v},0)
+  if (hoyEl){ const mx=Math.max(1,...d.sem.map(function(x){return x.v+x.p})), tot=d.sem.reduce(function(a,x){return a+x.v},0), totP=d.sem.reduce(function(a,x){return a+x.p},0)
     hoyEl.innerHTML='<div class="s4C__h"><span>HOY · '+DIA[h.getDay()]+' '+h.getDate()+' '+MES[h.getMonth()]+'</span><span class="s4Live"><i aria-hidden="true"></i>EN VIVO</span></div>'+
-      '<div class="s4Hoy"><div><b>'+d.socios+'</b><small>Socios entrenaron</small></div><div><b>'+d.sesiones+'</b><small>Sesiones realizadas</small></div><div><b>'+d.pr.length+'</b><small>Clases de prueba</small></div></div>'+
-      '<div class="s4Sem"><div class="s4Sem__h"><span>SESIONES · SEMANA</span><span>'+tot+'</span></div><div class="s4Sem__b" role="img" aria-label="Sesiones por día: '+d.sem.map(function(x){return x.k+' '+x.v}).join(', ')+'">'+
-      d.sem.map(function(x){ return '<div class="'+(x.hoy?'hoy':'')+'"><b>'+x.v+'</b><i style="height:'+Math.max(4,Math.round(x.v/mx*72))+'px"></i>'+x.k+'</div>' }).join('')+'</div></div>' }
+      '<div class="s4Hoy"><div><b>'+d.socios+'</b><small>Socios entrenaron</small></div><div><b>'+d.sesiones+'</b><small>Sesiones realizadas</small></div><div><b>'+d.cp+'</b><small>Pruebas asistieron</small></div></div>'+
+      '<div class="s4Sem"><div class="s4Sem__h"><span>SESIONES · SEMANA</span><span>'+tot+(totP?' <em>+'+totP+' PRUEBA'+(totP===1?'':'S')+'</em>':'')+'</span></div><div class="s4Sem__b" role="img" aria-label="Sesiones de alumnos por día: '+d.sem.map(function(x){return x.k+' '+x.v+(x.p?' más '+x.p+' de prueba':'')}).join(', ')+'">'+
+      d.sem.map(function(x){ return '<div class="'+(x.hoy?'hoy':'')+'"><b>'+x.v+(x.p?'<small>+'+x.p+'</small>':'')+'</b>'+(x.p?'<i class="cp" style="height:'+Math.max(4,Math.round(x.p/mx*72))+'px"></i>':'')+'<i style="height:'+Math.max(4,Math.round(x.v/mx*72))+'px"></i>'+x.k+'</div>' }).join('')+'</div></div>'+
+      '<div class="s4Sem__ley"><span><i></i>ALUMNOS</span><span><i class="cp"></i>CLASES DE PRUEBA ASISTIDAS</span></div>' }
   const pr=document.getElementById('s4Pr')
   if (pr){ const L=d.pr.slice(0,4)
     pr.innerHTML='<div class="s4C__h"><span>CLASES DE PRUEBA · HOY</span><span class="s4C__n">'+d.pr.length+'</span></div><div class="s4Ls">'+
