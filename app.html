@@ -4061,6 +4061,7 @@ html:not(:has(#oAct.vis)) #sBloques.locked{filter:none;opacity:1;pointer-events:
 .nuHm__bar s::after{content:"";position:absolute;right:-3px;top:-4px;bottom:-4px;width:2px;background:#111;box-shadow:0 0 8px rgba(17,17,17,.45);animation:nuHmBlink 1s steps(2) infinite}
 .nuHm__bar.is-over s{background:repeating-linear-gradient(90deg,#000 0 4px,transparent 4px 7px)}
 @keyframes nuHmBlink{50%{opacity:.15}}
+.nuHm__np{margin:8px 0 0;font:400 10px/1.4 'Space Mono',ui-monospace,monospace;letter-spacing:.04em;opacity:.6}
 .nuHm__esc{display:flex;justify-content:space-between;margin-top:8px;font:400 9px/1 'Space Mono',var(--font-mono);letter-spacing:.16em;color:#6A6B70}
 .nuHm.is-cg .nuHm__num b{color:rgba(17,17,17,.28)}
 .nuHm__ft{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:16px}
@@ -5383,7 +5384,8 @@ function nuProxComida(){
   return (ya.length?ya[ya.length-1]:pend[0]).num
 }
 function nuScanHome(){
-  if (typeof KEU==='undefined' || !NU.pauta || NU.pauta.estado!=='publicada'){ tab('vNutri'); return }
+  if (typeof KEU==='undefined'){ tab('vNutri'); return }
+  if (!NU.pauta || NU.pauta.estado!=='publicada'){ try{ kHaptic && kHaptic(12) }catch(_){} nuEscanear(); return }   // c287 · sin plan también escanea
   try{ kHaptic && kHaptic(12) }catch(_){}
   nuEscInit(); KEU.abrir(nuProxComida())
 }
@@ -5393,9 +5395,17 @@ function nuHomeHTML(){
   if (NU.bloqueado || NU._hmErr) return ab+' hidden></section>'
   if (!NU.ok) return ab+'><div class="nuHm__hd"><span>TU NUTRICIÓN DEL DÍA</span><span>— COMIDAS</span></div><div class="nuHm__big"><div class="nuHm__num"><b data-v="0">0</b><span>KCAL</span></div><div class="nuHm__meta">CARGANDO<b>—</b></div></div><div class="nuHm__bar"><s data-w="0%"></s></div><div class="nuHm__esc"><span>0</span><span>— KCAL</span></div></section>'
   const pa=NU.pauta, n0=v=>Math.round(+v||0).toLocaleString('es-CL')
-  if (!pa || pa.estado!=='publicada')
-    return ab+'><div class="nuHm__hd"><span>TU NUTRICIÓN DEL DÍA</span></div><p class="nuHm__p">Tu plan de nutrición KOACH aún no está activo. Cuando tu nutricionista lo publique, aquí verás tus calorías del día y podrás escanear tus comidas.</p>'+
-      '<div class="nuHm__ft"><button type="button" class="nuHm__lk" onclick="tab(\'vNutri\')">VER NUTRICIÓN →</button></div></section>'
+  if (!pa || pa.estado!=='publicada'){
+    // c287 · sin plan: igual muestra lo que lleva registrado hoy; la meta queda en blanco hasta que nutrición publique el plan
+    const hoy=nuHoyISO(), rs=(NU.reg||[]).filter(r=>String(r.fecha).slice(0,10)===hoy), k=rs.reduce((a,r)=>a+(+r.kcal||0),0), nr=rs.length
+    return ab+'><div class="nuHm__hd"><span>TU NUTRICIÓN DEL DÍA</span><span><b>'+nr+'</b> '+(nr===1?'COMIDA':'COMIDAS')+'</span></div>'+
+      '<div class="nuHm__big"><div class="nuHm__num"><b data-v="'+Math.round(k)+'">'+(_nuHmK===Math.round(k)?n0(k):'0')+'</b><span>KCAL</span></div><div class="nuHm__meta">META<b>—</b>SIN PLAN</div></div>'+
+      '<div class="nuHm__bar" role="img" aria-label="'+n0(k)+' kilocalorías registradas hoy, sin meta"><s data-w="0%"></s></div>'+
+      '<div class="nuHm__esc"><span>0</span><span>— KCAL</span></div>'+
+      '<p class="nuHm__np">Aún no tienes tu plan nutricional cargado.</p>'+
+      '<div class="nuHm__ft"><button type="button" class="nuHm__scan" onclick="nuScanHome()" aria-label="Escanear una comida">'+NU_SCAN_ICO+'<span>SCAN</span></button>'+
+      '<div class="nuHm__sig">'+(nr?'<b>'+nr+' '+(nr===1?'REGISTRADA':'REGISTRADAS')+'</b>REGISTRA OTRA':'<b>SIN REGISTROS HOY</b>ESCANEA TU COMIDA')+'</div></div></section>'
+  }
   const D=nuDia(), H=D.c.hoy, meta=+pa.kcal||0, k=+H.kcal||0, reg=H.registradas||0, n=D.n, pc=meta?k/meta*100:0, prox=nuProxComida()
   const pm=prox?D.com[prox-1]:null
   const sig = reg>=n ? '<b>DÍA COMPLETO</b>TODAS REGISTRADAS' : prox ? '<b>COMIDA '+prox+(pm&&pm.hora?' · '+plEscA(pm.hora):'')+'</b>TOCA REGISTRAR' : ''
