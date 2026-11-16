@@ -3289,6 +3289,17 @@ html[data-fprog="plan"] .mSG__c .dshOpt{background:#26282B !important;border-col
 .cyBase .plBtn{border-radius:999px !important;background:#26282B !important;color:#F4F3F0 !important;border:1px solid #4A4D51 !important}.cyBase .plBtn.ink{background:#F4F3F0 !important;color:#000 !important}
 .cyBase .plStats span{color:#A9ADB0 !important}.cyBase .plH,.cyBase .plStats b{color:#F4F3F0 !important}
 @media (prefers-reduced-motion:reduce){ .cyW,.cyG,.cyBar,.cyLn,#pMacro .cy{animation:none} .cyLn{stroke-dashoffset:0} }
+/* c276 · ficha: utilidades dentro de HERRAMIENTAS */
+html[data-fprog]:not([data-fprog="plan"]) #vFicha .kcUt{display:none}
+#vFicha .fpTools__m{min-width:340px;background:linear-gradient(160deg,rgba(30,31,34,.92),rgba(6,7,8,.95))}
+html[data-fprog] #vFicha .fpSem{flex-wrap:nowrap;gap:6px}
+#vFicha .fpTools__m{left:50%;right:auto;transform-origin:50% 0;translate:-50% 0}
+#vFicha .fpTools__m button{display:flex;flex-direction:column;align-items:flex-start;justify-content:center;gap:4px;min-height:66px;padding:10px 22px !important;line-height:1.2;border-radius:999px;border:1px solid #3D4044;background:#26282B;color:#F4F3F0;font:700 14px 'Space Mono',monospace;letter-spacing:.06em;cursor:pointer;text-align:left}
+#vFicha .fpTools__m button small{font:400 10.5px 'Space Mono',monospace;letter-spacing:.04em;color:#A9ADB0;text-transform:none}
+#vFicha .fpTools__m button:hover,#vFicha .fpTools__m button:focus-visible{background:#F4F3F0;color:#000;border-color:#F4F3F0;outline:none}
+#vFicha .fpTools__m button:hover small{color:#434649}
+#vFicha .fpTools__m button:disabled{opacity:.45;cursor:not-allowed}
+#vFicha .fpTools .plTools__b i{font-style:normal}
 /* ═══ c267 · TRANSICIÓN ENTRE VENTANAS: zoom de entrada al profundizar y de salida al volver ═══ */
 @keyframes kvIn{from{opacity:0;transform:scale(.94);filter:blur(6px)}to{opacity:1;transform:none;filter:none}}
 @keyframes kvOut{from{opacity:0;transform:scale(1.06);filter:blur(6px)}to{opacity:1;transform:none;filter:none}}
@@ -8886,9 +8897,14 @@ function fpSemPintar(st, ses, ed){
   const tot=+st.total_semanas||0, sem=+st.semana||0
   let seg=''; for (let i=1;i<=Math.min(tot,12);i++) seg+='<i class="'+(i<=sem?'on':'')+'"></i>'
   const mov=ses.filter(function(z){return !scEsFija(z)}).length>1
-  el.innerHTML='<span class="fpP">SEMANA '+(sem||'—')+(tot?'/'+tot:'')+(seg?'<span class="fpP__seg" aria-hidden="true">'+seg+'</span>':'')+'</span>'+
-    '<button type="button" class="fpP fpP--tq" onclick="verExtra()" title="Diseñar una sesión extra">+ EXTRA'+(ed?' · '+ed+' DISP.':'')+'</button>'+
-    '<button type="button" class="fpP fpP--i" onclick="scOrgEntrar()" aria-label="Organizar semana" title="'+(mov?'Organizar semana':'No hay dos sesiones movibles esta semana')+'"'+(mov?'':' disabled')+'><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 4v16M4 8l4-4 4 4M16 20V4M12 16l4 4 4-4"/></svg></button>'
+  el.innerHTML='<span class="fpP">SEM '+(sem||'—')+(tot?'/'+tot:'')+(seg?'<span class="fpP__seg" aria-hidden="true">'+seg+'</span>':'')+'</span>'+
+    '<button type="button" class="fpP fpP--tq" onclick="verExtra()" title="Diseñar una sesión extra">+ EXTRA'+(ed?' · '+ed:'')+'</button>'+
+    '<div class="plTools fpTools"><button type="button" class="fpP plTools__b" aria-haspopup="menu" aria-expanded="false" onclick="fpHerr(event,this)">HERRAMIENTAS <i aria-hidden="true">▾</i></button><div class="plTools__m fpTools__m" role="menu" hidden>'+
+      '<button type="button" role="menuitem" onclick="fpHerrIr(function(){fichaCargas()})">HISTORIAL DE CARGAS<small>último peso por ejercicio</small></button>'+
+      '<button type="button" role="menuitem" onclick="fpHerrIr(function(){gpAbrir()})">GESTIONAR PROGRAMA<small>cambiar · nuevo ciclo</small></button>'+
+      '<button type="button" role="menuitem" onclick="fpHerrIr(function(){const b=document.getElementById(\'kcUAdh\'); if(b) fAdhToggle(b)})">ADHERENCIA<small id="fpAdhV">'+plEsc(((document.getElementById('kcUAdhV')||{}).textContent)||'—')+'</small></button>'+
+      '<button type="button" role="menuitem" onclick="fpHerrIr(function(){scOrgEntrar()})"'+(mov?'':' disabled')+'>ORGANIZAR SEMANA<small>'+(mov?'mover sesiones pendientes':'no hay dos sesiones movibles')+'</small></button>'+
+    '</div></div>'
 }
 // los números de la cabecera se cargan contando (sin tocar la lógica que los calcula)
 function fpContar(el){
@@ -9910,6 +9926,12 @@ function holoCerrar(silencio){
 }
 document.addEventListener('click',function(e){ const t=e.target; if (t.closest && document.documentElement.classList.contains('en-plan') && t.closest('#pTabs .mtab:not(.on)')) s4Son('scan-paso',0.6) },true)   // c270
 
+
+// c276 · ficha: HERRAMIENTAS agrupa historial de cargas, gestionar programa, adherencia y organizar semana
+function fpHerr(ev,b){ ev.stopPropagation(); const w=b.closest('.plTools'), m=w.querySelector('.plTools__m'), ab=m.hidden; plHerrCerrar()
+  if (ab){ const v=document.getElementById('kcUAdhV'), fv=document.getElementById('fpAdhV'); if(v&&fv) fv.textContent=v.textContent
+    m.hidden=false; w.classList.add('open'); b.setAttribute('aria-expanded','true'); s4Son('appear',0.6) } }
+function fpHerrIr(fn){ s4Son('scan-paso',0.6); plHerrCerrar(); try{ fn() }catch(e){ console.error(e) } }
 // ═══ c271 · PLANIFICADOR: herramientas agrupadas, sonidos de hojas y selector ═══
 function plHerr(){
   if (document.documentElement.getAttribute('data-fprog')!=='plan') return
