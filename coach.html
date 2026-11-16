@@ -3071,6 +3071,20 @@ html.en-plan[data-fprog] #vPlan #pVivo{background:linear-gradient(160deg,rgba(28
 html.en-plan[data-fprog] #vPlan .dsiIc{border-radius:999px !important}
 html.en-plan[data-fprog] #vPlan .plIndRow .plInd{color:var(--fp-mu);font:700 10px 'Space Mono',monospace;letter-spacing:.1em}
 
+/* ═══ c269 · PLANIFICADOR GRAFITO SÓLIDO: un solo formato para todos los programas, sin transparencias ═══ */
+html[data-fprog="plan"]{--fp-bg:linear-gradient(180deg,#1E1F22 0%,#141517 100%);--fp-fg:#F4F3F0;--fp-mu:#A9ADB0;--fp-ln:#4A4D51;--fp-glass:#26282B;--fp-seg:#0E0F10;--fp-on:#F4F3F0;--fp-onf:#000;--fp-card:#2A2C2F;--fp-cfg:#F4F3F0;--fp-cmu:#A9ADB0;--fp-cln:#3D4044;--fp-grid:rgba(255,255,255,.03);--fp-chrome:linear-gradient(180deg,#FFFFFF,#C9CBCF);--fp-live:#5A5D61;--fp-tq:#3EC6B0;--fp-pb:#2A2C2F;--fp-pf:#F4F3F0;--fp-pl:#4A4D51}
+html.en-plan[data-fprog="plan"] #vPlan{--pl-tile:#34363A;--pl-tile2:#3E4145}
+html.en-plan[data-fprog="plan"] #vPlan .plCrumb,html.en-plan[data-fprog="plan"] #vPlan .tbTiempo{backdrop-filter:none}
+html.en-plan[data-fprog="plan"] #vPlan .plSesBar button:not(.ink):not(.on),html.en-plan[data-fprog="plan"] #vPlan .plPc__a>a,html.en-plan[data-fprog="plan"] #vPlan .plPc__a>button:not(.plPc__btn){background:#2E3034 !important;border-color:#55585C !important}
+html.en-plan[data-fprog="plan"] #vPlan .plSesBar button.ink,html.en-plan[data-fprog="plan"] #vPlan .plSesBar .dsBtn.on,html.en-plan[data-fprog="plan"] #vPlan .plPc__btn:not(:disabled){background:#F4F3F0 !important;color:#000 !important;border-color:#F4F3F0 !important}
+html.en-plan[data-fprog="plan"] #vPlan .plSesBar button.ink::after,html.en-plan[data-fprog="plan"] #vPlan .plPc__btn:not(:disabled)::after{background:linear-gradient(105deg,rgba(0,0,0,0),rgba(0,0,0,.08),rgba(0,0,0,0))}
+html.en-plan[data-fprog="plan"] #vPlan .plPc__btn:disabled{background:#2E3034;color:#A9ADB0;border-color:#3D4044}
+html.en-plan[data-fprog="plan"] #vPlan .tbChip{background:#26282B;border-color:#4A4D51}
+html.en-plan[data-fprog="plan"] #vPlan .tbSt--btn,html.en-plan[data-fprog="plan"] #vPlan .plModo{border-style:solid !important;border-color:#4A4D51 !important;background:#2E3034 !important}
+html.en-plan[data-fprog="plan"] #vPlan .tbCol.act{border-color:#F4F3F0 !important}
+html.en-plan[data-fprog="plan"] #vPlan .tbCol .tbCard.sel{border-color:#F4F3F0 !important;background:#3E4145 !important}
+html.en-plan[data-fprog="plan"] #vPlan .plDock{background:#141517;border-top:1px solid #3D4044;color:#F4F3F0}
+
 /* ═══ c267 · TRANSICIÓN ENTRE VENTANAS: zoom de entrada al profundizar y de salida al volver ═══ */
 @keyframes kvIn{from{opacity:0;transform:scale(.94);filter:blur(6px)}to{opacity:1;transform:none;filter:none}}
 @keyframes kvOut{from{opacity:0;transform:scale(1.06);filter:blur(6px)}to{opacity:1;transform:none;filter:none}}
@@ -5052,7 +5066,7 @@ async function abrirPlan(pid, proto, opts){
     document.getElementById('pQuienP').textContent=_pp([(proto&&proto.nombre)||'RUTINA ESTÁNDAR'])
     document.getElementById('pQuienM').textContent=' · SE GUARDA AL INSTANTE'
     document.title='Biblioteca · Planner | KOACH' }
-  if (esBib||esBase) document.documentElement.removeAttribute('data-fprog'); else if (F && F.id && typeof fpTema==='function') fpTema(F.id)   // c267
+  document.documentElement.setAttribute('data-fprog','plan')   // c269: el planificador siempre usa el mismo formato oscuro sólido, sin importar el programa
   if (esBib||esBase) {}
   else { document.getElementById('pQuienN').textContent=nomDe(F.id)
     document.getElementById('pQuienP').textContent=_pp([proto&&proto.programa, proto&&proto.nivel])
