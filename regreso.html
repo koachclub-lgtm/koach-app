@@ -153,7 +153,7 @@ input:focus{outline:none}button:focus-visible{outline:2px solid var(--ink);outli
       </div>
       <label class="chk"><input type="checkbox" id="acp"><span class="box"></span><span id="acpTxt">Acepto la <b>fidelidad por 12 meses</b> con cobro automático en mi tarjeta.</span></label>
       <label class="chk"><input type="checkbox" id="aut"><span class="box"></span><span>Acepto los <a href="/terminos.html" target="_blank" rel="noopener">Términos y Condiciones</a>.</span></label>
-      <p class="chica">Primer cobro al registrar tu tarjeta; tu membresía parte ese día. Válido hasta el 22 de noviembre.</p>
+      <p class="chica" id="chica">Primer cobro al registrar tu tarjeta; tu membresía parte ese día.</p>
     </div>
     <div id="errForm" class="msg err" hidden></div>
   </section>
@@ -223,6 +223,7 @@ input:focus{outline:none}button:focus-visible{outline:2px solid var(--ink);outli
     if(d.vencida)return err('Esta oferta terminó'+(d.oferta&&d.oferta.fin_texto?' el '+d.oferta.fin_texto:'')+'. Escríbele a Jake y te contamos las opciones vigentes.');
     var o=d.oferta;
     $('pm').textContent=clp(o.primer_mes);$('mens').textContent=clp(o.monto);$('lista').textContent=clp(o.precio_lista);$('perm').textContent=o.permanencia_meses+' meses';
+    if(o.fin_texto)$('chica').textContent+=' Válido hasta el '+o.fin_texto+'.';
     S.o=o;detalle();
     $('acpTxt').innerHTML='Acepto la <b>fidelidad por '+o.permanencia_meses+' meses</b> con cobro automático en mi tarjeta.';
     if(d.datos){$('nombre').value=d.datos.nombre||'';$('apellido').value=(d.datos.apellido&&d.datos.apellido!=='·')?d.datos.apellido:'';$('email').value=d.datos.email||'';if(d.datos.rut)$('rut').value=rutFmt(d.datos.rut)}
