@@ -2507,6 +2507,16 @@ html,button,input,.pvS,.chk,.setChip{touch-action:manipulation}
 #oLoad .lb{width:min(60vw,240px);height:2px;background:rgba(243,242,239,.12);border-radius:2px;overflow:hidden}
 #oLoad .lb i{display:block;height:100%;width:38%;background:#F3F2EF;border-radius:2px;animation:ldr 1.1s ease-in-out infinite}
 @keyframes ldr{0%{transform:translateX(-110%)}100%{transform:translateX(290%)}}
+.kPop{position:fixed;left:50%;top:calc(env(safe-area-inset-top,0px) + 12px);z-index:9998;width:min(92vw,440px);display:flex;align-items:center;gap:12px;padding:12px 12px 12px 14px;border-radius:18px;
+  background:rgba(14,15,16,.86);-webkit-backdrop-filter:blur(18px) saturate(1.2);backdrop-filter:blur(18px) saturate(1.2);box-shadow:0 0 0 1px rgba(255,255,255,.12),0 18px 40px rgba(0,0,0,.35);color:#F4F3F0;
+  transform:translate(-50%,-14px) scale(.96);opacity:0;transition:transform .32s cubic-bezier(.2,.8,.2,1),opacity .32s;cursor:pointer}
+.kPop.on{transform:translate(-50%,0) scale(1);opacity:1}
+.kPop__i{flex:none;width:10px;height:10px;border-radius:50%;background:#3EC6B0;box-shadow:0 0 0 4px rgba(62,198,176,.18)}
+.kPop__tx{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}
+.kPop__tx b{font:700 14px/1.2 'Archivo',system-ui,sans-serif;letter-spacing:-.005em}
+.kPop__tx small{font:400 11px/1.3 'Space Mono',monospace;letter-spacing:.04em;color:rgba(244,243,240,.68)}
+.kPop__b{flex:none;height:36px;padding:0 16px;border-radius:999px;border:0;background:#F4F3F0;color:#000;font:700 11px 'Space Mono',monospace;letter-spacing:.08em}
+@media (prefers-reduced-motion:reduce){ .kPop{transition:opacity .2s} }
 .toast{position:fixed;bottom:26px;left:50%;transform:translateX(-50%) translateY(20px);max-width:86%;
   background:rgba(18,18,16,.94);color:var(--hueso);padding:12px 18px;border-radius:16px;font-size:10.5px;
   font-weight:700;z-index:3000;opacity:0;pointer-events:none;transition:all .25s;text-align:center}
@@ -4072,6 +4082,7 @@ html:not(:has(#oAct.vis)) #sBloques.locked{filter:none;opacity:1;pointer-events:
 .nuHm__bar s::after{content:"";position:absolute;right:-3px;top:-4px;bottom:-4px;width:2px;background:#111;box-shadow:0 0 8px rgba(17,17,17,.45);animation:nuHmBlink 1s steps(2) infinite}
 .nuHm__bar.is-over s{background:repeating-linear-gradient(90deg,#000 0 4px,transparent 4px 7px)}
 @keyframes nuHmBlink{50%{opacity:.15}}
+.nuHm__np{margin:8px 0 0;font:400 10px/1.4 'Space Mono',ui-monospace,monospace;letter-spacing:.04em;opacity:.6}
 .nuHm__esc{display:flex;justify-content:space-between;margin-top:8px;font:400 9px/1 'Space Mono',var(--font-mono);letter-spacing:.16em;color:#6A6B70}
 .nuHm.is-cg .nuHm__num b{color:rgba(17,17,17,.28)}
 .nuHm__ft{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:16px}
@@ -5402,7 +5413,8 @@ function nuProxComida(){
   return (ya.length?ya[ya.length-1]:pend[0]).num
 }
 function nuScanHome(){
-  if (typeof KEU==='undefined' || !NU.pauta || NU.pauta.estado!=='publicada'){ tab('vNutri'); return }
+  if (typeof KEU==='undefined'){ tab('vNutri'); return }
+  if (!NU.pauta || NU.pauta.estado!=='publicada'){ try{ kHaptic && kHaptic(12) }catch(_){} nuEscanear(); return }   // c287 · sin plan también escanea
   try{ kHaptic && kHaptic(12) }catch(_){}
   nuEscInit(); KEU.abrir(nuProxComida())
 }
@@ -5412,9 +5424,17 @@ function nuHomeHTML(){
   if (NU.bloqueado || NU._hmErr) return ab+' hidden></section>'
   if (!NU.ok) return ab+'><div class="nuHm__hd"><span>TU NUTRICIÓN DEL DÍA</span><span>— COMIDAS</span></div><div class="nuHm__big"><div class="nuHm__num"><b data-v="0">0</b><span>KCAL</span></div><div class="nuHm__meta">CARGANDO<b>—</b></div></div><div class="nuHm__bar"><s data-w="0%"></s></div><div class="nuHm__esc"><span>0</span><span>— KCAL</span></div></section>'
   const pa=NU.pauta, n0=v=>Math.round(+v||0).toLocaleString('es-CL')
-  if (!pa || pa.estado!=='publicada')
-    return ab+'><div class="nuHm__hd"><span>TU NUTRICIÓN DEL DÍA</span></div><p class="nuHm__p">Tu plan de nutrición KOACH aún no está activo. Cuando tu nutricionista lo publique, aquí verás tus calorías del día y podrás escanear tus comidas.</p>'+
-      '<div class="nuHm__ft"><button type="button" class="nuHm__lk" onclick="tab(\'vNutri\')">VER NUTRICIÓN →</button></div></section>'
+  if (!pa || pa.estado!=='publicada'){
+    // c287 · sin plan: igual muestra lo que lleva registrado hoy; la meta queda en blanco hasta que nutrición publique el plan
+    const hoy=nuHoyISO(), rs=(NU.reg||[]).filter(r=>String(r.fecha).slice(0,10)===hoy), k=rs.reduce((a,r)=>a+(+r.kcal||0),0), nr=rs.length
+    return ab+'><div class="nuHm__hd"><span>TU NUTRICIÓN DEL DÍA</span><span><b>'+nr+'</b> '+(nr===1?'COMIDA':'COMIDAS')+'</span></div>'+
+      '<div class="nuHm__big"><div class="nuHm__num"><b data-v="'+Math.round(k)+'">'+(_nuHmK===Math.round(k)?n0(k):'0')+'</b><span>KCAL</span></div><div class="nuHm__meta">META<b>—</b>SIN PLAN</div></div>'+
+      '<div class="nuHm__bar" role="img" aria-label="'+n0(k)+' kilocalorías registradas hoy, sin meta"><s data-w="0%"></s></div>'+
+      '<div class="nuHm__esc"><span>0</span><span>— KCAL</span></div>'+
+      '<p class="nuHm__np">Aún no tienes tu plan nutricional cargado.</p>'+
+      '<div class="nuHm__ft"><button type="button" class="nuHm__scan" onclick="nuScanHome()" aria-label="Escanear una comida">'+NU_SCAN_ICO+'<span>SCAN</span></button>'+
+      '<div class="nuHm__sig">'+(nr?'<b>'+nr+' '+(nr===1?'REGISTRADA':'REGISTRADAS')+'</b>REGISTRA OTRA':'<b>SIN REGISTROS HOY</b>ESCANEA TU COMIDA')+'</div></div></section>'
+  }
   const D=nuDia(), H=D.c.hoy, meta=+pa.kcal||0, k=+H.kcal||0, reg=H.registradas||0, n=D.n, pc=meta?k/meta*100:0, prox=nuProxComida()
   const pm=prox?D.com[prox-1]:null
   const sig = reg>=n ? '<b>DÍA COMPLETO</b>TODAS REGISTRADAS' : prox ? '<b>COMIDA '+prox+(pm&&pm.hora?' · '+plEscA(pm.hora):'')+'</b>TOCA REGISTRAR' : ''
@@ -6514,6 +6534,7 @@ async function entrar(opts){
     try{ S.op = (await _rOp).data || null }catch(_e){ S.op=null }
     try{ const _c=(await _rCnt).data; S.totalSes = (typeof _c==='number') ? _c : null }catch(_e){ S.totalSes=null }
     aplicarOperacion()
+    setTimeout(function(){ if (!kIrHash(location.hash)) kPopRevisar((document.querySelector('.vista.on')||{}).id) },1800)   // c281
     try{ localStorage.setItem('kc_snap_'+S.perfil.id, JSON.stringify({v:3, ts:Date.now(),
       perfil:S.perfil, programa:S.programa, objetivos:S.objetivos, registros:S.registros, reqs:S._reqs||{}})) }catch(_e){}
     try{
@@ -7676,7 +7697,7 @@ function kAvisoPreparar(){ if (!kSonidoOn() || !('Notification' in window) || !(
 document.addEventListener('visibilitychange', function(){
   if (document.visibilityState==='hidden'){ const fin=kAvisoFin(); if(!fin || !kSonidoOn() || !KAV.listo) return
     const seg=Math.round((fin-Date.now())/1000); if (seg<3) return
-    KAV.prog=true; kAvisoFn({ accion:'programar', seg:seg, titulo:'Descanso terminado', cuerpo:'Tu siguiente set está listo. Vuelve a KOACH y sigue.' }).catch(function(){}) }
+    KAV.prog=true; kAvisoFn({ accion:'programar', seg:seg, titulo:'Descanso terminado', cuerpo:'Sigamos entrenando.' }).catch(function(){}) }
   else if (KAV.prog){ KAV.prog=false; kAvisoFn({ accion:'cancelar' }).catch(function(){}) } })
 try{ if ('serviceWorker' in navigator && 'Notification' in window && Notification.permission==='granted') setTimeout(kAvisoRegistrar, 3000) }catch(_){ }
 function kSonidoOn(){ try{ return localStorage.getItem('k_sonido')!=='0' }catch(_){ return true } }
@@ -8201,7 +8222,7 @@ function bkRestFin(silencio){ clearInterval(BK._t); BK._t=null; const r=BK.rest;
   bkOverIni(r)
   const o=document.getElementById('oBloque'), visible=o && o.classList.contains('vis') && BK.bi!=null
   if (!visible){ // el reloj siguió corriendo en otra pantalla: aviso breve, sin animación
-    kSonGo(); try{ toast('Descanso terminado · tu siguiente set te espera') }catch(_){}
+    kSonGo(); try{ toast('Descanso terminado · Sigamos entrenando.') }catch(_){}
     return }
   bkPintar()
   if (Date.now()-r.fin>2500) return // expiró mientras la app estaba en segundo plano: vuelve directo al entrenamiento
@@ -8941,6 +8962,46 @@ vista = function(id){
   tb.classList.toggle('vis', ['vHome','vPlan','vNutri','vAvances','vPerfil','vHist'].includes(id) && !!S.perfil)   // v10.4: también sin protocolo (bienvenida)
   if (id==='vHome') document.querySelectorAll('.tb').forEach(b=>b.classList.toggle('on', b.id==='tb-vHome'))
 }
+
+/* ═══ c281 · AVISOS EN LA APP: pop-up arriba al entrar a una pantalla (cristal negro, se cierra solo, cada uno máx. 1 vez al día) ═══
+   HOY → sesión habilitada lista · 4+ días sin entrenar · NUTRICIÓN → sin comidas registradas hoy (desde las 11:00).
+   El descanso terminado ya avisa en la sesión (toast) y afuera como aviso al teléfono. */
+function kPopUna(k){ try{ const d=fLocal(new Date()), o=JSON.parse(localStorage.getItem('k_pop')||'{}'); if(o[k]===d) return false; o[k]=d; localStorage.setItem('k_pop',JSON.stringify(o)); return true }catch(_){ return true } }
+function kPop(t, c, cta){
+  const v=document.querySelector('.kPop'); if(v) v.remove()
+  const el=document.createElement('div'); el.className='kPop'; el.setAttribute('role','status')
+  el.innerHTML='<span class="kPop__i" aria-hidden="true"></span><span class="kPop__tx"><b>'+opEsc(t)+'</b>'+(c?'<small>'+opEsc(c)+'</small>':'')+'</span>'+(cta?'<button type="button" class="kPop__b">'+opEsc(cta.t)+'</button>':'')
+  document.body.appendChild(el); requestAnimationFrame(function(){ el.classList.add('on') })
+  try{ kAudioUnlock(); KSFX.play('appear',0,.5) }catch(_){}
+  const fuera=function(){ el.classList.remove('on'); setTimeout(function(){ el.remove() },320) }
+  const tm=setTimeout(fuera, cta?6000:4200)
+  el.onclick=function(e){ clearTimeout(tm); fuera(); if (cta && e.target.closest('.kPop__b')) try{ cta.fn() }catch(_){} }
+}
+function kPopRevisar(id){
+  if (!S.perfil || document.documentElement.classList.contains('bk-on')) return
+  const hoy=fLocal(new Date())
+  if (id==='vHome'){
+    const hechaHoy=(S.registros||[]).some(function(r){ return r.fecha===hoy && esHecha(r) })
+    if (typeof habHoy==='function' && habHoy() && !hechaHoy && S.sem && S.sem.proxima && kPopUna('ses'))
+      return kPop('Tu sesión de hoy está lista', String(S.sem.proxima.nombre||'').toUpperCase(), { t:'START', fn:function(){ abrirSesion() } })
+    const hs=(S.registros||[]).filter(esHecha).map(function(r){ return r.fecha }).sort(), ult=hs[hs.length-1]
+    if (ult && !hechaHoy){ const d=Math.round((new Date(hoy+'T12:00:00')-new Date(String(ult).slice(0,10)+'T12:00:00'))/864e5)
+      if (d>=4 && kPopUna('vuelve')) return kPop('El 1% no tiene días malos','Tu próxima sesión te espera.') }
+  }
+  if (id==='vNutri'){
+    let n=0; (function esperar(){ if (!document.getElementById('vNutri').classList.contains('on')) return
+      if (typeof NU==='undefined' || !NU.regOk){ if (++n<25) setTimeout(esperar,200); return }
+      if (new Date().getHours()<11) return
+      if ((NU.reg||[]).some(function(x){ return String(x.fecha).slice(0,10)===nuHoyISO() })) return
+      if (kPopUna('comidas')) kPop('Recuerda registrar tus comidas','Escanea tu comida y queda en tu día.') })()
+  }
+}
+const _tabC281=tab
+tab=function(id){ _tabC281(id); setTimeout(function(){ kPopRevisar(id) },650) }
+// aviso tocado en el teléfono → abre la pantalla que corresponde (#nutricion · #avances)
+function kIrHash(h){ const m={ '#nutricion':'vNutri', '#avances':'vAvances', '#plan':'vPlan', '#perfil':'vPerfil' }[String(h||'').toLowerCase()]
+  if (!m || !S.perfil) return false; tab(m); try{ history.replaceState(null,'',location.pathname+location.search) }catch(_){} return true }
+try{ navigator.serviceWorker && navigator.serviceWorker.addEventListener('message', function(e){ if (e.data && e.data.koachIr) kIrHash(e.data.koachIr) }) }catch(_){}
 
 // ── c8.0 · TU CICLO: mismo esqueleto que el MACRO del coach (S1…SN), lectura para el socio
 const _MES=['ENE','FEB','MAR','ABR','MAY','JUN','JUL','AGO','SEP','OCT','NOV','DIC']
@@ -9809,7 +9870,8 @@ async function avXCargar(){
 }
 function avxCalc(sets, ses){
   const kg=sets.reduce((a,x)=>a+x.peso*x.reps,0), ej={}
-  sets.forEach(x=>{ const e=ej[x.id]||(ej[x.id]={ id:x.id, nom:x.nom, dias:{} }); const d=e.dias[x.fecha]; if(!d || x.peso>d.peso || (x.peso===d.peso && x.reps>d.reps)) e.dias[x.fecha]={ peso:x.peso, reps:x.reps } })
+  // c287 · récords y progresos solo de ejercicios que siguen en el catálogo (sin nombre = ejercicio borrado: suma a los kg, no a la lista)
+  sets.forEach(x=>{ if(!String(x.nom||'').trim()) return; const e=ej[x.id]||(ej[x.id]={ id:x.id, nom:x.nom, dias:{} }); const d=e.dias[x.fecha]; if(!d || x.peso>d.peso || (x.peso===d.peso && x.reps>d.reps)) e.dias[x.fecha]={ peso:x.peso, reps:x.reps } })
   const L=Object.values(ej).map(e=>{ const f=Object.keys(e.dias).sort(), serie=f.map(k=>e.dias[k].peso); let best=null; f.forEach(k=>{ const v=e.dias[k]; if(!best||v.peso>best.peso||(v.peso===best.peso&&v.reps>best.reps)) best=Object.assign({fecha:k},v) })
     const sem={}; f.forEach(k=>{ const w=avxLunes(k); sem[w]=Math.max(sem[w]||0, e.dias[k].peso) })
     return { id:e.id, nom:e.nom, best, serie, n:f.length, p0:serie[0], subida:best.peso-serie[0], sem } })

@@ -3422,6 +3422,149 @@ html[data-fprog] #vFicha .tcRes.is-visor .tcE em{color:rgba(244,243,240,.75);fon
 html[data-fprog] #vFicha .tc:has(.tc__body[aria-expanded="true"]){border-color:var(--fp-cfg) !important;box-shadow:0 0 0 1px var(--fp-cfg),0 16px 34px rgba(0,0,0,.28) !important;transform:translateY(-3px)}
 html.fx-edit #vFicha .tcRes.is-visor{display:none !important}
 @media (prefers-reduced-motion:reduce){ html[data-fprog] #vFicha .tcRes.is-visor.is-anim,html[data-fprog] #vFicha .tcRes.is-visor.is-anim .tcB{animation:none} }
+/* ═══ c282 · RESUMEN DE SESIÓN EN DOS PASOS: BANDEJA abajo (no saca de la ficha) → ABRIR RUTINA expande al frente ═══ */
+.tcRes.is-drawer{position:fixed;z-index:80;left:50%;bottom:calc(14px + env(safe-area-inset-bottom,0px));width:min(1180px,calc(100vw - 32px));max-height:min(54vh,560px);overflow:auto;transform:translateX(-50%);box-sizing:border-box;margin:0;padding:16px 20px 18px;border-radius:24px;
+  background:linear-gradient(160deg,rgba(28,29,32,.94) 0%,rgba(10,11,12,.95) 60%,rgba(0,0,0,.96) 100%);color:#F4F3F0;border:1px solid rgba(244,243,240,.16);
+  box-shadow:0 -14px 60px rgba(0,0,0,.45),inset 0 1px 0 rgba(255,255,255,.14);backdrop-filter:blur(20px) saturate(1.2);-webkit-backdrop-filter:blur(20px) saturate(1.2);scrollbar-width:none}
+.tcRes.is-drawer::-webkit-scrollbar{display:none}
+.tcRes.is-drawer.is-in{animation:drwIn .46s cubic-bezier(.16,.9,.24,1) both}
+.tcRes.is-drawer.is-in .tcB{animation:holoRow .4s cubic-bezier(.2,.8,.2,1) both}
+.tcRes.is-drawer.is-in .tcB:nth-child(2){animation-delay:.05s}.tcRes.is-drawer.is-in .tcB:nth-child(3){animation-delay:.1s}.tcRes.is-drawer.is-in .tcB:nth-child(4){animation-delay:.15s}
+.tcRes.is-drawer.is-out{animation:drwOut .26s cubic-bezier(.5,0,.75,0) both}
+@keyframes drwIn{0%{opacity:0;transform:translate(-50%,46px) scale(.97);clip-path:inset(70% 0 0 0 round 24px);filter:brightness(1.8)}60%{opacity:1;clip-path:inset(0 0 0 0 round 24px)}100%{opacity:1;transform:translateX(-50%);clip-path:inset(0 0 0 0 round 24px);filter:none}}
+@keyframes drwOut{to{opacity:0;transform:translate(-50%,40px) scale(.97);clip-path:inset(60% 0 0 0 round 24px)}}
+.tcRes.is-drawer .tcRes__h{display:flex;align-items:center;justify-content:space-between;gap:14px;border-bottom:1px solid rgba(244,243,240,.12);padding-bottom:12px}
+.tcRes.is-drawer .tcRes__h small{display:block;color:rgba(244,243,240,.6);font:700 10px 'Space Mono',monospace;letter-spacing:.14em}
+.tcRes.is-drawer .tcRes__h b{display:block;margin-top:4px;font-family:'KOACH Display','Archivo',Arial,sans-serif;font-weight:900;font-stretch:112%;text-transform:uppercase;font-size:clamp(22px,2.4vw,32px);line-height:.95;
+  background:linear-gradient(180deg,#FFFFFF 0%,#C9CBCF 45%,#FFFFFF 55%,#979C9F 75%,#E4E5E7 100%);-webkit-background-clip:text;background-clip:text;color:transparent}
+.tcRes.is-drawer .tcRes__a{display:flex;flex-wrap:wrap;gap:8px;justify-content:flex-end}
+.tcRes.is-drawer .tbB,.tcRes.is-holo .tbB{height:42px;min-height:42px;padding:0 16px;border-radius:999px !important;border:1px solid rgba(244,243,240,.85) !important;background:transparent !important;color:#F4F3F0 !important;font:700 11px 'Space Mono',monospace !important;letter-spacing:.06em;display:inline-flex;align-items:center;text-decoration:none}
+.tcRes.is-drawer .tbB--ink,.tcRes.is-holo .tbB--ink,.tcRes.is-drawer .tbB--ed,.tcRes.is-holo .tbB--ed{background:#F4F3F0 !important;color:#000 !important;border-color:#F4F3F0 !important}
+.tcRes.is-drawer .tbB--full{border-color:#3EC6B0 !important;color:#3EC6B0 !important}
+.tcRes.is-drawer .tbB--min,.tcRes.is-holo .tbB--full{display:none !important}
+.tcRes.is-drawer .tcRes__x{width:42px;height:42px;border-radius:999px;border:1px solid rgba(244,243,240,.35);background:rgba(255,255,255,.06);color:#F4F3F0;font-size:15px;cursor:pointer}
+.tcRes.is-drawer .tcRes__c{color:rgba(244,243,240,.62);padding-top:12px}
+.tcRes.is-drawer .tcRes__g{display:grid;grid-template-columns:repeat(var(--nb,3),minmax(0,1fr));gap:10px;padding-top:12px}
+.tcRes.is-drawer .tcB{padding:10px 12px;border-radius:16px;background:rgba(255,255,255,.045);border:1px solid rgba(244,243,240,.1);min-width:0}
+.tcRes.is-drawer .tcB__h{color:rgba(244,243,240,.6);font:700 10px 'Space Mono',monospace;letter-spacing:.12em;padding:0 0 4px;display:flex;justify-content:space-between}
+.tcRes.is-drawer .tcE{display:flex;justify-content:space-between;gap:8px;border-top:1px solid rgba(244,243,240,.08);padding:5px 0;font-size:13px;color:#F4F3F0}
+.tcRes.is-drawer .tcE span{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.tcRes.is-drawer .tcE em{flex:none;color:rgba(244,243,240,.7);font:400 11px 'Space Mono',monospace;font-style:normal}
+.tcRes.is-holo .tcRes__g{grid-template-columns:repeat(var(--nb,3),minmax(0,1fr)) !important}
+.tcRes.is-holo .tcB{min-width:0}
+html.ses-drawer #vFicha{padding-bottom:75vh}
+html.fx-edit body > .tcRes{display:none !important}
+@media (max-width:760px){ .tcRes.is-drawer .tcRes__g,.tcRes.is-holo .tcRes__g{grid-template-columns:minmax(0,1fr) !important} .tcRes.is-drawer .tcRes__h{flex-direction:column;align-items:stretch} .tcRes.is-drawer .tcRes__a{justify-content:flex-start} }
+@media (prefers-reduced-motion:reduce){ .tcRes.is-drawer.is-in,.tcRes.is-drawer.is-in .tcB,.tcRes.is-drawer.is-out{animation:none} }
+/* tarjetas de sesión más compactas y sin cortes arriba */
+html[data-fprog] #vFicha .tb2{padding-top:8px;margin-top:-8px;padding-bottom:10px}
+html[data-fprog] #vFicha .tc__body{min-height:0 !important;padding:34px 16px 16px !important;gap:4px}html[data-fprog] #vFicha .tc__s{padding:0 44px;min-height:30px}
+html[data-fprog] #vFicha .tc__h{top:8px}html[data-fprog] #vFicha .tc__h .tc__iso{width:22px;height:22px}
+/* ═══ c283 · PERFIL DE LA FICHA ordenado: 3 columnas que cuadran (pagos al centro en dos filas), botones al pie, barra sin herramientas de entrenamiento ═══ */
+html.f-adm #vFicha #fpSem{display:none !important}
+html[data-fprog] #vFicha #fTabAdm .pfC>.pfBtns{margin-top:auto}
+html[data-fprog] #vFicha #fTabAdm #pfCobro .pfBig{white-space:nowrap}
+html[data-fprog] #vFicha #fTabAdm #pfCobro .pfBig small{white-space:nowrap}
+html[data-fprog] #vFicha #fTabAdm #pfCobro{border-top:1px solid #3D4044;margin-top:6px}
+html[data-fprog] #vFicha #fTabAdm .pfC--pag>.pfBtns{margin-top:0}
+html[data-fprog] #vFicha #fTabAdm .pfC--pag>#pfCobro{margin-top:auto}
+html[data-fprog] #vFicha #fTabAdm .pfC--w2>.pfRow2{display:flex;flex-direction:column;align-items:stretch;gap:12px;flex:1}
+html[data-fprog] #vFicha #fTabAdm .pfC--w2>.pfRow2>.pfB{margin-top:auto;width:100%}
+@media (min-width:900px){
+  html[data-fprog] #vFicha #fTabAdm .pf{grid-template-columns:repeat(3,minmax(0,1fr));align-items:stretch;grid-auto-flow:row dense}
+  html[data-fprog] #vFicha #fTabAdm .pfC--pag{grid-column:2;grid-row:1 / span 2}
+  html[data-fprog] #vFicha #fTabAdm .pfC--w2{grid-column:1 !important}
+}
+html.fx-edit #vFicha .tc__body{flex-direction:column !important;align-items:flex-start !important;justify-content:center !important;gap:4px !important;padding:10px 54px 10px 16px !important}html.fx-edit #vFicha .tc__k{flex-direction:row !important;align-items:center !important;gap:8px !important}html.fx-edit #vFicha .tc__n{max-width:100%;text-align:left}
+/* ═══ c284 · MÓVIL: ficha y editor ordenados en pantallas angostas ═══ */
+@media (max-width:640px){
+  html[data-fprog] #vFicha .mh__stats{display:grid !important;grid-template-columns:repeat(3,minmax(0,1fr));width:100%;margin-top:6px}
+  html[data-fprog] #vFicha .mh__s{padding:2px 8px 2px 10px !important;min-width:0;overflow:hidden}
+  html[data-fprog] #vFicha .mh__s b{font-size:clamp(24px,7.4vw,32px) !important}
+  html[data-fprog] #vFicha .mh__s small,html[data-fprog] #vFicha .mh__s em{font-size:9px !important;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  html[data-fprog] #vFicha .mh__bar{display:flex !important;flex-wrap:wrap !important;gap:8px !important;border-radius:22px !important;padding:8px !important}
+  html[data-fprog] #vFicha .mh__doors{flex:1 1 100% !important;display:flex !important}
+  html[data-fprog] #vFicha .mh__doors button{flex:1 1 0}
+  html[data-fprog] #vFicha .fpSem{flex:1 1 100% !important;justify-content:flex-start !important;flex-wrap:wrap !important;gap:6px !important}
+  html[data-fprog] #vFicha .fpSem .fpP__seg{display:none}
+  html[data-fprog] #vFicha .mh__acc{flex:1 1 100% !important;display:flex !important;flex-wrap:wrap !important;gap:6px !important}
+  html[data-fprog] #vFicha .mh__acc>.pfB--ink{flex:1 1 100% !important;justify-content:center}
+  html[data-fprog] #vFicha .mh__acc>.pfB:not(.pfB--ink):not(.pfB--wa):not(.pfB--bell):not(.pfB--ico){flex:1 1 auto}
+  html[data-fprog] #vFicha .mh__acc>.pfMenuW{flex:none}
+  html[data-fprog] #vFicha .mh.mh--pin .mh__bar{left:12px !important;width:calc(100vw - 24px) !important}
+  html.fx-edit #vFicha .fxBar{flex-wrap:wrap;border-radius:22px;padding:12px 12px 10px 16px;gap:8px}
+  html.fx-edit #vFicha .fxBar__t{flex:1 1 100%;min-width:0}
+  html.fx-edit #vFicha .fxBar .fxB{flex:1 1 auto;min-height:40px;padding:0 12px;font-size:10.5px}
+  html.fx-edit #vPlan:not(.plDesk) .plHdr__top,html.fx-edit #vPlan:not(.plDesk) .plHdr__tit,html.fx-edit #vPlan:not(.plDesk) .plQuien,html.fx-edit #vPlan:not(.plDesk) #pMeta,html.fx-edit #vPlan:not(.plDesk) #pTabs,html.fx-edit #vPlan:not(.plDesk) .plPc{display:none !important}
+  html.fx-edit #vPlan:not(.plDesk) .plHdr{background:transparent !important;box-shadow:none !important;border:0 !important;padding:4px 0 0 !important;margin:0 !important;position:relative !important;top:auto !important}
+  html.fx-edit #vPlan:not(.plDesk){padding-top:0 !important;margin-top:0 !important}
+  html.fx-edit #vFicha .tc__n{font-size:16px !important}
+  html.ks-bn .tcRes.is-drawer{bottom:calc(74px + env(safe-area-inset-bottom,0px));max-height:58vh;width:calc(100vw - 20px)}
+  .tcRes.is-drawer .tcRes__a .tbB{flex:1 1 auto;justify-content:center}
+}
+/* ═══ c280 · CABECERA DE LA FICHA SIN SOLAPE: la identidad se va con el scroll; solo la barra de botones queda fija, sólida, en el color del programa ═══ */
+html[data-fprog] #vFicha .mh{position:relative !important;top:auto !important}
+html[data-fprog] #vFicha .mh.mh--pin{padding-bottom:var(--fp-barh,56px) !important}
+html[data-fprog] #vFicha .mh.mh--pin .mh__bar{position:fixed;z-index:30;top:calc(var(--ks-top,60px) + 8px);left:var(--fp-barl,16px);width:var(--fp-barw,auto);margin:0 !important;
+  background:var(--fp-pb);box-shadow:0 0 0 1px var(--fp-cln),0 14px 30px rgba(0,0,0,.32);backdrop-filter:none;-webkit-backdrop-filter:none;animation:fpPin .28s cubic-bezier(.2,.8,.2,1) both}
+@keyframes fpPin{from{opacity:0;transform:translateY(-10px)}to{opacity:1;transform:none}}
+@media (prefers-reduced-motion:reduce){ html[data-fprog] #vFicha .mh.mh--pin .mh__bar{animation:none} }
+/* ═══ c281 · AVISOS A SOCIOS: enviar al teléfono · semana de avisos diarios · historial (cristal negro flotante) ═══ */
+#kAvz{position:fixed;inset:0;z-index:95;display:flex;align-items:flex-start;justify-content:center;padding:calc(var(--ks-top,60px) + 18px) 16px 24px;background:rgba(0,0,0,.42);overflow-y:auto;opacity:0;transition:opacity .22s}
+#kAvz.on{opacity:1}
+#kAvz .avz{width:min(760px,100%);border-radius:26px;background:#141517;color:#F4F3F0;box-shadow:0 0 0 1px #3D4044,0 30px 70px rgba(0,0,0,.5);padding:22px 22px 18px;transform:translateY(-10px) scale(.97);transition:transform .32s cubic-bezier(.2,.8,.2,1)}
+#kAvz.on .avz{transform:none}
+.avz__h{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:14px}
+.avz__h small{display:block;font:700 10px 'Space Mono',monospace;letter-spacing:.14em;color:#A9ADB0}
+.avz__h h2{margin:4px 0 0;font:900 28px/1 'KOACH Display','Archivo',Arial,sans-serif;font-stretch:112%;letter-spacing:-.01em;text-transform:uppercase;background:linear-gradient(180deg,#fff,#C9CBCF);-webkit-background-clip:text;background-clip:text;color:transparent}
+.avz__x{flex:none;width:40px;height:40px;border-radius:50%;border:1px solid #4A4D51;background:none;color:#F4F3F0;font-size:18px;cursor:pointer}
+.avz__tabs{display:flex;gap:4px;padding:4px;border-radius:999px;background:#0E0F10;margin-bottom:16px;width:max-content;max-width:100%;overflow-x:auto}
+.avz__tabs button{min-height:36px;padding:0 16px;border:0;border-radius:999px;background:none;color:#A9ADB0;font:700 11px 'Space Mono',monospace;letter-spacing:.08em;cursor:pointer;white-space:nowrap}
+.avz__tabs button.on{background:#F4F3F0;color:#000}
+.avz__k{font:700 10px 'Space Mono',monospace;letter-spacing:.14em;color:#A9ADB0;margin:14px 0 8px}
+.avz__pills{display:flex;flex-wrap:wrap;gap:6px}
+.avz__pills button{min-height:36px;padding:0 14px;border-radius:999px;border:1px solid #4A4D51;background:none;color:#F4F3F0;font:700 11px 'Space Mono',monospace;letter-spacing:.06em;cursor:pointer}
+.avz__pills button.on{background:#F4F3F0;color:#000;border-color:#F4F3F0}
+.avz__alc{margin-top:10px;font:400 12px 'Space Mono',monospace;color:#A9ADB0}.avz__alc b{color:#3EC6B0;font-weight:700}
+.avz__in{width:100%;box-sizing:border-box;border-radius:14px;border:1px solid #3D4044;background:#0E0F10;color:#F4F3F0;padding:12px 14px;font:500 15px 'Archivo',system-ui,sans-serif}
+.avz__in:focus{outline:none;border-color:#F4F3F0}
+textarea.avz__in{min-height:70px;resize:vertical}
+.avz__cnt{text-align:right;font:400 10px 'Space Mono',monospace;color:#6F7377;margin-top:4px}
+.avz__pv{margin-top:14px;display:flex;gap:12px;align-items:center;padding:12px 14px;border-radius:18px;background:#26282B;box-shadow:0 0 0 1px #3D4044}
+.avz__pv img{width:38px;height:38px;border-radius:9px;background:#000;object-fit:cover;flex:none}
+.avz__pv b{display:block;font:600 14px/1.25 system-ui,-apple-system,sans-serif}.avz__pv span{display:block;font:400 13px/1.3 system-ui,-apple-system,sans-serif;color:#C9CBCF}
+.avz__pv em{margin-left:auto;align-self:flex-start;font:400 11px system-ui,sans-serif;color:#A9ADB0;font-style:normal}
+.avz__acc{display:flex;flex-wrap:wrap;gap:8px;justify-content:flex-end;margin-top:16px}
+.avz__b{min-height:44px;padding:0 18px;border-radius:999px;border:1px solid #F4F3F0;background:none;color:#F4F3F0;font:700 11px 'Space Mono',monospace;letter-spacing:.08em;cursor:pointer}
+.avz__b--on{background:#F4F3F0;color:#000}.avz__b--ok{background:#3EC6B0;border-color:#3EC6B0;color:#000}
+.avz__b:disabled{opacity:.4;cursor:default}
+.avz__msg{margin-top:10px;font:400 12px 'Space Mono',monospace;color:#3EC6B0;text-align:right}.avz__msg.err{color:#FF4200}
+.avz__d{display:grid;grid-template-columns:92px 78px minmax(0,1fr) auto;gap:10px;align-items:center;padding:12px 0;border-top:1px solid #2A2C2F}
+.avz__d:first-of-type{border-top:0}
+.avz__d .dn b{display:block;font:700 12px 'Space Mono',monospace;letter-spacing:.08em}.avz__d .dn small{font:400 10px 'Space Mono',monospace;color:#A9ADB0;letter-spacing:.08em}
+.avz__d select{border-radius:10px;border:1px solid #3D4044;background:#0E0F10;color:#F4F3F0;padding:8px 6px;font:700 12px 'Space Mono',monospace}
+.avz__d .tx{display:flex;flex-direction:column;gap:6px;min-width:0}
+.avz__d .tx input{border-radius:10px;border:1px solid #3D4044;background:#0E0F10;color:#F4F3F0;padding:8px 10px;font:600 13px 'Archivo',system-ui,sans-serif;min-width:0}
+.avz__d .tx input.c{font-weight:400;color:#C9CBCF}
+.avz__d .tx i{font:400 10px 'Space Mono',monospace;color:#6F7377;font-style:normal}
+.avz__d .sw{display:flex;flex-direction:column;gap:6px;align-items:flex-end}
+.avz__tg{width:46px;height:26px;border-radius:999px;border:0;background:#3D4044;position:relative;cursor:pointer}
+.avz__tg::after{content:"";position:absolute;top:3px;left:3px;width:20px;height:20px;border-radius:50%;background:#A9ADB0;transition:transform .2s,background .2s}
+.avz__tg.on{background:#3EC6B0}.avz__tg.on::after{transform:translateX(20px);background:#fff}
+.avz__mini{border:0;background:none;color:#A9ADB0;font:700 10px 'Space Mono',monospace;letter-spacing:.08em;cursor:pointer;padding:2px 0}
+.avz__hl{display:grid;grid-template-columns:110px minmax(0,1fr) auto;gap:12px;padding:11px 0;border-top:1px solid #2A2C2F;align-items:start}
+.avz__hl:first-of-type{border-top:0}
+.avz__hl small{font:400 10px 'Space Mono',monospace;color:#A9ADB0;letter-spacing:.06em}
+.avz__hl b{display:block;font:600 13px 'Archivo',system-ui,sans-serif}.avz__hl span{font:400 12px 'Archivo',system-ui,sans-serif;color:#A9ADB0}
+.avz__hl em{font:700 11px 'Space Mono',monospace;color:#3EC6B0;font-style:normal;white-space:nowrap}
+.avz__nota{font:400 11px/1.5 'Space Mono',monospace;color:#6F7377;margin-top:12px}
+#kAvz input,#kAvz textarea,#kAvz select{background:#0E0F10 !important;color:#F4F3F0 !important;border:1px solid #3D4044 !important;box-shadow:none !important;-webkit-appearance:none;appearance:none;min-height:0}
+#kAvz .avz__in{font:500 15px 'Archivo',system-ui,sans-serif !important;border-radius:14px !important;padding:12px 14px !important}
+#kAvz .avz__d .tx input{font:600 13px 'Archivo',system-ui,sans-serif !important;border-radius:10px !important;padding:8px 10px !important;height:auto}
+#kAvz .avz__d .tx input.c{font-weight:400 !important;color:#C9CBCF !important}
+#kAvz .avz__d select{font:700 12px 'Space Mono',monospace !important;border-radius:10px !important;padding:8px 10px !important;height:auto;text-align:center}
+#kAvz input:focus,#kAvz textarea:focus,#kAvz select:focus{outline:none;border-color:#F4F3F0 !important}
+@media (max-width:640px){ .avz__d{grid-template-columns:1fr 1fr} .avz__d .tx{grid-column:1/-1} .avz__d .sw{grid-column:1/-1;flex-direction:row;justify-content:space-between} .avz__hl{grid-template-columns:1fr} #kAvz .avz{padding:18px 16px} }
 /* ═══ c267 · TRANSICIÓN ENTRE VENTANAS: zoom de entrada al profundizar y de salida al volver ═══ */
 @keyframes kvIn{from{opacity:0;transform:scale(.94);filter:blur(6px)}to{opacity:1;transform:none;filter:none}}
 @keyframes kvOut{from{opacity:0;transform:scale(1.06);filter:blur(6px)}to{opacity:1;transform:none;filter:none}}
@@ -8268,7 +8411,7 @@ function fichaFoto(){ if(!F||!window.KAvatar) return; const sid=F.id
     { titulo:'FOTO DE '+String(nomDe(sid)).toUpperCase() }) }
 function fTab(t){
   if (t==='adh') t='ent'          // c22: la adherencia es parte del entrenamiento
-  AD.socioTab=t
+  AD.socioTab=t; document.documentElement.classList.toggle('f-adm', t==='adm')   // c283: en PERFIL la barra no muestra las herramientas de entrenamiento
   document.getElementById('fTabEnt').style.display=t==='ent'?'':'none'
   document.getElementById('fTabAdm').style.display=t==='adm'?'':'none'
   document.getElementById('fTabCmp').style.display=t==='cmp'?'':'none'; document.getElementById('fTbCmp').classList.toggle('on',t==='cmp')
@@ -8320,7 +8463,7 @@ async function fAdmCargar(){
       (cong.length?'<div class="pfK" style="margin-top:10px"><span>CONGELAMIENTOS</span><span>'+cong.length+'</span></div>'+cong.map(function(c){
         return '<div class="adLi"><span>'+adF(c.desde)+' — '+adF(c.hasta)+'<small>'+(c.motivo?adEsc(c.motivo):'')+'</small></span><span>'+c.dias+' D<small>'+(c.extendio_vencimiento?'EXTENDIÓ VENCIMIENTO':'SIN EXTENSIÓN')+'</small></span></div>' }).join(''):'')+'</div></section>'
   // PAGOS
-  h+='<section class="pfC"><div class="pfK"><span>PAGOS</span><span>'+AD.fPag.length+' REGISTRO'+(AD.fPag.length===1?'':'S')+'</span></div>'+
+  h+='<section class="pfC pfC--pag"><div class="pfK"><span>PAGOS</span><span>'+AD.fPag.length+' REGISTRO'+(AD.fPag.length===1?'':'S')+'</span></div>'+
     (ult?'<div class="pfRow2"><div><div class="pfK2">ÚLTIMO PAGO</div><div class="pfBig">'+(ult.metodo==='ugc'?'UGC':adCLP(ult.monto_final))+'</div></div>'+
       '<div class="pfR"><b>'+adF(ult.fecha_pago)+'</b><small>'+(ult.metodo?String(ult.metodo).toUpperCase()+' · ':'')+String(ult.estado||'').toUpperCase()+'</small></div></div>':'<div class="pfS">Sin pagos registrados.</div>')+
     '<div class="pfBtns"><button type="button" class="pfB" onclick="pfVer(\'pfPagos\',this)">VER PAGOS</button><button type="button" class="pfB pfB--ink" onclick="admFormPago()">REGISTRAR PAGO</button></div>'+
@@ -9042,6 +9185,7 @@ function fpSemPintar(st, ses, ed){
       '<button type="button" role="menuitem" onclick="fpHerrIr(function(){fichaCargas()})">HISTORIAL DE CARGAS<small>último peso por ejercicio</small></button>'+
       '<button type="button" role="menuitem" onclick="fpHerrIr(function(){gpAbrir()})">GESTIONAR PROGRAMA<small>cambiar · nuevo ciclo</small></button>'+
       '<button type="button" role="menuitem" onclick="fpHerrIr(function(){const b=document.getElementById(\'kcUAdh\'); if(b) fAdhToggle(b)})">ADHERENCIA<small id="fpAdhV">'+plEsc(((document.getElementById('kcUAdhV')||{}).textContent)||'—')+'</small></button>'+
+      (avzPuede()?'<button type="button" role="menuitem" onclick="fpHerrIr(function(){avzSocioFicha()})">ENVIAR AVISO<small>al teléfono del socio</small></button>':'')+
       '<button type="button" role="menuitem" onclick="fpHerrIr(function(){scOrgEntrar()})"'+(mov?'':' disabled')+'>ORGANIZAR SEMANA<small>'+(mov?'mover sesiones pendientes':'no hay dos sesiones movibles')+'</small></button>'+
     '</div></div>'
 }
@@ -9068,10 +9212,10 @@ document.addEventListener('click', function(ev){
   if (t.closest('#vFicha .tc__body')) return s4Son('appear',0.7)
   if (t.closest('#vFicha .fpBadge')) return s4Son('datos',0.7)
   if (t.closest('#vFicha .pfB--ink, #vFicha .tbB--ink')) return s4Son('start',0.7)
-  if (t.closest('.tcRes.is-holo a')){ setTimeout(function(){ holoCerrar(true) },0); return s4Son('start',0.7) }
-  if (t.closest('.tcRes.is-holo .tcRes__x')) return
-  if (t.closest('.tcRes.is-holo .tbB--ink')) return s4Son('start',0.7)
-  if (t.closest('.tcRes.is-holo .tbB')) return s4Son('scan-paso',0.6)
+  if (t.closest('body > .tcRes a')){ setTimeout(function(){ holoCerrar(true) },0); return s4Son('start',0.7) }
+  if (t.closest('body > .tcRes .tcRes__x, body > .tcRes .tbB--full, body > .tcRes .tbB--min')) return
+  if (t.closest('body > .tcRes .tbB--ink')) return s4Son('start',0.7)
+  if (t.closest('body > .tcRes .tbB')) return s4Son('scan-paso',0.6)
   if (t.closest('#vFicha .mh__doors button, #vFicha .pfB, #vFicha .fpP, #vFicha .tcM, #vFicha .tbB, #vFicha .kcU, #vFicha .pfMenu button, .kTabs button, .kTabs a')) return s4Son('scan-paso',0.6)
 }, true)
 
@@ -9996,7 +10140,7 @@ function scEstadoExtra(e){
 const SC_ISO='<svg class="tc__iso" viewBox="40 180 790 795" aria-hidden="true" focusable="false"><rect x="52" y="190" width="768" height="162" fill="currentColor"/><polygon points="52,757 438,415 818,752 818,950 438,615 52,962" fill="currentColor"/></svg>'
 function scPintar(){
   { const _st=SC.st||{}, _ss=_st.sesiones||[]; if (SC.sid!==SCD._sid){ SCD._sid=SC.sid; SCD.open=null; SCD._last=null }
-    if (!SCD.open && _ss.length){ const hb=_st.habilitada, x=_ss.find(function(z){return z.estado==='en_curso'}) || (hb&&!hb.extra&&_ss.find(function(z){return z.id===hb.sesion_id})) || _ss.find(function(z){return z.estado!=='completada'&&z.estado!=='suspendida'}) || _ss[_ss.length-1]; if(x) SCD.open=x.id } }   // c279: visor siempre con una sesión
+  }  // c282: ninguna sesión abierta por defecto — se toca la tarjeta para ver el resumen
   const st=SC.st||{}, el=document.getElementById('scCard'); if(!el||!st.activo){ if(el) el.innerHTML=''; return }
   if (SCB.org){ scPintarOrg(); return }
   const ab=st.abiertas||[], px=st.proxima, hb=st.habilitada, ses=st.sesiones||[]
@@ -10035,31 +10179,50 @@ function scPintar(){
         '<b class="tc__n">'+scNomL(x.nombre)+'</b><span class="tc__s">'+e.sub+'</span></button>'+
       '<button type="button" class="tcM" onclick="scMenu(event,\''+x.key+'\')" aria-haspopup="menu" aria-label="Acciones de la extra '+scNomL(x.nombre)+'">···</button></div>' })
   h+='</div><div id="tcRes" class="tcRes" '+(SCD.open?'':'hidden')+'></div>'
-  document.querySelectorAll('body > .tcRes.is-holo').forEach(function(x){ x.remove() })   // c265: el holograma vive fuera de la ficha
+  document.querySelectorAll('body > .tcRes').forEach(function(x){ x.remove() })   // c265/c282: el resumen vive fuera de la ficha (bandeja o expandido)
   el.innerHTML=h
   fpSemPintar(st, ses, ed)
   holoSync()
   if (SCD.open) scPintarRes()
 }
 function scAbrirRes(id){ scMenuCerrar()
-  if (!id || SCD.open===id) return
-  SCD.open=id; scPintar() }
+  if (!id) return
+  if (SCD.open===id){ if (SCD.modo==='full') scResMin(); else holoCerrar(); return }
+  SCD.open=id; SCD.modo='drawer'; scPintar() }
+// c282 · bandeja → expandido (zoom desde la tarjeta) → bandeja
+function scResFull(){ if (!SCD.open) return; SCD.modo='full'; const b=document.getElementById('tcRes'); if(b) b.classList.remove('is-still','is-in'); holoSync() }
+function scResMin(){ if (!SCD.open) return; s4Son('scan-paso',0.5); SCD.modo='drawer'; holoSync() }
 // ═══ c265 · RUTINA HOLOGRAMA: el resumen de la sesión se proyecta al frente y la ficha queda atrás ═══
-function holoSync(){   // c279: el resumen vive fijo en la ficha (visor) — se proyecta al cambiar de sesión, sin ventana flotante
+function holoSync(){   // c282: resumen en BANDEJA abajo (sin salir de la ficha) o EXPANDIDO al frente (holograma)
   const box=document.getElementById('tcRes'), root=document.documentElement
-  root.classList.remove('holo-on'); const bg=document.getElementById('holoBg'); if(bg) bg.remove()
-  if (!SCD.open || !box) return
-  box.classList.add('is-visor'); box.setAttribute('aria-live','polite'); box.setAttribute('aria-label','Rutina de la sesión')
-  if (SCD._last!==SCD.open){ box.classList.add('is-anim'); setTimeout(function(){ box.classList.remove('is-anim') },900); if (SCD._last) setTimeout(function(){ s4Son('datos',0.5) },300) }
-  SCD._last=SCD.open
+  let bg=document.getElementById('holoBg')
+  if (!SCD.open || !box){ root.classList.remove('holo-on','ses-drawer'); if(bg) bg.remove(); SCD._last=null; return }
+  if (box.parentNode!==document.body) document.body.appendChild(box)
+  const full=SCD.modo==='full', nuevaSes=SCD._last!==SCD.open, cambioModo=SCD._lm!==SCD.modo
+  box.classList.remove('is-visor','is-anim','is-out'); box.classList.toggle('is-holo',full); box.classList.toggle('is-drawer',!full)
+  if (full){
+    box.setAttribute('role','dialog'); box.setAttribute('aria-modal','true'); box.setAttribute('aria-label','Rutina de la sesión')
+    if (!bg){ bg=document.createElement('div'); bg.id='holoBg'; bg.setAttribute('aria-hidden','true'); bg.onclick=function(){ scResMin() }; document.body.insertBefore(bg, box) }
+    root.classList.remove('ses-drawer'); root.classList.add('holo-on')
+    if (nuevaSes || cambioModo){ box.classList.remove('is-still'); s4Son('appear',0.8); setTimeout(function(){ s4Son('datos',0.55) },380) } else box.classList.add('is-still')
+  } else {
+    box.setAttribute('role','region'); box.removeAttribute('aria-modal'); box.setAttribute('aria-label','Resumen de la sesión')
+    if (bg) bg.remove(); root.classList.remove('holo-on'); root.classList.add('ses-drawer')
+    if (nuevaSes || cambioModo){ box.classList.remove('is-still'); box.classList.add('is-in'); setTimeout(function(){ box.classList.remove('is-in') },520)
+      requestAnimationFrame(function(){ try{   // c285 · pantallas bajas (notebook): sube la ficha para que la tarjeta quede a la vista sobre la bandeja
+        const tc=document.querySelector('#vFicha .tc[data-sid="'+SCD.open+'"], #vFicha .tc[data-xk="'+SCD.open+'"]'); if(!tc) return
+        const r=tc.getBoundingClientRect(), tope=window.innerHeight-box.offsetHeight-parseFloat(getComputedStyle(box).bottom||14)-12
+        if (r.bottom>tope) window.scrollBy({ top:Math.min(r.bottom-tope, r.top-((parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--ks-top'))||60)+70)), behavior:'smooth' }) }catch(_){} }) }
+  }
+  SCD._last=SCD.open; SCD._lm=SCD.modo
 }
 function holoCerrar(silencio){
-  const box=document.querySelector('body > .tcRes.is-holo'), bg=document.getElementById('holoBg')
+  const box=document.querySelector('body > .tcRes'), bg=document.getElementById('holoBg')
   if (!SCD.open) return
   if (!silencio) s4Son('scan-lock',0.6)
-  const fin=function(){ SCD.open=null; if(box) box.remove(); if(bg) bg.remove(); document.documentElement.classList.remove('holo-on'); if (document.getElementById('scCard')) scPintar() }
+  const fin=function(){ SCD.open=null; SCD._last=null; if(box) box.remove(); if(bg) bg.remove(); document.documentElement.classList.remove('holo-on','ses-drawer'); if (document.getElementById('scCard')) scPintar() }
   if (silencio || !box || (window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches)) return fin()
-  box.classList.add('is-out'); if(bg) bg.classList.add('is-out'); document.documentElement.classList.remove('holo-on')
+  box.classList.add('is-out'); if(bg) bg.classList.add('is-out'); document.documentElement.classList.remove('holo-on','ses-drawer')
   setTimeout(fin,300)
 }
 document.addEventListener('click',function(e){ const t=e.target; if (t.closest && document.documentElement.classList.contains('en-plan') && t.closest('#pTabs .mtab:not(.on)')) s4Son('scan-paso',0.6) },true)   // c270
@@ -10134,8 +10297,8 @@ document.addEventListener('click',function(e){ const t=e.target; if(!t.closest |
   else if (t.closest('#vPlan .tbIc--d, #vPlan .tbX--mas')) s4Son('appear',0.55)
   else if (t.closest('.tbMenu button')) s4Son('scan-paso',0.6)
   else if (t.closest('#vPlan .tbCol') && !t.closest('#vPlan .tbCol.act')) s4Son('scan-paso',0.45) },true)
-document.addEventListener('keydown',function(e){ if (e.key==='Escape' && document.documentElement.classList.contains('holo-on')){ e.preventDefault(); holoCerrar() } })
-if (window.MutationObserver) new MutationObserver(function(){ const r=document.documentElement; if (r.classList.contains('holo-on') && !r.classList.contains('en-ficha')) holoCerrar(true) }).observe(document.documentElement,{attributes:true,attributeFilter:['class']})
+document.addEventListener('keydown',function(e){ const r=document.documentElement; if (e.key!=='Escape' || document.getElementById('kAvz')) return; if (r.classList.contains('holo-on')){ e.preventDefault(); scResMin() } else if (r.classList.contains('ses-drawer')){ e.preventDefault(); holoCerrar() } })
+if (window.MutationObserver) new MutationObserver(function(){ const r=document.documentElement; if ((r.classList.contains('holo-on')||r.classList.contains('ses-drawer')) && (!r.classList.contains('en-ficha')||r.classList.contains('fx-edit'))) holoCerrar(true) }).observe(document.documentElement,{attributes:true,attributeFilter:['class']})
 async function scPintarRes(){
   const key=SCD.open, box=document.getElementById('tcRes'); if(!box||!key) return
   const st=SC.st||{}, ex=/^[xh]/.test(key)?scExtraKey(key):null
@@ -10158,13 +10321,16 @@ async function scPintarRes(){
     if (ex.tipo==='designada') acc+='<button type="button" class="tbB" onclick="scModoExtra(\''+ex.id+'\')">'+({koach:'SOLO CUANDO LA ACTIVE',libre:'MODO VACACIONES'}[ex.activacion]||'SIEMPRE DISPONIBLE')+' ⇄</button>'
     if (ex.tipo==='designada') acc+='<button type="button" class="tbB" onclick="scRetirarExtra(\''+ex.id+'\')">RETIRAR EXTRA</button>' }
   const cab='<div class="tcRes__h"><div><small>'+(ex?'★ SESIÓN EXTRA · NO SUMA A LAS PRINCIPALES':reg&&reg.abandonada?(reg.ejercicios+'/'+reg.total_ejercicios+' EJ · '+reg.sets+' SETS REGISTRADOS'):'RESUMEN DE LA SESIÓN')+'</small><b>'+scNomL(z.nombre)+'</b>'+(done&&z.cuando?'<small>REALIZADA · '+scDiaC(z.cuando)+'</small>':susp?'<small>SUSPENDIDA ESTA SEMANA</small>':'')+'</div><div class="tcRes__a">'+acc+
-    '<button type="button" class="tcRes__x" onclick="scAbrirRes(\''+key+'\')" aria-label="Cerrar resumen">✕</button></div></div>'
+    '<button type="button" class="tbB tbB--full" onclick="scResFull()">⤢ ABRIR RUTINA</button>'+
+    '<button type="button" class="tbB tbB--min" onclick="scResMin()" aria-label="Volver al resumen">↙ RESUMEN</button>'+
+    '<button type="button" class="tcRes__x" onclick="holoCerrar()" aria-label="Cerrar resumen">✕</button></div></div>'
   box.hidden=false
   if (!SCD.det[id]){ box.innerHTML=cab+kLd('Cargando')
     const r=await sb.from('bloques').select('id,bloque,etiqueta,sets,bloque_ejercicios(orden,reps_txt,reps,duracion_seg,kg_objetivo,ejercicios(nombre))').eq('sesion_id',id).order('bloque')
     if (r.error){ box.innerHTML=cab+'<div class="tcRes__c">No se pudo cargar el resumen.</div>'; return }
     SCD.det[id]=r.data||[]; if (SCD.open!==key) return }
   const bl=SCD.det[id]
+  box.style.setProperty('--nb', String(Math.max(1,Math.min(bl.length||1,4))))   // c282: tantas columnas como bloques (sin columna vacía)
   box.innerHTML=cab+(bl.length?'<div class="tcRes__g">'+bl.map(function(b,bi){
     const ejs=(b.bloque_ejercicios||[]).slice().sort(function(a,c){return (a.orden||0)-(c.orden||0)})
     return '<div class="tcB"><div class="tcB__h">'+plEsc(String(b.bloque||('B'+(bi+1))).toUpperCase())+(b.etiqueta?' · '+plEsc(String(b.etiqueta).toUpperCase()):'')+' <span>'+(b.sets||'—')+' SETS</span></div>'+
@@ -10543,9 +10709,122 @@ function mhAcciones(){
 function pfMenu(b){ const m=b.nextElementSibling, ab=m.hidden
   document.querySelectorAll('.pfMenu').forEach(function(x){ x.hidden=true }); m.hidden=!ab; b.setAttribute('aria-expanded',String(ab))
   if (ab) setTimeout(function(){ document.addEventListener('click', function f(e){ if(!m.contains(e.target)&&e.target!==b){ m.hidden=true; b.setAttribute('aria-expanded','false') } document.removeEventListener('click',f) }) },0) }
+
+// ═══ c281 · AVISOS A SOCIOS (koach/admin): enviar al teléfono, semana de avisos diarios e historial ═══
+const AVZ={ tab:'enviar', dest:{ tipo:'todos', valor:null }, socio:null, conf:false, sem:null, hist:null, alc:null, enviando:false }
+const AVZ_DIAS=['','LUNES','MARTES','MIÉRCOLES','JUEVES','VIERNES','SÁBADO','DOMINGO']
+const AVZ_DEST=[['todos','TODOS'],['programa:STRONG','STRONG'],['programa:BURN','BURN'],['programa:HEALTHY','HEALTHY'],['sin_semana','SIN ENTRENAR ESTA SEMANA'],['por_vencer','MEMBRESÍA POR VENCER']]
+function avzPuede(){ const r=(KS.b&&KS.b.R)||(C&&C.yo&&C.yo.role); return r==='admin'||r==='coach' }
+function avzAbrir(socio){
+  if (!avzPuede()){ toast('Solo koaches y administración envían avisos'); return }
+  KS.menu=null; try{ kShellMenu() }catch(_){}
+  AVZ.socio=socio||null; AVZ.dest=socio?{ tipo:'socio', valor:socio.id }:{ tipo:'todos', valor:null }; AVZ.tab='enviar'; AVZ.conf=false; AVZ.alc=null
+  let el=document.getElementById('kAvz'); if(el) el.remove()
+  el=document.createElement('div'); el.id='kAvz'; el.setAttribute('role','dialog'); el.setAttribute('aria-modal','true'); el.setAttribute('aria-label','Avisos a socios')
+  el.addEventListener('click', function(e){ if(e.target===el) avzCerrar() })
+  document.body.appendChild(el); avzPintar(); requestAnimationFrame(function(){ el.classList.add('on') }); s4Son('appear',0.8); avzAlcance()
+}
+function avzCerrar(){ const el=document.getElementById('kAvz'); if(!el) return; s4Son('scan-lock',0.5); el.classList.remove('on'); setTimeout(function(){ el.remove() },240) }
+document.addEventListener('keydown', function(e){ if(e.key==='Escape' && document.getElementById('kAvz')) avzCerrar() })
+function avzTab(t){ AVZ.tab=t; AVZ.conf=false; s4Son('scan-paso',0.5); avzPintar(); if(t==='semana' && !AVZ.sem) avzSemCargar(); if(t==='hist') avzHistCargar() }
+function avzPintar(){
+  const el=document.getElementById('kAvz'); if(!el) return
+  const tabs=[['enviar','ENVIAR'],['semana','AVISO DEL DÍA'],['hist','HISTORIAL']].map(function(t){ return '<button type="button" class="'+(AVZ.tab===t[0]?'on':'')+'" onclick="avzTab(\''+t[0]+'\')">'+t[1]+'</button>' }).join('')
+  let body=''
+  if (AVZ.tab==='enviar'){
+    const k=AVZ.dest.tipo+(AVZ.dest.tipo==='programa'?':'+AVZ.dest.valor:'')
+    const pills=(AVZ.socio?'<button type="button" class="'+(AVZ.dest.tipo==='socio'?'on':'')+'" onclick="avzDest(\'socio\')">'+plEsc(String(AVZ.socio.nombre||'SOCIO').toUpperCase())+'</button>':'')+
+      AVZ_DEST.map(function(d){ return '<button type="button" class="'+(k===d[0]?'on':'')+'" onclick="avzDest(\''+d[0]+'\')">'+d[1]+'</button>' }).join('')
+    const a=AVZ.alc
+    const alc=a==null?'Calculando…':(a.error?'<span style="color:#FF4200">'+plEsc(a.error)+'</span>':'<b>'+a.con_aviso+'</b> con avisos activados · '+a.socios+' socio'+(a.socios===1?'':'s')+' en el grupo')
+    const t=AVZ._t||'', c=AVZ._c||''
+    body='<div class="avz__k">PARA</div><div class="avz__pills">'+pills+'</div><div class="avz__alc" id="avzAlc">'+alc+'</div>'+
+      '<div class="avz__k">TÍTULO</div><input class="avz__in" id="avzT" maxlength="70" placeholder="Hoy vamos por tu versión más fuerte" value="'+plEsc(t)+'" oninput="avzTxt()">'+
+      '<div class="avz__k">MENSAJE</div><textarea class="avz__in" id="avzC" maxlength="140" placeholder="Opcional" oninput="avzTxt()">'+plEsc(c)+'</textarea><div class="avz__cnt" id="avzN">'+c.length+'/140</div>'+
+      '<div class="avz__k">ASÍ LO VE EL SOCIO</div><div class="avz__pv"><img src="/icon-192.png" alt=""><div style="min-width:0"><b id="avzPT">'+plEsc(t||'Título del aviso')+'</b><span id="avzPC">'+plEsc(c)+'</span></div><em>ahora</em></div>'+
+      '<div class="avz__acc"><button type="button" class="avz__b" onclick="avzProbar()">PROBAR EN MI TELÉFONO</button>'+
+      '<button type="button" class="avz__b '+(AVZ.conf?'avz__b--ok':'avz__b--on')+'" id="avzGo" onclick="avzEnviar()"'+((!t.trim()||AVZ.enviando||(a&&!a.error&&!a.con_aviso))?' disabled':'')+'>'+(AVZ.enviando?'ENVIANDO…':AVZ.conf?'CONFIRMAR · ENVIAR A '+((a&&a.con_aviso)||0):'ENVIAR')+'</button></div>'+
+      '<div class="avz__msg" id="avzMsg"></div>'+
+      '<div class="avz__nota">Llega solo a quienes aceptaron avisos en la app (en iPhone, con KOACH instalada en la pantalla de inicio). Al tocarlo se abre la app.</div>'
+  } else if (AVZ.tab==='semana'){
+    if (!AVZ.sem) body='<div class="avz__alc">Cargando…</div>'
+    else if (AVZ.sem.error) body='<div class="avz__msg err">'+plEsc(AVZ.sem.error)+'</div>'
+    else {
+      const on=AVZ.sem.filter(function(d){ return d.activo }).length
+      body='<div class="avz__alc">Un aviso al día, cada día con su tema. Si no aplica (ya entrenó, ya registró comidas, semana completa), ese día no le llega. <b>'+on+'/7</b> activos.</div>'+
+        AVZ.sem.map(function(d){ let hs=''; for(let h=8;h<=22;h++){ hs+='<option value="'+h+'"'+(h===d.hora?' selected':'')+'>'+String(h).padStart(2,'0')+':'+String(d.minuto).padStart(2,'0')+'</option>' }
+          const nota={ sin_entreno_hoy:'No llega si ya entrenó hoy', sin_comidas_hoy:'No llega si ya registró comidas hoy', semana_dato:'{h} sesiones hechas · {p} programadas', cierre_semana:'{r} = sesiones que faltan · semana completa: «'+(d.titulo_b||'')+'»', ninguna:'' }[d.regla]||''
+          return '<div class="avz__d"><div class="dn"><b>'+AVZ_DIAS[d.dia]+'</b><small>'+plEsc(d.tema)+'</small></div>'+
+            '<select aria-label="Hora" onchange="avzSemSet('+d.dia+',{hora:+this.value})">'+hs+'</select>'+
+            '<div class="tx"><input maxlength="70" value="'+plEsc(d.titulo)+'" aria-label="Título" onchange="avzSemSet('+d.dia+',{titulo:this.value})"><input class="c" maxlength="140" value="'+plEsc(d.cuerpo)+'" aria-label="Mensaje" onchange="avzSemSet('+d.dia+',{cuerpo:this.value})">'+(nota?'<i>'+plEsc(nota)+'</i>':'')+'</div>'+
+            '<div class="sw"><button type="button" class="avz__tg'+(d.activo?' on':'')+'" role="switch" aria-checked="'+d.activo+'" aria-label="Activo" onclick="avzSemSet('+d.dia+',{activo:'+(!d.activo)+'})"></button><button type="button" class="avz__mini" onclick="avzProbar('+d.dia+')">PROBAR</button></div></div>' }).join('')+
+        '<div class="avz__acc"><button type="button" class="avz__b" onclick="avzSemTodos(false)">APAGAR TODOS</button><button type="button" class="avz__b avz__b--on" onclick="avzSemTodos(true)">ACTIVAR LA SEMANA</button></div><div class="avz__msg" id="avzMsg"></div>'
+    }
+  } else {
+    if (!AVZ.hist) body='<div class="avz__alc">Cargando…</div>'
+    else if (AVZ.hist.error) body='<div class="avz__msg err">'+plEsc(AVZ.hist.error)+'</div>'
+    else if (!AVZ.hist.length) body='<div class="avz__alc">Todavía no se ha enviado ningún aviso.</div>'
+    else body=AVZ.hist.map(function(h){ const d=new Date(h.created_at), f=d.toLocaleDateString('es-CL',{day:'2-digit',month:'short'}).toUpperCase()+' · '+d.toLocaleTimeString('es-CL',{hour:'2-digit',minute:'2-digit'})
+      const de=h.tipo==='diario'?'AVISO DEL DÍA · '+(h.destino&&h.destino.tema||''):((h.creado_por_nombre||'EQUIPO').toUpperCase()+' · '+avzDestTxt(h.destino))
+      return '<div class="avz__hl"><small>'+f+'</small><div><b>'+plEsc(h.titulo)+'</b>'+(h.cuerpo?'<span>'+plEsc(h.cuerpo)+'</span>':'')+'<br><small>'+plEsc(de)+'</small></div><em>'+h.entregados+'/'+h.socios+'</em></div>' }).join('')
+  }
+  el.innerHTML='<div class="avz"><div class="avz__h"><div><small>KOACH · AL TELÉFONO DEL SOCIO</small><h2>Avisos</h2></div><button type="button" class="avz__x" onclick="avzCerrar()" aria-label="Cerrar">×</button></div><div class="avz__tabs">'+tabs+'</div>'+body+'</div>'
+}
+function avzDestTxt(d){ d=d||{}; if(d.tipo==='programa') return d.valor; if(d.tipo==='socio') return 'UN SOCIO'; const m={ todos:'TODOS', sin_semana:'SIN ENTRENAR ESTA SEMANA', por_vencer:'MEMBRESÍA POR VENCER' }; return m[d.tipo]||'' }
+function avzTxt(){ const t=document.getElementById('avzT').value, c=document.getElementById('avzC').value; AVZ._t=t; AVZ._c=c; AVZ.conf=false
+  document.getElementById('avzPT').textContent=t||'Título del aviso'; document.getElementById('avzPC').textContent=c; document.getElementById('avzN').textContent=c.length+'/140'
+  const g=document.getElementById('avzGo'), a=AVZ.alc; if(g){ g.disabled=!t.trim()||AVZ.enviando||(a&&!a.error&&!a.con_aviso); g.className='avz__b avz__b--on'; g.textContent='ENVIAR' } }
+function avzDest(k){ if(k==='socio') AVZ.dest={ tipo:'socio', valor:AVZ.socio&&AVZ.socio.id }; else { const p=k.split(':'); AVZ.dest={ tipo:p[0], valor:p[1]||null } }
+  AVZ.conf=false; AVZ.alc=null; s4Son('scan-paso',0.5); avzPintar(); avzAlcance() }
+async function avzAlcance(){ const d=AVZ.dest, k=JSON.stringify(d)
+  const r=await sb.rpc('koach_avisos_alcance',{ p_tipo:d.tipo, p_valor:d.valor })
+  if (JSON.stringify(AVZ.dest)!==k) return
+  AVZ.alc=r.error?{ error:'No se pudo calcular el grupo' }:(r.data||{ socios:0, con_aviso:0 })
+  if (AVZ.tab==='enviar'){ const t=document.getElementById('avzT'); AVZ._t=t?t.value:AVZ._t; const c=document.getElementById('avzC'); AVZ._c=c?c.value:AVZ._c; avzPintar() } }
+function avzMsg(t,err){ const m=document.getElementById('avzMsg'); if(m){ m.textContent=t; m.classList.toggle('err',!!err) } }
+async function avzEnviar(){
+  if (AVZ.enviando) return
+  if (!AVZ.conf){ AVZ.conf=true; s4Son('scan-paso',0.6); const g=document.getElementById('avzGo'); if(g){ g.className='avz__b avz__b--ok'; g.textContent='CONFIRMAR · ENVIAR A '+((AVZ.alc&&AVZ.alc.con_aviso)||0) } return }
+  AVZ.enviando=true; avzPintar()
+  const r=await sb.functions.invoke('avisos-koach',{ body:{ accion:'enviar', destino:AVZ.dest, titulo:AVZ._t, cuerpo:AVZ._c } })
+  AVZ.enviando=false; AVZ.conf=false
+  if (r.error || (r.data&&r.data.error)){ avzPintar(); avzMsg((r.data&&r.data.error)||'No se pudo enviar. Intenta de nuevo.', true); return }
+  s4Son('datos',0.6); AVZ._t=''; AVZ._c=''; avzPintar(); avzMsg('Enviado · llegó a '+r.data.entregados+' de '+r.data.socios+' socios')
+}
+async function avzProbar(dia){
+  const body=dia?{ accion:'probar', dia:dia }:{ accion:'probar', titulo:(document.getElementById('avzT')||{}).value||'', cuerpo:(document.getElementById('avzC')||{}).value||'' }
+  if (!dia && !body.titulo.trim()){ avzMsg('Escribe el título primero', true); return }
+  const r=await sb.functions.invoke('avisos-koach',{ body:body })
+  if (r.error || (r.data&&r.data.error)){ avzMsg((r.data&&r.data.error)||'No se pudo enviar la prueba', true); return }
+  avzMsg(r.data.sin_suscripcion?'Tu cuenta no tiene avisos activados: entra a la app de socio con tu cuenta, acepta los avisos y vuelve a probar.':'Prueba enviada a tu teléfono', !!r.data.sin_suscripcion)
+}
+async function avzSemCargar(){ const r=await sb.from('avisos_semana').select('*').order('dia'); AVZ.sem=r.error?{ error:'No se pudo leer la semana de avisos' }:(r.data||[]); if(AVZ.tab==='semana') avzPintar() }
+async function avzSemSet(dia, cambio){
+  const d=(AVZ.sem||[]).find(function(x){ return x.dia===dia }); if(!d) return
+  if (cambio.titulo!=null && !String(cambio.titulo).trim()){ avzPintar(); avzMsg('El título no puede quedar vacío', true); return }
+  const ant=Object.assign({},d); Object.assign(d,cambio); if('activo' in cambio) s4Son(cambio.activo?'datos':'scan-lock',0.5); avzPintar()
+  const r=await sb.from('avisos_semana').update(Object.assign({ updated_at:new Date().toISOString(), updated_by:(C&&C.yo&&C.yo.id)||null }, cambio)).eq('dia',dia)
+  if (r.error){ Object.assign(d,ant); avzPintar(); avzMsg('No se pudo guardar: '+r.error.message, true) } else avzMsg('Guardado')
+}
+async function avzSemTodos(on){ for (const d of (AVZ.sem||[])) if (d.activo!==on) await avzSemSet(d.dia,{ activo:on }) }
+async function avzHistCargar(){ const r=await sb.from('push_envios').select('*').order('created_at',{ascending:false}).limit(40); AVZ.hist=r.error?{ error:'No se pudo leer el historial' }:(r.data||[]); if(AVZ.tab==='hist') avzPintar() }
+function avzSocioFicha(){ if (!F) return; avzAbrir({ id:F.id, nombre:((document.getElementById('fNombre')||{}).textContent||'').trim() }) }
+// c280 · fija solo la barra de botones cuando su lugar natural sale de la pantalla (con hueco reservado → sin saltos)
+function fpPin(mh){ mh=mh||document.querySelector('#vFicha .mh'); if(!mh) return; const bar=mh.querySelector('.mh__bar'); if(!bar) return
+  mh.classList.remove('mh--mini')
+  const root=document.documentElement, ks=parseFloat(getComputedStyle(root).getPropertyValue('--ks-top'))||60
+  const pin=mh.classList.contains('mh--pin'), r=mh.getBoundingClientRect()
+  const barH=pin ? (parseFloat(root.style.getPropertyValue('--fp-barh'))||56) : bar.offsetHeight
+  const natTop=r.bottom-barH   // donde estaría la barra en su sitio
+  const debe=document.getElementById('vFicha').classList.contains('on') && natTop < ks+8
+  if (debe){ root.style.setProperty('--fp-barl', r.left+'px'); root.style.setProperty('--fp-barw', r.width+'px') }
+  if (debe && !pin){ root.style.setProperty('--fp-barh', (bar.offsetHeight+parseFloat(getComputedStyle(bar).marginTop||0))+'px'); mh.classList.add('mh--pin') }
+  else if (!debe && pin) mh.classList.remove('mh--pin') }
+window.addEventListener('resize', function(){ if (document.documentElement.hasAttribute('data-fprog')) fpPin() }, {passive:true})
 // v4 · cabecera compacta al bajar en la ficha (con histéresis para que no salte)
 window.addEventListener('scroll', function(){ const v=document.getElementById('vFicha'); if(!v||!v.classList.contains('on')) return
   const mh=v.querySelector('.mh'); if(!mh) return; const y=window.scrollY
+  if (document.documentElement.hasAttribute('data-fprog')){ fpPin(mh); return }   // c280: ficha temática → sin cabecera pegajosa
   if (!mh.classList.contains('mh--mini') && y>260) mh.classList.add('mh--mini'); else if (mh.classList.contains('mh--mini') && y<120) mh.classList.remove('mh--mini') }, {passive:true})
 document.addEventListener('keydown', function(e){ if(e.key!=='Escape') return
   document.querySelectorAll('.pfMenu:not([hidden])').forEach(function(m){ m.hidden=true; const b=m.previousElementSibling; if(b){ b.setAttribute('aria-expanded','false'); b.focus() } }) })
@@ -11328,11 +11607,13 @@ function kShellMenu(){
   const b=KS.b, yo=(C&&C.yo)||{}, nom=String(yo.nombre||'Equipo')
   const me='<div class="kMenu__h"><b>'+plEsc(nom)+'</b><small>'+(KS_ROL[yo.role]||'EQUIPO')+' · KOACH CLUB</small></div>'+
     '<button type="button" onclick="kAcc(\'vista\')">Vista del dashboard</button>'+
+    ((b.R==='admin'||b.R==='coach')?'<button type="button" onclick="avzAbrir()">Avisos a socios</button>':'')+
     '<button type="button" onclick="kAcc(\'clave\')">Mi clave</button><hr>'+
     '<button type="button" class="danger" onclick="kAcc(\'salir\')">Cerrar sesión</button>'
   const alta=(b.R==='admin'||b.R==='recepcion'||b.R==='coach'), NUT=(b.R==='nutricionista')
   const mas='<button type="button" onclick="kAcc(\'agenda\')">Agenda</button>'+(b.R==='admin'?'<button type="button" onclick="kAcc(\'crm\')">Panel del dueño</button>':'')+(b.COM?'<button type="button" class="kM-mem" onclick="kAcc(\'mem\')">Membresías'+(b.mem?'<small>'+b.memT.split(' · ')[0].toUpperCase()+'</small>':'')+'</button>':'')+
     '<button type="button" onclick="kAcc(\'adh\')">Adherencia</button>'+
+    ((b.R==='admin'||b.R==='coach')?'<button type="button" onclick="avzAbrir()">Avisos a socios</button>':'')+
     (b.ENT?'<button type="button" onclick="kAcc(\'bib\')">Biblioteca</button>':'')+
     (alta?'<button type="button" class="kM-alta" onclick="kAcc(\'alta\')">Nuevo socio<small>+</small></button>':'')+
     '<button type="button" class="kM-me" onclick="kMenuT(\'me\')">Mi cuenta<small>'+plEsc(nom.split(' ')[0].toUpperCase())+'</small></button>'

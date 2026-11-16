@@ -67,6 +67,7 @@ function prompt(ctx){
   return 'Eres el ojo del escáner de alimentos de KOACH Club (Concepción, Chile). Analiza la foto del plato.\n' +
     '- Identifica cada alimento visible por separado (máximo 8), con nombres de Chile (palta, porotos, marraqueta, quesillo, completo, sopaipilla, etc.).\n' +
     '- Estima la porción VISIBLE en gramos y sus kcal y macros para esa porción. Sé conservador: no infles ni achiques.\n' +
+    '- Rellenos laminados: cuenta las láminas visibles. Referencia Chile: 1 lámina de queso ≈ 18-20 g, 1 lámina de jamón ≈ 12-15 g, 1 pan amasado ≈ 80-100 g, 1 marraqueta ≈ 100 g, 1 hallulla ≈ 90 g.\n' +
     '- Indica la preparación (frito, plancha, horno…), la clasificación NOVA y si es refinado, con azúcar añadida, carne procesada o alcohol.\n' +
     '- confianza por alimento: baja (<0,6) si está tapado, mezclado, la porción es difícil de ver o podría ser otro alimento.\n' +
     '- zona = caja del alimento en la foto, [ymin, xmin, ymax, xmax] normalizado de 0 a 1000.\n' +
@@ -144,6 +145,8 @@ const MEDIDAS = [
   [/fruta|pl[aá]tano|manzana|pera|naranja|kiwi|mango|durazno|mandarina/i, 'unidad', 'unidades', 150],
   [/fruto seco|almendra|nuez|nueces|man[ií]|pistacho|semilla/i, 'puñado', 'puñados', 30],
   [/leche|yogh?urt|k[eé]fir|bebida|jugo|batido/i, 'taza', 'tazas', 200],
+  [/queso laminado|l[aá]mina de queso/i, 'lámina', 'láminas', 20],
+  [/jam[oó]n/i, 'lámina', 'láminas', 15],
   [/quesillo|queso/i, 'rebanada', 'rebanadas', 30],
   [/pollo|pavo|carne|vacuno|cerdo|lomo|posta|pescado|salm[oó]n|merluza|reineta|jurel|congrio|pechuga|filete|bistec|tofu|hamburguesa|camar[oó]n/i, 'palma', 'palmas', 100],
   [/verdura|ensalada|lechuga|tomate|br[oó]coli|zanahoria|espinaca|zapallo|pepino|repollo|coliflor|esp[aá]rrago|r[uú]cula|acelga/i, 'taza', 'tazas', 80]
