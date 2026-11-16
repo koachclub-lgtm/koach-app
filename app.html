@@ -1591,6 +1591,38 @@ html:has(#vSesion.esf.on),html:has(#vSesion.esf.on) body{background:radial-gradi
 .esFin .esPl{height:36px;padding:0 18px;font-size:9px;cursor:pointer}
 #vSesion.esf #sBloques{padding-bottom:0}
 @media (prefers-reduced-motion:reduce){.esO__ha,.esLive{animation:none}}
+/* c276 · SESIÓN EN CURSO EN PLATA CROMADA (sin tornasol): un solo fondo plata en todo el scroll (Silver Texture de MÉTODO/MI PLAN),
+   todo el texto oscuro; esferas en la escala de grises del manual (listo #434649 · siguiente #6F7377 · después #979C9F) y la activa en plata
+   cromada que gira y resplandece. Píldoras, botón y flecha también en plata. */
+@property --esA{syntax:'<angle>';inherits:false;initial-value:0deg}
+html:has(#vSesion.esf.on),html:has(#vSesion.esf.on) body{background:#C9CBCE url('/img/bg/silver-plan.jpg') center top/cover fixed!important;
+  background-image:image-set(url('/img/bg/silver-plan.webp') type('image/webp'),url('/img/bg/silver-plan.jpg') type('image/jpeg'))!important}
+#vSesion.esf .esL{color:#131313}
+#vSesion.esf .esPl--w{border-color:rgba(19,19,19,.5);color:#131313}
+#vSesion.esf .esL__l{border-bottom-color:rgba(19,19,19,.16)}
+#vSesion.esf .esL__l li{border-top-color:rgba(19,19,19,.16)}
+#vSesion.esf .esL__sg i{background:rgba(19,19,19,.14)}#vSesion.esf .esL__sg i.on{background:#131313}
+#vSesion.esf .esPl i:not(.esLive):not(.esClk){background:linear-gradient(115deg,#9EA2A8 0%,#F4F5F6 30%,#B7BBC0 55%,#FFFFFF 75%,#C3C6CA 100%)}
+/* esferas en grises del manual */
+.esO--ok .esO__b{background:radial-gradient(circle at 34% 28%,rgba(255,255,255,.22),transparent 55%),#434649;color:#FFFFFF;box-shadow:inset 0 -10px 22px rgba(0,0,0,.35),0 16px 30px -18px rgba(0,0,0,.6)}
+.esO--nx .esO__b{border:0;background:radial-gradient(circle at 34% 28%,rgba(255,255,255,.3),transparent 55%),#6F7377;color:#FFFFFF;box-shadow:inset 0 -8px 18px rgba(0,0,0,.25),0 14px 26px -18px rgba(0,0,0,.5)}
+.esO--nx .esO__b b,.esO--nx .esO__n{opacity:1}
+.esO--nx ~ .esO--nx .esO__b{background:radial-gradient(circle at 34% 28%,rgba(255,255,255,.4),transparent 55%),#979C9F;color:#131313}
+/* activa: plata cromada que gira y resplandece */
+.esO__ha{inset:-30px;background:radial-gradient(circle,rgba(255,255,255,.95) 0,rgba(255,255,255,.55) 38%,rgba(255,255,255,0) 68%);filter:blur(14px);opacity:.9;animation:esBrillo 3.2s ease-in-out infinite}
+@keyframes esBrillo{0%,100%{opacity:.65;transform:scale(.96)}50%{opacity:1;transform:scale(1.04)}}
+.esO__g{overflow:hidden;background:conic-gradient(from var(--esA),#8E9297,#F4F5F6 12%,#B7BBC0 24%,#FFFFFF 36%,#8A8F94 50%,#DADDE0 62%,#9EA2A8 74%,#F7F8F9 86%,#8E9297);animation:esCromo 7s linear infinite;
+  box-shadow:inset 0 0 0 1px rgba(255,255,255,.8),inset 0 -18px 36px rgba(19,19,19,.28),inset 0 18px 30px rgba(255,255,255,.55),0 26px 50px -24px rgba(19,19,19,.65)}
+.esO__g::before{padding:2px;background:conic-gradient(from calc(var(--esA) * -1),#FFFFFF,#8E9297,#F4F5F6,#6F7377,#FFFFFF);animation:esCromo 7s linear infinite}
+.esO__g::after{content:'';position:absolute;inset:0;border-radius:50%;background:radial-gradient(circle at 32% 24%,rgba(255,255,255,.95) 0,rgba(255,255,255,.35) 22%,rgba(255,255,255,0) 46%),radial-gradient(circle at 70% 85%,rgba(19,19,19,.18),transparent 50%)}
+@keyframes esCromo{to{--esA:360deg}}
+.esO--on .esO__b{color:#131313}
+.esO--on .esO__b small{opacity:.8}
+/* botón y flecha en plata */
+.esGo::before{background:conic-gradient(from 210deg,#FFFFFF,#8E9297,#F4F5F6,#6F7377,#DADDE0,#FFFFFF)}
+.esGo b{background:radial-gradient(circle at 32% 26%,#FFFFFF 0,rgba(255,255,255,.4) 40%,transparent 62%),conic-gradient(from 200deg,#9EA2A8,#F4F5F6,#B7BBC0,#FFFFFF,#8E9297,#DADDE0,#9EA2A8);box-shadow:inset 0 0 0 1px rgba(255,255,255,.85),0 4px 10px rgba(19,19,19,.2)}
+#vSesion.esf .esFin .esPl{border-color:rgba(19,19,19,.55);color:#131313}
+@media (prefers-reduced-motion:reduce){.esO__g,.esO__g::before{animation:none}}
 </style>
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
