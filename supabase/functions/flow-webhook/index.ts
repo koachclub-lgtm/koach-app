@@ -143,6 +143,28 @@ Deno.serve(async (req) => {
     const r = await conciliar(new URL(req.url).searchParams.get("socio"));
     return new Response(JSON.stringify({ ok: true, revisadas: r }), { headers: { "Content-Type": "application/json" } });
   }
+  // ?t=reemplazar&socio=uuid&clave=…  (staff interno) cancela YA en Flow el pago automático con cobros rechazados
+  // para que el socio registre otra tarjeta desde la app (?auto=1). Clave en config_interna (sin acceso público).
+  if (t === "reemplazar") {
+    const u = new URL(req.url), socio = u.searchParams.get("socio"), clave = u.searchParams.get("clave");
+    const { data: k } = await admin.from("config_interna").select("valor").eq("clave", "flow_staff").maybeSingle();
+    const J = (o: unknown, s = 200) => new Response(JSON.stringify(o), { status: s, headers: { "Content-Type": "application/json" } });
+    if (!k?.valor || !clave || clave !== k.valor || !socio) return J({ error: "sin permiso" }, 403);
+    const { data: s } = await admin.from("flow_suscripciones").select("*").eq("socio_id", socio).in("estado", ["activa", "activando"])
+      .order("created_at", { ascending: false }).limit(1).maybeSingle();
+    if (!s) return J({ error: "sin pago automático activo" }, 400);
+    if ((s.cobros_pagados || 0) > 0) return J({ error: "ya tiene cobros pagados; no se reemplaza" }, 400);
+    let cancel: unknown = null, despues: unknown = null;
+    if (s.flow_subscription_id) {
+      try { cancel = await flow("POST", "subscription/cancel", { subscriptionId: s.flow_subscription_id, at_period_end: 0 }); }
+      catch (e) { return J({ error: "Flow no canceló: " + String((e as Error).message).slice(0, 200) }, 502); }
+      try { despues = await flow("GET", "subscription/get", { subscriptionId: s.flow_subscription_id }); } catch (_) { /* informativo */ }
+    }
+    const motivo = u.searchParams.get("motivo") || "cobros rechazados: se reemplaza para registrar otra tarjeta";
+    await admin.from("flow_suscripciones").update({ estado: "error", error: "reemplazada · " + motivo, termino: { tipo: "reemplazo", causal: motivo, at: ahora() }, flow_data: despues ?? s.flow_data, updated_at: ahora() }).eq("id", s.id);
+    await admin.from("admin_eventos").insert({ socio_id: socio, entidad: "pago_automatico", entidad_id: s.id, accion: "reemplazar", despues: { suscripcion: s.flow_subscription_id, cancel }, actor_nombre: "STAFF · reemplazo de tarjeta", motivo });
+    return J({ ok: true, cancelada: s.flow_subscription_id, flow: despues });
+  }
   if (t === "ping") {
     let flowR: unknown = null;
     try { await flow("GET", "payment/getStatus", { token: "ping_koach" }); } catch (e) { flowR = String((e as Error).message).slice(0, 300); }
