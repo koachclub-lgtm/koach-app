@@ -203,7 +203,7 @@ const TOOLS = {
         espejo: G(genero) === 'f' ? /^(aprobada|provisional)$/.test(r.estado || '') : undefined,
         miniatura_m: (G(genero) === 'f' && con_miniaturas && /^(aprobada|provisional)$/.test(r.estado || '')) ? await thumbData(r.ruta_m) : undefined,
         // pose B (loop A↔B)
-        pose_inicial: r.pose_inicial || 'a', descripcion_b: r.descripcion_b || null,
+        pose_inicial: r.pose_inicial || 'a', descripcion_b: r.descripcion_b || null, referencia_b: !!r.ref_ruta_b,
         estado_b: r[COLSB[G(genero)].estado] || 'sin_foto', version_b: r[COLSB[G(genero)].version] || 0, nota_b: r[COLSB[G(genero)].nota] || null,
         miniatura_b: con_miniaturas ? await thumbData(r[COLSB[G(genero)].ruta]) : null
       }; }));
@@ -234,10 +234,17 @@ const TOOLS = {
       const fotoA = (await sharp(Buffer.from(await ra.arrayBuffer())).jpeg({ quality: 90 }).toBuffer()).toString('base64');
       const rules = koachRules(visual_key);
       const molde = `\nPOSE REFERENCE (most important): the SECOND attached image is our approved photo of this exact exercise (pose A). Recreate it as faithfully as possible: the identical athlete, identical camera angle, framing and crop, identical equipment and its placement, identical grip, body support, lighting and backdrop. The ONLY change is the movement phase: show the position described above, which is the opposite end of the range of motion of the same repetition. Move only the joints and the implement that move in this exercise; everything that stays still in the exercise stays exactly where it is in pose A. Do not add, remove or move anything else.`;
+      const refsB = [fotoA];
+      let refBNote = '';
+      if (rec.ref_ruta_b) {
+        const rb = await fetch(publicUrl(rec.ref_ruta_b));
+        if (rb.ok) { refsB.push((await sharp(Buffer.from(await rb.arrayBuffer())).jpeg({ quality: 85 }).toBuffer()).toString('base64'));
+          refBNote = `\nTARGET POSITION REFERENCE: the THIRD attached image shows the exact end position to reach (joint angles, where the handles/implement end up). Copy that body and machine position, but keep everything else from the SECOND image (pose A): athlete, framing, equipment look, lighting and backdrop. Ignore the third image's person, style, colors and background.`; }
+      }
       let extra = correccion ? `\nIMPORTANT CORRECTION: ${correccion}` : '';
       let model, data, check, intentos;
       for (intentos = 1; intentos <= 2; intentos++) {
-        ({ model, data } = await gemini(`${MASTER_FOR(g)}\n${descB}${molde}${rules.length ? `\nMANDATORY KOACH RULES (override the description if they conflict):\n- ${rules.join('\n- ')}` : ''}${extra}`, [fotoA], g));
+        ({ model, data } = await gemini(`${MASTER_FOR(g)}\n${descB}${molde}${refBNote}${rules.length ? `\nMANDATORY KOACH RULES (override the description if they conflict):\n- ${rules.join('\n- ')}` : ''}${extra}`, refsB, g));
         const jpg = await sharp(data).resize(768, 768, { fit: 'cover' }).jpeg({ quality: 85 }).toBuffer();
         check = await qa(jpg, descB, rules);
         if (check.ok !== false) break;
@@ -310,21 +317,21 @@ const TOOLS = {
   guardar_referencia: {
     description: 'Guarda una imagen de referencia del equipamiento o la postura para un visual_key (base64 JPEG/PNG). Las siguientes generaciones la usan.',
     inputSchema: { type: 'object', properties: { visual_key: { type: 'string' }, imagen_base64: { type: 'string', description: 'Imagen en base64, sin prefijo data:' } }, required: ['visual_key', 'imagen_base64'] },
-    async run({ visual_key, imagen_base64 }) {
+    async run({ visual_key, imagen_base64, pose }) {
       const raw = Buffer.from(String(imagen_base64).replace(/^data:[^,]+,/, ''), 'base64');
       const jpg = await sharp(raw).flatten({ background: '#ffffff' }).resize(1024, 1024, { fit: 'inside', withoutEnlargement: true }).jpeg({ quality: 85 }).toBuffer();
-      const ruta = `ref/${visual_key}.jpg`;
+      const ruta = pose === 'b' ? `ref/${visual_key}_b.jpg` : `ref/${visual_key}.jpg`;
       await upload(ruta, jpg, 'image/jpeg');
-      await patchRecurso(visual_key, { ref_ruta: ruta });
-      return { ok: true, visual_key, kb: Math.round(jpg.length / 1024) };
+      await patchRecurso(visual_key, pose === 'b' ? { ref_ruta_b: ruta } : { ref_ruta: ruta });
+      return { ok: true, visual_key, pose: pose === 'b' ? 'b' : 'a', kb: Math.round(jpg.length / 1024) };
     }
   },
   usar_foto: {
     description: 'Usa una imagen subida por el revisor como foto definitiva del visual_key (nueva versión, estado pendiente), sin pasar por Gemini.',
     inputSchema: { type: 'object', properties: { visual_key: { type: 'string' }, imagen_base64: { type: 'string', description: 'Imagen en base64, sin prefijo data:' }, genero: { type: 'string', enum: ['m', 'f'] } }, required: ['visual_key', 'imagen_base64'] },
-    async run({ visual_key, imagen_base64, genero }) {
-      const g = G(genero), C = COLS[g];
-      const [rec] = await rest(`recursos_visuales?visual_key=eq.${encodeURIComponent(visual_key)}&select=version,version_f`);
+    async run({ visual_key, imagen_base64, genero, pose }) {
+      const g = G(genero), C = colsFor(genero, pose);
+      const [rec] = await rest(`recursos_visuales?visual_key=eq.${encodeURIComponent(visual_key)}&select=version,version_f,version_b,version_b_f`);
       if (!rec) throw new Error(`visual_key desconocido: ${visual_key}`);
       const raw = Buffer.from(String(imagen_base64).replace(/^data:[^,]+,/, ''), 'base64');
       const v = (rec[C.version] || 0) + 1;
@@ -337,28 +344,29 @@ const TOOLS = {
       const cuadrada = await base.clone().resize(lado, lado, { fit: 'contain', background: bg }).png().toBuffer();
       const full = await sharp(cuadrada).resize(1024, 1024, { fit: 'cover' }).webp({ quality: 82 }).toBuffer();
       const thumb = await sharp(cuadrada).resize(192, 192, { fit: 'cover', kernel: 'lanczos3' }).sharpen({ sigma: 0.5 }).webp({ quality: 80 }).toBuffer();
-      const ruta = `ex/${visual_key}_${g}_v${v}.webp`, rutaFull = `ex/full/${visual_key}_${g}_v${v}.webp`;
+      const sufijo = pose === 'b' ? `${g}_b` : g;
+      const ruta = `ex/${visual_key}_${sufijo}_v${v}.webp`, rutaFull = `ex/full/${visual_key}_${sufijo}_v${v}.webp`;
       await upload(ruta, thumb); await upload(rutaFull, full);
       await patchRecurso(visual_key, { [C.version]: v, [C.ruta]: ruta, [C.full]: rutaFull, [C.estado]: 'pendiente', [C.nota]: null, [C.origen]: 'subida-manual' });
-      return { visual_key, genero: g, version: v, estado: 'pendiente', kb: Math.round(thumb.length / 1024), miniatura: 'data:image/webp;base64,' + thumb.toString('base64') };
+      return { visual_key, genero: g, pose: pose === 'b' ? 'b' : 'a', version: v, estado: 'pendiente', kb: Math.round(thumb.length / 1024), miniatura: 'data:image/webp;base64,' + thumb.toString('base64') };
     }
   },
   reevaluar: {
     description: 'Vuelve a pasar el control anatómico sobre la foto ya guardada (sin regenerar ni costo de imagen) y actualiza su estado.',
     inputSchema: { type: 'object', properties: { visual_key: { type: 'string' }, genero: { type: 'string', enum: ['m', 'f'] } }, required: ['visual_key'] },
-    async run({ visual_key, genero }) {
-      const g = G(genero), C = COLS[g];
+    async run({ visual_key, genero, pose }) {
+      const g = G(genero), C = colsFor(genero, pose);
       const [rec] = await rest(`recursos_visuales?visual_key=eq.${encodeURIComponent(visual_key)}&select=*`);
       if (!rec || !(rec[C.full] || rec[C.ruta])) throw new Error('Este ejercicio no tiene foto guardada.');
       const r = await fetch(publicUrl(rec[C.full] || rec[C.ruta]));
       if (!r.ok) throw new Error(`No se pudo leer la foto (${r.status})`);
       const jpg = await sharp(Buffer.from(await r.arrayBuffer())).resize(768, 768, { fit: 'cover' }).jpeg({ quality: 85 }).toBuffer();
-      const check = await qa(jpg, rec.descripcion || visual_key, koachRules(visual_key));
+      const check = await qa(jpg, (pose === 'b' ? rec.descripcion_b : rec.descripcion) || visual_key, koachRules(visual_key));
       if (check.ok === null) return { visual_key, estado: rec[C.estado], control: check };
       const estado = check.ok ? (rec[C.estado] === 'corregir' ? 'pendiente' : rec[C.estado]) : 'corregir';
       const nota = check.ok ? (check.minor.length ? `Observaciones: ${check.minor.join('; ')}` : null) : `Control automático: ${check.issues.join('; ')}`;
       await patchRecurso(visual_key, { [C.estado]: estado, [C.nota]: nota });
-      return { visual_key, genero: g, estado, nota, control: { ok: check.ok, problemas: check.issues, observaciones: check.minor, intentos: 0 } };
+      return { visual_key, genero: g, pose: pose === 'b' ? 'b' : 'a', estado, nota, control: { ok: check.ok, problemas: check.issues, observaciones: check.minor, intentos: 0 } };
     }
   },
   revisar: {
@@ -505,7 +513,7 @@ async function handle(msg) {
       if (m) {
         const args = { ...a0, visual_key: m[1] };
         if (m[2] === 'b' && params.name === 'generar_imagen') params = { name: 'generar_pose_b', arguments: { ...args, descripcion_b: args.descripcion_b || args.descripcion } };
-        else if (m[2] === 'b' && (params.name === 'revisar' || params.name === 'guardar_descripcion')) params = { name: params.name, arguments: { ...args, pose: 'b' } };
+        else if (m[2] === 'b' && ['revisar', 'guardar_descripcion', 'usar_foto', 'reevaluar', 'guardar_referencia'].includes(params.name)) params = { name: params.name, arguments: { ...args, pose: 'b' } };
         else if (m[2].startsWith('ini-')) params = { name: 'definir_pose_inicial', arguments: { visual_key: m[1], pose_inicial: m[2].slice(4) } };
         else return { jsonrpc: '2.0', id, result: { isError: true, content: [{ type: 'text', text: `Combinación no soportada: ${params.name} con ${a0.visual_key}` }] } };
       }
