@@ -9831,7 +9831,8 @@ async function avXCargar(){
 }
 function avxCalc(sets, ses){
   const kg=sets.reduce((a,x)=>a+x.peso*x.reps,0), ej={}
-  sets.forEach(x=>{ const e=ej[x.id]||(ej[x.id]={ id:x.id, nom:x.nom, dias:{} }); const d=e.dias[x.fecha]; if(!d || x.peso>d.peso || (x.peso===d.peso && x.reps>d.reps)) e.dias[x.fecha]={ peso:x.peso, reps:x.reps } })
+  // c287 · récords y progresos solo de ejercicios que siguen en el catálogo (sin nombre = ejercicio borrado: suma a los kg, no a la lista)
+  sets.forEach(x=>{ if(!String(x.nom||'').trim()) return; const e=ej[x.id]||(ej[x.id]={ id:x.id, nom:x.nom, dias:{} }); const d=e.dias[x.fecha]; if(!d || x.peso>d.peso || (x.peso===d.peso && x.reps>d.reps)) e.dias[x.fecha]={ peso:x.peso, reps:x.reps } })
   const L=Object.values(ej).map(e=>{ const f=Object.keys(e.dias).sort(), serie=f.map(k=>e.dias[k].peso); let best=null; f.forEach(k=>{ const v=e.dias[k]; if(!best||v.peso>best.peso||(v.peso===best.peso&&v.reps>best.reps)) best=Object.assign({fecha:k},v) })
     const sem={}; f.forEach(k=>{ const w=avxLunes(k); sem[w]=Math.max(sem[w]||0, e.dias[k].peso) })
     return { id:e.id, nom:e.nom, best, serie, n:f.length, p0:serie[0], subida:best.peso-serie[0], sem } })
