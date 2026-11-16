@@ -4214,6 +4214,49 @@ html[data-lg-at="0"] #vLogin .lgCv{display:block}
 /* c266 · PR con la foto del ejercicio (tarjeta gris como en la sesión) */
 .kxPR__fo{width:clamp(92px,27vw,124px);aspect-ratio:1;margin:14px auto 0;border-radius:20px;overflow:hidden;background:linear-gradient(160deg,#E4E5E7,#B9BCC1);box-shadow:0 0 0 1px rgba(255,255,255,.35),0 14px 34px rgba(0,0,0,.55),0 0 40px rgba(220,230,245,.18);opacity:0}
 .kxDone--pr.on .kxPR__fo{animation:prFo .7s .75s cubic-bezier(.2,1.2,.3,1) both}
+/* c267 · PR con el nuevo fondo (grafito + esfera de cristal tornasol) y la animación SINCRONIZADA con el sonido de logro (2,4 s):
+   0,03 y 0,30 golpes → la esfera late · 0,57–1,25 subida → crece y gira · 1,40–1,70 tensión → se contrae ·
+   1,74 DROP → flash, la esfera estalla, el número cae de golpe, temblor · 1,9–2,4 acorde → nombre, reps y datos */
+.kxDone.kxDone--pr{background:radial-gradient(70% 45% at 50% 40%,rgba(111,115,119,.55) 0,rgba(38,40,42,0) 70%),linear-gradient(180deg,#434649 0%,#26282A 55%,#000000 100%)}
+.kxDone--pr .kxPR__bg{display:none}
+.kxDone--pr .kxPR__rays{opacity:.35}
+.kxPR__hero{position:relative}
+.kpo{position:absolute;left:50%;top:50%;width:min(72vw,300px);aspect-ratio:1;transform:translate(-50%,-50%);pointer-events:none;z-index:0}
+.kpo__orb{position:absolute;inset:0;border-radius:50%;opacity:0;
+  background:radial-gradient(circle at 34% 28%,rgba(255,255,255,.55) 0,rgba(255,255,255,.1) 38%,rgba(255,255,255,0) 58%),radial-gradient(circle at 66% 72%,rgba(150,236,224,.4) 0,rgba(150,236,224,0) 52%),radial-gradient(circle at 30% 80%,rgba(214,200,255,.3) 0,rgba(214,200,255,0) 50%),rgba(151,156,159,.18);
+  box-shadow:inset 0 0 0 1px rgba(255,255,255,.35)}
+.kpo__orb::before{content:'';position:absolute;inset:-3px;border-radius:50%;padding:3px;background:conic-gradient(from 210deg,#FFD6EA,#D2DBFF,#B6F4EA,#FFF2BC,#FFD0C2,#FFD6EA);-webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask-composite:exclude}
+.kpo__orb::after{content:'';position:absolute;inset:-18px;border-radius:50%;background:conic-gradient(from 210deg,rgba(255,214,234,.5),rgba(210,219,255,.4),rgba(182,244,234,.5),rgba(255,242,188,.45),rgba(255,214,234,.5));filter:blur(22px);z-index:-1;opacity:.7}
+.kxPR__big{position:relative;z-index:1}
+.kxDone--pr.on .kpo__orb{animation:kpoSync 2.4s linear both,kpoGiro 7s 2.4s linear infinite}
+.kxDone--pr.on .kpo__orb::before,.kxDone--pr.on .kpo__orb::after{animation:kpoGiro 2.4s cubic-bezier(.5,0,.3,1) both}
+@keyframes kpoSync{
+  0%{opacity:0;transform:scale(.35)} 1.5%{opacity:.55;transform:scale(.46)} 6%{transform:scale(.4)}
+  12.5%{opacity:.6;transform:scale(.52)} 17%{transform:scale(.47)}
+  24%{opacity:.7;transform:scale(.55)} 52%{opacity:.85;transform:scale(.86) rotate(40deg)}
+  58%{transform:scale(.9) rotate(48deg)} 70%{opacity:1;transform:scale(.74) rotate(60deg);filter:brightness(1.5)}
+  72.5%{opacity:1;transform:scale(.7) rotate(62deg);filter:brightness(1.8)}
+  75%{opacity:1;transform:scale(1.16) rotate(66deg);filter:brightness(2.2)}
+  84%{transform:scale(.97) rotate(70deg);filter:brightness(1.1)} 100%{opacity:.9;transform:scale(1) rotate(72deg);filter:none}}
+@keyframes kpoGiro{to{transform:rotate(360deg)}}
+/* retiming al sonido */
+.kxDone--pr.on .kxPR__hd{animation:prHd .7s .57s cubic-bezier(.2,.9,.2,1) both}
+.kxDone--pr.on .kxPR__k{animation:prTrack .9s .3s cubic-bezier(.2,.8,.2,1) both}
+.kxDone--pr.on .kxPR__rays{animation:prRaysIn .9s 1.74s ease-out both,prSpin 26s linear infinite}
+.kxDone--pr.on .kxPR{animation:prShake .38s 1.74s linear both}
+.kxDone--pr.on .kxPR__n{animation:prSlam .62s 1.72s cubic-bezier(.2,1.4,.3,1) both,prSheen 2.6s 2.6s ease-in-out infinite}
+.kxDone--pr.on .kxPR__ring{animation:prRing .9s 1.74s cubic-bezier(.1,.7,.3,1) both}
+.kxDone--pr.on .kxPR__big em{animation:prUp .5s 1.9s ease-out both}
+.kxDone--pr.on .kxPR__rp{animation:prUp .5s 1.95s ease-out both}
+.kxDone--pr.on .kxPR__t b{animation:prWord .55s calc(2.0s + var(--i)*.09s) cubic-bezier(.2,.8,.2,1) both}
+.kxDone--pr.on .kxPR__fo{animation:prFo .7s 2.0s cubic-bezier(.2,1.2,.3,1) both}
+.kxDone--pr.on .kxPR__da{animation:prUp .5s 2.3s ease-out both}
+.kxDone--pr.on .kxPR__ah{animation:prUp .6s 2.4s ease-out both}
+.kxDone--pr.on .kxPR__bc{animation:prUp .6s 2.5s ease-out both}
+.kxDone--pr.on .kxPR__acts{animation:prUp .6s 2.6s ease-out both}
+.kxDone--pr.on .kxPR__ok{animation:prUp .6s 2.6s ease-out both}
+.kxDone--pr.on .kxPR__sw{animation:prSpin 40s 2.4s linear infinite}
+@media (prefers-reduced-motion:reduce){.kxDone--pr.on .kpo__orb{animation:none;opacity:.9}}
 @keyframes prFo{from{opacity:0;transform:scale(.6) rotate(-6deg)}to{opacity:1;transform:none}}
 .kxPR__fo img{width:100%;height:100%;object-fit:cover;display:block}
 .kxPR__fo + .kxPR__t{margin-top:10px}
@@ -5772,7 +5815,7 @@ function kxPR(pr, alFin){ const ov=document.getElementById('kxDone'); if(!ov) re
   ov.innerHTML='<div class="kxPR__sw"><div class="kxPR__bg"'+(bg?' style="background-image:'+bg+'"':'')+'></div></div><div class="kxPR__rays"></div>'+
     '<div class="kxD__in kxPR"><div class="kxD__top"><img src="/img/brand/logotipo-koach.png" alt="KOACH"><small>'+new Date().toLocaleDateString('es-CL',{day:'2-digit',month:'short'}).toUpperCase()+'</small></div>'+
     '<h1 class="kxPR__hd"><span>PERSONAL</span><span>RECORD</span></h1>'+
-    '<div class="kxPR__hero"><i class="kxPR__ring"></i><div class="kxPR__big" style="--n:'+num.length+'"><span class="kxPR__n">'+num+'</span><em>'+uni+'</em></div></div>'+(pr.hoy.reps?'<div class="kxPR__rp">× '+pr.hoy.reps+' REPS</div>':'')+
+    '<div class="kxPR__hero"><i class="kpo" aria-hidden="true"><i class="kpo__orb"></i></i><i class="kxPR__ring"></i><div class="kxPR__big" style="--n:'+num.length+'"><span class="kxPR__n">'+num+'</span><em>'+uni+'</em></div></div>'+(pr.hoy.reps?'<div class="kxPR__rp">× '+pr.hoy.reps+' REPS</div>':'')+
     '<h2 class="kxPR__t'+(String(pr.nom||'').length>18?' kxPR__t--l':'')+'">'+pal+'</h2>'+
     '<div class="kxPR__da" id="kxPrDa">'+kprDataHTML(pr, null)+'</div>'+
     '<div class="kxPR__acts"><button type="button" class="kxBtn kxPR__ok" id="kxPrOk">'+(alFin?'VER MI SESIÓN':'CONTINUAR MI RUTINA')+' <i></i></button>'+
@@ -5780,13 +5823,13 @@ function kxPR(pr, alFin){ const ov=document.getElementById('kxDone'); if(!ov) re
   ov.classList.add('vis','kxDone--pr'); requestAnimationFrame(()=>requestAnimationFrame(()=>ov.classList.add('on')))
   const RM=matchMedia('(prefers-reduced-motion: reduce)').matches
   ov._g=setTimeout(()=>{ try{ ov.querySelector('.kxFlash').animate([{opacity:.9},{opacity:0}],{duration:520,easing:'ease-out'}) }catch(_){}
-    try{ if(navigator.vibrate) navigator.vibrate([35,50,90]) }catch(_){} try{ kHaptic&&kHaptic(30) }catch(_){} }, RM?0:560)
+    try{ if(navigator.vibrate) navigator.vibrate([35,50,90]) }catch(_){} try{ kHaptic&&kHaptic(30) }catch(_){} }, RM?0:1740)   // c267 · flash y vibración en el DROP del sonido (1,74 s)
   let hecho=false
   const cerrar=()=>{ if(hecho) return; hecho=true; clearTimeout(ov._t); clearTimeout(ov._g); ov.classList.remove('on'); setTimeout(()=>{ ov.classList.remove('vis','kxDone--pr'); ov.innerHTML=''; if(alFin) try{ alFin() }catch(_){} },380) }
   document.getElementById('kxPrOk').onclick=cerrar
   document.getElementById('kxPrSh').onclick=()=>kprAbrir(pr)
-  KPR.pr=pr; KPR.hist=null; kprHist(pr).then(h=>{ if (KPR.pr!==pr) return; KPR.hist=h; const d=document.getElementById('kxPrDa'); if (d){ d.innerHTML=kprDataHTML(pr,h); kprTipear(d, RM?0:1300) } })
-  kprTipear(ov.querySelector('#kxPrDa'), RM?0:1300) }
+  KPR.pr=pr; KPR.hist=null; kprHist(pr).then(h=>{ if (KPR.pr!==pr) return; KPR.hist=h; const d=document.getElementById('kxPrDa'); if (d){ d.innerHTML=kprDataHTML(pr,h); kprTipear(d, RM?0:2300) } })
+  kprTipear(ov.querySelector("#kxPrDa"), RM?0:2300) }
 /* c248 · PR DATA ANALYTICS: historia de marcas del ejercicio (cada vez que superaste tu mejor: más peso, o mismo peso con más reps) */
 const KPR={ pr:null, hist:null, fondo:'koach', filtro:'frio', file:null, ver:0 }
 const kprKg=x=>(x.peso%1?String(x.peso).replace('.',','):x.peso)+' KG'+(x.reps?' × '+x.reps:'')
