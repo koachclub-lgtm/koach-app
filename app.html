@@ -4141,6 +4141,47 @@ html[data-lg-at="0"] #vLogin .lgCv{display:block}
 @media (max-width:380px){ #vLogin .lgTit{letter-spacing:.11em!important;font-size:8.5px!important} }
 
 /* c265 · GAMIFICACIÓN DE FIN DE BLOQUE: estilo ElevenLabs (grises fluidos, letras que se arman, onda de voz) */
+/* c266 · TRANSICIÓN DE BLOQUE (mockups 1 y 2): esfera de cristal tornasol sobre grises; al tocarla se expande a toda la pantalla,
+   el tono baja a grafito y se abre el bloque siguiente. Texto editorial abajo (KOACH Display + Space Mono + Inter Display). */
+.kor{position:absolute;inset:0;z-index:60;overflow:hidden;color:#FFFFFF;font-family:'Inter Display',Arial,sans-serif;opacity:0;transition:opacity .35s ease;
+  background:radial-gradient(120% 70% at 50% 18%,#E3E3E3 0,#B9BDC0 38%,rgba(151,156,159,0) 70%),radial-gradient(90% 60% at 50% 100%,#434649 0,rgba(67,70,73,0) 70%),linear-gradient(180deg,#C9CCCE 0%,#979C9F 50%,#6F7377 100%)}
+.kor.on{opacity:1}
+.kor__dk{position:absolute;inset:0;z-index:2;pointer-events:none;background:radial-gradient(70% 45% at 50% 38%,rgba(67,70,73,.55) 0,rgba(38,40,42,.92) 70%),linear-gradient(180deg,#6F7377 0%,#434649 55%,#1E1F21 100%);opacity:0;transition:opacity .8s cubic-bezier(.6,0,.2,1)}
+.kor__top{position:absolute;left:24px;right:24px;top:calc(env(safe-area-inset-top,0px) + 22px);display:flex;align-items:center;justify-content:space-between;z-index:3}
+.kor__top img{height:15px;width:auto;display:block}
+.kor__k{font:700 9px 'Space Mono',monospace;letter-spacing:.18em;text-transform:uppercase}
+.kor__w{position:absolute;left:50%;top:38%;width:min(78vw,320px);aspect-ratio:1;transform:translate(-50%,-50%);z-index:1}
+.kor__ring{position:absolute;inset:0;border-radius:50%;border:1px solid rgba(255,255,255,.38);transition:opacity .4s}
+.kor__arc{position:absolute;inset:0;width:100%;height:100%;transform:rotate(-90deg);transition:opacity .4s}
+.kor__arc circle{transition:stroke-dasharray 1.1s .35s cubic-bezier(.2,.8,.2,1)}
+.kor__orb{position:absolute;inset:13%;border-radius:50%;transition:transform .85s cubic-bezier(.7,0,.25,1);
+  background:radial-gradient(circle at 34% 28%,rgba(255,255,255,.85) 0,rgba(255,255,255,.18) 38%,rgba(255,255,255,0) 58%),radial-gradient(circle at 66% 72%,rgba(150,236,224,.55) 0,rgba(150,236,224,0) 52%),radial-gradient(circle at 30% 80%,rgba(214,200,255,.35) 0,rgba(214,200,255,0) 50%),rgba(236,238,241,.28);
+  box-shadow:0 34px 60px -26px rgba(19,19,19,.55),inset 0 0 0 1px rgba(255,255,255,.55),inset 0 -18px 40px rgba(255,255,255,.12);animation:korIn .9s cubic-bezier(.2,1.1,.3,1) both}
+.kor__orb::before{content:'';position:absolute;inset:-3px;border-radius:50%;padding:3px;background:conic-gradient(from 210deg,#FFD6EA,#D2DBFF,#B6F4EA,#FFF2BC,#FFD0C2,#FFD6EA);-webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask-composite:exclude;animation:korGiro 9s linear infinite}
+.kor__orb::after{content:'';position:absolute;inset:-14px;border-radius:50%;background:conic-gradient(from 210deg,rgba(255,214,234,.55),rgba(210,219,255,.45),rgba(182,244,234,.55),rgba(255,242,188,.5),rgba(255,214,234,.55));filter:blur(18px);z-index:-1;opacity:.75;animation:korGiro 9s linear infinite}
+@keyframes korGiro{to{transform:rotate(360deg)}}
+@keyframes korIn{from{transform:scale(.55);opacity:0}}
+.kor__tap{position:absolute;left:50%;top:50%;width:56px;height:56px;margin:-28px 0 0 -28px;border-radius:50%;border:0;padding:0;background:rgba(255,255,255,.92);display:flex;align-items:center;justify-content:center;box-shadow:0 6px 18px rgba(19,19,19,.25);cursor:pointer;z-index:3;transition:opacity .3s}
+.kor__tap b{width:14px;height:14px;border-radius:50%;border:3px solid #434649;box-sizing:border-box}
+.kor__tap::after{content:'';position:absolute;inset:-12px;border-radius:50%;border:1px solid rgba(255,255,255,.8);animation:korPul 1.8s ease-out infinite}
+@keyframes korPul{from{transform:scale(.7);opacity:1}to{transform:scale(1.6);opacity:0}}
+.kor__pc{position:absolute;left:0;right:0;top:calc(50% + 44px);text-align:center;font:700 10px 'Space Mono',monospace;letter-spacing:.2em;transition:opacity .3s}
+.kor__ed{position:absolute;left:28px;right:28px;bottom:calc(env(safe-area-inset-bottom,0px) + 38px);z-index:3;transition:opacity .45s,transform .45s}
+.kor__ed .kor__k{display:block;opacity:.78;margin:0 0 14px}
+.kor__ed h2{margin:0;font:500 clamp(32px,9.6vw,40px)/1.02 'KOACH Display',Arial,sans-serif;letter-spacing:-.025em;text-transform:none}
+.kor__ed p{margin:14px 0 0;font:400 15px/1.45 'Inter Display',Arial,sans-serif;opacity:.85;max-width:32ch}
+.kor__hi{display:flex;align-items:center;gap:10px;margin-top:20px;opacity:.72}
+.kor__hi i{width:18px;height:1px;background:currentColor}
+.kor__mid{position:absolute;left:0;right:0;top:38%;transform:translateY(-50%);display:flex;flex-direction:column;align-items:center;gap:14px;z-index:3;opacity:0;transition:opacity .4s .35s}
+.kor__mid i{display:block;width:120px;height:2px;background:linear-gradient(90deg,rgba(255,255,255,0),#FFFFFF,rgba(255,255,255,0))}
+/* expansión: el círculo pasa a ser la pantalla */
+.kor.go .kor__dk{opacity:.86}
+.kor.go .kor__orb{transform:scale(3.4)}
+.kor.go .kor__tap,.kor.go .kor__pc,.kor.go .kor__ring,.kor.go .kor__arc{opacity:0}
+.kor.go .kor__ed{opacity:.25;transform:translateY(10px)}
+.kor.go .kor__mid{opacity:1}
+.kor.out{opacity:0;transition:opacity .3s}
+@media (prefers-reduced-motion:reduce){.kor__orb,.kor__orb::before,.kor__orb::after,.kor__tap::after{animation:none}.kor__orb{transition:none}}
 .kgm{position:absolute;inset:0;z-index:60;display:flex;align-items:center;justify-content:center;overflow:hidden;background:#D9DADC;color:#F4F3F0;cursor:pointer;opacity:0;transition:opacity .25s}
 .kgm.on{opacity:1}.kgm.out{opacity:0}
 .kgm__bg{position:absolute;inset:0;background:#0B0B0C;clip-path:circle(0% at 50% 55%);animation:kgmWipe .7s .05s cubic-bezier(.7,0,.2,1) forwards}
@@ -7761,15 +7802,28 @@ function bkFinBloque(b){ const o=document.getElementById('oBloque'); if(!o||!b) 
   else if (pend===1){ L=['THE LAST SET','IS THE BEST','SET.']; sub='Prepárate para terminar con todo tu sesión de hoy.' }
   else if (BK.bi===0){ L=['BLOQUE '+nB,'READY.']; sub='Prepárate para el bloque principal de tu sesión.' }
   else { L=['BLOQUE '+nB,'READY.']; sub='Prepárate para el bloque '+(prim+1)+' de tu sesión.' }
-  let k=0; const letras=L.map(w=>'<span class="kgm__l">'+[...w].map(c=>c===' '?'<span class="kgm__sp"></span>':'<i style="--i:'+(k++)+'">'+c+'</i>').join('')+'</span>').join('')
-  el.className='kgm'; el.innerHTML='<div class="kgm__bg"><i></i><i></i><i></i></div><div class="kgm__in">'+
-    '<span class="kgm__k">BLOQUE '+nB+' DE '+tot+' · COMPLETADO <b>✓</b></span><h2 class="kgm__h'+(L.length>2?' kgm__h--3':'')+'">'+letras+'</h2>'+
-    '<p class="kgm__p" style="--d:'+(0.55+k*0.035).toFixed(2)+'s">'+sub+'</p><div class="kxSegs kgm__sg">'+segs+'</div>'+
-    '<div class="kgm__wv" aria-hidden="true">'+Array.from({length:28},(_,i)=>'<i style="--w:'+i+'"></i>').join('')+'</div><span class="kgm__t">TOCA PARA SEGUIR</span></div>'
-  o.appendChild(el); o.classList.add('fin'); requestAnimationFrame(function(){ el.classList.add('on') })
-  try{ kHaptic(20); kAudioUnlock(); KSFX.play('logro',.32) }catch(_){}   // DROP al armarse las letras
-  const cerrar=function(){ clearTimeout(BK._fin); BK._fin=null; el.classList.add('out'); setTimeout(function(){ el.remove(); o.classList.remove('fin') },280); BK.cap = prim>=0 ? prim : null; bkCerrar() }
-  el.onclick=cerrar; BK._fin=setTimeout(cerrar, ult?3500:5200) }
+  // c266 · mensajes de Matías: The last set is the best set · Last set. (queda uno) · That set. (último bloque hecho)
+  const H = ult ? 'That set.' : pend===1 ? 'Last set.' : 'The last set<br>is the best set.'
+  const hecho=tot-pend, frac=Math.max(.02,hecho/Math.max(1,tot)), sigCod=(prim>=0?bkCod(bfs[prim],prim):'')
+  el.className='kor'; el.setAttribute('role','dialog'); el.setAttribute('aria-label','Bloque '+nB+' completado')
+  el.innerHTML='<div class="kor__dk" aria-hidden="true"></div>'+
+    '<div class="kor__top"><img src="/img/brand/logotipo-koach.png" alt="KOACH"><span class="kor__k">BLOQUE '+nB+' · COMPLETO</span></div>'+
+    '<div class="kor__w"><div class="kor__ring"></div><svg class="kor__arc" viewBox="0 0 300 300" aria-hidden="true"><circle cx="150" cy="150" r="148" fill="none" stroke="#FFFFFF" stroke-width="3" stroke-linecap="round" stroke-dasharray="0 930"></circle></svg>'+
+    '<div class="kor__orb"></div><button type="button" class="kor__tap" aria-label="'+(ult?'Volver a tu sesión':'Continuar al bloque '+sigCod)+'"><b></b></button><span class="kor__pc">'+hecho+' / '+tot+' BLOQUES</span></div>'+
+    '<div class="kor__mid" aria-hidden="true"><span class="kor__k">'+(ult?'CERRANDO TUS BLOQUES':'ABRIENDO BLOQUE '+plEscA(String(sigCod).replace(/^B/,'')))+'</span><i></i></div>'+
+    '<div class="kor__ed"><span class="kor__k">'+(st[0]+' / '+st[1]+' SETS · '+plEscA(nomV))+'</span><h2>'+H+'</h2><p>'+sub+'</p>'+
+    '<div class="kor__hi kor__k"><i></i>TOCA EL CÍRCULO PARA CONTINUAR</div></div>'
+  o.appendChild(el); o.classList.add('fin')
+  requestAnimationFrame(function(){ el.classList.add('on'); const c=el.querySelector('.kor__arc circle'); if(c) c.setAttribute('stroke-dasharray',(930*frac).toFixed(0)+' 930') })
+  try{ kHaptic(20); kAudioUnlock(); KSFX.play('logro',.32) }catch(_){}   // DROP al cerrar el bloque
+  let ido=false
+  const cerrar=function(){ if(ido) return; ido=true; clearTimeout(BK._fin); BK._fin=null
+    try{ kHaptic(14); KSFX.play('appear',0,.55) }catch(_){}   // la expansión; al abrir el bloque suena el holograma (bkAbrir)
+    el.classList.add('go')                                   // el círculo se expande y el tono baja a grafito
+    setTimeout(function(){ el.classList.add('out'); setTimeout(function(){ el.remove(); o.classList.remove('fin') },300)
+      if (prim>=0){ BK.cap=prim; bkAbrir(prim) } else { BK.cap=null; bkCerrar() } }, 900) }
+  el.querySelector('.kor__tap').onclick=function(e){ e.stopPropagation(); cerrar() }
+  el.onclick=cerrar; BK._fin=setTimeout(cerrar, 25000) }
 async function bkDesmarcar(){ const b=(S._bfs||[])[BK.bi]; if(!b) return; const n=BK.set
   if (!(await kConfirm('¿Desmarcar el set '+String(n).padStart(2,'0')+' en todos los ejercicios del bloque?\nSe borra el registro de ese set.'))) return
   for (const be of bkBes(b)){ if(S.setLog[setKey(be.id,n)]) await tapSetRow(be.id,n,b.id,(be.ejercicios||{}).id) }
