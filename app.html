@@ -4459,6 +4459,48 @@ html.en-av body{background:transparent}
 .avx.on .avx__pgd.on .avx__ch .vl,.avx__pgd.on .avx__ch .vl{transition:opacity .3s 1.3s;opacity:1}
 .avx__pgd.on .avx__ch .ln{transition:stroke-dashoffset 1.2s .1s cubic-bezier(.6,0,.2,1);stroke-dashoffset:0}
 .avx__pgd.on .avx__ch .ar{transition:opacity .6s .9s;opacity:1}.avx__pgd.on .avx__ch .dt{transition:opacity .3s;transition-delay:calc(.2s + var(--i) * .12s);opacity:1}
+
+/* c271 · UN SOLO MOVIMIENTO: el encendido original del logo (negro → aparece → se arma) se apaga achicándose en un punto blanco; ese punto
+   se expande con la subida del sonido de logro, late, se comprime en la tensión y en el DROP (1,74 s) se abre en la esfera tornasol con el
+   número. Todo lo demás (círculo, letras, datos) aparece expandiéndose desde el centro. El negro se abre en círculo hacia el grafito. */
+@property --kr{syntax:'<percentage>';inherits:false;initial-value:0%}
+.kpx__pv{position:absolute;inset:0;z-index:6;pointer-events:none;background:#000;--kr:0%}
+.kpx__vd{position:absolute;left:50%;top:42%;height:100%;width:auto;aspect-ratio:9/16;max-width:none;transform:translate(-50%,-50%);object-fit:cover;background:#000}
+.kpx__pd{position:absolute;left:50%;top:42%;width:14px;height:14px;margin:-7px 0 0 -7px;border-radius:50%;background:#FFFFFF;box-shadow:0 0 18px 6px rgba(255,255,255,.85),0 0 60px 18px rgba(227,227,227,.35);opacity:0;transform:scale(0)}
+.kpx.pre .kpx__vd{animation:kpxVc .42s 1.85s cubic-bezier(.65,0,.85,.35) both}
+@keyframes kpxVc{0%{transform:translate(-50%,-50%) scale(1);filter:none;opacity:1} 55%{transform:translate(-50%,-50%) scale(.42,.16);filter:brightness(2.4) blur(1.5px);opacity:1} 100%{transform:translate(-50%,-50%) scale(.012,.01);filter:brightness(4) blur(3px);opacity:0}}
+.kpx.pre .kpx__pd{animation:kpxPd .3s 2.0s ease-out both}
+@keyframes kpxPd{0%{opacity:0;transform:scale(0)} 60%{opacity:1;transform:scale(1.4)} 100%{opacity:1;transform:scale(1)}}
+.kpx.on .kpx__pv{animation:kpxPv 2.4s linear both;-webkit-mask:radial-gradient(circle at 50% 42%,transparent var(--kr),#000 calc(var(--kr) + 22%));mask:radial-gradient(circle at 50% 42%,transparent var(--kr),#000 calc(var(--kr) + 22%))}
+@keyframes kpxPv{0%{--kr:0%;opacity:1} 24%{--kr:6%} 56%{--kr:24%} 70%{--kr:18%} 72.5%{--kr:20%} 80%{--kr:95%;opacity:1} 92%{opacity:0} 100%{--kr:110%;opacity:0}}
+.kpx.on .kpx__pd{opacity:1;transform:none;animation:kpxPdOut .5s .1s ease-out both}
+@keyframes kpxPdOut{to{opacity:0;transform:scale(3)}}
+.kpx__wd{position:absolute;inset:0;border-radius:50%;opacity:0;z-index:1;background:radial-gradient(circle,#FFFFFF 0,#FFFFFF 34%,#E3E3E3 54%,rgba(227,227,227,.35) 64%,rgba(227,227,227,0) 72%)}
+.kpx.on .kpx__wd{animation:kpxWd 2.4s linear both}
+@keyframes kpxWd{0%{opacity:1;transform:scale(.04)} 1.5%{transform:scale(.07)} 6%{transform:scale(.05)} 12.5%{transform:scale(.11)} 17%{transform:scale(.09)}
+  24%{transform:scale(.2)} 40%{transform:scale(.42)} 56%{opacity:.95;transform:scale(.72);filter:brightness(1)} 61%{transform:scale(.64)} 64%{transform:scale(.68)}
+  70%{opacity:1;transform:scale(.5);filter:brightness(1.3)} 72.5%{opacity:1;transform:scale(.62)} 77%{opacity:0;transform:scale(1.15)} 100%{opacity:0;transform:scale(1.15)}}
+@keyframes kpxHalo{0%{opacity:0;transform:scale(.1)} 12.5%{opacity:.3;transform:scale(.16)} 24%{opacity:.45;transform:scale(.3) rotate(30deg);filter:blur(18px)}
+  40%{opacity:.7;transform:scale(.55) rotate(60deg)} 56%{opacity:.9;transform:scale(.95) rotate(95deg);filter:blur(22px) brightness(.9)} 61%{transform:scale(.86) rotate(110deg)} 64%{transform:scale(.9) rotate(118deg)}
+  70%{opacity:.9;transform:scale(.6) rotate(140deg);filter:blur(12px) brightness(1.2)} 72.5%{transform:scale(.62) rotate(146deg);filter:blur(8px) brightness(1.5)}
+  77%{opacity:1;transform:scale(1) rotate(152deg);filter:blur(16px) brightness(1.8)} 86%{transform:scale(.82) rotate(162deg);filter:blur(22px) brightness(.9)} 100%{opacity:.55;transform:scale(.78) rotate(172deg);filter:blur(24px) brightness(.85)}}
+@keyframes kpxOrb{0%,71%{opacity:0;transform:scale(.55)} 76%{opacity:1;transform:scale(1.07)} 84%{transform:scale(.98)} 100%{opacity:1;transform:scale(1)}}
+@keyframes kpxN{0%,71%{opacity:0;transform:scale(.3);filter:blur(10px)} 72.5%{opacity:1;transform:scale(.8);filter:blur(2px)} 77%{transform:scale(1.1);filter:blur(0)} 83%{transform:scale(.97)} 100%{opacity:1;transform:scale(1);filter:none}}
+@keyframes kpxFl{0%,72%{opacity:0;transform:scale(.3)} 74%{opacity:.6;transform:scale(.9)} 86%{opacity:0;transform:scale(1.6)} 100%{opacity:0}}
+@keyframes kpxRotIn{from{opacity:0;scale:.6}to{opacity:1;scale:1}}
+.kpx.on .kpx__rot{animation:kpxRotIn .7s 1.8s cubic-bezier(.2,1.1,.3,1) both,kpxRot 6s 1.8s linear infinite}
+@keyframes kpxEx{from{opacity:0;transform:scale(.72);filter:blur(6px)}to{opacity:1;transform:none;filter:none}}
+@keyframes kpxExK{from{opacity:0;letter-spacing:0em;filter:blur(4px)}to{opacity:1;letter-spacing:.34em;filter:none}}
+.kpx.on .kpx__k{animation:kpxExK .8s 1.9s cubic-bezier(.2,.9,.3,1) both}
+.kpx.on .kpx__top{animation:kpxEx .7s 1.95s cubic-bezier(.2,.9,.3,1) both}
+.kpx.on .kpx__n em{animation:kpxEx .55s 1.9s cubic-bezier(.2,.9,.3,1) both}
+.kpx__k2,.kpx__ed h2,.kpx__dt,.kpx__acts{transform-origin:left center}
+.kpx.on .kpx__k2{animation:kpxEx .5s 2.0s ease-out both}
+.kpx.on .kpx__ed h2{animation:kpxEx .6s 2.08s cubic-bezier(.2,.9,.3,1) both}
+.kpx.on .kpx__dt{animation:kpxEx .5s 2.2s ease-out both}
+.kpx.on .kpx__acts{animation:kpxEx .6s 2.5s cubic-bezier(.2,.9,.3,1) both}
+.kpx__lg,.kpx__sd{display:none}
+.kxDone.kpx.pre{opacity:1;transition:opacity .12s linear}
 </style>
 </head>
 <body>
@@ -5919,7 +5961,8 @@ function kpxLogoHTML(){
 }
 
 function kxPR(pr, alFin){ const ov=document.getElementById('kxDone'); if(!ov) return
-  try{ KSFX.play('logro') }catch(_){}   // c240 · DROP: exclusivo de logros (PR, puntos, créditos)   // c160 · alFin: al cerrar el récord del cierre sigue al resumen
+  const PRE=matchMedia('(prefers-reduced-motion: reduce)').matches?0:2250   // c271 · primero el encendido del logo, luego el PR
+  try{ if(PRE) KSFX.play('logo'); KSFX.play('logro', PRE/1000) }catch(_){}   // c240 · DROP: exclusivo de logros (PR, puntos, créditos)   // c160 · alFin: al cerrar el récord del cierre sigue al resumen
   // c136 · RÉCORD ÉPICO: cromo negro, rayos, el número entra de golpe (golpe + onda + temblor + flash) y queda con brillo plateado
   const f=x=>(x.peso%1?String(x.peso).replace('.',','):x.peso)+' KG'+(x.reps?' × '+x.reps:''), dif=Math.round((pr.hoy.peso-pr.antes.peso)*10)/10
   // c168 · el número grande es LA MARCA (peso × reps), no la diferencia
@@ -5930,10 +5973,10 @@ function kxPR(pr, alFin){ const ov=document.getElementById('kxDone'); if(!ov) re
   const hayAnt=!!(pr.antes && +pr.antes.peso>0), antTxt=hayAnt?'MARCA ANTERIOR '+f(pr.antes):'PRIMER REGISTRO DE ESTE EJERCICIO'
   const difTxt=hayAnt?(dif>0?'+'+String(dif).replace('.',',')+' KG VS TU MEJOR MARCA':(pr.hoy.reps>(pr.antes.reps||0)?'+'+(pr.hoy.reps-(pr.antes.reps||0))+' REPS CON EL MISMO PESO':'NUEVA MEJOR MARCA')):'TU PRIMERA MARCA YA QUEDÓ REGISTRADA'
   const fch=new Date().toLocaleDateString('es-CL',{day:'2-digit',month:'short'}).toUpperCase().replace('.','')
-  ov.innerHTML='<div class="kpx__fl" aria-hidden="true"></div>'+
+  ov.innerHTML='<div class="kpx__fl" aria-hidden="true"></div>'+(PRE?'<div class="kpx__pv" aria-hidden="true"><video class="kpx__vd" src="/img/brand/koach-encendido-916.mp4" muted playsinline preload="auto"></video><i class="kpx__pd"></i></div>':'')+
     '<div class="kpx__top"><img src="/img/brand/logotipo-koach.png" alt="KOACH"><span>'+fch+' · KOACH CLUB</span></div>'+
     '<span class="kpx__k">PERSONAL RECORD</span>'+
-    '<div class="kpx__c"><i class="kpx__halo" aria-hidden="true"></i>'+kpxLogoHTML()+'<i class="kpx__orb" aria-hidden="true"></i>'+
+    '<div class="kpx__c"><i class="kpx__halo" aria-hidden="true"></i><i class="kpx__wd" aria-hidden="true"></i><i class="kpx__orb" aria-hidden="true"></i>'+
       '<svg class="kpx__rot" viewBox="0 0 300 300"><circle cx="150" cy="150" r="146" fill="none" stroke="#FFFFFF" stroke-width="1.6" stroke-linecap="round" stroke-dasharray="120 798"></circle><circle cx="150" cy="150" r="146" fill="none" stroke="rgba(255,255,255,.22)" stroke-width="1"></circle></svg>'+
       '<button type="button" class="kpx__go" id="kxPrOk" aria-label="'+(alFin?'Ver mi sesión':'Continuar mi rutina')+'"><i></i></button></div>'+
     '<div class="kpx__n"><b>'+num+'</b><em>'+uni+(pr.hoy.reps?' × '+pr.hoy.reps+' REPS':'')+'</em><span class="kpx__tt">TOCA PARA '+(alFin?'VER TU SESIÓN':'CONTINUAR')+'</span></div>'+
@@ -5946,19 +5989,21 @@ function kxPR(pr, alFin){ const ov=document.getElementById('kxDone'); if(!ov) re
   // c269 · carga de datos visible: el kicker y la línea de análisis se escriben letra a letra, la diferencia cuenta desde 0
   try{ const tipo=(el,t0,v)=>{ if(!el) return; const tx=el.textContent; el.textContent=''; el.style.visibility='visible'; let i=0
       setTimeout(()=>{ const iv=setInterval(()=>{ el.textContent=tx.slice(0,++i)+(i<tx.length?'▍':''); if(i>=tx.length) clearInterval(iv) }, v) }, t0) }
-    tipo(ov.querySelector('.kpx__k2'),2000,14); tipo(ov.querySelector('.kpx__dt span'),2250,18)
+    tipo(ov.querySelector('.kpx__k2'),PRE+2000,14); tipo(ov.querySelector('.kpx__dt span'),PRE+2250,18)
     const db=ov.querySelector('.kpx__dt b'), m=db&&db.textContent.match(/^\+([\d,]+)/)
     if (m){ const fin=+m[1].replace(',','.'), dec=m[1].includes(','), rest=db.textContent.slice(m[0].length); setTimeout(()=>{ const t0=performance.now()
-      const st=()=>{ const k=Math.min(1,(performance.now()-t0)/700), v=fin*(1-Math.pow(1-k,3)); db.textContent='+'+(dec?v.toFixed(1).replace('.',','):Math.round(v))+rest; if(k<1) requestAnimationFrame(st) }; st() }, 2300) }
+      const st=()=>{ const k=Math.min(1,(performance.now()-t0)/700), v=fin*(1-Math.pow(1-k,3)); db.textContent='+'+(dec?v.toFixed(1).replace('.',','):Math.round(v))+rest; if(k<1) requestAnimationFrame(st) }; st() }, PRE+2300) }
   }catch(_){}
-  ov.classList.add('vis','kxDone--pr'); requestAnimationFrame(()=>requestAnimationFrame(()=>ov.classList.add('on')))
+  ov.classList.add('vis','kxDone--pr')
+  if (PRE){ requestAnimationFrame(()=>requestAnimationFrame(()=>{ ov.classList.add('pre'); try{ const v=ov.querySelector('.kpx__vd'); v.currentTime=0; const p=v.play(); if(p&&p.catch) p.catch(()=>{}) }catch(_){} })); ov._o=setTimeout(()=>ov.classList.add('on'), PRE) }
+  else requestAnimationFrame(()=>requestAnimationFrame(()=>ov.classList.add('on')))
   const RM=matchMedia('(prefers-reduced-motion: reduce)').matches
   ov._g=setTimeout(()=>{ try{ ov.querySelector('.kxFlash').animate([{opacity:.9},{opacity:0}],{duration:520,easing:'ease-out'}) }catch(_){}
-    try{ if(navigator.vibrate) navigator.vibrate([35,50,90]) }catch(_){} try{ kHaptic&&kHaptic(30) }catch(_){} }, RM?0:1740)   // c267 · flash y vibración en el DROP del sonido (1,74 s)
+    try{ if(navigator.vibrate) navigator.vibrate([35,50,90]) }catch(_){} try{ kHaptic&&kHaptic(30) }catch(_){} }, RM?0:PRE+1740)   // c267 · flash y vibración en el DROP del sonido (1,74 s)
   let hecho=false
-  const cerrar=()=>{ if(hecho) return; hecho=true; clearTimeout(ov._t); clearTimeout(ov._g); ov.classList.remove('on'); setTimeout(()=>{ ov.classList.remove('vis','kxDone--pr','kpx'); ov.innerHTML=''; if(alFin) try{ alFin() }catch(_){} },380) }
+  const cerrar=()=>{ if(hecho) return; hecho=true; clearTimeout(ov._t); clearTimeout(ov._g); clearTimeout(ov._o); ov.classList.remove('on','pre'); setTimeout(()=>{ ov.classList.remove('vis','kxDone--pr','kpx'); ov.innerHTML=''; if(alFin) try{ alFin() }catch(_){} },380) }
   document.getElementById('kxPrOk').onclick=cerrar
-  ov._t=setTimeout(cerrar, 20000)   // c269 · si no toca, sigue sola a los 20 s
+  ov._t=setTimeout(cerrar, PRE+20000)   // c269 · si no toca, sigue sola a los 20 s
   document.getElementById('kxPrSh').onclick=()=>kprAbrir(pr)
   KPR.pr=pr; KPR.hist=null; kprHist(pr).then(h=>{ if (KPR.pr!==pr) return; KPR.hist=h; const d=document.getElementById('kxPrDa'); if (d){ d.innerHTML=kprDataHTML(pr,h); kprTipear(d, RM?0:2300) } })
   kprTipear(ov.querySelector("#kxPrDa"), RM?0:2300) }
