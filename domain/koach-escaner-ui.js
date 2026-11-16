@@ -824,7 +824,7 @@ function pintar(arriba){
     '<p class="keu__txt">' + (S.modo === 'texto' ? 'Las cantidades se calcularon desde tu descripción.' : 'Los gramos son una lectura aproximada de la foto.') + ' Si pesaste tu comida, corrígelos: así tu registro queda exacto.</p></div></div>'
   h += '<div class="keu__bt" id="keuBt2">' + botones() + '</div>'
   sc.classList.toggle('alerta', !!mala); sc.classList.toggle('valido', !mala)
-  sc.innerHTML = h + dock(mala); sc.scrollTop = arriba ? 0 : y
+  S.mala = mala; sc.innerHTML = h + dock(mala); sc.scrollTop = arriba ? 0 : y
   const R = $('keuO'); if (R){ R.classList.remove('keu--hud'); R.classList.add('keu--tex') } if (arriba) cuenta()
   const img = sc.querySelector('.keu__ph img'); if (img) { if (img.complete) ajustarZonas(); else img.onload = ajustarZonas }
 }
@@ -840,7 +840,7 @@ function noSug(){ S.noSug = true; pintar() }
 // "¿Cuánto comiste?": escala todos los alimentos de una vez (plato compartido, lo que sobró)
 function porcion(f){ f = +f; if (!f || f === S.porc) return; const k = f / S.porc
   S.al = S.al.map(a => a.gramos > 0 ? Object.assign(KE.regramar(a, a.gramos * k), { _n: a._n, auto: a.auto, confianza: a.confianza, zona: a.zona }) : a); S.porc = f; recalc(); pintar() }
-function nombre(i, v){ if (!S.al[i]) return; S.al[i].nombre = String(v).slice(0, 60); S.al[i]._n = 1; S.al[i].confianza = null; if (!S.sucio) { S.sucio = true; pintarBotones() } }
+function nombre(i, v){ if (!S.al[i]) return; v = String(v).slice(0, 60); if (v === S.al[i].nombre) return; S.al[i].nombre = v; S.al[i]._n = 1; S.al[i].confianza = null; if (!S.sucio) { S.sucio = true; pintarBotones() } }
 function gramos(i, v){ if (!S.al[i]) return; const a = S.al[i]
   if (a.gramos > 0) S.al[i] = Object.assign(KE.regramar(a, v), { _n: a._n, auto: a.auto, confianza: a.confianza == null ? null : Math.max(a.confianza, DUDA) })
   else { S.al[i] = Object.assign({}, a, { gramos: Math.max(0, Math.round(+v || 0)) }); S.sucio = true }
@@ -873,7 +873,7 @@ function tele(){
 function dock(mala){
   const c = (comidaN(S.num) || (esExtra() || (sinPlan() && S.num) ? { extra: true } : null)); if (!c) return ''
   const chk = '<u>' + ico('<path d="M5 12.5l4.5 4.5L19 7.5"/>') + '</u>'
-  if (S.sucio) return '<div class="keu__dock"><button type="button" class="ok" onclick="KEU.recalcular()">RECALCULAR CON MIS CAMBIOS</button></div>'
+  if (S.sucio) return '<div class="keu__dock"><button type="button" class="ok" onclick="KEU.confirmar()">' + chk + 'GUARDAR CAMBIOS Y REGISTRAR</button></div>'
   return '<div class="keu__dock">' + (mala ? '<button type="button" class="ch" onclick="KEU.confirmar(true)">' + chk + 'REGISTRAR COMO CHEAT MEAL</button>'
     : '<button type="button" class="ok" onclick="KEU.confirmar()">' + chk + 'CONFIRMAR Y REGISTRAR</button>') + '</div>'
 }
@@ -897,10 +897,11 @@ function botones(){ const c = (comidaN(S.num) || (esExtra() || (sinPlan() && S.n
   const no = S.res && (S.res.veredicto === 'alerta' || esExtra())
   if (no && !S.sucio && c) return '<button type="button" class="keu__sec" onclick="KEU.cerrar()">NO, NO REGISTRAR</button><button type="button" class="keu__lnk" onclick="KEU.otra()">' + ico(I.cam) + 'EMPEZAR DE NUEVO</button>'   // c253 · la pregunta vive en el ticket y el check en la barra fija
   return (S.sucio ? '<button type="button" class="keu__cta" onclick="KEU.recalcular()">Recalcular con mis cambios</button>' : '') +
-    '<button type="button" class="keu__' + (S.sucio ? 'sec' : 'cta keu__cta--tech') + '"' + (S.sucio || !c ? ' disabled' : '') + ' onclick="KEU.confirmar()">' + (c ? (S.sucio ? 'CONFIRMAR Y REGISTRAR' : '<i class="cr a"></i><i class="cr b"></i><span class="tk"><i></i>Confirmar y registrar</span><span class="ar">' + (esExtra() ? 'EXTRA' : 'C' + S.num) + '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>') : 'Elige la comida') + '</button>' +
+    '<button type="button" class="keu__' + (S.sucio ? 'sec' : 'cta keu__cta--tech') + '"' + (!c ? ' disabled' : '') + ' onclick="KEU.confirmar()">' + (c ? (S.sucio ? 'GUARDAR CAMBIOS Y REGISTRAR' : '<i class="cr a"></i><i class="cr b"></i><span class="tk"><i></i>Confirmar y registrar</span><span class="ar">' + (esExtra() ? 'EXTRA' : 'C' + S.num) + '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>') : 'Elige la comida') + '</button>' +
     '<button type="button" class="keu__lnk" onclick="KEU.otra()">' + ico(I.cam) + 'EMPEZAR DE NUEVO</button><button type="button" class="keu__lnk" onclick="KEU.cerrar()">DESCARTAR</button>' }
 // escribir un nombre no repinta la pantalla (no se pierde el foco): solo cambian los botones
-function pintarBotones(){ ['keuBt', 'keuBt2'].forEach(id => { const b = $(id); if (b) b.innerHTML = botones() }) }
+function pintarBotones(){ ['keuBt', 'keuBt2'].forEach(id => { const b = $(id); if (b) b.innerHTML = botones() })
+  const d = document.querySelector('#keuSc .keu__dock'); if (d) d.outerHTML = dock(S.mala) }
 async function recalcular(){
   if (S.busy) return
   const lista = S.al.filter(a => String(a.nombre).trim()).map(a => ({ nombre: String(a.nombre).trim(), gramos: Math.round(a.gramos) || 100 }))
@@ -915,7 +916,8 @@ async function recalcular(){
   finally { S.busy = false }
 }
 async function confirmar(forzar){
-  if (S.busy || S.sucio || !S.r || !S.num) return
+  if (S.busy || !S.r || !S.num) return
+  if (S.sucio){ await recalcular(); if (S.sucio) return; if (forzar !== true && S.res && S.res.veredicto === 'alerta') { st('Con tus cambios esta comida quedó fuera del plan. Revisa y registra.'); return } }
   if (forzar === true || esExtra()) S.res = Object.assign({}, S.res, { cheat: true })
   S.busy = true; st('Registrando…')
   try {
