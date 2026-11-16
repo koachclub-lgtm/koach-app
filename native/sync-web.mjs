@@ -32,6 +32,8 @@ function ajustar(txt) {
   return txt
     .replace(/(['"`])\/api\//g, `$1${APP}/api/`)
     .replace(/location\.origin\s*\+\s*'\/app\.html'/g, `'${APP}/app.html'`)
+    // el equipo (koach, recepción, admin) no usa la app nativa: va al Dashboard web
+    .replace(": '/coach.html')", ": 'https://dashboard.koachclub.cl/coach.html')")
 }
 function recorrer(dir) {
   for (const n of readdirSync(dir)) {
