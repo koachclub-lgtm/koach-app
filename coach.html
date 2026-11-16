@@ -3098,6 +3098,99 @@ html.en-plan[data-fprog="plan"] #vPlan.plDesk .plHdr .mtabs .mtabAdd{flex:0 0 au
 html.en-plan[data-fprog="plan"] #vPlan.plDesk .plHdr .mtabs .mtabAdd .sT{font:700 11px 'Space Mono',monospace !important;letter-spacing:.08em}
 html.en-plan[data-fprog="plan"] #vPlan .plDock{background:#141517;border-top:1px solid #3D4044;color:#F4F3F0}
 
+/* ═══ c271 · PLANIFICADOR: cabecera compacta en dos filas, sesiones 01·02·03, bloque activo con resplandor, hojas flotantes y selector futurista ═══ */
+@property --kang{syntax:'<angle>';inherits:false;initial-value:0deg}
+@keyframes kSpin{to{--kang:360deg}}
+html.en-plan[data-fprog="plan"] #vPlan.plDesk .plHdr{grid-template-columns:auto minmax(0,1fr) auto !important;padding-top:4px !important;row-gap:10px !important;column-gap:10px;margin-bottom:6px}
+html.en-plan[data-fprog="plan"] #vPlan.plDesk .plPc{grid-column:1/-1 !important;grid-row:1 !important;padding:0 !important;min-height:0}
+html.en-plan[data-fprog="plan"] #vPlan.plDesk .plPc__av,html.en-plan[data-fprog="plan"] #vPlan.plDesk .plPc__av .kav{width:44px !important;height:44px !important;font-size:18px !important}
+html.en-plan[data-fprog="plan"] #vPlan.plDesk .plPc__n b{font-size:clamp(20px,2vw,26px) !important}
+html.en-plan[data-fprog="plan"] #vPlan.plDesk .plPc__p{margin-top:2px;font-size:10px}
+/* fila 2: ciclo · semana compactos | sesiones | herramientas */
+html.en-plan[data-fprog="plan"] #vPlan.plDesk #pNav{grid-column:1 !important;grid-row:2 !important;gap:4px;align-items:center}
+html.en-plan[data-fprog="plan"] #vPlan.plDesk #pNav .plCrumb{min-height:54px !important;padding:4px 12px !important;display:flex;flex-direction:column;justify-content:center}
+html.en-plan[data-fprog="plan"] #vPlan.plDesk #pNav .plCrumb .v{font-size:14px}
+html.en-plan[data-fprog="plan"] #vPlan.plDesk #pNav .plSep{display:none}
+html.en-plan[data-fprog="plan"] #vPlan.plDesk #pNav .plCrumb:last-child:not(:first-child){display:none !important}
+html.en-plan[data-fprog="plan"] #vPlan.plDesk #pNav .plCrumb{padding:4px 10px !important}
+html.en-plan[data-fprog="plan"] #vPlan.plDesk .plSesBar .mOcul{display:none !important}
+html.en-plan[data-fprog="plan"] #vPlan.plDesk .plSesBar>button,html.en-plan[data-fprog="plan"] #vPlan.plDesk .plTools__b{padding:0 14px !important}
+html.en-plan[data-fprog="plan"] #vPlan.plDesk .plHdr .mtabs .mtab .sN{font-size:20px !important}
+html.en-plan[data-fprog="plan"] #vPlan.plDesk .plHdr .mtabs{grid-column:2 !important;grid-row:2 !important;margin:0 !important;padding:4px !important;border-radius:18px !important}
+html.en-plan[data-fprog="plan"] #vPlan.plDesk .plSesBar{grid-column:3 !important;grid-row:2 !important;align-self:center;flex-wrap:nowrap !important}
+html.en-plan[data-fprog="plan"] #vPlan.plDesk .plHdr .mtabs .mtab{flex-direction:row !important;align-items:center !important;justify-content:flex-start !important;gap:12px !important;min-height:46px !important;min-width:0 !important;padding:0 14px !important;border-radius:14px !important;position:relative}
+html.en-plan[data-fprog="plan"] #vPlan.plDesk .plHdr .mtabs .mtab .sN{font:700 22px/1 'Space Mono',monospace !important;letter-spacing:-.04em !important;flex:none}
+html.en-plan[data-fprog="plan"] #vPlan.plDesk .plHdr .mtabs .mtab .sN::before{content:none}
+html.en-plan[data-fprog="plan"] #vPlan.plDesk .plHdr .mtabs .mtab .sT{font-size:15px !important;white-space:nowrap;min-width:0;flex:1 1 auto}
+html.en-plan[data-fprog="plan"] #vPlan.plDesk .plHdr .mtabs .mtab.on .tabOpc{margin:0 !important;align-self:center;flex:none;width:30px;height:30px;border-radius:999px !important;background:rgba(0,0,0,.08) !important;font-size:12px;line-height:1;padding:0;cursor:pointer}
+html.en-plan[data-fprog="plan"] #vPlan.plDesk .plHdr .mtabs .mtabAdd{padding:0 14px !important}
+html.en-plan[data-fprog="plan"] #vPlan.plDesk .plHdr .mtabs .mtabAdd .sT{font-size:11px !important}
+html.en-plan[data-fprog="plan"] #vPlan.plDesk .plHdr .mtabs .mtabAdd .sT::after{content:none !important}
+html.en-plan[data-fprog="plan"] #vPlan.plDesk .plSesBar button{min-height:46px !important}
+/* herramientas agrupadas */
+.plTools{position:relative;display:inline-flex}
+.plTools__b{display:inline-flex;align-items:center;gap:8px}
+.plTools__b i{font-style:normal;transition:transform .25s ease}.plTools.open .plTools__b i{transform:rotate(180deg)}
+.plTools__m{position:absolute;right:0;top:calc(100% + 10px);z-index:60;min-width:260px;display:flex;flex-direction:column;gap:6px;padding:10px;border-radius:22px;background:rgba(18,19,21,.88);border:1px solid rgba(244,243,240,.16);box-shadow:0 30px 70px rgba(0,0,0,.5),inset 0 1px 0 rgba(255,255,255,.12);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);transform-origin:90% 0;animation:kFloat .32s cubic-bezier(.16,.9,.24,1) both}
+.plTools__m[hidden]{display:none}
+.plTools__m button{width:100%;justify-content:flex-start !important;text-align:left}
+@keyframes kFloat{from{opacity:0;transform:translateY(-8px) scale(.92);filter:blur(6px)}to{opacity:1;transform:none;filter:none}}
+/* cabecera del tablero más justa */
+html.en-plan[data-fprog="plan"] #vPlan.plDesk .tbHead{margin:2px 0 6px !important;gap:10px !important}
+html.en-plan[data-fprog="plan"] #vPlan .tbChip{padding:5px 11px;font-size:10.5px}
+html.en-plan[data-fprog="plan"] #vPlan .tbTiempo{min-height:42px;padding:3px 18px}
+html.en-plan[data-fprog="plan"] #vPlan .tbTiempo b{font-size:14px}
+html.en-plan[data-fprog="plan"] #vPlan.plDesk .tbSelC{min-height:42px}
+html.en-plan[data-fprog="plan"] #vPlan .plIndRow{display:none}
+html.en-plan[data-fprog="plan"] #vPlan.plDesk .tbBoard{padding-top:4px}
+/* bloque activo: resplandor que circula por el borde */
+html.en-plan[data-fprog="plan"] #vPlan .tbCol.act{border:1.5px solid transparent !important;background:linear-gradient(#2A2C2F,#2A2C2F) padding-box,conic-gradient(from var(--kang),#3D4044 0deg,#3D4044 200deg,rgba(244,243,240,.9) 285deg,#3EC6B0 320deg,#3D4044 360deg) border-box !important;animation:kSpin 4.5s linear infinite;box-shadow:0 0 0 1px rgba(62,198,176,.06),0 0 28px rgba(62,198,176,.14),0 18px 36px rgba(0,0,0,.35) !important}
+/* hojas de opciones (sesión, nueva sesión, organizar): flotan al centro en cristal negro */
+html[data-fprog="plan"] #mSes,html[data-fprog="plan"] #mAddSes,html[data-fprog="plan"] #mOrg,html[data-fprog="plan"] #mOrgB{background:rgba(0,0,0,.5) !important;backdrop-filter:blur(8px) !important;animation:holoBgIn .3s ease both}
+html[data-fprog="plan"] #mSes>div,html[data-fprog="plan"] #mAddSes>div,html[data-fprog="plan"] #mOrg>div,html[data-fprog="plan"] #mOrgB>div{top:50% !important;bottom:auto !important;left:50% !important;transform:translate(-50%,-50%) !important;width:min(560px,calc(100vw - 32px)) !important;border-radius:26px !important;padding:22px 22px 24px !important;background:linear-gradient(160deg,rgba(30,31,34,.86),rgba(6,7,8,.9)) !important;color:#F4F3F0 !important;border:1px solid rgba(244,243,240,.18);box-shadow:0 0 0 1px rgba(62,198,176,.1),0 40px 120px rgba(0,0,0,.6),inset 0 1px 0 rgba(255,255,255,.16);backdrop-filter:blur(20px) saturate(1.2);-webkit-backdrop-filter:blur(20px) saturate(1.2);animation:kSheet .5s cubic-bezier(.16,.9,.24,1) both}
+@keyframes kSheet{0%{opacity:0;transform:translate(-50%,-50%) perspective(1200px) translateY(60px) rotateX(16deg) scale(.7);filter:blur(10px) brightness(2)}60%{opacity:1;filter:blur(0) brightness(1.1)}100%{opacity:1;transform:translate(-50%,-50%);filter:none}}
+html[data-fprog="plan"] #mSes>div *,html[data-fprog="plan"] #mAddSes>div *,html[data-fprog="plan"] #mOrg>div *,html[data-fprog="plan"] #mOrgB>div *{color:inherit}
+html[data-fprog="plan"] #msTit{color:rgba(244,243,240,.62) !important;font:700 10.5px 'Space Mono',monospace !important;letter-spacing:.14em !important}
+html[data-fprog="plan"] #mSes>div>div:first-child>button,html[data-fprog="plan"] #mAddSes button[onclick*="none"],html[data-fprog="plan"] #mOrg button[onclick*="none"]{background:rgba(255,255,255,.08) !important;border:1px solid rgba(244,243,240,.25) !important;border-radius:999px !important;color:#F4F3F0 !important}
+html[data-fprog="plan"] #msNombre,html[data-fprog="plan"] #mAddSes input{background:#1C1D20 !important;border:1px solid #4A4D51 !important;color:#F4F3F0 !important;border-radius:999px !important;padding:14px 20px !important;font:700 14px 'Space Mono',monospace !important}
+html[data-fprog="plan"] #mSes .btn,html[data-fprog="plan"] #mAddSes .btn{background:#F4F3F0 !important;color:#000 !important;border-radius:999px !important;font:700 11px 'Space Mono',monospace !important;letter-spacing:.06em}
+html[data-fprog="plan"] #mSes .opRow,html[data-fprog="plan"] #mAddSes .opRow,html[data-fprog="plan"] #mOrg .opRow{display:flex !important;align-items:center;gap:10px;width:100%;min-height:52px;margin-top:8px;padding:0 20px !important;border-radius:999px !important;border:1px solid #3D4044 !important;background:#26282B !important;color:#F4F3F0 !important;font:700 11px 'Space Mono',monospace !important;letter-spacing:.08em;cursor:pointer;opacity:0;animation:holoRow .4s cubic-bezier(.2,.8,.2,1) both;transition:border-color .2s ease,background .2s ease}
+html[data-fprog="plan"] #mSes .opRow:nth-of-type(1){animation-delay:.16s}html[data-fprog="plan"] #mSes .opRow:nth-of-type(2){animation-delay:.22s}html[data-fprog="plan"] #mSes .opRow:nth-of-type(3){animation-delay:.28s}html[data-fprog="plan"] #mSes .opRow:nth-of-type(4){animation-delay:.34s}
+html[data-fprog="plan"] #mSes .opRow:hover,html[data-fprog="plan"] #mAddSes .opRow:hover{border-color:#F4F3F0 !important;background:#2E3034 !important}
+html[data-fprog="plan"] #mSes .opRow.rojo{border-color:#FF4200 !important;color:#FF4200 !important;background:transparent !important}
+/* selector de ejercicios: aparece al frente en cristal negro */
+html[data-fprog="plan"] .selM{background:rgba(0,0,0,.55) !important;backdrop-filter:blur(10px) !important}
+html[data-fprog="plan"] .selM__c{background:linear-gradient(160deg,rgba(28,29,32,.9),rgba(8,9,10,.94)) !important;border:1px solid rgba(244,243,240,.16);border-radius:28px !important;box-shadow:0 0 0 1px rgba(62,198,176,.08),0 40px 120px rgba(0,0,0,.6),inset 0 1px 0 rgba(255,255,255,.14) !important;backdrop-filter:blur(22px) saturate(1.2);-webkit-backdrop-filter:blur(22px) saturate(1.2);animation:kSel .6s cubic-bezier(.16,.9,.24,1) both;transform-origin:50% 60%}
+@keyframes kSel{0%{opacity:0;transform:perspective(1400px) translateY(80px) rotateX(18deg) scale(.6);filter:blur(12px) brightness(2.2);clip-path:inset(46% 0 46% 0 round 28px)}45%{opacity:1;clip-path:inset(0 0 0 0 round 28px);filter:blur(2px) brightness(1.3)}100%{opacity:1;transform:none;filter:none;clip-path:inset(0 0 0 0 round 28px)}}
+html[data-fprog="plan"] .selM__h,html[data-fprog="plan"] .selGH{background:transparent !important}
+html[data-fprog="plan"] .selGH{background:linear-gradient(rgba(16,17,19,.97),rgba(16,17,19,.9)) !important}
+html[data-fprog="plan"] .selM__t,html[data-fprog="plan"] .selGH b{color:#F4F3F0 !important}
+html[data-fprog="plan"] .selGH small,html[data-fprog="plan"] .selGH.sm b{color:#A9ADB0 !important}
+html[data-fprog="plan"] .selM__x,html[data-fprog="plan"] .selM__lupa{background:#26282B !important;border:1px solid #4A4D51 !important;border-radius:999px !important;color:#F4F3F0 !important}
+html[data-fprog="plan"] .selM__lupa.on{background:#F4F3F0 !important;color:#000 !important}
+html[data-fprog="plan"] .selCtx{background:#26282B !important;color:#F4F3F0 !important;border:1px solid #3D4044}
+html[data-fprog="plan"] .selCtx *{color:inherit}
+html[data-fprog="plan"] .selM__q{background:#1C1D20 !important;border-color:#6F7377 !important;color:#F4F3F0}
+html[data-fprog="plan"] .selM__q input{color:#F4F3F0 !important}
+html[data-fprog="plan"] .selChip{border-color:#4A4D51 !important;color:#F4F3F0 !important;background:#1C1D20 !important}
+html[data-fprog="plan"] .selChip i{color:#A9ADB0 !important}
+html[data-fprog="plan"] .selChip.on{background:#F4F3F0 !important;color:#000 !important;border-color:#F4F3F0 !important}
+html[data-fprog="plan"] .selChip.on i{color:#434649 !important}
+html[data-fprog="plan"] #selEj .selRow{background:#26282B !important;border-color:#3D4044 !important;opacity:0;animation:holoRow .45s cubic-bezier(.2,.8,.2,1) both;animation-delay:.3s}
+html[data-fprog="plan"] #selEj .selRow:hover{border-color:#F4F3F0 !important}
+html[data-fprog="plan"] #selEj .selRow:focus-visible,html[data-fprog="plan"] #selEj .selRow.kb{box-shadow:0 0 0 2px #3EC6B0 !important}
+html[data-fprog="plan"] #selEj .selPh{background:#D9DADC !important}
+html[data-fprog="plan"] #selEj .selPh::after{background:linear-gradient(90deg,transparent 70%,#26282B 100%) !important}
+html[data-fprog="plan"] #selEj .selN{color:#F4F3F0 !important}
+html[data-fprog="plan"] #selEj .selSub{color:#A9ADB0 !important}
+html[data-fprog="plan"] #selEj .selRow.act{background:#F4F3F0 !important;border-color:#F4F3F0 !important}
+html[data-fprog="plan"] #selEj .selRow.act .selN{color:#000 !important}html[data-fprog="plan"] #selEj .selRow.act .selSub{color:#434649 !important}
+html[data-fprog="plan"] #selEj .selRow.act .selPh::after{background:linear-gradient(90deg,transparent 70%,#F4F3F0 100%) !important}
+html[data-fprog="plan"] #selEj .selAct{background:#000 !important;color:#F4F3F0 !important}
+html[data-fprog="plan"] #selEj .selRow.in{border-style:dashed !important;border-color:#6F7377 !important}
+html[data-fprog="plan"] .selM__l{scrollbar-color:rgba(244,243,240,.25) transparent}
+@media (prefers-reduced-motion:reduce){ html[data-fprog="plan"] .selM__c,html[data-fprog="plan"] #selEj .selRow,html[data-fprog="plan"] #mSes>div,html[data-fprog="plan"] #mSes .opRow,.plTools__m,html.en-plan[data-fprog="plan"] #vPlan .tbCol.act{animation:none;opacity:1} }
+
 /* ═══ c267 · TRANSICIÓN ENTRE VENTANAS: zoom de entrada al profundizar y de salida al volver ═══ */
 @keyframes kvIn{from{opacity:0;transform:scale(.94);filter:blur(6px)}to{opacity:1;transform:none;filter:none}}
 @keyframes kvOut{from{opacity:0;transform:scale(1.06);filter:blur(6px)}to{opacity:1;transform:none;filter:none}}
@@ -9591,6 +9684,35 @@ function holoCerrar(silencio){
   setTimeout(fin,300)
 }
 document.addEventListener('click',function(e){ const t=e.target; if (t.closest && document.documentElement.classList.contains('en-plan') && t.closest('#pTabs .mtab:not(.on)')) s4Son('scan-paso',0.6) },true)   // c270
+
+// ═══ c271 · PLANIFICADOR: herramientas agrupadas, sonidos de hojas y selector ═══
+function plHerr(){
+  if (document.documentElement.getAttribute('data-fprog')!=='plan') return
+  const bar=document.getElementById('plSesBar'); if(!bar || bar.querySelector('.plTools')) return
+  const mov=[...bar.querySelectorAll(':scope > button')].filter(function(b){ const o=b.getAttribute('onclick')||''; return !/dsModo|piaAbrir/.test(o) })
+  if (mov.length<2) return
+  const w=document.createElement('div'); w.className='plTools'
+  w.innerHTML='<button type="button" class="plTools__b" aria-haspopup="menu" aria-expanded="false">HERRAMIENTAS <i aria-hidden="true">▾</i></button><div class="plTools__m" role="menu" hidden></div>'
+  const m=w.querySelector('.plTools__m'); mov.forEach(function(b){ b.setAttribute('role','menuitem'); m.appendChild(b) })
+  bar.appendChild(w)
+  const tb=w.querySelector('.plTools__b')
+  tb.onclick=function(e){ e.stopPropagation(); const ab=m.hidden; plHerrCerrar(); if(ab){ m.hidden=false; w.classList.add('open'); tb.setAttribute('aria-expanded','true'); s4Son('appear',0.6) } }
+  m.onclick=function(){ s4Son('scan-paso',0.6); setTimeout(plHerrCerrar,0) }
+}
+function plHerrCerrar(){ document.querySelectorAll('.plTools').forEach(function(w){ w.classList.remove('open'); const m=w.querySelector('.plTools__m'); if(m) m.hidden=true; const b=w.querySelector('.plTools__b'); if(b) b.setAttribute('aria-expanded','false') }) }
+document.addEventListener('click',function(e){ if(!(e.target.closest&&e.target.closest('.plTools'))) plHerrCerrar() })
+document.addEventListener('keydown',function(e){ if(e.key==='Escape') plHerrCerrar() })
+;(function(){
+  const _pbs=plBarraSesion; plBarraSesion=function(s){ _pbs(s); try{ plHerr() }catch(_e){} }
+  const _aso=abrirSesOpc; abrirSesOpc=function(){ s4Son('appear',0.8); return _aso.apply(this,arguments) }
+  const _as=abrirSelector; abrirSelector=function(){ s4Son('appear',0.8); const r=_as.apply(this,arguments); setTimeout(function(){ s4Son('datos',0.5) },420); return r }
+  const _cs=cerrarSelector; cerrarSelector=function(){ const el=document.getElementById('selEj'); if(el && el.style.display!=='none') s4Son('scan-lock',0.5); return _cs.apply(this,arguments) }
+})()
+document.addEventListener('click',function(e){ const t=e.target; if(!t.closest || document.documentElement.getAttribute('data-fprog')!=='plan') return
+  if (t.closest('#mSes .opRow, #mSes .btn, #mAddSes .opRow, #mAddSes .btn, #selEj .selChip')) s4Son('scan-paso',0.6)
+  else if (t.closest('#selEj .selRow')) s4Son('start',0.6)
+  else if (t.closest('#mSes button, #mAddSes button') && /none/.test(t.closest('button').getAttribute('onclick')||'')) s4Son('scan-lock',0.5)
+  else if (t.closest('#vPlan .tbCol') && !t.closest('#vPlan .tbCol.act')) s4Son('scan-paso',0.45) },true)
 document.addEventListener('keydown',function(e){ if (e.key==='Escape' && document.documentElement.classList.contains('holo-on')){ e.preventDefault(); holoCerrar() } })
 if (window.MutationObserver) new MutationObserver(function(){ const r=document.documentElement; if (r.classList.contains('holo-on') && !r.classList.contains('en-ficha')) holoCerrar(true) }).observe(document.documentElement,{attributes:true,attributeFilter:['class']})
 async function scPintarRes(){
