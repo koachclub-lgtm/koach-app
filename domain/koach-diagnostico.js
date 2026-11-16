@@ -114,7 +114,14 @@ function cuerpo(segs){
 
 // ── CUERPO 3D (app del socio): maniquí isométrico que gira; la zona elegida se ve en calipso. Proporciones desde las medidas reales.
 const B3 = { r:null, cam:null, scene:null, grupo:null, partes:[], key:'', ang:0.5, raf:0, drag:null, carga:null }
-const CALIPSO = 0x2BB3C0, METAL = 0xC9CBCE, NEUTRO = 0xDCDDDF
+const CALIPSO = 0x3EC6B0, METAL = 0xF4F6F8, NEUTRO = 0xF4F6F8
+// Cuerpo de LUZ: material holográfico (borde brillante + núcleo tenue, aditivo), como una figura luminosa sobre negro
+function luz(T, color, o){ o = o || {}
+  return new T.ShaderMaterial({ transparent:true, depthWrite:false, blending:T.AdditiveBlending, side:o.back ? T.BackSide : T.FrontSide,
+    uniforms:{ uC:{ value:new T.Color(color) }, uB:{ value:o.base != null ? o.base : 0.3 }, uR:{ value:o.rim != null ? o.rim : 0.85 }, uP:{ value:o.pow || 2.8 } },
+    vertexShader:'varying vec3 vN; varying vec3 vV; void main(){ vec4 mv = modelViewMatrix * vec4(position,1.0); vN = normalize(normalMatrix * normal); vV = normalize(-mv.xyz); gl_Position = projectionMatrix * mv; }',
+    fragmentShader:'uniform vec3 uC; uniform float uB; uniform float uR; uniform float uP; varying vec3 vN; varying vec3 vV; void main(){ float f = pow(1.0 - abs(dot(normalize(vN), normalize(vV))), uP); float a = clamp(uB + f * uR, 0.0, 1.0); gl_FragColor = vec4(uC * a, a); }' })
+}
 const P3 = { BRA:['i', 27], CAD:['i', 49], PAN:['i', 76], TRO:['d', 23], ABD:['d', 40], MUS:['d', 62] }
 function lect3(s){
   const mm = s.filas.filter(r => r.u === 'mm' && r.v != null), cm = s.filas.filter(r => r.u === 'cm' && r.v != null)
@@ -127,7 +134,13 @@ function cuerpo3d(segs){
     const dl = L && L.d != null ? '<em class="kdT-' + s.t + '">' + fx(L.d) + ' ' + L.u + '</em>' : '<em>' + (S.i ? 'SIN DATO PREVIO' : 'LÍNEA BASE') + '</em>'
     return '<button type="button" class="kd3__p kd3__p--' + p[0] + (on ? ' on' : '') + '" data-seg="' + s.id + '" style="top:' + p[1] + '%"><span>' + s.nombre + '</span>' +
       (L ? '<b><span data-cnt="' + L.v + '">' + f1(L.v) + '</span><i>' + L.u + '</i></b><small>' + esc(L.l) + '</small>' : '<b>—</b>') + dl + '</button>' }).join('')
-  return '<div class="kd3" id="kd3" role="img" aria-label="Cuerpo en 3D: toca una zona para ver su cambio"><svg class="kd3__ln" id="kd3Ln" aria-hidden="true">' +
+  // escena: anillos concéntricos, partículas, ejes finos y esquinas de visor detrás del cuerpo de luz
+  let pts = ''; for (let i = 0; i < 46; i++){ const a = (i * 137.5) % 360 * Math.PI / 180, r = 18 + ((i * 53) % 100) * 0.3, x = 50 + Math.cos(a) * r * 0.9, y = 44 + Math.sin(a) * r * 0.75
+    pts += '<circle cx="' + x.toFixed(1) + '" cy="' + y.toFixed(1) + '" r="' + (i % 7 === 0 ? 0.42 : 0.22) + '" style="animation-delay:' + ((i * 0.37) % 4).toFixed(2) + 's"/>' }
+  const escena = '<div class="kd3__fx" aria-hidden="true"><i class="kd3__ax kd3__ax--v"></i><i class="kd3__ax kd3__ax--h"></i><div class="kd3__au"></div>' +
+    '<svg viewBox="0 0 100 100" preserveAspectRatio="none" class="kd3__rg">' + [44, 36, 28, 21].map((r, i) => '<ellipse cx="50" cy="44" rx="' + r + '" ry="' + (r * 0.78).toFixed(1) + '" style="animation-delay:' + i * 0.6 + 's"/>').join('') + '<g class="kd3__pt">' + pts + '</g></svg>' +
+    '<i class="kd3__cn tl"></i><i class="kd3__cn tr"></i><i class="kd3__cn bl"></i><i class="kd3__cn br"></i></div>'
+  return '<div class="kd3 kd3--luz" id="kd3" role="img" aria-label="Cuerpo en 3D: toca una zona para ver su cambio">' + escena + '<svg class="kd3__ln" id="kd3Ln" aria-hidden="true">' +
     Object.keys(P3).map(k => '<path data-l="' + k + '"/><circle data-c="' + k + '" r="3.5"/>').join('') + '</svg>' + lab +
     '<span class="kd3__h">ARRASTRA PARA GIRAR · TOCA UNA ZONA</span></div>'
 }
@@ -154,18 +167,15 @@ function b3Enlazar(){
     B3.r.setPixelRatio(Math.min(2, window.devicePixelRatio || 1))
     B3.scene = new T.Scene(); B3.cam = new T.OrthographicCamera(-1, 1, 1, -1, 0.1, 50)
     B3.cam.position.set(0, 1.35, 3.2); B3.cam.lookAt(0, 0.05, 0)
-    B3.scene.add(new T.HemisphereLight(0xffffff, 0x6f7276, 0.95))
-    const d1 = new T.DirectionalLight(0xffffff, 0.85); d1.position.set(2, 4, 3); B3.scene.add(d1)
-    const d2 = new T.DirectionalLight(0xffffff, 0.35); d2.position.set(-3, 2, -2); B3.scene.add(d2)
-    const piso = new T.Mesh(new T.CircleGeometry(0.5, 64), new T.MeshBasicMaterial({ color:0x121212, transparent:true, opacity:0.08 })); piso.rotation.x = -Math.PI / 2; piso.position.y = -0.86; B3.scene.add(piso)
-    const anillo = new T.Mesh(new T.RingGeometry(0.52, 0.535, 96), new T.MeshBasicMaterial({ color:0x121212, transparent:true, opacity:0.25, side:T.DoubleSide })); anillo.rotation.x = -Math.PI / 2; anillo.position.y = -0.859; B3.scene.add(anillo)
+    const piso = new T.Mesh(new T.CircleGeometry(0.5, 64), new T.MeshBasicMaterial({ color:0xFFFFFF, transparent:true, opacity:0.05, blending:T.AdditiveBlending, depthWrite:false })); piso.rotation.x = -Math.PI / 2; piso.position.y = -0.86; B3.scene.add(piso)
+    const anillo = new T.Mesh(new T.RingGeometry(0.52, 0.535, 96), new T.MeshBasicMaterial({ color:0xFFFFFF, transparent:true, opacity:0.18, side:T.DoubleSide, blending:T.AdditiveBlending, depthWrite:false })); anillo.rotation.x = -Math.PI / 2; anillo.position.y = -0.859; B3.scene.add(anillo)
     const cv = B3.r.domElement; cv.className = 'kd3__cv'
     cv.addEventListener('pointerdown', e => { B3.drag = { x:e.clientX, a:B3.ang, t:Date.now(), mv:0 }; cv.setPointerCapture(e.pointerId) })
     cv.addEventListener('pointermove', e => { if (!B3.drag) return; const dx = e.clientX - B3.drag.x; B3.drag.mv = Math.max(B3.drag.mv, Math.abs(dx)); B3.ang = B3.drag.a + dx * 0.012 })
     cv.addEventListener('pointerup', e => { const d = B3.drag; B3.drag = null; if (!d || d.mv > 6) { B3.quieto = Date.now(); return } b3Tocar(e) })
     cv.addEventListener('pointercancel', () => { B3.drag = null })
   }
-  box.insertBefore(B3.r.domElement, box.firstChild)
+  const fxEl = box.querySelector('.kd3__fx'); box.insertBefore(B3.r.domElement, fxEl ? fxEl.nextSibling : box.firstChild)
   const e = actual(), key = S.i + ':' + (e && e.id)
   if (key !== B3.key){ B3.key = key; b3Armar(e) }
   b3Color(); b3Tam()
@@ -204,7 +214,9 @@ function b3Lineas(){
     const on = k === S.seg; svg.querySelector('[data-l="' + k + '"]').classList.toggle('on', on); c.classList.toggle('on', on) })
 }
 function b3Color(){ const T = window.THREE; if (!T) return
-  B3.partes.forEach(m => { const on = m.userData.seg === S.seg; m.material.color = new T.Color(on ? CALIPSO : METAL); m.material.emissive = new T.Color(on ? 0x0b3a3e : 0x000000) }) }
+  B3.partes.forEach(m => { const on = m.userData.seg === S.seg, u = m.material.uniforms; if (!u) return
+    u.uC.value = new T.Color(on ? CALIPSO : METAL); u.uB.value = on ? 0.42 : 0.3; u.uR.value = on ? 1.1 : 0.85
+    m.children.forEach(h => { if (h.userData.halo && h.material.uniforms) h.material.uniforms.uC.value = new T.Color(on ? CALIPSO : 0xFFFFFF) }) }) }
 function b3Armar(e){
   const T = window.THREE; e = e || {}
   if (B3.grupo) B3.scene.remove(B3.grupo)
@@ -219,8 +231,9 @@ function b3Armar(e){
   const tramo = (pf, y0, y1) => { const at = y => { for (let i = 0; i < pf.length - 1; i++){ const a = pf[i], b = pf[i + 1]; if (y >= a[1] && y <= b[1]){ const t = (y - a[1]) / ((b[1] - a[1]) || 1); return [a[0] + (b[0] - a[0]) * t, y] } } return pf[y < pf[0][1] ? 0 : pf.length - 1] }
     return [at(y0)].concat(pf.filter(p => p[1] > y0 && p[1] < y1), [at(y1)]) }
   const lathe = pf => new T.LatheGeometry(pf.map(([a, b]) => new T.Vector2(a, b)), 48)
-  const neutro = geo => new T.Mesh(geo, new T.MeshStandardMaterial({ color:NEUTRO, roughness:0.5, metalness:0.12 }))
-  const zona = (pf, zEsc, seg) => { const m = new T.Mesh(lathe(pf), new T.MeshStandardMaterial({ color:METAL, roughness:0.42, metalness:0.18 })); m.scale.z = zEsc; m.userData.seg = seg; B3.partes.push(m); return m }
+  const halo = m => { const h = new T.Mesh(m.geometry, luz(T, 0xFFFFFF, { base:0, rim:0.32, pow:1.15, back:true })); h.scale.set(1.12, 1.03, 1.12); h.userData.halo = 1; m.add(h); return m }
+  const neutro = geo => halo(new T.Mesh(geo, luz(T, NEUTRO)))
+  const zona = (pf, zEsc, seg) => { const m = halo(new T.Mesh(lathe(pf), luz(T, METAL))); m.scale.z = zEsc; m.userData.seg = seg; B3.partes.push(m); return m }
   const rp = pc(v('pantorrilla_cm', 36), v('pantorrilla_mm', 10)) + gm(v('pantorrilla_mm', 10)), rm = pc(v('muslo_cm', 54), v('muslo_mm', 14)) + gm(v('muslo_mm', 14))
   const pierna = suave([[0.026, 0.06], [0.03, 0.12], [rp * 0.86, 0.22], [rp, 0.31], [rp * 0.78, 0.42], [0.05, 0.48], [rm * 0.72, 0.56], [rm, 0.68], [rm * 1.06, 0.8], [rm * 1.04, 0.9], [rm * 0.7, 0.97]], 10)
   ;[-1, 1].forEach(sd => { const x = 0.088 * sd
@@ -567,6 +580,29 @@ const CSS = `
 .kd--in .kdId i{font-style:normal;color:#8E8D88}
 .kd--in .kdTb2{margin-top:10px}
 .kd--in .kdCmpH{margin-top:18px}.kd--in .kdCmpH>.kdK{display:block;margin:0 4px 8px;color:#2A2A2A}
+/* Cuerpo de LUZ: figura luminosa sobre negro con grano, anillos, partículas y visor */
+.kd--in .kd3.kd3--luz,.kd3.kd3--luz{background:#070708 radial-gradient(60% 46% at 50% 44%,#1B1C1F 0%,#0B0B0C 62%,#050506 100%);border-radius:20px}
+.kd3--luz::after{content:'';position:absolute;inset:0;z-index:4;pointer-events:none;opacity:.22;mix-blend-mode:screen;background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 1  0 0 0 0 1  0 0 0 0 1  0 0 0 .55 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>")}
+.kd3__fx{position:absolute;inset:0;z-index:0;pointer-events:none}
+.kd3--luz .kd3__cv{z-index:1;filter:drop-shadow(0 0 6px rgba(255,255,255,.55)) drop-shadow(0 0 22px rgba(255,255,255,.25))}
+.kd3__ax{position:absolute;background:rgba(255,255,255,.08)}.kd3__ax--v{left:50%;top:0;bottom:0;width:1px}.kd3__ax--h{top:62%;left:0;right:0;height:1px}
+.kd3__au{position:absolute;left:50%;top:44%;width:62%;aspect-ratio:1/1.3;transform:translate(-50%,-50%);border-radius:50%;background:radial-gradient(closest-side,rgba(255,255,255,.16),rgba(255,255,255,.05) 55%,transparent);filter:blur(8px);animation:kd3Res 5s ease-in-out infinite}
+@keyframes kd3Res{50%{opacity:.7;transform:translate(-50%,-50%) scale(1.04)}}
+.kd3__rg{position:absolute;inset:0;width:100%;height:100%}
+.kd3__rg ellipse{fill:none;stroke:rgba(255,255,255,.16);stroke-width:.18;vector-effect:non-scaling-stroke;animation:kd3Rg 6s ease-in-out infinite}
+@keyframes kd3Rg{50%{stroke:rgba(255,255,255,.07)}}
+.kd3__pt circle{fill:#FFFFFF;opacity:.55;animation:kd3Tw 4s ease-in-out infinite}
+@keyframes kd3Tw{50%{opacity:.1}}
+.kd3__cn{position:absolute;width:16px;height:16px;border:1.5px solid rgba(255,255,255,.45)}
+.kd3__cn.tl{left:12px;top:12px;border-right:0;border-bottom:0}.kd3__cn.tr{right:12px;top:12px;border-left:0;border-bottom:0}.kd3__cn.bl{left:12px;bottom:12px;border-right:0;border-top:0}.kd3__cn.br{right:12px;bottom:12px;border-left:0;border-top:0}
+.kd3--luz .kd3__ln{z-index:2}.kd3--luz .kd3__ln path{stroke:rgba(255,255,255,.55);stroke-width:.8;opacity:1}.kd3--luz .kd3__ln path.on{stroke:#3EC6B0;stroke-width:1.6}
+.kd3--luz .kd3__ln circle{fill:#FFFFFF}.kd3--luz .kd3__ln circle.on{fill:#3EC6B0}
+.kd3--luz .kd3__p{z-index:3;background:rgba(8,8,9,.55);border:1px solid rgba(255,255,255,.14);color:#F4F6F8;-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px)}
+.kd3--luz .kd3__p>span{color:#979C9F}.kd3--luz .kd3__p b{color:#FFFFFF}.kd3--luz .kd3__p b i,.kd3--luz .kd3__p small{color:#6F7377}
+.kd3--luz .kd3__p em{color:#979C9F}.kd3--luz .kd3__p em.kdT-mej{color:#3EC6B0}.kd3--luz .kd3__p em.kdT-ret{color:#FF4200}
+.kd3--luz .kd3__p.on{background:rgba(8,8,9,.75);border-color:#3EC6B0;box-shadow:0 0 0 1px #3EC6B0,0 0 22px rgba(62,198,176,.25)}
+.kd3--luz .kd3__h{z-index:3;color:#6F7377}
+@media (prefers-reduced-motion:reduce){.kd3__au,.kd3__rg ellipse,.kd3__pt circle{animation:none}}
 .kd.kd--in{position:static;inset:auto;z-index:auto;overflow:visible;background:transparent;animation:none}
 .kd--in .kdBar--in{position:static;min-height:0;padding:8px 8px 8px 16px;border-radius:20px;background:#121212;justify-content:space-between;flex-wrap:nowrap}
 .kd--in section.kdCard{background:#FBFAF8!important;border-radius:20px!important;padding:18px 18px 20px!important;border:1px solid rgba(18,18,18,.06)!important;box-shadow:0 14px 34px rgba(18,18,18,.10)!important}
