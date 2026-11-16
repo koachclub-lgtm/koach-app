@@ -3398,6 +3398,30 @@ html.fx-edit.en-plan[data-fprog="plan"] #vPlan.plDesk .plPc{grid-row:1 !importan
 html.fx-edit.en-plan[data-fprog="plan"] #vPlan.plDesk #pNav{grid-row:1 !important;grid-column:1 !important}
 html.fx-edit.en-plan[data-fprog="plan"] #vPlan.plDesk .plSesBar{grid-row:1 !important;grid-column:3 !important}
 @media (prefers-reduced-motion:reduce){ html.fx-in #vFicha #scCard,html.fx-in #vPlan{animation:none} }
+/* ═══ c279 · VISOR DE SESIÓN FIJO EN LA FICHA (antes holograma flotante) ═══ */
+html[data-fprog] #vFicha .tcRes.is-visor{position:relative;margin-top:14px;padding:22px 26px 24px;border-radius:28px;background:linear-gradient(160deg,rgba(28,29,32,.94) 0%,rgba(10,11,12,.96) 60%,rgba(0,0,0,.97) 100%) !important;color:#F4F3F0 !important;border:1px solid rgba(244,243,240,.16) !important;box-shadow:0 0 0 1px rgba(62,198,176,.08),0 24px 60px rgba(0,0,0,.35),inset 0 1px 0 rgba(255,255,255,.14);overflow:hidden}
+html[data-fprog] #vFicha .tcRes.is-visor.is-anim{animation:kVisor .65s cubic-bezier(.16,.9,.24,1) both}
+@keyframes kVisor{0%{opacity:0;transform:perspective(1400px) translateY(40px) rotateX(14deg) scale(.86);filter:blur(10px) brightness(2);clip-path:inset(40% 0 40% 0 round 28px)}50%{opacity:1;clip-path:inset(0 0 0 0 round 28px);filter:blur(1px) brightness(1.2)}100%{opacity:1;transform:none;filter:none;clip-path:inset(0 0 0 0 round 28px)}}
+html[data-fprog] #vFicha .tcRes.is-visor.is-anim::before{content:"";position:absolute;left:0;right:0;top:0;height:120px;background:linear-gradient(180deg,rgba(255,255,255,0),rgba(255,255,255,.1) 85%,rgba(255,255,255,.45));mix-blend-mode:screen;pointer-events:none;animation:holoScan 1s .05s cubic-bezier(.4,0,.2,1) both}
+html[data-fprog] #vFicha .tcRes.is-visor .tcRes__x{display:none}
+html[data-fprog] #vFicha .tcRes.is-visor .tcRes__h{border-bottom:1px solid rgba(244,243,240,.14);padding-bottom:16px;align-items:flex-end}
+html[data-fprog] #vFicha .tcRes.is-visor .tcRes__h small{color:rgba(244,243,240,.6) !important;font:700 10.5px 'Space Mono',monospace;letter-spacing:.14em}
+html[data-fprog] #vFicha .tcRes.is-visor .tcRes__h b{display:block;margin-top:6px;font-family:'KOACH Display','Archivo',Arial,sans-serif;font-weight:900;font-stretch:112%;text-transform:uppercase;font-size:clamp(30px,3.6vw,52px);line-height:.92;background:linear-gradient(180deg,#FFF 0%,#C9CBCF 40%,#FFF 52%,#979C9F 70%,#E4E5E7 100%);-webkit-background-clip:text;background-clip:text;color:transparent}
+html[data-fprog] #vFicha .tcRes.is-visor .tbB{height:46px;min-height:46px;padding:0 20px;border-radius:999px !important;border:1px solid rgba(244,243,240,.85) !important;background:transparent !important;color:#F4F3F0 !important;font:700 11px 'Space Mono',monospace !important;letter-spacing:.06em}
+html[data-fprog] #vFicha .tcRes.is-visor .tbB--ink{background:#F4F3F0 !important;color:#000 !important}
+html[data-fprog] #vFicha .tcRes.is-visor .tbB--ed{background:#F4F3F0 !important;color:#000 !important;border-color:#F4F3F0 !important;position:relative;overflow:hidden}
+html[data-fprog] #vFicha .tcRes.is-visor .tbB--ed::after{content:"";position:absolute;top:0;bottom:0;left:0;width:40%;background:linear-gradient(105deg,rgba(0,0,0,0),rgba(0,0,0,.08),rgba(0,0,0,0));transform:translateX(-120%);animation:fpSheen 3.6s ease-in-out infinite;pointer-events:none}
+html[data-fprog] #vFicha .tcRes.is-visor .tcRes__c{color:rgba(244,243,240,.62) !important}
+html[data-fprog] #vFicha .tcRes.is-visor .tcRes__g{grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:12px;padding-top:16px}
+html[data-fprog] #vFicha .tcRes.is-visor .tcB{padding:14px 16px;border-radius:18px;background:rgba(255,255,255,.045);border:1px solid rgba(244,243,240,.12)}
+html[data-fprog] #vFicha .tcRes.is-visor.is-anim .tcB{animation:holoRow .5s cubic-bezier(.2,.8,.2,1) both}
+html[data-fprog] #vFicha .tcRes.is-visor.is-anim .tcB:nth-child(1){animation-delay:.22s}html[data-fprog] #vFicha .tcRes.is-visor.is-anim .tcB:nth-child(2){animation-delay:.28s}html[data-fprog] #vFicha .tcRes.is-visor.is-anim .tcB:nth-child(3){animation-delay:.34s}html[data-fprog] #vFicha .tcRes.is-visor.is-anim .tcB:nth-child(n+4){animation-delay:.4s}
+html[data-fprog] #vFicha .tcRes.is-visor .tcB__h{color:rgba(244,243,240,.62);font:700 10.5px 'Space Mono',monospace;letter-spacing:.12em;padding:0 0 6px}
+html[data-fprog] #vFicha .tcRes.is-visor .tcE{border-top:1px solid rgba(244,243,240,.1);padding:8px 0;font-size:15px;color:#F4F3F0}
+html[data-fprog] #vFicha .tcRes.is-visor .tcE em{color:rgba(244,243,240,.75);font-size:12px}
+html[data-fprog] #vFicha .tc:has(.tc__body[aria-expanded="true"]){border-color:var(--fp-cfg) !important;box-shadow:0 0 0 1px var(--fp-cfg),0 16px 34px rgba(0,0,0,.28) !important;transform:translateY(-3px)}
+html.fx-edit #vFicha .tcRes.is-visor{display:none !important}
+@media (prefers-reduced-motion:reduce){ html[data-fprog] #vFicha .tcRes.is-visor.is-anim,html[data-fprog] #vFicha .tcRes.is-visor.is-anim .tcB{animation:none} }
 /* ═══ c267 · TRANSICIÓN ENTRE VENTANAS: zoom de entrada al profundizar y de salida al volver ═══ */
 @keyframes kvIn{from{opacity:0;transform:scale(.94);filter:blur(6px)}to{opacity:1;transform:none;filter:none}}
 @keyframes kvOut{from{opacity:0;transform:scale(1.06);filter:blur(6px)}to{opacity:1;transform:none;filter:none}}
@@ -4760,6 +4784,7 @@ function verFicha(id, sinRuta){
   document.getElementById('fMeta').textContent=((a?(((a.protocolos&&a.protocolos.programa)||'')+' · '+((a.protocolos&&a.protocolos.nivel)||'')+' · SEMANA '+(a.semana_actual||1)+'/'+((a.protocolos&&a.protocolos.ciclo_semanas)||6)+' · CICLO '+(a.ciclo_actual||1)):'SIN PROGRAMA')+
     (d?(' · DESDE '+MES3[d.getMonth()]+' '+d.getFullYear()):'')).toUpperCase()
   fpTema(id)
+  setTimeout(function(){ if (F && F.id===id) plPrecargar(id) },900)
   fPintarCtx(id)
   document.getElementById('fSemTit').innerHTML = sem?('<b>'+sem.pct_dosis+'%'+(sem.completa?' · SEMANA ✓':'')+'</b> · '+sem.fortalecidos+'/'+sem.exigibles+' METAS'):'SIN PROGRAMA'
   document.getElementById('fRows').innerHTML = sem?sem.musculos.filter(function(m){return m.exigible}).map(function(m){
@@ -5402,11 +5427,12 @@ async function abrirPlan(pid, proto, opts){
   const _reusaHist = !!(opts.reusarHist && !esBib && !esBase && F && window._histSocio===F.id)
   if (!_reusaHist){ ULT = {}; HIST = {}
     if ((!esBib && !esBase && F) || (opts.extraSocio && F)){ try{ await cargarHistorialCargas(F.id) }catch(_e){ console.error('[cargas]', _e) } } }
+  const _pre=(!opts.soloSesion && PRE.pid===pid && Date.now()-PRE.t<180000) ? PRE : null; if (_pre) PRE.pid=null   // c279: datos precargados desde la ficha
   let qq = sb.from('sesiones_protocolo').select('*').eq('protocolo_id',pid).order('numero') // Ajuste F-MULTI: cap de 6 eliminado, numeración es global entre semanas
   if (opts.soloSesion) qq = qq.eq('id', opts.soloSesion)
-  const rses = await qq
+  const rses = _pre ? await _pre.ses : await qq
   const sids = (rses.data||[]).map(function(s){return s.id})
-  const rblo = sids.length ? await sb.from('bloques').select('*, bloque_ejercicios(*, ejercicios(id,nombre,grupo_muscular,estimulo,sinergistas,tipo_registro,con_carga,cuenta_dosis,implemento,activo))').in('sesion_id',sids).order('bloque') : {data:[]}
+  const rblo = _pre ? await _pre.blo : sids.length ? await sb.from('bloques').select('*, bloque_ejercicios(*, ejercicios(id,nombre,grupo_muscular,estimulo,sinergistas,tipo_registro,con_carga,cuenta_dosis,implemento,activo))').in('sesion_id',sids).order('bloque') : {data:[]}
   if (_tok!==window._plTok || (F && F.id)!==_fid) return   // llegó tarde: el KOACH ya navegó a otro socio
   setTimeout(function(){ plLeerRev() }, 0)
   P = { pid:pid, proto:proto, tab:0, bib:esBib, base:esBase, xs:!!opts.extraSocio, ro:!!opts.soloLectura||(proto&&proto.estado==='archivado'), dirty:{}, sesiones:(rses.data||[]).map(function(s){
@@ -9259,7 +9285,7 @@ function cgSet(x){ if(!x) return ''; if(x.peso==null && x.seg) return x.seg+' SE
 async function cargarHistorialCargas(socioId){
   HIST={}; ULT={}
   if (!socioId) return
-  const r=await sb.rpc('koach_historial_cargas',{p_socio:socioId})
+  const r=(PRE.hs===socioId && PRE.hist && Date.now()-PRE.t<180000) ? await PRE.hist : await sb.rpc('koach_historial_cargas',{p_socio:socioId}); PRE.hs=null
   if (r.error){ console.error('[cargas] historial', r.error); return }
   HIST=r.data||{}; window._histSocio=socioId
   Object.keys(HIST).forEach(function(ej){ const u=HIST[ej].ultimo||{}
@@ -9969,6 +9995,8 @@ function scEstadoExtra(e){
 }
 const SC_ISO='<svg class="tc__iso" viewBox="40 180 790 795" aria-hidden="true" focusable="false"><rect x="52" y="190" width="768" height="162" fill="currentColor"/><polygon points="52,757 438,415 818,752 818,950 438,615 52,962" fill="currentColor"/></svg>'
 function scPintar(){
+  { const _st=SC.st||{}, _ss=_st.sesiones||[]; if (SC.sid!==SCD._sid){ SCD._sid=SC.sid; SCD.open=null; SCD._last=null }
+    if (!SCD.open && _ss.length){ const hb=_st.habilitada, x=_ss.find(function(z){return z.estado==='en_curso'}) || (hb&&!hb.extra&&_ss.find(function(z){return z.id===hb.sesion_id})) || _ss.find(function(z){return z.estado!=='completada'&&z.estado!=='suspendida'}) || _ss[_ss.length-1]; if(x) SCD.open=x.id } }   // c279: visor siempre con una sesión
   const st=SC.st||{}, el=document.getElementById('scCard'); if(!el||!st.activo){ if(el) el.innerHTML=''; return }
   if (SCB.org){ scPintarOrg(); return }
   const ab=st.abiertas||[], px=st.proxima, hb=st.habilitada, ses=st.sesiones||[]
@@ -10014,19 +10042,16 @@ function scPintar(){
   if (SCD.open) scPintarRes()
 }
 function scAbrirRes(id){ scMenuCerrar()
-  if (SCD.open && (SCD.open===id || !id)) return holoCerrar()
+  if (!id || SCD.open===id) return
   SCD.open=id; scPintar() }
 // ═══ c265 · RUTINA HOLOGRAMA: el resumen de la sesión se proyecta al frente y la ficha queda atrás ═══
-function holoSync(){
+function holoSync(){   // c279: el resumen vive fijo en la ficha (visor) — se proyecta al cambiar de sesión, sin ventana flotante
   const box=document.getElementById('tcRes'), root=document.documentElement
-  let bg=document.getElementById('holoBg')
-  if (!SCD.open || !box){ root.classList.remove('holo-on'); if(bg) bg.remove(); return }
-  const nuevo=!root.classList.contains('holo-on')
-  document.body.appendChild(box); box.classList.add('is-holo'); box.setAttribute('role','dialog'); box.setAttribute('aria-modal','true'); box.setAttribute('aria-label','Rutina de la sesión')
-  if (!bg){ bg=document.createElement('div'); bg.id='holoBg'; bg.setAttribute('aria-hidden','true'); bg.onclick=function(){ holoCerrar() }; document.body.insertBefore(bg, box) }
-  root.classList.add('holo-on')
-  if (nuevo){ setTimeout(function(){ s4Son('datos',0.55) },380); setTimeout(function(){ const x=box.querySelector('.tcRes__x'); if(x) try{ x.focus({preventScroll:true}) }catch(_e){} },700) }
-  else box.classList.add('is-still')
+  root.classList.remove('holo-on'); const bg=document.getElementById('holoBg'); if(bg) bg.remove()
+  if (!SCD.open || !box) return
+  box.classList.add('is-visor'); box.setAttribute('aria-live','polite'); box.setAttribute('aria-label','Rutina de la sesión')
+  if (SCD._last!==SCD.open){ box.classList.add('is-anim'); setTimeout(function(){ box.classList.remove('is-anim') },900); if (SCD._last) setTimeout(function(){ s4Son('datos',0.5) },300) }
+  SCD._last=SCD.open
 }
 function holoCerrar(silencio){
   const box=document.querySelector('body > .tcRes.is-holo'), bg=document.getElementById('holoBg')
@@ -10046,6 +10071,18 @@ function fpHerr(ev,b){ ev.stopPropagation(); const w=b.closest('.plTools'), m=w.
     m.hidden=false; w.classList.add('open'); b.setAttribute('aria-expanded','true'); s4Son('appear',0.6) } }
 function fpHerrIr(fn){ s4Son('scan-paso',0.6); plHerrCerrar(); try{ fn() }catch(e){ console.error(e) } }
 
+
+// ═══ c279 · PRECARGA DEL EDITOR: al abrir la ficha, el programa del socio se carga en segundo plano ═══
+var PRE={ pid:null, t:0, ses:null, blo:null, hist:null, hs:null }
+function plPrecargar(id){
+  const a=C.asig&&C.asig[id]; if(!a||!a.protocolo_id) return
+  if (PRE.pid===a.protocolo_id && Date.now()-PRE.t<120000) return
+  const pid=a.protocolo_id; PRE.pid=pid; PRE.t=Date.now(); PRE.hs=id
+  try{ cargarCatalogo() }catch(_e){}
+  PRE.hist=sb.rpc('koach_historial_cargas',{p_socio:id})
+  PRE.ses=sb.from('sesiones_protocolo').select('*').eq('protocolo_id',pid).order('numero')
+  PRE.blo=PRE.ses.then(function(r){ const ids=((r&&r.data)||[]).map(function(x){return x.id}); return ids.length ? sb.from('bloques').select('*, bloque_ejercicios(*, ejercicios(id,nombre,grupo_muscular,estimulo,sinergistas,tipo_registro,con_carga,cuenta_dosis,implemento,activo))').in('sesion_id',ids).order('bloque') : {data:[]} })
+}
 // ═══ c278 · EDITOR EN LA FICHA: las tarjetas de sesión se compactan arriba y seleccionan la sesión que se edita debajo ═══
 function fxSync(){
   if (!document.documentElement.classList.contains('fx-edit') || !P || !P.sesiones) return
@@ -10108,7 +10145,7 @@ async function scPintarRes(){
   const susp=z.estado==='suspendida', done=z.estado==='completada'
   let acc=''
   if (!ex){ const u='#/socio/'+F.id+'/plan?w='+st.semana+'&s='+id
-    acc+='<a class="tbB" href="'+u+'" onclick="return rtIr(event,\''+u+'\')">ABRIR RUTINA</a>'
+    acc+='<a class="tbB tbB--ed" href="'+u+'" onclick="return rtIr(event,\''+u+'\')">✎ EDITAR RUTINA</a>'
     if (reg && reg.abandonada) acc+='<button type="button" class="tbB tbB--ink" onclick="scFinalizarConf(\''+reg.id+'\')">FINALIZAR SESIÓN</button>'
     else if (z.estado==='en_curso'){ const rc=ab.find(function(a){return a.sesion_id===id && !a.abandonada})||reg   // c126
       if (rc && !rc.sets) acc+='<button type="button" class="tbB tbB--ink" onclick="scAccion(\'anular\',\''+rc.id+'\')">ANULAR INICIO</button>'
