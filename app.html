@@ -7874,8 +7874,8 @@ function esfBloque(b,bi){ const c=bkCod(b,bi), m=/^B(\d+)$/i.exec(c); return 'BL
 function esfAEntrenar(bi){ pvIniciar().then(ok=>{ if(ok) bkAbrir(bi) }) }
 addEventListener('resize',()=>{ try{ esfLinea() }catch(_){} })
 function esfSel(bi){ const bfs=S._bfs||[], pp=bkPrimerPendiente(bfs), prim=pp<0?bfs.length-1:pp, sel=(S._pvAb!=null&&S._pvAb>=0)?S._pvAb:prim
-  if (bi===sel){ const b=bfs[bi]; if(b && (bloqueCompleto(b) || bi===prim)) pvEntrar(bi); return }   // c278 · bloques siguientes bloqueados
-  S._pvAb=bi; try{ KSFX.play('menu',0,.7) }catch(_){} pintarSesion() }
+  if (bi===sel){ const b=bfs[bi]; if(b && (bloqueCompleto(b) || bi===prim)) pvEntrar(bi); else { try{ KSFX.play('set') }catch(_){} } return }   // c278 · bloques siguientes bloqueados
+  S._pvAb=bi; try{ KSFX.play('set') }catch(_){} pintarSesion() }   // c280 · tocar una esfera: clic estándar
 /* línea punteada que une las esferas por sus centros (curva suave) y centra el bloque que toca */
 function esfLinea(){ const r=document.getElementById('esR'); if(!r) return; const os=[...r.querySelectorAll('.esO__b')]; if(os.length<2) return
   const R=r.getBoundingClientRect(), sv=r.querySelector('.esR__l'), W=r.scrollWidth, H=r.offsetHeight; sv.setAttribute('width',W); sv.setAttribute('height',H); sv.setAttribute('viewBox','0 0 '+W+' '+H)
@@ -7961,7 +7961,7 @@ function bkgURL(k){ const t=BKG[k]; if(!t) return ''; if(t._u) return t._u
 function bkFondo(o){ const k=(['acero','grafito','cromoN'].indexOf(S._bg)>=0)?'grafito':'plata', u=bkgURL(k); if(!u) return
   o.dataset.bk=k; o.style.setProperty('--bkg',u) }
 function bkAbrir(bi){ const bfs=S._bfs||[]; if(!bfs[bi]) return
-  try{ kAudioUnlock(); KSFX.play('bloque-ini') }catch(_){}   // c247 · COMENZAR bloque: holograma (ElevenLabs, elegido por Matías)
+  try{ kAudioUnlock(); KSFX.play('set') }catch(_){}   // c280 · entrar a un bloque: el mismo clic estándar de la barra de menús
   BK.bi=bi; const b=bfs[bi]; BK.set = bkSetActual(b) || b.sets
   let o=document.getElementById('oBloque'); if(!o){ o=document.createElement('div'); o.id='oBloque'; o.setAttribute('role','dialog'); o.setAttribute('aria-modal','true'); document.body.appendChild(o) }
   try{ bkFondo(o) }catch(_){}
