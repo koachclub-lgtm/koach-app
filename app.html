@@ -6374,11 +6374,15 @@ async function entrar(opts){
       sesIds.length ? sb.from('sesiones_registro').select('sesion_protocolo_id, estado').eq('socio_id', uid).in('sesion_protocolo_id', sesIds) : Promise.resolve({data:[]}),
       // Fotos de ejercicios (biblioteca visual): si falla, la app sigue sin fotos
       sb.from('ejercicios').select('id, visual_key').not('visual_key','is',null).then(r=>r, ()=>({data:[]})),
-      sb.from('recursos_visuales').select('visual_key, ruta_m, estado, ruta_f, estado_f').or('estado.in.(aprobada,provisional),estado_f.in.(aprobada,provisional)').then(r=>r, ()=>({data:[]}))
+      sb.from('recursos_visuales').select('visual_key, ruta_m, estado, ruta_f, estado_f, ruta_b_m, estado_b, ruta_b_f, estado_b_f, pose_inicial').or('estado.in.(aprobada,provisional),estado_f.in.(aprobada,provisional)').then(r=>r, ()=>({data:[]}))
     ])
     // c118 · avatar según profiles.sex: socia → SOLO foto femenina aprobada (sin respaldo masculino: si falta, va el ícono); socio → solo masculina
     try { const fem=window.FOTOS_F_ACTIVAS===true && String((S.perfil&&S.perfil.sex)||'').toLowerCase()==='mujer'; const okF=x=>x.ruta_f&&(x.estado_f==='aprobada'||x.estado_f==='provisional'), okM=x=>x.ruta_m&&(x.estado==='aprobada'||x.estado==='provisional')
-      const fr={}; (rFxR.data||[]).forEach(x=>{ const r=fem?(okF(x)?x.ruta_f:null):(okM(x)?x.ruta_m:null); if(r) fr[x.visual_key]=r }); const fx={}; (rFxE.data||[]).forEach(e=>{ if(fr[e.visual_key]) fx[e.id]=fr[e.visual_key] }); window.EXF=fx } catch(_){ window.EXF={} }   /* sin respaldo cruzado: un hombre nunca ve la versión femenina */
+      const fr={}; (rFxR.data||[]).forEach(x=>{ const r=fem?(okF(x)?x.ruta_f:null):(okM(x)?x.ruta_m:null); if(r) fr[x.visual_key]=r }); const fx={}; (rFxE.data||[]).forEach(e=>{ if(fr[e.visual_key]) fx[e.id]=fr[e.visual_key] }); window.EXF=fx
+      /* c275 · pose B (extremo opuesto del movimiento) para el loop A↔B: solo si A y B están aprobadas/provisionales en el mismo avatar */
+      const okBF=x=>x.ruta_b_f&&(x.estado_b_f==='aprobada'||x.estado_b_f==='provisional'), okBM=x=>x.ruta_b_m&&(x.estado_b==='aprobada'||x.estado_b==='provisional')
+      const frB={}; (rFxR.data||[]).forEach(x=>{ const rb=fem?(okBF(x)?x.ruta_b_f:null):(okBM(x)?x.ruta_b_m:null); if(rb&&fr[x.visual_key]) frB[x.visual_key]={b:rb,ini:x.pose_inicial==='b'?'b':'a'} })
+      const fxB={}; (rFxE.data||[]).forEach(e=>{ if(frB[e.visual_key]) fxB[e.id]=frB[e.visual_key] }); window.EXFB=fxB } catch(_){ window.EXF=window.EXF||{}; window.EXFB={} }   /* sin respaldo cruzado: un hombre nunca ve la versión femenina */
     const bloques = rBloq.data || []
     S.programa = { sesiones:sesiones.map(s=>({
       numero:s.numero, id:s.id, semana:(s.semana||1), nombre:nombreEN(s.objetivo)||('SESIÓN '+s.numero),
@@ -7473,6 +7477,15 @@ function wxResumenHecho(be,b,w){ const fs=[]; for(let n=1;n<=b.sets;n++){ const 
   return fs.length+' SETS' }
 // Foto de ejercicio (biblioteca visual KOACH): 192 px WebP servida desde Supabase Storage
 function exFotoUrl(ej){ const r=ej&&window.EXF&&window.EXF[ej.id]; return r ? SB_URL+'/storage/v1/object/public/ejercicios-media/'+r : '' }
+/* c275 · loop A↔B: devuelve las dos URLs en el orden del loop (primero la pose inicial) o null si el ejercicio no tiene pose B aprobada */
+function exFotoAB(ej,full){ const a=ej&&window.EXF&&window.EXF[ej.id], b=ej&&window.EXFB&&window.EXFB[ej.id]; if(!a||!b) return null
+  const u=r=>SB_URL+'/storage/v1/object/public/ejercicios-media/'+(full?String(r).replace(/^ex\//,'ex/full/'):r)
+  return b.ini==='b' ? {x:u(b.b), y:u(a)} : {x:u(a), y:u(b.b)} }
+function exAbAttrs(ab){ return ab ? ' class="exAB" data-x="'+ab.x+'" data-y="'+ab.y+'"' : '' }
+/* un solo reloj para todas las fotos en loop que estén en pantalla; pausa con la app oculta o movimiento reducido. Precarga la segunda pose para que no parpadee */
+;(function(){ let t=0; const rm=window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)')
+  setInterval(function(){ if(document.hidden||(rm&&rm.matches)) return; const ims=document.querySelectorAll('img.exAB'); if(!ims.length) return; t^=1
+    ims.forEach(function(im){ if(!im.dataset.pre){ im.dataset.pre=1; const p=new Image(); p.src=im.dataset.y } im.src=t?im.dataset.y:im.dataset.x }) },800) })()
 function exFoto(ej){ const r=ej&&window.EXF&&window.EXF[ej.id]; if(!r) return ''
   return '<img class="exf" src="'+SB_URL+'/storage/v1/object/public/ejercicios-media/'+r+'" alt="" width="56" height="56" loading="lazy" decoding="async" onerror="this.remove()">' }
 function wxCerrado(be,b,w,ej){
@@ -7663,7 +7676,7 @@ function bkFotoVer(beId){ const b=(S._bfs||[])[BK.bi]; if(!b) return
   const o=document.getElementById('oBloque'); if(!o) return; bkFotoCerrar()
   const el=document.createElement('div'); el.className='bk__sh'; el.id='bkSh'; el.setAttribute('role','dialog'); el.setAttribute('aria-modal','true'); el.setAttribute('aria-label','Foto de '+(ej.nombre||'ejercicio'))
   el.innerHTML='<button type="button" class="bk__shX" onclick="bkFotoCerrar()" aria-label="Cerrar"></button><section class="bk__shIn"><i class="bk__shG" aria-hidden="true"></i>'+
-    '<div class="bk__shF"><img src="'+fu+'" alt="'+bkEsc(ej.nombre||'')+'"></div>'+
+    (function(){ const ab=exFotoAB(ej,true); return '<div class="bk__shF"><img'+exAbAttrs(ab)+' src="'+(ab?ab.x:fu)+'" alt="'+bkEsc(ej.nombre||'')+'"></div>' })()+
     '<div class="bk__shT"><div><span>'+bkEsc(ej.grupo_muscular||'')+'</span><b>'+bkEsc(ej.nombre||'—')+'</b></div><button type="button" class="bk__shC" onclick="bkFotoCerrar()">CERRAR</button></div></section>'
   o.appendChild(el); requestAnimationFrame(function(){ el.classList.add('on') }); kHaptic(8)
   setTimeout(function(){ const c=el.querySelector('.bk__shC'); if(c) c.focus({preventScroll:true}) },60) }
@@ -7925,8 +7938,8 @@ function bkPintar(){
     else if (w.tipo==='TIME') ctr=timeControl()+sinCarga
     else ctr=repsControl()+bodyweight
     // c113 · formato G: foto cuadrada a la izquierda (alto de la tarjeta) · nombre + grupo · REPS arriba, CARGA abajo
-    const fu=exFotoUrl(ej)
-    const foto = fu ? '<button type="button" class="bk__fo" onclick="bkFotoVer(\''+be.id+'\')" aria-label="Ver foto de '+N+'"><img src="'+fu+'" alt="" width="104" height="104" loading="lazy" decoding="async" onerror="this.parentNode.classList.add(\'bk__fo--x\');this.remove()"><i aria-hidden="true">⤢</i></button>'
+    const fu=exFotoUrl(ej), ab=exFotoAB(ej)
+    const foto = fu ? '<button type="button" class="bk__fo" onclick="bkFotoVer(\''+be.id+'\')" aria-label="Ver foto de '+N+'"><img'+exAbAttrs(ab)+' src="'+(ab?ab.x:fu)+'" alt="" width="104" height="104" loading="lazy" decoding="async" onerror="this.parentNode.classList.add(\'bk__fo--x\');this.remove()"><i aria-hidden="true">⤢</i></button>'
                     : '<span class="bk__fo bk__fo--x" aria-hidden="true"></span>'
     return '<article class="bk__ex'+(fila?' bk__ex--ok':'')+'" aria-label="'+N+' · '+ref+' · prescrito '+bkPres(w,ej)+'">'+foto+'<div class="bk__ec"><div class="bk__eh"><b>'+bkEsc(ej.nombre||'—')+'</b><em class="bk__pill">'+bkEsc(ej.grupo_muscular||'')+'</em></div><div class="bk__sb">'+ctr+'</div></div></article>' }).join('')
   let cta, ctaCls=''
