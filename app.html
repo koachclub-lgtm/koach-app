@@ -1623,6 +1623,11 @@ html:has(#vSesion.esf.on),html:has(#vSesion.esf.on) body{background:#C9CBCE url(
 .esGo b{background:radial-gradient(circle at 32% 26%,#FFFFFF 0,rgba(255,255,255,.4) 40%,transparent 62%),conic-gradient(from 200deg,#9EA2A8,#F4F5F6,#B7BBC0,#FFFFFF,#8E9297,#DADDE0,#9EA2A8);box-shadow:inset 0 0 0 1px rgba(255,255,255,.85),0 4px 10px rgba(19,19,19,.2)}
 #vSesion.esf .esFin .esPl{border-color:rgba(19,19,19,.55);color:#131313}
 @media (prefers-reduced-motion:reduce){.esO__g,.esO__g::before{animation:none}}
+/* c277 · antes de iniciar: misma ruta de esferas (sin EN CURSO; bloques · ejercicios · duración; ¡A ENTRENAR! y TEST WELLNESS en píldora) */
+.esD{margin:14px auto 0;max-width:31ch;text-align:center;font:400 14px/1.45 var(--font-body,'Inter Display',sans-serif);color:#434649}
+#vSesion .esD b{font:inherit;font-weight:700;color:#131313;letter-spacing:0}
+.esFin--w{margin-bottom:0}
+
 </style>
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
@@ -7821,9 +7826,11 @@ function pvAEntrenar(){ pvIniciar().then(ok=>{ if(!ok) return; const bfs=S._bfs|
 function esfHero(ses,bfs){ let sh=0,stt=0,kg=0; bfs.forEach(b=>{ sh+=bkSetsHechos(b); stt+=(b.sets||0); kg+=bkKgBloque(b) })
   const prog=String((S.proto&&S.proto.programa)||'').toUpperCase()
   let pos='', tot=''; try{ pos=posSem(ses); tot=baseSem().length }catch(_){}
-  return '<div class="esP">'+(prog?'<span class="esPl esPl--d">'+plEscA(prog)+'</span>':'')+(ses._extra?'<span class="esPl">SESIÓN EXTRA</span>':(pos&&tot?'<span class="esPl">SESIÓN '+pos+' / '+tot+'</span>':''))+'<span class="esPl"><i class="esLive"></i>EN CURSO</span></div>'+
+  return '<div class="esP">'+(prog?'<span class="esPl esPl--d">'+plEscA(prog)+'</span>':'')+(ses._extra?'<span class="esPl">SESIÓN EXTRA</span>':(pos&&tot?'<span class="esPl">SESIÓN '+pos+' / '+tot+'</span>':''))+(S.regInicio?'<span class="esPl"><i class="esLive"></i>EN CURSO</span>':'')+'</div>'+
     '<h2 class="esT">'+plEscA(String(ses.nombre||'SESIÓN').toUpperCase())+'</h2>'+
-    '<div class="esP"><span class="esPl">'+sh+'/'+stt+' SETS</span><span class="esPl">'+kg.toLocaleString('es-CL')+' KG</span><span class="esPl"><i id="sClk" class="esClk" data-t="'+sesTxt()+'">'+sesTxt()+'</i></span></div>' }
+    (S.regInicio?'<div class="esP"><span class="esPl">'+sh+'/'+stt+' SETS</span><span class="esPl">'+kg.toLocaleString('es-CL')+' KG</span><span class="esPl"><i id="sClk" class="esClk" data-t="'+sesTxt()+'">'+sesTxt()+'</i></span></div>'
+      :'<div class="esP"><span class="esPl">'+bfs.length+' BLOQUES</span><span class="esPl">'+bfs.reduce((a,b)=>a+bkBes(b).length,0)+' EJERCICIOS</span><span class="esPl">~'+pvDur(bfs)+"'</span></div>")+
+    '<p class="esD">'+pvDesc(ses,bfs)+'</p>' }
 function esfCuerpo(ses,bfs){ const pp=bkPrimerPendiente(bfs), prim=pp<0?bfs.length-1:pp
   const sel=(S._pvAb!=null && S._pvAb>=0 && bfs[S._pvAb]) ? S._pvAb : prim, emp=pvEmpezada()
   const orbs='<div class="esR'+(bfs.length>3?' esR--n':'')+'" id="esR"><svg class="esR__l" aria-hidden="true"><path d=""/></svg>'+bfs.map((b,bi)=>{
@@ -7839,9 +7846,12 @@ function esfCuerpo(ses,bfs){ const pp=bkPrimerPendiente(bfs), prim=pp<0?bfs.leng
     (h0&&!done?'<div class="esL__sg" aria-hidden="true">'+Array.from({length:b.sets},(_,i)=>'<i class="'+(bkSetHecho(b,i+1)?'on':'')+'"></i>').join('')+'</div>':'')+
     '<ol class="esL__l">'+bes.map((be,i)=>{ const ej=be.ejercicios||{}
       return '<li><em>'+String(i+1).padStart(2,'0')+'</em><b>'+bkEsc(ej.nombre||'—')+'</b>'+(ej.grupo_muscular?'<span class="esPl esPl--w">'+bkEsc(String(ej.grupo_muscular).toUpperCase())+'</span>':'')+'</li>' }).join('')+'</ol></section>'
-  const cta = done ? 'VER O CORREGIR '+cod : (sel===prim&&h0?'RETOMAR ':'COMENZAR ')+cod
-  return orbs+mus+lst+'<button type="button" class="esGo" onclick="pvEntrar('+sel+')"><span>'+cta+'</span><b aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></b></button>'+
-    (emp?'<div class="esFin"><button type="button" class="esPl esPl--w" onclick="pedirFinal()">TERMINAR SESIÓN ✓</button></div>':'') }
+  const pre=!S.regInicio && !emp, wOk=!(S.regId && S._bn && S._bn[S.regId])
+  const cta = pre ? '¡A ENTRENAR! · '+cod : done ? 'VER O CORREGIR '+cod : (sel===prim&&h0?'RETOMAR ':'COMENZAR ')+cod
+  return orbs+mus+lst+'<button type="button" class="esGo" id="'+(pre?'pvIni':'esGo')+'" onclick="'+(pre?'esfAEntrenar('+sel+')':'pvEntrar('+sel+')')+'"><span>'+cta+'</span><b aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></b></button>'+
+    (pre&&wOk?'<div class="esFin esFin--w"><button type="button" class="esPl esPl--w" onclick="wellAbrir()">TEST WELLNESS · ANTES DE ENTRENAR · 1 MIN</button></div>':'')+
+    (emp?'<div class="esFin"><button type="button" class="esPl esPl--w" onclick="pedirFinal()">TERMINAR SESIÓN ✓</button></div>':(pre&&wOk?'':'<div class="esFin"></div>')) }
+function esfAEntrenar(bi){ pvIniciar().then(ok=>{ if(ok) bkAbrir(bi) }) }
 addEventListener('resize',()=>{ try{ esfLinea() }catch(_){} })
 function esfSel(bi){ const bfs=S._bfs||[], pp=bkPrimerPendiente(bfs), prim=pp<0?bfs.length-1:pp, sel=(S._pvAb!=null&&S._pvAb>=0)?S._pvAb:prim
   if (bi===sel){ pvEntrar(bi); return }
@@ -8230,7 +8240,7 @@ function pintarSesion(){
     sesTick() }
   try{ kbgAplicar(ses) }catch(_){}
   const _pv=pvModo(); document.getElementById('vSesion').classList.toggle('pv',_pv)
-  const _esf=_pv && !S._preview && !!S.regInicio && bkPrimerPendiente(bfs)>=0   // c274 · sesión en curso: ruta de esferas
+  const _esf=_pv && !S._preview && bkPrimerPendiente(bfs)>=0   // c277 · también antes de iniciar   // c274 · sesión en curso: ruta de esferas
   document.getElementById('vSesion').classList.toggle('esf',_esf); if(_esf) document.getElementById('vSesion').classList.remove('kdk')
   if (_pv && hk) hk.innerHTML=_esf?esfHero(ses,bfs):pvHero(ses,bfs)
   document.getElementById('sBloques').classList.remove('cargando'); try{ wellPintar() }catch(_){}
