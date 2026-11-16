@@ -3422,6 +3422,44 @@ html[data-fprog] #vFicha .tcRes.is-visor .tcE em{color:rgba(244,243,240,.75);fon
 html[data-fprog] #vFicha .tc:has(.tc__body[aria-expanded="true"]){border-color:var(--fp-cfg) !important;box-shadow:0 0 0 1px var(--fp-cfg),0 16px 34px rgba(0,0,0,.28) !important;transform:translateY(-3px)}
 html.fx-edit #vFicha .tcRes.is-visor{display:none !important}
 @media (prefers-reduced-motion:reduce){ html[data-fprog] #vFicha .tcRes.is-visor.is-anim,html[data-fprog] #vFicha .tcRes.is-visor.is-anim .tcB{animation:none} }
+/* ═══ c282 · RESUMEN DE SESIÓN EN DOS PASOS: BANDEJA abajo (no saca de la ficha) → ABRIR RUTINA expande al frente ═══ */
+.tcRes.is-drawer{position:fixed;z-index:80;left:50%;bottom:calc(14px + env(safe-area-inset-bottom,0px));width:min(1180px,calc(100vw - 32px));max-height:min(54vh,560px);overflow:auto;transform:translateX(-50%);box-sizing:border-box;margin:0;padding:16px 20px 18px;border-radius:24px;
+  background:linear-gradient(160deg,rgba(28,29,32,.94) 0%,rgba(10,11,12,.95) 60%,rgba(0,0,0,.96) 100%);color:#F4F3F0;border:1px solid rgba(244,243,240,.16);
+  box-shadow:0 -14px 60px rgba(0,0,0,.45),inset 0 1px 0 rgba(255,255,255,.14);backdrop-filter:blur(20px) saturate(1.2);-webkit-backdrop-filter:blur(20px) saturate(1.2);scrollbar-width:none}
+.tcRes.is-drawer::-webkit-scrollbar{display:none}
+.tcRes.is-drawer.is-in{animation:drwIn .46s cubic-bezier(.16,.9,.24,1) both}
+.tcRes.is-drawer.is-in .tcB{animation:holoRow .4s cubic-bezier(.2,.8,.2,1) both}
+.tcRes.is-drawer.is-in .tcB:nth-child(2){animation-delay:.05s}.tcRes.is-drawer.is-in .tcB:nth-child(3){animation-delay:.1s}.tcRes.is-drawer.is-in .tcB:nth-child(4){animation-delay:.15s}
+.tcRes.is-drawer.is-out{animation:drwOut .26s cubic-bezier(.5,0,.75,0) both}
+@keyframes drwIn{0%{opacity:0;transform:translate(-50%,46px) scale(.97);clip-path:inset(70% 0 0 0 round 24px);filter:brightness(1.8)}60%{opacity:1;clip-path:inset(0 0 0 0 round 24px)}100%{opacity:1;transform:translateX(-50%);clip-path:inset(0 0 0 0 round 24px);filter:none}}
+@keyframes drwOut{to{opacity:0;transform:translate(-50%,40px) scale(.97);clip-path:inset(60% 0 0 0 round 24px)}}
+.tcRes.is-drawer .tcRes__h{display:flex;align-items:center;justify-content:space-between;gap:14px;border-bottom:1px solid rgba(244,243,240,.12);padding-bottom:12px}
+.tcRes.is-drawer .tcRes__h small{display:block;color:rgba(244,243,240,.6);font:700 10px 'Space Mono',monospace;letter-spacing:.14em}
+.tcRes.is-drawer .tcRes__h b{display:block;margin-top:4px;font-family:'KOACH Display','Archivo',Arial,sans-serif;font-weight:900;font-stretch:112%;text-transform:uppercase;font-size:clamp(22px,2.4vw,32px);line-height:.95;
+  background:linear-gradient(180deg,#FFFFFF 0%,#C9CBCF 45%,#FFFFFF 55%,#979C9F 75%,#E4E5E7 100%);-webkit-background-clip:text;background-clip:text;color:transparent}
+.tcRes.is-drawer .tcRes__a{display:flex;flex-wrap:wrap;gap:8px;justify-content:flex-end}
+.tcRes.is-drawer .tbB,.tcRes.is-holo .tbB{height:42px;min-height:42px;padding:0 16px;border-radius:999px !important;border:1px solid rgba(244,243,240,.85) !important;background:transparent !important;color:#F4F3F0 !important;font:700 11px 'Space Mono',monospace !important;letter-spacing:.06em;display:inline-flex;align-items:center;text-decoration:none}
+.tcRes.is-drawer .tbB--ink,.tcRes.is-holo .tbB--ink,.tcRes.is-drawer .tbB--ed,.tcRes.is-holo .tbB--ed{background:#F4F3F0 !important;color:#000 !important;border-color:#F4F3F0 !important}
+.tcRes.is-drawer .tbB--full{border-color:#3EC6B0 !important;color:#3EC6B0 !important}
+.tcRes.is-drawer .tbB--min,.tcRes.is-holo .tbB--full{display:none !important}
+.tcRes.is-drawer .tcRes__x{width:42px;height:42px;border-radius:999px;border:1px solid rgba(244,243,240,.35);background:rgba(255,255,255,.06);color:#F4F3F0;font-size:15px;cursor:pointer}
+.tcRes.is-drawer .tcRes__c{color:rgba(244,243,240,.62);padding-top:12px}
+.tcRes.is-drawer .tcRes__g{display:grid;grid-template-columns:repeat(var(--nb,3),minmax(0,1fr));gap:10px;padding-top:12px}
+.tcRes.is-drawer .tcB{padding:10px 12px;border-radius:16px;background:rgba(255,255,255,.045);border:1px solid rgba(244,243,240,.1);min-width:0}
+.tcRes.is-drawer .tcB__h{color:rgba(244,243,240,.6);font:700 10px 'Space Mono',monospace;letter-spacing:.12em;padding:0 0 4px;display:flex;justify-content:space-between}
+.tcRes.is-drawer .tcE{display:flex;justify-content:space-between;gap:8px;border-top:1px solid rgba(244,243,240,.08);padding:5px 0;font-size:13px;color:#F4F3F0}
+.tcRes.is-drawer .tcE span{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.tcRes.is-drawer .tcE em{flex:none;color:rgba(244,243,240,.7);font:400 11px 'Space Mono',monospace;font-style:normal}
+.tcRes.is-holo .tcRes__g{grid-template-columns:repeat(var(--nb,3),minmax(0,1fr)) !important}
+.tcRes.is-holo .tcB{min-width:0}
+html.ses-drawer #vFicha{padding-bottom:min(54vh,560px)}
+html.fx-edit body > .tcRes{display:none !important}
+@media (max-width:760px){ .tcRes.is-drawer .tcRes__g,.tcRes.is-holo .tcRes__g{grid-template-columns:minmax(0,1fr) !important} .tcRes.is-drawer .tcRes__h{flex-direction:column;align-items:stretch} .tcRes.is-drawer .tcRes__a{justify-content:flex-start} }
+@media (prefers-reduced-motion:reduce){ .tcRes.is-drawer.is-in,.tcRes.is-drawer.is-in .tcB,.tcRes.is-drawer.is-out{animation:none} }
+/* tarjetas de sesión más compactas y sin cortes arriba */
+html[data-fprog] #vFicha .tb2{padding-top:8px;margin-top:-8px;padding-bottom:10px}
+html[data-fprog] #vFicha .tc__body{min-height:0 !important;padding:34px 16px 16px !important;gap:4px}html[data-fprog] #vFicha .tc__s{padding:0 44px;min-height:30px}
+html[data-fprog] #vFicha .tc__h{top:8px}html[data-fprog] #vFicha .tc__h .tc__iso{width:22px;height:22px}
 /* ═══ c280 · CABECERA DE LA FICHA SIN SOLAPE: la identidad se va con el scroll; solo la barra de botones queda fija, sólida, en el color del programa ═══ */
 html[data-fprog] #vFicha .mh{position:relative !important;top:auto !important}
 html[data-fprog] #vFicha .mh.mh--pin{padding-bottom:var(--fp-barh,56px) !important}
@@ -9132,10 +9170,10 @@ document.addEventListener('click', function(ev){
   if (t.closest('#vFicha .tc__body')) return s4Son('appear',0.7)
   if (t.closest('#vFicha .fpBadge')) return s4Son('datos',0.7)
   if (t.closest('#vFicha .pfB--ink, #vFicha .tbB--ink')) return s4Son('start',0.7)
-  if (t.closest('.tcRes.is-holo a')){ setTimeout(function(){ holoCerrar(true) },0); return s4Son('start',0.7) }
-  if (t.closest('.tcRes.is-holo .tcRes__x')) return
-  if (t.closest('.tcRes.is-holo .tbB--ink')) return s4Son('start',0.7)
-  if (t.closest('.tcRes.is-holo .tbB')) return s4Son('scan-paso',0.6)
+  if (t.closest('body > .tcRes a')){ setTimeout(function(){ holoCerrar(true) },0); return s4Son('start',0.7) }
+  if (t.closest('body > .tcRes .tcRes__x, body > .tcRes .tbB--full, body > .tcRes .tbB--min')) return
+  if (t.closest('body > .tcRes .tbB--ink')) return s4Son('start',0.7)
+  if (t.closest('body > .tcRes .tbB')) return s4Son('scan-paso',0.6)
   if (t.closest('#vFicha .mh__doors button, #vFicha .pfB, #vFicha .fpP, #vFicha .tcM, #vFicha .tbB, #vFicha .kcU, #vFicha .pfMenu button, .kTabs button, .kTabs a')) return s4Son('scan-paso',0.6)
 }, true)
 
@@ -10060,7 +10098,7 @@ function scEstadoExtra(e){
 const SC_ISO='<svg class="tc__iso" viewBox="40 180 790 795" aria-hidden="true" focusable="false"><rect x="52" y="190" width="768" height="162" fill="currentColor"/><polygon points="52,757 438,415 818,752 818,950 438,615 52,962" fill="currentColor"/></svg>'
 function scPintar(){
   { const _st=SC.st||{}, _ss=_st.sesiones||[]; if (SC.sid!==SCD._sid){ SCD._sid=SC.sid; SCD.open=null; SCD._last=null }
-    if (!SCD.open && _ss.length){ const hb=_st.habilitada, x=_ss.find(function(z){return z.estado==='en_curso'}) || (hb&&!hb.extra&&_ss.find(function(z){return z.id===hb.sesion_id})) || _ss.find(function(z){return z.estado!=='completada'&&z.estado!=='suspendida'}) || _ss[_ss.length-1]; if(x) SCD.open=x.id } }   // c279: visor siempre con una sesión
+  }  // c282: ninguna sesión abierta por defecto — se toca la tarjeta para ver el resumen
   const st=SC.st||{}, el=document.getElementById('scCard'); if(!el||!st.activo){ if(el) el.innerHTML=''; return }
   if (SCB.org){ scPintarOrg(); return }
   const ab=st.abiertas||[], px=st.proxima, hb=st.habilitada, ses=st.sesiones||[]
@@ -10099,31 +10137,46 @@ function scPintar(){
         '<b class="tc__n">'+scNomL(x.nombre)+'</b><span class="tc__s">'+e.sub+'</span></button>'+
       '<button type="button" class="tcM" onclick="scMenu(event,\''+x.key+'\')" aria-haspopup="menu" aria-label="Acciones de la extra '+scNomL(x.nombre)+'">···</button></div>' })
   h+='</div><div id="tcRes" class="tcRes" '+(SCD.open?'':'hidden')+'></div>'
-  document.querySelectorAll('body > .tcRes.is-holo').forEach(function(x){ x.remove() })   // c265: el holograma vive fuera de la ficha
+  document.querySelectorAll('body > .tcRes').forEach(function(x){ x.remove() })   // c265/c282: el resumen vive fuera de la ficha (bandeja o expandido)
   el.innerHTML=h
   fpSemPintar(st, ses, ed)
   holoSync()
   if (SCD.open) scPintarRes()
 }
 function scAbrirRes(id){ scMenuCerrar()
-  if (!id || SCD.open===id) return
-  SCD.open=id; scPintar() }
+  if (!id) return
+  if (SCD.open===id){ if (SCD.modo==='full') scResMin(); else holoCerrar(); return }
+  SCD.open=id; SCD.modo='drawer'; scPintar() }
+// c282 · bandeja → expandido (zoom desde la tarjeta) → bandeja
+function scResFull(){ if (!SCD.open) return; SCD.modo='full'; const b=document.getElementById('tcRes'); if(b) b.classList.remove('is-still','is-in'); holoSync() }
+function scResMin(){ if (!SCD.open) return; s4Son('scan-paso',0.5); SCD.modo='drawer'; holoSync() }
 // ═══ c265 · RUTINA HOLOGRAMA: el resumen de la sesión se proyecta al frente y la ficha queda atrás ═══
-function holoSync(){   // c279: el resumen vive fijo en la ficha (visor) — se proyecta al cambiar de sesión, sin ventana flotante
+function holoSync(){   // c282: resumen en BANDEJA abajo (sin salir de la ficha) o EXPANDIDO al frente (holograma)
   const box=document.getElementById('tcRes'), root=document.documentElement
-  root.classList.remove('holo-on'); const bg=document.getElementById('holoBg'); if(bg) bg.remove()
-  if (!SCD.open || !box) return
-  box.classList.add('is-visor'); box.setAttribute('aria-live','polite'); box.setAttribute('aria-label','Rutina de la sesión')
-  if (SCD._last!==SCD.open){ box.classList.add('is-anim'); setTimeout(function(){ box.classList.remove('is-anim') },900); if (SCD._last) setTimeout(function(){ s4Son('datos',0.5) },300) }
-  SCD._last=SCD.open
+  let bg=document.getElementById('holoBg')
+  if (!SCD.open || !box){ root.classList.remove('holo-on','ses-drawer'); if(bg) bg.remove(); SCD._last=null; return }
+  if (box.parentNode!==document.body) document.body.appendChild(box)
+  const full=SCD.modo==='full', nuevaSes=SCD._last!==SCD.open, cambioModo=SCD._lm!==SCD.modo
+  box.classList.remove('is-visor','is-anim','is-out'); box.classList.toggle('is-holo',full); box.classList.toggle('is-drawer',!full)
+  if (full){
+    box.setAttribute('role','dialog'); box.setAttribute('aria-modal','true'); box.setAttribute('aria-label','Rutina de la sesión')
+    if (!bg){ bg=document.createElement('div'); bg.id='holoBg'; bg.setAttribute('aria-hidden','true'); bg.onclick=function(){ scResMin() }; document.body.insertBefore(bg, box) }
+    root.classList.remove('ses-drawer'); root.classList.add('holo-on')
+    if (nuevaSes || cambioModo){ box.classList.remove('is-still'); s4Son('appear',0.8); setTimeout(function(){ s4Son('datos',0.55) },380) } else box.classList.add('is-still')
+  } else {
+    box.setAttribute('role','region'); box.removeAttribute('aria-modal'); box.setAttribute('aria-label','Resumen de la sesión')
+    if (bg) bg.remove(); root.classList.remove('holo-on'); root.classList.add('ses-drawer')
+    if (nuevaSes || cambioModo){ box.classList.remove('is-still'); box.classList.add('is-in'); setTimeout(function(){ box.classList.remove('is-in') },520) }
+  }
+  SCD._last=SCD.open; SCD._lm=SCD.modo
 }
 function holoCerrar(silencio){
-  const box=document.querySelector('body > .tcRes.is-holo'), bg=document.getElementById('holoBg')
+  const box=document.querySelector('body > .tcRes'), bg=document.getElementById('holoBg')
   if (!SCD.open) return
   if (!silencio) s4Son('scan-lock',0.6)
-  const fin=function(){ SCD.open=null; if(box) box.remove(); if(bg) bg.remove(); document.documentElement.classList.remove('holo-on'); if (document.getElementById('scCard')) scPintar() }
+  const fin=function(){ SCD.open=null; SCD._last=null; if(box) box.remove(); if(bg) bg.remove(); document.documentElement.classList.remove('holo-on','ses-drawer'); if (document.getElementById('scCard')) scPintar() }
   if (silencio || !box || (window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches)) return fin()
-  box.classList.add('is-out'); if(bg) bg.classList.add('is-out'); document.documentElement.classList.remove('holo-on')
+  box.classList.add('is-out'); if(bg) bg.classList.add('is-out'); document.documentElement.classList.remove('holo-on','ses-drawer')
   setTimeout(fin,300)
 }
 document.addEventListener('click',function(e){ const t=e.target; if (t.closest && document.documentElement.classList.contains('en-plan') && t.closest('#pTabs .mtab:not(.on)')) s4Son('scan-paso',0.6) },true)   // c270
@@ -10198,8 +10251,8 @@ document.addEventListener('click',function(e){ const t=e.target; if(!t.closest |
   else if (t.closest('#vPlan .tbIc--d, #vPlan .tbX--mas')) s4Son('appear',0.55)
   else if (t.closest('.tbMenu button')) s4Son('scan-paso',0.6)
   else if (t.closest('#vPlan .tbCol') && !t.closest('#vPlan .tbCol.act')) s4Son('scan-paso',0.45) },true)
-document.addEventListener('keydown',function(e){ if (e.key==='Escape' && document.documentElement.classList.contains('holo-on')){ e.preventDefault(); holoCerrar() } })
-if (window.MutationObserver) new MutationObserver(function(){ const r=document.documentElement; if (r.classList.contains('holo-on') && !r.classList.contains('en-ficha')) holoCerrar(true) }).observe(document.documentElement,{attributes:true,attributeFilter:['class']})
+document.addEventListener('keydown',function(e){ const r=document.documentElement; if (e.key!=='Escape' || document.getElementById('kAvz')) return; if (r.classList.contains('holo-on')){ e.preventDefault(); scResMin() } else if (r.classList.contains('ses-drawer')){ e.preventDefault(); holoCerrar() } })
+if (window.MutationObserver) new MutationObserver(function(){ const r=document.documentElement; if ((r.classList.contains('holo-on')||r.classList.contains('ses-drawer')) && (!r.classList.contains('en-ficha')||r.classList.contains('fx-edit'))) holoCerrar(true) }).observe(document.documentElement,{attributes:true,attributeFilter:['class']})
 async function scPintarRes(){
   const key=SCD.open, box=document.getElementById('tcRes'); if(!box||!key) return
   const st=SC.st||{}, ex=/^[xh]/.test(key)?scExtraKey(key):null
@@ -10222,13 +10275,16 @@ async function scPintarRes(){
     if (ex.tipo==='designada') acc+='<button type="button" class="tbB" onclick="scModoExtra(\''+ex.id+'\')">'+({koach:'SOLO CUANDO LA ACTIVE',libre:'MODO VACACIONES'}[ex.activacion]||'SIEMPRE DISPONIBLE')+' ⇄</button>'
     if (ex.tipo==='designada') acc+='<button type="button" class="tbB" onclick="scRetirarExtra(\''+ex.id+'\')">RETIRAR EXTRA</button>' }
   const cab='<div class="tcRes__h"><div><small>'+(ex?'★ SESIÓN EXTRA · NO SUMA A LAS PRINCIPALES':reg&&reg.abandonada?(reg.ejercicios+'/'+reg.total_ejercicios+' EJ · '+reg.sets+' SETS REGISTRADOS'):'RESUMEN DE LA SESIÓN')+'</small><b>'+scNomL(z.nombre)+'</b>'+(done&&z.cuando?'<small>REALIZADA · '+scDiaC(z.cuando)+'</small>':susp?'<small>SUSPENDIDA ESTA SEMANA</small>':'')+'</div><div class="tcRes__a">'+acc+
-    '<button type="button" class="tcRes__x" onclick="scAbrirRes(\''+key+'\')" aria-label="Cerrar resumen">✕</button></div></div>'
+    '<button type="button" class="tbB tbB--full" onclick="scResFull()">⤢ ABRIR RUTINA</button>'+
+    '<button type="button" class="tbB tbB--min" onclick="scResMin()" aria-label="Volver al resumen">↙ RESUMEN</button>'+
+    '<button type="button" class="tcRes__x" onclick="holoCerrar()" aria-label="Cerrar resumen">✕</button></div></div>'
   box.hidden=false
   if (!SCD.det[id]){ box.innerHTML=cab+kLd('Cargando')
     const r=await sb.from('bloques').select('id,bloque,etiqueta,sets,bloque_ejercicios(orden,reps_txt,reps,duracion_seg,kg_objetivo,ejercicios(nombre))').eq('sesion_id',id).order('bloque')
     if (r.error){ box.innerHTML=cab+'<div class="tcRes__c">No se pudo cargar el resumen.</div>'; return }
     SCD.det[id]=r.data||[]; if (SCD.open!==key) return }
   const bl=SCD.det[id]
+  box.style.setProperty('--nb', String(Math.max(1,Math.min(bl.length||1,4))))   // c282: tantas columnas como bloques (sin columna vacía)
   box.innerHTML=cab+(bl.length?'<div class="tcRes__g">'+bl.map(function(b,bi){
     const ejs=(b.bloque_ejercicios||[]).slice().sort(function(a,c){return (a.orden||0)-(c.orden||0)})
     return '<div class="tcB"><div class="tcB__h">'+plEsc(String(b.bloque||('B'+(bi+1))).toUpperCase())+(b.etiqueta?' · '+plEsc(String(b.etiqueta).toUpperCase()):'')+' <span>'+(b.sets||'—')+' SETS</span></div>'+
