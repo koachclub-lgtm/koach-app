@@ -108,5 +108,13 @@
     if (!v.paused && v.currentTime > 0) ir(); else v.addEventListener('playing', ir, { once: true });
   }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', splashSonido); else splashSonido();
+  /* c264 · logo centrado en la PANTALLA, no en el área web: instalada en iPhone con barra de estado negra, la web empieza bajo la barra
+     y su centro queda ~30 pt más abajo que el centro físico. Se sube la mitad de esa diferencia. */
+  function centrar() { try {
+    var sa = matchMedia('(display-mode: standalone)').matches || navigator.standalone === true
+    var d = sa ? Math.max(0, Math.min(80, (screen.height - innerHeight) / 2)) : 0
+    if (sa && innerWidth > innerHeight) d = 0
+    document.documentElement.style.setProperty('--klvUp', d + 'px') } catch (_) {} }
+  centrar(); addEventListener('resize', centrar); addEventListener('orientationchange', centrar)
   window.KSFX = KSFX; window.KLOGO = KLOGO;
 })();

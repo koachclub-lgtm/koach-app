@@ -1595,7 +1595,7 @@ html .kw.kw--hero .kw-cl{font-size:7px;letter-spacing:.16em}
 <script src="/domain/koach-escaner-ui.js?v=260"></script>
 <script src="/domain/koach-escaner-share.js"></script>
 <script src="/domain/koach-compras.js"></script>
-<script src="/domain/koach-sfx.js?v=262"></script>
+<script src="/domain/koach-sfx.js?v=264"></script>
 <script src="/domain/koach-avatar.js"></script>
 <script src="/domain/koach-timer.js?v=6"></script>
 <style>
@@ -3570,7 +3570,7 @@ html:has(#vSesion.on[data-bg]),body:has(#vSesion.on[data-bg]){background:var(--s
 /* c240 · encendido del logo: video original 9:16 a pantalla completa. Negro puro #000 igual al del video: no se ve el recorte.
    Ancho = pantalla (márgenes ideales ya dentro del video); en tablet/escritorio se limita para no agigantarse. */
 #oLoad,#oAuth{background:#000!important;overflow:hidden}
-.klv{position:absolute;left:50%;top:50%;width:min(100vw,62vh,560px);height:auto;aspect-ratio:9/16;transform:translate(-50%,-50%);background:#000;object-fit:contain;pointer-events:none;border:0;outline:0}
+.klv{position:absolute;left:50%;top:calc(50% - var(--klvUp,0px));   /* c264 · centrado en la pantalla física (descuenta la barra de estado negra de la app instalada) */ width:min(100vw,62vh,560px);height:auto;aspect-ratio:9/16;transform:translate(-50%,-50%);background:#000;object-fit:contain;pointer-events:none;border:0;outline:0}
 #oAuth>:not(.klv){position:relative;z-index:1}
 /* c242 · guardando el set: velo + anillo girando + rótulo, sobre la pantalla del bloque */
 #oBloque.bk--guardando::after{content:'GUARDANDO';position:fixed;inset:0;z-index:50;display:flex;align-items:flex-end;justify-content:center;padding-bottom:calc(50vh - 74px);background:rgba(10,10,11,.6);-webkit-backdrop-filter:blur(3px);backdrop-filter:blur(3px);font:700 10px var(--font-mono,monospace);letter-spacing:.32em;color:#F3F2EF;animation:bkSvIn .2s ease both}
