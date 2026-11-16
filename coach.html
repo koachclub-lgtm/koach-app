@@ -3452,7 +3452,7 @@ html.fx-edit #vFicha .tcRes.is-visor{display:none !important}
 .tcRes.is-drawer .tcE em{flex:none;color:rgba(244,243,240,.7);font:400 11px 'Space Mono',monospace;font-style:normal}
 .tcRes.is-holo .tcRes__g{grid-template-columns:repeat(var(--nb,3),minmax(0,1fr)) !important}
 .tcRes.is-holo .tcB{min-width:0}
-html.ses-drawer #vFicha{padding-bottom:min(54vh,560px)}
+html.ses-drawer #vFicha{padding-bottom:75vh}
 html.fx-edit body > .tcRes{display:none !important}
 @media (max-width:760px){ .tcRes.is-drawer .tcRes__g,.tcRes.is-holo .tcRes__g{grid-template-columns:minmax(0,1fr) !important} .tcRes.is-drawer .tcRes__h{flex-direction:column;align-items:stretch} .tcRes.is-drawer .tcRes__a{justify-content:flex-start} }
 @media (prefers-reduced-motion:reduce){ .tcRes.is-drawer.is-in,.tcRes.is-drawer.is-in .tcB,.tcRes.is-drawer.is-out{animation:none} }
@@ -3475,6 +3475,7 @@ html[data-fprog] #vFicha #fTabAdm .pfC--w2>.pfRow2>.pfB{margin-top:auto;width:10
   html[data-fprog] #vFicha #fTabAdm .pfC--pag{grid-column:2;grid-row:1 / span 2}
   html[data-fprog] #vFicha #fTabAdm .pfC--w2{grid-column:1 !important}
 }
+html.fx-edit #vFicha .tc__body{flex-direction:column !important;align-items:flex-start !important;justify-content:center !important;gap:4px !important;padding:10px 54px 10px 16px !important}html.fx-edit #vFicha .tc__k{flex-direction:row !important;align-items:center !important;gap:8px !important}html.fx-edit #vFicha .tc__n{max-width:100%;text-align:left}
 /* ═══ c284 · MÓVIL: ficha y editor ordenados en pantallas angostas ═══ */
 @media (max-width:640px){
   html[data-fprog] #vFicha .mh__stats{display:grid !important;grid-template-columns:repeat(3,minmax(0,1fr));width:100%;margin-top:6px}
@@ -3497,8 +3498,7 @@ html[data-fprog] #vFicha #fTabAdm .pfC--w2>.pfRow2>.pfB{margin-top:auto;width:10
   html.fx-edit #vPlan:not(.plDesk) .plHdr__top,html.fx-edit #vPlan:not(.plDesk) .plHdr__tit,html.fx-edit #vPlan:not(.plDesk) .plQuien,html.fx-edit #vPlan:not(.plDesk) #pMeta,html.fx-edit #vPlan:not(.plDesk) #pTabs,html.fx-edit #vPlan:not(.plDesk) .plPc{display:none !important}
   html.fx-edit #vPlan:not(.plDesk) .plHdr{background:transparent !important;box-shadow:none !important;border:0 !important;padding:4px 0 0 !important;margin:0 !important;position:relative !important;top:auto !important}
   html.fx-edit #vPlan:not(.plDesk){padding-top:0 !important;margin-top:0 !important}
-  html.fx-edit #vFicha .tc__n{flex:1 1 auto;font-size:16px !important;text-align:left}
-  html.fx-edit #vFicha .tc__body{padding-right:52px !important}
+  html.fx-edit #vFicha .tc__n{font-size:16px !important}
   html.ks-bn .tcRes.is-drawer{bottom:calc(74px + env(safe-area-inset-bottom,0px));max-height:58vh;width:calc(100vw - 20px)}
   .tcRes.is-drawer .tcRes__a .tbB{flex:1 1 auto;justify-content:center}
 }
@@ -10208,7 +10208,11 @@ function holoSync(){   // c282: resumen en BANDEJA abajo (sin salir de la ficha)
   } else {
     box.setAttribute('role','region'); box.removeAttribute('aria-modal'); box.setAttribute('aria-label','Resumen de la sesión')
     if (bg) bg.remove(); root.classList.remove('holo-on'); root.classList.add('ses-drawer')
-    if (nuevaSes || cambioModo){ box.classList.remove('is-still'); box.classList.add('is-in'); setTimeout(function(){ box.classList.remove('is-in') },520) }
+    if (nuevaSes || cambioModo){ box.classList.remove('is-still'); box.classList.add('is-in'); setTimeout(function(){ box.classList.remove('is-in') },520)
+      requestAnimationFrame(function(){ try{   // c285 · pantallas bajas (notebook): sube la ficha para que la tarjeta quede a la vista sobre la bandeja
+        const tc=document.querySelector('#vFicha .tc[data-sid="'+SCD.open+'"], #vFicha .tc[data-xk="'+SCD.open+'"]'); if(!tc) return
+        const r=tc.getBoundingClientRect(), tope=window.innerHeight-box.offsetHeight-parseFloat(getComputedStyle(box).bottom||14)-12
+        if (r.bottom>tope) window.scrollBy({ top:Math.min(r.bottom-tope, r.top-((parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--ks-top'))||60)+70)), behavior:'smooth' }) }catch(_){} }) }
   }
   SCD._last=SCD.open; SCD._lm=SCD.modo
 }
