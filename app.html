@@ -4416,6 +4416,16 @@ html.en-av body{background:transparent}
 .avx.on .avx__pgd.on .avx__ch .vl,.avx__pgd.on .avx__ch .vl{transition:opacity .3s 1.3s;opacity:1}
 .avx__pgd.on .avx__ch .ln{transition:stroke-dashoffset 1.2s .1s cubic-bezier(.6,0,.2,1);stroke-dashoffset:0}
 .avx__pgd.on .avx__ch .ar{transition:opacity .6s .9s;opacity:1}.avx__pgd.on .avx__ch .dt{transition:opacity .3s;transition-delay:calc(.2s + var(--i) * .12s);opacity:1}
+
+/* c272 · sin Δ: un destello central nace con el primer golpe, se va abriendo con la subida, se comprime en la tensión y en el DROP se abre en la esfera */
+.kpx__wd{position:absolute;inset:0;border-radius:50%;opacity:0;z-index:1;pointer-events:none;background:radial-gradient(circle,#FFFFFF 0,#FFFFFF 30%,#E3E3E3 50%,rgba(227,227,227,.35) 62%,rgba(227,227,227,0) 72%)}
+.kpx.on .kpx__wd{animation:kpxWd 2.4s linear both}
+@keyframes kpxWd{0%{opacity:0;transform:scale(.02)} 1.5%{opacity:1;transform:scale(.1)} 6%{transform:scale(.07)} 12.5%{transform:scale(.15)} 17%{transform:scale(.12)}
+  24%{transform:scale(.24)} 40%{transform:scale(.45)} 56%{opacity:.95;transform:scale(.74)} 61%{transform:scale(.66)} 64%{transform:scale(.7)}
+  70%{opacity:1;transform:scale(.52);filter:brightness(1.3)} 72.5%{opacity:1;transform:scale(.64)} 77%{opacity:0;transform:scale(1.15)} 100%{opacity:0;transform:scale(1.15)}}
+@keyframes kpxFl{0%{opacity:0;transform:scale(.2)} 1.5%{opacity:.45;transform:scale(.35)} 10%{opacity:.15;transform:scale(.9)} 24%{opacity:.04;transform:scale(1)} 72%{opacity:.04} 74%{opacity:.7;transform:scale(1.1)} 87%{opacity:0;transform:scale(1.6)} 100%{opacity:0}}
+@keyframes kpxOrb{0%,71%{opacity:0;transform:scale(.6)} 76%{opacity:1;transform:scale(1.06)} 84%{transform:scale(.98)} 100%{opacity:1;transform:scale(1)}}
+.kpx__tri{display:none}
 </style>
 </head>
 <body>
@@ -5876,7 +5886,7 @@ function kxPR(pr, alFin){ const ov=document.getElementById('kxDone'); if(!ov) re
   ov.innerHTML='<div class="kpx__fl" aria-hidden="true"></div>'+
     '<div class="kpx__top"><img src="/img/brand/logotipo-koach.png" alt="KOACH"><span>'+fch+' · KOACH CLUB</span></div>'+
     '<span class="kpx__k">PERSONAL RECORD</span>'+
-    '<div class="kpx__c"><i class="kpx__halo" aria-hidden="true"></i><i class="kpx__tri" aria-hidden="true"></i><i class="kpx__orb" aria-hidden="true"></i>'+
+    '<div class="kpx__c"><i class="kpx__halo" aria-hidden="true"></i><i class="kpx__wd" aria-hidden="true"></i><i class="kpx__orb" aria-hidden="true"></i>'+
       '<svg class="kpx__rot" viewBox="0 0 300 300"><circle cx="150" cy="150" r="146" fill="none" stroke="#FFFFFF" stroke-width="1.6" stroke-linecap="round" stroke-dasharray="120 798"></circle><circle cx="150" cy="150" r="146" fill="none" stroke="rgba(255,255,255,.22)" stroke-width="1"></circle></svg>'+
       '<button type="button" class="kpx__go" id="kxPrOk" aria-label="'+(alFin?'Ver mi sesión':'Continuar mi rutina')+'"><i></i></button></div>'+
     '<div class="kpx__n"><b>'+num+'</b><em>'+uni+(pr.hoy.reps?' × '+pr.hoy.reps+' REPS':'')+'</em><span class="kpx__tt">TOCA PARA '+(alFin?'VER TU SESIÓN':'CONTINUAR')+'</span></div>'+
