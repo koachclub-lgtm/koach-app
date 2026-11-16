@@ -10834,7 +10834,7 @@ document.addEventListener('DOMContentLoaded', async ()=>{
       <button type="button" class="kset__gi" onclick="ksElegir('mov')"><img src="/img/share/plantilla-mov.webp" alt="Plantilla Movimiento" width="720" height="1280" loading="lazy" decoding="async"><b>MOVIMIENTO</b><small>Foto en barrido: se ve la energía, no la cara</small></button>
       <button type="button" class="kset__gi" onclick="ksElegir('ton')"><img src="/img/share/plantilla-ton.webp" alt="Plantilla Tonelaje" width="720" height="1280" loading="lazy" decoding="async"><b>TONELAJE</b><small>Tus kilos en vertical sobre tu foto</small></button>
       <button type="button" class="kset__gi" onclick="ksElegir('min')"><img src="/img/share/plantilla-min.webp" alt="Plantilla Minimalist" width="720" height="1280" loading="lazy" decoding="async"><b>MINIMALIST</b><small>Solo tu foto, tu sesión y el logo</small></button>
-      <button type="button" class="kset__gi" onclick="ksElegir('min2')"><img src="/img/share/plantilla-min2.webp" alt="Plantilla Minimalist II" width="720" height="1280" loading="lazy" decoding="async"><b>MINIMALIST II</b><small>El logo arriba y tu sesión abajo en la esquina</small></button>
+      <button type="button" class="kset__gi" onclick="ksElegir('min2')"><img src="/img/share/plantilla-min2.webp" alt="Plantilla Minimalist II" width="720" height="1280" loading="lazy" decoding="async"><b>MINIMALIST II</b><small>El logo arriba al centro y tu sesión abajo en la esquina</small></button>
     </div>
     <div class="kset__opts" id="ksOFoto" hidden>
       <div class="kset__row"><span>ESTILO</span><button type="button" class="kset__chip" data-ks="estilo" data-v="editorial" aria-pressed="true">EDITORIAL</button><button type="button" class="kset__chip" data-ks="estilo" data-v="ticket" aria-pressed="false">TICKET</button><button type="button" class="kset__chip" data-ks="estilo" data-v="mapa" aria-pressed="false">MAPA</button><button type="button" class="kset__chip" data-ks="estilo" data-v="dia" aria-pressed="false">DÍA</button><button type="button" class="kset__chip" data-ks="estilo" data-v="scan" aria-pressed="false">ESCÁNER</button><button type="button" class="kset__chip" data-ks="estilo" data-v="mov" aria-pressed="false">MOVIMIENTO</button><button type="button" class="kset__chip" data-ks="estilo" data-v="ton" aria-pressed="false">TONELAJE</button><button type="button" class="kset__chip" data-ks="estilo" data-v="min" aria-pressed="false">MINIMALIST</button><button type="button" class="kset__chip" data-ks="estilo" data-v="min2" aria-pressed="false">MINIMALIST II</button><button type="button" class="kset__chip" onclick="ksAjustarActual()">AJUSTAR FOTO</button><label class="kset__chip">CAMBIAR FOTO<input type="file" id="ksFoto2" accept="image/*"></label></div>
@@ -11755,14 +11755,14 @@ function kaTonDatos(j) {
   return null;
 }
 // c289 · MINIMALIST: tu foto nítida con el filtro elegido; solo SESSION n/N arriba a la izquierda y el logo abajo al centro, dentro de los márgenes de Instagram
-function kaMin(ctx, trans, inv) {   // inv (MINIMALIST II): logo arriba a la izquierda, SESSION abajo en la esquina izquierda
+function kaMin(ctx, trans, inv) {   // inv (MINIMALIST II): logo arriba al centro, SESSION abajo en la esquina izquierda
   const W = KT.W, H = KT.H, j = KS.data || {}, B = '#FFFFFF'
   ctx.clearRect(0, 0, W, H)
   if (!trans && KS.foto) ctx.drawImage(kmFoto(), 0, 0)
   const sh = (b) => { ctx.shadowColor = 'rgba(0,0,0,' + (trans ? 0 : .35) + ')'; ctx.shadowBlur = b }
   ctx.save(); sh(10); ctx.fillStyle = B; ctx.textAlign = 'left'; ctx.textBaseline = inv ? 'alphabetic' : 'top'; ctx.font = "700 34px 'Space Mono', 'IBM Plex Mono', monospace"; if ('letterSpacing' in ctx) ctx.letterSpacing = '10px'
   ctx.fillText(ksSesTxt(j) || 'SESSION', KS_SAFE_X, inv ? H - KS_SAFE_B - 20 : KS_SAFE_T + 20); if ('letterSpacing' in ctx) ctx.letterSpacing = '0px'; ctx.restore()
-  ctx.save(); sh(14); const lg = kaLogo(B); if (lg) { const h = 50, w = lg.width * h / lg.height; if (inv) ctx.drawImage(lg, KS_SAFE_X, KS_SAFE_T + 20, w, h); else ctx.drawImage(lg, (W - w) / 2, H - KS_SAFE_B - h - 20, w, h) } ctx.restore()
+  ctx.save(); sh(14); const lg = kaLogo(B); if (lg) { const h = 50, w = lg.width * h / lg.height; if (inv) ctx.drawImage(lg, (W - w) / 2, KS_SAFE_T + 20, w, h); else ctx.drawImage(lg, (W - w) / 2, H - KS_SAFE_B - h - 20, w, h) } ctx.restore()
 }
 function kaTon(ctx, trans) {
   const W = KT.W, H = KT.H, j = KS.data || {}, d = kaDatos(), B = '#FFFFFF', T = kaTonDatos(j) || {};
