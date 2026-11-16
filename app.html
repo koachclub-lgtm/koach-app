@@ -10833,9 +10833,10 @@ document.addEventListener('DOMContentLoaded', async ()=>{
       <button type="button" class="kset__gi" onclick="ksElegir('scan')"><img src="/img/share/plantilla-scan.webp" alt="Plantilla Escáner" width="720" height="1280" loading="lazy" decoding="async"><b>ESCÁNER</b><small>Tu cuerpo detectado y una ficha con tus datos</small></button>
       <button type="button" class="kset__gi" onclick="ksElegir('mov')"><img src="/img/share/plantilla-mov.webp" alt="Plantilla Movimiento" width="720" height="1280" loading="lazy" decoding="async"><b>MOVIMIENTO</b><small>Foto en barrido: se ve la energía, no la cara</small></button>
       <button type="button" class="kset__gi" onclick="ksElegir('ton')"><img src="/img/share/plantilla-ton.webp" alt="Plantilla Tonelaje" width="720" height="1280" loading="lazy" decoding="async"><b>TONELAJE</b><small>Tus kilos en vertical sobre tu foto</small></button>
+      <button type="button" class="kset__gi" onclick="ksElegir('min')"><img src="/img/share/plantilla-min.webp" alt="Plantilla Minimalist" width="720" height="1280" loading="lazy" decoding="async"><b>MINIMALIST</b><small>Solo tu foto, tu sesión y el logo</small></button>
     </div>
     <div class="kset__opts" id="ksOFoto" hidden>
-      <div class="kset__row"><span>ESTILO</span><button type="button" class="kset__chip" data-ks="estilo" data-v="editorial" aria-pressed="true">EDITORIAL</button><button type="button" class="kset__chip" data-ks="estilo" data-v="ticket" aria-pressed="false">TICKET</button><button type="button" class="kset__chip" data-ks="estilo" data-v="mapa" aria-pressed="false">MAPA</button><button type="button" class="kset__chip" data-ks="estilo" data-v="dia" aria-pressed="false">DÍA</button><button type="button" class="kset__chip" data-ks="estilo" data-v="scan" aria-pressed="false">ESCÁNER</button><button type="button" class="kset__chip" data-ks="estilo" data-v="mov" aria-pressed="false">MOVIMIENTO</button><button type="button" class="kset__chip" data-ks="estilo" data-v="ton" aria-pressed="false">TONELAJE</button><button type="button" class="kset__chip" onclick="ksAjustarActual()">AJUSTAR FOTO</button><label class="kset__chip">CAMBIAR FOTO<input type="file" id="ksFoto2" accept="image/*"></label></div>
+      <div class="kset__row"><span>ESTILO</span><button type="button" class="kset__chip" data-ks="estilo" data-v="editorial" aria-pressed="true">EDITORIAL</button><button type="button" class="kset__chip" data-ks="estilo" data-v="ticket" aria-pressed="false">TICKET</button><button type="button" class="kset__chip" data-ks="estilo" data-v="mapa" aria-pressed="false">MAPA</button><button type="button" class="kset__chip" data-ks="estilo" data-v="dia" aria-pressed="false">DÍA</button><button type="button" class="kset__chip" data-ks="estilo" data-v="scan" aria-pressed="false">ESCÁNER</button><button type="button" class="kset__chip" data-ks="estilo" data-v="mov" aria-pressed="false">MOVIMIENTO</button><button type="button" class="kset__chip" data-ks="estilo" data-v="ton" aria-pressed="false">TONELAJE</button><button type="button" class="kset__chip" data-ks="estilo" data-v="min" aria-pressed="false">MINIMALIST</button><button type="button" class="kset__chip" onclick="ksAjustarActual()">AJUSTAR FOTO</button><label class="kset__chip">CAMBIAR FOTO<input type="file" id="ksFoto2" accept="image/*"></label></div>
       <div class="kset__row"><span>FILTRO</span><button type="button" class="kset__chip" data-ks="filtro" data-v="frio" aria-pressed="true">DRAMÁTICO FRÍO</button><button type="button" class="kset__chip" data-ks="filtro" data-v="drama" aria-pressed="false">DRAMÁTICO</button><button type="button" class="kset__chip" data-ks="filtro" data-v="plata" aria-pressed="false">PLATA</button></div>
       <div class="kset__row" data-solo="senalador"><span>RUTA</span><button type="button" class="kset__chip" data-ks="ruta" data-v="auto" aria-pressed="true">AUTO</button><button type="button" class="kset__chip" data-ks="ruta" data-v="DIAG" aria-pressed="false">DIAGONAL</button><button type="button" class="kset__chip" data-ks="ruta" data-v="L" aria-pressed="false">L</button><button type="button" class="kset__chip" data-ks="ruta" data-v="GAMMA" aria-pressed="false">Γ</button><button type="button" class="kset__chip" data-ks="ruta" data-v="ELBOW" aria-pressed="false">CODO</button></div>
       <div class="kset__row" data-solo="senalador"><span>MARCA</span><button type="button" class="kset__chip" data-ks="mira" data-v="circulo" aria-pressed="true">MIRA</button><button type="button" class="kset__chip" data-ks="mira" data-v="cuadro" aria-pressed="false">MARCO</button></div>
@@ -11180,13 +11181,14 @@ function ksPintar() {
     else if (KS.estilo === 'ticket') { kmAsegurar(); kaTicket(ctx) }
     else if (KS.estilo === 'dia') { kmAsegurar(); kaDia(ctx) }
     else if (KS.estilo === 'ton') kaTon(ctx, false)
+    else if (KS.estilo === 'min') kaMin(ctx, false)
     else if (KS.estilo === 'scan') { kmAsegurar(); kaScan(ctx) }
     else if (KS.estilo === 'mov') { kmAsegurar(); kaMov(ctx) }
     else if (KS.estilo === 'cara') { kmAsegurar(); kaCara(ctx) }
     else if (KS.estilo === 'visor') { kmAsegurar(); kaVisor(ctx) }
     else if (KS.estilo === 'tarjeta') KT.renderImagen(ctx, d, kmFoto(), { nitida: true });
     else { if (!KS.target) KS.target = ksTargetSugerido(); KT.renderSenalador(ctx, d, 'auto', 'izq', 1, 'media', KS.mira, { fondo: kmFoto(), target: KS.target, ruta: KS.ruta }) }
-  } else if (KS.estilo === 'ton') kaTon(ctx, true); else kaCaptura(ctx, true);
+  } else if (KS.estilo === 'ton') kaTon(ctx, true); else if (KS.estilo === 'min') kaMin(ctx, true); else kaCaptura(ctx, true);
   ksEl('ksOFoto').hidden = !(KS.formato === 'foto' && KS.foto);
   document.querySelectorAll('#ksOFoto [data-solo]').forEach(r => r.hidden = KS.estilo !== r.dataset.solo);
   ksEl('ksOTr').hidden = true;
@@ -11749,6 +11751,16 @@ function kaTonDatos(j) {
     KS._ton = { reg: j.registro_id, ok: true, serie, nej: ej.size }; if (KS.estilo === 'ton') ksPintar()
   }, () => {});
   return null;
+}
+// c289 · MINIMALIST: tu foto nítida con el filtro elegido; solo SESSION n/N arriba a la izquierda y el logo abajo al centro, dentro de los márgenes de Instagram
+function kaMin(ctx, trans) {
+  const W = KT.W, H = KT.H, j = KS.data || {}, B = '#FFFFFF'
+  ctx.clearRect(0, 0, W, H)
+  if (!trans && KS.foto) ctx.drawImage(kmFoto(), 0, 0)
+  const sh = (b) => { ctx.shadowColor = 'rgba(0,0,0,' + (trans ? 0 : .35) + ')'; ctx.shadowBlur = b }
+  ctx.save(); sh(10); ctx.fillStyle = B; ctx.textAlign = 'left'; ctx.textBaseline = 'top'; ctx.font = "700 34px 'Space Mono', 'IBM Plex Mono', monospace"; if ('letterSpacing' in ctx) ctx.letterSpacing = '10px'
+  ctx.fillText(ksSesTxt(j) || 'SESSION', KS_SAFE_X, KS_SAFE_T + 20); if ('letterSpacing' in ctx) ctx.letterSpacing = '0px'; ctx.restore()
+  ctx.save(); sh(14); const lg = kaLogo(B); if (lg) { const h = 50, w = lg.width * h / lg.height; ctx.drawImage(lg, (W - w) / 2, H - KS_SAFE_B - h - 20, w, h) } ctx.restore()
 }
 function kaTon(ctx, trans) {
   const W = KT.W, H = KT.H, j = KS.data || {}, d = kaDatos(), B = '#FFFFFF', T = kaTonDatos(j) || {};
