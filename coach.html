@@ -3131,9 +3131,15 @@ html.en-plan[data-fprog="plan"] #vPlan.plDesk .plSesBar button{min-height:46px !
 .plTools{position:relative;display:inline-flex}
 .plTools__b{display:inline-flex;align-items:center;gap:8px}
 .plTools__b i{font-style:normal;transition:transform .25s ease}.plTools.open .plTools__b i{transform:rotate(180deg)}
-.plTools__m{position:absolute;right:0;top:calc(100% + 10px);z-index:60;min-width:260px;display:flex;flex-direction:column;gap:6px;padding:10px;border-radius:22px;background:rgba(18,19,21,.88);border:1px solid rgba(244,243,240,.16);box-shadow:0 30px 70px rgba(0,0,0,.5),inset 0 1px 0 rgba(255,255,255,.12);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);transform-origin:90% 0;animation:kFloat .32s cubic-bezier(.16,.9,.24,1) both}
+.plTools__m{position:absolute;right:0;top:calc(100% + 10px);z-index:60;min-width:360px;display:flex;flex-direction:column;gap:8px;padding:12px;border-radius:22px;background:rgba(18,19,21,.88);border:1px solid rgba(244,243,240,.16);box-shadow:0 30px 70px rgba(0,0,0,.5),inset 0 1px 0 rgba(255,255,255,.12);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);transform-origin:90% 0;animation:kFloat .32s cubic-bezier(.16,.9,.24,1) both}
 .plTools__m[hidden]{display:none}
-.plTools__m button{width:100%;justify-content:flex-start !important;text-align:left}
+.plTools__m button{width:100%;justify-content:flex-start !important;text-align:left;min-height:62px !important;padding:0 24px !important;font-size:14px !important;letter-spacing:.08em !important;opacity:0;animation:holoRow .35s cubic-bezier(.2,.8,.2,1) both}
+.plTools__m button:nth-child(1){animation-delay:.06s}.plTools__m button:nth-child(2){animation-delay:.1s}.plTools__m button:nth-child(3){animation-delay:.14s}.plTools__m button:nth-child(4){animation-delay:.18s}.plTools__m button:nth-child(5){animation-delay:.22s}
+.plTools__m button:hover{border-color:#F4F3F0 !important}
+html.en-plan[data-fprog="plan"] #vPlan.plDesk .plTools__m .mOcul{display:inline !important}
+html.en-plan[data-fprog="plan"] #vPlan .plTools__m button,html.en-plan[data-fprog="plan"] #vPlan .plTools__m button.ink{background:#26282B !important;color:#F4F3F0 !important;border:1px solid #3D4044 !important}
+html.en-plan[data-fprog="plan"] #vPlan .plTools__m button.ink::after{display:none}
+html.en-plan[data-fprog="plan"] #vPlan .plTools__m button:hover,html.en-plan[data-fprog="plan"] #vPlan .plTools__m button:focus-visible{background:#F4F3F0 !important;color:#000 !important;border-color:#F4F3F0 !important;outline:none}
 @keyframes kFloat{from{opacity:0;transform:translateY(-8px) scale(.92);filter:blur(6px)}to{opacity:1;transform:none;filter:none}}
 /* cabecera del tablero más justa */
 html.en-plan[data-fprog="plan"] #vPlan.plDesk .tbHead{margin:2px 0 6px !important;gap:10px !important}
@@ -9729,7 +9735,9 @@ document.addEventListener('click',function(e){ const t=e.target; if (t.closest &
 function plHerr(){
   if (document.documentElement.getAttribute('data-fprog')!=='plan') return
   const bar=document.getElementById('plSesBar'); if(!bar || bar.querySelector('.plTools')) return
-  const mov=[...bar.querySelectorAll(':scope > button')].filter(function(b){ const o=b.getAttribute('onclick')||''; return !/dsModo|piaAbrir/.test(o) })
+  const mov=[...bar.querySelectorAll(':scope > button')].filter(function(b){ const o=b.getAttribute('onclick')||''; return !/dsModo/.test(o) })
+  mov.sort(function(a,b){ return (/piaAbrir/.test(b.getAttribute('onclick')||'')?1:0)-(/piaAbrir/.test(a.getAttribute('onclick')||'')?1:0) })
+  mov.forEach(function(b){ if (/piaAbrir/.test(b.getAttribute('onclick')||'')) b.innerHTML='● PLANIFICAR IA' })
   if (mov.length<2) return
   const w=document.createElement('div'); w.className='plTools'
   w.innerHTML='<button type="button" class="plTools__b" aria-haspopup="menu" aria-expanded="false">HERRAMIENTAS <i aria-hidden="true">▾</i></button><div class="plTools__m" role="menu" hidden></div>'
