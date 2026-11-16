@@ -3422,6 +3422,13 @@ html[data-fprog] #vFicha .tcRes.is-visor .tcE em{color:rgba(244,243,240,.75);fon
 html[data-fprog] #vFicha .tc:has(.tc__body[aria-expanded="true"]){border-color:var(--fp-cfg) !important;box-shadow:0 0 0 1px var(--fp-cfg),0 16px 34px rgba(0,0,0,.28) !important;transform:translateY(-3px)}
 html.fx-edit #vFicha .tcRes.is-visor{display:none !important}
 @media (prefers-reduced-motion:reduce){ html[data-fprog] #vFicha .tcRes.is-visor.is-anim,html[data-fprog] #vFicha .tcRes.is-visor.is-anim .tcB{animation:none} }
+/* ═══ c280 · CABECERA DE LA FICHA SIN SOLAPE: la identidad se va con el scroll; solo la barra de botones queda fija, sólida, en el color del programa ═══ */
+html[data-fprog] #vFicha .mh{position:relative !important;top:auto !important}
+html[data-fprog] #vFicha .mh.mh--pin{padding-bottom:var(--fp-barh,56px) !important}
+html[data-fprog] #vFicha .mh.mh--pin .mh__bar{position:fixed;z-index:30;top:calc(var(--ks-top,60px) + 8px);left:var(--fp-barl,16px);width:var(--fp-barw,auto);margin:0 !important;
+  background:var(--fp-pb);box-shadow:0 0 0 1px var(--fp-cln),0 14px 30px rgba(0,0,0,.32);backdrop-filter:none;-webkit-backdrop-filter:none;animation:fpPin .28s cubic-bezier(.2,.8,.2,1) both}
+@keyframes fpPin{from{opacity:0;transform:translateY(-10px)}to{opacity:1;transform:none}}
+@media (prefers-reduced-motion:reduce){ html[data-fprog] #vFicha .mh.mh--pin .mh__bar{animation:none} }
 /* ═══ c267 · TRANSICIÓN ENTRE VENTANAS: zoom de entrada al profundizar y de salida al volver ═══ */
 @keyframes kvIn{from{opacity:0;transform:scale(.94);filter:blur(6px)}to{opacity:1;transform:none;filter:none}}
 @keyframes kvOut{from{opacity:0;transform:scale(1.06);filter:blur(6px)}to{opacity:1;transform:none;filter:none}}
@@ -10543,9 +10550,22 @@ function mhAcciones(){
 function pfMenu(b){ const m=b.nextElementSibling, ab=m.hidden
   document.querySelectorAll('.pfMenu').forEach(function(x){ x.hidden=true }); m.hidden=!ab; b.setAttribute('aria-expanded',String(ab))
   if (ab) setTimeout(function(){ document.addEventListener('click', function f(e){ if(!m.contains(e.target)&&e.target!==b){ m.hidden=true; b.setAttribute('aria-expanded','false') } document.removeEventListener('click',f) }) },0) }
+// c280 · fija solo la barra de botones cuando su lugar natural sale de la pantalla (con hueco reservado → sin saltos)
+function fpPin(mh){ mh=mh||document.querySelector('#vFicha .mh'); if(!mh) return; const bar=mh.querySelector('.mh__bar'); if(!bar) return
+  mh.classList.remove('mh--mini')
+  const root=document.documentElement, ks=parseFloat(getComputedStyle(root).getPropertyValue('--ks-top'))||60
+  const pin=mh.classList.contains('mh--pin'), r=mh.getBoundingClientRect()
+  const barH=pin ? (parseFloat(root.style.getPropertyValue('--fp-barh'))||56) : bar.offsetHeight
+  const natTop=r.bottom-barH   // donde estaría la barra en su sitio
+  const debe=document.getElementById('vFicha').classList.contains('on') && natTop < ks+8
+  if (debe){ root.style.setProperty('--fp-barl', r.left+'px'); root.style.setProperty('--fp-barw', r.width+'px') }
+  if (debe && !pin){ root.style.setProperty('--fp-barh', (bar.offsetHeight+parseFloat(getComputedStyle(bar).marginTop||0))+'px'); mh.classList.add('mh--pin') }
+  else if (!debe && pin) mh.classList.remove('mh--pin') }
+window.addEventListener('resize', function(){ if (document.documentElement.hasAttribute('data-fprog')) fpPin() }, {passive:true})
 // v4 · cabecera compacta al bajar en la ficha (con histéresis para que no salte)
 window.addEventListener('scroll', function(){ const v=document.getElementById('vFicha'); if(!v||!v.classList.contains('on')) return
   const mh=v.querySelector('.mh'); if(!mh) return; const y=window.scrollY
+  if (document.documentElement.hasAttribute('data-fprog')){ fpPin(mh); return }   // c280: ficha temática → sin cabecera pegajosa
   if (!mh.classList.contains('mh--mini') && y>260) mh.classList.add('mh--mini'); else if (mh.classList.contains('mh--mini') && y<120) mh.classList.remove('mh--mini') }, {passive:true})
 document.addEventListener('keydown', function(e){ if(e.key!=='Escape') return
   document.querySelectorAll('.pfMenu:not([hidden])').forEach(function(m){ m.hidden=true; const b=m.previousElementSibling; if(b){ b.setAttribute('aria-expanded','false'); b.focus() } }) })
