@@ -3564,6 +3564,28 @@ html.fx-carga #vFicha .tc.is-on .tc__body,html.fx-carga #vFicha .tc.is-open .tc_
 @keyframes fxPulso{from{filter:brightness(1)}to{filter:brightness(1.18)}}
 html.fx-carga #vFicha{cursor:progress}
 @media (prefers-reduced-motion:reduce){ html.fx-carga::after,html.fx-carga #vFicha .tc__body{animation:none} }
+/* ═══ c289 · resumen siempre visible y compacto bajo las tarjetas · menú + SESIÓN ═══ */
+html[data-fprog] #vFicha .tcRes.is-visor{padding:16px 20px 18px !important;border-radius:24px}
+html[data-fprog] #vFicha .tcRes.is-visor .tcRes__h{padding-bottom:12px;align-items:center}
+html[data-fprog] #vFicha .tcRes.is-visor .tcRes__h b{font-size:clamp(24px,2.6vw,34px)}
+html[data-fprog] #vFicha .tcRes.is-visor .tbB{height:42px;min-height:42px;padding:0 16px}
+html[data-fprog] #vFicha .tcRes.is-visor .tcRes__g{grid-template-columns:repeat(var(--nb,3),minmax(0,1fr));gap:10px;padding-top:12px}
+html[data-fprog] #vFicha .tcRes.is-visor .tcB{padding:10px 12px;border-radius:16px}
+html[data-fprog] #vFicha .tcRes.is-visor .tcE{padding:5px 0;font-size:13.5px;gap:8px}
+html[data-fprog] #vFicha .tcRes.is-visor .tcE span{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+html[data-fprog] #vFicha .tcRes.is-visor .tcE em{flex:none;font-size:11px}
+html[data-fprog] #vFicha .tcRes.is-visor.is-swap .tcRes__h b,html[data-fprog] #vFicha .tcRes.is-visor.is-swap .tcB{animation:fpSwap .36s cubic-bezier(.2,.8,.2,1) both}
+html[data-fprog] #vFicha .tcRes.is-visor.is-swap .tcB:nth-child(2){animation-delay:.04s}html[data-fprog] #vFicha .tcRes.is-visor.is-swap .tcB:nth-child(3){animation-delay:.08s}html[data-fprog] #vFicha .tcRes.is-visor.is-swap .tcB:nth-child(4){animation-delay:.12s}
+@keyframes fpSwap{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+@media (max-width:760px){ html[data-fprog] #vFicha .tcRes.is-visor .tcRes__g{grid-template-columns:minmax(0,1fr)} html[data-fprog] #vFicha .tcRes.is-visor .tcRes__h{flex-direction:column;align-items:stretch} }
+@media (prefers-reduced-motion:reduce){ html[data-fprog] #vFicha .tcRes.is-visor.is-swap *{animation:none !important} }
+html[data-fprog] .scMenu a{min-height:54px !important;border-radius:999px !important;color:#F4F3F0 !important;font:700 12.5px 'Space Mono',monospace !important;letter-spacing:.08em;padding:0 20px !important}html[data-fprog] .scMenu a:hover{background:rgba(255,255,255,.08)}html[data-fprog] .scMenu hr{border-top-color:rgba(244,243,240,.14)}html[data-fprog] .scMenu button:first-child{background:rgba(255,255,255,.06)}
+.fpAddM{position:fixed;z-index:9600;width:min(360px,calc(100vw - 16px));display:flex;flex-direction:column;gap:6px;padding:8px;border-radius:22px;background:linear-gradient(160deg,#1C1D20,#000);border:1px solid rgba(244,243,240,.16);box-shadow:0 24px 60px rgba(0,0,0,.45);animation:fpPin .26s cubic-bezier(.2,.8,.2,1) both}
+.fpAddM button{display:flex;flex-direction:column;align-items:flex-start;gap:4px;text-align:left;padding:14px 16px;border-radius:16px;border:1px solid rgba(244,243,240,.12);background:rgba(255,255,255,.04);color:#F4F3F0;cursor:pointer}
+.fpAddM button:hover,.fpAddM button:focus-visible{background:rgba(255,255,255,.1);outline:none}
+.fpAddM b{font:700 12px 'Space Mono',monospace;letter-spacing:.08em}
+.fpAddM button:last-child b{color:#3EC6B0}
+.fpAddM small{font:400 11px/1.4 'Archivo',system-ui,sans-serif;color:rgba(244,243,240,.62)}
 /* ═══ c280 · CABECERA DE LA FICHA SIN SOLAPE: la identidad se va con el scroll; solo la barra de botones queda fija, sólida, en el color del programa ═══ */
 html[data-fprog] #vFicha .mh{position:relative !important;top:auto !important}
 html[data-fprog] #vFicha .mh.mh--pin{padding-bottom:var(--fp-barh,56px) !important}
@@ -3783,8 +3805,8 @@ textarea.avz__in{min-height:70px;resize:vertical}
   <div id="fTabCmp" style="display:none"></div>
   <div class="fxBar" id="fxBar" aria-label="Editor de sesiones">
     <div class="fxBar__t"><small>EDITOR DE SESIONES · <span id="fxSem">—</span></small><b id="fxNom">—</b></div>
-    <button type="button" class="fxB" onclick="fxSesOpc()">··· SESIÓN</button>
-    <button type="button" class="fxB" onclick="fxAddSes()">+ SESIÓN</button>
+    <button type="button" class="fxB" onclick="fxSesOpc()" title="Cambiar nombre, duplicar o eliminar esta sesión">✎ NOMBRE Y AJUSTES</button>
+    <button type="button" class="fxB" onclick="fxAddSes()" title="Agregar una sesión fija a la pauta de la semana">+ AGREGAR SESIÓN</button>
     <button type="button" class="fxB fxB--x" onclick="fxCerrar()">✕ CERRAR EDITOR</button>
   </div>
   <div id="fTabEnt">
@@ -9244,7 +9266,7 @@ function fpSemPintar(st, ses, ed){
   let seg=''; for (let i=1;i<=Math.min(tot,12);i++) seg+='<i class="'+(i<=sem?'on':'')+'"></i>'
   const mov=ses.filter(function(z){return !scEsFija(z)}).length>1
   el.innerHTML='<span class="fpP">SEM '+(sem||'—')+(tot?'/'+tot:'')+(seg?'<span class="fpP__seg" aria-hidden="true">'+seg+'</span>':'')+'</span>'+
-    '<button type="button" class="fpP fpP--tq" onclick="verExtra()" title="Diseñar una sesión extra">+ EXTRA'+(ed?' · '+ed:'')+'</button>'+
+    '<button type="button" class="fpP fpP--tq" onclick="fpAgregar(event,this)" aria-haspopup="menu" title="Agregar una sesión fija a la pauta o una sesión extra">+ SESIÓN'+(ed?' · '+ed+' ★':'')+' ▾</button>'+
     '<div class="plTools fpTools"><button type="button" class="fpP plTools__b" aria-haspopup="menu" aria-expanded="false" onclick="fpHerr(event,this)">HERRAMIENTAS <i aria-hidden="true">▾</i></button><div class="plTools__m fpTools__m" role="menu" hidden>'+
       '<button type="button" role="menuitem" onclick="fpHerrIr(function(){fichaCargas()})">HISTORIAL DE CARGAS<small>último peso por ejercicio</small></button>'+
       '<button type="button" role="menuitem" onclick="fpHerrIr(function(){gpAbrir()})">GESTIONAR PROGRAMA<small>cambiar · nuevo ciclo</small></button>'+
@@ -10204,7 +10226,8 @@ function scEstadoExtra(e){
 const SC_ISO='<svg class="tc__iso" viewBox="40 180 790 795" aria-hidden="true" focusable="false"><rect x="52" y="190" width="768" height="162" fill="currentColor"/><polygon points="52,757 438,415 818,752 818,950 438,615 52,962" fill="currentColor"/></svg>'
 function scPintar(){
   { const _st=SC.st||{}, _ss=_st.sesiones||[]; if (SC.sid!==SCD._sid){ SCD._sid=SC.sid; SCD.open=null; SCD._last=null }
-  }  // c282: ninguna sesión abierta por defecto — se toca la tarjeta para ver el resumen
+    if (!SCD.open && _ss.length){ const hb=_st.habilitada, x=_ss.find(function(z){return z.estado==='en_curso'}) || (hb&&!hb.extra&&_ss.find(function(z){return z.id===hb.sesion_id})) || _ss.find(function(z){return z.estado!=='completada'&&z.estado!=='suspendida'}) || _ss[_ss.length-1]; if(x) SCD.open=x.id }
+  }  // c289: la sesión de hoy queda seleccionada y su rutina siempre visible bajo las tarjetas
   const st=SC.st||{}, el=document.getElementById('scCard'); if(!el||!st.activo){ if(el) el.innerHTML=''; return }
   if (SCB.org){ scPintarOrg(); return }
   const ab=st.abiertas||[], px=st.proxima, hb=st.habilitada, ses=st.sesiones||[]
@@ -10251,34 +10274,19 @@ function scPintar(){
 }
 function scAbrirRes(id){ scMenuCerrar()
   if (!id) return
-  if (SCD.open===id){ if (SCD.modo==='full') scResMin(); else holoCerrar(); return }
-  SCD.open=id; SCD.modo='drawer'; scPintar() }
+  if (SCD.open===id) return
+  SCD.open=id; SCD.modo='inline'; scPintar() }
 // c282 · bandeja → expandido (zoom desde la tarjeta) → bandeja
 function scResFull(){ if (!SCD.open) return; SCD.modo='full'; const b=document.getElementById('tcRes'); if(b) b.classList.remove('is-still','is-in'); holoSync() }
 function scResMin(){ if (!SCD.open) return; s4Son('scan-paso',0.5); SCD.modo='drawer'; holoSync() }
 // ═══ c265 · RUTINA HOLOGRAMA: el resumen de la sesión se proyecta al frente y la ficha queda atrás ═══
-function holoSync(){   // c282: resumen en BANDEJA abajo (sin salir de la ficha) o EXPANDIDO al frente (holograma)
+function holoSync(){   // c289: resumen de la sesión siempre visible bajo las tarjetas; tocar otra tarjeta solo cambia el contenido
   const box=document.getElementById('tcRes'), root=document.documentElement
-  let bg=document.getElementById('holoBg')
-  if (!SCD.open || !box){ root.classList.remove('holo-on','ses-drawer'); if(bg) bg.remove(); SCD._last=null; return }
-  if (box.parentNode!==document.body) document.body.appendChild(box)
-  const full=SCD.modo==='full', nuevaSes=SCD._last!==SCD.open, cambioModo=SCD._lm!==SCD.modo
-  box.classList.remove('is-visor','is-anim','is-out'); box.classList.toggle('is-holo',full); box.classList.toggle('is-drawer',!full)
-  if (full){
-    box.setAttribute('role','dialog'); box.setAttribute('aria-modal','true'); box.setAttribute('aria-label','Rutina de la sesión')
-    if (!bg){ bg=document.createElement('div'); bg.id='holoBg'; bg.setAttribute('aria-hidden','true'); bg.onclick=function(){ scResMin() }; document.body.insertBefore(bg, box) }
-    root.classList.remove('ses-drawer'); root.classList.add('holo-on')
-    if (nuevaSes || cambioModo){ box.classList.remove('is-still'); s4Son('appear',0.8); setTimeout(function(){ s4Son('datos',0.55) },380) } else box.classList.add('is-still')
-  } else {
-    box.setAttribute('role','region'); box.removeAttribute('aria-modal'); box.setAttribute('aria-label','Resumen de la sesión')
-    if (bg) bg.remove(); root.classList.remove('holo-on'); root.classList.add('ses-drawer')
-    if (nuevaSes || cambioModo){ box.classList.remove('is-still'); box.classList.add('is-in'); setTimeout(function(){ box.classList.remove('is-in') },520)
-      requestAnimationFrame(function(){ try{   // c285 · pantallas bajas (notebook): sube la ficha para que la tarjeta quede a la vista sobre la bandeja
-        const tc=document.querySelector('#vFicha .tc[data-sid="'+SCD.open+'"], #vFicha .tc[data-xk="'+SCD.open+'"]'); if(!tc) return
-        const r=tc.getBoundingClientRect(), tope=window.innerHeight-box.offsetHeight-parseFloat(getComputedStyle(box).bottom||14)-12
-        if (r.bottom>tope) window.scrollBy({ top:Math.min(r.bottom-tope, r.top-((parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--ks-top'))||60)+70)), behavior:'auto' }) }catch(_){} }) }
-  }
-  SCD._last=SCD.open; SCD._lm=SCD.modo
+  root.classList.remove('holo-on','ses-drawer'); const bg=document.getElementById('holoBg'); if(bg) bg.remove()
+  if (!SCD.open || !box) return
+  box.classList.remove('is-drawer','is-holo','is-anim','is-out'); box.classList.add('is-visor'); box.setAttribute('role','region'); box.setAttribute('aria-label','Rutina de la sesión'); box.setAttribute('aria-live','polite')
+  if (SCD._last && SCD._last!==SCD.open){ box.classList.add('is-swap'); setTimeout(function(){ box.classList.remove('is-swap') },420); try{ s4Son('datos',0.45) }catch(_){} }
+  SCD._last=SCD.open
 }
 function holoCerrar(silencio){
   const box=document.querySelector('body > .tcRes'), bg=document.getElementById('holoBg')
@@ -10757,11 +10765,11 @@ function mhAcciones(){
     const url=x&&x.abrir?urlRutina(id):urlPlan(id)
     el.innerHTML='<a class="pfB pfB--ink" href="'+url+'" onclick="return rtIr(event,\''+url+'\')">'+(x&&x.enCurso?'SESIÓN EN CURSO →':'RUTINA DE HOY →')+'</a>'+
       '<a class="pfB" href="'+urlPlan(id)+'" onclick="return rtIr(event,\''+urlPlan(id)+'\')">PLANIFICADOR</a>'+
-      '<button type="button" class="pfB pfB--x" onclick="verExtra()" title="Diseñar una sesión extra para este socio">+ EXTRA</button>'+
+      '<button type="button" class="pfB pfB--x" onclick="fpAgregar(event,this)" aria-haspopup="menu" title="Agregar una sesión a la pauta o una sesión extra">+ SESIÓN ▾</button>'+
       '<button type="button" class="pfB pfB--wa" onclick="wsp()" aria-label="WhatsApp"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M3.5 20.5l1.3-4A8.5 8.5 0 1 1 8 19.6l-4.5.9z"/><path d="M9 8.5c0 3.5 3 6.5 6.5 6.5l1.2-1.6-2-1-1 .8c-1.1-.5-2-1.4-2.5-2.5l.8-1-1-2L9 8.5z"/></svg></button>'+
       '<button type="button" class="pfB pfB--bell" id="fSolBtn" onclick="socSolAbrir()" aria-label="Solicitudes"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M6 16V11a6 6 0 0 1 12 0v5l1.5 2h-15z"/><path d="M10 20.5a2 2 0 0 0 4 0"/></svg><span class="pfBadge" id="fSolBadge" hidden></span></button>'+
       '<div class="pfMenuW"><button type="button" class="pfB pfB--ico" onclick="pfMenu(this)" aria-label="Más acciones de '+plEsc(nomDe(id))+'" aria-haspopup="menu" aria-expanded="false">···</button><div class="pfMenu pfMenu--r" role="menu" hidden>'+
-      '<button role="menuitem" onclick="verExtra()">DESIGNAR SESIÓN EXTRA ★</button><button role="menuitem" onclick="wsp()">WHATSAPP'+(((C.socios||[]).find(function(s){return s.id===id})||{}).telefono?' · '+plEsc(((C.socios||[]).find(function(s){return s.id===id})||{}).telefono):'')+'</button></div></div>'
+      '<button role="menuitem" onclick="fxAgregarFija()">AGREGAR SESIÓN A LA PAUTA</button><button role="menuitem" onclick="verExtra()">AGREGAR SESIÓN EXTRA ★</button><button role="menuitem" onclick="wsp()">WHATSAPP'+(((C.socios||[]).find(function(s){return s.id===id})||{}).telefono?' · '+plEsc(((C.socios||[]).find(function(s){return s.id===id})||{}).telefono):'')+'</button></div></div>'
   } else {
     el.innerHTML='<button type="button" class="pfB pfB--ink" onclick="admFormPago()">REGISTRAR PAGO</button><button type="button" class="pfB" onclick="admFormDatos()">EDITAR DATOS</button>'+
       '<div class="pfMenuW"><button type="button" class="pfB pfB--ico" onclick="pfMenu(this)" aria-label="Más acciones de '+plEsc(nomDe(id))+'" aria-haspopup="menu" aria-expanded="false">···</button><div class="pfMenu pfMenu--r" role="menu" hidden>'+
@@ -10871,6 +10879,21 @@ async function avzSemSet(dia, cambio){
 async function avzSemTodos(on){ for (const d of (AVZ.sem||[])) if (d.activo!==on) await avzSemSet(d.dia,{ activo:on }) }
 async function avzHistCargar(){ const r=await sb.from('push_envios').select('*').order('created_at',{ascending:false}).limit(40); AVZ.hist=r.error?{ error:'No se pudo leer el historial' }:(r.data||[]); if(AVZ.tab==='hist') avzPintar() }
 function avzSocioFicha(){ if (!F) return; avzAbrir({ id:F.id, nombre:((document.getElementById('fNombre')||{}).textContent||'').trim() }) }
+
+// c289 · AGREGAR SESIÓN desde la ficha: dos caminos claros
+function fpAgregar(ev,b){ ev.stopPropagation(); const prev=document.getElementById('fpAddM'); if(prev){ prev.remove(); return }
+  s4Son('appear',0.6)
+  const m=document.createElement('div'); m.id='fpAddM'; m.className='plTools fpAddM'; m.setAttribute('role','menu')
+  m.innerHTML='<button type="button" role="menuitem" onclick="fpAddIr(fxAgregarFija)"><b>FIJA EN LA PAUTA</b><small>Se suma a la semana y al resto del ciclo · cuenta en sus sesiones principales</small></button>'+
+    '<button type="button" role="menuitem" onclick="fpAddIr(verExtra)"><b>EXTRA ★ ADICIONAL</b><small>Queda disponible aparte · no suma a las principales de la semana</small></button>'
+  document.body.appendChild(m); const r=b.getBoundingClientRect(), w=m.offsetWidth
+  m.style.left=Math.max(8,Math.min(window.innerWidth-w-8, r.left))+'px'; m.style.top=(r.bottom+8)+'px'
+  setTimeout(function(){ document.addEventListener('pointerdown', function f(e){ if(!e.target.closest('#fpAddM')){ const x=document.getElementById('fpAddM'); if(x) x.remove(); document.removeEventListener('pointerdown',f,true) } }, true) },0) }
+function fpAddIr(fn){ const x=document.getElementById('fpAddM'); if(x) x.remove(); s4Son('scan-paso',0.6); try{ fn() }catch(e){ console.error(e) } }
+function fxAgregarFija(){ if (!F) return; const id=F.id
+  if (document.getElementById('vPlan').classList.contains('on') && P){ fxAddSes(); return }
+  rtIr(null, urlPlan(id)); let n=0
+  ;(function esperar(){ if (++n>60) return; if (P && document.getElementById('vPlan').classList.contains('on') && !document.documentElement.classList.contains('fx-carga')) return fxAddSes(); setTimeout(esperar,150) })() }
 // c280 · fija solo la barra de botones cuando su lugar natural sale de la pantalla (con hueco reservado → sin saltos)
 function fpPin(mh){ mh=mh||document.querySelector('#vFicha .mh'); if(!mh) return; const bar=mh.querySelector('.mh__bar'); if(!bar) return
   mh.classList.remove('mh--mini')
@@ -11113,18 +11136,17 @@ function scMenu(ev,key){
     const z=(st.sesiones||[]).find(function(x){return x.id===key}); if(!z) return
     const ab=st.abiertas||[], reg=ab.find(function(a){return a.sesion_id===z.id}), hb=st.habilitada, esX=hb&&!hb.extra&&hb.sesion_id===z.id
     const done=z.estado==='completada', susp=z.estado==='suspendida', curso=z.estado==='en_curso', u='#/socio/'+F.id+'/plan?w='+st.semana+'&s='+z.id
-    I('VER RESUMEN','scAbrirRes(\''+z.id+'\')')
-    it.push('<a role="menuitem" href="'+u+'" onclick="scMenuCerrar();return rtIr(event,\''+u+'\')">ABRIR / EDITAR RUTINA</a>')
     const regC=curso?(ab.find(function(a){return a.sesion_id===z.id && !a.abandonada})||reg):null   // c126 · EN CURSO ya no deja al coach sin salida
     if (reg && reg.abandonada && !curso){ it.push('<hr>'); resolver(reg); it.push('<hr>') }
     else if (regC){ it.push('<hr>'); resolver(regC); it.push('<hr>') }
-    else if (!done && !susp && !curso && z.estado!=='incompleta' && z.estado!=='sin_cerrar') I(esX?'QUITAR HABILITACIÓN':'HABILITAR AHORA', esX?'scAccion(\'quitar_habilitacion\')':'scHabilitarConf(\''+z.id+'\')')
-    it.push('<hr>')
+    else if (!done && !susp && !curso && z.estado!=='incompleta' && z.estado!=='sin_cerrar') I(esX?'QUITAR HABILITACIÓN':'HABILITAR HOY', esX?'scAccion(\'quitar_habilitacion\')':'scHabilitarConf(\''+z.id+'\')')
     I('CAMBIAR NOMBRE','scRenombrar(\''+z.id+'\')')
-    if (scMovible(z)) I('MOVER ↕','scOrgEntrar(\''+z.id+'\')')
-    I(done?'REPETIR COMO EXTRA ★':'DESIGNAR COMO EXTRA ★','scDesignarExtra(\''+z.id+'\')')
+    if (scMovible(z)) I('POSTERGAR · CAMBIAR ORDEN ↕','scOrgEntrar(\''+z.id+'\')')
+    if (!done && !curso && !(reg&&reg.abandonada) && z.estado!=='incompleta') I(susp?'REANUDAR ESTA SEMANA':'SALTAR ESTA SEMANA','scSuspender(\''+z.id+'\','+(!susp)+')')
+    it.push('<hr>')
+    it.push('<a role="menuitem" href="'+u+'" onclick="scMenuCerrar();return rtIr(event,\''+u+'\')">✎ EDITAR RUTINA</a>')
     I('DUPLICAR','scDuplicar(\''+z.id+'\')')
-    if (!done && !curso && !(reg&&reg.abandonada) && z.estado!=='incompleta') I(susp?'REANUDAR ESTA SEMANA':'SUSPENDER ESTA SEMANA','scSuspender(\''+z.id+'\','+(!susp)+')')
+    I(done?'REPETIR COMO EXTRA ★':'PASAR A EXTRA ★','scDesignarExtra(\''+z.id+'\')')
   }
   const m=document.createElement('div'); m.id='scMenu'; m.className='pfMenu scMenu'; m.setAttribute('role','menu'); m.dataset.k=key; m.innerHTML=it.join('')
   document.body.appendChild(m)
