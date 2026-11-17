@@ -189,14 +189,26 @@ Deno.serve(async (req) => {
     if (body.accion === "cotizar" || body.accion === "iniciar" || !body.accion) {
       if (!(await autoHabilitado(uid))) return j({ error: NO_DISPONIBLE, no_disponible: true }, 503);
     }
+    // c299 · oferta recurrente exclusiva (cobros_socio): reemplaza la tarifa automática para cotizar e iniciar
+    const ofertaRec = async () => {
+      if (!body.cobro_id) return null;
+      const { data: c } = await admin.from("cobros_socio").select("*").eq("id", body.cobro_id).eq("socio_id", uid).eq("estado", "pendiente").eq("recurrente", true).maybeSingle();
+      if (!c) return undefined;
+      const { data: tg } = await admin.rpc("tarifa_auto_de", { p_socio: uid });
+      return { monto: c.monto, periodo_meses: c.duracion_valor, permanencia_meses: c.permanencia_meses || 0, cupon_monto: null, personalizada: true,
+        tipo_comercial: c.tipo_comercial, precio_lista: tg?.precio_lista || 80000, concepto: c.concepto, cobro_id: c.id };
+    };
     if (body.accion === "cotizar") {
-      const { data: t } = await admin.rpc("tarifa_auto_de", { p_socio: uid });
+      const of = await ofertaRec();
+      if (of === undefined) return j({ error: "Esta oferta ya no está disponible" }, 400);
+      const { data: tAuto } = of ? { data: null } : await admin.rpc("tarifa_auto_de", { p_socio: uid });
+      const t = of || tAuto;
       const { data: acc } = await admin.rpc("_flow_fin_acceso", { p_socio: uid });
       const hoy = hoyCL(), primero = acc && acc > hoy ? acc : hoy;
       const perm = t?.permanencia_meses || 0, per = t?.periodo_meses || 1;
       return j({ monto: t.monto, precio_lista: t.precio_lista * per, personalizada: !!t.personalizada, permanencia_meses: perm, periodo_meses: per,
         primer_cobro: primero, permanencia_hasta: perm ? masMeses(primero, perm) : null, descuento_mensual: Math.max(0, t.precio_lista * per - t.monto),
-        cupon_monto: Number(t.cupon_monto) > 0 ? Number(t.cupon_monto) : null, primer_mes: Number(t.cupon_monto) > 0 ? t.monto - Number(t.cupon_monto) : null });
+        cupon_monto: Number(t.cupon_monto) > 0 ? Number(t.cupon_monto) : null, primer_mes: Number(t.cupon_monto) > 0 ? t.monto - Number(t.cupon_monto) : null, concepto: t.concepto || null });
     }
 
     // desactivar sin costo (sin permanencia o permanencia cumplida) — cl. 4.4 / 4.10
@@ -235,7 +247,10 @@ Deno.serve(async (req) => {
 
     // iniciar — exige autorización expresa (cl. 4.1) y, si hay permanencia, su aceptación (cl. 4.9)
     if (viva && viva.estado !== "registrando_tarjeta") return j({ error: "Ya tienes el pago automático activo" }, 400);
-    const { data: t } = await admin.rpc("tarifa_auto_de", { p_socio: uid });
+    const of = await ofertaRec();
+    if (of === undefined) return j({ error: "Esta oferta ya no está disponible" }, 400);
+    const { data: tAuto } = of ? { data: null } : await admin.rpc("tarifa_auto_de", { p_socio: uid });
+    const t = of || tAuto;
     if (!t?.monto || t.monto < 350) return j({ error: "Pago automático no disponible" }, 400);
     const perm = t.permanencia_meses || 0, per = t.periodo_meses || 1;
     const periodicidad = per === 1 ? "mensual" : "cada " + per + " meses";
@@ -267,9 +282,9 @@ Deno.serve(async (req) => {
     const couponId = cupon ? await cuponFlow(cupon) : null;
     const reg = await flow("POST", "customer/register", { customerId, url_return: HOOK + "?t=card" + (body.volver === "regreso" ? "&v=regreso" : "") });
     await admin.from("flow_suscripciones").insert({
-      socio_id: uid, plan_id: null, plan_nombre: per === 1 ? "MENSUAL RECURRENTE" : "RECURRENTE CADA " + per + " MESES", monto: t.monto, duracion_valor: per,
+      socio_id: uid, plan_id: null, plan_nombre: (of && of.concepto) ? String(of.concepto).toUpperCase().slice(0, 60) : per === 1 ? "MENSUAL RECURRENTE" : "RECURRENTE CADA " + per + " MESES", monto: t.monto, duracion_valor: per,
       flow_plan_id: flowPlan, flow_customer_id: customerId, email, register_token: reg.token, tipo_comercial: t.tipo_comercial || "promocion",
-      permanencia_meses: perm, precio_lista: t.precio_lista * per, cupon_monto: cupon, flow_coupon_id: couponId,
+      permanencia_meses: perm, precio_lista: t.precio_lista * per, cupon_monto: cupon, flow_coupon_id: couponId, cobro_id: of ? of.cobro_id : null,
       autorizacion: { texto: "Autorizo el cobro automático de mi membresía", monto: t.monto, periodicidad, periodo_meses: per, permanencia_meses: perm,
         acepto_permanencia: perm > 0, primer_cobro_con_cupon: cupon ? t.monto - cupon : null, origen: servicio ? "link regreso (Jake)" : "app", tyc: ver?.valor?.version || "v2.0", at: ahora(), ua: (servicio && body.ua) || req.headers.get("user-agent") || null,
         ip: (servicio && body.ip) || (req.headers.get("x-forwarded-for") || "").split(",")[0] || null },

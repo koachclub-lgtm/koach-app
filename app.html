@@ -10439,7 +10439,8 @@ async function flowFn(body, fn){
 }
 async function flowPagar(){
   let planes=[], cobros=[], auto=null
-  try{ const d=await flowFn({ accion:'planes' }); planes=d.planes||[]; cobros=d.cobros||[]; auto=d.auto||null }catch(e){ toast(e.message); return }
+  let exclusivo=false
+  try{ const d=await flowFn({ accion:'planes' }); planes=d.planes||[]; cobros=d.cobros||[]; auto=d.auto||null; exclusivo=!!d.exclusivo }catch(e){ toast(e.message); return }
   if (S.flowSusc && S.flowSusc.estado==='activa'){ cobros=cobros.filter(c=>!c.recurrente); auto=null }
   if (!planes.length && !cobros.length && !auto){ toast('No hay planes disponibles para pago en línea'); return }
   const $=n=>'$'+(+n).toLocaleString('es-CL'), dur=p=>p.duracion_tipo==='mes'?(p.duracion_valor===1?'1 MES':p.duracion_valor+' MESES'):p.duracion_tipo==='semana'?'1 SEMANA':'1 DÍA'
@@ -10459,9 +10460,11 @@ async function flowPagar(){
   const ANIO=String(new Date().getFullYear()%100).padStart(4,'0'), TIPOS={ AUTO:1, UNI:2, TAR:3 }
   const codigo=(tipo,meses)=>({ txt:ANIO+'-KCH-'+tipo+'-'+String(meses||1).padStart(3,'0'), bar:ANIO+TIPOS[tipo]+String(meses||1).padStart(3,'0') })
   const ops=[]
-  cobros.forEach(c=>ops.push({ k:'c'+c.id, tipo:'cobro', id:c.id, rec:!!c.recurrente, titulo:c.concepto||'Membresía '+dur(c), det:dur(c)+(c.recurrente?' · Pago automático':' · Pago único'),
-    precio:c.monto, sufijo:c.recurrente?'/MES':'', tag:'TU TARIFA KOACH', cod:codigo('TAR', c.duracion_tipo==='mes'?c.duracion_valor:1), tarjetas: c.recurrente?['visa','mastercard','amex']:['visa','mastercard','amex','redcompra'] }))
-  if (auto) ops.push({ k:'auto', tipo:'auto', rec:true, titulo:'Mensual recurrente', det:'Crédito, débito o prepago · '+(auto.permanencia_meses?'Permanencia '+auto.permanencia_meses+' meses':'Sin permanencia'),
+  cobros.forEach(c=>{ const m=c.duracion_tipo==='mes'?c.duracion_valor:0, ah=!c.recurrente&&m>1?Math.max(0,lista*m-c.monto):0
+    ops.push({ k:'c'+c.id, tipo:'cobro', id:c.id, rec:!!c.recurrente, titulo:c.concepto||'Membresía '+dur(c),
+    det:(c.recurrente?(m>1?'Cada '+m+' meses':'Cada mes')+' · Pago automático'+(c.permanencia_meses?' · Permanencia '+c.permanencia_meses+' meses':' · Sin permanencia'):dur(c)+' · Pago único'),
+    precio:c.monto, sufijo:c.recurrente?(m>1?'/'+m+' MESES':'/MES'):'', nota: !c.recurrente&&m>1 ? 'Equivale a '+$(Math.round(c.monto/m))+'/mes' : '', tag: ah ? 'OFERTA EXCLUSIVA · AHORRAS '+$(ah) : 'OFERTA EXCLUSIVA', cod:codigo('TAR', c.duracion_tipo==='mes'?c.duracion_valor:1), tarjetas: c.recurrente?['visa','mastercard','amex']:['visa','mastercard','amex','redcompra'] }) })
+  if (auto) ops.push({ k:'auto', tipo:'auto', rec:true, titulo:auto.personalizada&&auto.permanencia_meses?'Fidelidad '+auto.permanencia_meses+' meses':'Mensual recurrente', det:'Crédito, débito o prepago · '+(auto.permanencia_meses?'Permanencia '+auto.permanencia_meses+' meses':'Sin permanencia'), primer:auto.primer_mes||null,
     precio:auto.monto, sufijo:'/MES', tachado: auto.monto<lista ? lista : null, tag: auto.personalizada?'TARIFA EXCLUSIVA':null, dark:true,
     cod:codigo('AUTO', auto.permanencia_meses||1), tarjetas:['visa','mastercard','amex'] })
   planes.forEach(p=>{ const m=p.duracion_tipo==='mes'?p.duracion_valor:0, eq=m>1?Math.round(p.precio/m):0, ah=m>1?Math.max(0,lista*m-p.precio):0
@@ -10470,7 +10473,7 @@ async function flowPagar(){
   const NFC=ic('<path d="M8.5 8.5a5 5 0 0 1 0 7M11.5 6a8.5 8.5 0 0 1 0 12M14.5 3.5a12 12 0 0 1 0 17"/>')
   const secBk=o=>{ if(!o) return ''
     const perm=auto.permanencia_meses||0, n=perm||12
-    return '<div class="kCk__k">PAGO RECURRENTE</div>'+
+    return '<div class="kCk__k">'+(exclusivo?'OFERTA EXCLUSIVA PARA TI':'PAGO RECURRENTE')+'</div>'+
       '<button type="button" class="kCk__bk" role="radio" aria-checked="false" data-k="'+o.k+'" aria-label="Mensual recurrente '+$(o.precio)+' al mes">'+
         '<div><div class="kCk__bkTop"><span class="kCk__bkLogo" aria-hidden="true"></span>'+(o.tag?'<span class="kCk__bkTag">'+plEscA(o.tag)+'</span>':'<span class="kCk__bkK">BLACK · MEMBERSHIP</span>')+'</div>'+
         '<div class="kCk__bkMid"><span class="kCk__chip" aria-hidden="true"></span><span class="kCk__nfc" aria-hidden="true">'+NFC+'</span></div>'+
@@ -10480,6 +10483,7 @@ async function flowPagar(){
       '</button>'+
       '<div class="kCk__spec">'+
         '<div><span>Cobros recurrentes</span><b>'+(perm?n+' COBROS · 1 CADA MES':'1 CADA MES')+'</b></div>'+
+        (o.primer?'<div><span>Primer mes</span><b>'+$(o.primer)+'</b></div>':'')+
         '<div><span>Valor mensual</span><b>'+$(o.precio)+' AL MES</b></div>'+
         '<div><span>Permanencia</span><b>'+(perm?perm+' MESES':'SIN PERMANENCIA')+'</b></div>'+
         '<div><span>Aviso previo</span><b>5 DÍAS ANTES DE CADA COBRO</b></div>'+
@@ -10497,8 +10501,8 @@ async function flowPagar(){
       '<div class="kCk__club">KOACH CLUB</div><h2 class="kCk__t">Membership</h2>'+
       '<div class="kCk__meta"><span>PASO <b>1</b> DE 2 · ELIGE TU MEMBRESÍA</span><span>PAGO SEGURO</span></div></header>'+
     '<div class="kCk__body">'+
-      sec('TU TARIFA', ops.filter(o=>o.tipo==='cobro'))+
       secBk(ops.find(o=>o.tipo==='auto'))+
+      sec(exclusivo?'OTRAS OFERTAS PARA TI':'TU TARIFA', ops.filter(o=>o.tipo==='cobro'))+
       sec('PAGO ÚNICO', ops.filter(o=>o.tipo==='plan'))+
       '<div class="kCk__conf">'+
         '<div>'+SHIELD+'<span><b>PAGO PROCESADO POR FLOW</b>, plataforma de pagos chilena. Tus datos viajan cifrados.</span></div>'+
@@ -10517,18 +10521,19 @@ async function flowPagar(){
   const go=bg.querySelector('#ckGo')
   const pintar=()=>{ bg.querySelectorAll('.kCk__op,.kCk__bk').forEach(b=>b.setAttribute('aria-checked', String(!!sel && b.dataset.k===sel.k)))
     if(!sel){ go.disabled=true; go.textContent='ELIGE UNA OPCIÓN'; return }
-    bg.querySelector('#ckTotK').textContent = sel.rec ? 'MENSUAL RECURRENTE' : 'TOTAL A PAGAR'
+    bg.querySelector('#ckTotK').textContent = sel.rec ? (sel.sufijo&&sel.sufijo!=='/MES'?'RECURRENTE'+sel.sufijo.replace('/',' CADA '):'MENSUAL RECURRENTE') : 'TOTAL A PAGAR'
     bg.querySelectorAll('.kCk__bkSel').forEach(x=>x.lastChild.textContent = sel.tipo==='auto' ? 'ELEGIDA' : 'ELEGIR')
     bg.querySelector('#ckTot').textContent = $(sel.precio)
-    bg.querySelector('#ckTotS').textContent = sel.rec ? 'Se cobra cada mes' : sel.det.split(' · ')[0]+' · pago único'
+    bg.querySelector('#ckTotS').textContent = sel.rec ? (sel.primer?'Primer mes '+$(sel.primer)+' · luego cada mes':sel.sufijo&&sel.sufijo!=='/MES'?'Se cobra'+sel.sufijo.replace('/',' cada ').toLowerCase():'Se cobra cada mes') : sel.det.split(' · ')[0]+' · pago único'
     go.disabled=false; go.innerHTML = (sel.rec ? 'CONTINUAR' : 'PAGAR '+$(sel.precio))+' '+ic('<path d="M5 12h14M13 6l6 6-6 6"/>') }
   bg.querySelectorAll('.kCk__op,.kCk__bk').forEach(b=>b.onclick=()=>{ sel=ops.find(o=>o.k===b.dataset.k); pintar() })
-  sel = ops.find(o=>o.tipo==='cobro') || ops.find(o=>o.tipo==='auto') || null; pintar()
+  sel = (exclusivo && ops.find(o=>o.tipo==='auto')) || ops.find(o=>o.tipo==='cobro') || ops.find(o=>o.tipo==='auto') || null; pintar()
   const fin=()=>bg.remove()
   bg.querySelector('.kCk__x').onclick=fin
   go.onclick=async()=>{
     if(!sel) return
     if (sel.tipo==='auto'){ fin(); return flowAutoAutorizar() }
+    if (sel.tipo==='cobro' && sel.rec){ fin(); return flowAutoAutorizar(sel.id) }
     go.disabled=true; go.textContent='CONECTANDO CON FLOW…'
     try{
       const d = sel.tipo==='cobro'
@@ -10695,8 +10700,8 @@ async function flowSuscCancelar(b){
   catch(e){ kAviso('NO SE PUDO COMPLETAR\n'+e.message,'PAGO AUTOMÁTICO'); b.disabled=false; b.textContent=sl.en?'SOLICITAR TÉRMINO':'DESACTIVAR PAGO AUTOMÁTICO' }
 }
 // T&C v2.0 cl. 4.1 · antes de registrar la tarjeta: monto, periodicidad, fechas, permanencia y autorización expresa
-async function flowAutoAutorizar(){
-  let c; try{ c=await flowFn({ accion:'cotizar' }, 'flow-suscripcion') }catch(e){ toast(e.message); return }
+async function flowAutoAutorizar(cobroId){
+  let c; try{ c=await flowFn(cobroId?{ accion:'cotizar', cobro_id:cobroId }:{ accion:'cotizar' }, 'flow-suscripcion') }catch(e){ toast(e.message); return }
   const $=n=>'$'+(+n).toLocaleString('es-CL'), hoy=fLocal(new Date()), perm=c.permanencia_meses>0, per=c.periodo_meses||1
   const cada=per===1?'AL MES':'CADA '+per+' MESES', ahorro=Math.max(0,(c.precio_lista||0)-c.monto)
   const chkL=(id,txt)=>'<label class="kAu__chk"><input type="checkbox" id="'+id+'"><span class="kAu__box" aria-hidden="true"></span><span>'+txt+'</span></label>'
@@ -10704,7 +10709,7 @@ async function flowAutoAutorizar(){
   try{ const u=kbgURL('grafito'); if(u) bg.style.background=u+' center/cover no-repeat, #141517' }catch(_){}   // c225 · fondo grafito de marca, no negro plano
   bg.innerHTML='<div class="kAu__top"><span class="kAu__logo" role="img" aria-label="KOACH"></span><button type="button" class="kAu__x" aria-label="Cerrar">✕</button></div>'+
     '<div class="kAu__body">'+
-      '<div class="kAu__k">PAGO AUTOMÁTICO'+(c.personalizada?' · <b>TARIFA EXCLUSIVA</b>':'')+'</div>'+
+      '<div class="kAu__k">PAGO AUTOMÁTICO'+(c.personalizada?' · <b>'+(cobroId?'OFERTA EXCLUSIVA':'TARIFA EXCLUSIVA')+'</b>':'')+'</div>'+
       (ahorro>0?'<div class="kAu__lista">'+$(c.precio_lista)+'</div>':'')+
       '<div class="kAu__precio'+($(c.monto).length>7?' kAu__precio--l':'')+'">'+$(c.monto)+'</div>'+
       '<div class="kAu__cada">'+cada+'</div>'+
@@ -10722,7 +10727,7 @@ async function flowAutoAutorizar(){
   bg.querySelectorAll('input[type=checkbox]').forEach(x=>x.onchange=chk)
   bg.querySelector('.kAu__x').onclick=fin; bg.querySelector('.kAu__no').onclick=fin
   go.onclick=async()=>{ go.disabled=true; go.textContent='CONECTANDO CON FLOW…'
-    try{ const d=await flowFn({ accion:'iniciar', autorizo:true, acepto_permanencia:perm, monto_visto:c.monto }, 'flow-suscripcion'); location.href=d.url }
+    try{ const d=await flowFn(Object.assign({ accion:'iniciar', autorizo:true, acepto_permanencia:perm, monto_visto:c.monto }, cobroId?{ cobro_id:cobroId }:{}), 'flow-suscripcion'); location.href=d.url }
     catch(e){ toast(e.message); go.disabled=false; go.textContent='REGISTRAR TARJETA' } }
   document.documentElement.style.overflow='hidden'; document.body.appendChild(bg)
 }

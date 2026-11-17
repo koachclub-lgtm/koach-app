@@ -29,12 +29,16 @@ Deno.serve(async (req) => {
     if (body.accion === "planes") {
       const { data } = await admin.from("planes").select("id,nombre,precio,duracion_tipo,duracion_valor,hora_limite").eq("activo", true).eq("en_linea", true).gte("precio", 350).order("precio");
       const { data: auto } = await admin.rpc("tarifa_auto_de", { p_socio: u.user.id });
-      const { data: cobros } = await admin.from("cobros_socio").select("id,monto,duracion_tipo,duracion_valor,tipo_comercial,recurrente,concepto,created_at").eq("socio_id", u.user.id).eq("estado", "pendiente").order("created_at", { ascending: false });
+      const { data: cobros } = await admin.from("cobros_socio").select("id,monto,duracion_tipo,duracion_valor,tipo_comercial,recurrente,concepto,permanencia_meses,created_at").eq("socio_id", u.user.id).eq("estado", "pendiente").order("created_at", { ascending: true });
       // Pago automático solo si config_pagos.pago_automatico.habilitado = true (Flow exige contrato de cargo automático).
       const { data: cfg } = await admin.from("config_pagos").select("valor").eq("clave", "pago_automatico").maybeSingle();
       const autoOn = cfg?.valor?.habilitado === true || (Array.isArray(cfg?.valor?.prueba) && cfg.valor.prueba.includes(u.user.id));
-      return j({ planes: data || [], cobros: (cobros || []).filter((c: { recurrente: boolean }) => autoOn || !c.recurrente),
-        auto: autoOn && auto ? { monto: auto.monto, personalizada: !!auto.personalizada, permanencia_meses: auto.permanencia_meses || 0, precio_lista: auto.precio_lista || null } : null, auto_habilitado: autoOn });
+      const cob = (cobros || []).filter((c: { recurrente: boolean }) => autoOn || !c.recurrente);
+      // c299 · ofertas exclusivas: si el admin le asignó tarifa propia u ofertas, el socio ve SOLO esas (no el catálogo general)
+      const exclusivo = cob.length > 0 || !!(autoOn && auto?.personalizada);
+      return j({ planes: exclusivo ? [] : (data || []), cobros: cob, exclusivo,
+        auto: autoOn && auto ? { monto: auto.monto, personalizada: !!auto.personalizada, permanencia_meses: auto.permanencia_meses || 0, precio_lista: auto.precio_lista || null,
+          primer_mes: Number(auto.cupon_monto) > 0 ? auto.monto - Number(auto.cupon_monto) : null } : null, auto_habilitado: autoOn });
     }
     if (body.accion === "estado") {
       const { data } = await admin.from("flow_ordenes").select("id,estado,plan_nombre,monto,pagada_at").eq("socio_id", u.user.id).eq("commerce_order", String(body.orden || "")).maybeSingle();

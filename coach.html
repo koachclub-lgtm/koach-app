@@ -3513,7 +3513,20 @@ html[data-fprog] #vFicha #fTabAdm #pfCobro .pfBig small{white-space:nowrap}
 html[data-fprog] #vFicha #fTabAdm #pfCobro{border-top:1px solid #3D4044;margin-top:6px}
 html[data-fprog] #vFicha #fTabAdm .pfC--pag>.pfBtns{margin-top:0}
 html[data-fprog] #vFicha #fTabAdm .pfC--pag>#pfCobro{margin-top:auto}
-.taSug{margin-top:12px}.taSug__l{display:grid;gap:8px;margin-top:8px}
+.taSug{margin-top:12px}
+html[data-fprog] #mAdm.taFull .adSheet,#mAdm.taFull .adSheet{top:0 !important;left:0 !important;transform:none !important;width:100vw !important;max-width:none !important;height:100dvh !important;max-height:none !important;border-radius:0 !important;padding:14px 24px 28px !important;overflow-y:auto;-webkit-overflow-scrolling:touch;animation:none !important}
+#mAdm.taFull .taF{display:grid;grid-template-columns:1fr;gap:16px;max-width:1280px;margin:0 auto}
+@media (min-width:900px){ #mAdm.taFull .taF{grid-template-columns:1fr 1fr;align-items:start} }
+#mAdm.taFull .taF__c{display:flex;flex-direction:column;gap:10px;border:1px solid #3D4044;border-radius:20px;padding:16px;min-width:0}
+#mAdm.taFull .taF__h b{display:block;font:700 12px 'Space Mono',monospace;letter-spacing:.14em}#mAdm.taFull .taF__h small{display:block;margin-top:4px;color:#A9ADB0;font:400 11px 'Space Mono',monospace}
+#mAdm.taFull .taF__chips{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px}
+#mAdm.taFull .taF__g2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+#mAdm.taFull .vtS{margin:0}#mAdm.taFull .vtMoney input{font-size:32px}#mAdm.taFull .vtMoney span{font-size:20px}
+#mAdm.taFull .vtMoney input::placeholder{font-size:20px;color:#6F7377}
+#mAdm.taFull .vtCh{display:flex;flex-wrap:wrap;gap:6px}
+#mAdm.taFull .taF__a{display:flex;flex-wrap:wrap;gap:8px}#mAdm.taFull .taF__a .vtGo{flex:1;min-width:200px}
+#mAdm.taFull textarea,#mAdm.taFull .vtL input{width:100%;box-sizing:border-box}
+#mAdm.taFull .adLi{display:flex;justify-content:space-between;align-items:center;gap:10px}.taSug__l{display:grid;gap:8px;margin-top:8px}
 .taSug__b{display:flex;flex-direction:column;align-items:flex-start;gap:2px;width:100%;text-align:left;padding:10px 14px;border-radius:14px;border:1px solid #3D4044;background:transparent;color:inherit;cursor:pointer;font:inherit}
 .taSug__b.is-top{border-color:#3EC6B0}
 .taSug__b b{font-family:'KOACH Display','Archivo',Arial,sans-serif;font-weight:900;font-size:20px;line-height:1.1}.taSug__b b small{font:700 10px 'Space Mono',monospace;letter-spacing:.08em;opacity:.7}
@@ -8340,7 +8353,7 @@ document.addEventListener('click',function(e){ const t=e.target; if(!t.closest |
   if (t.closest('#mAdm .vtGo')) s4Son('start',0.7)
   else if (t.closest('#mAdm .vtP, #mAdm .vtCh button, #mAdm .vtTg button, #mAdm .pfB, #mAdm .btn')) s4Son('scan-paso',0.55)
   else if (t.closest('#vFicha #fTabAdm button')) s4Son('scan-paso',0.55) },true)   // c277
-function admCerrarWide(){ const m=document.getElementById('mAdm'); if(m) m.classList.remove('adWide') }
+function admCerrarWide(){ const m=document.getElementById('mAdm'); if(m) m.classList.remove('adWide','taFull') }
 function admAbrir(tit, html){ try{ if(document.documentElement.hasAttribute('data-fprog')) s4Son('appear',0.8) }catch(_e){} document.getElementById('mAdmTit').textContent=tit; document.getElementById('mAdmBody').innerHTML=html; document.getElementById('mAdm').classList.add('vis') }
 const SOL_TIPO={postergar:'POSTERGAR', adelantar:'ADELANTAR', preview:'VISTA PREVIA', extra:'SESIÓN EXTRA'}
 const MEM_EST={activa:'ACTIVA', proxima:'PRÓXIMA A VENCER', vencida:'VENCIDA', congelada:'CONGELADA', cancelada:'CANCELADA', finalizada:'FINALIZADA', futura:'COMIENZA PRONTO'}
@@ -8951,12 +8964,14 @@ const TA={}
 async function cobroEstadoPintar(){
   const el=document.getElementById('pfCobro'); if(!el || !F || !F.id) return
   const sid=F.id
-  const [rt, rd, rs] = await Promise.all([
+  const [rt, rd, rs, rc] = await Promise.all([
     sb.from('tarifas_auto_socio').select('monto,tipo_comercial,nota,permanencia_meses,periodo_meses,cupon_monto,vence_at,actualizado_por_nombre,updated_at').eq('socio_id',sid).maybeSingle(),
     sb.from('config_pagos').select('valor').eq('clave','mensual_auto_default').maybeSingle(),
-    sb.from('flow_suscripciones').select('estado,monto,duracion_valor,tarjeta_ult4,inicio,proximo_cobro,morosa,morosa_desde,permanencia_meses,permanencia_hasta,precio_lista,cobros_pagados,termino').eq('socio_id',sid).in('estado',['activa','cancelada_fin_periodo']).order('created_at',{ascending:false}).limit(1).maybeSingle()
+    sb.from('flow_suscripciones').select('estado,monto,duracion_valor,tarjeta_ult4,inicio,proximo_cobro,morosa,morosa_desde,permanencia_meses,permanencia_hasta,precio_lista,cobros_pagados,termino').eq('socio_id',sid).in('estado',['activa','cancelada_fin_periodo']).order('created_at',{ascending:false}).limit(1).maybeSingle(),
+    sb.from('cobros_socio').select('id,monto,duracion_tipo,duracion_valor,recurrente,permanencia_meses,concepto,tipo_comercial,created_at').eq('socio_id',sid).eq('estado','pendiente').order('created_at',{ascending:true})
   ])
   if (!F || F.id!==sid) return
+  TA.cob=(rc&&rc.data)||[]
   const ind=rt&&rt.data, dv=(rd&&rd.data&&rd.data.valor)||{}, def=dv.monto||70000, su=rs&&rs.data
   TA.def=def; TA.defPerm=dv.permanencia_meses||0; TA.ind=ind||null; TA.su=su||null
   const monto=ind?ind.monto:def, perm=ind?ind.permanencia_meses:TA.defPerm, per=(ind&&ind.periodo_meses)||1, hoy=hoyISO()
@@ -8969,8 +8984,8 @@ async function cobroEstadoPintar(){
     (su && su.estado==='activa' && (su.monto!==monto || (su.duracion_valor||1)!==per) ? '<div class="pfS">⚠ Su pago automático sigue cobrando '+adCLP(su.monto)+cada(su.duracion_valor||1)+'. Para aplicar '+adCLP(monto)+cada(per)+' debe desactivarlo y volver a activarlo en su app.</div>':'')+
     (ind && ind.cupon_monto ? '<div class="pfS">PRIMER MES '+adCLP(monto-ind.cupon_monto)+' · LUEGO '+adCLP(monto)+cada(per)+'</div>':'')+
     (ind && ind.nota ? '<div class="pfS">'+adEsc(ind.nota)+'</div>':'')+
-    (su && su.estado==='activa' || !accTarifas() ? '' : taSugPintar())+
-    '<div class="pfBtns">'+(accTarifas()?'<button type="button" class="pfB" onclick="admTarifaAuto()">'+(ind?'CAMBIAR TARIFA':'ASIGNAR TARIFA EXCLUSIVA')+'</button>':'')+
+    (TA.cob.length ? '<div class="pfS">OFERTAS EXCLUSIVAS · '+TA.cob.map(ofLbl).join(' · ')+'</div>':'')+
+    '<div class="pfBtns">'+(accTarifas()?'<button type="button" class="pfB" onclick="admTarifaAuto()">OFERTA DE PLANES SUGERIDOS</button>':'')+
       (su && su.estado==='activa' && !(su.cobros_pagados>0) && su.inicio && su.inicio>hoyISO()?'<button type="button" class="pfB" onclick="admCobrarAhora()">COBRAR AHORA · PRIMER COBRO '+adF(su.inicio).toUpperCase()+'</button>':'')+
       (su && su.estado==='activa'?'<button type="button" class="pfB" onclick="admTerminarSinCobro()">'+(enPerm?'TERMINAR SIN COBRO DE SALIDA':'DESACTIVAR PAGO AUTOMÁTICO')+'</button>':'')+'</div>'
 }
@@ -9007,25 +9022,78 @@ function taSugPintar(){
       '<b>'+(o.primer?adCLP(o.primer)+' → ':'')+adCLP(o.monto)+'<small> AL MES</small></b>'+
       '<span class="taSug__s">'+why[id]+' · '+(o.perm?o.perm+' MESES':'SIN PERMANENCIA')+' · AÑO 1 '+adCLP(a1)+'</span></button>' }).join('')+'</div></div>'
 }
+function ofLbl(c){ const m=c.duracion_tipo==='mes'?c.duracion_valor:0
+  return (m?m+(m===1?' MES':' MESES'):c.duracion_valor+' '+String(c.duracion_tipo).toUpperCase())+' '+adCLP(c.monto)+(c.recurrente?(m>1?' CADA '+m+' MESES':' AL MES')+' · RECURRENTE':' · PAGO ÚNICO') }
+// c299 · OFERTA DE PLANES SUGERIDOS · pantalla completa: fidelidad 12 meses (siempre) + ofertas opcionales (pago único o recurrente)
+// El socio con oferta ve en su app SOLO estas tarifas (no el catálogo general).
+const OF_PRE={
+  tri150:{ k:'3 MESES · RECURRENTE', monto:150000, meses:3, rec:true, perm:0, concepto:'Trimestral recurrente' },
+  anual420:{ k:'12 MESES · PAGO ÚNICO', monto:420000, meses:12, rec:false, perm:0, concepto:'Anual oferta especial' },
+  sem:{ k:'6 MESES · PAGO ÚNICO', monto:300000, meses:6, rec:false, perm:0, concepto:'Semestral oferta especial' }
+}
 function admTarifaAuto(pre){
   if (!accTarifas()){ toast('Solo la cuenta admin de Matías puede asignar tarifas'); return }
-  TA.monto=TA.ind?TA.ind.monto:TA.def; TA.tc=TA.ind?TA.ind.tipo_comercial:null; TA.perm=TA.ind?TA.ind.permanencia_meses:TA.defPerm; TA.per=1   // c216 · solo cobro mensual; el tipo de venta lo deduce el servidor del monto
+  TA.monto=TA.ind?TA.ind.monto:TA.def; TA.tc=TA.ind?TA.ind.tipo_comercial:null; TA.perm=TA.ind?TA.ind.permanencia_meses:TA.defPerm; TA.per=1
   TA.primer=TA.ind&&TA.ind.cupon_monto?TA.ind.monto-TA.ind.cupon_monto:null; TA.notaPre=null
+  if (!TA.ind && !pre){ const sg=taSegmento(); pre=taOferta(sg.ids[0]==='cap39'||sg.ids[0]==='valle29'?sg.ids[0]:(sg.ids.indexOf('fid59')>-1?'fid59':sg.ids[0])) }
   if (pre){ TA.monto=pre.monto; TA.primer=pre.primer||null; TA.perm=pre.perm; TA.tc=pre.tc||null; TA.notaPre=pre.nota||null }
-  admAbrir('PAGO AUTOMÁTICO · '+nomDe(F.id).toUpperCase(),
-    '<div class="vtS"><div class="vtK" id="taMK">MONTO POR COBRO</div><label class="vtMoney"><span>$</span><input inputmode="numeric" id="taM" oninput="taMonto(this.value)"></label>'+
-      '<div class="vtSub">Tarifa general: '+adCLP(TA.def)+' · Este socio verá en su app el valor que guardes aquí.</div></div>'+
-    '<div class="vtS"><div class="vtK">PRIMER MES · OPCIONAL</div><label class="vtMoney"><span>$</span><input inputmode="numeric" id="taP1" placeholder="Igual a la tarifa" oninput="taPrimer(this.value)"></label>'+
-      '<div class="vtSub" id="taP1N">Déjalo vacío si el primer mes cobra lo mismo.</div></div>'+
-    '<div class="vtS"><div class="vtK">PERMANENCIA</div><div class="vtCh" id="taPe"><button type="button" data-v="0" onclick="taPerm(0)">SIN PERMANENCIA</button><button type="button" data-v="12" onclick="taPerm(12)">12 MESES</button></div>'+
-      '<div class="vtNote" id="taPeN"></div></div>'+
-    '<div class="vtS"><div class="vtK">OBSERVACIONES · OPCIONAL</div><label class="vtL"><textarea id="taN" maxlength="240" rows="3" placeholder="Motivo del precio especial (ej: convenio con su empresa, recuperación de socio antiguo)">'+adEsc(TA.notaPre||(TA.ind&&TA.ind.nota)||'')+'</textarea></label></div>'+
-    (TA.su && TA.su.estado==='activa' ? '<div class="vtNote">Este socio ya tiene el pago automático activo por '+adCLP(TA.su.monto)+'. La nueva tarifa rige cuando lo desactive y vuelva a activarlo.</div>':'')+
-    '<div id="taErr"></div><div style="display:flex;gap:8px;flex-wrap:wrap">'+
-    '<button type="button" class="vtGo" id="taOk" onclick="taGuardar(false)">GUARDAR TARIFA →</button>'+
-    (TA.ind?'<button type="button" class="pfB" onclick="taGuardar(true)">VOLVER A TARIFA GENERAL ('+adCLP(TA.def)+')</button>':'')+'</div>')
-  taPintar()
+  OF.f={ monto:null, meses:3, rec:true, perm:0, concepto:'' }
+  const sg=taSegmento()
+  document.getElementById('mAdm').classList.add('taFull')
+  admAbrir('OFERTA DE PLANES SUGERIDOS · '+nomDe(F.id).toUpperCase(),
+    '<div class="taF">'+
+    '<section class="taF__c"><div class="taF__h"><b>1 · FIDELIDAD 12 MESES</b><small>Siempre visible para el socio · pago automático mensual</small></div>'+
+      '<div class="taF__chips">'+sg.ids.filter(function(id){return id!=='conv49'||sg.seg==='nuevo'}).map(function(id,i){ const o=taOferta(id)
+        return '<button type="button" class="taSug__b'+(i===0?' is-top':'')+'" onclick="taUsar(\''+id+'\')"><span class="taSug__k">'+(i===0?'✓ RECOMENDADA · ':'')+o.k+'</span><b>'+(o.primer?adCLP(o.primer)+' → ':'')+adCLP(o.monto)+'<small> AL MES</small></b></button>' }).join('')+'</div>'+
+      '<div class="taF__g2"><div class="vtS"><div class="vtK" id="taMK">VALOR MENSUAL</div><label class="vtMoney"><span>$</span><input inputmode="numeric" id="taM" oninput="taMonto(this.value)"></label></div>'+
+      '<div class="vtS"><div class="vtK">PRIMER MES · OPCIONAL</div><label class="vtMoney"><span>$</span><input inputmode="numeric" id="taP1" placeholder="—" oninput="taPrimer(this.value)"></label></div></div>'+
+      '<div class="vtSub" id="taP1N"></div>'+
+      '<div class="vtS"><div class="vtK">PERMANENCIA</div><div class="vtCh" id="taPe"><button type="button" data-v="0" onclick="taPerm(0)">SIN PERMANENCIA</button><button type="button" data-v="12" onclick="taPerm(12)">12 MESES</button></div><div class="vtNote" id="taPeN"></div></div>'+
+      '<label class="vtL"><textarea id="taN" maxlength="240" rows="2" placeholder="Observación interna (opcional)">'+adEsc(TA.notaPre||(TA.ind&&TA.ind.nota)||'')+'</textarea></label>'+
+      (TA.su && TA.su.estado==='activa' ? '<div class="vtNote">Ya tiene pago automático activo por '+adCLP(TA.su.monto)+'. La nueva tarifa rige cuando lo desactive y vuelva a activarlo.</div>':'')+
+      '<div id="taErr"></div><div class="taF__a"><button type="button" class="vtGo" id="taOk" onclick="taGuardar(false)">GUARDAR FIDELIDAD</button>'+
+      (TA.ind?'<button type="button" class="pfB" onclick="taGuardar(true)">VOLVER A TARIFA GENERAL</button>':'')+'</div></section>'+
+    '<section class="taF__c"><div class="taF__h"><b>2 · OFERTAS OPCIONALES</b><small>Hasta 4 · el socio las ve junto a su fidelidad</small></div>'+
+      '<div id="ofLista"></div>'+
+      '<div class="taF__chips">'+Object.keys(OF_PRE).map(function(k){ const o=OF_PRE[k]
+        return '<button type="button" class="taSug__b" onclick="ofPre(\''+k+'\')"><span class="taSug__k">'+o.k+'</span><b>'+adCLP(o.monto)+'</b></button>' }).join('')+
+        '<button type="button" class="taSug__b" onclick="ofPre(null)"><span class="taSug__k">PERSONALIZADA</span><b>+ NUEVA</b></button></div>'+
+      '<div class="taF__g2"><div class="vtS"><div class="vtK">VALOR</div><label class="vtMoney"><span>$</span><input inputmode="numeric" id="ofM" oninput="ofSet(\'monto\',this.value)"></label></div>'+
+      '<div class="vtS"><div class="vtK">DURACIÓN</div><div class="vtCh" id="ofMe">'+[1,2,3,4,6,12].map(function(m){ return '<button type="button" data-v="'+m+'" onclick="ofSet(\'meses\','+m+')">'+m+(m===1?' MES':' M')+'</button>' }).join('')+'</div></div></div>'+
+      '<div class="vtS"><div class="vtK">FORMA DE PAGO</div><div class="vtCh" id="ofRe"><button type="button" data-v="0" onclick="ofSet(\'rec\',false)">PAGO ÚNICO</button><button type="button" data-v="1" onclick="ofSet(\'rec\',true)">RECURRENTE</button></div>'+
+        '<div class="vtCh" id="ofPe" style="margin-top:8px"><button type="button" data-v="0" onclick="ofSet(\'perm\',0)">SIN PERMANENCIA</button><button type="button" data-v="12" onclick="ofSet(\'perm\',12)">PERMANENCIA 12 MESES</button></div><div class="vtNote" id="ofN"></div></div>'+
+      '<label class="vtL"><input id="ofC" maxlength="60" placeholder="Nombre que ve el socio (ej: Anual oferta especial)" oninput="OF.f.concepto=this.value"></label>'+
+      '<div id="ofErr"></div><div class="taF__a"><button type="button" class="vtGo" id="ofOk" onclick="ofGuardar()">AGREGAR OFERTA</button></div></section>'+
+    '</div>')
+  taPintar(); ofPintar()
 }
+const OF={}
+function taUsar(id){ const o=taOferta(id); TA.monto=o.monto; TA.primer=o.primer||null; TA.perm=o.perm; TA.tc=o.tc||null
+  const n=document.getElementById('taN'); if(n && o.nota) n.value=o.nota; taPintar() }
+function ofPre(k){ const o=k?OF_PRE[k]:{ monto:null, meses:3, rec:false, perm:0, concepto:'' }
+  OF.f={ monto:o.monto, meses:o.meses, rec:o.rec, perm:o.perm, concepto:o.concepto }; const c=document.getElementById('ofC'); if(c) c.value=o.concepto||''; ofPintar() }
+function ofSet(k,v){ if(k==='monto'){ const n=parseInt(String(v).replace(/\D/g,''),10); v=isNaN(n)?null:n } OF.f[k]=v; if(k==='rec'&&!v) OF.f.perm=0; ofPintar(k==='monto') }
+function ofPintar(desdeInput){ const f=OF.f||{}
+  const m=document.getElementById('ofM'); if(m && !desdeInput){ const t=f.monto!=null?Number(f.monto).toLocaleString('es-CL'):''; if(m.value!==t) m.value=t }
+  document.querySelectorAll('#ofMe button').forEach(function(b){ b.classList.toggle('on', +b.dataset.v===+f.meses) })
+  document.querySelectorAll('#ofRe button').forEach(function(b){ b.classList.toggle('on', (b.dataset.v==='1')===!!f.rec) })
+  const pe=document.getElementById('ofPe'); if(pe){ pe.style.display=f.rec?'':'none'; pe.querySelectorAll('button').forEach(function(b){ b.classList.toggle('on', +b.dataset.v===+f.perm) }) }
+  const n=document.getElementById('ofN'); if(n) n.innerHTML = f.monto ? (f.rec ? 'Cobra <b>'+adCLP(f.monto)+(f.meses>1?' cada '+f.meses+' meses':' al mes')+'</b> · equivale a '+adCLP(Math.round(f.monto/f.meses))+'/mes' : 'Un pago de <b>'+adCLP(f.monto)+'</b> por '+f.meses+(f.meses===1?' mes':' meses')+' · equivale a '+adCLP(Math.round(f.monto/f.meses))+'/mes') : ''
+  const l=document.getElementById('ofLista'); if(l) l.innerHTML = (TA.cob||[]).length ? (TA.cob||[]).map(function(c){
+      return '<div class="adLi"><span>'+adEsc(c.concepto||'Oferta')+'<small>'+ofLbl(c)+(c.permanencia_meses?' · PERMANENCIA '+c.permanencia_meses+' M':'')+'</small></span><button type="button" class="pfB" onclick="ofAnular(\''+c.id+'\')">QUITAR</button></div>' }).join('') : '<div class="vtNote">Sin ofertas opcionales. El socio verá solo su fidelidad.</div>' }
+async function ofGuardar(){ const f=OF.f||{}, e=document.getElementById('ofErr'), b=document.getElementById('ofOk')
+  if (!f.monto || f.monto<350){ e.innerHTML='<div class="vtErr">Ingresa el valor de la oferta.</div>'; return }
+  if ((TA.cob||[]).length>=4){ e.innerHTML='<div class="vtErr">Máximo 4 ofertas. Quita una antes de agregar otra.</div>'; return }
+  b.disabled=true; b.textContent='GUARDANDO…'
+  const yo=(C.yo&&((C.yo.nombre||'')+' '+(C.yo.apellido||'')).trim())||null
+  const r=await sb.rpc('admin_cobro_crear',{ p_socio:F.id, p_monto:f.monto, p_dur_tipo:'mes', p_dur_valor:+f.meses, p_tc:'promocion', p_recurrente:!!f.rec, p_concepto:(f.concepto||'').trim()||null, p_actor_nombre:yo, p_permanencia:f.rec?+f.perm||0:0 })
+  b.disabled=false; b.textContent='AGREGAR OFERTA'
+  if (r.error){ e.innerHTML='<div class="vtErr">'+adEsc(vtError(r.error.message))+'</div>'; return }
+  e.innerHTML=''; TA.cob=(TA.cob||[]).concat([r.data]); OF.f={ monto:null, meses:3, rec:true, perm:0, concepto:'' }; const c=document.getElementById('ofC'); if(c) c.value=''
+  ofPintar(); toast('Oferta agregada ✓ · el socio la ve en su app'); cobroEstadoPintar() }
+async function ofAnular(id){ const r=await sb.rpc('admin_cobro_anular',{ p_id:id })
+  if (r.error){ toast(vtError(r.error.message)); return }
+  TA.cob=(TA.cob||[]).filter(function(c){ return c.id!==id }); ofPintar(); toast('Oferta quitada'); cobroEstadoPintar() }
 function taMonto(v){ const n=parseInt(String(v).replace(/\D/g,''),10); TA.monto=isNaN(n)?null:n; taPintar(true) }
 function taPrimer(v){ const n=parseInt(String(v).replace(/\D/g,''),10); TA.primer=isNaN(n)?null:n; taPintar(true) }
 function taTc(v){ TA.tc=v; taPintar(true) }
@@ -9048,8 +9116,8 @@ async function taGuardar(general){
   if (b) { b.disabled=true; b.textContent='GUARDANDO…' }
   const yo=(C.yo&&((C.yo.nombre||'')+' '+(C.yo.apellido||'')).trim())||null
   const r=await sb.rpc('admin_tarifa_auto_set',{ p_socio:F.id, p_monto: general?null:TA.monto, p_nota:(document.getElementById('taN')||{}).value||null, p_actor_nombre:yo, p_permanencia:+TA.perm||0, p_periodo:+TA.per||1, p_cupon: (!general && TA.primer!=null) ? TA.monto-TA.primer : null, p_tc: general?null:(TA.tc==='promocion'||TA.tc==='convenio'?TA.tc:null) })
-  if (r.error){ e.innerHTML='<div class="vtErr">'+adEsc(vtError(r.error.message))+'</div>'; if(b){ b.disabled=false; b.textContent='GUARDAR TARIFA →' } return }
-  document.getElementById('mAdm').classList.remove('vis')
+  if (r.error){ e.innerHTML='<div class="vtErr">'+adEsc(vtError(r.error.message))+'</div>'; if(b){ b.disabled=false; b.textContent='GUARDAR FIDELIDAD' } return }
+  if (b){ b.disabled=false; b.textContent='GUARDAR FIDELIDAD' }
   toast(general ? 'Vuelve a la tarifa general ✓' : (TA.primer!=null?'Primer mes '+adCLP(TA.primer)+' · luego ':'Tarifa ')+adCLP(TA.monto)+(TA.per>1?' cada '+TA.per+' meses':' al mes')+' asignada ✓ · el socio la ve en su app')
   cobroEstadoPintar()
 }
