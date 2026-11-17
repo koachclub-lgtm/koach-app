@@ -291,6 +291,9 @@ function composicion(){
   const e = actual(), b = S.i > 0 ? S.evs[0] : null
   const partes = x => { if (!x) return null; const pe = n(x.peso_kg); if (!pe) return null
     const gr = masaGrasa(x), mu = n(x.masa_muscular_kg), os = n(x.masa_osea_kg), rs = n(x.masa_residual_kg)
+    if (n(x.masa_adiposa_kg) != null && n(x.masa_piel_kg) != null){   // 5 componentes · Kerr 1988 (base = suma de componentes)
+      const a5 = [['ADIPOSA', n(x.masa_adiposa_kg), '#121212', '#F4F3F0'], ['MÚSCULO', mu, COL.mej, COL.mej === '#2BB3C0' ? '#06363B' : '#F4F3F0'], ['ÓSEA', os, '#8F8D86', '#F4F3F0'], ['RESIDUAL', rs, '#CFCDC7', '#121212'], ['PIEL', n(x.masa_piel_kg), '#E2E0DA', '#121212']].filter(p => p[1] != null)
+      return { pe, arr: a5 } }
     const arr = [['GRASA', gr, '#121212', '#F4F3F0'], ['MÚSCULO', mu, COL.mej, COL.mej === '#2BB3C0' ? '#06363B' : '#F4F3F0'], ['ÓSEA', os, '#8F8D86', '#F4F3F0'], ['RESIDUAL', rs, '#CFCDC7', '#121212']].filter(p => p[1] != null)
     const resto = pe - arr.reduce((s, p) => s + p[1], 0); if (arr.length < 4 && resto > 0.2) arr.push(['RESTO', resto, '#E2E0DA', '#121212'])
     return { pe, arr } }
@@ -326,16 +329,19 @@ function tablero(e, b, mt){
 }
 function compActual(){
   const e = actual(), pe = n(e.peso_kg); if (!pe) return ''
-  const arr = [['GRASA', masaGrasa(e), '#E07A3F', '#FFFFFF'], ['MÚSCULO', n(e.masa_muscular_kg), '#2BB3C0', '#04363B'], ['ÓSEA', n(e.masa_osea_kg), '#8F8D86', '#FFFFFF'], ['RESIDUAL', n(e.masa_residual_kg), '#CFCDC7', '#121212']].filter(x => x[1] != null)
-  const resto = pe - arr.reduce((a, x) => a + x[1], 0); if (arr.length < 4 && resto > 0.2) arr.push(['RESTO', resto, '#E2E0DA', '#121212'])
+  const k5 = n(e.masa_adiposa_kg) != null && n(e.masa_piel_kg) != null
+  const arr = (k5 ? [['ADIPOSA', n(e.masa_adiposa_kg), '#E07A3F', '#FFFFFF'], ['MÚSCULO', n(e.masa_muscular_kg), '#2BB3C0', '#04363B'], ['ÓSEA', n(e.masa_osea_kg), '#8F8D86', '#FFFFFF'], ['RESIDUAL', n(e.masa_residual_kg), '#CFCDC7', '#121212'], ['PIEL', n(e.masa_piel_kg), '#E2E0DA', '#121212']]
+    : [['GRASA', masaGrasa(e), '#E07A3F', '#FFFFFF'], ['MÚSCULO', n(e.masa_muscular_kg), '#2BB3C0', '#04363B'], ['ÓSEA', n(e.masa_osea_kg), '#8F8D86', '#FFFFFF'], ['RESIDUAL', n(e.masa_residual_kg), '#CFCDC7', '#121212']]).filter(x => x[1] != null)
+  if (!k5){ const resto = pe - arr.reduce((a, x) => a + x[1], 0); if (arr.length < 4 && resto > 0.2) arr.push(['RESTO', resto, '#E2E0DA', '#121212']) }
+  const tot = k5 ? arr.reduce((a, x) => a + x[1], 0) : pe
   const K = typeof KC !== 'undefined' ? KC : null, sx = S.o.sexo || e.sexo_eval
   const cg = K && K.clasGrasa ? K.clasGrasa(e.porcentaje_grasa, sx) : null, cf = K && K.clasFFMI ? K.clasFFMI(e.ffmi_norm, sx) : null, fc = K && K.formaCorporal ? K.formaCorporal(e.porcentaje_grasa, e.ffmi_norm, sx) : null
   const cl = [fc ? ['FORMA CORPORAL', fc.label, fc.msg] : null, cg ? ['NIVEL DE GRASA', cg, f1(e.porcentaje_grasa) + ' % de grasa'] : null, cf ? ['ÍNDICE MUSCULAR', cf, 'FFMI ' + f1(e.ffmi_norm)] : null,
     n(e.edad_biologica) != null ? ['EDAD BIOLÓGICA', Math.round(e.edad_biologica) + ' AÑOS', n(e.edad_eval) != null ? 'Edad real ' + e.edad_eval + ' años' : ''] : null,
     n(e.ict) != null ? ['CINTURA / TALLA', String(e.ict).replace('.', ','), e.ict < 0.5 ? 'En rango saludable (< 0,5)' : 'Sobre 0,5: foco en cintura'] : null].filter(Boolean)
   return '<section class="kdCard kdCa"><div class="kdCa__h"><span class="kdK">TU COMPOSICIÓN CORPORAL · ' + fecha(e.fecha) + '</span><b><span data-cnt="' + pe + '">' + f1(pe) + '</span><i>kg</i></b></div>' +
-    '<div class="kdCa__bar">' + arr.map((x, i) => '<i style="flex:' + x[1].toFixed(2) + ';background:' + x[2] + ';color:' + x[3] + ';animation-delay:' + (0.15 + i * 0.18).toFixed(2) + 's"><span>' + (x[1] / pe > 0.1 ? Math.round(x[1] / pe * 100) + '%' : '') + '</span></i>').join('') + '</div>' +
-    '<div class="kdCa__g">' + arr.map(x => '<div><span class="kdK"><i style="background:' + x[2] + '"></i>' + x[0] + '</span><b><span data-cnt="' + x[1] + '">' + f1(x[1]) + '</span><i>kg</i></b><small><span data-cnt="' + Math.round(x[1] / pe * 100) + '" data-d="0">' + Math.round(x[1] / pe * 100) + '</span> %</small></div>').join('') + '</div>' +
+    '<div class="kdCa__bar">' + arr.map((x, i) => '<i style="flex:' + x[1].toFixed(2) + ';background:' + x[2] + ';color:' + x[3] + ';animation-delay:' + (0.15 + i * 0.18).toFixed(2) + 's"><span>' + (x[1] / tot > 0.1 ? Math.round(x[1] / tot * 100) + '%' : '') + '</span></i>').join('') + '</div>' +
+    '<div class="kdCa__g">' + arr.map(x => '<div><span class="kdK"><i style="background:' + x[2] + '"></i>' + x[0] + '</span><b><span data-cnt="' + x[1] + '">' + f1(x[1]) + '</span><i>kg</i></b><small><span data-cnt="' + Math.round(x[1] / tot * 100) + '" data-d="0">' + Math.round(x[1] / tot * 100) + '</span> %</small></div>').join('') + '</div>' +
     '</section>' + (cl.length ? '\u0000' + '<section class="kdCard"><span class="kdK">EXTRA · CLASIFICACIÓN DE TU CUERPO</span><div class="kdCl">' + cl.map(c => '<div><span class="kdK">' + c[0] + '</span><b>' + esc(c[1]) + '</b><small>' + esc(c[2]) + '</small></div>').join('') + '</div></section>' : '')
 }
 function contar(){

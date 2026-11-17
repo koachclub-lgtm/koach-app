@@ -21,7 +21,8 @@ const H = { peso: 82, talla: 178, edad: 34, sexo: 'hombre',
 const rH = KC.calcular(H)
 // Σ4 = 47 · D&W 30-39 H: C=1.1422 M=0.0544 → BD = 1.1422 − 0.0544·log10(47) = 1.05124 → Siri = 20.87 %
 ok('D&W+Siri hombre 34a = 20,9 %', casi(rH.grasa.pct, 20.9))
-ok('completo con todos los sitios', rH.completo === true && rH.avisos.length === 0)
+ok('completo con todos los sitios', rH.completo === true && !rH.avisos.some(a => /^Faltan/.test(a)))
+ok('sin perfil Kerr ⇒ modelo de respaldo declarado', rH.modelo === 'DW-LEE' && rH.osea.referencial === true && rH.avisos.some(a => /5 componentes/.test(a)))
 ok('masas suman el peso', casi(rH.grasa.kg + rH.muscular.kg + rH.osea.kg + rH.residual.kg, 82, 0.03))
 ok('Σ6 y Σ8', rH.suma6 === 72 && rH.suma8 === 95)
 ok('ICC/ICT', rH.icc === 0.86 && rH.ict === 0.47)
@@ -52,6 +53,23 @@ ok('acepta coma decimal', casi(KC.calcular({ ...H, peso: '82,0' }).grasa.kg, rH.
 // ── 4 · Sexo y edad cambian coeficientes
 ok('mujer ≠ hombre con mismos pliegues', KC.calcular({ ...H, sexo: 'mujer' }).grasa.pct > rH.grasa.pct)
 ok('tramo 50+ usa coeficientes propios', KC._coefsDW(55, 'hombre').C === 1.1715)
+
+// ── 4b · Kerr 1988 · 5 componentes (cálculo a mano del caso hombre)
+const K5 = { ...H, tallaSentada: 92.5, perimetros: { ...H.perimetros, antebrazo: 29, torax: 102, cabeza: 57.5 },
+  diametros: { biacromial: 41, biiliocrestideo: 29, humero: 7.0, femur: 9.8, toraxT: 30, toraxAP: 21 } }
+const r5 = KC.calcular(K5)
+// Σ6 = 72 · P = 170,18/178 · z = (72·P − 116,41)/34,79 = −1,3674 · adiposa = (z·5,85 + 25,6)/P³ = 20,14 kg
+ok('Kerr adiposa = 20,14 kg', r5.modelo === '5C' && casi(r5.adiposa.kg, 20.14, 0.01))
+ok('Kerr: ósea medida (no referencial)', r5.osea.referencial === false && r5.osea.kg > 7 && r5.osea.kg < 12)
+ok('Kerr: 5 componentes suman el total estimado', casi(r5.adiposa.kg + r5.muscular.kg + r5.osea.kg + r5.residual.kg + r5.piel.kg, r5.kerr.total, 0.03))
+ok('Kerr: diferencia con el peso dentro de ±5 %', Math.abs(r5.kerr.difPct) <= 5 && r5.calidad === null)
+ok('Kerr: % grasa sigue siendo D&W + Siri', r5.grasa.pct === rH.grasa.pct)
+const sinFemur = KC.calcular({ ...K5, diametros: { ...K5.diametros, femur: '' } })
+ok('Kerr sin fémur ⇒ respaldo y aviso con el diámetro', sinFemur.modelo === 'DW-LEE' && sinFemur.avisos.some(a => /diámetro fémur/.test(a)))
+const f5 = KC.aFila(K5, r5), b5 = KC.deFila(f5)
+ok('Kerr: fila guarda medidas y masas', f5.d_biacromial_cm === 41 && f5.talla_sentada_cm === 92.5 && f5.masa_piel_kg != null && f5.modelo === '5C')
+ok('Kerr: deFila → calcular reproduce', casi(KC.calcular(b5).muscular.kg, r5.muscular.kg, 1e-9))
+ok('componentes(): 5C con 5 partes', KC.componentes(f5).modelo === '5C' && KC.componentes(f5).partes.length === 5)
 
 // ── 5 · Fila ida y vuelta
 const fila = KC.aFila(H, rH), back = KC.deFila({ ...fila, brazo_cm: fila.brazo_relajado_cm })

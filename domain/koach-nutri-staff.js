@@ -57,23 +57,25 @@ function cmpChart(evs){
     '<svg viewBox="0 0 '+W+' '+H+'" role="img" aria-label="Tendencia de grasa y masa muscular entre evaluaciones"><line class="cmp__gl" x1="'+L+'" x2="'+(W-R)+'" y1="'+(H-B)+'" y2="'+(H-B)+'"/>'+ax+linea(g,'porcentaje_grasa','var(--cI,#121212)')+linea(m,'masa_muscular_kg','var(--cS,#2BB3C0)',true)+'</svg></div>'
 }
 const CMP_PL=[['triceps','TRÍCEPS',1],['biceps','BÍCEPS',1],['subescapular','SUBESCAPULAR',1],['crestaIliaca','CRESTA ILÍACA',1],['supraespinal','SUPRAESPINAL',0],['abdominal','ABDOMINAL',0],['muslo','MUSLO ANTERIOR',0],['pantorrilla','PANTORRILLA MEDIAL',0]]
-const CMP_PE=[['brazo','BRAZO RELAJADO'],['brazoFlex','BRAZO FLEXIONADO'],['muslo','MUSLO MEDIO'],['pantorrilla','PANTORRILLA MÁX.'],['cintura','CINTURA'],['cadera','CADERA']]
+const CMP_PE=[['brazo','BRAZO RELAJADO'],['brazoFlex','BRAZO FLEXIONADO'],['antebrazo','ANTEBRAZO MÁX.'],['torax','TÓRAX MESOESTERNAL'],['cintura','CINTURA'],['cadera','CADERA'],['muslo','MUSLO MEDIO'],['pantorrilla','PANTORRILLA MÁX.'],['cabeza','CABEZA']]
+const CMP_DI=[['biacromial','BIACROMIAL'],['biiliocrestideo','BIILIOCRESTÍDEO'],['humero','HÚMERO (BIEPICONDILAR)'],['femur','FÉMUR (BIEPICONDILAR)'],['toraxT','TÓRAX TRANSVERSO'],['toraxAP','TÓRAX ANTEROPOSTERIOR']]
 function fCmpNueva(){ CMP.edit={ id:null, estado:'borrador', inicio:null }; fCmpForm({}) }
 function fCmpEditar(id){ const e=(CMP.data.evaluaciones||[]).find(x=>x.id===id); if(!e) return; CMP.edit={ id, estado:e.estado }; fCmpForm(e) }
 function fCmpForm(e){
   const box=document.getElementById('fTabCmp'), inp=KC.deFila(e||{}), hoy=new Date().toISOString().slice(0,10)
   const fecha=(e&&e.fecha)||hoy, sexo=(e&&e.sexo_eval)||F.sex||'', edad=(e&&e.edad_eval)||cmpEdad(F.fecha_nacimiento, fecha)
-  const ultima=(CMP.data.evaluaciones||[]).slice(-1)[0], talla=inp.talla||(ultima&&ultima.talla_cm)||''
+  const ultima=(CMP.data.evaluaciones||[]).slice(-1)[0], talla=inp.talla||(ultima&&ultima.talla_cm)||'', tSent=inp.tallaSentada||(ultima&&ultima.talla_sentada_cm)||''
   const v=x=>x==null?'':String(x).replace('.',',')
   const campo=(id,lab,val,cls)=>'<label class="'+(cls||'')+'">'+lab+'<input inputmode="decimal" id="'+id+'" value="'+adEsc(v(val))+'" oninput="fCmpCalc()"></label>'
-  box.innerHTML='<div class="cmp"><div class="cmp__hd"><div><span class="cmp__k">'+(CMP.edit.id?'EDITAR EVALUACIÓN':'NUEVA EVALUACIÓN')+' · PERFIL RESTRINGIDO ISAK</span><h2 class="cmp__t">'+adEsc(nomDe(F.id))+'</h2></div>'+
+  box.innerHTML='<div class="cmp"><div class="cmp__hd"><div><span class="cmp__k">'+(CMP.edit.id?'EDITAR EVALUACIÓN':'NUEVA EVALUACIÓN')+' · PERFIL COMPLETO ISAK · 5 COMPONENTES</span><h2 class="cmp__t">'+adEsc(nomDe(F.id))+'</h2></div>'+
     '<button type="button" class="cmp__b cmp__b--l" onclick="fCmpPintar()">← VOLVER</button></div>'+
     '<div class="cmpF"><div>'+
     '<div class="cmpF__g"><h4>DATOS BASE</h4><div class="cmpF__f"><label>FECHA<input type="date" id="cmFecha" value="'+fecha+'" onchange="fCmpCalc()"></label>'+
-      campo('cmPeso','PESO (KG)',inp.peso,'dw')+campo('cmTalla','TALLA (CM)',talla,'dw')+campo('cmEdad','EDAD',edad,'dw')+
+      campo('cmPeso','PESO (KG)',inp.peso,'dw')+campo('cmTalla','TALLA (CM)',talla,'dw')+campo('cmTallaS','TALLA SENTADA (CM)',tSent,'')+campo('cmEdad','EDAD',edad,'dw')+
       '<label class="dw">SEXO<select id="cmSexo" onchange="fCmpCalc()"><option value="">—</option><option value="hombre"'+(sexo==='hombre'?' selected':'')+'>HOMBRE</option><option value="mujer"'+(sexo==='mujer'?' selected':'')+'>MUJER</option></select></label></div></div>'+
     '<div class="cmpF__g"><h4>PLIEGUES (MM) · <em>EN NEGRO: OBLIGATORIOS PARA % GRASA</em></h4><div class="cmpF__f">'+CMP_PL.map(([k,l,r])=>campo('cmPl_'+k,l,inp.pliegues[k],r?'dw':'')).join('')+'</div></div>'+
-    '<div class="cmpF__g"><h4>PERÍMETROS (CM) · <em>BRAZO, MUSLO Y PANTORRILLA PARA MASA MUSCULAR</em></h4><div class="cmpF__f">'+CMP_PE.map(([k,l],i)=>campo('cmPe_'+k,l,inp.perimetros[k],(k==='brazo'||k==='muslo'||k==='pantorrilla')?'dw':'')).join('')+'</div></div>'+
+    '<div class="cmpF__g"><h4>PERÍMETROS (CM) · <em>BRAZO, MUSLO Y PANTORRILLA OBLIGATORIOS PARA MASA MUSCULAR</em></h4><div class="cmpF__f">'+CMP_PE.map(([k,l],i)=>campo('cmPe_'+k,l,inp.perimetros[k],(k==='brazo'||k==='muslo'||k==='pantorrilla')?'dw':'')).join('')+'</div></div>'+
+    '<div class="cmpF__g"><h4>DIÁMETROS (CM) · <em>CON TALLA SENTADA Y PERÍMETROS COMPLETAN LOS 5 COMPONENTES (KERR 1988)</em></h4><div class="cmpF__f">'+CMP_DI.map(([k,l])=>campo('cmDi_'+k,l,(inp.diametros||{})[k],'')).join('')+'</div></div>'+
     '<div class="cmpF__g"><h4>MENSAJES</h4><div class="cmpF__f" style="grid-template-columns:1fr">'+
       '<label>NOTA PARA EL SOCIO (LA VE EN SU APP)<textarea id="cmNotaS" maxlength="400">'+adEsc((e&&e.nota_socio)||'')+'</textarea></label>'+
       '<label>NOTAS INTERNAS (SOLO NUTRICIÓN Y ADMIN)<textarea id="cmNotas">'+adEsc((e&&e.notas)||'')+'</textarea></label></div></div>'+
@@ -83,20 +85,26 @@ function fCmpForm(e){
   fCmpCalc()
 }
 function fCmpLeer(){ const g=id=>{ const el=document.getElementById(id); return el?el.value:'' }
-  const pl={}, pe={}; CMP_PL.forEach(([k])=>pl[k]=g('cmPl_'+k)); CMP_PE.forEach(([k])=>pe[k]=g('cmPe_'+k))
-  return { fecha:g('cmFecha'), peso:g('cmPeso'), talla:g('cmTalla'), edad:g('cmEdad'), sexo:g('cmSexo'), pliegues:pl, perimetros:pe } }
+  const pl={}, pe={}, di={}; CMP_PL.forEach(([k])=>pl[k]=g('cmPl_'+k)); CMP_PE.forEach(([k])=>pe[k]=g('cmPe_'+k)); CMP_DI.forEach(([k])=>di[k]=g('cmDi_'+k))
+  return { fecha:g('cmFecha'), peso:g('cmPeso'), talla:g('cmTalla'), tallaSentada:g('cmTallaS'), edad:g('cmEdad'), sexo:g('cmSexo'), pliegues:pl, perimetros:pe, diametros:di } }
 function fCmpCalc(){
   const el=document.getElementById('cmRes'); if(!el) return
   const inp=fCmpLeer(), r=KC.calcular(inp); CMP.form={ inp, r }
   const p=cmpNum(inp.peso)
-  const bar = r.completo ? '<div class="cmpR__bar" role="img" aria-label="Fraccionamiento en cuatro componentes">'+
-      [[r.grasa.kg,'#F4F3F0'],[r.muscular.kg,'#2BB3C0'],[r.osea.kg,'#8A8984'],[r.residual.kg,'#4A4945']].map(([k,c])=>'<i style="width:'+(k/p*100)+'%;background:'+c+'"></i>').join('')+'</div>' : ''
+  const k5 = r.modelo==='5C'
+  const partes = k5 ? [['Adiposa',r.adiposa.kg,'#F4F3F0'],['Muscular',r.muscular.kg,'#3EC6B0'],['Ósea',r.osea.kg,'#8A8984'],['Residual',r.residual.kg,'#4A4945'],['Piel',r.piel.kg,'#C9CBCF']]
+    : [['Grasa',r.grasa.kg,'#F4F3F0'],['Muscular',r.muscular.kg,'#3EC6B0'],['Ósea (referencial)',r.osea.kg,'#8A8984'],['Residual (remanente)',r.residual.kg,'#4A4945']]
+  const base = k5 ? r.kerr.total : p
+  const bar = r.completo ? '<div class="cmpR__bar" role="img" aria-label="Fraccionamiento en '+(k5?'cinco':'cuatro')+' componentes">'+
+      partes.map(([,k,c])=>'<i style="width:'+(k/base*100)+'%;background:'+c+'"></i>').join('')+'</div>' : ''
   const fila=(l,v)=>'<tr><td>'+l+'</td><td>'+v+'</td></tr>'
-  el.innerHTML='<span class="cmp__k">RESULTADO · '+KC.VERSION.toUpperCase()+'</span>'+
-    '<div class="cmpR__big"><div><b>'+(r.grasa.pct!=null?cmpF1(r.grasa.pct)+'<i>%</i>':'—')+'</b><small>GRASA'+(r.grasa.clase?' · '+r.grasa.clase:'')+'</small></div>'+
+  el.innerHTML='<span class="cmp__k">RESULTADO · '+(k5?'5 COMPONENTES · KERR 1988':'MODELO DE RESPALDO · D&W + LEE')+'</span>'+
+    '<div class="cmpR__big"><div><b>'+(r.grasa.pct!=null?cmpF1(r.grasa.pct)+'<i>%</i>':'—')+'</b><small>GRASA · D&W + SIRI'+(r.grasa.clase?' · '+r.grasa.clase:'')+'</small></div>'+
     '<div><b>'+(r.muscular.kg!=null?cmpF1(r.muscular.kg)+'<i>kg</i>':'—')+'</b><small>MASA MUSCULAR'+(r.muscular.pct!=null?' · '+cmpF1(r.muscular.pct)+'%':'')+'</small></div></div>'+bar+
-    '<table class="cmpR__tb">'+fila('Masa grasa',r.grasa.kg!=null?cmpF1(r.grasa.kg)+' kg':'—')+fila('Masa ósea (referencial)',r.osea.kg!=null?cmpF1(r.osea.kg)+' kg':'—')+
-      fila('Masa residual',r.residual.kg!=null?cmpF1(r.residual.kg)+' kg':'—')+fila('Σ4 D&W · Σ6 · Σ8',[r.grasa.sum4,r.suma6,r.suma8].map(cmpF1).join(' · ')+' mm')+
+    '<table class="cmpR__tb">'+partes.map(([l,k])=>fila('Masa '+l.toLowerCase(),k!=null?cmpF1(k)+' kg'+(base?' · '+cmpF1(k/base*100)+' %':''):'—')).join('')+
+      (k5?fila('Suma 5 componentes',cmpF1(r.kerr.total)+' kg · '+(r.kerr.difPct>0?'+':'')+cmpF1(r.kerr.difPct)+' % vs peso'):fila('Masa grasa (D&W)',r.grasa.kg!=null?cmpF1(r.grasa.kg)+' kg':'—'))+
+      (k5?fila('Masa grasa (D&W)',r.grasa.kg!=null?cmpF1(r.grasa.kg)+' kg':'—'):'')+
+      fila('Σ4 D&W · Σ6 · Σ8',[r.grasa.sum4,r.suma6,r.suma8].map(cmpF1).join(' · ')+' mm')+
       fila('FFMI (norm. 1,80 m)',r.ffmiNorm!=null?cmpF1(r.ffmiNorm)+(r.ffmiClase?' · '+r.ffmiClase:''):'—')+
       fila('Índice cintura/talla',r.ict!=null?String(r.ict).replace('.',','):'—')+fila('Índice cintura/cadera',r.icc!=null?String(r.icc).replace('.',','):'—')+
       fila('Edad biológica',r.edadBiologica!=null?r.edadBiologica+' años':'—')+'</table>'+

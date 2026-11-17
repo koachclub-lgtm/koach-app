@@ -227,13 +227,16 @@ function informe(ev, ant, ctx){
     [['SOCIO', esc(ctx.nombre || '—')], ['FECHA', fecha(ev.fecha, true)], ['PROGRAMA', esc(String(ctx.programa || '—').toUpperCase())], ['PERFIL', (ev.edad_eval ? ev.edad_eval+' AÑOS · ' : '')+f1(ev.peso_kg)+' KG · '+f1(ev.talla_cm)+' CM']]
       .map(([k, v]) => '<li><span>'+k+'</span><i></i><b>'+v+'</b></li>').join('')+'</ul></div>'
   // 01 Composición
-  const comp = [['Grasa', ev.masa_grasa_kg, C.ink], ['Músculo', ev.masa_muscular_kg, C.sig], ['Hueso (referencia)', ev.masa_osea_kg, C.g3], ['Otros tejidos', ev.masa_residual_kg, C.g2]]
+  const k5 = ev.masa_adiposa_kg != null && ev.masa_piel_kg != null
+  const comp = k5 ? [['Tejido adiposo', ev.masa_adiposa_kg, C.ink], ['Músculo', ev.masa_muscular_kg, C.sig], ['Hueso', ev.masa_osea_kg, C.g3], ['Residual (órganos y vísceras)', ev.masa_residual_kg, C.g2], ['Piel', ev.masa_piel_kg, C.g3]]
+    : [['Grasa', ev.masa_grasa_kg, C.ink], ['Músculo', ev.masa_muscular_kg, C.sig], ['Hueso (referencia)', ev.masa_osea_kg, C.g3], ['Otros tejidos', ev.masa_residual_kg, C.g2]]
   const ok4 = peso && comp.every(x => x[1] != null)
+  const base = k5 ? comp.reduce((t, x) => t + +x[1], 0) : peso
   h += '<div class="knSec"><b>01</b><h3>Composición</h3></div><div class="knBox">'
   if (pct != null) h += '<span class="knK">GRASA CORPORAL</span>'+rango(+pct, H ? [6,14,18,25,Infinity] : [14,21,25,32,Infinity], ['ESENCIAL','ATLETA','FITNESS','ACEPTABLE','ELEVADO'], v => f1(v)+' %')
-  if (ok4) h += '<div class="knBar" style="height:14px;margin:6px 0 10px" role="img" aria-label="Tu peso dividido en grasa, músculo, hueso y otros tejidos">'+comp.map(x => '<i style="width:'+(x[1] / peso * 100)+'%;background:'+x[2]+'"></i>').join('')+'</div>'
-  h += '<table class="knTb">'+comp.filter(x => x[1] != null).map(x => '<tr><td><i style="background:'+x[2]+'"></i>'+x[0]+'</td><td>'+f1(x[1])+' kg'+(peso ? ' · '+Math.round(x[1] / peso * 100)+'%' : '')+'</td></tr>').join('')+
-    '<tr><td>Peso total</td><td>'+f1(ev.peso_kg)+' kg</td></tr></table>'
+  if (ok4) h += '<div class="knBar" style="height:14px;margin:6px 0 10px" role="img" aria-label="Tu peso dividido en grasa, músculo, hueso y otros tejidos">'+comp.map(x => '<i style="width:'+(x[1] / base * 100)+'%;background:'+x[2]+'"></i>').join('')+'</div>'
+  h += '<table class="knTb">'+comp.filter(x => x[1] != null).map(x => '<tr><td><i style="background:'+x[2]+'"></i>'+x[0]+'</td><td>'+f1(x[1])+' kg'+(base ? ' · '+Math.round(x[1] / base * 100)+'%' : '')+'</td></tr>').join('')+
+    '<tr><td>Peso total</td><td>'+f1(ev.peso_kg)+' kg'+(k5 && ev.kerr_total_kg != null ? ' · 5 componentes: '+f1(ev.kerr_total_kg)+' kg' : '')+'</td></tr></table>'
   if (!ok4) h += '<p class="knNo">Algunas mediciones no se tomaron en esta evaluación; se muestra solo lo medido.</p>'
   h += '</div>'
   // 02 Mediciones por zona
