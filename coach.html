@@ -5619,7 +5619,6 @@ async function abrirPlan(pid, proto, opts){
   const _tok = (window._plTok=(window._plTok||0)+1), _fid = F && F.id
   const _fxDesdeFicha = !opts.modo && (document.getElementById('vFicha').classList.contains('on') || document.documentElement.classList.contains('fx-edit'))
   if (opts.modo==='base' || opts.modo==='bib') cargando('base')
-  else if (_fxDesdeFicha){ document.documentElement.classList.add('fx-carga'); clearTimeout(window._fxCargaT); window._fxCargaT=setTimeout(function(){ document.documentElement.classList.remove('fx-carga') },9000) }   // c288: desde la ficha no aparece el logo: barra fina y la tarjeta pulsando
   else cargando('plan', (typeof F!=='undefined' && F) ? nomDe(F.id) : '')
   P = null
   await cargarCatalogo()
