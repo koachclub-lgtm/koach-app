@@ -50,7 +50,7 @@ main{max-width:2200px;margin:0 auto;padding:24px clamp(16px,2.4vw,40px) 60px}
 .kpi b{display:block;margin-top:8px;font:800 40px/1 var(--font-display)}
 .kpi small{display:block;margin-top:6px;color:var(--g4);font-size:13px}
 .two{grid-template-columns:minmax(0,1.25fr) minmax(0,1fr)}
-@media (max-width:1000px){.kpis{grid-template-columns:repeat(2,1fr)}.two{grid-template-columns:1fr}}
+@media (max-width:1000px){.kpis{grid-template-columns:repeat(2,minmax(0,1fr))}.two{grid-template-columns:minmax(0,1fr)}}
 .list{margin:10px 0 0;padding:0;list-style:none}
 .list li{display:flex;align-items:center;gap:14px;padding:12px 0;border-bottom:1px solid var(--ln)}
 .list li:last-child{border:0}
@@ -97,6 +97,29 @@ table.tb{width:100%;border-collapse:collapse}
 .conf nav{display:flex;justify-content:flex-end;gap:8px}
 .ld{padding:24px 0;font:700 10px var(--font-mono);letter-spacing:.14em;color:var(--g4)}
 #agFrame{width:100%;height:calc(100vh - 150px);border:0;border-radius:16px;background:var(--card)}
+/* c289 · celular y iPad vertical */
+@media (hover:none) and (pointer:coarse){input,select,textarea{font-size:16px!important}}  /* iOS no hace zoom al tocar un campo */
+@media (max-width:900px){.top{gap:16px;padding:0 18px}.top nav{margin-left:0}.top .me span{display:none}}
+@media (max-width:760px){
+  .top{flex-wrap:wrap;height:auto;gap:8px 12px;padding:10px 14px 8px;padding-top:max(10px,env(safe-area-inset-top))}
+  .top nav{order:3;width:100%;margin:0;gap:6px}
+  .top nav button{flex:1;min-height:38px;padding:0 6px;border:1px solid #2A2A2C}
+  .top .me button{min-height:30px;padding:0 12px}
+  main{padding:16px 14px 48px}
+  .h1{font-size:28px}
+  .kpi b{font-size:32px}
+  .bar input{min-width:0;width:100%;flex-basis:100%}
+  .flt{display:flex;flex-wrap:wrap;gap:6px}
+  .tb thead{display:none}
+  .tb,.tb tbody{display:block}
+  .tb tr.row{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px 14px;padding:14px 8px;border-bottom:1px solid var(--ln)}
+  .tb tr.row td{padding:0;border:0;min-width:0}
+  .tb tr.row td:first-child{grid-column:1/-1;font-size:16px}
+  .tb td[data-l]::before{content:attr(data-l);display:block;margin-bottom:3px;font:700 8.5px/1.2 var(--font-mono);letter-spacing:.12em;color:var(--g4)}
+  .fh .acts{margin-left:0;width:100%}
+  .list li{flex-wrap:wrap;gap:8px 12px}.list li .who{flex:1 1 150px}
+  #agFrame{height:calc(100vh - 170px)}
+}
 </style>
 </head>
 <body>
@@ -285,9 +308,9 @@ function pacTabla(){
   const tb=document.getElementById('pTb')
   tb.innerHTML=rows.slice(0,300).map(({s,st})=>{ const a=C.asig[s.id], pr=a&&a.protocolos
     const g=st.g, dg=g&&g.vsInicio!=null&&Math.abs(g.vsInicio)>=0.1?'<span class="d'+(g.tonoInicio==='mejora'?' ok':'')+'"> '+(g.vsInicio>0?'+':'−')+f1(Math.abs(g.vsInicio))+'</span>':''
-    return '<tr class="row" onclick="N.volver=\'pac\';abrir(\''+s.id+'\')"><td><b>'+adEsc(nomDe(s.id))+'</b></td><td class="m">'+adEsc(pr?pr.programa:'—')+'</td>'+
-      '<td class="m">'+(st.u?fCorta(st.u.fecha)+' · '+st.ev.length+(st.ev.length===1?' EVAL.':' EVALS.'):'—')+'</td><td class="m">'+(g?f1(g.actual)+' %':'—')+dg+'</td>'+
-      '<td><span class="pill '+st.plan.c+'"><i></i>'+st.plan.t+'</span></td><td class="m">'+(st.cita?fCorta(diaCita(st.cita.inicio))+' · '+hora(st.cita.inicio):'—')+'</td></tr>' }).join('') ||
+    return '<tr class="row" onclick="N.volver=\'pac\';abrir(\''+s.id+'\')"><td><b>'+adEsc(nomDe(s.id))+'</b></td><td class="m" data-l="PROGRAMA">'+adEsc(pr?pr.programa:'—')+'</td>'+
+      '<td class="m" data-l="ÚLTIMA EVALUACIÓN">'+(st.u?fCorta(st.u.fecha)+' · '+st.ev.length+(st.ev.length===1?' EVAL.':' EVALS.'):'—')+'</td><td class="m" data-l="% GRASA">'+(g?f1(g.actual)+' %':'—')+dg+'</td>'+
+      '<td data-l="PLAN"><span class="pill '+st.plan.c+'"><i></i>'+st.plan.t+'</span></td><td class="m" data-l="PRÓXIMA CITA">'+(st.cita?fCorta(diaCita(st.cita.inicio))+' · '+hora(st.cita.inicio):'—')+'</td></tr>' }).join('') ||
     '<tr><td colspan="6" class="vac">Sin resultados.</td></tr>'
 }
 
