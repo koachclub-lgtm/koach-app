@@ -57,7 +57,7 @@ function cmpChart(evs){
     '<svg viewBox="0 0 '+W+' '+H+'" role="img" aria-label="Tendencia de grasa y masa muscular entre evaluaciones"><line class="cmp__gl" x1="'+L+'" x2="'+(W-R)+'" y1="'+(H-B)+'" y2="'+(H-B)+'"/>'+ax+linea(g,'porcentaje_grasa','var(--cI,#121212)')+linea(m,'masa_muscular_kg','var(--cS,#2BB3C0)',true)+'</svg></div>'
 }
 const CMP_PL=[['triceps','TRÍCEPS',1],['biceps','BÍCEPS',1],['subescapular','SUBESCAPULAR',1],['crestaIliaca','CRESTA ILÍACA',1],['supraespinal','SUPRAESPINAL',0],['abdominal','ABDOMINAL',0],['muslo','MUSLO ANTERIOR',0],['pantorrilla','PANTORRILLA MEDIAL',0]]
-const CMP_PE=[['brazo','BRAZO RELAJADO'],['muslo','MUSLO MEDIO'],['pantorrilla','PANTORRILLA MÁX.'],['cintura','CINTURA'],['cadera','CADERA']]
+const CMP_PE=[['brazo','BRAZO RELAJADO'],['brazoFlex','BRAZO FLEXIONADO'],['muslo','MUSLO MEDIO'],['pantorrilla','PANTORRILLA MÁX.'],['cintura','CINTURA'],['cadera','CADERA']]
 function fCmpNueva(){ CMP.edit={ id:null, estado:'borrador', inicio:null }; fCmpForm({}) }
 function fCmpEditar(id){ const e=(CMP.data.evaluaciones||[]).find(x=>x.id===id); if(!e) return; CMP.edit={ id, estado:e.estado }; fCmpForm(e) }
 function fCmpForm(e){
@@ -73,7 +73,7 @@ function fCmpForm(e){
       campo('cmPeso','PESO (KG)',inp.peso,'dw')+campo('cmTalla','TALLA (CM)',talla,'dw')+campo('cmEdad','EDAD',edad,'dw')+
       '<label class="dw">SEXO<select id="cmSexo" onchange="fCmpCalc()"><option value="">—</option><option value="hombre"'+(sexo==='hombre'?' selected':'')+'>HOMBRE</option><option value="mujer"'+(sexo==='mujer'?' selected':'')+'>MUJER</option></select></label></div></div>'+
     '<div class="cmpF__g"><h4>PLIEGUES (MM) · <em>EN NEGRO: OBLIGATORIOS PARA % GRASA</em></h4><div class="cmpF__f">'+CMP_PL.map(([k,l,r])=>campo('cmPl_'+k,l,inp.pliegues[k],r?'dw':'')).join('')+'</div></div>'+
-    '<div class="cmpF__g"><h4>PERÍMETROS (CM) · <em>BRAZO, MUSLO Y PANTORRILLA PARA MASA MUSCULAR</em></h4><div class="cmpF__f">'+CMP_PE.map(([k,l],i)=>campo('cmPe_'+k,l,inp.perimetros[k],i<3?'dw':'')).join('')+'</div></div>'+
+    '<div class="cmpF__g"><h4>PERÍMETROS (CM) · <em>BRAZO, MUSLO Y PANTORRILLA PARA MASA MUSCULAR</em></h4><div class="cmpF__f">'+CMP_PE.map(([k,l],i)=>campo('cmPe_'+k,l,inp.perimetros[k],(k==='brazo'||k==='muslo'||k==='pantorrilla')?'dw':'')).join('')+'</div></div>'+
     '<div class="cmpF__g"><h4>MENSAJES</h4><div class="cmpF__f" style="grid-template-columns:1fr">'+
       '<label>NOTA PARA EL SOCIO (LA VE EN SU APP)<textarea id="cmNotaS" maxlength="400">'+adEsc((e&&e.nota_socio)||'')+'</textarea></label>'+
       '<label>NOTAS INTERNAS (SOLO NUTRICIÓN Y ADMIN)<textarea id="cmNotas">'+adEsc((e&&e.notas)||'')+'</textarea></label></div></div>'+

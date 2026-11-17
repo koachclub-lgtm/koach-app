@@ -153,7 +153,7 @@ function aFila(input, res){
     sexo_eval: input.sexo ? (esH(input.sexo) ? 'hombre' : 'mujer') : null,
     triceps_mm: num(pl.triceps), biceps_mm: num(pl.biceps), subescapular_mm: num(pl.subescapular), cresta_iliaca_mm: num(pl.crestaIliaca),
     supraespinal_mm: num(pl.supraespinal), abdominal_mm: num(pl.abdominal), muslo_mm: num(pl.muslo), pantorrilla_mm: num(pl.pantorrilla),
-    brazo_relajado_cm: num(pe.brazo), muslo_cm: num(pe.muslo), pantorrilla_cm: num(pe.pantorrilla), cintura_cm: num(pe.cintura), cadera_cm: num(pe.cadera),
+    brazo_relajado_cm: num(pe.brazo), brazo_flexionado_cm: num(pe.brazoFlex), muslo_cm: num(pe.muslo), pantorrilla_cm: num(pe.pantorrilla), cintura_cm: num(pe.cintura), cadera_cm: num(pe.cadera),
     porcentaje_grasa: res.grasa.pct, masa_grasa_kg: res.grasa.kg, grasa_medida: res.grasa.medida,
     masa_muscular_kg: res.muscular.kg, musculo_medido: res.muscular.medida,
     masa_osea_kg: res.osea.kg, masa_residual_kg: res.residual.kg,
@@ -166,7 +166,7 @@ function deFila(f){
   return { peso: f.peso_kg, talla: f.talla_cm, edad: f.edad_eval, sexo: f.sexo_eval,
     pliegues: { triceps: f.triceps_mm, biceps: f.biceps_mm, subescapular: f.subescapular_mm, crestaIliaca: f.cresta_iliaca_mm,
       supraespinal: f.supraespinal_mm, abdominal: f.abdominal_mm, muslo: f.muslo_mm, pantorrilla: f.pantorrilla_mm },
-    perimetros: { brazo: f.brazo_cm != null ? f.brazo_cm : f.brazo_relajado_cm, muslo: f.muslo_cm, pantorrilla: f.pantorrilla_cm, cintura: f.cintura_cm, cadera: f.cadera_cm } }
+    perimetros: { brazo: f.brazo_cm != null ? f.brazo_cm : f.brazo_relajado_cm, brazoFlex: f.brazo_flex_cm != null ? f.brazo_flex_cm : f.brazo_flexionado_cm, muslo: f.muslo_cm, pantorrilla: f.pantorrilla_cm, cintura: f.cintura_cm, cadera: f.cadera_cm } }
 }
 
 /** Cambio de un indicador entre evaluaciones (ordenadas por fecha asc).
@@ -222,7 +222,7 @@ function tdeeAdaptativo(ant, act){
 
 // Lectura por sector (página "Mediciones" del PDF)
 const SECTORES = [
-  { id:'SUP', nombre:'TREN SUPERIOR', pl:[['biceps_mm','Bíceps'],['triceps_mm','Tríceps'],['subescapular_mm','Subescapular']], pe:[['brazo_cm','Brazo']] },
+  { id:'SUP', nombre:'TREN SUPERIOR', pl:[['biceps_mm','Bíceps'],['triceps_mm','Tríceps'],['subescapular_mm','Subescapular']], pe:[['brazo_cm','Brazo relajado'],['brazo_flex_cm','Brazo flexionado']] },
   { id:'CORE', nombre:'ZONA MEDIA', pl:[['cresta_iliaca_mm','Cresta ilíaca'],['supraespinal_mm','Supraespinal'],['abdominal_mm','Abdominal']], pe:[['cintura_cm','Cintura'],['cadera_cm','Cadera']] },
   { id:'INF', nombre:'TREN INFERIOR', pl:[['muslo_mm','Muslo'],['pantorrilla_mm','Pantorrilla']], pe:[['muslo_cm','Muslo'],['pantorrilla_cm','Pantorrilla']] }
 ]
@@ -238,7 +238,7 @@ function sectores(ev, ant){
         : 'Zona estable, sin cambios relevantes.' }
     return { id:s.id, nombre:s.nombre, lectura, dPliegues: dp, dPerimetros: dq,
       pliegues: s.pl.map(([k,l]) => ({ k, l, v: ev[k] != null ? +ev[k] : null, d: ant && ant[k] != null && ev[k] != null ? r1(+ev[k] - +ant[k]) : null })),
-      perimetros: s.pe.map(([k,l]) => ({ k, l, v: ev[k] != null ? +ev[k] : null, d: ant && ant[k] != null && ev[k] != null ? r1(+ev[k] - +ant[k]) : null })) }
+      perimetros: s.pe.filter(([k]) => k !== 'brazo_flex_cm' || ev[k] != null).map(([k,l]) => ({ k, l, v: ev[k] != null ? +ev[k] : null, d: ant && ant[k] != null && ev[k] != null ? r1(+ev[k] - +ant[k]) : null })) }
   })
 }
 
