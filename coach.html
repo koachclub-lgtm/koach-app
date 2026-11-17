@@ -1025,6 +1025,9 @@ html,button,input,.pv,.mtab,.setChip{touch-action:manipulation}
 .lin.foco{outline:2px solid #5F5F5F;outline-offset:3px;border-radius:10px}
 #oLoad{position:fixed;inset:0;z-index:900;background:#121210;display:none;flex-direction:column;justify-content:center;padding:0 max(28px,7vw) env(safe-area-inset-bottom,0px)}
 #oLoad.vis{display:flex}
+#oLoad.vis.ldFuera{opacity:0;transition:opacity .3s ease}
+#oLoad{position:fixed;inset:0;width:100vw;height:100vh;height:100dvh;z-index:99990 !important;background:#000 !important}
+
 /* c8.2 · pantalla de carga editorial: tipografía y jerarquía, sin logo */
 #oLoad .ldBox{width:100%;max-width:560px;margin:0 auto}
 #oLoad .ldK{font-family:var(--font-mono);font-weight:500;font-size:10px;letter-spacing:.32em;color:#8E8D87;margin-bottom:22px}
@@ -3369,7 +3372,7 @@ html.fx-edit #vFicha{display:block !important;padding-bottom:0 !important}
 html.fx-edit #vFicha>*:not(#fTabEnt):not(.fxBar){display:none !important}
 html.fx-edit #vFicha #fTabEnt>*:not(#fCtx){display:none !important}
 html.fx-edit #vFicha #fCtx>*:not(:has(#scCard)),html.fx-edit #vFicha #fCtx .kc>*:not(#scCard){display:none !important}
-html.fx-edit #oLoad{display:none !important}
+/* c291: el logo de carga se muestra también al entrar al editor desde la ficha */
 html.fx-edit #vFicha .fxBar{display:flex;align-items:center;gap:8px;margin:8px 0 10px;padding:8px 8px 8px 20px;border-radius:999px;background:#141517;border:1px solid #3D4044}
 .fxBar__t{flex:1;min-width:0}.fxBar__t small{display:block;font:700 9.5px 'Space Mono',monospace;letter-spacing:.14em;color:#A9ADB0}
 .fxBar__t b{display:block;font-family:'KOACH Display','Archivo',Arial,sans-serif;font-weight:900;font-stretch:112%;text-transform:uppercase;font-size:20px;line-height:1.05;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;background:linear-gradient(180deg,#FFF 0%,#C9CBCF 45%,#FFF 58%,#979C9F 100%);-webkit-background-clip:text;background-clip:text;color:transparent}
@@ -4399,6 +4402,9 @@ function kLd(t){ const txt=String(t||'Cargando').replace(/…|\.{3}/g,'').trim()
   return '<div class="kld" role="status" aria-live="polite"><div class="ld3d" aria-hidden="true"><div class="ld3d__obj"><img class="ld3d__logo" src="/img/brand/logotipo-koach.png" alt=""><span class="ld3d__sheen"></span></div><span class="ld3d__floor"></span></div><span class="kld__t">'+txt+'</span></div>' }
 document.addEventListener('DOMContentLoaded', function(){ document.querySelectorAll('.vacio').forEach(function(el){ if(/^Cargando/.test(el.textContent.trim())) el.outerHTML=kLd(el.textContent) }) })
 function cargando(){ const o=document.getElementById('oLoad'); if(o) o.classList.add('vis') }
+function cargandoOffSuave(){ const o=document.getElementById('oLoad'); if(!o||!o.classList.contains('vis')) return
+  clearTimeout(window._ldOffT); requestAnimationFrame(function(){ requestAnimationFrame(function(){ window._ldOffT=setTimeout(function(){
+    o.classList.add('ldFuera'); setTimeout(function(){ o.classList.remove('ldFuera'); cargandoOff() },320) },220) }) }) }
 function cargandoOff(){ const o=document.getElementById('oLoad'); if(o) o.classList.remove('vis'); document.documentElement.classList.remove('fx-carga') }
 async function loadSala(silent){
   if (!silent) cargando('sala')
@@ -5722,7 +5728,7 @@ function pintarPlan(){ setTimeout(function(){ try{ plSaveUI(); rtSyncPlan() }cat
   document.getElementById('vPlan').classList.toggle('plRO', !!(P&&P.ro))
   let _ban=document.getElementById('plROban'); if (P&&P.ro){ if(!_ban){ _ban=document.createElement('div'); _ban.id='plROban'; _ban.className='plROban'; const t=document.getElementById('pTabs'); t.parentNode.insertBefore(_ban,t) }
     _ban.textContent='CICLO CERRADO · SOLO LECTURA · '+String((P.proto&&P.proto.programa)||'')+' '+String((P.proto&&P.proto.nivel)||'') } else if(_ban) _ban.remove()
-  cargandoOff()
+  cargandoOffSuave()   // c291: el logo se va recién cuando el editor ya está pintado (sin vistas a medio cargar)
   if (!plActivo()){ ['pNav','pMacro','pMeso'].forEach(function(id){ const e=document.getElementById(id); if(e) e.style.display='none' })
     ;['pTabs','pBloques','pOrgRow'].forEach(function(id){ const e=document.getElementById(id); if(e) e.style.display='' }) }
   if (plActivo()){
