@@ -3482,6 +3482,12 @@ html[data-fprog] #vFicha #fTabAdm #pfCobro .pfBig small{white-space:nowrap}
 html[data-fprog] #vFicha #fTabAdm #pfCobro{border-top:1px solid #3D4044;margin-top:6px}
 html[data-fprog] #vFicha #fTabAdm .pfC--pag>.pfBtns{margin-top:0}
 html[data-fprog] #vFicha #fTabAdm .pfC--pag>#pfCobro{margin-top:auto}
+.taSug{margin-top:12px}.taSug__l{display:grid;gap:8px;margin-top:8px}
+.taSug__b{display:flex;flex-direction:column;align-items:flex-start;gap:2px;width:100%;text-align:left;padding:10px 14px;border-radius:14px;border:1px solid #3D4044;background:transparent;color:inherit;cursor:pointer;font:inherit}
+.taSug__b.is-top{border-color:#3EC6B0}
+.taSug__b b{font-family:'KOACH Display','Archivo',Arial,sans-serif;font-weight:900;font-size:20px;line-height:1.1}.taSug__b b small{font:700 10px 'Space Mono',monospace;letter-spacing:.08em;opacity:.7}
+.taSug__k{font:700 10px 'Space Mono',monospace;letter-spacing:.12em;opacity:.75}.taSug__b.is-top .taSug__k{color:#3EC6B0;opacity:1}
+.taSug__s{font:400 11px 'Space Mono',monospace;letter-spacing:.04em;opacity:.7}
 html[data-fprog] #vFicha #fTabAdm .pfC--w2>.pfRow2{display:flex;flex-direction:column;align-items:stretch;gap:12px;flex:1}
 html[data-fprog] #vFicha #fTabAdm .pfC--w2>.pfRow2>.pfB{margin-top:auto;width:100%}
 @media (min-width:900px){
@@ -8914,7 +8920,7 @@ async function cobroEstadoPintar(){
   const el=document.getElementById('pfCobro'); if(!el || !F || !F.id) return
   const sid=F.id
   const [rt, rd, rs] = await Promise.all([
-    sb.from('tarifas_auto_socio').select('monto,tipo_comercial,nota,permanencia_meses,periodo_meses,actualizado_por_nombre,updated_at').eq('socio_id',sid).maybeSingle(),
+    sb.from('tarifas_auto_socio').select('monto,tipo_comercial,nota,permanencia_meses,periodo_meses,cupon_monto,vence_at,actualizado_por_nombre,updated_at').eq('socio_id',sid).maybeSingle(),
     sb.from('config_pagos').select('valor').eq('clave','mensual_auto_default').maybeSingle(),
     sb.from('flow_suscripciones').select('estado,monto,duracion_valor,tarjeta_ult4,inicio,proximo_cobro,morosa,morosa_desde,permanencia_meses,permanencia_hasta,precio_lista,cobros_pagados,termino').eq('socio_id',sid).in('estado',['activa','cancelada_fin_periodo']).order('created_at',{ascending:false}).limit(1).maybeSingle()
   ])
@@ -8929,19 +8935,58 @@ async function cobroEstadoPintar(){
     '<div class="pfR">'+(su ? '<b>'+(su.estado==='activa'?(su.morosa===1?'IMPAGO DESDE '+adF(su.morosa_desde):su.morosa===2?'COBRO PENDIENTE':'ACTIVO'):'DESACTIVADO')+'</b><small>'+(su.estado==='activa'?'COBRA '+adCLP(su.monto)+cada(su.duracion_valor||1)+(su.tarjeta_ult4?' · •••• '+adEsc(su.tarjeta_ult4):'')+(su.proximo_cobro?' · PRÓX. '+adF(su.proximo_cobro):''):'SIN MÁS COBROS'+(su.termino&&su.termino.monto_salida?' · SALIDA '+adCLP(su.termino.monto_salida):''))+'</small>' : '<b>NO ACTIVADO</b><small>EL SOCIO LO ACTIVA EN SU APP</small>')+'</div></div>'+
     '<div class="pfS">'+(perm?'CON PERMANENCIA DE '+perm+' MESES':'SIN PERMANENCIA')+(enPerm?' · VIGENTE HASTA '+adF(su.permanencia_hasta)+' · '+(su.cobros_pagados||0)+' MESES PAGADOS · SALIDA HOY '+adCLP(salida):'')+'</div>'+
     (su && su.estado==='activa' && (su.monto!==monto || (su.duracion_valor||1)!==per) ? '<div class="pfS">⚠ Su pago automático sigue cobrando '+adCLP(su.monto)+cada(su.duracion_valor||1)+'. Para aplicar '+adCLP(monto)+cada(per)+' debe desactivarlo y volver a activarlo en su app.</div>':'')+
+    (ind && ind.cupon_monto ? '<div class="pfS">PRIMER MES '+adCLP(monto-ind.cupon_monto)+' · LUEGO '+adCLP(monto)+cada(per)+'</div>':'')+
     (ind && ind.nota ? '<div class="pfS">'+adEsc(ind.nota)+'</div>':'')+
+    (su && su.estado==='activa' ? '' : taSugPintar())+
     '<div class="pfBtns"><button type="button" class="pfB" onclick="admTarifaAuto()">'+(ind?'CAMBIAR TARIFA':'ASIGNAR TARIFA EXCLUSIVA')+'</button>'+
       (su && su.estado==='activa' && !(su.cobros_pagados>0) && su.inicio && su.inicio>hoyISO()?'<button type="button" class="pfB" onclick="admCobrarAhora()">COBRAR AHORA · PRIMER COBRO '+adF(su.inicio).toUpperCase()+'</button>':'')+
       (su && su.estado==='activa'?'<button type="button" class="pfB" onclick="admTerminarSinCobro()">'+(enPerm?'TERMINAR SIN COBRO DE SALIDA':'DESACTIVAR PAGO AUTOMÁTICO')+'</button>':'')+'</div>'
 }
-function admTarifaAuto(){
+// ═══ c298 · TARIFAS SUGERIDAS · estrategia de captación nov-2026 ═══
+// Oferta principal 39→59 (nunca bajo el precio de un gimnasio de cadena) · 29→59 solo con condición real (horario valle 06–16 o alianza)
+// Socio vigente: sin descuento de entrada; se le ofrece fijar su mensualidad con fidelidad. Montos redondos, sin 900.
+const TA_OF={
+  cap39:{ k:'CAPTACIÓN', monto:59000, primer:39000, perm:12, tc:'promocion', nota:'Captación · primer mes $39.000, luego $59.000 · fidelidad 12 meses' },
+  valle29:{ k:'HORARIO VALLE 06–16', monto:59000, primer:29000, perm:12, tc:'promocion', nota:'Horario valle 06:00–16:00 · primer mes $29.000, luego $59.000 · fidelidad 12 meses' },
+  fid59:{ k:'FIDELIDAD', monto:59000, primer:null, perm:12, tc:'promocion', nota:'Fidelidad 12 meses · $59.000 mensual recurrente' },
+  gen70:{ k:'RECURRENTE GENERAL', monto:null, primer:null, perm:12, tc:null, nota:null },
+  conv49:{ k:'CONVENIO EMPRESA', monto:49000, primer:null, perm:12, tc:'convenio', nota:'Convenio empresa · $49.000 · fidelidad 12 meses' }
+}
+function taSegmento(){
+  const mem=AD.fMem||[], vig=mem.find(function(m){ return ['activa','proxima','congelada','futura'].indexOf(m.estado_calc)>-1 })
+  if (!mem.length) return { seg:'nuevo', lbl:'SIN MEMBRESÍAS · CLIENTE NUEVO', ids:['cap39','valle29','conv49'] }
+  if (!vig) return { seg:'ex', lbl:'EX SOCIO · VUELVE AL CLUB', ids:['cap39','valle29','fid59'] }
+  const meses=Math.max(1,+vig.meses||1), eq=Math.round((+vig.valor||0)/meses)
+  if (!eq) return { seg:'cortesia', eq:0, lbl:'VIGENTE SIN COBRO · PASA A PAGAR', ids:['fid59','gen70'] }
+  if (eq>=(TA.def||70000)) return { seg:'alto', eq:eq, lbl:'VIGENTE · HOY '+adCLP(eq)+' AL MES', ids:['gen70','fid59'] }
+  return { seg:'medio', eq:eq, lbl:'VIGENTE · HOY '+adCLP(eq)+' AL MES', ids:['fid59','gen70'] }
+}
+function taOferta(id){ const o=Object.assign({ id:id }, TA_OF[id]); if (id==='gen70'){ o.monto=TA.def||70000; o.perm=TA.defPerm||12 } return o }
+function taSugPintar(){
+  if (!AD.fMem) return ''
+  const sg=taSegmento()
+  const why={ cap39:'Oferta principal', valle29:'Solo si entrena 06:00–16:00', conv49:'Solo con convenio vigente',
+    fid59: sg.seg==='medio'&&sg.eq<59000?'Sube su ticket y lo fija 12 meses':sg.seg==='alto'?'Solo si hay riesgo de que se vaya':'Fija su mensualidad 12 meses',
+    gen70: sg.seg==='alto'?'Mantiene su ticket':'Tarifa general' }
+  return '<div class="taSug"><div class="pfK2">TARIFAS SUGERIDAS · '+sg.lbl+'</div><div class="taSug__l">'+sg.ids.map(function(id,i){ const o=taOferta(id)
+    const a1=(o.primer||o.monto)+o.monto*11
+    return '<button type="button" class="taSug__b'+(i===0?' is-top':'')+'" onclick="admTarifaAuto(taOferta(\''+id+'\'))">'+
+      '<span class="taSug__k">'+(i===0?'✓ RECOMENDADA · ':'')+o.k+'</span>'+
+      '<b>'+(o.primer?adCLP(o.primer)+' → ':'')+adCLP(o.monto)+'<small> AL MES</small></b>'+
+      '<span class="taSug__s">'+why[id]+' · '+(o.perm?o.perm+' MESES':'SIN PERMANENCIA')+' · AÑO 1 '+adCLP(a1)+'</span></button>' }).join('')+'</div></div>'
+}
+function admTarifaAuto(pre){
   TA.monto=TA.ind?TA.ind.monto:TA.def; TA.tc=TA.ind?TA.ind.tipo_comercial:null; TA.perm=TA.ind?TA.ind.permanencia_meses:TA.defPerm; TA.per=1   // c216 · solo cobro mensual; el tipo de venta lo deduce el servidor del monto
+  TA.primer=TA.ind&&TA.ind.cupon_monto?TA.ind.monto-TA.ind.cupon_monto:null; TA.notaPre=null
+  if (pre){ TA.monto=pre.monto; TA.primer=pre.primer||null; TA.perm=pre.perm; TA.tc=pre.tc||null; TA.notaPre=pre.nota||null }
   admAbrir('PAGO AUTOMÁTICO · '+nomDe(F.id).toUpperCase(),
     '<div class="vtS"><div class="vtK" id="taMK">MONTO POR COBRO</div><label class="vtMoney"><span>$</span><input inputmode="numeric" id="taM" oninput="taMonto(this.value)"></label>'+
       '<div class="vtSub">Tarifa general: '+adCLP(TA.def)+' · Este socio verá en su app el valor que guardes aquí.</div></div>'+
+    '<div class="vtS"><div class="vtK">PRIMER MES · OPCIONAL</div><label class="vtMoney"><span>$</span><input inputmode="numeric" id="taP1" placeholder="Igual a la tarifa" oninput="taPrimer(this.value)"></label>'+
+      '<div class="vtSub" id="taP1N">Déjalo vacío si el primer mes cobra lo mismo.</div></div>'+
     '<div class="vtS"><div class="vtK">PERMANENCIA</div><div class="vtCh" id="taPe"><button type="button" data-v="0" onclick="taPerm(0)">SIN PERMANENCIA</button><button type="button" data-v="12" onclick="taPerm(12)">12 MESES</button></div>'+
       '<div class="vtNote" id="taPeN"></div></div>'+
-    '<div class="vtS"><div class="vtK">OBSERVACIONES · OPCIONAL</div><label class="vtL"><textarea id="taN" maxlength="240" rows="3" placeholder="Motivo del precio especial (ej: convenio con su empresa, recuperación de socio antiguo)">'+adEsc((TA.ind&&TA.ind.nota)||'')+'</textarea></label></div>'+
+    '<div class="vtS"><div class="vtK">OBSERVACIONES · OPCIONAL</div><label class="vtL"><textarea id="taN" maxlength="240" rows="3" placeholder="Motivo del precio especial (ej: convenio con su empresa, recuperación de socio antiguo)">'+adEsc(TA.notaPre||(TA.ind&&TA.ind.nota)||'')+'</textarea></label></div>'+
     (TA.su && TA.su.estado==='activa' ? '<div class="vtNote">Este socio ya tiene el pago automático activo por '+adCLP(TA.su.monto)+'. La nueva tarifa rige cuando lo desactive y vuelva a activarlo.</div>':'')+
     '<div id="taErr"></div><div style="display:flex;gap:8px;flex-wrap:wrap">'+
     '<button type="button" class="vtGo" id="taOk" onclick="taGuardar(false)">GUARDAR TARIFA →</button>'+
@@ -8949,6 +8994,7 @@ function admTarifaAuto(){
   taPintar()
 }
 function taMonto(v){ const n=parseInt(String(v).replace(/\D/g,''),10); TA.monto=isNaN(n)?null:n; taPintar(true) }
+function taPrimer(v){ const n=parseInt(String(v).replace(/\D/g,''),10); TA.primer=isNaN(n)?null:n; taPintar(true) }
 function taTc(v){ TA.tc=v; taPintar(true) }
 function taPerm(v){ TA.perm=v; taPintar(true) }
 function taPer(v){ TA.per=v; taPintar(true) }
@@ -8958,17 +9004,20 @@ function taPintar(soloTc){ const m=document.getElementById('taM')
   document.querySelectorAll('#taPe button').forEach(function(b){ b.classList.toggle('on', +b.dataset.v===+TA.perm) })
   document.querySelectorAll('#taPer button').forEach(function(b){ b.classList.toggle('on', +b.dataset.v===+TA.per) })
   const mk=document.getElementById('taMK'); if (mk) mk.textContent='MONTO POR COBRO'+(TA.per>1?' CADA '+TA.per+' MESES':' AL MES')
+  const p1=document.getElementById('taP1'); if (p1){ const t=TA.primer!=null?Number(TA.primer).toLocaleString('es-CL'):''; if(p1.value!==t) p1.value=t }
+  const p1n=document.getElementById('taP1N'); if (p1n) p1n.innerHTML = TA.primer!=null && TA.monto ? (TA.primer<TA.monto ? 'Primer cobro <b>'+adCLP(TA.primer)+'</b>, luego <b>'+adCLP(TA.monto)+'</b> al mes · año 1: <b>'+adCLP(TA.primer+TA.monto*11)+'</b>' : '<span style="color:var(--danger,#b3261e)">El primer mes debe ser menor a la tarifa.</span>') : 'Déjalo vacío si el primer mes cobra lo mismo.'
   const n=document.getElementById('taPeN'), d=Math.max(0,80000*(TA.per||1)-(TA.monto||0)), u=(TA.per||1)>1?'cobro':'mes'
   if (n) n.innerHTML = TA.perm ? 'Si sale antes de 12 meses paga el descuento recibido: <b>'+adCLP(d)+' por '+u+' pagado</b> (ej. al 4.º '+u+': '+adCLP(4*d)+'). Al cumplir los 12 meses no se renueva sola.' : 'Puede desactivar el pago automático cuando quiera, sin costo.' }
 async function taGuardar(general){
   const e=document.getElementById('taErr'), b=document.getElementById('taOk')
   if (!general && (TA.monto==null || TA.monto<350)){ e.innerHTML='<div class="vtErr">Ingresa la tarifa (mínimo $350).</div>'; return }
+  if (!general && TA.primer!=null && !(TA.primer>=350 && TA.primer<TA.monto)){ e.innerHTML='<div class="vtErr">El primer mes debe ser menor a la tarifa (mínimo $350).</div>'; return }
   if (b) { b.disabled=true; b.textContent='GUARDANDO…' }
   const yo=(C.yo&&((C.yo.nombre||'')+' '+(C.yo.apellido||'')).trim())||null
-  const r=await sb.rpc('admin_tarifa_auto_set',{ p_socio:F.id, p_monto: general?null:TA.monto, p_tc:null, p_nota:(document.getElementById('taN')||{}).value||null, p_actor_nombre:yo, p_permanencia:+TA.perm||0, p_periodo:+TA.per||1 })
+  const r=await sb.rpc('admin_tarifa_auto_set',{ p_socio:F.id, p_monto: general?null:TA.monto, p_tc:null, p_nota:(document.getElementById('taN')||{}).value||null, p_actor_nombre:yo, p_permanencia:+TA.perm||0, p_periodo:+TA.per||1, p_cupon: (!general && TA.primer!=null) ? TA.monto-TA.primer : null, p_tc: general?null:(TA.tc==='promocion'||TA.tc==='convenio'?TA.tc:null) })
   if (r.error){ e.innerHTML='<div class="vtErr">'+adEsc(vtError(r.error.message))+'</div>'; if(b){ b.disabled=false; b.textContent='GUARDAR TARIFA →' } return }
   document.getElementById('mAdm').classList.remove('vis')
-  toast(general ? 'Vuelve a la tarifa general ✓' : 'Tarifa '+adCLP(TA.monto)+(TA.per>1?' cada '+TA.per+' meses':' al mes')+' asignada ✓ · el socio la ve en su app')
+  toast(general ? 'Vuelve a la tarifa general ✓' : (TA.primer!=null?'Primer mes '+adCLP(TA.primer)+' · luego ':'Tarifa ')+adCLP(TA.monto)+(TA.per>1?' cada '+TA.per+' meses':' al mes')+' asignada ✓ · el socio la ve en su app')
   cobroEstadoPintar()
 }
 // T&C v2.0 cl. 4.9 · término sin cobro de salida por causal (fallecimiento, incapacidad >60 días, cambio de domicilio, cierre, incumplimiento KOACH)

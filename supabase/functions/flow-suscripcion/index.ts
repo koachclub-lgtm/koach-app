@@ -195,7 +195,8 @@ Deno.serve(async (req) => {
       const hoy = hoyCL(), primero = acc && acc > hoy ? acc : hoy;
       const perm = t?.permanencia_meses || 0, per = t?.periodo_meses || 1;
       return j({ monto: t.monto, precio_lista: t.precio_lista * per, personalizada: !!t.personalizada, permanencia_meses: perm, periodo_meses: per,
-        primer_cobro: primero, permanencia_hasta: perm ? masMeses(primero, perm) : null, descuento_mensual: Math.max(0, t.precio_lista * per - t.monto) });
+        primer_cobro: primero, permanencia_hasta: perm ? masMeses(primero, perm) : null, descuento_mensual: Math.max(0, t.precio_lista * per - t.monto),
+        cupon_monto: Number(t.cupon_monto) > 0 ? Number(t.cupon_monto) : null, primer_mes: Number(t.cupon_monto) > 0 ? t.monto - Number(t.cupon_monto) : null });
     }
 
     // desactivar sin costo (sin permanencia o permanencia cumplida) — cl. 4.4 / 4.10

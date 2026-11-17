@@ -10708,10 +10708,11 @@ async function flowAutoAutorizar(){
       (ahorro>0?'<div class="kAu__lista">'+$(c.precio_lista)+'</div>':'')+
       '<div class="kAu__precio'+($(c.monto).length>7?' kAu__precio--l':'')+'">'+$(c.monto)+'</div>'+
       '<div class="kAu__cada">'+cada+'</div>'+
+      (c.primer_mes>0?'<div class="kAu__ahorro">PRIMER MES '+$(c.primer_mes)+'</div>':'')+
       (ahorro>0?'<div class="kAu__ahorro">AHORRAS '+$(ahorro)+' '+(per===1?'CADA MES':'CADA '+per+' MESES')+'</div>':'')+
       '<div class="kAu__datos"><div><span>PRIMER COBRO</span><b>'+(c.primer_cobro<=hoy?'HOY':_fm(c.primer_cobro).toUpperCase().replace(' '+hoy.slice(0,4),''))+'</b></div>'+
         '<div><span>PERMANENCIA</span><b'+(perm?'':' class="kAu__s"')+'>'+(perm?c.permanencia_meses+' MESES':'SIN PERMANENCIA')+'</b></div></div>'+
-      '<div class="kAu__ok">'+chkL('flAut','Autorizo el cobro automático de <b>'+$(c.monto)+' '+cada.toLowerCase()+'</b> en mi tarjeta.')+
+      '<div class="kAu__ok">'+chkL('flAut','Autorizo el cobro automático de '+(c.primer_mes>0?'<b>'+$(c.primer_mes)+' el primer mes</b> y luego ':'')+'<b>'+$(c.monto)+' '+cada.toLowerCase()+'</b> en mi tarjeta.')+
       (perm?chkL('flPerm','Acepto la <b>permanencia de '+c.permanencia_meses+' meses</b> según mi contrato.'):'')+
       '<p class="kAu__cond">El cobro se hará de forma automática y recurrente en tu tarjeta (crédito, débito o prepago), según tu plan. Con débito o prepago, mantén saldo el día del cobro.'+(perm?' La permanencia y el retiro anticipado se rigen por los Términos y Condiciones de tu contrato.':' Puedes desactivarlo cuando quieras desde tu Perfil.')+'</p></div>'+
     '</div>'+
