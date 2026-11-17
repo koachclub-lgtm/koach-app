@@ -124,12 +124,12 @@ input:focus{outline:none}button:focus-visible{outline:2px solid var(--ink);outli
   <div id="error" class="msg err" hidden></div>
 
   <section id="form" hidden>
-    <div class="k a" style="--d:0"><b>Tu primer mes</b> · Cobro automático mensual</div>
+    <div class="k a" style="--d:0" id="kTop"><b>Tu primer mes</b> · Cobro automático mensual</div>
     <div class="hero a" style="--d:1">
       <div class="precio" id="pm">$29.900</div>
       <div class="luego"><span class="normal">Valor mensual<br>normal</span><span class="lista" id="lista">$80.000</span></div>
     </div>
-    <div class="info a" style="--d:2">Luego paga <b id="mens">$49.900</b> al mes desde el segundo mes, con contrato de fidelidad de <b id="perm">12 meses</b>.</div>
+    <div class="info a" style="--d:2" id="infoTxt">Luego paga <b id="mens">$49.900</b> al mes desde el segundo mes, con contrato de fidelidad de <b id="perm">12 meses</b>.</div>
     <details class="det a" style="--d:2" id="det">
       <summary>DETALLE DEL PAGO <span class="tt" id="dTot">$29.900</span><svg class="fl" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></summary>
       <div class="cu">
@@ -199,7 +199,7 @@ input:focus{outline:none}button:focus-visible{outline:2px solid var(--ink);outli
     if(susc!=='activa'){$('mal').hidden=false;if(T)fetch(API,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({accion:'regreso_fallo',t:T,o:O})}).catch(function(){});return}
     $('ok').hidden=false;
     if(T)fetch(API,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({accion:'regreso_listo',t:T,o:O})})
-      .then(function(r){return r.json()}).then(function(d){if(d&&d.primer_mes)$('okTxt').textContent='Tu primer mes es de '+clp(d.primer_mes)+' y luego '+clp(d.monto)+' mensuales. Te enviamos la confirmación y el acceso a tu App KOACH por WhatsApp.'}).catch(function(){});
+      .then(function(r){return r.json()}).then(function(d){if(d&&d.primer_mes)$('okTxt').textContent=(d.primer_mes===d.monto?'Tu membresía es de '+clp(d.monto)+' mensuales.':'Tu primer mes es de '+clp(d.primer_mes)+' y luego '+clp(d.monto)+' mensuales.')+' Te enviamos la confirmación y el acceso a tu App KOACH por WhatsApp.'}).catch(function(){});
     return;
   }
 
@@ -222,7 +222,8 @@ input:focus{outline:none}button:focus-visible{outline:2px solid var(--ink);outli
     if(d.ya_activa){$('cargando').hidden=true;$('ok').hidden=false;$('okTxt').textContent='Tu pago automático ya está activo. Cualquier duda, escríbele a Jake por WhatsApp.';return}
     if(d.vencida)return err('Esta oferta terminó'+(d.oferta&&d.oferta.fin_texto?' el '+d.oferta.fin_texto:'')+'. Escríbele a Jake y te contamos las opciones vigentes.');
     var o=d.oferta;
-    $('pm').textContent=clp(o.primer_mes);$('mens').textContent=clp(o.monto);$('lista').textContent=clp(o.precio_lista);$('perm').textContent=o.permanencia_meses+' meses';
+    $('pm').textContent=clp(o.primer_mes);$('mens').textContent=clp(o.monto);
+    if(o.primer_mes===o.monto){$('kTop').innerHTML='<b>Tu membresía</b> · Cobro automático mensual';$('infoTxt').innerHTML='Pagas <b>'+clp(o.monto)+'</b> cada mes con cobro automático, con contrato de fidelidad de <b>'+o.permanencia_meses+' meses</b>.'}$('lista').textContent=clp(o.precio_lista);$('perm').textContent=o.permanencia_meses+' meses';
     if(o.fin_texto)$('chica').textContent+=' Válido hasta el '+o.fin_texto+'.';
     S.o=o;detalle();
     $('acpTxt').innerHTML='Acepto la <b>fidelidad por '+o.permanencia_meses+' meses</b> con cobro automático en mi tarjeta.';
