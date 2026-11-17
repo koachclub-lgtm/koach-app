@@ -2422,6 +2422,17 @@ html,button,input,.pvS,.chk,.setChip{touch-action:manipulation}
 .avPr:not(:first-of-type) .avPr__n{color:#5E5D59}
 .avPr small{display:block;font-family:var(--font-mono,monospace);font-size:9.5px;letter-spacing:.12em;color:#A7A9AE}
 .avPr b{display:block;font-size:22px;letter-spacing:-.02em;margin-top:2px}.avPr em{font-style:normal;font-size:12px;color:#A7A9AE}
+.avTest{background:#0E0F10;color:#F4F3F0;border-radius:22px;padding:16px;margin-bottom:16px}
+.avTest .a2k{color:rgba(244,243,240,.55)}.avTest .a2h{color:#F4F3F0}
+.avTf{border-top:1px solid rgba(244,243,240,.12);padding:12px 0 4px}
+.avTf__t{display:flex;justify-content:space-between;gap:8px;font:700 10.5px 'Space Mono',monospace;letter-spacing:.1em}.avTf__t em{font-style:normal;color:#3EC6B0}
+.avTf__v{display:flex;align-items:baseline;justify-content:space-between;margin-top:6px}
+.avTf__v b{font-family:'KOACH Display','Archivo',sans-serif;font-weight:900;font-size:30px}.avTf__v b i{font-style:normal;font-size:14px;margin-left:2px}
+.avTf__v strong{font-family:'KOACH Display','Archivo',sans-serif;font-weight:900;font-size:26px}.avTf__v strong.up{color:#3EC6B0}
+.avTf small{display:block;font:400 11px/1.4 'Space Mono',monospace;color:rgba(244,243,240,.6);margin-top:4px}
+.avTf svg{display:block;width:100%;height:70px;margin-top:8px}.avTf path{fill:none;stroke:#F4F3F0;stroke-width:2.5;vector-effect:non-scaling-stroke;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:1;stroke-dashoffset:1}
+.avTf.on path{animation:avDraw 1.2s cubic-bezier(.45,0,.2,1) forwards}@keyframes avDraw{to{stroke-dashoffset:0}}
+@media (prefers-reduced-motion:reduce){ .avTf path{stroke-dashoffset:0} .avTf.on path{animation:none} }
 .avBox{background:rgba(255,255,255,.5);border:1px solid rgba(18,18,18,.08);border-radius:22px;padding:16px;margin-bottom:16px}
 .avBox:empty{display:none}
 .avK2{font-family:var(--font-mono,monospace);font-size:10px;letter-spacing:.16em;color:#5E5D59;margin-bottom:6px}
@@ -4730,6 +4741,7 @@ html.en-av body{background:transparent}
     <div id="avX" aria-live="polite"></div>
     <header class="kh"><div class="kh__top"><span class="kh__brand">KOACH FITNESS CLUB</span></div><h1 class="kh__t">Tus avances</h1><div class="kh__k kh__k--sub" id="aSub">LO QUE LOS NÚMEROS DEMUESTRAN</div></header>
     <div class="avRes" id="avRes"></div>
+    <section class="avTest" id="avTest" aria-label="Resultado de tu ciclo" hidden></section>
     <section class="avBox" id="avComp" aria-label="Tu cambio corporal"></section>
     <section class="avTop" id="avTop5" aria-label="Top 5 personal records"></section>
     <section id="avFuerza" aria-label="Tu versión más fuerte"></section>
@@ -9978,7 +9990,25 @@ async function loadAvances0(){
   }catch(e){ console.error('avances', e); klog && klog('AVANCES_LOAD_FAILED', { error:String((e&&e.message)||e) })
     document.getElementById('avTop5').innerHTML='<div class="avErr"><b>NO PUDIMOS CARGAR TUS AVANCES</b><span>Revisa tu conexión.</span><button type="button" onclick="loadAvances()">REINTENTAR</button></div>' }
 }
-function pintarAvancesV2(){
+// c292 · RESULTADO DEL CICLO: test de fuerza (RM) evaluado por tu KOACH + progreso del ejercicio en el ciclo, con línea animada
+async function avTestPintar(){ const el=document.getElementById('avTest'); if(!el||!S.perfil) return
+  const r=await sb.from('test_rm').select('id,ejercicio_id,ciclo,semana,fecha,reps_objetivo,reps,peso,e1rm,ejercicios(nombre)').eq('socio_id',S.perfil.id).eq('anulado',false).order('fecha',{ascending:false}).limit(12)
+  if (r.error || !(r.data||[]).length){ el.hidden=true; return }
+  const ciclo=r.data[0].ciclo, vistos={}, tests=r.data.filter(function(t){ if(t.ciclo!==ciclo||vistos[t.ejercicio_id]) return false; vistos[t.ejercicio_id]=1; return true })
+  const filas=await Promise.all(tests.map(async function(t){ const q=await sb.rpc('koach_progreso_ejercicio',{ p_socio:S.perfil.id, p_ejercicio:t.ejercicio_id, p_alcance:'ciclo' })
+    const pts=((q.data&&q.data.puntos)||[]).filter(function(p){return p.e1rm!=null}); return { t:t, pts:pts } }))
+  el.innerHTML='<div class="a2k">RESULTADO DE TU CICLO'+(ciclo?' '+ciclo:'')+'</div><h3 class="a2h">Tu test<br>de fuerza</h3>'+filas.map(function(f){ const t=f.t, p=f.pts, a=p[0]
+    const pct=(a&&a.e1rm>0)?Math.round((t.e1rm/a.e1rm-1)*1000)/10:null
+    let sv=''; if (p.length>1){ const W=300,H=70, vs=p.map(function(x){return +x.e1rm}), mn=Math.min.apply(null,vs), mx=Math.max.apply(null,vs)||1, rg=(mx-mn)||1
+      const d=p.map(function(x,i){ return (i?'L':'M')+(i*(W-8)/(p.length-1)+4).toFixed(1)+' '+(H-6-((+x.e1rm-mn)/rg)*(H-14)).toFixed(1) }).join(' ')
+      sv='<svg viewBox="0 0 '+W+' '+H+'" preserveAspectRatio="none" aria-hidden="true"><path d="'+d+'" pathLength="1"/></svg>' }
+    return '<div class="avTf"><div class="avTf__t"><span>'+plEscA((t.ejercicios&&t.ejercicios.nombre)||'Ejercicio').toUpperCase()+'</span><em>TEST '+t.reps_objetivo+'RM</em></div>'+
+      '<div class="avTf__v"><b>'+avKg(t.peso)+'<i>KG</i> × '+t.reps+'</b>'+(pct!=null?'<strong class="'+(pct>0?'up':'')+'">'+(pct>0?'+':'')+String(pct).replace('.',',')+'%</strong>':'')+'</div>'+
+      (pct!=null?'<small>Tu fuerza estimada pasó de '+avKg(a.e1rm)+' a '+avKg(t.e1rm)+' kg en este ciclo</small>':'')+sv+'</div>' }).join('')
+  el.hidden=false
+  try{ const io=new IntersectionObserver(function(es){ es.forEach(function(e){ if(e.isIntersecting){ e.target.classList.add('on'); io.unobserve(e.target) } }) },{threshold:.3}); el.querySelectorAll('.avTf').forEach(function(x){ io.observe(x) }) }catch(_){ el.querySelectorAll('.avTf').forEach(function(x){ x.classList.add('on') }) }
+}
+function pintarAvancesV2(){ try{ avTestPintar() }catch(_){}
   const v=S.av||{}, t5=v.top5||[], pg=v.progresos||[], tn=v.tonelaje||[]
   document.getElementById('avRes').innerHTML=
     '<div class="a2n"><b>'+(v.sesiones||0)+'</b><small>SESIONES<br>ENTRENADAS</small></div>'+
