@@ -50,11 +50,11 @@ function cmpChart(evs){
   const anc=f=>{ const i=fechas.indexOf(f); return fechas.length>1&&i===0?'start':fechas.length>1&&i===fechas.length-1?'end':'middle' }
   const linea=(arr,k,col,abajo)=>{ if(arr.length<2) return ''; const vs=arr.map(e=>+e[k]), mn=Math.min(...vs), mx=Math.max(...vs), rg=Math.max(.5,mx-mn)
     const Y=v=>T+(H-T-B)*(1-(v-mn+rg*.15)/(rg*1.3))
-    return '<polyline class="cmp__ln" stroke="'+col+'" points="'+arr.map(e=>X(e.fecha)+','+Y(+e[k])).join(' ')+'"/>'+
-      arr.map(e=>'<rect x="'+(X(e.fecha)-3.5)+'" y="'+(Y(+e[k])-3.5)+'" width="7" height="7" fill="'+col+'"/><text class="cmp__tx" x="'+X(e.fecha)+'" y="'+(Y(+e[k])+(abajo?17:-8))+'" text-anchor="'+anc(e.fecha)+'">'+cmpF1(e[k])+'</text>').join('') }
+    return '<polyline class="cmp__ln" style="stroke:'+col+'" points="'+arr.map(e=>X(e.fecha)+','+Y(+e[k])).join(' ')+'"/>'+
+      arr.map(e=>'<rect x="'+(X(e.fecha)-3.5)+'" y="'+(Y(+e[k])-3.5)+'" width="7" height="7" style="fill:'+col+'"/><text class="cmp__tx" x="'+X(e.fecha)+'" y="'+(Y(+e[k])+(abajo?17:-8))+'" text-anchor="'+anc(e.fecha)+'">'+cmpF1(e[k])+'</text>').join('') }
   let ax=''; fechas.forEach(f=>{ ax+='<text class="cmp__tx" x="'+X(f)+'" y="'+(H-6)+'" text-anchor="'+anc(f)+'">'+cmpFecha(f)+'</text>' })
-  return '<div class="cmp__ch"><div class="cmp__lg"><span style="color:#121212">% GRASA</span><span style="color:#2BB3C0">MASA MUSCULAR (KG)</span></div>'+
-    '<svg viewBox="0 0 '+W+' '+H+'" role="img" aria-label="Tendencia de grasa y masa muscular entre evaluaciones"><line class="cmp__gl" x1="'+L+'" x2="'+(W-R)+'" y1="'+(H-B)+'" y2="'+(H-B)+'"/>'+ax+linea(g,'porcentaje_grasa','#121212')+linea(m,'masa_muscular_kg','#2BB3C0',true)+'</svg></div>'
+  return '<div class="cmp__ch"><div class="cmp__lg"><span style="color:var(--cI,#121212)">% GRASA</span><span style="color:var(--cS,#2BB3C0)">MASA MUSCULAR (KG)</span></div>'+
+    '<svg viewBox="0 0 '+W+' '+H+'" role="img" aria-label="Tendencia de grasa y masa muscular entre evaluaciones"><line class="cmp__gl" x1="'+L+'" x2="'+(W-R)+'" y1="'+(H-B)+'" y2="'+(H-B)+'"/>'+ax+linea(g,'porcentaje_grasa','var(--cI,#121212)')+linea(m,'masa_muscular_kg','var(--cS,#2BB3C0)',true)+'</svg></div>'
 }
 const CMP_PL=[['triceps','TRÍCEPS',1],['biceps','BÍCEPS',1],['subescapular','SUBESCAPULAR',1],['crestaIliaca','CRESTA ILÍACA',1],['supraespinal','SUPRAESPINAL',0],['abdominal','ABDOMINAL',0],['muslo','MUSLO ANTERIOR',0],['pantorrilla','PANTORRILLA MEDIAL',0]]
 const CMP_PE=[['brazo','BRAZO RELAJADO'],['muslo','MUSLO MEDIO'],['pantorrilla','PANTORRILLA MÁX.'],['cintura','CINTURA'],['cadera','CADERA']]
@@ -165,7 +165,7 @@ async function plEscCargar(){
   const adh=cu?'<div class="plEsR"><div><b>'+(cu.semana.adherencia!=null?cu.semana.adherencia+'%':'—')+'</b><small>ADHERENCIA SEMANA</small></div><div><b>'+cu.semana.cumplidas+'</b><small>COMIDAS CUMPLIDAS</small></div><div><b>'+cu.semana.cheat+'</b><small>CHEAT MEALS</small></div><div><b>'+cu.hoy.hechas+'/'+nCom+'</b><small>HOY</small></div>'+
     (reg.length?'':'<p>Todavía no registra comidas en su app.</p>')+'</div>':''
   const s=(typeof KE!=='undefined')?KE.semana(rows):null, foco=(NPL.data&&NPL.data.vigente&&NPL.data.vigente.intake&&NPL.data.vigente.intake.foco)||'general'
-  const VC={ adecuado:['ADECUADO','#2F7D4F'], relativo:['RELATIVO','#C48A2C'], alerta:['ALERTA','#121212'] }
+  const VC={ adecuado:['ADECUADO','#2F7D4F'], relativo:['RELATIVO','#C48A2C'], alerta:['ALERTA','var(--cI,#121212)'] }
   const hd='<span class="cmp__k" style="margin:18px 0 8px">REGISTRO DE COMIDAS Y ESCÁNER · FOCO '+adEsc(((PL_FOCO.find(x=>x[0]===foco)||PL_FOCO[0])[1]))+'</span>'
   if(!rows.length){ box.innerHTML=hd+adh+'<div class="cmp__vac" style="padding:14px">Todavía no escanea platos. En su app aparece ESCANEAR en cada comida del plan.</div>'; return }
   box.innerHTML=hd+adh+(s?'<div class="plEsR"><div><b>'+s.escaneos+'</b><small>PLATOS</small></div><div><b>'+s.dias+'</b><small>DÍAS</small></div><div><b>'+(s.aciertos!=null?s.aciertos+'%':'—')+'</b><small>EN PLAN</small></div><div><b>'+s.alertas+'</b><small>ALERTAS</small></div>'+
@@ -380,7 +380,7 @@ function plCalPintar(f, r, ev){
   $('plKcD').innerHTML=d==null?'':'<b class="pl'+(o||'')+'">'+(d>0?'+':d<0?'−':'±')+plMil(Math.abs(d))+' KCAL · '+(d>0?'+':d<0?'−':'')+Math.abs(Math.round(d/t*100))+' %</b> VS MANTENCIÓN'
   const sem=f.semanas||6, kgs=d!=null?d*7/7700:null
   $('plProy').innerHTML=kgs==null?'':'PROYECCIÓN · <b>'+(kgs>0?'+':kgs<0?'−':'±')+cmpF1(Math.abs(kgs))+' KG / SEMANA</b> · '+(kgs>0?'+':kgs<0?'−':'±')+cmpF1(Math.abs(kgs*sem))+' kg en '+sem+' semanas <small>(balance energético, orientativo)</small>'
-  const M=[['plP','proteina','#2BB3C0'],['plC','carbohidrato','#121212'],['plG','grasa','#A3A29C']]
+  const M=[['plP','proteina','var(--cS,#2BB3C0)'],['plC','carbohidrato','var(--cI,#121212)'],['plG','grasa','#A3A29C']]
   M.forEach(([id,key,c])=>{ const x=r&&r[key]; $(id+'x').textContent=x?(x.gkg!=null?String(x.gkg).replace('.',',')+' G/KG · ':'')+x.pct+' % · '+plMil(x.g*(key==='grasa'?9:4))+' KCAL':'—'; const b=$(id+'b'); b.style.width=(x?x.pct:0)+'%'; b.style.background=c })
   $('plSt').innerHTML=r?M.map(([,key,c])=>'<i style="flex:'+r[key].pct+';background:'+c+'"></i>').join(''):''
   const al=[]
@@ -397,7 +397,7 @@ function plAncho(p, o){
   o=o||{}; const c=KC.normPlan(p&&p.contenido), r=KC.reparto(p.kcal,p.proteina_g,p.carbohidrato_g,p.grasa_g,o.peso), pe=KN.periodo(p)
   const obj=(p.intake&&p.intake.objetivo)||null, dt=p.tdee&&p.kcal?Math.round((p.kcal-p.tdee)/p.tdee*100):null, ol=PL_OBJ.find(x=>x[0]===(obj||(dt==null?null:dt<-3?'deficit':dt>3?'super':'mant')))||null
   const e=adEsc, ali=a=>'<li><span>'+e(a.alimento)+'</span><b>'+e(a.cantidad||'')+'</b></li>'
-  const mac=r?[['PROTEÍNA',r.proteina,'#2BB3C0'],['CARBOHIDRATOS',r.carbohidrato,'#F4F3F0'],['GRASAS',r.grasa,'#8F8D86']].map(([l,x,col])=>'<div class="plW__m"><span>'+l+'</span><b>'+Math.round(x.g)+'<i>g</i></b><small>'+(x.gkg!=null?String(x.gkg).replace('.',',')+' g/kg · ':'')+x.pct+' %</small><em style="--w:'+x.pct+'%;--c:'+col+'"></em></div>').join(''):''
+  const mac=r?[['PROTEÍNA',r.proteina,'var(--cS,#2BB3C0)'],['CARBOHIDRATOS',r.carbohidrato,'#F4F3F0'],['GRASAS',r.grasa,'#8F8D86']].map(([l,x,col])=>'<div class="plW__m"><span>'+l+'</span><b>'+Math.round(x.g)+'<i>g</i></b><small>'+(x.gkg!=null?String(x.gkg).replace('.',',')+' g/kg · ':'')+x.pct+' %</small><em style="--w:'+x.pct+'%;--c:'+col+'"></em></div>').join(''):''
   const col=(t,body)=>body?'<div class="plW__c"><span class="cmp__k">'+t+'</span>'+body+'</div>':''
   const lst=a=>a.length?'<ul class="plW__ul">'+a.map(x=>'<li>'+e(x)+'</li>').join('')+'</ul>':''
   return '<div class="plW">'+
