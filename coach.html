@@ -3675,6 +3675,7 @@ html[data-fprog] .scMenu a{min-height:54px !important;border-radius:999px !impor
 @keyframes krcUp{from{transform:scaleY(0);opacity:.3}to{transform:scaleY(1);opacity:1}}
 @media (prefers-reduced-motion:reduce){ .krc__c i{animation:none} }
 @media (max-width:640px){ .krc__hero{grid-template-columns:1fr 1fr} .krc__ar{display:none} .krc__pct{grid-column:1/-1} .krc__bars{gap:5px} .krc__c em{font-size:9px} }
+.cgPr{border-color:rgba(62,198,176,.6) !important;background:rgba(62,198,176,.08) !important}.cgPr b{color:#3EC6B0 !important;font-size:clamp(24px,3.2vw,32px) !important}.cgPr em{font-style:normal;color:#3EC6B0}.cgG__pr{fill:#3EC6B0;font:700 10px 'Space Mono',monospace}.cgG__p.pr{stroke:#3EC6B0}
 .cgG__hit{fill:transparent;cursor:pointer}
 .cgG__guia{stroke:rgba(62,198,176,.5);stroke-width:1;stroke-dasharray:3 4;opacity:0;vector-effect:non-scaling-stroke}.cgG__guia.on{opacity:1}
 .cgG__p.sel{fill:#3EC6B0;stroke:#F4F3F0;r:7px}.cgG__tp.sel rect{stroke:#F4F3F0;stroke-width:2}
@@ -9647,17 +9648,22 @@ function cgAntig(h){ if(!h || h.dias==null || h.dias<=56) return ''
 const CGP={ ej:null, be:null, alc:'ciclo', cache:{}, form:false, rm:6, res:false }
 function cgSocio(){ return window._histSocio || (F && F.id) || null }
 function cgDrawer(ejId, beId){
-  CGP.ej=ejId; CGP.be=beId||null; CGP.form=false; CGP.res=false; CGP.alc='ciclo'
+  CGP.ej=ejId; CGP.be=beId||null; CGP.form=false; CGP.res=false; CGP.alc='ciclo'; CGP.sel=null
   const m=document.getElementById('mCargas'); m.classList.add('mCg--pro'); m.style.display='flex'; try{ s4Son('appear',0.75) }catch(_){}
-  cgPintar(); cgCargar()
+  cgPintar(); cgCargar(true)
+  clearInterval(CGP.tm); CGP.tm=setInterval(function(){ const m=document.getElementById('mCargas'); if (!m || m.style.display==='none' || !m.classList.contains('mCg--pro')){ clearInterval(CGP.tm); return } if (!CGP.form) cgCargar(true, true) }, 15000)
 }
-async function cgCargar(){ const soc=cgSocio(), k=soc+'|'+CGP.ej+'|'+CGP.alc
+// c296 · siempre datos frescos: muestra lo guardado al instante y vuelve a pedirlo (lo que el socio registra en vivo aparece solo)
+async function cgCargar(fresco, silencio){ const soc=cgSocio(), k=soc+'|'+CGP.ej+'|'+CGP.alc
   if (!soc || !CGP.ej) return
-  if (!CGP.cache[k]){ const r=await sb.rpc('koach_progreso_ejercicio',{ p_socio:soc, p_ejercicio:CGP.ej, p_alcance:CGP.alc })
-    CGP.cache[k]= r.error ? { error:r.error.message } : r.data }
+  const prev=CGP.cache[k]
+  if (!prev || fresco){ const r=await sb.rpc('koach_progreso_ejercicio',{ p_socio:soc, p_ejercicio:CGP.ej, p_alcance:CGP.alc })
+    if (r.error){ if (!prev) CGP.cache[k]={ error:r.error.message } } else CGP.cache[k]=r.data }
   if (soc+'|'+CGP.ej+'|'+CGP.alc!==k) return
-  cgPintar(true) }
-function cgAlc(a){ if (CGP.alc===a) return; CGP.alc=a; s4Son('scan-paso',0.55); cgPintar(); cgCargar() }
+  const igual = prev && JSON.stringify(prev)===JSON.stringify(CGP.cache[k])
+  if (silencio && igual) return
+  const sel=CGP.sel; cgPintar(!igual || !silencio); if (silencio && sel!=null && CGP.pts && sel<CGP.pts.length) cgPunto(sel,true) }
+function cgAlc(a){ if (CGP.alc===a) return; CGP.alc=a; s4Son('scan-paso',0.55); cgPintar(); cgCargar(true) }
 function cgN(v){ return v==null?'—':(Math.round(+v*10)/10).toLocaleString('es-CL') }
 function cgPintar(anim){
   const ejId=CGP.ej, beId=CGP.be, e=(EJCAT||[]).concat(CG_EXTRA||[]).find(function(x){return x.id===ejId})||{}, h=HIST[ejId]
@@ -9675,9 +9681,10 @@ function cgPintar(anim){
       const a=pts[0], tests=pts.filter(function(p){return p.es_test}), z=tests.length?tests[tests.length-1]:pts[pts.length-1]
       const best=pts.reduce(function(m,p){ return +p.e1rm>+m.e1rm?p:m }, pts[0])
       const pct=a.e1rm>0 ? Math.round((z.e1rm/a.e1rm-1)*1000)/10 : 0
-      html+='<div class="cgHero"><div><small>'+(CGP.alc==='ciclo'?'INICIO DEL CICLO':'PRIMER REGISTRO')+'</small><b>'+cgN(a.peso)+' KG × '+a.reps+'</b><span>'+cgF(a.fecha)+' · 1RM EST. '+cgN(a.e1rm)+' KG</span></div>'+
-        '<div><small>'+(z.es_test?'TEST '+z.reps+'RM':'ÚLTIMO')+'</small><b>'+cgN(z.peso)+' KG × '+z.reps+'</b><span>'+cgF(z.fecha)+' · 1RM EST. '+cgN(z.e1rm)+' KG</span></div>'+
-        '<div class="cgPct'+(pct>0?' up':pct<0?' dn':'')+'"><small>FUERZA ESTIMADA</small><b>'+(pct>0?'+':'')+String(pct).replace('.',',')+'%</b><span>MEJOR '+cgN(best.e1rm)+' KG · '+cgF(best.fecha)+'</span></div></div>'+
+      const ult=pts[pts.length-1], pctPr=a.e1rm>0?Math.round((best.e1rm/a.e1rm-1)*1000)/10:0
+      html+='<div class="cgHero"><div><small>PRIMERA MARCA'+(CGP.alc==='ciclo'?' · CICLO':'')+'</small><b>'+cgN(a.peso)+' KG × '+a.reps+'</b><span>'+cgF(a.fecha)+' · 1RM EST. '+cgN(a.e1rm)+' KG</span></div>'+
+        '<div class="cgPr"><small>PR · 1RM ESTIMADO</small><b>'+cgN(best.e1rm)+' KG</b><span>'+cgN(best.peso)+' KG × '+best.reps+' · '+cgF(best.fecha)+(pctPr>0?' · <em>+'+String(pctPr).replace('.',',')+'%</em>':'')+'</span></div>'+
+        '<div><small>'+(ult.es_test?'ÚLTIMA MARCA · TEST '+ult.reps+'RM':'ÚLTIMA MARCA')+'</small><b>'+cgN(ult.peso)+' KG × '+ult.reps+'</b><span>'+cgF(ult.fecha)+' · 1RM EST. '+cgN(ult.e1rm)+' KG'+(pct!==0?' · '+(pct>0?'+':'')+String(pct).replace('.',',')+'%':'')+'</span></div></div>'+
         cgGrafico(pts, anim)
     }
     // TEST RM del ciclo
@@ -9695,7 +9702,7 @@ function cgPintar(anim){
   if (d && !d.error && (d.puntos||[]).length) html+='<details class="cgDet"><summary>DETALLE POR SESIÓN</summary><ol class="cgHist">'+d.puntos.slice().reverse().map(function(x){ return '<li class="'+(x.es_test?'t':'')+'"><span>'+cgF(x.fecha)+'</span><b>'+(x.es_test?'TEST · ':'')+cgN(x.peso)+' KG × '+x.reps+'</b><em>'+(x.semana?'S'+x.semana:'')+(x.sets?' · '+x.sets+' SETS':'')+'</em></li>' }).join('')+'</ol></details>'
   document.getElementById('cgBody').innerHTML=html
   if (anim){ try{ s4Son('datos',0.5) }catch(_){} }
-  if (CGP.pts && document.getElementById('cgPt')) cgPunto(CGP.pts.length-1, true)
+  if (CGP.pts && document.getElementById('cgPt')){ const pr=CGP.pts.reduce(function(m,p,i){ return +p.e1rm>+CGP.pts[m].e1rm?i:m },0); cgPunto(CGP.sel!=null&&CGP.sel<CGP.pts.length?CGP.sel:CGP.pts.length-1, true) }
   if (CGP.form){ const f=document.querySelector('#cgBody .cgTf'); if(f) requestAnimationFrame(function(){ f.scrollIntoView({ block:'nearest', behavior:'smooth' }) }) }
 }
 function cgGrafico(pts, anim){
@@ -9710,15 +9717,15 @@ function cgGrafico(pts, anim){
   let g=''; for (let k=0;k<=3;k++){ const v=mn+(mx-mn)*k/3, y=Y(v); g+='<line x1="'+L+'" x2="'+(W-R)+'" y1="'+y.toFixed(1)+'" y2="'+y.toFixed(1)+'" class="cgG__l"/><text x="'+(L-8)+'" y="'+(y+4).toFixed(1)+'" text-anchor="end" class="cgG__t">'+Math.round(v)+'</text>' }
   const lbl=[0, pts.length-1]; if (pts.length>4) lbl.splice(1,0,Math.floor((pts.length-1)/2))
   lbl.forEach(function(i){ g+='<text x="'+xy[i][0].toFixed(1)+'" y="'+(H-10)+'" text-anchor="'+(i===0?'start':i===pts.length-1?'end':'middle')+'" class="cgG__t">'+cgF(pts[i].fecha)+'</text>' })
-  CGP.pts=pts; CGP.xy=xy; CGP.gH=[T,H-B]
+  CGP.pts=pts; CGP.xy=xy; CGP.gH=[T,H-B]; const iPr=pts.reduce(function(m,p,i){ return +p.e1rm>+pts[m].e1rm?i:m },0)
   const dots=pts.map(function(p,i){ const c=xy[i], dl2=(anim?(0.9+i*0.06):0).toFixed(2)+'s'
-    return p.es_test ? '<g class="cgG__tp" style="animation-delay:'+dl2+'"><rect x="'+(c[0]-7)+'" y="'+(c[1]-7)+'" width="14" height="14" transform="rotate(45 '+c[0]+' '+c[1]+')"/><text x="'+c[0]+'" y="'+(c[1]-14)+'" text-anchor="middle">'+p.reps+'RM</text></g>'
-      : '<circle cx="'+c[0].toFixed(1)+'" cy="'+c[1].toFixed(1)+'" r="'+(i===pts.length-1?5.5:3.5)+'" class="cgG__p'+(i===pts.length-1?' last':'')+'" style="animation-delay:'+dl2+'"><title>'+cgF(p.fecha)+' · '+cgN(p.peso)+' KG × '+p.reps+' · 1RM est. '+cgN(p.e1rm)+'</title></circle>' }).join('')
-  return '<div class="cgG'+(anim?' anim':'')+'"><div class="cgG__h"><small>FUERZA ESTIMADA · 1RM (KG)</small><span>'+pts.length+' '+(pts.length===1?'REGISTRO':'REGISTROS')+'</span></div>'+
+    return p.es_test ? '<g class="cgG__tp" style="animation-delay:'+dl2+'"><rect x="'+(c[0]-7)+'" y="'+(c[1]-7)+'" width="14" height="14" transform="rotate(45 '+c[0]+' '+c[1]+')"/><text x="'+c[0]+'" y="'+(c[1]-14)+'" text-anchor="middle">'+p.reps+'RM'+(i===iPr?' · PR':'')+'</text></g>'
+      : (i===iPr?'<text x="'+c[0].toFixed(1)+'" y="'+(c[1]-13).toFixed(1)+'" text-anchor="middle" class="cgG__pr">PR</text>':'')+'<circle cx="'+c[0].toFixed(1)+'" cy="'+c[1].toFixed(1)+'" r="'+(i===pts.length-1||i===iPr?5.5:3.5)+'" class="cgG__p'+(i===pts.length-1?' last':'')+(i===iPr?' pr':'')+'" style="animation-delay:'+dl2+'"><title>'+cgF(p.fecha)+' · '+cgN(p.peso)+' KG × '+p.reps+' · 1RM est. '+cgN(p.e1rm)+'</title></circle>' }).join('')
+  return '<div class="cgG'+(anim?' anim':'')+'"><div class="cgG__h"><small>1RM ESTIMADO (KG) · FUERZA MÁXIMA INDIRECTA</small><span>'+pts.length+' '+(pts.length===1?'REGISTRO':'REGISTROS')+'</span></div>'+
     '<svg viewBox="0 0 '+W+' '+H+'" preserveAspectRatio="none" role="img" aria-label="Gráfico de progreso de fuerza estimada"><defs><linearGradient id="cgGa" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#F4F3F0" stop-opacity=".28"/><stop offset="1" stop-color="#F4F3F0" stop-opacity="0"/></linearGradient></defs>'+
     g+'<path d="'+area+'" class="cgG__a" fill="url(#cgGa)"/><path d="'+dl+'" class="cgG__ln" pathLength="1"/><line id="cgGuia" class="cgG__guia" x1="0" x2="0" y1="'+T+'" y2="'+(H-B)+'"/>'+dots+
     pts.map(function(p,i){ return '<circle cx="'+xy[i][0].toFixed(1)+'" cy="'+xy[i][1].toFixed(1)+'" r="18" class="cgG__hit" data-i="'+i+'" onclick="cgPunto('+i+')"><title>'+cgF(p.fecha)+'</title></circle>' }).join('')+
-    '</svg><div class="cgG__ley">Cada punto es una sesión: su <b>mejor serie</b> convertida en <b>fuerza máxima estimada (1RM)</b>. Toca un punto para ver el detalle.</div><div class="cgPt" id="cgPt"></div></div>'
+    '</svg><div class="cgG__ley">Cada punto es una sesión: su <b>mejor serie</b> convertida en <b>1RM estimado</b> (fuerza máxima indirecta). Toca un punto para ver el detalle.</div><div class="cgPt" id="cgPt"></div></div>'
 }
 
 // c292 · EVALUAR RM: proyección por Epley inversa desde la mejor fuerza estimada reciente
@@ -9741,14 +9748,14 @@ function cgTestForm(d){
     '<div class="cgTb"><button type="button" onclick="CGP.form=false;cgPintar()">CANCELAR</button><button type="button" class="ink" onclick="cgTestGuardar()">GUARDAR TEST '+rm+'RM</button></div><em id="cgTe"></em></div>'
   return h }
 
-function cgPunto(i, silencio){ const p=(CGP.pts||[])[i], el=document.getElementById('cgPt'); if(!p||!el) return
+function cgPunto(i, silencio){ const p=(CGP.pts||[])[i], el=document.getElementById('cgPt'); if(!p||!el) return; CGP.sel=i
   document.querySelectorAll('#cgBody .cgG__p, #cgBody .cgG__tp').forEach(function(x,k){ x.classList.toggle('sel', k===i) })
   const g=document.getElementById('cgGuia'); if (g){ g.setAttribute('x1',CGP.xy[i][0]); g.setAttribute('x2',CGP.xy[i][0]); g.classList.add('on') }
   const prev=i>0?CGP.pts[i-1]:null, dif=prev?Math.round((p.e1rm-prev.e1rm)*10)/10:null
   el.innerHTML='<div class="cgPt__f"><small>'+(p.es_test?'TEST '+p.reps+'RM':'SESIÓN')+(p.semana?' · SEMANA '+p.semana:'')+(p.ciclo&&CGP.alc==='todo'?' · CICLO '+p.ciclo:'')+'</small><b>'+cgF(p.fecha)+'</b></div>'+
     '<div><small>'+(p.es_test?'RESULTADO DEL TEST':'MEJOR SERIE')+'</small><b>'+cgN(p.peso)+' KG × '+p.reps+' REPS</b></div>'+
     (p.sets?'<div><small>VOLUMEN DE LA SESIÓN</small><b>'+p.sets+' SERIES · '+cgN(Math.round(p.ton||0))+' KG</b></div>':'')+
-    '<div class="cgPt__e"><small>FUERZA MÁXIMA ESTIMADA · 1RM</small><b>'+cgN(p.e1rm)+' KG</b>'+(dif!=null?'<em class="'+(dif>0?'up':dif<0?'dn':'')+'">'+(dif>0?'+':'')+cgN(dif)+' KG vs. anterior</em>':'')+'</div>'+
+    '<div class="cgPt__e"><small>1RM ESTIMADO'+(i===(CGP.pts||[]).reduce(function(m,q,k){ return +q.e1rm>+CGP.pts[m].e1rm?k:m },0)?' · PR':'')+'</small><b>'+cgN(p.e1rm)+' KG</b>'+(dif!=null?'<em class="'+(dif>0?'up':dif<0?'dn':'')+'">'+(dif>0?'+':'')+cgN(dif)+' KG vs. anterior</em>':'')+'</div>'+
     '<p class="cgPt__n">1RM estimado = '+cgN(p.peso)+' kg × (1 + '+p.reps+' ÷ 30) · fórmula de Epley: la carga máxima que podría mover 1 vez, calculada sin tener que hacer el máximo.</p>'
   if (!silencio) try{ s4Son('scan-paso',0.45) }catch(_){}
 }
