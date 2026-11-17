@@ -4503,7 +4503,7 @@ async function entrar(){
     if(perfil.activo===false){ kAviso('Esta cuenta está desactivada.\nHabla con administración para reactivarla.','ACCESO'); await sb.auth.signOut(); vista('vLogin'); return }
     try{ localStorage.setItem('koach_rol', perfil.role) }catch(_e){}
     if(perfil.role==='socio'){ window.location.href = PUERTA.socio; return }   // c11.6: el socio vive en app.koachclub.cl
-    C.yo = perfil
+    C.yo = perfil; C.email = String(user.email||'').toLowerCase()
     document.documentElement.setAttribute('data-rol', perfil.role)
     const ROLN={admin:'ADMIN ⚙', coach:'KOACH', recepcion:'RECEPCIÓN', nutricionista:'NUTRICIÓN'}
     document.getElementById('rolBadge').textContent = (ROLN[perfil.role]||'EQUIPO')+' · '+(perfil.nombre||'').toUpperCase()+' · SALIR'
@@ -8937,8 +8937,8 @@ async function cobroEstadoPintar(){
     (su && su.estado==='activa' && (su.monto!==monto || (su.duracion_valor||1)!==per) ? '<div class="pfS">⚠ Su pago automático sigue cobrando '+adCLP(su.monto)+cada(su.duracion_valor||1)+'. Para aplicar '+adCLP(monto)+cada(per)+' debe desactivarlo y volver a activarlo en su app.</div>':'')+
     (ind && ind.cupon_monto ? '<div class="pfS">PRIMER MES '+adCLP(monto-ind.cupon_monto)+' · LUEGO '+adCLP(monto)+cada(per)+'</div>':'')+
     (ind && ind.nota ? '<div class="pfS">'+adEsc(ind.nota)+'</div>':'')+
-    (su && su.estado==='activa' ? '' : taSugPintar())+
-    '<div class="pfBtns"><button type="button" class="pfB" onclick="admTarifaAuto()">'+(ind?'CAMBIAR TARIFA':'ASIGNAR TARIFA EXCLUSIVA')+'</button>'+
+    (su && su.estado==='activa' || !accTarifas() ? '' : taSugPintar())+
+    '<div class="pfBtns">'+(accTarifas()?'<button type="button" class="pfB" onclick="admTarifaAuto()">'+(ind?'CAMBIAR TARIFA':'ASIGNAR TARIFA EXCLUSIVA')+'</button>':'')+
       (su && su.estado==='activa' && !(su.cobros_pagados>0) && su.inicio && su.inicio>hoyISO()?'<button type="button" class="pfB" onclick="admCobrarAhora()">COBRAR AHORA · PRIMER COBRO '+adF(su.inicio).toUpperCase()+'</button>':'')+
       (su && su.estado==='activa'?'<button type="button" class="pfB" onclick="admTerminarSinCobro()">'+(enPerm?'TERMINAR SIN COBRO DE SALIDA':'DESACTIVAR PAGO AUTOMÁTICO')+'</button>':'')+'</div>'
 }
@@ -8976,6 +8976,7 @@ function taSugPintar(){
       '<span class="taSug__s">'+why[id]+' · '+(o.perm?o.perm+' MESES':'SIN PERMANENCIA')+' · AÑO 1 '+adCLP(a1)+'</span></button>' }).join('')+'</div></div>'
 }
 function admTarifaAuto(pre){
+  if (!accTarifas()){ toast('Solo la cuenta admin de Matías puede asignar tarifas'); return }
   TA.monto=TA.ind?TA.ind.monto:TA.def; TA.tc=TA.ind?TA.ind.tipo_comercial:null; TA.perm=TA.ind?TA.ind.permanencia_meses:TA.defPerm; TA.per=1   // c216 · solo cobro mensual; el tipo de venta lo deduce el servidor del monto
   TA.primer=TA.ind&&TA.ind.cupon_monto?TA.ind.monto-TA.ind.cupon_monto:null; TA.notaPre=null
   if (pre){ TA.monto=pre.monto; TA.primer=pre.primer||null; TA.perm=pre.perm; TA.tc=pre.tc||null; TA.notaPre=pre.nota||null }
@@ -9014,7 +9015,7 @@ async function taGuardar(general){
   if (!general && TA.primer!=null && !(TA.primer>=350 && TA.primer<TA.monto)){ e.innerHTML='<div class="vtErr">El primer mes debe ser menor a la tarifa (mínimo $350).</div>'; return }
   if (b) { b.disabled=true; b.textContent='GUARDANDO…' }
   const yo=(C.yo&&((C.yo.nombre||'')+' '+(C.yo.apellido||'')).trim())||null
-  const r=await sb.rpc('admin_tarifa_auto_set',{ p_socio:F.id, p_monto: general?null:TA.monto, p_tc:null, p_nota:(document.getElementById('taN')||{}).value||null, p_actor_nombre:yo, p_permanencia:+TA.perm||0, p_periodo:+TA.per||1, p_cupon: (!general && TA.primer!=null) ? TA.monto-TA.primer : null, p_tc: general?null:(TA.tc==='promocion'||TA.tc==='convenio'?TA.tc:null) })
+  const r=await sb.rpc('admin_tarifa_auto_set',{ p_socio:F.id, p_monto: general?null:TA.monto, p_nota:(document.getElementById('taN')||{}).value||null, p_actor_nombre:yo, p_permanencia:+TA.perm||0, p_periodo:+TA.per||1, p_cupon: (!general && TA.primer!=null) ? TA.monto-TA.primer : null, p_tc: general?null:(TA.tc==='promocion'||TA.tc==='convenio'?TA.tc:null) })
   if (r.error){ e.innerHTML='<div class="vtErr">'+adEsc(vtError(r.error.message))+'</div>'; if(b){ b.disabled=false; b.textContent='GUARDAR TARIFA →' } return }
   document.getElementById('mAdm').classList.remove('vis')
   toast(general ? 'Vuelve a la tarifa general ✓' : (TA.primer!=null?'Primer mes '+adCLP(TA.primer)+' · luego ':'Tarifa ')+adCLP(TA.monto)+(TA.per>1?' cada '+TA.per+' meses':' al mes')+' asignada ✓ · el socio la ve en su app')
@@ -10352,6 +10353,9 @@ document.addEventListener('keydown', function(ev){
 })
 // ═══ c38 · CONTROL DE ACCESO POR PAGO (regla única en el servidor: koach_acceso_socio) ═══
 const ACC_EST={ sin_membresia:'SIN PAGO REGISTRADO', pago_pendiente:'PAGO PENDIENTE', vencida:'MEMBRESÍA VENCIDA', congelada:'MEMBRESÍA CONGELADA', futura:'MEMBRESÍA AÚN NO COMIENZA' }
+// c298 · asignar o cambiar tarifas de pago automático: solo la cuenta admin de Matías
+const TARIFA_ADMIN='matias@koachclub.cl'
+function accTarifas(){ return C.email===TARIFA_ADMIN && ((C.yo&&C.yo.role)==='admin') }
 function accEsCom(){ const r=(C.yo&&C.yo.role)||''; return r==='admin'||r==='recepcion' }
 async function accCargarTodos(){
   try{ const r=await sb.rpc('admin_acceso_socios'); if (r.error) return

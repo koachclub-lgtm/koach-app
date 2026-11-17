@@ -1,6 +1,7 @@
 -- Tarifas promocionales sugeridas desde la ficha del socio (Dashboard · PERFIL · PAGO AUTOMÁTICO)
 --  · el staff puede asignar un PRIMER MES distinto (ej. $39.000 → luego $59.000): se guarda como cupón del primer cobro (cupon_monto = monto − primer mes)
 --  · una asignación del staff es explícita: limpia el vencimiento (vence_at) heredado de una oferta de campaña
+--  · solo la cuenta admin matias@koachclub.cl puede asignar o cambiar tarifas
 --  · p_tc permite marcar la oferta como 'promocion' o 'convenio'
 drop function if exists public.admin_tarifa_auto_set(uuid, integer, text, text, text, integer, integer);
 
@@ -9,7 +10,7 @@ create or replace function public.admin_tarifa_auto_set(p_socio uuid, p_monto in
 returns jsonb language plpgsql security definer set search_path to 'public' as $function$
 declare v_tc text; v_cat int; v_per int := coalesce(p_periodo,1); v_cup int := nullif(coalesce(p_cupon,0),0);
 begin
-  if not public.es_comercial() then raise exception 'PERMISO_DENEGADO: tu rol no permite esta acción' using errcode='42501'; end if;
+  if lower(coalesce(auth.jwt()->>'email','')) <> 'matias@koachclub.cl' or not public.es_comercial() then raise exception 'PERMISO_DENEGADO: solo la cuenta admin de Matías puede asignar tarifas' using errcode='42501'; end if;
   if p_monto is null then delete from tarifas_auto_socio where socio_id=p_socio; return public.tarifa_auto_de(p_socio); end if;
   if p_monto < 350 then raise exception 'TARIFA: el monto mínimo es $350'; end if;
   if coalesce(p_permanencia,0) not between 0 and 24 then raise exception 'TARIFA: permanencia no válida'; end if;
