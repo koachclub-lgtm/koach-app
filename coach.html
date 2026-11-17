@@ -654,7 +654,7 @@ em.tbDolor,.selDolor{font-style:normal;color:#fff!important;background:#B3261E!i
 <script src="/domain/koach-composicion.js"></script>
 <script src="/domain/koach-nutricion-vista.js"></script>
 <script src="/domain/koach-avatar.js"></script>
-<script src="/domain/koach-timer.js?v=6"></script>
+<script src="/domain/koach-timer.js?v=7"></script>
 <script>/* c260 · sonido del dashboard: mismo motor y galería que la app del socio (/sfx). Interruptor: localStorage k_sonido */
 var KAU={ ctx:null }
 function kSonidoOn(){ try{ return localStorage.getItem('k_sonido')!=='0' }catch(_){ return true } }
@@ -6123,7 +6123,7 @@ function plTbHTML(ses){
     return '<section class="tbCol'+(_be==='hecho'?' tbCol--hecho':'')+(bi===TB.bi?' act':'')+'" data-bi="'+bi+'" aria-label="'+plEsc(bloqueTag(b,bi))+'">'+
       '<div class="tbColH"><span class="c">'+plEsc(bloqueTag(b,bi))+(_be==='hecho'?'<i>✓ HECHO</i>':_be==='curso'?'<i>● EN CURSO</i>':'')+'</span><span class="n">'+b.items.length+' EJ</span>'+
         (!(P&&P.ro)?'<button type="button" class="tbX tbX--mas" title="Opciones del bloque" aria-haspopup="menu" aria-label="Opciones de '+plEsc(bloqueTag(b,bi))+'" onclick="plBqMenu(event,'+bi+')">···</button>':'')+'</div>'+
-      '<div class="tbColP"><div class="tbMini"><button type="button" onclick="stepSets('+bi+',-1)" aria-label="Menos sets">−</button><b>'+(plEsVueltas(b)? KTIMER.norm(b.timer).series+(KTIMER.norm(b.timer).series>1?' VUELTAS':' VUELTA') : b.sets+' SETS')+'</b><button type="button" onclick="stepSets('+bi+',1)" aria-label="Más sets">+</button></div>'+
+      '<div class="tbColP"><div class="tbMini"><button type="button" onclick="stepSets('+bi+',-1)" aria-label="Menos sets">−</button><b>'+(plEsVueltas(b)? KTIMER.norm(b.timer).series+(KTIMER.norm(b.timer).modo==='emom'?(KTIMER.norm(b.timer).series>1?' SERIES':' SERIE'):(KTIMER.norm(b.timer).series>1?' VUELTAS':' VUELTA')) : b.sets+' SETS')+'</b><button type="button" onclick="stepSets('+bi+',1)" aria-label="Más sets">+</button></div>'+
         (b.timer ? '<button type="button" class="tbMini tbMini--tmr" onclick="plTimer('+bi+')" title="Editar temporizador" aria-label="Editar temporizador '+plEsc(KTIMER.resumen(b.timer))+'"><i>⏱</i><b>'+plEsc(plTmrCorto(b.timer))+'</b></button>' : '<div class="tbMini"><button type="button" onclick="stepDesc('+bi+',-15)" aria-label="Menos descanso">−</button><b>'+b.desc+'s DESC</b><button type="button" onclick="stepDesc('+bi+',15)" aria-label="Más descanso">+</button></div>')+'</div>'+
       b.items.map(function(it){ return plTbCard(it,bi) }).join('')+
       '<button type="button" class="tbAdd" onclick="abrirSelector(\'agregar\','+bi+',null)">+ EJERCICIO EN B'+(bi+1)+'</button></section>' }).join('')
@@ -6912,15 +6912,16 @@ async function stepDesc(bi,d){
 /* c188 · BLOQUE TEMPORIZADOR: Tabata / EMOM. Vive en bloques.timer (jsonb).
    SETS del bloque = series del timer (el socio registra un set por serie); DESC = pausa entre series. Queda en borrador hasta PUBLICAR. */
 function plTmrCorto(t){ const c=KTIMER.norm(t), sx=c.series>1?c.series+'×':'', m=function(v){ return v%60===0?(v/60)+'′':v>60?Math.floor(v/60)+'′'+(v%60):String(v) }
+  if (c.modo==='emom' && c.vt) return 'EMOM '+m(c.trabajo)+(c.trabajo%60===0?'':'″')+' · '+c.rondas+' EJ × '+c.series
   return c.modo==='emom' ? 'EMOM '+sx+m(c.trabajo)+(c.trabajo%60===0?'':'″')+' × '+c.rondas : 'TABATA '+m(c.trabajo)+'/'+m(c.descanso)+' · '+c.series+(c.series>1?' VUELTAS':' VUELTA') }
 /* c201 · tabata por vueltas: rondas = ejercicios del bloque (automático). Al agregar/quitar ejercicios se ajustan las rondas y se conservan las vueltas */
 function plTmrVueltas(b){ if(!b||!b.timer||!window.KTIMER||!KTIMER.porVueltas) return; const n=(b.items||[]).length
-  if (KTIMER.norm(b.timer).modo==='tabata' && n && (b.timer.rondas!==n || !b.timer.vt)){ b.timer=KTIMER.porVueltas(b.timer,n); b.sets=b.timer.series } }
-function plEsVueltas(b){ return !!(b&&b.timer&&window.KTIMER&&KTIMER.norm(b.timer).modo==='tabata'&&(b.items||[]).length) }
+  const _md=KTIMER.norm(b.timer).modo; if ((_md==='tabata'||_md==='emom') && n && (b.timer.rondas!==n || !b.timer.vt)){ b.timer=KTIMER.porVueltas(b.timer,n); b.sets=b.timer.series } }
+function plEsVueltas(b){ const md=b&&b.timer&&window.KTIMER&&KTIMER.norm(b.timer).modo; return !!((md==='tabata'||md==='emom')&&(b.items||[]).length) }
 function plTimer(bi, modo){
   const ses=P.sesiones[P.tab], b=ses&&ses.bloques[bi]; if(!b || !window.KTIMER) return
   const ro=!!(P&&P.ro)
-  KTIMER.editor(b.timer, { modo:modo, bloque:bloqueTag(b,bi), ejercicios:(b.items||[]).map(function(it){ return { nombre:it.nombre, reps:(it.reps?String(it.reps)+' REPS':'') } }),
+  KTIMER.editor(b.timer, { modo:modo, series:b.sets, bloque:bloqueTag(b,bi), ejercicios:(b.items||[]).map(function(it){ return { nombre:it.nombre, reps:(it.reps?String(it.reps)+' REPS':'') } }),
     onSave: ro ? null : function(cfg){ b.timer=cfg; b.sets=Math.max(1,Math.min(10,cfg.series)); if(cfg.series>1) b.desc=Math.max(15,Math.min(240,cfg.pausa||60)); plDirty(); repintarConservando(); toast('Timer '+KTIMER.resumen(cfg)+' · en borrador · PUBLICAR para que el socio lo vea') },
     onRemove: ro ? null : function(){ b.timer=null; plDirty(); repintarConservando(); toast('Timer quitado · en borrador') } })
 }

@@ -35,7 +35,7 @@ function norm(c){ c=c||{}; const modo = MODOS[c.modo] ? c.modo : 'tabata'
     pausa: clamp(c.pausa,0,600,60),
     prep: clamp(c.prep,0,60,10) }
   if (modo==='emom') o.descanso=0
-  if (c.vt && modo==='tabata') o.vt=1   // v1.5: formato ya expresado en vueltas (rondas = ejercicios)
+  if (c.vt && (modo==='tabata'||modo==='emom')) o.vt=1   // v1.5/1.6: formato expresado en vueltas/series (rondas = ejercicios)
   return o }
 function timeline(c){ c=norm(c); const out=[]; let ex=0
   if (c.prep) out.push({k:'prep', d:c.prep})
@@ -51,7 +51,7 @@ function timeline(c){ c=norm(c); const out=[]; let ex=0
    series = VUELTAS (1 vuelta = pasar una vez por todos los ejercicios); la pausa larga va entre vueltas.
    porVueltas(c,n,legacy): legacy=true convierte un formato en rondas totales (p. ej. 8 rondas con 4 ejercicios → 2 vueltas);
    legacy=false solo ajusta las rondas a n y conserva las vueltas (al agregar/quitar ejercicios). */
-function porVueltas(c,n,legacy){ c=norm(c); n=parseInt(n,10)||0; if(c.modo!=='tabata' || n<1) return c
+function porVueltas(c,n,legacy){ c=norm(c); n=parseInt(n,10)||0; if((c.modo!=='tabata'&&c.modo!=='emom') || n<1) return c
   if (c.rondas===n){ c.vt=1; return c }
   if (legacy==null) legacy=!c.vt
   const v = legacy ? Math.max(1,Math.min(10,Math.round(c.rondas*c.series/n))) : c.series
@@ -61,7 +61,7 @@ const mmss = s => { s=Math.max(0,Math.round(s)); return String(Math.floor(s/60))
 const corto = s => s%60===0 && s>=60 ? (s/60)+'′' : s>=60 ? Math.floor(s/60)+'′'+String(s%60).padStart(2,'0')+'″' : s+'″'
 function resumen(c){ if(!c) return ''; c=norm(c); const L=MODOS[c.modo].lab, sx=c.series>1?c.series+' × ':''
   if (c.modo==='tabata') return L+' · '+corto(c.trabajo)+'/'+corto(c.descanso)+' · '+c.series+(c.series>1?' VUELTAS':' VUELTA')+' × '+c.rondas+' EJ'
-  if (c.modo==='emom') return (c.trabajo===60?'EMOM':c.trabajo===120?'E2MOM':'EMOM '+corto(c.trabajo))+' · '+sx+c.rondas+' RONDAS'
+  if (c.modo==='emom') return (c.trabajo===60?'EMOM':c.trabajo===120?'E2MOM':'EMOM '+corto(c.trabajo))+' · '+(c.vt? c.rondas+' EJ × '+c.series+(c.series>1?' SERIES':' SERIE') : sx+c.rondas+' RONDAS')
   return '' }
 
 /* ── sonido (Web Audio, sin archivos) · patrón SmartWOD ──
@@ -227,7 +227,7 @@ function play(cfg, opts){
   const exDe = s => exs.length ? exs[(s.ex||0)%exs.length] : null
   const quedaTotal=()=>{ let q=Math.max(0,restante()); for(let j=T.i+1;j<segs.length;j++) q+=segs[j].d; return q }
   function etiqueta(s){ return s.k==='prep'?'PREPÁRATE':s.k==='rest'?'DESCANSO':s.k==='pause'?(c.modo==='tabata'?'PAUSA ENTRE VUELTAS':'PAUSA'):
-    c.modo==='emom'?'MINUTO '+s.r:'TRABAJO' }
+    c.modo==='emom'?(c.vt&&c.trabajo===60?'MINUTO '+((s.ex||0)+1):'MINUTO '+s.r):'TRABAJO' }
   function pintar(){
     const s=segs[T.i]; if(!s){ return fin() }
     el.dataset.k=s.k; el.classList.toggle('paused', T.pausa!=null)
@@ -242,7 +242,7 @@ function play(cfg, opts){
         (exA.reps&&s.k==='work'?'<em>'+esc(exA.reps)+'</em>':'')+(exN&&exN!==exA?'<em>DESPUÉS · '+esc(exN.nombre)+'</em>':'')+'</div></div>'
     }
     const rd = s.k==='prep' ? '<span>EMPIEZA EN</span>' :
-      (c.rondas>1&&s.r?'<span>'+(c.modo==='tabata'?'EJERCICIO':'RONDA')+' <b>'+String(s.r).padStart(2,'0')+'</b>/'+String(c.rondas).padStart(2,'0')+'</span>':'')+
+      (c.rondas>1&&s.r?'<span>'+(c.modo==='tabata'||c.vt?'EJERCICIO':'RONDA')+' <b>'+String(s.r).padStart(2,'0')+'</b>/'+String(c.rondas).padStart(2,'0')+'</span>':'')+
       (c.series>1&&s.s?'<span>'+(c.modo==='tabata'?'VUELTA':'SERIE')+' <b>'+s.s+'</b>/'+c.series+'</span>':'')
     const ctl = ''
     el.innerHTML='<div class="kt__top"><button class="kt__x'+(T.cerrar?' arm':'')+'" data-a="x" aria-label="Salir del temporizador">'+(T.cerrar?'TOCA PARA SALIR':'✕')+'</button>'+
@@ -310,25 +310,28 @@ function editor(cfg, opts){
   opts=opts||{}; css()
   const p0=PRESETS.find(x=>x.modo===(opts.modo||'tabata'))||PRESETS[0]
   const nEj=(opts.ejercicios||[]).length
-  let c=(cfg ? porVueltas(cfg, nEj) : porVueltas(Object.assign({modo:p0.modo},p0.c), nEj, true)), pre=cfg?null:p0.id
+  const ser0=parseInt(opts.series,10)||0   // v1.6: series del bloque (al crear) — EMOM con 3 ejercicios y 4 series = 3 × 4
+  const conSer=x=>{ if(ser0>0 && x.vt) x=norm(Object.assign({},x,{series:Math.min(10,ser0)})); return x }
+  let c=(cfg ? porVueltas(cfg, nEj) : conSer(porVueltas(Object.assign({modo:p0.modo},p0.c), nEj, true))), pre=cfg||ser0?null:p0.id
   const ov=document.createElement('div'); ov.className='kte'; ov.setAttribute('role','dialog'); ov.setAttribute('aria-modal','true')
   document.body.appendChild(ov)
   const fmt = (k,v) => (k==='rondas'||k==='series') ? String(v) : (v>=60? mmss(v) : v+'″')
   const pasos = { trabajo:v=>v>=120?30:v>=60?15:5, descanso:v=>v>=60?15:5, pausa:v=>15, prep:v=>5, rondas:()=>1, series:()=>1 }
   const lim = { trabajo:[5,3600], descanso:[0,600], rondas:[1,99], series:[1,10], pausa:[0,600], prep:[0,60] }
   function pintar(){
-    const vt = c.modo==='tabata' && nEj>0   // tabata por vueltas: rondas automáticas = ejercicios
+    const vt = (c.modo==='tabata'||c.modo==='emom') && nEj>0   // por vueltas/series: rondas automáticas = ejercicios
+    const em = c.modo==='emom', V = em?'SERIE':'VUELTA'
     const usa = { trabajo:true, descanso:c.modo==='tabata', rondas:!vt, series:true, pausa:c.series>1, prep:true }
-    const lab = { trabajo:c.modo==='emom'?'CADA':'TRABAJO', descanso:vt?'DESCANSO ENTRE EJERCICIOS':'DESCANSO', rondas:'RONDAS', series:vt?'VUELTAS':'SERIES', pausa:vt?'PAUSA ENTRE VUELTAS':'PAUSA ENTRE SERIES', prep:'CUENTA PREVIA' }
-    const campos = vt ? ['trabajo','descanso','series','pausa','prep'] : ['trabajo','descanso','rondas','series','pausa','prep']
-    const sub = p => { if (p.modo!=='tabata' || !nEj) return p.s; const q=porVueltas(Object.assign({modo:'tabata'},p.c), nEj, true); return corto(q.trabajo)+' / '+corto(q.descanso)+' · '+q.series+(q.series>1?' vueltas':' vuelta') }
+    const lab = { trabajo:c.modo==='emom'?'CADA':'TRABAJO', descanso:vt?'DESCANSO ENTRE EJERCICIOS':'DESCANSO', rondas:'RONDAS', series:vt&&!em?'VUELTAS':'SERIES', pausa:vt&&!em?'PAUSA ENTRE VUELTAS':'PAUSA ENTRE SERIES', prep:'CUENTA PREVIA' }
+    const campos = vt ? (em?['trabajo','series','pausa','prep']:['trabajo','descanso','series','pausa','prep']) : ['trabajo','descanso','rondas','series','pausa','prep']
+    const sub = p => { if (!nEj) return p.s; const q=porVueltas(Object.assign({modo:p.modo},p.c), nEj, true); return p.modo==='emom' ? 'cada '+corto(q.trabajo)+' · '+nEj+' ej × '+q.series+(q.series>1?' series':' serie') : corto(q.trabajo)+' / '+corto(q.descanso)+' · '+q.series+(q.series>1?' vueltas':' vuelta') }
     const ej=(opts.ejercicios||[]).map(x=>x&&x.nombre||'Ejercicio')
     // línea de tiempo: una fila por vuelta, un tramo por ejercicio, y la pausa entre vueltas
     const tl = vt ? '<div class="kte__k">CÓMO CORRE EL BLOQUE</div><div class="kte__tl">'+Array.from({length:c.series},(_,v)=>
-        '<div class="kte__v"><small>VUELTA '+(v+1)+'</small><div>'+ej.map(n=>'<span title="'+esc(n)+'">'+esc(n)+'<i>'+corto(c.trabajo)+'</i></span>').join('<u>'+(c.descanso?corto(c.descanso):'')+'</u>')+'</div></div>'+
+        '<div class="kte__v"><small>'+V+' '+(v+1)+'</small><div>'+ej.map(n=>'<span title="'+esc(n)+'">'+esc(n)+'<i>'+corto(c.trabajo)+'</i></span>').join('<u>'+(c.descanso?corto(c.descanso):'')+'</u>')+'</div></div>'+
         (v<c.series-1 && c.pausa ? '<p class="kte__pz">PAUSA '+corto(c.pausa)+'</p>' : '')).join('')+'</div>' : ''
-    const info = vt ? '<div class="kte__auto"><b>'+nEj+'</b><span>RONDAS POR VUELTA · AUTOMÁTICO<br><i>1 ronda por ejercicio del bloque</i></span></div>' : ''
-    ov.innerHTML='<div class="kte__in"><div class="kte__L"><h3>Bloque temporizador</h3><p class="kte__d">'+esc(opts.bloque||'')+(nEj?' · '+nEj+' ejercicio'+(nEj>1?'s':'')+(vt?' · 1 vuelta = todos los ejercicios una vez':' rotan por ronda'):'')+'</p>'+
+    const info = vt ? '<div class="kte__auto"><b>'+nEj+'</b><span>'+(em?'EJERCICIOS POR SERIE · AUTOMÁTICO<br><i>cada '+corto(c.trabajo)+' un ejercicio · '+nEj+' × '+c.series+' = '+(nEj*c.series)+' rondas</i>':'RONDAS POR VUELTA · AUTOMÁTICO<br><i>1 ronda por ejercicio del bloque</i>')+'</span></div>' : ''
+    ov.innerHTML='<div class="kte__in"><div class="kte__L"><h3>Bloque temporizador</h3><p class="kte__d">'+esc(opts.bloque||'')+(nEj?' · '+nEj+' ejercicio'+(nEj>1?'s':'')+(vt?(em?' · 1 serie = todos los ejercicios una vez':' · 1 vuelta = todos los ejercicios una vez'):' rotan por ronda'):'')+'</p>'+
       '<div class="kte__k">FORMATO</div><div class="kte__md">'+Object.keys(MODOS).map(m=>'<button data-m="'+m+'" class="'+(c.modo===m?'on':'')+'">'+MODOS[m].lab+'</button>').join('')+'</div>'+
       '<div class="kte__k">PROPUESTAS</div><div class="kte__ps">'+PRESETS.filter(p=>p.modo===c.modo).map(p=>'<button data-p="'+p.id+'" class="'+(pre===p.id?'on':'')+'"><b>'+p.n+'</b><span>'+esc(sub(p))+'</span></button>').join('')+'</div>'+
       '<div class="kte__k">AJUSTE FINO</div>'+info+'<div class="kte__g">'+campos.map(k=>
@@ -339,7 +342,7 @@ function editor(cfg, opts){
   function cerrar(){ ov.remove() }
   ov.addEventListener('click', e=>{ if(e.target===ov){ cerrar(); return }
     const b=e.target.closest('button'); if(!b) return
-    if (b.dataset.m){ const p=PRESETS.find(x=>x.modo===b.dataset.m); c=porVueltas(Object.assign({modo:b.dataset.m, prep:c.prep}, p?p.c:{}), nEj, true); pre=p?p.id:null; pintar(); return }
+    if (b.dataset.m){ const p=PRESETS.find(x=>x.modo===b.dataset.m); c=conSer(porVueltas(Object.assign({modo:b.dataset.m, prep:c.prep}, p?p.c:{}), nEj, true)); pre=p?p.id:null; pintar(); return }
     if (b.dataset.p){ const p=PRESETS.find(x=>x.id===b.dataset.p); c=porVueltas(Object.assign({modo:p.modo, prep:c.prep}, p.c), nEj, true); pre=p.id; pintar(); return }
     if (b.dataset.s){ const k=b.dataset.s, d=+b.dataset.d, st=pasos[k](d<0?c[k]-1:c[k]); c[k]=Math.max(lim[k][0],Math.min(lim[k][1],c[k]+d*st)); c=norm(c); pre=null; pintar(); return }
     const a=b.dataset.a
@@ -350,5 +353,5 @@ function editor(cfg, opts){
   pintar()
   return { close:cerrar } }
 
-root.KTIMER = { MODOS, PRESETS, norm, porVueltas, timeline, total, resumen, mmss, play, editor, seg7, VERSION:'koach-timer@1.5.0' }
+root.KTIMER = { MODOS, PRESETS, norm, porVueltas, timeline, total, resumen, mmss, play, editor, seg7, VERSION:'koach-timer@1.6.0' }
 })(typeof window!=='undefined'?window:globalThis);
