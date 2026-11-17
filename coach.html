@@ -3652,8 +3652,9 @@ html[data-fprog] .scMenu a{min-height:54px !important;border-radius:999px !impor
 .cgProy b{display:block;font-family:'KOACH Display','Archivo',Arial,sans-serif;font-weight:900;font-size:34px;color:#3EC6B0;margin:4px 0}
 .cgProy span{font:400 10px 'Space Mono',monospace;color:rgba(244,243,240,.6)}
 .cgProy ol{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:4px}
-.cgProy li{display:flex;justify-content:space-between;gap:8px;font:700 12px 'Space Mono',monospace;color:#F4F3F0;padding:6px 10px;border-radius:10px;background:rgba(255,255,255,.04)}
-.cgProy li em{font-style:normal;color:rgba(244,243,240,.5);font-weight:400}.cgProy li.go{border:1px solid rgba(62,198,176,.6);color:#3EC6B0}
+.cgProy li{display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:10px;font:700 12px 'Space Mono',monospace;color:#F4F3F0;padding:6px 10px;border-radius:10px;background:rgba(255,255,255,.04)}
+.cgProy li em{font-style:normal;color:rgba(244,243,240,.5);font-weight:400}.cgProy li b{font:700 13px 'Space Mono',monospace !important;color:#F4F3F0 !important;margin:0 !important;white-space:nowrap}.cgProy li.go b{color:#3EC6B0 !important}.cgProy{grid-template-columns:1fr !important}.cgProy ol{display:grid !important;grid-template-columns:repeat(var(--ns,5),minmax(0,1fr));gap:6px}@media (max-width:640px){.cgProy ol{grid-template-columns:1fr 1fr}}.cgProy li{grid-template-columns:1fr !important;gap:2px !important;padding:8px 10px !important}
+.cgProy li span{font:400 9.5px 'Space Mono',monospace;letter-spacing:.06em;color:rgba(244,243,240,.5)}.cgProy li.go span{color:#3EC6B0}.cgProy li.go{border:1px solid rgba(62,198,176,.6);color:#3EC6B0}
 @media (max-width:640px){ .cgRm{grid-template-columns:repeat(2,1fr)} .cgProy{grid-template-columns:1fr} }
 @media (max-width:640px){ .cgHero{grid-template-columns:1fr 1fr} .cgPct{grid-column:1/-1} .cgTf{grid-template-columns:1fr 1fr 1fr} #mCargas.mCg--pro .cgBtns{flex-direction:column} }
 /* ═══ c280 · CABECERA DE LA FICHA SIN SOLAPE: la identidad se va con el scroll; solo la barra de botones queda fija, sólida, en el color del programa ═══ */
@@ -9697,11 +9698,17 @@ function cgTestForm(d){
     '<div class="cgRm">'+rms.map(function(r){ return '<button type="button" class="'+(r===rm?'on':'')+'" onclick="cgRM('+r+')"><b>'+r+'RM</b><span>'+(b?cgN(cgProy(b.v,r))+' KG':'—')+'</span></button>' }).join('')+'</div>'
   if (b){ const obj=cgProy(b.v,rm)
     h+='<div class="cgProy"><div><small>CARGA PROYECTADA · '+rm+'RM</small><b>'+cgN(obj)+' KG</b><span>1RM EST. '+cgN(b.v)+' KG · '+b.de+'</span></div>'+
-      '<ol><li><em>APROX. 1</em>'+cgN(cgRed(obj*.5))+' KG × 8</li><li><em>APROX. 2</em>'+cgN(cgRed(obj*.7))+' KG × 5</li><li><em>APROX. 3</em>'+cgN(cgRed(obj*.85))+' KG × 3</li><li class="go"><em>TEST</em>'+cgN(obj)+' KG × '+rm+' máx.</li></ol></div>' }
+      '<ol style="--ns:'+cgSeries(obj,rm).length+'">'+cgSeries(obj,rm).map(function(x,i){ return '<li class="'+(x.t?'go':'')+'"><em>SERIE '+(i+1)+'</em><span>'+x.d+'</span><b>'+cgN(x.kg)+' KG × '+x.r+'</b></li>' }).join('')+'</ol></div>' }
   else h+='<div class="cgProy"><div><small>SIN REGISTROS PREVIOS</small><span>Sin base para proyectar: el KOACH define la carga del test.</span></div></div>'
   h+='<label>RESULTADO · KG<input id="cgTk" type="number" inputmode="decimal" step="0.5" min="0" value="'+(b?cgProy(b.v,rm):'')+'"></label><label>REPS LOGRADAS<input id="cgTl" type="number" inputmode="numeric" min="1" max="30" value="'+rm+'"></label><input id="cgTr" type="hidden" value="'+rm+'">'+
     '<div class="cgTb"><button type="button" onclick="CGP.form=false;cgPintar()">CANCELAR</button><button type="button" class="ink" onclick="cgTestGuardar()">GUARDAR TEST '+rm+'RM</button></div><em id="cgTe"></em></div>'
   return h }
+// series del test: calentamiento + aproximaciones según el RM elegido + la serie de test
+function cgSeries(w, rm){ const P = rm<=3 ? [[.5,8,'CALENTAMIENTO'],[.65,5,'APROXIMACIÓN'],[.8,3,'APROXIMACIÓN'],[.9,1,'APROXIMACIÓN']]
+    : rm<=6 ? [[.5,8,'CALENTAMIENTO'],[.65,6,'APROXIMACIÓN'],[.8,3,'APROXIMACIÓN'],[.9,2,'APROXIMACIÓN']]
+    : rm<=8 ? [[.5,10,'CALENTAMIENTO'],[.7,6,'APROXIMACIÓN'],[.85,3,'APROXIMACIÓN']]
+    : [[.5,10,'CALENTAMIENTO'],[.7,6,'APROXIMACIÓN'],[.85,3,'APROXIMACIÓN']]
+  return P.map(function(x){ return { kg:cgRed(w*x[0]), r:x[1], d:x[2]+' · '+Math.round(x[0]*100)+'%' } }).concat([{ kg:w, r:rm+' máx.', d:'TEST '+rm+'RM', t:true }]) }
 function cgEvaluarRM(ejId, beId){ cgDrawer(ejId, beId); CGP.form=true; cgPintar() }
 async function cgTestGuardar(){
   const rm=parseInt((document.getElementById('cgTr')||{}).value,10), kg=parseFloat(String((document.getElementById('cgTk')||{}).value).replace(',','.')), rp=parseInt((document.getElementById('cgTl')||{}).value,10)
