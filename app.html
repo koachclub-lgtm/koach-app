@@ -10103,7 +10103,7 @@ function kTestPintar(L,i){
     '<div class="kt__ch"><div class="kt__chk"><span>1RM ESTIMADO · KG</span><span>SEMANA A SEMANA</span></div>'+kTestSvg(D)+'</div>'+
     '<div class="kt__cards"><div class="kt__c on"><small>PR DEL PROCESO</small><b>'+avKg(D.pr.peso)+' KG × '+D.pr.reps+'</b><span>1RM EST. '+avKg(Math.round(D.pr.e*10)/10)+' KG</span></div>'+
       '<div class="kt__c"><small>SEMANA '+D.ini.s+' · INICIO</small><b>'+avKg(D.ini.peso)+' KG × '+D.ini.reps+'</b><span>1RM EST. '+avKg(Math.round(D.ini.e*10)/10)+' KG</span></div></div>'+
-    (picos.length?'<div class="kt__pk"><small>TUS PICOS · CADA VEZ QUE SUPERASTE TU MEJOR MARCA</small><div>'+picos.map(function(w){ return '<span class="'+(w.test?'t':'')+'"><em>'+(w.test?'TEST':'S'+w.s)+'</em>'+avKg(w.peso)+' × '+w.reps+'<i>'+avKg(Math.round(w.e*10)/10)+' KG</i></span>' }).join('')+'</div></div>':'')+
+    (picos.length?'<div class="kt__pk"><small>TUS PEAKS · CADA VEZ QUE SUPERASTE TU MEJOR MARCA</small><div>'+picos.map(function(w){ return '<span class="'+(w.test?'t':'')+'"><em>'+(w.test?'TEST':'S'+w.s)+'</em>'+avKg(w.peso)+' × '+w.reps+'<i>'+avKg(Math.round(w.e*10)/10)+' KG</i></span>' }).join('')+'</div></div>':'')+
     '<p class="kt__n">1RM estimado = peso × (1 + reps ÷ 30) · fórmula de Epley: la carga máxima que podrías mover una vez, sin tener que hacer el máximo.</p>'+
     '<button type="button" class="kt__b" id="kTestOk">'+(ult?'CONTINUAR':'SIGUIENTE TEST →')+'</button></div>'
   document.body.appendChild(el); requestAnimationFrame(function(){ el.classList.add('on') })
