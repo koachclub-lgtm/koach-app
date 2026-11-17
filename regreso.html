@@ -119,7 +119,7 @@ input:focus{outline:none}button:focus-visible{outline:2px solid var(--ink);outli
 </head>
 <body>
 <main class="wrap">
-  <div class="top"><div class="logo" role="img" aria-label="KOACH"></div><span class="k">Lanzamiento App KOACH</span></div>
+  <div class="top"><div class="logo" role="img" aria-label="KOACH"></div><span class="k" id="tag">Lanzamiento App KOACH</span></div>
   <div id="cargando" class="cargando">Cargando tu oferta…</div>
   <div id="error" class="msg err" hidden></div>
 
@@ -222,8 +222,9 @@ input:focus{outline:none}button:focus-visible{outline:2px solid var(--ink);outli
     if(d.ya_activa){$('cargando').hidden=true;$('ok').hidden=false;$('okTxt').textContent='Tu pago automático ya está activo. Cualquier duda, escríbele a Jake por WhatsApp.';return}
     if(d.vencida)return err('Esta oferta terminó'+(d.oferta&&d.oferta.fin_texto?' el '+d.oferta.fin_texto:'')+'. Escríbele a Jake y te contamos las opciones vigentes.');
     var o=d.oferta;
-    $('pm').textContent=clp(o.primer_mes);$('mens').textContent=clp(o.monto);
-    if(o.primer_mes===o.monto){$('kTop').innerHTML='<b>Tu membresía</b> · Cobro automático mensual';$('infoTxt').innerHTML='Pagas <b>'+clp(o.monto)+'</b> cada mes con cobro automático, con contrato de fidelidad de <b>'+o.permanencia_meses+' meses</b>.'}$('lista').textContent=clp(o.precio_lista);$('perm').textContent=o.permanencia_meses+' meses';
+    $('pm').textContent=clp(o.primer_mes);$('mens').textContent=clp(o.monto);$('lista').textContent=clp(o.precio_lista);$('perm').textContent=o.permanencia_meses+' meses';
+    if(o.primer_mes===o.monto){$('kTop').innerHTML='<b>Tu membresía</b> · Cobro automático mensual';$('infoTxt').innerHTML='Pagas <b>'+clp(o.monto)+'</b> cada mes con cobro automático, con contrato de fidelidad de <b>'+o.permanencia_meses+' meses</b>.'}
+    if(o.clave==='holalola')$('tag').textContent='Convenio Holalola';
     if(o.fin_texto)$('chica').textContent+=' Válido hasta el '+o.fin_texto+'.';
     S.o=o;detalle();
     $('acpTxt').innerHTML='Acepto la <b>fidelidad por '+o.permanencia_meses+' meses</b> con cobro automático en mi tarjeta.';
