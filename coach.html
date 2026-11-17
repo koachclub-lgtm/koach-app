@@ -3389,6 +3389,23 @@ html.fx-edit #plSesBar>.plTools,html.fx-edit #plSesBar>#dsBtn{display:none !impo
 #fxTools .plTools__m svg{width:14px;height:14px;fill:currentColor;flex:none}
 #fxTools .plTools__m .mOcul{display:inline !important}
 #fxTools .plTools__b i{font-style:normal;margin-left:4px}
+/* c299 · editor compacto: sin fila de estado; PUBLICAR como botón holográfico junto al tiempo estimado */
+html.fx-edit.fx-micro #vPlan .plHdr{display:none !important}
+html.fx-edit #vPlan.plDesk .tbHead{grid-template-columns:minmax(0,1fr) auto auto auto !important}
+.fxPub{position:relative;overflow:hidden;display:flex;flex-direction:column;align-items:flex-start;justify-content:center;gap:2px;min-height:48px;padding:6px 22px;border-radius:999px;border:1px solid #3D4044;background:#1A1B1D;color:#6F7377;cursor:default;white-space:nowrap;text-align:left;transition:color .3s,border-color .3s,box-shadow .3s,transform .2s}
+.fxPub__k{font:700 8px 'Space Mono',monospace;letter-spacing:.16em;opacity:.8}
+.fxPub__t{font:700 13px 'Space Mono',monospace;letter-spacing:.06em}
+.fxPub.is-on{cursor:pointer;color:#0B0C0D;border-color:#F4F3F0;background:linear-gradient(115deg,#8E9397 0%,#E9EBEC 18%,#FFFFFF 30%,#A9ADB0 46%,#F4F5F6 62%,#7B8084 80%,#DADCDE 100%);background-size:220% 100%;animation:fxPubMetal 3.2s linear infinite,fxPubGlow 1.8s ease-in-out infinite;box-shadow:0 0 0 1px rgba(255,255,255,.35),0 0 22px rgba(255,255,255,.28),inset 0 1px 0 #fff}
+.fxPub.is-on::after{content:"";position:absolute;top:0;bottom:0;left:0;width:45%;background:linear-gradient(105deg,rgba(255,255,255,0) 15%,rgba(255,255,255,.9) 50%,rgba(255,255,255,0) 85%);transform:translateX(-140%);animation:fxPubSheen 2.2s cubic-bezier(.4,0,.2,1) infinite;pointer-events:none;mix-blend-mode:overlay}
+.fxPub.is-on .fxPub__k{opacity:.65}
+.fxPub.is-on:hover{transform:translateY(-1px) scale(1.02)}
+.fxPub.is-on:active{transform:scale(.98)}
+.fxPub.is-ok .fxPub__t{color:#979C9F}.fxPub.is-err{color:#FF4200;border-color:#FF4200;cursor:pointer}
+.fxPub.is-saving{color:#F4F3F0;border-color:#6F7377}.fxPub.is-saving .fxPub__t::after{content:"";display:inline-block;width:8px;height:8px;margin-left:8px;border-radius:50%;background:currentColor;animation:fxPubGlow .8s ease-in-out infinite}
+@keyframes fxPubMetal{from{background-position:0% 0}to{background-position:220% 0}}
+@keyframes fxPubGlow{0%,100%{box-shadow:0 0 0 1px rgba(255,255,255,.35),0 0 14px rgba(255,255,255,.18),inset 0 1px 0 #fff}50%{box-shadow:0 0 0 1px rgba(255,255,255,.6),0 0 30px rgba(255,255,255,.45),inset 0 1px 0 #fff}}
+@keyframes fxPubSheen{0%{transform:translateX(-140%)}60%,100%{transform:translateX(320%)}}
+@media (prefers-reduced-motion:reduce){ .fxPub.is-on,.fxPub.is-on::after{animation:none} }
 /* tarjetas de sesión compactas como selector */
 html.fx-edit #vFicha .tb2{gap:8px !important}
 html.fx-edit #vFicha .tc{min-height:0 !important;border-radius:18px !important;box-shadow:none !important;transition:background .2s,border-color .2s,transform .2s}
@@ -3517,6 +3534,7 @@ html.fx-edit #vFicha .tc__body{flex-direction:column !important;align-items:flex
   html.fx-edit #vFicha .fxBar .fxB{flex:1 1 auto;min-height:40px;padding:0 12px;font-size:10.5px}
   html.fx-edit #vFicha .fxBar .fxBadge{order:-1;flex:0 1 auto;max-width:100%;min-width:0;grid-template-columns:auto auto minmax(0,1fr)}
   html.fx-edit #vFicha .fxBar .fxBadge .fpBadge__t{min-width:0;overflow:hidden}
+  html.fx-edit #vPlan .fxPub{flex:1 1 auto;min-height:44px}
   html.fx-edit #vFicha #fxTools{flex:1 1 auto}html.fx-edit #vFicha #fxTools .plTools__b{width:100%}
   #fxTools .plTools__m{min-width:0;width:calc(100vw - 48px);right:auto;left:0}
   html.fx-edit #vPlan:not(.plDesk) .plHdr__top,html.fx-edit #vPlan:not(.plDesk) .plHdr__tit,html.fx-edit #vPlan:not(.plDesk) .plQuien,html.fx-edit #vPlan:not(.plDesk) #pMeta,html.fx-edit #vPlan:not(.plDesk) #pTabs,html.fx-edit #vPlan:not(.plDesk) .plPc{display:none !important}
@@ -6074,7 +6092,7 @@ function plTbHTML(ses){
   const nuevo = nb<6 ? '<button type="button" class="tbNew" onclick="abrirBloque()" aria-label="Agregar bloque">+ BLOQUE</button>' : '<span></span>'
   const vacio = !nb ? '<div class="glass emptySes"><h4>'+plEsc(ses.nombre||'SESIÓN')+' · SESIÓN VACÍA</h4><p>Agrega el primer bloque para construirla.</p></div>' : ''
   // c86 · sin panel lateral ni botón de panel (c85): no se renderizan — la ficha negra de arriba es la única vista del ejercicio
-  return '<div class="tbHead"><div class="tbChipsW">'+plTbChips(ses)+'</div>'+plTbTiempo(ses)+'<div class="tbSelC" id="tbSelC">'+plTbSelCard()+'</div></div><div class="tbWrap sinPanel"><div><div class="tbBoard'+(nb>3?' many':'')+'" id="tbBoard" style="grid-template-columns:repeat('+nb+',minmax(0,1fr)) 44px">'+cols+nuevo+'</div>'+vacio+'</div></div>' }
+  return '<div class="tbHead"><div class="tbChipsW">'+plTbChips(ses)+'</div>'+plTbTiempo(ses)+(document.documentElement.classList.contains('fx-edit')?'<button type="button" class="fxPub" id="fxPub" onclick="fxPublicar()" disabled><span class="fxPub__k">PROGRAMA</span><b class="fxPub__t">PUBLICADO ✓</b></button>':'')+'<div class="tbSelC" id="tbSelC">'+plTbSelCard()+'</div></div><div class="tbWrap sinPanel"><div><div class="tbBoard'+(nb>3?' many':'')+'" id="tbBoard" style="grid-template-columns:repeat('+nb+',minmax(0,1fr)) 44px">'+cols+nuevo+'</div>'+vacio+'</div></div>' }
 /* c85 · ficha compacta del ejercicio seleccionado: código · último registro · mejor marca · VER MÁS (abre el historial completo) */
 function plTbSelCard(){
   const x=TB.sel?planItem(TB.sel):null; if(!x) return '<div><small>EJERCICIO</small><b>Toca un ejercicio para ver su registro</b></div>'
@@ -10649,8 +10667,20 @@ function fxSync(){
   const w=document.getElementById('fxSem'); if(w) w.textContent='SEMANA '+(PL.w||'—')+' DE '+plN()
   document.documentElement.classList.toggle('fx-micro', PL.nivel==='micro')
   const fb=document.getElementById('fpBadge'), xb=document.getElementById('fxBadge')
+  try{ fxPubSync() }catch(_e){}
   if (xb){ if (fb && !fb.hidden && fb.innerHTML){ if (xb.innerHTML!==fb.innerHTML) xb.innerHTML=fb.innerHTML; xb.hidden=false } else xb.hidden=true }
 }
+function fxPubSync(){ const x=document.getElementById('fxPub'); if(!x) return
+  const hb=document.getElementById('plPcBtn'), s=plSesActual(), sucio=!!(s && P && P.dirty && P.dirty[s.id]), act=plProtoActivo()
+  const txt=(hb&&hb.textContent)||'', on=!!(hb && !hb.disabled && !(P&&P.ro)), saving=/PUBLICANDO/.test(txt), err=/REINTENTAR/.test(txt)
+  x.disabled=!on || saving
+  x.className='fxPub'+(saving?' is-saving':err?' is-err':on?' is-on':' is-ok')
+  x.querySelector('.fxPub__k').textContent = P&&P.ro ? 'CICLO CERRADO' : on ? (sucio?'CAMBIOS SIN PUBLICAR':(act?'PROGRAMA':'PROGRAMA SIN APLICAR')) : 'EL SOCIO VE ESTA VERSIÓN'
+  x.querySelector('.fxPub__t').textContent = P&&P.ro ? 'SOLO LECTURA' : (txt.replace(/\s*→\s*$/,'')||'PUBLICADO ✓')+(on&&!saving?' →':'')
+  x.title = on ? 'Publica los cambios para que el socio los vea' : 'El socio ya ve esta versión' }
+function fxPublicar(){ const x=document.getElementById('fxPub'); if(!x||x.disabled) return; s4Son('start',0.7); plAccion() }
+function fxRutStd(){ if (plEsDirty()){ plGuard(function(){ fxRutStd() }); return } const ses=plSesActual(); if(!ses) return
+  idlgAbrir('GUARDAR COMO RUTINA ESTÁNDAR','Crea una plantilla nueva en tu biblioteca',String(ses.nombre||'RUTINA').replace(/'/g,''),'CREAR',saveAsStandard) }
 function fxCiclo(){ s4Son('appear',0.6); if (typeof plIr==='function') plIr(PL.nivel==='macro'?'micro':'macro') }
 // c298 · HERRAMIENTAS en la tarjeta del socio: reúne las herramientas de la sesión + dosificación + nombre y ajustes
 function fxHerr(){
@@ -10669,7 +10699,8 @@ function fxHerr(){
   const m=w.querySelector('.plTools__m'); m.innerHTML=''
   const ds=src.find(function(b){return b.id==='dsBtn'}), resto=src.filter(function(b){return b!==ds})
   const nb=document.createElement('button'); nb.type='button'; nb.textContent='✎ NOMBRE Y AJUSTES'; nb.setAttribute('onclick','fxSesOpc()'); nb.title='Cambiar nombre, duplicar o eliminar esta sesión'
-  ;[nb].concat(ds?[ds]:[]).concat(resto).forEach(function(b){ b.setAttribute('role','menuitem'); m.appendChild(b) })
+  const rs=document.createElement('button'); rs.type='button'; rs.textContent='★ GUARDAR COMO RUTINA ESTÁNDAR'; rs.setAttribute('onclick','fxRutStd()'); rs.title='Crea una plantilla nueva en tu biblioteca con esta sesión'
+  ;[nb].concat(ds?[ds]:[]).concat(resto).concat(P&&!P.base?[rs]:[]).forEach(function(b){ b.setAttribute('role','menuitem'); m.appendChild(b) })
   const t=bar.querySelector(':scope > .plTools'); if(t) t.remove()
 }
 function fxCerrar(){ s4Son('scan-lock',0.6); if (F) rtIr(null,'#/socio/'+F.id) }
@@ -10705,6 +10736,7 @@ document.addEventListener('keydown',function(e){ if(e.key==='Escape') plHerrCerr
 ;(function(){
   const _pbs=plBarraSesion; plBarraSesion=function(s){ _pbs(s); try{ plHerr() }catch(_e){} }
   const _pbs3=plBarraSesion; plBarraSesion=function(s){ _pbs3(s); try{ fxHerr(); fxSync() }catch(_e){} }
+  const _psu=plSaveUI; plSaveUI=function(){ const r=_psu.apply(this,arguments); try{ fxPubSync() }catch(_e){} return r }
   const _pnv=plPintarNav; plPintarNav=function(){ _pnv.apply(this,arguments); try{ fxSync() }catch(_e){} }
   const _aso=abrirSesOpc; abrirSesOpc=function(){ s4Son('appear',0.8); return _aso.apply(this,arguments) }
   const _as=abrirSelector; abrirSelector=function(){ s4Son('appear',0.8); const r=_as.apply(this,arguments); setTimeout(function(){ s4Son('datos',0.5) },420); return r }
