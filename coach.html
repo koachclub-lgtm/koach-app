@@ -1770,7 +1770,7 @@ html.selAbierto,html.selAbierto body{overflow:hidden}
 
 /* ═══ c17.2 · pagos gestionables ═══ */
 .adPago{align-items:center}
-.adPago__mas{flex:0 0 44px;height:44px;margin-left:8px;border:none;border-radius:12px;background:rgba(18,18,16,.06);font-size:16px;cursor:pointer}
+.adPago__mas{flex:0 0 auto;min-width:44px;height:40px;margin-left:8px;padding:0 14px;border:1px solid rgba(18,18,16,.18);border-radius:12px;background:rgba(18,18,16,.06);color:#121210;font:700 11px/1 'IBM Plex Mono',monospace;letter-spacing:.12em;cursor:pointer}
 .adPago--anulado{opacity:.55}.adPago--anulado > span:first-child{text-decoration:line-through}
 .adPago__anul{margin-left:8px;padding:4px 8px;border-radius:8px;background:rgba(138,28,28,.1);color:#8A1C1C;font-family:var(--font-mono);font-size:11px;letter-spacing:.1em}
 .adBtns--col{flex-direction:column}.adBtns--col button{width:100%;min-height:52px}
@@ -3316,6 +3316,7 @@ html[data-fprog] #vFicha #fTabAdm .pfR b{color:#F4F3F0}html[data-fprog] #vFicha 
 html[data-fprog] #vFicha #fTabAdm .pfBar{background:#2E3034 !important;height:6px}html[data-fprog] #vFicha #fTabAdm .pfBar i{background:linear-gradient(90deg,#979C9F,#F4F3F0) !important}
 html[data-fprog] #vFicha #fTabAdm .pfL{border-top-color:#2E3034 !important}html[data-fprog] #vFicha #fTabAdm .pfL span{color:#A9ADB0 !important}html[data-fprog] #vFicha #fTabAdm .pfL b{color:#F4F3F0}
 html[data-fprog] #vFicha #fTabAdm .pfDet{border-top-color:#2E3034 !important}
+html[data-fprog] #vFicha #fTabAdm .adPago__mas{background:#2A2C30 !important;color:#F4F3F0 !important;border:1px solid #55585D !important}
 html[data-fprog] #vFicha #fTabAdm .pfB{min-height:50px;border-radius:999px !important;border:1px solid #55585C !important;background:#2E3034 !important;color:#F4F3F0 !important;font:700 11px 'Space Mono',monospace !important;letter-spacing:.08em;transition:background .2s,color .2s,border-color .2s,transform .15s}
 html[data-fprog] #vFicha #fTabAdm .pfB:hover{border-color:#F4F3F0 !important;transform:translateY(-1px)}
 html[data-fprog] #vFicha #fTabAdm .pfB:active{transform:scale(.98)}
@@ -8757,7 +8758,7 @@ async function fAdmCargar(){
       const vg=pm?((pm.duracion_label||'')+' · '+(pm.duracion_tipo==='dia'?adF(pm.fecha_inicio):adF(pm.fecha_inicio)+' → '+adF(pm.fecha_fin))+'<br>'):''
       return '<div class="adLi adPago'+(p.anulado?' adPago--anulado':'')+'"><span>'+adF(p.fecha_pago)+'<small>'+vg+(p.metodo?String(p.metodo).toUpperCase():'')+(p.anulado&&p.anulado_motivo?' · '+adEsc(p.anulado_motivo):'')+'</small></span>'+
         '<span>'+(p.metodo==='ugc'?'UGC<small>REF. '+adCLP((pm&&pm.valor_referencia)||0)+' · $0':adCLP(p.monto_final)+'<small>'+String(p.estado).toUpperCase())+'</small></span>'+
-        (p.anulado?'<span class="adPago__anul">ANULADO</span>':'<button type="button" class="adPago__mas" aria-label="Gestionar pago" onclick="admPagoMenu(\''+p.id+'\')">•••</button>')+'</div>' }).join('')+'</div></section>'
+        (p.anulado?'<span class="adPago__anul">ANULADO</span>':'<button type="button" class="adPago__mas" aria-label="Editar o anular pago" onclick="admPagoMenu(\''+p.id+'\')">EDITAR</button>')+'</div>' }).join('')+'</div></section>'
   // DATOS PERSONALES
   const fila=function(k,v){ return '<div class="pfL"><span>'+k+'</span><b>'+v+'</b></div>' }
   h+='<section class="pfC"><div class="pfK"><span>DATOS PERSONALES</span></div>'+
