@@ -3675,6 +3675,7 @@ html[data-fprog] .scMenu a{min-height:54px !important;border-radius:999px !impor
 @keyframes krcUp{from{transform:scaleY(0);opacity:.3}to{transform:scaleY(1);opacity:1}}
 @media (prefers-reduced-motion:reduce){ .krc__c i{animation:none} }
 @media (max-width:640px){ .krc__hero{grid-template-columns:1fr 1fr} .krc__ar{display:none} .krc__pct{grid-column:1/-1} .krc__bars{gap:5px} .krc__c em{font-size:9px} }
+.cgHero--sub{grid-template-columns:1fr 1fr;margin-top:8px}.cgHero--sub>div{padding:9px 14px}.cgHero--sub b{font-size:clamp(16px,2vw,19px) !important;margin:4px 0 2px}.cgHero--top .cgPct b{font-size:clamp(28px,3.6vw,38px)}
 .cgPr{border-color:rgba(62,198,176,.6) !important;background:rgba(62,198,176,.08) !important}.cgPr b{color:#3EC6B0 !important;font-size:clamp(24px,3.2vw,32px) !important}.cgPr em{font-style:normal;color:#3EC6B0}.cgG__pr{fill:#3EC6B0;font:700 10px 'Space Mono',monospace}.cgG__p.pr{stroke:#3EC6B0}
 .cgG__hit{fill:transparent;cursor:pointer}
 .cgG__guia{stroke:rgba(62,198,176,.5);stroke-width:1;stroke-dasharray:3 4;opacity:0;vector-effect:non-scaling-stroke}.cgG__guia.on{opacity:1}
@@ -9682,9 +9683,13 @@ function cgPintar(anim){
       const best=pts.reduce(function(m,p){ return +p.e1rm>+m.e1rm?p:m }, pts[0])
       const pct=a.e1rm>0 ? Math.round((z.e1rm/a.e1rm-1)*1000)/10 : 0
       const ult=pts[pts.length-1], pctPr=a.e1rm>0?Math.round((best.e1rm/a.e1rm-1)*1000)/10:0
-      html+='<div class="cgHero"><div><small>PRIMERA MARCA'+(CGP.alc==='ciclo'?' · CICLO':'')+'</small><b>'+cgN(a.peso)+' KG × '+a.reps+'</b><span>'+cgF(a.fecha)+' · 1RM EST. '+cgN(a.e1rm)+' KG</span></div>'+
-        '<div class="cgPr"><small>PR · 1RM ESTIMADO</small><b>'+cgN(best.e1rm)+' KG</b><span>'+cgN(best.peso)+' KG × '+best.reps+' · '+cgF(best.fecha)+(pctPr>0?' · <em>+'+String(pctPr).replace('.',',')+'%</em>':'')+'</span></div>'+
-        '<div><small>'+(ult.es_test?'ÚLTIMA MARCA · TEST '+ult.reps+'RM':'ÚLTIMA MARCA')+'</small><b>'+cgN(ult.peso)+' KG × '+ult.reps+'</b><span>'+cgF(ult.fecha)+' · 1RM EST. '+cgN(ult.e1rm)+' KG'+(pct!==0?' · '+(pct>0?'+':'')+String(pct).replace('.',',')+'%':'')+'</span></div></div>'+
+      html+='<div class="cgHero cgHero--top">'+
+        '<div class="cgPct'+(pctPr>0?' up':pctPr<0?' dn':'')+'"><small>% DE MEJORA</small><b>'+(pctPr>0?'+':'')+String(pctPr).replace('.',',')+'%</b><span>PR vs. primera marca</span></div>'+
+        '<div><small>PR · MEJOR SERIE</small><b>'+cgN(best.peso)+' KG × '+best.reps+'</b><span>'+cgF(best.fecha)+(best.semana?' · SEMANA '+best.semana:'')+'</span></div>'+
+        '<div class="cgPr"><small>FUERZA MÁXIMA ESTIMADA · 1RM</small><b>'+cgN(best.e1rm)+' KG</b><span>'+cgN(best.peso)+' × (1 + '+best.reps+' ÷ 30)</span></div></div>'+
+        '<div class="cgHero cgHero--sub">'+
+        '<div><small>PRIMERA MARCA'+(CGP.alc==='ciclo'?' · CICLO':'')+'</small><b>'+cgN(a.peso)+' KG × '+a.reps+'</b><span>'+cgF(a.fecha)+' · 1RM EST. '+cgN(a.e1rm)+' KG</span></div>'+
+        '<div><small>'+(ult.es_test?'ÚLTIMA MARCA · TEST '+ult.reps+'RM':'ÚLTIMA MARCA')+'</small><b>'+cgN(ult.peso)+' KG × '+ult.reps+'</b><span>'+cgF(ult.fecha)+' · 1RM EST. '+cgN(ult.e1rm)+' KG</span></div></div>'+
         cgGrafico(pts, anim)
     }
     // TEST RM del ciclo
