@@ -3378,6 +3378,17 @@ html.fx-edit #vFicha .fxBar{display:flex;align-items:center;gap:8px;margin:8px 0
 .fxBar__t b{display:block;font-family:'KOACH Display','Archivo',Arial,sans-serif;font-weight:900;font-stretch:112%;text-transform:uppercase;font-size:20px;line-height:1.05;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;background:linear-gradient(180deg,#FFF 0%,#C9CBCF 45%,#FFF 58%,#979C9F 100%);-webkit-background-clip:text;background-clip:text;color:transparent}
 .fxB{min-height:42px;padding:0 16px;border-radius:999px;border:1px solid #4A4D51;background:#26282B;color:#F4F3F0;font:700 11px 'Space Mono',monospace;letter-spacing:.06em;cursor:pointer;white-space:nowrap;transition:background .2s,color .2s,border-color .2s}
 .fxB:hover{border-color:#F4F3F0}.fxB--x{background:#F4F3F0;color:#000;border-color:#F4F3F0}
+/* c298 · editor: credencial del programa junto al nombre; HERRAMIENTAS (con dosificación y nombre/ajustes) en la tarjeta del socio */
+html.fx-edit #vFicha .fxBar .fxBadge{margin:0 4px 0 0;flex:none;height:44px}
+html.fx-edit.fx-micro #pNav,html.fx-edit.fx-micro.en-plan[data-fprog="plan"] #vPlan.plDesk #pNav{display:none !important}
+html.fx-edit #plSesBar>.plTools,html.fx-edit #plSesBar>#dsBtn{display:none !important}
+#fxTools .plTools__m{min-width:320px}
+#fxTools .plTools__m button{display:flex;align-items:center;gap:10px;border-radius:999px;background:#26282B;color:#F4F3F0;border:1px solid #3D4044;font:700 13px 'Space Mono',monospace;cursor:pointer;min-height:56px !important}
+#fxTools .plTools__m button:hover,#fxTools .plTools__m button:focus-visible{background:#F4F3F0;color:#000;border-color:#F4F3F0;outline:none}
+#fxTools .plTools__m button.ink::after{display:none}
+#fxTools .plTools__m svg{width:14px;height:14px;fill:currentColor;flex:none}
+#fxTools .plTools__m .mOcul{display:inline !important}
+#fxTools .plTools__b i{font-style:normal;margin-left:4px}
 /* tarjetas de sesión compactas como selector */
 html.fx-edit #vFicha .tb2{gap:8px !important}
 html.fx-edit #vFicha .tc{min-height:0 !important;border-radius:18px !important;box-shadow:none !important;transition:background .2s,border-color .2s,transform .2s}
@@ -3498,6 +3509,10 @@ html.fx-edit #vFicha .tc__body{flex-direction:column !important;align-items:flex
   html.fx-edit #vFicha .fxBar{flex-wrap:wrap;border-radius:22px;padding:12px 12px 10px 16px;gap:8px}
   html.fx-edit #vFicha .fxBar__t{flex:1 1 100%;min-width:0}
   html.fx-edit #vFicha .fxBar .fxB{flex:1 1 auto;min-height:40px;padding:0 12px;font-size:10.5px}
+  html.fx-edit #vFicha .fxBar .fxBadge{order:-1;flex:0 1 auto;max-width:100%;min-width:0;grid-template-columns:auto auto minmax(0,1fr)}
+  html.fx-edit #vFicha .fxBar .fxBadge .fpBadge__t{min-width:0;overflow:hidden}
+  html.fx-edit #vFicha #fxTools{flex:1 1 auto}html.fx-edit #vFicha #fxTools .plTools__b{width:100%}
+  #fxTools .plTools__m{min-width:0;width:calc(100vw - 48px);right:auto;left:0}
   html.fx-edit #vPlan:not(.plDesk) .plHdr__top,html.fx-edit #vPlan:not(.plDesk) .plHdr__tit,html.fx-edit #vPlan:not(.plDesk) .plQuien,html.fx-edit #vPlan:not(.plDesk) #pMeta,html.fx-edit #vPlan:not(.plDesk) #pTabs,html.fx-edit #vPlan:not(.plDesk) .plPc{display:none !important}
   html.fx-edit #vPlan:not(.plDesk) .plHdr{background:transparent !important;box-shadow:none !important;border:0 !important;padding:4px 0 0 !important;margin:0 !important;position:relative !important;top:auto !important}
   html.fx-edit #vPlan:not(.plDesk){padding-top:0 !important;margin-top:0 !important}
@@ -3910,8 +3925,8 @@ textarea.avz__in{min-height:70px;resize:vertical}
   <div id="fTabCmp" style="display:none"></div>
   <div class="fxBar" id="fxBar" aria-label="Editor de sesiones">
     <div class="fxBar__t"><small>EDITOR DE SESIONES · <span id="fxSem">—</span></small><b id="fxNom">—</b></div>
-    <button type="button" class="fxB" onclick="fxSesOpc()" title="Cambiar nombre, duplicar o eliminar esta sesión">✎ NOMBRE Y AJUSTES</button>
-    <button type="button" class="fxB" onclick="fxAddSes()" title="Agregar una sesión fija a la pauta de la semana">+ AGREGAR SESIÓN</button>
+    <button type="button" class="fpBadge fxBadge" id="fxBadge" onclick="fxCiclo()" title="Ciclo del socio · ver el panel del ciclo" hidden></button>
+    <button type="button" class="fxB fxB--add" onclick="fxAddSes()" title="Agregar una sesión fija a la pauta de la semana">+ AGREGAR SESIÓN</button>
     <button type="button" class="fxB fxB--x" onclick="fxCerrar()">✕ CERRAR EDITOR</button>
   </div>
   <div id="fTabEnt">
@@ -10579,6 +10594,30 @@ function fxSync(){
   document.querySelectorAll('#vFicha .tc').forEach(function(c){ c.classList.toggle('fx-on', !!cur && c.dataset.sid===cur) })
   const n=document.getElementById('fxNom'); if(n && F) n.textContent=nomDe(F.id)
   const w=document.getElementById('fxSem'); if(w) w.textContent='SEMANA '+(PL.w||'—')+' DE '+plN()
+  document.documentElement.classList.toggle('fx-micro', PL.nivel==='micro')
+  const fb=document.getElementById('fpBadge'), xb=document.getElementById('fxBadge')
+  if (xb){ if (fb && !fb.hidden && fb.innerHTML){ if (xb.innerHTML!==fb.innerHTML) xb.innerHTML=fb.innerHTML; xb.hidden=false } else xb.hidden=true }
+}
+function fxCiclo(){ s4Son('appear',0.6); if (typeof plIr==='function') plIr(PL.nivel==='macro'?'micro':'macro') }
+// c298 · HERRAMIENTAS en la tarjeta del socio: reúne las herramientas de la sesión + dosificación + nombre y ajustes
+function fxHerr(){
+  if (!document.documentElement.classList.contains('fx-edit')) return
+  const fx=document.getElementById('fxBar'), bar=document.getElementById('plSesBar'); if(!fx) return
+  let w=document.getElementById('fxTools')
+  if (!w){ w=document.createElement('div'); w.id='fxTools'; w.className='plTools fxTools'
+    w.innerHTML='<button type="button" class="fxB plTools__b" aria-haspopup="menu" aria-expanded="false">HERRAMIENTAS <i aria-hidden="true">▾</i></button><div class="plTools__m" role="menu" hidden></div>'
+    fx.insertBefore(w, fx.querySelector('.fxB--add'))
+    const tb=w.querySelector('.plTools__b'), m0=w.querySelector('.plTools__m')
+    tb.onclick=function(e){ e.stopPropagation(); const ab=m0.hidden; plHerrCerrar(); if(ab){ m0.hidden=false; w.classList.add('open'); tb.setAttribute('aria-expanded','true'); s4Son('appear',0.6) } }
+    m0.onclick=function(){ s4Son('scan-paso',0.6); setTimeout(plHerrCerrar,0) } }
+  if (!bar) return
+  const src=[...bar.querySelectorAll(':scope > button, :scope > .plTools .plTools__m > button')]
+  if (!src.length) return
+  const m=w.querySelector('.plTools__m'); m.innerHTML=''
+  const ds=src.find(function(b){return b.id==='dsBtn'}), resto=src.filter(function(b){return b!==ds})
+  const nb=document.createElement('button'); nb.type='button'; nb.textContent='✎ NOMBRE Y AJUSTES'; nb.setAttribute('onclick','fxSesOpc()'); nb.title='Cambiar nombre, duplicar o eliminar esta sesión'
+  ;[nb].concat(ds?[ds]:[]).concat(resto).forEach(function(b){ b.setAttribute('role','menuitem'); m.appendChild(b) })
+  const t=bar.querySelector(':scope > .plTools'); if(t) t.remove()
 }
 function fxCerrar(){ s4Son('scan-lock',0.6); if (F) rtIr(null,'#/socio/'+F.id) }
 function fxSesOpc(){ if (P && P.sesiones && P.sesiones[P.tab]) abrirSesOpc() }
@@ -10612,6 +10651,8 @@ document.addEventListener('click',function(e){ if(!(e.target.closest&&e.target.c
 document.addEventListener('keydown',function(e){ if(e.key==='Escape') plHerrCerrar() })
 ;(function(){
   const _pbs=plBarraSesion; plBarraSesion=function(s){ _pbs(s); try{ plHerr() }catch(_e){} }
+  const _pbs3=plBarraSesion; plBarraSesion=function(s){ _pbs3(s); try{ fxHerr(); fxSync() }catch(_e){} }
+  const _pnv=plPintarNav; plPintarNav=function(){ _pnv.apply(this,arguments); try{ fxSync() }catch(_e){} }
   const _aso=abrirSesOpc; abrirSesOpc=function(){ s4Son('appear',0.8); return _aso.apply(this,arguments) }
   const _as=abrirSelector; abrirSelector=function(){ s4Son('appear',0.8); const r=_as.apply(this,arguments); setTimeout(function(){ s4Son('datos',0.5) },420); return r }
   const _cs=cerrarSelector; cerrarSelector=function(){ const el=document.getElementById('selEj'); if(el && el.style.display!=='none') s4Son('scan-lock',0.5); return _cs.apply(this,arguments) }
