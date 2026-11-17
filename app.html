@@ -2422,6 +2422,30 @@ html,button,input,.pvS,.chk,.setChip{touch-action:manipulation}
 .avPr:not(:first-of-type) .avPr__n{color:#5E5D59}
 .avPr small{display:block;font-family:var(--font-mono,monospace);font-size:9.5px;letter-spacing:.12em;color:#A7A9AE}
 .avPr b{display:block;font-size:22px;letter-spacing:-.02em;margin-top:2px}.avPr em{font-style:normal;font-size:12px;color:#A7A9AE}
+#kRes{position:fixed;inset:0;z-index:99980;background:#000;color:#F4F3F0;display:flex;align-items:center;justify-content:center;padding:calc(env(safe-area-inset-top,0px) + 20px) 20px calc(env(safe-area-inset-bottom,0px) + 20px);opacity:0;transition:opacity .35s;overflow-y:auto}
+#kRes.on{opacity:1}
+.kRes__in{width:min(460px,100%);display:flex;flex-direction:column;align-items:center;text-align:center;gap:10px}
+.kRes__logo{height:20px;width:auto;opacity:.9;margin-bottom:8px}
+.kRes__k{font:700 11px 'Space Mono',monospace;letter-spacing:.18em;color:#3EC6B0}
+.kRes__t{margin:0;font-family:'KOACH Display','Archivo',sans-serif;font-weight:900;font-size:40px;line-height:.95;text-transform:uppercase;background:linear-gradient(180deg,#FFFFFF 0%,#C9CBCF 45%,#FFFFFF 55%,#979C9F 75%,#E4E5E7 100%);-webkit-background-clip:text;background-clip:text;color:transparent}
+.kRes__ej{font:700 11px 'Space Mono',monospace;letter-spacing:.1em;color:rgba(244,243,240,.65)}
+.kRes__pct b{display:block;font-family:'KOACH Display','Archivo',sans-serif;font-weight:900;font-size:72px;line-height:1;color:#3EC6B0;animation:kResPop .7s cubic-bezier(.2,.9,.2,1.2) .3s both}.kRes__pct b i{font-style:normal;font-size:36px}
+.kRes__pct small{font:700 10.5px 'Space Mono',monospace;letter-spacing:.14em;color:rgba(244,243,240,.6)}
+@keyframes kResPop{from{opacity:0;transform:scale(.6)}to{opacity:1;transform:none}}
+.kRes__bars{display:flex;align-items:flex-end;gap:8px;width:100%;height:170px;margin-top:10px}
+.kRes__c{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%;gap:6px;min-width:0}
+.kRes__c em{font:700 10px 'Space Mono',monospace;font-style:normal;color:rgba(244,243,240,.7)}
+.kRes__c i{display:block;width:100%;height:var(--h);border-radius:9px 9px 3px 3px;background:linear-gradient(180deg,#F4F3F0,#6F7377);transform-origin:bottom;animation:kResUp .8s cubic-bezier(.2,.9,.2,1) both}
+.kRes__c.t i{background:linear-gradient(180deg,#3EC6B0,#1E7F70);box-shadow:0 0 26px rgba(62,198,176,.4)}.kRes__c.t em,.kRes__c.t span{color:#3EC6B0}
+.kRes__c span{font:700 9.5px 'Space Mono',monospace;letter-spacing:.06em;color:rgba(244,243,240,.55)}
+@keyframes kResUp{from{transform:scaleY(0);opacity:.2}to{transform:scaleY(1);opacity:1}}
+.kRes__cmp{display:flex;align-items:center;gap:12px;width:100%;margin-top:6px}.kRes__cmp>div{flex:1;border-radius:16px;background:rgba(255,255,255,.06);padding:10px 12px}
+.kRes__cmp small{display:block;font:700 9px 'Space Mono',monospace;letter-spacing:.08em;color:rgba(244,243,240,.55)}.kRes__cmp b{font-family:'KOACH Display','Archivo',sans-serif;font-weight:900;font-size:22px}
+.kRes__cmp span{color:rgba(244,243,240,.5)}
+.kRes__n{margin:2px 0 0;font:400 11px/1.4 'Space Mono',monospace;color:rgba(244,243,240,.5)}
+.kRes__b{margin-top:10px;width:100%;min-height:54px;border:0;border-radius:999px;background:#F4F3F0;color:#000;font:700 12px 'Space Mono',monospace;letter-spacing:.1em}
+@media (prefers-reduced-motion:reduce){ .kRes__c i,.kRes__pct b{animation:none} }
+.avTf{cursor:pointer}
 .avTest{background:#0E0F10;color:#F4F3F0;border-radius:22px;padding:16px;margin-bottom:16px}
 .avTest .a2k{color:rgba(244,243,240,.55)}.avTest .a2h{color:#F4F3F0}
 .avTf{border-top:1px solid rgba(244,243,240,.12);padding:12px 0 4px}
@@ -6547,6 +6571,7 @@ async function entrar(opts){
     try{ const _c=(await _rCnt).data; S.totalSes = (typeof _c==='number') ? _c : null }catch(_e){ S.totalSes=null }
     aplicarOperacion()
     setTimeout(function(){ if (!kIrHash(location.hash)) kPopRevisar((document.querySelector('.vista.on')||{}).id) },1800)   // c281
+    setTimeout(function(){ try{ kResCliente() }catch(_){} },2600)   // c294
     try{ localStorage.setItem('kc_snap_'+S.perfil.id, JSON.stringify({v:3, ts:Date.now(),
       perfil:S.perfil, programa:S.programa, objetivos:S.objetivos, registros:S.registros, reqs:S._reqs||{}})) }catch(_e){}
     try{
@@ -9990,6 +10015,36 @@ async function loadAvances0(){
   }catch(e){ console.error('avances', e); klog && klog('AVANCES_LOAD_FAILED', { error:String((e&&e.message)||e) })
     document.getElementById('avTop5').innerHTML='<div class="avErr"><b>NO PUDIMOS CARGAR TUS AVANCES</b><span>Revisa tu conexión.</span><button type="button" onclick="loadAvances()">REINTENTAR</button></div>' }
 }
+
+// ═══ c294 · RESULTADO DEL CICLO para el socio: al abrir la app después de su test RM, pantalla completa con el comparativo de sus semanas ═══
+function kResVisto(id){ try{ const o=JSON.parse(localStorage.getItem('k_res_visto')||'[]'); if(id===undefined) return o; if(o.indexOf(id)<0){ o.push(id); localStorage.setItem('k_res_visto',JSON.stringify(o.slice(-30))) } }catch(_){ return [] } }
+async function kResCliente(forzar){
+  if (!S.perfil || document.getElementById('kRes')) return
+  const r=await sb.from('test_rm').select('id,ejercicio_id,ciclo,semana,fecha,reps_objetivo,reps,peso,e1rm,ejercicios(nombre)').eq('socio_id',S.perfil.id).eq('anulado',false).order('created_at',{ascending:false}).limit(1)
+  const t=r.data&&r.data[0]; if (!t) return
+  if (!forzar && kResVisto().indexOf(t.id)>-1) return
+  const q=await sb.rpc('koach_progreso_ejercicio',{ p_socio:S.perfil.id, p_ejercicio:t.ejercicio_id, p_alcance:'ciclo' }); if (q.error||!q.data) return
+  const pts=q.data.puntos||[], W={}
+  pts.forEach(function(p){ if (p.es_test||p.e1rm==null) return; const k=p.semana||0; const w=W[k]||(W[k]={ s:k, e:0 }); w.e=Math.max(w.e,+p.e1rm) })
+  const sem=Object.keys(W).map(function(k){return W[k]}).sort(function(a,b){return a.s-b.s})
+  const ini=sem.length?sem[0].e:+t.e1rm, fin=+t.e1rm, pct=ini>0?Math.round((fin/ini-1)*1000)/10:0
+  const bar=sem.map(function(w){return { l:'S'+w.s, v:w.e }}).concat([{ l:'TEST', v:fin, t:true }]), mx=Math.max.apply(null,bar.map(function(b){return b.v})), mn=Math.min.apply(null,bar.map(function(b){return b.v}))*.82
+  const el=document.createElement('div'); el.id='kRes'; el.setAttribute('role','dialog'); el.setAttribute('aria-modal','true'); el.setAttribute('aria-label','Resultado de tu ciclo')
+  el.innerHTML='<div class="kRes__in"><img class="kRes__logo" src="/img/brand/logotipo-koach.png" alt="KOACH" width="104" height="22">'+
+    '<div class="kRes__k">CICLO '+(t.ciclo||'')+' COMPLETADO</div><h2 class="kRes__t">Tu versión<br>más fuerte</h2>'+
+    '<div class="kRes__ej">'+plEscA((t.ejercicios&&t.ejercicios.nombre)||'').toUpperCase()+' · TEST '+t.reps_objetivo+'RM</div>'+
+    '<div class="kRes__pct"><b>'+(pct>0?'+':'')+String(pct).replace('.',',')+'<i>%</i></b><small>DE FUERZA EN '+(sem.length||6)+' SEMANAS</small></div>'+
+    '<div class="kRes__bars">'+bar.map(function(b,i){ const h=Math.max(10,Math.round((b.v-mn)/((mx-mn)||1)*100)); return '<div class="kRes__c'+(b.t?' t':'')+'"><em>'+avKg(Math.round(b.v*10)/10)+'</em><i style="--h:'+h+'%;animation-delay:'+(0.5+i*0.12).toFixed(2)+'s"></i><span>'+b.l+'</span></div>' }).join('')+'</div>'+
+    '<div class="kRes__cmp"><div><small>SEMANA '+(sem.length?sem[0].s:1)+'</small><b>'+avKg(ini)+' KG</b></div><span>→</span><div><small>TEST · '+avKg(t.peso)+' KG × '+t.reps+'</small><b>'+avKg(fin)+' KG</b></div></div>'+
+    '<p class="kRes__n">Fuerza estimada (1RM) a partir de tus registros y del test que hiciste con tu KOACH.</p>'+
+    '<button type="button" class="kRes__b" id="kResOk">VER MIS AVANCES</button></div>'
+  document.body.appendChild(el); requestAnimationFrame(function(){ el.classList.add('on') })
+  try{ kAudioUnlock(); KSFX.play('logro',0,.7) }catch(_){}
+  kResVisto(t.id)
+  const cerrar=function(ir){ el.classList.remove('on'); setTimeout(function(){ el.remove() },360); if (ir) try{ tab('vAvances') }catch(_){} }
+  document.getElementById('kResOk').onclick=function(){ cerrar(true) }
+  el.addEventListener('keydown',function(e){ if(e.key==='Escape') cerrar(false) })
+}
 // c292 · RESULTADO DEL CICLO: test de fuerza (RM) evaluado por tu KOACH + progreso del ejercicio en el ciclo, con línea animada
 async function avTestPintar(){ const el=document.getElementById('avTest'); if(!el||!S.perfil) return
   const r=await sb.from('test_rm').select('id,ejercicio_id,ciclo,semana,fecha,reps_objetivo,reps,peso,e1rm,ejercicios(nombre)').eq('socio_id',S.perfil.id).eq('anulado',false).order('fecha',{ascending:false}).limit(12)
@@ -10002,7 +10057,7 @@ async function avTestPintar(){ const el=document.getElementById('avTest'); if(!e
     let sv=''; if (p.length>1){ const W=300,H=70, vs=p.map(function(x){return +x.e1rm}), mn=Math.min.apply(null,vs), mx=Math.max.apply(null,vs)||1, rg=(mx-mn)||1
       const d=p.map(function(x,i){ return (i?'L':'M')+(i*(W-8)/(p.length-1)+4).toFixed(1)+' '+(H-6-((+x.e1rm-mn)/rg)*(H-14)).toFixed(1) }).join(' ')
       sv='<svg viewBox="0 0 '+W+' '+H+'" preserveAspectRatio="none" aria-hidden="true"><path d="'+d+'" pathLength="1"/></svg>' }
-    return '<div class="avTf"><div class="avTf__t"><span>'+plEscA((t.ejercicios&&t.ejercicios.nombre)||'Ejercicio').toUpperCase()+'</span><em>TEST '+t.reps_objetivo+'RM</em></div>'+
+    return '<div class="avTf" role="button" tabindex="0" onclick="kResCliente(true)"><div class="avTf__t"><span>'+plEscA((t.ejercicios&&t.ejercicios.nombre)||'Ejercicio').toUpperCase()+'</span><em>TEST '+t.reps_objetivo+'RM</em></div>'+
       '<div class="avTf__v"><b>'+avKg(t.peso)+'<i>KG</i> × '+t.reps+'</b>'+(pct!=null?'<strong class="'+(pct>0?'up':'')+'">'+(pct>0?'+':'')+String(pct).replace('.',',')+'%</strong>':'')+'</div>'+
       (pct!=null?'<small>Tu fuerza estimada pasó de '+avKg(a.e1rm)+' a '+avKg(t.e1rm)+' kg en este ciclo</small>':'')+sv+'</div>' }).join('')
   el.hidden=false

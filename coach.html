@@ -3656,6 +3656,25 @@ html[data-fprog] .scMenu a{min-height:54px !important;border-radius:999px !impor
 .cgProy li em{font-style:normal;color:rgba(244,243,240,.5);font-weight:400}.cgProy li b{font:700 13px 'Space Mono',monospace !important;color:#F4F3F0 !important;margin:0 !important;white-space:nowrap}.cgProy li.go b{color:#3EC6B0 !important}.cgProy{grid-template-columns:1fr !important}.cgProy ol{display:grid !important;grid-template-columns:repeat(var(--ns,5),minmax(0,1fr));gap:6px}@media (max-width:640px){.cgProy ol{grid-template-columns:1fr 1fr}}.cgProy li{grid-template-columns:1fr !important;gap:2px !important;padding:8px 10px !important}
 .cgProy li span{font:400 9.5px 'Space Mono',monospace;letter-spacing:.06em;color:rgba(244,243,240,.5)}.cgProy li.go span{color:#3EC6B0}.cgProy li.go{border:1px solid rgba(62,198,176,.6);color:#3EC6B0}
 @media (max-width:640px){ .cgRm{grid-template-columns:repeat(2,1fr)} .cgProy{grid-template-columns:1fr} }
+.krc{position:relative}.krc__b{border:1px solid rgba(244,243,240,.4);background:none;color:#F4F3F0;border-radius:999px;min-height:36px;padding:0 14px;font:700 10px 'Space Mono',monospace;letter-spacing:.08em;margin-bottom:12px;cursor:pointer}
+.krc__hero{display:grid;grid-template-columns:1fr auto 1fr 1fr;gap:10px;align-items:stretch}
+.krc__hero>div{border-radius:18px;background:rgba(255,255,255,.05);border:1px solid rgba(244,243,240,.12);padding:12px 14px;min-width:0}
+.krc__hero small{display:block;font:700 9.5px 'Space Mono',monospace;letter-spacing:.1em;color:rgba(244,243,240,.55)}
+.krc__hero b{display:block;margin-top:6px;font-family:'KOACH Display','Archivo',Arial,sans-serif;font-weight:900;font-size:clamp(24px,3vw,32px);color:#F4F3F0}.krc__hero b i{font-style:normal;font-size:13px}
+.krc__ar{align-self:center;font-size:22px;color:rgba(244,243,240,.5)}
+.krc__pct.up{border-color:rgba(62,198,176,.6) !important;background:rgba(62,198,176,.08) !important}.krc__pct.up b{color:#3EC6B0}
+.krc__g{margin-top:12px;border-radius:20px;background:rgba(255,255,255,.035);border:1px solid rgba(244,243,240,.1);padding:12px}
+.krc__bars{display:flex;align-items:flex-end;gap:10px;height:190px;padding:8px 4px 0}
+.krc__bars--v{height:120px}
+.krc__c{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%;gap:6px;min-width:0}
+.krc__c em{font:700 10.5px 'Space Mono',monospace;font-style:normal;color:rgba(244,243,240,.75);white-space:nowrap}
+.krc__c i{display:block;width:100%;max-width:56px;height:var(--h);border-radius:10px 10px 4px 4px;background:linear-gradient(180deg,#F4F3F0,#979C9F);transform-origin:bottom;animation:krcUp .8s cubic-bezier(.2,.9,.2,1) both}
+.krc__bars--v .krc__c i{background:linear-gradient(180deg,#6F7377,#434649)}
+.krc__c.t i{background:linear-gradient(180deg,#3EC6B0,#1E7F70);box-shadow:0 0 24px rgba(62,198,176,.35)}.krc__c.t em,.krc__c.t span{color:#3EC6B0}
+.krc__c span{font:700 10px 'Space Mono',monospace;letter-spacing:.08em;color:rgba(244,243,240,.55)}
+@keyframes krcUp{from{transform:scaleY(0);opacity:.3}to{transform:scaleY(1);opacity:1}}
+@media (prefers-reduced-motion:reduce){ .krc__c i{animation:none} }
+@media (max-width:640px){ .krc__hero{grid-template-columns:1fr 1fr} .krc__ar{display:none} .krc__pct{grid-column:1/-1} .krc__bars{gap:5px} .krc__c em{font-size:9px} }
 @media (max-width:640px){ .cgHero{grid-template-columns:1fr 1fr} .cgPct{grid-column:1/-1} .cgTf{grid-template-columns:1fr 1fr 1fr} #mCargas.mCg--pro .cgBtns{flex-direction:column} }
 /* ═══ c280 · CABECERA DE LA FICHA SIN SOLAPE: la identidad se va con el scroll; solo la barra de botones queda fija, sólida, en el color del programa ═══ */
 html[data-fprog] #vFicha .mh{position:relative !important;top:auto !important}
@@ -9612,10 +9631,10 @@ function cgSugerida(ej, repsObjetivo){
 function cgAntig(h){ if(!h || h.dias==null || h.dias<=56) return ''
   return h.dias>=60 ? 'REFERENCIA ANTIGUA · HACE '+Math.round(h.dias/30)+' MES'+(Math.round(h.dias/30)>1?'ES':'') : 'REFERENCIA ANTIGUA · HACE '+Math.round(h.dias/7)+' SEMANAS' }
 // ═══ c292 · PROGRESO DEL EJERCICIO (cristal negro): ciclo / historial del club · gráfico animado · TEST RM de cierre ═══
-const CGP={ ej:null, be:null, alc:'ciclo', cache:{}, form:false, rm:6 }
+const CGP={ ej:null, be:null, alc:'ciclo', cache:{}, form:false, rm:6, res:false }
 function cgSocio(){ return window._histSocio || (F && F.id) || null }
 function cgDrawer(ejId, beId){
-  CGP.ej=ejId; CGP.be=beId||null; CGP.form=false; CGP.alc='ciclo'
+  CGP.ej=ejId; CGP.be=beId||null; CGP.form=false; CGP.res=false; CGP.alc='ciclo'
   const m=document.getElementById('mCargas'); m.classList.add('mCg--pro'); m.style.display='flex'; try{ s4Son('appear',0.75) }catch(_){}
   cgPintar(); cgCargar()
 }
@@ -9631,6 +9650,7 @@ function cgPintar(anim){
   const ejId=CGP.ej, beId=CGP.be, e=(EJCAT||[]).concat(CG_EXTRA||[]).find(function(x){return x.id===ejId})||{}, h=HIST[ejId]
   const it = beId ? plBuscarItem(beId) : null, sug = cgSugerida(ejId, it && it.reps)
   const d=CGP.cache[cgSocio()+'|'+ejId+'|'+CGP.alc]
+  if (CGP.res && d && !d.error){ document.getElementById('cgBody').innerHTML=kResCiclo(d, e.nombre, F?nomDe(F.id):'', true); try{ s4Son('datos',0.6) }catch(_){} ; return }
   let html='<div class="cgK">PROGRESO DEL EJERCICIO'+(F?' · '+String(nomDe(F.id)).toUpperCase():'')+'</div><h3 class="cgT">'+plEsc(e.nombre||'Ejercicio')+'</h3>'+
     '<div class="cgSeg" role="tablist"><button type="button" role="tab" class="'+(CGP.alc==='ciclo'?'on':'')+'" onclick="cgAlc(\'ciclo\')">ESTE CICLO</button><button type="button" role="tab" class="'+(CGP.alc==='todo'?'on':'')+'" onclick="cgAlc(\'todo\')">TODO EN KOACH</button></div>'
   if (!d) html+='<div class="cgLd">'+kLd('Cargando progreso')+'</div>'
@@ -9651,7 +9671,7 @@ function cgPintar(anim){
     const tc=(d.tests||[]).filter(function(t){ return t.ciclo===d.ciclo })
     html+='<div class="cgTest">'
     if (CGP.form) html+=cgTestForm(d)
-    else if (tc.length){ const t=tc[tc.length-1]; html+='<div class="cgTok"><span>✓ TEST '+t.reps_objetivo+'RM · CICLO '+(t.ciclo||'')+'</span><b>'+cgN(t.peso)+' KG × '+t.reps+'</b><em>1RM EST. '+cgN(t.e1rm)+' KG · '+cgF(t.fecha)+'</em><button type="button" onclick="CGP.form=true;cgPintar()">REPETIR TEST</button></div>' }
+    else if (tc.length){ const t=tc[tc.length-1]; html+='<div class="cgTok"><span>✓ TEST '+t.reps_objetivo+'RM · CICLO '+(t.ciclo||'')+'</span><b>'+cgN(t.peso)+' KG × '+t.reps+'</b><em>1RM EST. '+cgN(t.e1rm)+' KG · '+cgF(t.fecha)+'</em><button type="button" onclick="CGP.res=true;CGP.alc=\'ciclo\';cgPintar();cgCargar()">VER RESULTADO</button></div>' }
     else if (typeof es_entrenadorUI==='undefined' || es_entrenadorUI()) html+='<button type="button" class="cgTbtn" onclick="CGP.form=true;cgPintar();setTimeout(function(){var k=document.getElementById(\'cgTk\');if(k)k.focus()},60)">⚑ REGISTRAR TEST RM · CIERRE DE CICLO</button>'
     html+='</div>'
   }
@@ -9710,6 +9730,30 @@ function cgSeries(w, rm){ const P = rm<=3 ? [[.5,8,'CALENTAMIENTO'],[.65,5,'APRO
     : [[.5,10,'CALENTAMIENTO'],[.7,6,'APROXIMACIÓN'],[.85,3,'APROXIMACIÓN']]
   return P.map(function(x){ return { kg:cgRed(w*x[0]), r:x[1], d:x[2]+' · '+Math.round(x[0]*100)+'%' } }).concat([{ kg:w, r:rm+' máx.', d:'TEST '+rm+'RM', t:true }]) }
 function cgEvaluarRM(ejId, beId){ cgDrawer(ejId, beId); CGP.form=true; cgPintar() }
+
+// c294 · RESULTADO DEL CICLO: comparativo semana a semana (fuerza estimada en barras que crecen + volumen) contra el test final
+function kResSem(d){ const pts=(d.puntos||[]), tests=pts.filter(function(p){return p.es_test}), W={}
+  pts.forEach(function(p){ if (p.es_test || p.e1rm==null) return; const k=p.semana||0; const w=W[k]||(W[k]={ s:k, e:0, ton:0 }); w.e=Math.max(w.e,+p.e1rm); w.ton+=(+p.ton||0) })
+  const sem=Object.keys(W).map(function(k){return W[k]}).sort(function(a,b){return a.s-b.s})
+  return { sem:sem, test:tests.length?tests[tests.length-1]:null } }
+function kResCiclo(d, nombre, socio, conVolver){
+  const r=kResSem(d), sem=r.sem, t=r.test
+  if (!sem.length && !t) return '<div class="cgNone">SIN DATOS DEL CICLO</div>'
+  const ini=sem.length?sem[0].e:(t&&t.e1rm), fin=t?+t.e1rm:sem[sem.length-1].e, pct=ini>0?Math.round((fin/ini-1)*1000)/10:0
+  const barras=sem.map(function(w){ return { l:'S'+w.s, v:w.e } }).concat(t?[{ l:'TEST', v:+t.e1rm, t:true }]:[])
+  const mx=Math.max.apply(null,barras.map(function(b){return b.v})), mn=Math.min.apply(null,barras.map(function(b){return b.v}))*.82
+  const tonMx=Math.max.apply(null,sem.map(function(w){return w.ton}).concat([1]))
+  return '<div class="krc">'+(conVolver?'<button type="button" class="krc__b" onclick="CGP.res=false;cgPintar()">← PROGRESO</button>':'')+
+    '<div class="cgK">RESULTADO DEL CICLO '+(d.ciclo||'')+(socio?' · '+String(socio).toUpperCase():'')+'</div>'+
+    '<h3 class="cgT">'+plEsc(nombre||'')+'</h3>'+
+    '<div class="krc__hero"><div><small>FUERZA ESTIMADA · SEMANA '+(sem.length?sem[0].s:1)+'</small><b>'+cgN(ini)+'<i> KG</i></b></div><span class="krc__ar">→</span>'+
+      '<div><small>'+(t?'TEST '+t.reps+'RM · '+cgN(t.peso)+' KG':'ÚLTIMA SEMANA')+'</small><b>'+cgN(fin)+'<i> KG</i></b></div>'+
+      '<div class="krc__pct'+(pct>0?' up':'')+'"><small>MEJORA DEL CICLO</small><b>'+(pct>0?'+':'')+String(pct).replace('.',',')+'%</b></div></div>'+
+    '<div class="krc__g"><div class="cgG__h"><small>FUERZA ESTIMADA (1RM) · SEMANA A SEMANA</small></div><div class="krc__bars">'+
+      barras.map(function(b,i){ const h=Math.max(8,Math.round((b.v-mn)/((mx-mn)||1)*100)); return '<div class="krc__c'+(b.t?' t':'')+'"><em>'+cgN(b.v)+'</em><i style="--h:'+h+'%;animation-delay:'+(0.15+i*0.09).toFixed(2)+'s"></i><span>'+b.l+'</span></div>' }).join('')+'</div></div>'+
+    (sem.length>1?'<div class="krc__g"><div class="cgG__h"><small>VOLUMEN · KG MOVIDOS POR SEMANA</small></div><div class="krc__bars krc__bars--v">'+
+      sem.map(function(w,i){ return '<div class="krc__c"><em>'+cgN(Math.round(w.ton))+'</em><i style="--h:'+Math.max(6,Math.round(w.ton/tonMx*100))+'%;animation-delay:'+(0.6+i*0.07).toFixed(2)+'s"></i><span>S'+w.s+'</span></div>' }).join('')+'</div></div>':'')+
+    '</div>' }
 async function cgTestGuardar(){
   const rm=parseInt((document.getElementById('cgTr')||{}).value,10), kg=parseFloat(String((document.getElementById('cgTk')||{}).value).replace(',','.')), rp=parseInt((document.getElementById('cgTl')||{}).value,10)
   const err=document.getElementById('cgTe'); const fail=function(t){ if(err) err.textContent=t }
@@ -9722,7 +9766,7 @@ async function cgTestGuardar(){
   const r=await sb.from('test_rm').insert(row)
   if (r.error) return fail('No se pudo guardar: '+r.error.message)
   try{ s4Son('scan-lock',0.6) }catch(_){}
-  CGP.form=false; Object.keys(CGP.cache).forEach(function(k){ if (k.indexOf(soc+'|'+CGP.ej)===0) delete CGP.cache[k] })
+  CGP.form=false; CGP.res=true; CGP.alc='ciclo'; Object.keys(CGP.cache).forEach(function(k){ if (k.indexOf(soc+'|'+CGP.ej)===0) delete CGP.cache[k] })
   toast('Test '+rm+'RM guardado · '+cgN(kg)+' KG × '+rp); cgPintar(); cgCargar()
 }
 function plBuscarItem(beId){ const s=plSesActual(); let r=null; if(s) s.bloques.forEach(function(b){ b.items.forEach(function(it){ if(it.beId===beId) r=it }) }); return r }
