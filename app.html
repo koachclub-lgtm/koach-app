@@ -12,7 +12,6 @@
 <link rel="manifest" href="/manifest.webmanifest">
 <link rel="preconnect" href="https://siecbdatfgmqbpxqtvsl.supabase.co" crossorigin>
 <link rel="preload" href="/vendor/supabase-js-2.119.0.js" as="script">
-<link rel="preload" href="/img/brand/koach-encendido-720.mp4" as="video" type="video/mp4" fetchpriority="high">
 <meta name="theme-color" content="#000000">
 <meta name="color-scheme" content="only light">
 <style>:root{color-scheme:only light}
@@ -6393,14 +6392,15 @@ function invitarInstalar(){
 const SB_STORE = 'sb-'+SB_URL.replace(/^https?:\/\//,'').split('.')[0]+'-auth-token'
 function hayTokenGuardado(){ try{ return !!localStorage.getItem(SB_STORE) || !!kcCkGet() }catch(_e){ return !!kcCkGet() } }
 // c305 · LOGO DE INICIO COMPLETO: las pantallas de carga no se sueltan con el logo a medio armar.
-//        Esperan a que el video llegue al logo completo (~1 s); si el video no partió en 0,7 s, no se espera (sin cortes ni negro eterno).
+//        Esperan a que el video llegue al logo completo (~1 s); si el video no partió en 1,8 s, no se espera (sin cortes ni negro eterno).
 window.KLOGO=(function(){
   function esperar(v){ return new Promise(function(res){
     if (!v || v.ended || v.currentTime>=1.0) return res()
     let ok=false; const fin=function(){ if(ok) return; ok=true; clearTimeout(t0); clearTimeout(tMax); v.removeEventListener('timeupdate',tu); v.removeEventListener('ended',fin); v.removeEventListener('error',fin); res() }
     const tu=function(){ if(v.currentTime>=1.0) fin() }
     v.addEventListener('timeupdate',tu); v.addEventListener('ended',fin); v.addEventListener('error',fin)
-    const t0=setTimeout(function(){ if(v.currentTime<0.05) fin() },700), tMax=setTimeout(fin,2400) }) }
+    try{ if(v.paused){ const pp=v.play(); if(pp&&pp.catch) pp.catch(function(){}) } }catch(_){}
+    const t0=setTimeout(function(){ if(v.currentTime<0.05) fin() },1800), tMax=setTimeout(fin,3200) }) }
   const K={ fin:Promise.resolve(), esperar:esperar, run:function(reinicio){ const v=document.querySelector('#oLoad video.klv'); if(!v) return
     try{ if(reinicio) v.currentTime=0; const p=v.play(); if(p&&p.catch) p.catch(function(){}) }catch(_){} K.fin=esperar(v) } }
   return K })()
