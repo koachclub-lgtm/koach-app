@@ -6398,18 +6398,18 @@ function invitarInstalar(){
 const SB_STORE = 'sb-'+SB_URL.replace(/^https?:\/\//,'').split('.')[0]+'-auth-token'
 function hayTokenGuardado(){ try{ return !!localStorage.getItem(SB_STORE) || !!kcCkGet() }catch(_e){ return !!kcCkGet() } }
 // c305 · LOGO DE INICIO COMPLETO: las pantallas de carga no se sueltan con el logo a medio armar.
-//        Esperan a que el video llegue al logo completo (~1 s); si el video no partió en 1,8 s, no se espera (sin cortes ni negro eterno).
+//        Esperan a que la animación termine COMPLETA (~2,1 s, c309); si el video no partió en 1,8 s, no se espera (sin cortes ni negro eterno).
 window.KLOGO=(function(){
   function esperar(v){ return new Promise(function(res){
-    if (!v || v.ended || v.currentTime>=1.0) return res()
+    if (!v || v.ended) return res()
     const est=function(){ try{ v.parentNode.classList.add('klv-est') }catch(_){} }, vivo=function(){ try{ v.parentNode.classList.remove('klv-est') }catch(_){} }
     v.addEventListener('playing',vivo,{once:true})
     let ok=false; const fin=function(){ if(ok) return; ok=true; clearTimeout(t0); clearTimeout(tMax); clearTimeout(tEst); v.removeEventListener('timeupdate',tu); v.removeEventListener('ended',fin); v.removeEventListener('error',fin); res() }
-    const tu=function(){ if(v.currentTime>=1.0) fin() }
-    v.addEventListener('timeupdate',tu); v.addEventListener('ended',fin); v.addEventListener('error',function(){ est(); fin() })
-    try{ if(v.paused){ const pp=v.play(); if(pp&&pp.catch) pp.catch(function(){ est(); fin() }) } }catch(_){ est(); fin() }
+    const tu=function(){ if(v.duration && v.currentTime>=v.duration-0.06) fin() }   // c309 · animación COMPLETA, nunca se adelanta
+    v.addEventListener('timeupdate',tu); v.addEventListener('ended',fin); v.addEventListener('error',function(){ est(); setTimeout(fin,900) })
+    try{ if(v.paused){ const pp=v.play(); if(pp&&pp.catch) pp.catch(function(){ est(); setTimeout(fin,900) }) } }catch(_){ est(); setTimeout(fin,900) }
     const tEst=setTimeout(function(){ if(v.currentTime<0.05) est() },600)   // no partió aún → logo fijo (nunca el ▶)
-    const t0=setTimeout(function(){ if(v.currentTime<0.05){ est(); fin() } },1800), tMax=setTimeout(fin,3200) }) }
+    const t0=setTimeout(function(){ if(v.currentTime<0.05){ est(); setTimeout(fin,600) } },1800), tMax=setTimeout(fin,4200) }) }
   const K={ fin:Promise.resolve(), esperar:esperar, run:function(reinicio){ const v=document.querySelector('#oLoad video.klv'); if(!v) return
     try{ if(reinicio) v.currentTime=0; const p=v.play(); if(p&&p.catch) p.catch(function(){}) }catch(_){} K.fin=esperar(v) } }
   return K })()
