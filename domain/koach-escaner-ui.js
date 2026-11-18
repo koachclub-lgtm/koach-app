@@ -486,6 +486,79 @@ const CSS = `
 /* c258 · la imagen mide exactamente lo que la foto: sin letterbox, sin sombra ni marco de otro tono */
 .keu__wph--h .keu__ph{display:flex;justify-content:center}
 .keu__wph--h .keu__ph img,.keu__wph--h .keu__ph.sm img{width:auto!important;height:auto!important;max-width:100%!important;max-height:46vh!important;object-fit:fill!important;margin:0 auto;border-radius:14px;box-shadow:none!important;background:transparent}
+/* c293 · NUTRICIÓN EN PLATA (variante C): papel gris claro, botones off-white con filo aluminio, macros en escala de grises.
+   El calipso queda solo como tic de válido y el rojo naranjo como tic o línea de exceso. Distinto del lenguaje del entrenamiento. */
+.keu{--k-ok:#3EC6B0}
+.keu .keu__sc.valido,.keu .keu__sc.alerta,.keu.keu--tex .keu__sc{background:linear-gradient(180deg,#B9BCBF 0%,#A4A8AB 45%,#8E9295 100%)}
+.keu__wt,.keu__avc,.keu__sc.valido .keu__wt--r,.keu__sc.alerta .keu__wt--r{background:linear-gradient(180deg,#F1F2F3 0%,#E4E5E7 60%,#D9DBDD 100%);-webkit-backdrop-filter:none;backdrop-filter:none;box-shadow:inset 0 1px 0 #FFFFFF,0 18px 40px -18px rgba(18,18,18,.45)}
+.keu__card{background:linear-gradient(180deg,#F1F2F3,#E6E7E9)!important;border:1px solid rgba(18,18,18,.08)}
+/* cabecera del ticket: sin bloque negro, sin pastilla calipso */
+.keu__sys{background:transparent;border:1px solid rgba(18,18,18,.14);box-shadow:none;color:#6F7377}
+.keu__sys img{filter:brightness(0);opacity:.85}
+.keu__sys i,.valido .keu__sys i{background:#979C9F;box-shadow:none;animation:none}
+.alerta .keu__sys i{background:#FF4200;box-shadow:none}
+.keu__wok,.keu__wok.ch{border:1px solid rgba(18,18,18,.18)!important;background:transparent!important;color:#121212!important}
+.keu__wok svg{width:14px;height:14px;padding:2px;border:1.5px solid #3EC6B0;border-radius:50%;stroke:#3EC6B0;stroke-width:3.4}
+.keu__wok.ch svg{border-color:#FF4200;stroke:#FF4200}
+.keu__dif,.keu__dif.ok,.keu__dif.n{border:1px solid rgba(18,18,18,.16);background:rgba(255,255,255,.45);color:#121212}
+.keu__dif.x{border:1px solid rgba(18,18,18,.16);border-left:3px solid #FF4200;background:rgba(255,255,255,.45);color:#121212}
+/* barras y macros: grafito, gris y aluminio */
+.keu__mp span u,.keu__mp em s,.keu__kp{background:#121212!important}
+.keu__mc span u,.keu__mc em s,.keu__kc{background:#6F7377!important}
+.keu__mg span u,.keu__mg em s,.keu__kg{background:#A9ADB1!important}
+.keu__wb s{box-shadow:none}
+.keu__wm em s.ov{background:#121212}
+.keu__wm{border-top-color:rgba(18,18,18,.18)}
+.keu__hs,.valido .keu__hs,.alerta .keu__hs{background:linear-gradient(90deg,transparent,#FFFFFF,transparent);box-shadow:0 0 18px 5px rgba(255,255,255,.55)}
+/* veredicto: tarjeta neutra; el color solo en el ícono o en la línea de exceso */
+.keu__wv,.keu__wv.ok{background:rgba(255,255,255,.5)!important;border:1px solid rgba(18,18,18,.14);border-left:3px solid #979C9F;box-shadow:none}
+.keu__wv.x{border:1px solid rgba(18,18,18,.14);border-left:3px solid #FF4200;box-shadow:none}
+.keu__wv .keu__sug,.keu__wv.ok .keu__vs,.keu__wv.x .keu__vs{color:#121212!important}
+.keu__wv.ok .keu__vs svg{stroke:#3EC6B0}.keu__wv.x .keu__vs svg{stroke:#FF4200}
+.keu__wv .keu__wq{border-top-color:rgba(18,18,18,.2)}
+/* botones: uno principal off-white con filo aluminio */
+.keu__sc .keu__cta,.keu__sc .keu__cta.keu__cta--tech,.keu__sc .keu__cta--x{min-height:54px;border-radius:14px;background:#F4F3F0!important;border:1px solid #979C9F;color:#121212!important;box-shadow:inset 0 1px 0 #FFFFFF,0 1px 0 rgba(0,0,0,.08);font:700 11px var(--k-m);letter-spacing:.17em;text-transform:uppercase}
+.keu__sc .keu__cta--tech::before,.keu__sc .keu__cta--tech .cr{display:none}
+.keu__sc .keu__cta--tech .tk i{border-color:#121212}
+.keu__sc .keu__cta--tech .ar,.keu__sc .keu__cta--tech .ar svg{color:#6F7377}
+.keu__sc .keu__cta--x{border-color:#FF4200}
+.keu__sc .keu__sec{border:1px solid rgba(18,18,18,.3);border-radius:14px;background:transparent!important;color:#121212}
+.keu__sc .keu__lnk{color:#434649}
+.keu__dock{background:linear-gradient(180deg,rgba(164,168,171,0),rgba(164,168,171,.92) 38%)}
+.keu__dock button,.keu__dock .ok,.keu__dock .ch{background:#F4F3F0;border:1px solid #979C9F;color:#121212;box-shadow:inset 0 1px 0 #FFFFFF,0 10px 24px -14px rgba(18,18,18,.55);-webkit-backdrop-filter:none;backdrop-filter:none}
+.keu__dock u,.keu__dock .ok u,.keu__dock .ch u{width:18px;height:18px;background:transparent;border:1.5px solid #3EC6B0;color:#3EC6B0}
+.keu__dock .ch u{border-color:#FF4200;color:#FF4200}
+.keu__dock u svg{width:10px;height:10px;stroke-width:3.6}
+/* selectores, pills y edición */
+.keu__ms button[aria-pressed="true"],.keu__pc button[aria-pressed="true"],.keu--tex .keu__ms button[aria-pressed="true"]{background:#F4F3F0;color:#121212;box-shadow:0 0 0 1px #979C9F}
+.keu__ms,.keu__pc{background:rgba(18,18,18,.07)}
+.keu--tex .keu__ms button{background:transparent}
+.keu__pill svg{stroke:#3EC6B0}
+.keu__pill.fill{background:transparent;border-color:#FF4200;color:#121212}
+.keu__pill.etq{background:transparent;border-color:rgba(18,18,18,.3);color:#121212}
+.keu__stp{background:#F4F3F0}
+/* registrada y avisos: código de barras real (las barras no llevan el trazo de los íconos) */
+.keu__wf svg,.keu__avb svg{stroke:none!important;fill:#121212;width:min(100%,220px);height:30px}
+.keu__wf,.keu__avb{border-top:1px dashed rgba(18,18,18,.3)}
+.keu__wp span{background:#F4F3F0;color:#121212}
+/* lectura: el escaneo también pasa a papel y plata */
+.keu--hud .keu__sc:has(.keu__hud){background:linear-gradient(180deg,#B9BCBF,#8E9295)}
+.keu__hud{background:linear-gradient(180deg,#F1F2F3 0%,#E4E5E7 60%,#D9DBDD 100%);color:#121212;border-radius:22px 22px 0 0;margin:12px 12px 0;min-height:calc(100% - 12px)}
+.keu__hud::before{display:none}
+.keu__hh{color:#6F7377}
+.keu__rec{background:#121212;box-shadow:none}
+.keu__hv{border-radius:14px;background:#C9CBCD}
+.keu__hv img{filter:grayscale(.6) contrast(1.05) brightness(1.02)}
+.keu__hv--t{border-color:rgba(18,18,18,.14);background:rgba(255,255,255,.5)}.keu__hv--t b{color:#121212}
+.keu__grid{background-image:linear-gradient(rgba(255,255,255,.28) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.28) 1px,transparent 1px)}
+.keu__bx{border-color:#FFFFFF}.keu__bx em{background:#F4F3F0;color:#121212}
+.keu__cr{border-color:#FFFFFF}
+.keu__hm div{border-color:rgba(18,18,18,.12);background:rgba(255,255,255,.5)}
+.keu__hm span{color:#6F7377}.keu__hm b{color:#121212}
+.keu__hb{background:rgba(18,18,18,.1)}.keu__hb i{background:#121212}
+.keu__hp li{border-bottom-color:rgba(18,18,18,.08);color:#A9ADB1}
+.keu__hp li.on{color:#121212}.keu__hp li.ok{color:#434649}.keu__hp li.ok em::after{content:'✓';color:#3EC6B0}
+.keu__hl{color:#979C9F}.keu__hl div:last-child{color:#434649}
 `
 // c249 · escena de la guía (viewBox 300): plato cenital con comida, anillos girando, teléfono que encuadra, sol + cono de luz, esquinas y barrido
 const GSCENA = '<svg viewBox="0 0 300 300">' +
