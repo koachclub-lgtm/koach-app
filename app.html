@@ -3783,6 +3783,12 @@ html:has(#vSesion.on[data-bg]),body:has(#vSesion.on[data-bg]){background:var(--s
 #oLoad,#oAuth{background:#000!important;overflow:hidden}
 .klv{position:absolute;left:50%;top:calc(50% - var(--klvUp,0px));   /* c264 · centrado en la pantalla física (descuenta la barra de estado negra de la app instalada) */ width:min(100vw,62vh,560px);height:auto;aspect-ratio:9/16;transform:translate(-50%,-50%);background:#000;object-fit:contain;pointer-events:none;border:0;outline:0}
 #oAuth>:not(.klv){position:relative;z-index:1}
+/* c308 · logo de inicio sin el botón ▶ del navegador: si el teléfono bloquea o no alcanza a reproducir el video
+   (ahorro de batería/datos), se muestra el logo fijo en vez del símbolo de play */
+video.klv::-webkit-media-controls,video.klv::-webkit-media-controls-overlay-play-button,video.klv::-webkit-media-controls-start-playback-button,video.klv::-webkit-media-controls-panel{display:none!important;-webkit-appearance:none;opacity:0!important}
+.klvImg{opacity:0;transition:opacity .25s ease;z-index:0}
+.klv-est>video.klv{opacity:0!important}.klv-est>.klvImg{opacity:1}
+
 /* c242 · guardando el set: velo + anillo girando + rótulo, sobre la pantalla del bloque */
 #oBloque.bk--guardando::after{content:'GUARDANDO';position:fixed;inset:0;z-index:50;display:flex;align-items:flex-end;justify-content:center;padding-bottom:calc(50vh - 74px);background:rgba(10,10,11,.6);-webkit-backdrop-filter:blur(3px);backdrop-filter:blur(3px);font:700 10px var(--font-mono,monospace);letter-spacing:.32em;color:#F3F2EF;animation:bkSvIn .2s ease both}
 #oBloque.bk--guardando::before{content:'';position:fixed;left:50%;top:50%;width:72px;height:72px;margin:-36px 0 0 -36px;z-index:51;border-radius:50%;border:2px solid rgba(255,255,255,.14);border-top-color:#fff;animation:bkSvGiro .8s linear infinite}
@@ -4650,7 +4656,7 @@ html.en-av body{background:transparent}
 </head>
 <body>
 <div id="oAuth" role="status" aria-live="polite" style="position:fixed;inset:0;z-index:9999;background:#000;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:22px;padding:env(safe-area-inset-top,0) 24px env(safe-area-inset-bottom,0);font-family:system-ui,-apple-system,sans-serif;color:#fff;text-align:center">
-  <video class="klv" src="/img/brand/koach-encendido-720.mp4" muted playsinline autoplay preload="auto" disablepictureinpicture aria-hidden="true"></video>
+  <img class="klv klvImg" src="/img/brand/koach-logo-fin.webp" alt="" aria-hidden="true" decoding="async"><video class="klv" src="/img/brand/koach-encendido-720.mp4" muted playsinline autoplay preload="auto" disablepictureinpicture disableremoteplayback controlslist="nodownload nofullscreen noremoteplayback" aria-hidden="true"></video>
   <div id="oAuthT" class="kLbl ldSr">PREPARANDO TU CLUB…</div>
   <div id="oAuthS" style="display:none;font-size:15px;line-height:1.45;opacity:.85;max-width:300px">Tu sesión sigue guardada en este teléfono. Revisa tu conexión.</div>
   <button id="oAuthB" type="button" onclick="arrancarAuth()" style="display:none;min-height:48px;padding:0 26px;border-radius:14px;border:1px solid rgba(255,255,255,.4);background:#fff;color:#000;font-size:13px;letter-spacing:.14em;font-weight:600">REINTENTAR</button>
@@ -4913,7 +4919,7 @@ html.en-av body{background:transparent}
 </div>
 <div class="kbm" id="oBM" role="status" aria-live="polite"></div>
 <div class="ovl oscuro" id="oFlash"><img class="kLogo kLogo--flash" src="/img/brand/logotipo-koach.png" alt="KOACH"><div class="ftx" id="oFT"></div><div class="fsb" id="oFS"></div></div>
-<div id="oLoad" role="status" aria-live="polite"><video class="klv" src="/img/brand/koach-encendido-720.mp4" muted playsinline autoplay preload="auto" disablepictureinpicture aria-hidden="true"></video><span class="ldSr" id="oLoadM">ENTRANDO A TU PLAN</span><span class="ldSr" id="oLoadS">Sincronizando tu semana y progreso.</span></div>
+<div id="oLoad" role="status" aria-live="polite"><img class="klv klvImg" src="/img/brand/koach-logo-fin.webp" alt="" aria-hidden="true" decoding="async"><video class="klv" src="/img/brand/koach-encendido-720.mp4" muted playsinline autoplay preload="auto" disablepictureinpicture disableremoteplayback controlslist="nodownload nofullscreen noremoteplayback" aria-hidden="true"></video><span class="ldSr" id="oLoadM">ENTRANDO A TU PLAN</span><span class="ldSr" id="oLoadS">Sincronizando tu semana y progreso.</span></div>
 <div id="mFinQ" style="display:none;position:fixed;inset:0;z-index:82;background:rgba(18,18,16,.5);backdrop-filter:blur(6px)">
   <div class="kFinQ">
     <span class="kLbl kLbl--dk">CERRAR SESIÓN</span><div class="kFinQ__t">¿COMPLETASTE TODAS TUS SERIES?</div>
@@ -6396,14 +6402,21 @@ function hayTokenGuardado(){ try{ return !!localStorage.getItem(SB_STORE) || !!k
 window.KLOGO=(function(){
   function esperar(v){ return new Promise(function(res){
     if (!v || v.ended || v.currentTime>=1.0) return res()
-    let ok=false; const fin=function(){ if(ok) return; ok=true; clearTimeout(t0); clearTimeout(tMax); v.removeEventListener('timeupdate',tu); v.removeEventListener('ended',fin); v.removeEventListener('error',fin); res() }
+    const est=function(){ try{ v.parentNode.classList.add('klv-est') }catch(_){} }, vivo=function(){ try{ v.parentNode.classList.remove('klv-est') }catch(_){} }
+    v.addEventListener('playing',vivo,{once:true})
+    let ok=false; const fin=function(){ if(ok) return; ok=true; clearTimeout(t0); clearTimeout(tMax); clearTimeout(tEst); v.removeEventListener('timeupdate',tu); v.removeEventListener('ended',fin); v.removeEventListener('error',fin); res() }
     const tu=function(){ if(v.currentTime>=1.0) fin() }
-    v.addEventListener('timeupdate',tu); v.addEventListener('ended',fin); v.addEventListener('error',fin)
-    try{ if(v.paused){ const pp=v.play(); if(pp&&pp.catch) pp.catch(function(){}) } }catch(_){}
-    const t0=setTimeout(function(){ if(v.currentTime<0.05) fin() },1800), tMax=setTimeout(fin,3200) }) }
+    v.addEventListener('timeupdate',tu); v.addEventListener('ended',fin); v.addEventListener('error',function(){ est(); fin() })
+    try{ if(v.paused){ const pp=v.play(); if(pp&&pp.catch) pp.catch(function(){ est(); fin() }) } }catch(_){ est(); fin() }
+    const tEst=setTimeout(function(){ if(v.currentTime<0.05) est() },600)   // no partió aún → logo fijo (nunca el ▶)
+    const t0=setTimeout(function(){ if(v.currentTime<0.05){ est(); fin() } },1800), tMax=setTimeout(fin,3200) }) }
   const K={ fin:Promise.resolve(), esperar:esperar, run:function(reinicio){ const v=document.querySelector('#oLoad video.klv'); if(!v) return
     try{ if(reinicio) v.currentTime=0; const p=v.play(); if(p&&p.catch) p.catch(function(){}) }catch(_){} K.fin=esperar(v) } }
   return K })()
+// c308 · vigilante de arranque: si el video del logo no parte (autoplay bloqueado), logo fijo en vez del ▶
+document.querySelectorAll('video.klv').forEach(function(v){ v.addEventListener('playing',function(){ try{ v.parentNode.classList.remove('klv-est') }catch(_){} })
+  v.addEventListener('error',function(){ try{ v.parentNode.classList.add('klv-est') }catch(_){} })
+  setTimeout(function(){ if(v.currentTime<0.05 && v.parentNode && getComputedStyle(v.parentNode).display!=='none'){ v.parentNode.classList.add('klv-est'); try{ const pp=v.play(); if(pp&&pp.catch) pp.catch(function(){}) }catch(_){} } },700) })
 function authListo(){ document.documentElement.classList.remove('boot'); const o=document.getElementById('oAuth'); if(!o || o.style.display==='none') return
   const tok=o._tok=(o._tok||0)+1
   KLOGO.esperar(o.querySelector('video.klv')).then(function(){ if(o._tok!==tok) return
