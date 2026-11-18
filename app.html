@@ -10,6 +10,8 @@
 <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16.png">
 <link rel="icon" href="/favicon.ico" sizes="any">
 <link rel="manifest" href="/manifest.webmanifest">
+<link rel="preconnect" href="https://siecbdatfgmqbpxqtvsl.supabase.co" crossorigin>
+<link rel="preload" href="/vendor/supabase-js-2.119.0.js" as="script">
 <meta name="theme-color" content="#000000">
 <meta name="color-scheme" content="only light">
 <style>:root{color-scheme:only light}
@@ -1711,7 +1713,7 @@ html:has(#vSesion.esf.on),html:has(#vSesion.esf.on) body{background:#C9CBCE url(
 @media (prefers-reduced-motion:reduce){.kbm,.kbm *{animation:none!important}.kbm .lit{opacity:var(--o)}.kbm .scan{display:none}}
 </style>
 
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="/vendor/supabase-js-2.119.0.js"></script>
 <script src="/domain/koach-domain.js"></script>
 <script src="/domain/koach-series.js"></script>
 <script src="/domain/program-catalog.js"></script>
@@ -6417,8 +6419,25 @@ async function canjeAcceso(){
   if (error || !data || !data.session){ klog('RECOVERY_LINK_INVALID'); authVista('fInval'); return true }
   klog('RECOVERY_LINK_OK'); authVista('fNueva'); return true
 }
+// c304 · ARRANQUE INSTANTÁNEO: si este teléfono ya tiene sesión y una foto de su semana, se pinta ANTES de renovar el token
+//        (la renovación de la mañana va a la red y antes dejaba la pantalla de carga). Los datos se revalidan en silencio.
+function kSnapAsig(snap){ S.asig=snap.asig; S.proto=snap.proto; S.semanaActual=(snap.asig&&snap.asig.semana_actual)||1; if(snap.semProg!=null) S.semanaProg=snap.semProg; if(S.totalSes==null&&snap.totalSes!=null) S.totalSes=snap.totalSes }
+function kSnapTemprano(){ try{
+  if (S._cachePintado || /[?&](acceso|pago|susc|cobro|auto)=|error_code|type=recovery/.test(location.search+location.hash)) return false
+  const o=JSON.parse(localStorage.getItem(SB_STORE_KEY)||'null'), uid=o&&o.user&&o.user.id; if (!uid) return false
+  const snap=JSON.parse(localStorage.getItem('kc_snap_'+uid)||'null')
+  if (!(snap && snap.v===4 && snap.programa && snap.perfil && snap.asig && snap.proto && snap.perfil.id===uid)) return false
+  S.perfil=snap.perfil; S.programa=snap.programa; S.objetivos=snap.objetivos||[]; S.registros=snap.registros||[]; S._reqs=snap.reqs||{}; kSnapAsig(snap)
+  S.sem=calcularSemana(S.programa, S.registros, S.objetivos)
+  authListo(); vista('vHome'); pintarHome(); pintarPlan(); S._cachePintado=true; S._snapTemprano=true
+  try{ cargandoOff() }catch(_e){} klog('BOOT_SNAPSHOT', { ms:Math.round(performance.now()) }); return true
+}catch(_e){ return false } }
 async function arrancarAuth(){
   if (await canjeAcceso()) return
+  if (kSnapTemprano()){ const r0=await leerSesion()
+    if (r0.ses){ klog('SESSION_FOUND', { expira:r0.ses.expires_at }); return entrar() }
+    if (hayTokenGuardado()){ klog('SESSION_OFFLINE', { error:String((r0.err&&r0.err.message)||'') }); toast('Sin conexión: mostramos lo último guardado. Reintentaremos solos.'); setTimeout(arrancarAuth, 8000); return }
+    S._cachePintado=false; S._snapTemprano=false; S.perfil=null; klog('SESSION_MISSING'); authListo(); vista('vLogin'); return }
   authEspera(false); klog('AUTH_INITIALIZING', { tokenGuardado:hayTokenGuardado() })
   const r = await leerSesion()
   if (r.ses){ klog('SESSION_FOUND', { expira:r.ses.expires_at }); return entrar() }
@@ -6447,11 +6466,12 @@ sb.auth.onAuthStateChange(function(ev, ses){
 async function entrar(opts){
   opts = opts || {}
   S._lastLoad = Date.now()
-  if (!opts.silent){
+  if (!opts.silent && !S._snapTemprano){
     cargando(S.perfil ? 'ACTUALIZANDO TU SEMANA…' : 'PREPARANDO TU CLUB…')
     vista('vHome')
     document.getElementById('hSaludo').textContent='Cargando tu semana…'
   }
+  S._snapTemprano=false
   try{
     const { data:{ session:_ses } } = await sb.auth.getSession()   // local: no depende de la red para saber quién es
     const user = _ses && _ses.user
@@ -6462,9 +6482,9 @@ async function entrar(opts){
     // F-PERF · caché-primero: pintar al instante, revalidar en silencio
     try{
       const snap = JSON.parse(localStorage.getItem('kc_snap_'+user.id)||'null')
-      if (snap && snap.v===3 && snap.programa && snap.perfil){   // v3: BIBLIOTECA canonical (snapshots previos descartados)
+      if (snap && snap.v===4 && snap.programa && snap.perfil && snap.asig && snap.proto){   // v4: con asignación y protocolo
         S.perfil=snap.perfil; S.programa=snap.programa; S.objetivos=snap.objetivos||[]
-        S.registros=snap.registros||[]; S._reqs=snap.reqs||{}
+        S.registros=snap.registros||[]; S._reqs=snap.reqs||{}; kSnapAsig(snap)
         S.sem = calcularSemana(S.programa, S.registros, S.objetivos)
         pintarHome(); pintarPlan()
         S._cachePintado = true
@@ -6609,8 +6629,8 @@ async function entrar(opts){
     aplicarOperacion()
     setTimeout(function(){ if (!kIrHash(location.hash)) kPopRevisar((document.querySelector('.vista.on')||{}).id) },1800)   // c281
     setTimeout(function(){ try{ kResCliente() }catch(_){} },2600)   // c294
-    try{ localStorage.setItem('kc_snap_'+S.perfil.id, JSON.stringify({v:3, ts:Date.now(),
-      perfil:S.perfil, programa:S.programa, objetivos:S.objetivos, registros:S.registros, reqs:S._reqs||{}})) }catch(_e){}
+    try{ localStorage.setItem('kc_snap_'+S.perfil.id, JSON.stringify({v:4, ts:Date.now(),   // c304 · v4 suma asignación y protocolo (sin ellos el home no podía pintarse desde la foto)
+      perfil:S.perfil, programa:S.programa, objetivos:S.objetivos, registros:S.registros, reqs:S._reqs||{}, asig:S.asig, proto:S.proto, semProg:S.semanaProg, totalSes:S.totalSes })) }catch(_e){}
     try{
       const sol = (S._rSol && S._rSol.data) || []
       // v7.9: vocabulario único en minúscula (BD) → claves internas en mayúscula para resolverCap
