@@ -132,3 +132,12 @@ t('alcohol es cheat meal', () => {
   assert.equal(r.veredicto, 'alerta'); assert.equal(r.cheat, true)
 })
 console.log('v6 OK')
+// c294 · preparación múltiple
+{ const al = [{ nombre: 'Batido de frutos rojos', grupo: 'fruta', gramos: 400, kcal: 260, proteina_g: 6, carbohidrato_g: 50, grasa_g: 4 }]
+  assert.deepEqual(KE.cocLista(['aceite', 'frito', 'azucar', 'salsa', 'queso', 'xx']), ['aceite', 'azucar', 'salsa', 'queso'])
+  assert.deepEqual(KE.cocLista('aceite,azucar'), ['aceite', 'azucar'])
+  const a = KE.coccion(al, ['azucar', 'leche']); assert.equal(a.length, 2); assert.equal(a[1].azucar_anadida, true); assert.equal(a[1].auto, 'coccion')
+  assert.equal(KE.coccion(a, ['azucar']).length, 2)
+  assert.equal(KE.coccion(al, ['sin_azucar', 'crudo']).length, 1)
+  assert.ok(/endulzado con azúcar/.test(KE.prompt({ coccion: ['plancha', 'azucar'] })))
+  console.log('v7 OK') }

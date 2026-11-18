@@ -132,7 +132,7 @@ module.exports = async (req, res) => {
     return res.status(502).json({ error: 'No pudimos registrar el escaneo', detalle: msg.slice(0, 200) })
   }
   const cx = rv.d || {}
-  const coc = KE.COCCION[b.coccion] ? b.coccion : null
+  const coc = KE.cocLista(b.coccion)
   const ctx = { foco: cx.foco, comida: comida && { nombre: comida }, kcal_dia: cx.kcal_dia, comidas_dia: cx.comidas_dia }
 
   // 2 · Visión: Gemini Flash; si falla por caída/limite y hay clave de Claude, segundo intento con Claude.
