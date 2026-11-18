@@ -8586,6 +8586,14 @@ async function tapSetRow(beId,n,bId,ejId){
   }
   const rv=S.rw[beId+'#'+n]||{}
   if (w.tipo==='WEIGHT_REPS' && rv.kg==null){ toast('Define el peso del set antes de marcarlo.'); return }
+  // c310 · el peso planificado es tentativo: si el socio registra SIN tocar el peso que venía de la pauta y ese peso supera su mejor marca real,
+  //        confirma que de verdad lo levantó (así la pauta no queda como mejor marca / último peso sin haberse hecho)
+  if (w.tipo==='WEIGHT_REPS' && ejId && rv.kg!=null && w.kg!=null && +rv.kg===+w.kg){
+    const mj=(S.mejores||{})[ejId], ok=(S._kgOk=S._kgOk||{}), kk=beId+'@'+rv.kg
+    if (mj && +rv.kg>+mj.peso && !ok[kk]){
+      const si=await kHoja({ k:'PESO NUEVO · SUPERA TU MEJOR MARCA', msg:'¿Hiciste este set con '+avKg(rv.kg)+' kg?\nTu mejor marca es '+avKg(mj.peso)+' kg × '+(mj.reps||'—')+'. Solo se guarda el peso que realmente levantaste.', si:'SÍ, '+avKg(rv.kg)+' KG', no:'AJUSTAR PESO' })
+      if (!si){ toast('Ajusta el peso con − / + y registra el set.'); return }
+      ok[kk]=1 } }
   const fila={ registro_id:S.regId, socio_id:S.perfil.id, bloque_id:bId, bloque_ejercicio_id:beId,
     ejercicio_id:ejId||null, set_numero:n,
     target_peso:(w.kg!=null?w.kg:null), target_reps:w.reps||null, target_seg:w.seg||null,
