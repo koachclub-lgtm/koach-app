@@ -4652,6 +4652,9 @@ html.en-av body{background:transparent}
 @keyframes kpxFl{0%{opacity:0;transform:scale(.2)} 1.5%{opacity:.45;transform:scale(.35)} 10%{opacity:.15;transform:scale(.9)} 24%{opacity:.04;transform:scale(1)} 72%{opacity:.04} 74%{opacity:.7;transform:scale(1.1)} 87%{opacity:0;transform:scale(1.6)} 100%{opacity:0}}
 @keyframes kpxOrb{0%,71%{opacity:0;transform:scale(.6)} 76%{opacity:1;transform:scale(1.06)} 84%{transform:scale(.98)} 100%{opacity:1;transform:scale(1)}}
 .kpx__tri{display:none}
+
+/* c313 · TU FOTO primero y destacado */
+.kprS__row .kprS__fo:not([aria-pressed="true"]){border-color:#F4F3F0;box-shadow:0 0 0 0 rgba(244,243,240,.5);animation:oiDir 1.8s ease-out infinite}
 </style>
 </head>
 <body>
@@ -6179,13 +6182,14 @@ function kprDataHTML(pr,h){
 }
 function kprTipear(box, d0){ if(!box) return; box.querySelectorAll('.kxPR__dl').forEach((l,i)=>{ l.classList.remove('on'); setTimeout(()=>l.classList.add('on'), (d0||0)+i*170) }) }
 // ── COMPARTIR MI PR: tarjeta 1080×1920 · FONDO KOACH (rayos cromados) o TU FOTO con 3 tonos (frío · dramático · plata)
-function kprAbrir(pr){ KPR.pr=pr||KPR.pr; if(!KPR.pr) return; const o=document.getElementById('kprS'); o.classList.add('vis'); kprSt(''); kprFondo(KPR.fondo==='foto'&&!KS.foto?'koach':KPR.fondo) }
+function kprAbrir(pr){ KPR.pr=pr||KPR.pr; if(!KPR.pr) return; const o=document.getElementById('kprS'); o.classList.add('vis')   // c313 · la versión con tu foto es la principal
+  kprSt(KS.foto?'':'Sube tu foto para la versión principal: tu imagen con tu récord encima.'); kprFondo(KS.foto?'foto':'koach') }
 function kprCerrar(){ document.getElementById('kprS').classList.remove('vis') }
 function kprSt(t){ const e=document.getElementById('kprSt'); if(e) e.textContent=t||'' }
 function kprFondo(f){ KPR.fondo=f; document.querySelectorAll('#kprFo [data-f]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.f===f))); document.getElementById('kprFi').hidden=f!=='foto'
   document.querySelectorAll('#kprFi [data-v]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.v===KPR.filtro))); kprPintar() }
 function kprFiltro(v){ KPR.filtro=v; kprFondo('foto') }
-async function kprFoto(f){ if(!f) return
+async function kprFoto(f){ if(!f) return; kprSt('')
   const aj=document.getElementById('ksAj'); if (aj) aj.style.zIndex='1500'
   try{ KS._fotoPara=null; const prevF=ksFormato; window.ksFormato=()=>{}; try{ await ksCargarFoto(f) } finally { window.ksFormato=prevF } }
   catch(e){ console.error(e); kprSt('No se pudo cargar la foto.') }
@@ -11061,7 +11065,7 @@ document.addEventListener('DOMContentLoaded', async ()=>{
   <div class="kprS__top"><span>COMPARTIR MI PR</span><button type="button" onclick="kprCerrar()">CERRAR ✕</button></div>
   <div class="kprS__row" id="kprTar" aria-label="Tarjeta"><button type="button" aria-pressed="true" data-t="record">PERSONAL RECORD</button></div>
   <div class="kprS__stage"><canvas id="kprCv" width="1080" height="1920" aria-label="Vista previa de tu tarjeta de récord"></canvas></div>
-  <div class="kprS__row" id="kprFo"><button type="button" data-f="koach" onclick="kprFondo('koach')">FONDO GRIS</button><label data-f="foto">TU FOTO<input type="file" accept="image/*" onchange="kprFoto(this.files&&this.files[0]);this.value=''"></label></div>
+  <div class="kprS__row" id="kprFo"><label data-f="foto" class="kprS__fo">TU FOTO<input type="file" accept="image/*" onchange="kprFoto(this.files&&this.files[0]);this.value=''"></label><button type="button" data-f="koach" onclick="kprFondo('koach')">FONDO GRIS</button></div>
   <div class="kprS__row" id="kprFi" hidden><button type="button" data-v="frio" onclick="kprFiltro('frio')">FRÍO</button><button type="button" data-v="drama" onclick="kprFiltro('drama')">DRAMÁTICO</button><button type="button" data-v="plata" onclick="kprFiltro('plata')">PLATA</button></div>
   <div class="kprS__acts"><button type="button" onclick="kprCompartir('ig')">HISTORIA DE INSTAGRAM</button><button type="button" onclick="kprCompartir('wa')">WHATSAPP</button><button type="button" class="w" onclick="kprCompartir('guardar')">GUARDAR EN FOTOS</button></div>
   <div class="kprS__st" id="kprSt" aria-live="polite"></div>
