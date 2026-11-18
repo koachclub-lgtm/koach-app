@@ -8260,7 +8260,7 @@ function bkCintas(){ const o=document.getElementById('oBloque'); if(!o) return; 
   o.appendChild(el); try{ kHaptic([18,40,18]); KSFX.play('appear',0,.7) }catch(_){}
   setTimeout(function(){ el.remove() }, 3300) }
 function bkFinBloque(b){ const o=document.getElementById('oBloque'); if(!o||!b) return
-  { const p=bkPrimerPendiente(S._bfs||[]); setTimeout(function(){ if(p>=0){ BK.cap=p; bkAbrir(p) } else { BK.cap=null; bkCerrar() } }, 450); return }   // c283 · sin pantalla del círculo: directo al bloque siguiente (o a la sesión)
+  { setTimeout(function(){ BK.cap=null; bkCerrar() }, 450); return }   // c306 · bloque listo → vuelve SIEMPRE a la rutina (antes saltaba directo al siguiente bloque y confundía); el siguiente se inicia desde ahí
   const bfs=S._bfs||[], kg=bkKgBloque(b); let kgHoy=0, sh=0, stt=0; bfs.forEach(x=>{ kgHoy+=bkKgBloque(x); sh+=bkSetsHechos(x); stt+=(x.sets||0) }); const st=[sh,stt]
   const prim=bkPrimerPendiente(bfs), ult=prim<0, nomV=(b.etiqueta?b.etiqueta.toUpperCase():bkNom(b,BK.bi))
   const el=document.createElement('div'); el.className='bk__fin'; el.setAttribute('role','status'); el.setAttribute('aria-live','polite')
