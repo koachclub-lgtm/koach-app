@@ -6199,38 +6199,53 @@ async function kprPintar(){
 }
 let _kprLogo=null
 function kprLogo(){ if(_kprLogo) return _kprLogo; _kprLogo=new Image(); _kprLogo.onload=()=>{ if (document.getElementById('kprS').classList.contains('vis')) kprPintar() }; _kprLogo.src='/img/brand/logotipo-koach.png'; return _kprLogo }
+// c312 · tarjeta PERSONAL RECORD nueva: gris metalizado con la foto del ejercicio (o tu foto con filtro), marca gigante y la curva de tus últimas marcas
+const KPRF={}   // fotos de ejercicio cargadas para el lienzo (CORS)
+function kprFotoEj(pr){ const u=pr&&pr.id?exFotoUrl({id:pr.id}):''; if(!u) return null; if(KPRF[u]) return KPRF[u].ok?KPRF[u].im:null
+  const im=new Image(); im.crossOrigin='anonymous'; KPRF[u]={ im, ok:false }; im.onload=()=>{ KPRF[u].ok=true; if (document.getElementById('kprS').classList.contains('vis')) kprPintar() }; im.onerror=()=>{ KPRF[u].ok=false }; im.src=u; return null }
 function kprRender(x, pr, h){
-  const W=1080, H=1920, cx=W/2, ST=KS_SAFE_T, SB=H-KS_SAFE_B
-  x.save(); x.clearRect(0,0,W,H)
-  if (KPR.fondo==='foto' && KS.foto){ const kf=KS.filtro; KS.filtro=KPR.filtro; try{ x.drawImage(kmFoto(),0,0,W,H) } finally { KS.filtro=kf }
-    let g=x.createLinearGradient(0,0,0,H); g.addColorStop(0,'rgba(0,0,0,.62)'); g.addColorStop(.3,'rgba(0,0,0,.2)'); g.addColorStop(.55,'rgba(0,0,0,.25)'); g.addColorStop(1,'rgba(0,0,0,.86)'); x.fillStyle=g; x.fillRect(0,0,W,H) }
-  else { let g=x.createRadialGradient(cx,820,40,cx,820,1300); g.addColorStop(0,'#2C2E33'); g.addColorStop(.45,'#141517'); g.addColorStop(1,'#050506'); x.fillStyle=g; x.fillRect(0,0,W,H)
-    x.save(); x.translate(cx,820); for(let i=0;i<28;i++){ const a=i/28*Math.PI*2+.07, w=.035+((i*37)%7)/220; x.beginPath(); x.moveTo(0,0); x.arc(0,0,2200,a,a+w); x.closePath()
-      const rg=x.createRadialGradient(0,0,0,0,0,1500); rg.addColorStop(0,'rgba(244,243,240,'+(.16+(i%3)*.04)+')'); rg.addColorStop(1,'rgba(244,243,240,0)'); x.fillStyle=rg; x.fill() } x.restore()
-    const v=x.createRadialGradient(cx,H/2,500,cx,H/2,1250); v.addColorStop(0,'rgba(0,0,0,0)'); v.addColorStop(1,'rgba(0,0,0,.6)'); x.fillStyle=v; x.fillRect(0,0,W,H) }
-  x.textAlign='center'; x.textBaseline='alphabetic'; x.fillStyle='#F4F3F0'
-  const lg=kprLogo(); if (lg.complete && lg.naturalWidth){ const lh=64, lw=lg.naturalWidth/lg.naturalHeight*lh; x.drawImage(lg, cx-lw/2, ST-lh-8, lw, lh) }
-  const fit=(t,font,max,size)=>{ let s=size; do{ x.font=font.replace('{s}',s+'px'); if (x.measureText(t).width<=max) break; s-=4 }while(s>20); return s }
-  x.font="400 26px 'Space Mono'"; x.fillStyle='rgba(244,243,240,.75)'; x.fillText(kprFch(fLocal(new Date())).replace(/\./g,' . ')+'  ·  KOACH CLUB', cx, ST+46)
-  x.fillStyle='#F4F3F0'; fit('PERSONAL',"900 {s} 'KOACH Display'",W-2*KS_SAFE_X,150); x.fillText('PERSONAL', cx, ST+200); x.fillText('RECORD', cx, ST+330)
-  const num=(pr.hoy.peso%1?String(pr.hoy.peso).replace('.',','):String(pr.hoy.peso)), ns=fit(num,"900 {s} 'KOACH Display'",W-2*KS_SAFE_X-120,400)
-  x.font="900 "+ns+"px 'KOACH Display'"; const nw=x.measureText(num).width, ny=ST+330+40+ns*.78
-  const sg=x.createLinearGradient(cx-nw/2,0,cx+nw/2,0); sg.addColorStop(0,'#9EA3AA'); sg.addColorStop(.3,'#FFFFFF'); sg.addColorStop(.5,'#C9CDD3'); sg.addColorStop(.7,'#FFFFFF'); sg.addColorStop(1,'#A7ABB1')
-  x.save(); x.shadowColor='rgba(220,230,245,.35)'; x.shadowBlur=60; x.fillStyle=sg; x.fillText(num, cx-30, ny); x.restore()
-  x.font="700 46px 'Space Mono'"; x.textAlign='left'; x.fillStyle='#F4F3F0'; x.fillText('KG', cx-30+nw/2+14, ny-10); x.textAlign='center'
-  let y=ny+92; if (pr.hoy.reps){ x.font="700 64px 'Space Mono'"; x.fillText('× '+pr.hoy.reps+' REPS', cx, y); y+=40 }
-  const nom=String(pr.nom||'').toUpperCase(), ps=fit(nom,"900 {s} 'KOACH Display'",W-2*KS_SAFE_X,104); x.font="900 "+ps+"px 'KOACH Display'"; x.fillText(nom, cx, y+ps*.9)
-  // panel de datos (abajo de la zona segura de arriba, sobre la línea segura de abajo)
-  const filas=kprFilas(pr,h), d=kprDelta(pr), L=KS_SAFE_X, R=W-KS_SAFE_X, n=filas.length+(d?3:2), lh2=56, py=SB-n*lh2-34
-  x.fillStyle='rgba(8,8,9,.55)'; x.strokeStyle='rgba(244,243,240,.25)'; x.lineWidth=2; x.beginPath(); x.roundRect(L-28,py-56,R-L+56,n*lh2+70,26); x.fill(); x.stroke()
-  x.textAlign='left'; x.font="700 26px 'Space Mono'"; x.fillStyle='#F4F3F0'; x.fillText('PR DATA ANALYTICS', L, py)
-  x.textAlign='right'; x.font="400 24px 'Space Mono'"; x.fillStyle='#C9CDD3'; x.fillText('● REC', R, py)
-  x.setLineDash([8,8]); x.beginPath(); x.moveTo(L,py+20); x.lineTo(R,py+20); x.stroke(); x.setLineDash([])
-  let yy=py+lh2+18; x.textAlign='left'; x.font="400 28px 'Space Mono'"; x.fillStyle='#A7A9AE'; x.fillText('> NEW PR · '+nom, L, yy, R-L)
-  filas.forEach((f,i)=>{ yy+=lh2; const hoy=i===0; x.font=(hoy?'700 34px':'400 28px')+" 'Space Mono'"; x.fillStyle=hoy?'#FFFFFF':'#A7A9AE'; x.textAlign='left'; x.fillText(f.fecha?kprFch(f.fecha):'--.--.--', L, yy)
-    x.fillText(kprKg(f), L+230, yy); const tg=hoy?'ACTUAL':i===1?'ANTERIOR':'PREVIA'; x.textAlign='right'; x.font="700 22px 'Space Mono'"
-    if (hoy){ const tw=x.measureText(tg).width; x.fillStyle='#F4F3F0'; x.beginPath(); x.roundRect(R-tw-16,yy-28,tw+16,38,6); x.fill(); x.fillStyle='#0B0B0C'; x.fillText(tg, R-8, yy) } else { x.fillStyle='#8E8D88'; x.fillText(tg, R, yy) } })
-  if (d){ yy+=lh2; x.textAlign='left'; x.font="400 28px 'Space Mono'"; x.fillStyle='#A7A9AE'; x.fillText('> Δ ', L, yy); const w0=x.measureText('> Δ ').width; x.font="700 28px 'Space Mono'"; x.fillStyle='#FFFFFF'; x.fillText(d, L+w0, yy); const w1=x.measureText(d).width; x.font="400 28px 'Space Mono'"; x.fillStyle='#A7A9AE'; x.fillText(' VS MARCA ANTERIOR', L+w0+w1, yy, R-L-w0-w1) }
+  const W=1080, H=1920, cx=W/2, ST=KS_SAFE_T, SB=H-KS_SAFE_B, L=KS_SAFE_X, R=W-KS_SAFE_X, foto=KPR.fondo==='foto'&&KS.foto
+  const INK=foto?'#FFFFFF':'#0B0B0C', MUT=foto?'rgba(255,255,255,.78)':'#434649', D="'KOACH Display','Inter Display',Arial,sans-serif", M="'Space Mono','IBM Plex Mono',monospace"
+  const fmt=v=>(v%1?String(v).replace('.',','):String(v)), nom=String(pr.nom||'').toUpperCase()
+  x.save(); x.clearRect(0,0,W,H); x.textBaseline='alphabetic'
+  // fondo
+  if (foto){ const kf=KS.filtro; KS.filtro=KPR.filtro; try{ x.drawImage(kmFoto(),0,0,W,H) } finally { KS.filtro=kf }
+    const g=x.createLinearGradient(0,0,0,H); g.addColorStop(0,'rgba(0,0,0,.45)'); g.addColorStop(.22,'rgba(0,0,0,0)'); g.addColorStop(.5,'rgba(0,0,0,.05)'); g.addColorStop(1,'rgba(0,0,0,.82)'); x.fillStyle=g; x.fillRect(0,0,W,H) }
+  else { const g=x.createLinearGradient(0,0,W*.3,H); g.addColorStop(0,'#F1F2F3'); g.addColorStop(.38,'#D3D6D9'); g.addColorStop(.72,'#B4B8BD'); g.addColorStop(1,'#9EA2A8'); x.fillStyle=g; x.fillRect(0,0,W,H)
+    const r=x.createRadialGradient(cx,620,40,cx,620,760); r.addColorStop(0,'rgba(255,255,255,.65)'); r.addColorStop(1,'rgba(255,255,255,0)'); x.fillStyle=r; x.fillRect(0,0,W,H) }
+  const sh=b=>{ x.shadowColor=foto?'rgba(0,0,0,.35)':'rgba(0,0,0,0)'; x.shadowBlur=b }
+  // logo arriba al centro
+  const lg=kprLogo(); if (lg.complete && lg.naturalWidth){ const lh=56, lw=lg.naturalWidth/lg.naturalHeight*lh; x.save(); if(!foto) x.filter='invert(1)'; sh(14); x.drawImage(lg, cx-lw/2, ST-lh-14, lw, lh); x.restore() }
+  // etiqueta
+  x.save(); sh(8); x.fillStyle=INK; x.textAlign='center'; x.font="700 30px "+M; if('letterSpacing' in x) x.letterSpacing='12px'; x.fillText('PERSONAL RECORD', cx+6, ST+46); if('letterSpacing' in x) x.letterSpacing='0px'
+  x.font="400 24px "+M; x.fillStyle=MUT; if('letterSpacing' in x) x.letterSpacing='6px'; x.fillText(kprFch(fLocal(new Date()))+'  ·  KOACH CLUB', cx+3, ST+92); if('letterSpacing' in x) x.letterSpacing='0px'; x.restore()
+  // de abajo hacia arriba: curva (SB-20…SB-210), Δ (SB-250), nombre, reps, marca; la foto del ejercicio llena lo que queda arriba
+  const fit=(t,font,max,size)=>{ let z=size; do{ x.font=font.replace('{s}',z+'px'); if (x.measureText(t).width<=max) break; z-=4 }while(z>30); return z }
+  const yNom=SB-330, zs=fit(nom,"800 {s} "+D,R-L,76), yRep=yNom-zs-26, num=fmt(pr.hoy.peso), ns=fit(num,"900 {s} "+D,R-L-130,foto?330:250), ny=yRep-(pr.hoy.reps?70:10)
+  if (!foto){ const fe=kprFotoEj(pr), top=ST+140, S=Math.min(600, ny-ns*.8-50-top), fx=cx-S/2, y0=top
+    x.save(); x.shadowColor='rgba(11,11,12,.22)'; x.shadowBlur=60; x.shadowOffsetY=24; x.fillStyle='#D9DADC'; x.beginPath(); x.roundRect(fx,y0,S,S,44); x.fill(); x.restore()
+    x.save(); x.beginPath(); x.roundRect(fx,y0,S,S,44); x.clip(); if (fe){ const sc=Math.max(S/fe.naturalWidth,S/fe.naturalHeight), iw=fe.naturalWidth*sc, ih=fe.naturalHeight*sc; x.drawImage(fe, fx+(S-iw)/2, y0+(S-ih)/2, iw, ih) } else { x.fillStyle='#C9CCD0'; x.fillRect(fx,y0,S,S); x.fillStyle='#8E9297'; x.textAlign='center'; x.font="800 "+Math.round(S/3)+"px "+D; x.fillText(nom.charAt(0)||'K', cx, y0+S/2+S/9) } x.restore()
+    x.save(); x.strokeStyle='rgba(255,255,255,.7)'; x.lineWidth=3; x.beginPath(); x.roundRect(fx,y0,S,S,44); x.stroke(); x.restore() }
+  // la marca
+  x.save(); sh(24); x.font="900 "+ns+"px "+D; if('letterSpacing' in x) x.letterSpacing='-6px'; const nw=x.measureText(num).width
+  if (foto){ x.fillStyle='#FFFFFF' } else { const sg=x.createLinearGradient(0,ny-ns*.8,0,ny); sg.addColorStop(0,'#3A3B3E'); sg.addColorStop(1,'#0B0B0C'); x.fillStyle=sg } x.textAlign='left'; x.fillText(num, cx-(nw+110)/2, ny); if('letterSpacing' in x) x.letterSpacing='0px'
+  x.font="700 52px "+M; x.fillText('KG', cx-(nw+110)/2+nw+18, ny-8); x.restore()
+  x.save(); sh(10); x.textAlign='center'; x.fillStyle=INK
+  if (pr.hoy.reps){ x.font="700 50px "+M; if('letterSpacing' in x) x.letterSpacing='6px'; x.fillText('× '+pr.hoy.reps+' REPS', cx, yRep); if('letterSpacing' in x) x.letterSpacing='0px' }
+  x.font="800 "+zs+"px "+D; x.fillText(nom, cx, yNom); x.restore()
+  // tus últimas marcas: curva corta con fechas, anclada sobre la zona segura inferior
+  const fl=kprFilas(pr,h).filter(q=>q.peso>0).slice(0,3).reverse(), dlt=kprDelta(pr)
+  const cy1=SB-20, cy0=SB-210
+  if (fl.length>=2){ const mn=Math.min(...fl.map(q=>q.peso)), mx=Math.max(...fl.map(q=>q.peso)), rg=(mx-mn)||1, X=i=>L+60+i*((R-L-120)/(fl.length-1)), Yc=v=>cy1-70-((v-mn)/rg)*(cy1-cy0-110)
+    x.save(); x.strokeStyle=foto?'rgba(255,255,255,.35)':'rgba(11,11,12,.2)'; x.lineWidth=2; x.setLineDash([6,10]); x.beginPath(); x.moveTo(L,cy1-40); x.lineTo(R,cy1-40); x.stroke(); x.setLineDash([])
+    x.strokeStyle=INK; x.lineWidth=5; x.lineJoin='round'; x.beginPath(); fl.forEach((q,i)=>{ i?x.lineTo(X(i),Yc(q.peso)):x.moveTo(X(i),Yc(q.peso)) }); x.stroke()
+    fl.forEach((q,i)=>{ const last=i===fl.length-1; x.fillStyle=last?INK:(foto?'#0B0B0C':'#E4E5E7'); x.strokeStyle=INK; x.lineWidth=4; x.beginPath(); x.arc(X(i),Yc(q.peso),last?16:11,0,7); x.fill(); x.stroke()
+      x.textAlign='center'; x.fillStyle=last?INK:MUT; x.font=(last?'700 30px ':'400 26px ')+M; x.fillText(fmt(q.peso)+' KG', X(i), Yc(q.peso)-34)
+      x.font="400 22px "+M; x.fillStyle=MUT; x.fillText(q.fecha?kprFch(q.fecha):'—', X(i), cy1) })
+    x.restore() }
+  if (dlt){ x.save(); x.font="700 26px "+M; if('letterSpacing' in x) x.letterSpacing='4px'; const t=dlt+' VS MARCA ANTERIOR', tw=x.measureText(t).width+56, py=SB-250
+    x.fillStyle=foto?'rgba(255,255,255,.14)':'rgba(255,255,255,.55)'; x.strokeStyle=foto?'rgba(255,255,255,.55)':'rgba(11,11,12,.25)'; x.lineWidth=2; x.beginPath(); x.roundRect(cx-tw/2,py-44,tw,64,32); x.fill(); x.stroke()
+    x.fillStyle=INK; x.textAlign='center'; x.fillText(t, cx+2, py-2); x.restore() }
   x.restore()
 }
 function kprCompartir(dest){
@@ -11046,7 +11061,7 @@ document.addEventListener('DOMContentLoaded', async ()=>{
   <div class="kprS__top"><span>COMPARTIR MI PR</span><button type="button" onclick="kprCerrar()">CERRAR ✕</button></div>
   <div class="kprS__row" id="kprTar" aria-label="Tarjeta"><button type="button" aria-pressed="true" data-t="record">PERSONAL RECORD</button></div>
   <div class="kprS__stage"><canvas id="kprCv" width="1080" height="1920" aria-label="Vista previa de tu tarjeta de récord"></canvas></div>
-  <div class="kprS__row" id="kprFo"><button type="button" data-f="koach" onclick="kprFondo('koach')">FONDO KOACH</button><label data-f="foto">TU FOTO<input type="file" accept="image/*" onchange="kprFoto(this.files&&this.files[0]);this.value=''"></label></div>
+  <div class="kprS__row" id="kprFo"><button type="button" data-f="koach" onclick="kprFondo('koach')">FONDO GRIS</button><label data-f="foto">TU FOTO<input type="file" accept="image/*" onchange="kprFoto(this.files&&this.files[0]);this.value=''"></label></div>
   <div class="kprS__row" id="kprFi" hidden><button type="button" data-v="frio" onclick="kprFiltro('frio')">FRÍO</button><button type="button" data-v="drama" onclick="kprFiltro('drama')">DRAMÁTICO</button><button type="button" data-v="plata" onclick="kprFiltro('plata')">PLATA</button></div>
   <div class="kprS__acts"><button type="button" onclick="kprCompartir('ig')">HISTORIA DE INSTAGRAM</button><button type="button" onclick="kprCompartir('wa')">WHATSAPP</button><button type="button" class="w" onclick="kprCompartir('guardar')">GUARDAR EN FOTOS</button></div>
   <div class="kprS__st" id="kprSt" aria-live="polite"></div>
