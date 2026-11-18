@@ -12,6 +12,7 @@
 <link rel="manifest" href="/manifest.webmanifest">
 <link rel="preconnect" href="https://siecbdatfgmqbpxqtvsl.supabase.co" crossorigin>
 <link rel="preload" href="/vendor/supabase-js-2.119.0.js" as="script">
+<link rel="preload" href="/img/brand/koach-encendido-720.mp4" as="video" type="video/mp4" fetchpriority="high">
 <meta name="theme-color" content="#000000">
 <meta name="color-scheme" content="only light">
 <style>:root{color-scheme:only light}
@@ -4650,7 +4651,7 @@ html.en-av body{background:transparent}
 </head>
 <body>
 <div id="oAuth" role="status" aria-live="polite" style="position:fixed;inset:0;z-index:9999;background:#000;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:22px;padding:env(safe-area-inset-top,0) 24px env(safe-area-inset-bottom,0);font-family:system-ui,-apple-system,sans-serif;color:#fff;text-align:center">
-  <video class="klv" src="/img/brand/koach-encendido-916.mp4" muted playsinline autoplay preload="auto" disablepictureinpicture aria-hidden="true"></video>
+  <video class="klv" src="/img/brand/koach-encendido-720.mp4" muted playsinline autoplay preload="auto" disablepictureinpicture aria-hidden="true"></video>
   <div id="oAuthT" class="kLbl ldSr">PREPARANDO TU CLUB…</div>
   <div id="oAuthS" style="display:none;font-size:15px;line-height:1.45;opacity:.85;max-width:300px">Tu sesión sigue guardada en este teléfono. Revisa tu conexión.</div>
   <button id="oAuthB" type="button" onclick="arrancarAuth()" style="display:none;min-height:48px;padding:0 26px;border-radius:14px;border:1px solid rgba(255,255,255,.4);background:#fff;color:#000;font-size:13px;letter-spacing:.14em;font-weight:600">REINTENTAR</button>
@@ -4913,7 +4914,7 @@ html.en-av body{background:transparent}
 </div>
 <div class="kbm" id="oBM" role="status" aria-live="polite"></div>
 <div class="ovl oscuro" id="oFlash"><img class="kLogo kLogo--flash" src="/img/brand/logotipo-koach.png" alt="KOACH"><div class="ftx" id="oFT"></div><div class="fsb" id="oFS"></div></div>
-<div id="oLoad" role="status" aria-live="polite"><video class="klv" src="/img/brand/koach-encendido-916.mp4" muted playsinline autoplay preload="auto" disablepictureinpicture aria-hidden="true"></video><span class="ldSr" id="oLoadM">ENTRANDO A TU PLAN</span><span class="ldSr" id="oLoadS">Sincronizando tu semana y progreso.</span></div>
+<div id="oLoad" role="status" aria-live="polite"><video class="klv" src="/img/brand/koach-encendido-720.mp4" muted playsinline autoplay preload="auto" disablepictureinpicture aria-hidden="true"></video><span class="ldSr" id="oLoadM">ENTRANDO A TU PLAN</span><span class="ldSr" id="oLoadS">Sincronizando tu semana y progreso.</span></div>
 <div id="mFinQ" style="display:none;position:fixed;inset:0;z-index:82;background:rgba(18,18,16,.5);backdrop-filter:blur(6px)">
   <div class="kFinQ">
     <span class="kLbl kLbl--dk">CERRAR SESIÓN</span><div class="kFinQ__t">¿COMPLETASTE TODAS TUS SERIES?</div>
@@ -6391,8 +6392,24 @@ function invitarInstalar(){
 // por red, no se piden credenciales: se ofrece reintentar. Error de red / perfil / membresía ≠ cerrar sesión.
 const SB_STORE = 'sb-'+SB_URL.replace(/^https?:\/\//,'').split('.')[0]+'-auth-token'
 function hayTokenGuardado(){ try{ return !!localStorage.getItem(SB_STORE) || !!kcCkGet() }catch(_e){ return !!kcCkGet() } }
-function authListo(){ document.documentElement.classList.remove('boot'); const o=document.getElementById('oAuth'); if(o) o.style.display='none' }
-function authEspera(sinRed){ document.documentElement.classList.add('boot'); const o=document.getElementById('oAuth'); if(!o) return; o.style.display='flex'
+// c305 · LOGO DE INICIO COMPLETO: las pantallas de carga no se sueltan con el logo a medio armar.
+//        Esperan a que el video llegue al logo completo (~1 s); si el video no partió en 0,7 s, no se espera (sin cortes ni negro eterno).
+window.KLOGO=(function(){
+  function esperar(v){ return new Promise(function(res){
+    if (!v || v.ended || v.currentTime>=1.0) return res()
+    let ok=false; const fin=function(){ if(ok) return; ok=true; clearTimeout(t0); clearTimeout(tMax); v.removeEventListener('timeupdate',tu); v.removeEventListener('ended',fin); v.removeEventListener('error',fin); res() }
+    const tu=function(){ if(v.currentTime>=1.0) fin() }
+    v.addEventListener('timeupdate',tu); v.addEventListener('ended',fin); v.addEventListener('error',fin)
+    const t0=setTimeout(function(){ if(v.currentTime<0.05) fin() },700), tMax=setTimeout(fin,2400) }) }
+  const K={ fin:Promise.resolve(), esperar:esperar, run:function(reinicio){ const v=document.querySelector('#oLoad video.klv'); if(!v) return
+    try{ if(reinicio) v.currentTime=0; const p=v.play(); if(p&&p.catch) p.catch(function(){}) }catch(_){} K.fin=esperar(v) } }
+  return K })()
+function authListo(){ document.documentElement.classList.remove('boot'); const o=document.getElementById('oAuth'); if(!o || o.style.display==='none') return
+  const tok=o._tok=(o._tok||0)+1
+  KLOGO.esperar(o.querySelector('video.klv')).then(function(){ if(o._tok!==tok) return
+    o.style.transition='opacity .3s ease'; o.style.opacity='0'
+    setTimeout(function(){ if(o._tok!==tok) return; o.style.display='none'; o.style.opacity=''; o.style.transition='' },320) }) }
+function authEspera(sinRed){ document.documentElement.classList.add('boot'); const o=document.getElementById('oAuth'); if(!o) return; o._tok=(o._tok||0)+1; o.style.opacity=''; o.style.transition=''; o.style.display='flex'
   document.getElementById('oAuthT').textContent = sinRed ? 'NO PUDIMOS CONECTAR' : 'PREPARANDO TU CLUB…'
   document.getElementById('oAuthT').classList.toggle('ldSr',!sinRed)
   document.getElementById('oAuthS').style.display = sinRed ? '' : 'none'; document.getElementById('oAuthB').style.display = sinRed ? '' : 'none' }
