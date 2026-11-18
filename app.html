@@ -7632,7 +7632,7 @@ function seedWk(be, ej){
          : (S.sugeridos[be.id]!=null) ? S.sugeridos[be.id] : null
     w.reps = (be.reps_txt||String(be.reps||'')||'10').replace(/\//g,'·') || '10'
   } else if (tipo==='TIME'){
-    w.seg = be.duracion_seg || parseInt(be.reps_txt) || 30
+    w.seg = parseInt(be.reps_txt) || be.duracion_seg || 30   // c311 · el koach edita el tiempo en reps_txt; duracion_seg es un valor antiguo que quedaba pegado
     if (ej && ej.con_carga===true){
       w.kg = (be.kg_objetivo!=null) ? be.kg_objetivo
            : (ult && ult.peso!=null) ? ult.peso
