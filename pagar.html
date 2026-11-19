@@ -73,7 +73,9 @@ input:focus,button:focus-visible{outline:2px solid var(--ink);outline-offset:2px
     </div>
     <label for="email">Correo</label>
     <input type="email" id="email" inputmode="email" autocomplete="email" placeholder="tucorreo@gmail.com">
-    <p class="nota">Con este correo entras a la App KOACH y te llega el comprobante.</p>
+    <label for="rut">RUT</label>
+    <input type="text" id="rut" autocomplete="off" autocapitalize="characters" placeholder="12345678-9">
+    <p class="nota">Jake crea tu cuenta en la App KOACH: tu usuario es este correo y tu clave es tu RUT (12345678-9). No necesitas crear otra cuenta.</p>
     <div id="errForm" class="msg err" hidden></div>
   </section>
 </main>
@@ -93,6 +95,7 @@ input:focus,button:focus-visible{outline:2px solid var(--ink);outline-offset:2px
   var MESES=['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'];
   function err(m){$('cargando').hidden=true;$('error').textContent=m;$('error').hidden=false}
   function emailOk(e){return /^[^@\s]+@[^@\s]+\.[^@\s]{2,}$/.test(e)}
+  function rutOk(r){var c=String(r||'').replace(/[^0-9kK]/g,'').toUpperCase();if(c.length<8||c.length>9)return false;var n=c.slice(0,-1),dv=c.slice(-1),s=0,m=2;for(var i=n.length-1;i>=0;i--){s+=+n[i]*m;m=m===7?2:m+1}var r2=11-(s%11);return dv===(r2===11?'0':r2===10?'K':String(r2))}
   function pinta(){
     var lista=S.ofertas.filter(function(o){return o.estudiante===S.est});
     if(!lista.some(function(o){return o.clave===S.oferta}))S.oferta=null;
@@ -104,7 +107,7 @@ input:focus,button:focus-visible{outline:2px solid var(--ink);outline-offset:2px
       b.onclick=function(){S.oferta=o.clave;pinta()};$('planes').appendChild(b)});
     $('estNota').hidden=!S.est;
     var o=S.ofertas.filter(function(x){return x.clave===S.oferta})[0];
-    var ok=o&&$('nombre').value.trim().length>1&&emailOk($('email').value.trim());
+    var ok=o&&$('nombre').value.trim().length>1&&emailOk($('email').value.trim())&&rutOk($('rut').value);
     $('go').disabled=!ok;$('go').textContent=o?'PAGAR '+clp(o.monto):'ELIGE TU PLAN';
   }
   if(!T){err('Este link no es válido. Pídele uno nuevo a Jake por WhatsApp.');return}
@@ -115,14 +118,14 @@ input:focus,button:focus-visible{outline:2px solid var(--ink);outline-offset:2px
     if(S.ofertas.some(function(o){return o.estudiante}))$('estL').hidden=false;
     var sug=d.sugerida||q.get('o');
     if(sug&&S.ofertas.some(function(o){return o.clave===sug})){S.oferta=sug;S.est=/^estudiante/.test(sug);$('est').checked=S.est}
-    if(d.datos){$('nombre').value=d.datos.nombre||'';$('apellido').value=(d.datos.apellido&&d.datos.apellido!=='·')?d.datos.apellido:'';$('email').value=d.datos.email||''}
+    if(d.datos){$('nombre').value=d.datos.nombre||'';$('apellido').value=(d.datos.apellido&&d.datos.apellido!=='·')?d.datos.apellido:'';$('email').value=d.datos.email||'';$('rut').value=d.datos.rut||''}
     $('cargando').hidden=true;$('form').hidden=false;$('pie').hidden=false;pinta();
   }).catch(function(){err('No pudimos cargar los planes. Revisa tu conexión e inténtalo de nuevo.')});
   $('est').onchange=function(){S.est=this.checked;pinta()};
-  ['nombre','apellido','email'].forEach(function(id){$(id).addEventListener('input',pinta)});
+  ['nombre','apellido','email','rut'].forEach(function(id){$(id).addEventListener('input',pinta)});
   $('go').onclick=function(){
     var b=$('go'),txt=b.textContent;b.disabled=true;b.textContent='CONECTANDO CON FLOW…';$('errForm').hidden=true;
-    fetch(API,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({accion:'pagar',t:T,oferta:S.oferta,nombre:$('nombre').value.trim(),apellido:$('apellido').value.trim(),email:$('email').value.trim()})})
+    fetch(API,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({accion:'pagar',t:T,oferta:S.oferta,nombre:$('nombre').value.trim(),apellido:$('apellido').value.trim(),email:$('email').value.trim(),rut:$('rut').value.trim()})})
     .then(function(r){return r.json()}).then(function(d){
       if(!d.ok||!d.url){$('errForm').textContent=d.error||'No pudimos crear el pago.';$('errForm').hidden=false;b.textContent=txt;pinta();return}
       location.href=d.url})

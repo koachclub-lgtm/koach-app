@@ -4696,7 +4696,7 @@ html.en-av body{background:transparent}
         <div class="links"><a href="#" role="button" onclick="event.preventDefault();authVista('fRecu')">¿Olvidaste tu contraseña?</a><span></span></div>
       </form>
       <div id="fReg" style="display:none">
-        <div class="authNota" style="margin:0 0 12px">Crea tu cuenta con tus datos. Luego el equipo KOACH activa tu membresía y tu plan.</div>
+        <div class="authNota" style="margin:0 0 12px">¿Ya pagaste con Jake? Tu cuenta ya está creada: vuelve a «Iniciar sesión» y entra con tu correo; tu clave es tu RUT (12345678-9). No crees otra cuenta.</div>
         <div class="lbl">NOMBRE</div><input class="inp" id="rNombre" placeholder="Tu nombre" autocomplete="given-name">
         <div class="lbl">APELLIDO</div><input class="inp" id="rApellido" placeholder="Tu apellido" autocomplete="family-name">
         <div class="lbl">EMAIL</div><input class="inp" type="email" id="rEmail" placeholder="tu@email.com" autocomplete="email">
@@ -6284,9 +6284,13 @@ async function login(){
   b.disabled=true; b.classList.add('is-loading'); b.innerHTML='<i class="btn__spin" aria-hidden="true"></i>ENTRANDO…'
   let { error } = await sb.auth.signInWithPassword({ email, password:pass })
   // Clave = RUT: el dígito verificador K se escribe indistinto (k/K). Si falla, reintenta con el otro caso.
-  if (error && /credential|invalid/i.test(String(error.message||'')) && /^[\d.]+-?[kK]$/.test(pass)){
-    const alt = pass.slice(0,-1) + (pass.slice(-1)==='k' ? 'K' : 'k')
-    const r2 = await sb.auth.signInWithPassword({ email, password:alt }); error = r2.error
+  // Clave = RUT (12345678-9): si la escribe con puntos, sin guion o con k minúscula, se prueba en formato estándar.
+  if (error && /credential|invalid/i.test(String(error.message||'')) && /^[\d.\s]{6,12}-?\s*[\dkK]$/.test(pass.trim())){
+    const c = pass.replace(/[^0-9kK]/g,'').toUpperCase(), std = c.slice(0,-1).replace(/^0+/,'') + '-' + c.slice(-1)
+    for (const alt of [std, std.replace(/K$/,'k')].filter((x,i,a)=>x!==pass && a.indexOf(x)===i)){
+      const r2 = await sb.auth.signInWithPassword({ email, password:alt }); error = r2.error
+      if (!error) break
+    }
   }
   if (error){
     const _m=String(error.message||'')
@@ -6327,7 +6331,7 @@ async function registro(){
     await entrar()
   }catch(e){
     const m=String(e.message||'')
-    f(/ya tiene una cuenta/i.test(m)?'Ese correo ya tiene cuenta. Usa "¿Olvidaste tu contraseña?".':m.replace(/^REGISTRO:\s*/,'')||'No se pudo crear la cuenta.')
+    f(/ya tiene una cuenta/i.test(m)?'Ese correo ya tiene cuenta. Entra con tu correo; tu clave es tu RUT (12345678-9).':m.replace(/^REGISTRO:\s*/,'')||'No se pudo crear la cuenta.')
     b.disabled=false; b.textContent='CREAR MI CUENTA'
   }
 }
