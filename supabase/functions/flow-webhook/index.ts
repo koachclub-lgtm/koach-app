@@ -165,6 +165,42 @@ Deno.serve(async (req) => {
     await admin.from("admin_eventos").insert({ socio_id: socio, entidad: "pago_automatico", entidad_id: s.id, accion: "reemplazar", despues: { suscripcion: s.flow_subscription_id, cancel }, actor_nombre: "STAFF · reemplazo de tarjeta", motivo });
     return J({ ok: true, cancelada: s.flow_subscription_id, flow: despues });
   }
+  // ?t=reactivar&socio=uuid&clave=…[&ver=1]  (staff interno) vuelve a cobrar con la MISMA tarjeta ya registrada en Flow
+  // un pago automático que quedó en error por cobros rechazados (ej.: la tarjeta no tenía fondos). Crea una suscripción
+  // nueva para el mismo cliente de Flow con inicio HOY (Flow cobra el primer período al tiro). ver=1: solo consulta la tarjeta.
+  if (t === "reactivar") {
+    const u = new URL(req.url), socio = u.searchParams.get("socio"), clave = u.searchParams.get("clave");
+    const { data: k } = await admin.from("config_interna").select("valor").eq("clave", "flow_staff").maybeSingle();
+    const J = (o: unknown, s = 200) => new Response(JSON.stringify(o), { status: s, headers: { "Content-Type": "application/json" } });
+    if (!k?.valor || !clave || clave !== k.valor || !socio) return J({ error: "sin permiso" }, 403);
+    const { data: viva } = await admin.from("flow_suscripciones").select("id, estado").eq("socio_id", socio).in("estado", ["registrando_tarjeta", "activando", "activa"]).limit(1);
+    if (viva?.length) return J({ error: "ya tiene un pago automático " + viva[0].estado }, 400);
+    const { data: s } = await admin.from("flow_suscripciones").select("*").eq("socio_id", socio).eq("estado", "error")
+      .not("flow_customer_id", "is", null).not("tarjeta_ult4", "is", null).order("updated_at", { ascending: false }).limit(1).maybeSingle();
+    if (!s) return J({ error: "no hay un pago automático con tarjeta registrada para reactivar" }, 400);
+    let cli: Record<string, any>;
+    try { cli = await flow("GET", "customer/get", { customerId: s.flow_customer_id }); }
+    catch (e) { return J({ error: "Flow: " + String((e as Error).message).slice(0, 200) }, 502); }
+    const tarjeta = { tipo: cli.creditCardType || null, ult4: cli.last4CardDigits || null, estado_cliente: cli.status };
+    if (!cli.last4CardDigits) return J({ error: "el cliente de Flow ya no tiene tarjeta registrada", tarjeta }, 400);
+    if (u.searchParams.get("ver") === "1") return J({ ok: true, ver: true, monto: s.monto, plan: s.flow_plan_id, tarjeta });
+    const hoy = hoyCL();
+    let sub: Record<string, any>;
+    try { sub = await flow("POST", "subscription/create", { planId: s.flow_plan_id, customerId: s.flow_customer_id, subscription_start: hoy }); }
+    catch (e) { return J({ error: "Flow no creó la suscripción: " + String((e as Error).message).slice(0, 200) }, 502); }
+    const permHasta = s.permanencia_meses > 0 ? (() => { const d = new Date(hoy + "T12:00:00Z"); d.setUTCMonth(d.getUTCMonth() + s.permanencia_meses); return d.toISOString().slice(0, 10); })() : null;
+    const { data: nueva, error } = await admin.from("flow_suscripciones").insert({
+      socio_id: s.socio_id, plan_id: s.plan_id, plan_nombre: s.plan_nombre, monto: s.monto, duracion_valor: s.duracion_valor, flow_plan_id: s.flow_plan_id,
+      flow_customer_id: s.flow_customer_id, flow_subscription_id: sub.subscriptionId, email: s.email, estado: "activa",
+      tarjeta_tipo: tarjeta.tipo, tarjeta_ult4: tarjeta.ult4, inicio: hoy, proximo_cobro: hoy, flow_data: sub,
+      tipo_comercial: s.tipo_comercial, permanencia_meses: s.permanencia_meses, permanencia_hasta: permHasta, precio_lista: s.precio_lista,
+      autorizacion: { ...(s.autorizacion || {}), reactivada_de: s.id, reactivada_at: ahora() },
+    }).select("id").single();
+    if (error) return J({ error: "Flow cobró pero no se guardó: " + error.message, subscriptionId: sub.subscriptionId }, 500);
+    await admin.from("admin_eventos").insert({ socio_id: s.socio_id, entidad: "pago_automatico", entidad_id: nueva.id, accion: "reactivar",
+      despues: { suscripcion: sub.subscriptionId, anterior: s.id, tarjeta }, actor_nombre: "STAFF · reactivar cobro", motivo: u.searchParams.get("motivo") || "reintento con la misma tarjeta" });
+    return J({ ok: true, suscripcion: nueva.id, flow: sub });
+  }
   if (t === "ping") {
     let flowR: unknown = null;
     try { await flow("GET", "payment/getStatus", { token: "ping_koach" }); } catch (e) { flowR = String((e as Error).message).slice(0, 300); }
