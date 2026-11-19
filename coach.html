@@ -3463,6 +3463,16 @@ html.fx-edit #vPlan.plDesk .tbHead{grid-template-columns:minmax(0,1fr) auto auto
 .bbq__cat button{min-height:38px;padding:0 14px;border-radius:999px;border:1px solid rgba(244,243,240,.22);background:transparent;color:#F4F3F0;font:700 10px 'Space Mono',monospace;letter-spacing:.08em;cursor:pointer}
 .bbq__cat button.on{background:#F4F3F0;color:#000;border-color:#F4F3F0}
 @media (max-width:640px){ .bbq__ban{padding:16px 16px} .bbq__nav{top:-18px} }
+/* c317 · plazos del cliente y elección del inicio en la venta */
+.vtEstado{display:flex;flex-direction:column;gap:8px;margin:0 0 12px}.vtEstado:empty{display:none}
+.vtEs{display:flex;flex-direction:column;gap:2px;padding:12px 16px;border-radius:16px;border:1px solid color-mix(in srgb,currentColor 22%,transparent);background:color-mix(in srgb,currentColor 5%,transparent)}
+.vtEs b{font:700 13px 'Space Mono',monospace;letter-spacing:.06em}.vtEs span{font:400 11px 'Space Mono',monospace;opacity:.65}
+.vtEs--ok{border-color:rgba(62,198,176,.55)}.vtEs--ok b{color:#3EC6B0}.vtEs--x{border-color:rgba(255,66,0,.55)}.vtEs--x b{color:#FF4200}
+.vtPl{display:flex;flex-wrap:wrap;gap:6px}.vtPl span{display:inline-flex;gap:6px;align-items:baseline;padding:5px 10px;border-radius:999px;border:1px solid color-mix(in srgb,currentColor 20%,transparent);font:700 10px 'Space Mono',monospace;opacity:.85}.vtPl em{font-style:normal;opacity:.55}
+.vtQ{margin:12px 0 8px;font:700 11px 'Space Mono',monospace;letter-spacing:.12em}
+.vtDesde button{display:flex;flex-direction:column;align-items:flex-start;gap:2px;min-height:56px;padding:8px 16px;text-align:left}
+.vtDesde button b{font:700 11px 'Space Mono',monospace;letter-spacing:.06em}.vtDesde button span{font:400 10.5px 'Space Mono',monospace;opacity:.75}
+.vtWarn{display:block;margin-top:6px;color:#FF4200;font:400 11px 'Space Mono',monospace}
 /* tarjetas de sesión compactas como selector */
 html.fx-edit #vFicha .tb2{gap:8px !important}
 html.fx-edit #vFicha .tc{min-height:0 !important;border-radius:18px !important;box-shadow:none !important;transition:background .2s,border-color .2s,transform .2s}
@@ -8946,7 +8956,7 @@ async function vtMontar(p, boxId, ctx){
      '<div class="vtCc"><section class="vtZ vtZ--dur"><div class="vtK">1 · DURACIÓN</div>'+
        '<div class="vtPs" role="group" aria-label="Duración en meses">'+durB(VT_DUR.filter(function(d){return d[0].indexOf('mes:')===0}))+'</div>'+
        '<div class="vtPs vtPs--c" role="group" aria-label="Pases cortos">'+durB(VT_DUR.filter(function(d){return d[0].indexOf('mes:')!==0}))+'</div></section>'+
-     '<section class="vtZ vtZ--ini"><div class="vtK">2 · INICIO Y VIGENCIA</div><div class="vtR2"><label class="vtL"><span class="vtSr">FECHA DE INICIO</span><input type="date" id="'+p+'Ini" value="'+s.fecha+'" onchange="vtFecha(\''+p+'\',this.value)" aria-label="Fecha de inicio del plan"></label>'+
+     '<section class="vtZ vtZ--ini"><div class="vtK">2 · INICIO Y VIGENCIA</div><div class="vtEstado" id="'+p+'Est0" aria-live="polite"></div><div class="vtR2"><label class="vtL"><span class="vtSr">FECHA DE INICIO</span><input type="date" id="'+p+'Ini" value="'+s.fecha+'" onchange="vtFecha(\''+p+'\',this.value)" aria-label="Fecha de inicio del plan"></label>'+
        '<div class="vtVig" id="'+p+'Vig" aria-live="polite">Elige la duración</div></div></section></div>'+
      '<div class="vtCc"><section class="vtZ vtZ--val"><div class="vtK" id="'+p+'VK">3 · VALOR COBRADO</div>'+
        '<label class="vtMoney" id="'+p+'MW"><span>$</span><input inputmode="numeric" id="'+p+'M" placeholder="0" oninput="vtMonto(\''+p+'\',this.value)" aria-label="Valor cobrado"><b id="'+p+'ML" hidden>VALOR COBRADO</b></label>'+
@@ -8987,6 +8997,19 @@ function vtMonto(p,v){ const n=parseInt(String(v).replace(/\D/g,''),10); VTS[p].
 function vtTc(p,v){ const s=VTS[p]; s.tc=(s.tc===v?'normal':v); if (s.tc==='cortesia'){ s.monto=0; const m=vtEl(p,'M'); if(m) m.value='0' } vtPintar(p) }
 function vtMet(p,v){ const s=VTS[p]; s.met=(s.met===v?null:v); if (s.met==='ugc'){ s.tc='ugc'; s.custom=true } else if (s.tc==='ugc'){ s.tc='normal'; s.custom=vtPrecio(s.dur)==null } vtPintar(p) }
 function vtEst(p,v){ VTS[p].est=v; vtPintar(p) }
+// c317 · plazos del cliente: vigencia activa / vencida y sus últimos periodos, apenas se abre la venta
+async function vtEstadoSocio(p){ const s=VTS[p], el=vtEl(p,'Est0'); if(!el) return
+  if (!s.socio){ el.innerHTML=''; return }
+  el.innerHTML='<small>Revisando plazos…</small>'
+  const r=await sb.from('membresias').select('fecha_inicio, fecha_fin, estado, duracion_tipo, duracion_valor, tipo_comercial').eq('socio_id',s.socio).neq('estado','cancelada').order('fecha_fin',{ascending:false}).limit(4)
+  if (VTS[p]!==s) return
+  const L=(r&&r.data)||[]; if (!L.length){ el.innerHTML='<div class="vtEs vtEs--n"><b>SIN PLANES ANTERIORES</b><span>Cliente nuevo: el plan corre desde la fecha de inicio.</span></div>'; return }
+  const hoy=hoyISO(), u=L[0], dias=Math.round((new Date(u.fecha_fin+'T12:00')-new Date(hoy+'T12:00'))/864e5)
+  const est = dias>0 ? '<div class="vtEs vtEs--ok"><b>VIGENTE HASTA '+adF(u.fecha_fin)+'</b><span>Quedan '+dias+(dias===1?' día':' días')+' · desde '+adF(u.fecha_inicio)+'</span></div>'
+    : dias===0 ? '<div class="vtEs vtEs--ok"><b>VENCE HOY · '+adF(u.fecha_fin)+'</b><span>Último día cubierto</span></div>'
+    : '<div class="vtEs vtEs--x"><b>VENCIDO DESDE '+adF(u.fecha_fin)+'</b><span>Hace '+(-dias)+(dias===-1?' día':' días')+'</span></div>'
+  el.innerHTML=est+'<div class="vtPl">'+L.map(function(m){ return '<span><em>'+(m.duracion_tipo==='mes'?m.duracion_valor+(m.duracion_valor>1?' MESES':' MES'):String(m.duracion_tipo||'').toUpperCase())+'</em>'+adF(m.fecha_inicio)+' → '+adF(m.fecha_fin)+'</span>' }).join('')+'</div>'
+}
 async function vtVig(p){
   const s=VTS[p]; if(!s.dur){ s.vig=null; return }
   const t=s.dur.split(':'), key=s.dur+'|'+s.fecha+'|'+(s.desde||'')
@@ -8994,6 +9017,7 @@ async function vtVig(p){
   if (VTS[p]!==s || (s.dur+'|'+s.fecha+'|'+(s.desde||''))!==key) return
   s.vig = (r.error||!r.data) ? { err:true } : r.data; vtPintar(p)
 }
+function vtDesdeCob(s){ return !!(s.vig && /cobertura|anticipada$|renovacion_anticipada/.test(s.vig.regla) && s.vig.regla!=='anticipada_desde_pago') }
 function vtDesde(p,v){ const s=VTS[p]; if(!s) return; s.desde=v; s.vig=null; vtPintar(p); vtVig(p) }
 function vtMarcar(p){ const s=VTS[p], sel=vtEl(p,'Otra')
   document.querySelectorAll('#'+s.box+' .vtP').forEach(function(b){ const on = b.dataset.k==='otra' ? s.otra : b.dataset.k===s.dur; b.classList.toggle('on',on); b.setAttribute('aria-pressed',on) })
@@ -9012,9 +9036,10 @@ function vtPintar(p, soloResumen){
     const v=vtEl(p,'Vig')
     v.innerHTML = !s.dur ? 'Elige la duración' : !s.vig ? 'Calculando…' : s.vig.err ? 'No se pudo calcular' :
       (s.vig.ultimo_vencimiento?'<small>Último día cubierto: <b>'+adF(s.vig.ultimo_vencimiento)+'</b>'+(s.vig.atrasado?' · pagó '+s.vig.dias_mora+' día'+(s.vig.dias_mora>1?'s':'')+' después':'')+'</small>':'')+
-      (s.vig.atrasado&&s.dur!=='dia:1'?'<div class="vtCh vtDesde" role="group" aria-label="Desde cuándo corre">'+
-        '<button type="button" class="'+(/cobertura/.test(s.vig.regla)?'on':'')+'" onclick="vtDesde(\''+p+'\',\'cobertura\')">DESDE FIN DE COBERTURA · '+adF(s.vig.alt_desde_cobertura.inicio)+'</button>'+
-        '<button type="button" class="'+(/cobertura/.test(s.vig.regla)?'':'on')+'" onclick="vtDesde(\''+p+'\',\'pago\')">DESDE FECHA DE PAGO · '+adF(s.vig.alt_desde_pago.inicio)+'</button></div>':'')+
+      (s.vig.alt_desde_pago&&s.vig.alt_desde_cobertura&&s.dur!=='dia:1'?'<div class="vtQ">¿DESDE CUÁNDO ACTIVO LA MEMBRESÍA PAGADA?</div><div class="vtCh vtDesde" role="radiogroup" aria-label="Desde cuándo corre">'+
+        '<button type="button" role="radio" aria-checked="'+vtDesdeCob(s)+'" class="'+(vtDesdeCob(s)?'on':'')+'" onclick="vtDesde(\''+p+'\',\'cobertura\')"><b>DESDE EL ÚLTIMO DÍA DE VIGENCIA</b><span>'+adF(s.vig.alt_desde_cobertura.inicio)+' → '+adF(s.vig.alt_desde_cobertura.fin)+'</span></button>'+
+        '<button type="button" role="radio" aria-checked="'+!vtDesdeCob(s)+'" class="'+(vtDesdeCob(s)?'':'on')+'" onclick="vtDesde(\''+p+'\',\'pago\')"><b>DESDE HOY</b><span>'+adF(s.vig.alt_desde_pago.inicio)+' → '+adF(s.vig.alt_desde_pago.fin)+'</span></button></div>'+
+        (!vtDesdeCob(s)&&s.vig.vigente?'<small class="vtWarn">Pierde '+s.vig.dias_vigentes+(s.vig.dias_vigentes===1?' día':' días')+' de su plan vigente (se superponen).</small>':''):'')+
       '<b>'+(s.dur==='dia:1'?adF(s.vig.inicio):adF(s.vig.inicio)+' → '+adF(s.vig.fin))+'</b>'+(s.vig.encadena?'<small>Se suma desde el término del plan vigente: no pierde días.</small>':
         (s.vig.inicio>hoyISO()?'<small style="color:var(--danger,#b3261e)">⚠ Comienza el '+adF(s.vig.inicio)+': hasta esa fecha el socio NO tendrá acceso a su rutina ni credencial. Si ya pagó y entrena desde hoy, usa la fecha de hoy.</small>':''))
   }
@@ -9041,7 +9066,7 @@ function vtPayload(p){
   return { venta:{ duracion_tipo:s.dur.split(':')[0], duracion_valor:+s.dur.split(':')[1], fecha:s.fecha, monto:monto,
     estado: ugc?'pagado':s.est, metodo:s.met, tipo_comercial: ugc?'ugc':(s.tc||'normal'),
     referencia:(vtEl(p,'Ref').value||'').trim()||null, observacion:(vtEl(p,'Obs').value||'').trim()||null, plan_id:s.plan||null,
-    desde: (s.vig&&s.vig.atrasado) ? (/cobertura/.test(s.vig.regla)?'cobertura':'pago') : null } }
+    desde: (s.vig&&s.vig.alt_desde_pago) ? (vtDesdeCob(s)?'cobertura':'pago') : null } }
 }
 function vtError(m){ const t=String(m||'')
   return /DUPLICADO_RECIENTE/.test(t)?'Ese pago ya se registró hace unos segundos (doble toque): no se duplicó.'
@@ -9268,7 +9293,7 @@ const AD_DUR=VT_DUR
 function admFormPago(){
   document.getElementById('mAdm').classList.add('adWide')
   admAbrir('REGISTRAR VENTA · '+nomDe(F.id).toUpperCase(),'<div id="apVt" class="vt"></div><div class="vtFoot"><div id="apErr"></div><div class="vtFoot__r"><div class="vtSum" id="apSum" aria-live="polite"></div><button type="button" class="vtGo" id="apOk" onclick="admGuardarPago()">REGISTRAR VENTA →</button></div></div>')
-  vtMontar('ap','apVt',{ socio:F.id, caja:true, onChange:vtSumPintar })
+  vtMontar('ap','apVt',{ socio:F.id, caja:true, onChange:vtSumPintar }).then(function(){ try{ vtEstadoSocio('ap') }catch(_e){} })
 }
 function vtSumPintar(r){ const el=document.getElementById('apSum'); if(!el) return
   const TC={descuento:'DESCUENTO',promocion:'PROMOCIÓN',convenio:'CONVENIO',canje:'CANJE',cortesia:'CORTESÍA',otro:'OTRO'}, MET={}; VT_MET.forEach(function(m){ MET[m[0]]=m[1] })
