@@ -3813,6 +3813,7 @@ video.klv::-webkit-media-controls,video.klv::-webkit-media-controls-overlay-play
 .bk__finIn--c .kxSegs{max-width:200px}
 #oBloque.fin .bk__foot{visibility:hidden}
 #oBloque.fin{margin:0!important;width:auto!important}
+.esFin--lejos{margin-top:34px !important;opacity:.6}.esFin--lejos .esPl{font-size:10px}
 /* c129 · en la rutina nunca se ve la barra de pestañas (tapaba el botón fijo al volver o al refrescar); TERMINAR SESIÓN como botón visible */
 html:has(#vSesion.on) .tabbar{display:none!important}
 .pvGo{z-index:90}
@@ -4925,8 +4926,9 @@ html.en-av body{background:transparent}
 <div id="oLoad" role="status" aria-live="polite"><img class="klv klvImg" src="/img/brand/koach-logo-fin.webp" alt="" aria-hidden="true" decoding="async"><video class="klv" src="/img/brand/koach-encendido-720.mp4" muted playsinline autoplay preload="auto" disablepictureinpicture disableremoteplayback controlslist="nodownload nofullscreen noremoteplayback" aria-hidden="true"></video><span class="ldSr" id="oLoadM">ENTRANDO A TU PLAN</span><span class="ldSr" id="oLoadS">Sincronizando tu semana y progreso.</span></div>
 <div id="mFinQ" style="display:none;position:fixed;inset:0;z-index:82;background:rgba(18,18,16,.5);backdrop-filter:blur(6px)">
   <div class="kFinQ">
-    <span class="kLbl kLbl--dk">CERRAR SESIÓN</span><div class="kFinQ__t">¿COMPLETASTE TODAS TUS SERIES?</div>
+    <span class="kLbl kLbl--dk">CERRAR SESIÓN</span><div class="kFinQ__t" id="fqTit">¿COMPLETASTE TODAS TUS SERIES?</div>
     <div id="fqSub" style="font-size:10px;color:#7C7B76;line-height:1.6;margin-bottom:18px">Confirma tu sesión para registrar correctamente tu progreso.</div>
+    <button class="btn" id="fqSeguir" onclick="document.getElementById('mFinQ').style.display='none'" style="margin-bottom:9px;display:none">SEGUIR ENTRENANDO →</button>
     <button class="btn" id="fqTodo" onclick="completarTodo()" style="margin-bottom:9px">✓ SÍ, COMPLETÉ TODO</button>
     <button class="btn" style="background:rgba(18,18,16,.08);color:#121210" onclick="abrirFinB()">NO, HICE ALGUNOS CAMBIOS</button>
     <button onclick="document.getElementById('mFinQ').style.display='none'" style="width:100%;border:none;background:none;padding:14px 0 0;font-size:8px;font-weight:900;letter-spacing:.14em;color:#BEBDB8;cursor:pointer">SEGUIR ENTRENANDO</button>
@@ -8055,7 +8057,7 @@ function esfCuerpo(ses,bfs){ const pp=bkPrimerPendiente(bfs), prim=pp<0?bfs.leng
   return orbs+mus+lst+(lk?'<button type="button" class="esGo esGo--lk" aria-disabled="true" onclick="esfSel('+prim+')"><span>'+cta+'</span></button>'
       :'<button type="button" class="esGo" id="'+(pre?'pvIni':'esGo')+'" onclick="'+(pre?'esfAEntrenar('+sel+')':'pvEntrar('+sel+')')+'"><span>'+cta+'</span></button>')+
     (pre&&wOk?'<div class="esFin esFin--w"><button type="button" class="esPl esPl--w" onclick="wellAbrir()">TEST WELLNESS · ANTES DE ENTRENAR · 1 MIN</button></div>':'')+
-    (emp?'<div class="esFin"><button type="button" class="esPl esPl--w" onclick="pedirFinal()">TERMINAR SESIÓN ✓</button></div>':(pre&&wOk?'':'<div class="esFin"></div>')) }
+    (emp?'<div class="esFin'+(pp>=0?' esFin--lejos':'')+'"><button type="button" class="esPl esPl--w" onclick="pedirFinal()">'+(pp>=0?'TERMINAR ANTES DE TIEMPO':'TERMINAR SESIÓN ✓')+'</button></div>':(pre&&wOk?'':'<div class="esFin"></div>')) }
 /* c278 · frase conceptual de la sesión: el enfoque principal (dos grupos con más volumen) y la invitación a completarla.
    BURN se presenta como entrenamiento metabólico; los % quedan en las píldoras de abajo. */
 function esfDesc(ses){ const V=pvVol(ses), prog=String((S.proto&&S.proto.programa)||'').toUpperCase()
@@ -8902,6 +8904,12 @@ function pedirFinal(){
     : (c.hec>0
     ? 'Llevas '+c.hec+' de '+c.tot+' series registradas. Lo ya registrado se conserva tal cual.'
     : 'Confirma tu sesión para registrar correctamente tu progreso.')
+  // c315 · si quedan bloques sin empezar, lo primero es SEGUIR ENTRENANDO (dos socios cerraron por error tras el B1)
+  const _pp=bkPrimerPendiente(S._bfs||[]), _pend=(S._bfs||[]).filter(function(b){ return !bloqueCompleto(b) }).length
+  const sg=document.getElementById('fqSeguir'), tt=document.getElementById('fqTit'), td=document.getElementById('fqTodo')
+  if (_pp>=0 && _pend>0){ sg.style.display=''; sg.textContent='SEGUIR ENTRENANDO · '+bkCod((S._bfs||[])[_pp],_pp)+' →'
+    tt.textContent='TE '+(_pend===1?'FALTA 1 BLOQUE':'FALTAN '+_pend+' BLOQUES'); td.style.display='none' }
+  else { sg.style.display='none'; tt.textContent='¿COMPLETASTE TODAS TUS SERIES?'; td.style.background=''; td.style.color='' }
   document.getElementById('mFinQ').style.display='block'
 }
 async function completarTodo(){
