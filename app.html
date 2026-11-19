@@ -6862,6 +6862,7 @@ const AN_NUNCA=A=>A.ultima==='nunca'
 // c220 · anamnesis v4: + por qué entrena (autodeterminación), meta única y plazo, importancia y confianza 0–10, barrera, qué lo mueve y qué necesita ver hoy
 // c218 · anamnesis v2: datos clave (edad, última vez, máximo continuo, disciplinas), salud (patologías, lesiones, dolor hoy, energía) y proceso (qué será determinante, qué le preocupa, qué espera)
 const AN_Q=[
+ {id:'sexo',k:'TÚ',q:'¿Con qué sexo te registramos?',sub:'Lo usamos para preparar tu clase y tus ejercicios.',t:'one',o:[['mujer','Mujer'],['hombre','Hombre']],skip:()=>anSxPerfil()!==''},
  {id:'edad',k:'TÚ',q:'¿Cuántos años tienes?',t:'edad'},
  {id:'objetivo',k:'TU OBJETIVO',q:'¿Qué resultado quieres conseguir?',sub:'Elige el más importante para ti.',t:'one',o:[['masa','Ganar masa muscular'],['grasa','Bajar grasa'],['tonificar','Tonificar y definir'],['fuerza','Más fuerza'],['salud','Salud y bienestar']]},
  {id:'zona',k:'TU FOCO',q:'¿Qué quieres trabajar más?',sub:'Elige una zona y, si quieres, los músculos que más te importan.',t:'zona'},
@@ -6889,7 +6890,9 @@ const AN_Q=[
 ]
 const AN={A:{}, i:0, el:null, poll:null}
 function anEsc(t){ return String(t==null?'':t).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])) }
-function anSx(){ const s=String((S.perfil&&S.perfil.sex)||'').toLowerCase(); return s==='mujer'?'mujer':'hombre' }
+// c221 · si el perfil no tiene sexo, se pregunta en la anamnesis (nunca se infiere ni se asume 'hombre')
+function anSxPerfil(){ const s=String((S.perfil&&S.perfil.sex)||'').toLowerCase(); return (s==='mujer'||s==='hombre')?s:'' }
+function anSx(){ const s=anSxPerfil()||String((AN.A&&AN.A.sexo)||''); return s==='mujer'?'mujer':'hombre' }
 function anClave(t){ return 'kan_'+t+'_'+((S.perfil&&S.perfil.id)||'x') }
 function anBorrador(){ try{ localStorage.setItem(anClave('b'), JSON.stringify({ A:AN.A, i:AN.i, t:Date.now() })) }catch(_e){} }
 function anErrSesion(e){ const m=String((e&&(e.message||e.code))||'')+' '+String((e&&e.status)||'')
@@ -6928,7 +6931,7 @@ function anPant(h){ AN.el.innerHTML='<div class="an__s">'+h+'</div>'; const s=AN
 function anTop(st){ return '<div class="an__top"><img src="/img/brand/logotipo-koach.png" alt="KOACH"><small>'+(st||'CLASE DE PRUEBA')+'</small></div>' }
 function anBienvenida(){ const n=anEsc(msgNombre()||''), m=anSx()==='mujer'
   anPant(anTop()+'<div class="an__hero"><span class="an__tag">CLASE DE PRUEBA · HOY</span><h1>Hola,<br>'+(n||'bienvenido')+'.</h1>'+
-    '<p><b>'+(m?'Bienvenida':'Bienvenido')+' a tu clase de prueba.</b> Hoy vas a vivir el Método KOACH: un koach te guía en todo momento.</p>'+
+    '<p><b>'+(!anSxPerfil()?'Te damos la bienvenida':m?'Bienvenida':'Bienvenido')+' a tu clase de prueba.</b> Hoy vas a vivir el Método KOACH: un koach te guía en todo momento.</p>'+
     '<div class="an__facts"><div><small>BLOQUES</small><b>2</b></div><div><small>SETS</small><b>3×</b></div><div><small>DURACIÓN</small><b>40′</b></div></div>'+
     '<p>Antes de comenzar, queremos conocerte. Con tus respuestas, tu koach prepara tu clase.</p></div>'+
     '<div class="an__act"><button type="button" class="an__go" onclick="AN.i=0;anPaso()">EMPEZAR · 4 MIN →</button></div>') }
@@ -7000,7 +7003,7 @@ function anFinal(){ const A=JSON.parse(JSON.stringify(AN.A||{}))
   if (A.maximo!=null&&A.maximo!=='') A.maximo=+A.maximo
   if (A.ultima){ const lejos=['m6','m12','a1'].includes(A.ultima), corto=A.maximo!=null&&A.maximo<=1
     A.experiencia = A.ultima==='nunca' ? 'cero' : (lejos||corto) ? 'antes' : 'sinplan' }
-  A.sexo=anSx(); A.version=4; A.respondida_at=A.respondida_at||new Date().toISOString(); return A }
+  if (anSxPerfil()) A.sexo=anSxPerfil(); else if (A.sexo==='mujer'||A.sexo==='hombre') A.sexo_fuente='socio'; A.version=5; A.respondida_at=A.respondida_at||new Date().toISOString(); return A }
 async function anGuardar(){ const A=anFinal()
   try{ localStorage.setItem(anClave('p'), JSON.stringify(A)) }catch(_e){}   // c217 · respaldo: no se pierde aunque se caiga todo
   anPant(anTop('GUARDANDO')+'<div class="an__hero"><h1 style="font-size:40px">Un segundo…</h1></div>')
