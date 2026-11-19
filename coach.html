@@ -3422,6 +3422,30 @@ html.fx-edit #vPlan.plDesk .tbHead{grid-template-columns:minmax(0,1fr) auto auto
 .cgUno__v button{display:flex;justify-content:space-between;align-items:center;gap:12px;min-height:52px;padding:0 20px;border-radius:999px;border:1px solid #4A4D51;background:#1A1B1D;color:#F4F3F0;cursor:pointer;text-align:left}
 .cgUno__v button b{font-weight:700;font-size:14px}.cgUno__v button span{font:700 10px 'Space Mono',monospace;letter-spacing:.08em;color:#A9ADB0;white-space:nowrap}
 .cgUno__v button:hover{border-color:#F4F3F0}
+/* c314 · biblioteca de bloques prediseñados en tarjetas cuadradas con fotos */
+#mBibBloq .bbq{position:absolute;inset:4vh 50% auto auto;transform:translateX(50%);width:min(1180px,calc(100vw - 32px));max-height:92vh;overflow:auto;border-radius:28px;border:1px solid rgba(244,243,240,.14);background:linear-gradient(160deg,#1B1C1E,#0B0C0D);color:#F4F3F0;padding:22px 22px 26px;box-shadow:0 30px 90px rgba(0,0,0,.6)}
+.bbq__h{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;margin-bottom:18px}
+.bbq__h small{display:block;font:700 10px 'Space Mono',monospace;letter-spacing:.18em;color:rgba(244,243,240,.55)}
+.bbq__h b{display:block;font-family:'KOACH Display','Archivo',sans-serif;font-weight:900;font-size:clamp(22px,2.6vw,30px);background:linear-gradient(180deg,#FFF 0%,#C9CBCF 45%,#FFF 58%,#979C9F 100%);-webkit-background-clip:text;background-clip:text;color:transparent}
+.bbq__x{width:48px;height:48px;border-radius:50%;border:1px solid rgba(244,243,240,.2);background:rgba(255,255,255,.05);color:#F4F3F0;font-size:16px;cursor:pointer;flex:none}
+.bbq__g{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:16px}
+.bbq__c{display:flex;flex-direction:column;align-items:stretch;gap:6px;padding:10px 10px 14px;border-radius:22px;border:1px solid rgba(244,243,240,.12);background:rgba(255,255,255,.035);color:#F4F3F0;text-align:left;cursor:pointer;transition:transform .18s,border-color .18s,background .18s;min-width:0}
+.bbq__c:hover,.bbq__c:focus-visible{transform:translateY(-2px);border-color:rgba(244,243,240,.5);background:rgba(255,255,255,.07);outline:none}
+.bbq__c:active{transform:scale(.98)}
+.bbq__m{position:relative;display:grid;grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr;gap:4px;aspect-ratio:1/1;width:100%;border-radius:16px;overflow:hidden;background:#000}
+.bbq__m.uno{grid-template-columns:1fr;grid-template-rows:1fr}
+.bbq__ph{position:relative;display:block;background:linear-gradient(160deg,#2A2C2F,#17181A);overflow:hidden;min-width:0;min-height:0}
+.bbq__ph img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.bbq__ph em{position:absolute;left:6px;right:6px;bottom:5px;font:700 8px/1.15 'Space Mono',monospace;letter-spacing:.04em;font-style:normal;color:#F4F3F0;text-shadow:0 1px 4px #000;text-transform:uppercase;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
+.bbq__ph img+em{opacity:.0}.bbq__c:hover .bbq__ph img+em{opacity:1}
+.bbq__ph.vac{background:repeating-linear-gradient(135deg,#141517 0 8px,#18191B 8px 16px)}
+.bbq__ph.vac em{top:50%;bottom:auto;transform:translateY(-50%);text-align:center;color:rgba(244,243,240,.5)}
+.bbq__mas{position:absolute;right:8px;bottom:8px;padding:3px 8px;border-radius:999px;background:rgba(0,0,0,.72);border:1px solid rgba(244,243,240,.3);font:700 10px 'Space Mono',monospace;font-style:normal}
+.bbq__c>b{font-family:'KOACH Display','Archivo',sans-serif;font-weight:900;font-size:15px;line-height:1.1;text-transform:uppercase;padding:4px 4px 0;overflow-wrap:anywhere}
+.bbq__c>small{font:700 9.5px 'Space Mono',monospace;letter-spacing:.08em;color:rgba(244,243,240,.55);padding:0 4px}
+#mBibBloq #bibBloqPrev{max-width:640px;margin:0 auto;color:#F4F3F0}
+#mBibBloq #bibBloqPrev [style*="koach-text-secondary"]{color:rgba(244,243,240,.65)!important}
+@media (max-width:640px){ #mBibBloq .bbq{inset:auto 0 0 0;transform:none;width:100%;border-radius:24px 24px 0 0;max-height:90vh;padding:18px 14px 22px} .bbq__g{grid-template-columns:1fr 1fr;gap:10px} .bbq__c>b{font-size:13px} }
 /* tarjetas de sesión compactas como selector */
 html.fx-edit #vFicha .tb2{gap:8px !important}
 html.fx-edit #vFicha .tc{min-height:0 !important;border-radius:18px !important;box-shadow:none !important;transition:background .2s,border-color .2s,transform .2s}
@@ -4252,11 +4276,10 @@ textarea.avz__in{min-height:70px;resize:vertical}
   <button class="bbtn" onclick="document.getElementById('mAddBloque').style.display='none'" style="width:100%;margin-top:14px">CANCELAR</button>
 </div></div>
 <!-- BIBLIOTECA DE BLOQUES -->
-<div id="mBibBloq" style="display:none;position:fixed;inset:0;z-index:74;background:rgba(18,18,16,.45);backdrop-filter:blur(6px)"><div style="position:absolute;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:560px;background:var(--koach-surface);border-radius:10px 10px 0 0;padding:18px 16px 22px;max-height:86vh;overflow:auto">
-  <div style="font-size:8px;letter-spacing:.18em;font-weight:900;color:var(--koach-text-secondary);margin-bottom:12px">BIBLIOTECA DE BLOQUES</div>
+<div id="mBibBloq" style="display:none;position:fixed;inset:0;z-index:74;background:rgba(0,0,0,.62);backdrop-filter:blur(10px)"><div class="bbq">
+  <div class="bbq__h"><div><small>BIBLIOTECA DE BLOQUES</small><b>BLOQUES PREDISEÑADOS</b></div><button type="button" class="bbq__x" aria-label="Cerrar" onclick="document.getElementById('mBibBloq').style.display='none'">✕</button></div>
   <div id="bibBloqLista"><div class="vacio">Cargando…</div></div>
   <div id="bibBloqPrev" style="display:none"></div>
-  <button class="bbtn" onclick="document.getElementById('mBibBloq').style.display='none'" style="width:100%;margin-top:12px">CERRAR</button>
 </div></div>
 <!-- ORGANIZADOR DE BLOQUES -->
 <div id="mOrgB" style="display:none;position:fixed;inset:0;z-index:73;background:rgba(18,18,16,.45);backdrop-filter:blur(6px)"><div style="position:absolute;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:560px;background:var(--koach-surface);border-radius:10px 10px 0 0;padding:18px 16px 22px;max-height:86vh;overflow:auto">
@@ -7293,14 +7316,21 @@ async function abrirBibBloq(){
   try{
     const r=await sb.rpc('koach_bloques_tpl')
     if (r.error){ console.error('[bloques prediseñados] listar', r.error); throw r.error }
-    const ts=(r.data||[]).map(function(t){ return { id:t.id, etiqueta:t.etiqueta, sets:t.sets, bloque_ejercicios:new Array(t.n) } })
-    el.innerHTML = ts.length ? ts.map(function(t){
-      const n=(t.bloque_ejercicios||[]).length
-      return '<div style="display:flex;align-items:center;gap:10px;padding:12px 0;border-bottom:1px solid rgba(18,18,16,.06)">'+
-        '<div style="flex:1"><div style="font-size:11px;font-weight:900;letter-spacing:.1em">'+(t.etiqueta||t.bloque)+'</div>'+
-        '<div style="font-size:8px;font-weight:800;color:var(--koach-text-secondary)">'+(n? n+' EJERCICIOS · '+t.sets+' SETS' : 'POR DEFINIR — sin ejercicios aún')+'</div></div>'+
-        '<button class="bbtn ink" style="padding:8px 12px" onclick="verTpl(\''+t.id+'\')">VER →</button></div>'
-    }).join('') : '<div class="vacio">Sin bloques prediseñados aún.</div>'
+    const ts=(r.data||[]).map(function(t){ return { id:t.id, etiqueta:t.etiqueta, sets:t.sets, n:t.n||0 } })
+    // c314 · tarjetas cuadradas: mosaico con las fotos de sus ejercicios + nombre abajo
+    const ids=ts.map(function(t){return t.id}), EJ={}
+    if (ids.length){ const rb=await sb.from('bloque_ejercicios').select('bloque_id, orden, ejercicios(nombre, visual_key)').in('bloque_id',ids).order('orden')
+      ;((rb&&rb.data)||[]).forEach(function(x){ (EJ[x.bloque_id]=EJ[x.bloque_id]||[]).push(x.ejercicios||{}) }) }
+    const ph=function(e){ const r=e&&selRutaFoto(e.visual_key)
+      return '<span class="bbq__ph">'+(r?'<img src="'+SB_URL+'/storage/v1/object/public/ejercicios-media/'+r+'" alt="" loading="lazy" decoding="async" onerror="this.remove()">':'')+'<em>'+plEsc(String((e&&e.nombre)||'').slice(0,18))+'</em></span>' }
+    el.innerHTML = ts.length ? '<div class="bbq__g">'+ts.map(function(t){
+      const es=EJ[t.id]||[], n=es.length||t.n, cuatro=es.slice(0,4)
+      while (cuatro.length<4) cuatro.push(null)
+      return '<button type="button" class="bbq__c" onclick="verTpl(\''+t.id+'\')">'+
+        '<span class="bbq__m'+(es.length<=1?' uno':'')+'">'+(es.length? (es.length===1? ph(es[0]) : cuatro.map(function(e){ return e?ph(e):'<span class="bbq__ph vac"></span>' }).join('')) : '<span class="bbq__ph vac"><em>POR DEFINIR</em></span>')+
+          (es.length>4?'<i class="bbq__mas">+'+(es.length-4)+'</i>':'')+'</span>'+
+        '<b>'+plEsc(t.etiqueta||'BLOQUE')+'</b><small>'+(n? n+(n===1?' EJERCICIO':' EJERCICIOS')+' · '+t.sets+' SETS' : 'SIN EJERCICIOS AÚN')+'</small></button>'
+    }).join('')+'</div>' : '<div class="vacio">Sin bloques prediseñados aún.</div>'
   }catch(e){ el.innerHTML='<div class="vacio">No pudimos cargar la biblioteca.</div>' }
 }
 async function verTpl(tplId){
