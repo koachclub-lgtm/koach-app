@@ -3478,6 +3478,33 @@ html.fx-edit #vPlan.plDesk .tbHead{grid-template-columns:minmax(0,1fr) auto auto
 #vPlan.plTb #plWork.dsOn .tbHead{grid-template-columns:auto auto minmax(0,1fr) !important;row-gap:10px}
 #vPlan.plTb #plWork.dsOn .tbHead>.tbChipsW{grid-column:1 / -1}
 #vPlan.plTb #plWork.dsOn .tbHead>.tbSelC{min-width:0}
+/* c319 · guardar como bloque prediseñado */
+#mTplSave .tps{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:min(980px,calc(100vw - 32px));max-height:92vh;overflow:auto;border-radius:28px;border:1px solid rgba(244,243,240,.14);background:linear-gradient(160deg,#1B1C1E,#0B0C0D);color:#F4F3F0;padding:22px 24px 24px;box-shadow:0 30px 90px rgba(0,0,0,.6)}
+.tps__h{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;margin-bottom:18px}
+.tps__h small{display:block;font:700 10px 'Space Mono',monospace;letter-spacing:.18em;color:rgba(244,243,240,.55)}
+.tps__h b{display:block;font-family:'KOACH Display','Archivo',sans-serif;font-weight:900;font-size:clamp(22px,2.6vw,30px);background:linear-gradient(180deg,#FFF 0%,#C9CBCF 45%,#FFF 58%,#979C9F 100%);-webkit-background-clip:text;background-clip:text;color:transparent}
+.tps__g{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.1fr);gap:22px}
+.tps__k{display:block;font:700 10px 'Space Mono',monospace;letter-spacing:.16em;color:rgba(244,243,240,.6);margin-bottom:10px}
+.tps__l{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px}
+.tps__l li{display:grid;grid-template-columns:auto minmax(0,1fr) auto auto;align-items:center;gap:10px;padding:12px 14px;border-radius:16px;border:1px solid rgba(244,243,240,.12);background:rgba(255,255,255,.035)}
+.tps__l em{font:700 10px 'Space Mono',monospace;font-style:normal;color:rgba(244,243,240,.45)}
+.tps__l b{font-weight:700;font-size:15px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.tps__l span{font:700 9.5px 'Space Mono',monospace;letter-spacing:.08em;color:rgba(244,243,240,.55)}
+.tps__l i{font:700 11px 'Space Mono',monospace;font-style:normal;padding:4px 10px;border-radius:999px;border:1px solid rgba(244,243,240,.2)}
+.tps__l li.vac{display:block;color:rgba(244,243,240,.55)}
+.tps__n{margin-top:12px;font:400 11.5px/1.5 'Space Mono',monospace;color:rgba(244,243,240,.6)}.tps__n b{color:#F4F3F0}
+.tps__in{width:100%;min-height:56px;border-radius:16px;border:1px solid rgba(244,243,240,.25) !important;background:rgba(255,255,255,.05) !important;color:#F4F3F0 !important;padding:0 18px;font:700 16px 'Space Mono',monospace;letter-spacing:.04em;text-transform:uppercase}
+.tps__in:focus{outline:none;border-color:#F4F3F0}
+.tps__c{display:flex;flex-wrap:wrap;gap:8px}
+.tps__c button{min-height:46px;padding:0 18px;border-radius:999px;border:1px solid rgba(244,243,240,.25);background:transparent;color:#F4F3F0;font:700 11px 'Space Mono',monospace;letter-spacing:.1em;cursor:pointer}
+.tps__c button.on{background:#F4F3F0;color:#000;border-color:#F4F3F0}
+.tps__err{min-height:18px;margin:12px 0 4px;color:#FF4200;font:400 11.5px 'Space Mono',monospace}
+.tps__b{display:grid;grid-template-columns:1fr 1.6fr;gap:10px}
+.tps__b button{min-height:56px;border-radius:999px;font:700 12px 'Space Mono',monospace;letter-spacing:.12em;cursor:pointer}
+.tps__no{border:1px solid rgba(244,243,240,.25);background:transparent;color:#F4F3F0}
+.tps__ok{border:0;background:linear-gradient(115deg,#8E9397,#F4F5F6 35%,#A9ADB0 60%,#E9EBEC);color:#000}
+.tps__ok:disabled{background:#2A2C2F;color:rgba(244,243,240,.4);cursor:not-allowed}
+@media (max-width:760px){ .tps__g{grid-template-columns:1fr} #mTplSave .tps{top:auto;bottom:0;transform:translateX(-50%);border-radius:24px 24px 0 0;width:100%} }
 /* tarjetas de sesión compactas como selector */
 html.fx-edit #vFicha .tb2{gap:8px !important}
 html.fx-edit #vFicha .tc{min-height:0 !important;border-radius:18px !important;box-shadow:none !important;transition:background .2s,border-color .2s,transform .2s}
@@ -4323,13 +4350,18 @@ textarea.avz__in{min-height:70px;resize:vertical}
     <button class="bbtn ink" id="obAplicar" onclick="guardarOrdenBloques()" style="flex:1.4" disabled>APLICAR CAMBIOS</button>
   </div>
 </div></div>
-<!-- MODAL GUARDAR COMO PREDISEÑADO -->
-<div id="mTplSave" style="display:none;position:fixed;inset:0;z-index:75;background:rgba(18,18,16,.45);backdrop-filter:blur(6px)"><div style="position:absolute;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:560px;background:var(--koach-surface);border-radius:10px 10px 0 0;padding:18px 16px 22px;max-height:86vh;overflow:auto">
-  <div style="font-size:8px;letter-spacing:.18em;font-weight:900;color:var(--koach-text-secondary);margin-bottom:12px">GUARDAR COMO BLOQUE PREDISEÑADO</div>
-  <input id="tplNom" placeholder="Nombre (ej: GLUTES HIP THRUST 01)" style="width:100%;border:1.5px solid rgba(18,18,16,.14);border-radius:10px;padding:13px;font-size:12px;font-weight:800;background:none;margin-bottom:14px">
-  <div style="display:flex;gap:10px">
-    <button class="bbtn" onclick="document.getElementById('mTplSave').style.display='none'" style="flex:1">CANCELAR</button>
-    <button class="bbtn ink" onclick="confirmarTpl()" style="flex:1.4">GUARDAR</button>
+<!-- MODAL GUARDAR COMO PREDISEÑADO · c319 -->
+<div id="mTplSave" style="display:none;position:fixed;inset:0;z-index:75;background:rgba(0,0,0,.62);backdrop-filter:blur(10px)" onclick="if(event.target===this)this.style.display='none'"><div class="tps" role="dialog" aria-modal="true" aria-labelledby="tpsT">
+  <div class="tps__h"><div><small>BIBLIOTECA DE BLOQUES</small><b id="tpsT">GUARDAR COMO PREDISEÑADO</b></div><button type="button" class="bbq__x" aria-label="Cerrar" onclick="document.getElementById('mTplSave').style.display='none'">✕</button></div>
+  <div class="tps__g">
+    <section><div class="tps__k">EJERCICIOS QUE SE GUARDAN</div><ol class="tps__l" id="tpsL"></ol><div class="tps__n">Se guarda <b>sin pesos</b>: al usarlo, cada socio toma sus kg sugeridos según sus registros.</div></section>
+    <section><label class="tps__k" for="tplNom">NOMBRE DEL BLOQUE</label>
+      <input id="tplNom" class="tps__in" placeholder="Ej: GLUTES HIP THRUST 01" autocomplete="off" oninput="tpsValidar()">
+      <div class="tps__k" style="margin-top:18px">CATEGORÍA</div>
+      <div class="tps__c" id="tpsC" role="radiogroup" aria-label="Categoría"></div>
+      <div class="tps__err" id="tpsErr" role="alert"></div>
+      <div class="tps__b"><button type="button" class="tps__no" onclick="document.getElementById('mTplSave').style.display='none'">CANCELAR</button><button type="button" class="tps__ok" id="tpsOk" onclick="confirmarTpl()" disabled>GUARDAR PREDISEÑADO →</button></div>
+    </section>
   </div>
 </div></div>
 <!-- ACTION MENU RUTINA -->
@@ -7405,14 +7437,15 @@ async function clonarTpl(tplId){
   if (rbi!=null && ses.bloques[rbi].items.length && !await kConfirm('¿Reemplazar B'+(rbi+1)+' ('+ses.bloques[rbi].items.length+' ejercicio(s)) por este prediseñado?\nQueda en borrador hasta PUBLICAR.')) return
   const [rt, rb] = await Promise.all([
     sb.from('bloques').select('etiqueta, rol, sets, descanso_seg, descanso_segundos, timer').eq('id',tplId).single(),
-    sb.from('bloque_ejercicios').select('ejercicio_id, orden, reps_txt, kg_objetivo, ejercicios(id,nombre,grupo_muscular,sinergistas,tipo_registro,con_carga,cuenta_dosis,activo)').eq('bloque_id',tplId).order('orden') ])
+    sb.from('bloque_ejercicios').select('ejercicio_id, orden, reps_txt, kg_objetivo, modo_registro, es_ancla, rir_objetivo, ejercicios(id,nombre,grupo_muscular,sinergistas,tipo_registro,con_carga,cuenta_dosis,activo)').eq('bloque_id',tplId).order('orden') ])
   if (rt.error||rb.error){ console.error('[bloques prediseñados] usar', rt.error||rb.error); toast('No pudimos agregar el bloque. Intenta nuevamente.'); return }
   const t=rt.data, nid=(rbi!=null?ses.bloques[rbi].id:plUuid())
   const nb={ id:nid, bId:nid, tag:'B'+(rbi!=null?rbi+1:ses.bloques.length+1), rol:t.rol, etiqueta:t.etiqueta, sets:t.sets,
     desc:(t.descanso_seg!=null?t.descanso_seg:t.descanso_segundos)||60, timer:(t.timer||null),
     items:(rb.data||[]).map(function(x,ix){ const e=x.ejercicios||{}; return { beId:plUuid(), ejId:x.ejercicio_id, nombre:e.nombre||'—', grupo:e.grupo_muscular||'',
-      sinergistas:e.sinergistas||{}, kg:(x.kg_objetivo!=null?x.kg_objetivo:null), orden:ix+1, tipoReg:e.tipo_registro||null, conCarga:e.con_carga, cuentaDosis:e.cuenta_dosis,
-      activo:e.activo, reps:(x.reps_txt||'10') } }) }
+      // c319 · el prediseñado no trae pesos: se usan los kg sugeridos del socio según sus registros (si no tiene, queda vacío)
+      sinergistas:e.sinergistas||{}, kg:(x.kg_objetivo!=null?x.kg_objetivo:(function(){ try{ return (e.con_carga!==false && !P.base && !P.bib) ? cgSugerida(x.ejercicio_id, x.reps_txt||'10') : null }catch(_){ return null } })()), orden:ix+1, tipoReg:e.tipo_registro||null, conCarga:e.con_carga, cuentaDosis:e.cuenta_dosis,
+      activo:e.activo, reps:(x.reps_txt||'10'), modo:x.modo_registro||null, ancla:!!x.es_ancla, rir:x.rir_objetivo||null } }) }
   if (rbi!=null) ses.bloques.splice(rbi,1,nb); else ses.bloques.push(nb)
   TPL.reemplazar=null
   document.getElementById('mBibBloq').style.display='none'
@@ -7426,21 +7459,34 @@ async function borrarTpl(tplId){
   toast('Prediseñado eliminado.'); abrirBibBloq()
 }
 let TPL={bi:null, reemplazar:null}
-function abrirTplSave(bi){ TPL.bi=bi; document.getElementById('tplNom').value=''; document.getElementById('mTplSave').style.display='block' }
+const TPS_CATS=['WARM UP','UPPER','LOWER','CARDIO','CORE','FULL BODY','DROP SET']
+function abrirTplSave(bi){ TPL.bi=bi; TPL.cat=null
+  const b=P.sesiones[P.tab] && P.sesiones[P.tab].bloques[bi]; if(!b) return
+  document.getElementById('tplNom').value=(b.etiqueta && !/^B\d+$/i.test(b.etiqueta)) ? String(b.etiqueta).toUpperCase() : ''
+  document.getElementById('tpsL').innerHTML=(b.items||[]).map(function(it,i){ return '<li><em>'+String(i+1).padStart(2,'0')+'</em><b>'+plEsc(it.nombre||'—')+'</b><span>'+plEsc(SIGLA[it.grupo]||it.grupo||'')+'</span><i>'+plEsc(String(it.reps||''))+(/^(seg|time)/i.test(String(it.modo||it.tipoReg||''))?'″':' REPS')+'</i></li>' }).join('') || '<li class="vac">El bloque no tiene ejercicios.</li>'
+  document.getElementById('tpsC').innerHTML=TPS_CATS.map(function(c){ return '<button type="button" role="radio" aria-checked="false" onclick="tpsCat(\''+c+'\',this)">'+c+'</button>' }).join('')
+  document.getElementById('tpsErr').textContent=''; tpsValidar()
+  document.getElementById('mTplSave').style.display='block'; setTimeout(function(){ try{ document.getElementById('tplNom').focus() }catch(_){} },60) }
+function tpsCat(c,btn){ TPL.cat=c; document.querySelectorAll('#tpsC button').forEach(function(x){ const on=x===btn; x.classList.toggle('on',on); x.setAttribute('aria-checked',on) }); tpsValidar() }
+function tpsValidar(){ const ok=!!(document.getElementById('tplNom').value||'').trim() && !!TPL.cat; const b=document.getElementById('tpsOk'); if(b) b.disabled=!ok }
 async function confirmarTpl(){
-  const nom=(document.getElementById('tplNom').value||'').trim()
-  if (!nom){ toast('Ponle un nombre al bloque.'); return }
+  const nom=(document.getElementById('tplNom').value||'').trim(), er=document.getElementById('tpsErr')
+  if (!nom){ er.textContent='Ponle un nombre al bloque.'; return }
+  if (!TPL.cat){ er.textContent='Elige la categoría del bloque.'; return }
   const b=P.sesiones[P.tab] && P.sesiones[P.tab].bloques[TPL.bi]
-  if (!b){ return }
-  if (!b.items || !b.items.length){ toast('El bloque no tiene ejercicios: agrega al menos uno antes de guardarlo.'); return }
+  if (!b) return
+  if (!b.items || !b.items.length){ er.textContent='El bloque no tiene ejercicios: agrega al menos uno antes de guardarlo.'; return }
+  // c319 · se guarda EXACTAMENTE lo que se ve en el editor (aunque no esté publicado) y sin pesos
+  const items=b.items.map(function(it){ return { ejercicio_id:it.ejId, reps:(it.reps==null?'':String(it.reps)), modo:it.modo||null, ancla:!!it.ancla, rir:it.rir||null } })
+  const btn=document.getElementById('tpsOk'); if(btn){ btn.disabled=true; btn.textContent='GUARDANDO…' }
   syncEnvio()
-  // copia independiente y atómica en la base (bloque + ejercicios en una transacción)
-  const r=await sb.rpc('koach_guardar_bloque_tpl',{p_bloque:b.bId, p_nombre:nom})
+  const r=await sb.rpc('koach_guardar_bloque_tpl_v2',{ p_nombre:nom, p_categoria:TPL.cat, p_sets:b.sets||3, p_desc:(b.desc==null?null:b.desc), p_timer:b.timer||null, p_items:items })
+  if (btn){ btn.textContent='GUARDAR PREDISEÑADO →'; tpsValidar() }
   if (r.error){
     console.error('[bloques prediseñados] guardar', {code:r.error.code, message:r.error.message, details:r.error.details, hint:r.error.hint})
-    syncErr(r.error.message); toast('No pudimos guardar este bloque. Intenta nuevamente.'); return }
+    syncErr(r.error.message); er.textContent='No pudimos guardar este bloque. Intenta nuevamente.'; return }
   syncOk(); document.getElementById('mTplSave').style.display='none'
-  toast('Bloque guardado como prediseñado.')
+  toast('Guardado en '+TPL.cat+' · '+nom.toUpperCase()+' · '+items.length+' ejercicios')
 }
 // ═══ ORGANIZADOR DE BLOQUES (nivel 2 de la playlist) ═══
 const OB={orden:[], bloqueado:false}
