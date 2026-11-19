@@ -6840,7 +6840,7 @@ function pintarBienvenida(msg){
     '</div></section>'+
     '<section class="k2-sec"><div class="k2-sec__h">'+k2Label('TU ACTIVACIÓN')+'</div><ol class="bv__ps">'+
       paso(true,'Cuenta creada','Tus datos quedaron registrados.')+
-      paso(memOk,'Membresía','Se activa en recepción con tu primer pago.')+
+      paso(memOk, memOk?'Membresía pagada':'Membresía', memOk ? (S.memVig.estado_calc==='futura' ? 'Comienza el '+_fm(S.memVig.fecha_inicio)+', en tu sesión introductoria.' : 'Tu pago está registrado.') : 'Se activa con tu primer pago.')+
       paso(false,'Tu protocolo','Tu koach elige programa, nivel y semanas según tu evaluación.')+
       paso(false,'A entrenar','Tus sesiones, cargas y progreso aparecen aquí.')+
     '</ol></section>'+
@@ -10591,7 +10591,7 @@ function accTxt(a){
   return e==='pago_pendiente' ? { t:'TU PAGO ESTÁ PENDIENTE', b:'Tu membresía está registrada, pero el pago aún no. Regularízalo en recepción para ver tu rutina y tu credencial.' }
     : e==='vencida' ? { t:'TU MEMBRESÍA VENCIÓ'+(v?' EL '+v:''), b:'Renueva en recepción para volver a ver tu rutina y tu credencial. Tu historial y tu progreso siguen guardados.' }
     : e==='congelada' ? { t:'TU MEMBRESÍA ESTÁ EN PAUSA', b:'Tu rutina vuelve a estar disponible cuando termine la pausa.' }
-    : e==='futura' ? { t:'TU MEMBRESÍA COMIENZA EL '+(a.inicia?_fm(a.inicia).toUpperCase():'PRÓXIMO PERÍODO'), b:'Desde ese día verás tu rutina y tu credencial.' }
+    : e==='futura' ? { t:'MEMBRESÍA PAGADA ✓ · COMIENZA EL '+(a.inicia?_fm(a.inicia).toUpperCase():'PRÓXIMO PERÍODO'), b:'Tu pago está registrado. Tu plan empieza a correr desde tu sesión introductoria: ese día tu koach activa tu rutina y tu credencial.' }
     : { t:'TU PAGO NO ESTÁ REGISTRADO', b:'Para ver tu rutina y tu credencial, tu membresía debe estar pagada. Acércate a recepción o habla con tu koach para regularizarla.' }
 }
 // Bloqueo: los menús siguen visibles, pero HOY · PLAN · AVANCES y la credencial muestran solo el candado
