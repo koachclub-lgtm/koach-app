@@ -3473,6 +3473,11 @@ html.fx-edit #vPlan.plDesk .tbHead{grid-template-columns:minmax(0,1fr) auto auto
 .vtDesde button{display:flex;flex-direction:column;align-items:flex-start;gap:2px;min-height:56px;padding:8px 16px;text-align:left}
 .vtDesde button b{font:700 11px 'Space Mono',monospace;letter-spacing:.06em}.vtDesde button span{font:400 10.5px 'Space Mono',monospace;opacity:.75}
 .vtWarn{display:block;margin-top:6px;color:#FF4200;font:400 11px 'Space Mono',monospace}
+/* c318 · dosificador acoplado: nunca se sale de la pantalla y la cabecera de la sesión se reordena para el ancho que queda */
+#vPlan.plTb #plWork.dsOn #pVivo{position:sticky;top:12px;max-height:calc(100dvh - 24px);overflow-y:auto !important;overscroll-behavior:contain}
+#vPlan.plTb #plWork.dsOn .tbHead{grid-template-columns:auto auto minmax(0,1fr) !important;row-gap:10px}
+#vPlan.plTb #plWork.dsOn .tbHead>.tbChipsW{grid-column:1 / -1}
+#vPlan.plTb #plWork.dsOn .tbHead>.tbSelC{min-width:0}
 /* tarjetas de sesión compactas como selector */
 html.fx-edit #vFicha .tb2{gap:8px !important}
 html.fx-edit #vFicha .tc{min-height:0 !important;border-radius:18px !important;box-shadow:none !important;transition:background .2s,border-color .2s,transform .2s}
