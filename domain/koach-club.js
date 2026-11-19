@@ -120,6 +120,13 @@ html.en-club .wrap{padding:0!important}
 .kcHm__ft{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:16px}
 .kcHm__st{font:700 9px/1.5 'Space Mono',monospace;letter-spacing:.14em;color:#979C9F;text-transform:uppercase}
 .kcHm__st b{color:#F2F2F2}
+.kcHm__rk{list-style:none;margin:14px 0 0;padding:0;max-width:260px;position:relative;z-index:1}
+.kcHm__rk li{display:grid;grid-template-columns:26px 1fr auto;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid rgba(255,255,255,.1);font:700 12px/1 'KOACH Display',sans-serif}
+.kcHm__rk li i{font:700 10px/1 'Space Mono',monospace;color:#979C9F;font-style:normal}
+.kcHm__rk li:first-child i{color:#FF3D9A}
+.kcHm__rk li span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.kcHm__rk li b{font:900 15px/1 'KOACH Display',sans-serif}
+.kcHm__rk li.yo span,.kcHm__rk li.yo b{color:#3EC6B0}
 .kcHm__go{display:inline-flex;align-items:center;min-height:42px;padding:0 18px;border-radius:999px;background:#F2F2F2;color:#0B0C0E;font:700 11px/1 'Space Mono',monospace;letter-spacing:.14em;box-shadow:0 0 0 1px #3EC6B0}
 
 .kcR .kcSun{opacity:.32;top:24%}
@@ -130,7 +137,9 @@ html.en-club .wrap{padding:0!important}
 
   /* ── datos ── */
   async function rpc(n, a) { var r = await cli().rpc(n, a || {}); if (r.error) throw r.error; return r.data }
-  async function cargarEstado() { try { K.st = await rpc('club_estado'); K.ch = K.st && K.st.challenge || null } catch (e) { console.error('club_estado', e); K.st = K.st || null } marcarTab(); try { pintarHome() } catch (_) {} return K.st }
+  async function cargarEstado() { try { K.st = await rpc('club_estado'); K.ch = K.st && K.st.challenge || null } catch (e) { console.error('club_estado', e); K.st = K.st || null }
+    if (K.ch) try { K.rank = await rpc('club_ranking', { p_challenge: K.ch.id }) || [] } catch (_) {}
+    marcarTab(); try { pintarHome() } catch (_) {} return K.st }
   async function cargarListas() {
     if (!K.ch) { K.rank = []; K.feed = []; return }
     var r = await Promise.all([rpc('club_ranking', { p_challenge: K.ch.id }).catch(function () { return [] }), rpc('club_feed', { p_challenge: K.ch.id, p_limit: 40 }).catch(function () { return [] })])
@@ -192,6 +201,7 @@ html.en-club .wrap{padding:0!important}
     h += '<div class="kcSec"><span>EN VIVO · CHALLENGE</span></div>'
     h += K.feed.length ? K.feed.map(evento).join('') : '<div class="kcVac">AQUÍ APARECE QUIÉN ENTRA AL CHALLENGE Y CADA MARCA.</div>'
     v.innerHTML = h + '</div>'
+    if (K.irRanking) { K.irRanking = false; var r = v.querySelector('.kcSec'); if (r) setTimeout(function () { r.scrollIntoView({ behavior: 'smooth', block: 'start' }) }, 120) }
   }
   function posNum() { var y = K.rank.filter(function (x) { return x.yo })[0]; return y ? y.pos : null }
   function posTxt() { var y = K.rank.filter(function (x) { return x.yo })[0]; return y ? 'POSICIÓN #' + y.pos + ' DE ' + K.rank.length : '' }
@@ -232,15 +242,21 @@ html.en-club .wrap{padding:0!important}
     return '<div class="kcBg" aria-hidden="true"><div class="kcSun"></div><div class="kcGrid"></div></div><div class="kcHm__in">' +
       '<div class="kcHm__hd"><span>1% CLUB · CHALLENGE</span><span>' + (ch.abierto ? 'HASTA EL ' + cierre : 'RESULTADOS') + '</span></div>' +
       '<div class="kcHm__t">' + esc(a) + '<small>' + esc(b) + '</small></div>' +
-      '<p class="kcHm__d">' + esc(ch.descripcion || '') + '</p>' +
+      '<p class="kcHm__d">' + esc(ch.descripcion || '') + '</p>' + top3() +
       '<div class="kcHm__ft"><span class="kcHm__st">' + (mia ? 'TU MARCA <b>' + mia.score + '</b>' : '<b>' + (st.participantes || 0) + '</b> MARCAS') + '<br><b>' + (st.miembros || 0) + '</b> EN EL CLUB</span>' +
-      '<span class="kcHm__go">' + (ch.abierto ? (mia ? 'VER RANKING' : 'ENTRAR') : 'VER RESULTADOS') + '</span></div></div>'
+      '<span class="kcHm__go">' + (K.rank.length ? 'VER RANKING' : (ch.abierto ? 'ENTRAR' : 'VER RESULTADOS')) + '</span></div></div>'
+  }
+  function top3() {
+    var t = K.rank.slice(0, 3); if (!t.length) return ''
+    var y = K.rank.filter(function (x) { return x.yo })[0]
+    return '<ol class="kcHm__rk">' + t.map(function (x) { return '<li' + (x.yo ? ' class="yo"' : '') + '><i>' + String(x.pos).padStart(2, '0') + '</i><span>' + esc(x.nombre) + '</span><b>' + x.score + '</b></li>' }).join('') +
+      (y && y.pos > 3 ? '<li class="yo"><i>' + String(y.pos).padStart(2, '0') + '</i><span>TÚ</span><b>' + y.score + '</b></li>' : '') + '</ol>'
   }
   function pintarHome() {
     var nu = $('nuHm'), card = $('kcHm'), html = homeHTML()
     if (!html) { if (card) card.remove(); return }
     if (!nu) return
-    if (!card) { card = document.createElement('button'); card.type = 'button'; card.id = 'kcHm'; card.className = 'kcHm'; card.setAttribute('aria-label', 'Entrar al 1% Club'); card.onclick = function () { tab('vClub') } }
+    if (!card) { card = document.createElement('button'); card.type = 'button'; card.id = 'kcHm'; card.className = 'kcHm'; card.setAttribute('aria-label', 'Entrar al 1% Club'); card.onclick = function () { K.irRanking = K.rank.length > 0; tab('vClub') } }
     if (nu.nextSibling !== card) nu.parentNode.insertBefore(card, nu.nextSibling)
     if (card._h !== html) { card.innerHTML = html; card._h = html }
   }
