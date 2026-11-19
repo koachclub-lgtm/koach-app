@@ -108,6 +108,20 @@ html.en-club .wrap{padding:0!important}
 .kcRe button[aria-pressed=true]{border-color:#3EC6B0;color:#3EC6B0;background:rgba(62,198,176,.1)}
 .kcVac{font:700 9.5px/1.7 'Space Mono',monospace;letter-spacing:.08em;color:#979C9F;padding:14px;text-align:center;border:1px dashed rgba(255,255,255,.15);border-radius:10px}
 .kcConf{position:fixed;inset:0;pointer-events:none;z-index:96}
+.kcHm{position:relative;overflow:hidden;border-radius:22px;margin:0 0 var(--k2-s4,14px);padding:18px 20px;background:linear-gradient(180deg,#0B0C0E 0%,#1A1C20 100%);color:#F2F2F2;cursor:pointer;text-align:left;display:block;width:100%;border:0;box-sizing:border-box}
+.kcHm .kcSun{left:auto;right:-46px;top:50%;width:170px;transform:translateY(-50%);opacity:.75}
+.kcHm .kcGrid{height:46%;opacity:.6}
+.kcHm__in{position:relative;z-index:1}
+.kcHm__hd{display:flex;justify-content:space-between;align-items:center;font:700 10px/1 'Space Mono',monospace;letter-spacing:.18em;color:#3EC6B0}
+.kcHm__hd span:last-child{color:#979C9F}
+.kcHm__t{margin:12px 0 0;font:900 34px/.9 'KOACH Display',sans-serif;font-stretch:115%;transform:skewX(-8deg);transform-origin:left;color:#fff;text-shadow:0 0 12px rgba(255,61,154,.6),3px 3px 0 #FF3D9A}
+.kcHm__t small{display:block;font:700 11px/1 'Space Mono',monospace;letter-spacing:.38em;color:#3EC6B0;text-shadow:none;margin-top:8px}
+.kcHm__d{margin:12px 0 0;font:700 13px/1.35 'KOACH Display',sans-serif;max-width:250px}
+.kcHm__ft{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:16px}
+.kcHm__st{font:700 9px/1.5 'Space Mono',monospace;letter-spacing:.14em;color:#979C9F;text-transform:uppercase}
+.kcHm__st b{color:#F2F2F2}
+.kcHm__go{display:inline-flex;align-items:center;min-height:42px;padding:0 18px;border-radius:999px;background:#F2F2F2;color:#0B0C0E;font:700 11px/1 'Space Mono',monospace;letter-spacing:.14em;box-shadow:0 0 0 1px #3EC6B0}
+
 .kcR .kcSun{opacity:.32;top:24%}
 `
   function estilos() { if ($('kcCss')) return; var s = document.createElement('style'); s.id = 'kcCss'; s.textContent = css; document.head.appendChild(s) }
@@ -116,7 +130,7 @@ html.en-club .wrap{padding:0!important}
 
   /* ── datos ── */
   async function rpc(n, a) { var r = await cli().rpc(n, a || {}); if (r.error) throw r.error; return r.data }
-  async function cargarEstado() { try { K.st = await rpc('club_estado'); K.ch = K.st && K.st.challenge || null } catch (e) { console.error('club_estado', e); K.st = K.st || null } marcarTab(); return K.st }
+  async function cargarEstado() { try { K.st = await rpc('club_estado'); K.ch = K.st && K.st.challenge || null } catch (e) { console.error('club_estado', e); K.st = K.st || null } marcarTab(); try { pintarHome() } catch (_) {} return K.st }
   async function cargarListas() {
     if (!K.ch) { K.rank = []; K.feed = []; return }
     var r = await Promise.all([rpc('club_ranking', { p_challenge: K.ch.id }).catch(function () { return [] }), rpc('club_feed', { p_challenge: K.ch.id, p_limit: 40 }).catch(function () { return [] })])
@@ -138,7 +152,7 @@ html.en-club .wrap{padding:0!important}
   }
   function marcarTab() {
     var b = $('tb-vClub'); if (!b) return
-    var dot = b.querySelector('.kcDot'), pend = !!(K.ch && K.ch.abierto && !(K.st && K.st.mia))
+    var dot = b.querySelector('.kcDot'), pend = false
     if (pend && !dot) { dot = document.createElement('i'); dot.className = 'kcDot'; b.appendChild(dot) } else if (!pend && dot) dot.remove()
   }
 
@@ -208,8 +222,40 @@ html.en-club .wrap{padding:0!important}
     return true
   }
 
+
+  /* ── tarjeta en el Home (debajo de TU NUTRICIÓN DEL DÍA): entrada al 1% CLUB, sin avisos ── */
+  function homeHTML() {
+    var st = K.st || {}, ch = K.ch, mia = st.mia
+    if (!ch) return ''
+    var cierre = ['DOM', 'LUN', 'MAR', 'MIÉ', 'JUE', 'VIE', 'SÁB'][new Date(ch.fin).getDay()]
+    var t = String(ch.titulo || '').split(' '), a = t.shift() || '', b = t.join(' ')
+    return '<div class="kcBg" aria-hidden="true"><div class="kcSun"></div><div class="kcGrid"></div></div><div class="kcHm__in">' +
+      '<div class="kcHm__hd"><span>1% CLUB · CHALLENGE</span><span>' + (ch.abierto ? 'HASTA EL ' + cierre : 'RESULTADOS') + '</span></div>' +
+      '<div class="kcHm__t">' + esc(a) + '<small>' + esc(b) + '</small></div>' +
+      '<p class="kcHm__d">' + esc(ch.descripcion || '') + '</p>' +
+      '<div class="kcHm__ft"><span class="kcHm__st">' + (mia ? 'TU MARCA <b>' + mia.score + '</b>' : '<b>' + (st.participantes || 0) + '</b> MARCAS') + '<br><b>' + (st.miembros || 0) + '</b> EN EL CLUB</span>' +
+      '<span class="kcHm__go">' + (ch.abierto ? (mia ? 'VER RANKING' : 'ENTRAR') : 'VER RESULTADOS') + '</span></div></div>'
+  }
+  function pintarHome() {
+    var nu = $('nuHm'), card = $('kcHm'), html = homeHTML()
+    if (!html) { if (card) card.remove(); return }
+    if (!nu) return
+    if (!card) { card = document.createElement('button'); card.type = 'button'; card.id = 'kcHm'; card.className = 'kcHm'; card.setAttribute('aria-label', 'Entrar al 1% Club'); card.onclick = function () { tab('vClub') } }
+    if (nu.nextSibling !== card) nu.parentNode.insertBefore(card, nu.nextSibling)
+    if (card._h !== html) { card.innerHTML = html; card._h = html }
+  }
+  function vigilarHome() {
+    var h = $('vHome'); if (!h || K.obs) return
+    var pend = false
+    K.obs = new MutationObserver(function () { if (pend) return; pend = true; requestAnimationFrame(function () { pend = false; pintarHome() }) })
+    K.obs.observe(h, { childList: true, subtree: true })
+    pintarHome()
+  }
+
   /* ── pantalla especial al iniciar la sesión ── */
+  var GATE_ON = false   // 19-nov: no abrir el challenge solo al tocar START; se entra desde la tarjeta del Home o la pestaña 1% CLUB
   function gateAplica() {
+    if (!GATE_ON) return false
     var p = perfil(); if (!p || !K.ch || !K.ch.abierto || (K.st && K.st.mia)) return false
     try { if (localStorage.getItem('kc_gate_' + K.ch.slug) === hoy()) return false } catch (_) {}
     return true
@@ -376,7 +422,7 @@ html.en-club .wrap{padding:0!important}
       if (!cli() || !perfil() || !$('tabbar')) return
       clearInterval(t)
       if (!enganchar()) return
-      montarTab(); cargarEstado()
+      montarTab(); vigilarHome(); cargarEstado()
       setInterval(function () { if (!document.hidden && perfil()) cargarEstado() }, 300000)
     }, 500)
   }
