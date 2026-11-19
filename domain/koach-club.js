@@ -66,19 +66,29 @@
 #tb-vClub{position:relative}
 #tb-vClub .kcDot{position:absolute;top:5px;right:22%;width:7px;height:7px;border-radius:50%;background:#3EC6B0;box-shadow:0 0 6px #3EC6B0}
 /* vista 1% CLUB */
-#vClub{min-height:100vh;background:linear-gradient(180deg,#15171A 0%,#22252A 60%,#2E3135 100%);color:#F2F2F2;padding:calc(16px + env(safe-area-inset-top,0px)) 16px calc(120px + env(safe-area-inset-bottom,0px));box-sizing:border-box}
-#vClub .kcTop{display:flex;justify-content:center;margin-bottom:18px}#vClub .kcTop img{height:18px}
-.kcH{font:900 34px/1 'KOACH Display',sans-serif;font-stretch:115%;margin:0}
-.kcHs{font:700 9.5px/1.5 'Space Mono',monospace;letter-spacing:.16em;color:#979C9F;margin:6px 0 18px}
-.kcCard{position:relative;overflow:hidden;border-radius:14px;padding:20px 18px;margin-bottom:14px;background:linear-gradient(180deg,#0B0C0E,#1D1F23);border:1px solid rgba(62,198,176,.35)}
-.kcCard .kcBg .kcSun{top:22%;width:220px}.kcCard .kcBg .kcGrid{height:60%}
-.kcCard .kcIn{padding:0;min-height:0;align-items:stretch;text-align:left}
-.kcCard .kcT b{font-size:64px}.kcCard .kcT span{font-size:13px;margin-top:8px}
-.kcMia{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:16px;padding:12px 14px;border-radius:10px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12)}
+html.en-club,html.en-club body{background:#111215!important}
+html.en-club .wrap{padding:0!important}
+#vClub{min-height:100dvh;background:#111215;color:#F2F2F2;padding:0 0 calc(118px + env(safe-area-inset-bottom,0px));box-sizing:border-box}
+.kcHero{position:relative;overflow:hidden;padding:calc(14px + env(safe-area-inset-top,0px)) 18px 22px;background:linear-gradient(180deg,#0B0C0E 0%,#15171A 70%,#111215 100%);text-align:center}
+.kcHero .kcSun{top:178px;width:250px}.kcHero .kcGrid{height:34%;bottom:-2%}
+.kcHero .kcIn{padding:0;min-height:0}
+.kcHero .kcTop{display:flex;justify-content:center;width:100%;margin-bottom:26px}
+.kcHero .kcTop img{height:17px}
+.kcHero .kcTop span{font:700 9px/1 'Space Mono',monospace;letter-spacing:.16em;color:#979C9F}
+.kcHero .kcTop span b{color:#F2F2F2}
+.kcHero .kcT b{font-size:clamp(92px,30vw,128px)}.kcHero .kcT span{font-size:15px;margin-top:10px}
+.kcHero .kcD{margin:22px 0 4px;font-size:16px}
+.kcHero .kcS{text-transform:uppercase;font-size:9.5px;letter-spacing:.08em}
+.kcHero .kcStats{width:100%;max-width:400px;display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.kcHero .kcStats div{min-width:0;padding:10px 6px;background:rgba(17,18,21,.72);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px)}
+.kcHero .kcStats b{font-size:20px}
+.kcHero .kcAct{margin-top:14px;padding-top:0}
+.kcBody{padding:6px 16px 0}
+.kcMia{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:10px;width:100%;max-width:400px;box-sizing:border-box;text-align:left;padding:12px 14px;border-radius:10px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12)}
 .kcMia b{font-size:30px;font-weight:900}.kcMia small{display:block;font:700 8.5px/1.4 'Space Mono',monospace;letter-spacing:.14em;color:#979C9F}
 .kcEst{font:700 8.5px/1 'Space Mono',monospace;letter-spacing:.12em;padding:6px 8px;border-radius:999px;border:1px solid}
 .kcEst--ok{color:#3EC6B0;border-color:#3EC6B0}.kcEst--pend{color:#C9CCCF;border-color:#6F7377}
-.kcSec{font:700 10px/1 'Space Mono',monospace;letter-spacing:.2em;color:#979C9F;margin:22px 2px 10px;display:flex;justify-content:space-between;align-items:center}
+.kcSec{font:700 10px/1 'Space Mono',monospace;letter-spacing:.2em;color:#979C9F;margin:20px 0 10px;display:flex;justify-content:space-between;align-items:center}
 .kcSeg{display:flex;gap:6px}.kcSeg button{border:1px solid rgba(255,255,255,.2);background:transparent;color:#C9CCCF;border-radius:999px;padding:7px 11px;font:700 9px/1 'Space Mono',monospace;letter-spacing:.1em;cursor:pointer}
 .kcSeg button[aria-pressed=true]{background:#F2F2F2;color:#0B0C0E;border-color:#F2F2F2}
 .kcRow{display:grid;grid-template-columns:34px 36px 1fr auto;align-items:center;gap:10px;padding:10px 12px;border-radius:10px;background:rgba(255,255,255,.04);margin-bottom:6px;border:1px solid transparent}
@@ -89,14 +99,14 @@
 .kcRow .s{font:900 22px/1 'KOACH Display',sans-serif}
 .kcAv{width:36px;height:36px;border-radius:50%;overflow:hidden;display:flex;align-items:center;justify-content:center;background:#434649;font-weight:900;font-size:14px;color:#E3E3E3}
 .kcAv img{width:100%;height:100%;object-fit:cover}
-.kcEv{padding:12px 12px 10px;border-radius:10px;background:rgba(255,255,255,.04);margin-bottom:8px}
+.kcEv{padding:12px 0;border-bottom:1px solid rgba(255,255,255,.08)}
 .kcEv .h{display:flex;gap:10px;align-items:center}.kcEv .h p{margin:0;font-size:13px;line-height:1.35}.kcEv .h p b{font-weight:900}
 .kcEv .h time{display:block;font:700 8px/1.4 'Space Mono',monospace;letter-spacing:.12em;color:#6F7377}
-.kcEv.lider{border:1px solid rgba(255,61,154,.5)}
-.kcRe{display:flex;gap:6px;flex-wrap:wrap;margin-top:9px;padding-left:46px}
-.kcRe button{border:1px solid rgba(255,255,255,.18);background:transparent;color:#C9CCCF;border-radius:999px;padding:6px 9px;font:700 8.5px/1 'Space Mono',monospace;letter-spacing:.08em;cursor:pointer}
+.kcEv.lider .h p b:first-child{color:#FF3D9A}
+.kcRe{display:flex;gap:6px;margin-top:9px;padding-left:46px;overflow-x:auto;scrollbar-width:none}.kcRe::-webkit-scrollbar{display:none}
+.kcRe button{flex:0 0 auto;border:1px solid rgba(255,255,255,.16);background:transparent;color:#C9CCCF;border-radius:999px;padding:6px 9px;font:700 8px/1 'Space Mono',monospace;letter-spacing:.06em;cursor:pointer;white-space:nowrap}
 .kcRe button[aria-pressed=true]{border-color:#3EC6B0;color:#3EC6B0;background:rgba(62,198,176,.1)}
-.kcVac{font:400 11px/1.6 'Space Mono',monospace;color:#979C9F;padding:14px;text-align:center;border:1px dashed rgba(255,255,255,.15);border-radius:10px}
+.kcVac{font:700 9.5px/1.7 'Space Mono',monospace;letter-spacing:.08em;color:#979C9F;padding:14px;text-align:center;border:1px dashed rgba(255,255,255,.15);border-radius:10px}
 .kcConf{position:fixed;inset:0;pointer-events:none;z-index:96}
 .kcR .kcSun{opacity:.32;top:24%}
 `
@@ -140,29 +150,36 @@
     clearInterval(K.poll); K.poll = setInterval(function () { if (!v.classList.contains('on')) { clearInterval(K.poll); return } refrescar() }, 25000)
   }
   async function refrescar() { await cargarEstado(); await cargarListas(); if ($('vClub') && $('vClub').classList.contains('on')) pintarVista() }
+  function cierre(ch) { return ['DOM', 'LUN', 'MAR', 'MIÉ', 'JUE', 'VIE', 'SÁB'][new Date(ch.fin).getDay()] }
   function pintarVista() {
     var v = $('vClub'); if (!v) return
-    var st = K.st || {}, ch = K.ch, h = '<div class="kcTop"><img src="/img/brand/logotipo-koach.png" alt="KOACH"></div>' +
-      '<h2 class="kcH">1% CLUB</h2><p class="kcHs">DESAFÍOS · COMUNIDAD · ACTIVIDADES' + (st.miembros ? ' · ' + st.miembros + ' EN EL CLUB' : '') + '</p>'
-    if (!ch) { v.innerHTML = h + '<div class="kcVac">Pronto se abre el próximo challenge del club.</div>' + (st.miembro ? '' : '<div class="kcAct" style="margin:16px auto 0"><button class="kcB kcB--p" type="button" onclick="KCLUB.unirse()">ÚNETE AL CLUB DEL 1%</button></div>'); return }
-    var mia = st.mia, abierto = ch.abierto
-    h += '<div class="kcCard">' + fondo() + '<div class="kcIn"><p class="kcK" style="margin-bottom:10px">CHALLENGE · ' + (abierto ? 'ABIERTO HASTA EL ' + ['DOMINGO','LUNES','MARTES','MIÉRCOLES','JUEVES','VIERNES','SÁBADO'][new Date(ch.fin).getDay()] : 'CERRADO · RESULTADOS') + '</p>' + titulo(ch) +
-      '<p class="kcD" style="margin:16px 0 4px;font-size:15px">' + esc(ch.descripcion || '') + '</p><p class="kcS">' + esc(ch.estandar || '') + '</p>' +
-      (mia ? '<div class="kcMia"><div><small>TU MARCA</small><b>' + mia.score + '</b></div><div style="text-align:right"><small>' + posTxt() + '</small>' + estTag(mia.estado) + '</div></div>' : '') +
-      (abierto ? '<div class="kcAct" style="padding-top:14px">' + (!st.miembro ? '<button class="kcB kcB--p" type="button" onclick="KCLUB.unirse(true)">ÚNETE AL CLUB DEL 1%</button>' :
-        '<button class="kcB kcB--p" type="button" onclick="KCLUB.challenge()">' + (mia ? 'MEJORAR MI MARCA' : 'ENTRAR AL CHALLENGE') + '</button>') +
-        (mia ? '<button class="kcB kcB--s" type="button" onclick="KCLUB.compartir()">COMPARTIR HISTORIA</button>' : '') + '</div>' : (mia ? '<div class="kcAct" style="padding-top:14px"><button class="kcB kcB--s" type="button" onclick="KCLUB.compartir()">COMPARTIR HISTORIA</button></div>' : '')) +
-      '</div></div>'
+    var st = K.st || {}, ch = K.ch, mia = st.mia
+    var top = '<div class="kcTop"><img src="/img/brand/logotipo-koach.png" alt="KOACH"></div>'
+    if (!ch) {
+      v.innerHTML = '<section class="kcHero">' + fondo() + '<div class="kcIn">' + top + '<h1 class="kcT"><b>1%</b><span>CLUB</span></h1><p class="kcD">Desafíos, comunidad y actividades del club.</p><p class="kcS">Pronto se abre el próximo challenge.</p>' +
+        (st.miembro ? '' : '<div class="kcAct"><button class="kcB kcB--p" type="button" onclick="KCLUB.unirse()">ÚNETE AL CLUB DEL 1%</button></div>') + '</div></section>'
+      return
+    }
+    var abierto = ch.abierto
+    var h = '<section class="kcHero">' + fondo() + '<div class="kcIn">' + top +
+      '<p class="kcK">CHALLENGE 01 · ' + (abierto ? 'ABIERTO' : 'RESULTADOS') + '</p>' + titulo(ch) +
+      '<p class="kcD">' + esc(ch.descripcion || '') + '</p><p class="kcS">' + esc(ch.estandar || '') + '</p>' +
+      '<div class="kcStats"><div><b>' + (st.miembros || 0) + '</b><small>EN EL CLUB</small></div><div><b>' + (st.participantes || 0) + '</b><small>MARCAS</small></div><div><b>' + (abierto ? cierre(ch) : 'FIN') + '</b><small>' + (abierto ? 'CIERRA' : 'CERRADO') + '</small></div></div>' +
+      (mia ? '<div class="kcMia"><div><small>TU MARCA</small><b>' + mia.score + '</b></div><div style="text-align:right"><small>' + (posNum() ? 'POSICIÓN #' + posNum() + ' DE ' + K.rank.length : '') + '</small>' + estTag(mia.estado) + '</div></div>' : '') +
+      '<div class="kcAct">' + (abierto ? (!st.miembro ? '<button class="kcB kcB--p" type="button" onclick="KCLUB.unirse(true)">ÚNETE AL CLUB DEL 1%</button>'
+        : '<button class="kcB kcB--p" type="button" onclick="KCLUB.challenge()">' + (mia ? 'MEJORAR MI MARCA' : 'ENTRAR AL CHALLENGE') + '</button>') : '') +
+      (mia ? '<button class="kcB kcB--s" type="button" onclick="KCLUB.compartir()">COMPARTIR HISTORIA</button>' : '') + '</div></div></section><div class="kcBody">'
     h += '<div class="kcSec"><span>RANKING · ' + (st.participantes || 0) + '</span><span class="kcSeg">' + ['todos', 'mujeres', 'hombres'].map(function (f) { return '<button type="button" aria-pressed="' + (K.filtro === f) + '" onclick="KCLUB.filtro(\'' + f + '\')">' + f.toUpperCase() + '</button>' }).join('') + '</span></div>'
     var lista = K.rank.filter(function (x) { return K.filtro === 'todos' || (K.filtro === 'mujeres' ? x.sexo === 'mujer' : x.sexo === 'hombre') })
     h += lista.length ? lista.map(function (x, i) { var p = K.filtro === 'todos' ? x.pos : i + 1
       return '<div class="kcRow' + (x.yo ? ' yo' : '') + (p <= 3 ? ' t' + p : '') + '"><span class="p">' + String(p).padStart(2, '0') + '</span>' + av(x.avatar, x.nombre) +
         '<span class="n">' + esc(x.nombre) + '<small>' + (x.estado === 'validado' ? 'VALIDADO POR KOACH' : 'POR VALIDAR') + '</small></span><span class="s">' + x.score + '</span></div>' }).join('')
-      : '<div class="kcVac">Todavía no hay marcas. La primera puede ser la tuya.</div>'
+      : '<div class="kcVac">TODAVÍA NO HAY MARCAS. LA PRIMERA PUEDE SER LA TUYA.</div>'
     h += '<div class="kcSec"><span>EN VIVO · CHALLENGE</span></div>'
-    h += K.feed.length ? K.feed.map(evento).join('') : '<div class="kcVac">Aquí aparece quién entra al challenge y cada marca.</div>'
-    v.innerHTML = h
+    h += K.feed.length ? K.feed.map(evento).join('') : '<div class="kcVac">AQUÍ APARECE QUIÉN ENTRA AL CHALLENGE Y CADA MARCA.</div>'
+    v.innerHTML = h + '</div>'
   }
+  function posNum() { var y = K.rank.filter(function (x) { return x.yo })[0]; return y ? y.pos : null }
   function posTxt() { var y = K.rank.filter(function (x) { return x.yo })[0]; return y ? 'POSICIÓN #' + y.pos + ' DE ' + K.rank.length : '' }
   function estTag(e) { return e === 'validado' ? '<span class="kcEst kcEst--ok">✓ VALIDADA</span>' : e === 'rechazado' ? '<span class="kcEst kcEst--pend">REVISAR CON TU KOACH</span>' : '<span class="kcEst kcEst--pend">POR VALIDAR</span>' }
   function hace(at) { var m = Math.round((Date.now() - new Date(at).getTime()) / 60000); return m < 1 ? 'AHORA' : m < 60 ? 'HACE ' + m + ' MIN' : m < 1440 ? 'HACE ' + Math.round(m / 60) + ' H' : 'HACE ' + Math.round(m / 1440) + ' D' }
@@ -338,7 +355,9 @@
     var _vista = window.vista
     window.vista = function (id) {
       var r = _vista.apply(window, arguments)
-      if (id === 'vClub') { var tb = $('tabbar'); if (tb && perfil()) tb.classList.add('vis') }
+      var en = id === 'vClub'; document.documentElement.classList.toggle('en-club', en)
+      try { var m = document.querySelector('meta[name=theme-color]'); if (m) { if (en && !m.dataset.kc) m.dataset.kc = m.content; m.content = en ? '#0B0C0E' : (m.dataset.kc || m.content) } } catch (_) {}
+      if (en) { var tb = $('tabbar'); if (tb && perfil()) tb.classList.add('vis') }
       return r
     }
     var _tab = window.tab
