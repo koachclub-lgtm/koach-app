@@ -161,6 +161,7 @@ button.bxI:hover,button.bxI:focus-visible{transform:translateY(-2px);box-shadow:
 .vtTg button.on,.vtCh button.on{background:#121212;border-color:#121212;color:#F4F3F0}
 .vtCh button[disabled]{opacity:.4;cursor:not-allowed}
 .vtCh{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}.vtCh + .vtCh{margin-top:8px}
+.vtDesde{margin:6px 0 4px}.vtDesde button{min-height:38px;font-size:10.5px}
 .vtNote{font-family:var(--font-mono);font-size:11px;line-height:1.5;letter-spacing:.02em;color:#5E5D59;margin-top:8px}
 .vtErr{margin-top:10px;padding:12px 14px;border-radius:12px;background:#EFE6E2;color:#7A2E1E;font-family:var(--font-mono);font-size:11.5px;line-height:1.5}
 .vtOk{margin-top:10px;padding:12px 14px;border-radius:12px;background:#E4E8DF;color:#2E3A22;font-family:var(--font-mono);font-size:11.5px;line-height:1.5}
@@ -8929,11 +8930,12 @@ function vtMet(p,v){ const s=VTS[p]; s.met=(s.met===v?null:v); if (s.met==='ugc'
 function vtEst(p,v){ VTS[p].est=v; vtPintar(p) }
 async function vtVig(p){
   const s=VTS[p]; if(!s.dur){ s.vig=null; return }
-  const t=s.dur.split(':'), key=s.dur+'|'+s.fecha
-  const r=await sb.rpc('admin_vigencia_preview',{p_socio:s.socio||VT_NIL,p_fecha:s.fecha,p_tipo:t[0],p_valor:+t[1]})
-  if (VTS[p]!==s || (s.dur+'|'+s.fecha)!==key) return
+  const t=s.dur.split(':'), key=s.dur+'|'+s.fecha+'|'+(s.desde||'')
+  const r=await sb.rpc('admin_vigencia_preview',{p_socio:s.socio||VT_NIL,p_fecha:s.fecha,p_tipo:t[0],p_valor:+t[1],p_desde:s.desde||null})
+  if (VTS[p]!==s || (s.dur+'|'+s.fecha+'|'+(s.desde||''))!==key) return
   s.vig = (r.error||!r.data) ? { err:true } : r.data; vtPintar(p)
 }
+function vtDesde(p,v){ const s=VTS[p]; if(!s) return; s.desde=v; s.vig=null; vtPintar(p); vtVig(p) }
 function vtMarcar(p){ const s=VTS[p], sel=vtEl(p,'Otra')
   document.querySelectorAll('#'+s.box+' .vtP').forEach(function(b){ const on = b.dataset.k==='otra' ? s.otra : b.dataset.k===s.dur; b.classList.toggle('on',on); b.setAttribute('aria-pressed',on) })
   if (sel){ sel.style.display = s.otra ? '' : 'none'; if (s.otra) sel.value = (s.dur && vtPrecio(s.dur)==null) ? s.dur : '' } }
@@ -8950,6 +8952,10 @@ function vtPintar(p, soloResumen){
     vtEl(p,'Est').style.display = ugc ? 'none' : ''; vtEl(p,'Ugc').style.display = ugc ? '' : 'none'
     const v=vtEl(p,'Vig')
     v.innerHTML = !s.dur ? 'Elige la duración' : !s.vig ? 'Calculando…' : s.vig.err ? 'No se pudo calcular' :
+      (s.vig.ultimo_vencimiento?'<small>Último día cubierto: <b>'+adF(s.vig.ultimo_vencimiento)+'</b>'+(s.vig.atrasado?' · pagó '+s.vig.dias_mora+' día'+(s.vig.dias_mora>1?'s':'')+' después':'')+'</small>':'')+
+      (s.vig.atrasado&&s.dur!=='dia:1'?'<div class="vtCh vtDesde" role="group" aria-label="Desde cuándo corre">'+
+        '<button type="button" class="'+(/cobertura/.test(s.vig.regla)?'on':'')+'" onclick="vtDesde(\''+p+'\',\'cobertura\')">DESDE FIN DE COBERTURA · '+adF(s.vig.alt_desde_cobertura.inicio)+'</button>'+
+        '<button type="button" class="'+(/cobertura/.test(s.vig.regla)?'':'on')+'" onclick="vtDesde(\''+p+'\',\'pago\')">DESDE FECHA DE PAGO · '+adF(s.vig.alt_desde_pago.inicio)+'</button></div>':'')+
       '<b>'+(s.dur==='dia:1'?adF(s.vig.inicio):adF(s.vig.inicio)+' → '+adF(s.vig.fin))+'</b>'+(s.vig.encadena?'<small>Se suma desde el término del plan vigente: no pierde días.</small>':
         (s.vig.inicio>hoyISO()?'<small style="color:var(--danger,#b3261e)">⚠ Comienza el '+adF(s.vig.inicio)+': hasta esa fecha el socio NO tendrá acceso a su rutina ni credencial. Si ya pagó y entrena desde hoy, usa la fecha de hoy.</small>':''))
   }
@@ -8975,7 +8981,8 @@ function vtPayload(p){
   if (!ugc && !s.met && s.est==='pagado' && s.tc!=='cortesia') return { error:'Elige la forma de pago.' }
   return { venta:{ duracion_tipo:s.dur.split(':')[0], duracion_valor:+s.dur.split(':')[1], fecha:s.fecha, monto:monto,
     estado: ugc?'pagado':s.est, metodo:s.met, tipo_comercial: ugc?'ugc':(s.tc||'normal'),
-    referencia:(vtEl(p,'Ref').value||'').trim()||null, observacion:(vtEl(p,'Obs').value||'').trim()||null, plan_id:s.plan||null } }
+    referencia:(vtEl(p,'Ref').value||'').trim()||null, observacion:(vtEl(p,'Obs').value||'').trim()||null, plan_id:s.plan||null,
+    desde: (s.vig&&s.vig.atrasado) ? (/cobertura/.test(s.vig.regla)?'cobertura':'pago') : null } }
 }
 function vtError(m){ const t=String(m||'')
   return /DUPLICADO_RECIENTE/.test(t)?'Ese pago ya se registró hace unos segundos (doble toque): no se duplicó.'
