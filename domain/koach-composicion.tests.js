@@ -22,7 +22,7 @@ const rH = KC.calcular(H)
 // Σ4 = 47 · D&W 30-39 H: C=1.1422 M=0.0544 → BD = 1.1422 − 0.0544·log10(47) = 1.05124 → Siri = 20.87 %
 ok('D&W+Siri hombre 34a = 20,9 %', casi(rH.grasa.pct, 20.9))
 ok('completo con todos los sitios', rH.completo === true && !rH.avisos.some(a => /^Faltan/.test(a)))
-ok('sin perfil Kerr ⇒ modelo de respaldo declarado', rH.modelo === 'DW-LEE' && rH.osea.referencial === true && rH.avisos.some(a => /5 componentes/.test(a)))
+ok('sin perfil Kerr ⇒ modelo de respaldo declarado', rH.modelo === 'DW-LEE' && rH.osea.referencial === true && !rH.avisos.some(a => /5 componentes/.test(a)))  // c324: sin datos de Kerr no se avisa
 ok('masas suman el peso', casi(rH.grasa.kg + rH.muscular.kg + rH.osea.kg + rH.residual.kg, 82, 0.03))
 ok('Σ6 y Σ8', rH.suma6 === 72 && rH.suma8 === 95)
 ok('ICC/ICT', rH.icc === 0.86 && rH.ict === 0.47)

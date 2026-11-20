@@ -152,7 +152,8 @@ function calcular(input){
     if (residualKg != null){ const rp = residualKg / peso * 100
       if (rp < 10) calidad = 'Grasa + músculo resultan muy altos en conjunto: revisa las mediciones'
       else if (rp > 45) calidad = 'Grasa + músculo resultan muy bajos en conjunto: revisa las mediciones' }
-    if (k5.faltan.length < 20) avisos.push('Para 5 componentes (Kerr) faltan: ' + k5.faltan.join(', '))
+    // c324 · la evaluación del club no toma los 7 datos exclusivos de Kerr: solo se avisa si se tomaron algunos y faltan pocos
+    if (k5.faltan.length < 7) avisos.push('Para 5 componentes (Kerr) faltan: ' + k5.faltan.join(', '))
   }
 
   const h = talla ? talla / 100 : null

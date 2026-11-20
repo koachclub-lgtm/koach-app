@@ -76,38 +76,82 @@ function cmpChart(evs){
     '<svg viewBox="0 0 '+W+' '+H+'" role="img" aria-label="Tendencia de grasa y masa muscular entre evaluaciones"><line class="cmp__gl" x1="'+L+'" x2="'+(W-R)+'" y1="'+(H-B)+'" y2="'+(H-B)+'"/>'+ax+linea(g,'porcentaje_grasa','var(--cI,#121212)')+linea(m,'masa_muscular_kg','var(--cS,#2BB3C0)',true)+'</svg></div>'
 }
 const CMP_PL=[['triceps','TRÍCEPS',1],['biceps','BÍCEPS',1],['subescapular','SUBESCAPULAR',1],['crestaIliaca','CRESTA ILÍACA',1],['supraespinal','SUPRAESPINAL',0],['abdominal','ABDOMINAL',0],['muslo','MUSLO ANTERIOR',0],['pantorrilla','PANTORRILLA MEDIAL',0]]
-const CMP_PE=[['brazo','BRAZO RELAJADO'],['brazoFlex','BRAZO FLEXIONADO'],['antebrazo','ANTEBRAZO MÁX.'],['torax','TÓRAX MESOESTERNAL'],['cintura','CINTURA'],['cadera','CADERA'],['muslo','MUSLO MEDIO'],['pantorrilla','PANTORRILLA MÁX.'],['cabeza','CABEZA']]
-const CMP_DI=[['biacromial','BIACROMIAL'],['biiliocrestideo','BIILIOCRESTÍDEO'],['humero','HÚMERO (BIEPICONDILAR)'],['femur','FÉMUR (BIEPICONDILAR)'],['toraxT','TÓRAX TRANSVERSO'],['toraxAP','TÓRAX ANTEROPOSTERIOR']]
+// c324 · solo los datos que se toman en la evaluación del club. Los de Kerr que no se toman (tórax, cabeza, biacromial, biiliocrestídeo,
+// tórax transverso y AP, talla sentada) ya no se piden; si una evaluación antigua los trae, viajan ocultos y no se pierden al editar.
+const CMP_PE=[['brazo','BRAZO RELAJADO'],['brazoFlex','BRAZO FLEXIONADO'],['antebrazo','ANTEBRAZO MÁX.'],['cintura','CINTURA'],['cadera','CADERA'],['muslo','MUSLO MEDIO'],['pantorrilla','PANTORRILLA MÁX.']]
+const CMP_DI=[['humero','HÚMERO'],['femur','FÉMUR']]
+const CMP_PE_X=['torax','cabeza'], CMP_DI_X=['biacromial','biiliocrestideo','toraxT','toraxAP']
 function fCmpNueva(){ CMP.edit={ id:null, estado:'borrador', inicio:null }; fCmpForm({}) }
 function fCmpEditar(id){ const e=(CMP.data.evaluaciones||[]).find(x=>x.id===id); if(!e) return; CMP.edit={ id, estado:e.estado }; fCmpForm(e) }
 function fCmpForm(e){
   const box=document.getElementById('fTabCmp'), inp=KC.deFila(e||{}), hoy=new Date().toISOString().slice(0,10)
   const fecha=(e&&e.fecha)||hoy, sexo=(e&&e.sexo_eval)||F.sex||'', edad=(e&&e.edad_eval)||cmpEdad(F.fecha_nacimiento, fecha)
-  const ultima=(CMP.data.evaluaciones||[]).slice(-1)[0], talla=inp.talla||(ultima&&ultima.talla_cm)||'', tSent=inp.tallaSentada||(ultima&&ultima.talla_sentada_cm)||''
+  const ultima=(CMP.data.evaluaciones||[]).slice(-1)[0], talla=inp.talla||(ultima&&ultima.talla_cm)||''
   const v=x=>x==null?'':String(x).replace('.',',')
-  const campo=(id,lab,val,cls)=>'<label class="'+(cls||'')+'">'+lab+'<input inputmode="decimal" id="'+id+'" value="'+adEsc(v(val))+'" oninput="fCmpCalc()"></label>'
-  box.innerHTML='<div class="cmp"><div class="cmp__hd"><div><span class="cmp__k">'+(CMP.edit.id?'EDITAR EVALUACIÓN':'NUEVA EVALUACIÓN')+' · PERFIL COMPLETO ISAK · 5 COMPONENTES</span><h2 class="cmp__t">'+adEsc(nomDe(F.id))+'</h2></div>'+
-    '<button type="button" class="cmp__b cmp__b--l" onclick="fCmpPintar()">← VOLVER</button></div>'+
-    '<div class="cmpF"><div>'+
-    '<div class="cmpF__g"><h4>DATOS BASE</h4><div class="cmpF__f"><label>FECHA<input type="date" id="cmFecha" value="'+fecha+'" onchange="fCmpCalc()"></label>'+
-      campo('cmPeso','PESO (KG)',inp.peso,'dw')+campo('cmTalla','TALLA (CM)',talla,'dw')+campo('cmTallaS','TALLA SENTADA (CM)',tSent,'')+campo('cmEdad','EDAD',edad,'dw')+
-      '<label class="dw">SEXO<select id="cmSexo" onchange="fCmpCalc()"><option value="">—</option><option value="hombre"'+(sexo==='hombre'?' selected':'')+'>HOMBRE</option><option value="mujer"'+(sexo==='mujer'?' selected':'')+'>MUJER</option></select></label></div></div>'+
-    '<div class="cmpF__g"><h4>PLIEGUES (MM) · <em>EN NEGRO: OBLIGATORIOS PARA % GRASA</em></h4><div class="cmpF__f">'+CMP_PL.map(([k,l,r])=>campo('cmPl_'+k,l,inp.pliegues[k],r?'dw':'')).join('')+'</div></div>'+
-    '<div class="cmpF__g"><h4>PERÍMETROS (CM) · <em>BRAZO, MUSLO Y PANTORRILLA OBLIGATORIOS PARA MASA MUSCULAR</em></h4><div class="cmpF__f">'+CMP_PE.map(([k,l],i)=>campo('cmPe_'+k,l,inp.perimetros[k],(k==='brazo'||k==='muslo'||k==='pantorrilla')?'dw':'')).join('')+'</div></div>'+
-    '<div class="cmpF__g"><h4>DIÁMETROS (CM) · <em>CON TALLA SENTADA Y PERÍMETROS COMPLETAN LOS 5 COMPONENTES (KERR 1988)</em></h4><div class="cmpF__f">'+CMP_DI.map(([k,l])=>campo('cmDi_'+k,l,(inp.diametros||{})[k],'')).join('')+'</div></div>'+
-    '<div class="cmpF__g"><h4>MENSAJES</h4><div class="cmpF__f" style="grid-template-columns:1fr">'+
-      '<label>NOTA PARA EL SOCIO (LA VE EN SU APP)<textarea id="cmNotaS" maxlength="400">'+adEsc((e&&e.nota_socio)||'')+'</textarea></label>'+
-      '<label>NOTAS INTERNAS (SOLO NUTRICIÓN Y ADMIN)<textarea id="cmNotas">'+adEsc((e&&e.notas)||'')+'</textarea></label></div></div>'+
-    '<div class="cmpF__acts"><button type="button" class="cmp__b cmp__b--l" id="cmGuardar" onclick="fCmpGuardar(\'borrador\')">GUARDAR BORRADOR</button>'+
-      '<button type="button" class="cmp__b" id="cmPublicar" onclick="fCmpGuardar(\'publicada\')">PUBLICAR AL SOCIO</button></div>'+
-    '</div><aside class="cmpR" id="cmRes" aria-live="polite"></aside></div></div>'
-  fCmpCalc()
+  const campo=(id,lab,val,u,ob)=>'<div class="cmpE__f"><label for="'+id+'">'+lab+(ob?'<i title="Obligatorio"></i>':'')+'</label><div class="cmpE__in"><input inputmode="decimal" id="'+id+'" value="'+adEsc(v(val))+'" placeholder="—" oninput="fCmpCalc()" onkeydown="cmEnter(event)" onfocus="this.select()"><u>'+u+'</u></div></div>'
+  const oculto=(id,val)=>val!=null&&val!==''?'<input type="hidden" id="'+id+'" value="'+adEsc(v(val))+'">':''
+  const sec=(n,t,d,html)=>'<section class="cmpE__sec"><header><b>'+n+'</b><span>'+t+'</span><small>'+d+'</small></header><div class="cmpE__fl">'+html+'</div></section>'
+  box.innerHTML='<div class="cmp cmpE">'+
+    '<div class="cmpE__hd"><div class="cmpE__who"><span class="cmp__k">'+(CMP.edit.id?'EDITAR EVALUACIÓN':'NUEVA EVALUACIÓN')+' · ISAK</span><h2 class="cmp__t">'+adEsc(nomDe(F.id))+'</h2></div>'+
+      '<div class="cmpE__cnt"><b id="cmCnt">0 / 0</b>DATOS</div><div class="cmpE__tm" id="cmT"></div>'+
+      '<button type="button" class="cmp__b cmp__b--l" onclick="fCmpPintar()">← VOLVER</button></div>'+
+    '<div id="cmStepD">'+
+    sec('01','DATOS BASE','PESO Y TALLA EN BALANZA Y TALLÍMETRO',
+      '<div class="cmpE__f"><label for="cmFecha">FECHA</label><div class="cmpE__in"><input type="date" id="cmFecha" value="'+fecha+'" onchange="fCmpCalc()"></div></div>'+
+      campo('cmPeso','PESO',inp.peso,'kg',1)+campo('cmTalla','TALLA',talla,'cm',1)+campo('cmEdad','EDAD',edad,'años',1)+
+      '<div class="cmpE__f"><label for="cmSexo">SEXO<i title="Obligatorio"></i></label><div class="cmpE__in"><select id="cmSexo" onchange="fCmpCalc()"><option value="">—</option><option value="hombre"'+(sexo==='hombre'?' selected':'')+'>HOMBRE</option><option value="mujer"'+(sexo==='mujer'?' selected':'')+'>MUJER</option></select></div></div>'+
+      oculto('cmTallaS',inp.tallaSentada))+
+    sec('02','PLIEGUES','MM · 8 SITIOS ISAK',CMP_PL.map(([k,l,r])=>campo('cmPl_'+k,l,inp.pliegues[k],'mm',r)).join(''))+
+    sec('03','PERÍMETROS','CM',CMP_PE.map(([k,l])=>campo('cmPe_'+k,l,inp.perimetros[k],'cm',k==='brazo'||k==='muslo'||k==='pantorrilla')).join('')+CMP_PE_X.map(k=>oculto('cmPe_'+k,inp.perimetros[k])).join(''))+
+    sec('04','DIÁMETROS','CM · MASA ÓSEA',CMP_DI.map(([k,l])=>campo('cmDi_'+k,l,(inp.diametros||{})[k],'cm')).join('')+CMP_DI_X.map(k=>oculto('cmDi_'+k,(inp.diametros||{})[k])).join(''))+
+    '<div class="cmpE__ft"><p class="cmp__k">ENTER PASA AL SIGUIENTE DATO · ● OBLIGATORIO PARA % GRASA Y MASA MUSCULAR</p><button type="button" class="cmp__b" onclick="cmPaso(\'R\')">VER RESULTADO →</button></div></div>'+
+    '<div id="cmStepR" hidden><div class="cmpE__res"><aside class="cmpR" id="cmRes" aria-live="polite"></aside>'+
+      '<div><div class="cmpF__g"><h4>MENSAJES</h4><div class="cmpF cmpF__f" style="grid-template-columns:1fr">'+
+        '<label>NOTA PARA EL SOCIO (LA VE EN SU APP)<textarea id="cmNotaS" maxlength="400">'+adEsc((e&&e.nota_socio)||'')+'</textarea></label>'+
+        '<label>NOTAS INTERNAS (SOLO NUTRICIÓN Y ADMIN)<textarea id="cmNotas">'+adEsc((e&&e.notas)||'')+'</textarea></label></div></div>'+
+      '<div class="cmpF__acts"><button type="button" class="cmp__b cmp__b--l" onclick="cmPaso(\'D\')">← CORREGIR DATOS</button><button type="button" class="cmp__b cmp__b--l" id="cmGuardar" onclick="fCmpGuardar(\'borrador\')">GUARDAR BORRADOR</button>'+
+        '<button type="button" class="cmp__b" id="cmPublicar" onclick="fCmpGuardar(\'publicada\')">PUBLICAR AL SOCIO</button></div></div></div></div>'+
+    '</div>'
+  cmTimerPintar(); fCmpCalc()
+  const f=[...document.querySelectorAll('#cmStepD .cmpE__in input:not([type=date])')].find(x=>!x.value); if(f&&!CMT.end) f.focus({ preventScroll:true })
 }
+// pasos de la evaluación: D = ingreso de datos (pantalla completa) · R = resultado, mensajes y publicar
+function cmPaso(k){ const d=document.getElementById('cmStepD'), r=document.getElementById('cmStepR'); if(!d||!r) return
+  d.hidden=k!=='D'; r.hidden=k!=='R'; fCmpCalc(); window.scrollTo({ top:(document.getElementById('fTabCmp').getBoundingClientRect().top+scrollY-90), behavior:'smooth' }) }
+function cmEnter(ev){ if(ev.key!=='Enter') return; ev.preventDefault(); const l=[...document.querySelectorAll('#cmStepD .cmpE__in input:not([type=date])')], i=l.indexOf(ev.target)
+  NSFX.play('scan-paso',0,.35); const nx=l[i+1]; if(nx){ nx.focus({ preventScroll:true }); nx.scrollIntoView({ block:'center', behavior:'smooth' }) } else cmPaso('R') }
+function cmContar(){ const l=[...document.querySelectorAll('#cmStepD .cmpE__in input:not([type=date])')], n=l.filter(x=>x.value.trim()).length
+  l.forEach(x=>x.closest('.cmpE__f').classList.toggle('ok',!!x.value.trim())); const c=document.getElementById('cmCnt'); if(c) c.textContent=n+' / '+l.length }
+
+// ═══ c324 · SONIDOS DEL PANEL (mismos archivos de la app: /sfx) y TEMPORIZADOR DE EVALUACIÓN · 20 MIN ═══
+const NSFX=(()=>{ let c=null; const b={}, pend={}
+  const ac=()=>{ try{ if(!c){ const A=window.AudioContext||window.webkitAudioContext; if(A) c=new A() } if(c&&c.state==='suspended') c.resume() }catch(_){} return c }
+  function load(ns){ const x=ac(); if(!x) return Promise.resolve(); return Promise.all(ns.map(n=>{ if(b[n]) return null; if(pend[n]) return pend[n]
+    return pend[n]=fetch('/sfx/'+n+(n==='scan-datos'?'.wav':'.mp3')).then(r=>r.ok?r.arrayBuffer():null).then(a=>a&&new Promise(ok=>x.decodeAudioData(a,d=>{ b[n]=d; ok() },()=>ok()))).catch(()=>{}) })) }
+  function play(n,t,g,loop){ const x=ac(); if(!x||!b[n]) return null; try{ const s=x.createBufferSource(), v=x.createGain(); s.buffer=b[n]; s.loop=!!loop; v.gain.value=g==null?1:g; s.connect(v).connect(x.destination); s.start(x.currentTime+(t||0)); return s }catch(_){ return null } }
+  return { load, play } })()
+const CMT={ end:0, pausa:0, hit:{}, iv:0 }, CMT_MS=20*60000
+function cmTimerPintar(){ const el=document.getElementById('cmT'); if(!el) return
+  if(!CMT.end){ el.innerHTML='<button type="button" class="cmpE__go" onclick="cmTimer()"><b><svg viewBox="0 0 16 16"><path d="M4 2.5v11l9.5-5.5z"/></svg></b><span>INICIAR EVALUACIÓN<small>TEMPORIZADOR · 20:00</small></span></button>'; return }
+  el.innerHTML='<div class="cmpE__run"><span class="cmpE__clk" id="cmClk"></span><span class="cmpE__hit">'+[5,10,15,20].map(m=>'<i'+(CMT.hit[m]?' class="ok"':'')+'></i>').join('')+'</span>'+
+    '<button type="button" onclick="cmTimerPausa()">'+(CMT.pausa?'SEGUIR':'PAUSAR')+'</button><button type="button" class="f" onclick="cmTimerFin()">TERMINAR</button></div>'; cmTick() }
+function cmTimer(){ NSFX.load(['tick1','tick2','scan-paso','scan-lista','scan-lock','logro']).then(()=>NSFX.play('scan-lista',0,.8))
+  CMT.end=Date.now()+CMT_MS; CMT.pausa=0; CMT.hit={}; clearInterval(CMT.iv); CMT.iv=setInterval(cmTick,250); cmTimerPintar()
+  const f=[...document.querySelectorAll('#cmStepD .cmpE__in input:not([type=date])')].find(x=>!x.value); if(f) f.focus({ preventScroll:true }) }
+function cmTimerPausa(){ if(CMT.pausa){ CMT.end+=Date.now()-CMT.pausa; CMT.pausa=0 } else CMT.pausa=Date.now(); cmTimerPintar() }
+function cmTimerFin(){ clearInterval(CMT.iv); CMT.end=0; CMT.pausa=0; NSFX.play('scan-lock',0,.8); cmTimerPintar(); cmPaso('R') }
+function cmTick(){ if(!CMT.end) return; const ahora=CMT.pausa||Date.now(), left=Math.max(0,CMT.end-ahora), s=Math.ceil(left/1000), el=(CMT_MS-left)/60000
+  const c=document.getElementById('cmClk'); if(c){ c.textContent=String(Math.floor(s/60)).padStart(2,'0')+':'+String(s%60).padStart(2,'0'); c.classList.toggle('fin',!left) }
+  ;[5,10,15,20].forEach(m=>{ if(el>=m&&!CMT.hit[m]){ CMT.hit[m]=1
+    if(m===10){ NSFX.play('tick1',0,.8); NSFX.play('tick2',.22,.8) } else if(m===20) NSFX.play('logro',0,1); else NSFX.play('tick1',0,.7)
+    toast(m===20?'20 MIN · TIEMPO CUMPLIDO':m===10?'10 MIN · MITAD DE LA EVALUACIÓN':m===15?'15 MIN · QUEDAN 5 MINUTOS':'5 MIN DE EVALUACIÓN'); cmTimerPintar() } })
+  if(!left) clearInterval(CMT.iv) }
 function fCmpLeer(){ const g=id=>{ const el=document.getElementById(id); return el?el.value:'' }
-  const pl={}, pe={}, di={}; CMP_PL.forEach(([k])=>pl[k]=g('cmPl_'+k)); CMP_PE.forEach(([k])=>pe[k]=g('cmPe_'+k)); CMP_DI.forEach(([k])=>di[k]=g('cmDi_'+k))
+  const pl={}, pe={}, di={}; CMP_PL.forEach(([k])=>pl[k]=g('cmPl_'+k)); CMP_PE.forEach(([k])=>pe[k]=g('cmPe_'+k)); CMP_PE_X.forEach(k=>pe[k]=g('cmPe_'+k)); CMP_DI.forEach(([k])=>di[k]=g('cmDi_'+k)); CMP_DI_X.forEach(k=>di[k]=g('cmDi_'+k))
   return { fecha:g('cmFecha'), peso:g('cmPeso'), talla:g('cmTalla'), tallaSentada:g('cmTallaS'), edad:g('cmEdad'), sexo:g('cmSexo'), pliegues:pl, perimetros:pe, diametros:di } }
 function fCmpCalc(){
   const el=document.getElementById('cmRes'); if(!el) return
+  cmContar()
   const inp=fCmpLeer(), r=KC.calcular(inp); CMP.form={ inp, r }
   const p=cmpNum(inp.peso)
   const k5 = r.modelo==='5C'
@@ -331,16 +375,19 @@ async function fPlanGuardar(estado){
     tdee:NPL.tdee||null, tmb:NPL.tmb||null, intake:f.intake, contenido:f.contenido, generado_ia:!!NPL.ia, modelo:NPL.modelo, evaluacion_id:(ev&&ev.id)||null }
   if (!fila.tdee && ev){ const s=KC.sugerirPauta({ peso:ev.peso_kg, talla:ev.talla_cm, edad:ev.edad_eval, sexo:ev.sexo_eval||F.sex, actividad:f.actividad, programa:cmpProg() }); if(s){ fila.tdee=s.tdee; fila.tmb=s.tmb } }
   ;['plGuardar','plPublicar'].forEach(id=>{ const b=document.getElementById(id); if(b) b.disabled=true })
+  const fx = estado==='publicada' ? plFxAnalisis(fila) : null
   const q = NPL.edit&&NPL.edit.id ? sb.from('pautas_nutricion').update(fila).eq('id',NPL.edit.id) : sb.from('pautas_nutricion').insert(fila)
   const { error } = await q
-  if (error){ console.error('pauta guardar', error); toast('No se pudo guardar: '+(error.message||'error')); fPlanSync(); const g=document.getElementById('plGuardar'); if(g) g.disabled=false; return }
-  toast(estado==='publicada'?'Plan publicado al socio':'Borrador guardado'); fPlanCargar()
+  if (error){ if(fx) fx.cerrar(); console.error('pauta guardar', error); toast('No se pudo guardar: '+(error.message||'error')); fPlanSync(); const g=document.getElementById('plGuardar'); if(g) g.disabled=false; return }
+  if (fx){ await fx.listo; plFxResultado(fila) } else toast('Borrador guardado')
+  fPlanCargar()
 }
 async function fPlanPublicar(id){
   if (!(await kConfirm('¿Publicar este borrador? Reemplaza al plan vigente del socio.'))) return
+  const fila=((NPL.data&&NPL.data.todas)||[]).find(x=>x.id===id), fx=fila?plFxAnalisis(fila):null
   const { error } = await sb.from('pautas_nutricion').update({ estado:'publicada' }).eq('id', id)
-  if (error){ toast('No se pudo publicar: '+(error.message||'error')); return }
-  toast('Plan publicado al socio'); fPlanCargar()
+  if (error){ if(fx) fx.cerrar(); toast('No se pudo publicar: '+(error.message||'error')); return }
+  if (fx){ await fx.listo; plFxResultado(fila) } else toast('Plan publicado al socio'); fPlanCargar()
 }
 
 // ═══ c222 · CALIBRADOR DE ENERGÍA · nutrición fija déficit / mantención / superávit y ajusta cada macro con flechas ═══
@@ -482,16 +529,27 @@ function plPrefHtml(ix){
     '<div class="plPref__row"><div class="plPref__c"><span class="cmp__k">CANTIDAD DE COMIDAS</span><div class="plSegB" id="plComSeg">'+[3,4,5,6].map(n=>'<button type="button" data-n="'+n+'" onclick="plOrdenTipo('+n+')">'+n+'</button>').join('')+'</div><input type="hidden" id="plComD" value="'+v(ix.comidas_dia||'4')+'"></div>'+
       '<div class="plPref__c"><span class="cmp__k">HORARIO DE ENTRENAMIENTO</span><input type="time" id="plHor" class="plIn" value="'+v(/^\d{1,2}:\d{2}$/.test(ix.horario_entreno||'')?String(ix.horario_entreno).padStart(5,'0'):'')+'" oninput="fPlanSync()"></div></div>'+
     '<div class="plPref__c"><span class="cmp__k">ORDEN DE LAS COMIDAS · TOCA PARA AGREGAR, USA LAS FLECHAS PARA ORDENAR</span><div class="plOrd" id="plOrd"></div><div class="plChips" id="plOrdCat"></div></div>'+
-    '<div class="plPref__c"><span class="cmp__k">RESTRICCIONES ALIMENTARIAS</span><div class="plChips" id="plRestr"></div>'+
+    '<div class="plPref__c plRx"><span class="cmp__k">RESTRICCIÓN ALIMENTARIA · ALERGIAS Y DIETA · <em>SE EXCLUYEN SIEMPRE</em></span><div class="plChips" id="plRestr"></div>'+
       '<input id="plRes" class="plIn" placeholder="Otra restricción o alergia (opcional)" value="'+v(otras)+'" oninput="fPlanSync()"></div>'+
+    '<div class="plPref__c"><span class="cmp__k">POR GUSTO · ALIMENTOS QUE NO COME · <em>SE REEMPLAZAN</em></span><div class="plChips" id="plNoCh"></div>'+
+      '<input type="hidden" id="plNoC" value="'+v(ix.no_consume)+'"><input id="plNoCo" class="plIn" placeholder="+ Otro alimento que no come (Enter para agregar)" onkeydown="plNoCAgregar(event)"></div>'+
     '<div class="plPref__c"><span class="cmp__k">FOCO DEL ESCÁNER DE PLATO · CÓMO JUZGA LAS FOTOS DEL SOCIO (NO SE MUESTRA EN SU TARJETA)</span><div class="plChips" id="plFoco"></div></div>'+
     '<div class="plPref__c"><span class="cmp__k">SUPLEMENTOS A ABORDAR EN LA PAUTA</span><div class="plSupSel"><select id="plSupAdd" onchange="plSupAgregar(this)"><option value="">+ AGREGAR SUPLEMENTO…</option>'+PL_SUP.map(x=>'<option>'+x+'</option>').join('')+'<option value="__otro">OTRO…</option></select></div><div class="plChips" id="plSupL"></div></div>'+
-    '<div class="cmpF__f" style="grid-template-columns:1fr 1fr;margin-top:10px">'+ta('plNoC','NO CONSUME',ix.no_consume,'Alimentos que no le gustan')+ta('plPref','PREFERENCIAS',ix.preferencias,'Lo que sí disfruta, estilo de cocina')+
+    '<div class="cmpF__f" style="grid-template-columns:1fr 1fr;margin-top:10px">'+ta('plPref','PREFERENCIAS',ix.preferencias,'Lo que sí disfruta, estilo de cocina')+
       ta('plSupA','SUPLEMENTOS QUE YA TOMA',ix.suplementos,'Opcional')+ta('plCtx','CONTEXTO',ix.contexto,'Trabajo, horarios, si cocina o come fuera')+'</div>'+
     '<div class="cmpF__acts" style="justify-content:flex-start"><button type="button" class="cmp__b" id="plIA" onclick="fPlanIA()">GENERAR PAUTA CON IA →</button><span class="cmp__k" id="plIAst" style="align-self:center"></span></div></div>'
 }
+const PL_GUSTO=['PESCADO','MARISCOS','PALTA','HUEVO','LEGUMBRES','CEBOLLA','CHAMPIÑONES','BRÓCOLI','AVENA','LECHE','CARNE ROJA','CERDO']
+function plNoCLista(){ const e=document.getElementById('plNoC'); return String((e&&e.value)||'').split(',').map(x=>x.trim()).filter(Boolean) }
+function plNoCPintar(){ const el=document.getElementById('plNoCh'); if(!el) return; const l=plNoCLista(), U=l.map(x=>x.toUpperCase())
+  el.innerHTML=PL_GUSTO.concat(l.filter(x=>!PL_GUSTO.includes(x.toUpperCase())).map(x=>x.toUpperCase())).map(g=>'<button type="button" aria-pressed="'+U.includes(g)+'" onclick="plNoC(this.textContent)">'+adEsc(g)+'</button>').join('') }
+function plNoC(g){ const e=document.getElementById('plNoC'); let l=plNoCLista(); const u=g.toUpperCase()
+  l=l.some(x=>x.toUpperCase()===u)?l.filter(x=>x.toUpperCase()!==u):l.concat(g.charAt(0)+g.slice(1).toLowerCase()); e.value=l.join(', '); plNoCPintar(); fPlanSync() }
+function plNoCAgregar(ev){ if(ev.key!=='Enter') return; ev.preventDefault(); const t=ev.target.value.trim(); if(!t) return; ev.target.value=''
+  if(!plNoCLista().some(x=>x.toUpperCase()===t.toUpperCase())) plNoC(t.toUpperCase()) }
 function plPrefPintar(){
   const o=NPL.ix, $=id=>document.getElementById(id); if(!$('plOrd')) return
+  plNoCPintar()
   $('plComD').value=String(o.orden.length||$('plComD').value||4)
   document.querySelectorAll('#plComSeg button').forEach(b=>b.setAttribute('aria-pressed',String(+b.dataset.n===(o.orden.length||+$('plComD').value))))
   $('plOrd').innerHTML=o.orden.length?o.orden.map((m,i)=>'<span class="plOrd__i"><b>'+(i+1)+'</b>'+adEsc(m)+
@@ -551,4 +609,61 @@ async function fPlanCorregir(){
     const s2=document.getElementById('plCorSt'); if(s2) s2.textContent=j.cambios?'LISTO · '+j.cambios.toUpperCase():'LISTO'
   }catch(e){ console.error('pauta corregir', e); st.textContent=''; toast('No se pudo corregir: '+((e&&e.message)||'error')) }
   finally{ NPL.gen=false; const b2=document.getElementById('plCorB'); if(b2) b2.disabled=false }
+}
+
+// ═══ c324 · PUBLICAR PLAN: análisis a pantalla completa (sonido del escáner) y plan publicado (sonido de PR) ═══
+function plFxCerrar(){ const o=document.getElementById('nuFx'); if(o){ if(o._loop) try{ o._loop.stop() }catch(_){}; cancelAnimationFrame(o._raf); o.remove() } document.documentElement.style.overflow='' }
+function plFxAnalisis(fila){
+  plFxCerrar(); NSFX.load(['scan-datos','scan-paso','scan-lock','logro'])
+  const ix=fila.intake||{}, restr=[].concat(ix.restricciones_lista||[], String(ix.no_consume||'').split(',').map(x=>x.trim()).filter(Boolean))
+  const ev=plUltEval()||{}, n=(fila.contenido&&fila.contenido.comidas||[]).length||ix.comidas_dia||4
+  const PASOS=['CRUZANDO EVALUACIÓN ISAK','CALCULANDO GASTO ENERGÉTICO TOTAL','AJUSTANDO PROTEÍNA A LA MASA MUSCULAR','DISTRIBUYENDO MACROS EN '+n+' COMIDAS'].concat(restr.length?['EXCLUYENDO ALIMENTOS RESTRINGIDOS']:[]).concat(['VALIDANDO CON EL MÉTODO KOACH','PUBLICANDO EN LA APP DEL SOCIO'])
+  const VARS=['TRICEPS_MM','BICEPS_MM','SUBESC_MM','CRESTA_MM','SUPRAESP_MM','ABDOM_MM','MUSLO_MM','PANTORR_MM','BRAZO_CM','BRAZOFLX_CM','MUSLO_CM','PANTORR_CM','D_HUMERO','D_FEMUR','SIRI_DENS','GET_KCAL','TMB_KCAL','FFMI_NORM','ICT','ICC','PROT_G_KG','CHO_G_KG','FAT_G_KG']
+  const col=()=>{ let t=''; for(let i=0;i<90;i++){ const b=Math.random()<.16; t+=(b?'<b>':'')+VARS[(Math.random()*VARS.length)|0]+' '+(Math.random()*99).toFixed(2)+(b?'</b>':'')+'<br>'+(Math.random()<.3?'0x'+((Math.random()*0xffffff)|0).toString(16).toUpperCase().padStart(6,'0')+' · OK<br>':'') } return t }
+  const tic='<span class="nuFx__tic"><svg viewBox="0 0 10 10"><path d="M2 5.2l2 2 4-4.4"/></svg></span>'
+  const met=[['MASA MUSCULAR',ev.masa_muscular_kg,'KG',1],['% GRASA',ev.porcentaje_grasa,'%',1],['GET',fila.tdee,'KCAL',0],['PROTEÍNA',fila.proteina_g,'G',0],['CARBOHIDRATOS',fila.carbohidrato_g,'G',0],['GRASAS',fila.grasa_g,'G',0]]
+  const o=document.createElement('div'); o.id='nuFx'; o.className='nuFx'; document.documentElement.style.overflow='hidden'
+  o.innerHTML='<div class="nuFx__grid"></div><div class="nuFx__col"><div>'+col()+'</div></div><div class="nuFx__col r"><div>'+col()+'</div></div>'+
+    '<div class="nuFx__hd"><span><i class="nuFx__rec"></i>KOACH SYSTEM · NUTRITIONAL ANALYTICS</span><img src="/img/brand/logotipo-koach.png" alt="koach"><span id="nuFxT">00:00,0</span></div>'+
+    '<div class="nuFx__core"><div class="nuFx__ring"><svg viewBox="0 0 300 300"><circle cx="150" cy="150" r="138" fill="none" stroke="rgba(244,243,240,.1)" stroke-width="2"/><circle id="nuFxArc" cx="150" cy="150" r="138" fill="none" stroke="#E4E5E7" stroke-width="4" stroke-linecap="round" stroke-dasharray="867" stroke-dashoffset="867" transform="rotate(-90 150 150)"/><circle cx="150" cy="150" r="118" fill="none" stroke="rgba(244,243,240,.18)" stroke-dasharray="2 6"/><g class="nuFx__sw"><line x1="150" y1="150" x2="150" y2="34" stroke="rgba(255,255,255,.6)" stroke-width="1.5"/></g></svg>'+
+      '<div class="nuFx__n"><b id="nuFxP">0</b><span>% · ARMANDO EL PLAN</span></div></div><ol class="nuFx__st" id="nuFxS">'+PASOS.map(x=>'<li>'+x+'<i></i></li>').join('')+'</ol></div>'+
+    '<div class="nuFx__mt l">'+met.slice(0,3).map((m,i)=>'<div><span>'+m[0]+'</span><b id="nuFxM'+i+'">—</b> '+m[2]+'</div>').join('')+'</div>'+
+    '<div class="nuFx__mt r">'+met.slice(3).map((m,i)=>'<div><span>'+m[0]+'</span><b id="nuFxM'+(i+3)+'">—</b> '+m[2]+'</div>').join('')+'</div>'+
+    '<div class="nuFx__ft"><span>ISAK · D&amp;W + SIRI · LEE · MÉTODO KOACH</span><span id="nuFxL">LECTURA 0 / 128 VARIABLES</span></div>'
+  document.body.appendChild(o)
+  const D=6.8, t0=performance.now(), $=id=>document.getElementById(id), cols=[...o.querySelectorAll('.nuFx__col>div')], lis=[...o.querySelectorAll('#nuFxS li')]
+  let paso=-1, fin; const listo=new Promise(r=>fin=r)
+  NSFX.load(['scan-datos','scan-paso']).then(()=>{ if(document.getElementById('nuFx')===o) o._loop=NSFX.play('scan-datos',0,.55,true) })
+  const fmt=(v,d)=>v==null?'—':d?String(Math.round(v*10)/10).replace('.',','):Math.round(v).toLocaleString('es-CL')
+  function fr(now){ if(!o.isConnected) return; const t=(now-t0)/1000, x=Math.min(1,t/D)
+    $('nuFxP').textContent=Math.floor(x*100); $('nuFxArc').style.strokeDashoffset=867*(1-x); $('nuFxT').textContent=String(Math.floor(t/60)).padStart(2,'0')+':'+(t%60).toFixed(1).padStart(4,'0').replace('.',',')
+    $('nuFxL').textContent='LECTURA '+Math.floor(x*128)+' / 128 VARIABLES'; cols.forEach((c,i)=>c.style.transform='translateY('+(-(t*(i?40:64))%1100)+'px)')
+    met.forEach((m,i)=>{ const v=m[1]==null?null:+m[1]*Math.min(1,x*1.3)*(x<.75?(.9+Math.random()*.2):1); $('nuFxM'+i).textContent=fmt(v,m[3]) })
+    const np=Math.min(lis.length-1,Math.floor(x*lis.length)); if(np!==paso){ paso=np; NSFX.play('scan-paso',0,.8); lis.forEach((li,i)=>{ li.className=i<paso?'ok':i===paso?'on':''; li.querySelector('i').innerHTML=i<paso?tic:'' }) }
+    if(x<1){ o._raf=requestAnimationFrame(fr); return }
+    lis.forEach(li=>{ li.className='ok'; li.querySelector('i').innerHTML=tic }); if(o._loop){ try{ o._loop.stop() }catch(_){} o._loop=null } NSFX.play('scan-lock',0,1); setTimeout(fin,800) }
+  o._raf=requestAnimationFrame(fr)
+  return { listo, cerrar:plFxCerrar }
+}
+function plFxResultado(fila){
+  plFxCerrar(); const ix=fila.intake||{}, c=fila.contenido||{}, K=fila.kcal||((fila.proteina_g||0)*4+(fila.carbohidrato_g||0)*4+(fila.grasa_g||0)*9)||1
+  const restr=[].concat(ix.restricciones_lista||[], String(ix.no_consume||'').split(',').map(x=>x.trim()).filter(Boolean).map(x=>'SIN '+x.toUpperCase()))
+  const obj={ deficit:'Pérdida de grasa', mant:'Recomposición corporal', super:'Ganancia muscular' }[ix.objetivo]||'Plan nutricional'
+  const f=d=>new Date(d+'T12:00:00').toLocaleDateString('es-CL',{ day:'numeric', month:'short', year:'numeric' }).replace(/\./g,'').toUpperCase()
+  const ini=fila.inicio||new Date().toISOString().slice(0,10), re=new Date(new Date(ini+'T12:00:00').getTime()+(fila.semanas||6)*7*864e5).toISOString().slice(0,10)
+  const pct=fila.tdee&&fila.kcal?Math.round((fila.kcal-fila.tdee)/fila.tdee*100):null
+  const mac=(l,g,k)=>'<div>'+l+'<s><u style="width:'+Math.min(100,(g||0)*k/K*100)+'%"></u></s><em>'+(g!=null?Math.round(g)+' G':'—')+'</em></div>'
+  const evs=((CMP.data&&CMP.data.evaluaciones)||[]).filter(e=>e.estado==='publicada')
+  const com=(c.comidas||[]).slice(0,6)
+  const ali=m=>{ const o=(m.opciones||[])[0]; return o&&o.alimentos?o.alimentos.slice(0,3).map(a=>a.alimento).filter(Boolean).join(', '):'' }
+  const o=document.createElement('div'); o.id='nuFx'; o.className='nuFx nuFx--res'; document.documentElement.style.overflow='hidden'
+  o.innerHTML='<div class="nuFxR"><div class="nuFxR__hd"><img src="/img/brand/logotipo-koach.png" alt="koach"><span class="nuFxR__sello"><span class="nuFx__tic"><svg viewBox="0 0 10 10"><path d="M2 5.2l2 2 4-4.4"/></svg></span>PLAN PUBLICADO · YA ESTÁ EN SU APP</span></div>'+
+    '<div class="nuFxR__top"><div><span class="nuFxR__k">PLAN NUTRICIONAL · OBJETIVO</span><h2><span class="nuFxR__pl">'+adEsc(obj)+'</span></h2></div>'+
+      '<div class="nuFxR__meta"><b>'+adEsc(nomDe(F.id).toUpperCase())+'</b><br>PUBLICADO '+f(new Date().toISOString().slice(0,10))+'<br>REEVALUACIÓN '+f(re)+(restr.length?'<span class="nuFxR__rx"><i></i>'+adEsc(restr.join(' · '))+'</span>':'')+'</div></div>'+
+    '<div class="nuFxR__g"><div class="nuFxR__c"><span class="nuFxR__k">CALORÍAS DEL DÍA</span><div class="nuFxR__big"><span class="nuFxR__pl">'+Math.round(K).toLocaleString('es-CL')+'</span><small>KCAL'+(pct!=null?'<br>'+(pct>0?'+':pct<0?'−':'±')+Math.abs(pct)+' % DEL GASTO':'')+'</small></div>'+
+      '<div class="nuFxR__m">'+mac('PROTEÍNA',fila.proteina_g,4)+mac('CARBOS',fila.carbohidrato_g,4)+mac('GRASAS',fila.grasa_g,9)+'</div></div>'+
+      (evs.length?cmpHero(evs,'m')+cmpHero(evs,'g'):'<div class="nuFxR__c"><span class="nuFxR__k">COMPOSICIÓN CORPORAL</span><p class="nuFxR__p">Sin evaluación publicada todavía.</p></div>')+'</div>'+
+    (com.length?'<div class="nuFxR__l" style="grid-template-columns:repeat('+Math.min(com.length,4)+',minmax(0,1fr))">'+com.slice(0,4).map((m,i)=>'<div><b>'+adEsc((m.nombre||'COMIDA '+(i+1)).toUpperCase())+'<span>'+adEsc(m.hora||'')+'</span></b><p>'+adEsc(ali(m)||m.aporte||'')+'</p>'+(m.aporte?'<em>'+adEsc(String(m.aporte).toUpperCase())+'</em>':'')+'</div>').join('')+'</div>':'')+
+    '<div class="nuFxR__b"><button type="button" class="nuFxR__btn" onclick="plFxCerrar()">VOLVER A LA FICHA</button></div></div>'
+  document.body.appendChild(o); NSFX.load(['logro']).then(()=>NSFX.play('logro',0,1)); requestAnimationFrame(()=>o.classList.add('anim'))
 }
