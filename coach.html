@@ -6030,7 +6030,8 @@ function pintarPlan(){ setTimeout(function(){ try{ plSaveUI(); rtSyncPlan() }cat
     _plPos++
     const nom = ((P.bib ? (s.nombre||'') : s.nombre)||'').replace(/ Y /g,' + ')
     const hdl = ''  // header = solo navegación; reorganizar vive en ORGANIZAR SEMANA (próxima vista)
-    const opc = (i===P.tab && !P.bib && !P.base) ? '<button class="tabOpc" onclick="event.stopPropagation();abrirSesOpc()">•••</button>' : ''
+    const opc = (i===P.tab && !P.bib && !P.base) ? '<button class="tabOpc" onclick="event.stopPropagation();abrirSesOpc()">•••</button>'
+      : (i===P.tab && P.xs) ? '<button class="tabOpc" title="Cambiar nombre de la extra" onclick="event.stopPropagation();plRenombrar(\''+s.id+'\')">✎</button>' : ''   // c321 · la copia personal de una extra se renombra aquí
     const _num = P.bib?'★':String(_plW!=null?_plPos:(i+1)).padStart(2,'0')
     return '<div class="mtab '+(i===P.tab?'on':'')+'" role="tab" tabindex="0" aria-selected="'+(i===P.tab)+'" data-sid="'+s.id+'" data-i="'+i+'" onclick="tabTap('+i+')" onkeydown="if(event.key===\'Enter\'||event.key===\' \'){event.preventDefault();tabTap('+i+')}">'+
       '<span class="sN">'+hdl+_num+'</span><span class="sT">'+nom+'</span>'+(s.temporal&&!P.bib&&!P.base?'<span title="Cambio solo para esta semana: las siguientes mantienen su diseño" style="margin-left:6px;font-size:8px;font-weight:900;letter-spacing:.12em;padding:2px 6px;border-radius:6px;background:#C8502A;color:#fff">EXCEPCIÓN</span>':'')+opc+'</div>'
@@ -11789,6 +11790,7 @@ function scMenu(ev,key){
   else if (ex){
     I('VER RESUMEN','scAbrirRes(\''+key+'\')')
     if (ex.tipo==='designada') I('ABRIR / EDITAR RUTINA','scEditarExtra(\''+ex.id+'\')')
+    if (ex.tipo==='designada') I('CAMBIAR NOMBRE','scRenombrarExtra(\''+ex.id+'\')')   // c321
     if (ex.tipo==='designada' && ex.estado!=='completada') I('FIJAR EN LA SEMANA (SESIÓN PRINCIPAL)','scFijarExtra(\''+ex.id+'\')')
     if (ex.estado==='habilitada') I('QUITAR HABILITACIÓN','scAccion(\'quitar_habilitacion\')')
     else if (ex.tipo==='designada' && ex.estado==='disponible') I('HABILITAR HOY','scAccion(\'habilitar\',null,\''+ex.sesion_id+'\',true)')
@@ -11870,6 +11872,19 @@ async function scEditarExtra(desigId){
   const vs=document.getElementById('pVolverSoc'); if (vs){ vs.style.display=''; vs.setAttribute('href','coach.html#/socio/'+fid) }
   document.title=rtNombreCorto(fid)+' · Extra | KOACH'
   if (r.data.copiada) toast('Copia personal creada: los cambios solo afectan a '+nomDe(fid).split(' ')[0])
+}
+// c321 · renombrar una extra: primero se asegura la copia personal del socio (la biblioteca no cambia) y se renombra esa copia
+function scRenombrarExtra(desigId){
+  const x=scExtras().find(function(e){ return e.tipo==='designada' && e.id===desigId }); if(!x||!F) return
+  const fid=F.id
+  idlgAbrir('CAMBIAR NOMBRE DE LA EXTRA','Solo cambia la extra de '+nomDe(fid).split(' ')[0]+'. La biblioteca no se toca.', String(x.nombre||'').toUpperCase(), 'GUARDAR', async function(nombre){
+    scGuard('run')
+    const rp=await sb.rpc('koach_extra_personalizar',{ p_designacion:desigId })
+    if (rp.error){ scGuard('err'); toast('No se pudo renombrar: '+rp.error.message); return }
+    const r=await sb.rpc('koach_renombrar_sesion',{ p_sesion:rp.data.sesion_id, p_nombre:nombre })
+    if (r.error){ scGuard('err'); toast('No se pudo renombrar: '+r.error.message); return }
+    scGuard('ok'); toast('Nombre actualizado ✓ · el socio lo ve al instante'); if (F && F.id===fid) scCargar(fid)
+  })
 }
 async function scFijarExtra(id){
   const x=scExtras().find(function(e){ return e.tipo==='designada' && e.id===id }); if(!x||!F) return

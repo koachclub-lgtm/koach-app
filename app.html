@@ -5272,12 +5272,14 @@ function homeHero(o){
   else if (ec){ kicker='SESIÓN EN CURSO'; cta1='TIENES UN ENTRENAMIENTO EN CURSO'; cta2=ses.nombre+' · BACK TO WORK →'; frase=fraseTitular(ses,true) }
   else if (e.entrenoHoy){ kicker='ENTRENAMIENTO DE HOY'; cta1=o.ctaT; cta2=o.ctaS; frase='<span class="kh__f1">Hoy ya sumaste.</span><b class="kh__f2">Ahora recupera</b>' }
   else if (S.memBloqueo || e.completa){ kicker=e.completa?'SEMANA COMPLETADA':'TU PRÓXIMA SESIÓN'; cta1=o.ctaT; cta2=o.ctaS; frase=e.completa&&!S.memBloqueo?'<span class="kh__f1">Semana cumplida.</span><b class="kh__f2">Descansa fuerte</b>':'' }
+  const exOk = !!(ses && !ec && !e.entrenoHoy && !S.memBloqueo && e.prox && e.prox._extra && ses.id===e.prox.id)   // c321 · extra del koach lista para hoy
+  if (exOk){ kicker='★ SESIÓN EXTRA · '+(e.prox._hab?'HABILITADA HOY':'DE TU KOACH'); cta1=o.ctaT; cta2=o.ctaS; frase=fraseTitular(ses,false) }
   let pvL=false
-  if (ses && !ec && !e.entrenoHoy && !S.memBloqueo && !e.completa) pvL=true
+  if (ses && !ec && !e.entrenoHoy && !S.memBloqueo && !e.completa && !exOk) pvL=true
   if (pvL){ kicker='TU PRÓXIMA SESIÓN'; cta1='COMENZAR ENTRENAMIENTO'; cta2=ses.nombre+' · SESIÓN '+posSem(ses)+' DE '+e.total+' →'; frase=fraseTitular(ses,false) }
   const pills = ses ? pillsSesion(ses,{max:3, mas:true}) : ''
   const sn = sesionNumeroCard(o)
-  const pillTxt = !ses ? (o.disabled?o.ctaT:'START') : ec ? 'START' : e.entrenoHoy ? 'VER RESUMEN' : S.memBloqueo ? 'VER MI MEMBRESÍA'
+  const pillTxt = !ses ? (o.disabled?o.ctaT:'START') : ec ? 'START' : e.entrenoHoy ? 'VER RESUMEN' : S.memBloqueo ? 'VER MI MEMBRESÍA' : exOk ? 'START'
     : e.completa ? (o.disabled?'SEMANA COMPLETADA ✓':'PEDIR SESIÓN EXTRA') : 'START'
   const cnt = ses && !ses._extra ? '<span class="hh__n"><b>'+String(posSem(ses)).padStart(2,'0')+'</b> / '+String(e.total).padStart(2,'0')+'</span>' : ''
   // título: una palabra → una línea; dos palabras → dos líneas; tres o más → balance con un escalón menos
@@ -6648,7 +6650,7 @@ async function entrar(opts){
         if (!s) return
         S.programa.sesiones.push({
           numero: 1000+i, semana: (S.semanaProg||S.semanaActual), id: s.id, _extra: true, _desigId: d.id, _estado: d.estado, _rec: !!d.recurrente, _soloKoach: d.activacion==='koach', _libre: d.activacion==='libre',
-          nombre: '★ '+(nombreEN(s.objetivo)||('SESIÓN '+s.numero)),
+          nombre: '★ '+(nombreEN(s.nombre||s.objetivo)||('SESIÓN '+s.numero)),   // c321 · la extra se llama igual que en la Sala del koach
           bloquesFull:exBlo.filter(b=>b.sesion_id===s.id),
           bloques:exBlo.filter(b=>b.sesion_id===s.id).map(b=>({
             sets:b.sets,
@@ -7303,7 +7305,7 @@ function pintarHome(){
     document.getElementById('hCtaT').textContent='VER RESUMEN DE HOY'
     const _e=estadoSemana()
     document.getElementById('hCtaS').textContent=((_e.hoySes?_e.hoySes.nombre+' COMPLETADA':'SESIÓN COMPLETADA')+' · DISPONIBLE HASTA LAS 00:00').toUpperCase()
-  } else if (sem.completa && sem.proxima && sem.proxima._extra){
+  } else if (sem.proxima && sem.proxima._extra){   // c321 · extra habilitada o designada: manda sobre "pedir extra" aunque la semana esté completa
     cta.disabled=false; cta.onclick=()=>abrirSesion()
     document.getElementById('hCtaT').textContent='★ SESIÓN EXTRA'
     document.getElementById('hCtaS').textContent=sem.proxima.nombre.replace('★ ','')+' · DESIGNADA POR TU KOACH'
