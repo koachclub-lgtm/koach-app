@@ -209,7 +209,7 @@ html.en-club .wrap{padding:0!important}
     clearInterval(K.poll); K.poll = setInterval(function () { if (!v.classList.contains('on')) { clearInterval(K.poll); return } refrescar() }, 25000)
   }
   async function refrescar() { await cargarEstado(); await cargarListas(); if ($('vClub') && $('vClub').classList.contains('on')) pintarVista() }
-  function cierre(ch) { return ['DOM', 'LUN', 'MAR', 'MIÉ', 'JUE', 'VIE', 'SÁB'][new Date(ch.fin).getDay()] }
+  function cierre(ch) { var d = new Date(ch.fin); return d.getDate() + ' ' + ['ENE','FEB','MAR','ABR','MAY','JUN','JUL','AGO','SEP','OCT','NOV','DIC'][d.getMonth()] }
   function pintarVista() {
     var v = $('vClub'); if (!v) return
     var st = K.st || {}, ch = K.ch, mia = st.mia
@@ -228,7 +228,7 @@ html.en-club .wrap{padding:0!important}
       '<div class="kcStats"><div><b>' + (st.miembros || 0) + '</b><small>EN EL CLUB</small></div><div><b>' + (st.participantes || 0) + '</b><small>MARCAS</small></div><div><b>' + (abierto ? cierre(ch) : 'FIN') + '</b><small>' + (abierto ? 'CIERRA' : 'CERRADO') + '</small></div></div>' +
       (mia ? '<div class="kcMia"><div><small>TU MARCA</small><b>' + mia.score + '</b></div><div style="text-align:right"><small>' + (posNum() ? 'POSICIÓN #' + posNum() + ' DE ' + K.rank.length : '') + '</small>' + estTag(mia.estado) + '</div></div>' : '') +
       '<div class="kcAct">' + (abierto ? (!st.miembro ? '<button class="kcB kcB--p" type="button" onclick="KCLUB.unirse(true)">ÚNETE AL CLUB DEL 1%</button>'
-        : '<button class="kcB kcB--p" type="button" onclick="KCLUB.challenge()">' + (mia ? 'MEJORAR MI MARCA' : 'ENTRAR AL CHALLENGE') + '</button>') : '') +
+        : (mia ? '' : '<button class="kcB kcB--p" type="button" onclick="KCLUB.challenge()">ENTRAR AL CHALLENGE</button>')) : '') +
       (mia ? '<button class="kcB kcB--s" type="button" onclick="KCLUB.compartir()">COMPARTIR HISTORIA</button>' : '') + '</div></div></section><div class="kcBody">'
     h += '<div class="kcSec"><span>RANKING · ' + (st.participantes || 0) + '</span><span class="kcSeg">' + ['todos', 'mujeres', 'hombres'].map(function (f) { return '<button type="button" aria-pressed="' + (K.filtro === f) + '" onclick="KCLUB.filtro(\'' + f + '\')">' + f.toUpperCase() + '</button>' }).join('') + '</span></div>'
     var lista = K.rank.filter(function (x) { return K.filtro === 'todos' || (K.filtro === 'mujeres' ? x.sexo === 'mujer' : x.sexo === 'hombre') })
@@ -274,8 +274,8 @@ html.en-club .wrap{padding:0!important}
   /* ── tarjeta en el Home (debajo de TU NUTRICIÓN DEL DÍA): entrada al 1% CLUB, sin avisos ── */
   function homeHTML() {
     var st = K.st || {}, ch = K.ch, mia = st.mia
-    var cierre = ch ? ['DOM', 'LUN', 'MAR', 'MIÉ', 'JUE', 'VIE', 'SÁB'][new Date(ch.fin).getDay()] : ''
-    var sig = ch && ch.abierto ? '<b>1 CHALLENGE ACTIVO</b>' + (mia ? 'TU MARCA · ' + mia.score : 'HASTA EL ' + cierre)
+    var cierre = ch ? (['DOM', 'LUN', 'MAR', 'MIÉ', 'JUE', 'VIE', 'SÁB'][new Date(ch.fin).getDay()] + ' ' + new Date(ch.fin).getDate()) : ''
+    var sig = ch && ch.abierto ? '<b>1 CHALLENGE ACTIVO</b>' + (mia ? 'TU MARCA · ' + mia.score : 'CIERRA EL ' + cierre)
       : ch ? '<b>CHALLENGE CERRADO</b>VER RESULTADOS' : '<b>PRÓXIMO CHALLENGE</b>MUY PRONTO'
     return '<div class="nuHm__hd"><span>COMUNIDAD</span><span><b>' + (st.miembros || 0) + '</b> EN EL CLUB</span></div>' +
       '<div class="nuHm__big"><div class="nuHm__num"><b>1%</b><span>CLUB</span></div></div>' +
@@ -337,8 +337,9 @@ html.en-club .wrap{padding:0!important}
   }
   function abrirRun() {
     cerrarGate(); var ch = K.ch; if (!ch) return
+    if (K.st && K.st.mia) { aviso('Ya registraste tu marca: ' + K.st.mia.score + '. El challenge tiene una sola oportunidad.'); return }
     runPintar(clip(ch) + '<p class="kcK">' + esc(ch.titulo) + '</p><div class="kcClk">' + seg(mmss(ch.duracion_seg || 180)) + '</div>' +
-      '<p class="kcD">' + esc(ch.descripcion) + '</p><p class="kcS">' + esc(ch.estandar || '') + '<br><br>Hazlo en pareja: uno hace, el otro cuenta. Después cambian.</p>',
+      '<p class="kcD">' + esc(ch.descripcion) + '</p><p class="kcS">' + esc(ch.estandar || '') + '<br><br>Hazlo en pareja: uno hace, el otro cuenta. Después cambian.<br><br><b style="color:#3EC6B0">TIENES UNA SOLA OPORTUNIDAD.</b></p>',
       '<button class="kcB kcB--p" type="button" onclick="KCLUB._runStart()">START ' + mmss(ch.duracion_seg || 180) + '</button>' +
       '<button class="kcB kcB--t" type="button" onclick="KCLUB._runMarca()">YA LO HICE · REGISTRAR MI MARCA</button>')
   }
@@ -371,6 +372,7 @@ html.en-club .wrap{padding:0!important}
   async function registrar() {
     var i = $('kcNum'), v = parseInt(i && i.value), b = $('kcReg')
     if (!v || v < 1 || v > 150) { aviso('Ingresa una marca entre 1 y 150.'); return }
+    if (!confirm('¿Registrar ' + v + ' burpees? Tienes una sola oportunidad y no se puede cambiar.')) return
     b.disabled = true
     try {
       var r = await rpc('club_registrar', { p_challenge: K.ch.id, p_score: v })
