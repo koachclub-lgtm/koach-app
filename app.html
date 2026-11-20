@@ -11124,6 +11124,9 @@ document.addEventListener('DOMContentLoaded', async ()=>{
     <div class="kset__opts" id="ksOSol" hidden>
       <div class="kset__row"><span>FONDO</span><button type="button" class="kset__chip" data-ks="fondo" data-v="solido" aria-pressed="true">SÓLIDO</button><button type="button" class="kset__chip" data-ks="fondo" data-v="foto" aria-pressed="false">TU FOTO</button><button type="button" class="kset__chip" data-ks="fondo" data-v="blur" aria-pressed="false">FOTO DESENFOCADA</button></div>
     </div>
+    <div class="kset__opts" id="ksOTr2" hidden>
+      <div class="kset__row"><span>ESTILO</span><button type="button" class="kset__chip" data-ks="estiloT" data-v="resumen" aria-pressed="true">RESUMEN</button><button type="button" class="kset__chip" data-ks="estiloT" data-v="editorial" aria-pressed="false">EDITORIAL</button><button type="button" class="kset__chip" data-ks="estiloT" data-v="ticket" aria-pressed="false">TICKET</button><button type="button" class="kset__chip" data-ks="estiloT" data-v="dia" aria-pressed="false">DÍA</button><button type="button" class="kset__chip" data-ks="estiloT" data-v="ton" aria-pressed="false">TONELAJE</button><button type="button" class="kset__chip" data-ks="estiloT" data-v="min" aria-pressed="false">MINIMALIST</button></div>
+    </div>
     <div class="kset__opts" id="ksOTr" hidden>
       <div class="kset__row"><span>DATOS</span><button type="button" class="kset__chip" data-ks="lado" data-v="izq" aria-pressed="true">IZQUIERDA</button><button type="button" class="kset__chip" data-ks="lado" data-v="der" aria-pressed="false">DERECHA</button></div>
       <div class="kset__row"><span>RUTA</span><button type="button" class="kset__chip" data-ks="rutaT" data-v="DIAG" aria-pressed="false">DIAGONAL</button><button type="button" class="kset__chip" data-ks="rutaT" data-v="L" aria-pressed="false">L</button><button type="button" class="kset__chip" data-ks="rutaT" data-v="ELBOW" aria-pressed="true">CODO</button></div>
@@ -11416,7 +11419,7 @@ function renderSenalador(ctx, d, tema, lado, tam, largo, mira, o) {
 })();
 
 /* Controlador: MOMENTO DE LOGRO (micro-animación) + COMPARTE TU LOGRO (gris · con tu foto · transparente) */
-const KS = { formato: 'gris', estilo: 'editorial', filtro: 'frio', ruta: 'auto', rutaT: 'ELBOW', lado: 'izq', largo: 'media', mira: 'circulo', tema: 'blanco', foto: null, target: null, data: null, desdeCierre: false, cierre: null };
+const KS = { formato: 'gris', estilo: 'editorial', filtro: 'frio', ruta: 'auto', rutaT: 'ELBOW', lado: 'izq', largo: 'media', mira: 'circulo', tema: 'blanco', estiloT: 'resumen', foto: null, target: null, data: null, desdeCierre: false, cierre: null };
 const ksEl = id => document.getElementById(id);
 function ksSt(t) { ksEl('ksSt').textContent = t || '' }
 async function ksFuentes() { try { await Promise.all(["700 100px 'Inter Display'", "600 100px 'Inter Display'", "700 100px 'Space Mono'", "500 100px 'IBM Plex Mono'", "900 100px 'KOACH Display'", "800 100px 'KOACH Display'"].map(f => document.fonts.load(f)).concat(document.fonts.load("700 100px 'KOACH Symbols'", '✓'))) } catch (_) {} }
@@ -11468,10 +11471,11 @@ function ksPintar() {
     else if (KS.estilo === 'visor') { kmAsegurar(); kaVisor(ctx) }
     else if (KS.estilo === 'tarjeta') KT.renderImagen(ctx, d, kmFoto(), { nitida: true });
     else { if (!KS.target) KS.target = ksTargetSugerido(); KT.renderSenalador(ctx, d, 'auto', 'izq', 1, 'media', KS.mira, { fondo: kmFoto(), target: KS.target, ruta: KS.ruta }) }
-  } else if (KS.estilo === 'ton') kaTon(ctx, true); else if (KS.estilo === 'min' || KS.estilo === 'min2') kaMin(ctx, true); else kaCaptura(ctx, true);
+  } else { const e = KS.estiloT;   // c320 · TRANSPARENTE con las plantillas que no dependen de la foto (sin MAPA, ESCÁNER ni MOVIMIENTO)
+    if (e === 'ton') kaTon(ctx, true); else if (e === 'min') kaMin(ctx, true); else if (e === 'editorial') kaEditorial(ctx, true); else if (e === 'ticket') kaTicket(ctx, true); else if (e === 'dia') kaDia(ctx, true); else kaCaptura(ctx, true) }
   ksEl('ksOFoto').hidden = !(KS.formato === 'foto' && KS.foto);
   document.querySelectorAll('#ksOFoto [data-solo]').forEach(r => r.hidden = KS.estilo !== r.dataset.solo);
-  ksEl('ksOTr').hidden = true;
+  ksEl('ksOTr').hidden = true; ksEl('ksOTr2').hidden = KS.formato !== 'transparente' || KS.fin;
   ksAcciones(sinFoto);
   ksPreparar(sinFoto);
 }
@@ -11903,11 +11907,11 @@ function kaBarras(ctx, x, y, w, h, color, seed) {
   let hs = 0; for (const c of String(seed)) hs = (hs * 31 + c.charCodeAt(0)) >>> 0; ctx.fillStyle = color; let cx = x;
   while (cx < x + w) { hs = (hs * 1103515245 + 12345) >>> 0; const bw = 3 + (hs >>> 16) % 3 * 3; if (cx + bw > x + w) break; ctx.fillRect(cx, y, bw, h); hs = (hs * 1103515245 + 12345) >>> 0; cx += bw + 3 + (hs >>> 16) % 2 * 3 }
 }
-function kaEditorial(ctx) {
+function kaEditorial(ctx, trans) {
   const W = KT.W, H = KT.H, d = kaDatos(), M = KS_SAFE_X, B = '#FFFFFF', G = '#C9CDD3';
-  ctx.clearRect(0, 0, W, H); ctx.drawImage(kmFoto(), 0, 0);
+  ctx.clearRect(0, 0, W, H); if (!trans) { ctx.drawImage(kmFoto(), 0, 0);
   const g = ctx.createLinearGradient(0, 0, 0, H); g.addColorStop(0, 'rgba(18,18,18,.5)'); g.addColorStop(.26, 'rgba(18,18,18,0)'); g.addColorStop(.38, 'rgba(18,18,18,0)'); g.addColorStop(.8, 'rgba(18,18,18,.85)'); g.addColorStop(1, 'rgba(18,18,18,.92)');
-  ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
+  ctx.fillStyle = g; ctx.fillRect(0, 0, W, H) }
   const lg = kaLogo('#FFFFFF'); if (lg) ctx.drawImage(lg, M, KS_SAFE_T - 60, lg.width * 39 / lg.height, 39);   // c167 · logo más arriba
   // c182 · arriba solo el logo
   // de abajo hacia arriba, sobre la zona segura inferior
@@ -11928,16 +11932,16 @@ function kaFondo() {
   const u = typeof kbgURL === 'function' ? kbgURL('acero') : ''; KM.fondo = { ok: false }; if (!u) return null;
   const im = new Image(); im.onload = () => { KM.fondo = { ok: true, im }; ksPintar() }; im.src = u; return null;
 }
-function kaTicket(ctx) {
+function kaTicket(ctx, trans) {
   // c141 · foto enmarcada grande (casi 9:16) + logo/fecha sobre la foto dentro de la zona segura + ticket de cristal montado al pie de la foto
   const W = KT.W, H = KT.H, d = kaDatos(), P = 54, INK = '#121212', MU = '#5E5D59', B = '#FFFFFF';
-  ctx.clearRect(0, 0, W, H); ctx.fillStyle = '#9A9DA2'; ctx.fillRect(0, 0, W, H);
-  const fo = kaFondo(); if (fo) ctx.drawImage(fo, 0, 0, W, H);
+  ctx.clearRect(0, 0, W, H); if (!trans) { ctx.fillStyle = '#9A9DA2'; ctx.fillRect(0, 0, W, H);
+  const fo = kaFondo(); if (fo) ctx.drawImage(fo, 0, 0, W, H) }
   // c170 · foto a sangre (llena la historia completa como Editorial y Mapa); cabecera igual a las otras plantillas; ticket de cristal al pie dentro de la zona segura
-  const fx = 0, fy = 0, fw = W, fh = H, src = kmFoto(), sx = 0, sy = 0, sw = W, sh = H;
-  ctx.drawImage(src, 0, 0, W, H);
+  const fx = 0, fy = 0, fw = W, fh = H, src = trans ? null : kmFoto(), sx = 0, sy = 0, sw = W, sh = H;
+  if (!trans) { ctx.drawImage(src, 0, 0, W, H);
   const g = ctx.createLinearGradient(0, 0, 0, H); g.addColorStop(0, 'rgba(18,18,18,.5)'); g.addColorStop(.2, 'rgba(18,18,18,0)'); g.addColorStop(.62, 'rgba(18,18,18,0)'); g.addColorStop(1, 'rgba(18,18,18,.55)');
-  ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
+  ctx.fillStyle = g; ctx.fillRect(0, 0, W, H) }
   const Mx = KS_SAFE_X;
   ctx.save(); ctx.shadowColor = 'rgba(0,0,0,.35)'; ctx.shadowBlur = 14;
   const lg = kaLogo(B); if (lg) ctx.drawImage(lg, Mx, KS_SAFE_T - 60, lg.width * 39 / lg.height, 39);
@@ -12074,10 +12078,10 @@ function kaTon(ctx, trans) {
   dat.forEach(([n, l], i) => { ctx.font = nf; ctx.textAlign = 'left'; ctx.fillText(n, x, 1745); x += ws[i][0] + 12; ctx.font = lf; if ('letterSpacing' in ctx) ctx.letterSpacing = '5px'; ctx.globalAlpha = .65; ctx.fillText(l, x, 1745); ctx.globalAlpha = 1; if ('letterSpacing' in ctx) ctx.letterSpacing = '0px'; x += ws[i][1] + gap });
   ctx.restore();
 }
-function kaDia(ctx) {
+function kaDia(ctx, trans) {
   const W = KT.W, H = KT.H, j = KS.data || {}, d = kaDatos(), B = '#FFFFFF';
-  ctx.clearRect(0, 0, W, H); ctx.drawImage(kmFoto(), 0, 0, W, H);
-  const g = ctx.createLinearGradient(0, 0, 0, H); g.addColorStop(0, 'rgba(18,18,18,.4)'); g.addColorStop(.2, 'rgba(18,18,18,0)'); g.addColorStop(.42, 'rgba(18,18,18,.12)'); g.addColorStop(.6, 'rgba(18,18,18,.12)'); g.addColorStop(.85, 'rgba(18,18,18,0)'); ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
+  ctx.clearRect(0, 0, W, H); if (!trans) { ctx.drawImage(kmFoto(), 0, 0, W, H);
+  const g = ctx.createLinearGradient(0, 0, 0, H); g.addColorStop(0, 'rgba(18,18,18,.4)'); g.addColorStop(.2, 'rgba(18,18,18,0)'); g.addColorStop(.42, 'rgba(18,18,18,.12)'); g.addColorStop(.6, 'rgba(18,18,18,.12)'); g.addColorStop(.85, 'rgba(18,18,18,0)'); ctx.fillStyle = g; ctx.fillRect(0, 0, W, H) }
   const F = (w, s) => w + " semi-expanded " + s + "px 'KOACH Display', 'Inter Display', Arial, sans-serif", M = s => "700 " + s + "px 'Space Mono', 'IBM Plex Mono', monospace";
   const f = j.fecha ? new Date(String(j.fecha).slice(0, 10) + 'T12:00:00') : new Date();
   const dia = ['SUNDAY', 'MONDAY', 'TUESDAY', 'WEDNESDAY', 'THURSDAY', 'FRIDAY', 'SATURDAY'][f.getDay()];
@@ -12096,7 +12100,7 @@ function kaDia(ctx) {
   while (rut && ctx.measureText(rut).width > max) rut = rut.slice(0, -1); rut = rut.trimEnd();
   ctx.textAlign = 'right'; ctx.fillText(rut, x0 + bw - 4, y2); if ('letterSpacing' in ctx) ctx.letterSpacing = '0px';
   ctx.restore();
-  ctx.save(); ctx.shadowColor = 'rgba(0,0,0,.35)'; ctx.shadowBlur = 14; const lg = kaLogo(B); if (lg) { const w = lg.width * 39 / lg.height; ctx.drawImage(lg, (W - w) / 2, H - KS_SAFE_B - 10, w, 39) }   // logo al pie, centrado ctx.restore();
+  ctx.save(); ctx.shadowColor = 'rgba(0,0,0,.35)'; ctx.shadowBlur = 14; const lg = kaLogo(B); if (lg) { const w = lg.width * 39 / lg.height; ctx.drawImage(lg, (W - w) / 2, H - KS_SAFE_B - 10, w, 39) } ctx.restore()   // logo al pie, centrado
 }
 function kaScan(ctx) {
   const W = KT.W, H = KT.H, j = KS.data || {}, d = kaDatos(), M = KS_SAFE_X, B = '#FFFFFF', G = 'rgba(255,255,255,.7)';
