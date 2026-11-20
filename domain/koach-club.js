@@ -111,6 +111,27 @@ html.en-club .wrap{padding:0!important}
 .kcRe button[aria-pressed=true]{border-color:#3EC6B0;color:#3EC6B0;background:rgba(62,198,176,.1)}
 .kcVac{font:700 9.5px/1.7 'Space Mono',monospace;letter-spacing:.08em;color:#979C9F;padding:14px;text-align:center;border:1px dashed rgba(255,255,255,.15);border-radius:10px}
 .kcConf{position:fixed;inset:0;pointer-events:none;z-index:96}
+@media (prefers-reduced-motion:no-preference){
+.kcHero.kcAnim .kcT b i{display:inline-block;font-style:normal;animation:kcSlam .6s cubic-bezier(.2,1.5,.4,1) both;animation-delay:calc(.2s + var(--i) * .14s)}
+.kcHero.kcAnim .kcT b{animation:kcFlick 1.1s linear .95s both}
+.kcHero.kcAnim .kcT span{animation:kcSpread .9s cubic-bezier(.2,.8,.2,1) .75s both}
+.kcHero.kcAnim .kcSun{animation:kcRise 1.2s cubic-bezier(.2,.8,.2,1) both}
+.kcHero.kcAnim .kcGrid{animation:kcRoad 1.6s linear infinite,kcFade .9s ease-out .3s both}
+.kcHero.kcAnim .kcK{animation:kcUp .5s ease-out .05s both}
+.kcHero.kcAnim .kcD,.kcHero.kcAnim .kcS{animation:kcUp .5s ease-out 1.05s both}
+.kcHero.kcAnim .kcStats{animation:kcUp .5s ease-out 1.2s both}
+.kcHero.kcAnim .kcMia,.kcHero.kcAnim .kcAct{animation:kcUp .5s ease-out 1.35s both}
+.kcHero.kcAnim .kcFlash{position:absolute;inset:0;z-index:2;pointer-events:none;background:radial-gradient(circle at 50% 34%,rgba(255,61,154,.55),transparent 60%);animation:kcFlashA .7s ease-out .55s both}
+}
+.kcFlash{display:none}.kcHero.kcAnim .kcFlash{display:block}
+@keyframes kcSlam{0%{opacity:0;transform:translateY(-60px) scale(2.4);filter:blur(8px)}55%{opacity:1;filter:blur(0)}75%{transform:translateY(4px) scale(.96)}100%{opacity:1;transform:none;filter:none}}
+@keyframes kcFlick{0%,100%{opacity:1}8%{opacity:.35}12%{opacity:1}20%{opacity:.5}24%,60%{opacity:1}64%{opacity:.7}68%{opacity:1}}
+@keyframes kcSpread{0%{opacity:0;letter-spacing:1.4em}100%{opacity:1;letter-spacing:.42em}}
+@keyframes kcRise{0%{opacity:0;transform:translate(-50%,-10%) scale(.85)}100%{opacity:1;transform:translate(-50%,-50%) scale(1)}}
+@keyframes kcFade{from{opacity:0}to{opacity:1}}
+@keyframes kcUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+@keyframes kcFlashA{0%{opacity:0}30%{opacity:1}100%{opacity:0}}
+
 .kcClip{width:min(78vw,330px);aspect-ratio:1;border-radius:16px;overflow:hidden;margin:0 auto 14px;box-shadow:0 0 0 1px rgba(62,198,176,.45),0 0 40px rgba(255,61,154,.25);background:#0B0C0E;position:relative;z-index:1}
 .kcClip video{width:100%;height:100%;object-fit:cover;display:block}
 .kcClip.mini{width:min(46vw,190px);margin-bottom:6px}
@@ -140,7 +161,9 @@ html.en-club .wrap{padding:0!important}
 `
   function estilos() { if ($('kcCss')) return; var s = document.createElement('style'); s.id = 'kcCss'; s.textContent = css; document.head.appendChild(s) }
   function fondo() { return '<div class="kcBg" aria-hidden="true"><div class="kcSun"></div><div class="kcGrid"></div></div>' }
-  function titulo(ch) { var t = String(ch.titulo || '').split(' '), a = t.shift() || '', b = t.join(' '); return '<h1 class="kcT"><b>' + esc(a) + '</b><span>' + esc(b) + '</span></h1>' }
+  function titulo(ch, letras) { var t = String(ch.titulo || '').split(' '), a = t.shift() || '', b = t.join(' ')
+    var A = letras ? a.split('').map(function (c, i) { return '<i style="--i:' + i + '">' + esc(c) + '</i>' }).join('') : esc(a)
+    return '<h1 class="kcT" aria-label="' + esc(ch.titulo) + '"><b>' + A + '</b><span>' + esc(b) + '</span></h1>' }
 
   /* ── datos ── */
   async function rpc(n, a) { var r = await cli().rpc(n, a || {}); if (r.error) throw r.error; return r.data }
@@ -175,6 +198,7 @@ html.en-club .wrap{padding:0!important}
   /* ── vista 1% CLUB ── */
   async function abrirVista() {
     var v = $('vClub'); if (!v) return
+    K.animar = true
     if (!K.st) v.innerHTML = '<div class="kcTop"><img src="/img/brand/logotipo-koach.png" alt="KOACH"></div><p class="kcHs">CARGANDO EL CLUB…</p>'
     await cargarEstado(); await cargarListas(); pintarVista()
     clearInterval(K.poll); K.poll = setInterval(function () { if (!v.classList.contains('on')) { clearInterval(K.poll); return } refrescar() }, 25000)
@@ -191,8 +215,10 @@ html.en-club .wrap{padding:0!important}
       return
     }
     var abierto = ch.abierto
-    var h = '<section class="kcHero">' + fondo() + '<div class="kcIn">' + top +
-      '<p class="kcK">CHALLENGE 01 · ' + (abierto ? 'ABIERTO' : 'RESULTADOS') + '</p>' + titulo(ch) +
+    var anim = !!K.animar; K.animar = false
+    if (anim) { setTimeout(function () { snd('riser', .5) }, 150); setTimeout(function () { snd('block', .7); try { navigator.vibrate && navigator.vibrate(30) } catch (_) {} }, 620) }
+    var h = '<section class="kcHero' + (anim ? ' kcAnim' : '') + '">' + fondo() + (anim ? '<i class="kcFlash" aria-hidden="true"></i>' : '') + '<div class="kcIn">' + top +
+      '<p class="kcK">CHALLENGE 01 · ' + (abierto ? 'ABIERTO' : 'RESULTADOS') + '</p>' + titulo(ch, true) +
       '<p class="kcD">' + esc(ch.descripcion || '') + '</p><p class="kcS">' + esc(ch.estandar || '') + '</p>' +
       '<div class="kcStats"><div><b>' + (st.miembros || 0) + '</b><small>EN EL CLUB</small></div><div><b>' + (st.participantes || 0) + '</b><small>MARCAS</small></div><div><b>' + (abierto ? cierre(ch) : 'FIN') + '</b><small>' + (abierto ? 'CIERRA' : 'CERRADO') + '</small></div></div>' +
       (mia ? '<div class="kcMia"><div><small>TU MARCA</small><b>' + mia.score + '</b></div><div style="text-align:right"><small>' + (posNum() ? 'POSICIÓN #' + posNum() + ' DE ' + K.rank.length : '') + '</small>' + estTag(mia.estado) + '</div></div>' : '') +
