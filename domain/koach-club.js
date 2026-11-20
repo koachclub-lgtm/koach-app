@@ -155,6 +155,7 @@ html.en-club .wrap{padding:0!important}
 .kcHm__rk li span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .kcHm__rk li b{font:900 15px/1 'KOACH Display',sans-serif}
 .kcHm__rk li.yo span,.kcHm__rk li.yo b{color:#3EC6B0}
+.kcHm2{cursor:pointer;text-align:left}.kcHm2 .nuHm__esc span{letter-spacing:.14em}.kcHm2 .kcHm__go2{gap:12px;padding:0 18px 0 22px}.kcHm2 .kcHm__go2 svg{width:18px;height:18px}
 .kcHm__go{display:inline-flex;align-items:center;min-height:42px;padding:0 18px;border-radius:999px;background:#F2F2F2;color:#0B0C0E;font:700 11px/1 'Space Mono',monospace;letter-spacing:.14em;box-shadow:0 0 0 1px #3EC6B0}
 
 .kcR .kcSun{opacity:.32;top:24%}
@@ -269,15 +270,14 @@ html.en-club .wrap{padding:0!important}
   /* ── tarjeta en el Home (debajo de TU NUTRICIÓN DEL DÍA): entrada al 1% CLUB, sin avisos ── */
   function homeHTML() {
     var st = K.st || {}, ch = K.ch, mia = st.mia
-    if (!ch) return ''
-    var cierre = ['DOM', 'LUN', 'MAR', 'MIÉ', 'JUE', 'VIE', 'SÁB'][new Date(ch.fin).getDay()]
-    var t = String(ch.titulo || '').split(' '), a = t.shift() || '', b = t.join(' ')
-    return '<div class="kcBg" aria-hidden="true"><div class="kcSun"></div><div class="kcGrid"></div></div><div class="kcHm__in">' +
-      '<div class="kcHm__hd"><span>1% CLUB · CHALLENGE</span><span>' + (ch.abierto ? 'HASTA EL ' + cierre : 'RESULTADOS') + '</span></div>' +
-      '<div class="kcHm__t">' + esc(a) + '<small>' + esc(b) + '</small></div>' +
-      '<p class="kcHm__d">' + esc(ch.descripcion || '') + '</p>' + top3() +
-      '<div class="kcHm__ft"><span class="kcHm__st">' + (mia ? 'TU MARCA <b>' + mia.score + '</b>' : '<b>' + (st.participantes || 0) + '</b> MARCAS') + '<br><b>' + (st.miembros || 0) + '</b> EN EL CLUB</span>' +
-      '<span class="kcHm__go">' + (K.rank.length ? 'VER RANKING' : (ch.abierto ? 'ENTRAR' : 'VER RESULTADOS')) + '</span></div></div>'
+    var cierre = ch ? ['DOM', 'LUN', 'MAR', 'MIÉ', 'JUE', 'VIE', 'SÁB'][new Date(ch.fin).getDay()] : ''
+    var sig = ch && ch.abierto ? '<b>1 CHALLENGE ACTIVO</b>' + (mia ? 'TU MARCA · ' + mia.score : 'HASTA EL ' + cierre)
+      : ch ? '<b>CHALLENGE CERRADO</b>VER RESULTADOS' : '<b>PRÓXIMO CHALLENGE</b>MUY PRONTO'
+    return '<div class="nuHm__hd"><span>COMUNIDAD</span><span><b>' + (st.miembros || 0) + '</b> EN EL CLUB</span></div>' +
+      '<div class="nuHm__big"><div class="nuHm__num"><b>1%</b><span>CLUB</span></div></div>' +
+      '<div class="nuHm__esc"><span>DESAFÍOS · COMUNIDAD · ACTIVIDADES</span></div>' +
+      '<div class="nuHm__ft"><span class="nuHm__scan kcHm__go2">ENTRAR<svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>' +
+      '<div class="nuHm__sig">' + sig + '</div></div>'
   }
   function top3() {
     var t = K.rank.slice(0, 3); if (!t.length) return ''
@@ -287,9 +287,8 @@ html.en-club .wrap{padding:0!important}
   }
   function pintarHome() {
     var nu = $('nuHm'), card = $('kcHm'), html = homeHTML()
-    if (!html) { if (card) card.remove(); return }
-    if (!nu) return
-    if (!card) { card = document.createElement('button'); card.type = 'button'; card.id = 'kcHm'; card.className = 'kcHm'; card.setAttribute('aria-label', 'Entrar al 1% Club'); card.onclick = function () { K.irRanking = K.rank.length > 0; tab('vClub') } }
+    if (!K.st || !nu) return
+    if (!card) { card = document.createElement('section'); card.id = 'kcHm'; card.className = 'nuHm kcHm2'; card.setAttribute('role', 'button'); card.setAttribute('tabindex', '0'); card.setAttribute('aria-label', 'Entrar al 1% Club'); card.onclick = function () { tab('vClub') } }
     if (nu.nextSibling !== card) nu.parentNode.insertBefore(card, nu.nextSibling)
     if (card._h !== html) { card.innerHTML = html; card._h = html }
   }
