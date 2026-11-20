@@ -6751,6 +6751,11 @@ function rtPlanSuscribir(uid){
       const n=ev&&ev.new, o=ev&&ev.old
       if (ev && ev.eventType==='UPDATE' && n && o && o.plan_revision!=null && n.plan_revision===o.plan_revision && n.activo===o.activo && n.semana_actual===o.semana_actual) return   // solo cambió la ejecución
       clearTimeout(_rtDeb); _rtDeb=setTimeout(function(){ planActualizado('rt') }, 600) })
+    // c320 · el koach habilita una sesión o designa/retira una extra → la pantalla del socio se actualiza en vivo
+    .on('postgres_changes', { event:'*', schema:'public', table:'sesion_habilitada', filter:'socio_id=eq.'+uid }, function(){
+      clearTimeout(_rtDeb); _rtDeb=setTimeout(function(){ planActualizado('rt') }, 600) })
+    .on('postgres_changes', { event:'*', schema:'public', table:'designaciones_extra', filter:'socio_id=eq.'+uid }, function(){
+      clearTimeout(_rtDeb); _rtDeb=setTimeout(function(){ planActualizado('rt') }, 600) })
     .subscribe(function(st){
       if (st==='SUBSCRIBED'){ if (_rtCanal && _rtCanal._caido){ _rtCanal._caido=false; planActualizado('reconexion') } }
       else if (st==='CHANNEL_ERROR' || st==='TIMED_OUT' || st==='CLOSED'){ if(_rtCanal) _rtCanal._caido=true } })
