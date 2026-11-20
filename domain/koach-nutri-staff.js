@@ -30,22 +30,46 @@ function fCmpPintar(){
   const hd=nuSegHtml('cmp')+'<div class="cmp__hd"><div><span class="cmp__k">COMPOSICIÓN CORPORAL · ISAK</span><h2 class="cmp__t">'+(evs.length?evs.length+' evaluaci'+(evs.length===1?'ón':'ones'):'Sin evaluaciones')+'</h2></div>'+
     '<div class="cmpF__acts" style="margin:0">'+(evs.length?'<button type="button" class="cmp__b cmp__b--l" onclick="fCmpDiag()">PRESENTAR DIAGNÓSTICO ⤢</button>':'')+(ed?'<button type="button" class="cmp__b" onclick="fCmpNueva()">+ NUEVA EVALUACIÓN</button>':'')+'</div></div>'
   if (!evs.length){ box.innerHTML='<div class="cmp">'+hd+'<div class="cmp__vac">'+(ed?'Registra la primera evaluación ISAK. Cuando la publiques, el socio la verá en AVANCES → COMPOSICIÓN CORPORAL junto a su progreso de entrenamiento.':'Aún no hay evaluaciones publicadas por nutrición.')+'</div></div>'; return }
-  const ks=[['PESO','peso_kg','kg',0],['% GRASA','porcentaje_grasa','%',-1],['MASA MUSCULAR','masa_muscular_kg','kg',1],['CINTURA','cintura_cm','cm',-1]]
-  const tiles=ks.map(([l,k,u,m])=>{ const c=KC.cambio(base,k,m); return '<div class="cmp__tile"><span class="cmp__k">'+l+'</span><b>'+(c?cmpF1(c.actual)+'<i>'+u+'</i>':'—')+'</b>'+cmpDelta(c,'ant')+cmpDelta(c,'ini')+'</div>' }).join('')
+  // c322 · GRASA y MÚSCULO dominan: % y kg, cuánto subió o bajó y el % de mejora. Peso y cintura van como apoyo.
+  const ks=[['PESO','peso_kg','kg',0],['CINTURA','cintura_cm','cm',-1]]
+  const tiles=cmpHero(base,'g')+cmpHero(base,'m')+'</div><div class="cmp__kp cmp__kp--min">'+ks.map(([l,k,u,m])=>{ const c=KC.cambio(base,k,m); return '<div class="cmp__tile"><span class="cmp__k">'+l+'</span><b>'+(c?cmpF1(c.actual)+'<i>'+u+'</i>':'—')+'</b>'+cmpDelta(c,'ant')+cmpDelta(c,'ini')+'</div>' }).join('')
   const filas=evs.slice().reverse().map(e=>'<div class="cmp__row"><div><small>FECHA</small>'+cmpFecha(e.fecha)+'</div>'+
     '<span class="cmp__pill'+(e.estado==='publicada'?' pub':'')+'">'+(e.estado==='publicada'?'PUBLICADA':'BORRADOR')+'</span>'+
     '<div><small>PESO</small>'+cmpF1(e.peso_kg)+' kg</div><div><small>% GRASA</small>'+(e.porcentaje_grasa!=null?cmpF1(e.porcentaje_grasa)+' %':'—')+'</div>'+
     '<div><small>MÚSCULO</small>'+(e.masa_muscular_kg!=null?cmpF1(e.masa_muscular_kg)+' kg':'—')+'</div>'+
     (ed?'<div class="cmp__acts"><button type="button" onclick="fCmpDiag(\''+e.id+'\')">DIAGNÓSTICO</button><button type="button" onclick="fCmpEditar(\''+e.id+'\')">EDITAR</button>'+
       '<button type="button" onclick="fCmpEstado(\''+e.id+'\',\''+(e.estado==='publicada'?'borrador':'publicada')+'\')">'+(e.estado==='publicada'?'RETIRAR':'PUBLICAR')+'</button></div>':'<div></div>')+'</div>').join('')
-  box.innerHTML='<div class="cmp">'+hd+'<div class="cmp__kp">'+tiles+'</div>'+cmpChart(base)+
+  box.innerHTML='<div class="cmp">'+hd+'<div class="cmp__kp cmp__kp--hero">'+tiles+'</div>'+cmpChart(base)+
     '<span class="cmp__k" style="margin:16px 0 8px">HISTORIAL'+(ed?' · EL SOCIO VE SOLO LAS PUBLICADAS':'')+'</span>'+filas+'</div>'
+}
+// c322 · tarjeta dominante: grasa (g) o masa muscular (m) en % y en kg, con lo que aumentó o se redujo y su % de mejora
+function cmpHero(evs, tipo){
+  const G=tipo==='g', ev=(evs||[]).map(e=>{ const p=+e.peso_kg||null
+    const gkg=e.masa_grasa_kg!=null?+e.masa_grasa_kg:(e.porcentaje_grasa!=null&&p?p*e.porcentaje_grasa/100:null)
+    const mpc=e.masa_muscular_kg!=null&&p?e.masa_muscular_kg/p*100:null
+    return Object.assign({},e,{_gkg:gkg,_mpc:mpc}) })
+  const kP=G?'porcentaje_grasa':'_mpc', kK=G?'_gkg':'masa_muscular_kg', dir=G?-1:1
+  const cP=KC.cambio(ev,kP,dir), cK=KC.cambio(ev,kK,dir)
+  const tit=G?'GRASA CORPORAL':'MASA MUSCULAR'
+  if (!cK&&!cP) return '<div class="cmpH"><span class="cmp__k">'+tit+'</span><div class="cmpH__big"><b>—</b></div><span class="cmpH__lead">SIN DATO EN LAS EVALUACIONES</span></div>'
+  const lado=cK&&cK.vsInicio!=null?'ini':'ant', dK=cK?(lado==='ini'?cK.vsInicio:cK.vsAnterior):null, tono=cK?(lado==='ini'?cK.tonoInicio:cK.tonoAnterior):'neutro'
+  const desde=cK?(lado==='ini'?cK.fechaInicio:cK.fechaAnterior):null, ref=dK!=null?cK.actual-dK:null, pct=ref?dK/ref*100:null
+  const sg=v=>(v>0?'+':v<0?'−':'±')+cmpF1(Math.abs(v)), pc=v=>(v>0?'+':v<0?'−':'±')+Math.round(Math.abs(v))+' %'
+  const verbo=dK==null?(G?'GRASA ACTUAL':'MÚSCULO ACTUAL'):Math.abs(dK)<0.1?'SIN CAMBIO':(G?(dK<0?'KG DE GRASA MENOS':'KG DE GRASA MÁS'):(dK>0?'KG DE MÚSCULO GANADOS':'KG DE MÚSCULO MENOS'))
+  const dPt=c=>{ if(!c) return ''; const v=lado==='ini'?c.vsInicio:c.vsAnterior, t=lado==='ini'?c.tonoInicio:c.tonoAnterior; return v==null?'':'<em class="'+t+'">'+sg(v)+' PTS</em>' }
+  const dKg=c=>{ if(!c) return ''; const v=lado==='ini'?c.vsInicio:c.vsAnterior, t=lado==='ini'?c.tonoInicio:c.tonoAnterior; return v==null?'':'<em class="'+t+'">'+sg(v)+' KG</em>' }
+  const ant=cK&&lado==='ini'&&cK.vsAnterior!=null?'<span class="cmp__d '+cK.tonoAnterior+'">VS ANTERIOR · '+cmpFecha(cK.fechaAnterior)+': '+sg(cK.vsAnterior)+' KG'+(cP&&cP.vsAnterior!=null?' · '+sg(cP.vsAnterior)+' PTS':'')+'</span>':''
+  return '<div class="cmpH '+tono+'"><span class="cmp__k">'+tit+'</span>'+
+    '<div class="cmpH__big"><b>'+(dK!=null?sg(dK):cmpF1(cK?cK.actual:null))+'<i>kg</i></b>'+(pct!=null&&Math.abs(dK)>=0.1?'<strong>'+pc(pct)+'</strong>':'')+'</div>'+
+    '<span class="cmpH__lead">'+verbo+(desde?' · DESDE '+(lado==='ini'?'EL INICIO ':'LA ANTERIOR ')+cmpFecha(desde):'')+'</span>'+
+    '<div class="cmpH__vals"><div><small>'+(G?'% GRASA':'% MASA MUSCULAR')+'</small><b>'+(cP?cmpF1(cP.actual)+'<i>%</i>':'—')+'</b>'+dPt(cP)+'</div>'+
+    '<div><small>'+(G?'KG DE GRASA':'KG DE MASA MUSCULAR')+'</small><b>'+(cK?cmpF1(cK.actual)+'<i>kg</i>':'—')+'</b>'+dKg(cK)+'</div></div>'+ant+'</div>'
 }
 // Tendencia: % grasa y masa muscular normalizados a su propio rango (líneas rectas, sin curvas)
 function cmpChart(evs){
   const g=evs.filter(e=>e.porcentaje_grasa!=null), m=evs.filter(e=>e.masa_muscular_kg!=null)
   if (Math.max(g.length,m.length)<2) return ''
-  const fechas=[...new Set(evs.map(e=>e.fecha))].sort(), W=640,H=170,L=12,R=12,T=18,B=40
+  const fechas=[...new Set(evs.map(e=>e.fecha))].sort(), W=640,H=150,L=12,R=12,T=18,B=34
   const X=f=>L+(fechas.length<2?0:fechas.indexOf(f)*(W-L-R)/(fechas.length-1))
   const anc=f=>{ const i=fechas.indexOf(f); return fechas.length>1&&i===0?'start':fechas.length>1&&i===fechas.length-1?'end':'middle' }
   const linea=(arr,k,col,abajo)=>{ if(arr.length<2) return ''; const vs=arr.map(e=>+e[k]), mn=Math.min(...vs), mx=Math.max(...vs), rg=Math.max(.5,mx-mn)
