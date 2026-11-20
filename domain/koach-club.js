@@ -111,6 +111,10 @@ html.en-club .wrap{padding:0!important}
 .kcRe button[aria-pressed=true]{border-color:#3EC6B0;color:#3EC6B0;background:rgba(62,198,176,.1)}
 .kcVac{font:700 9.5px/1.7 'Space Mono',monospace;letter-spacing:.08em;color:#979C9F;padding:14px;text-align:center;border:1px dashed rgba(255,255,255,.15);border-radius:10px}
 .kcConf{position:fixed;inset:0;pointer-events:none;z-index:96}
+.kcHero .kcLema{font:900 24px/1.05 'KOACH Display',sans-serif;font-stretch:115%;text-transform:uppercase;letter-spacing:-.01em;margin:22px 0 8px}
+.kcBaj{margin:0 auto 10px;max-width:340px;font:600 14px/1.45 'KOACH Display',sans-serif;color:#D5D7D9}
+.kcHero.kcAnim .kcBaj{animation:kcUp .5s ease-out 1.1s both}
+
 @media (prefers-reduced-motion:no-preference){
 .kcHero.kcAnim .kcT b i{display:inline-block;font-style:normal;animation:kcSlam .6s cubic-bezier(.2,1.5,.4,1) both;animation-delay:calc(.2s + var(--i) * .14s)}
 .kcHero.kcAnim .kcT b{animation:kcFlick 1.1s linear .95s both}
@@ -220,7 +224,7 @@ html.en-club .wrap{padding:0!important}
     if (anim) { setTimeout(function () { snd('riser', .5) }, 150); setTimeout(function () { snd('block', .7); try { navigator.vibrate && navigator.vibrate(30) } catch (_) {} }, 620) }
     var h = '<section class="kcHero' + (anim ? ' kcAnim' : '') + '">' + fondo() + (anim ? '<i class="kcFlash" aria-hidden="true"></i>' : '') + '<div class="kcIn">' + top +
       '<p class="kcK">CHALLENGE 01 · ' + (abierto ? 'ABIERTO' : 'RESULTADOS') + '</p>' + titulo(ch, true) +
-      '<p class="kcD">' + esc(ch.descripcion || '') + '</p><p class="kcS">' + esc(ch.estandar || '') + '</p>' +
+      '<p class="kcD kcLema">' + esc(ch.lema || ch.descripcion || '') + '</p>' + (ch.bajada ? '<p class="kcBaj">' + esc(ch.bajada) + '</p>' : '') + '<p class="kcS">' + esc(ch.estandar || '') + '</p>' +
       '<div class="kcStats"><div><b>' + (st.miembros || 0) + '</b><small>EN EL CLUB</small></div><div><b>' + (st.participantes || 0) + '</b><small>MARCAS</small></div><div><b>' + (abierto ? cierre(ch) : 'FIN') + '</b><small>' + (abierto ? 'CIERRA' : 'CERRADO') + '</small></div></div>' +
       (mia ? '<div class="kcMia"><div><small>TU MARCA</small><b>' + mia.score + '</b></div><div style="text-align:right"><small>' + (posNum() ? 'POSICIÓN #' + posNum() + ' DE ' + K.rank.length : '') + '</small>' + estTag(mia.estado) + '</div></div>' : '') +
       '<div class="kcAct">' + (abierto ? (!st.miembro ? '<button class="kcB kcB--p" type="button" onclick="KCLUB.unirse(true)">ÚNETE AL CLUB DEL 1%</button>'
