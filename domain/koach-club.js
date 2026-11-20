@@ -8,6 +8,9 @@
 (function () {
   'use strict'
   var K = { st: null, ch: null, rank: [], feed: [], filtro: 'todos', poll: null, run: null, desde: null, cargando: false }
+  var MEDIA = { gta: { v: 'https://siecbdatfgmqbpxqtvsl.supabase.co/storage/v1/object/public/club-media/gta-burpee.mp4', p: 'https://siecbdatfgmqbpxqtvsl.supabase.co/storage/v1/object/public/club-media/gta-burpee.png' } }
+  function clip(ch, cls) { var m = MEDIA[ch && ch.tema]; if (!m) return ''
+    return '<div class="kcClip ' + (cls || '') + '"><video src="' + m.v + '" autoplay muted loop playsinline preload="auto" disablepictureinpicture aria-hidden="true"></video></div>' }
   var REAC = [['implacable', 'IMPLACABLE'], ['subid', 'SUBID JUNTOS'], ['fuego', '1% MEJOR CADA DÍA']]
   function $(id) { return document.getElementById(id) }
   function esc(t) { return String(t == null ? '' : t).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c] }) }
@@ -108,6 +111,10 @@ html.en-club .wrap{padding:0!important}
 .kcRe button[aria-pressed=true]{border-color:#3EC6B0;color:#3EC6B0;background:rgba(62,198,176,.1)}
 .kcVac{font:700 9.5px/1.7 'Space Mono',monospace;letter-spacing:.08em;color:#979C9F;padding:14px;text-align:center;border:1px dashed rgba(255,255,255,.15);border-radius:10px}
 .kcConf{position:fixed;inset:0;pointer-events:none;z-index:96}
+.kcClip{width:min(78vw,330px);aspect-ratio:1;border-radius:16px;overflow:hidden;margin:0 auto 14px;box-shadow:0 0 0 1px rgba(62,198,176,.45),0 0 40px rgba(255,61,154,.25);background:#0B0C0E;position:relative;z-index:1}
+.kcClip video{width:100%;height:100%;object-fit:cover;display:block}
+.kcClip.mini{width:min(46vw,190px);margin-bottom:6px}
+
 .kcHm{position:relative;overflow:hidden;border-radius:22px;margin:0 0 var(--k2-s4,14px);padding:18px 20px;background:linear-gradient(180deg,#0B0C0E 0%,#1A1C20 100%);color:#F2F2F2;cursor:pointer;text-align:left;display:block;width:100%;border:0;box-sizing:border-box}
 .kcHm .kcSun{left:auto;right:-46px;top:50%;width:170px;transform:translateY(-50%);opacity:.75}
 .kcHm .kcGrid{height:46%;opacity:.6}
@@ -301,7 +308,7 @@ html.en-club .wrap{padding:0!important}
   }
   function abrirRun() {
     cerrarGate(); var ch = K.ch; if (!ch) return
-    runPintar('<p class="kcK">' + esc(ch.titulo) + '</p><div class="kcClk">' + seg(mmss(ch.duracion_seg || 180)) + '</div>' +
+    runPintar(clip(ch) + '<p class="kcK">' + esc(ch.titulo) + '</p><div class="kcClk">' + seg(mmss(ch.duracion_seg || 180)) + '</div>' +
       '<p class="kcD">' + esc(ch.descripcion) + '</p><p class="kcS">' + esc(ch.estandar || '') + '<br><br>Hazlo en pareja: uno hace, el otro cuenta. Después cambian.</p>',
       '<button class="kcB kcB--p" type="button" onclick="KCLUB._runStart()">START ' + mmss(ch.duracion_seg || 180) + '</button>' +
       '<button class="kcB kcB--t" type="button" onclick="KCLUB._runMarca()">YA LO HICE · REGISTRAR MI MARCA</button>')
@@ -312,7 +319,7 @@ html.en-club .wrap{padding:0!important}
     var paso = function () {
       if (n > 0) { runPintar('<p class="kcK">PREPÁRATE</p><div class="kcClk">' + seg('0' + n) + '</div>', '<button class="kcB kcB--t" type="button" onclick="KCLUB._runParar()">CANCELAR</button>'); snd('tick' + (4 - n)); if (n === 3) snd('riser', .5); n--; K.run = setTimeout(paso, 1000); return }
       snd('go'); var fin = Date.now() + dur * 1000, ult = -1
-      runPintar('<p class="kcK">' + esc(ch.metrica) + ' · MÁXIMO</p><div class="kcClk" id="kcClk">' + seg(mmss(dur)) + '</div><p class="kcS">Pecho al suelo. Extensión completa. No pares.</p>', '<button class="kcB kcB--t" type="button" onclick="KCLUB._runParar()">DETENER</button>')
+      runPintar(clip(ch, 'mini') + '<p class="kcK">' + esc(ch.metrica) + ' · MÁXIMO</p><div class="kcClk" id="kcClk">' + seg(mmss(dur)) + '</div><p class="kcS">Pecho al suelo. Extensión completa. No pares.</p>', '<button class="kcB kcB--t" type="button" onclick="KCLUB._runParar()">DETENER</button>')
       var tick = function () {
         var r = (fin - Date.now()) / 1000, s = Math.max(0, Math.ceil(r)), el = $('kcClk'); if (!el) return
         if (s !== ult) { ult = s; el.innerHTML = seg(mmss(s)); if (s <= 10) el.classList.add('fin'); if (s > 0 && s <= 3) snd('tick' + (4 - s)) }
