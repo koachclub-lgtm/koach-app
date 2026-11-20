@@ -12038,9 +12038,9 @@ function kaMin(ctx, trans) {
   ctx.clearRect(0, 0, W, H)
   if (!trans && KS.foto) ctx.drawImage(kmFoto(), 0, 0)
   const sh = (b) => { ctx.shadowColor = 'rgba(0,0,0,' + (trans ? 0 : .35) + ')'; ctx.shadowBlur = b }
-  ctx.save(); sh(14); const lg = kaLogo(B); if (lg) { const h = 50, w = lg.width * h / lg.height; ctx.drawImage(lg, (W - w) / 2, KS_SAFE_T + 20, w, h) } ctx.restore()
+  ctx.save(); sh(14); const lg = kaLogo(B); if (lg) { const h = 50, w = lg.width * h / lg.height; ctx.drawImage(lg, (W - w) / 2, 165, w, h) } ctx.restore()   // c-min · menos aire arriba (bajo la barra de usuario IG)
   ctx.save(); sh(10); ctx.fillStyle = B; ctx.textAlign = 'left'; ctx.textBaseline = 'alphabetic'; ctx.font = "700 34px 'Space Mono', 'IBM Plex Mono', monospace"; if ('letterSpacing' in ctx) ctx.letterSpacing = '10px'
-  ctx.fillText(ksSesTxt(j) || 'SESSION', KS_SAFE_X, H - KS_SAFE_B - 20); if ('letterSpacing' in ctx) ctx.letterSpacing = '0px'; ctx.restore()
+  ctx.fillText(ksSesTxt(j) || 'SESSION', KS_SAFE_X, H - 140); if ('letterSpacing' in ctx) ctx.letterSpacing = '0px'; ctx.restore()
 }
 function kaTon(ctx, trans) {
   const W = KT.W, H = KT.H, j = KS.data || {}, d = kaDatos(), B = '#FFFFFF', T = kaTonDatos(j) || {};
