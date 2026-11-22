@@ -11054,7 +11054,10 @@ async function scPintarRes(){
     if (ex.estado==='habilitada') acc+='<button type="button" class="tbB" onclick="scAccion(\'quitar_habilitacion\')">QUITAR HABILITACIÓN</button>'
     else if (ex.estado==='disponible') acc+='<button type="button" class="tbB tbB--ink" onclick="scAccion(\'habilitar\',null,\''+ex.sesion_id+'\',true)">HABILITAR HOY</button>'
     if (ex.tipo==='designada') acc+='<button type="button" class="tbB" onclick="scModoExtra(\''+ex.id+'\')">'+({koach:'SOLO CUANDO LA ACTIVE',libre:'MODO VACACIONES'}[ex.activacion]||'SIEMPRE DISPONIBLE')+' ⇄</button>'
-    if (ex.tipo==='designada') acc+='<button type="button" class="tbB" onclick="scRetirarExtra(\''+ex.id+'\')">RETIRAR EXTRA</button>' }
+    if (ex.tipo==='designada') acc+='<button type="button" class="tbB" onclick="scRetirarExtra(\''+ex.id+'\')">RETIRAR EXTRA</button>'
+    if (ex.tipo==='realizada' && ex.sesion_id) acc+='<button type="button" class="tbB" onclick="scRenombrarRealizada(\''+key+'\')">CAMBIAR NOMBRE</button>'+
+      '<button type="button" class="tbB tbB--ed" onclick="scRepetirExtra(\''+key+'\',true)">✎ EDITAR Y REPETIR</button>'+
+      '<button type="button" class="tbB tbB--ink" onclick="scRepetirExtra(\''+key+'\',false)">REPETIR COMO EXTRA ★</button>' }
   const cab='<div class="tcRes__h"><div><small>'+(ex?'★ SESIÓN EXTRA · NO SUMA A LAS PRINCIPALES':reg&&reg.abandonada?(reg.ejercicios+'/'+reg.total_ejercicios+' EJ · '+reg.sets+' SETS REGISTRADOS'):'RESUMEN DE LA SESIÓN')+'</small><b>'+scNomL(z.nombre)+'</b>'+(done&&z.cuando?'<small>REALIZADA · '+scDiaC(z.cuando)+'</small>':susp?'<small>SUSPENDIDA ESTA SEMANA</small>':'')+'</div><div class="tcRes__a">'+acc+
     '<button type="button" class="tcRes__x" onclick="holoCerrar()" aria-label="Cerrar resumen">✕</button></div></div>'
   box.hidden=false
@@ -11796,6 +11799,11 @@ function scMenu(ev,key){
     else if (ex.tipo==='designada' && ex.estado==='disponible') I('HABILITAR HOY','scAccion(\'habilitar\',null,\''+ex.sesion_id+'\',true)')
     if (ex.tipo==='designada') I('DISPONIBILIDAD · '+({koach:'SOLO CUANDO YO LA ACTIVE',libre:'MODO VACACIONES'}[ex.activacion]||'SIEMPRE DISPONIBLE'),'scModoExtra(\''+ex.id+'\')')
     if (ex.tipo==='designada'){ it.push('<hr>'); I('RETIRAR EXTRA','scRetirarExtra(\''+ex.id+'\')','pfDanger') }
+    if (ex.tipo==='realizada' && ex.sesion_id){   // c322 · extra ya hecha: renombrar el registro y repetirla (editada o igual) sin tocar la base
+      I('CAMBIAR NOMBRE','scRenombrarRealizada(\''+key+'\')')
+      it.push('<hr>')
+      I('✎ EDITAR Y REPETIR COMO EXTRA ★','scRepetirExtra(\''+key+'\',true)')
+      I('REPETIR COMO EXTRA ★','scRepetirExtra(\''+key+'\',false)') }
   } else {
     const z=(st.sesiones||[]).find(function(x){return x.id===key}); if(!z) return
     const ab=st.abiertas||[], reg=ab.find(function(a){return a.sesion_id===z.id}), hb=st.habilitada, esX=hb&&!hb.extra&&hb.sesion_id===z.id
@@ -11852,6 +11860,26 @@ async function scDesignarExtra(id){
   scGuard('run'); const r=await sb.from('designaciones_extra').insert({ socio_id:F.id, sesion_protocolo_id:id, motivo:'Criterio del koach', recurrente:true, activacion:modo })
   if (r.error){ scGuard('err'); toast('No se pudo designar: '+r.error.message); return }
   scGuard('ok'); toast({auto:'★ Extra designada · siempre disponible',libre:'★ Extra designada · modo vacaciones',koach:'★ Extra designada · la activas tú desde la Sala'}[modo]); scCargar(F.id)
+}
+// c322 · EXTRA REALIZADA: el nombre es la etiqueta del registro (la rutina base/biblioteca no se toca)
+function scRenombrarRealizada(key){
+  const x=scExtraKey(key); if(!x||x.tipo!=='realizada'||!F) return
+  const fid=F.id
+  idlgAbrir('CAMBIAR NOMBRE','Solo cambia el nombre de esta extra realizada de '+nomDe(fid).split(' ')[0]+'. Sus sets y la biblioteca no se tocan.', String(x.nombre||'').toUpperCase(), 'GUARDAR', async function(nombre){
+    scGuard('run'); const r=await sb.rpc('koach_registro_renombrar',{ p_registro:x.id, p_nombre:nombre })
+    if (r.error){ scGuard('err'); toast('No se pudo renombrar: '+r.error.message); return }
+    scGuard('ok'); toast('Nombre actualizado ✓'); if (F && F.id===fid) scCargar(fid)
+  })
+}
+// c322 · repetir una extra realizada: nueva designación sobre la misma rutina; si se edita, se crea la copia personal del socio
+async function scRepetirExtra(key, editar){
+  const x=scExtraKey(key); if(!x||!x.sesion_id||!F) return
+  const fid=F.id, modo=await exElegirModo(scNomL(x.nombre)); if (!modo || !F || F.id!==fid) return
+  scGuard('run'); const r=await sb.from('designaciones_extra').insert({ socio_id:fid, sesion_protocolo_id:x.sesion_id, motivo:'Criterio del koach', recurrente:true, activacion:modo }).select('id').single()
+  if (r.error){ scGuard('err'); toast('No se pudo designar: '+r.error.message); return }
+  scGuard('ok')
+  if (editar){ await scEditarExtra(r.data.id); return }
+  toast({auto:'★ Extra designada · siempre disponible',libre:'★ Extra designada · modo vacaciones',koach:'★ Extra designada · la activas tú desde la Sala'}[modo]); scCargar(fid)
 }
 // c64 · EDITAR UNA EXTRA: la primera vez se crea una copia personal del socio (la base/biblioteca no se toca) y se abre en el planificador
 async function scEditarExtra(desigId){
