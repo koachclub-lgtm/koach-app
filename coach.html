@@ -1266,6 +1266,34 @@ small{color:var(--koach-text-secondary)}
 .adhR__b button.ink{background:var(--koach-ink);color:var(--koach-control);border-color:var(--koach-ink)}
 .adhR__b button:disabled{opacity:.35;cursor:default}
 @media (max-width:820px){.adhR{grid-template-columns:minmax(0,1fr) 64px;row-gap:8px}.adhR__a{grid-column:1/-1;order:3}.adhR__k--w,.adhR__k--m{display:none}.adhR__b{grid-column:1/-1;order:4}}
+/* c327 · ciclos: revisión e historial */
+.cicAv--rev{border-color:#3EC6B0;box-shadow:inset 0 0 0 1px #3EC6B0}
+.cicAv__b{display:flex;gap:8px;flex:none;flex-wrap:wrap}
+.cicAv .tbB--gh{background:transparent;color:#F4F3F0;border-color:rgba(244,243,240,.4)}
+.gpNota{font-size:12px;line-height:1.4;color:var(--koach-text-secondary);margin:8px 2px 12px}
+.scCy{margin-top:14px;border-radius:18px;background:var(--koach-surface);border:1px solid var(--koach-border);padding:14px 16px}
+.scCy:empty{display:none}
+.scCy__h{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.scCy__h>span{font:700 10px var(--font-mono);letter-spacing:.16em;color:var(--koach-ink)}
+.scCy__t{display:flex;gap:6px;flex-wrap:wrap}
+.scCy__t button{all:unset;cursor:pointer;padding:8px 12px;border-radius:999px;border:1px solid var(--koach-border-strong);font:700 9.5px var(--font-mono);letter-spacing:.1em;color:var(--koach-ink)}
+.scCy__t button.on{background:#121212;color:#F4F3F0;border-color:#121212}
+.scCy__m{display:grid;grid-template-columns:minmax(0,1.6fr) repeat(2,minmax(0,1fr)) auto;gap:12px;align-items:center;margin-top:12px}
+.scCy__m small,.scCy__l>small{display:block;font:700 8.5px var(--font-mono);letter-spacing:.14em;color:var(--koach-text-secondary)}
+.scCy__m b{display:block;font-family:var(--font-display);font-weight:800;font-size:22px;color:var(--koach-ink);line-height:1.15}
+.scCy__m span{display:block;font:500 9.5px var(--font-mono);letter-spacing:.06em;color:var(--koach-text-secondary)}
+.scCy__l{margin-top:12px;border-top:1px solid var(--koach-border);padding-top:10px}
+.scCy__l>div{display:grid;grid-template-columns:minmax(0,1fr) auto 56px;gap:10px;align-items:center;padding:6px 0;border-bottom:1px solid var(--koach-border)}
+.scCy__l>div:last-child{border-bottom:0}
+.scCy__l span{font-size:13.5px;color:var(--koach-ink);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.scCy__l em{font:500 10px var(--font-mono);font-style:normal;color:var(--koach-text-secondary)}
+.scCy__l b{font:700 12px var(--font-mono);text-align:right;color:var(--koach-ink)}
+.scCy__l b.up{color:#1F8C7B}
+@media (max-width:760px){.scCy__m{grid-template-columns:1fr 1fr}.scCy__go{grid-column:1/-1}}
+.plCy{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin:6px 0 2px}
+.plCy>span{font:700 9.5px var(--font-mono);letter-spacing:.14em;color:var(--koach-text-secondary);margin-right:4px}
+.plCy button{all:unset;cursor:pointer;padding:7px 12px;border-radius:999px;border:1px solid var(--koach-border-strong);font:700 9.5px var(--font-mono);letter-spacing:.1em;color:var(--koach-ink)}
+.plCy button.on{background:#121212;color:#F4F3F0;border-color:#121212;cursor:default}
 /* c326 · asistencia del mes */
 .adhMes{flex-basis:100%;display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin-top:6px;padding-top:10px;border-top:1px dashed var(--koach-border-strong)}
 .adhMes>span{font:700 9.5px var(--font-mono);letter-spacing:.14em;color:var(--koach-text-secondary);margin-right:4px}
@@ -4252,6 +4280,7 @@ textarea.avz__in{min-height:70px;resize:vertical}
     <div class="stit plHdr__tit">Planificador</div>
     <div class="plQuien" id="pQuien"><div class="plQuien__n" id="pQuienN">—</div><div class="plCtx" id="plCtx" aria-live="polite"></div><div class="plQuien__p"><span id="pQuienP">—</span><span class="plQuien__m" id="pQuienM"> · PLAN INDIVIDUAL</span></div></div>
     <div class="ssub" id="pMeta">—</div>
+    <div class="plCy" id="plCy" hidden></div>
     <div class="mtabs" id="pTabs" role="tablist" aria-label="Sesiones de la semana"></div>
   </div>
   <div id="pNav" class="plNav" style="display:none"></div>
@@ -4932,12 +4961,13 @@ function pintarSala(){
     }).join('')+(_ho.length>4&&!window._hoyTodo?'<button type="button" class="kTray__m" onclick="window._hoyTodo=1;pintarSala()">VER TODAS ('+_ho.length+')</button>':'')+'</div></section>'
   }
   // c325 · CICLOS: quién está en su última semana y quién ya terminó el ciclo sin empezar uno nuevo
-  { const cl=(C.socios||[]).map(function(x){ const e=cicloEstado(C.asig[x.id]); return e&&e.k&&(typeof adMemVigente!=='function'||adMemVigente(x.id))?Object.assign({id:x.id},e):null }).filter(Boolean)
-      .sort(function(p,q){ return (q.k==='pasado')-(p.k==='pasado') || q.atraso-p.atraso })
-    if (cl.length){ const nP=cl.filter(function(c){return c.k==='pasado'}).length, nU=cl.length-nP, ver=window._cicTodo?cl:cl.slice(0,5)
-      b+='<section class="kTray kTray--cic" aria-label="Ciclos por renovar"><div class="kTray__h"><span>CICLOS · '+nU+' EN ÚLTIMA SEMANA · '+nP+' TERMINADOS</span><b>'+cl.length+'</b></div><div class="kTray__l">'+
-        ver.map(function(c){ return '<div class="brow">'+avSocio(c.id)+'<div class="btx"><b>'+nomDe(c.id)+'</b><small>'+(c.k==='pasado'?'<em class="cicAl">CICLO TERMINADO · HACE '+c.atraso+' D</em>':'ÚLTIMA SEMANA · SEM '+c.total+'/'+c.total+' · TERMINA '+c.finTxt)+'</small></div>'+
-          '<button class="bbtn ink" onclick="cicNuevo(\''+c.id+'\')">'+(c.k==='pasado'?'NUEVO CICLO':'PREPARAR')+'</button></div>' }).join('')+
+  { const cl=(C.socios||[]).map(function(x){ const ar=C.asig[x.id]; if (ar&&ar.revision_pendiente) return {id:x.id,k:'revisar',ciclo:ar.ciclo_actual||1,atraso:1e6}
+      const e=cicloEstado(ar); return e&&e.k&&(typeof adMemVigente!=='function'||adMemVigente(x.id))?Object.assign({id:x.id},e):null }).filter(Boolean)
+      .sort(function(p,q){ return (q.k==='revisar')-(p.k==='revisar') || (q.k==='pasado')-(p.k==='pasado') || q.atraso-p.atraso })
+    if (cl.length){ const nR=cl.filter(function(c){return c.k==='revisar'}).length, nP=cl.filter(function(c){return c.k==='pasado'}).length, nU=cl.length-nP-nR, ver=window._cicTodo?cl:cl.slice(0,5)
+      b+='<section class="kTray kTray--cic" aria-label="Ciclos por renovar"><div class="kTray__h"><span>CICLOS · '+(nR?nR+' POR REVISAR · ':'')+nU+' EN ÚLTIMA SEMANA · '+nP+' TERMINADOS</span><b>'+cl.length+'</b></div><div class="kTray__l">'+
+        ver.map(function(c){ return '<div class="brow">'+avSocio(c.id)+'<div class="btx"><b>'+nomDe(c.id)+'</b><small>'+(c.k==='revisar'?'<em class="cicAl">CICLO '+c.ciclo+' NUEVO · REVISAR PLANIFICACIÓN</em>':c.k==='pasado'?'<em class="cicAl">CICLO TERMINADO · HACE '+c.atraso+' D</em>':'ÚLTIMA SEMANA · SEM '+c.total+'/'+c.total+' · TERMINA '+c.finTxt)+'</small></div>'+
+          '<button class="bbtn ink" onclick="'+(c.k==='revisar'?'location.hash=\'#/socio/'+c.id+'/plan?w=1\'':'cicNuevo(\''+c.id+'\')')+'">'+(c.k==='revisar'?'REVISAR':c.k==='pasado'?'NUEVO CICLO':'PREPARAR')+'</button></div>' }).join('')+
         (cl.length>5&&!window._cicTodo?'<button type="button" class="kTray__m" onclick="window._cicTodo=1;pintarSala()">VER TODOS ('+cl.length+')</button>':'')+'</div></section>' } }
   document.getElementById('bandejas').innerHTML=b
   if (!pintarSala._hor || Date.now()-pintarSala._hor>60000){ pintarSala._hor=Date.now(); horSalaCargar().catch(function(){}); bnSalaCargar().catch(function(){}) } else horSalaPintar()
@@ -6035,6 +6065,7 @@ async function abrirPlan(pid, proto, opts){
   document.getElementById('pMeta').style.display='none'
   const _pp=function(arr){ return arr.filter(Boolean).join(' · ').toUpperCase() }
   const _hdr=document.querySelector('#vPlan .plHdr'); _hdr.classList.toggle('plHdr--base', !!esBase); _hdr.classList.toggle('plHdr--bib', !!esBib)
+  plCyPintar(esBib||esBase ? null : _fid, pid)
   if (esBase){ document.getElementById('pQuienN').textContent='BASE MAESTRA'
     document.getElementById('pQuienP').textContent=_pp([proto&&proto.programa, proto&&proto.nivel, proto&&proto.sexo])
     document.getElementById('pQuienM').textContent=' · AFECTA CLONES FUTUROS'
@@ -10656,10 +10687,10 @@ function salaBuscarKey(ev){ if (ev.key==='Escape'){ ev.preventDefault(); if (ev.
 let GP={ st:null, prog:null, niv:null, run:false, bases:[] }
 const GP_NIV={ BASICO:'BÁSICO', INTERMEDIO:'INTERMEDIO', AVANZADO:'AVANZADO', STD:'ESTÁNDAR' }
 function gpCerrar(){ document.getElementById('mGP').style.display='none' }
-async function gpAbrir(){
+async function gpAbrir(){ GP.sem=null
   if (!F) return; const id=F.id
   document.getElementById('mGP').style.display='flex'; document.getElementById('gpBody').innerHTML=kLd('Cargando')
-  const [re, rb] = await Promise.all([ sb.rpc('koach_programa_estado',{p_socio:id}), sb.from('protocolos').select('id,programa,nivel,sexo,variante').is('socio_id',null).neq('estado','biblioteca').neq('estado','extras_personales').neq('estado','demo') ])
+  const [re, rb] = await Promise.all([ sb.rpc('koach_programa_estado',{p_socio:id}), sb.from('protocolos').select('id,programa,nivel,sexo,variante,ciclo_semanas').is('socio_id',null).neq('estado','biblioteca').neq('estado','extras_personales').neq('estado','demo') ])
   if (!F || F.id!==id) return
   if (re.error){ document.getElementById('gpBody').innerHTML='<div class="gpErr">No se pudo leer el programa: '+plEsc(re.error.message)+'</div>'; return }
   GP.st=re.data||{}; GP.bases=rb.data||[]
@@ -10693,6 +10724,14 @@ function gpPintar(){
   if (!st.activo) pri='ASIGNAR PROGRAMA'
   else if (!st.tiene_ejecucion) pri='REEMPLAZAR PLANIFICACIÓN'
   else pri = mismo ? 'INICIAR NUEVO CICLO' : 'CAMBIAR PROGRAMA · NUEVO CICLO'
+  // c327 · mismo programa con historial: por defecto CONTINÚA su rutina vigente (sesiones por semana, ejercicios y cargas) en el ciclo nuevo
+  if (st.activo && st.tiene_ejecucion && mismo){
+    const bs=gpBase(), def=+((bs&&bs.ciclo_semanas)||st.total||6); if (!GP.sem) GP.sem=def
+    h+='<div class="gpLbl">DURACIÓN DEL CICLO NUEVO</div><div class="gpChips gpChips--n">'+[4,6,8,10,12].map(function(n){ return '<button type="button" class="gpChip'+(n===GP.sem?' on':'')+'" onclick="GP.sem='+n+';gpPintar()"><b>'+n+' SEM</b>'+(n===def?'<small>BASE</small>':'')+'</button>' }).join('')+'</div>'
+    h+='<button type="button" class="mSG__ok gpGo" onclick="gpConfirmar(false,true)">CONTINUAR SU RUTINA · CICLO '+(st.ciclo+1)+'</button>'+
+       '<div class="gpNota">Recomendado: pasa su rutina vigente al ciclo nuevo (mismas sesiones por semana, ejercicios y cargas desde lo mejor que levantó) y te deja el aviso para ajustarla.</div>'+
+       '<button type="button" class="mSG__sec" onclick="gpConfirmar(false)"'+(gpBase()?'':' disabled')+'>EMPEZAR DESDE LA BASE '+GP.prog+'</button>'
+  } else
   h+='<button type="button" class="mSG__ok gpGo" onclick="gpConfirmar(false)"'+(gpBase()?'':' disabled')+'>'+pri+'</button>'
   if (st.activo && !st.tiene_ejecucion) h+='<button type="button" class="mSG__sec" onclick="gpConfirmar(true)">QUITAR PROGRAMA ACTUAL</button>'
   h+='<button type="button" class="mSG__sec" onclick="gpCerrar()">CANCELAR</button>'
@@ -10703,8 +10742,13 @@ function gpPintar(){
   b.innerHTML=h
 }
 function fCorta(d){ if(!d) return '—'; const p=String(d).slice(0,10).split('-'); return p[2]+'/'+p[1]+'/'+p[0].slice(2) }
-function gpConfirmar(quitar){
-  const st=GP.st||{}, base=gpBase(); if(!quitar && !base) return
+function gpConfirmar(quitar, cont){
+  const st=GP.st||{}, base=gpBase()
+  if (cont){ document.getElementById('gpT').textContent='CONTINUAR CON SU RUTINA'
+    document.getElementById('gpBody').innerHTML='<p class="gpTxt"><b>'+st.programa+' · CICLO '+st.ciclo+'</b> quedará cerrado (solo lectura, con todo su historial) y comenzará <b>CICLO '+(st.ciclo+1)+'</b> de <b>'+GP.sem+' semanas</b> con su rutina vigente: las mismas sesiones por semana y los mismos ejercicios, con las cargas desde lo mejor que levantó.<br><br>En su ficha y en la Sala quedará el aviso <b>REVISAR PLANIFICACIÓN</b> hasta que lo marques como revisado.</p><div class="gpErr" id="gpErr" style="display:none"></div>'+
+      '<button type="button" class="mSG__ok" id="gpOk" onclick="gpEjecutar(false,true)">CONTINUAR · CICLO '+(st.ciclo+1)+'</button>'+
+      '<button type="button" class="mSG__sec" id="gpNo" onclick="document.getElementById(\'gpT\').textContent=\'GESTIONAR PROGRAMA\';gpPintar()">CANCELAR</button>'; return }
+  if(!quitar && !base) return
   const act = st.activo ? st.programa+' · '+(GP_NIV[st.nivel]||st.nivel) : ''
   const nue = base ? GP.prog+' · '+(GP_NIV[GP.niv]||GP.niv)+varTag(base) : ''
   let tit, txt, btn
@@ -10717,11 +10761,14 @@ function gpConfirmar(quitar){
     '<button type="button" class="mSG__ok" id="gpOk" onclick="gpEjecutar('+(quitar?'true':'false')+')">'+btn+'</button>'+
     '<button type="button" class="mSG__sec" id="gpNo" onclick="document.getElementById(\'gpT\').textContent=\'GESTIONAR PROGRAMA\';gpPintar()">CANCELAR</button>'
 }
-async function gpEjecutar(quitar){
+async function gpEjecutar(quitar, cont){
   if (GP.run) return; GP.run=true
   const ok=document.getElementById('gpOk'), no=document.getElementById('gpNo'); ok.disabled=true; no.disabled=true; ok.textContent='PROCESANDO…'
   const id=F.id, base=gpBase()
-  const r=await sb.rpc('koach_cambiar_programa',{ p_socio:id, p_base: quitar?null:(base&&base.id), p_asig_actual:(GP.st&&GP.st.asig_id)||null, p_quitar:!!quitar })
+  const r = cont ? await sb.rpc('koach_continuar_ciclo',{ p_socio:id, p_asig_actual:(GP.st&&GP.st.asig_id)||null, p_semanas:GP.sem||null })
+    : await sb.rpc('koach_cambiar_programa',{ p_socio:id, p_base: quitar?null:(base&&base.id), p_asig_actual:(GP.st&&GP.st.asig_id)||null, p_quitar:!!quitar })
+  if (cont && r.data) r.data.modo='nuevo_ciclo'
+  delete SCY[id]; GP.sem=null
   GP.run=false
   if (r.error){ const m=String(r.error.message||''); const e=document.getElementById('gpErr'); e.style.display=''
     e.textContent = /PROGRAMA_CAMBIADO/.test(m) ? 'El programa de este socio ya cambió (otra pestaña u otro coach). Cerramos y recargamos el actual.' : /CON_HISTORIAL/.test(m) ? 'Este ciclo tiene entrenamientos: usa INICIAR NUEVO CICLO.' : 'No se pudo completar: '+m+'. No se modificó nada.'
@@ -11136,9 +11183,39 @@ function cicloEstado(a){ if(!a||!a.fecha_inicio) return null
   const atraso=Math.max(0,Math.floor((new Date().setHours(12,0,0,0)-fin)/86400000))
   const finTxt=['DOM','LUN','MAR','MIÉ','JUE','VIE','SÁB'][fin.getDay()]+' '+fin.getDate()+' '+ADH_MES[fin.getMonth()]
   return { sem:sem, total:tot, fin:fin, finTxt:finTxt, atraso:atraso, k: sem>tot ? 'pasado' : sem===tot ? 'ultima' : null } }
+async function cicRevisado(aid){ const r=await sb.rpc('koach_ciclo_revisado',{ p_asig:aid }); if(r.error){ toast('No se pudo marcar: '+r.error.message); return }
+  Object.keys(C.asig).forEach(function(k){ if(C.asig[k]&&C.asig[k].id===aid) C.asig[k].revision_pendiente=false }); toast('Ciclo marcado como revisado ✓'); if (F) scPintar(); if (typeof pintarSala==='function' && document.getElementById('bandejas')) try{ pintarSala() }catch(_){} }
+// c327 · HISTORIAL DE CICLOS en la ficha: ciclo 1, 2, 3… con lo que progresó en cada uno y acceso al ciclo completo
+const SCY={}
+async function scCiclosCargar(id){ if (SCY[id]&&SCY[id].t>Date.now()-60000) return SCY[id].d
+  const r=await sb.rpc('koach_ciclos',{ p_socio:id }); if(r.error) return null; SCY[id]={t:Date.now(), d:r.data||[]}; return SCY[id].d }
+function scCiclosHtml(){ if(!F) return ''
+  const L=(SCY[F.id]&&SCY[F.id].d)||null; if(!L){ scCiclosCargar(F.id).then(function(d){ if(d&&F&&document.getElementById('scCy')) scCiclosPintar() }); return '<div id="scCy" class="scCy"></div>' }
+  return '<div id="scCy" class="scCy">'+scCiclosInner(L)+'</div>' }
+function scCiclosPintar(){ const el=document.getElementById('scCy'); if(el&&F&&SCY[F.id]) el.innerHTML=scCiclosInner(SCY[F.id].d) }
+function scCiclosInner(L){ if(!L||!L.length) return ''
+  const sel = SC.cy!=null && L[SC.cy] ? SC.cy : L.length-1, c=L[sel]
+  const fm=function(d){ if(!d) return '—'; const x=new Date(String(d).slice(0,10)+'T12:00:00'); return x.getDate()+' '+ADH_MES[x.getMonth()] }
+  return '<div class="scCy__h"><span>HISTORIAL DE CICLOS</span><div class="scCy__t">'+L.map(function(x,i){ return '<button type="button" class="'+(i===sel?'on':'')+'" onclick="SC.cy='+i+';scCiclosPintar()">CICLO '+x.ciclo+(x.activo?' · ACTUAL':'')+'</button>' }).join('')+'</div></div>'+
+    '<div class="scCy__b"><div class="scCy__m"><div><small>PROGRAMA</small><b>'+plEsc((c.programa||'')+' '+(GP_NIV[c.nivel]||c.nivel||''))+'</b><span>'+c.semanas+' SEMANAS · '+fm(c.inicio)+' – '+fm(c.fin)+'</span></div>'+
+      '<div><small>SESIONES</small><b>'+c.sesiones+'</b><span>'+c.sets+' SETS</span></div><div><small>TONELAJE</small><b>'+(c.tonelaje>=1000?(Math.round(c.tonelaje/100)/10).toString().replace('.',',')+'K':c.tonelaje)+'</b><span>KG MOVIDOS</span></div>'+
+      '<div class="scCy__go"><button type="button" class="tbB tbB--ink" onclick="'+(c.activo?'location.hash=\'#/socio/'+F.id+'/plan?w=1\'':'gpVerAnterior(\''+c.protocolo_id+'\')')+'">VER CICLO COMPLETO →</button></div></div>'+
+      ((c.top||[]).length?'<div class="scCy__l"><small>LO QUE MÁS PROGRESÓ · FUERZA MÁXIMA ESTIMADA</small>'+(c.top||[]).slice(0,5).map(function(t){ return '<div><span>'+plEsc(t.nombre)+'</span><em>'+String(t.ini).replace('.',',')+' → '+String(t.max).replace('.',',')+' KG</em><b class="'+(t.pct>0?'up':'')+'">'+(t.pct>0?'+':'')+t.pct+'%</b></div>' }).join('')+'</div>':'<div class="scCy__l"><small>SIN MARCAS SUFICIENTES EN ESTE CICLO</small></div>')+
+    '</div>' }
+// c327 · en el planificador: CICLO 1 · CICLO 2 · CICLO 3 (los cerrados se abren completos en solo lectura)
+async function plCyPintar(fid, pid){ const el=document.getElementById('plCy'); if(!el) return
+  if (!fid){ el.hidden=true; el.innerHTML=''; return }
+  const L=await scCiclosCargar(fid); if (!L || L.length<2 || !F || F.id!==fid){ el.hidden=true; el.innerHTML=''; return }
+  el.hidden=false
+  el.innerHTML='<span>CICLOS</span>'+L.map(function(c){ const on=c.protocolo_id===pid
+    return '<button type="button" class="'+(on?'on':'')+'" onclick="'+(on?'':c.activo?'plRecargarActual()':'gpVerAnterior(\''+c.protocolo_id+'\')')+'">CICLO '+c.ciclo+(c.activo?' · ACTUAL':' · '+plEsc(c.programa||''))+'</button>' }).join('') }
+async function plRecargarActual(){ if(!F) return; const a=C.asig[F.id]; if(!a) return; vista('vPlan'); plReset(); await abrirPlan(a.protocolo_id, a.protocolos||null, {}) }
 async function cicNuevo(id){ if (!F || F.id!==id){ verFicha(id); await new Promise(function(r){ setTimeout(r,450) }) } gpAbrir() }
 function scCicloAviso(){ if(!F) return ''
-  const e=cicloEstado(C.asig[F.id]); if(!e||!e.k) return ''
+  const ar=C.asig[F.id]
+  if (ar && ar.revision_pendiente) return '<div class="cicAv cicAv--rev" role="status"><div><small>CICLO '+(ar.ciclo_actual||1)+' NUEVO · REVISAR PLANIFICACIÓN</small><b>Este ciclo necesita tus modificaciones</b>'+
+    '<span>'+plEsc(ar.revision_nota||'Se creó un ciclo nuevo: revisa ejercicios, cargas y progresión.')+'</span></div><div class="cicAv__b"><button type="button" class="tbB" onclick="location.hash=\'#/socio/'+F.id+'/plan?w=1\'">ABRIR PLANIFICADOR</button><button type="button" class="tbB tbB--gh" onclick="cicRevisado(\''+ar.id+'\')">MARCAR REVISADO</button></div></div>'
+  const e=cicloEstado(ar); if(!e||!e.k) return ''
   if (e.k==='pasado') return '<div class="cicAv cicAv--al" role="status"><div><small>CICLO TERMINADO · HACE '+e.atraso+' DÍA'+(e.atraso===1?'':'S')+'</small><b>Necesita comenzar un nuevo ciclo de entrenamiento</b>'+
     '<span>Su ciclo de '+e.total+' semanas terminó el '+e.finTxt.toLowerCase()+'. Toma su test de fuerza y asígnale el ciclo siguiente.</span></div><button type="button" class="tbB tbB--ink" onclick="gpAbrir()">INICIAR NUEVO CICLO</button></div>'
   return '<div class="cicAv" role="status"><div><small>ÚLTIMA SEMANA DEL CICLO · SEMANA '+e.total+' DE '+e.total+'</small><b>Esta es su última semana: prepara su próximo ciclo</b>'+
@@ -11184,7 +11261,7 @@ function scPintar(){
         '<span class="tc__k"><i class="tcP tcP--x">'+e.pill+'</i></span>'+
         '<b class="tc__n">'+scNomL(x.nombre)+'</b><span class="tc__s">'+e.sub+'</span></button>'+
       '<button type="button" class="tcM" onclick="scMenu(event,\''+x.key+'\')" aria-haspopup="menu" aria-label="Acciones de la extra '+scNomL(x.nombre)+'">···</button></div>' })
-  h+='</div><div id="tcRes" class="tcRes" '+(SCD.open?'':'hidden')+'></div>'
+  h+='</div><div id="tcRes" class="tcRes" '+(SCD.open?'':'hidden')+'></div>'+scCiclosHtml()
   document.querySelectorAll('body > .tcRes').forEach(function(x){ x.remove() })   // c265/c282: el resumen vive fuera de la ficha (bandeja o expandido)
   el.innerHTML=h
   fpSemPintar(st, ses, ed)

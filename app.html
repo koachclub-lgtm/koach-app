@@ -1301,6 +1301,24 @@ html.en-plan #vPlan.on::before{content:'';position:fixed;inset:0;z-index:-1;poin
 #vPlan .mtProg__p{margin-top:8px;font-size:12.5px;line-height:1.4}#vPlan .mtProg__p b{font-size:11px}
 /* etiquetas de sección */
 #vPlan .uK{font:500 9.5px/1 var(--font-mono);letter-spacing:.16em;color:#3F4044}
+/* c327 · TUS CICLOS */
+.cyA__t{display:flex;gap:6px;overflow-x:auto;padding-bottom:8px;scrollbar-width:none}
+.cyA__t button{flex:none;min-height:40px;padding:0 14px;border-radius:999px;border:1px solid rgba(18,18,18,.18);background:transparent;font:700 10px var(--font-mono,monospace);letter-spacing:.12em;color:#121212;cursor:pointer}
+.cyA__t button.on{background:#121212;color:#F4F3F0;border-color:#121212}
+.cyA__c{border-radius:20px;padding:16px;color:#F4F3F0;background:linear-gradient(135deg,#1A1B1D 0%,#2B2D30 52%,#151617 100%);box-shadow:0 12px 26px -16px rgba(0,0,0,.55)}
+.cyA__h small{display:block;font:700 9.5px var(--font-mono,monospace);letter-spacing:.16em;color:rgba(244,243,240,.6)}
+.cyA__h b{display:block;margin-top:4px;font-family:var(--font-display,inherit);font-weight:800;font-size:22px}
+.cyA__h span{display:block;margin-top:2px;font:500 9.5px var(--font-mono,monospace);letter-spacing:.1em;color:rgba(244,243,240,.6)}
+.cyA__m{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-top:14px}
+.cyA__m div{border-radius:14px;padding:10px 12px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.08)}
+.cyA__m b{display:block;font-family:var(--font-display,inherit);font-weight:800;font-size:24px;background:linear-gradient(180deg,#fff,#C9CBCE 55%,#8E9196);-webkit-background-clip:text;background-clip:text;color:transparent}
+.cyA__m span{display:block;font:700 8.5px var(--font-mono,monospace);letter-spacing:.12em;color:rgba(244,243,240,.7)}
+.cyA__l{margin-top:14px}
+.cyA__l small{display:block;font:700 8.5px var(--font-mono,monospace);letter-spacing:.14em;color:rgba(244,243,240,.6);margin-bottom:4px;line-height:1.5}
+.cyA__l div{display:grid;grid-template-columns:minmax(0,1fr) auto 48px;gap:8px;align-items:center;padding:8px 0;border-top:1px solid rgba(255,255,255,.08)}
+.cyA__l span{font-size:13.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cyA__l em{font:500 9.5px var(--font-mono,monospace);font-style:normal;color:rgba(244,243,240,.6)}
+.cyA__l b{font:700 12px var(--font-mono,monospace);text-align:right;color:#3EC6B0}
 #vPlan .uK[style]{margin:16px 2px 8px!important}
 /* semanas del ciclo */
 #vPlan .p2Cyc{gap:6px;margin:0}
@@ -4793,6 +4811,8 @@ html.en-av body{background:transparent}
     <div id="pOpAv"></div>
     <div id="pLista"></div>
     <section id="pNextSem"></section>
+    <div class="uK" id="pCiclosK" style="margin:22px 2px 10px" hidden>TUS CICLOS</div>
+    <section class="cyA" id="pCiclos" aria-label="Tus ciclos" hidden></section>
     <button type="button" class="p2Lnk" onclick="verHistorial()">VER HISTORIAL DE SESIONES →</button>
     <div class="nota">LAS SESIONES SE DESBLOQUEAN EN ORDEN · TU KOACH AJUSTA EL PROGRAMA</div>
   </div>
@@ -9194,7 +9214,24 @@ function cicloSem(w){
   return { desde:d0, hasta:d1, rango:_fmtC(d0)+' – '+_fmtC(d1) }
 }
 function cicloInfo(){ return (S.gamif && S.gamif.ciclo_info) || null }
+// c327 · TUS CICLOS: ciclo 1, ciclo 2… y lo que progresaste en cada uno (RPC koach_ciclos, solo lectura)
+const CYA={ d:null, t:0, sel:null }
+async function ciclosSocio(){ const el=document.getElementById('pCiclos'); if(!el || !S.perfil) return
+  if (!CYA.d || Date.now()-CYA.t>120000){ try{ const r=await sb.rpc('koach_ciclos',{ p_socio:S.perfil.id }); if(!r.error){ CYA.d=r.data||[]; CYA.t=Date.now() } }catch(_){} }
+  pintarCiclosSocio() }
+function pintarCiclosSocio(){ const el=document.getElementById('pCiclos'), k=document.getElementById('pCiclosK'); if(!el) return
+  const L=(CYA.d||[]).filter(c=>c.sesiones>0||c.activo); if(!L.length){ el.hidden=true; if(k) k.hidden=true; return }
+  el.hidden=false; if(k) k.hidden=false
+  const i = CYA.sel!=null && L[CYA.sel] ? CYA.sel : L.length-1, c=L[i]
+  const fm=d=>{ if(!d) return ''; const x=new Date(String(d).slice(0,10)+'T12:00:00'); return x.getDate()+' '+_MES[x.getMonth()] }
+  const ton=c.tonelaje>=1000 ? (Math.round(c.tonelaje/100)/10).toString().replace('.',',')+'K' : String(c.tonelaje||0)
+  el.innerHTML='<div class="cyA__t" role="tablist">'+L.map((x,j)=>'<button type="button" role="tab" aria-selected="'+(j===i)+'" class="'+(j===i?'on':'')+'" onclick="CYA.sel='+j+';pintarCiclosSocio()">CICLO '+x.ciclo+(x.activo?' · ACTUAL':'')+'</button>').join('')+'</div>'+
+    '<div class="cyA__c"><div class="cyA__h"><small>'+String((c.programa||'')+' · '+(c.semanas||6)+' SEMANAS').toUpperCase()+'</small><b>'+(c.activo?'Ciclo '+c.ciclo+' en curso':'Ciclo '+c.ciclo+' completado')+'</b><span>'+(fm(c.inicio)+' — '+fm(c.fin)).toUpperCase()+'</span></div>'+
+    '<div class="cyA__m"><div><b>'+c.sesiones+'</b><span>SESIONES</span></div><div><b>'+c.sets+'</b><span>SETS</span></div><div><b>'+ton+'</b><span>KG MOVIDOS</span></div></div>'+
+    ((c.top||[]).length ? '<div class="cyA__l"><small>LO QUE MÁS PROGRESASTE · FUERZA MÁXIMA ESTIMADA</small>'+c.top.slice(0,5).map(t=>'<div><span>'+anEsc(t.nombre)+'</span><em>'+String(t.ini).replace('.',',')+' → '+String(t.max).replace('.',',')+' KG</em><b>'+(t.pct>0?'+':'')+t.pct+'%</b></div>').join('')+'</div>'
+      : '<div class="cyA__l"><small>'+(c.activo?'TU PROGRESO DE ESTE CICLO APARECE AQUÍ A MEDIDA QUE REGISTRAS TUS SETS':'SIN MARCAS SUFICIENTES EN ESTE CICLO')+'</small></div>')+'</div>' }
 function pintarCicloSocio(){
+  try{ ciclosSocio() }catch(_){}
   const el=document.getElementById('pCiclo'); if(!el) return
   if (!S.programa || !S.asig){ el.innerHTML=''; return }
   const ci=cicloInfo(), N=(ci&&ci.semanas)||(S.proto&&S.proto.ciclo_semanas)||6, vig=S.semanaActual||1
