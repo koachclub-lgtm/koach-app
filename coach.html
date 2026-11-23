@@ -1233,6 +1233,39 @@ small{color:var(--koach-text-secondary)}
 .adhBar{height:8px;border-radius:4px;background:rgba(18,18,18,.08);overflow:hidden}
 .adhBar i{display:block;height:100%;background:#1C1C1C;border-radius:4px}
 
+/* c323 · ADHERENCIA útil: activos, prioridad y acción */
+.adhRes{grid-template-columns:repeat(5,minmax(0,1fr))}
+@media (max-width:820px){.adhRes{grid-template-columns:1fr 1fr}}
+.adhRes button{all:unset;box-sizing:border-box;cursor:pointer;background:var(--koach-surface);border:1px solid var(--koach-border);border-radius:12px;padding:12px 14px;display:flex;flex-direction:column;gap:2px;min-width:0}
+.adhRes button.on{border-color:var(--koach-ink);box-shadow:inset 0 0 0 1px var(--koach-ink)}
+.adhRes button b{display:block;font-family:var(--font-display);font-weight:700;font-size:28px;letter-spacing:-0.02em;color:var(--koach-ink)}
+.adhRes button b i{font-style:normal;font-size:15px;color:var(--koach-text-secondary)}
+.adhRes button span{font-family:var(--font-mono);font-weight:700;font-size:10px;letter-spacing:.08em;color:var(--koach-ink)}
+.adhRes button small{font-family:var(--font-mono);font-size:9.5px;letter-spacing:.06em;color:var(--koach-text-secondary)}
+.adhRes button.al b{color:#C23600}
+.adhHint{font-family:var(--font-mono);font-size:10.5px;letter-spacing:.05em;color:var(--koach-text-secondary);margin:-2px 2px 10px;text-transform:uppercase}
+.adhR{display:grid;grid-template-columns:minmax(0,1.4fr) minmax(0,1.6fr) 76px 96px 70px 196px;align-items:center;gap:12px;background:var(--koach-surface);border:1px solid var(--koach-border);border-radius:12px;padding:10px 12px 10px 14px;margin-bottom:6px}
+.adhR__n{min-width:0;cursor:pointer}
+.adhR__n b{display:block;font-family:var(--font-display);font-weight:700;font-size:16px;color:var(--koach-ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.adhR__n small{display:block;margin-top:2px;font-family:var(--font-mono);font-size:10px;letter-spacing:.05em;color:var(--koach-text-secondary);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.adhR__a{min-width:0;display:flex;flex-wrap:wrap;gap:4px;align-items:center}
+.adhAc{font-family:var(--font-mono);font-weight:700;font-size:10px;letter-spacing:.06em;border-radius:6px;padding:5px 8px;border:1.5px solid var(--koach-ink);color:var(--koach-ink)}
+.adhAc--al{border-color:#FF4200;color:#C23600}
+.adhAc--ok{border-color:#3EC6B0;color:#1F8C7B}
+.adhAc--x{border-color:var(--koach-border-strong);color:var(--koach-text-secondary);font-weight:500}
+.adhR__k{text-align:center;font-family:var(--font-mono);font-size:9px;letter-spacing:.06em;color:var(--koach-text-secondary);line-height:1.25}
+.adhR__k b{display:block;font-family:var(--font-display);font-weight:700;font-size:19px;letter-spacing:-.01em;color:var(--koach-ink)}
+.adhR__k b.al{color:#C23600}
+.adhW4{display:flex;align-items:flex-end;gap:4px;height:30px;justify-content:center}
+.adhW4 i{width:12px;border-radius:3px;background:rgba(18,18,18,.1);position:relative;height:100%;overflow:hidden}
+.adhW4 i u{position:absolute;left:0;right:0;bottom:0;background:#1C1C1C}
+.adhW4 i.cur u{background:#6F7377}
+.adhR__b{display:flex;gap:6px;justify-content:flex-end}
+.adhR__k--w{white-space:nowrap}
+.adhR__b button{all:unset;box-sizing:border-box;cursor:pointer;height:36px;padding:0 12px;border-radius:999px;border:1px solid var(--koach-border-strong);font-family:var(--font-mono);font-weight:700;font-size:9.5px;letter-spacing:.08em;color:var(--koach-ink);display:inline-flex;align-items:center;gap:6px;white-space:nowrap}
+.adhR__b button.ink{background:var(--koach-ink);color:var(--koach-control);border-color:var(--koach-ink)}
+.adhR__b button:disabled{opacity:.35;cursor:default}
+@media (max-width:820px){.adhR{grid-template-columns:minmax(0,1fr) 64px;row-gap:8px}.adhR__a{grid-column:1/-1;order:3}.adhR__k--w,.adhR__k--m{display:none}.adhR__b{grid-column:1/-1;order:4}}
 /* c9.5 · la interfaz no ofrece lo que el rol no puede hacer (la base lo impone igual) */
 .mh__st--hor{margin-left:8px}
 .vtPlanR{margin:0 0 12px;grid-column:1/-1}
@@ -4028,10 +4061,11 @@ textarea.avz__in{min-height:70px;resize:vertical}
 <div class="vista" id="vAgenda"><iframe id="agFrame" title="Agenda KOACH" style="position:fixed;left:0;right:0;width:100%;border:0;background:#D0D0CE;z-index:5"></iframe></div>
 <div class="vista" id="vAdh">
   <div class="stop"><button class="sback" onclick="verSala()">←</button><div class="stit">Adherencia</div></div>
-  <div class="ssub">¿QUIÉN ESTÁ VINIENDO Y CUMPLIENDO SU PLAN?</div>
+  <div class="ssub">SOCIOS ACTIVOS · QUIÉN VIENE, QUIÉN SE ESTÁ ALEJANDO Y QUÉ HACER HOY</div>
   <div class="adhRes" id="adhRes"></div>
-  <input id="adhBusca" placeholder="Buscar por nombre o correo…" oninput="adhPintar()">
-  <div class="adChips" id="adhF"></div>
+  <div class="adhBar2"><input id="adhBusca" placeholder="Buscar por nombre o correo…" oninput="adhPintar()"></div>
+  <div class="adChips adhChips" id="adhF"></div>
+  <div class="adhHint" id="adhHint"></div>
   <div id="adhLista"><div class="vacio">Cargando…</div></div>
 </div>
 <div class="vista" id="vCrm">
@@ -9784,34 +9818,100 @@ function adhAlertas(r){
   if (r.con_plan && r.sem_vig>=r.ciclo_semanas) a.push(['ciclo','CICLO POR TERMINAR'])
   return a
 }
+// c323 · panel útil: métricas solo de socios ACTIVOS (membresía vigente, sin congelados), una acción principal por socio,
+// lista priorizada ("HOY") y contacto directo por WhatsApp con mensaje listo. Fuente: v_adherencia (sin cambios en la base).
+const ADH_P={ pago:90, renovar:80, nunca:78, riesgo:70, sinplan:65, inactivo:50, ciclo:40, recuperar:30 }
+function adhNum(x){ return x==null?null:+x }
+function adhAccion(r){
+  const act=r.membresia_vigente==='activa'||r.membresia_vigente==='proxima', cong=r.membresia_vigente==='congelada'
+  const d=adhNum(r.dias_sin_visita), dm=adhNum(r.dias_membresia)
+  const ini = r.fecha_inicio ? Math.round((new Date(hoyISO()+'T12:00:00')-new Date(r.fecha_inicio+'T12:00:00'))/86400000) : null
+  const L=[]
+  if (act){
+    if (r.pago_pendiente) L.push(['pago','PAGO PENDIENTE'])
+    if (dm!=null && dm<=7) L.push(['renovar', dm<=0?'VENCE HOY':'VENCE EN '+dm+' D'])
+    if (d==null && ini!=null && ini>=5) L.push(['nunca','NUNCA HA VENIDO'])
+    else if (d!=null && d>=7 && d<=30) L.push(['riesgo','SIN VENIR · '+d+' D'])
+    else if (d!=null && d>30) L.push(['inactivo','INACTIVO · '+d+' D'])
+    if (!r.con_plan) L.push(['sinplan','SIN PROGRAMA'])
+    if (r.con_plan && r.sem_vig>=r.ciclo_semanas) L.push(['ciclo','CICLO TERMINA · S'+r.sem_vig+'/'+r.ciclo_semanas])
+  } else if (!cong && ['vencida','finalizada','cancelada'].indexOf(r.membresia_ultima)>-1 && d!=null && d<=60) L.push(['recuperar','VENCIÓ · VINO HACE '+d+' D'])
+  L.sort((a,b)=>ADH_P[b[0]]-ADH_P[a[0]])
+  return { act, cong, L, prio: L.length?ADH_P[L[0][0]]+(d||0)/100:0 }
+}
 async function verAdherencia(){
   vista('vAdh'); document.getElementById('adhLista').innerHTML=kLd('Cargando…')
-  const r=await sb.from('v_adherencia').select('*').order('nombre')
-  ADH.rows=(r.data||[]).map(x=>Object.assign(x,{_al:adhAlertas(x)}))
+  const [r, t]=await Promise.all([ sb.from('v_adherencia').select('*'), sb.from('profiles').select('id,telefono').eq('role','socio') ])
+  const tel={}; (t.data||[]).forEach(p=>{ if(p.telefono) tel[p.id]=p.telefono })
+  ADH.rows=(r.data||[]).map(x=>Object.assign(x,{ _a:adhAccion(x), _tel:tel[x.socio_id]||null }))
+  if (!ADH._ini){ ADH._ini=true; ADH.f='hoy' }
   adhPintar()
 }
+const ADH_F=[
+  ['hoy','HOY','Todo lo que pide acción, de lo más urgente a lo menos'],
+  ['riesgo','EN RIESGO','Activos que llevan 7 a 30 días sin venir: escribirles esta semana'],
+  ['nunca','NUNCA VINIERON','Activos con 5+ días desde su inicio y ninguna visita'],
+  ['renovar','RENUEVAN ≤ 7 D','Membresía activa que vence en los próximos 7 días'],
+  ['pago','PAGO PENDIENTE','Activos con pago pendiente'],
+  ['sinplan','SIN PROGRAMA','Activos sin programa asignado: asignar desde la ficha'],
+  ['ciclo','CICLO TERMINA','Activos en la última semana del ciclo: test y nuevo ciclo'],
+  ['inactivo','INACTIVOS 30+','Activos que no vienen hace más de 30 días'],
+  ['recuperar','RECUPERAR','Membresía vencida y vinieron en los últimos 60 días'],
+  ['aldia','AL DÍA','Activos sin ninguna alerta'],
+  ['todos','TODOS','Todos los socios con registro']]
+function adhPasa(x,k){ const a=x._a
+  if (k==='todos') return true
+  if (k==='hoy') return a.L.length>0
+  if (k==='aldia') return a.act && !a.L.length
+  return a.L.some(l=>l[0]===k) }
+function adhMsg(x){ const n=String(x.nombre||'').split(' ')[0], k=x._a.L.length?x._a.L[0][0]:'', d=x.dias_sin_visita
+  if (k==='pago') return 'Hola '+n+', te escribimos de KOACH. Tienes un pago pendiente de tu membresía, ¿te ayudamos a dejarlo listo?'
+  if (k==='renovar'){ const f=new Date(hoyISO()+'T12:00:00'); f.setDate(f.getDate()+(+x.dias_membresia||0)); return 'Hola '+n+', tu membresía KOACH vence el '+f.getDate()+' de '+['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'][f.getMonth()]+'. ¿Te dejamos lista la renovación para que sigas con tu plan sin cortes?' }
+  if (k==='nunca') return 'Hola '+n+', ¿cómo estás? Tu plan en KOACH ya está listo y todavía no hemos entrenado juntos. ¿Qué día te acomoda partir esta semana?'
+  if (k==='riesgo'||k==='inactivo') return 'Hola '+n+', ¿cómo estás? Hace '+d+' días que no te vemos en KOACH. ¿Te acomoda venir esta semana para retomar tu plan?'
+  if (k==='recuperar') return 'Hola '+n+', ¿cómo estás? Te echamos de menos en KOACH. ¿Te gustaría retomar tu plan?'
+  return 'Hola '+n+', ¿cómo estás? Te escribimos de KOACH.' }
+function adhWa(id){ const x=ADH.rows.find(r=>r.socio_id===id); if(!x) return
+  const u=crWa(x._tel); if(!u){ toast('Este socio no tiene teléfono registrado'); return }
+  window.open(u+'?text='+encodeURIComponent(adhMsg(x)),'_blank') }
+function adhFicha(id, k){ verFicha(id); if (k!=='sinplan') try{ fTab('adh') }catch(_){} }
 function adhPintar(){
-  const R=ADH.rows, conPlan=R.filter(x=>x.con_plan)
-  const asist=conPlan.filter(x=>x.visitas_semana>0).length
-  const sin7=conPlan.filter(x=>x._al.some(a=>a[0]==='sinasist')).length
-  const ad=conPlan.filter(x=>x.adherencia_4sem!=null), media=ad.length?Math.round(ad.reduce((s,x)=>s+x.adherencia_4sem,0)/ad.length):null
+  const R=ADH.rows, A=R.filter(x=>x._a.act), cong=R.filter(x=>x._a.cong).length
+  const vino7=A.filter(x=>x.dias_sin_visita!=null && x.dias_sin_visita<=6).length
+  const cnt=k=>R.filter(x=>adhPasa(x,k)).length
+  const ad=A.filter(x=>x.con_plan && x.adherencia_4sem!=null), media=ad.length?Math.round(ad.reduce((s,x)=>s+x.adherencia_4sem,0)/ad.length):null
+  const K=(f,b,t,sm,al)=>'<button type="button" class="'+(ADH.f===f?'on ':'')+(al?'al':'')+'" onclick="ADH.f=\''+f+'\';adhPintar()"><b>'+b+'</b><span>'+t+'</span><small>'+sm+'</small></button>'
   document.getElementById('adhRes').innerHTML=
-    '<div><b>'+conPlan.length+'</b><span>SOCIOS CON PLAN</span></div><div><b>'+asist+'</b><span>ASISTIERON ESTA SEMANA</span></div>'+
-    '<div><b>'+sin7+'</b><span>SIN ASISTIR 7+ DÍAS</span></div><div><b>'+(media==null?'—':media+'%')+'</b><span>ADHERENCIA MEDIA · 4 SEM</span></div>'
-  const F=[['todos','TODOS'],['seg','SEGUIMIENTO'],['sinasist','SIN ASISTENCIA 7 D'],['baja','BAJA ADHERENCIA'],['vence','PLAN POR VENCER'],['pago','PAGO PENDIENTE'],['vencido','VENCIDOS'],['sinplan','SIN PLANIFICACIÓN'],['ciclo','CICLO POR TERMINAR']]
-  const pasa=(x,k)=>k==='todos'||(k==='seg'?x._al.length>0:x._al.some(a=>a[0]===k))
-  document.getElementById('adhF').innerHTML=F.map(f=>'<button class="'+(ADH.f===f[0]?'on':'')+'" onclick="ADH.f=\''+f[0]+'\';adhPintar()">'+f[1]+' · '+R.filter(x=>pasa(x,f[0])).length+'</button>').join('')
+    K('aldia', A.length, 'SOCIOS ACTIVOS', cong?cong+' CONGELADOS APARTE':'MEMBRESÍA VIGENTE')+
+    K('todos', vino7+'<i> / '+A.length+'</i>', 'VINIERON · 7 DÍAS', A.length?Math.round(vino7*100/A.length)+'% DE LOS ACTIVOS':'—')+
+    K('riesgo', cnt('riesgo')+cnt('nunca'), 'EN RIESGO', cnt('riesgo')+' SIN VENIR · '+cnt('nunca')+' NUNCA VINIERON', true)+
+    K('hoy', media==null?'—':media+'%', 'ADHERENCIA · 4 SEM', 'PLAN CUMPLIDO · ACTIVOS')+
+    K('renovar', cnt('renovar'), 'RENUEVAN ≤ 7 DÍAS', cnt('recuperar')+' POR RECUPERAR', cnt('renovar')>0)
+  document.getElementById('adhF').innerHTML=ADH_F.map(f=>{ const n=cnt(f[0]); return (n||f[0]===ADH.f||f[0]==='todos'||f[0]==='hoy')?'<button class="'+(ADH.f===f[0]?'on':'')+'" onclick="ADH.f=\''+f[0]+'\';adhPintar()">'+f[1]+' · '+n+'</button>':'' }).join('')
+  const fd=ADH_F.find(f=>f[0]===ADH.f); document.getElementById('adhHint').textContent=fd?fd[2]:''
   const q=(document.getElementById('adhBusca').value||'').trim().toLowerCase()
-  const l=R.filter(x=>pasa(x,ADH.f) && (!q || bpScore(q,(x.nombre||'')+' '+(x.apellido||''),x.email||'')>0))
-    .sort((a,b)=>(b._al.length-a._al.length)||String(a.nombre).localeCompare(String(b.nombre)))
-  document.getElementById('adhLista').innerHTML = l.length ? l.map(x=>{
-    const est = x._al.length ? x._al.slice(0,2).map(a=>'<span class="adTag ink">'+a[1]+'</span>').join('') : '<span class="adTag">AL DÍA</span>'
-    const plan = x.con_plan ? ('PLAN '+x.hechas_semana+' / '+(x.planif_semana==null||x.planif_semana<0?'—':x.planif_semana)+(x.adherencia_semana!=null?' · '+x.adherencia_semana+'%':'')) : 'SIN PLAN'
-    const ult = x.ultima_visita ? ('ÚLT. VISITA '+(x.dias_sin_visita===0?'HOY':x.dias_sin_visita===1?'AYER':'HACE '+x.dias_sin_visita+' D')) : 'SIN VISITAS'
-    return '<button class="adhRow" onclick="verFicha(\''+x.socio_id+'\');fTab(\'adh\')"><div class="adhN">'+(x.nombre||'')+' '+(x.apellido||'')+'</div>'+
-      '<div class="adhE">'+est+'</div>'+
-      '<div class="adhM"><span>'+plan+'</span><span>ASISTENCIAS '+x.visitas_semana+'</span><span>'+ult+'</span>'+(x.programa?'<span>'+x.programa+' · S'+x.sem_vig+'/'+x.ciclo_semanas+'</span>':'')+'</div></button>'
-  }).join('') : '<div class="vacio">Nadie en este filtro.</div>'
+  const l=R.filter(x=>adhPasa(x,ADH.f) && (!q || bpScore(q,(x.nombre||'')+' '+(x.apellido||''),x.email||'')>0))
+    .sort((a,b)=>(b._a.prio-a._a.prio)||((b.dias_sin_visita||0)-(a.dias_sin_visita||0))||String(a.nombre).localeCompare(String(b.nombre)))
+  const AL={pago:1,renovar:1,nunca:1,riesgo:1,inactivo:1,recuperar:1}
+  document.getElementById('adhLista').innerHTML = l.length ? l.slice(0,ADH.lim||80).map(x=>{
+    const a=x._a, id=x.socio_id, k0=a.L.length?a.L[0][0]:''
+    const tags = a.L.length ? a.L.map((t,i)=>'<span class="adhAc '+(i===0?(AL[t[0]]?'adhAc--al':''):'adhAc--x')+'">'+t[1]+'</span>').join('')
+      : '<span class="adhAc '+(a.act?'adhAc--ok':'adhAc--x')+'">'+(a.act?'AL DÍA':a.cong?'CONGELADO':'SIN MEMBRESÍA')+'</span>'
+    const sub = [x.programa?(x.programa+' · S'+x.sem_vig+'/'+x.ciclo_semanas):(a.act?'SIN PROGRAMA':null), x.ultimo_entreno&&x.ultimo_entreno.nombre?('ÚLT. '+String(x.ultimo_entreno.nombre).toUpperCase()):null].filter(Boolean).join(' · ')
+    const d=x.dias_sin_visita, ult = d==null?'—':d===0?'HOY':d===1?'AYER':d+' D'
+    const sem=(Array.isArray(x.semanas)?x.semanas:[]).slice().sort((p,q)=>q.k-p.k)
+    const w4='<div class="adhW4" title="Sesiones hechas / planificadas · últimas 4 semanas">'+sem.map(w=>{ const pl=+w.planif||0, h=+w.hechas||0, pct=pl>0?Math.min(100,Math.round(h*100/pl)):(h>0?100:0); return '<i class="'+(w.k===0?'cur':'')+'"><u style="height:'+pct+'%"></u></i>' }).join('')+'</div>'
+    const dm=x.dias_membresia, mem = a.act ? (dm==null?'—':dm+' D') : '—'
+    const accion = k0==='sinplan' ? '<button type="button" class="ink" onclick="adhFicha(\''+id+'\',\'sinplan\')">ASIGNAR</button>'
+      : k0==='ciclo' ? '<button type="button" onclick="adhFicha(\''+id+'\',\'ciclo\')">VER CICLO</button>'
+      : '<button type="button" class="'+(AL[k0]?'ink':'')+'" onclick="adhWa(\''+id+'\')"'+(x._tel?'':' disabled title="Sin teléfono"')+'>WHATSAPP</button>'
+    return '<div class="adhR"><div class="adhR__n" onclick="adhFicha(\''+id+'\')"><b>'+plEsc((x.nombre||'')+' '+(x.apellido||''))+'</b><small>'+plEsc(sub||'—')+'</small></div>'+
+      '<div class="adhR__a">'+tags+'</div>'+
+      '<div class="adhR__k"><b class="'+(d!=null&&d>=7?'al':'')+'">'+ult+'</b>ÚLT. VISITA</div>'+
+      '<div class="adhR__k adhR__k--w">'+w4+(x.adherencia_4sem!=null?x.adherencia_4sem+'% · 4 SEM':'4 SEM')+'</div>'+
+      '<div class="adhR__k adhR__k--m"><b class="'+(a.act&&dm!=null&&dm<=7?'al':'')+'">'+mem+'</b>MEMBRESÍA</div>'+
+      '<div class="adhR__b">'+accion+'<button type="button" onclick="adhFicha(\''+id+'\')">FICHA →</button></div></div>'
+  }).join('')+(l.length>(ADH.lim||80)?'<button type="button" class="adhMas" onclick="ADH.lim=(ADH.lim||80)+80;adhPintar()" style="all:unset;display:block;text-align:center;cursor:pointer;padding:14px;font-family:var(--font-mono);font-weight:700;font-size:10px;letter-spacing:.1em">VER '+Math.min(80,l.length-(ADH.lim||80))+' MÁS DE '+(l.length-(ADH.lim||80))+'</button>':'') : '<div class="vacio">Nadie en este filtro.</div>'
 }
 // Pestaña ADHERENCIA en la ficha del socio
 function fAdhToggle(b){ const d=document.getElementById('fTabAdh'); if(!d) return; d.hidden=!d.hidden; b.setAttribute('aria-expanded',String(!d.hidden)); b.classList.toggle('on',!d.hidden) }
