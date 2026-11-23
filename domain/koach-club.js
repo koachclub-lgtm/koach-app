@@ -7,7 +7,7 @@
    Datos: RPC club_* (Supabase). Sin realtime: el feed se actualiza cada 25 s solo mientras la pestaña está abierta. */
 (function () {
   'use strict'
-  var K = { st: null, ch: null, rank: [], feed: [], filtro: 'todos', poll: null, run: null, desde: null, cargando: false }
+  var K = { st: null, ch: null, rank: [], feed: [], filtro: 'todos', poll: null, run: null, desde: null, cargando: false, sec: 'challenges', det: null, conv: null }
   var MEDIA = { gta: { v: 'https://siecbdatfgmqbpxqtvsl.supabase.co/storage/v1/object/public/club-media/gta-burpee.mp4', p: 'https://siecbdatfgmqbpxqtvsl.supabase.co/storage/v1/object/public/club-media/gta-burpee.png' } }
   function clip(ch, cls) { var m = MEDIA[ch && ch.tema]; if (!m) return ''
     return '<div class="kcClip ' + (cls || '') + '"><video src="' + m.v + '" autoplay muted loop playsinline preload="auto" disablepictureinpicture aria-hidden="true"></video></div>' }
@@ -163,6 +163,68 @@ html.en-club .wrap{padding:0!important}
 .kcHm__go{display:inline-flex;align-items:center;min-height:42px;padding:0 18px;border-radius:999px;background:#F2F2F2;color:#0B0C0E;font:700 11px/1 'Space Mono',monospace;letter-spacing:.14em;box-shadow:0 0 0 1px #3EC6B0}
 
 .kcR .kcSun{opacity:.32;top:24%}
+
+/* ── 1% CLUB · shell tech (Black Mirror): frío, HUD, scanlines. Cada challenge trae su propio sub-branding ── */
+.bm{position:relative;min-height:100dvh;background:radial-gradient(120% 60% at 50% 0%,#1B1D20 0%,#0B0C0E 55%,#08090A 100%);overflow:hidden;padding-bottom:calc(118px + env(safe-area-inset-bottom,0px))}
+.bm:before{content:'';position:absolute;inset:0;pointer-events:none;z-index:0;background:repeating-linear-gradient(0deg,rgba(255,255,255,.028) 0 1px,transparent 1px 3px)}
+.bm>*{position:relative;z-index:1}
+.bmHd{display:flex;justify-content:space-between;align-items:center;padding:calc(16px + env(safe-area-inset-top,0px)) 18px 0}
+.bmHd img{height:17px}
+.bmOn{font:700 9px/1 'Space Mono',monospace;letter-spacing:.16em;color:#979C9F}
+.bmOn i{display:inline-block;width:6px;height:6px;border-radius:50%;background:#3EC6B0;margin-right:7px;vertical-align:1px;box-shadow:0 0 8px #3EC6B0}
+.bmTi{padding:26px 18px 0}
+.bmT{margin:0;font:900 104px/.82 'KOACH Display','KOACH Display Fallback',sans-serif;letter-spacing:-.04em;color:#F2F2F2;position:relative;display:inline-block}
+.bmT small{display:block;font:700 13px/1 'Space Mono',monospace;letter-spacing:.62em;color:#B9BCBF;margin-top:12px}
+.bmSub{margin:14px 0 0;font:700 9px/1.5 'Space Mono',monospace;letter-spacing:.16em;color:#6F7377}
+.bmTabs{display:grid;grid-template-columns:1fr 1fr;margin:24px 18px 0;border-bottom:1px solid rgba(255,255,255,.12)}
+.bmTabs button{appearance:none;background:none;border:0;color:#6F7377;font:700 11px/1 'Space Mono',monospace;letter-spacing:.18em;height:46px;cursor:pointer;position:relative;text-align:left;padding:0}
+.bmTabs button sup{font-size:8px;color:#979C9F;margin-left:6px;letter-spacing:.06em}
+.bmTabs button[aria-selected=true]{color:#F2F2F2}
+.bmTabs button[aria-selected=true]:after{content:'';position:absolute;left:0;right:12px;bottom:-1px;height:2px;background:#F2F2F2}
+.bmList{padding:16px 18px 0;display:flex;flex-direction:column;gap:12px}
+.bmCard{appearance:none;display:block;width:100%;text-align:left;color:#F2F2F2;position:relative;overflow:hidden;min-height:176px;padding:16px 16px 14px;box-sizing:border-box;border:1px solid rgba(255,255,255,.12);border-radius:4px;background:linear-gradient(180deg,rgba(255,255,255,.035),rgba(255,255,255,.01));cursor:pointer}
+.bmCard>.bmC{position:absolute;width:12px;height:12px;border-color:rgba(255,255,255,.55);border-style:solid;z-index:2}
+.bmC.a{top:-1px;left:-1px;border-width:2px 0 0 2px}.bmC.b{top:-1px;right:-1px;border-width:2px 2px 0 0}.bmC.c{bottom:-1px;left:-1px;border-width:0 0 2px 2px}.bmC.d{bottom:-1px;right:-1px;border-width:0 2px 2px 0}
+.bmArt{position:absolute;inset:0;pointer-events:none;overflow:hidden}
+.bmIn{position:relative;z-index:1;display:flex;flex-direction:column;min-height:144px}
+.bmMeta{display:flex;justify-content:space-between;font:700 8.5px/1 'Space Mono',monospace;letter-spacing:.16em;color:#979C9F}
+.bmMeta b{color:#F2F2F2;font-weight:700}
+.bmDat{display:grid;grid-template-columns:repeat(3,auto);justify-content:start;gap:18px;margin-top:auto;padding-top:14px}
+.bmDat div{font:900 20px/1 'KOACH Display',sans-serif}
+.bmDat div span{display:block;margin-top:5px;font:700 7.5px/1 'Space Mono',monospace;letter-spacing:.14em;color:#979C9F}
+.bmGo{position:absolute;right:14px;bottom:14px;z-index:2;font:700 9px/1 'Space Mono',monospace;letter-spacing:.16em;color:#F2F2F2}
+.bmCard.gta .bmArt .kcSun{left:auto;right:-50px;top:50%;width:190px;transform:translateY(-50%);opacity:.8}
+.bmCard.gta .bmArt .kcGrid{height:48%;opacity:.55}
+.bmCard.gta .kcHm__t{margin-top:16px;font-size:40px}
+.bmVac{font:700 9.5px/1.7 'Space Mono',monospace;letter-spacing:.1em;color:#979C9F;padding:22px 16px;text-align:center;border:1px dashed rgba(255,255,255,.15);border-radius:4px}
+.bmJoin{margin:18px 18px 0}
+.bmBack{position:absolute;z-index:4;top:calc(12px + env(safe-area-inset-top,0px));left:12px;appearance:none;border:1px solid rgba(255,255,255,.22);background:rgba(10,11,12,.6);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);color:#F2F2F2;height:34px;padding:0 12px;border-radius:4px;font:700 9px/1 'Space Mono',monospace;letter-spacing:.14em;cursor:pointer}
+.bmDet{position:relative;min-height:100dvh;background:#0B0C0E;padding:calc(58px + env(safe-area-inset-top,0px)) 0 calc(118px + env(safe-area-inset-bottom,0px))}
+.bmDet .kcBody{padding-top:0}
+.bmLg{position:absolute;top:calc(21px + env(safe-area-inset-top,0px));left:50%;transform:translateX(-50%);height:16px}
+.bmCv{border:1px solid rgba(255,255,255,.12);border-radius:4px;background:rgba(255,255,255,.03);overflow:hidden}
+.bmCv summary{list-style:none;display:grid;grid-template-columns:44px 1fr auto;gap:12px;align-items:center;padding:14px;cursor:pointer}
+.bmCv summary::-webkit-details-marker{display:none}
+.bmCv .lg{width:44px;height:44px;border-radius:4px;background:#434649;display:flex;align-items:center;justify-content:center;overflow:hidden;font:900 18px/1 'KOACH Display',sans-serif}
+.bmCv .lg img{width:100%;height:100%;object-fit:cover}
+.bmCv h3{margin:0;font:900 16px/1.1 'KOACH Display',sans-serif}
+.bmCv h3 small{display:block;margin-top:5px;font:700 8px/1 'Space Mono',monospace;letter-spacing:.14em;color:#979C9F}
+.bmCv .bf{font:900 14px/1.1 'KOACH Display',sans-serif;text-align:right;max-width:120px;text-transform:uppercase}
+.bmCv .dt{padding:0 14px 14px;border-top:1px solid rgba(255,255,255,.08)}
+.bmCv .dt p{margin:12px 0 0;font:600 13px/1.45 'KOACH Display',sans-serif;color:#D5D7D9}
+.bmCv .dt p.k{font:700 8.5px/1.6 'Space Mono',monospace;letter-spacing:.12em;color:#979C9F;text-transform:uppercase}
+.bmCv .cod{margin-top:12px;display:inline-block;padding:8px 12px;border:1px dashed #F2F2F2;border-radius:4px;font:700 13px/1 'Space Mono',monospace;letter-spacing:.2em}
+@media (prefers-reduced-motion:no-preference){
+.bm.bmAnim .bmT{animation:bmGlitch 1.1s steps(1) .15s both}
+.bm.bmAnim .bmT small,.bm.bmAnim .bmSub,.bm.bmAnim .bmTabs{animation:kcUp .5s ease-out .5s both}
+.bm.bmAnim .bmCard{animation:kcUp .5s ease-out both}
+.bm.bmAnim .bmCard:nth-child(1){animation-delay:.6s}.bm.bmAnim .bmCard:nth-child(2){animation-delay:.72s}.bm.bmAnim .bmCard:nth-child(3){animation-delay:.84s}
+.bm.bmAnim:after{content:'';position:absolute;left:0;right:0;top:0;height:90px;z-index:3;pointer-events:none;background:linear-gradient(180deg,transparent,rgba(255,255,255,.07),transparent);animation:bmScan 1.4s ease-in-out .1s both}
+}
+@keyframes bmGlitch{0%{opacity:0}8%{opacity:1;transform:translateX(-6px);text-shadow:4px 0 #979C9F,-4px 0 #434649;clip-path:inset(10% 0 55% 0)}
+ 16%{transform:translateX(5px);clip-path:inset(60% 0 5% 0)}24%{transform:none;clip-path:none;text-shadow:2px 0 #6F7377}
+ 40%{text-shadow:none}52%{transform:translateX(-3px);text-shadow:-3px 0 #979C9F;clip-path:inset(35% 0 35% 0)}58%,100%{transform:none;text-shadow:none;clip-path:none;opacity:1}}
+@keyframes bmScan{0%{transform:translateY(-100px);opacity:0}15%{opacity:1}100%{transform:translateY(100dvh);opacity:0}}
 `
   function estilos() { if ($('kcCss')) return; var s = document.createElement('style'); s.id = 'kcCss'; s.textContent = css; document.head.appendChild(s) }
   function fondo() { return '<div class="kcBg" aria-hidden="true"><div class="kcSun"></div><div class="kcGrid"></div></div>' }
@@ -205,25 +267,76 @@ html.en-club .wrap{padding:0!important}
     var v = $('vClub'); if (!v) return
     K.animar = true
     if (!K.st) v.innerHTML = '<div class="kcTop"><img src="/img/brand/logotipo-koach.png" alt="KOACH"></div><p class="kcHs">CARGANDO EL CLUB…</p>'
-    var kr = window.KRUN ? KRUN.cargar() : null
-    await cargarEstado(); await cargarListas(); if (kr) await kr; pintarVista()
+    if (K.irDet) { K.det = K.irDet; K.irDet = null } else { K.det = null; K.animShell = true }
+    var kr = window.KRUN ? KRUN.cargar() : null, cv = cargarConvenios()
+    await cargarEstado(); await cargarListas(); if (kr) await kr; await cv; pintarVista()
     clearInterval(K.poll); K.poll = setInterval(function () { if (!v.classList.contains('on')) { clearInterval(K.poll); return } refrescar() }, 25000)
   }
   async function refrescar() { await cargarEstado(); await cargarListas(); if ($('vClub') && $('vClub').classList.contains('on')) pintarVista() }
   function cierre(ch) { var d = new Date(ch.fin); return d.getDate() + ' ' + ['ENE','FEB','MAR','ABR','MAY','JUN','JUL','AGO','SEP','OCT','NOV','DIC'][d.getMonth()] }
+  async function cargarConvenios() {
+    if (K.conv && Date.now() - K.convAt < 600000) return
+    try { var r = await cli().from('club_convenios').select('id,marca,rubro,beneficio,detalle,condiciones,como_usar,codigo,logo_url,web_url').order('orden').order('marca'); if (!r.error) { K.conv = r.data || []; K.convAt = Date.now() } } catch (_) {}
+  }
   function pintarVista() {
     var v = $('vClub'); if (!v) return
+    if (K.det === 'gta' && K.ch) { v._h = null; return pintarGta(v) }
+    if (K.det === 'run') { v._h = null; return pintarRunDet(v) }
+    pintarShell(v)
+  }
+  function nChallenges() { return (K.ch ? 1 : 0) + (window.KRUN ? 1 : 0) }
+  function pintarShell(v) {
+    var st = K.st || {}, an = !!K.animShell; K.animShell = false
+    var h = '<div class="bm' + (an ? ' bmAnim' : '') + '"><div class="bmHd"><img src="/img/brand/logotipo-koach.png" alt="KOACH"><span class="bmOn"><i></i>' + (st.miembros || 0) + ' EN EL CLUB</span></div>' +
+      '<div class="bmTi"><h1 class="bmT">1%<small>CLUB</small></h1><p class="bmSub">DESAFÍOS · COMUNIDAD · ACTIVIDADES</p></div>' +
+      (st.miembro ? '' : '<div class="bmJoin"><button class="kcB kcB--p" type="button" onclick="KCLUB.unirse()">ÚNETE AL CLUB DEL 1%</button></div>') +
+      '<div class="bmTabs" role="tablist">' + [['challenges', 'CHALLENGES', nChallenges()], ['convenios', 'CONVENIOS', (K.conv || []).length]].map(function (t) {
+        return '<button type="button" role="tab" aria-selected="' + (K.sec === t[0]) + '" onclick="KCLUB.seccion(\'' + t[0] + '\')">' + t[1] + '<sup>' + String(t[2]).padStart(2, '0') + '</sup></button>' }).join('') + '</div>'
+    h += '<div class="bmList">' + (K.sec === 'convenios' ? convenios() : challenges()) + '</div></div>'
+    if (v._h === h) return
+    v._h = h; v.innerHTML = h
+  }
+  var CORN = '<i class="bmC a"></i><i class="bmC b"></i><i class="bmC c"></i><i class="bmC d"></i>'
+  function challenges() {
+    var out = [], st = K.st || {}, ch = K.ch, n = 0
+    if (ch) {
+      n++; var t = String(ch.titulo || '').split(' '), a = t.shift() || '', b = t.join(' '), mia = st.mia
+      out.push('<button type="button" class="bmCard gta" onclick="KCLUB.detalle(\'gta\')">' + CORN + '<div class="bmArt" aria-hidden="true"><div class="kcSun"></div><div class="kcGrid"></div></div><div class="bmIn">' +
+        '<div class="bmMeta"><span><b>' + String(n).padStart(2, '0') + '</b> · CON FECHA</span><span>' + (ch.abierto ? 'CIERRA ' + cierre(ch) : 'CERRADO') + '</span></div>' +
+        '<p class="kcHm__t">' + esc(a) + '<small>' + esc(b) + '</small></p>' +
+        '<div class="bmDat"><div>' + (st.participantes || 0) + '<span>MARCAS</span></div>' + (mia ? '<div>' + mia.score + '<span>TU MARCA</span></div>' : '') + (posNum() ? '<div>#' + posNum() + '<span>POSICIÓN</span></div>' : '') + '</div></div>' +
+        '<span class="bmGo">' + (ch.abierto ? 'ENTRAR →' : 'RESULTADOS →') + '</span></button>')
+    }
+    if (window.KRUN) { n++; out.push('<button type="button" class="bmCard run" onclick="KCLUB.detalle(\'run\')">' + CORN + KRUN.miniHTML(n) + '<span class="bmGo">ENTRAR →</span></button>') }
+    return out.join('') || '<div class="bmVac">PRONTO SE ABRE EL PRÓXIMO CHALLENGE.</div>'
+  }
+  function convenios() {
+    var L = K.conv || []
+    if (!L.length) return '<div class="bmVac">AQUÍ VERÁS LOS DESCUENTOS Y BENEFICIOS DE LAS MARCAS ALIADAS AL CLUB.</div>'
+    return L.map(function (c) {
+      return '<details class="bmCv"><summary><span class="lg">' + (c.logo_url ? '<img src="' + esc(c.logo_url) + '" alt="">' : esc(String(c.marca || 'K')[0])) + '</span>' +
+        '<h3>' + esc(c.marca) + (c.rubro ? '<small>' + esc(String(c.rubro).toUpperCase()) + '</small>' : '') + '</h3><span class="bf">' + esc(c.beneficio) + '</span></summary><div class="dt">' +
+        (c.detalle ? '<p>' + esc(c.detalle) + '</p>' : '') + (c.como_usar ? '<p class="k">CÓMO USARLO · ' + esc(c.como_usar) + '</p>' : '') +
+        (c.codigo ? '<span class="cod">' + esc(c.codigo) + '</span>' : '') + (c.condiciones ? '<p class="k">' + esc(c.condiciones) + '</p>' : '') +
+        (c.web_url ? '<p class="k"><a href="' + esc(c.web_url) + '" target="_blank" rel="noopener" style="color:#F2F2F2">VER SITIO →</a></p>' : '') + '</div></details>' }).join('')
+  }
+  function pintarRunDet(v) {
+    var h = '<section class="bmDet"><button class="bmBack" type="button" onclick="KCLUB.detalle(null)">‹ CHALLENGES</button><img class="bmLg" src="/img/brand/logotipo-koach.png" alt="KOACH"><div class="kcBody"></div></section>'
+    if (!v.querySelector('.bmDet')) v.innerHTML = h
+    window.KRUN && KRUN.montar(v)
+  }
+  function pintarGta(v) {
     var st = K.st || {}, ch = K.ch, mia = st.mia
     var top = '<div class="kcTop"><img src="/img/brand/logotipo-koach.png" alt="KOACH"></div>'
     if (!ch) {
       v.innerHTML = '<section class="kcHero">' + fondo() + '<div class="kcIn">' + top + '<h1 class="kcT"><b>1%</b><span>CLUB</span></h1><p class="kcD">Desafíos, comunidad y actividades del club.</p><p class="kcS">Pronto se abre el próximo challenge.</p>' +
         (st.miembro ? '' : '<div class="kcAct"><button class="kcB kcB--p" type="button" onclick="KCLUB.unirse()">ÚNETE AL CLUB DEL 1%</button></div>') + '</div></section>'
-      run(v); return
+      return
     }
     var abierto = ch.abierto
     var anim = !!K.animar; K.animar = false
     if (anim) { setTimeout(function () { snd('riser', .5) }, 150); setTimeout(function () { snd('block', .7); try { navigator.vibrate && navigator.vibrate(30) } catch (_) {} }, 620) }
-    var h = '<section class="kcHero' + (anim ? ' kcAnim' : '') + '">' + fondo() + (anim ? '<i class="kcFlash" aria-hidden="true"></i>' : '') + '<div class="kcIn">' + top +
+    var h = '<section class="kcHero' + (anim ? ' kcAnim' : '') + '"><button class="bmBack" type="button" onclick="KCLUB.detalle(null)">‹ CHALLENGES</button>' + fondo() + (anim ? '<i class="kcFlash" aria-hidden="true"></i>' : '') + '<div class="kcIn">' + top +
       '<p class="kcK">CHALLENGE 01 · ' + (abierto ? 'ABIERTO' : 'RESULTADOS') + '</p>' + titulo(ch, true) +
       '<p class="kcD kcLema">' + esc(ch.lema || ch.descripcion || '') + '</p>' + (ch.bajada ? '<p class="kcBaj">' + esc(ch.bajada) + '</p>' : '') + '<p class="kcS">' + esc(ch.estandar || '') + '</p>' +
       '<div class="kcStats"><div><b>' + (st.miembros || 0) + '</b><small>EN EL CLUB</small></div><div><b>' + (st.participantes || 0) + '</b><small>MARCAS</small></div><div><b>' + (abierto ? cierre(ch) : 'FIN') + '</b><small>' + (abierto ? 'CIERRA' : 'CERRADO') + '</small></div></div>' +
@@ -240,10 +353,8 @@ html.en-club .wrap{padding:0!important}
     h += '<div class="kcSec"><span>EN VIVO · CHALLENGE</span></div>'
     h += K.feed.length ? K.feed.map(evento).join('') : '<div class="kcVac">AQUÍ APARECE QUIÉN ENTRA AL CHALLENGE Y CADA MARCA.</div>'
     v.innerHTML = h + '</div>'
-    run(v)
     if (K.irRanking) { K.irRanking = false; var r = v.querySelector('.kcSec'); if (r) setTimeout(function () { r.scrollIntoView({ behavior: 'smooth', block: 'start' }) }, 120) }
   }
-  function run(v) { try { window.KRUN && KRUN.montar(v) } catch (e) { console.error('KRUN', e) } }
   function posNum() { var y = K.rank.filter(function (x) { return x.yo })[0]; return y ? y.pos : null }
   function posTxt() { var y = K.rank.filter(function (x) { return x.yo })[0]; return y ? 'POSICIÓN #' + y.pos + ' DE ' + K.rank.length : '' }
   function estTag(e) { return e === 'validado' ? '<span class="kcEst kcEst--ok">✓ VALIDADA</span>' : e === 'rechazado' ? '<span class="kcEst kcEst--pend">REVISAR CON TU KOACH</span>' : '<span class="kcEst kcEst--pend">POR VALIDAR</span>' }
@@ -278,8 +389,8 @@ html.en-club .wrap{padding:0!important}
   function homeHTML() {
     var st = K.st || {}, ch = K.ch, mia = st.mia
     var cierre = ch ? (['DOM', 'LUN', 'MAR', 'MIÉ', 'JUE', 'VIE', 'SÁB'][new Date(ch.fin).getDay()] + ' ' + new Date(ch.fin).getDate()) : ''
-    var sig = ch && ch.abierto ? '<b>1 CHALLENGE ACTIVO</b>' + (mia ? 'TU MARCA · ' + mia.score : 'CIERRA EL ' + cierre)
-      : ch ? '<b>CHALLENGE CERRADO</b>VER RESULTADOS' : '<b>PRÓXIMO CHALLENGE</b>MUY PRONTO'
+    var sig = ch && ch.abierto ? '<b>' + nChallenges() + ' CHALLENGES ACTIVOS</b>' + (mia ? 'TU MARCA · ' + mia.score : 'CIERRA EL ' + cierre)
+      : ch ? '<b>CHALLENGE CERRADO</b>VER RESULTADOS' : window.KRUN ? '<b>RUN CLUB</b>CHALLENGE PERMANENTE' : '<b>PRÓXIMO CHALLENGE</b>MUY PRONTO'
     return '<div class="nuHm__hd"><span>COMUNIDAD</span><span><b>' + (st.miembros || 0) + '</b> EN EL CLUB</span></div>' +
       '<div class="nuHm__big"><div class="nuHm__num"><b>1%</b><span>CLUB</span></div></div>' +
       '<div class="nuHm__esc"><span>DESAFÍOS · COMUNIDAD · ACTIVIDADES</span></div>' +
@@ -487,12 +598,14 @@ html.en-club .wrap{padding:0!important}
   window.KCLUB = {
     unirse: unirse, challenge: abrirRun, compartir: compartir, reaccionar: reaccionar,
     filtro: function (f) { K.filtro = f; pintarVista() },
+    seccion: function (x) { K.sec = x; pintarVista() },
+    detalle: function (d) { K.det = d; if (d === 'gta') K.animar = true; pintarVista(); try { window.scrollTo(0, 0) } catch (_) {} if (!d) { var v = $('vClub'); if (v) v._h = null; pintarVista() } },
     _gateUnir: async function () { if (await unirse(false)) abrirRun() },
     _gateRun: function () { abrirRun() },
     _gateSalir: function () { try { localStorage.setItem('kc_gate_' + K.ch.slug, hoy()) } catch (_) {} continuar() },
     _runStart: runStart, _runParar: runParar, _runMarca: function () { pedirMarca(false) }, _paso: pasoNum, _registrar: registrar,
     _runCerrar: runCerrar, _continuar: continuar,
-    _verRanking: function () { cerrarRun(); tab('vClub') },
+    _verRanking: function () { cerrarRun(); K.irDet = 'gta'; K.irRanking = true; tab('vClub') },
     _confeti: confeti,
     _estado: function () { return K }
   }

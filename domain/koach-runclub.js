@@ -82,6 +82,35 @@
 .krO .kcB--s{background:transparent;color:#F2F2F2;border:1px solid rgba(255,255,255,.28)}
 .krO .kcB--f{background:transparent;color:#FF4200;border:1px solid #FF4200}
 .krO .kcB--t{background:transparent;color:#979C9F;height:40px;font-size:11px}
+/* ── sub-branding RUN CLUB: asfalto nocturno + pista + acento VOLT (solo decorativo; estados siguen en turquesa/#FF4200) ── */
+.krCard,.krO{--rc:#CFFF3A}
+.krCard{background:linear-gradient(180deg,#17181A 0%,#0E0F11 100%)}
+.krCard:before{display:none}
+.krRoad{position:absolute;left:0;right:0;top:0;height:230px;overflow:hidden;pointer-events:none;-webkit-mask:linear-gradient(180deg,transparent 0%,#000 30%,#000 60%,transparent 100%);mask:linear-gradient(180deg,transparent 0%,#000 30%,#000 60%,transparent 100%)}
+.krRoad i{position:absolute;left:-40%;right:-40%;bottom:0;height:100%;transform:perspective(260px) rotateX(58deg);transform-origin:50% 100%;opacity:.55;
+  background:repeating-linear-gradient(90deg,transparent 0 58px,rgba(255,255,255,.14) 58px 60px)}
+.krRoad i:after{content:'';position:absolute;left:calc(50% - 3px);top:0;bottom:0;width:6px;background:repeating-linear-gradient(180deg,var(--rc) 0 26px,transparent 26px 52px);opacity:.75;box-shadow:0 0 12px rgba(207,255,58,.45)}
+@media (prefers-reduced-motion:no-preference){.krRoad i:after{animation:krLane .9s linear infinite}}
+@keyframes krLane{to{background-position:0 52px}}
+.krMini{--rc:#CFFF3A;background:linear-gradient(180deg,#141517,#0C0D0F)}
+.krMini .krRoad{height:100%;-webkit-mask:linear-gradient(270deg,#000 0%,transparent 75%);mask:linear-gradient(270deg,#000 0%,transparent 75%)}
+.krMini .krRoad i{left:20%;right:-60%}
+.krMiniT{margin-top:16px;font-size:40px}
+.bmCard .krT,.krCard .krT,.krO .krRun{color:#F2F2F2;font-style:normal;text-shadow:-6px 0 0 rgba(207,255,58,.35),-12px 0 0 rgba(207,255,58,.16),-18px 0 0 rgba(207,255,58,.07)}
+.krCard .krHd span:first-child,.krO .krK{color:var(--rc)}
+.krCard .krTag{color:var(--rc)}
+.krCard .krMk i.on{background:var(--rc)}
+.krCard .kcRow.yo{border-color:var(--rc);background:rgba(207,255,58,.07)}
+.krCard .kcRow.t2 .p,.krCard .kcRow.t3 .p{color:var(--rc)}
+.krCard .kcB--p,.krO .kcB--p{background:var(--rc);color:#0B0C0E;box-shadow:none}
+.krO .krRoad{height:46%;top:auto;bottom:0;-webkit-mask:linear-gradient(0deg,#000 20%,transparent 100%);mask:linear-gradient(0deg,#000 20%,transparent 100%)}
+.krO .krIn{position:relative;z-index:1}
+@media (prefers-reduced-motion:no-preference){
+.krCard.krAnim .krT{animation:krDash .7s cubic-bezier(.15,.9,.25,1) both}
+.krCard.krAnim .krRoad{animation:krFade 1s ease-out both}
+.krO .krRun{animation:krDash .7s cubic-bezier(.15,.9,.25,1) both}}
+@keyframes krDash{0%{opacity:0;transform:translateX(-70px) skewX(-8deg);filter:blur(6px)}70%{opacity:1;filter:blur(0)}100%{opacity:1;transform:skewX(-8deg)}}
+@keyframes krFade{from{opacity:0}to{opacity:1}}
 `
   function estilos() { if ($('krCss')) return; var s = document.createElement('style'); s.id = 'krCss'; s.textContent = css; document.head.appendChild(s) }
 
@@ -98,7 +127,7 @@
   function cardHTML() {
     var s = R.st || {}, racha = s.racha_semanas || 0, nv = NIV[s.nivel], ins = s.inscritos || {}
     var tot = (ins.basico || 0) + (ins.intermedio || 0) + (ins.avanzado || 0)
-    var h = '<div class="krHd"><span>CHALLENGE PERMANENTE</span><span>' + tot + (tot === 1 ? ' INSCRITO' : ' INSCRITOS') + '</span></div><h2 class="krT">RUN CLUB</h2>'
+    var h = '<div class="krRoad" aria-hidden="true"><i></i></div>' + '<div class="krHd"><span>CHALLENGE PERMANENTE</span><span>' + tot + (tot === 1 ? ' INSCRITO' : ' INSCRITOS') + '</span></div><h2 class="krT">RUN CLUB</h2>'
     if (!nv) {
       h += '<p class="krD">Elige tu compromiso semanal y corre con la app abierta: registramos tu ruta y tu distancia. Cada semana cumplida suma a tu racha.</p>' +
         '<div class="krNv">' + ORDEN.map(function (k) { var n = NIV[k]; return '<div><b>' + n.t + '</b><span>' + vez(n.f) + '<br>DESDE ' + n.km + ' KM</span></div>' }).join('') + '</div>' +
@@ -121,6 +150,15 @@
     h += '<div class="krRk"><div class="kcSec"><span>RANKING · RACHA</span><span>SEMANAS CUMPLIDAS</span></div><p class="krIns">' + ORDEN.map(function (k) { return (ins[k] || 0) + ' ' + NIV[k].t }).join(' · ') + '</p>' +
       (filas || '<div class="kcVac">TODAVÍA NADIE SE INSCRIBE. EL PRIMER COMPROMISO PUEDE SER EL TUYO.</div>') + '</div>'
     return h
+  }
+  function miniHTML(n) {
+    estilos(); var s = R.st || {}, nv = NIV[s.nivel], ins = s.inscritos || {}
+    var tot = (ins.basico || 0) + (ins.intermedio || 0) + (ins.avanzado || 0)
+    return '<div class="bmArt krMini" aria-hidden="true"><div class="krRoad"><i></i></div></div><div class="bmIn">' +
+      '<div class="bmMeta"><span><b>' + String(n).padStart(2, '0') + '</b> · PERMANENTE</span><span>' + (nv ? nv.t : tot + (tot === 1 ? ' INSCRITO' : ' INSCRITOS')) + '</span></div>' +
+      '<p class="krT krMiniT">RUN CLUB</p>' +
+      '<div class="bmDat">' + (nv ? '<div>' + (s.racha_semanas || 0) + '<span>SEM DE RACHA</span></div><div>' + Math.min(s.hechas || 0, nv.f) + '/' + nv.f + '<span>ESTA SEMANA</span></div>'
+        : '<div>' + tot + '<span>INSCRITOS</span></div>') + '<div>' + km(s.km_total) + '<span>KM</span></div></div></div>'
   }
   function niveles() {
     var s = R.st || {}
@@ -147,13 +185,14 @@
       var secs = [].filter.call(body.children, function (x) { return x.classList.contains('kcSec') }), ref = secs[1] || null
       if (c.parentNode !== body || c.nextSibling !== ref) body.insertBefore(c, ref) } else { var w = document.createElement('div'); w.className = 'kcBody'; w.appendChild(c); v.appendChild(w) }
     var h = cardHTML(); if (c._h !== h) { c.innerHTML = h; c._h = h }
+    if (!R.anim) { R.anim = true; c.classList.add('krAnim') }
     if (!R.st && !R.cargando) { R.cargando = true; cargar().then(function () { R.cargando = false; if (R.st) montar(v) }) }
   }
   function repintar() { var v = $('vClub'); if (v && v.classList.contains('on')) montar(v) }
 
   /* ── grabador ── */
   function el() { estilos(); var o = $('krO'); if (!o) { o = document.createElement('div'); o.id = 'krO'; o.className = 'krO'; o.setAttribute('role', 'dialog'); o.setAttribute('aria-modal', 'true'); document.body.appendChild(o) } return o }
-  function pintar(cuerpo, acciones) { var o = el(); o.innerHTML = '<div class="krIn">' + LOGO + cuerpo + '<div class="krAct">' + acciones + '</div></div>'; o.classList.add('on') }
+  function pintar(cuerpo, acciones) { var o = el(); o.innerHTML = '<div class="krRoad" aria-hidden="true"><i></i></div>' + '<div class="krIn">' + LOGO + cuerpo + '<div class="krAct">' + acciones + '</div></div>'; o.classList.add('on') }
   function cerrar() { var o = $('krO'); if (o) o.classList.remove('on') }
   async function wake(on) { try { if (on && navigator.wakeLock) R.wl = await navigator.wakeLock.request('screen'); else if (!on && R.wl) { R.wl.release(); R.wl = null } } catch (_) {} }
   document.addEventListener('visibilitychange', function () { if (!document.hidden && R.watch != null) wake(true) })
@@ -173,7 +212,7 @@
       return
     }
     if (!('geolocation' in navigator)) { aviso('Este teléfono no permite usar el GPS desde el navegador.'); return }
-    pintar('<p class="krK">1% CLUB · CHALLENGE</p><h2 class="krH1" style="font-size:46px;transform:skewX(-8deg)">RUN CLUB</h2>' +
+    pintar('<p class="krK">1% CLUB · CHALLENGE</p><h2 class="krH1 krRun" style="font-size:52px;transform:skewX(-8deg)">RUN CLUB</h2>' +
       '<p class="krFirma">Registramos tu ruta con el GPS y guardamos la distancia.</p>' +
       '<p class="krTx">MANTÉN LA APP ABIERTA Y LA PANTALLA ENCENDIDA MIENTRAS CORRES. CUENTA DESDE 300 M Y 3 MINUTOS.</p>',
       '<button class="kcB kcB--p" type="button" onclick="KRUN._iniciar()">INICIAR CARRERA</button><button class="kcB kcB--t" type="button" onclick="KRUN.cerrar()">AHORA NO</button>')
@@ -271,7 +310,7 @@
   function cancelar() { if (!confirm('¿Cancelar la carrera? Se pierde el recorrido.')) return; parar(); limpiarLS(); R.pts = []; cerrar() }
   function terminarPend() { var p = pendiente(); if (!p) { abrir(); return } R.t0 = p.t0; R.pts = p.p.map(function (a) { return { lat: a[0], lng: a[1], t: a[2], acc: a[3] } }); terminar() }
 
-  window.KRUN = { montar: montar, cargar: cargar, abrir: abrir, niveles: niveles, _nivel: elegirNivel, cerrar: function () { cerrar(); repintar() },
+  window.KRUN = { montar: montar, miniHTML: miniHTML, cargar: cargar, abrir: abrir, niveles: niveles, _nivel: elegirNivel, cerrar: function () { cerrar(); repintar() },
     _iniciar: function () { iniciar(false) }, _retomar: function () { iniciar(true) }, _terminar: function () { if (confirm('¿Terminar la carrera?')) terminar() },
     _cancelar: cancelar, _descartar: descartar, _guardar: guardar, _terminarPend: terminarPend, _estado: function () { return R } }
 })()
