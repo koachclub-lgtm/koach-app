@@ -12,7 +12,7 @@
 
   var css = `
 .esCard,.esMini,.bmCard.est{--es:linear-gradient(180deg,#FFFFFF 0%,#C9CDD1 38%,#7D8287 52%,#E6E8EA 70%,#9DA2A6 100%)}
-.esCard{position:relative;margin:16px 0 4px;padding:18px 16px 16px;border-radius:16px;background:linear-gradient(180deg,#151618 0%,#0B0C0D 100%);border:1px solid rgba(255,255,255,.14);overflow:hidden}
+.esCard{text-align:left;position:relative;margin:16px 0 4px;padding:18px 16px 16px;border-radius:16px;background:linear-gradient(180deg,#151618 0%,#0B0C0D 100%);border:1px solid rgba(255,255,255,.14);overflow:hidden}
 .esGrid{position:absolute;inset:0;pointer-events:none;opacity:.5;background-image:linear-gradient(rgba(255,255,255,.07) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.07) 1px,transparent 1px);background-size:18px 18px;-webkit-mask:linear-gradient(200deg,#000 0%,transparent 60%);mask:linear-gradient(200deg,#000 0%,transparent 60%)}
 .esT{position:relative;margin:12px 0 0;font:900 44px/.9 'KOACH Display','KOACH Display Fallback',sans-serif;font-stretch:118%;letter-spacing:.01em;background:var(--es);-webkit-background-clip:text;background-clip:text;color:transparent;filter:drop-shadow(0 0 14px rgba(255,255,255,.18))}
 .esHd{position:relative;display:flex;justify-content:space-between;font:700 9px/1 'Space Mono','Space Mono Fallback',monospace;letter-spacing:.18em;color:#979C9F}
@@ -70,7 +70,7 @@
   function cardHTML() {
     var s = E.st || {}, w = s.semana || {}
     var h = '<div class="esGrid" aria-hidden="true"></div><div class="esHd"><span>CHALLENGE PERMANENTE</span><span>' + (s.estrictos || 0) + ' ESTRICTOS</span></div><h2 class="esT">ESTRICTOS</h2>' +
-      '<p class="esD">Asistencia al 100% cada semana: todas las sesiones que programó tu koach, completadas. Cada semana al 100% suma a tu racha.</p>' +
+      '<p class="esD">Todos en el Club del 1% son personas comprometidas. Este es el ranking de los más estrictos: los que asisten al 100% semana a semana. Asiste a todas tus sesiones y marca tu racha al 100%.</p>' +
       '<div class="esSt"><div><b>' + (s.racha || 0) + '<small>SEM</small></b><span>RACHA AL 100%</span></div><div><b>' + (w.planif ? Math.min(w.hechas || 0, w.planif) + '/' + w.planif : '—') + '</b><span>ESTA SEMANA</span></div><div><b>' + (s.racha_max || 0) + '<small>SEM</small></b><span>MEJOR RACHA</span></div></div>' +
       semanas(s) + semanaTxt(s)
     var rk = s.ranking || [], top = rk.slice(0, 10), yo = rk.filter(function (x) { return x.yo && x.pos > 10 })[0]
