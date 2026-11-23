@@ -199,8 +199,11 @@ html.en-club .wrap{padding:0!important}
 .bmJoin{margin:18px 18px 0}
 .bmBack{position:absolute;z-index:4;top:calc(12px + env(safe-area-inset-top,0px));left:12px;appearance:none;border:1px solid rgba(255,255,255,.22);background:rgba(10,11,12,.6);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);color:#F2F2F2;height:34px;padding:0 12px;border-radius:4px;font:700 9px/1 'Space Mono',monospace;letter-spacing:.14em;cursor:pointer}
 .bmDet{position:relative;min-height:100dvh;background:#0B0C0E;padding:calc(58px + env(safe-area-inset-top,0px)) 0 calc(118px + env(safe-area-inset-bottom,0px))}
-.bmDet .kcBody{padding-top:0}
-.bmLg{position:absolute;top:calc(21px + env(safe-area-inset-top,0px));left:50%;transform:translateX(-50%);height:16px}
+.bmDet .kcBody{padding:0}
+.bmDet.run,.bmDet.est{padding:0;background:#0B0C0E}
+.bmDet .krCard,.bmDet .esCard{margin:0;border:0;border-radius:0;min-height:100dvh;box-sizing:border-box;padding:calc(74px + env(safe-area-inset-top,0px)) 18px calc(130px + env(safe-area-inset-bottom,0px))}
+.bmDet .krCard .krRoad{height:340px}
+.bmLg{position:absolute;z-index:4;top:calc(21px + env(safe-area-inset-top,0px));left:50%;transform:translateX(-50%);height:16px}
 .bmCv{border:1px solid rgba(255,255,255,.12);border-radius:4px;background:rgba(255,255,255,.03);overflow:hidden}
 .bmCv summary{list-style:none;display:grid;grid-template-columns:44px 1fr auto;gap:12px;align-items:center;padding:14px;cursor:pointer}
 .bmCv summary::-webkit-details-marker{display:none}
