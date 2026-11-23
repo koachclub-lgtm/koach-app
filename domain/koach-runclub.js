@@ -83,28 +83,30 @@
 .krO .kcB--f{background:transparent;color:#FF4200;border:1px solid #FF4200}
 .krO .kcB--t{background:transparent;color:#979C9F;height:40px;font-size:11px}
 /* ── sub-branding RUN CLUB: asfalto nocturno + pista + acento VOLT (solo decorativo; estados siguen en turquesa/#FF4200) ── */
-.krCard,.krO,.bmCard.run{--rc:#FF4200;--ra:#FFB21A}
+.krCard,.krO,.bmCard.run{--rc:#CDEFFF;--ra:#8FD3EA}
+.krO{background:radial-gradient(90% 55% at 50% 42%,#0E1418 0%,#000 70%)}
+.bmDet .krCard{background:radial-gradient(110% 40% at 50% 12%,#0D1317 0%,#000 75%)}
 .krCard{background:linear-gradient(180deg,#17181A 0%,#0E0F11 100%)}
 .krCard:before{display:none}
 .krRoad{position:absolute;left:0;right:0;top:0;height:230px;overflow:hidden;pointer-events:none;-webkit-mask:linear-gradient(180deg,transparent 0%,#000 30%,#000 60%,transparent 100%);mask:linear-gradient(180deg,transparent 0%,#000 30%,#000 60%,transparent 100%)}
 .krRoad i{position:absolute;left:-40%;right:-40%;bottom:0;height:100%;transform:perspective(260px) rotateX(58deg);transform-origin:50% 100%;opacity:.55;
   background:repeating-linear-gradient(90deg,transparent 0 58px,rgba(255,255,255,.14) 58px 60px)}
-.krRoad i:after{content:'';position:absolute;left:calc(50% - 3px);top:0;bottom:0;width:6px;background:repeating-linear-gradient(180deg,var(--ra) 0 26px,transparent 26px 52px);opacity:.8;box-shadow:0 0 12px rgba(255,178,26,.45)}
+.krRoad i:after{content:'';position:absolute;left:calc(50% - 3px);top:0;bottom:0;width:6px;background:repeating-linear-gradient(180deg,var(--ra) 0 26px,transparent 26px 52px);opacity:.8;box-shadow:0 0 12px rgba(143,211,234,.5)}
 @media (prefers-reduced-motion:no-preference){.krRoad i:after{animation:krLane .9s linear infinite}}
 @keyframes krLane{to{background-position:0 52px}}
-.krMini{--rc:#FF4200;--ra:#FFB21A;background:linear-gradient(180deg,#141517,#0C0D0F)}
+.krMini{--rc:#CDEFFF;--ra:#8FD3EA;background:radial-gradient(70% 90% at 85% 45%,#0D1418 0%,#000 75%)}
 .krMini .krRoad{height:100%;-webkit-mask:linear-gradient(270deg,#000 0%,transparent 75%);mask:linear-gradient(270deg,#000 0%,transparent 75%)}
 .krMini .krRoad i{left:20%;right:-60%}
 .krMiniT{margin-top:16px;font-size:40px;margin-left:14px}
 .krCard .krT{margin-left:14px}
 .krO .krRun{margin-left:14px}
-.bmCard .krT,.krCard .krT,.krO .krRun{color:#F2F2F2;font-style:normal;text-shadow:-6px 0 0 rgba(255,178,26,.55),-12px 0 0 rgba(255,120,20,.35),-18px 0 0 rgba(255,66,0,.18)}
+.bmCard .krT,.krCard .krT,.krO .krRun{color:#F2F2F2;font-style:normal;text-shadow:0 0 14px rgba(190,235,255,.45),-7px 0 6px rgba(190,235,255,.35),-15px 0 10px rgba(150,215,240,.2),-24px 0 14px rgba(120,200,235,.1)}
 .krCard .krHd span:first-child,.krO .krK{color:var(--rc)}
 .krCard .krTag{color:var(--rc)}
 .krCard .krMk i.on{background:var(--rc)}
-.krCard .kcRow.yo{border-color:var(--rc);background:rgba(255,66,0,.08)}
+.krCard .kcRow.yo{border-color:var(--rc);background:rgba(205,239,255,.06)}
 .krCard .kcRow.t2 .p,.krCard .kcRow.t3 .p{color:var(--rc)}
-.krCard .kcB--p,.krO .kcB--p{background:var(--rc);color:#0B0C0E;box-shadow:0 0 24px rgba(255,66,0,.35)}
+.krCard .kcB--p,.krO .kcB--p{background:#EAF8FF;color:#0B0C0E;box-shadow:0 0 0 1px rgba(205,239,255,.9),0 0 26px rgba(170,225,245,.35)}
 .krO .krRoad{height:46%;top:auto;bottom:0;-webkit-mask:linear-gradient(0deg,#000 20%,transparent 100%);mask:linear-gradient(0deg,#000 20%,transparent 100%)}
 .krO .krIn{position:relative;z-index:1}
 @media (prefers-reduced-motion:no-preference){
@@ -113,19 +115,23 @@
 .krO .krRun{animation:krDash .7s cubic-bezier(.15,.9,.25,1) both}}
 /* corredor animado (original): silueta rojo anaranjado + estelas de velocidad */
 .krRunr{display:block;width:100%;height:100%;overflow:visible}
-.krRunr .cerca{fill:#FF3B12}.krRunr .lejos{fill:#C2300E}
-.krRunr .gl{filter:drop-shadow(0 0 10px rgba(255,59,18,.75)) drop-shadow(0 0 28px rgba(255,66,0,.35))}
+.krRunr .cerca{fill:url(#krIce)}.krRunr .lejos{fill:#8FB9C9;opacity:.75}
+.krRunr .eco{opacity:.22}.krRunr .eco.e1{opacity:.32}.krRunr .eco.e3{opacity:.12}
+.krRunr .hud rect{fill:none;stroke:rgba(255,255,255,.7);stroke-width:.7}
+.krRunr .hud text{fill:rgba(255,255,255,.75);font:700 5.2px 'Space Mono',monospace;letter-spacing:.08em}
+.krRunr .gl{filter:drop-shadow(0 0 4px rgba(230,248,255,.9)) drop-shadow(0 0 16px rgba(160,220,245,.55)) drop-shadow(0 0 36px rgba(110,190,230,.3))}
+.krRunr .eco.e1{filter:blur(2.5px)}.krRunr .eco.e2{filter:blur(4.5px)}.krRunr .eco.e3{filter:blur(7px)}
 .krRunr g{transform-box:view-box}
-.krRunr .st g{transform-box:fill-box;transform-origin:100% 50%}
 .krRunr .cuerpo{transform-origin:100px 130px}
 .krRunr .mi.a{transform:rotate(-38deg)}.krRunr .mi.b{transform:rotate(30deg)}.krRunr .rd.b{transform:rotate(95deg)}.krRunr .br.a{transform:rotate(40deg)}.krRunr .br.b{transform:rotate(-45deg)}
 .krRunr .mi,.krRunr .rd,.krRunr .br{transform-origin:0 0}
 @media (prefers-reduced-motion:no-preference){
-.krRunr .cuerpo{animation:krBob .36s ease-in-out infinite}
-.krRunr .mi.a{animation:krThigh .72s linear infinite}.krRunr .mi.b{animation:krThigh .72s linear -.36s infinite}
-.krRunr .rd.a{animation:krShin .72s linear infinite}.krRunr .rd.b{animation:krShin .72s linear -.36s infinite}
-.krRunr .br.a{animation:krArm .72s ease-in-out infinite}.krRunr .br.b{animation:krArm .72s ease-in-out -.36s infinite}
-.krRunr .st g{animation:krStreak .72s linear infinite}}
+.krRunr .cuerpo{animation:krBob .36s ease-in-out calc(0s - var(--lag,0s)) infinite}
+.krRunr .mi.a{animation:krThigh .72s linear calc(0s - var(--lag,0s)) infinite}.krRunr .mi.b{animation:krThigh .72s linear calc(-.36s - var(--lag,0s)) infinite}
+.krRunr .rd.a{animation:krShin .72s linear calc(0s - var(--lag,0s)) infinite}.krRunr .rd.b{animation:krShin .72s linear calc(-.36s - var(--lag,0s)) infinite}
+.krRunr .br.a{animation:krArm .72s ease-in-out calc(0s - var(--lag,0s)) infinite}.krRunr .br.b{animation:krArm .72s ease-in-out calc(-.36s - var(--lag,0s)) infinite}
+.krRunr .hud{animation:krHud 2.4s ease-in-out infinite}}
+@keyframes krHud{0%,100%{opacity:.85}50%{opacity:.45}}
 @keyframes krBob{0%,50%,100%{transform:translateY(0)}25%,75%{transform:translateY(-5px)}}
 @keyframes krThigh{0%{transform:rotate(-38deg)}15%{transform:rotate(-24deg)}40%{transform:rotate(24deg)}50%{transform:rotate(32deg)}65%{transform:rotate(4deg)}82%{transform:rotate(-48deg)}100%{transform:rotate(-38deg)}}
 @keyframes krShin{0%{transform:rotate(8deg)}15%{transform:rotate(20deg)}40%{transform:rotate(24deg)}55%{transform:rotate(78deg)}70%{transform:rotate(118deg)}82%{transform:rotate(84deg)}92%{transform:rotate(32deg)}100%{transform:rotate(8deg)}}
@@ -143,11 +149,6 @@
   // corredor: piernas/brazos articulados (cadera 100,128 · rodilla 100,178 · hombro 107,78 · codo 107,108)
   // corredor (silueta original): segmentos anatómicos articulados — cadera (100,128), hombro (108,78)
   function corredor(cls) {
-    var st = ''
-    for (var i = 0; i < 22; i++) {
-      var y = 40 + i * 9, fin = 90 + Math.round(Math.sin(i * 0.9) * 6) - (i > 15 ? (i - 15) * 3 : 0), w = 44 + (i * 11) % 30, d = -((i * 0.173) % 0.72).toFixed(3)
-      st += '<g style="animation-delay:' + d + 's"><rect x="' + (fin - w) + '" y="' + y + '" width="' + w + '" height="2.2" rx="1.1" fill="url(#krSg)"/><rect x="' + (fin - 16) + '" y="' + (y - 1.6) + '" width="16" height="5.4" rx="2.7" fill="#FF8A1F"/></g>'
-    }
     var MUSLO = '<path d="M-14,-6 C-17,14 -12,36 -9,52 L8,52 C13,38 18,16 14,-8 C6,-13 -6,-12 -14,-6Z"/><circle cx="0" cy="52" r="9"/>'
     var PANT = '<path d="M-9,0 C-15,12 -12,30 -5,47 L4,47 C6,30 7,14 9,0Z"/>'
     var ZAP = '<path d="M-6,43 C-9,51 -6,57 2,57 L21,57 C27,57 27,50 21,47 L8,43Z"/>'
@@ -155,11 +156,14 @@
     var ANTE = '<path d="M-5,0 C-5,9 -4,19 -3,25 L3,25 C4,17 5,8 5,0Z"/><ellipse cx="0" cy="28" rx="5.4" ry="6"/>'
     var pierna = function (k) { return '<g transform="translate(100 128)"><g class="mi ' + k + '">' + MUSLO + '<g transform="translate(0 52)"><g class="rd ' + k + '">' + PANT + ZAP + '</g></g></g></g>' }
     var brazo = function (k) { return '<g transform="translate(108 80)"><g class="br ' + k + '">' + BRAZO + '<g transform="translate(0 31) rotate(-100)">' + ANTE + '</g></g></g>' }
-    return '<svg class="krRunr ' + (cls || '') + '" viewBox="0 0 200 270" aria-hidden="true"><defs><linearGradient id="krSg" x1="0" x2="1"><stop offset="0" stop-color="#FFE14D" stop-opacity="0"/><stop offset=".55" stop-color="#FFD23F"/><stop offset="1" stop-color="#FFB21A"/></linearGradient></defs>' +
-      '<g class="st">' + st + '</g><g class="cuerpo gl"><g class="lejos">' + pierna('b') + brazo('b') + '</g><g class="cerca">' +
-      '<path d="M90,134 C86,114 88,94 95,78 C99,69 113,66 120,73 C127,82 126,97 118,111 C114,119 114,127 113,135 C106,140 96,140 90,134Z"/>' +
-      '<path d="M109,72 L111,60 L119,61 L118,73Z"/><path d="M104,47 C104,36 113,31 121,34 C129,37 132,46 130,54 C129,58 131,60 129,62 C126,65 120,66 115,64 C108,62 104,56 104,47Z"/>' +
-      pierna('a') + brazo('a') + '</g></g></svg>'
+    var TORSO = '<path d="M90,134 C86,114 88,94 95,78 C99,69 113,66 120,73 C127,82 126,97 118,111 C114,119 114,127 113,135 C106,140 96,140 90,134Z"/>' +
+      '<path d="M109,72 L111,60 L119,61 L118,73Z"/><path d="M104,47 C104,36 113,31 121,34 C129,37 132,46 130,54 C129,58 131,60 129,62 C126,65 120,66 115,64 C108,62 104,56 104,47Z"/>'
+    var fig = function (clase, estilo) { return '<g class="cuerpo ' + clase + '"' + (estilo ? ' style="' + estilo + '"' : '') + '><g class="lejos">' + pierna('b') + brazo('b') + '</g><g class="cerca">' + TORSO + pierna('a') + brazo('a') + '</g></g>' }
+    // ecos de movimiento: la misma zancada unos milisegundos atrás, desplazada y difuminada
+    var ecos = [[3, 46, .15], [2, 30, .1], [1, 15, .05]].map(function (e) { return '<g transform="translate(-' + e[1] + ' 0)">' + fig('eco e' + e[0], '--lag:' + e[2] + 's') + '</g>' }).join('')
+    var hud = '<g class="hud"><rect x="100" y="28" width="38" height="40"/><rect x="112" y="150" width="40" height="44"/><rect x="72" y="196" width="46" height="64"/><text x="120" y="266">GPS</text></g>'
+    return '<svg class="krRunr ' + (cls || '') + '" viewBox="0 0 200 270" aria-hidden="true"><defs><linearGradient id="krIce" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#F4FCFF"/><stop offset=".5" stop-color="#CDEFFF"/><stop offset="1" stop-color="#9ED6EA"/></linearGradient></defs>' +
+      ecos + '<g class="gl">' + fig('') + '</g>' + hud + '</svg>'
   }
   function estilos() { if ($('krCss')) return; var s = document.createElement('style'); s.id = 'krCss'; s.textContent = css; document.head.appendChild(s) }
 
