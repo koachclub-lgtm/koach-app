@@ -27,7 +27,7 @@
 .krHd{position:relative;display:flex;justify-content:space-between;font:700 9px/1 'Space Mono','Space Mono Fallback',monospace;letter-spacing:.18em;color:#979C9F}
 .krHd span:first-child{color:#3EC6B0}
 .krT{position:relative;margin:12px 0 0;font:900 44px/.9 'KOACH Display','KOACH Display Fallback',sans-serif;font-stretch:115%;letter-spacing:-.01em;color:#F2F2F2;transform:skewX(-8deg);transform-origin:left}
-.krD{position:relative;margin:10px 0 0;font:600 13.5px/1.45 'KOACH Display',sans-serif;color:#D5D7D9;max-width:330px}
+.krD{position:relative;margin:10px 0 0;font:600 15px/1.45 'KOACH Display',sans-serif;color:#D5D7D9;max-width:none;text-align:left;text-wrap:pretty}
 .krSt{position:relative;display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:14px}
 .krSt div{border:1px solid rgba(255,255,255,.14);border-radius:10px;padding:10px 8px;background:rgba(0,0,0,.25)}
 .krSt b{display:block;font:900 24px/1 'KOACH Display',sans-serif;color:#F2F2F2}
@@ -168,7 +168,9 @@
   function estilos() { if ($('krCss')) return; var s = document.createElement('style'); s.id = 'krCss'; s.textContent = css; document.head.appendChild(s) }
 
   async function rpc(n, a) { var r = await cli().rpc(n, a || {}); if (r.error) throw r.error; return r.data }
-  async function cargar() { try { R.st = await rpc('club_run_estado') } catch (e) { console.error('club_run_estado', e) } return R.st }
+  async function cargar() { try { R.st = await rpc('club_run_estado') } catch (e) { console.error('club_run_estado', e) }
+    try { var ps = ((R.st && R.st.ranking) || []).map(function (x) { return x.avatar }).filter(Boolean); if (ps.length && window.KAvatar) await KAvatar.urls(cli(), ps) } catch (_) {}
+    return R.st }
 
   /* ── niveles: mismo score para todos (semanas seguidas cumpliendo el compromiso) ── */
   var NIV = { basico: { t: 'BÁSICO', f: 1, km: 1 }, intermedio: { t: 'INTERMEDIO', f: 2, km: 3 }, avanzado: { t: 'AVANZADO', f: 3, km: 7 } }

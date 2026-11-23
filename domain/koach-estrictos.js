@@ -17,7 +17,8 @@
 .esT{position:relative;margin:12px 0 0;font:900 44px/.9 'KOACH Display','KOACH Display Fallback',sans-serif;font-stretch:118%;letter-spacing:.01em;background:var(--es);-webkit-background-clip:text;background-clip:text;color:transparent;filter:drop-shadow(0 0 14px rgba(255,255,255,.18))}
 .esHd{position:relative;display:flex;justify-content:space-between;font:700 9px/1 'Space Mono','Space Mono Fallback',monospace;letter-spacing:.18em;color:#979C9F}
 .esHd span:first-child{color:#E6E8EA}
-.esD{position:relative;margin:10px 0 0;font:600 13.5px/1.45 'KOACH Display',sans-serif;color:#D5D7D9;max-width:330px}
+.esCard .esD{position:relative;margin:12px 0 0;font:600 15px/1.45 'KOACH Display',sans-serif;color:#D5D7D9;max-width:none;width:100%;text-align:left;text-wrap:pretty}
+.esCard .esHd,.esCard .esT,.esCard .esSem,.bmCard .esT{text-align:left}
 .esSt{position:relative;display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:14px}
 .esSt div{border:1px solid rgba(255,255,255,.14);border-radius:10px;padding:10px 8px;background:rgba(0,0,0,.3)}
 .esSt b{display:block;font:900 24px/1 'KOACH Display',sans-serif;color:#F2F2F2}
@@ -71,6 +72,7 @@
   function estilos() { if ($('esCss')) return; var s = document.createElement('style'); s.id = 'esCss'; s.textContent = css; document.head.appendChild(s) }
   async function cargar() {
     try { var r = await cli().rpc('club_estrictos_estado'); if (!r.error) E.st = r.data } catch (e) { console.error('club_estrictos_estado', e) }
+    try { var ps = ((E.st && E.st.ranking) || []).map(function (x) { return x.avatar }).filter(Boolean); if (ps.length && window.KAvatar) await KAvatar.urls(cli(), ps) } catch (_) {}
     return E.st
   }
   function semanaTxt(s) {
