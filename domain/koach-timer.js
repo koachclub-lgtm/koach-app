@@ -220,7 +220,8 @@ function play(cfg, opts){
   document.body.appendChild(el); document.documentElement.style.overflow='hidden'
   const wake=async on=>{ try{ if(on && !T.wl && navigator.wakeLock){ T.wl=await navigator.wakeLock.request('screen') } else if(!on && T.wl){ await T.wl.release(); T.wl=null } }catch(_){ T.wl=null } }
   wake(true)
-  const onVis=()=>{ if(document.visibilityState==='visible' && !T.done){ wake(true); if(AU.ctx&&AU.ctx.state!=='running'){ unlock(); setTimeout(programar,120) } } }
+  const onVis=()=>{ if(document.visibilityState==='visible' && !T.done){ wake(true)
+    if(AU.ctx&&AU.ctx.state!=='running'){ unlock(); setTimeout(function(){ vivo(true); programar(true) },120) } else programar(true) } }   // re-sincroniza la agenda con el reloj real
   document.addEventListener('visibilitychange', onVis)
   const ahora=()=> T.pausa!=null ? T.pausa : Date.now()
   const restante=()=>{ const s=segs[T.i]; return s ? s.d - (ahora()-T.t0)/1000 : 0 }
@@ -254,19 +255,30 @@ function play(cfg, opts){
       '<div class="kt__ctl"><button data-a="prev" aria-label="Intervalo anterior">◀ ATRÁS</button><button class="pri" data-a="pp">'+(T.pausa!=null?'▶ REANUDAR':'❚❚ PAUSA')+'</button><button data-a="next" aria-label="Saltar intervalo">SALTAR ▶</button></div>'+
       '<div class="kt__pz">EN PAUSA</div>'
     T.last=null }
-  // agenda en el reloj de audio el 3·2·1 del intervalo en curso y el sonido de la transición siguiente
+  // v1.7 · agenda en el reloj de audio TODOS los pitidos que quedan (3·2·1 y transiciones de cada intervalo hasta el final).
+  // Así suenan aunque la pantalla se bloquee y el teléfono congele el JavaScript: el hilo de audio no depende de los timers.
+  // auto=true: conserva lo que suena en los próximos 0,45 s (evita pitidos dobles) y agenda desde ahí.
   function programar(auto){ hush(false, auto?.45:0); if(T.done || T.pausa!=null) return
-    const s=segs[T.i]; if(!s) return; const r=restante(), nx=segs[T.i+1]
-    const desde=auto?.45:-.05
-    ;[3,2,1].forEach(k=>{ if(r-k>desde && s.d>k) SND.tick(r-k) })
-    if (!nx) SND.fin(r); else if (nx.k==='work') SND.go(r); else if (s.k==='work') SND.rest(r) }
+    if (!segs[T.i]) return
+    const desde=auto?.45:-.05, HOR=3600
+    let end=restante()
+    for (let j=T.i; j<segs.length && end<HOR; j++){
+      const s=segs[j], nx=segs[j+1]
+      ;[3,2,1].forEach(k=>{ if(end-k>desde && s.d>k) SND.tick(end-k) })
+      if (end>desde){ if (!nx) SND.fin(end); else if (nx.k==='work') SND.go(end); else if (s.k==='work') SND.rest(end) }
+      if (nx) end+=nx.d } }
+  // v1.7 · señal casi nula y grave (inaudible en el parlante del teléfono): mantiene la página "con audio" para que
+  // Android no la congele ni suspenda el audio con la pantalla bloqueada entre pitido y pitido
+  function vivo(on){ const c=AU.ctx
+    if (!on){ if(T.ka){ try{ T.ka.o.stop() }catch(_){} T.ka=null } return }
+    if (T.ka || !c || c.state==='closed' || !P.sonido()) return
+    try{ const o=c.createOscillator(), g=c.createGain(); o.frequency.value=30; g.gain.value=.0012; o.connect(g); g.connect(c.destination); o.start(); T.ka={o} }catch(_){} }
   // auto=true: el intervalo terminó solo (su sonido ya estaba agendado) · false: el socio saltó/retrocedió → sonido inmediato
   function irA(i, auto){ const prev=segs[T.i]
     // auto: el nuevo intervalo parte EXACTO donde terminó el anterior (sin el retraso del tick) → cero desfase acumulado
     T.t0 = (auto && prev) ? T.t0+prev.d*1000 : Date.now(); T.i=Math.max(0,Math.min(segs.length,i)); if(T.pausa!=null) T.pausa=T.t0
     const s=segs[T.i]; if(!s){ fin(auto); return }
-    if (!auto){ hush(); if (s.k==='work') SND.go(); else if (s.k==='rest'||s.k==='pause') SND.rest() }
-    programar(auto)
+    if (!auto){ hush(); if (s.k==='work') SND.go(); else if (s.k==='rest'||s.k==='pause') SND.rest(); programar(false) }   // auto: ya estaba todo agendado
     try{ if(navigator.vibrate) navigator.vibrate(s.k==='work'?[60,40,60]:40) }catch(_){}
     pintar() }
   function tick(){ if(T.done) return
@@ -278,7 +290,7 @@ function play(cfg, opts){
     if (k && k.dataset.t!==t){ k.dataset.t=t; k.innerHTML=seg7(t); k.classList.remove('tk'); void k.offsetWidth; k.classList.add('tk')
       const q=document.getElementById('ktRest'); if(q) q.textContent=mmss(quedaTotal())
       const u=el.querySelector('.kt__bar u'); if(u) u.style.width=Math.min(100,(1-Math.max(0,r)/s.d)*100)+'%' } }
-  function fin(auto){ if(T.done) return; T.done=true; clearInterval(T.iv); if(!auto){ hush(); SND.fin() } wake(false)
+  function fin(auto){ if(T.done) return; T.done=true; clearInterval(T.iv); if(!auto){ hush(); SND.fin() } wake(false); setTimeout(function(){ vivo(false) },3500)
     try{ if(navigator.vibrate) navigator.vibrate([200,80,200,80,400]) }catch(_){}
     el.dataset.k='fin'; el.classList.remove('paused')
     const tot=total(c), st=[['TIEMPO', mmss(tot)], ['RONDAS', String(c.rondas*c.series)]]
@@ -288,7 +300,7 @@ function play(cfg, opts){
       (opts.onFinish?'<button class="kt__big" data-a="reg">'+esc(opts.finLabel||'REGISTRAR BLOQUE')+'<small>'+esc(opts.finSub||'SE GUARDA CON LO PRESCRITO · PUEDES AJUSTAR DESPUÉS')+'</small></button>':'')+
       '<div class="kt__ctl" style="grid-template-columns:1fr 1fr"><button data-a="again">REPETIR</button><button data-a="cerrar">CERRAR</button></div>'
     T.res=res; if (opts.onEnd) try{ opts.onEnd(res) }catch(_){} }
-  function close(silencio){ clearInterval(T.iv); T.done=true; hush(true); wake(false); document.removeEventListener('visibilitychange', onVis)
+  function close(silencio){ clearInterval(T.iv); T.done=true; hush(true); vivo(false); wake(false); document.removeEventListener('visibilitychange', onVis)
     el.remove(); document.documentElement.style.overflow=''; if(ACT.cur===api) ACT.cur=null; if(!silencio && opts.onClose) opts.onClose(T.res||null) }
   el.addEventListener('click', e=>{ const b=e.target.closest('[data-a]'); if(!b) return; unlock(); const a=b.dataset.a, s=segs[T.i]
     if (a!=='x' && T.cerrar){ T.cerrar=false; clearTimeout(T._x) }
@@ -302,6 +314,7 @@ function play(cfg, opts){
   const api={ close, el }
   ACT.cur=api
   T.iv=setInterval(tick, 200)
+  vivo(true)
   if (segs[0] && segs[0].k==='prep'){ T.t0=Date.now(); programar(); pintar() } else irA(0)
   return api }
 
@@ -353,5 +366,5 @@ function editor(cfg, opts){
   pintar()
   return { close:cerrar } }
 
-root.KTIMER = { MODOS, PRESETS, norm, porVueltas, timeline, total, resumen, mmss, play, editor, seg7, VERSION:'koach-timer@1.6.0' }
+root.KTIMER = { MODOS, PRESETS, norm, porVueltas, timeline, total, resumen, mmss, play, editor, seg7, VERSION:'koach-timer@1.7.0' }
 })(typeof window!=='undefined'?window:globalThis);
