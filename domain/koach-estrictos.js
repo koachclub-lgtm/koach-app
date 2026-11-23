@@ -48,6 +48,25 @@
 .esCard.esAnim .esWk i:nth-child(5){animation-delay:.2s}.esCard.esAnim .esWk i:nth-child(6){animation-delay:.25s}.esCard.esAnim .esWk i:nth-child(7){animation-delay:.3s}.esCard.esAnim .esWk i:nth-child(8){animation-delay:.35s}}
 @keyframes esShine{0%{opacity:0;letter-spacing:.3em;filter:blur(6px)}100%{opacity:1;letter-spacing:.01em;filter:drop-shadow(0 0 14px rgba(255,255,255,.18))}}
 @keyframes esPop{from{transform:scaleY(.2);opacity:0}to{transform:none;opacity:1}}
+/* hero: atletas difuminados (fotos de marca) + curva real de semanas al 100% con ejes HUD */
+.esHero{position:relative;height:400px;margin:0 0 6px;overflow:hidden;pointer-events:none}
+.bmDet .esCard .esHero{margin:calc(-74px - env(safe-area-inset-top,0px)) -18px 6px}
+.esHero img{position:absolute;inset:-6% -10%;width:120%;height:112%;object-fit:cover;object-position:50% 35%;filter:grayscale(1) contrast(1.35) brightness(.95) blur(1.5px);transform:scale(1.04)}
+.esHero:after{content:'';position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,.5) 0%,rgba(0,0,0,0) 26%,rgba(0,0,0,.1) 70%,#0B0C0D 100%)}
+.esHero svg{position:absolute;left:18px;right:18px;bottom:8px;width:calc(100% - 36px);height:196px;z-index:1;overflow:visible}
+.esHero .ax{stroke:rgba(255,255,255,.85);stroke-width:1.2;fill:none}
+.esHero .tk{stroke:rgba(255,255,255,.7);stroke-width:1}
+.esHero .cv{fill:none;stroke:#F2F2F2;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round;filter:drop-shadow(0 0 6px rgba(255,255,255,.55))}
+.esHero .xm{stroke:#F2F2F2;stroke-width:2;stroke-linecap:round}
+.esHero text{fill:#F2F2F2;font:700 9px 'Space Mono',monospace;letter-spacing:.12em}
+.esHero .lm{position:absolute;left:18px;top:calc(74px + env(safe-area-inset-top,0px));z-index:2;font:900 30px/.92 'KOACH Display',sans-serif;color:#F2F2F2;text-transform:uppercase;text-shadow:0 2px 18px rgba(0,0,0,.6)}
+.esHero .lm small{display:block;margin-top:8px;font:700 9px/1.4 'Space Mono',monospace;letter-spacing:.18em;color:#C9CCCF}
+@media (prefers-reduced-motion:no-preference){
+.esHero .cv{stroke-dasharray:900;stroke-dashoffset:900;animation:esDraw 1.6s cubic-bezier(.3,.7,.2,1) .3s forwards}
+.esHero img{animation:esDrift 14s ease-in-out infinite alternate}}
+@keyframes esDraw{to{stroke-dashoffset:0}}
+@keyframes esDrift{from{transform:scale(1.04) translateX(0)}to{transform:scale(1.1) translateX(-14px)}}
+.esMini .esFoto{position:absolute;right:0;top:0;bottom:0;width:62%;object-fit:cover;object-position:50% 30%;filter:grayscale(1) contrast(1.2) brightness(.55) blur(1px);-webkit-mask:linear-gradient(270deg,#000 30%,transparent 100%);mask:linear-gradient(270deg,#000 30%,transparent 100%)}
 `
   function estilos() { if ($('esCss')) return; var s = document.createElement('style'); s.id = 'esCss'; s.textContent = css; document.head.appendChild(s) }
   async function cargar() {
@@ -67,9 +86,26 @@
     return '<div class="esWk">' + L.map(function (w) { if (!w) return '<i></i>'
       return '<i class="' + (w.estado === 'cumplida' ? 'ok' : w.estado === 'en_curso' ? 'cur' : w.estado === 'pausa' ? 'pa' : '') + '"></i>' }).join('') + '</div><div class="esWkL"><span>8 SEMANAS</span><span>ESTA SEMANA</span></div>'
   }
+  function foto() { var sx = ''; try { sx = String((S.perfil && (S.perfil.sex || S.perfil.sexo)) || '').toLowerCase() } catch (_) {}
+    return /^(f|mujer)/.test(sx) ? '/img/hero/hero-female.webp' : '/img/hero/hero-male.webp' }
+  // curva real: semanas al 100% acumuladas en las últimas 8 semanas
+  function curva(s) {
+    var L = (s.semanas || []).slice().reverse(); while (L.length < 8) L.unshift(null)
+    var acc = 0, Y = L.map(function (w) { if (w && w.estado === 'cumplida') acc++; return acc })
+    var W = 300, H = 190, x0 = 14, y0 = 176, top = 28, mx = Math.max(4, acc)
+    var P = Y.map(function (v, i) { return [x0 + i * ((W - 34) / 7), y0 - (v / mx) * (y0 - top)] })
+    var d = 'M' + P[0][0] + ',' + P[0][1]
+    for (var i = 1; i < P.length; i++) { var a = P[i - 1], b = P[i], cx = (a[0] + b[0]) / 2; d += ' C' + cx + ',' + a[1] + ' ' + cx + ',' + b[1] + ' ' + b[0] + ',' + b[1] }
+    var tk = ''; for (var t = 0; t <= 16; t++) { var x = x0 + t * ((W - 20) / 16); tk += '<line class="tk" x1="' + x + '" y1="' + (H - 2) + '" x2="' + x + '" y2="' + (H + (t % 4 ? 5 : 9)) + '"/>' }
+    for (var u = 0; u <= 14; u++) { var y = H - 2 - u * ((H - 14) / 14); tk += '<line class="tk" x1="' + (W - 6) + '" y1="' + y + '" x2="' + (W + (u % 4 ? -1 : 3)) + '" y2="' + y + '"/>' }
+    var X = function (p) { return '<line class="xm" x1="' + (p[0] - 5) + '" y1="' + (p[1] - 5) + '" x2="' + (p[0] + 5) + '" y2="' + (p[1] + 5) + '"/><line class="xm" x1="' + (p[0] + 5) + '" y1="' + (p[1] - 5) + '" x2="' + (p[0] - 5) + '" y2="' + (p[1] + 5) + '"/>' }
+    var f = P[P.length - 1]
+    return '<svg viewBox="0 0 ' + (W + 6) + ' ' + (H + 12) + '" preserveAspectRatio="none" aria-hidden="true"><path class="ax" d="M2,' + (H - 2) + ' H' + (W - 6) + ' V4"/>' + tk +
+      '<path class="cv" d="' + d + '"/>' + X(P[0]) + X(f) + '<text x="' + Math.min(f[0] - 4, W - 70) + '" y="' + (f[1] - 12) + '" text-anchor="end">' + acc + (acc === 1 ? ' SEMANA AL 100%' : ' SEMANAS AL 100%') + '</text></svg>'
+  }
   function cardHTML() {
     var s = E.st || {}, w = s.semana || {}
-    var h = '<div class="esGrid" aria-hidden="true"></div><div class="esHd"><span>CHALLENGE PERMANENTE</span><span>' + (s.estrictos || 0) + ' ESTRICTOS</span></div><h2 class="esT">ESTRICTOS</h2>' +
+    var h = '<div class="esHero" aria-hidden="true"><img src="' + foto() + '" alt=""><p class="lm">1% mejor<br>cada día<small>TUS ÚLTIMAS 8 SEMANAS</small></p>' + curva(s) + '</div><div class="esHd"><span>CHALLENGE PERMANENTE</span><span>' + (s.estrictos || 0) + ' ESTRICTOS</span></div><h2 class="esT">ESTRICTOS</h2>' +
       '<p class="esD">En el Club del 1%, todos están comprometidos, pero solo los más estrictos son los que no fallan ni una sesión. ¿Estás entre ellos? Asiste a todas tus sesiones y marca tu racha al 100%.</p>' +
       '<div class="esSt"><div><b>' + (s.racha || 0) + '<small>SEM</small></b><span>RACHA AL 100%</span></div><div><b>' + (w.planif ? Math.min(w.hechas || 0, w.planif) + '/' + w.planif : '—') + '</b><span>ESTA SEMANA</span></div><div><b>' + (s.racha_max || 0) + '<small>SEM</small></b><span>MEJOR RACHA</span></div></div>' +
       semanas(s) + semanaTxt(s)
@@ -83,7 +119,7 @@
   }
   function miniHTML(n) {
     estilos(); var s = E.st || {}, w = s.semana || {}
-    return '<div class="bmArt esMini" aria-hidden="true"><div class="esGrid"></div><div class="esBar">' + new Array(13).join('<i></i>') + '</div></div><div class="bmIn">' +
+    return '<div class="bmArt esMini" aria-hidden="true"><img class="esFoto" src="' + foto() + '" alt=""></div><div class="bmIn">' +
       '<div class="bmMeta"><span><b>' + String(n).padStart(2, '0') + '</b> · PERMANENTE</span><span>' + (s.estrictos || 0) + ' ESTRICTOS</span></div>' +
       '<p class="esT esMiniT">ESTRICTOS</p>' +
       '<div class="bmDat"><div>' + (s.racha || 0) + '<span>SEM AL 100%</span></div>' + (w.planif ? '<div>' + Math.min(w.hechas || 0, w.planif) + '/' + w.planif + '<span>ESTA SEMANA</span></div>' : '') + '</div></div>'
