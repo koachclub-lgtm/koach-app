@@ -173,8 +173,7 @@ html.en-club .wrap{padding:0!important}
 .bmOn{font:700 9px/1 'Space Mono',monospace;letter-spacing:.16em;color:#979C9F}
 .bmOn i{display:inline-block;width:6px;height:6px;border-radius:50%;background:#3EC6B0;margin-right:7px;vertical-align:1px;box-shadow:0 0 8px #3EC6B0}
 .bmTi{padding:26px 18px 0}
-.bmT{margin:0;font:900 104px/.82 'KOACH Display','KOACH Display Fallback',sans-serif;letter-spacing:-.04em;color:#F2F2F2;position:relative;display:inline-block}
-.bmT small{display:block;font:700 13px/1 'Space Mono',monospace;letter-spacing:.62em;color:#B9BCBF;margin-top:12px}
+.bmT{margin:0;font:900 clamp(54px,18vw,92px)/.86 'KOACH Display','KOACH Display Fallback',sans-serif;letter-spacing:-.035em;white-space:nowrap;color:#F2F2F2;position:relative;display:inline-block}
 .bmSub{margin:14px 0 0;font:700 9px/1.5 'Space Mono',monospace;letter-spacing:.16em;color:#6F7377}
 .bmTabs{display:grid;grid-template-columns:1fr 1fr;margin:24px 18px 0;border-bottom:1px solid rgba(255,255,255,.12)}
 .bmTabs button{appearance:none;background:none;border:0;color:#6F7377;font:700 11px/1 'Space Mono',monospace;letter-spacing:.18em;height:46px;cursor:pointer;position:relative;text-align:left;padding:0}
@@ -216,7 +215,7 @@ html.en-club .wrap{padding:0!important}
 .bmCv .cod{margin-top:12px;display:inline-block;padding:8px 12px;border:1px dashed #F2F2F2;border-radius:4px;font:700 13px/1 'Space Mono',monospace;letter-spacing:.2em}
 @media (prefers-reduced-motion:no-preference){
 .bm.bmAnim .bmT{animation:bmGlitch 1.1s steps(1) .15s both}
-.bm.bmAnim .bmT small,.bm.bmAnim .bmSub,.bm.bmAnim .bmTabs{animation:kcUp .5s ease-out .5s both}
+.bm.bmAnim .bmSub,.bm.bmAnim .bmTabs{animation:kcUp .5s ease-out .5s both}
 .bm.bmAnim .bmCard{animation:kcUp .5s ease-out both}
 .bm.bmAnim .bmCard:nth-child(1){animation-delay:.6s}.bm.bmAnim .bmCard:nth-child(2){animation-delay:.72s}.bm.bmAnim .bmCard:nth-child(3){animation-delay:.84s}
 .bm.bmAnim:after{content:'';position:absolute;left:0;right:0;top:0;height:90px;z-index:3;pointer-events:none;background:linear-gradient(180deg,transparent,rgba(255,255,255,.07),transparent);animation:bmScan 1.4s ease-in-out .1s both}
@@ -288,7 +287,7 @@ html.en-club .wrap{padding:0!important}
   function pintarShell(v) {
     var st = K.st || {}, an = !!K.animShell; K.animShell = false
     var h = '<div class="bm' + (an ? ' bmAnim' : '') + '"><div class="bmHd"><img src="/img/brand/logotipo-koach.png" alt="KOACH"><span class="bmOn"><i></i>' + (st.miembros || 0) + ' EN EL CLUB</span></div>' +
-      '<div class="bmTi"><h1 class="bmT">1%<small>CLUB</small></h1><p class="bmSub">DESAFÍOS · COMUNIDAD · ACTIVIDADES</p></div>' +
+      '<div class="bmTi"><h1 class="bmT">1% CLUB</h1><p class="bmSub">DESAFÍOS · COMUNIDAD · ACTIVIDADES</p></div>' +
       (st.miembro ? '' : '<div class="bmJoin"><button class="kcB kcB--p" type="button" onclick="KCLUB.unirse()">ÚNETE AL CLUB DEL 1%</button></div>') +
       '<div class="bmTabs" role="tablist">' + [['challenges', 'CHALLENGES', nChallenges()], ['convenios', 'CONVENIOS', (K.conv || []).length]].map(function (t) {
         return '<button type="button" role="tab" aria-selected="' + (K.sec === t[0]) + '" onclick="KCLUB.seccion(\'' + t[0] + '\')">' + t[1] + '<sup>' + String(t[2]).padStart(2, '0') + '</sup></button>' }).join('') + '</div>'
