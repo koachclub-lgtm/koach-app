@@ -1266,6 +1266,16 @@ small{color:var(--koach-text-secondary)}
 .adhR__b button.ink{background:var(--koach-ink);color:var(--koach-control);border-color:var(--koach-ink)}
 .adhR__b button:disabled{opacity:.35;cursor:default}
 @media (max-width:820px){.adhR{grid-template-columns:minmax(0,1fr) 64px;row-gap:8px}.adhR__a{grid-column:1/-1;order:3}.adhR__k--w,.adhR__k--m{display:none}.adhR__b{grid-column:1/-1;order:4}}
+/* c326 · asistencia del mes */
+.adhMes{flex-basis:100%;display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin-top:6px;padding-top:10px;border-top:1px dashed var(--koach-border-strong)}
+.adhMes>span{font:700 9.5px var(--font-mono);letter-spacing:.14em;color:var(--koach-text-secondary);margin-right:4px}
+.adChips button.adhOk:not(.on){border-color:#3EC6B0}
+.adChips button.adhSv:not(.on){border-color:rgba(255,66,0,.55)}
+.dgAs{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}
+.dgAs button{all:unset;cursor:pointer;box-sizing:border-box;border-radius:12px;padding:9px 10px;border:1px solid var(--koach-border-strong);display:flex;flex-direction:column;gap:2px}
+.dgAs button b{font-family:var(--font-display);font-weight:800;font-size:22px;color:var(--koach-ink)}
+.dgAs button span{font:700 8.5px var(--font-mono);letter-spacing:.08em;color:var(--koach-text-secondary)}
+.dgAs button.ok{border-color:#3EC6B0}.dgAs button.al b{color:#C23600}
 /* c325 · aviso de fin de ciclo */
 .cicAv{display:flex;align-items:center;justify-content:space-between;gap:14px;margin:0 0 12px;padding:14px 16px;border-radius:16px;background:linear-gradient(135deg,#1A1B1D,#2D2F32);color:#F4F3F0;border:1px solid rgba(255,255,255,.08)}
 .cicAv>div{min-width:0;display:flex;flex-direction:column;gap:3px}
@@ -9907,7 +9917,12 @@ function adhAccion(r){
     if (r.con_plan && r.sem_vig>=r.ciclo_semanas) L.push(['ciclo','CICLO TERMINA · S'+r.sem_vig+'/'+r.ciclo_semanas])
   } else if (!cong && ['vencida','finalizada','cancelada'].indexOf(r.membresia_ultima)>-1 && d!=null && d<=60) L.push(['recuperar','VENCIÓ · VINO HACE '+d+' D'])
   L.sort((a,b)=>ADH_P[b[0]]-ADH_P[a[0]])
-  return { act, cong, L, prio: L.length?ADH_P[L[0][0]]+(d||0)/100:0 }
+  // c326 · asistencia del mes: las 4 semanas completas anteriores (k=1..4)
+  const W=(Array.isArray(r.semanas)?r.semanas:[]).filter(w=>w.k>=1&&w.k<=4)
+  const todo = act && W.length===4 && W.every(w=>(+w.visitas||0)>0)
+  const ev=W.filter(w=>(+w.planif||0)>0), cumple = act && ev.length>=2 && ev.every(w=>(+w.hechas||0)>=(+w.planif))
+  const sv = !act||d==null ? null : d>=28 ? 4 : d>=21 ? 3 : d>=14 ? 2 : d>=7 ? 1 : 0
+  return { act, cong, L, prio: L.length?ADH_P[L[0][0]]+(d||0)/100:0, todo, cumple, sv }
 }
 async function verAdherencia(){
   vista('vAdh'); document.getElementById('adhLista').innerHTML=kLd('Cargando…'); adhTab(ADH.tab||'diag', true)
@@ -9917,7 +9932,7 @@ async function verAdherencia(){
   const tel={}; (t.data||[]).forEach(p=>{ if(p.telefono) tel[p.id]=p.telefono })
   ADH.rows=(r.data||[]).map(x=>Object.assign(x,{ _a:adhAccion(x), _tel:tel[x.socio_id]||null }))
   if (!ADH._ini){ ADH._ini=true; ADH.f='hoy' }
-  adhPintar()
+  adhPintar(); if (ADH.dg) dgPintar()
 }
 const ADH_F=[
   ['hoy','HOY','Todo lo que pide acción, de lo más urgente a lo menos'],
@@ -9930,13 +9945,24 @@ const ADH_F=[
   ['inactivo','INACTIVOS 30+','Activos que no vienen hace más de 30 días'],
   ['recuperar','RECUPERAR','Membresía vencida y vinieron en los últimos 60 días'],
   ['aldia','AL DÍA','Activos sin ninguna alerta'],
+  ['mes','VIENEN TODO EL MES','Activos que vinieron al menos una vez en cada una de las últimas 4 semanas completas'],
+  ['cumple','CUMPLEN 100%','Activos que completaron todas las sesiones planificadas en cada semana completa del último mes'],
+  ['sv1','SIN VENIR 1 SEM','Activos con 7 a 13 días sin venir'],
+  ['sv2','2 SEM','Activos con 14 a 20 días sin venir'],
+  ['sv3','3 SEM','Activos con 21 a 27 días sin venir'],
+  ['sv4','4+ SEM','Activos con 28 días o más sin venir'],
   ['todos','TODOS','Todos los socios con registro']]
 function adhPasa(x,k){ const a=x._a
   if (k==='todos') return true
   if (k==='hoy') return a.L.length>0
   if (k==='aldia') return a.act && !a.L.length
+  if (k==='mes') return a.todo
+  if (k==='cumple') return a.cumple
+  if (/^sv\d$/.test(k)) return a.sv===+k[2]
   return a.L.some(l=>l[0]===k) }
 function adhMsg(x){ const n=String(x.nombre||'').split(' ')[0], k=x._a.L.length?x._a.L[0][0]:'', d=x.dias_sin_visita
+  if (ADH.f==='cumple' && x._a.cumple) return 'Hola '+n+', te escribimos de KOACH: el último mes cumpliste todas las sesiones de tu plan. Así se construye el progreso, ¡vamos por más!'
+  if (ADH.f==='mes' && x._a.todo) return 'Hola '+n+', te escribimos de KOACH: viniste todas las semanas del último mes. Esa constancia es la que da resultados, ¡vamos por más!'
   if (k==='pago') return 'Hola '+n+', te escribimos de KOACH. Tienes un pago pendiente de tu membresía, ¿te ayudamos a dejarlo listo?'
   if (k==='renovar'){ const f=new Date(hoyISO()+'T12:00:00'); f.setDate(f.getDate()+(+x.dias_membresia||0)); return 'Hola '+n+', tu membresía KOACH vence el '+f.getDate()+' de '+['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'][f.getMonth()]+'. ¿Te dejamos lista la renovación para que sigas con tu plan sin cortes?' }
   if (k==='nunca') return 'Hola '+n+', ¿cómo estás? Tu plan en KOACH ya está listo y todavía no hemos entrenado juntos. ¿Qué día te acomoda partir esta semana?'
@@ -10014,6 +10040,9 @@ function dgPintar(){ const D=ADH.dg; if(!D) return; const box=document.getElemen
     '<div class="dgCols"><section class="dgCol dgCol--w"><div class="dgCol__h"><i></i>PUNTOS DÉBILES · '+W.length+'</div>'+(W.length?W.map(x=>card(x,'w')).join(''):'<div class="dgI__d">Sin alertas importantes esta semana.</div>')+'</section>'+
       '<section class="dgCol dgCol--s"><div class="dgCol__h"><i></i>PUNTOS FUERTES · '+Sx.length+'</div>'+Sx.map(x=>card(x,'s')).join('')+'</section></div>'+
     '<div class="dgG">'+
+      (ADH.rows&&ADH.rows.length?(function(){ const c=k=>ADH.rows.filter(x=>adhPasa(x,k)).length, B=(k,l,cl)=>'<button type="button" class="'+cl+'" onclick="adhIr(\''+k+'\')"><b>'+c(k)+'</b><span>'+l+'</span></button>'
+        return '<section class="dgC"><div class="dgK" style="color:var(--koach-text-secondary)">ASISTENCIA DEL MES · TOCA PARA VER LA LISTA</div><h4>¿Quién viene y quién se fue?</h4><div class="dgAs">'+
+          B('mes','VIENEN TODO EL MES','ok')+B('cumple','CUMPLEN 100%','ok')+B('sv1','SIN VENIR 1 SEM','')+B('sv2','SIN VENIR 2 SEM','al')+B('sv3','SIN VENIR 3 SEM','al')+B('sv4','SIN VENIR 4+ SEM','al')+'</div><p>ÚLTIMAS 4 SEMANAS COMPLETAS · SOLO SOCIOS ACTIVOS</p></section>' })():'')+
       '<section class="dgC"><div class="dgK" style="color:var(--koach-text-secondary)">ACTIVOS SEGÚN FRECUENCIA REAL</div><h4>¿Cuántas veces vienen por semana?</h4>'+dgBarras(fq,['0','1','2','3+'],{lo:[0],hi:[2,3],t:'Frecuencia'})+'<p>PROMEDIO DE LAS ÚLTIMAS 4 SEMANAS · '+dgPct(F.f0,act)+'% VIENE MENOS DE 1 VEZ</p></section>'+
       '<section class="dgC"><div class="dgK" style="color:var(--koach-text-secondary)">SESIONES · ÚLTIMAS 8 SEMANAS</div><h4>Días de la semana</h4>'+dgBarras(dw.map(x=>x.v),dw.map(x=>DG_DIA[x.d].slice(0,2)),{hi:[dw.indexOf(dmx)],lo:[dw.indexOf(dmn)],t:'Días'})+'<p>DOMINGO CASI SIN USO · '+(((D.dow||[]).find(x=>x.d===7)||{v:0}).v)+' SESIONES</p></section>'+
       '<section class="dgC"><div class="dgK" style="color:var(--koach-text-secondary)">HORA EN QUE TERMINAN LA SESIÓN</div><h4>Horarios</h4>'+dgBarras(hrs,hrs.map((_,i)=>(i%3===0?(i+7):'')),{hi:hi,lo:lo,gap:3,val:false,t:'Horarios'})+'<p>NEGRO = PEAK '+best.i+'–'+(best.i+3)+' H · NARANJO = VALLE '+valle.i+'–'+(valle.i+2)+' H</p></section>'+
@@ -10035,7 +10064,10 @@ function adhPintar(){
     K('riesgo', cnt('riesgo')+cnt('nunca'), 'EN RIESGO', cnt('riesgo')+' SIN VENIR · '+cnt('nunca')+' NUNCA VINIERON', true)+
     K('hoy', media==null?'—':media+'%', 'ADHERENCIA · 4 SEM', 'PLAN CUMPLIDO · ACTIVOS')+
     K('renovar', cnt('renovar'), 'RENUEVAN ≤ 7 DÍAS', cnt('recuperar')+' POR RECUPERAR', cnt('renovar')>0)
-  document.getElementById('adhF').innerHTML=ADH_F.map(f=>{ const n=cnt(f[0]); return (n||f[0]===ADH.f||f[0]==='todos'||f[0]==='hoy')?'<button class="'+(ADH.f===f[0]?'on':'')+'" onclick="ADH.f=\''+f[0]+'\';adhPintar()">'+f[1]+' · '+n+'</button>':'' }).join('')
+  const MES=['mes','cumple','sv1','sv2','sv3','sv4']
+  const chip=f=>{ const n=cnt(f[0]); return (n||f[0]===ADH.f||f[0]==='todos'||f[0]==='hoy'||MES.indexOf(f[0])>-1)?'<button class="'+(ADH.f===f[0]?'on':'')+(f[0]==='mes'||f[0]==='cumple'?' adhOk':/^sv/.test(f[0])?' adhSv':'')+'" onclick="ADH.f=\''+f[0]+'\';adhPintar()">'+f[1]+' · '+n+'</button>':'' }
+  document.getElementById('adhF').innerHTML=ADH_F.filter(f=>MES.indexOf(f[0])<0).map(chip).join('')+
+    '<div class="adhMes"><span>ASISTENCIA DEL MES</span>'+ADH_F.filter(f=>MES.indexOf(f[0])>-1).map(chip).join('')+'</div>'
   const fd=ADH_F.find(f=>f[0]===ADH.f); document.getElementById('adhHint').textContent=fd?fd[2]:''
   const q=(document.getElementById('adhBusca').value||'').trim().toLowerCase()
   const l=R.filter(x=>adhPasa(x,ADH.f) && (!q || bpScore(q,(x.nombre||'')+' '+(x.apellido||''),x.email||'')>0))
@@ -10047,7 +10079,7 @@ function adhPintar(){
       : '<span class="adhAc '+(a.act?'adhAc--ok':'adhAc--x')+'">'+(a.act?'AL DÍA':a.cong?'CONGELADO':'SIN MEMBRESÍA')+'</span>'
     const sub = [x.programa?(x.programa+' · S'+x.sem_vig+'/'+x.ciclo_semanas):(a.act?'SIN PROGRAMA':null), x.ultimo_entreno&&x.ultimo_entreno.nombre?('ÚLT. '+String(x.ultimo_entreno.nombre).toUpperCase()):null].filter(Boolean).join(' · ')
     const d=x.dias_sin_visita, ult = d==null?'—':d===0?'HOY':d===1?'AYER':d+' D'
-    const sem=(Array.isArray(x.semanas)?x.semanas:[]).slice().sort((p,q)=>q.k-p.k)
+    const sem=(Array.isArray(x.semanas)?x.semanas:[]).filter(w=>w.k<=3).sort((p,q)=>q.k-p.k)
     const w4='<div class="adhW4" title="Sesiones hechas / planificadas · últimas 4 semanas">'+sem.map(w=>{ const pl=+w.planif||0, h=+w.hechas||0, pct=pl>0?Math.min(100,Math.round(h*100/pl)):(h>0?100:0); return '<i class="'+(w.k===0?'cur':'')+'"><u style="height:'+pct+'%"></u></i>' }).join('')+'</div>'
     const dm=x.dias_membresia, mem = a.act ? (dm==null?'—':dm+' D') : '—'
     const accion = k0==='sinplan' ? '<button type="button" class="ink" onclick="adhFicha(\''+id+'\',\'sinplan\')">ASIGNAR</button>'
