@@ -1266,6 +1266,17 @@ small{color:var(--koach-text-secondary)}
 .adhR__b button.ink{background:var(--koach-ink);color:var(--koach-control);border-color:var(--koach-ink)}
 .adhR__b button:disabled{opacity:.35;cursor:default}
 @media (max-width:820px){.adhR{grid-template-columns:minmax(0,1fr) 64px;row-gap:8px}.adhR__a{grid-column:1/-1;order:3}.adhR__k--w,.adhR__k--m{display:none}.adhR__b{grid-column:1/-1;order:4}}
+/* c325 · aviso de fin de ciclo */
+.cicAv{display:flex;align-items:center;justify-content:space-between;gap:14px;margin:0 0 12px;padding:14px 16px;border-radius:16px;background:linear-gradient(135deg,#1A1B1D,#2D2F32);color:#F4F3F0;border:1px solid rgba(255,255,255,.08)}
+.cicAv>div{min-width:0;display:flex;flex-direction:column;gap:3px}
+.cicAv small{font:700 9.5px var(--font-mono);letter-spacing:.16em;color:#3EC6B0}
+.cicAv b{font-family:var(--font-display);font-weight:700;font-size:17px}
+.cicAv span{font-size:12.5px;line-height:1.4;color:rgba(244,243,240,.7)}
+.cicAv .tbB{flex:none;background:#F4F3F0;color:#121212;border-color:#F4F3F0}
+.cicAv--al{border-color:#FF4200;box-shadow:inset 0 0 0 1px #FF4200}
+.cicAv--al small{color:#FF6A33}
+.cicAl{font-style:normal;color:#C23600;font-weight:700}
+@media (max-width:700px){.cicAv{flex-direction:column;align-items:stretch}}
 /* c324 · DIAGNÓSTICO del club */
 #vAdh{max-width:1180px}
 .dgTabs{display:inline-flex;gap:4px;padding:4px;border-radius:999px;background:rgba(18,18,18,.07);margin:4px 0 14px}
@@ -4910,6 +4921,14 @@ function pintarSala(){
         :'<button class="bbtn ok" onclick="validar(\''+r.id+'\')">VALIDAR ✓</button>')+'</div>'
     }).join('')+(_ho.length>4&&!window._hoyTodo?'<button type="button" class="kTray__m" onclick="window._hoyTodo=1;pintarSala()">VER TODAS ('+_ho.length+')</button>':'')+'</div></section>'
   }
+  // c325 · CICLOS: quién está en su última semana y quién ya terminó el ciclo sin empezar uno nuevo
+  { const cl=(C.socios||[]).map(function(x){ const e=cicloEstado(C.asig[x.id]); return e&&e.k&&(typeof adMemVigente!=='function'||adMemVigente(x.id))?Object.assign({id:x.id},e):null }).filter(Boolean)
+      .sort(function(p,q){ return (q.k==='pasado')-(p.k==='pasado') || q.atraso-p.atraso })
+    if (cl.length){ const nP=cl.filter(function(c){return c.k==='pasado'}).length, nU=cl.length-nP, ver=window._cicTodo?cl:cl.slice(0,5)
+      b+='<section class="kTray kTray--cic" aria-label="Ciclos por renovar"><div class="kTray__h"><span>CICLOS · '+nU+' EN ÚLTIMA SEMANA · '+nP+' TERMINADOS</span><b>'+cl.length+'</b></div><div class="kTray__l">'+
+        ver.map(function(c){ return '<div class="brow">'+avSocio(c.id)+'<div class="btx"><b>'+nomDe(c.id)+'</b><small>'+(c.k==='pasado'?'<em class="cicAl">CICLO TERMINADO · HACE '+c.atraso+' D</em>':'ÚLTIMA SEMANA · SEM '+c.total+'/'+c.total+' · TERMINA '+c.finTxt)+'</small></div>'+
+          '<button class="bbtn ink" onclick="cicNuevo(\''+c.id+'\')">'+(c.k==='pasado'?'NUEVO CICLO':'PREPARAR')+'</button></div>' }).join('')+
+        (cl.length>5&&!window._cicTodo?'<button type="button" class="kTray__m" onclick="window._cicTodo=1;pintarSala()">VER TODOS ('+cl.length+')</button>':'')+'</div></section>' } }
   document.getElementById('bandejas').innerHTML=b
   if (!pintarSala._hor || Date.now()-pintarSala._hor>60000){ pintarSala._hor=Date.now(); horSalaCargar().catch(function(){}); bnSalaCargar().catch(function(){}) } else horSalaPintar()
   const hoySet=new Set(C.hoy.map(function(r){return r.socio_id}))
@@ -11076,6 +11095,22 @@ function scEstadoExtra(e){
   return { pill:'★ EXTRA · DISPONIBLE', sub:'NO SUMA AL '+h+'/'+p+' · SIEMPRE DISPONIBLE', cls:'x' }
 }
 const SC_ISO='<svg class="tc__iso" viewBox="40 180 790 795" aria-hidden="true" focusable="false"><rect x="52" y="190" width="768" height="162" fill="currentColor"/><polygon points="52,757 438,415 818,752 818,950 438,615 52,962" fill="currentColor"/></svg>'
+// c325 · estado del ciclo por calendario (semanas lunes–domingo desde el inicio de la asignación)
+function cicloEstado(a){ if(!a||!a.fecha_inicio) return null
+  const tot=+((a.protocolos&&a.protocolos.ciclo_semanas)||(C.protos[a.protocolo_id]||{}).ciclo_semanas||0); if(!tot) return null
+  const lu=function(d){ const x=new Date(d); x.setHours(12,0,0,0); x.setDate(x.getDate()-((x.getDay()+6)%7)); return x }
+  const i0=lu(new Date(a.fecha_inicio+'T12:00:00')), hoy=lu(new Date()), sem=Math.round((hoy-i0)/604800000)+1
+  const fin=new Date(i0); fin.setDate(fin.getDate()+tot*7-1)
+  const atraso=Math.max(0,Math.floor((new Date().setHours(12,0,0,0)-fin)/86400000))
+  const finTxt=['DOM','LUN','MAR','MIÉ','JUE','VIE','SÁB'][fin.getDay()]+' '+fin.getDate()+' '+ADH_MES[fin.getMonth()]
+  return { sem:sem, total:tot, fin:fin, finTxt:finTxt, atraso:atraso, k: sem>tot ? 'pasado' : sem===tot ? 'ultima' : null } }
+async function cicNuevo(id){ if (!F || F.id!==id){ verFicha(id); await new Promise(function(r){ setTimeout(r,450) }) } gpAbrir() }
+function scCicloAviso(){ if(!F) return ''
+  const e=cicloEstado(C.asig[F.id]); if(!e||!e.k) return ''
+  if (e.k==='pasado') return '<div class="cicAv cicAv--al" role="status"><div><small>CICLO TERMINADO · HACE '+e.atraso+' DÍA'+(e.atraso===1?'':'S')+'</small><b>Necesita comenzar un nuevo ciclo de entrenamiento</b>'+
+    '<span>Su ciclo de '+e.total+' semanas terminó el '+e.finTxt.toLowerCase()+'. Toma su test de fuerza y asígnale el ciclo siguiente.</span></div><button type="button" class="tbB tbB--ink" onclick="gpAbrir()">INICIAR NUEVO CICLO</button></div>'
+  return '<div class="cicAv" role="status"><div><small>ÚLTIMA SEMANA DEL CICLO · SEMANA '+e.total+' DE '+e.total+'</small><b>Esta es su última semana: prepara su próximo ciclo</b>'+
+    '<span>Termina el '+e.finTxt.toLowerCase()+'. Agenda su test de fuerza para cerrar con su progreso y deja listo el ciclo siguiente.</span></div><button type="button" class="tbB" onclick="gpAbrir()">PREPARAR NUEVO CICLO</button></div>' }
 function scPintar(){
   { const _st=SC.st||{}, _ss=_st.sesiones||[]; if (SC.sid!==SCD._sid){ SCD._sid=SC.sid; SCD.open=null; SCD._last=null }
     if (!SCD.open && _ss.length){ const hb=_st.habilitada, x=_ss.find(function(z){return z.estado==='en_curso'}) || (hb&&!hb.extra&&_ss.find(function(z){return z.id===hb.sesion_id})) || _ss.find(function(z){return z.estado!=='completada'&&z.estado!=='suspendida'}) || _ss[_ss.length-1]; if(x) SCD.open=x.id }
@@ -11086,7 +11121,7 @@ function scPintar(){
   const vivo=ab.filter(function(a){return !a.abandonada})[0], inc=scIncOrden(ab)
   const nextId = vivo ? vivo.sesion_id : (hb && !hb.extra) ? hb.sesion_id : (px && (st.siguiente_tras_abierta && px.estado==='sin_cerrar' ? st.siguiente_tras_abierta.id : px.id))
   const ext=scExtras(), eh=st.extras_hechas||0, ed=ext.filter(function(e){return e.estado!=='completada'}).length
-  let h='<div class="tb__bar"><div class="tb__t"><span>SEMANA '+(st.semana||'—')+(st.total_semanas?' DE '+st.total_semanas:'')+'</span><b>'+(st.hechas||0)+'<i>/'+(st.programadas||ses.length)+'</i></b><small>PRINCIPALES'+
+  let h=scCicloAviso()+'<div class="tb__bar"><div class="tb__t"><span>SEMANA '+(st.semana||'—')+(st.total_semanas?' DE '+st.total_semanas:'')+'</span><b>'+(st.hechas||0)+'<i>/'+(st.programadas||ses.length)+'</i></b><small>PRINCIPALES'+
       (eh?' <em class="tb__x">· +'+eh+' EXTRA</em>':'')+(ed?' <em class="tb__x">· '+ed+' EXTRA'+(ed===1?'':'S')+' DISPONIBLE'+(ed===1?'':'S')+'</em>':'')+'</small></div>'+
     '<div class="tb__acc"><span class="tbSave" id="scSave" aria-live="polite"></span>'+
       '<button type="button" class="tbB" onclick="scOrgEntrar()"'+(ses.filter(function(z){return !scEsFija(z)}).length>1?'':' disabled title="No hay dos sesiones movibles esta semana"')+'>↕ ORGANIZAR SEMANA</button>'+
