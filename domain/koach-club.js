@@ -205,7 +205,8 @@ html.en-club .wrap{padding:0!important}
     var v = $('vClub'); if (!v) return
     K.animar = true
     if (!K.st) v.innerHTML = '<div class="kcTop"><img src="/img/brand/logotipo-koach.png" alt="KOACH"></div><p class="kcHs">CARGANDO EL CLUB…</p>'
-    await cargarEstado(); await cargarListas(); pintarVista()
+    var kr = window.KRUN ? KRUN.cargar() : null
+    await cargarEstado(); await cargarListas(); if (kr) await kr; pintarVista()
     clearInterval(K.poll); K.poll = setInterval(function () { if (!v.classList.contains('on')) { clearInterval(K.poll); return } refrescar() }, 25000)
   }
   async function refrescar() { await cargarEstado(); await cargarListas(); if ($('vClub') && $('vClub').classList.contains('on')) pintarVista() }
@@ -217,7 +218,7 @@ html.en-club .wrap{padding:0!important}
     if (!ch) {
       v.innerHTML = '<section class="kcHero">' + fondo() + '<div class="kcIn">' + top + '<h1 class="kcT"><b>1%</b><span>CLUB</span></h1><p class="kcD">Desafíos, comunidad y actividades del club.</p><p class="kcS">Pronto se abre el próximo challenge.</p>' +
         (st.miembro ? '' : '<div class="kcAct"><button class="kcB kcB--p" type="button" onclick="KCLUB.unirse()">ÚNETE AL CLUB DEL 1%</button></div>') + '</div></section>'
-      return
+      run(v); return
     }
     var abierto = ch.abierto
     var anim = !!K.animar; K.animar = false
@@ -239,8 +240,10 @@ html.en-club .wrap{padding:0!important}
     h += '<div class="kcSec"><span>EN VIVO · CHALLENGE</span></div>'
     h += K.feed.length ? K.feed.map(evento).join('') : '<div class="kcVac">AQUÍ APARECE QUIÉN ENTRA AL CHALLENGE Y CADA MARCA.</div>'
     v.innerHTML = h + '</div>'
+    run(v)
     if (K.irRanking) { K.irRanking = false; var r = v.querySelector('.kcSec'); if (r) setTimeout(function () { r.scrollIntoView({ behavior: 'smooth', block: 'start' }) }, 120) }
   }
+  function run(v) { try { window.KRUN && KRUN.montar(v) } catch (e) { console.error('KRUN', e) } }
   function posNum() { var y = K.rank.filter(function (x) { return x.yo })[0]; return y ? y.pos : null }
   function posTxt() { var y = K.rank.filter(function (x) { return x.yo })[0]; return y ? 'POSICIÓN #' + y.pos + ' DE ' + K.rank.length : '' }
   function estTag(e) { return e === 'validado' ? '<span class="kcEst kcEst--ok">✓ VALIDADA</span>' : e === 'rechazado' ? '<span class="kcEst kcEst--pend">REVISAR CON TU KOACH</span>' : '<span class="kcEst kcEst--pend">POR VALIDAR</span>' }
@@ -490,6 +493,7 @@ html.en-club .wrap{padding:0!important}
     _runStart: runStart, _runParar: runParar, _runMarca: function () { pedirMarca(false) }, _paso: pasoNum, _registrar: registrar,
     _runCerrar: runCerrar, _continuar: continuar,
     _verRanking: function () { cerrarRun(); tab('vClub') },
+    _confeti: confeti,
     _estado: function () { return K }
   }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', iniciar); else iniciar()
