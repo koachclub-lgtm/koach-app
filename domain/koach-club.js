@@ -1,7 +1,7 @@
 /* ═══ 1% CLUB · comunidad y challenges (c300) ═══
-   Pestaña "1% CLUB" en la barra inferior + challenge temático (primer caso: GTA CHALLENGE · burpees 3:00).
+   Pestaña "1% CLUB" en la barra inferior + challenge temático (primer caso: GTA CHALLENGE · burpees 1:30).
    - Pantalla especial al tocar START de la sesión mientras el challenge está abierto (una vez al día si se omite).
-   - Unirse al club → temporizador 3:00 (reloj de siete segmentos) → registrar marca → koach valida en el Dashboard.
+   - Unirse al club → temporizador 1:30 (reloj de siete segmentos) → registrar marca → koach valida en el Dashboard.
    - Ranking (todos / mujeres / hombres) + feed automático con reacciones predeterminadas.
    - Historia 9:16 para compartir, generada en el teléfono (sin IA, sin costo).
    Datos: RPC club_* (Supabase). Sin realtime: el feed se actualiza cada 25 s solo mientras la pestaña está abierta. */
@@ -267,8 +267,8 @@ html.en-club .wrap{padding:0!important}
     K.animar = true
     if (!K.st) v.innerHTML = '<div class="kcTop"><img src="/img/brand/logotipo-koach.png" alt="KOACH"></div><p class="kcHs">CARGANDO EL CLUB…</p>'
     if (K.irDet) { K.det = K.irDet; K.irDet = null } else { K.det = null; K.animShell = true }
-    var kr = window.KRUN ? KRUN.cargar() : null, cv = cargarConvenios()
-    await cargarEstado(); await cargarListas(); if (kr) await kr; await cv; pintarVista()
+    var kr = window.KRUN ? KRUN.cargar() : null, ke = window.KEST ? KEST.cargar() : null, cv = cargarConvenios()
+    await cargarEstado(); await cargarListas(); if (kr) await kr; if (ke) await ke; await cv; pintarVista()
     clearInterval(K.poll); K.poll = setInterval(function () { if (!v.classList.contains('on')) { clearInterval(K.poll); return } refrescar() }, 25000)
   }
   async function refrescar() { await cargarEstado(); await cargarListas(); if ($('vClub') && $('vClub').classList.contains('on')) pintarVista() }
@@ -281,9 +281,10 @@ html.en-club .wrap{padding:0!important}
     var v = $('vClub'); if (!v) return
     if (K.det === 'gta' && K.ch) { v._h = null; return pintarGta(v) }
     if (K.det === 'run') { v._h = null; return pintarRunDet(v) }
+    if (K.det === 'est') { v._h = null; return pintarEstDet(v) }
     pintarShell(v)
   }
-  function nChallenges() { return (K.ch ? 1 : 0) + (window.KRUN ? 1 : 0) }
+  function nChallenges() { return (K.ch ? 1 : 0) + (window.KRUN ? 1 : 0) + (window.KEST ? 1 : 0) }
   function pintarShell(v) {
     var st = K.st || {}, an = !!K.animShell; K.animShell = false
     var h = '<div class="bm' + (an ? ' bmAnim' : '') + '"><div class="bmHd"><img src="/img/brand/logotipo-koach.png" alt="KOACH"><span class="bmOn"><i></i>' + (st.miembros || 0) + ' EN EL CLUB</span></div>' +
@@ -306,6 +307,7 @@ html.en-club .wrap{padding:0!important}
         '<div class="bmDat"><div>' + (st.participantes || 0) + '<span>MARCAS</span></div>' + (mia ? '<div>' + mia.score + '<span>TU MARCA</span></div>' : '') + (posNum() ? '<div>#' + posNum() + '<span>POSICIÓN</span></div>' : '') + '</div></div>' +
         '<span class="bmGo">' + (ch.abierto ? 'ENTRAR →' : 'RESULTADOS →') + '</span></button>')
     }
+    if (window.KEST) { n++; out.push('<button type="button" class="bmCard est" onclick="KCLUB.detalle(\'est\')">' + CORN + KEST.miniHTML(n) + '<span class="bmGo">ENTRAR →</span></button>') }
     if (window.KRUN) { n++; out.push('<button type="button" class="bmCard run" onclick="KCLUB.detalle(\'run\')">' + CORN + KRUN.miniHTML(n) + '<span class="bmGo">ENTRAR →</span></button>') }
     return out.join('') || '<div class="bmVac">PRONTO SE ABRE EL PRÓXIMO CHALLENGE.</div>'
   }
@@ -321,8 +323,12 @@ html.en-club .wrap{padding:0!important}
   }
   function pintarRunDet(v) {
     var h = '<section class="bmDet"><button class="bmBack" type="button" onclick="KCLUB.detalle(null)">‹ CHALLENGES</button><img class="bmLg" src="/img/brand/logotipo-koach.png" alt="KOACH"><div class="kcBody"></div></section>'
-    if (!v.querySelector('.bmDet')) v.innerHTML = h
+    if (!v.querySelector('.bmDet.run')) v.innerHTML = h.replace('class="bmDet"', 'class="bmDet run"')
     window.KRUN && KRUN.montar(v)
+  }
+  function pintarEstDet(v) {
+    if (!v.querySelector('.bmDet.est')) v.innerHTML = '<section class="bmDet est"><button class="bmBack" type="button" onclick="KCLUB.detalle(null)">‹ CHALLENGES</button><img class="bmLg" src="/img/brand/logotipo-koach.png" alt="KOACH"><div class="kcBody"></div></section>'
+    window.KEST && KEST.montar(v)
   }
   function pintarGta(v) {
     var st = K.st || {}, ch = K.ch, mia = st.mia
