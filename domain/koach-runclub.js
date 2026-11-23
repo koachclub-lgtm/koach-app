@@ -35,6 +35,21 @@
 .krSt span{display:block;margin-top:6px;font:700 8px/1.3 'Space Mono',monospace;letter-spacing:.12em;color:#979C9F}
 .krSem{position:relative;margin-top:12px;font:700 9px/1.5 'Space Mono',monospace;letter-spacing:.12em;color:#B9BCBF}
 .krSem.ok{color:#3EC6B0}
+.krTag{position:relative;margin:10px 0 0;font:700 9px/1.4 'Space Mono',monospace;letter-spacing:.14em;color:#3EC6B0}
+.krNv{position:relative;display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:14px}
+.krNv div{border:1px solid rgba(255,255,255,.14);border-radius:10px;padding:10px 8px;background:rgba(0,0,0,.25)}
+.krNv b{display:block;font:900 14px/1 'KOACH Display',sans-serif;letter-spacing:.02em}
+.krNv span{display:block;margin-top:7px;font:700 7.5px/1.5 'Space Mono',monospace;letter-spacing:.1em;color:#979C9F}
+.krMk{display:flex;gap:4px;margin:7px 0 0}.krMk i{flex:1;height:4px;border-radius:2px;background:#434649}.krMk i.on{background:#3EC6B0}
+.krCard .krSub{margin-top:10px}.krCard .krCam{margin-top:6px;height:36px}
+.krIns{margin:-2px 0 10px;font:700 8.5px/1.4 'Space Mono',monospace;letter-spacing:.12em;color:#6F7377}
+.krU{font:700 9px/1 'Space Mono',monospace;color:#979C9F;margin-left:3px}
+.krOp{display:flex;flex-direction:column;gap:10px;width:100%;max-width:400px;margin-top:22px}
+.krOp button{appearance:none;text-align:left;border:1px solid rgba(255,255,255,.2);border-radius:12px;background:rgba(255,255,255,.04);color:#F2F2F2;padding:16px;cursor:pointer;position:relative}
+.krOp button.on{border-color:#3EC6B0;background:rgba(62,198,176,.08)}
+.krOp b{display:block;font:900 22px/1 'KOACH Display',sans-serif;letter-spacing:.01em}
+.krOp span{display:block;margin-top:6px;font:700 9.5px/1.3 'Space Mono',monospace;letter-spacing:.12em;color:#B9BCBF}
+.krOp em{position:absolute;top:16px;right:16px;font:700 8px/1 'Space Mono',monospace;letter-spacing:.12em;color:#3EC6B0;font-style:normal}
 .krCard .kcB{position:relative;margin-top:14px}
 .krCard .kcRow{position:relative}
 .krRk{position:relative;margin-top:16px}
@@ -73,23 +88,55 @@
   async function rpc(n, a) { var r = await cli().rpc(n, a || {}); if (r.error) throw r.error; return r.data }
   async function cargar() { try { R.st = await rpc('club_run_estado') } catch (e) { console.error('club_run_estado', e) } return R.st }
 
+  /* ── niveles: mismo score para todos (semanas seguidas cumpliendo el compromiso) ── */
+  var NIV = { basico: { t: 'BÁSICO', f: 1, km: 1 }, intermedio: { t: 'INTERMEDIO', f: 2, km: 3 }, avanzado: { t: 'AVANZADO', f: 3, km: 7 } }
+  var ORDEN = ['basico', 'intermedio', 'avanzado']
+  function vez(f) { return f === 1 ? '1 VEZ POR SEMANA' : f + ' VECES POR SEMANA' }
+  function sig(n) { return ORDEN[ORDEN.indexOf(n) + 1] }
+
   /* ── tarjeta dentro de la vista 1% CLUB ── */
   function cardHTML() {
-    var s = R.st || {}, racha = s.racha_semanas || 0, mes = MES[new Date().getMonth()]
-    var sem = s.semana_ok ? '<p class="krSem ok">✓ ESTA SEMANA YA CORRISTE · RACHA AL DÍA</p>'
-      : racha ? '<p class="krSem">UNA CARRERA ESTA SEMANA Y TU RACHA SUBE A ' + (racha + 1) + '</p>'
-      : '<p class="krSem">TU PRIMERA CARRERA ABRE TU RACHA</p>'
-    var rk = (s.ranking || []), top = rk.slice(0, 5), yo = rk.filter(function (x) { return x.yo && x.pos > 5 })[0]
+    var s = R.st || {}, racha = s.racha_semanas || 0, nv = NIV[s.nivel], ins = s.inscritos || {}
+    var tot = (ins.basico || 0) + (ins.intermedio || 0) + (ins.avanzado || 0)
+    var h = '<div class="krHd"><span>CHALLENGE PERMANENTE</span><span>' + tot + (tot === 1 ? ' INSCRITO' : ' INSCRITOS') + '</span></div><h2 class="krT">RUN CLUB</h2>'
+    if (!nv) {
+      h += '<p class="krD">Elige tu compromiso semanal y corre con la app abierta: registramos tu ruta y tu distancia. Cada semana cumplida suma a tu racha.</p>' +
+        '<div class="krNv">' + ORDEN.map(function (k) { var n = NIV[k]; return '<div><b>' + n.t + '</b><span>' + vez(n.f) + '<br>DESDE ' + n.km + ' KM</span></div>' }).join('') + '</div>' +
+        '<button class="kcB kcB--p" type="button" onclick="KRUN.niveles()">ELEGIR MI COMPROMISO</button>'
+    } else {
+      var hechas = Math.min(s.hechas || 0, nv.f), ok = (s.hechas || 0) >= nv.f
+      var marcas = ''; for (var i = 0; i < nv.f; i++) marcas += '<i class="' + (i < hechas ? 'on' : '') + '"></i>'
+      h += '<p class="krTag">' + nv.t + ' · ' + vez(nv.f) + ' · DESDE ' + nv.km + ' KM</p>' +
+        '<div class="krSt"><div><b>' + racha + '<small>SEM</small></b><span>RACHA</span></div><div><b>' + hechas + '/' + nv.f + '</b><span>ESTA SEMANA</span><p class="krMk">' + marcas + '</p></div><div><b>' + km(s.km_total) + '<small>KM</small></b><span>DISTANCIA TOTAL</span></div></div>' +
+        (ok ? '<p class="krSem ok">✓ COMPROMISO DE ESTA SEMANA CUMPLIDO</p>'
+          : '<p class="krSem">' + (nv.f - hechas === 1 ? 'TE FALTA 1 CARRERA' : 'TE FALTAN ' + (nv.f - hechas) + ' CARRERAS') + ' DE ' + nv.km + ' KM O MÁS ESTA SEMANA' + (racha ? ' PARA LLEVAR TU RACHA A ' + (racha + 1) : '') + '</p>') +
+        '<button class="kcB kcB--p" type="button" onclick="KRUN.abrir()">INICIAR CARRERA</button>' +
+        (s.puede_subir && sig(s.nivel) ? '<button class="kcB kcB--s krSub" type="button" onclick="KRUN._nivel(\'' + sig(s.nivel) + '\')">SUBIR A ' + NIV[sig(s.nivel)].t + '</button>' : '') +
+        '<button class="kcB kcB--t krCam" type="button" onclick="KRUN.niveles()">CAMBIAR NIVEL</button>'
+    }
+    var rk = s.ranking || [], top = rk.slice(0, 5), yo = rk.filter(function (x) { return x.yo && x.pos > 5 })[0]
     var filas = top.concat(yo ? [yo] : []).map(function (x) {
       return '<div class="kcRow' + (x.yo ? ' yo' : '') + (x.pos <= 3 ? ' t' + x.pos : '') + '"><span class="p">' + String(x.pos).padStart(2, '0') + '</span>' + av(x.avatar, x.nombre) +
-        '<span class="n">' + esc(x.nombre) + '<small>' + x.n + (x.n === 1 ? ' CARRERA' : ' CARRERAS') + '</small></span><span class="s">' + km(x.km) + '</span></div>' }).join('')
-    return '<div class="krHd"><span>CHALLENGE PERMANENTE</span><span>GPS</span></div>' +
-      '<h2 class="krT">RUN CLUB</h2>' +
-      '<p class="krD">Sal a correr con la app abierta: registramos tu ruta y la distancia. Una carrera por semana mantiene tu racha.</p>' +
-      '<div class="krSt"><div><b>' + racha + '<small>SEM</small></b><span>RACHA</span></div><div><b>' + km(s.km_total) + '<small>KM</small></b><span>DISTANCIA TOTAL</span></div><div><b>' + (s.carreras || 0) + '</b><span>CARRERAS</span></div></div>' + sem +
-      '<button class="kcB kcB--p" type="button" onclick="KRUN.abrir()">INICIAR CARRERA</button>' +
-      '<div class="krRk"><div class="kcSec"><span>KM · ' + mes + '</span><span>' + (s.km_mes ? 'TÚ · ' + km(s.km_mes) + ' KM' : '') + '</span></div>' +
-      (filas || '<div class="kcVac">NADIE HA CORRIDO ESTE MES. LA PRIMERA CARRERA PUEDE SER LA TUYA.</div>') + '</div>'
+        '<span class="n">' + esc(x.nombre) + '<small>' + (NIV[x.nivel] ? NIV[x.nivel].t : '') + ' · ' + km(x.km) + ' KM</small></span><span class="s">' + x.racha + '<small class="krU">SEM</small></span></div>' }).join('')
+    h += '<div class="krRk"><div class="kcSec"><span>RANKING · RACHA</span><span>SEMANAS CUMPLIDAS</span></div><p class="krIns">' + ORDEN.map(function (k) { return (ins[k] || 0) + ' ' + NIV[k].t }).join(' · ') + '</p>' +
+      (filas || '<div class="kcVac">TODAVÍA NADIE SE INSCRIBE. EL PRIMER COMPROMISO PUEDE SER EL TUYO.</div>') + '</div>'
+    return h
+  }
+  function niveles() {
+    var s = R.st || {}
+    pintar('<p class="krK">RUN CLUB · TU COMPROMISO</p><h2 class="krH1">¿Cuántas veces por semana vas a correr?</h2>' +
+      '<p class="krTx">TODOS LOS NIVELES SUMAN IGUAL: CADA SEMANA CUMPLIDA ES +1 A TU RACHA. LAS CARRERAS MÁS CORTAS QUE EL MÍNIMO SUMAN KM, PERO NO CUENTAN PARA EL COMPROMISO.</p>' +
+      '<div class="krOp">' + ORDEN.map(function (k) { var n = NIV[k], act = s.nivel === k
+        return '<button type="button" class="' + (act ? 'on' : '') + '" onclick="KRUN._nivel(\'' + k + '\')"><b>' + n.t + '</b><span>' + vez(n.f) + '</span><span>CADA CARRERA DESDE ' + n.km + ' KM</span>' + (act ? '<em>TU NIVEL ACTUAL</em>' : '') + '</button>' }).join('') + '</div>',
+      '<button class="kcB kcB--t" type="button" onclick="KRUN.cerrar()">AHORA NO</button>')
+  }
+  async function elegirNivel(k) {
+    var s = R.st || {}
+    if (s.nivel === k) { cerrar(); repintar(); return }
+    if (s.nivel && !confirm('¿Cambiar tu compromiso a ' + NIV[k].t + '? Desde esta semana se mide con el nuevo nivel.')) return
+    try { R.st = await rpc('club_run_inscribir', { p_nivel: k }); snd('logro', .7); try { KCLUB._confeti && KCLUB._confeti() } catch (_) {} aviso('Compromiso ' + NIV[k].t + ': ' + vez(NIV[k].f).toLowerCase() + '.') }
+    catch (e) { aviso(e.message || 'No se pudo guardar el nivel.'); return }
+    cerrar(); repintar()
   }
   function av(path, n) { try { if (window.KAvatar) return KAvatar.html(path, n, 'kcAv') } catch (_) {} return '<span class="kcAv">' + esc(String(n || 'K')[0]) + '</span>' }
   function montar(v) {
@@ -118,6 +165,7 @@
 
   function abrir() {
     if (R.watch != null) { pintarVivo(); return }
+    if (R.st && !R.st.inscrito && !pendiente()) { niveles(); return }
     var p = pendiente()
     if (p) {
       pintar('<p class="krK">RUN CLUB</p><h2 class="krH1">Tienes una carrera sin terminar</h2><p class="krTx">EMPEZÓ HACE ' + reloj((Date.now() - p.t0) / 1000) + '. PUEDES RETOMARLA O DESCARTARLA.</p>',
@@ -205,10 +253,14 @@
         return
       }
       snd('logro'); try { KCLUB._confeti && KCLUB._confeti() } catch (_) {} try { navigator.vibrate && navigator.vibrate([120, 60, 120]) } catch (_) {}
-      var n = nombre()
+      var n = nombre(), nv = NIV[s.nivel], nota = ''
+      if (nv && r.distancia_m < nv.km * 1000) nota = '<p class="krTx">ESTA CARRERA SUMA KM. PARA TU COMPROMISO ' + nv.t + ' CADA CARRERA CUENTA DESDE ' + nv.km + ' KM.</p>'
+      else if (nv && (s.hechas || 0) >= nv.f) nota = '<p class="krSem ok" style="margin-top:16px">✓ COMPROMISO DE ESTA SEMANA CUMPLIDO</p>'
       pintar('<div class="krChk">' + CHECK + '</div><p class="krK">RUN CLUB · ' + (r.distancia_m / 1000).toFixed(2).replace('.', ',') + ' KM</p>' +
         '<h2 class="krH1">Felicitaciones' + (n ? ', ' + esc(n) : '') + '.</h2><p class="krFirma">Ya eres 1% más fuerte que ayer.</p>' +
-        '<div class="krGr"><div><b>' + (s.racha_semanas || 0) + '</b><span>' + ((s.racha_semanas || 0) === 1 ? 'SEMANA' : 'SEMANAS') + ' DE RACHA</span></div><div><b>' + km(s.km_total) + '</b><span>KM TOTALES</span></div><div><b>' + (s.carreras || 0) + '</b><span>CARRERAS</span></div></div>',
+        '<div class="krGr"><div><b>' + (s.racha_semanas || 0) + '</b><span>' + ((s.racha_semanas || 0) === 1 ? 'SEMANA' : 'SEMANAS') + ' DE RACHA</span></div>' +
+        (nv ? '<div><b>' + Math.min(s.hechas || 0, nv.f) + '/' + nv.f + '</b><span>ESTA SEMANA</span></div>' : '<div><b>' + (s.carreras || 0) + '</b><span>CARRERAS</span></div>') +
+        '<div><b>' + km(s.km_total) + '</b><span>KM TOTALES</span></div></div>' + nota,
         '<button class="kcB kcB--p" type="button" onclick="KRUN.cerrar()">VOLVER AL CLUB</button>')
     } catch (e) {
       console.error(e); if (b) b.disabled = false
@@ -219,7 +271,7 @@
   function cancelar() { if (!confirm('¿Cancelar la carrera? Se pierde el recorrido.')) return; parar(); limpiarLS(); R.pts = []; cerrar() }
   function terminarPend() { var p = pendiente(); if (!p) { abrir(); return } R.t0 = p.t0; R.pts = p.p.map(function (a) { return { lat: a[0], lng: a[1], t: a[2], acc: a[3] } }); terminar() }
 
-  window.KRUN = { montar: montar, cargar: cargar, abrir: abrir, cerrar: function () { cerrar(); repintar() },
+  window.KRUN = { montar: montar, cargar: cargar, abrir: abrir, niveles: niveles, _nivel: elegirNivel, cerrar: function () { cerrar(); repintar() },
     _iniciar: function () { iniciar(false) }, _retomar: function () { iniciar(true) }, _terminar: function () { if (confirm('¿Terminar la carrera?')) terminar() },
     _cancelar: cancelar, _descartar: descartar, _guardar: guardar, _terminarPend: terminarPend, _estado: function () { return R } }
 })()
