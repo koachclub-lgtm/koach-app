@@ -70,7 +70,7 @@
   function cardHTML() {
     var s = E.st || {}, w = s.semana || {}
     var h = '<div class="esGrid" aria-hidden="true"></div><div class="esHd"><span>CHALLENGE PERMANENTE</span><span>' + (s.estrictos || 0) + ' ESTRICTOS</span></div><h2 class="esT">ESTRICTOS</h2>' +
-      '<p class="esD">Todos en el Club del 1% son personas comprometidas. Este es el ranking de los más estrictos: los que asisten al 100% semana a semana. Asiste a todas tus sesiones y marca tu racha al 100%.</p>' +
+      '<p class="esD">En el Club del 1%, todos están comprometidos, pero solo los más estrictos son los que no fallan ni una sesión. ¿Estás entre ellos? Asiste a todas tus sesiones y marca tu racha al 100%.</p>' +
       '<div class="esSt"><div><b>' + (s.racha || 0) + '<small>SEM</small></b><span>RACHA AL 100%</span></div><div><b>' + (w.planif ? Math.min(w.hechas || 0, w.planif) + '/' + w.planif : '—') + '</b><span>ESTA SEMANA</span></div><div><b>' + (s.racha_max || 0) + '<small>SEM</small></b><span>MEJOR RACHA</span></div></div>' +
       semanas(s) + semanaTxt(s)
     var rk = s.ranking || [], top = rk.slice(0, 10), yo = rk.filter(function (x) { return x.yo && x.pos > 10 })[0]
