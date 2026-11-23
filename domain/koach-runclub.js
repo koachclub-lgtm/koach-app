@@ -95,7 +95,9 @@
 .krMini{--rc:#FF4200;--ra:#FFB21A;background:linear-gradient(180deg,#141517,#0C0D0F)}
 .krMini .krRoad{height:100%;-webkit-mask:linear-gradient(270deg,#000 0%,transparent 75%);mask:linear-gradient(270deg,#000 0%,transparent 75%)}
 .krMini .krRoad i{left:20%;right:-60%}
-.krMiniT{margin-top:16px;font-size:40px}
+.krMiniT{margin-top:16px;font-size:40px;margin-left:14px}
+.krCard .krT{margin-left:14px}
+.krO .krRun{margin-left:14px}
 .bmCard .krT,.krCard .krT,.krO .krRun{color:#F2F2F2;font-style:normal;text-shadow:-6px 0 0 rgba(255,178,26,.55),-12px 0 0 rgba(255,120,20,.35),-18px 0 0 rgba(255,66,0,.18)}
 .krCard .krHd span:first-child,.krO .krK{color:var(--rc)}
 .krCard .krTag{color:var(--rc)}
@@ -111,14 +113,13 @@
 .krO .krRun{animation:krDash .7s cubic-bezier(.15,.9,.25,1) both}}
 /* corredor animado (original): silueta rojo anaranjado + estelas de velocidad */
 .krRunr{display:block;width:100%;height:100%;overflow:visible}
-.krRunr .bd{fill:none;stroke:#FF3B12;stroke-linecap:round;stroke-linejoin:round}
-.krRunr .hd{fill:#FF3B12}
+.krRunr .cerca{fill:#FF3B12}.krRunr .lejos{fill:#C2300E}
 .krRunr .gl{filter:drop-shadow(0 0 10px rgba(255,59,18,.75)) drop-shadow(0 0 28px rgba(255,66,0,.35))}
 .krRunr g{transform-box:view-box}
 .krRunr .st g{transform-box:fill-box;transform-origin:100% 50%}
 .krRunr .cuerpo{transform-origin:100px 130px}
-.krRunr .mi{transform-origin:100px 128px}.krRunr .rd{transform-origin:100px 178px}
-.krRunr .br{transform-origin:107px 78px}.krRunr .ab{transform-origin:107px 108px}
+.krRunr .mi.a{transform:rotate(-38deg)}.krRunr .mi.b{transform:rotate(30deg)}.krRunr .rd.b{transform:rotate(95deg)}.krRunr .br.a{transform:rotate(40deg)}.krRunr .br.b{transform:rotate(-45deg)}
+.krRunr .mi,.krRunr .rd,.krRunr .br{transform-origin:0 0}
 @media (prefers-reduced-motion:no-preference){
 .krRunr .cuerpo{animation:krBob .36s ease-in-out infinite}
 .krRunr .mi.a{animation:krThigh .72s linear infinite}.krRunr .mi.b{animation:krThigh .72s linear -.36s infinite}
@@ -126,30 +127,39 @@
 .krRunr .br.a{animation:krArm .72s ease-in-out infinite}.krRunr .br.b{animation:krArm .72s ease-in-out -.36s infinite}
 .krRunr .st g{animation:krStreak .72s linear infinite}}
 @keyframes krBob{0%,50%,100%{transform:translateY(0)}25%,75%{transform:translateY(-5px)}}
-@keyframes krThigh{0%{transform:rotate(-38deg)}50%{transform:rotate(34deg)}100%{transform:rotate(-38deg)}}
-@keyframes krShin{0%{transform:rotate(12deg)}30%{transform:rotate(18deg)}55%{transform:rotate(70deg)}75%{transform:rotate(112deg)}90%{transform:rotate(45deg)}100%{transform:rotate(12deg)}}
+@keyframes krThigh{0%{transform:rotate(-38deg)}15%{transform:rotate(-24deg)}40%{transform:rotate(24deg)}50%{transform:rotate(32deg)}65%{transform:rotate(4deg)}82%{transform:rotate(-48deg)}100%{transform:rotate(-38deg)}}
+@keyframes krShin{0%{transform:rotate(8deg)}15%{transform:rotate(20deg)}40%{transform:rotate(24deg)}55%{transform:rotate(78deg)}70%{transform:rotate(118deg)}82%{transform:rotate(84deg)}92%{transform:rotate(32deg)}100%{transform:rotate(8deg)}}
 @keyframes krArm{0%{transform:rotate(42deg)}50%{transform:rotate(-48deg)}100%{transform:rotate(42deg)}}
 @keyframes krStreak{0%{transform:translateX(18px) scaleX(.25);opacity:0}25%{opacity:1}100%{transform:translateX(-46px) scaleX(1);opacity:0}}
-.krFig{width:min(64vw,250px);aspect-ratio:200/260;margin:18px auto 0}
-.krFigL{width:min(40vw,150px);aspect-ratio:200/260;margin:12px auto 0;opacity:.9}
-.krMini .krFigM{position:absolute;right:6px;top:30px;width:96px;height:125px}
-.bmDet .krCard .krFigD{position:relative;z-index:1;display:block;width:150px;height:195px;margin:-6px auto 4px;pointer-events:none}
+.krFig{width:min(64vw,250px);aspect-ratio:200/270;margin:18px auto 0}
+.krFigL{width:min(40vw,150px);aspect-ratio:200/270;margin:12px auto 0;opacity:.9}
+.krMini .krFigM{position:absolute;right:12px;top:24px;width:76px;height:103px}
+.bmCard.run .bmDat{max-width:calc(100% - 100px)}
+.bmDet .krCard .krFigD{position:relative;z-index:1;display:block;width:150px;height:203px;margin:-6px auto 8px;pointer-events:none}
 .bmDet .krCard>*:not(.krFigD):not(.krRoad){position:relative;z-index:1}
 @keyframes krDash{0%{opacity:0;transform:translateX(-70px) skewX(-8deg);filter:blur(6px)}70%{opacity:1;filter:blur(0)}100%{opacity:1;transform:skewX(-8deg)}}
 @keyframes krFade{from{opacity:0}to{opacity:1}}
 `
   // corredor: piernas/brazos articulados (cadera 100,128 · rodilla 100,178 · hombro 107,78 · codo 107,108)
+  // corredor (silueta original): segmentos anatómicos articulados — cadera (100,128), hombro (108,78)
   function corredor(cls) {
     var st = ''
     for (var i = 0; i < 22; i++) {
-      var y = 40 + i * 9, fin = 92 + Math.round(Math.sin(i * 0.9) * 6) - (i > 15 ? (i - 15) * 3 : 0), w = 44 + (i * 11) % 30, d = -((i * 0.173) % 0.72).toFixed(3)
+      var y = 40 + i * 9, fin = 90 + Math.round(Math.sin(i * 0.9) * 6) - (i > 15 ? (i - 15) * 3 : 0), w = 44 + (i * 11) % 30, d = -((i * 0.173) % 0.72).toFixed(3)
       st += '<g style="animation-delay:' + d + 's"><rect x="' + (fin - w) + '" y="' + y + '" width="' + w + '" height="2.2" rx="1.1" fill="url(#krSg)"/><rect x="' + (fin - 16) + '" y="' + (y - 1.6) + '" width="16" height="5.4" rx="2.7" fill="#FF8A1F"/></g>'
     }
-    var pierna = function (k) { return '<g class="mi ' + k + '"><line class="bd" x1="100" y1="128" x2="100" y2="178" stroke-width="25"/><g class="rd ' + k + '"><line class="bd" x1="100" y1="178" x2="100" y2="226" stroke-width="19"/><line class="bd" x1="98" y1="229" x2="117" y2="231" stroke-width="12"/></g></g>' }
-    var brazo = function (k) { return '<g class="br ' + k + '"><line class="bd" x1="107" y1="80" x2="107" y2="108" stroke-width="15"/><line class="bd" x1="107" y1="108" x2="127" y2="95" stroke-width="12"/></g>' }
-    return '<svg class="krRunr ' + (cls || '') + '" viewBox="0 0 200 260" aria-hidden="true"><defs><linearGradient id="krSg" x1="0" x2="1"><stop offset="0" stop-color="#FFE14D" stop-opacity="0"/><stop offset=".55" stop-color="#FFD23F"/><stop offset="1" stop-color="#FFB21A"/></linearGradient></defs>' +
-      '<g class="st">' + st + '</g><g class="cuerpo gl">' + pierna('b') + brazo('b') +
-      '<line class="bd" x1="101" y1="122" x2="110" y2="80" stroke-width="38"/><line class="bd" x1="111" y1="70" x2="113" y2="62" stroke-width="12"/><circle class="hd" cx="115" cy="49" r="15"/>' + pierna('a') + brazo('a') + '</g></svg>'
+    var MUSLO = '<path d="M-14,-6 C-17,14 -12,36 -9,52 L8,52 C13,38 18,16 14,-8 C6,-13 -6,-12 -14,-6Z"/><circle cx="0" cy="52" r="9"/>'
+    var PANT = '<path d="M-9,0 C-15,12 -12,30 -5,47 L4,47 C6,30 7,14 9,0Z"/>'
+    var ZAP = '<path d="M-6,43 C-9,51 -6,57 2,57 L21,57 C27,57 27,50 21,47 L8,43Z"/>'
+    var BRAZO = '<path d="M-8,-3 C-10,10 -7,24 -5,31 L5,31 C7,22 9,9 8,-4 C3,-7 -3,-7 -8,-3Z"/><circle cx="0" cy="31" r="5.6"/>'
+    var ANTE = '<path d="M-5,0 C-5,9 -4,19 -3,25 L3,25 C4,17 5,8 5,0Z"/><ellipse cx="0" cy="28" rx="5.4" ry="6"/>'
+    var pierna = function (k) { return '<g transform="translate(100 128)"><g class="mi ' + k + '">' + MUSLO + '<g transform="translate(0 52)"><g class="rd ' + k + '">' + PANT + ZAP + '</g></g></g></g>' }
+    var brazo = function (k) { return '<g transform="translate(108 80)"><g class="br ' + k + '">' + BRAZO + '<g transform="translate(0 31) rotate(-100)">' + ANTE + '</g></g></g>' }
+    return '<svg class="krRunr ' + (cls || '') + '" viewBox="0 0 200 270" aria-hidden="true"><defs><linearGradient id="krSg" x1="0" x2="1"><stop offset="0" stop-color="#FFE14D" stop-opacity="0"/><stop offset=".55" stop-color="#FFD23F"/><stop offset="1" stop-color="#FFB21A"/></linearGradient></defs>' +
+      '<g class="st">' + st + '</g><g class="cuerpo gl"><g class="lejos">' + pierna('b') + brazo('b') + '</g><g class="cerca">' +
+      '<path d="M90,134 C86,114 88,94 95,78 C99,69 113,66 120,73 C127,82 126,97 118,111 C114,119 114,127 113,135 C106,140 96,140 90,134Z"/>' +
+      '<path d="M109,72 L111,60 L119,61 L118,73Z"/><path d="M104,47 C104,36 113,31 121,34 C129,37 132,46 130,54 C129,58 131,60 129,62 C126,65 120,66 115,64 C108,62 104,56 104,47Z"/>' +
+      pierna('a') + brazo('a') + '</g></g></svg>'
   }
   function estilos() { if ($('krCss')) return; var s = document.createElement('style'); s.id = 'krCss'; s.textContent = css; document.head.appendChild(s) }
 
