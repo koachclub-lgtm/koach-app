@@ -6,8 +6,11 @@
    · Aviso de descanso . notificación local al terminar el descanso con la app en segundo plano
    · Push remoto ....... KN.push.registrar()    → token del dispositivo (evento 'koach:push-token')
    · Sin conexión ...... lecturas de Supabase guardadas en el dispositivo + aviso en pantalla
-   · Botón atrás Android, barra de estado oscura, splash */
-import { Capacitor } from '@capacitor/core'
+   · Botón atrás Android, barra de estado oscura, splash
+   · RUN CLUB · GPS ..... KN.gps.iniciar(onPos, onErr) → id · KN.gps.detener(id)   (sigue con la pantalla apagada)
+   · RUN CLUB · Salud ... KN.salud.carreras(desdeISO) → carreras de Apple Salud / Health Connect (relojes, otras apps) */
+import { Capacitor, registerPlugin } from '@capacitor/core'
+import { Health } from 'capacitor-health'
 import { App } from '@capacitor/app'
 import { Camera, CameraResultType, CameraSource } from '@capacitor/camera'
 import { Network } from '@capacitor/network'
@@ -182,4 +185,52 @@ function iniciarSinConexion() {
   document.addEventListener('DOMContentLoaded', () => { document.head.appendChild(css)
     Network.getStatus().then((s) => estado(s.connected)).catch(() => {}) })
   Network.addListener('networkStatusChange', (s) => estado(s.connected))
+}
+
+
+/* ───────── RUN CLUB · GPS en segundo plano (pantalla apagada, música sonando) ─────────
+   Android: servicio en primer plano con notificación fija mientras dura la carrera. iOS: modo de fondo "location". */
+const BGeo = registerPlugin('BackgroundGeolocation')
+KN.gps = {
+  segundoPlano: nativo,
+  async iniciar(onPos, onErr) {
+    if (!nativo) return null
+    if (KN.plataforma === 'android') await permisoAvisos()   // Android 13+: la notificación fija necesita permiso
+    return BGeo.addWatcher({
+      backgroundTitle: 'KOACH · RUN CLUB',
+      backgroundMessage: 'Registrando tu carrera. Toca para volver a la app.',
+      requestPermissions: true, stale: false, distanceFilter: 0,
+    }, function (loc, err) {
+      if (err) { if (onErr) onErr({ code: err.code === 'NOT_AUTHORIZED' ? 1 : 2, message: err.message }); return }
+      if (loc && onPos) onPos({ coords: { latitude: loc.latitude, longitude: loc.longitude, accuracy: loc.accuracy, speed: loc.speed }, timestamp: loc.time || Date.now() })
+    })
+  },
+  async detener(id) { if (id) try { await BGeo.removeWatcher({ id }) } catch (_) {} },
+  ajustes() { return BGeo.openSettings().catch(() => {}) },
+}
+
+/* ───────── RUN CLUB · Apple Salud / Health Connect ─────────
+   Lee las carreras guardadas por el reloj u otras apps (Apple Watch, Garmin, Samsung…) para sumarlas a la racha y al ranking. */
+KN.salud = {
+  async disponible() { if (!nativo) return false; try { const r = await Health.isHealthAvailable(); return !!(r && r.available) } catch (_) { return false } },
+  async permisos() {
+    try { await Health.requestHealthPermissions({ permissions: ['READ_WORKOUTS', 'READ_DISTANCE', 'READ_ROUTE'] }); return true } catch (e) { console.warn('[KN.salud]', e); return false }
+  },
+  ajustes() { return (KN.plataforma === 'ios' ? Health.openAppleHealthSettings() : Health.openHealthConnectSettings()).catch(() => {}) },
+  async carreras(desdeISO) {
+    if (!nativo) return []
+    const { workouts } = await Health.queryWorkouts({ startDate: desdeISO, endDate: new Date().toISOString(), includeHeartRate: false, includeRoute: true, includeSteps: false })
+    return (workouts || []).filter(function (w) { return /running/i.test(String(w.workoutType || '')) }).map(function (w) {
+      const ini = new Date(w.startDate), fin = new Date(w.endDate)
+      return {
+        ext_id: String(w.id || (w.sourceBundleId || '') + '@' + w.startDate),
+        origen: KN.plataforma === 'ios' ? 'healthkit' : 'health_connect',
+        fuente: w.sourceName || '',
+        inicio: ini.toISOString(), fin: fin.toISOString(),
+        distancia_m: Math.round(+w.distance || 0),
+        duracion_s: Math.round(+w.duration || (fin - ini) / 1000),
+        ruta: (w.route || []).map(function (p) { return { lat: p.lat, lng: p.lng, t: Date.parse(p.timestamp) } }),
+      }
+    })
+  },
 }

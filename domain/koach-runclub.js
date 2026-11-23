@@ -190,6 +190,7 @@
           : '<p class="krSem">' + (nv.f - hechas === 1 ? 'TE FALTA 1 CARRERA' : 'TE FALTAN ' + (nv.f - hechas) + ' CARRERAS') + ' DE ' + nv.km + ' KM O MÁS ESTA SEMANA' + (racha ? ' PARA LLEVAR TU RACHA A ' + (racha + 1) : '') + '</p>') +
         '<button class="kcB kcB--p" type="button" onclick="KRUN.abrir()">INICIAR CARRERA</button>' +
         (s.puede_subir && sig(s.nivel) ? '<button class="kcB kcB--s krSub" type="button" onclick="KRUN._nivel(\'' + sig(s.nivel) + '\')">SUBIR A ' + NIV[sig(s.nivel)].t + '</button>' : '') +
+        (salud() ? '<button class="kcB kcB--s krSub" type="button" onclick="KRUN.sincronizar()">SUMAR CARRERAS DE ' + saludNombre() + '</button>' : '') +
         '<button class="kcB kcB--t krCam" type="button" onclick="KRUN.niveles()">CAMBIAR NIVEL</button>'
     }
     var rk = s.ranking || [], top = rk.slice(0, 5), yo = rk.filter(function (x) { return x.yo && x.pos > 5 })[0]
@@ -236,6 +237,7 @@
     var h = cardHTML(); if (c._h !== h) { c.innerHTML = h; c._h = h }
     if (!R.anim) { R.anim = true; c.classList.add('krAnim') }
     if (!R.st && !R.cargando) { R.cargando = true; cargar().then(function () { R.cargando = false; if (R.st) montar(v) }) }
+    if (R.st && R.st.inscrito) sincronizar(false)
   }
   function repintar() { var v = $('vClub'); if (v && v.classList.contains('on')) montar(v) }
 
@@ -251,6 +253,8 @@
     try { localStorage.setItem(LS, JSON.stringify({ t0: R.t0, p: R.pts.map(function (p) { return [+p.lat.toFixed(6), +p.lng.toFixed(6), p.t, Math.round(p.acc || 0)] }) })) } catch (_) {} }
   function limpiarLS() { try { localStorage.removeItem(LS) } catch (_) {} }
 
+  function nat() { try { return !!(window.KN && KN.nativo && KN.gps) } catch (_) { return false } }
+  function txtPantalla() { return nat() ? 'PUEDES BLOQUEAR LA PANTALLA Y ESCUCHAR MÚSICA: EL GPS SIGUE REGISTRANDO.' : 'MANTÉN LA APP ABIERTA Y LA PANTALLA ENCENDIDA.' }
   function abrir() {
     if (R.watch != null) { pintarVivo(); return }
     if (R.st && !R.st.inscrito && !pendiente()) { niveles(); return }
@@ -263,16 +267,19 @@
     if (!('geolocation' in navigator)) { aviso('Este teléfono no permite usar el GPS desde el navegador.'); return }
     pintar('<p class="krK">1% CLUB · CHALLENGE</p><h2 class="krH1 krRun" style="font-size:52px;transform:skewX(-8deg)">RUN CLUB</h2>' +
       '<div class="krFig">' + corredor() + '</div><p class="krFirma">Registramos tu ruta con el GPS y guardamos la distancia.</p>' +
-      '<p class="krTx">MANTÉN LA APP ABIERTA Y LA PANTALLA ENCENDIDA MIENTRAS CORRES. CUENTA DESDE 300 M Y 3 MINUTOS.</p>',
+      '<p class="krTx">' + txtPantalla() + ' CUENTA DESDE 300 M Y 3 MINUTOS.</p>',
       '<button class="kcB kcB--p" type="button" onclick="KRUN._iniciar()">INICIAR CARRERA</button><button class="kcB kcB--t" type="button" onclick="KRUN.cerrar()">AHORA NO</button>')
   }
   function iniciar(retomar) {
     var p = retomar ? pendiente() : null
     R.pts = p ? p.p.map(function (a) { return { lat: a[0], lng: a[1], t: a[2], acc: a[3] } }) : []
     R.t0 = p ? p.t0 : Date.now(); R.acc = null; R.err = null; R.ult = 0; R.res = null
-    try { R.watch = navigator.geolocation.watchPosition(punto, errorGps, { enableHighAccuracy: true, maximumAge: 0, timeout: 20000 }) }
-    catch (e) { aviso('No se pudo iniciar el GPS.'); return }
-    wake(true); snd('go'); try { navigator.vibrate && navigator.vibrate(60) } catch (_) {}
+    if (nat()) { R.watch = 'nativo'; KN.gps.iniciar(punto, errorGps).then(function (id) { R.watchNat = id }).catch(function () { errorGps({ code: 2 }) }) }
+    else {
+      try { R.watch = navigator.geolocation.watchPosition(punto, errorGps, { enableHighAccuracy: true, maximumAge: 0, timeout: 20000 }) }
+      catch (e) { aviso('No se pudo iniciar el GPS.'); return }
+    }
+    if (!nat()) wake(true); snd('go'); try { navigator.vibrate && navigator.vibrate(60) } catch (_) {}
     persistir(true); pintarVivo()
     clearInterval(R.tick); R.tick = setInterval(actualizar, 1000)
   }
@@ -288,12 +295,12 @@
       '<button class="kcB kcB--p" type="button" onclick="KRUN.abrir()">REINTENTAR</button><button class="kcB kcB--t" type="button" onclick="KRUN.cerrar()">CERRAR</button>') }
     actualizar()
   }
-  function parar() { if (R.watch != null) try { navigator.geolocation.clearWatch(R.watch) } catch (_) {} R.watch = null; clearInterval(R.tick); R.tick = null; wake(false) }
+  function parar() { if (R.watch === 'nativo') { KN.gps.detener(R.watchNat); R.watchNat = null } else if (R.watch != null) try { navigator.geolocation.clearWatch(R.watch) } catch (_) {} R.watch = null; clearInterval(R.tick); R.tick = null; wake(false) }
 
   function pintarVivo() {
     pintar('<p class="krK">RUN CLUB · EN CURSO</p><div class="krBig"><span id="krKm">0,00</span><small>KILÓMETROS</small></div>' +
       '<div class="krGr"><div><b id="krTi">00:00</b><span>TIEMPO</span></div><div><b id="krRi">--:--</b><span>RITMO /KM</span></div><div><b id="krPu">0</b><span>PUNTOS GPS</span></div></div>' +
-      '<p class="krGps" id="krGps"><i></i>BUSCANDO SEÑAL GPS…</p><div class="krFigL">' + corredor() + '</div><p class="krTx">MANTÉN LA APP ABIERTA Y LA PANTALLA ENCENDIDA.</p>',
+      '<p class="krGps" id="krGps"><i></i>BUSCANDO SEÑAL GPS…</p><div class="krFigL">' + corredor() + '</div><p class="krTx">' + txtPantalla() + '</p>',
       '<button class="kcB kcB--p" type="button" onclick="KRUN._terminar()">TERMINAR CARRERA</button><button class="kcB kcB--t" type="button" onclick="KRUN._cancelar()">CANCELAR</button>')
     actualizar()
   }
@@ -359,7 +366,31 @@
   function cancelar() { if (!confirm('¿Cancelar la carrera? Se pierde el recorrido.')) return; parar(); limpiarLS(); R.pts = []; cerrar() }
   function terminarPend() { var p = pendiente(); if (!p) { abrir(); return } R.t0 = p.t0; R.pts = p.p.map(function (a) { return { lat: a[0], lng: a[1], t: a[2], acc: a[3] } }); terminar() }
 
-  window.KRUN = { montar: montar, miniHTML: miniHTML, cargar: cargar, abrir: abrir, niveles: niveles, _nivel: elegirNivel, cerrar: function () { cerrar(); repintar() },
+  /* ── app nativa: carreras de Apple Salud / Health Connect (relojes y otras apps) ── */
+  function salud() { try { return !!(window.KN && KN.nativo && KN.salud) } catch (_) { return false } }
+  function saludNombre() { try { return KN.plataforma === 'ios' ? 'APPLE SALUD' : 'HEALTH CONNECT' } catch (_) { return 'SALUD' } }
+  async function sincronizar(manual) {
+    if (!salud() || R.sincronizando) return
+    if (!manual) { try { if (localStorage.getItem('kr_salud') !== '1' || Date.now() - (+localStorage.getItem('kr_salud_at') || 0) < 6 * 3600e3) return } catch (_) { return } }
+    R.sincronizando = true
+    try {
+      if (!(await KN.salud.disponible())) { if (manual) aviso((KN.plataforma === 'ios' ? 'Apple Salud' : 'Health Connect') + ' no está disponible en este teléfono.'); return }
+      if (manual && !(await KN.salud.permisos())) { aviso('Sin permiso para leer tus carreras.'); return }
+      var desde = new Date(Date.now() - 30 * 864e5).toISOString()
+      var L = (await KN.salud.carreras(desde)).map(function (c) {
+        var ruta = ''; try { if (c.ruta && c.ruta.length && window.KRuta) ruta = KRuta.polyline(KRuta.limpiar(c.ruta.map(function (p) { return { lat: p.lat, lng: p.lng, t: p.t } }), { precisionMax: 1e9 })) } catch (_) {}
+        return { ext_id: c.ext_id, origen: c.origen, fuente: c.fuente, inicio: c.inicio, fin: c.fin, distancia_m: c.distancia_m, duracion_s: c.duracion_s, ruta: ruta }
+      })
+      try { localStorage.setItem('kr_salud', '1'); localStorage.setItem('kr_salud_at', String(Date.now())) } catch (_) {}
+      if (!L.length) { if (manual) aviso('No encontramos carreras de los últimos 30 días.'); return }
+      var r = await rpc('club_run_importar', { p_carreras: L.slice(-200) })
+      R.st = r; repintar()
+      if (manual || r.importadas) aviso(r.importadas ? (r.importadas === 1 ? '1 carrera sumada desde ' : r.importadas + ' carreras sumadas desde ') + saludNombre().toLowerCase().replace(/\b\w/g, function (x) { return x.toUpperCase() }) + '.' : 'Tus carreras ya estaban al día.')
+    } catch (e) { console.error('salud', e); if (manual) aviso('No se pudieron leer tus carreras.') }
+    finally { R.sincronizando = false }
+  }
+
+  window.KRUN = { sincronizar: function () { return sincronizar(true) }, montar: montar, miniHTML: miniHTML, cargar: cargar, abrir: abrir, niveles: niveles, _nivel: elegirNivel, cerrar: function () { cerrar(); repintar() },
     _iniciar: function () { iniciar(false) }, _retomar: function () { iniciar(true) }, _terminar: function () { if (confirm('¿Terminar la carrera?')) terminar() },
     _cancelar: cancelar, _descartar: descartar, _guardar: guardar, _terminarPend: terminarPend, _estado: function () { return R } }
 })()
