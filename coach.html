@@ -4960,8 +4960,8 @@ function pintarSala(){
         :'<button class="bbtn ok" onclick="validar(\''+r.id+'\')">VALIDAR ✓</button>')+'</div>'
     }).join('')+(_ho.length>4&&!window._hoyTodo?'<button type="button" class="kTray__m" onclick="window._hoyTodo=1;pintarSala()">VER TODAS ('+_ho.length+')</button>':'')+'</div></section>'
   }
-  // c325 · CICLOS: quién está en su última semana y quién ya terminó el ciclo sin empezar uno nuevo
-  { const cl=(C.socios||[]).map(function(x){ const ar=C.asig[x.id]; if (ar&&ar.revision_pendiente) return {id:x.id,k:'revisar',ciclo:ar.ciclo_actual||1,atraso:1e6}
+  // c325 · CICLOS (desactivado c332)
+  if (false) { const cl=(C.socios||[]).map(function(x){ const ar=C.asig[x.id]; if (ar&&ar.revision_pendiente) return {id:x.id,k:'revisar',ciclo:ar.ciclo_actual||1,atraso:1e6}
       const e=cicloEstado(ar); return e&&e.k&&(typeof adMemVigente!=='function'||adMemVigente(x.id))?Object.assign({id:x.id},e):null }).filter(Boolean)
       .sort(function(p,q){ return (q.k==='revisar')-(p.k==='revisar') || (q.k==='pasado')-(p.k==='pasado') || q.atraso-p.atraso })
     if (cl.length){ const nR=cl.filter(function(c){return c.k==='revisar'}).length, nP=cl.filter(function(c){return c.k==='pasado'}).length, nU=cl.length-nP-nR, ver=window._cicTodo?cl:cl.slice(0,5)
@@ -10725,7 +10725,7 @@ function gpPintar(){
   else if (!st.tiene_ejecucion) pri='REEMPLAZAR PLANIFICACIÓN'
   else pri = mismo ? 'INICIAR NUEVO CICLO' : 'CAMBIAR PROGRAMA · NUEVO CICLO'
   // c327 · mismo programa con historial: por defecto CONTINÚA su rutina vigente (sesiones por semana, ejercicios y cargas) en el ciclo nuevo
-  if (st.activo && st.tiene_ejecucion && mismo && (+st.total||6)>1){   // c331 · una clase DEMO (1 semana) nunca se continúa: se asigna desde la base
+  if (false && st.activo && st.tiene_ejecucion && mismo && (+st.total||6)>1){   // c332 · desactivado   // c331 · una clase DEMO (1 semana) nunca se continúa: se asigna desde la base
     const bs=gpBase(), def=+((bs&&bs.ciclo_semanas)||st.total||6); if (!GP.sem) GP.sem=def
     h+='<div class="gpLbl">DURACIÓN DEL CICLO NUEVO</div><div class="gpChips gpChips--n">'+[4,6,8,10,12].map(function(n){ return '<button type="button" class="gpChip'+(n===GP.sem?' on':'')+'" onclick="GP.sem='+n+';gpPintar()"><b>'+n+' SEM</b>'+(n===def?'<small>BASE</small>':'')+'</button>' }).join('')+'</div>'
     h+='<button type="button" class="mSG__ok gpGo" onclick="gpConfirmar(false,true)">CONTINUAR SU RUTINA · CICLO '+(st.ciclo+1)+'</button>'+
@@ -11204,6 +11204,7 @@ function scCiclosInner(L){ if(!L||!L.length) return ''
     '</div>' }
 // c327 · en el planificador: CICLO 1 · CICLO 2 · CICLO 3 (los cerrados se abren completos en solo lectura)
 async function plCyPintar(fid, pid){ const el=document.getElementById('plCy'); if(!el) return
+  el.hidden=true; el.innerHTML=''; return   // c332 · desactivado
   if (!fid){ el.hidden=true; el.innerHTML=''; return }
   const L=await scCiclosCargar(fid); if (!L || L.length<2 || !F || F.id!==fid){ el.hidden=true; el.innerHTML=''; return }
   el.hidden=false
@@ -11211,7 +11212,7 @@ async function plCyPintar(fid, pid){ const el=document.getElementById('plCy'); i
     return '<button type="button" class="'+(on?'on':'')+'" onclick="'+(on?'':c.activo?'plRecargarActual()':'gpVerAnterior(\''+c.protocolo_id+'\')')+'">CICLO '+c.ciclo+(c.activo?' · ACTUAL':' · '+plEsc(c.programa||''))+'</button>' }).join('') }
 async function plRecargarActual(){ if(!F) return; const a=C.asig[F.id]; if(!a) return; vista('vPlan'); plReset(); await abrirPlan(a.protocolo_id, a.protocolos||null, {}) }
 async function cicNuevo(id){ if (!F || F.id!==id){ verFicha(id); await new Promise(function(r){ setTimeout(r,450) }) } gpAbrir() }
-function scCicloAviso(){ if(!F) return ''
+function scCicloAviso(){ return ''   // c332 · avisos de ciclo desactivados
   const ar=C.asig[F.id]
   if (ar && ar.revision_pendiente) return '<div class="cicAv cicAv--rev" role="status"><div><small>CICLO '+(ar.ciclo_actual||1)+' NUEVO · REVISAR PLANIFICACIÓN</small><b>Este ciclo necesita tus modificaciones</b>'+
     '<span>'+plEsc(ar.revision_nota||'Se creó un ciclo nuevo: revisa ejercicios, cargas y progresión.')+'</span></div><div class="cicAv__b"><button type="button" class="tbB" onclick="location.hash=\'#/socio/'+F.id+'/plan?w=1\'">ABRIR PLANIFICADOR</button><button type="button" class="tbB tbB--gh" onclick="cicRevisado(\''+ar.id+'\')">MARCAR REVISADO</button></div></div>'
