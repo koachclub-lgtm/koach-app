@@ -54,7 +54,7 @@ function timeline(c){ c=norm(c); const out=[]; let ex=0
 function porVueltas(c,n,legacy){ c=norm(c); n=parseInt(n,10)||0; if((c.modo!=='tabata'&&c.modo!=='emom') || n<1) return c
   if (c.rondas===n){ c.vt=1; return c }
   if (legacy==null) legacy=!c.vt
-  const v = legacy ? Math.max(1,Math.min(10,Math.round(c.rondas*c.series/n))) : c.series
+  const v = (legacy && c.modo==='tabata') ? Math.max(1,Math.min(10,Math.round(c.rondas*c.series/n))) : c.series   // v1.7.1 · EMOM antiguo: las series se conservan (no se recalculan)
   return norm(Object.assign({}, c, { rondas:n, series:v, vt:1 })) }
 const total = c => timeline(c).reduce((a,x)=>a+(x.k==='prep'?0:x.d),0)
 const mmss = s => { s=Math.max(0,Math.round(s)); return String(Math.floor(s/60)).padStart(2,'0')+':'+String(s%60).padStart(2,'0') }

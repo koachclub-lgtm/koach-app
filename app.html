@@ -1744,7 +1744,7 @@ html:has(#vSesion.esf.on),html:has(#vSesion.esf.on) body{background:#C9CBCE url(
 <script src="/domain/koach-compras.js"></script>
 <script src="/domain/koach-sfx.js?v=264"></script>
 <script src="/domain/koach-avatar.js"></script>
-<script src="/domain/koach-timer.js?v=8"></script>
+<script src="/domain/koach-timer.js?v=9"></script>
 <script src="/domain/koach-ruta.js?v=1"></script>
 <script src="/domain/koach-runclub.js?v=8"></script>
 <script src="/domain/koach-estrictos.js?v=6"></script>
@@ -8381,7 +8381,9 @@ function bkSiguiente(){ const bfs=S._bfs||[]; const prim=bkPrimerPendiente(bfs);
 function bkTimer(){ const b=(S._bfs||[])[BK.bi]; if(!b||!b.timer||!window.KTIMER) return
   kHaptic(12); kAudioUnlock(); bkRestFin(true)
   const exs=bkBes(b).map(be=>{ const ej=be.ejercicios||{}, w=seedWk(be,ej); return { nombre:ej.nombre||'—', reps:bkPres(w,ej), foto:exFotoUrl(ej) } })
-  KTIMER.play(b.timer, { ejercicios:exs, titulo:bkCod(b,BK.bi)+' · '+(b.etiqueta?b.etiqueta.toUpperCase():bkNom(b,BK.bi)), sonido:kSonidoOn,
+  // c330 · EMOM: una ronda por ejercicio y las series del bloque, aunque el timer guardado venga de un formato antiguo
+  let _tc=b.timer; { const _n=KTIMER.norm(_tc); if (_n.modo==='emom' && exs.length && (_n.rondas!==exs.length || !_tc.vt)) _tc=Object.assign({},_tc,{ rondas:exs.length, series:Math.max(1,Math.min(10,+b.sets||_n.series||1)), vt:1 }) }
+  KTIMER.play(_tc, { ejercicios:exs, titulo:bkCod(b,BK.bi)+' · '+(b.etiqueta?b.etiqueta.toUpperCase():bkNom(b,BK.bi)), sonido:kSonidoOn,
     onFinish: bloqueCompleto(b) ? null : function(){ bkFinishAll() }, onClose: function(){ bkPintar() } }) }
 /* ── descanso con reloj de pared ── */
 function bkRestIni(b){ try{ kAvisoPreparar() }catch(_){ } BK.rest={ bId:b.id, dur:bkDesc(b), inicio:Date.now(), ajuste:0, fin:Date.now()+bkDesc(b)*1000, regId:S.regId }
