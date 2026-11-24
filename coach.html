@@ -11189,14 +11189,14 @@ async function cicRevisado(aid){ const r=await sb.rpc('koach_ciclo_revisado',{ p
 const SCY={}
 async function scCiclosCargar(id){ if (SCY[id]&&SCY[id].t>Date.now()-60000) return SCY[id].d
   const r=await sb.rpc('koach_ciclos',{ p_socio:id }); if(r.error) return null; SCY[id]={t:Date.now(), d:r.data||[]}; return SCY[id].d }
-function scCiclosHtml(){ if(!F) return ''
+function scCiclosHtml(){ if(!F || !SC.cyVer) return ''   // c328 · oculto por defecto: se abre desde HERRAMIENTAS → HISTORIAL DE CICLOS
   const L=(SCY[F.id]&&SCY[F.id].d)||null; if(!L){ scCiclosCargar(F.id).then(function(d){ if(d&&F&&document.getElementById('scCy')) scCiclosPintar() }); return '<div id="scCy" class="scCy"></div>' }
   return '<div id="scCy" class="scCy">'+scCiclosInner(L)+'</div>' }
 function scCiclosPintar(){ const el=document.getElementById('scCy'); if(el&&F&&SCY[F.id]) el.innerHTML=scCiclosInner(SCY[F.id].d) }
 function scCiclosInner(L){ if(!L||!L.length) return ''
   const sel = SC.cy!=null && L[SC.cy] ? SC.cy : L.length-1, c=L[sel]
   const fm=function(d){ if(!d) return '—'; const x=new Date(String(d).slice(0,10)+'T12:00:00'); return x.getDate()+' '+ADH_MES[x.getMonth()] }
-  return '<div class="scCy__h"><span>HISTORIAL DE CICLOS</span><div class="scCy__t">'+L.map(function(x,i){ return '<button type="button" class="'+(i===sel?'on':'')+'" onclick="SC.cy='+i+';scCiclosPintar()">CICLO '+x.ciclo+(x.activo?' · ACTUAL':'')+'</button>' }).join('')+'</div></div>'+
+  return '<div class="scCy__h"><span>HISTORIAL DE CICLOS</span><div class="scCy__t"><button type="button" onclick="SC.cyVer=false;scPintar()" aria-label="Cerrar historial">✕ CERRAR</button>'+L.map(function(x,i){ return '<button type="button" class="'+(i===sel?'on':'')+'" onclick="SC.cy='+i+';scCiclosPintar()">CICLO '+x.ciclo+(x.activo?' · ACTUAL':'')+'</button>' }).join('')+'</div></div>'+
     '<div class="scCy__b"><div class="scCy__m"><div><small>PROGRAMA</small><b>'+plEsc((c.programa||'')+' '+(GP_NIV[c.nivel]||c.nivel||''))+'</b><span>'+c.semanas+' SEMANAS · '+fm(c.inicio)+' – '+fm(c.fin)+'</span></div>'+
       '<div><small>SESIONES</small><b>'+c.sesiones+'</b><span>'+c.sets+' SETS</span></div><div><small>TONELAJE</small><b>'+(c.tonelaje>=1000?(Math.round(c.tonelaje/100)/10).toString().replace('.',',')+'K':c.tonelaje)+'</b><span>KG MOVIDOS</span></div>'+
       '<div class="scCy__go"><button type="button" class="tbB tbB--ink" onclick="'+(c.activo?'location.hash=\'#/socio/'+F.id+'/plan?w=1\'':'gpVerAnterior(\''+c.protocolo_id+'\')')+'">VER CICLO COMPLETO →</button></div></div>'+
@@ -11355,8 +11355,9 @@ function fxHerr(){
   const m=w.querySelector('.plTools__m'); m.innerHTML=''
   const ds=src.find(function(b){return b.id==='dsBtn'}), resto=src.filter(function(b){return b!==ds})
   const nb=document.createElement('button'); nb.type='button'; nb.textContent='✎ NOMBRE Y AJUSTES'; nb.setAttribute('onclick','fxSesOpc()'); nb.title='Cambiar nombre, duplicar o eliminar esta sesión'
+  const hc=document.createElement('button'); hc.type='button'; hc.textContent='◷ HISTORIAL DE CICLOS'; hc.setAttribute('onclick','SC.cyVer=true;scPintar();setTimeout(function(){var e=document.getElementById(\'scCy\');if(e)e.scrollIntoView({behavior:\'smooth\',block:\'start\'})},60)'); hc.title='Ciclo 1, 2, 3… y lo que progresó en cada uno'
   const rs=document.createElement('button'); rs.type='button'; rs.textContent='★ GUARDAR COMO RUTINA ESTÁNDAR'; rs.setAttribute('onclick','fxRutStd()'); rs.title='Crea una plantilla nueva en tu biblioteca con esta sesión'
-  ;[nb].concat(ds?[ds]:[]).concat(resto).concat(P&&!P.base?[rs]:[]).forEach(function(b){ b.setAttribute('role','menuitem'); m.appendChild(b) })
+  ;[nb].concat(ds?[ds]:[]).concat(resto).concat(P&&!P.base?[rs]:[]).concat(F?[hc]:[]).forEach(function(b){ b.setAttribute('role','menuitem'); m.appendChild(b) })
   const t=bar.querySelector(':scope > .plTools'); if(t) t.remove()
 }
 function fxCerrar(){ s4Son('scan-lock',0.6); if (F) rtIr(null,'#/socio/'+F.id) }
