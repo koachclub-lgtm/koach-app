@@ -6787,14 +6787,20 @@ function rtPlanSuscribir(uid){
 //  · sets ya ejecutados (set_registros) → intactos: se muestran desde su registro real.
 //  · sets NO ejecutados → toman la prescripción vigente (kg, reps, seg, sets, descanso, orden, nombres, ejercicios nuevos).
 //  · lo que el socio escribió a mano en un set aún no registrado → se respeta.
-//  · ejercicio quitado por el coach que el socio ya empezó → se conserva en su bloque.
+//  · ejercicio quitado o reemplazado por el koach → desaparece de la sesión (lo ya registrado queda en el historial). c333
 function aplicarEnSesion(nueva){
   const vieja=S.sesionAbierta||{}, conSets=new Set()
   Object.keys(S.setLog||{}).forEach(function(k){ if(k.indexOf('be:')===0) conSets.add(k.slice(3).split('#')[0]) })
   const bf=(nueva.bloquesFull||[]).map(function(b){ return Object.assign({},b,{ bloque_ejercicios:(b.bloque_ejercicios||[]).slice() }) })
+  // c333 · el koach manda: un ejercicio que el koach quitó o reemplazó ya NO se muestra (sus sets quedan en el historial).
+  // Si el mismo ejercicio volvió con otro id (bloque re-guardado), sus sets hechos se traspasan al id nuevo para no perder el avance.
   ;(vieja.bloquesFull||[]).forEach(function(b){ (b.bloque_ejercicios||[]).forEach(function(be){
-    if (conSets.has(be.id) && !bf.some(function(x){ return (x.bloque_ejercicios||[]).some(function(y){ return y.id===be.id }) })){
-      const tb=bf.find(function(x){ return x.id===b.id }) || bf.find(function(x){ return x.bloque===b.bloque }); if (tb) tb.bloque_ejercicios.push(be) } }) })
+    if (!conSets.has(be.id) || bf.some(function(x){ return (x.bloque_ejercicios||[]).some(function(y){ return y.id===be.id }) })) return
+    const tb=bf.find(function(x){ return x.id===b.id }) || bf.find(function(x){ return x.bloque===b.bloque }); if (!tb) return
+    const igual=(tb.bloque_ejercicios||[]).find(function(y){ return y.ejercicio_id===be.ejercicio_id && !conSets.has(y.id) }); if (!igual) return
+    Object.keys(S.setLog).forEach(function(k){ if (k.indexOf('be:'+be.id+'#')===0){ S.setLog['be:'+igual.id+k.slice(3+be.id.length)]=S.setLog[k]; delete S.setLog[k] } })
+    Object.keys(S.rw||{}).forEach(function(k){ if (k.indexOf(be.id+'#')===0){ S.rw[igual.id+k.slice(be.id.length)]=S.rw[k]; delete S.rw[k] } })
+    conSets.add(igual.id) }) })
   S.wk={}   // semilla de prescripción: se recalcula con la versión nueva
   Object.keys(S.rw||{}).forEach(function(k){ const r=S.rw[k]; if (!S.setLog[setKey(k.split('#')[0], +k.split('#')[1])] && !(r && r._man)) delete S.rw[k] })
   S.sesionAbierta=Object.assign({}, nueva, { bloquesFull:bf })
