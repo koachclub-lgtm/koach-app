@@ -10725,7 +10725,7 @@ function gpPintar(){
   else if (!st.tiene_ejecucion) pri='REEMPLAZAR PLANIFICACIÓN'
   else pri = mismo ? 'INICIAR NUEVO CICLO' : 'CAMBIAR PROGRAMA · NUEVO CICLO'
   // c327 · mismo programa con historial: por defecto CONTINÚA su rutina vigente (sesiones por semana, ejercicios y cargas) en el ciclo nuevo
-  if (st.activo && st.tiene_ejecucion && mismo){
+  if (st.activo && st.tiene_ejecucion && mismo && (+st.total||6)>1){   // c331 · una clase DEMO (1 semana) nunca se continúa: se asigna desde la base
     const bs=gpBase(), def=+((bs&&bs.ciclo_semanas)||st.total||6); if (!GP.sem) GP.sem=def
     h+='<div class="gpLbl">DURACIÓN DEL CICLO NUEVO</div><div class="gpChips gpChips--n">'+[4,6,8,10,12].map(function(n){ return '<button type="button" class="gpChip'+(n===GP.sem?' on':'')+'" onclick="GP.sem='+n+';gpPintar()"><b>'+n+' SEM</b>'+(n===def?'<small>BASE</small>':'')+'</button>' }).join('')+'</div>'
     h+='<button type="button" class="mSG__ok gpGo" onclick="gpConfirmar(false,true)">CONTINUAR SU RUTINA · CICLO '+(st.ciclo+1)+'</button>'+
