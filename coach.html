@@ -1271,24 +1271,24 @@ small{color:var(--koach-text-secondary)}
 .cicAv__b{display:flex;gap:8px;flex:none;flex-wrap:wrap}
 .cicAv .tbB--gh{background:transparent;color:#F4F3F0;border-color:rgba(244,243,240,.4)}
 .gpNota{font-size:12px;line-height:1.4;color:var(--koach-text-secondary);margin:8px 2px 12px}
-.scCy{margin-top:14px;border-radius:18px;background:var(--koach-surface);border:1px solid var(--koach-border);padding:14px 16px}
+.scCy{margin-top:14px;border-radius:18px;padding:14px 16px;color:#F4F3F0;background:linear-gradient(135deg,#1A1B1D 0%,#2A2C2F 50%,#151617 100%);border:1px solid rgba(255,255,255,.08)}
 .scCy:empty{display:none}
 .scCy__h{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
-.scCy__h>span{font:700 10px var(--font-mono);letter-spacing:.16em;color:var(--koach-ink)}
+.scCy__h>span{font:700 10px var(--font-mono);letter-spacing:.16em;color:#F4F3F0}
 .scCy__t{display:flex;gap:6px;flex-wrap:wrap}
-.scCy__t button{all:unset;cursor:pointer;padding:8px 12px;border-radius:999px;border:1px solid var(--koach-border-strong);font:700 9.5px var(--font-mono);letter-spacing:.1em;color:var(--koach-ink)}
-.scCy__t button.on{background:#121212;color:#F4F3F0;border-color:#121212}
+.scCy__t button{all:unset;cursor:pointer;padding:8px 12px;border-radius:999px;border:1px solid rgba(244,243,240,.25);font:700 9.5px var(--font-mono);letter-spacing:.1em;color:#F4F3F0}
+.scCy__t button.on{background:#F4F3F0;color:#121212;border-color:#F4F3F0}
 .scCy__m{display:grid;grid-template-columns:minmax(0,1.6fr) repeat(2,minmax(0,1fr)) auto;gap:12px;align-items:center;margin-top:12px}
-.scCy__m small,.scCy__l>small{display:block;font:700 8.5px var(--font-mono);letter-spacing:.14em;color:var(--koach-text-secondary)}
-.scCy__m b{display:block;font-family:var(--font-display);font-weight:800;font-size:22px;color:var(--koach-ink);line-height:1.15}
-.scCy__m span{display:block;font:500 9.5px var(--font-mono);letter-spacing:.06em;color:var(--koach-text-secondary)}
-.scCy__l{margin-top:12px;border-top:1px solid var(--koach-border);padding-top:10px}
-.scCy__l>div{display:grid;grid-template-columns:minmax(0,1fr) auto 56px;gap:10px;align-items:center;padding:6px 0;border-bottom:1px solid var(--koach-border)}
+.scCy__m small,.scCy__l>small{display:block;font:700 8.5px var(--font-mono);letter-spacing:.14em;color:rgba(244,243,240,.55)}
+.scCy__m b{display:block;font-family:var(--font-display);font-weight:800;font-size:22px;line-height:1.15;background:linear-gradient(180deg,#fff,#C9CBCE 55%,#8E9196);-webkit-background-clip:text;background-clip:text;color:transparent}
+.scCy__m span{display:block;font:500 9.5px var(--font-mono);letter-spacing:.06em;color:rgba(244,243,240,.55)}
+.scCy__l{margin-top:12px;border-top:1px solid rgba(255,255,255,.1);padding-top:10px}
+.scCy__l>div{display:grid;grid-template-columns:minmax(0,1fr) auto 56px;gap:10px;align-items:center;padding:6px 0;border-bottom:1px solid rgba(255,255,255,.08)}
 .scCy__l>div:last-child{border-bottom:0}
-.scCy__l span{font-size:13.5px;color:var(--koach-ink);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.scCy__l em{font:500 10px var(--font-mono);font-style:normal;color:var(--koach-text-secondary)}
-.scCy__l b{font:700 12px var(--font-mono);text-align:right;color:var(--koach-ink)}
-.scCy__l b.up{color:#1F8C7B}
+.scCy__l span{font-size:13.5px;color:#F4F3F0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.scCy__l em{font:500 10px var(--font-mono);font-style:normal;color:rgba(244,243,240,.55)}
+.scCy__l b{font:700 12px var(--font-mono);text-align:right;color:#F4F3F0}
+.scCy__l b.up{color:#3EC6B0}
 @media (max-width:760px){.scCy__m{grid-template-columns:1fr 1fr}.scCy__go{grid-column:1/-1}}
 .plCy{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin:6px 0 2px}
 .plCy>span{font:700 9.5px var(--font-mono);letter-spacing:.14em;color:var(--koach-text-secondary);margin-right:4px}
@@ -11199,7 +11199,7 @@ function scCiclosInner(L){ if(!L||!L.length) return ''
   return '<div class="scCy__h"><span>HISTORIAL DE CICLOS</span><div class="scCy__t"><button type="button" onclick="SC.cyVer=false;scPintar()" aria-label="Cerrar historial">✕ CERRAR</button>'+L.map(function(x,i){ return '<button type="button" class="'+(i===sel?'on':'')+'" onclick="SC.cy='+i+';scCiclosPintar()">CICLO '+x.ciclo+(x.activo?' · ACTUAL':'')+'</button>' }).join('')+'</div></div>'+
     '<div class="scCy__b"><div class="scCy__m"><div><small>PROGRAMA</small><b>'+plEsc((c.programa||'')+' '+(GP_NIV[c.nivel]||c.nivel||''))+'</b><span>'+c.semanas+' SEMANAS · '+fm(c.inicio)+' – '+fm(c.fin)+'</span></div>'+
       '<div><small>SESIONES</small><b>'+c.sesiones+'</b><span>'+c.sets+' SETS</span></div><div><small>TONELAJE</small><b>'+(c.tonelaje>=1000?(Math.round(c.tonelaje/100)/10).toString().replace('.',',')+'K':c.tonelaje)+'</b><span>KG MOVIDOS</span></div>'+
-      '<div class="scCy__go"><button type="button" class="tbB tbB--ink" onclick="'+(c.activo?'location.hash=\'#/socio/'+F.id+'/plan?w=1\'':'gpVerAnterior(\''+c.protocolo_id+'\')')+'">VER CICLO COMPLETO →</button></div></div>'+
+      '<div class="scCy__go"><button type="button" class="tbB" onclick="'+(c.activo?'location.hash=\'#/socio/'+F.id+'/plan?w=1\'':'gpVerAnterior(\''+c.protocolo_id+'\')')+'">VER CICLO COMPLETO →</button></div></div>'+
       ((c.top||[]).length?'<div class="scCy__l"><small>LO QUE MÁS PROGRESÓ · FUERZA MÁXIMA ESTIMADA</small>'+(c.top||[]).slice(0,5).map(function(t){ return '<div><span>'+plEsc(t.nombre)+'</span><em>'+String(t.ini).replace('.',',')+' → '+String(t.max).replace('.',',')+' KG</em><b class="'+(t.pct>0?'up':'')+'">'+(t.pct>0?'+':'')+t.pct+'%</b></div>' }).join('')+'</div>':'<div class="scCy__l"><small>SIN MARCAS SUFICIENTES EN ESTE CICLO</small></div>')+
     '</div>' }
 // c327 · en el planificador: CICLO 1 · CICLO 2 · CICLO 3 (los cerrados se abren completos en solo lectura)
