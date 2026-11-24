@@ -1266,6 +1266,17 @@ small{color:var(--koach-text-secondary)}
 .adhR__b button.ink{background:var(--koach-ink);color:var(--koach-control);border-color:var(--koach-ink)}
 .adhR__b button:disabled{opacity:.35;cursor:default}
 @media (max-width:820px){.adhR{grid-template-columns:minmax(0,1fr) 64px;row-gap:8px}.adhR__a{grid-column:1/-1;order:3}.adhR__k--w,.adhR__k--m{display:none}.adhR__b{grid-column:1/-1;order:4}}
+/* c334 · anamnesis: lo primero */
+.apUno{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin:14px 0 6px}
+.apUno>div{border-radius:14px;padding:12px 14px;background:#121212;color:#F4F3F0;min-width:0}
+.apUno small{display:block;font:700 9.5px var(--font-mono);letter-spacing:.14em;color:#B8BBBE;margin-bottom:5px}
+.apUno b{display:block;font-family:var(--font-display);font-weight:700;font-size:17px;line-height:1.25}
+.apUno b i{font-style:normal;font-weight:500;opacity:.7;font-size:14px}
+.apUno span{display:block;margin-top:3px;font-size:12.5px;opacity:.75;line-height:1.35}
+.apUno__fr{grid-column:1/-1}
+.apUno__fr{box-shadow:inset 0 0 0 1.5px #FF4200}
+.apUno__fr small{color:#FF6A33;opacity:1}
+@media (max-width:640px){.apUno{grid-template-columns:1fr}}
 /* c327 · ciclos: revisión e historial */
 .cicAv--rev{border-color:#3EC6B0;box-shadow:inset 0 0 0 1px #3EC6B0}
 .cicAv__b{display:flex;gap:8px;flex:none;flex-wrap:wrap}
@@ -5384,7 +5395,16 @@ function apPintar(){
   const saludHTML = hayV2
     ? salud('PATOLOGÍAS · DIAGNÓSTICOS',A.patologias,'Ninguna')+salud('LESIONES · CIRUGÍAS',A.lesiones,'Ninguna')+salud('DOLOR O MOLESTIA HOY',A.dolor,'No, me siento bien')
     : salud('LESIÓN O MOLESTIA',A.salud,'Ninguna')
-  box.innerHTML=head+apLectura(A,c)+apPerfil(A)+apGuion(A,c,nom)+apEstrategia(A)+
+  // c334 · LO PRIMERO: dónde entrenó, hace cuánto no entrena, objetivo, días que quiere y su frustración
+  const dondeE=c.h.length ? c.h.slice(0,2).map(function(e){ return bxEsc(e.lugar||e.disc||'—')+(e.lugar&&e.disc?' <i>· '+bxEsc(e.disc)+'</i>':'')+(e.dur!=null?' <i>· '+AP_DUR[e.dur]+'</i>':'') }).join('<br>') : bxEsc(exTxt)
+  const frusE=(A.frustra||[]).map(function(f){ return bxEsc((AP_PILAR[f]||[f])[0]) }).join(' · ')
+  const lo1='<div class="apUno">'+
+    '<div><small>DÓNDE ENTRENÓ</small><b>'+dondeE+'</b></div>'+
+    '<div><small>HACE CUÁNTO NO ENTRENA</small><b>'+bxEsc(ult)+'</b></div>'+
+    '<div><small>OBJETIVO</small><b>'+bxEsc(AP_OBJ[A.objetivo]||'—')+'</b>'+(focoTxt&&focoTxt!=='—'?'<span>'+bxEsc(focoTxt)+'</span>':'')+'</div>'+
+    '<div><small>DÍAS QUE QUIERE ENTRENAR</small><b>'+(t.dias?t.dias+' días':'—')+'</b>'+(t.hor||t.min?'<span>'+bxEsc([t.min,t.hor].filter(Boolean).join(' · ').toLowerCase())+'</span>':'')+'</div>'+
+    '<div class="apUno__fr"><small>SU FRUSTRACIÓN</small><b>'+(frusE||'—')+'</b>'+(A.frustraTxt?'<span>"'+bxEsc(A.frustraTxt)+'"</span>':'')+'</div></div>'
+  box.innerHTML=head+lo1+apLectura(A,c)+apPerfil(A)+apGuion(A,c,nom)+apEstrategia(A)+
     '<div class="apSec">DATOS CLAVE</div><div class="apDs">'+
       dato('EDAD',edad?edad+' años':'—')+dato('ÚLTIMA VEZ QUE ENTRENÓ',ult)+dato('MÁXIMO SEGUIDO',maxTxt)+
       (A.energia?dato('ENERGÍA',A.energia+'/5 · '+AP_ENER[A.energia]):'')+
