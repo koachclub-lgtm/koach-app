@@ -1375,6 +1375,7 @@ small{color:var(--koach-text-secondary)}
 @media (max-width:900px){.dgM{grid-template-columns:1fr 1fr}.dgCols,.dgG{grid-template-columns:1fr}}
 /* c9.5 · la interfaz no ofrece lo que el rol no puede hacer (la base lo impone igual) */
 .mh__st--hor{margin-left:8px}
+.mh__st--tyc{margin-left:8px}
 .vtPlanR{margin:0 0 12px;grid-column:1/-1}
 .kTray--hor .kTray__h span{color:#121212}
 .kTray--hor{border-color:#121212}
@@ -4208,7 +4209,7 @@ textarea.avz__in{min-height:70px;resize:vertical}
       <button class="sback mh__back" onclick="verSala()" aria-label="Volver a la Sala">←</button>
       <button type="button" class="mh__av" id="fAvBtn" onclick="fichaFoto()" aria-label="Foto del socio"></button>
       <div class="mh__id">
-        <div class="mh__n"><h1 class="stit" id="fNombre">—</h1><span class="mh__st" id="fEstado">ACTIVA</span><span class="mh__st mh__st--hor" id="fHor" hidden></span><button type="button" class="mh__st mh__st--bn" id="fBn" hidden onclick="bnFichaVer()"></button></div>
+        <div class="mh__n"><h1 class="stit" id="fNombre">—</h1><span class="mh__st" id="fEstado">ACTIVA</span><span class="mh__st mh__st--hor" id="fHor" hidden></span><span class="mh__st mh__st--tyc" id="fTyc" hidden></span><button type="button" class="mh__st mh__st--bn" id="fBn" hidden onclick="bnFichaVer()"></button></div>
         <div class="mh__code" id="fCode">KOACH MEMBER</div>
         <div class="mh__prog" id="fMeta">—</div>
         <button type="button" class="fpBadge" id="fpBadge" onclick="gpAbrir()" hidden></button>
@@ -5442,6 +5443,20 @@ async function apProponer(pid){ if(!AP||AP.run) return
 function salaReset(){ const i=document.getElementById('salaQ'); if(!i || !i.value) return; i.value=''; try{ i.blur() }catch(_){}; salaBuscar() }
 function verSala(){ vista('vSala'); salaReset(); pintarSala(); rtSet('#/', 'Sala | KOACH'); socRTSeguir(null) }
 
+// c338 · T&C: aceptación y consentimientos del socio (tyc_aceptaciones · última fila manda)
+async function fTycPintar(id){
+  const el=document.getElementById('fTyc'); if(!el) return; el.hidden=true
+  try{
+    const [rv,ra]=await Promise.all([ sb.rpc('koach_tyc_version'), sb.from('tyc_aceptaciones').select('version,created_at,consent_imagen,consent_comercial').eq('socio_id',id).order('created_at',{ascending:false}).limit(1) ])
+    if (!F||F.id!==id||ra.error) return
+    const v=rv.data, u=(ra.data||[])[0]
+    if (u && u.version===v){
+      el.textContent='T&C ✓'+(u.consent_imagen?' · IMAGEN ✓':' · SIN IMAGEN'); el.classList.remove('mh__st--alert')
+      el.title='Aceptó '+u.version+' el '+new Date(u.created_at).toLocaleString('es-CL')+' · imagen: '+(u.consent_imagen?'sí':'no')+' · promociones: '+(u.consent_comercial?'sí':'no')
+    } else { el.textContent='T&C PENDIENTE'; el.classList.add('mh__st--alert'); el.title=u?('Aceptó '+u.version+'; falta '+v):'Aún no acepta los términos: se le piden al abrir la app' }
+    el.hidden=false
+  }catch(_e){}
+}
 function verFicha(id, sinRuta){
   accBan._sid=null; const _ab=document.getElementById('fAccBan'); if(_ab) _ab.innerHTML=''
   F = C.socios.find(function(s){return s.id===id}); if(!F) return
@@ -5452,7 +5467,7 @@ function verFicha(id, sinRuta){
   const MES3=['ENE','FEB','MAR','ABR','MAY','JUN','JUL','AGO','SEP','OCT','NOV','DIC']
   const d=F.created_at?new Date(F.created_at):null
   document.getElementById('fNombre').textContent=nomDe(id)
-  fichaAvatar()
+  fichaAvatar(); fTycPintar(id)
   AD.socioTab='ent'; if(document.getElementById('fTabEnt')){ document.getElementById('fTabEnt').style.display=''; document.getElementById('fTabAdm').style.display='none'; document.getElementById('fTabCmp').style.display='none'; document.getElementById('fTbCmp').classList.remove('on'); document.getElementById('fTabAdh').style.display=''; document.getElementById('fTbEnt').classList.add('on'); document.getElementById('fTbAdm').classList.remove('on'); document.getElementById('fTbAdh').classList.remove('on') }
   mhPintar(id); try{ fAdhCargar() }catch(_e){}
   if (document.documentElement.getAttribute('data-rol')==='nutricionista') fTab('cmp')

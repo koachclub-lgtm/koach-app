@@ -722,6 +722,18 @@ html.accBloq #pfCard, html.accBloq #vPerfil .kpc__f, html.accBloq #vPerfil [oncl
 .kCk__mk::before{content:"";position:absolute;left:0;right:0;top:4px;height:3px;background:rgba(11,11,12,.12)}
 .kCk__mk img{position:relative;display:block;max-width:100%;max-height:16px}
 .kCk__mk>span{position:relative;margin-top:5px}.kCk__mk[data-mk="mastercard"]>span{font-size:5.2px;letter-spacing:0}.kCk__mk[data-mk="redcompra"]>span{font-size:5.6px;letter-spacing:0}
+/* c338 · aceptación de T&C */
+.kTy .kAu__body{padding-top:3vh}
+.kTy__t{font:800 clamp(30px,9vw,44px)/.95 var(--font-display);letter-spacing:-.02em;text-transform:uppercase;margin-top:10px}
+.kTy__p{margin:10px 0 0;font-size:14px;line-height:1.5;color:rgba(246,245,242,.62)}
+.kTy__l{display:flex;flex-direction:column;gap:8px;margin:20px 0 16px}
+.kTy__i{border:1px solid rgba(246,245,242,.16);border-radius:14px;padding:12px 14px}
+.kTy__i span{display:block;font:700 10px var(--font-mono);letter-spacing:.14em;color:rgba(246,245,242,.55)}
+.kTy__i p{margin:6px 0 0;font-size:13.5px;line-height:1.45;color:rgba(246,245,242,.86)}
+.kTy__a{color:#F6F5F2;text-decoration:underline;text-underline-offset:3px}
+.kTy .kAu__chk{font-size:14.5px;padding:9px 0}
+.kTy__op{font:700 10px var(--font-mono);letter-spacing:.14em;color:rgba(246,245,242,.45);margin-top:10px}
+.kTy__err{min-height:18px;font:700 11px var(--font-mono);letter-spacing:.06em;color:#FF4200;text-align:center}
 .kAu{position:fixed;inset:0;z-index:2100;background:#0B0B0C;color:#F6F5F2;display:flex;flex-direction:column;animation:kHf .2s ease-out;padding:env(safe-area-inset-top) 0 env(safe-area-inset-bottom)}
 .kAu__top{display:flex;align-items:center;justify-content:space-between;padding:18px 22px 6px}
 .kAu__logo{width:104px;height:22px;background:#F6F5F2;-webkit-mask:url(/img/brand/logotipo-koach.png) no-repeat left center/contain;mask:url(/img/brand/logotipo-koach.png) no-repeat left center/contain}
@@ -6632,9 +6644,11 @@ async function entrar(opts){
     S.frases = (rCfg && rCfg.data && rCfg.data.frases) || null
     const memP = cargarMembresia()   // en paralelo con el resto (no depende del programa)
     if (/[?&](pago|susc|cobro|auto)=/.test(location.search)) memP.then(()=>flowRetorno()).catch(()=>{})   // vuelta desde Flow
-    if (!opts.silent && perfil.estado==='clase_prueba') anRevisar()   // c216 · clase de prueba: bienvenida + anamnesis antes de la demo
-    else if (!opts.silent && welcomeDebeMostrarse()) mostrarWelcome()
-    else if (!opts.silent) setTimeout(pedirFoto, 1500)
+    if (!opts.silent){ const _seguir=function(){   // c338 · primero T&C (una vez por versión); después el flujo de siempre
+      if (perfil.estado==='clase_prueba') anRevisar()   // c216 · clase de prueba: bienvenida + anamnesis antes de la demo
+      else if (welcomeDebeMostrarse()) mostrarWelcome()
+      else setTimeout(pedirFoto, 1500) }
+      tycRevisar().then(_seguir,_seguir) }
     const asig = rAsig.data
     if (!asig){ await memP; sinPrograma(perfil.estado==='clase_prueba' ? 'Tu koach está preparando tu <b>clase demo</b>. En unos minutos aparece aquí.' : undefined); return }
     S.asig = asig; S.proto = asig.protocolos
@@ -7207,6 +7221,70 @@ function onbDirPintar(){ const box=document.getElementById('onbDirBox'), el=docu
   const d=box.querySelector('#onbDir'); d.onclick=async()=>{ try{ _instEvt.prompt(); const r=await _instEvt.userChoice; _instEvt=null; if(r&&r.outcome==='accepted'){ try{ localStorage.setItem('koach_inst_ok','1') }catch(_e){} onbCerrar(el, onbTerminos) } else box.innerHTML='' }catch(_e){ box.innerHTML='' } } }
 /* PENDIENTE (Matías): términos y condiciones. Cuando exista el documento, aquí va la pantalla de aceptación (guardar fecha en profiles). */
 function onbTerminos(){ pedirFoto() }
+
+/* ═══ c338 · TÉRMINOS Y CONDICIONES ═══
+   Todo socio acepta la versión vigente una vez (y de nuevo cuando cambia): T&C + consentimiento A + declaración de salud (obligatorios),
+   B imagen y C comunicaciones por separado (opcionales). Queda en tyc_aceptaciones vía mi_tyc_aceptar. Nunca interrumpe una sesión en curso;
+   si la red falla no bloquea (se vuelve a pedir en la próxima apertura). */
+const TYC={ st:null, pend:null }
+function tycRevisar(){
+  if (TYC.pend) return TYC.pend
+  TYC.pend=(async function(){
+    if (TYC.st && TYC.st.aceptada) return true
+    let st=null; try{ const r=await sb.rpc('mi_tyc_estado'); if(!r.error) st=r.data }catch(_){}
+    TYC.st=st
+    if (!st || !st.requiere || st.aceptada) return true
+    if (document.querySelector('#vSesion.on')) return false
+    await tycMostrar(st); return true
+  })().finally(function(){ TYC.pend=null })
+  return TYC.pend
+}
+function tycMostrar(st){
+  return new Promise(function(fin){
+    if (document.getElementById('kTy')) return fin()
+    const chk=function(id,txt){ return '<label class="kAu__chk"><input type="checkbox" id="'+id+'"><span class="kAu__box" aria-hidden="true"></span><span>'+txt+'</span></label>' }
+    const it=function(k,t){ return '<div class="kTy__i"><span>'+k+'</span><p>'+t+'</p></div>' }
+    const bg=document.createElement('div'); bg.id='kTy'; bg.className='kAu kTy'; bg.setAttribute('role','dialog'); bg.setAttribute('aria-modal','true'); bg.setAttribute('aria-label','Términos y condiciones del club')
+    bg.innerHTML='<div class="kAu__top"><span class="kAu__logo" role="img" aria-label="KOACH"></span></div>'+
+      '<div class="kAu__body">'+
+        '<div class="kAu__k">TÉRMINOS DEL CLUB · <b>VERSIÓN '+String(st.version||'').replace(/^v/i,'')+'</b></div>'+
+        '<div class="kTy__t">'+(st.ultima?'Actualizamos<br>nuestros términos':'Antes de<br>entrenar')+'</div>'+
+        '<p class="kTy__p">Estos son los puntos clave. El texto completo está en los <a class="kTy__a" href="/terminos.html" target="_blank" rel="noopener">Términos y Condiciones</a>.</p>'+
+        '<div class="kTy__l">'+
+          it('SALUD · CL. 13','Declaras tu estado de salud, lesiones, medicamentos y embarazo, y avisas cualquier cambio. Entrenas lo que programa tu koach y te detienes y avisas ante dolor, mareo o malestar.')+
+          it('TUS DATOS · CL. 22','Tus datos de salud y entrenamiento se usan solo para planificarte. La inteligencia artificial apoya a tu koach y a la nutricionista; las decisiones las toma el equipo. No se venden.')+
+          it('TÉRMINO DEL PLAN · CL. 4 Y 9','El pago automático se termina desde la app con 30 días de aviso. Si tu plan tiene permanencia, salir antes cobra el descuento recibido. Los planes semestrales y anuales de pago único se devuelven descontando cada mes iniciado a $80.000. La inasistencia no da devolución.')+
+          it('HORARIO · CL. 12','Lunes a viernes 06:30 – 22:00, último ingreso 21:00. Sábados y festivos 09:00 – 15:00, último ingreso 14:00.')+
+        '</div>'+
+        chk('tyA','Leí y acepto los <b>Términos y Condiciones</b> del club.')+
+        chk('tyB','Autorizo a KOACH a tratar mis <b>datos de salud</b> para planificar y supervisar mi entrenamiento y nutrición.')+
+        chk('tyC','Declaro que informé <b>con verdad mi estado de salud</b> y que avisaré cualquier cambio.')+
+        '<div class="kTy__op">OPCIONALES</div>'+
+        chk('tyD','Autorizo el uso de mi <b>imagen</b> entrenando en redes y publicidad de KOACH.')+
+        chk('tyE','Quiero recibir <b>promociones y novedades</b> por correo y WhatsApp.')+
+      '</div>'+
+      '<div class="kAu__pie"><div class="kTy__err" id="tyErr" role="status"></div><button type="button" class="kAu__go" id="tyGo" disabled>ACEPTAR Y CONTINUAR</button><button type="button" class="kAu__no" id="tyNo">CERRAR SESIÓN</button></div>'
+    document.body.appendChild(bg)
+    const $=function(i){ return document.getElementById(i) }, go=$('tyGo')
+    const val=function(){ go.disabled=!($('tyA').checked && $('tyB').checked && $('tyC').checked) }
+    ;['tyA','tyB','tyC'].forEach(function(i){ $(i).addEventListener('change',val) })
+    $('tyNo').onclick=function(){ bg.remove(); fin(); try{ salir() }catch(_){} }
+    go.onclick=async function(){
+      if (go.disabled) return; go.disabled=true; go.textContent='GUARDANDO…'; $('tyErr').textContent=''
+      try{
+        const r=await sb.rpc('mi_tyc_aceptar',{ p_version:st.version, p_imagen:$('tyD').checked, p_comercial:$('tyE').checked, p_ua:navigator.userAgent })
+        if (r.error) throw r.error
+        TYC.st=r.data; bg.remove(); fin()
+      }catch(e){
+        const m=String((e&&e.message)||'')
+        if (/TYC_VERSION/.test(m)){ bg.remove(); try{ const r2=await sb.rpc('mi_tyc_estado'); if(!r2.error && r2.data && !r2.data.aceptada){ await tycMostrar(r2.data) } }catch(_){} return fin() }
+        $('tyErr').textContent='NO SE PUDO GUARDAR. REVISA TU CONEXIÓN E INTENTA DE NUEVO.'; go.textContent='ACEPTAR Y CONTINUAR'; val()
+      }
+    }
+  })
+}
+document.addEventListener('visibilitychange',function(){ if (document.visibilityState==='visible' && S && S.perfil && S.perfil.role==='socio' && !(TYC.st&&TYC.st.aceptada)) tycRevisar() })
+
 // ═══ v11.8 · FOTO DE PERFIL EN EL PRIMER ACCESO (opcional) ═══
 // Se pide una vez tras la bienvenida (o al primer acceso si ya la vio). OMITIR la descarta; siempre puede
 // agregarla después desde su Perfil. Usa el mismo editor/almacenamiento de siempre (KAvatar · profiles.avatar_path).
