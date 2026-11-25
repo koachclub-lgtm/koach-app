@@ -12681,7 +12681,7 @@ html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
   var enCanvas=function(e){ var t=e.target; return t && t.closest && t.closest('canvas') }
   // iOS ignora user-scalable=no: bloqueamos el pellizco y el doble toque a mano
   ['gesturestart','gesturechange','gestureend'].forEach(function(n){ document.addEventListener(n,function(e){ if(!enCanvas(e)) e.preventDefault() },{passive:false}) })
-  document.addEventListener('touchmove',function(e){ if(e.touches && e.touches.length>1 && !enCanvas(e)) e.preventDefault() },{passive:false})
+  // c340 · sin listener touchmove no pasivo en document: obligaba al navegador a esperar el JS antes de cada scroll (menú lento/pegado)
   // Android/PWA: intenta fijar vertical
   try{ if(screen.orientation && screen.orientation.lock) screen.orientation.lock('portrait').catch(function(){}) }catch(_){}
 })()
