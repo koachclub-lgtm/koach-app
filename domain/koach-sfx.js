@@ -110,28 +110,52 @@
   };
   /* c244 · SONIDO AL ABRIR: el logo del splash inicial intenta sonar junto con su video. El navegador solo lo permite sin un toque
      previo cuando la app está instalada en la pantalla de inicio (Android) o el sitio ya es de uso frecuente; si no, queda en silencio. */
-  /* c348 · el audio del logo se precarga al abrir (antes se creaba recién al partir el video y llegaba tarde) y se amarra al video:
-     parte en el mismo punto, se corrige si se desfasa más de 60 ms y se pausa si el video se queda cargando. */
-  var LOGO_A = null;
+  /* c349 · LOGO + SONIDO SIMULTÁNEOS en toda pantalla con el logo (inicio y transiciones).
+     El sonido no se dispara "al llamar": se amarra al PRIMER CUADRO que el video realmente pinta (requestVideoFrameCallback)
+     y parte en ese mismo punto del archivo. Si el video se queda cargando, el sonido se detiene y retoma en el punto del video.
+     Con el audio ya activo (tras un toque) usa el reloj de audio, exacto; si no, un audio precargado que se corrige solo. */
+  var LOGO_A = null, LOGO_V = null, LOGO_S = null;
   function logoPre() { if (!LOGO_A) { try { LOGO_A = new Audio('/sfx/logo.mp3'); LOGO_A.preload = 'auto'; LOGO_A.load() } catch (_) { LOGO_A = null } } return LOGO_A }
   if (on()) logoPre();
-  function logoEl(v) {
-    if (!on()) return;
+  function logoStop() {
+    try { if (LOGO_S) { LOGO_S.stop() } } catch (_) {} LOGO_S = null;
+    try { if (LOGO_A && !LOGO_A.paused) LOGO_A.pause() } catch (_) {}
+  }
+  function logoDesde(t, gain) {
+    logoStop(); if (!on()) return;
+    var c = ctx();
+    if (c && c.state === 'running' && buf.logo) {
+      if (t >= buf.logo.duration - 0.05) return;
+      try { var s = c.createBufferSource(), g = c.createGain(); s.buffer = buf.logo; g.gain.value = gain == null ? 1 : gain; s.connect(g); g.connect(c.destination); s.start(c.currentTime, Math.max(0, t)); LOGO_S = s } catch (_) {}
+      return;
+    }
     var a = logoPre(); if (!a) return;
     try {
-      var sync = function () { try { if (Math.abs(v.currentTime - a.currentTime) > 0.06) a.currentTime = Math.max(0, v.currentTime + 0.02) } catch (_) {} };
-      a.currentTime = Math.max(0, v.currentTime);
-      a.addEventListener('playing', sync, { once: true });
-      v.addEventListener('waiting', function () { try { a.pause() } catch (_) {} });
-      v.addEventListener('playing', function () { try { if (a.paused && !a.ended && v.currentTime < (a.duration || 9)) { sync(); var q = a.play(); if (q && q.catch) q.catch(function () {}) } } catch (_) {} });
-      v.addEventListener('ended', function () { try { a.pause() } catch (_) {} }, { once: true });
+      a.volume = gain == null ? 1 : gain; a.currentTime = Math.max(0, t);
+      a.addEventListener('playing', function () { try { var v = LOGO_V; if (v && Math.abs(v.currentTime - a.currentTime) > 0.05) a.currentTime = Math.max(0, v.currentTime + 0.03) } catch (_) {} }, { once: true });
       var p = a.play(); if (p && p.catch) p.catch(function () {});
     } catch (_) {}
   }
+  function logoSync(v, gain) {
+    if (!v || !on()) return;
+    LOGO_V = v; logoStop();
+    var tok = (logoSync.tok = (logoSync.tok || 0) + 1);
+    var arrancar = function (t) { if (tok !== logoSync.tok || LOGO_V !== v) return; logoDesde(t, gain) };
+    var primero = function () {
+      if (v.requestVideoFrameCallback) v.requestVideoFrameCallback(function (_n, m) { arrancar((m && m.mediaTime) || v.currentTime) });
+      else arrancar(v.currentTime);
+    };
+    if (!v.paused && v.readyState >= 3 && v.currentTime > 0) primero(); else v.addEventListener('playing', primero, { once: true });
+    if (!v._kLogoW) { v._kLogoW = 1
+      v.addEventListener('waiting', function () { if (LOGO_V === v) logoStop() });
+      v.addEventListener('playing', function () { if (LOGO_V === v && v.currentTime > 0.05 && !LOGO_S && LOGO_A && LOGO_A.paused) logoDesde(v.currentTime, gain) });
+      v.addEventListener('ended', function () { if (LOGO_V === v) { LOGO_V = null } });
+    }
+  }
+  KSFX.logoSync = logoSync; KSFX.logoStop = logoStop;
   function splashSonido() {
     var v = document.querySelector('#oAuth video.klv'); if (!v || splashSonido.hecho) return; splashSonido.hecho = true;
-    var ir = function () { if (v.offsetParent !== null && v.currentTime < 1.2) logoEl(v) };
-    if (!v.paused && v.currentTime > 0) ir(); else v.addEventListener('playing', ir, { once: true });
+    if (v.currentTime < 1.2) logoSync(v);
   }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', splashSonido); else splashSonido();
   /* c264 · logo centrado en la PANTALLA, no en el área web: instalada en iPhone con barra de estado negra, la web empieza bajo la barra

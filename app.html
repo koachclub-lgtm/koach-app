@@ -1875,7 +1875,7 @@ html:has(#vSesion.esf.on),html:has(#vSesion.esf.on) body{background:#C9CBCE url(
 <script src="/domain/koach-escaner-ui.js?v=294"></script>
 <script src="/domain/koach-escaner-share.js"></script>
 <script src="/domain/koach-compras.js"></script>
-<script src="/domain/koach-sfx.js?v=348"></script>
+<script src="/domain/koach-sfx.js?v=349"></script>
 <script src="/domain/koach-avatar.js"></script>
 <script src="/domain/koach-timer.js?v=9"></script>
 <script src="/domain/koach-ruta.js?v=1"></script>
@@ -6757,7 +6757,8 @@ window.KLOGO=(function(){
     const tEst=setTimeout(function(){ if(v.currentTime<0.05) est() },600)   // no partió aún → logo fijo (nunca el ▶)
     const t0=setTimeout(function(){ if(v.currentTime<0.05){ est(); setTimeout(fin,600) } },1800), tMax=setTimeout(fin,4200) }) }
   const K={ fin:Promise.resolve(), esperar:esperar, run:function(reinicio){ const v=document.querySelector('#oLoad video.klv'); if(!v) return
-    try{ if(reinicio) v.currentTime=0; const p=v.play(); if(p&&p.catch) p.catch(function(){}) }catch(_){} K.fin=esperar(v) } }
+    try{ if(reinicio) v.currentTime=0; const p=v.play(); if(p&&p.catch) p.catch(function(){}) }catch(_){} K.fin=esperar(v)
+    try{ const oa=document.getElementById('oAuth'), tapado=oa&&oa.style.display!=='none'&&getComputedStyle(oa).display!=='none'; if(!tapado&&window.KSFX&&KSFX.logoSync) KSFX.logoSync(v) }catch(_){} } }   // c349 · sonido amarrado al primer cuadro del video (no si el logo del inicio lo tapa)
   return K })()
 // c308 · vigilante de arranque: si el video del logo no parte (autoplay bloqueado), logo fijo en vez del ▶
 document.querySelectorAll('video.klv').forEach(function(v){ v.addEventListener('playing',function(){ try{ v.parentNode.classList.remove('klv-est') }catch(_){} })
