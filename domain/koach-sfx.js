@@ -161,7 +161,9 @@
   /* c264 · logo centrado en la PANTALLA, no en el área web: instalada en iPhone con barra de estado negra, la web empieza bajo la barra
      y su centro queda ~30 pt más abajo que el centro físico. Se sube la mitad de esa diferencia. */
   function centrar() { try {
-    var sa = matchMedia('(display-mode: standalone)').matches || navigator.standalone === true
+    // c350 · solo iPhone/iPad: en Android la diferencia incluye la barra de navegación de abajo y el logo quedaba corrido
+    var ios = /iP(hone|ad|od)/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1)
+    var sa = ios && (matchMedia('(display-mode: standalone)').matches || navigator.standalone === true)
     var d = sa ? Math.max(0, Math.min(80, (screen.height - innerHeight) / 2)) : 0
     if (sa && innerWidth > innerHeight) d = 0
     document.documentElement.style.setProperty('--klvUp', d + 'px') } catch (_) {} }

@@ -1875,7 +1875,7 @@ html:has(#vSesion.esf.on),html:has(#vSesion.esf.on) body{background:#C9CBCE url(
 <script src="/domain/koach-escaner-ui.js?v=294"></script>
 <script src="/domain/koach-escaner-share.js"></script>
 <script src="/domain/koach-compras.js"></script>
-<script src="/domain/koach-sfx.js?v=349"></script>
+<script src="/domain/koach-sfx.js?v=350"></script>
 <script src="/domain/koach-avatar.js"></script>
 <script src="/domain/koach-timer.js?v=9"></script>
 <script src="/domain/koach-ruta.js?v=1"></script>
@@ -3950,6 +3950,8 @@ html:has(#vSesion.on[data-bg]),body:has(#vSesion.on[data-bg]){background:var(--s
    (ahorro de batería/datos), se muestra el logo fijo en vez del símbolo de play */
 video.klv::-webkit-media-controls,video.klv::-webkit-media-controls-overlay-play-button,video.klv::-webkit-media-controls-start-playback-button,video.klv::-webkit-media-controls-panel{display:none!important;-webkit-appearance:none;opacity:0!important}
 .klvImg{opacity:0;transition:opacity .25s ease;z-index:0}
+/* c350 · Android pinta el negro del video como gris oscuro (rango limitado) y se veía el recuadro del video sobre el fondo negro */
+video.klv{filter:contrast(1.16)}   /* negro 16/255 (rango limitado) → 0: el recuadro desaparece; el blanco del logo no cambia */
 .klv-est>video.klv{opacity:0!important}.klv-est>.klvImg{opacity:1}
 
 /* c242 · guardando el set: velo + anillo girando + rótulo, sobre la pantalla del bloque */
