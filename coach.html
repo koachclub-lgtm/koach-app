@@ -1334,6 +1334,21 @@ small{color:var(--koach-text-secondary)}
 .dmOk b{display:block;margin-top:6px;font-weight:800;font-size:20px;text-transform:uppercase}
 .dmOk span{display:block;margin-top:4px;font-size:13px;color:#B8BBBE}
 
+/* c351 · clase demo en grafito (misma línea que la anamnesis) */
+#dmOv{background:rgba(0,0,0,.8)}
+#dmOv .dmBox{background:linear-gradient(160deg,#141516,#232528);color:#F4F3F0;border:1px solid rgba(244,243,240,.12);max-width:640px}
+#dmOv .dmK,#dmOv .dmL{color:#979C9F}
+#dmOv .dmCtx{background:rgba(244,243,240,.05);border:1px solid rgba(244,243,240,.1)}#dmOv .dmCtx small{color:#979C9F}#dmOv .dmCtx--v{color:#B8BBBE}
+#dmOv .dmSeg button{border-color:rgba(244,243,240,.25);color:#F4F3F0}
+#dmOv .dmSeg button[aria-pressed="true"]{background:#F4F3F0;color:#0B0B0C;border-color:#F4F3F0}
+#dmOv .dmSeg button i{background:#979C9F}#dmOv .dmSeg button[aria-pressed="true"] i{background:#434649}
+#dmOv .dmPrev{border-top-color:rgba(244,243,240,.14)}
+#dmOv .dmB{background:rgba(244,243,240,.05);border:1px solid rgba(244,243,240,.1)}#dmOv .dmB__h span{color:#979C9F}
+#dmOv .dmE{border-top-color:rgba(244,243,240,.08)}#dmOv .dmE em{color:#B8BBBE}
+#dmOv .dmVac{color:#B8BBBE}
+#dmOv .dmAv,#dmOv .dmAv--i{background:rgba(244,243,240,.06);border:1px solid #979C9F;color:#F4F3F0}
+#dmOv .dmF button{border-color:rgba(244,243,240,.4);color:#F4F3F0}#dmOv .dmF button.ink{background:#F4F3F0;color:#0B0B0C;border-color:#F4F3F0}
+#dmOv .dmOk{background:rgba(244,243,240,.06);border:1px solid rgba(244,243,240,.14)}#dmOv .dmOk small{color:#B8BBBE}
 /* c327 · ciclos: revisión e historial */
 .cicAv--rev{border-color:#3EC6B0;box-shadow:inset 0 0 0 1px #3EC6B0}
 .cicAv__b{display:flex;gap:8px;flex:none;flex-wrap:wrap}
@@ -5202,6 +5217,10 @@ function dmPintar(){
             return '<div class="dmE"><span>'+bxEsc((be.ejercicios||{}).nombre||'—')+'</span><em>'+dmVal(be)+'</em></div>' }).join('')+'</div>'
       }).join('')+'</div>'
     : '<div class="dmVac">'+(S2.sexo?'No hay demo para esa combinación.':'Elige el sexo para ver la demo.')+'</div>'
+  const asg=C.asig&&C.asig[DM.id], prg=asg&&asg.protocolos&&asg.protocolos.estado!=='demo' ? (asg.protocolos.nombre||'su programa') : ''   // c351 · ya tiene programa: la demo no aplica
+  if (prg){ box.innerHTML='<div class="dmK">CLASE DEMO</div><div class="dmN">'+bxEsc(nomDe(DM.id))+'</div>'+
+      '<div class="dmOk"><small>YA TIENE PROGRAMA ASIGNADO</small><b>'+bxEsc(prg)+'</b><span>La clase demo es solo para quien aún no tiene programa. Abre su rutina para editarla.</span></div>'+
+      '<div class="dmF"><button type="button" onclick="dmCerrar()">CERRAR</button><button type="button" class="ink" onclick="dmAbrirRutina(\''+DM.id+'\',\'\')">ABRIR RUTINA PARA EDITAR →</button></div>'; return }
   const aviso = bloq ? '<div class="dmAv">Ya empezó a entrenar su demo ('+bxEsc(act.nombre||'')+'). No se puede cambiar.</div>'
               : act ? '<div class="dmAv dmAv--i">Demo activa: '+bxEsc(act.nombre||'')+' · '+act.programa+'. Si cambias algo y activas, se reemplaza.</div>' : ''
   box.innerHTML='<div class="dmK">CLASE DEMO</div><div class="dmN">'+bxEsc(nomDe(DM.id))+'</div>'+ctx+fil+aviso+prev+
@@ -5232,6 +5251,7 @@ async function dmAbrirRutina(id, sid){
   dmCerrar(); apCerrar()
   toast('Abriendo la rutina demo…')
   try{ await loadSala(true) }catch(_e){}
+  if (!C.asig||!C.asig[id]){ toast('Aún no tiene rutina: activa su clase demo'); cpDemo(id); return }
   const h='#/socio/'+id+'/plan'+(sid?'?w=1&s='+sid:'')
   if (location.hash===h) rtAplicar(); else location.hash=h
 }
