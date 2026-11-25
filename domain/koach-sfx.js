@@ -55,14 +55,26 @@
         return function () { try { var u = c.currentTime; g.gain.cancelScheduledValues(u); g.gain.setValueAtTime(g.gain.value, u); g.gain.linearRampToValueAtTime(0, u + 0.18); s.stop(u + 0.2) } catch (_) {} };
       } catch (_) { return function () {} }
     },
+    /* c348 · SINCRONÍA: si el sonido ya está decodificado se programa en el reloj de audio (preciso al milisegundo), también en Android.
+       El audio del sistema (duck) queda solo de respaldo: tarda 100–300 ms en partir y desfasaba el logo y el DROP del PR.
+       Si el contexto estaba suspendido, se espera a que despierte y se descuenta el tiempo perdido (nunca suena tarde). */
     play: function (n, delay, gain, rate) {
-      if (DUCK[n] && ANDROID && on() && duck(n, delay, gain)) return true;
-      var c = ctx(); if (!c || !on()) return false;
+      var c = ctx(), listo = !!(c && buf[n]);
+      if (!listo && DUCK[n] && ANDROID && on() && duck(n, delay, gain)) return true;
+      if (!c || !on()) return false;
       if (!buf[n]) { decodeAll(); return false }
       try {
-        if (c.state !== 'running') c.resume();
-        var s = c.createBufferSource(), g = c.createGain(); s.buffer = buf[n]; if (rate) s.playbackRate.value = rate; g.gain.value = gain == null ? 1 : gain;
-        s.connect(g); g.connect(c.destination); s.start(c.currentTime + 0.005 + (delay || 0)); return true;
+        var t0 = performance.now(), d = delay || 0, b = buf[n];
+        var arranca = function () {
+          var pas = (performance.now() - t0) / 1000, s = c.createBufferSource(), g = c.createGain();
+          s.buffer = b; if (rate) s.playbackRate.value = rate; g.gain.value = gain == null ? 1 : gain;
+          s.connect(g); g.connect(c.destination);
+          var falta = d - pas;
+          if (falta >= 0) s.start(c.currentTime + 0.005 + falta);
+          else { var off = -falta * (rate || 1); if (off < b.duration - 0.05) s.start(c.currentTime + 0.005, off) }
+        };
+        if (c.state !== 'running') { var p = c.resume(); if (p && p.then) p.then(arranca, function () {}); else arranca() } else arranca();
+        return true;
       } catch (_) { return false }
     }
   };
@@ -98,13 +110,27 @@
   };
   /* c244 · SONIDO AL ABRIR: el logo del splash inicial intenta sonar junto con su video. El navegador solo lo permite sin un toque
      previo cuando la app está instalada en la pantalla de inicio (Android) o el sitio ya es de uso frecuente; si no, queda en silencio. */
-  function logoEl(desde) {
+  /* c348 · el audio del logo se precarga al abrir (antes se creaba recién al partir el video y llegaba tarde) y se amarra al video:
+     parte en el mismo punto, se corrige si se desfasa más de 60 ms y se pausa si el video se queda cargando. */
+  var LOGO_A = null;
+  function logoPre() { if (!LOGO_A) { try { LOGO_A = new Audio('/sfx/logo.mp3'); LOGO_A.preload = 'auto'; LOGO_A.load() } catch (_) { LOGO_A = null } } return LOGO_A }
+  if (on()) logoPre();
+  function logoEl(v) {
     if (!on()) return;
-    try { var a = new Audio('/sfx/logo.mp3'); a.preload = 'auto'; if (desde) a.currentTime = desde; var p = a.play(); if (p && p.catch) p.catch(function () {}) } catch (_) {}
+    var a = logoPre(); if (!a) return;
+    try {
+      var sync = function () { try { if (Math.abs(v.currentTime - a.currentTime) > 0.06) a.currentTime = Math.max(0, v.currentTime + 0.02) } catch (_) {} };
+      a.currentTime = Math.max(0, v.currentTime);
+      a.addEventListener('playing', sync, { once: true });
+      v.addEventListener('waiting', function () { try { a.pause() } catch (_) {} });
+      v.addEventListener('playing', function () { try { if (a.paused && !a.ended && v.currentTime < (a.duration || 9)) { sync(); var q = a.play(); if (q && q.catch) q.catch(function () {}) } } catch (_) {} });
+      v.addEventListener('ended', function () { try { a.pause() } catch (_) {} }, { once: true });
+      var p = a.play(); if (p && p.catch) p.catch(function () {});
+    } catch (_) {}
   }
   function splashSonido() {
     var v = document.querySelector('#oAuth video.klv'); if (!v || splashSonido.hecho) return; splashSonido.hecho = true;
-    var ir = function () { if (v.offsetParent !== null && v.currentTime < 1.2) logoEl(v.currentTime) };
+    var ir = function () { if (v.offsetParent !== null && v.currentTime < 1.2) logoEl(v) };
     if (!v.paused && v.currentTime > 0) ir(); else v.addEventListener('playing', ir, { once: true });
   }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', splashSonido); else splashSonido();
