@@ -4,7 +4,7 @@
            Mapa: logo (pantalla de carga) · appear (la app aparece) · start · set · block · tick1-3 + riser (3·2·1) · go · logro (PR, exclusivo de gamificación).
    KLOGO · encendido del logotipo: el VIDEO ORIGINAL de redes (9:16, negro puro #000) en la pantalla de carga. */
 (function () {
-  var FILES = ['logo', 'menu', 'datos', 'bloque-ini', 'scan-captura', 'scan-paso', 'scan-lock', 'scan-datos', 'scan-lista', 'scan-error', 'appear', 'start', 'set', 'block', 'tick1', 'tick2', 'tick3', 'riser', 'go', 'logro'];
+  var FILES = ['logo', 'menu', 'datos', 'bloque-ini', 'scan-captura', 'scan-paso', 'scan-lock', 'scan-datos', 'scan-lista', 'scan-error', 'appear', 'start', 'set', 'block', 'tick1', 'tick2', 'tick3', 'riser', 'go', 'logro', 'placa'];
   var raw = {}, buf = {}, fetching = null;
   function ctx() { try { return (typeof KAU !== 'undefined' && KAU.ctx) || null } catch (_) { return null } }
   function on() { try { return typeof kSonidoOn === 'function' ? kSonidoOn() : true } catch (_) { return true } }
