@@ -734,6 +734,7 @@ html.accBloq #pfCard, html.accBloq #vPerfil .kpc__f, html.accBloq #vPerfil [oncl
 .kTy .kAu__chk{font-size:14.5px;padding:9px 0}
 .kTy__op{font:700 10px var(--font-mono);letter-spacing:.14em;color:rgba(246,245,242,.45);margin-top:10px}
 .kTy__err{min-height:18px;font:700 11px var(--font-mono);letter-spacing:.06em;color:#FF4200;text-align:center}
+.kTy__leer{display:flex;align-items:center;justify-content:space-between;margin:18px 0 22px;padding:16px 18px;border:1px solid rgba(246,245,242,.22);border-radius:16px;color:#F6F5F2;text-decoration:none;font:700 12px var(--font-mono);letter-spacing:.16em}.kTy__leer b{font-size:18px}
 .kTy__plan{border:1px solid rgba(246,245,242,.18);border-radius:16px;padding:4px 14px 6px;margin:18px 0 14px}
 .kTy__ph{padding:12px 0 10px;border-bottom:1px solid rgba(246,245,242,.12)}
 .kTy__ph span{display:block;font:700 10px var(--font-mono);letter-spacing:.16em;color:rgba(246,245,242,.55)}
@@ -7426,7 +7427,6 @@ async function tycMostrar(st){
   try{ if (S._memP) await Promise.race([ S._memP, new Promise(function(r){ setTimeout(r,4000) }) ]) }catch(_){}
   return new Promise(function(fin){
     if (document.getElementById('kTy')) return fin()
-    const P=tycPlan()
     const row=function(x){ return '<div class="kTy__r"><span>'+x[0]+'</span><p>'+x[1]+'</p></div>' }
     const opt=function(id,txt){ return '<label class="kTy__o"><input type="checkbox" id="'+id+'"><span class="kTy__ob" aria-hidden="true"></span><span>'+txt+'</span></label>' }
     const bg=document.createElement('div'); bg.id='kTy'; bg.className='kAu kTy'; bg.setAttribute('role','dialog'); bg.setAttribute('aria-modal','true'); bg.setAttribute('aria-label','Contrato y términos del club')
@@ -7434,14 +7434,10 @@ async function tycMostrar(st){
       '<div class="kAu__body">'+
         '<div class="kAu__k">CONTRATO DE MEMBRESÍA · <b>VERSIÓN '+String(st.version||'').replace(/^v/i,'')+'</b></div>'+
         '<div class="kTy__t">'+(st.ultima?'Actualizamos<br>tu contrato':'Antes de<br>entrenar')+'</div>'+
-        '<section class="kTy__plan"><div class="kTy__ph"><span>TU PLAN</span><b>'+P.nom+'</b>'+(P.vig?'<em>'+P.vig.toUpperCase()+'</em>':'')+'</div>'+P.L.map(row).join('')+'</section>'+
-        '<label class="kAu__chk kTy__dec"><input type="checkbox" id="tyA"><span class="kAu__box" aria-hidden="true"></span><span>Declaro haber leído el <a class="kTy__a" href="/terminos.html" target="_blank" rel="noopener">contrato</a> y acepto los <b>Términos y Condiciones de mi plan</b>.</span></label>'+
-        '<details class="kTy__inc"><summary>LA DECLARACIÓN INCLUYE</summary><ul>'+
-          '<li><b>Salud (cl. 13).</b> Declaro mi estado de salud, lesiones, medicamentos y embarazo, aviso cualquier cambio y entreno lo que programa mi koach.</li>'+
-          '<li><b>Datos de salud (consentimiento A).</b> KOACH trata mi anamnesis, mediciones y registros solo para planificarme; la IA apoya al equipo, que decide. No se venden.</li>'+
-          '<li><b>Uso de la membresía (cl. 7).</b> Corre por días corridos; la inasistencia no da devolución.</li>'+
-          '<li><b>Reglas de sala, convivencia y privacidad (cl. 14 a 18).</b></li>'+
-        '</ul></details>'+
+        '<p class="kTy__p">Tu contrato detalla las condiciones de tu plan. Léelo antes de aceptar.</p>'+
+        '<a class="kTy__leer" href="/terminos.html" target="_blank" rel="noopener"><span>LEER CONTRATO</span><b>→</b></a>'+
+        '<label class="kAu__chk kTy__dec"><input type="checkbox" id="tyA"><span class="kAu__box" aria-hidden="true"></span><span>Declaro haber leído el contrato y acepto los <b>Términos y Condiciones de mi plan</b>, incluido el tratamiento de mis datos de salud.</span></label>'+
+
         '<div class="kTy__op">OPCIONAL</div>'+
         opt('tyD','Autorizo el uso de mi imagen entrenando en redes y publicidad de KOACH.')+
         opt('tyE','Quiero recibir promociones y novedades por correo y WhatsApp.')+
