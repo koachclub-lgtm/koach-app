@@ -7436,11 +7436,8 @@ async function tycMostrar(st){
         '<div class="kTy__t">'+(st.ultima?'Actualizamos<br>tu contrato':'Antes de<br>entrenar')+'</div>'+
         '<p class="kTy__p">Tu contrato detalla las condiciones de tu plan. Léelo antes de aceptar.</p>'+
         '<a class="kTy__leer" href="/terminos.html" target="_blank" rel="noopener"><span>LEER CONTRATO</span><b>→</b></a>'+
-        '<label class="kAu__chk kTy__dec"><input type="checkbox" id="tyA"><span class="kAu__box" aria-hidden="true"></span><span>Declaro haber leído el contrato y acepto los <b>Términos y Condiciones de mi plan</b>, incluido el tratamiento de mis datos de salud.</span></label>'+
+        '<label class="kAu__chk kTy__dec"><input type="checkbox" id="tyA"><span class="kAu__box" aria-hidden="true"></span><span>Declaro haber leído el contrato y acepto los <b>Términos y Condiciones de mi plan</b>, incluidas las autorizaciones que en él se indican.</span></label>'+
 
-        '<div class="kTy__op">OPCIONAL</div>'+
-        opt('tyD','Autorizo el uso de mi imagen entrenando en redes y publicidad de KOACH.')+
-        opt('tyE','Quiero recibir promociones y novedades por correo y WhatsApp.')+
       '</div>'+
       '<div class="kAu__pie"><div class="kTy__err" id="tyErr" role="status"></div><button type="button" class="kAu__go" id="tyGo" disabled>ACEPTAR Y CONTINUAR</button><button type="button" class="kAu__no" id="tyNo">CERRAR SESIÓN</button></div>'
     document.body.appendChild(bg)
@@ -7451,7 +7448,7 @@ async function tycMostrar(st){
     go.onclick=async function(){
       if (go.disabled) return; go.disabled=true; go.textContent='GUARDANDO…'; $('tyErr').textContent=''
       try{
-        const r=await sb.rpc('mi_tyc_aceptar',{ p_version:st.version, p_imagen:$('tyD').checked, p_comercial:$('tyE').checked, p_ua:navigator.userAgent })
+        const r=await sb.rpc('mi_tyc_aceptar',{ p_version:st.version, p_imagen:true, p_comercial:true, p_ua:navigator.userAgent })
         if (r.error) throw r.error
         TYC.st=r.data; bg.remove(); fin()
       }catch(e){
