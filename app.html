@@ -734,6 +734,26 @@ html.accBloq #pfCard, html.accBloq #vPerfil .kpc__f, html.accBloq #vPerfil [oncl
 .kTy .kAu__chk{font-size:14.5px;padding:9px 0}
 .kTy__op{font:700 10px var(--font-mono);letter-spacing:.14em;color:rgba(246,245,242,.45);margin-top:10px}
 .kTy__err{min-height:18px;font:700 11px var(--font-mono);letter-spacing:.06em;color:#FF4200;text-align:center}
+.kTy__plan{border:1px solid rgba(246,245,242,.18);border-radius:16px;padding:4px 14px 6px;margin:18px 0 14px}
+.kTy__ph{padding:12px 0 10px;border-bottom:1px solid rgba(246,245,242,.12)}
+.kTy__ph span{display:block;font:700 10px var(--font-mono);letter-spacing:.16em;color:rgba(246,245,242,.55)}
+.kTy__ph b{display:block;margin-top:6px;font:800 clamp(17px,4.8vw,21px) var(--font-display);text-transform:uppercase;letter-spacing:.01em}
+.kTy__ph em{display:block;margin-top:4px;font:700 11px var(--font-mono);font-style:normal;letter-spacing:.08em;color:rgba(246,245,242,.75)}
+.kTy__r{padding:10px 0;border-top:1px solid rgba(246,245,242,.08)}.kTy__ph+.kTy__r{border-top:0}
+.kTy__r span{display:block;font:700 9.5px var(--font-mono);letter-spacing:.16em;color:rgba(246,245,242,.5)}
+.kTy__r p{margin:4px 0 0;font-size:13px;line-height:1.45;color:rgba(246,245,242,.86)}
+.kTy__dec{font-size:16px!important;padding:12px 0!important}
+.kTy__inc{margin:2px 0 4px 40px}
+.kTy__inc summary{cursor:pointer;font:700 10px var(--font-mono);letter-spacing:.14em;color:rgba(246,245,242,.55);padding:6px 0;list-style:none}
+.kTy__inc summary::-webkit-details-marker{display:none}
+.kTy__inc summary::after{content:' +'}.kTy__inc[open] summary::after{content:' −'}
+.kTy__inc ul{margin:4px 0 0;padding-left:16px;font-size:12px;line-height:1.5;color:rgba(246,245,242,.62)}.kTy__inc li{margin-bottom:6px}.kTy__inc b{color:rgba(246,245,242,.85)}
+.kTy__o{display:flex;gap:10px;align-items:flex-start;padding:6px 0;font-size:12.5px;line-height:1.4;color:rgba(246,245,242,.6);cursor:pointer}
+.kTy__o input{position:absolute;opacity:0;pointer-events:none}
+.kTy__ob{flex:none;width:18px;height:18px;border:1.5px solid rgba(246,245,242,.4);border-radius:5px;display:grid;place-items:center}
+.kTy__o input:checked+.kTy__ob{background:#F6F5F2;border-color:#F6F5F2}
+.kTy__o input:checked+.kTy__ob::after{content:'';width:5px;height:9px;border:solid #0B0B0C;border-width:0 2px 2px 0;transform:translateY(-1px) rotate(45deg)}
+
 .kAu{position:fixed;inset:0;z-index:2100;background:#0B0B0C;color:#F6F5F2;display:flex;flex-direction:column;animation:kHf .2s ease-out;padding:env(safe-area-inset-top) 0 env(safe-area-inset-bottom)}
 .kAu__top{display:flex;align-items:center;justify-content:space-between;padding:18px 22px 6px}
 .kAu__logo{width:104px;height:22px;background:#F6F5F2;-webkit-mask:url(/img/brand/logotipo-koach.png) no-repeat left center/contain;mask:url(/img/brand/logotipo-koach.png) no-repeat left center/contain}
@@ -6786,6 +6806,7 @@ async function entrar(opts){
     document.getElementById('hAv').textContent = (perfil.nombre||'K')[0].toUpperCase()
     S.frases = (rCfg && rCfg.data && rCfg.data.frases) || null
     const memP = cargarMembresia()   // en paralelo con el resto (no depende del programa)
+    S._memP = memP   // c339 · T&C muestra las condiciones del plan
     if (/[?&](pago|susc|cobro|auto)=/.test(location.search)) memP.then(()=>flowRetorno()).catch(()=>{})   // vuelta desde Flow
     if (!opts.silent){ const _seguir=function(){   // c338 · primero T&C (una vez por versión); después el flujo de siempre
       if (perfil.estado==='clase_prueba') anRevisar()   // c216 · clase de prueba: bienvenida + anamnesis antes de la demo
@@ -7382,35 +7403,54 @@ function tycRevisar(){
   })().finally(function(){ TYC.pend=null })
   return TYC.pend
 }
-function tycMostrar(st){
+// c339 · condiciones del plan del socio (vigencia, término, postergaciones, nutrición) para la declaración de aceptación
+function tycPlan(){
+  const m=S.memVig, f=S.flowSusc&&S.flowSusc.estado==='activa'?S.flowSusc:null, L=[]
+  const fm=function(x){ try{ return _fm(x) }catch(_){ return x } }
+  const $=function(n){ return '$'+(+n||0).toLocaleString('es-CL') }
+  let nom='TU MEMBRESÍA', vig=''
+  if (f){ nom='PAGO AUTOMÁTICO · '+((f.duracion_valor||1)>1?'CADA '+f.duracion_valor+' MESES':'MENSUAL')+(f.monto?' · '+$(f.monto):'')
+    if (+f.permanencia_meses>0) L.push(['TÉRMINO','Permanencia de '+f.permanencia_meses+' meses'+(f.permanencia_hasta?' hasta el '+fm(f.permanencia_hasta):'')+'. '+(flowAviso30(f)?'Se termina desde la app con 30 días de aviso; ':'Se termina desde la app; ')+'salir antes cobra una vez el descuento recibido (cl. 4.9).'])
+    else L.push(['TÉRMINO',(flowAviso30(f)?'Se termina desde la app con 30 días de aviso, sin cobro de salida':'Se desactiva desde la app hasta el día anterior al cobro, sin cobro de salida')+' (cl. 4.4).']) }
+  else if (m){
+    const mes=+m.meses||1; nom=m.duracion_label?String(m.duracion_label).toUpperCase():(mes+(mes===1?' MES':' MESES'))
+    if (m.tipo_comercial!=='cortesia') L.push(['TÉRMINO', mes>1?'Si terminas antes, se devuelve lo pagado menos cada mes iniciado a $80.000 (cl. 9).':'Vigente hasta el fin del mes pagado, sin devolución (cl. 9).']) }
+  if (m && m.fecha_inicio && m.fecha_fin) vig=fm(m.fecha_inicio)+' → '+fm(m.fecha_fin)
+  if (m && m.fecha_fin){ const mes=f?1:(+m.meses||1)
+    L.push(['NUTRICIÓN',(mes>1?mes+' evaluaciones':'1 evaluación')+' de 30 min (una por mes), a agendar y usar hasta el '+fm(m.fecha_fin)+'. No se acumulan. Cambios con 7 días de aviso (cl. 19).']) }
+  L.push(['POSTERGACIONES','La membresía no se congela. Cada 12 meses: médica hasta 60 días con certificado y vacaciones hasta 7 días, pedidas antes (cl. 8).'])
+  L.push(['HORARIO','Lunes a viernes 06:30 – 22:00, último ingreso 21:00. Sábados y festivos 09:00 – 15:00, último ingreso 14:00 (cl. 12).'])
+  return { nom:nom, vig:vig, L:L }
+}
+async function tycMostrar(st){
+  try{ if (S._memP) await Promise.race([ S._memP, new Promise(function(r){ setTimeout(r,4000) }) ]) }catch(_){}
   return new Promise(function(fin){
     if (document.getElementById('kTy')) return fin()
-    const chk=function(id,txt){ return '<label class="kAu__chk"><input type="checkbox" id="'+id+'"><span class="kAu__box" aria-hidden="true"></span><span>'+txt+'</span></label>' }
-    const it=function(k,t){ return '<div class="kTy__i"><span>'+k+'</span><p>'+t+'</p></div>' }
-    const bg=document.createElement('div'); bg.id='kTy'; bg.className='kAu kTy'; bg.setAttribute('role','dialog'); bg.setAttribute('aria-modal','true'); bg.setAttribute('aria-label','Términos y condiciones del club')
+    const P=tycPlan()
+    const row=function(x){ return '<div class="kTy__r"><span>'+x[0]+'</span><p>'+x[1]+'</p></div>' }
+    const opt=function(id,txt){ return '<label class="kTy__o"><input type="checkbox" id="'+id+'"><span class="kTy__ob" aria-hidden="true"></span><span>'+txt+'</span></label>' }
+    const bg=document.createElement('div'); bg.id='kTy'; bg.className='kAu kTy'; bg.setAttribute('role','dialog'); bg.setAttribute('aria-modal','true'); bg.setAttribute('aria-label','Contrato y términos del club')
     bg.innerHTML='<div class="kAu__top"><span class="kAu__logo" role="img" aria-label="KOACH"></span></div>'+
       '<div class="kAu__body">'+
-        '<div class="kAu__k">TÉRMINOS DEL CLUB · <b>VERSIÓN '+String(st.version||'').replace(/^v/i,'')+'</b></div>'+
-        '<div class="kTy__t">'+(st.ultima?'Actualizamos<br>nuestros términos':'Antes de<br>entrenar')+'</div>'+
-        '<p class="kTy__p">Estos son los puntos clave. El texto completo está en los <a class="kTy__a" href="/terminos.html" target="_blank" rel="noopener">Términos y Condiciones</a>.</p>'+
-        '<div class="kTy__l">'+
-          it('SALUD · CL. 13','Declaras tu estado de salud, lesiones, medicamentos y embarazo, y avisas cualquier cambio. Entrenas lo que programa tu koach y te detienes y avisas ante dolor, mareo o malestar.')+
-          it('TUS DATOS · CL. 22','Tus datos de salud y entrenamiento se usan solo para planificarte. La inteligencia artificial apoya a tu koach y a la nutricionista; las decisiones las toma el equipo. No se venden.')+
-          it('TÉRMINO DEL PLAN · CL. 4 Y 9','El pago automático se termina desde la app con 30 días de aviso. Si tu plan tiene permanencia, salir antes cobra el descuento recibido. Los planes semestrales y anuales de pago único se devuelven descontando cada mes iniciado a $80.000. La inasistencia no da devolución.')+
-          it('HORARIO · CL. 12','Lunes a viernes 06:30 – 22:00, último ingreso 21:00. Sábados y festivos 09:00 – 15:00, último ingreso 14:00.')+
-        '</div>'+
-        chk('tyA','Leí y acepto los <b>Términos y Condiciones</b> del club.')+
-        chk('tyB','Autorizo a KOACH a tratar mis <b>datos de salud</b> para planificar y supervisar mi entrenamiento y nutrición.')+
-        chk('tyC','Declaro que informé <b>con verdad mi estado de salud</b> y que avisaré cualquier cambio.')+
-        '<div class="kTy__op">OPCIONALES</div>'+
-        chk('tyD','Autorizo el uso de mi <b>imagen</b> entrenando en redes y publicidad de KOACH.')+
-        chk('tyE','Quiero recibir <b>promociones y novedades</b> por correo y WhatsApp.')+
+        '<div class="kAu__k">CONTRATO DE MEMBRESÍA · <b>VERSIÓN '+String(st.version||'').replace(/^v/i,'')+'</b></div>'+
+        '<div class="kTy__t">'+(st.ultima?'Actualizamos<br>tu contrato':'Antes de<br>entrenar')+'</div>'+
+        '<section class="kTy__plan"><div class="kTy__ph"><span>TU PLAN</span><b>'+P.nom+'</b>'+(P.vig?'<em>'+P.vig.toUpperCase()+'</em>':'')+'</div>'+P.L.map(row).join('')+'</section>'+
+        '<label class="kAu__chk kTy__dec"><input type="checkbox" id="tyA"><span class="kAu__box" aria-hidden="true"></span><span>Declaro haber leído el <a class="kTy__a" href="/terminos.html" target="_blank" rel="noopener">contrato</a> y acepto los <b>Términos y Condiciones de mi plan</b>.</span></label>'+
+        '<details class="kTy__inc"><summary>LA DECLARACIÓN INCLUYE</summary><ul>'+
+          '<li><b>Salud (cl. 13).</b> Declaro mi estado de salud, lesiones, medicamentos y embarazo, aviso cualquier cambio y entreno lo que programa mi koach.</li>'+
+          '<li><b>Datos de salud (consentimiento A).</b> KOACH trata mi anamnesis, mediciones y registros solo para planificarme; la IA apoya al equipo, que decide. No se venden.</li>'+
+          '<li><b>Uso de la membresía (cl. 7).</b> Corre por días corridos; la inasistencia no da devolución.</li>'+
+          '<li><b>Reglas de sala, convivencia y privacidad (cl. 14 a 18).</b></li>'+
+        '</ul></details>'+
+        '<div class="kTy__op">OPCIONAL</div>'+
+        opt('tyD','Autorizo el uso de mi imagen entrenando en redes y publicidad de KOACH.')+
+        opt('tyE','Quiero recibir promociones y novedades por correo y WhatsApp.')+
       '</div>'+
       '<div class="kAu__pie"><div class="kTy__err" id="tyErr" role="status"></div><button type="button" class="kAu__go" id="tyGo" disabled>ACEPTAR Y CONTINUAR</button><button type="button" class="kAu__no" id="tyNo">CERRAR SESIÓN</button></div>'
     document.body.appendChild(bg)
     const $=function(i){ return document.getElementById(i) }, go=$('tyGo')
-    const val=function(){ go.disabled=!($('tyA').checked && $('tyB').checked && $('tyC').checked) }
-    ;['tyA','tyB','tyC'].forEach(function(i){ $(i).addEventListener('change',val) })
+    const val=function(){ go.disabled=!$('tyA').checked }
+    $('tyA').addEventListener('change',val)
     $('tyNo').onclick=function(){ bg.remove(); fin(); try{ salir() }catch(_){} }
     go.onclick=async function(){
       if (go.disabled) return; go.disabled=true; go.textContent='GUARDANDO…'; $('tyErr').textContent=''
