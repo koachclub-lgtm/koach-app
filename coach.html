@@ -9168,6 +9168,9 @@ async function fAdmCargar(){
   h+='<section class="pfC"><div class="pfK"><span>DATOS PERSONALES</span></div>'+
     fila('NACIMIENTO', F.fecha_nacimiento?adF(F.fecha_nacimiento)+' · '+edad+' AÑOS':'—')+fila('SEXO', F.sex?String(F.sex).toUpperCase():'SIN DEFINIR')+
     fila('TELÉFONO', so.telefono?adEsc(so.telefono):'—')+fila('CORREO', so.email?adEsc(so.email):'—')+
+    fila('RUT', so.rut?adEsc(so.rut):'—')+fila('OCUPACIÓN', so.ocupacion?adEsc(so.ocupacion):'—')+
+    fila('EMERGENCIA', so.emergencia_nombre?adEsc(so.emergencia_nombre)+(so.emergencia_telefono?' · '+adEsc(so.emergencia_telefono):''):'—')+
+    fila('DATOS', so.datos_confirmados_at?'CONFIRMADOS EL '+adF(String(so.datos_confirmados_at).slice(0,10)):'SIN CONFIRMAR')+
     '<div class="pfBtns"><button type="button" class="pfB" onclick="admFormDatos()">EDITAR DATOS</button></div></section>'
   // ACTIVIDAD
   const e0=ev[0]

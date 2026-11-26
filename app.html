@@ -766,6 +766,21 @@ html.accBloq #pfCard, html.accBloq #vPerfil .kpc__f, html.accBloq #vPerfil [oncl
 .kTr__pie{padding:12px 18px 18px;display:flex;flex-direction:column;gap:8px;max-width:560px;width:100%;margin:0 auto;box-sizing:border-box}
 .kTr__dec{margin:0;font-size:13px;line-height:1.45;color:rgba(246,245,242,.7);text-align:center}.kTr__dec b{color:#F6F5F2}
 .kTr .kAu__go.on{box-shadow:0 0 0 1px #F6F5F2,0 0 28px rgba(246,245,242,.35)}
+/* c352 · confirma tus datos */
+.kDt .kAu__body{gap:0}
+.kDt__g{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.kDt__f{display:flex;flex-direction:column;gap:6px;margin-top:14px;min-width:0}
+.kDt__f>span{font:700 10px var(--font-mono);letter-spacing:.16em;color:rgba(246,245,242,.55)}
+.kDt__f input{width:100%;box-sizing:border-box;height:50px;padding:0 14px;border-radius:14px;border:1px solid rgba(246,245,242,.18);background:rgba(246,245,242,.05);color:#F6F5F2;font-size:16px;font-family:inherit;outline:none}
+.kDt__f input:focus{border-color:#F6F5F2}
+.kDt__f--ro input{color:rgba(246,245,242,.6);background:none;border-style:dashed}
+.kDt__f em{font-style:normal;font-size:12px;color:rgba(246,245,242,.45)}
+.kDt__tel{display:flex;align-items:center;gap:8px}.kDt__tel b{flex:none;height:50px;display:grid;place-items:center;padding:0 12px;border-radius:14px;border:1px solid rgba(246,245,242,.18);font:700 13px var(--font-mono);color:rgba(246,245,242,.75)}
+.kDt__seg{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.kDt__seg button{height:50px;border-radius:14px;border:1px solid rgba(246,245,242,.25);background:none;color:#F6F5F2;font:700 12px var(--font-mono);letter-spacing:.14em;cursor:pointer}
+.kDt__seg button[aria-pressed="true"]{background:#F6F5F2;color:#0B0B0C;border-color:#F6F5F2}
+.kDt__k{margin-top:24px;padding-top:14px;border-top:1px solid rgba(246,245,242,.12);font:700 11px var(--font-mono);letter-spacing:.16em;color:#F6F5F2}
+.kDt__f.mal input,.kDt__f.mal .kDt__seg button{border-color:#FF4200}.kDt__f.mal>span{color:#FF4200}
 .kTy__err{min-height:18px;font:700 11px var(--font-mono);letter-spacing:.06em;color:#FF4200;text-align:center}
 .kTy__leer{display:flex;align-items:center;justify-content:space-between;margin:18px 0 22px;padding:16px 18px;border:1px solid rgba(246,245,242,.22);border-radius:16px;color:#F6F5F2;text-decoration:none;font:700 12px var(--font-mono);letter-spacing:.16em}.kTy__leer b{font-size:18px}
 .kTy__plan{border:1px solid rgba(246,245,242,.18);border-radius:16px;padding:4px 14px 6px;margin:18px 0 14px}
@@ -6918,7 +6933,7 @@ async function entrar(opts){
       if (perfil.estado==='clase_prueba') anRevisar()   // c216 · clase de prueba: bienvenida + anamnesis antes de la demo
       else if (welcomeDebeMostrarse()) mostrarWelcome()
       else setTimeout(pedirFoto, 1500) }
-      tycRevisar().then(_seguir,_seguir) }
+      tycRevisar().then(datosRevisar,datosRevisar).then(_seguir,_seguir) }   // c352 · contrato → confirma tus datos → flujo de siempre
     const asig = rAsig.data
     if (!asig){ await memP; sinPrograma(perfil.estado==='clase_prueba' ? 'Tu koach está preparando tu <b>clase demo</b>. En unos minutos aparece aquí.' : undefined); return }
     S.asig = asig; S.proto = asig.protocolos
@@ -7491,6 +7506,62 @@ function onbDirPintar(){ const box=document.getElementById('onbDirBox'), el=docu
   const d=box.querySelector('#onbDir'); d.onclick=async()=>{ try{ _instEvt.prompt(); const r=await _instEvt.userChoice; _instEvt=null; if(r&&r.outcome==='accepted'){ try{ localStorage.setItem('koach_inst_ok','1') }catch(_e){} onbCerrar(el, onbTerminos) } else box.innerHTML='' }catch(_e){ box.innerHTML='' } } }
 /* PENDIENTE (Matías): términos y condiciones. Cuando exista el documento, aquí va la pantalla de aceptación (guardar fecha en profiles). */
 function onbTerminos(){ pedirFoto() }
+// c352 · CONFIRMA TUS DATOS: una vez por socio (datos_confirmados_at). Registro real para convenios: nombre, RUT, WhatsApp, género, ocupación y contacto de emergencia.
+function datosRutOk(r){ const c=String(r||'').toUpperCase().replace(/[^0-9K]/g,''); if(c.length<8||c.length>9) return false
+  const cu=c.slice(0,-1), dv=c.slice(-1); if(!/^\d+$/.test(cu)) return false; let s=0,m=2; for(let i=cu.length-1;i>=0;i--){ s+=+cu[i]*m; m=m===7?2:m+1 }
+  const r2=11-(s%11), e=r2===11?'0':r2===10?'K':String(r2); return e===dv }
+function datosRutFmt(r){ const c=String(r||'').toUpperCase().replace(/[^0-9K]/g,''); if(c.length<2) return c; const cu=c.slice(0,-1).replace(/\B(?=(\d{3})+(?!\d))/g,'.'); return cu+'-'+c.slice(-1) }
+function datosTelOk(t){ const d=String(t||'').replace(/\D/g,''); return /^(56)?9\d{8}$/.test(d) || (d.length>=8 && d.length<=15) }
+function datosRevisar(){
+  return new Promise(function(fin){
+    try{
+      const p=S.perfil||{}
+      if (p.role!=='socio' || p.datos_confirmados_at || document.getElementById('kDt') || document.querySelector('#vSesion.on')) return fin()
+      const v=function(x){ return anEsc(x==null?'':String(x)) }
+      const tel=String(p.telefono||'').replace(/^\+56/,'')
+      const bg=document.createElement('div'); bg.id='kDt'; bg.className='kAu kTy kDt'; bg.setAttribute('role','dialog'); bg.setAttribute('aria-modal','true'); bg.setAttribute('aria-label','Confirma tus datos')
+      bg.innerHTML='<div class="kAu__top"><span class="kAu__logo" role="img" aria-label="KOACH"></span></div>'+
+        '<form class="kAu__body" id="dtF" novalidate>'+
+          '<div class="kAu__k">REGISTRO DE SOCIO · <b>KOACH CLUB</b></div>'+
+          '<div class="kTy__t"><b>Confirma</b><span>tus datos</span></div>'+
+          '<p class="kTy__p">Necesitamos tus datos reales para registrarte como socio y para los convenios del club. Revisa, corrige y confirma.</p>'+
+          '<div class="kDt__g"><label class="kDt__f"><span>NOMBRES</span><input id="dtN" autocomplete="given-name" value="'+v(p.nombre)+'"></label>'+
+          '<label class="kDt__f"><span>APELLIDOS</span><input id="dtA" autocomplete="family-name" value="'+v(p.apellido)+'"></label></div>'+
+          '<label class="kDt__f"><span>RUT</span><input id="dtR" inputmode="text" autocomplete="off" placeholder="12.345.678-9" value="'+v(p.rut?datosRutFmt(p.rut):'')+'"></label>'+
+          '<label class="kDt__f kDt__f--ro"><span>CORREO ELECTRÓNICO</span><input id="dtE" value="'+v(p.email)+'" readonly><em>Es tu correo de acceso. Si está mal, avísale a recepción.</em></label>'+
+          '<label class="kDt__f"><span>WHATSAPP</span><div class="kDt__tel"><b>+56</b><input id="dtT" type="tel" inputmode="tel" autocomplete="tel-national" placeholder="9 1234 5678" value="'+v(tel)+'"></div></label>'+
+          '<div class="kDt__f"><span>GÉNERO</span><div class="kDt__seg" id="dtS"><button type="button" data-v="mujer" aria-pressed="'+(p.sex==='mujer')+'">MUJER</button><button type="button" data-v="hombre" aria-pressed="'+(p.sex==='hombre')+'">HOMBRE</button></div></div>'+
+          '<label class="kDt__f"><span>PROFESIÓN U OCUPACIÓN</span><input id="dtO" autocomplete="organization-title" placeholder="Ej: Ingeniera, estudiante, profesor" value="'+v(p.ocupacion)+'"></label>'+
+          '<div class="kDt__k">CONTACTO EN CASO DE EMERGENCIA</div>'+
+          '<label class="kDt__f"><span>NOMBRE</span><input id="dtEN" autocomplete="off" placeholder="Nombre y relación (ej: Ana, madre)" value="'+v(p.emergencia_nombre)+'"></label>'+
+          '<label class="kDt__f"><span>TELÉFONO</span><div class="kDt__tel"><b>+56</b><input id="dtET" type="tel" inputmode="tel" autocomplete="off" placeholder="9 1234 5678" value="'+v(String(p.emergencia_telefono||'').replace(/^\+56/,''))+'"></div></label>'+
+        '</form>'+
+        '<div class="kAu__pie"><div class="kTy__err" id="dtErr" role="status"></div><button type="button" class="kAu__go" id="dtGo">CONFIRMAR MIS DATOS</button></div>'
+      document.body.appendChild(bg)
+      const $=function(i){ return document.getElementById(i) }
+      let sexo=p.sex||''
+      $('dtS').addEventListener('click',function(e){ const b=e.target.closest('button'); if(!b) return; sexo=b.dataset.v; $('dtS').querySelectorAll('button').forEach(function(x){ x.setAttribute('aria-pressed', String(x===b)) }) })
+      $('dtR').addEventListener('blur',function(){ if(this.value) this.value=datosRutFmt(this.value) })
+      bg.addEventListener('input',function(e){ const f=e.target.closest('.kDt__f'); if(f) f.classList.remove('mal') }); $('dtS').addEventListener('click',function(){ this.closest('.kDt__f').classList.remove('mal') })
+      $('dtF').addEventListener('submit',function(e){ e.preventDefault(); $('dtGo').click() })
+      const marca=function(id,ok){ const f=$(id).closest('.kDt__f'); if(f) f.classList.toggle('mal',!ok); return ok }
+      $('dtGo').onclick=async function(){
+        const g=this, err=$('dtErr'); err.textContent=''
+        const ok=[ marca('dtN',$('dtN').value.trim().length>=2), marca('dtA',$('dtA').value.trim().length>=2), marca('dtR',datosRutOk($('dtR').value)),
+          marca('dtT',datosTelOk($('dtT').value)), marca('dtS',!!sexo), marca('dtO',$('dtO').value.trim().length>=2), marca('dtEN',$('dtEN').value.trim().length>=2), marca('dtET',datosTelOk($('dtET').value)) ]
+        if (ok.indexOf(false)>=0){ err.textContent='REVISA LOS CAMPOS MARCADOS'; const m=bg.querySelector('.kDt__f.mal'); if(m) m.scrollIntoView({block:'center',behavior:'smooth'}); return }
+        g.disabled=true; g.textContent='GUARDANDO…'
+        try{
+          const r=await sb.rpc('mi_datos_confirmar',{ p_nombre:$('dtN').value, p_apellido:$('dtA').value, p_rut:$('dtR').value, p_telefono:$('dtT').value, p_sexo:sexo, p_ocupacion:$('dtO').value, p_emerg_nombre:$('dtEN').value, p_emerg_tel:$('dtET').value })
+          if (r.error) throw r.error
+          Object.assign(S.perfil,{ nombre:$('dtN').value.trim(), apellido:$('dtA').value.trim(), rut:r.data.rut, telefono:r.data.telefono, sex:sexo, ocupacion:$('dtO').value.trim(), emergencia_nombre:$('dtEN').value.trim(), emergencia_telefono:r.data.emergencia_telefono, datos_confirmados_at:new Date().toISOString() })
+          bg.remove(); try{ toast('Datos confirmados ✓') }catch(_){} fin()
+        }catch(e){ err.textContent=String((e&&e.message)||'No se pudo guardar').replace(/^DATOS:\s*/,'').toUpperCase(); g.disabled=false; g.textContent='CONFIRMAR MIS DATOS' }
+      }
+    }catch(_){ fin() }
+  })
+}
+
 
 /* ═══ c338 · TÉRMINOS Y CONDICIONES ═══
    Todo socio acepta la versión vigente una vez (y de nuevo cuando cambia): T&C + consentimiento A + declaración de salud (obligatorios),
