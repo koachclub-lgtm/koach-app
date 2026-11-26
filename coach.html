@@ -4915,12 +4915,13 @@ async function loadSala(silent){
   if(rs.error) toast('Perfiles: '+rs.error.message)
   C.socios = rs.data||[]
   const ids = C.socios.map(function(s){return s.id})
-  C.asig={}; C.prog={}; C.obj={}; C.regs={}; C.sems={}; C.sols=[]; C.hoy=[]; C.extras={}
+  // c353 · se arma todo en mapas locales y se publica de una vez al final: un repintado a mitad de la carga ya no ve 'SIN PROGRAMA' (antes _A quedaba vacío mientras llegaban los datos)
+  const _A={}, _PG={}, _OB={}, _RG={}, _SM={}, _EX={}; let _SOL=[], _HOY=[], _CTX={}
   if(ids.length){
     const ra = await sb.from('asignaciones').select('*, protocolos(*)')
       .in('socio_id',ids).eq('activo',true)
     if(ra.error) toast('Asignaciones: '+ra.error.message)
-    ;(ra.data||[]).forEach(function(a){ C.asig[a.socio_id]=a; if(a.protocolos) C.protos[a.protocolo_id]=a.protocolos })
+    ;(ra.data||[]).forEach(function(a){ _A[a.socio_id]=a; if(a.protocolos) C.protos[a.protocolo_id]=a.protocolos })
     const pids=[...new Set((ra.data||[]).map(function(a){return a.protocolo_id}))]
     if(pids.length){
       const rses = await sb.from('sesiones_protocolo').select('*').in('protocolo_id',pids).order('numero') // Ajuste F-MULTI: cap de 6 era residuo pre-multi-semana, rompía protocolos con >1 semana
@@ -4934,7 +4935,7 @@ async function loadSala(silent){
         rblo = par[0]; robjP = par[1]
       }
       pids.forEach(function(pid){
-        C.prog[pid]={ sesiones:(rses.data||[]).filter(function(s){return s.protocolo_id===pid}).map(function(s){
+        _PG[pid]={ sesiones:(rses.data||[]).filter(function(s){return s.protocolo_id===pid}).map(function(s){
           return { numero:s.numero, semana:(s.semana||1), id:s.id, nombre:nombreEN(s.objetivo)||('SESION '+s.numero),
             bloques:(rblo.data||[]).filter(function(b){return b.sesion_id===s.id}).sort(function(a,x){ return String(a.bloque).localeCompare(String(x.bloque)) }).map(function(b){
               return {id:b.id, sets:b.sets, ejercicios:beOrd(b.bloque_ejercicios).map(function(be){
@@ -4942,11 +4943,11 @@ async function loadSala(silent){
                         sinergistas:(be.ejercicios&&be.ejercicios.sinergistas)||{}, cuenta_dosis:(be.ejercicios?be.ejercicios.cuenta_dosis:null)}
               }).filter(function(e){return e.grupo})} }) } }) } })
       const robj = robjP || {data:[]}
-      pids.forEach(function(pid){ C.obj[pid]={}
+      pids.forEach(function(pid){ _OB[pid]={}
         ;(robj.data||[]).filter(function(o){return o.protocolo_id===pid}).forEach(function(o){
           const g=(o.grupo||'').toUpperCase()
           if(!g||!(o.mev>0))return
-          C.obj[pid][g]={mev:o.mev,mav:o.mav==null?null:o.mav,
+          _OB[pid][g]={mev:o.mev,mav:o.mav==null?null:o.mav,
             exigible:(o.dominante===undefined||o.dominante===null)?true:!!o.dominante} }) })
     }
     // Lanzadas en paralelo desde el inicio (no dependen de protocolos)
@@ -4957,10 +4958,10 @@ async function loadSala(silent){
       sb.from('sesiones_registro').select('id,socio_id,sesion_protocolo_id,validada_at').eq('fecha',hoyISO()).in('socio_id',ids).then(function(r){return r}, function(){return {data:[]}}),
       sb.from('designaciones_extra').select('id,socio_id,sesion_protocolo_id,estado,motivo,created_at').in('socio_id',ids).neq('estado','retirada').then(function(r){return r}, function(){return {data:[]}})
     ])
-    C.ctx={}; try{ const _rc=await _ctxP; ((_rc&&_rc.data)||[]).forEach(function(c){ C.ctx[c.socio_id]=c }) }catch(_e){}
+    try{ const _rc=await _ctxP; ((_rc&&_rc.data)||[]).forEach(function(c){ _CTX[c.socio_id]=c }) }catch(_e){}
     if(rreg.error) toast('Registros: '+rreg.error.message)
-    ids.forEach(function(id){C.regs[id]=[]})
-    ;(rreg.data||[]).forEach(function(r){ (C.regs[r.socio_id]=C.regs[r.socio_id]||[]).push(r) })
+    ids.forEach(function(id){_RG[id]=[]})
+    ;(rreg.data||[]).forEach(function(r){ (_RG[r.socio_id]=_RG[r.socio_id]||[]).push(r) })
     // c8.6 · sets realmente ejecutados (misma fuente que la app del socio → misma dosis)
     const EJ={}
     try{
@@ -4973,25 +4974,26 @@ async function loadSala(silent){
       }
     }catch(_e){}
     C.socios.forEach(function(s){
-      const a=C.asig[s.id]
-      if(!a||!C.prog[a.protocolo_id]){ C.sems[s.id]=null; return }
-      const prog=C.prog[a.protocolo_id]
+      const a=_A[s.id]
+      if(!a||!_PG[a.protocolo_id]){ _SM[s.id]=null; return }
+      const prog=_PG[a.protocolo_id]
       const _wEf=semEfectiva(prog.sesiones.map(function(x){return x.semana||1}), a.semana_actual||1)
       const _objP=objProgramados(prog, _wEf)
-      if(!Object.keys(_objP).length){ C.sems[s.id]=null; return }
+      if(!Object.keys(_objP).length){ _SM[s.id]=null; return }
       const numPorId={}; prog.sesiones.forEach(function(x){numPorId[x.id]=x.numero})
-      const rs2=(C.regs[s.id]||[]).map(function(r){
+      const rs2=(_RG[s.id]||[]).map(function(r){
         return {sesion_numero:numPorId[r.sesion_protocolo_id],estado:r.estado,fecha:r.fecha,ejec:EJ[r.id]||null,
           bloques_completados:r.bloques_completados==null?null:r.bloques_completados}
       }).filter(function(r){return r.sesion_numero})
-      C.sems[s.id]=calcularSemana(prog, rs2, _objP)
+      _SM[s.id]=calcularSemana(prog, rs2, _objP)
     })
-    C.sols = (rsolP && rsolP.data) || []
-    await adCargarResumen()
-    C.hoy = (rhoyP && rhoyP.data) || []
-    ids.forEach(function(id){C.extras[id]=[]})
-    ;((rdxP && rdxP.data)||[]).forEach(function(d){(C.extras[d.socio_id]=C.extras[d.socio_id]||[]).push(d)})
+    _SOL = (rsolP && rsolP.data) || []
+    _HOY = (rhoyP && rhoyP.data) || []
+    ids.forEach(function(id){_EX[id]=[]})
+    ;((rdxP && rdxP.data)||[]).forEach(function(d){(_EX[d.socio_id]=_EX[d.socio_id]||[]).push(d)})
   }
+  C.asig=_A; C.prog=_PG; C.obj=_OB; C.regs=_RG; C.sems=_SM; C.extras=_EX; C.sols=_SOL; C.hoy=_HOY; C.ctx=_CTX
+  try{ await adCargarResumen() }catch(_e){}
   pintarSala()
 }
 function nomDe(id){ const s=C.socios.find(function(x){return x.id===id})

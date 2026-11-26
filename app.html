@@ -7530,7 +7530,8 @@ function datosRevisar(){
           '<label class="kDt__f"><span>RUT</span><input id="dtR" inputmode="text" autocomplete="off" placeholder="12.345.678-9" value="'+v(p.rut?datosRutFmt(p.rut):'')+'"></label>'+
           '<label class="kDt__f kDt__f--ro"><span>CORREO ELECTRÓNICO</span><input id="dtE" value="'+v(p.email)+'" readonly><em>Es tu correo de acceso. Si está mal, avísale a recepción.</em></label>'+
           '<label class="kDt__f"><span>WHATSAPP</span><div class="kDt__tel"><b>+56</b><input id="dtT" type="tel" inputmode="tel" autocomplete="tel-national" placeholder="9 1234 5678" value="'+v(tel)+'"></div></label>'+
-          '<div class="kDt__f"><span>GÉNERO</span><div class="kDt__seg" id="dtS"><button type="button" data-v="mujer" aria-pressed="'+(p.sex==='mujer')+'">MUJER</button><button type="button" data-v="hombre" aria-pressed="'+(p.sex==='hombre')+'">HOMBRE</button></div></div>'+
+          (p.sex ? '<label class="kDt__f kDt__f--ro"><span>GÉNERO</span><input value="'+(p.sex==='mujer'?'Mujer':'Hombre')+'" readonly><em>Si está mal, avísale a recepción.</em></label>'
+                 : '<div class="kDt__f"><span>GÉNERO</span><div class="kDt__seg" id="dtS"><button type="button" data-v="mujer" aria-pressed="false">MUJER</button><button type="button" data-v="hombre" aria-pressed="false">HOMBRE</button></div></div>')+
           '<label class="kDt__f"><span>PROFESIÓN U OCUPACIÓN</span><input id="dtO" autocomplete="organization-title" placeholder="Ej: Ingeniera, estudiante, profesor" value="'+v(p.ocupacion)+'"></label>'+
           '<div class="kDt__k">CONTACTO EN CASO DE EMERGENCIA</div>'+
           '<label class="kDt__f"><span>NOMBRE</span><input id="dtEN" autocomplete="off" placeholder="Nombre y relación (ej: Ana, madre)" value="'+v(p.emergencia_nombre)+'"></label>'+
@@ -7540,21 +7541,21 @@ function datosRevisar(){
       document.body.appendChild(bg)
       const $=function(i){ return document.getElementById(i) }
       let sexo=p.sex||''
-      $('dtS').addEventListener('click',function(e){ const b=e.target.closest('button'); if(!b) return; sexo=b.dataset.v; $('dtS').querySelectorAll('button').forEach(function(x){ x.setAttribute('aria-pressed', String(x===b)) }) })
+      if ($('dtS')) $('dtS').addEventListener('click',function(e){ const b=e.target.closest('button'); if(!b) return; sexo=b.dataset.v; $('dtS').querySelectorAll('button').forEach(function(x){ x.setAttribute('aria-pressed', String(x===b)) }) })
       $('dtR').addEventListener('blur',function(){ if(this.value) this.value=datosRutFmt(this.value) })
-      bg.addEventListener('input',function(e){ const f=e.target.closest('.kDt__f'); if(f) f.classList.remove('mal') }); $('dtS').addEventListener('click',function(){ this.closest('.kDt__f').classList.remove('mal') })
+      bg.addEventListener('input',function(e){ const f=e.target.closest('.kDt__f'); if(f) f.classList.remove('mal') }); if ($('dtS')) $('dtS').addEventListener('click',function(){ this.closest('.kDt__f').classList.remove('mal') })
       $('dtF').addEventListener('submit',function(e){ e.preventDefault(); $('dtGo').click() })
       const marca=function(id,ok){ const f=$(id).closest('.kDt__f'); if(f) f.classList.toggle('mal',!ok); return ok }
       $('dtGo').onclick=async function(){
         const g=this, err=$('dtErr'); err.textContent=''
         const ok=[ marca('dtN',$('dtN').value.trim().length>=2), marca('dtA',$('dtA').value.trim().length>=2), marca('dtR',datosRutOk($('dtR').value)),
-          marca('dtT',datosTelOk($('dtT').value)), marca('dtS',!!sexo), marca('dtO',$('dtO').value.trim().length>=2), marca('dtEN',$('dtEN').value.trim().length>=2), marca('dtET',datosTelOk($('dtET').value)) ]
+          marca('dtT',datosTelOk($('dtT').value)), ($('dtS')?marca('dtS',!!sexo):true), marca('dtO',$('dtO').value.trim().length>=2), marca('dtEN',$('dtEN').value.trim().length>=2), marca('dtET',datosTelOk($('dtET').value)) ]
         if (ok.indexOf(false)>=0){ err.textContent='REVISA LOS CAMPOS MARCADOS'; const m=bg.querySelector('.kDt__f.mal'); if(m) m.scrollIntoView({block:'center',behavior:'smooth'}); return }
         g.disabled=true; g.textContent='GUARDANDO…'
         try{
-          const r=await sb.rpc('mi_datos_confirmar',{ p_nombre:$('dtN').value, p_apellido:$('dtA').value, p_rut:$('dtR').value, p_telefono:$('dtT').value, p_sexo:sexo, p_ocupacion:$('dtO').value, p_emerg_nombre:$('dtEN').value, p_emerg_tel:$('dtET').value })
+          const r=await sb.rpc('mi_datos_confirmar',{ p_nombre:$('dtN').value, p_apellido:$('dtA').value, p_rut:$('dtR').value, p_telefono:$('dtT').value, p_sexo:p.sex?'':sexo, p_ocupacion:$('dtO').value, p_emerg_nombre:$('dtEN').value, p_emerg_tel:$('dtET').value })
           if (r.error) throw r.error
-          Object.assign(S.perfil,{ nombre:$('dtN').value.trim(), apellido:$('dtA').value.trim(), rut:r.data.rut, telefono:r.data.telefono, sex:sexo, ocupacion:$('dtO').value.trim(), emergencia_nombre:$('dtEN').value.trim(), emergencia_telefono:r.data.emergencia_telefono, datos_confirmados_at:new Date().toISOString() })
+          Object.assign(S.perfil,{ nombre:$('dtN').value.trim(), apellido:$('dtA').value.trim(), rut:r.data.rut, telefono:r.data.telefono, sex:p.sex||sexo, ocupacion:$('dtO').value.trim(), emergencia_nombre:$('dtEN').value.trim(), emergencia_telefono:r.data.emergencia_telefono, datos_confirmados_at:new Date().toISOString() })
           bg.remove(); try{ toast('Datos confirmados ✓') }catch(_){} fin()
         }catch(e){ err.textContent=String((e&&e.message)||'No se pudo guardar').replace(/^DATOS:\s*/,'').toUpperCase(); g.disabled=false; g.textContent='CONFIRMAR MIS DATOS' }
       }
