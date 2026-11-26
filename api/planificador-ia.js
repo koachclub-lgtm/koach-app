@@ -35,8 +35,8 @@ const METODO = `MÉTODO KOACH (estructura, obligatorio salvo que el koach dicte 
 - Cada sesión: B1 activación (demanda MEDIA/BAJA; CORE penúltimo y MOVILIDAD al final) · B2 fuerza principal con el ancla liderando (demanda ALTA/MEDIA) · B3 cierre accesorio (solo demanda BAJA). Un B4 solo si el koach lo pide o el tiempo lo exige.
 - Orden en cada bloque: demanda ALTA → MEDIA → BAJA; compuesto antes que aislado; bíceps/tríceps al final del bloque. Nunca un ejercicio técnico complejo después de aislados.
 - No mezclar bilateral + unilateral del mismo segmento en un bloque. Un mismo músculo no lidera 2 bloques el mismo día. ≥1 dominante de cadera por sesión. Tracción ≥ empuje en la semana.
-- Leg curl en máquina (sentado o prono) = dominante de rodilla en FLEXIÓN: el único que aísla el isquio sin cadera; es infaltable. En el conteo cadera vs rodilla, "rodilla" es solo extensión (sentadilla, prensa, extensión); el leg curl suma a cadena posterior.
-- Hombre: bíceps y tríceps nunca el mismo día; isquios ≥ glúteo. Mujer: cadera > rodilla (extensión); glúteo con un ejercicio en largo (RDL/sentadilla), uno en acortado (hip thrust/puente) y abducción.
+- Leg curl en máquina (sentado o prono): VOLUMEN = isquio puro (cuenta completo para isquios, sin glúteo); DEMANDA ARTICULAR = rodilla en flexión (no cadera). Es el único que aísla el isquio sin cadera; es infaltable.
+- Hombre: bíceps y tríceps nunca el mismo día; isquios ≥ glúteo. Mujer: volumen de cadena posterior (glúteo + isquio) > cuádriceps; glúteo con un ejercicio en largo (RDL/sentadilla), uno en acortado (hip thrust/puente) y abducción.
 - Nivel BÁSICO: nada de sentadilla/banca/peso muerto con barra, saltos ni olímpicos; usa máquinas y mancuernas. Respeta el nivel mínimo de cada ejercicio.
 - Regla de los tercios: B2 pesado (ancla), B1 moderado (8–12), B3 liviano (12–20).
 - Anclas (máx. 1 por bloque, en B2, liderando): rodilla, cadera, empuje y tracción en la semana.
