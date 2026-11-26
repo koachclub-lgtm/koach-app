@@ -1599,6 +1599,52 @@ html.piaOn{overflow:hidden}
 .mPia .ev__n,.mPia .pia__dec{color:#E4E6E8}.mPia .pia__w{color:#FF4200}
 .mPia .ev__i{background:rgba(255,255,255,.05);border-left-color:rgba(244,243,240,.4)}.mPia .ev__i b{color:#F4F3F0}.mPia .ev__i small{color:#979C9F}
 .mPia .ev__i--estructura,.mPia .ev__i--anclas,.mPia .ev__i--datos,.mPia .ev__i--reglas,.mPia .ev__i--volumen{border-left-color:#FF4200}
+/* c365 · vistas: opciones a todo el ancho → análisis → propuesta; barra inferior fija */
+.pia__main{flex:1 1 auto;min-height:0;overflow-y:auto;padding:16px 24px 24px}
+.pia__bar{flex:0 0 auto;display:flex;align-items:center;gap:14px;padding:12px 24px calc(12px + env(safe-area-inset-bottom,0px));border-top:1px solid rgba(244,243,240,.12);background:#0A0B0C}
+.pia__bar[hidden]{display:none}
+.pia__bs{flex:1;min-width:0;font-family:var(--font-mono);font-size:10.5px;letter-spacing:.1em;color:#979C9F;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-transform:uppercase}
+.mPia .pia__go{width:auto;min-width:260px;background:#F4F3F0;color:#000;border:1px solid #F4F3F0;border-radius:999px;padding:14px 22px;font-family:var(--font-mono);letter-spacing:.12em}
+.pia__bk{background:transparent;border:1px solid rgba(244,243,240,.4);color:#F4F3F0;border-radius:999px;padding:12px 18px;font-family:var(--font-mono);font-size:10.5px;letter-spacing:.12em;cursor:pointer}
+.mPia .pia__main .pia__d textarea{min-height:52px}
+.pia__err{font-family:var(--font-mono);font-size:11px;letter-spacing:.06em;color:#FF4200;border:1px solid #FF4200;border-radius:10px;padding:8px 12px;margin:10px 0 0}
+.pia__sit{margin-top:14px;padding:14px 16px;border:1px solid rgba(244,243,240,.12);border-radius:18px;background:rgba(255,255,255,.02)}
+.pia__opts{display:grid;grid-template-columns:repeat(auto-fill,minmax(380px,1fr));gap:4px 28px;margin-top:6px}
+.mPia .pia__opts .pia__g{margin-top:14px}
+.mPia .pia__c{font-size:10.5px;min-height:38px;padding:8px 13px}
+.pia__res{max-width:none}
+.mPia textarea#piaTxt{background:rgba(255,255,255,.06)!important;color:#F4F3F0!important;border:1px solid rgba(244,243,240,.2)!important}
+.mPia .pia__ap .ink{align-self:flex-start;width:auto;min-width:300px}
+.pia__kp{margin-top:16px}
+.pia__bq--n{cursor:default;min-height:120px}
+.pia__ses{grid-template-columns:repeat(auto-fill,minmax(320px,1fr))}
+/* análisis: rueda tech + construcción por etapas */
+.pia__ld{min-height:100%;display:grid;grid-template-columns:minmax(260px,360px) minmax(0,520px);align-items:center;justify-content:center;gap:48px;padding:3vh 0}
+.pia__ring{position:relative;width:100%;aspect-ratio:1}
+.pia__ring svg{width:100%;height:100%;display:block}
+.pia__ring circle{fill:none}
+.pia__ring .r0{stroke:rgba(244,243,240,.08);stroke-width:2}
+.pia__ring .r1{stroke:#F4F3F0;stroke-width:2;stroke-dasharray:120 460;stroke-linecap:round;transform-origin:100px 100px;animation:piaRot 1.6s linear infinite}
+.pia__ring .r2{stroke:#979C9F;stroke-width:1;stroke-dasharray:6 8;transform-origin:100px 100px;animation:piaRot 9s linear infinite reverse}
+.pia__ring .r3{stroke:rgba(62,198,176,.7);stroke-width:1.5;stroke-dasharray:40 312;transform-origin:100px 100px;animation:piaRot 2.8s linear infinite reverse}
+.pia__ring .tk line{stroke:rgba(244,243,240,.25);stroke-width:1}
+.pia__ring .cr{stroke:#979C9F;stroke-width:1}
+.pia__rc{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.pia__rc b{font-family:var(--font-mono);font-size:54px;line-height:1;color:#F4F3F0}
+.pia__rc small{font-family:var(--font-mono);font-size:10px;letter-spacing:.16em;color:#979C9F}
+@keyframes piaRot{to{transform:rotate(360deg)}}
+@media (prefers-reduced-motion:reduce){ .pia__ring .r1,.pia__ring .r2,.pia__ring .r3{animation:none} }
+.pia__ldt small{font-family:var(--font-mono);font-size:10px;letter-spacing:.16em;color:#979C9F}
+.pia__ldt h3{margin:6px 0 14px;display:flex;flex-direction:column;line-height:1}
+.pia__ldt h3 b{font-family:'KOACH Display','Archivo',Arial,sans-serif;font-size:40px;font-weight:900;color:#fff}
+.mPia .pia__ldt h3 span{font-size:24px;font-weight:300;color:#979C9F!important}
+.pia__steps{list-style:none;margin:0;padding:0;border-top:1px solid rgba(244,243,240,.12)}
+.pia__steps li{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid rgba(244,243,240,.08);font-family:var(--font-mono);font-size:11px;letter-spacing:.1em;color:#6F7377}
+.pia__steps li i{width:14px;height:14px;border-radius:50%;border:1px solid #6F7377;flex:0 0 auto}
+.pia__steps li.on{color:#F4F3F0}.pia__steps li.on i{border-color:#F4F3F0;border-top-color:transparent;animation:piaRot .8s linear infinite}
+.pia__steps li.ok{color:#979C9F}.pia__steps li.ok i{border-color:#3EC6B0;background:#3EC6B0}
+.pia__ldn{font-family:var(--font-mono);font-size:9.5px;letter-spacing:.08em;color:#6F7377;margin:12px 0 0}
+@media (max-width:899px){ .pia__ld{grid-template-columns:1fr;gap:20px} .pia__ring{max-width:260px;margin:0 auto} .pia__opts{grid-template-columns:1fr} .mPia .pia__go{min-width:0} }
 @media (max-width:1100px){ .pia__vg{grid-template-columns:repeat(4,minmax(0,1fr))} }
 @media (max-width:899px){ .pia__grid{grid-template-columns:1fr;overflow-y:auto} .pia__cfg,.pia__out{overflow:visible;border-right:0} .pia__brd{grid-template-columns:1fr} .pia__hd h2 b{font-size:22px} }
 
@@ -6847,37 +6893,46 @@ function piaAbrir(){
   PIA.c = { alcance:s?'SESIÓN DEL DÍA':'SEMANA', objetivo:PIA_OBJ[0], bloque:'B2',
     programa:String(pr.programa||'STRONG').toUpperCase(), nivel:String(pr.nivel||'INTERMEDIO').toUpperCase(), sexo:String(pr.sexo||'mujer').toLowerCase(),
     dias:String(Math.max(2,Math.min(5,plSesSem(piaW()).filter(function(x){ return !x._extra }).length||3))), rotativo:'NO', estructura:PIA_MM, prioridad:['EQUILIBRADO'], implementos:'MÁQUINAS PRIMERO', minutos:'75', grandes:'10', secundarios:'8' }
-  PIA.plan=null; PIA.ciclo=false
+  PIA.plan=null; PIA.ciclo=false; PIA.txt=''; PIA.err=null
   let m=document.getElementById('mPia')
   if (!m){ m=document.createElement('div'); m.id='mPia'; m.className='mCg mPia'; m.setAttribute('role','dialog'); m.setAttribute('aria-modal','true'); m.setAttribute('aria-label','Planificador IA')
     m.innerHTML='<div class="mCg__c pia"><button class="mCg__x" onclick="piaCerrar()" aria-label="Cerrar">✕</button><div id="piaBody"></div></div>'
     document.body.appendChild(m) }
   m.style.display='flex'; document.documentElement.classList.add('piaOn'); piaPintar()
-  if (!KEV.lib) kevLib().then(function(){ if(!PIA.plan){ const r=document.getElementById('piaRes'); if(r) r.innerHTML=piaActual() } }, function(){})
+  if (!KEV.lib) kevLib().then(function(){ if(PIA.vista==='cfg') piaPintarCrit() }, function(){})
 }
-function piaCerrar(){ piaMic(false); const m=document.getElementById('mPia'); if(m) m.style.display='none'; document.documentElement.classList.remove('piaOn') }
+function piaCerrar(){ piaMic(false); clearInterval(PIA.tmr); PIA.vista=null; const m=document.getElementById('mPia'); if(m) m.style.display='none'; document.documentElement.classList.remove('piaOn') }
 function piaSel(k,v){
   if (PIA_MULTI[k]){ const a=PIA.c[k]||[]; const i=a.indexOf(v); if(v==='EQUILIBRADO') PIA.c[k]=['EQUILIBRADO']; else { if(i>=0) a.splice(i,1); else a.push(v); PIA.c[k]=a.filter(function(x){return x!=='EQUILIBRADO'}); if(!PIA.c[k].length) PIA.c[k]=['EQUILIBRADO'] } }
   else { PIA.c[k]=v; if(k==='dias' && piaSplits(v).indexOf(PIA.c.estructura)<0) PIA.c.estructura=PIA_MM }
-  if (k==='alcance'){ PIA.plan=null; PIA.ciclo=false; const g=document.getElementById('piaGo'); if(g) g.textContent=piaGoTxt() }
-  if ((k==='alcance'||k==='bloque') && !PIA.plan){ const r=document.getElementById('piaRes'); if(r) r.innerHTML=piaActual() }
-  piaPintarCrit() }
+  if (k==='alcance'){ PIA.plan=null; PIA.ciclo=false }
+  piaPintarCrit(); piaBarra() }
 function piaChips(k, ops, tit){ return '<div class="pia__g"><div class="pia__k">'+tit+'</div><div class="pia__o">'+ops.map(function(v){ const on=PIA_MULTI[k]?(PIA.c[k]||[]).indexOf(v)>=0:PIA.c[k]===v
   return '<button type="button" class="pia__c'+(on?' on':'')+'" aria-pressed="'+on+'" onclick="piaSel(\''+k+'\',\''+String(v).replace(/'/g,"\\'")+'\')">'+(k==='nivel'?v.replace('BASICO','BÁSICO'):String(v).toUpperCase())+'</button>' }).join('')+'</div></div>' }
 function piaBloquesTxt(s){ return (s.bloques||[]).map(function(b){ return b.tag }) }
 function piaPintarCrit(){ const box=document.getElementById('piaCrit'); if(!box) return
   const a=piaAlc(), s=piaSesAct()
-  let h=piaChips('alcance', s?PIA_ALC:PIA_ALC.filter(function(x){ return x!=='BLOQUE'&&x!=='SESIÓN DEL DÍA' }), '¿QUÉ QUIERES CAMBIAR?')
+  let h='<div class="pia__row">'+piaChips('alcance', s?PIA_ALC:PIA_ALC.filter(function(x){ return x!=='BLOQUE'&&x!=='SESIÓN DEL DÍA' }), '¿QUÉ QUIERES CAMBIAR?')+'</div>'
+  h+='<div class="pia__sit">'+piaActual()+'</div>'
+  let g=''
   if (a==='BLOQUE'||a==='SESION'){
-    if (a==='BLOQUE') h+='<p class="pia__hint">TOCA EN EL TABLERO EL BLOQUE QUE QUIERES CAMBIAR · AHORA: <b>'+PIA.c.bloque+'</b></p>'
-    h+=piaChips('objetivo', PIA_OBJ, a==='BLOQUE'?'OBJETIVO DEL BLOQUE':'OBJETIVO DE LA SESIÓN')
-    h+=piaChips('implementos', PIA_OPC.implementos, PIA_TIT.implementos)
-    if (a==='SESION') h+=piaChips('minutos', PIA_OPC.minutos, PIA_TIT.minutos)
+    g+=piaChips('objetivo', PIA_OBJ, a==='BLOQUE'?'OBJETIVO DEL BLOQUE':'OBJETIVO DE LA SESIÓN')
+    g+=piaChips('implementos', PIA_OPC.implementos, PIA_TIT.implementos)
+    if (a==='SESION') g+=piaChips('minutos', PIA_OPC.minutos, PIA_TIT.minutos)
   } else {
     ;['programa','nivel','sexo','dias','estructura','rotativo','prioridad','implementos','minutos','grandes','secundarios'].forEach(function(k){
-      h+=piaChips(k, k==='estructura'?piaSplits(PIA.c.dias):PIA_OPC[k], PIA_TIT[k]) })
+      g+=piaChips(k, k==='estructura'?piaSplits(PIA.c.dias):PIA_OPC[k], PIA_TIT[k]) })
   }
-  box.innerHTML=h }
+  box.innerHTML=h+'<div class="pia__opts">'+g+'</div>' }
+function piaResumenSel(){ const a=piaAlc(), c=PIA.c
+  return (a==='BLOQUE'?['BLOQUE '+c.bloque, c.objetivo, c.implementos]:a==='SESION'?['SESIÓN DEL DÍA', c.objetivo, c.implementos, c.minutos+' MIN']
+    :[a==='CICLO'?'NUEVO CICLO':'SEMANA', c.programa, c.nivel, c.dias+' DÍAS', c.estructura, c.minutos+' MIN']).join(' · ') }
+function piaBarra(){ const bar=document.getElementById('piaBar'); if(!bar) return
+  if (PIA.vista==='load'){ bar.innerHTML=''; bar.hidden=true; return }
+  bar.hidden=false
+  bar.innerHTML = PIA.vista==='res'
+    ? '<button type="button" class="pia__bk" onclick="piaVista(\'cfg\')">← AJUSTAR OPCIONES</button><span class="pia__bs">'+plEsc(piaResumenSel())+'</span><button type="button" class="ink pia__go" onclick="piaGenerar()">GENERAR DE NUEVO</button>'
+    : '<span class="pia__bs">'+plEsc(piaResumenSel())+'</span><button type="button" class="ink pia__go" id="piaGo" onclick="piaGenerar()">'+piaGoTxt()+'</button>' }
 function piaGoTxt(){ const a=piaAlc(); return a==='BLOQUE'?'GENERAR BLOQUE':a==='SESION'?'GENERAR SESIÓN':a==='CICLO'?'GENERAR NUEVO CICLO':'GENERAR SEMANA' }
 function piaVacio(){ return '<div class="pia__empty"><small>PROPUESTA</small><b>Elige qué cambiar y genera.</b><span>El mastermind arma la propuesta, el evaluador la puntúa y tú decides si la aplicas. Nada se escribe antes de APLICAR.</span></div>' }
 // c364 · primer contacto: la situación actual a la vista (sesión o semana + evaluación + volumen), en vez de un panel vacío
@@ -6902,17 +6957,57 @@ function piaActual(){
   return h }
 function piaPintar(){
   const b=document.getElementById('piaBody'); if(!b) return
-  const voz=!!(window.SpeechRecognition||window.webkitSpeechRecognition), nom=(typeof F!=='undefined'&&F&&typeof nomDe==='function')?String(nomDe(F.id)).toUpperCase():''
-  const pr=(P&&P.proto)||{}
+  const nom=(typeof F!=='undefined'&&F&&typeof nomDe==='function')?String(nomDe(F.id)).toUpperCase():'', pr=(P&&P.proto)||{}
   b.innerHTML='<header class="pia__hd"><div><small>PLANIFICADOR · MASTERMIND HYPERTROPHY</small><h2><b>'+plEsc(nom||'PLANIFICAR')+'</b><span>'+plEsc([pr.programa,pr.nivel,'SEMANA '+piaW()].filter(Boolean).join(' · '))+'</span></h2></div></header>'+
-    '<div class="pia__grid"><section class="pia__cfg">'+
-      '<div class="pia__d"><textarea id="piaTxt" rows="3" placeholder="Dicta o escribe lo que necesitas. Ej.: cambia el B2 por algo de glúteo en máquinas, mantén el volumen; o: esta semana menos tiempo, 60 minutos."></textarea>'+
-      (voz?'<button type="button" id="piaMicB" class="pia__mic" onclick="piaMic()" aria-pressed="false">● DICTAR</button>':'<small class="pia__nv">EL DICTADO POR VOZ FUNCIONA EN CHROME. AQUÍ PUEDES ESCRIBIR.</small>')+'</div>'+
-      '<div id="piaCrit"></div>'+
-      '<div class="pia__f"><button type="button" class="ink" id="piaGo" onclick="piaGenerar()">'+piaGoTxt()+'</button></div>'+
-    '</section><section class="pia__out" id="piaRes">'+piaActual()+'</section></div>'
-  piaPintarCrit()
+    '<main class="pia__main" id="piaMain"></main><footer class="pia__bar" id="piaBar"></footer>'
+  PIA.vista=null; piaVista('cfg')
 }
+// c365 · tres vistas: opciones a pantalla completa → análisis (rueda de carga con la construcción) → propuesta
+function piaVista(v){
+  const m=document.getElementById('piaMain'); if(!m) return
+  if (PIA.vista==='cfg'){ const t=document.getElementById('piaTxt'); if(t) PIA.txt=t.value }
+  PIA.vista=v
+  if (v==='cfg'){
+    const voz=!!(window.SpeechRecognition||window.webkitSpeechRecognition)
+    m.innerHTML='<div class="pia__d"><textarea id="piaTxt" rows="2" placeholder="Dicta o escribe lo que necesitas. Ej.: cambia el B2 por algo de glúteo en máquinas, mantén el volumen; o: esta semana menos tiempo, 60 minutos."></textarea>'+
+      (voz?'<button type="button" id="piaMicB" class="pia__mic" onclick="piaMic()" aria-pressed="false">● DICTAR</button>':'<small class="pia__nv">EL DICTADO POR VOZ FUNCIONA EN CHROME. AQUÍ PUEDES ESCRIBIR.</small>')+'</div>'+
+      (PIA.err?'<p class="pia__err">'+plEsc(PIA.err)+'</p>':'')+'<div id="piaCrit"></div>'
+    const t=document.getElementById('piaTxt'); if(t&&PIA.txt) t.value=PIA.txt
+    piaPintarCrit()
+  } else if (v==='load'){
+    m.innerHTML=piaLoader()
+    piaLoaderAnimar()
+  } else {
+    m.innerHTML='<div id="piaRes" class="pia__res"></div>'
+    piaResultado()
+  }
+  m.scrollTop=0; piaBarra()
+}
+function piaLoader(){
+  const ap=piaAlc(), et=piaEtapas()
+  return '<div class="pia__ld"><div class="pia__ring" aria-hidden="true"><svg viewBox="0 0 200 200">'+
+      '<circle cx="100" cy="100" r="92" class="r0"/><circle cx="100" cy="100" r="92" class="r1"/><circle cx="100" cy="100" r="74" class="r2"/><circle cx="100" cy="100" r="56" class="r3"/>'+
+      '<g class="tk">'+Array.from({length:60},function(_,i){ const a=i*6*Math.PI/180, r1=i%5?84:80; return '<line x1="'+(100+r1*Math.cos(a)).toFixed(1)+'" y1="'+(100+r1*Math.sin(a)).toFixed(1)+'" x2="'+(100+88*Math.cos(a)).toFixed(1)+'" y2="'+(100+88*Math.sin(a)).toFixed(1)+'"/>' }).join('')+'</g>'+
+      '<line x1="100" y1="34" x2="100" y2="48" class="cr"/><line x1="100" y1="152" x2="100" y2="166" class="cr"/><line x1="34" y1="100" x2="48" y2="100" class="cr"/><line x1="152" y1="100" x2="166" y2="100" class="cr"/>'+
+    '</svg><div class="pia__rc"><b id="piaPct">0</b><small>% · <span id="piaSeg">0</span> S</small></div></div>'+
+    '<div class="pia__ldt"><small>MASTERMIND HYPERTROPHY · '+(ap==='BLOQUE'?'BLOQUE '+PIA.c.bloque:ap==='SESION'?'SESIÓN DEL DÍA':ap==='CICLO'?'NUEVO CICLO':'SEMANA')+'</small><h3><b>CONSTRUYENDO</b><span>LA PROPUESTA</span></h3>'+
+      '<ol class="pia__steps" id="piaSteps">'+et.map(function(e,i){ return '<li data-i="'+i+'"><i></i><span>'+e+'</span></li>' }).join('')+'</ol>'+
+      '<p class="pia__ldn">LAS ETAPAS SON EL ORDEN DEL PROCESO; EL AVANCE ES ESTIMADO SEGÚN EL TIEMPO HABITUAL (30–60 S).</p></div></div>' }
+function piaEtapas(){ const a=piaAlc()
+  return ['LEYENDO '+(a==='SEMANA'||a==='CICLO'?'LA SEMANA VIGENTE':'LA SESIÓN DEL DÍA')+' Y LA ANAMNESIS','BIBLIOTECA, SALA (PISO 1 / PISO 2) Y DOLOR MARCADO','POLÍTICA KOACH · DECISIONES DE LOS KOACHES',
+    a==='BLOQUE'?'ARMANDO EL '+PIA.c.bloque:a==='SESION'?'ARMANDO B1 · B2 · B3':'ARMANDO LAS SESIONES','VOLUMEN, FRECUENCIA E INFALTABLES','REVISIÓN DEL MÉTODO Y CORRECCIÓN','EVALUACIÓN 0–100'] }
+function piaLoaderAnimar(){
+  const t0=Date.now(), n=piaEtapas().length
+  clearInterval(PIA.tmr)
+  PIA.tmr=setInterval(function(){
+    const pc=document.getElementById('piaPct'); if(!pc || PIA.vista!=='load'){ clearInterval(PIA.tmr); return }
+    const sec=(Date.now()-t0)/1000, p=Math.min(94, Math.round(100*(1-Math.exp(-sec/22))))   // estimado: se frena antes de terminar
+    pc.textContent=p; document.getElementById('piaSeg').textContent=Math.round(sec)
+    const k=Math.min(n-2, Math.floor(p/100*(n-1)))
+    document.querySelectorAll('#piaSteps li').forEach(function(li,i){ li.className=i<k?'ok':i===k?'on':'' })
+  }, 250) }
+function piaLoaderFin(){ clearInterval(PIA.tmr); const pc=document.getElementById('piaPct'); if(pc) pc.textContent='100'
+  document.querySelectorAll('#piaSteps li').forEach(function(li){ li.className='ok' }) }
 function piaMic(forzar){
   const SR=window.SpeechRecognition||window.webkitSpeechRecognition, btn=document.getElementById('piaMicB')
   if (forzar===false || PIA.oyendo){ try{ PIA.rec&&PIA.rec.stop() }catch(_e){} PIA.oyendo=false; if(btn){ btn.classList.remove('on'); btn.textContent='● DICTAR'; btn.setAttribute('aria-pressed','false') } return }
@@ -6933,8 +7028,9 @@ function piaContexto(){
 }
 async function piaGenerar(){
   if (PIA.run) return; piaMic(false)
-  const txt=(document.getElementById('piaTxt').value||'').trim(), res=document.getElementById('piaRes'), go=document.getElementById('piaGo')
-  PIA.run=true; PIA.ciclo=false; go.disabled=true; go.textContent='ARMANDO…'; res.innerHTML='<div class="pia__empty"><small>MASTERMIND</small><b>Planificando…</b><span>30–60 segundos. Revisa reglas, volumen y sala antes de mostrarte la propuesta.</span></div>'
+  const t=document.getElementById('piaTxt'); if (t) PIA.txt=t.value
+  const txt=String(PIA.txt||'').trim()
+  PIA.run=true; PIA.ciclo=false; PIA.err=null; piaVista('load')
   try{
     const ses=(await sb.auth.getSession()).data.session; if(!ses) throw new Error('Sesión vencida: vuelve a entrar')
     const crit=Object.assign({}, PIA.c, { nombre:(typeof F!=='undefined'&&F&&typeof nomDe==='function')?nomDe(F.id):null })
@@ -6943,9 +7039,10 @@ async function piaGenerar(){
       body:JSON.stringify({ instruccion:txt, criterios:crit, socio_id:(typeof F!=='undefined'&&F)?F.id:null, alcance:PIA.alc, contexto:PIA.ctx }) })
     const d=await r.json().catch(function(){ return {} })
     if (!r.ok) throw new Error(d.error||('Error '+r.status))
-    PIA.plan=d.plan; PIA.log=d.log_id||null; PIA.fuera=d.fuera||[]; PIA.corr=d.corregidas||0; PIA.excl=d.excluidas||[]; await kevLib(); piaResultado()
-  }catch(e){ res.innerHTML='<div class="pia__empty"><small>NO SE PUDO</small><b>'+plEsc(e.message||String(e))+'</b></div>' }
-  finally{ PIA.run=false; go.disabled=false; go.textContent=piaGoTxt().replace('GENERAR','GENERAR DE NUEVO ·').replace('· ','') }
+    PIA.plan=d.plan; PIA.log=d.log_id||null; PIA.fuera=d.fuera||[]; PIA.corr=d.corregidas||0; PIA.excl=d.excluidas||[]; await kevLib()
+    piaLoaderFin(); await new Promise(function(r){ setTimeout(r,450) })
+    PIA.run=false; piaVista('res')
+  }catch(e){ PIA.run=false; clearInterval(PIA.tmr); PIA.err='No se pudo generar: '+(e.message||String(e)); piaVista('cfg') }
 }
 function piaItems(b){ return (b.ejercicios||[]).map(function(x){ const e=KEV.lib&&KEV.lib[x.id]
   return { ejId:x.id, nombre:x.nombre, grupo:(e&&e.estimulo)||x.estimulo||'', reps:String(x.reps||''), modo:x.tiempo?'TIME':'REPS', tipoReg:x.tiempo?'TIME':'WEIGHT_REPS', rir:x.rir||null, ancla:!!x.ancla, kg:null } }) }
@@ -6985,9 +7082,11 @@ function piaResultado(){
     ((pl.decisiones||[]).length?'<ul class="pia__dec">'+pl.decisiones.map(function(x){ return '<li>'+plEsc(x)+'</li>' }).join('')+'</ul>':'')+
     (PIA.fuera.length?'<p class="pia__w">No están en la biblioteca y se quitaron: '+plEsc(PIA.fuera.join(', '))+'</p>':'')+
     (PIA.corr?'<p class="ev__f">EL MASTERMIND CORRIGIÓ '+PIA.corr+' ERROR'+(PIA.corr>1?'ES':'')+' DE REGLAS ANTES DE MOSTRARTE LA PROPUESTA.</p>':'')+
+    ((PIA.alc==='SESION'||PIA.alc==='BLOQUE') ? '<div class="pia__k pia__kp">PROPUESTA · '+plEsc(String(((pl.sesiones||[])[0]||{}).nombre||'').toUpperCase())+(PIA.alc==='BLOQUE'?' · '+PIA.bl:'')+'</div><div class="pia__brd">'+(((pl.sesiones||[])[0]||{}).bloques||[]).map(function(b){
+        return '<div class="pia__bq pia__bq--n"><span class="pia__bqh"><b>'+b.bloque+'</b><i>'+b.sets+' SETS · '+b.descanso_seg+' S</i></span>'+(b.ejercicios||[]).map(function(x){ return '<span class="pia__bqe">'+(x.ancla?'◆ ':'')+plEsc(x.nombre)+'<em>'+plEsc(String(x.reps))+(x.tiempo?' S':'')+(x.rir?' · RIR '+plEsc(x.rir):'')+'</em></span>' }).join('')+'</div>' }).join('')+'</div>' :
     '<div class="pia__ses">'+(pl.sesiones||[]).map(function(s){ return '<article class="pia__sc"><div class="ev__s">'+plEsc(String(s.nombre||'').toUpperCase())+'</div>'+
       (s.bloques||[]).map(function(b){ return '<div class="pia__b"><div class="pia__bh">'+b.bloque+' · '+b.sets+' SETS · '+b.descanso_seg+' S</div>'+
-        (b.ejercicios||[]).map(function(x){ return '<div class="pia__e">'+(x.ancla?'◆ ':'')+plEsc(x.nombre)+'<span>'+plEsc(String(x.reps))+(x.tiempo?' S':' REPS')+(x.rir?' · RIR '+plEsc(x.rir):'')+'</span></div>' }).join('')+'</div>' }).join('')+'</article>' }).join('')+'</div>'+
+        (b.ejercicios||[]).map(function(x){ return '<div class="pia__e">'+(x.ancla?'◆ ':'')+plEsc(x.nombre)+'<span>'+plEsc(String(x.reps))+(x.tiempo?' S':' REPS')+(x.rir?' · RIR '+plEsc(x.rir):'')+'</span></div>' }).join('')+'</div>' }).join('')+'</article>' }).join('')+'</div>')+
     '<div class="pia__vol"><small>VOLUMEN SEMANAL · SERIES</small>'+vol+'</div>'+
     (graves.length?'<details class="ev__d" open><summary>'+graves.length+' OBSERVACION'+(graves.length>1?'ES':'')+' DEL EVALUADOR</summary><ul class="ev__l">'+graves.map(function(x){ return '<li class="ev__i ev__i--'+x.cat+'"><b>'+plEsc(x.ses+' · '+x.msg)+'</b><small>'+plEsc(KEV_FIX[x.regla]||'')+'</small></li>' }).join('')+'</ul></details>':'<p class="ev__f">SIN OBSERVACIONES DEL EVALUADOR.</p>')+
     (PIA.excl&&PIA.excl.length?'<details class="ev__d"><summary>'+PIA.excl.length+' EJERCICIOS FUERA (SIN USO REAL, NO DISPONIBLES O CON DOLOR)</summary><p class="ev__f">'+plEsc(PIA.excl.join(' · '))+'. Si alguno corresponde, nómbralo en el dictado y lo usa.</p></details>':'')
