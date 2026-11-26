@@ -5517,7 +5517,7 @@ function apPintar(){
     (A.frustraTxt?'<div class="apQ"><small>POR QUÉ DEJÓ DE ENTRENAR · EN SUS PALABRAS</small>"'+bxEsc(A.frustraTxt)+'"</div>':'')+
     '</main><aside>'+saludB+
     '<div class="apSec">DATOS CLAVE</div><div class="apDs">'+
-      dato('EDAD',edad?edad+' años':'—')+dato('ÚLTIMA VEZ QUE ENTRENÓ',ult)+dato('MÁXIMO SEGUIDO',maxTxt)+
+      dato('EDAD',edad?edad+' años':'—')+dato('ÚLTIMA VEZ QUE ENTRENÓ',ult)+dato('MÁXIMO SEGUIDO',maxTxt)+(A.preferencia?dato('LE GUSTA',{pesas:'Solo pesas',combinar:'Pesas + cardio',cardio:'Más cardio'}[A.preferencia]||A.preferencia):'')+
       (A.energia?dato('ENERGÍA',A.energia+'/5 · '+AP_ENER[A.energia]):'')+
       dato('PUEDE ENTRENAR',(t.dias?t.dias+' días':'—')+(t.min?' · '+t.min.toLowerCase():'')+(t.hor?' · '+t.hor.toLowerCase():''),1)+
       dato('DISCIPLINAS',disc.length?bxEsc(disc.join(' · ')):'—',1)+
