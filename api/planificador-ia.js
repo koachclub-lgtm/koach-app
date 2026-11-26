@@ -101,6 +101,8 @@ module.exports = async (req, res) => {
     if (d) {
       const pool = Object.entries(d.pool || {}).map(([k, v]) => [k, v.filter(n => enL.has(n))]).filter(x => x[1].length).map(([k, v]) => '  ' + k + ': ' + v.join(', ')).join('\n')
       const rem = (d.reemplazos || []).filter(r => r.mismo_patron && enL.has(r.a)).slice(0, 18).map(r => '  ' + r.bloque + ' ' + r.de + ' → ' + r.a).join('\n')
+      const porNom = new Map(L.map(e => [e.nombre, e]))
+      const combos = Object.entries(d.combos_piso1 || {}).filter(([k]) => porNom.has(k)).map(([k, v]) => [k, v.filter(n => porNom.has(n) && !(porNom.get(n).implemento === 'MACHINE' && porNom.get(k).implemento === 'MACHINE'))]).filter(x => x[1].length).map(([k, v]) => '  ' + k + ': ' + v.join(', ')).join('\n')
       const dos = Object.entries(d.dosis || {}).filter(([, v]) => (v.sube_sets || 0) + (v.baja_sets || 0) > 10).map(([bl, v]) => '  ' + bl + ': sube series ' + v.sube_sets + ' veces vs baja ' + v.baja_sets + (v.cambios_reps && v.cambios_reps[0] ? '; reps más común ' + v.cambios_reps[0].de + '→' + v.cambios_reps[0].a : '')).join('\n')
       politica = `POLÍTICA KOACH (decisiones reales de los koaches en ${d.socios || '—'} socios de ${c.programa}, últimos ${d.dias || 120} días). Úsala para ELEGIR entre opciones que ya cumplen el Método; si algo choca con el Método o la logística, manda el Método:
 - Los koaches conservan la base: en una semana editada cambian en promedio ${d.cambios_x_sesion_editada || 3} ejercicios por sesión y mantienen ~70%. Un ejercicio dura en promedio el ciclo completo; casi nunca vuelve uno que se sacó.
@@ -110,7 +112,7 @@ ${pool}
 - Reemplazos habituales (mismo patrón):
 ${rem}
 - Progresión de dosis observada:
-${dos}`
+${dos}${combos ? '\n- Combinaciones del PISO 1 que usan los koaches en un mismo bloque (ejercicio: compañeros habituales):\n' + combos : ''}`
     }
   }
   if (b.socio_id && /^[0-9a-f-]{36}$/i.test(b.socio_id)) {
@@ -147,7 +149,10 @@ ESTRUCTURA SEMANAL (matriz de frecuencia por días disponibles):
 
 LOGÍSTICA DE SALA (obligatorio — los bloques se hacen como circuito, el socio no puede ocupar dos máquinas):
 - Máximo 1 ejercicio de implemento MACHINE por bloque. Leg extension y leg curl, por ejemplo, nunca en el mismo bloque.
-- Todos los ejercicios de un bloque en la misma zona/piso (columna zona). PISO 1 = sala glúteo (abducción, pendulum, hip thrust). PISO 2 = máquinas, barra libre, poleas sentado y cardio. Sin zona = existe en ambos pisos (mancuernas, banco, suelo/core, globales, polea de pie): combina con cualquier piso.
+- Todos los ejercicios de un bloque en la misma zona/piso (columna zona). Sin zona = existe en ambos pisos (mancuernas, banco, suelo/core, globales, polea de pie): combina con cualquier piso.
+- PISO 1 está separado del resto: es la estación de glúteo y pierna (Pendulum squat, Abduction machine standing, Hip thrust standing machine, 4 filas de hip thrust con barra, un banco plano, mancuernas en suelo y 2 líneas de polea de pie sin asiento). Un bloque con un ejercicio del PISO 1 se completa SOLO con PISO 1 o portátiles (mancuerna, banco, suelo/core, polea de pie). Nunca lo combines con barra libre, máquinas, poleas sentado ni cardio del PISO 2.
+- En la sesión, los bloques del mismo piso van seguidos: como máximo UN cambio de piso por sesión (nada de PISO 2 → PISO 1 → PISO 2).
+- PISO 2 = máquinas (chest press, high row, T-bar, leg extension, leg curl, leg press 45, row machine), barra libre (salvo hip thrust), poleas sentado y cardio (spin, assault, ski erg).
 - Selección estable y simple: prefiere los ejercicios ★ (los que KOACH usa todos los días). Repite los ejercicios principales en los días que corresponda en vez de inventar variantes nuevas; máximo 1 variante por patrón y músculo en la semana salvo pedido del koach. Nada de ejercicios exóticos.
 - Un mismo ejercicio no se repite dentro de la misma sesión.
 
@@ -195,10 +200,11 @@ ${catalogo}`
   const NOMM = { QUADS: 'cuádriceps', GLUTS: 'glúteos', HAMS: 'isquios', LATS: 'espalda', PECS: 'pecho', DELTS: 'hombros', BIS: 'bíceps', TRIS: 'tríceps' }
   const OBJMIN = { STRONG: [8, 10, 10], BURN: [6, 8, 10], HEALTHY: [6, 6, 8] }
   const revisar = plan => { const E = [], semV = {}, semF = {}
-    plan.sesiones.forEach(s => { const sn = s.nombre, vistos = {}; let core = false, bis = false, tris = false
+    plan.sesiones.forEach(s => { const sn = s.nombre, vistos = {}, secZ = []; let core = false, bis = false, tris = false
       ;(s.bloques || []).forEach(bl => { const ex = bl.ejercicios || [], es = ex.map(x => x._e)
         const maq = es.filter(e => e.implemento === 'MACHINE'); if (maq.length > 1) E.push(`${sn} ${bl.bloque}: ${maq.length} máquinas (${maq.map(e => e.nombre).join(' + ')}); máximo 1 por bloque`)
-        const zonas = [...new Set(es.map(e => e.zona).filter(Boolean))]; if (zonas.length > 1) E.push(`${sn} ${bl.bloque}: mezcla zonas ${zonas.join(' y ')}`)
+        const zonas = [...new Set(es.map(e => e.zona).filter(Boolean))]; if (zonas.length > 1) E.push(`${sn} ${bl.bloque}: mezcla zonas ${zonas.join(' y ')} (el PISO 1 solo combina con PISO 1 o portátiles)`)
+        if (zonas.length === 1) secZ.push(zonas[0])
         es.forEach((e, i) => {
           if (vistos[e.nombre]) E.push(`${sn}: ${e.nombre} repetido en la sesión`); vistos[e.nombre] = 1
           if (e.estimulo === 'CORE') core = true; if (e.estimulo === 'BIS') bis = true; if (e.estimulo === 'TRIS') tris = true
@@ -222,6 +228,7 @@ ${catalogo}`
         Object.entries(e.sinergistas || {}).forEach(([m, w]) => { const c2 = SIN[m]; if (c2) vs[c2] = (vs[c2] || 0) + k * (Number(w) || 0) }) }))
       Object.entries(vs).forEach(([m, v]) => { semV[m] = (semV[m] || 0) + v; if (v >= 1) (semF[m] = semF[m] || new Set()).add(sn)
         if (v > 11) E.push(`${sn}: ${NOMM[m]} con ${Math.round(v * 10) / 10} series en la sesión (sobre ~11 la ganancia se aplana: reparte en otra sesión)`) })
+      { const cambios = secZ.filter((z, i) => i > 0 && z !== secZ[i - 1]).length; if (cambios > 1) E.push(`${sn}: cambia de piso ${cambios} veces (${secZ.join(' → ')}); deja los bloques del mismo piso seguidos`) }
       if (!core) E.push(`${sn}: sin CORE`)
       if (String(c.sexo || '').toLowerCase() === 'hombre' && bis && tris) E.push(`${sn}: bíceps y tríceps el mismo día (hombre)`)
     })

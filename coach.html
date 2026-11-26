@@ -6594,6 +6594,8 @@ const KEV_REST = { STRONG:{B1:[45,90],B2:[120,180],B3:[60,90]}, BURN:{B1:[45,60]
 const KEV_OBJ = { hombre:['LATS','PECS','QUADS','HAMS'], mujer:['GLUTS','QUADS','HAMS','LATS'] }
 const KEV_OBJMIN = { STRONG:[8,10,10], BURN:[6,8,10], HEALTHY:[6,6,8] }
 const KEV_FIX = {
+  PISO:'El PISO 1 (pendulum, abducción, hip thrust standing y hip thrust con barra) está separado: complétalo solo con PISO 1 o portátiles (mancuerna, banco, suelo, polea de pie) y deja seguidos los bloques del mismo piso.',
+  MAQ:'Máximo 1 máquina por bloque: el socio no puede ocupar dos máquinas en el circuito.',
   R01:'Deja la sesión con exactamente 3 bloques: B1 activación, B2 fuerza principal, B3 cierre.',
   R02:'Cambia el ejercicio de B1 por uno de demanda MEDIA o BAJA, o muévelo a B2.',
   R04:'B3 es solo demanda BAJA: muévelo a B2 o reemplázalo por un aislado.',
@@ -6630,7 +6632,7 @@ const KEV_FIX = {
   DATO:'El ejercicio no está en la biblioteca activa: reemplázalo.'
 }
 async function kevLib(){ if (KEV.lib) return KEV.lib
-  const r=await sb.from('ejercicios').select('id,nombre,estimulo,demanda,nivel_min,patron,patron_base,sinergistas,cuenta_dosis,activo')
+  const r=await sb.from('ejercicios').select('id,nombre,estimulo,demanda,nivel_min,patron,patron_base,sinergistas,cuenta_dosis,activo,implemento,zona')
   if (r.error) throw r.error
   const m={}; (r.data||[]).forEach(function(e){ m[e.id]=Object.assign({}, e, KEV_CORR[e.nombre]||{}) }); KEV.lib=m; return m }
 function kevLo(r){ const m=String(r==null?'':r).match(/\d+/); return m?parseInt(m[0],10):null }
@@ -6647,7 +6649,7 @@ function kevEvaluar(w){
   sess.forEach(function(s){
     const sn=String(s.nombre||('S'+s.numero)).toUpperCase(), bl=s.bloques||[]; sesVol[sn]={}
     if (bl.map(function(b){return b.tag}).join()!=='B1,B2,B3') E('estructura','R01',sn,'La sesión no tiene exactamente B1 · B2 · B3')
-    const leads=[]; let sHip=false, core=false, bis=false, tris=false, tmin=0
+    const leads=[], secZ=[]; let sHip=false, core=false, bis=false, tris=false, tmin=0
     bl.forEach(function(b){
       const items=b.items||[]; let t=0
       items.forEach(function(it){ const r=String(it.reps||''); t+=(kevSeg(it)?(kevLo(r)||30):(kevLo(r)||10)*3)+15 })
@@ -6655,6 +6657,9 @@ function kevEvaluar(w){
       const ex=items.map(function(it){ return L[it.ejId] })
       items.forEach(function(it,i){ if(!ex[i]||ex[i].activo===false) E('datos','DATO',sn,b.tag+': '+it.nombre+' no está en la biblioteca activa') })
       if (ex.some(function(e){return !e}) || !items.length) return
+      { const zs=ex.map(function(e){return e.zona}).filter(Boolean).filter(function(z,i,a){return a.indexOf(z)===i})
+        if (zs.length>1) E('reglas','PISO',sn,b.tag+': mezcla '+zs.join(' y ')+' ('+ex.filter(function(e){return e.zona}).map(function(e){return e.nombre}).join(' + ')+')'); else if (zs.length===1) secZ.push(zs[0])
+        const mq=ex.filter(function(e){return e.implemento==='MACHINE'}); if (mq.length>1) E('reglas','MAQ',sn,b.tag+': '+mq.length+' máquinas en el bloque ('+mq.map(function(e){return e.nombre}).join(' + ')+')') }
       const rg=REST[b.tag]; if (rg && (b.desc<rg[0]||b.desc>rg[1])) E('dosis','DESC',sn,b.tag+': descanso '+b.desc+' s (rango '+prog+': '+rg[0]+'–'+rg[1]+' s)')
       ex.forEach(function(e){ if(e.estimulo==='CORE'||e.estimulo==='MOB'||e.estimulo==='CARDIO') return
         if(b.tag==='B1'&&e.demanda==='ALTA') E('reglas','R02',sn,'B1: '+e.nombre+' es demanda ALTA')
@@ -6690,6 +6695,7 @@ function kevEvaluar(w){
         if (pb==='HIP DOMINANT'){ hip+=sets2; sHip=true } if (pb==='KNEE DOMINANT') knee+=sets2; if (pb==='PULL') pull+=sets2; if (pb==='PUSH') push+=sets2
         if (LONG.test(e.nombre)) gl=true; if (SHORT.test(e.nombre)) gs=true; if (ABD.test(e.nombre)) ga=true })
     })
+    { const ch=secZ.filter(function(z,i){ return i>0&&z!==secZ[i-1] }).length; if (ch>1) E('reglas','PISO',sn,'Cambia de piso '+ch+' veces ('+secZ.join(' → ')+')') }
     const vistos={}; leads.forEach(function(l){ if(vistos[l]) E('reglas','R18',sn,(KEV_NOM[l]||l)+' lidera 2 bloques'); vistos[l]=1 })
     if (!core) E('reglas','CORE',sn,'Sesión sin CORE')
     if (!sHip) E('reglas','R19',sn,'Sesión sin dominante de cadera')
