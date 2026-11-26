@@ -6594,6 +6594,7 @@ const KEV_REST = { STRONG:{B1:[45,90],B2:[120,180],B3:[60,90]}, BURN:{B1:[45,60]
 const KEV_OBJ = { hombre:['LATS','PECS','QUADS','HAMS'], mujer:['GLUTS','QUADS','HAMS','LATS'] }
 const KEV_OBJMIN = { STRONG:[8,10,10], BURN:[6,8,10], HEALTHY:[6,6,8] }
 const KEV_FIX = {
+  INF:'Infaltable del head koach: agrégalo en la semana (leg curl en máquina para isquios; core en B1 de cada sesión con su volumen mínimo).',
   PISO:'El PISO 1 (pendulum, abducción, hip thrust standing y hip thrust con barra) está separado: complétalo solo con PISO 1 o portátiles (mancuerna, banco, suelo, polea de pie) y deja seguidos los bloques del mismo piso.',
   MAQ:'Máximo 1 máquina por bloque: el socio no puede ocupar dos máquinas en el circuito.',
   R01:'Deja la sesión con exactamente 3 bloques: B1 activación, B2 fuerza principal, B3 cierre.',
@@ -6634,7 +6635,9 @@ const KEV_FIX = {
 async function kevLib(){ if (KEV.lib) return KEV.lib
   const r=await sb.from('ejercicios').select('id,nombre,estimulo,demanda,nivel_min,patron,patron_base,sinergistas,cuenta_dosis,activo,implemento,zona')
   if (r.error) throw r.error
-  const m={}; (r.data||[]).forEach(function(e){ m[e.id]=Object.assign({}, e, KEV_CORR[e.nombre]||{}) }); KEV.lib=m; return m }
+  const m={}; (r.data||[]).forEach(function(e){ m[e.id]=Object.assign({}, e, KEV_CORR[e.nombre]||{}) }); KEV.lib=m
+  try{ const ri=await sb.from('reglas_infaltables').select('nombre,programa,tipo,valores,medida,alcance,minimo,motivo').eq('activo',true); KEV.inf=ri.data||[] }catch(_e){ KEV.inf=[] }
+  return m }
 function kevLo(r){ const m=String(r==null?'':r).match(/\d+/); return m?parseInt(m[0],10):null }
 function kevSeg(it){ return typeof esTiempo==='function' ? esTiempo(it) : /s$/i.test(String(it.reps||'')) }
 function kevEvaluar(w){
@@ -6713,6 +6716,12 @@ function kevEvaluar(w){
   ;(KEV_OBJ[sexo]||KEV_OBJ.mujer).forEach(function(m){ const v=Math.round(vol[m]*10)/10
     if (v<om) E('volumen','VOL_MIN','SEMANA',KEV_NOM[m]+' (objetivo): '+v+' series (mínimo '+om+')')
     if (Object.keys(freq[m]).length<2) E('volumen','FREQ','SEMANA',KEV_NOM[m]+' (objetivo) en '+Object.keys(freq[m]).length+' sesión') })
+  // c359 · infaltables del head koach (tabla reglas_infaltables)
+  ;(KEV.inf||[]).filter(function(r){ return !r.programa || String(r.programa).toUpperCase()===prog }).forEach(function(r){
+    const ok=function(e){ return r.tipo==='ejercicio' ? r.valores.indexOf(e.nombre)>=0 : r.valores.indexOf(e.estimulo)>=0 }
+    const porSes=sess.map(function(s){ let ses=0, ser=0; (s.bloques||[]).forEach(function(b){ (b.items||[]).forEach(function(it){ const e=L[it.ejId]; if(e&&ok(e)){ ses=1; ser+=b.sets||0 } }) }); return { n:String(s.nombre||('S'+s.numero)).toUpperCase(), v:r.medida==='series'?ser:ses } })
+    if (r.alcance==='sesion') porSes.forEach(function(x){ if(x.v<r.minimo) E('reglas','INF',x.n,'Falta '+r.nombre) })
+    else { const t=porSes.reduce(function(a,x){ return a+x.v },0); if(t<r.minimo) E('reglas','INF','SEMANA',r.nombre+': '+t+' '+r.medida+' (mínimo '+r.minimo+')'+(r.motivo?' · '+r.motivo:'')) } })
   if (pull<push) E('reglas','R21','SEMANA','Tracción '+pull+' < empuje '+push+' series')
   if (sexo==='mujer'&&hip<=knee) E('reglas','R50','SEMANA','Cadera '+hip+' ≤ rodilla '+knee+' series')
   if (sexo==='hombre'&&(glut<1||hams<glut)) E('reglas','R17','SEMANA','Glúteo '+glut+' / isquios '+hams+' series')

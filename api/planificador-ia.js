@@ -124,6 +124,14 @@ ${dos}${combos ? '\n- Combinaciones del PISO 1 que usan los koaches en un mismo 
         '\nSi el koach pide AJUSTAR, PROGRESAR o CONTINUAR la rutina: parte de esta semana, conserva la base y cambia como lo hacen los koaches (pocos ejercicios por sesión, dentro del mismo patrón, del pool preferido). Si pide una rutina NUEVA, puedes ignorarla.'
     }
   }
+  // c359 · INFALTABLES del head koach (tabla reglas_infaltables): ejercicios y volúmenes que no deben faltar
+  const prioTxt = norm([].concat(c.prioridad || c.prioridades || []).join(' '))
+  const ri = await json(SB_URL + '/rest/v1/reglas_infaltables?select=nombre,programa,tipo,valores,medida,alcance,minimo,ideal,prioridad,motivo&activo=is.true', { headers: H })
+  const enLib = new Set(L.map(e => e.nombre))
+  const INF = ((ri.ok && ri.d) || []).filter(r => !r.programa || String(r.programa).toUpperCase() === String(c.programa || '').toUpperCase())
+    .filter(r => r.tipo !== 'ejercicio' || r.valores.some(v => enLib.has(v)))   // si el socio no puede hacerlo (dolor/equipo), no se exige
+    .map(r => Object.assign({}, r, { exige: (r.ideal != null && (r.prioridad || []).some(pq => prioTxt.includes(norm(pq)))) ? Number(r.ideal) : Number(r.minimo) }))
+  const infTxt = INF.length ? 'INFALTABLES DEL HEAD KOACH (obligatorios; el servidor los verifica):\n' + INF.map(r => '- ' + r.nombre + ': ' + (r.tipo === 'ejercicio' ? r.valores.filter(v => enLib.has(v)).join(' o ') : 'estímulo ' + r.valores.join('/')) + ' · mínimo ' + r.exige + ' ' + r.medida + (r.alcance === 'sesion' ? ' en CADA sesión' : ' por semana') + (r.motivo ? '. ' + r.motivo : '')).join('\n') : ''
   const catalogo = L.map(e => [((usoM.get(e.id) || 0) >= 150 ? '★ ' : '') + e.nombre, e.estimulo, e.demanda, e.nivel_min, e.patron, e.implemento || '', e.zona || ''].join(' | ')).join('\n')
 
   const prompt = `Eres el MASTERMIND HYPERTROPHY de KOACH Club (Concepción, Chile): el planificador técnico del head koach.
@@ -137,6 +145,8 @@ DICTADO DEL KOACH:
 """${dictado || '(sin dictado: usa solo los criterios)'}"""
 
 ${METODO}
+
+${infTxt}
 
 ${politica}
 
@@ -239,6 +249,12 @@ ${catalogo}`
     obj.forEach(m => { const v = Math.round((semV[m] || 0) * 10) / 10
       if (v < om) E.push(`SEMANA: ${NOMM[m]} (objetivo) con ${v} series; mínimo ${om}`)
       if (nS >= 2 && (semF[m] ? semF[m].size : 0) < 2) E.push(`SEMANA: ${NOMM[m]} (objetivo) trabajado en ${semF[m] ? semF[m].size : 0} sesión; debe ser ≥2`) })
+    // infaltables
+    INF.forEach(r => { const ok = e => r.tipo === 'ejercicio' ? r.valores.includes(e.nombre) : r.valores.includes(e.estimulo)
+      const porSes = plan.sesiones.map(s => { let ses = 0, ser = 0; (s.bloques || []).forEach(bl => (bl.ejercicios || []).forEach(x => { if (x._e && ok(x._e)) { ses = 1; ser += bl.sets || 0 } })); return { n: s.nombre, ses, ser } })
+      const val = x => r.medida === 'series' ? x.ser : x.ses
+      if (r.alcance === 'sesion') porSes.forEach(x => { if (val(x) < r.exige) E.push(`${x.n}: falta ${r.nombre}`) })
+      else { const t = porSes.reduce((a, x) => a + val(x), 0); if (t < r.exige) E.push(`SEMANA: ${r.nombre} con ${t} ${r.medida}; mínimo ${r.exige}`) } })
     MUS.forEach(m => { const v = Math.round((semV[m] || 0) * 10) / 10; if (v > 20) E.push(`SEMANA: ${NOMM[m]} con ${v} series/semana (techo útil ~20)`) })
     return E }
 
