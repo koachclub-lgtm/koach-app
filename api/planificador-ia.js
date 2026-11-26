@@ -270,6 +270,14 @@ ${catalogo}`
     if (!R2.error) { const f2 = vincular(R2.plan), o2 = revisar(R2.plan); if (o2.length <= obs.length) { R = R2; fuera = f2; correcciones = obs.length - o2.length; obs = o2 } }
   }
   R.plan.sesiones.forEach(s => (s.bloques || []).forEach(bl => (bl.ejercicios || []).forEach(x => { delete x._e })))
-  return res.status(200).json({ plan: R.plan, fuera, observaciones: obs, corregidas: correcciones, excluidas, modelo: MODELO,
+  // c362 · registro de cada propuesta (pruebas y feedback del head koach)
+  let logId = null
+  try {
+    const lg = await json(SB_URL + '/rest/v1/planificador_ia_log', { method: 'POST', headers: Object.assign({ 'content-type': 'application/json', Prefer: 'return=representation' }, H),
+      body: JSON.stringify({ socio_id: (b.socio_id && /^[0-9a-f-]{36}$/i.test(b.socio_id)) ? b.socio_id : null, criterios: c, dictado: dictado || null, plan: R.plan, observaciones: obs, corregidas: correcciones,
+        tokens_in: uso1 ? uso1.input_tokens : null, tokens_out: uso1 ? uso1.output_tokens : null }) })
+    logId = lg.ok && lg.d && lg.d[0] ? lg.d[0].id : null
+  } catch (_) {}
+  return res.status(200).json({ plan: R.plan, log_id: logId, fuera, observaciones: obs, corregidas: correcciones, excluidas, modelo: MODELO,
     uso: uso1 && { entrada: uso1.input_tokens, salida: uso1.output_tokens } })
 }
