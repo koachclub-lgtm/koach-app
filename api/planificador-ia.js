@@ -89,6 +89,37 @@ module.exports = async (req, res) => {
     const dolorIds = new Set(((dl.ok && dl.d) || []).map(x => x.ejercicio_id))
     if (dolorIds.size) { lib.d.filter(e => dolorIds.has(e.id) && L.includes(e)).forEach(e => { if (!pedido(e)) excluidas.push(e.nombre + ' (dolor)') }); L = L.filter(e => !dolorIds.has(e.id) || pedido(e)) }
   }
+  // c356 · POLÍTICA KOACH: cómo los koaches reales ajustan las rutinas (tabla politica_koach, recalculada cada noche desde el historial)
+  // + la semana vigente del socio, para que los ajustes sigan el mismo criterio (conservar la base, rotar dentro del patrón).
+  const enL = new Set(L.map(e => e.nombre))
+  let politica = '', semanaActual = ''
+  if (c.programa) {
+    const pk = await json(SB_URL + '/rest/v1/politica_koach?select=datos&programa=eq.' + encodeURIComponent(String(c.programa).toUpperCase()), { headers: H })
+    const d = pk.ok && pk.d && pk.d[0] && pk.d[0].datos
+    if (d) {
+      const pool = Object.entries(d.pool || {}).map(([k, v]) => [k, v.filter(n => enL.has(n))]).filter(x => x[1].length).map(([k, v]) => '  ' + k + ': ' + v.join(', ')).join('\n')
+      const rem = (d.reemplazos || []).filter(r => r.mismo_patron && enL.has(r.a)).slice(0, 18).map(r => '  ' + r.bloque + ' ' + r.de + ' → ' + r.a).join('\n')
+      const dos = Object.entries(d.dosis || {}).filter(([, v]) => (v.sube_sets || 0) + (v.baja_sets || 0) > 10).map(([bl, v]) => '  ' + bl + ': sube series ' + v.sube_sets + ' veces vs baja ' + v.baja_sets + (v.cambios_reps && v.cambios_reps[0] ? '; reps más común ' + v.cambios_reps[0].de + '→' + v.cambios_reps[0].a : '')).join('\n')
+      politica = `POLÍTICA KOACH (decisiones reales de los koaches en ${d.socios || '—'} socios de ${c.programa}, últimos ${d.dias || 120} días). Úsala para ELEGIR entre opciones que ya cumplen el Método; si algo choca con el Método o la logística, manda el Método:
+- Los koaches conservan la base: en una semana editada cambian en promedio ${d.cambios_x_sesion_editada || 3} ejercicios por sesión y mantienen ~70%. Un ejercicio dura en promedio el ciclo completo; casi nunca vuelve uno que se sacó.
+- Al reemplazar, mantienen el PATRÓN de movimiento (~80% de los casos) y cambian el implemento (máquina ⇄ polea ⇄ mancuerna). No cambian por bajo rendimiento: cambian por variedad, sala y criterio.
+- Ejercicios preferidos por bloque y patrón (orden de preferencia):
+${pool}
+- Reemplazos habituales (mismo patrón):
+${rem}
+- Progresión de dosis observada:
+${dos}`
+    }
+  }
+  if (b.socio_id && /^[0-9a-f-]{36}$/i.test(b.socio_id)) {
+    const as = await json(SB_URL + '/rest/v1/asignaciones?select=protocolo_id,semana_actual&activo=is.true&socio_id=eq.' + b.socio_id, { headers: H })
+    const a0 = as.ok && as.d && as.d[0]
+    if (a0 && a0.protocolo_id) {
+      const ss = await json(SB_URL + '/rest/v1/sesiones_protocolo?select=numero,objetivo,semana,bloques(bloque,sets,bloque_ejercicios(orden,reps_txt,reps,ejercicios(nombre)))&protocolo_id=eq.' + a0.protocolo_id + '&semana=eq.' + (a0.semana_actual || 1) + '&order=numero', { headers: H })
+      if (ss.ok && Array.isArray(ss.d) && ss.d.length) semanaActual = 'SEMANA VIGENTE DEL SOCIO (semana ' + (a0.semana_actual || 1) + '):\n' + ss.d.map(x => '  ' + (x.objetivo || 'SESIÓN ' + x.numero) + ': ' + (x.bloques || []).sort((p, q) => String(p.bloque).localeCompare(String(q.bloque))).map(bl => bl.bloque + ' ' + bl.sets + 'x [' + (bl.bloque_ejercicios || []).sort((p, q) => (p.orden || 0) - (q.orden || 0)).map(be => (be.ejercicios && be.ejercicios.nombre) + ' ' + (be.reps_txt || be.reps || '')).join('; ') + ']').join(' · ')).join('\n') +
+        '\nSi el koach pide AJUSTAR, PROGRESAR o CONTINUAR la rutina: parte de esta semana, conserva la base y cambia como lo hacen los koaches (pocos ejercicios por sesión, dentro del mismo patrón, del pool preferido). Si pide una rutina NUEVA, puedes ignorarla.'
+    }
+  }
   const catalogo = L.map(e => [((usoM.get(e.id) || 0) >= 150 ? '★ ' : '') + e.nombre, e.estimulo, e.demanda, e.nivel_min, e.patron, e.implemento || '', e.zona || ''].join(' | ')).join('\n')
 
   const prompt = `Eres el MASTERMIND HYPERTROPHY de KOACH Club (Concepción, Chile): el planificador técnico del head koach.
@@ -102,6 +133,10 @@ DICTADO DEL KOACH:
 """${dictado || '(sin dictado: usa solo los criterios)'}"""
 
 ${METODO}
+
+${politica}
+
+${semanaActual}
 
 ESTRUCTURA SEMANAL (matriz de frecuencia por días disponibles):
 - 2 días: FULL BODY ×2. 3 días: LOWER · UPPER · FULL BODY (frecuencia 2) o FULL BODY ×3 (frecuencia 3). 4 días: LOWER · UPPER · LOWER · UPPER (2), UPPER · LOWER · FULL · FULL (3), FULL ×4 (4). 5 días: LEGS · PUSH · PULL · LOWER · UPPER (2), LEGS · PUSH · PULL · FULL · FULL (3), FULL ×3 · UPPER · LOWER (4), FULL ×5 (5).
