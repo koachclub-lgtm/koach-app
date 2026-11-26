@@ -5468,7 +5468,7 @@ function sessionTipo(nombre){
   return null
 }
 // Segmentación por sexo del SOCIO (registrado en su alta); respaldo: sexo del protocolo asignado
-function sessionVariante(){ const x=String((S.perfil&&(S.perfil.sex||S.perfil.sexo))||(S.proto&&S.proto.sexo)||'').toLowerCase()
+function sessionVariante(){ const x=String((S.perfil&&(S.perfil.sex||S.perfil.sexo))||'').toLowerCase()   // c354 · solo el sexo del perfil: el protocolo es una plantilla (muchas socias usan plantillas 'hombre') y mostraba fotos de hombres
   return /muj|fem|^f$/.test(x)?'female':/homb|masc|^m$/.test(x)?'male':'neutral' }
 function sessionImagen(nombre){ const t=sessionTipo(nombre)||'total'   // c264 · ninguna tarjeta sin foto: sin tipo reconocible → foto estándar (cuerpo completo)
   const v=SESSION_VISUAL[t]; return v[sessionVariante()]||v.neutral||null }
@@ -7557,6 +7557,7 @@ function datosRevisar(){
           if (r.error) throw r.error
           Object.assign(S.perfil,{ nombre:$('dtN').value.trim(), apellido:$('dtA').value.trim(), rut:r.data.rut, telefono:r.data.telefono, sex:p.sex||sexo, ocupacion:$('dtO').value.trim(), emergencia_nombre:$('dtEN').value.trim(), emergencia_telefono:r.data.emergencia_telefono, datos_confirmados_at:new Date().toISOString() })
           bg.remove(); try{ toast('Datos confirmados ✓') }catch(_){} fin()
+          if (!p.sex && sexo){ setTimeout(function(){ try{ S._lastLoad=0; entrar({silent:true}) }catch(_){} },400) }   // c354 · género recién elegido: fotos de ejercicios, sesiones y portada se recalculan ya, sin esperar otra apertura
         }catch(e){ err.textContent=String((e&&e.message)||'No se pudo guardar').replace(/^DATOS:\s*/,'').toUpperCase(); g.disabled=false; g.textContent='CONFIRMAR MIS DATOS' }
       }
     }catch(_){ fin() }
