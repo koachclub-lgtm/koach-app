@@ -44,8 +44,10 @@ DOSIS POR PROGRAMA:
 - BURN: sets 3/4/3 + 30 s de cardio al inicio de B1 · descansos 45–60 / 60–90 / 45–60 s · ancla 12–15 / 10–12 / 8–10 · RIR 1–3.
 - HEALTHY: sets 3/4/3 · descansos 60–90 / 75–120 / 60–90 s · reps 12–15 · RIR 2–3.
 EVIDENCIA (mastermind):
-- Volumen semanal por músculo (series duras; sinergistas cuentan 0,5): mínimo 4; músculos grandes objetivo 10–20; techo útil ~20; ≤ ~11 series por músculo por sesión.
-- Frecuencia ≥2 por semana en músculos objetivo. RIR 0–3. Básicos 1–3 RIR (técnica primero).
+- Volumen semanal por músculo (series duras; sinergistas cuentan con su peso, ~0,5): mínimo 4; músculos objetivo 10–20; techo útil ~20. Más series dan más músculo pero con rendimientos decrecientes (Pelland et al. 2024, 67 estudios; conteo fraccional de sinergistas).
+- Por sesión: la ganancia se aplana cerca de ~11 series fraccionales por músculo (Remmert et al. 2025). Si un músculo necesita más volumen semanal, NO lo cargues en un día: repártelo en otra sesión. Por eso la frecuencia es ≥2 por semana en músculos objetivo.
+- División (split): full body, upper/lower y push/pull/legs rinden igual a igual volumen semanal (Ramos-Campo et al. 2024, metaanálisis). Lo que decide es la frecuencia y el reparto del volumen: con 2–4 días usa full body o upper/lower (cada músculo 2×); PUSH·PULL·LEGS solo con 5–6 días (si no, cada músculo queda 1× y pasa de ~11 series en ese día).
+- RIR 0–3. Básicos 1–3 RIR (técnica primero).
 - Elegir el ejercicio con mejor relación estímulo/fatiga (SFR): máquinas y poleas para básicos y gimnasio externo; barra cuando el objetivo sea fuerza y el nivel lo permita.
 - Tiempo: estima ~ (reps×3 s + 15 s por ejercicio + descanso) × sets por bloque. Respeta el tiempo pedido.`
 
@@ -70,7 +72,7 @@ module.exports = async (req, res) => {
 
   // Biblioteca activa + uso real de los últimos 90 días (el equipo que el club realmente tiene y usa)
   const [lib, uso] = await Promise.all([
-    json(SB_URL + '/rest/v1/ejercicios?select=id,nombre,estimulo,demanda,nivel_min,patron,patron_base,implemento,tipo_registro,disponible,zona&activo=is.true&order=estimulo,nombre', { headers: H }),
+    json(SB_URL + '/rest/v1/ejercicios?select=id,nombre,estimulo,demanda,nivel_min,patron,patron_base,implemento,tipo_registro,disponible,zona,sinergistas,cuenta_dosis&activo=is.true&order=estimulo,nombre', { headers: H }),
     json(SB_URL + '/rest/v1/v_ejercicio_uso?select=ejercicio_id,sets_90d', { headers: H })
   ])
   if (!lib.ok || !Array.isArray(lib.d) || !lib.d.length) return res.status(502).json({ error: 'No se pudo leer la biblioteca de ejercicios' })
@@ -188,7 +190,11 @@ ${catalogo}`
   const NIV = { BASICO: 0, INTERMEDIO: 1, AVANZADO: 2 }, NMIN = { BAS: 0, INT: 1, AVZ: 2 }, DEM = { ALTA: 3, MEDIA: 2, BAJA: 1 }
   const UP = ['LATS', 'PECS', 'DELTS', 'BIS', 'TRIS'], LO = ['QUADS', 'GLUTS', 'HAMS', 'CALFS']
   const nivel = NIV[String(c.nivel || '').toUpperCase()] != null ? NIV[String(c.nivel || '').toUpperCase()] : 1
-  const revisar = plan => { const E = []
+  const MUS = ['QUADS', 'GLUTS', 'HAMS', 'LATS', 'PECS', 'DELTS', 'BIS', 'TRIS']
+  const SIN = { 'CUÁDRICEPS': 'QUADS', 'GLÚTEOS': 'GLUTS', 'ISQUIOS': 'HAMS', 'ESPALDA': 'LATS', 'PECHO': 'PECS', 'HOMBROS': 'DELTS', 'BÍCEPS': 'BIS', 'TRÍCEPS': 'TRIS' }
+  const NOMM = { QUADS: 'cuádriceps', GLUTS: 'glúteos', HAMS: 'isquios', LATS: 'espalda', PECS: 'pecho', DELTS: 'hombros', BIS: 'bíceps', TRIS: 'tríceps' }
+  const OBJMIN = { STRONG: [8, 10, 10], BURN: [6, 8, 10], HEALTHY: [6, 6, 8] }
+  const revisar = plan => { const E = [], semV = {}, semF = {}
     plan.sesiones.forEach(s => { const sn = s.nombre, vistos = {}; let core = false, bis = false, tris = false
       ;(s.bloques || []).forEach(bl => { const ex = bl.ejercicios || [], es = ex.map(x => x._e)
         const maq = es.filter(e => e.implemento === 'MACHINE'); if (maq.length > 1) E.push(`${sn} ${bl.bloque}: ${maq.length} máquinas (${maq.map(e => e.nombre).join(' + ')}); máximo 1 por bloque`)
@@ -209,9 +215,24 @@ ${catalogo}`
         ;[UP, LO].forEach(seg => { const pt = new Set(es.filter(e => seg.includes(e.estimulo) && ['bilateral', 'unilateral'].includes(e.patron)).map(e => e.patron)); if (pt.size === 2) E.push(`${sn} ${bl.bloque}: mezcla bilateral y unilateral del mismo segmento`) })
         if (bl.bloque === 'B1') { const n = es.length; if (n >= 2 && (es[n - 1].estimulo !== 'MOB' || es[n - 2].estimulo !== 'CORE')) E.push(`${sn} B1: CORE penúltimo y movilidad al final`) }
       })
+      // volumen fraccional por músculo en la sesión (sinergistas con su peso)
+      const vs = {}
+      ;(s.bloques || []).forEach(bl => (bl.ejercicios || []).forEach(x => { const e = x._e; if (!e || e.cuenta_dosis === false) return
+        const k = bl.sets || 0; if (MUS.includes(e.estimulo)) vs[e.estimulo] = (vs[e.estimulo] || 0) + k
+        Object.entries(e.sinergistas || {}).forEach(([m, w]) => { const c2 = SIN[m]; if (c2) vs[c2] = (vs[c2] || 0) + k * (Number(w) || 0) }) }))
+      Object.entries(vs).forEach(([m, v]) => { semV[m] = (semV[m] || 0) + v; if (v >= 1) (semF[m] = semF[m] || new Set()).add(sn)
+        if (v > 11) E.push(`${sn}: ${NOMM[m]} con ${Math.round(v * 10) / 10} series en la sesión (sobre ~11 la ganancia se aplana: reparte en otra sesión)`) })
       if (!core) E.push(`${sn}: sin CORE`)
       if (String(c.sexo || '').toLowerCase() === 'hombre' && bis && tris) E.push(`${sn}: bíceps y tríceps el mismo día (hombre)`)
     })
+    // semana: volumen y frecuencia de los músculos objetivo (literatura + Método)
+    const obj = String(c.sexo || '').toLowerCase() === 'hombre' ? ['LATS', 'PECS', 'QUADS', 'HAMS'] : ['GLUTS', 'QUADS', 'HAMS', 'LATS']
+    const prog = String(c.programa || 'STRONG').toUpperCase(), om = (OBJMIN[prog] || OBJMIN.STRONG)[nivel]
+    const nS = plan.sesiones.length
+    obj.forEach(m => { const v = Math.round((semV[m] || 0) * 10) / 10
+      if (v < om) E.push(`SEMANA: ${NOMM[m]} (objetivo) con ${v} series; mínimo ${om}`)
+      if (nS >= 2 && (semF[m] ? semF[m].size : 0) < 2) E.push(`SEMANA: ${NOMM[m]} (objetivo) trabajado en ${semF[m] ? semF[m].size : 0} sesión; debe ser ≥2`) })
+    MUS.forEach(m => { const v = Math.round((semV[m] || 0) * 10) / 10; if (v > 20) E.push(`SEMANA: ${NOMM[m]} con ${v} series/semana (techo útil ~20)`) })
     return E }
 
   let R = await llamar([{ role: 'user', content: prompt }])
