@@ -7264,14 +7264,17 @@ async function anRevisar(){
       if (!rp.error){ try{ localStorage.removeItem(anClave('p')); localStorage.removeItem(anClave('b')) }catch(_e){} AN.A=pend; anAbrirListo(); return true } }
     const r=await sb.from('anamnesis_prueba').select('respuestas').eq('socio_id',S.perfil.id).maybeSingle()
     if (r.error) return false
-    if (r.data && r.data.respuestas && r.data.respuestas.objetivo) return false
-    anAbrir(); return true }catch(_e){ return false } }
+    const pre=r.data&&r.data.respuestas
+    if (pre && pre.objetivo && pre.respondida_at) return false
+    // c-jake · si Jake ya conversó con la persona por WhatsApp (fuente 'jake'), el test parte con eso y solo pregunta lo que falta
+    anAbrir(pre&&pre.fuente==='jake'?pre:null); return true }catch(_e){ return false } }
 function anCrear(){ if (document.getElementById('oAn')) return false
   const el=document.createElement('div'); el.id='oAn'; el.className='an'; el.setAttribute('role','dialog'); el.setAttribute('aria-modal','true'); el.setAttribute('aria-label','Tu clase de prueba')
   document.body.appendChild(el); document.body.classList.add('wl-on'); AN.el=el; return true }
 function anAbrirListo(){ if(!anCrear()) return; anListo() }
-function anAbrir(){ if (document.getElementById('oAn')) return
-  AN.A={}; AN.i=0
+function anAbrir(pre){ if (document.getElementById('oAn')) return
+  AN.A={}; AN.i=0; AN.pre={}
+  if (pre){ AN.A=JSON.parse(JSON.stringify(pre)); delete AN.A.fuente; AN_Q.forEach(function(q){ if(AN.A[q.id]!=null && anOk(q)) AN.pre[q.id]=1 }) }
   try{ const b=JSON.parse(localStorage.getItem(anClave('b'))||'null'); if (b && b.A && Date.now()-b.t < 12*3600e3){ AN.A=b.A; AN.i=b.i||0 } }catch(_e){}
   const el=document.createElement('div'); el.id='oAn'; el.className='an'; el.setAttribute('role','dialog'); el.setAttribute('aria-modal','true'); el.setAttribute('aria-label','Tu clase de prueba')
   document.body.appendChild(el); document.body.classList.add('wl-on'); AN.el=el
@@ -7284,7 +7287,7 @@ function anBienvenida(){ const n=anEsc(msgNombre()||''), m=anSx()==='mujer'
     '<div class="an__facts"><div><small>BLOQUES</small><b>2</b></div><div><small>SETS</small><b>3×</b></div><div><small>DURACIÓN</small><b>40′</b></div></div>'+
     '<p>Antes de comenzar, queremos conocerte. Con tus respuestas, tu koach prepara tu clase.</p></div>'+
     '<div class="an__act"><button type="button" class="an__go" onclick="AN.i=0;anPaso()">EMPEZAR · 4 MIN →</button></div>') }
-function anVis(){ return AN_Q.filter(q=>!q.skip||!q.skip(AN.A)) }
+function anVis(){ return AN_Q.filter(q=>(!q.skip||!q.skip(AN.A))&&!(AN.pre&&AN.pre[q.id])) }
 function anOk(q){ const v=AN.A[q.id]
   if(q.opt) return true
   if(q.t==='one'||q.t==='escala') return v!=null&&v!==''
