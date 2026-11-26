@@ -1529,6 +1529,47 @@ html[data-rol="recepcion"] .fPlanBtn, html[data-rol="nutricionista"] .fPlanBtn{d
 .pia__bh{font-family:var(--font-mono);font-size:10px;letter-spacing:.12em;color:#8E8D88;margin-bottom:4px}
 .pia__e{display:flex;justify-content:space-between;gap:8px;font-size:13px;padding:3px 0;border-top:1px solid #F1EFEB}.pia__e:first-of-type{border-top:0}
 .pia__e span{font-family:var(--font-mono);font-size:11px;color:#5E5D59;white-space:nowrap}
+/* c363 · PLANIFICADOR IA a pantalla completa · gris de marca, Space Mono en mayúsculas, dos columnas (configuración | propuesta) */
+html.piaOn{overflow:hidden}
+.mCg.mPia{align-items:stretch;justify-content:stretch;background:#D9DADB;-webkit-backdrop-filter:none;backdrop-filter:none}
+.mPia .mCg__c.pia{max-width:none;width:100%;height:100dvh;max-height:none;border-radius:0;padding:0;background:linear-gradient(180deg,#E4E5E6 0%,#D3D5D7 100%);overflow:hidden;display:flex;flex-direction:column}
+.mPia .mCg__x{top:18px;right:20px;width:44px;height:44px;border-radius:999px;background:#000;color:#fff;font-size:15px;z-index:2}
+.mPia #piaBody{display:flex;flex-direction:column;height:100%;min-height:0}
+.pia__hd{padding:20px 84px 16px 28px;border-bottom:1px solid rgba(0,0,0,.12);flex:0 0 auto}
+.pia__hd small{font-family:var(--font-mono);font-size:10px;letter-spacing:.16em;color:#6F7377;text-transform:uppercase}
+.pia__hd h2{margin:6px 0 0;display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 14px;line-height:1}
+.pia__hd h2 b{font-size:30px;font-weight:800;letter-spacing:-.01em;color:#000}
+.pia__hd h2 span{font-size:20px;font-weight:300;color:#6F7377;text-transform:uppercase}
+.pia__grid{flex:1 1 auto;min-height:0;display:grid;grid-template-columns:minmax(360px,440px) 1fr}
+.pia__cfg{overflow-y:auto;padding:18px 24px 40px 28px;border-right:1px solid rgba(0,0,0,.12)}
+.pia__out{overflow-y:auto;padding:18px 28px 40px 24px}
+.mPia .pia__d textarea{background:#F4F4F5;border-color:#979C9F}
+.mPia .pia__k{color:#434649}
+.mPia .pia__c{background:#F4F4F5;border-color:#979C9F}
+.mPia .pia__c.on{background:#000;border-color:#000;color:#fff}
+.pia__ctx{margin-top:12px;display:flex;flex-direction:column;gap:6px}
+.pia__ctx small{font-family:var(--font-mono);font-size:10px;letter-spacing:.14em;color:#434649}
+.pia__cb{display:flex;flex-direction:column;align-items:flex-start;gap:3px;text-align:left;border:1px solid #979C9F;background:#F4F4F5;border-radius:12px;padding:9px 12px;cursor:pointer;color:#000}
+.pia__cb b{font-family:var(--font-mono);font-size:10.5px;letter-spacing:.1em}
+.pia__cb span{font-size:12px;color:#434649}
+.pia__cb.on{background:#000;border-color:#000;color:#fff}.pia__cb.on span{color:#C9CCCF}
+.pia__cb[tabindex="-1"]{cursor:default}
+.pia__empty{display:flex;flex-direction:column;gap:6px;max-width:520px;margin:12vh auto 0;text-align:center}
+.pia__empty small{font-family:var(--font-mono);font-size:10px;letter-spacing:.16em;color:#6F7377}
+.pia__empty b{font-size:22px;font-weight:700;color:#000}
+.pia__empty span{font-size:13px;color:#434649}
+.pia__top{display:flex;align-items:center;gap:18px;flex-wrap:wrap}
+.pia__ap{display:flex;flex-direction:column;gap:6px;flex:1;min-width:240px}
+.pia__ap .ink{align-self:flex-start;padding:14px 20px}
+.pia__ap .ink.warn{background:#FF4200;border-color:#FF4200}
+.pia__ap small{font-family:var(--font-mono);font-size:10px;letter-spacing:.08em;color:#434649;text-transform:uppercase}
+.pia__ses{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:12px;margin-top:12px}
+.pia__sc{background:rgba(255,255,255,.55);border:1px solid rgba(0,0,0,.1);border-radius:14px;padding:10px 12px}
+.pia__vol{display:flex;flex-wrap:wrap;gap:6px 14px;margin:14px 0 6px;font-family:var(--font-mono);font-size:10.5px;letter-spacing:.08em;color:#434649;text-transform:uppercase}
+.pia__vol small{flex-basis:100%;color:#6F7377}
+.pia__vol b{color:#000}
+@media (max-width:899px){ .pia__grid{grid-template-columns:1fr;overflow-y:auto} .pia__cfg,.pia__out{overflow:visible;border-right:0} .pia__hd h2 b{font-size:24px} }
+
 .cgNota{font-family:var(--font-display);font-size:15px;color:#5E5D59}
 .cgGrid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 .cgGrid div{border:1px solid rgba(18,18,18,.1);border-radius:14px;padding:12px}
@@ -6739,7 +6780,10 @@ function kevEvaluar(w){
 }
 // ═══ c221 · PLANIFICADOR IA · el koach dicta (voz) o elige criterios (toques) y el MASTERMIND HYPERTROPHY arma la semana.
 // La IA propone; el evaluador la puntúa; el koach decide APLICAR (escribe la semana con el guardado normal del planificador).
-const PIA = { c:{}, plan:null, rec:null, oyendo:false, run:false }
+const PIA = { c:{}, plan:null, rec:null, oyendo:false, run:false, ciclo:false }
+// c363 · ALCANCE: bloque / sesión del día / semana / nuevo ciclo · OBJETIVO: mantener el del día (volumen) o variante
+const PIA_ALC = ['BLOQUE','SESIÓN DEL DÍA','SEMANA','NUEVO CICLO']
+const PIA_OBJ = ['MANTENER OBJETIVO Y VOLUMEN','UPPER','LOWER','PUSH','PULL','LEGS','FULL BODY','METABÓLICO','GLÚTEO','ISQUIOS','BRAZOS Y HOMBROS','CORE']
 const PIA_OPC = {
   programa:['STRONG','BURN','HEALTHY'], nivel:['BASICO','INTERMEDIO','AVANZADO'], sexo:['mujer','hombre'],
   dias:['2','3','4','5'], estructura:[],
@@ -6748,9 +6792,8 @@ const PIA_OPC = {
   implementos:['MÁQUINAS PRIMERO','MIXTO','PESO LIBRE','GIMNASIO EXTERNO (1 MÁQUINA POR BLOQUE)'],
   minutos:['60','75','80','90'], grandes:['8','10','12'], secundarios:['6','8','10']
 }
-// Matriz de frecuencia para elegir el split (curso de hipertrofia; respaldo: Schoenfeld 2016 y 2019 — ≥2 estímulos/semana
-// por músculo; con volumen igualado la frecuencia pesa poco, así que se elige por días disponibles y adherencia).
-// Clave = días fijos · valor = { frecuencia por músculo: secuencia de sesiones }
+// Matriz de frecuencia para elegir el split (respaldo: Schoenfeld 2016 y 2019; Ramos-Campo 2024 — con volumen igualado
+// el split rinde igual; decide la frecuencia y el reparto). Clave = días fijos · valor = { frecuencia por músculo: secuencia }
 const PIA_SPLIT = {
   '2': { '2':['FULL BODY','FULL BODY'] },
   '3': { '2':['LOWER','UPPER','FULL BODY'], '3':['FULL BODY','FULL BODY','FULL BODY'] },
@@ -6763,35 +6806,59 @@ const PIA_TIT = { programa:'PROGRAMA', nivel:'NIVEL', sexo:'SEXO', dias:'DÍAS F
   prioridad:'PRIORIDAD (VARIAS)', implementos:'IMPLEMENTOS', minutos:'DURACIÓN (MIN)', grandes:'SERIES MÍN. · MÚSCULOS GRANDES', secundarios:'SERIES MÍN. · SECUNDARIOS' }
 const PIA_MULTI = { prioridad:true }
 function piaOk(){ return !!(P && !P.bib && !P.ro) }
+function piaW(){ return (typeof plTestW==='function')?plTestW():1 }
+function piaSesAct(){ const s=plSesActual(); return (s && !s._extra) ? s : null }
+function piaAlc(){ return PIA.c.alcance==='BLOQUE'?'BLOQUE':PIA.c.alcance==='SESIÓN DEL DÍA'?'SESION':PIA.c.alcance==='NUEVO CICLO'?'CICLO':'SEMANA' }
 function piaAbrir(){
   if (!piaOk()) return
-  const pr=(P&&P.proto)||{}
-  PIA.c = { programa:String(pr.programa||'STRONG').toUpperCase(), nivel:String(pr.nivel||'INTERMEDIO').toUpperCase(), sexo:String(pr.sexo||'mujer').toLowerCase(),
-    dias:'3', rotativo:'NO', estructura:PIA_MM, prioridad:['EQUILIBRADO'], implementos:'MÁQUINAS PRIMERO', minutos:'75', grandes:'10', secundarios:'8' }
-  PIA.plan=null
+  const pr=(P&&P.proto)||{}, s=piaSesAct()
+  PIA.c = { alcance:s?'SESIÓN DEL DÍA':'SEMANA', objetivo:PIA_OBJ[0], bloque:'B2',
+    programa:String(pr.programa||'STRONG').toUpperCase(), nivel:String(pr.nivel||'INTERMEDIO').toUpperCase(), sexo:String(pr.sexo||'mujer').toLowerCase(),
+    dias:String(Math.max(2,Math.min(5,plSesSem(piaW()).filter(function(x){ return !x._extra }).length||3))), rotativo:'NO', estructura:PIA_MM, prioridad:['EQUILIBRADO'], implementos:'MÁQUINAS PRIMERO', minutos:'75', grandes:'10', secundarios:'8' }
+  PIA.plan=null; PIA.ciclo=false
   let m=document.getElementById('mPia')
-  if (!m){ m=document.createElement('div'); m.id='mPia'; m.className='mCg'; m.setAttribute('role','dialog'); m.setAttribute('aria-modal','true'); m.setAttribute('aria-label','Planificador IA')
-    m.onclick=function(e){ if(e.target===m) piaCerrar() }
+  if (!m){ m=document.createElement('div'); m.id='mPia'; m.className='mCg mPia'; m.setAttribute('role','dialog'); m.setAttribute('aria-modal','true'); m.setAttribute('aria-label','Planificador IA')
     m.innerHTML='<div class="mCg__c pia"><button class="mCg__x" onclick="piaCerrar()" aria-label="Cerrar">✕</button><div id="piaBody"></div></div>'
     document.body.appendChild(m) }
-  m.style.display='flex'; piaPintar()
+  m.style.display='flex'; document.documentElement.classList.add('piaOn'); piaPintar()
 }
-function piaCerrar(){ piaMic(false); const m=document.getElementById('mPia'); if(m) m.style.display='none' }
-function piaSel(k,v){ if (PIA_MULTI[k]){ const a=PIA.c[k]||[]; const i=a.indexOf(v); if(v==='EQUILIBRADO') PIA.c[k]=['EQUILIBRADO']; else { if(i>=0) a.splice(i,1); else a.push(v); PIA.c[k]=a.filter(function(x){return x!=='EQUILIBRADO'}); if(!PIA.c[k].length) PIA.c[k]=['EQUILIBRADO'] } }
-  else { PIA.c[k]=v; if(k==='dias' && piaSplits(v).indexOf(PIA.c.estructura)<0) PIA.c.estructura=PIA_MM } piaPintarCrit() }
+function piaCerrar(){ piaMic(false); const m=document.getElementById('mPia'); if(m) m.style.display='none'; document.documentElement.classList.remove('piaOn') }
+function piaSel(k,v){
+  if (PIA_MULTI[k]){ const a=PIA.c[k]||[]; const i=a.indexOf(v); if(v==='EQUILIBRADO') PIA.c[k]=['EQUILIBRADO']; else { if(i>=0) a.splice(i,1); else a.push(v); PIA.c[k]=a.filter(function(x){return x!=='EQUILIBRADO'}); if(!PIA.c[k].length) PIA.c[k]=['EQUILIBRADO'] } }
+  else { PIA.c[k]=v; if(k==='dias' && piaSplits(v).indexOf(PIA.c.estructura)<0) PIA.c.estructura=PIA_MM }
+  if (k==='alcance'){ PIA.plan=null; PIA.ciclo=false; const r=document.getElementById('piaRes'); if(r) r.innerHTML=piaVacio(); const g=document.getElementById('piaGo'); if(g) g.textContent=piaGoTxt() }
+  piaPintarCrit() }
+function piaChips(k, ops, tit){ return '<div class="pia__g"><div class="pia__k">'+tit+'</div><div class="pia__o">'+ops.map(function(v){ const on=PIA_MULTI[k]?(PIA.c[k]||[]).indexOf(v)>=0:PIA.c[k]===v
+  return '<button type="button" class="pia__c'+(on?' on':'')+'" aria-pressed="'+on+'" onclick="piaSel(\''+k+'\',\''+String(v).replace(/'/g,"\\'")+'\')">'+(k==='nivel'?v.replace('BASICO','BÁSICO'):String(v).toUpperCase())+'</button>' }).join('')+'</div></div>' }
+function piaBloquesTxt(s){ return (s.bloques||[]).map(function(b){ return b.tag }) }
 function piaPintarCrit(){ const box=document.getElementById('piaCrit'); if(!box) return
-  box.innerHTML=Object.keys(PIA_OPC).map(function(k){ return '<div class="pia__g"><div class="pia__k">'+PIA_TIT[k]+'</div><div class="pia__o">'+
-    (k==='estructura'?piaSplits(PIA.c.dias):PIA_OPC[k]).map(function(v){ const on=PIA_MULTI[k]?(PIA.c[k]||[]).indexOf(v)>=0:PIA.c[k]===v
-      return '<button type="button" class="pia__c'+(on?' on':'')+'" aria-pressed="'+on+'" onclick="piaSel(\''+k+'\',\''+v.replace(/'/g,"\\'")+'\')">'+(k==='nivel'?v.replace('BASICO','BÁSICO'):v.toUpperCase())+'</button>' }).join('')+'</div></div>' }).join('') }
+  const a=piaAlc(), s=piaSesAct()
+  let h=piaChips('alcance', s?PIA_ALC:PIA_ALC.filter(function(x){ return x!=='BLOQUE'&&x!=='SESIÓN DEL DÍA' }), '¿QUÉ QUIERES CAMBIAR?')
+  if (a==='BLOQUE'||a==='SESION'){
+    h+='<div class="pia__ctx"><small>'+(a==='BLOQUE'?'BLOQUE DE ':'SESIÓN DEL DÍA · ')+plEsc(String(s.nombre||'SESIÓN').toUpperCase())+'</small>'+
+      (s.bloques||[]).map(function(b){ const on=a==='BLOQUE'&&PIA.c.bloque===b.tag
+        return '<button type="button" class="pia__cb'+(on?' on':'')+'"'+(a==='BLOQUE'?' onclick="piaSel(\'bloque\',\''+b.tag+'\')"':' tabindex="-1"')+'><b>'+b.tag+' · '+b.sets+' SETS</b><span>'+(b.items||[]).map(function(it){ return plEsc(it.nombre) }).join(' · ')+'</span></button>' }).join('')+'</div>'
+    h+=piaChips('objetivo', PIA_OBJ, a==='BLOQUE'?'OBJETIVO DEL BLOQUE':'OBJETIVO DE LA SESIÓN')
+    h+=piaChips('implementos', PIA_OPC.implementos, PIA_TIT.implementos)
+    if (a==='SESION') h+=piaChips('minutos', PIA_OPC.minutos, PIA_TIT.minutos)
+  } else {
+    ;['programa','nivel','sexo','dias','estructura','rotativo','prioridad','implementos','minutos','grandes','secundarios'].forEach(function(k){
+      h+=piaChips(k, k==='estructura'?piaSplits(PIA.c.dias):PIA_OPC[k], PIA_TIT[k]) })
+  }
+  box.innerHTML=h }
+function piaGoTxt(){ const a=piaAlc(); return a==='BLOQUE'?'GENERAR BLOQUE':a==='SESION'?'GENERAR SESIÓN':a==='CICLO'?'GENERAR NUEVO CICLO':'GENERAR SEMANA' }
+function piaVacio(){ return '<div class="pia__empty"><small>PROPUESTA</small><b>Elige qué cambiar y genera.</b><span>El mastermind arma la propuesta, el evaluador la puntúa y tú decides si la aplicas. Nada se escribe antes de APLICAR.</span></div>' }
 function piaPintar(){
   const b=document.getElementById('piaBody'); if(!b) return
-  const voz=!!(window.SpeechRecognition||window.webkitSpeechRecognition)
-  b.innerHTML='<div class="cgK">PLANIFICADOR · MASTERMIND HYPERTROPHY'+(typeof F!=='undefined'&&F&&typeof nomDe==='function'?' · '+String(nomDe(F.id)).toUpperCase():'')+'</div>'+
-    '<p class="pia__i">Dicta lo que necesita el socio o elige los criterios. El mastermind arma la semana con la biblioteca KOACH, la evalúa y tú decides si la aplicas.</p>'+
-    '<div class="pia__d"><textarea id="piaTxt" rows="4" placeholder="Ej.: Carla hace STRONG, 2 días fijos más un rotativo. Full body con un día prioridad superior y otro inferior, más énfasis en isquios, máquinas como principales, 1 h 15."></textarea>'+
-    (voz?'<button type="button" id="piaMicB" class="pia__mic" onclick="piaMic()" aria-pressed="false">● DICTAR</button>':'<small class="pia__nv">El dictado por voz funciona en Chrome. Aquí puedes escribir.</small>')+'</div>'+
-    '<div id="piaCrit"></div>'+
-    '<div class="pia__f"><button type="button" class="ink" id="piaGo" onclick="piaGenerar()">GENERAR SEMANA</button></div><div id="piaRes"></div>'
+  const voz=!!(window.SpeechRecognition||window.webkitSpeechRecognition), nom=(typeof F!=='undefined'&&F&&typeof nomDe==='function')?String(nomDe(F.id)).toUpperCase():''
+  const pr=(P&&P.proto)||{}
+  b.innerHTML='<header class="pia__hd"><div><small>PLANIFICADOR · MASTERMIND HYPERTROPHY</small><h2><b>'+plEsc(nom||'PLANIFICAR')+'</b><span>'+plEsc([pr.programa,pr.nivel,'SEMANA '+piaW()].filter(Boolean).join(' · '))+'</span></h2></div></header>'+
+    '<div class="pia__grid"><section class="pia__cfg">'+
+      '<div class="pia__d"><textarea id="piaTxt" rows="3" placeholder="Dicta o escribe lo que necesitas. Ej.: cambia el B2 por algo de glúteo en máquinas, mantén el volumen; o: esta semana menos tiempo, 60 minutos."></textarea>'+
+      (voz?'<button type="button" id="piaMicB" class="pia__mic" onclick="piaMic()" aria-pressed="false">● DICTAR</button>':'<small class="pia__nv">EL DICTADO POR VOZ FUNCIONA EN CHROME. AQUÍ PUEDES ESCRIBIR.</small>')+'</div>'+
+      '<div id="piaCrit"></div>'+
+      '<div class="pia__f"><button type="button" class="ink" id="piaGo" onclick="piaGenerar()">'+piaGoTxt()+'</button></div>'+
+    '</section><section class="pia__out" id="piaRes">'+piaVacio()+'</section></div>'
   piaPintarCrit()
 }
 function piaMic(forzar){
@@ -6806,80 +6873,128 @@ function piaMic(forzar){
   PIA.rec=r; PIA.oyendo=true; try{ r.start() }catch(_e){}
   if(btn){ btn.classList.add('on'); btn.textContent='■ DETENER'; btn.setAttribute('aria-pressed','true') }
 }
+// contexto: la semana vigente tal como está en pantalla (para mantener el objetivo y cuidar el volumen semanal)
+function piaContexto(){
+  const w=piaW(), act=plSesSem(w).filter(function(s){ return !s._extra }), s=piaSesAct()
+  return { semana:w, sesion_idx:s?act.indexOf(s):-1, sesiones:act.map(function(x){ return { nombre:String(x.nombre||'SESIÓN').toUpperCase(),
+    bloques:(x.bloques||[]).map(function(b){ return { bloque:b.tag, sets:b.sets, descanso_seg:b.desc, ejercicios:(b.items||[]).map(function(it){ return { nombre:it.nombre, reps:String(it.reps||''), ancla:!!it.ancla } }) } }) } }) }
+}
 async function piaGenerar(){
   if (PIA.run) return; piaMic(false)
   const txt=(document.getElementById('piaTxt').value||'').trim(), res=document.getElementById('piaRes'), go=document.getElementById('piaGo')
-  PIA.run=true; go.disabled=true; go.textContent='ARMANDO LA SEMANA…'; res.innerHTML='<div class="cgNone">El mastermind está planificando (30–60 s)…</div>'
+  PIA.run=true; PIA.ciclo=false; go.disabled=true; go.textContent='ARMANDO…'; res.innerHTML='<div class="pia__empty"><small>MASTERMIND</small><b>Planificando…</b><span>30–60 segundos. Revisa reglas, volumen y sala antes de mostrarte la propuesta.</span></div>'
   try{
     const ses=(await sb.auth.getSession()).data.session; if(!ses) throw new Error('Sesión vencida: vuelve a entrar')
     const crit=Object.assign({}, PIA.c, { nombre:(typeof F!=='undefined'&&F&&typeof nomDe==='function')?nomDe(F.id):null })
+    PIA.alc=piaAlc(); PIA.ctx=piaContexto(); PIA.bl=PIA.c.bloque
     const r=await fetch('/api/planificador-ia',{ method:'POST', headers:{ 'content-type':'application/json', Authorization:'Bearer '+ses.access_token },
-      body:JSON.stringify({ instruccion:txt, criterios:crit, socio_id:(typeof F!=='undefined'&&F)?F.id:null }) })
+      body:JSON.stringify({ instruccion:txt, criterios:crit, socio_id:(typeof F!=='undefined'&&F)?F.id:null, alcance:PIA.alc, contexto:PIA.ctx }) })
     const d=await r.json().catch(function(){ return {} })
     if (!r.ok) throw new Error(d.error||('Error '+r.status))
     PIA.plan=d.plan; PIA.log=d.log_id||null; PIA.fuera=d.fuera||[]; PIA.corr=d.corregidas||0; PIA.excl=d.excluidas||[]; await kevLib(); piaResultado()
-  }catch(e){ res.innerHTML='<div class="cgNone">'+plEsc(e.message||String(e))+'</div>' }
-  finally{ PIA.run=false; go.disabled=false; go.textContent='GENERAR DE NUEVO' }
+  }catch(e){ res.innerHTML='<div class="pia__empty"><small>NO SE PUDO</small><b>'+plEsc(e.message||String(e))+'</b></div>' }
+  finally{ PIA.run=false; go.disabled=false; go.textContent=piaGoTxt().replace('GENERAR','GENERAR DE NUEVO ·').replace('· ','') }
 }
+function piaItems(b){ return (b.ejercicios||[]).map(function(x){ const e=KEV.lib&&KEV.lib[x.id]
+  return { ejId:x.id, nombre:x.nombre, grupo:(e&&e.estimulo)||x.estimulo||'', reps:String(x.reps||''), modo:x.tiempo?'TIME':'REPS', tipoReg:x.tiempo?'TIME':'WEIGHT_REPS', rir:x.rir||null, ancla:!!x.ancla, kg:null } }) }
 // Convierte la propuesta al formato del planificador (para evaluarla y aplicarla)
 function piaSesiones(w){
   return (PIA.plan.sesiones||[]).map(function(s,i){ return { id:'pia'+i, numero:900+i, semana:w, nombre:String(s.nombre||'SESIÓN').toUpperCase(),
-    bloques:(s.bloques||[]).map(function(b){ return { tag:b.bloque, sets:b.sets, desc:b.descanso_seg,
-      items:(b.ejercicios||[]).map(function(x){ const e=KEV.lib&&KEV.lib[x.id]
-        return { ejId:x.id, nombre:x.nombre, grupo:(e&&e.estimulo)||x.estimulo||'', reps:String(x.reps||''), modo:x.tiempo?'TIME':'REPS', tipoReg:x.tiempo?'TIME':'WEIGHT_REPS',
-          rir:x.rir||null, ancla:!!x.ancla, kg:null } }) } }) } })
+    bloques:(s.bloques||[]).map(function(b){ return { tag:b.bloque, sets:b.sets, desc:b.descanso_seg, items:piaItems(b) } }) } })
+}
+// Semana combinada para evaluar: lo vigente con la sesión o el bloque propuesto en su lugar
+function piaSemanaEval(w){
+  if (PIA.alc==='SEMANA'||PIA.alc==='CICLO') return piaSesiones(w)
+  const act=plSesSem(piaW()).filter(function(s){ return !s._extra }), s=piaSesAct(), gen=piaSesiones(w)[0]
+  return act.map(function(x,i){ const c=Object.assign({}, x, { semana:w, id:'ev'+i })
+    if (x!==s || !gen) return c
+    if (PIA.alc==='SESION') return Object.assign({}, gen, { id:'ev'+i })
+    const nb=gen.bloques[0]; c.bloques=(x.bloques||[]).map(function(b){ return b.tag===PIA.bl&&nb ? Object.assign({}, nb, { tag:b.tag }) : b }); return c })
 }
 function piaEvaluar(){
   const w=-1, bk={ s:P.sesiones, p:P.proto }
-  P.sesiones=piaSesiones(w); P.proto=Object.assign({}, bk.p, { programa:PIA.c.programa, nivel:PIA.c.nivel, sexo:PIA.c.sexo })
+  P.sesiones=piaSemanaEval(w); P.proto=Object.assign({}, bk.p, { programa:PIA.c.programa, nivel:PIA.c.nivel, sexo:PIA.c.sexo })
   try{ return kevEvaluar(w) } finally { P.sesiones=bk.s; P.proto=bk.p }
 }
+function piaAplTxt(){ const w=piaW(), s=piaSesAct()
+  return PIA.alc==='BLOQUE' ? ['APLICAR AL '+PIA.bl, 'Reemplaza el '+PIA.bl+' de '+String((s&&s.nombre)||'la sesión').toUpperCase()+'; los otros bloques no se tocan.']
+    : PIA.alc==='SESION' ? ['APLICAR A LA SESIÓN', 'Reemplaza '+String((s&&s.nombre)||'la sesión').toUpperCase()+' de la semana '+w+'.']
+    : PIA.alc==='CICLO' ? ['INICIAR NUEVO CICLO CON ESTA SEMANA', 'Cierra el ciclo actual (el historial se conserva), inicia el siguiente desde la semana 1 y la arma con esta propuesta.']
+    : ['APLICAR A LA SEMANA '+w, 'Reemplaza los bloques de las sesiones de la semana '+w+' (en orden) y crea las que falten.'] }
 function piaResultado(){
   const res=document.getElementById('piaRes'), pl=PIA.plan, ev=piaEvaluar()
   if (PIA.log) sb.from('planificador_ia_log').update({ puntaje:ev.puntaje }).eq('id',PIA.log).then(function(){},function(){})
-  const sem=ev.puntaje>=70?'ok':ev.puntaje>=50?'med':'bad', w=(typeof plTestW==='function')?plTestW():1
+  const sem=ev.puntaje>=70?'ok':ev.puntaje>=50?'med':'bad', ap=piaAplTxt()
   const graves=ev.err.filter(function(x){ return x.cat!=='aviso' })
-  const vol=KEV_MUSC.map(function(mu){ return KEV_NOM[mu]+' '+String(Math.round(ev.vol[mu]*10)/10).replace('.',',') }).join(' · ')
-  res.innerHTML='<div class="ev__h ev__h--'+sem+'"><b>'+ev.puntaje+'</b><span>/100<br>EVALUACIÓN DEL MASTERMIND</span></div>'+
+  const vol=KEV_MUSC.map(function(mu){ return '<span>'+KEV_NOM[mu]+' <b>'+String(Math.round(ev.vol[mu]*10)/10).replace('.',',')+'</b></span>' }).join('')
+  res.innerHTML='<div class="pia__top"><div class="ev__h ev__h--'+sem+'"><b>'+ev.puntaje+'</b><span>/100<br>'+(PIA.alc==='SEMANA'||PIA.alc==='CICLO'?'SEMANA PROPUESTA':'SEMANA CON EL CAMBIO')+'</span></div>'+
+      '<div class="pia__ap"><button type="button" class="ink" id="piaApB" onclick="piaAplicar()">'+ap[0]+'</button><small>'+plEsc(ap[1])+'</small></div></div>'+
     '<p class="ev__n">'+plEsc(pl.resumen||'')+'</p>'+
     ((pl.decisiones||[]).length?'<ul class="pia__dec">'+pl.decisiones.map(function(x){ return '<li>'+plEsc(x)+'</li>' }).join('')+'</ul>':'')+
     (PIA.fuera.length?'<p class="pia__w">No están en la biblioteca y se quitaron: '+plEsc(PIA.fuera.join(', '))+'</p>':'')+
-    (PIA.corr?'<p class="ev__f">El mastermind corrigió '+PIA.corr+' error'+(PIA.corr>1?'es':'')+' de reglas antes de mostrarte la propuesta.</p>':'')+
-    (PIA.excl&&PIA.excl.length?'<details class="ev__d"><summary>'+PIA.excl.length+' MÁQUINAS FUERA (SIN USO REAL O NO DISPONIBLES)</summary><p class="ev__f">'+plEsc(PIA.excl.join(' · '))+'. Si alguna existe, nómbrala en el dictado y la usa.</p></details>':'')+
-    (pl.sesiones||[]).map(function(s){ return '<div class="ev__s">'+plEsc(String(s.nombre||'').toUpperCase())+'</div>'+
-      (s.bloques||[]).map(function(b){ return '<div class="pia__b"><div class="pia__bh">'+b.bloque+' · '+b.sets+' SETS · '+b.descanso_seg+' s</div>'+
-        (b.ejercicios||[]).map(function(x){ return '<div class="pia__e">'+(x.ancla?'◆ ':'')+plEsc(x.nombre)+'<span>'+plEsc(String(x.reps))+(x.tiempo?' s':' reps')+(x.rir?' · RIR '+plEsc(x.rir):'')+'</span></div>' }).join('')+'</div>' }).join('') }).join('')+
-    '<p class="ev__f">VOLUMEN SEMANAL · '+vol+'</p>'+
-    (graves.length?'<details class="ev__d"><summary>'+graves.length+' OBSERVACION'+(graves.length>1?'ES':'')+' DEL EVALUADOR</summary><ul class="ev__l">'+graves.map(function(x){ return '<li class="ev__i ev__i--'+x.cat+'"><b>'+plEsc(x.ses+' · '+x.msg)+'</b><small>'+plEsc(KEV_FIX[x.regla]||'')+'</small></li>' }).join('')+'</ul></details>':'')+
-    '<div class="pia__f"><button type="button" class="ink" onclick="piaAplicar()">APLICAR A LA SEMANA '+w+'</button></div>'+
-    '<p class="ev__f">Reemplaza los bloques de las sesiones de la semana '+w+' (en orden) y crea las que falten. Las semanas siguientes se proyectan igual que cuando publicas un cambio. Revisa y ajusta en el planificador.</p>'
+    (PIA.corr?'<p class="ev__f">EL MASTERMIND CORRIGIÓ '+PIA.corr+' ERROR'+(PIA.corr>1?'ES':'')+' DE REGLAS ANTES DE MOSTRARTE LA PROPUESTA.</p>':'')+
+    '<div class="pia__ses">'+(pl.sesiones||[]).map(function(s){ return '<article class="pia__sc"><div class="ev__s">'+plEsc(String(s.nombre||'').toUpperCase())+'</div>'+
+      (s.bloques||[]).map(function(b){ return '<div class="pia__b"><div class="pia__bh">'+b.bloque+' · '+b.sets+' SETS · '+b.descanso_seg+' S</div>'+
+        (b.ejercicios||[]).map(function(x){ return '<div class="pia__e">'+(x.ancla?'◆ ':'')+plEsc(x.nombre)+'<span>'+plEsc(String(x.reps))+(x.tiempo?' S':' REPS')+(x.rir?' · RIR '+plEsc(x.rir):'')+'</span></div>' }).join('')+'</div>' }).join('')+'</article>' }).join('')+'</div>'+
+    '<div class="pia__vol"><small>VOLUMEN SEMANAL · SERIES</small>'+vol+'</div>'+
+    (graves.length?'<details class="ev__d" open><summary>'+graves.length+' OBSERVACION'+(graves.length>1?'ES':'')+' DEL EVALUADOR</summary><ul class="ev__l">'+graves.map(function(x){ return '<li class="ev__i ev__i--'+x.cat+'"><b>'+plEsc(x.ses+' · '+x.msg)+'</b><small>'+plEsc(KEV_FIX[x.regla]||'')+'</small></li>' }).join('')+'</ul></details>':'<p class="ev__f">SIN OBSERVACIONES DEL EVALUADOR.</p>')+
+    (PIA.excl&&PIA.excl.length?'<details class="ev__d"><summary>'+PIA.excl.length+' EJERCICIOS FUERA (SIN USO REAL, NO DISPONIBLES O CON DOLOR)</summary><p class="ev__f">'+plEsc(PIA.excl.join(' · '))+'. Si alguno corresponde, nómbralo en el dictado y lo usa.</p></details>':'')
 }
+async function piaMarcas(items){   // ancla, RIR y modo (REPS/TIME) se guardan aparte del RPC, agrupados por valor (cada escritura reproyecta)
+  const grupos={}; items.forEach(function(x){ const k=JSON.stringify({ modo_registro:x.modo||null, es_ancla:!!x._ancla, rir_objetivo:x._rir||null }); (grupos[k]=grupos[k]||[]).push(x.id) })
+  for (const k of Object.keys(grupos)){ const q=await sb.from('bloque_ejercicios').update(JSON.parse(k)).in('id',grupos[k]); if(q.error) console.warn('[pia]',q.error.message) } }
+function piaBloquesRpc(g){ return g.bloques.map(function(b){ return { id:plUuid(), etiqueta:null, rol:null, sets:b.sets, desc:b.desc, timer:null,
+  items:b.items.map(function(it){ return { id:plUuid(), ejercicio_id:it.ejId, kg:null, reps:String(it.reps||''), modo:it.modo, _ancla:it.ancla, _rir:it.rir } }) } }) }
+function piaLimpio(bl){ return bl.map(function(b){ return { id:b.id, etiqueta:b.etiqueta||null, rol:b.rol||null, sets:b.sets, desc:b.desc, timer:b.timer||null,
+  items:b.items.map(function(x){ return { id:x.id, ejercicio_id:x.ejercicio_id, kg:x.kg==null?null:x.kg, reps:x.reps, modo:x.modo||null } }) } }) }
+async function piaAplicarSemana(w){
+  const gen=piaSesiones(w)
+  let act=plSesSem(w).filter(function(s){ return !s._extra })
+  for (let i=act.length;i<gen.length;i++){ const rs=await sb.rpc('koach_crear_sesion_vacia',{ p_proto:P.pid, p_semana:w, p_nombre:gen[i].nombre }); if(rs.error) throw rs.error }
+  if (act.length<gen.length){ await abrirPlan(P.pid, P.proto); act=plSesSem(w).filter(function(s){ return !s._extra }) }
+  for (let i=0;i<gen.length && i<act.length;i++){
+    const bl=piaBloquesRpc(gen[i])
+    const r=await sb.rpc('koach_guardar_sesion',{ p_sesion:act[i].id, p_bloques:piaLimpio(bl), p_nombre:gen[i].nombre }); if (r.error) throw r.error
+    await piaMarcas([].concat.apply([], bl.map(function(b){ return b.items }))) }
+  return gen.length }
 async function piaAplicar(){
   if (!PIA.plan || PIA.run) return
-  const w=(typeof plTestW==='function')?plTestW():1, gen=piaSesiones(w)
-  PIA.run=true
+  const w=piaW(), s=piaSesAct()
+  if (typeof plEsDirty==='function' && plEsDirty()){ toast('Hay cambios sin publicar en el planificador: publícalos o descártalos antes de aplicar la propuesta'); return }
+  if (PIA.alc==='CICLO' && !PIA.ciclo){ PIA.ciclo=true; const b=document.getElementById('piaApB'); if(b){ b.textContent='CONFIRMAR · CERRAR CICLO E INICIAR EL SIGUIENTE'; b.classList.add('warn') } return }
+  PIA.run=true; const b=document.getElementById('piaApB'); if(b){ b.disabled=true; b.textContent='APLICANDO…' }
   try{
-    let act=plSesSem(w).filter(function(s){ return !s._extra })
-    for (let i=act.length;i<gen.length;i++){
-      const rs=await sb.rpc('koach_crear_sesion_vacia',{ p_proto:P.pid, p_semana:w, p_nombre:gen[i].nombre }); if(rs.error) throw rs.error }
-    if (act.length<gen.length){ await abrirPlan(P.pid, P.proto); act=plSesSem(w).filter(function(s){ return !s._extra }) }
-    for (let i=0;i<gen.length && i<act.length;i++){
-      const s=act[i], g=gen[i]
-      const bloques=g.bloques.map(function(b){ return { id:plUuid(), etiqueta:null, rol:null, sets:b.sets, desc:b.desc, timer:null,
-        items:b.items.map(function(it){ return { id:plUuid(), ejercicio_id:it.ejId, kg:null, reps:String(it.reps||''), modo:it.modo, _ancla:it.ancla, _rir:it.rir } }) } })
-      const r=await sb.rpc('koach_guardar_sesion',{ p_sesion:s.id, p_bloques:bloques.map(function(b){ return { id:b.id, etiqueta:null, rol:null, sets:b.sets, desc:b.desc, timer:null,
-        items:b.items.map(function(x){ return { id:x.id, ejercicio_id:x.ejercicio_id, kg:null, reps:x.reps, modo:x.modo } }) } }), p_nombre:g.nombre })
+    if (PIA.alc==='SESION' || PIA.alc==='BLOQUE'){
+      if (!s) throw new Error('Abre la sesión del día en el planificador')
+      const g=piaSesiones(w)[0]; if(!g) throw new Error('La propuesta llegó vacía')
+      let bl, nuevos
+      if (PIA.alc==='SESION'){ bl=piaBloquesRpc(g); nuevos=[].concat.apply([], bl.map(function(x){ return x.items })) }
+      else { const nb=piaBloquesRpc({ bloques:[g.bloques[0]] })[0]; if(!nb) throw new Error('La propuesta no trae el bloque')
+        const actual=plPayload(s), ix=(s.bloques||[]).findIndex(function(x){ return x.tag===PIA.bl }); if (ix<0) throw new Error('El '+PIA.bl+' ya no existe en la sesión')
+        nb.id=actual[ix].id; nb.etiqueta=actual[ix].etiqueta; nb.rol=actual[ix].rol; actual[ix]=nb; bl=actual; nuevos=nb.items }
+      const r=await sb.rpc('koach_guardar_sesion',{ p_sesion:s.id, p_bloques:piaLimpio(bl), p_nombre:(PIA.alc==='SESION' && PIA.c.objetivo!==PIA_OBJ[0])?g.nombre:null })
       if (r.error) throw r.error
-      // ancla, RIR y modo (REPS/TIME) se guardan aparte del RPC, como en el guardado normal
-      // agrupado por valor: pocas escrituras (cada escritura reproyecta las semanas siguientes)
-      const items=[].concat.apply([], bloques.map(function(b){ return b.items })), grupos={}
-      items.forEach(function(x){ const k=JSON.stringify({ modo_registro:x.modo||null, es_ancla:!!x._ancla, rir_objetivo:x._rir||null }); (grupos[k]=grupos[k]||[]).push(x.id) })
-      for (const k of Object.keys(grupos)){ const q=await sb.from('bloque_ejercicios').update(JSON.parse(k)).in('id',grupos[k]); if(q.error) console.warn('[pia]',q.error.message) }
-    }
+      await piaMarcas(nuevos)
+      if (PIA.log) sb.from('planificador_ia_log').update({ aplicado:true }).eq('id',PIA.log).then(function(){},function(){})
+      piaCerrar(); await abrirPlan(P.pid, P.proto)
+      toast((PIA.alc==='BLOQUE'?PIA.bl+' reemplazado':'Sesión reemplazada')+' por el mastermind · revisa y ajusta'); return }
+    if (PIA.alc==='CICLO'){
+      const id=F.id, re=await sb.rpc('koach_programa_estado',{ p_socio:id }); if (re.error) throw re.error
+      const rc=await sb.rpc('koach_continuar_ciclo',{ p_socio:id, p_asig_actual:(re.data&&re.data.asig_id)||null, p_semanas:null })
+      if (rc.error) throw rc.error
+      delete SCY[id]; await loadSala()
+      const a=C.asig[id]; if(!a||!a.protocolo_id) throw new Error('No se encontró el ciclo nuevo')
+      const rp=await sb.from('protocolos').select('*').eq('id',a.protocolo_id).single(); if (rp.error) throw rp.error
+      P.dirty={}; await abrirPlan(a.protocolo_id, rp.data)
+      const n=await piaAplicarSemana(1)
+      if (PIA.log) sb.from('planificador_ia_log').update({ aplicado:true }).eq('id',PIA.log).then(function(){},function(){})
+      piaCerrar(); await abrirPlan(P.pid, P.proto)
+      toast('Ciclo '+((rc.data&&rc.data.ciclo)||'nuevo')+' iniciado · semana 1 armada por el mastermind ('+n+' sesiones)'); return }
+    const n=await piaAplicarSemana(w)
     if (PIA.log) sb.from('planificador_ia_log').update({ aplicado:true }).eq('id',PIA.log).then(function(){},function(){})
     piaCerrar(); await abrirPlan(P.pid, P.proto)
-    toast('Semana '+w+' armada por el mastermind · '+gen.length+' sesiones · revisa y ajusta')
-  }catch(e){ toast('No se pudo aplicar: '+(e.message||e)) }
+    toast('Semana '+w+' armada por el mastermind · '+n+' sesiones · revisa y ajusta')
+  }catch(e){ toast('No se pudo aplicar: '+(e.message||e)); if(b){ b.disabled=false; b.textContent=piaAplTxt()[0] } }
   finally{ PIA.run=false }
 }
 async function kevAbrir(){

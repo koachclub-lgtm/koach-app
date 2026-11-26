@@ -133,10 +133,38 @@ ${dos}${combos ? '\n- Combinaciones del PISO 1 que usan los koaches en un mismo 
     .filter(r => r.tipo !== 'ejercicio' || r.valores.some(v => enLib.has(v)))   // si el socio no puede hacerlo (dolor/equipo), no se exige
     .map(r => Object.assign({}, r, { exige: (r.ideal != null && (r.prioridad || []).some(pq => prioTxt.includes(norm(pq)))) ? Number(r.ideal) : Number(r.minimo) }))
   const infTxt = INF.length ? 'INFALTABLES DEL HEAD KOACH (obligatorios; el servidor los verifica):\n' + INF.map(r => '- ' + r.nombre + ': ' + (r.tipo === 'ejercicio' ? r.valores.filter(v => enLib.has(v)).join(' o ') : 'estímulo ' + r.valores.join('/')) + ' · mínimo ' + r.exige + ' ' + r.medida + (r.alcance === 'sesion' ? ' en CADA sesión' : ' por semana') + (r.motivo ? '. ' + r.motivo : '')).join('\n') : ''
+  // c363 · ALCANCE del cambio: BLOQUE · SESION (del día) · SEMANA · CICLO (nuevo ciclo) + semana vigente como contexto
+  const ALC = ['BLOQUE', 'SESION', 'SEMANA', 'CICLO'].includes(String(b.alcance || '').toUpperCase()) ? String(b.alcance).toUpperCase() : 'SEMANA'
+  const ctx = (b.contexto && Array.isArray(b.contexto.sesiones)) ? b.contexto : null
+  const sIdx = ctx ? Number(ctx.sesion_idx) : -1, sObj = ctx && sIdx >= 0 ? ctx.sesiones[sIdx] : null
+  if ((ALC === 'SESION' || ALC === 'BLOQUE') && !sObj) return res.status(400).json({ error: 'Abre la sesión del día en el planificador para cambiar una sesión o un bloque' })
+  const blTag = ['B1', 'B2', 'B3', 'B4'].includes(String(c.bloque || '')) ? c.bloque : 'B2'
+  const objetivo = String(c.objetivo || 'MANTENER OBJETIVO Y VOLUMEN').toUpperCase(), mantener = objetivo.startsWith('MANTENER')
+  const ctxTxt = ctx ? ctx.sesiones.map((x, i) => '  ' + (i === sIdx && ALC !== 'SEMANA' && ALC !== 'CICLO' ? '► ' : '') + x.nombre + ': ' + (x.bloques || []).map(bl => bl.bloque + ' ' + bl.sets + 'x ' + (bl.descanso_seg || '') + 's [' + (bl.ejercicios || []).map(e => (e.ancla ? '◆' : '') + e.nombre + ' ' + (e.reps || '')).join('; ') + ']').join(' · ')).join('\n') : ''
+  let tarea, alcTxt, salidaTxt
+  if (ALC === 'SESION') {
+    tarea = 'Rearma SOLO la sesión del día marcada con ► (devuelve exactamente 1 sesión con B1-B2-B3).'
+    alcTxt = mantener ? 'OBJETIVO: MANTENER el objetivo del día. Mismo tipo de sesión y mismo volumen por músculo que la sesión actual (±2 series por músculo), mismos bloques y anclas salvo que el koach dicte otra cosa; renueva ejercicios con el criterio de los koaches (mismo patrón, otro implemento, del pool preferido).'
+      : 'OBJETIVO: VARIANTE ' + objetivo + '. Cambia el foco de la sesión a ' + objetivo + ' y nómbrala así. Cuida el volumen SEMANAL: el resto de la semana se mantiene (listado abajo), así que los músculos que esta sesión deja de trabajar no deben caer bajo su mínimo ni pasar de ~11 series por sesión. METABÓLICO = circuito de demanda media con cardio de B1 y descansos cortos, dentro del programa.'
+    salidaTxt = '- Devuelve 1 sola sesión.'
+  } else if (ALC === 'BLOQUE') {
+    tarea = 'Rearma SOLO el ' + blTag + ' de la sesión marcada con ► (devuelve 1 sesión con UN solo bloque: ' + blTag + ').'
+    alcTxt = (mantener ? 'OBJETIVO: MANTENER el rol del bloque (' + blTag + ') y su volumen por músculo; cambia los ejercicios con el criterio de los koaches (mismo patrón, otro implemento).' : 'OBJETIVO: VARIANTE ' + objetivo + ' para este bloque, respetando el rol del ' + blTag + ' en el Método (demanda y orden).') +
+      ' Los otros bloques de la sesión no cambian: no repitas sus ejercicios y respeta piso y máquinas del bloque.'
+    salidaTxt = '- Devuelve 1 sesión (mismo nombre) con un solo bloque ' + blTag + '.'
+  } else if (ALC === 'CICLO') {
+    tarea = 'Diseña la SEMANA 1 del NUEVO CICLO del socio (progresión del ciclo actual, listado abajo).'
+    alcTxt = 'NUEVO CICLO: mantén la estructura de días salvo que el koach o los criterios digan otra cosa. Conserva las 4 anclas (rodilla, cadera, empuje, tracción) para que los tests de fuerza sean comparables entre ciclos, o pasa a su variante más exigente si el nivel lo permite. Rota los accesorios como lo hacen los koaches (mismo patrón, otro implemento) y aplica la progresión de dosis observada.'
+    salidaTxt = '- Una sesión por cada día fijo, en el orden de la estructura, más el rotativo si corresponde.'
+  } else {
+    tarea = 'Arma la SEMANA de entrenamiento del socio según el DICTADO del koach y sus CRITERIOS.'
+    alcTxt = ''
+    salidaTxt = '- Una sesión por cada día fijo, en el orden de la estructura, más el rotativo si corresponde.'
+  }
   const catalogo = L.map(e => [((usoM.get(e.id) || 0) >= 150 ? '★ ' : '') + e.nombre, e.estimulo, e.demanda, e.nivel_min, e.patron, e.implemento || '', e.zona || ''].join(' | ')).join('\n')
 
   const prompt = `Eres el MASTERMIND HYPERTROPHY de KOACH Club (Concepción, Chile): el planificador técnico del head koach.
-Arma la SEMANA de entrenamiento del socio según el DICTADO del koach y sus CRITERIOS. El dictado manda sobre los valores por defecto; el Método KOACH manda sobre tus preferencias. Español de Chile, sin emojis.
+${tarea} El dictado manda sobre los valores por defecto; el Método KOACH manda sobre tus preferencias. Español de Chile, sin emojis.
 
 SOCIO: ${c.nombre || '—'} · sexo ${c.sexo || '—'} · nivel ${c.nivel || '—'} · programa ${c.programa || '—'}
 CRITERIOS ELEGIDOS: ${JSON.stringify(c)}
@@ -148,6 +176,9 @@ DICTADO DEL KOACH:
 ${METODO}
 
 ${infTxt}
+
+${alcTxt ? 'ALCANCE DEL CAMBIO (' + ALC + '):\n' + alcTxt : ''}
+${ctxTxt ? 'SEMANA VIGENTE EN EL PLANIFICADOR (► = la que se cambia):\n' + ctxTxt : ''}
 
 ${politica}
 
@@ -168,7 +199,7 @@ LOGÍSTICA DE SALA (obligatorio — los bloques se hacen como circuito, el socio
 - Un mismo ejercicio no se repite dentro de la misma sesión.
 
 REGLAS DE SALIDA:
-- Una sesión por cada día fijo, en el orden de la estructura, más el rotativo si corresponde.
+${salidaTxt}
 - Usa SOLO ejercicios de la BIBLIOTECA, con el nombre EXACTO (sin la ★). Respeta el nivel mínimo y el implemento que pida el koach.
 - Core y movilidad con tiempo=true (segundos). Cardio de BURN con tiempo=true.
 - En "decisiones" explica en frases cortas el volumen semanal logrado por músculo grande y secundario y cualquier regla que no se pudo cumplir por pedido del koach.
@@ -259,15 +290,32 @@ ${catalogo}`
     MUS.forEach(m => { const v = Math.round((semV[m] || 0) * 10) / 10; if (v > 20) E.push(`SEMANA: ${NOMM[m]} con ${v} series/semana (techo útil ~20)`) })
     return E }
 
+  // Para BLOQUE/SESION se revisa la semana completa con el cambio puesto, y se reportan solo los errores que dependen de él
+  const libNom = new Map(lib.d.map(e => [e.nombre, e]))
+  const revisarAlc = plan => {
+    if (ALC === 'SEMANA' || ALC === 'CICLO') return revisar(plan)
+    const g = (plan.sesiones || [])[0]; if (!g) return ['No devolviste ninguna sesión']
+    const semana = ctx.sesiones.map((x, i) => {
+      const base = { nombre: x.nombre, bloques: (x.bloques || []).map(bl => ({ bloque: bl.bloque, sets: bl.sets, ejercicios: (bl.ejercicios || []).map(e => ({ nombre: e.nombre, _e: libNom.get(e.nombre), ancla: e.ancla })).filter(e => e._e) })) }
+      if (i !== sIdx) return base
+      if (ALC === 'SESION') return g
+      const nb = (g.bloques || []).find(bl => bl.bloque === blTag) || (g.bloques || [])[0]
+      return Object.assign(base, { bloques: base.bloques.map(bl => bl.bloque === blTag && nb ? Object.assign({}, nb, { bloque: blTag }) : bl) }) })
+    const nom = ALC === 'SESION' ? g.nombre : sObj.nombre
+    // errores que ya existían en la semana vigente (no dependen del cambio) no se cobran a la propuesta
+    const clave = e => e.replace(/[\d.,]+/g, '#').replace(/^[^:]+:/, '')
+    const previos = new Set(revisar({ sesiones: ctx.sesiones.map(x => ({ nombre: x.nombre, bloques: (x.bloques || []).map(bl => ({ bloque: bl.bloque, sets: bl.sets, ejercicios: (bl.ejercicios || []).map(e => ({ nombre: e.nombre, _e: libNom.get(e.nombre), ancla: e.ancla })).filter(e => e._e) })) })) }).map(clave))
+    return revisar({ sesiones: semana }).filter(e => !previos.has(clave(e))).filter(e => e.startsWith('SEMANA') || (ALC === 'SESION' ? e.startsWith(nom) : (e.startsWith(nom + ' ' + blTag) || e.startsWith(nom + ':'))))
+  }
   let R = await llamar([{ role: 'user', content: prompt }])
   if (R.error) return res.status(R.status).json({ error: R.error, detalle: R.detalle })
-  let fuera = vincular(R.plan), obs = revisar(R.plan), correcciones = 0
+  let fuera = vincular(R.plan), obs = revisarAlc(R.plan), correcciones = 0
   const uso1 = R.usage
   if (obs.length) {
     // Una vuelta de corrección: la IA recibe los errores exactos y devuelve la semana completa corregida
     const R2 = await llamar([{ role: 'user', content: prompt }, { role: 'assistant', content: R.txt },
-      { role: 'user', content: 'La revisión del Método KOACH encontró estos errores. Corrígelos TODOS cambiando lo mínimo y devuelve la semana completa corregida con el mismo formato:\n- ' + obs.join('\n- ') + (fuera.length ? '\n- No existen en la biblioteca disponible: ' + fuera.join(', ') : '') }])
-    if (!R2.error) { const f2 = vincular(R2.plan), o2 = revisar(R2.plan); if (o2.length <= obs.length) { R = R2; fuera = f2; correcciones = obs.length - o2.length; obs = o2 } }
+      { role: 'user', content: 'La revisión del Método KOACH encontró estos errores. Corrígelos cambiando lo mínimo y devuelve la propuesta completa corregida con el mismo alcance y formato (si un error depende de sesiones que no puedes cambiar, compénsalo dentro de lo que sí cambias):\n- ' + obs.join('\n- ') + (fuera.length ? '\n- No existen en la biblioteca disponible: ' + fuera.join(', ') : '') }])
+    if (!R2.error) { const f2 = vincular(R2.plan), o2 = revisarAlc(R2.plan); if (o2.length <= obs.length) { R = R2; fuera = f2; correcciones = obs.length - o2.length; obs = o2 } }
   }
   R.plan.sesiones.forEach(s => (s.bloques || []).forEach(bl => (bl.ejercicios || []).forEach(x => { delete x._e })))
   // c362 · registro de cada propuesta (pruebas y feedback del head koach)
