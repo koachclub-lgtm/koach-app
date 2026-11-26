@@ -6588,7 +6588,8 @@ const KEV_UP = ['LATS','PECS','DELTS','BIS','TRIS'], KEV_LO = ['QUADS','GLUTS','
 const KEV_SYN = { 'HOMBROS':'DELTS','BÍCEPS':'BIS','ISQUIOS':'HAMS','TRÍCEPS':'TRIS','GLÚTEOS':'GLUTS','CUÁDRICEPS':'QUADS','ESPALDA':'LATS','PECHO':'PECS' }
 const KEV_DEM = { ALTA:3, MEDIA:2, BAJA:1 }, KEV_NIV = { BASICO:0, INTERMEDIO:1, AVANZADO:2 }, KEV_NMIN = { BAS:0, INT:1, AVZ:2 }
 // correcciones de biblioteca propuestas por el mastermind (pendientes de aprobación en la base)
-const KEV_CORR = { 'Leg press 45':{ demanda:'MEDIA' }, 'Seated leg curl machine':{ patron_base:'KNEE FLEXION' }, 'Prone leg curl machine':{ patron_base:'KNEE FLEXION' } }
+// c360 · los leg curl en máquina quedaron en la base como KNEE DOMINANT · FLEXIÓN DE RODILLA (aislado de isquio sin cadera)
+const KEV_CORR = { 'Leg press 45':{ demanda:'MEDIA' } }
 const KEV_PROHIB = /BB Back squat|BB chest press|deadlift|burpee|jump|clean|snatch|thruster/i
 const KEV_REST = { STRONG:{B1:[45,90],B2:[120,180],B3:[60,90]}, BURN:{B1:[45,60],B2:[60,90],B3:[45,60]}, HEALTHY:{B1:[60,90],B2:[75,120],B3:[60,90]} }
 const KEV_OBJ = { hombre:['LATS','PECS','QUADS','HAMS'], mujer:['GLUTS','QUADS','HAMS','LATS'] }
@@ -6633,7 +6634,7 @@ const KEV_FIX = {
   DATO:'El ejercicio no está en la biblioteca activa: reemplázalo.'
 }
 async function kevLib(){ if (KEV.lib) return KEV.lib
-  const r=await sb.from('ejercicios').select('id,nombre,estimulo,demanda,nivel_min,patron,patron_base,sinergistas,cuenta_dosis,activo,implemento,zona')
+  const r=await sb.from('ejercicios').select('id,nombre,estimulo,demanda,nivel_min,patron,patron_base,patron_mov,sinergistas,cuenta_dosis,activo,implemento,zona')
   if (r.error) throw r.error
   const m={}; (r.data||[]).forEach(function(e){ m[e.id]=Object.assign({}, e, KEV_CORR[e.nombre]||{}) }); KEV.lib=m
   try{ const ri=await sb.from('reglas_infaltables').select('nombre,programa,tipo,valores,medida,alcance,minimo,motivo').eq('activo',true); KEV.inf=ri.data||[] }catch(_e){ KEV.inf=[] }
@@ -6695,7 +6696,7 @@ function kevEvaluar(w){
           if (est==='PECS') pecs[sn]=1; if (est==='BIS') bis=true; if (est==='TRIS') tris=true
           if (est==='HAMS') hams+=sets; if (est==='GLUTS') glut+=sets }
         const pb=e.patron_base, sets2=b.sets||0
-        if (pb==='HIP DOMINANT'){ hip+=sets2; sHip=true } if (pb==='KNEE DOMINANT') knee+=sets2; if (pb==='PULL') pull+=sets2; if (pb==='PUSH') push+=sets2
+        if (pb==='HIP DOMINANT'){ hip+=sets2; sHip=true } if (pb==='KNEE DOMINANT' && e.patron_mov!=='FLEXIÓN DE RODILLA') knee+=sets2;   // R50 compara cadera con rodilla en EXTENSIÓN; el leg curl (flexión) es cadena posterior if (pb==='PULL') pull+=sets2; if (pb==='PUSH') push+=sets2
         if (LONG.test(e.nombre)) gl=true; if (SHORT.test(e.nombre)) gs=true; if (ABD.test(e.nombre)) ga=true })
     })
     { const ch=secZ.filter(function(z,i){ return i>0&&z!==secZ[i-1] }).length; if (ch>1) E('reglas','PISO',sn,'Cambia de piso '+ch+' veces ('+secZ.join(' → ')+')') }
