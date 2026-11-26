@@ -12944,7 +12944,7 @@ addEventListener('resize', function(){ if(document.documentElement.classList.con
   async function revisar(){ const e=await etag(); if(!e) return
     if(base==null){ base=e; return }
     if(e!==base){ if(sucio()) aviso(); else location.reload() } }
-  setTimeout(revisar,4000)
+  revisar()   // c355 · base al abrir
   document.addEventListener('visibilitychange',function(){ if(document.visibilityState==='visible') revisar() })
   window.addEventListener('pageshow',function(ev){ if(ev.persisted) revisar() })
   setInterval(revisar,5*60*1000)
