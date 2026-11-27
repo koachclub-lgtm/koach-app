@@ -6933,7 +6933,8 @@ async function entrar(opts){
       if (perfil.estado==='clase_prueba') anRevisar()   // c216 · clase de prueba: bienvenida + anamnesis antes de la demo
       else if (welcomeDebeMostrarse()) mostrarWelcome()
       else setTimeout(pedirFoto, 1500) }
-      tycRevisar().then(datosRevisar,datosRevisar).then(_seguir,_seguir) }   // c352 · contrato → confirma tus datos → flujo de siempre
+      if (perfil.estado==='clase_prueba') _seguir()   // c366 · clase de prueba (QR): directo a bienvenida + anamnesis; contrato y datos recién al hacerse socio
+      else tycRevisar().then(datosRevisar,datosRevisar).then(_seguir,_seguir) }   // c352 · contrato → confirma tus datos → flujo de siempre
     const asig = rAsig.data
     if (!asig){ await memP; sinPrograma(perfil.estado==='clase_prueba' ? 'Tu koach está preparando tu <b>clase demo</b>. En unos minutos aparece aquí.' : undefined); return }
     S.asig = asig; S.proto = asig.protocolos
@@ -7519,7 +7520,7 @@ function datosRevisar(){
   return new Promise(function(fin){
     try{
       const p=S.perfil||{}
-      if (p.role!=='socio' || p.datos_confirmados_at || document.getElementById('kDt') || document.querySelector('#vSesion.on')) return fin()
+      if (p.role!=='socio' || p.estado==='clase_prueba' || p.datos_confirmados_at || document.getElementById('kDt') || document.querySelector('#vSesion.on')) return fin()
       const v=function(x){ return anEsc(x==null?'':String(x)) }
       const tel=String(p.telefono||'').replace(/^\+56/,'')
       const bg=document.createElement('div'); bg.id='kDt'; bg.className='kAu kTy kDt'; bg.setAttribute('role','dialog'); bg.setAttribute('aria-modal','true'); bg.setAttribute('aria-label','Confirma tus datos')
@@ -7671,7 +7672,7 @@ function tycLector(st, alLeer, aceptar){
     requestAnimationFrame(medir)
   }).catch(function(){ el.querySelector('#trC').innerHTML='<p class="kTr__load">No se pudo cargar el contrato. Revisa tu conexión y vuelve a intentarlo.</p>' })
 }
-document.addEventListener('visibilitychange',function(){ if (document.visibilityState==='visible' && S && S.perfil && S.perfil.role==='socio' && !(TYC.st&&TYC.st.aceptada)) tycRevisar() })
+document.addEventListener('visibilitychange',function(){ if (document.visibilityState==='visible' && S && S.perfil && S.perfil.role==='socio' && S.perfil.estado!=='clase_prueba' && !(TYC.st&&TYC.st.aceptada)) tycRevisar() })
 
 // ═══ v11.8 · FOTO DE PERFIL EN EL PRIMER ACCESO (opcional) ═══
 // Se pide una vez tras la bienvenida (o al primer acceso si ya la vio). OMITIR la descarta; siempre puede
