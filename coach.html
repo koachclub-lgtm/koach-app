@@ -6901,6 +6901,13 @@ function piaAbrir(){
   m.style.display='flex'; document.documentElement.classList.add('piaOn'); piaPintar()
   if (!KEV.lib) kevLib().then(function(){ if(PIA.vista==='cfg') piaPintarCrit() }, function(){})
 }
+// c366 · desde el ··· de un bloque: abre el planificador directo en "BLOQUE" con ese bloque elegido
+function piaAbrirBloque(tag){ piaAbrir(); if(!PIA.c) return
+  if (!piaSesAct()) return
+  PIA.c.alcance='BLOQUE'; PIA.c.bloque=tag
+  const s=piaSesAct(), b=(s.bloques||[]).find(function(x){ return x.tag===tag })
+  if (b && !(b.items||[]).length) PIA.c.objetivo=PIA_OBJ[0]   // bloque vacío: el rol del bloque en el Método manda
+  piaVista('cfg') }
 function piaCerrar(){ piaMic(false); clearInterval(PIA.tmr); PIA.vista=null; const m=document.getElementById('mPia'); if(m) m.style.display='none'; document.documentElement.classList.remove('piaOn') }
 function piaSel(k,v){
   if (PIA_MULTI[k]){ const a=PIA.c[k]||[]; const i=a.indexOf(v); if(v==='EQUILIBRADO') PIA.c[k]=['EQUILIBRADO']; else { if(i>=0) a.splice(i,1); else a.push(v); PIA.c[k]=a.filter(function(x){return x!=='EQUILIBRADO'}); if(!PIA.c[k].length) PIA.c[k]=['EQUILIBRADO'] } }
@@ -7605,7 +7612,8 @@ function plBqMenu(ev,bi){ ev.stopPropagation(); const prev=document.getElementBy
   const ses=P.sesiones[P.tab], b=ses&&ses.bloques[bi]; if(!b) return
   const cod='B'+(bi+1), B=function(t,fn,st){ return '<button role="menuitem" onclick="plTbMenuCerrar();'+fn+'"'+(st?' style="'+st+'"':'')+'>'+t+'</button>' }
   const m=document.createElement('div'); m.className='tbMenu tbMenu--bq'; m.id='tbMenu'; m.dataset.bi=String(bi); m.setAttribute('role','menu')
-  m.innerHTML=(b.timer
+  const tagIA=b.tag||cod, conIA=(typeof piaOk==='function'&&piaOk()&&!ses._extra&&/^B[1-4]$/.test(tagIA))
+  m.innerHTML=(conIA?B('● ARMAR '+tagIA+' CON IA<small>EL MASTERMIND PROPONE EL BLOQUE; TÚ DECIDES SI LO APLICAS</small>','piaAbrirBloque(\''+tagIA+'\')')+'<hr>':'')+(b.timer
       ? B('⏱ EDITAR TIMER<small>'+plEsc(KTIMER.resumen(b.timer))+'</small>','plTimer('+bi+')')+B('QUITAR TIMER','plBqSinTimer('+bi+')')
       : B('⏱ CONVERTIR A TABATA<small>20″ / 10″ × 8 Y VARIANTES</small>','plTimer('+bi+',\'tabata\')')+B('⏱ CONVERTIR A EMOM<small>CADA MINUTO / CADA 2′ / CADA 30″</small>','plTimer('+bi+',\'emom\')'))+
     '<hr>'+B('REEMPLAZAR POR PREDISEÑADO','plBqReemplazar('+bi+')')+B('GUARDAR COMO PREDISEÑADO','abrirTplSave('+bi+')')+

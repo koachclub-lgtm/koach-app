@@ -149,8 +149,10 @@ ${dos}${combos ? '\n- Combinaciones del PISO 1 que usan los koaches en un mismo 
     salidaTxt = '- Devuelve 1 sola sesión.'
   } else if (ALC === 'BLOQUE') {
     tarea = 'Rearma SOLO el ' + blTag + ' de la sesión marcada con ► (devuelve 1 sesión con UN solo bloque: ' + blTag + ').'
+    const blAct = (sObj.bloques || []).find(x => x.bloque === blTag), vacio = !blAct || !(blAct.ejercicios || []).length
     alcTxt = (mantener ? 'OBJETIVO: MANTENER el rol del bloque (' + blTag + ') y su volumen por músculo; cambia los ejercicios con el criterio de los koaches (mismo patrón, otro implemento).' : 'OBJETIVO: VARIANTE ' + objetivo + ' para este bloque, respetando el rol del ' + blTag + ' en el Método (demanda y orden).') +
-      ' Los otros bloques de la sesión no cambian: no repitas sus ejercicios y respeta piso y máquinas del bloque.'
+      ' Los otros bloques de la sesión no cambian: no repitas sus ejercicios y respeta piso y máquinas del bloque.' +
+      (vacio ? ' El ' + blTag + ' está VACÍO: diséñalo según su rol en el Método (B1 activación con core y movilidad, B2 principal con anclas, B3 finisher de demanda baja) y úsalo para cubrir lo que le falta a la semana (volumen bajo el mínimo, infaltables, frecuencia), sin pasar el tiempo de la sesión.' : '')
     salidaTxt = '- Devuelve 1 sesión (mismo nombre) con un solo bloque ' + blTag + '.'
   } else if (ALC === 'CICLO') {
     tarea = 'Diseña la SEMANA 1 del NUEVO CICLO del socio (progresión del ciclo actual, listado abajo).'
