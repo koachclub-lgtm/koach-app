@@ -7630,8 +7630,8 @@ async function tycMostrar(st){
         '<div class="kAu__k">CONTRATO DE MEMBRESÍA · <b>KOACH CLUB</b></div>'+
         '<div class="kTy__t"><b>Contrato</b><span>2026 – 2027</span></div>'+
         '<div class="kTy__m">ACTUALIZADO AL '+TYC_FECHA+' · VERSIÓN '+ver+'</div>'+
-        '<p class="kTy__p">'+(st.ultima?'Actualizamos los términos y condiciones de tu membresía. ':'Estos son los términos y condiciones de tu membresía. ')+'El contrato incluye:</p>'+
-        '<ul class="kTy__ck">'+TYC_INCL.map(function(x){ return '<li>'+TYC_CK+'<span>'+x+'</span></li>' }).join('')+'</ul>'+
+        '<p class="kTy__p">'+(st.promo?'Tu membresía promocional tiene condiciones propias: pago total al inicio, salida antes del plazo y pausa de 2 semanas al año. ':st.ultima?'Actualizamos los términos y condiciones de tu membresía. ':'Estos son los términos y condiciones de tu membresía. ')+'El contrato incluye:</p>'+
+        '<ul class="kTy__ck">'+(st.promo?['Condiciones de tu membresía promocional']:[]).concat(TYC_INCL).map(function(x){ return '<li>'+TYC_CK+'<span>'+x+'</span></li>' }).join('')+'</ul>'+
       '</div>'+
       '<div class="kAu__pie"><div class="kTy__err" id="tyErr" role="status"></div>'+
         '<button type="button" class="kAu__go" id="tyLeer">LEER CONTRATO →</button>'+
@@ -7660,15 +7660,19 @@ function tycLector(st, alLeer, aceptar){
     const max=sc.scrollHeight-sc.clientHeight, pct=max<=0?100:Math.min(100,Math.round(100*sc.scrollTop/max))
     el.querySelector('#trBar').style.width=pct+'%'; el.querySelector('#trPct').textContent=pct+'%'
     if (!leido && pct>=98 && el.querySelector('.kTr__c h2')){ leido=true; go.disabled=false; go.classList.add('on'); go.textContent='ACEPTO Y CONTINUAR'
-      el.querySelector('#trDec').innerHTML='Declaro haber leído el contrato y acepto los <b>Términos y Condiciones de mi plan</b>, incluidas las autorizaciones que en él se indican.'; try{ alLeer() }catch(_){} } }
+      el.querySelector('#trDec').innerHTML='Declaro haber leído el contrato y acepto los <b>Términos y Condiciones de mi plan</b>'+(st.promo?' y las <b>Condiciones de Membresía Promocional</b>':'')+', incluidas las autorizaciones que en él se indican.'; try{ alLeer() }catch(_){} } }
   sc.addEventListener('scroll',medir,{passive:true})
   el.querySelector('#trX').onclick=function(){ el.remove() }
   go.onclick=function(){ if (!go.disabled) aceptar(go, el.querySelector('#trErr')) }
   el.querySelector('#trC').addEventListener('click',function(e){ const a=e.target.closest('a[href^="#"]'); if(!a) return; e.preventDefault(); const t=el.querySelector('[id="'+a.getAttribute('href').slice(1)+'"]'); if(t) sc.scrollTo({ top:t.offsetTop-12, behavior:'smooth' }) })
-  fetch('/terminos.html',{ cache:'no-cache' }).then(function(r){ return r.text() }).then(function(h){
-    const d=new DOMParser().parseFromString(h,'text/html'), card=d.querySelector('.card'), leg=d.querySelector('.leg')
+  // c347 · membresía promocional: primero sus Condiciones (P1–P7) y luego los Términos y Condiciones
+  const trae=function(u){ return fetch(u,{ cache:'no-cache' }).then(function(r){ if(!r.ok) throw new Error('http'); return r.text() }) }
+  Promise.all([trae('/terminos.html'), st.promo?trae('/condiciones-promocion.html'):Promise.resolve('')]).then(function(hs){
+    const P=function(h){ return new DOMParser().parseFromString(h,'text/html') }, d=P(hs[0]), card=d.querySelector('.card'), leg=d.querySelector('.leg')
     if (!card) throw new Error('sin contenido')
-    el.querySelector('#trC').innerHTML=card.innerHTML+(leg?'<div class="leg">'+leg.innerHTML+'</div>':'')
+    let pro=''; if (hs[1]){ const c2=P(hs[1]).querySelector('.card'); if (!c2) throw new Error('sin anexo'); pro='<h2>Condiciones de membresía promocional · '+String(st.promo).toUpperCase()+'</h2>'+c2.innerHTML+'<h2>Términos y Condiciones de la membresía</h2>' }
+    el.querySelector('#trC').innerHTML=pro+card.innerHTML+(leg?'<div class="leg">'+leg.innerHTML+'</div>':'')
+    el.querySelectorAll('#trC a[href^="/"]').forEach(function(x){ x.target='_blank'; x.rel='noopener' })
     requestAnimationFrame(medir)
   }).catch(function(){ el.querySelector('#trC').innerHTML='<p class="kTr__load">No se pudo cargar el contrato. Revisa tu conexión y vuelve a intentarlo.</p>' })
 }
